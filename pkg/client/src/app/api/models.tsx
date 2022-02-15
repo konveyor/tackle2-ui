@@ -139,6 +139,12 @@ export interface Identity {
   description?: string;
   kind: string;
   createUser: string;
+  encrypted?: string;
+  key?: string;
+  password?: string;
+  user?: string;
+  updateUser?: string;
+  settings?: string;
 }
 
 // Pathfinder
@@ -277,12 +283,6 @@ export interface ApplicationImportSummaryPage {
 export interface ApplicationImportPage {
   _embedded: {
     "application-import": ApplicationImport[];
-  };
-  total_count: number;
-}
-export interface IdentityPage {
-  _embedded: {
-    identity: Identity[];
   };
   total_count: number;
 }
