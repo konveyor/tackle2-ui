@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { deleteIdentity, getIdentities } from "@app/api/rest";
 import {
   Button,
-  Checkbox,
+  ButtonVariant,
+  Modal,
   PageSection,
   PageSectionVariants,
   Pagination,
@@ -19,7 +21,9 @@ import {
   Table,
   TableBody,
   TableHeader,
+  TableText,
 } from "@patternfly/react-table";
+import { PencilAltIcon } from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import {
@@ -27,15 +31,75 @@ import {
   FilterType,
   FilterCategory,
 } from "@app/shared/components/FilterToolbar";
-import { NoDataEmptyState } from "@app/shared/components";
+import {
+  AppTableActionButtons,
+  NoDataEmptyState,
+} from "@app/shared/components";
 import { Identity } from "@app/api/models";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
+import { useFetch } from "@app/shared/hooks/useFetch";
+import { useEntityModal } from "@app/shared/hooks/useEntityModal";
+import { IdentityForm } from "./components/identity-form";
+import { AxiosResponse } from "axios";
+import { useDispatch } from "react-redux";
+import { alertActions } from "@app/store/alert";
+import { useDelete } from "@app/shared/hooks";
+import { confirmDialogActions } from "@app/store/confirmDialog";
+import { NewIdentityModal } from "./components/new-identity-modal";
+import { UpdateIdentityModal } from "./components/update-identity-modal";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+
+const ENTITY_FIELD = "entity";
 
 export const Identities: React.FunctionComponent = () => {
   const { t } = useTranslation();
 
+  // Redux
+  const dispatch = useDispatch();
+
+  const [rowToUpdate, setRowToUpdate] = useState<Identity>();
+
+  // Create and update modal
+  const {
+    isOpen: isIdentityModalOpen,
+    data: identityToUpdate,
+    create: openCreateIdentityModal,
+    update: openUpdateIdentityModal,
+    close: closeIdentityModal,
+  } = useEntityModal<Identity>();
+
+  const fetchIdentities = useCallback(() => {
+    return getIdentities();
+  }, []);
+
+  const {
+    data: page,
+    isFetching,
+    fetchError,
+    requestFetch: refreshTable,
+  } = useFetch<Array<any>>({
+    defaultIsFetching: true,
+    onFetch: fetchIdentities,
+  });
+
+  const identities = useMemo(() => {
+    return page !== undefined ? page : undefined;
+  }, [page]);
+
+  const { requestDelete: requestDeleteIdentity } = useDelete<Identity>({
+    onDelete: (t: Identity) => deleteIdentity(t.id!),
+  });
+  interface ITypeOptions {
+    key: string;
+    value: string;
+  }
+
+  const typeOptions: Array<ITypeOptions> = [
+    { key: "scm", value: "Source Control" },
+    { key: "mvn", value: "Maven Settings File" },
+  ];
   const filterCategories: FilterCategory<Identity>[] = [
     {
       key: "name",
@@ -51,25 +115,30 @@ export const Identities: React.FunctionComponent = () => {
       title: "Type",
       type: FilterType.select,
       placeholderText: "Filter by type...",
-      selectOptions: [
-        { key: "scm", value: "Source Control" },
-        { key: "mvn", value: "Maven Settings File" },
-      ],
+      selectOptions: typeOptions,
       getItemValue: (item) => {
         return item.kind ? "Warm" : "Cold";
       },
     },
+    {
+      key: "createUser",
+      title: "Created By",
+      type: FilterType.search,
+      placeholderText: "Filter by created by...",
+      getItemValue: (item) => {
+        return item.createUser;
+      },
+    },
   ];
-  const identities: Identity[] = [];
 
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
-    identities,
+    identities || [],
     filterCategories
   );
   const getSortValues = (identity: Identity) => [
-    "", // Expand/collapse column
     identity.name,
     identity.kind,
+    identity.createUser,
     "", // Action column
   ];
 
@@ -80,24 +149,121 @@ export const Identities: React.FunctionComponent = () => {
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState(sortedItems, 10);
 
+  useEffect(() => {
+    refreshTable();
+  }, [refreshTable]);
+
   const columns: ICell[] = [
     {
-      title: t("terms.name"),
+      title: "Name",
       transforms: [sortable, cellWidth(20)],
       cellFormatters: [expandable],
     },
-    { title: t("terms.description"), transforms: [cellWidth(25)] },
-    { title: t("terms.type"), transforms: [sortable, cellWidth(20)] },
-    { title: t("terms.createdBy"), transforms: [sortable, cellWidth(10)] },
+    { title: "Description", transforms: [cellWidth(25)] },
+    { title: "Type", transforms: [sortable, cellWidth(20)] },
+    { title: "Created by", transforms: [sortable, cellWidth(10)] },
     {
       title: "",
       props: {
-        className: "pf-c-table__inline-edit-action",
+        className: "pf-u-text-align-right",
       },
     },
   ];
 
+  const handleOnCancelUpdateIdentity = () => {
+    setRowToUpdate(undefined);
+  };
+
+  const editRow = (row: Identity) => {
+    setRowToUpdate(row);
+  };
+
+  const deleteRow = (row: Identity) => {
+    dispatch(
+      confirmDialogActions.openDialog({
+        title: "Delete identity",
+        titleIconVariant: "warning",
+        message: t("dialog.message.delete"),
+        confirmBtnVariant: ButtonVariant.danger,
+        confirmBtnLabel: t("actions.delete"),
+        cancelBtnLabel: t("actions.cancel"),
+        onConfirm: () => {
+          dispatch(confirmDialogActions.processing());
+          requestDeleteIdentity(
+            row,
+            () => {
+              dispatch(confirmDialogActions.closeDialog());
+              refreshTable();
+            },
+            (error) => {
+              dispatch(confirmDialogActions.closeDialog());
+              dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+            }
+          );
+        },
+      })
+    );
+  };
+
+  const handleOnIdentityCreated = (response: AxiosResponse<Identity>) => {
+    if (!identityToUpdate) {
+      dispatch(
+        alertActions.addSuccess(
+          t("toastr.success.added", {
+            what: response.data.name,
+            type: t("terms.identity").toLowerCase(),
+          })
+        )
+      );
+    }
+
+    closeIdentityModal();
+    refreshTable();
+  };
+
+  const handleOnIdentityUpdated = () => {
+    setRowToUpdate(undefined);
+    refreshTable();
+  };
+
   const rows: IRow[] = [];
+  currentPageItems?.forEach((item: Identity) => {
+    const typeFormattedString = typeOptions.find(
+      (type) => type.key === item.kind
+    );
+    rows.push({
+      [ENTITY_FIELD]: item,
+      cells: [
+        {
+          title: <TableText wrapModifier="truncate">{item.name}</TableText>,
+        },
+        {
+          title: (
+            <TableText wrapModifier="truncate">{item.description}</TableText>
+          ),
+        },
+        {
+          title: (
+            <TableText wrapModifier="truncate">
+              {typeFormattedString?.value}
+            </TableText>
+          ),
+        },
+        {
+          title: <TableText wrapModifier="truncate">John Doe</TableText>,
+        },
+        {
+          title: (
+            <AppTableActionButtons
+              onEdit={() => editRow(item)}
+              onDelete={() => deleteRow(item)}
+            />
+          ),
+        },
+      ],
+    });
+  });
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -115,7 +281,7 @@ export const Identities: React.FunctionComponent = () => {
               <ToolbarItem>
                 <Button
                   isSmall
-                  // onClick={() => history.push("/credentials/create")}
+                  onClick={openCreateIdentityModal}
                   variant="primary"
                   id="create-credential-button"
                 >
@@ -132,11 +298,20 @@ export const Identities: React.FunctionComponent = () => {
             />
           }
         />
+        <NewIdentityModal
+          isOpen={isIdentityModalOpen}
+          onSaved={handleOnIdentityCreated}
+          onCancel={closeIdentityModal}
+        />
+        <UpdateIdentityModal
+          identity={rowToUpdate}
+          onSaved={handleOnIdentityUpdated}
+          onCancel={handleOnCancelUpdateIdentity}
+        />
 
-        {identities.length > 0 ? (
+        {identities && identities?.length > 0 ? (
           <Table
             aria-label="Credentials table"
-            // className="credential-table"
             cells={columns}
             rows={rows}
             sortBy={sortBy}
@@ -148,11 +323,11 @@ export const Identities: React.FunctionComponent = () => {
         ) : (
           <NoDataEmptyState
             title={t("composed.noDataStateTitle", {
-              what: t("terms.credentials").toLowerCase(),
+              what: "credentials",
             })}
             description={
               t("composed.noDataStateBody", {
-                what: t("terms.credential").toLowerCase(),
+                what: "credential",
               }) + "."
             }
           />

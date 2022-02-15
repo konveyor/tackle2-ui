@@ -11,7 +11,6 @@ import {
   BusinessService,
   BusinessServicePage,
   Identity,
-  IdentityPage,
   JobFunction,
   JobFunctionPage,
   PageRepresentation,
@@ -159,16 +158,12 @@ export const applicationImportPageMapper = (
   data: page._embedded["application-import"],
 });
 
-//
-
 export const IdentityPageMapper = (
-  page: IdentityPage
+  page: Array<any>
 ): PageRepresentation<Identity> => ({
-  meta: { count: page.total_count },
-  data: page._embedded["identity"],
+  meta: { count: 0 },
+  data: page,
 });
-
-//
 
 export const fetchAllPages = <T, P>(
   fetchPage: (page: number) => AxiosPromise<P>,

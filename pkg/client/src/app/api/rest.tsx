@@ -29,11 +29,12 @@ import {
   ApplicationImportSummary,
   BulkCopyAssessment,
   BulkCopyReview,
-  IdentityPage,
+  Identity,
 } from "./models";
 
 export const CONTROLS_BASE_URL = "controls";
 export const APP_INVENTORY_BASE_URL = "application-inventory";
+
 export const PATHFINDER_BASE_URL = "pathfinder";
 
 export const BUSINESS_SERVICES = CONTROLS_BASE_URL + "/business-service";
@@ -749,4 +750,24 @@ export const getBulkCopyAssessment = (
   id: number
 ): AxiosPromise<BulkCopyAssessment> => {
   return APIClient.get<BulkCopyAssessment>(`${ASSESSMENTS}/bulk/${id}`);
+};
+
+const identityHeaders = { Accept: "application/json" };
+
+export const getIdentities = (): AxiosPromise<Array<any>> => {
+  return APIClient.get(`${IDENTITIES}`, {
+    identityHeaders,
+  });
+};
+
+export const createIdentity = (obj: Identity): AxiosPromise<Identity> => {
+  return APIClient.post(`${IDENTITIES}`, obj);
+};
+
+export const updateIdentity = (obj: Identity): AxiosPromise<Identity> => {
+  return APIClient.put(`${IDENTITIES}/${obj.id}`, obj);
+};
+
+export const deleteIdentity = (id: number): AxiosPromise => {
+  return APIClient.delete(`${IDENTITIES}/${id}`);
 };
