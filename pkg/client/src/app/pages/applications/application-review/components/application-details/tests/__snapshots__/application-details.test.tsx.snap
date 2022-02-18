@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppTable Renders without crashing 1`] = `
+<DescriptionList>
+  <DescriptionListGroup>
+    <DescriptionListTerm>
+      terms.applicationName
+    </DescriptionListTerm>
+    <DescriptionListDescription>
+      myApp
+    </DescriptionListDescription>
+  </DescriptionListGroup>
+  <DescriptionListGroup>
+    <DescriptionListTerm>
+      terms.description
+    </DescriptionListTerm>
+    <DescriptionListDescription>
+      myDescription
+    </DescriptionListDescription>
+  </DescriptionListGroup>
+  <DescriptionListGroup>
+    <DescriptionListTerm>
+      terms.assessmentNotes
+    </DescriptionListTerm>
+    <DescriptionListDescription>
+      <List>
+        <ListItem
+          key="0"
+        >
+          title1
+          : 
+          comments1
+        </ListItem>
+        <ListItem
+          key="1"
+        >
+          title2
+          : 
+          comments2
+        </ListItem>
+        <ListItem
+          key="2"
+        >
+          title3
+          : 
+          comments3
+        </ListItem>
+      </List>
+    </DescriptionListDescription>
+  </DescriptionListGroup>
+</DescriptionList>
+`;

@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HorizontalNav Renders without crashing 1`] = `
+<div
+  className="pf-c-tabs"
+>
+  <ul
+    className="pf-c-tabs__list"
+  >
+    <NavLink
+      activeClassName="pf-m-current"
+      className="pf-c-tabs__item"
+      key="0"
+      to="/first"
+    >
+      <li
+        className="pf-c-tabs__item"
+        key="0"
+      >
+        <button
+          className="pf-c-tabs__link"
+        >
+          <span
+            className="pf-c-tabs__item-text"
+          >
+            first
+          </span>
+        </button>
+      </li>
+    </NavLink>
+    <NavLink
+      activeClassName="pf-m-current"
+      className="pf-c-tabs__item"
+      key="1"
+      to="/second"
+    >
+      <li
+        className="pf-c-tabs__item"
+        key="1"
+      >
+        <button
+          className="pf-c-tabs__link"
+        >
+          <span
+            className="pf-c-tabs__item-text"
+          >
+            second
+          </span>
+        </button>
+      </li>
+    </NavLink>
+    <NavLink
+      activeClassName="pf-m-current"
+      className="pf-c-tabs__item"
+      key="2"
+      to="/thrid"
+    >
+      <li
+        className="pf-c-tabs__item"
+        key="2"
+      >
+        <button
+          className="pf-c-tabs__link"
+        >
+          <span
+            className="pf-c-tabs__item-text"
+          >
+            thrid
+          </span>
+        </button>
+      </li>
+    </NavLink>
+  </ul>
+</div>
+`;

@@ -1,0 +1,377 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppTable Renders without crashing 1`] = `
+<Table
+  aria-label="main-table"
+  borders={true}
+  canSelectAll={true}
+  canSortFavorites={true}
+  cells={
+    Array [
+      Object {
+        "title": "Col1",
+        "transforms": Array [
+          [Function],
+        ],
+      },
+      Object {
+        "title": "Col2",
+      },
+      Object {
+        "title": "Col3",
+      },
+    ]
+  }
+  className=""
+  contentId="expanded-content"
+  dropdownDirection="down"
+  dropdownPosition="right"
+  expandId="expandable-toggle"
+  gridBreakPoint="grid-md"
+  isNested={false}
+  isStickyHeader={false}
+  isTreeTable={false}
+  ouiaSafe={true}
+  role="grid"
+  rowLabeledBy="simple-node"
+  rows={
+    Array [
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              0,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              0,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              0,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              1,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              1,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              1,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              2,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              2,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              2,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              3,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              3,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              3,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              4,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              4,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              4,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              5,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              5,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              5,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              6,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              6,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              6,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              7,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              7,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              7,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              8,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              8,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              8,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              9,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              9,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              9,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              10,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              10,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              10,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              11,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              11,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              11,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              12,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              12,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              12,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              13,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              13,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              13,2
+            </Label>,
+          },
+        ],
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Label>
+              $
+              14,0
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              14,1
+            </Label>,
+          },
+          Object {
+            "title": <Label>
+              $
+              14,2
+            </Label>,
+          },
+        ],
+      },
+    ]
+  }
+  selectVariant="checkbox"
+  variant={null}
+>
+  <TableHeader />
+  <TableBody />
+</Table>
+`;

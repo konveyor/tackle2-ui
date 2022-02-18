@@ -1,0 +1,1 @@
+export { useMultipleFetch } from "./useMultipleFetch";

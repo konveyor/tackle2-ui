@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`StateNoResults Renders without crashing 1`] = `
+<EmptyState
+  variant="small"
+>
+  <EmptyStateIcon />
+  <Title
+    headingLevel="h2"
+    size="lg"
+  >
+    message.noResultsFoundTitle
+  </Title>
+  <EmptyStateBody>
+    message.noResultsFoundBody
+  </EmptyStateBody>
+</EmptyState>
+`;

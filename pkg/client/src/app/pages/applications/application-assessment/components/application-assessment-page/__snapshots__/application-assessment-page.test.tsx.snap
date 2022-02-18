@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ApplicationAssessmentPage Renders without crashing 1`] = `
+<Fragment>
+  <PageSection
+    variant="light"
+  >
+    <Component
+      assessment={
+        Object {
+          "applicationId": 1,
+          "questionnaire": Object {
+            "categories": Array [],
+          },
+          "status": "STARTED",
+        }
+      }
+    />
+  </PageSection>
+  <PageSection
+    type="wizard"
+    variant="light"
+  >
+    Body of page
+  </PageSection>
+</Fragment>
+`;
