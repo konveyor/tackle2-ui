@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SimpleEmptyState Renders with description 1`] = `
+<EmptyState
+  variant="small"
+>
+  <Title
+    headingLevel="h2"
+    size="lg"
+  >
+    my title
+  </Title>
+  <EmptyStateBody>
+    my description
+  </EmptyStateBody>
+</EmptyState>
+`;
+
+exports[`SimpleEmptyState Renders with icon 1`] = `
+<EmptyState
+  variant="small"
+>
+  <Title
+    headingLevel="h2"
+    size="lg"
+  >
+    my title
+  </Title>
+</EmptyState>
+`;
+
+exports[`SimpleEmptyState Renders with primaryAction 1`] = `
+<EmptyState
+  variant="small"
+>
+  <Title
+    headingLevel="h2"
+    size="lg"
+  >
+    my title
+  </Title>
+  <EmptyStateBody>
+    my description
+  </EmptyStateBody>
+  <button>
+    My action
+  </button>
+</EmptyState>
+`;
+
+exports[`SimpleEmptyState Renders without crashing 1`] = `
+<EmptyState
+  variant="small"
+>
+  <Title
+    headingLevel="h2"
+    size="lg"
+  >
+    my title
+  </Title>
+</EmptyState>
+`;

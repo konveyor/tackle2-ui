@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`QuestionHeader Renders without crashing 1`] = `
+<StackItem
+  className="pf-u-pb-sm"
+>
+  content
+</StackItem>
+`;

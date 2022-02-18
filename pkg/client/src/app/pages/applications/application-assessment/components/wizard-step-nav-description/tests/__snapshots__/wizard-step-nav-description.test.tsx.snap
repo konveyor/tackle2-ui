@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WizardStepNavDescription Renders without crashing 1`] = `
+<TextContent>
+  <Text
+    component="small"
+  >
+    composed.Nquestions
+  </Text>
+</TextContent>
+`;

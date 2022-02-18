@@ -1,0 +1,86 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppTable Renders without crashing 1`] = `
+<div
+  style={
+    Object {
+      "height": "250px",
+      "width": "380px",
+    }
+  }
+>
+  <ChartDonut
+    ariaDesc="risk-donut-chart"
+    colorScale={
+      Array [
+        "#68b240",
+        "#f0ab0b",
+        "#cb440d",
+        "#b8bbbe",
+      ]
+    }
+    constrainToVisibleArea={true}
+    data={
+      Array [
+        Object {
+          "x": "risks.low",
+          "y": 1,
+        },
+        Object {
+          "x": "risks.medium",
+          "y": 1,
+        },
+        Object {
+          "x": "risks.high",
+          "y": 1,
+        },
+        Object {
+          "x": "risks.unknown",
+          "y": 2,
+        },
+      ]
+    }
+    innerRadius={50}
+    labels={[Function]}
+    legendComponent={
+      <ChartLegend
+        colorScale={
+          Array [
+            "#68b240",
+            "#f0ab0b",
+            "#cb440d",
+            "#b8bbbe",
+          ]
+        }
+        data={
+          Array [
+            Object {
+              "name": "risks.low: 1",
+            },
+            Object {
+              "name": "risks.medium: 1",
+            },
+            Object {
+              "name": "risks.high: 1",
+            },
+            Object {
+              "name": "risks.unknown: 2",
+            },
+          ]
+        }
+      />
+    }
+    legendOrientation="vertical"
+    legendPosition="right"
+    padding={
+      Object {
+        "bottom": 20,
+        "left": 20,
+        "right": 140,
+        "top": 20,
+      }
+    }
+    width={380}
+  />
+</div>
+`;

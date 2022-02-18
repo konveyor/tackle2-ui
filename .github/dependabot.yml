@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    allow:
+      - dependency-name: "@patternfly/*"
+        dependency-type: "direct"
+      - dependency-name: "@cypress/*"
+        dependency-type: "direct"
+      - dependency-name: "cypress*"
+        dependency-type: "direct"

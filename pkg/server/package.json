@@ -1,0 +1,13 @@
+{
+  "name": "tackle2-ui-server",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "private": true,
+  "dependencies": {
+    "express": "^4.17.2",
+    "http-proxy-middleware": "^2.0.2"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}

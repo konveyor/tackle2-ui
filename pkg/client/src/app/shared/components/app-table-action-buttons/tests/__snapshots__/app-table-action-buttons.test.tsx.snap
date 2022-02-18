@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppTableActionButtons Renders without crashing 1`] = `
+<Flex>
+  <FlexItem
+    align={
+      Object {
+        "default": "alignRight",
+      }
+    }
+  >
+    <Button
+      aria-label="edit"
+      onClick={[MockFunction]}
+      variant="secondary"
+    >
+      actions.edit
+    </Button>
+  </FlexItem>
+  <FlexItem>
+    <Button
+      aria-label="delete"
+      onClick={[MockFunction]}
+      variant="link"
+    >
+      actions.delete
+    </Button>
+  </FlexItem>
+</Flex>
+`;

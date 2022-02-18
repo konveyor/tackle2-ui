@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test snapshot 1`] = `
+<PageHeader
+  headerTools={
+    <PageHeaderTools>
+      <PageHeaderToolsGroup
+        visibility={
+          Object {
+            "2xl": "visible",
+            "default": "hidden",
+            "lg": "visible",
+            "md": "hidden",
+            "sm": "hidden",
+            "xl": "visible",
+          }
+        }
+      >
+        <PageHeaderToolsItem>
+          <Unknown>
+            [Function]
+          </Unknown>
+        </PageHeaderToolsItem>
+      </PageHeaderToolsGroup>
+      <PageHeaderToolsGroup>
+        <PageHeaderToolsItem
+          visibility={
+            Object {
+              "lg": "hidden",
+            }
+          }
+        >
+          <Unknown />
+        </PageHeaderToolsItem>
+        <Unknown />
+      </PageHeaderToolsGroup>
+      <Avatar
+        alt="Avatar image"
+        src="test-file-stub"
+      />
+    </PageHeaderTools>
+  }
+  logo={
+    <Brand
+      alt="brand"
+      src="test-file-stub"
+    />
+  }
+  showNavToggle={true}
+/>
+`;

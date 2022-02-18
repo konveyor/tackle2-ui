@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ToolbarSearchFilter Renders without crashing 1`] = `
+<InputGroup>
+  <Component
+    label="Filter 1"
+    onSelect={[Function]}
+    options={
+      Array [
+        Object {
+          "key": "filter1",
+          "name": "Filter 1",
+        },
+        Object {
+          "key": "filter2",
+          "name": "Filter 2",
+        },
+        Object {
+          "key": "filter3",
+          "name": "Filter 3",
+        },
+      ]
+    }
+  />
+  <input
+    cy-data="filter1"
+  />
+</InputGroup>
+`;
+
+exports[`ToolbarSearchFilter Renders without crashing when no filter is provided 1`] = `
+<InputGroup>
+  <Component
+    onSelect={[Function]}
+    options={Array []}
+  />
+</InputGroup>
+`;

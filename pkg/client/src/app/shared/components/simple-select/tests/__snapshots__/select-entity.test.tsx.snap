@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SimpleSelect Renders without crashing 1`] = `
+<Select
+  aria-describedby=""
+  aria-invalid={false}
+  aria-label="my-selection"
+  aria-labelledby=""
+  chipGroupComponent={null}
+  className=""
+  clearSelectionsAriaLabel="Clear all"
+  createText="Create"
+  customBadgeText={null}
+  customContent={null}
+  direction="down"
+  favorites={Array []}
+  favoritesLabel="Favorites"
+  hasInlineFilter={false}
+  inlineFilterPlaceholderText={null}
+  inputIdPrefix=""
+  isCreatable={false}
+  isDisabled={false}
+  isGrouped={false}
+  isInputValuePersisted={false}
+  isOpen={false}
+  isPlain={false}
+  menuAppendTo="inline"
+  noResultsFoundText="No results found"
+  onClear={[Function]}
+  onCreateOption={[Function]}
+  onFilter={null}
+  onSelect={[Function]}
+  onToggle={[Function]}
+  onTypeaheadInputChanged={null}
+  ouiaSafe={true}
+  placeholderText="Select..."
+  removeSelectionAriaLabel="Remove"
+  selections={Array []}
+  toggleAriaLabel="Options menu"
+  toggleIcon={null}
+  toggleId={null}
+  typeAheadAriaLabel=""
+  validated="default"
+  variant="single"
+  width=""
+>
+  <SelectOption
+    className=""
+    component="button"
+    index={0}
+    inputId=""
+    isChecked={false}
+    isDisabled={false}
+    isFavorite={null}
+    isLastOptionBeforeFooter={[Function]}
+    isLoad={false}
+    isLoading={false}
+    isNoResultsOption={false}
+    isPlaceholder={false}
+    isSelected={false}
+    key="0-uno"
+    keyHandler={[Function]}
+    onClick={[Function]}
+    sendRef={[Function]}
+    setViewMoreNextIndex={[Function]}
+    value="uno"
+  />
+  <SelectOption
+    className=""
+    component="button"
+    index={0}
+    inputId=""
+    isChecked={false}
+    isDisabled={false}
+    isFavorite={null}
+    isLastOptionBeforeFooter={[Function]}
+    isLoad={false}
+    isLoading={false}
+    isNoResultsOption={false}
+    isPlaceholder={false}
+    isSelected={false}
+    key="1-dos"
+    keyHandler={[Function]}
+    onClick={[Function]}
+    sendRef={[Function]}
+    setViewMoreNextIndex={[Function]}
+    value="dos"
+  />
+</Select>
+`;

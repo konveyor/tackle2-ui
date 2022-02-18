@@ -1,0 +1,15 @@
+{
+  "baseUrl": "http://localhost:8080/",
+  "env": {
+    "auth_base_url": "http://localhost:8180/auth",
+    "auth_realm": "konveyor",
+    "auth_client_id": "tackle-ui"
+  },
+  "viewportWidth": 1280,
+  "viewportHeight": 1024,
+  "chromeWebSecurity": false,
+  "retries": {
+    "runMode": 2,
+    "openMode": 0
+  }
+}

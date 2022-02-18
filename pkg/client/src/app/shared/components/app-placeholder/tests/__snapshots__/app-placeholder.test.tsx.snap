@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppPlaceholder Renders without crashing 1`] = `
+<Bullseye>
+  <div
+    className="pf-u-display-flex pf-u-flex-direction-column"
+  >
+    <div>
+      <Spinner />
+    </div>
+    <div
+      className="pf-c-content"
+    >
+      <h3>
+        Loading...
+      </h3>
+    </div>
+  </div>
+</Bullseye>
+`;

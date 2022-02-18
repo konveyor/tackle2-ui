@@ -1,0 +1,35 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/pkg/**/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/pkg/client/dist
+/pkg/qa-tests/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+
+.eslintcache
+
+# cypress
+/pkg/cypress/videos
+/pkg/cypress/screenshots
+.nyc_output
+
+# VSCode
+.vscode/*
+
+# Intellij IDEA
+.idea/
