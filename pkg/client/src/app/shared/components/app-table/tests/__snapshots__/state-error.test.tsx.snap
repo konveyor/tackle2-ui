@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`StateError Renders without crashing 1`] = `
+<EmptyState
+  variant="small"
+>
+  <EmptyStateIcon
+    color="#a30000"
+  />
+  <Title
+    headingLevel="h2"
+    size="lg"
+  >
+    Unable to connect
+  </Title>
+  <EmptyStateBody>
+    There was an error retrieving data. Check your connection and try again.
+  </EmptyStateBody>
+</EmptyState>
+`;

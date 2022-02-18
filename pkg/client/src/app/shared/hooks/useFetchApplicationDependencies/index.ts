@@ -1,0 +1,1 @@
+export { useFetchApplicationDependencies } from "./useFetchApplicationDependencies";

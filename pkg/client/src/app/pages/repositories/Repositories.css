@@ -1,0 +1,7 @@
+.repo.pf-c-switch {
+  --pf-c-switch__input--focus__toggle--OutlineWidth: 0;
+}
+
+.repo.pf-c-form-control {
+  --pf-c-form-control--Width: 25%;
+}

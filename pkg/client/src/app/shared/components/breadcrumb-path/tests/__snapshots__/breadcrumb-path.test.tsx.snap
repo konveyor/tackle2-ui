@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BreadCrumbPath Renders without crashing 1`] = `
+<Breadcrumb>
+  <BreadcrumbItem
+    isActive={false}
+    key="0"
+  >
+    <Link
+      className="pf-c-breadcrumb__link"
+      to="/first"
+    >
+      first
+    </Link>
+  </BreadcrumbItem>
+  <BreadcrumbItem
+    isActive={false}
+    key="1"
+  >
+    <Link
+      className="pf-c-breadcrumb__link"
+      to="/second"
+    >
+      second
+    </Link>
+  </BreadcrumbItem>
+  <BreadcrumbItem
+    isActive={true}
+    key="2"
+  >
+    thrid
+  </BreadcrumbItem>
+</Breadcrumb>
+`;

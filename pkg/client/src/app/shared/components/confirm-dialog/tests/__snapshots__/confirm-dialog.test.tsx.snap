@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ConfirmDialog Renders without crashing 1`] = `
+<Modal
+  actions={
+    Array [
+      <Button
+        aria-label="confirm"
+        onClick={[Function]}
+        variant="danger"
+      >
+        Yes
+      </Button>,
+      <Button
+        aria-label="cancel"
+        onClick={[Function]}
+        variant="link"
+      >
+        Cancel
+      </Button>,
+    ]
+  }
+  appendTo={[Function]}
+  aria-describedby=""
+  aria-label="confirm-dialog"
+  aria-labelledby=""
+  className=""
+  hasNoBodyWrapper={false}
+  isOpen={true}
+  onClose={[Function]}
+  ouiaSafe={true}
+  showClose={true}
+  title="My title"
+  titleIconVariant={null}
+  titleLabel=""
+  variant="small"
+>
+  Are you sure you want to do this?
+</Modal>
+`;

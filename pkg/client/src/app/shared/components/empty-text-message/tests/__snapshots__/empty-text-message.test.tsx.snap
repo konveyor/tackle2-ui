@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EmptyTextMessage Renders without crashing 1`] = `
+<Text
+  className="pf-u-color-200 pf-u-font-weight-light"
+>
+  <i>
+    my custom message
+  </i>
+</Text>
+`;

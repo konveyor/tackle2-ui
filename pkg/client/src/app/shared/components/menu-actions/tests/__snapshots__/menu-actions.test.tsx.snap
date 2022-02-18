@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MenuActions Renders without crashing 1`] = `
+<Dropdown
+  dropdownItems={
+    Array [
+      <DropdownItem
+        component="button"
+        onClick={[MockFunction]}
+      >
+        Action1
+      </DropdownItem>,
+      <DropdownItem
+        component="button"
+        onClick={[MockFunction]}
+      >
+        Action2
+      </DropdownItem>,
+    ]
+  }
+  isOpen={false}
+  onSelect={[Function]}
+  toggle={
+    <DropdownToggle
+      onToggle={[Function]}
+    >
+      Actions
+    </DropdownToggle>
+  }
+/>
+`;
