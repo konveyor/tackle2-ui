@@ -1,9 +1,11 @@
 # Builder image
 FROM registry.access.redhat.com/ubi8/nodejs-16 as builder
-COPY pkg/client/dist/ ./client/dist/
-COPY pkg/server ./server/
-COPY entrypoint.sh .
-RUN cd ./server && npm install
+USER 0
+COPY . .
+WORKDIR "/opt/app-root/src/pkg/client" 
+RUN npm install && npm run build
+WORKDIR "/opt/app-root/src/pkg/server" 
+RUN npm install
 
 # Runner image
 FROM registry.access.redhat.com/ubi8/nodejs-16-minimal
@@ -31,7 +33,8 @@ LABEL name="konveyor/tackle-ui" \
       io.openshift.min-cpu="100m" \
       io.openshift.min-memory="350Mi"
 
-COPY --from=builder /opt/app-root/src /opt/app-root/src
+COPY --from=builder /opt/app-root/src/pkg/client/dist /opt/app-root/src/pkg/client/dist
+COPY --from=builder /opt/app-root/src/pkg/server /opt/app-root/src/pkg/server
 COPY --from=builder /opt/app-root/src/entrypoint.sh /usr/bin/entrypoint.sh
 
 ENV DEBUG=1
