@@ -7,7 +7,7 @@
     "analyze": "source-map-explorer 'dist/static/js/*.js'",
     "build:dev": "GENERATE_SOURCEMAP=true $(npm bin)/webpack --config config/webpack.dev.js",
     "build:instrumentation": "CYPRESS_INSTRUMENT_PRODUCTION=true react-scripts -r @cypress/instrument-cra build",
-    "build": "NODE_ENV=production $(npm bin)/webpack --config config/webpack.prod.js",
+    "build": "NODE_ENV=production $(npm bin)/webpack --config ./config/webpack.prod.js",
     "extract": "i18next --config i18next-parser.config.js",
     "proxy:hub": "kubectl port-forward svc/tackle-hub-api -n tackle-operator 9002:8080",
     "proxy:keycloak": "kubectl port-forward svc/tackle-keycloak-sso -n tackle-operator 9001:8080",
