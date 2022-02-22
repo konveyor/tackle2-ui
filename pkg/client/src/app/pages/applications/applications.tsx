@@ -17,9 +17,9 @@ import { AppPlaceholder } from "@app/shared/components";
 
 import { useTranslation } from "react-i18next";
 
-const ApplicationTable = lazy(() => import("./applicationsTable"));
+const ApplicationTable = lazy(() => import("./applications-table-assessment"));
 const ApplicationsTableAnalyze = lazy(
-  () => import("./applicationsTableAnalyze")
+  () => import("./applications-table-analyze")
 );
 
 export const Applications: React.FC = () => {
