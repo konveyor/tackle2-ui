@@ -2,6 +2,7 @@
 
 # dependencies
 /pkg/**/node_modules
+/pkg/client/public/locales/**/translation_old.json
 /.pnp
 .pnp.js
 

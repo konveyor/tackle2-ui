@@ -76,14 +76,13 @@ import {
 import { applicationPageMapper } from "@app/api/apiUtils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
-import { ApplicationForm } from "./components/application-form";
+import { ApplicationForm } from "../components/application-form";
 
-import { ApplicationAssessment } from "./components/application-assessment";
-import { ApplicationBusinessService } from "./components/application-business-service";
-import { ApplicationListExpandedArea } from "./components/application-list-expanded-area";
-import { ImportApplicationsForm } from "./components/import-applications-form";
-import { BulkCopyAssessmentReviewForm } from "./components/bulk-copy-assessment-review-form";
-import { ApplicationsIdentityForm } from "./components/ApplicationsIdentityForm";
+import { ApplicationBusinessService } from "../components/application-business-service";
+import { ApplicationListExpandedArea } from "../components/application-list-expanded-area";
+import { ImportApplicationsForm } from "../components/import-applications-form";
+import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
+import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm";
 
 const toSortByQuery = (
   sortBy?: SortByQuery
@@ -126,7 +125,7 @@ const searchAppAssessment = (id: number) => {
   return result;
 };
 
-export const ApplicationsTable: React.FC = () => {
+export const ApplicationsTableAnalyze: React.FC = () => {
   // i18
   const { t } = useTranslation();
 
@@ -217,7 +216,6 @@ export const ApplicationsTable: React.FC = () => {
     if (!applicationToUpdate) {
       dispatch(
         alertActions.addSuccess(
-          // t('terms.application')
           t("toastr.success.added", {
             what: response.data.name,
             type: t("terms.application").toLowerCase(),
@@ -315,8 +313,7 @@ export const ApplicationsTable: React.FC = () => {
     },
     { title: t("terms.description"), transforms: [cellWidth(25)] },
     { title: t("terms.businessService"), transforms: [cellWidth(20)] },
-    { title: t("terms.assessment"), transforms: [cellWidth(10)] },
-    { title: t("terms.review"), transforms: [sortable, cellWidth(10)] },
+    { title: t("terms.analysis"), transforms: [sortable, cellWidth(10)] },
     { title: t("terms.tagCount"), transforms: [sortable, cellWidth(10)] },
     {
       title: "",
@@ -354,16 +351,8 @@ export const ApplicationsTable: React.FC = () => {
           ),
         },
         {
-          title: (
-            <ApplicationAssessment
-              assessment={getApplicationAssessment(item.id!)}
-              isFetching={isFetchingApplicationAssessment(item.id!)}
-              fetchError={fetchErrorApplicationAssessment(item.id!)}
-              fetchCount={fetchCountApplicationAssessment(item.id!)}
-            />
-          ),
-        },
-        {
+          // "Not started" | "Scheduled" | "In-progress" | "Canceled" | "Failed" | "Completed"
+
           title: item.review ? (
             <StatusIconAssessment status="Completed" />
           ) : (
@@ -614,6 +603,7 @@ export const ApplicationsTable: React.FC = () => {
         if (assessment.status === "COMPLETE") {
           dispatch(
             confirmDialogActions.openDialog({
+              // t("terms.assessment")
               title: t("composed.editQuestion", {
                 what: t("terms.assessment").toLowerCase(),
               }),
@@ -711,7 +701,7 @@ export const ApplicationsTable: React.FC = () => {
                 <ToolbarItem>
                   <Button
                     type="button"
-                    aria-label="assess-application"
+                    aria-label="analyze-application"
                     variant={ButtonVariant.primary}
                     onClick={assessSelectedRows}
                     isDisabled={
@@ -719,21 +709,7 @@ export const ApplicationsTable: React.FC = () => {
                     }
                     isLoading={isApplicationAssessInProgress}
                   >
-                    {t("actions.assess")}
-                  </Button>
-                </ToolbarItem>
-                <ToolbarItem>
-                  <Button
-                    type="button"
-                    aria-label="review-application"
-                    variant={ButtonVariant.primary}
-                    onClick={reviewSelectedRows}
-                    isDisabled={
-                      selectedRows.length !== 1 ||
-                      isReviewBtnDisabled(selectedRows[0])
-                    }
-                  >
-                    {t("actions.review")}
+                    {t("actions.analyze")}
                   </Button>
                 </ToolbarItem>
                 <ToolbarItem>
