@@ -64,7 +64,7 @@ import {
 import { applicationImportSummaryPageMapper } from "@app/api/apiUtils";
 import { formatDate, getAxiosErrorMessage } from "@app/utils/utils";
 
-import { ImportApplicationsForm } from "../applicationsTable/components/import-applications-form";
+import { ImportApplicationsForm } from "../components/import-applications-form";
 
 export enum FilterKey {
   FILE_NAME = "filename",
