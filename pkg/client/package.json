@@ -9,7 +9,7 @@
     "build:instrumentation": "CYPRESS_INSTRUMENT_PRODUCTION=true react-scripts -r @cypress/instrument-cra build",
     "build": "NODE_ENV=production $(npm bin)/webpack --config ./config/webpack.prod.js",
     "extract": "i18next --config i18next-parser.config.js",
-    "test:unit": "$(npm bin)/jest --rootDir=. --config=config/jest.config.js"
+    "test": "jest --rootDir=. --config=config/jest.config.js"
   },
   "dependencies": {
     "@hot-loader/react-dom": "^17.0.2",
