@@ -9,14 +9,6 @@
     "build:instrumentation": "CYPRESS_INSTRUMENT_PRODUCTION=true react-scripts -r @cypress/instrument-cra build",
     "build": "NODE_ENV=production $(npm bin)/webpack --config ./config/webpack.prod.js",
     "extract": "i18next --config i18next-parser.config.js",
-    "proxy:hub": "kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080",
-    "proxy:keycloak": "kubectl port-forward svc/tackle-keycloak-sso -n konveyor-tackle 9001:8080",
-    "proxy:pathfinder": "kubectl port-forward svc/tackle-pathfinder-api -n konveyor-tackle 9003:8080",
-    "proxy": "concurrently -n keycloak,hub,pathfinder \"npm:proxy:keycloak\" \"npm:proxy:hub\" \"npm:proxy:pathfinder\"",
-    "server": "node ../server/index.js",
-    "start:dev": "concurrently -n server,client \"npm:server\" \"npm:build:dev\"",
-    "start:dev:local": "concurrently -n proxy,server,client \"npm:proxy\" \"npm:server\" \"npm:build:dev\"",
-    "start": "node ../server/index.js -r @cypress/instrument-cra",
     "test:unit": "$(npm bin)/jest --rootDir=. --config=config/jest.config.js"
   },
   "dependencies": {
@@ -72,7 +64,6 @@
     "browserslist": "^4.19.1",
     "camelcase": "^6.3.0",
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
-    "concurrently": "^7.0.0",
     "copy-webpack-plugin": "^10.2.1",
     "css-loader": "^5.2.6",
     "css-minimizer-webpack-plugin": "^3.4.1",
@@ -86,13 +77,11 @@
     "eslint-webpack-plugin": "^3.1.1",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
-    "husky": "^4.3.7",
     "i18next-parser": "^3.6.0",
     "jest": "^27.4.7",
     "jest-enzyme": "^7.1.2",
     "jest-resolve": "^27.4.6",
     "jest-watch-typeahead": "^1.0.0",
-    "lint-staged": "^10.5.3",
     "mini-css-extract-plugin": "^2.5.2",
     "prettier": "^2.2.1",
     "raw-loader": "^4.0.2",
@@ -131,17 +120,6 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "post-commit": "npm run extract"
-    }
-  },
-  "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
-      "prettier --write"
     ]
   },
   "nyc": {
