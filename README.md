@@ -10,7 +10,9 @@ To install a Tackle2 cluster environment please refer to [Tackle documentation](
 
 ```
 git clone https://github.com/konveyor/tackle2-ui
-cd tackle-ui
+cd tackle-ui/pkg/server
+npm install
+cd ../client
 npm install
 ```
 
@@ -39,7 +41,7 @@ To set-up kubectl port forwarding Tackle2 services to localhost, open a terminal
 `$ kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080`
 `$ kubectl port-forward svc/tackle-pathfinder-api -n konveyor-tackle 9003:8080` 
 
-That's exactly what `start:dev:local` takes does as it takes care of port forwarding all tackles2 services for us.
+That's exactly what `start:dev:local` does by port forwarding all tackles2 services for us.
 
 ## How to configure Minikube for Tackle2
 
@@ -112,7 +114,11 @@ Follow Tackle2 documentation [https://github.com/konveyor/tackle2-operator/blob/
 Then deploy Tackle by running: 
 `kubectl apply -f https://raw.githubusercontent.com/konveyor/tackle2-operator/main/tackle-k8s.yaml`
 
-Wait few minutes (otherwise the following will fail) then launch Tackle by applying the following CR:
+Wait few minutes, otherwise the next command will fail: 
+
+`kubectl wait deployment tackle-keycloak-sso -n konveyor-tackle --for condition=Available --timeout=5m` 
+
+Then launch Tackle by applying the following CR:
 
 ```
 cat << EOF | kubectl apply -f -
