@@ -286,3 +286,14 @@ export interface ApplicationImportPage {
   };
   total_count: number;
 }
+export interface IdentityPage {
+  _embedded: {
+    identity: Identity[];
+  };
+  total_count: number;
+}
+
+export interface Setting {
+  key: string;
+  value: string;
+}
