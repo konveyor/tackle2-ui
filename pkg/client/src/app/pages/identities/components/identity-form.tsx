@@ -114,6 +114,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       kind: formValues.kind.value.trim(),
       createUser: formValues.createUser.trim(),
       encrypted: formValues.encrypted.trim(),
+      settings: formValues.settings.trim(),
     };
 
     let promise: AxiosPromise<Identity>;

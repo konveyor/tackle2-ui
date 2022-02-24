@@ -4,6 +4,7 @@ exports[`AppTable Renders without crashing 1`] = `
 <Table
   aria-label="main-table"
   borders={true}
+  canCollapseAll={true}
   canSelectAll={true}
   canSortFavorites={true}
   cells={
@@ -23,11 +24,13 @@ exports[`AppTable Renders without crashing 1`] = `
     ]
   }
   className=""
+  collapseAllAriaLabel=""
   contentId="expanded-content"
   dropdownDirection="down"
   dropdownPosition="right"
   expandId="expandable-toggle"
   gridBreakPoint="grid-md"
+  isHeaderSelectDisabled={false}
   isNested={false}
   isStickyHeader={false}
   isTreeTable={false}
