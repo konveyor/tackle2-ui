@@ -20,14 +20,12 @@
 .env.development.local
 .env.test.local
 .env.production.local
-
 npm-debug.log*
-
 .eslintcache
 
 # cypress
-/pkg/cypress/videos
-/pkg/cypress/screenshots
+/pkg/qa-tests/cypress/videos
+/pkg/qa-tests/cypress/screenshots
 .nyc_output
 
 # VSCode
