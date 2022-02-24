@@ -150,6 +150,13 @@ module.exports = (env) => {
           ],
           type: "javascript/auto",
         },
+        {
+          test: path.resolve(__dirname, "../node_modules/xmllint/xmllint.js"),
+          loader: "exports-loader",
+          options: {
+            exports: "xmllint",
+          },
+        },
       ],
     },
     plugins: [
@@ -187,7 +194,11 @@ module.exports = (env) => {
       ],
       symlinks: false,
       cacheWithContext: false,
-      fallback: { crypto: false },
+      fallback: { crypto: false, fs: false, path: false },
+    },
+    externals: {
+      // required by xmllint (but not really used in the browser)
+      ws: "{}",
     },
   };
 };
