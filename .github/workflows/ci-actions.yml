@@ -17,18 +17,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
       - name: Build
-        working-directory: pkg/client
         run:
           npm install
-          npm run build
+          npm install -w pkg/client
+          npm run build -w pkg/client
       - name: Test
-        working-directory: pkg/client
         run: 
-          npm run test:unit --coverage --watchAll=false
+          npm run test -w pkg/client
       - uses: codecov/codecov-action@v1
         with:
           flags: unitests
