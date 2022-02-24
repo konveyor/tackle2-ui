@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
 import { useCallback, useEffect } from "react";
-import { createSetting, getSettingById, updateSetting } from "@app/api/rest";
+import { getSettingById, updateSetting } from "@app/api/rest";
 import { useFetch } from "@app/shared/hooks";
 import { Setting } from "@app/api/models";
 import { AxiosError, AxiosPromise } from "axios";
@@ -21,36 +21,26 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export const RepositoriesGit: React.FunctionComponent = () => {
   const { t } = useTranslation();
-  const [isInsecure, setInsecure] = React.useState(false);
   const [error, setError] = React.useState<AxiosError>();
 
   const onChange = () => {
-    // setInsecure(!isInsecure);
-
-    // let promise: AxiosPromise<Setting>;
-    //   promise = updateSetting(gitInsecureSetting?.key);
     const setting: Setting = {
       key: "git.insecure.enabled",
-      value: !gitInsecureSetting?.key,
+      value: !gitInsecureSetting,
     };
 
     let promise: AxiosPromise<Setting>;
-    if (gitInsecureSetting?.key) {
-      promise = updateSetting(gitInsecureSetting);
+    if (gitInsecureSetting !== undefined) {
+      promise = updateSetting(setting);
     } else {
-      promise = createSetting(setting);
+      promise = updateSetting(setting);
     }
 
-    // setRowToUpdate(undefined);
-    // refreshTable();
     promise
       .then((response) => {
         refreshGitInsecureSetting();
-        // formikHelpers.setSubmitting(false);
-        // onSaved(response);
       })
       .catch((error) => {
-        // formikHelpers.setSubmitting(false);
         setError(error);
       });
   };
@@ -60,7 +50,7 @@ export const RepositoriesGit: React.FunctionComponent = () => {
   }, []);
 
   const { data: gitInsecureSetting, requestFetch: refreshGitInsecureSetting } =
-    useFetch<Setting>({
+    useFetch<boolean>({
       defaultIsFetching: true,
       onFetch: fetchGitInsecureSetting,
     });
@@ -69,7 +59,6 @@ export const RepositoriesGit: React.FunctionComponent = () => {
     refreshGitInsecureSetting();
   }, [refreshGitInsecureSetting]);
 
-  console.log("gitInsecureSetting", gitInsecureSetting);
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -92,7 +81,7 @@ export const RepositoriesGit: React.FunctionComponent = () => {
               className="repo"
               label="Consume insecure Git repositories"
               aria-label="HTTP Proxy"
-              isChecked={gitInsecureSetting?.value}
+              isChecked={gitInsecureSetting === true ? true : false}
               onChange={onChange}
             />
           </CardBody>

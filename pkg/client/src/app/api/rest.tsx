@@ -776,14 +776,18 @@ export const deleteIdentity = (id: number): AxiosPromise => {
   return APIClient.delete(`${IDENTITIES}/${id}`);
 };
 
-export const getSettingById = (id: number | string): AxiosPromise<Setting> => {
+export const getSettingById = (id: number | string): AxiosPromise<boolean> => {
   return APIClient.get(`${SETTINGS}/${id}`, {
     settingsHeaders,
   });
 };
 
 export const updateSetting = (obj: Setting): AxiosPromise<Setting> => {
-  return APIClient.put(`${SETTINGS}/${obj.key}`, obj.value, settingsHeaders);
+  return APIClient.put(
+    `${SETTINGS}/${obj.key}`,
+    obj.value?.toString(),
+    settingsHeaders
+  );
 };
 
 export const createSetting = (obj: Setting): AxiosPromise<Setting> => {
