@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`StateNoData Renders without crashing 1`] = `
-<NoDataEmptyState
+<Component
   description="message.noDataAvailableBody"
   title="message.noDataAvailableTitle"
 />
