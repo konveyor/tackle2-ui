@@ -13,19 +13,87 @@ import {
 import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
+import { AxiosError, AxiosPromise } from "axios";
+import { Setting } from "@app/api/models";
+import { getSettingById, updateSetting } from "@app/api/rest";
+import { useFetch } from "@app/shared/hooks/useFetch";
+import { useEffect } from "react";
 
 export const RepositoriesMvn: React.FunctionComponent = () => {
   const { t } = useTranslation();
-  const [isInsecure, setInsecure] = React.useState(false);
-  const [isForced, setForced] = React.useState(false);
+  const [error, setError] = React.useState<AxiosError>();
 
   const onChangeInsecure = () => {
-    setInsecure(!isInsecure);
+    const setting: Setting = {
+      key: "mvn.insecure.enabled",
+      value: !mvnInsecureSetting,
+    };
+
+    let promise: AxiosPromise<Setting>;
+    if (mvnInsecureSetting !== undefined) {
+      promise = updateSetting(setting);
+    } else {
+      promise = updateSetting(setting);
+    }
+
+    promise
+      .then((response) => {
+        refreshMvnInsecureSetting();
+      })
+      .catch((error) => {
+        setError(error);
+      });
   };
 
   const onChangeForced = () => {
-    setForced(!isForced);
+    const setting: Setting = {
+      key: "mvn.dependencies.update.forced",
+      value: !mvnForcedSetting,
+    };
+
+    let promise: AxiosPromise<Setting>;
+    if (mvnInsecureSetting !== undefined) {
+      promise = updateSetting(setting);
+    } else {
+      promise = updateSetting(setting);
+    }
+
+    promise
+      .then((response) => {
+        refreshMvnForcedSetting();
+      })
+      .catch((error) => {
+        setError(error);
+      });
   };
+
+  const fetchMvnForcedSetting = React.useCallback(() => {
+    return getSettingById("mvn.dependencies.update.forced");
+  }, []);
+
+  const fetchMvnInsecureSetting = React.useCallback(() => {
+    return getSettingById("mvn.insecure.enabled");
+  }, []);
+
+  const { data: mvnInsecureSetting, requestFetch: refreshMvnInsecureSetting } =
+    useFetch<boolean>({
+      defaultIsFetching: true,
+      onFetch: fetchMvnInsecureSetting,
+    });
+
+  const { data: mvnForcedSetting, requestFetch: refreshMvnForcedSetting } =
+    useFetch<boolean>({
+      defaultIsFetching: true,
+      onFetch: fetchMvnForcedSetting,
+    });
+
+  useEffect(() => {
+    refreshMvnInsecureSetting();
+  }, [refreshMvnInsecureSetting]);
+
+  useEffect(() => {
+    refreshMvnForcedSetting();
+  }, [refreshMvnForcedSetting]);
 
   return (
     <>
@@ -36,7 +104,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
       </PageSection>
       <PageSection>
         <Card>
-          <CardBody>
+          {/* <CardBody>
             <TextInput
               value={"value"}
               className="repo"
@@ -48,14 +116,14 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
             <Button variant="link" isInline>
               Clear repository
             </Button>
-          </CardBody>
+          </CardBody> */}
           <CardBody>
             <Switch
               id="maven-update"
               className="repo"
               label="Force update of depencies"
               aria-label="Force update of Maven repositories"
-              isChecked={isForced}
+              isChecked={mvnForcedSetting === true ? true : false}
               onChange={onChangeForced}
             />
           </CardBody>
@@ -65,7 +133,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
               className="repo"
               label="Consume insecure Maven repositories"
               aria-label="Insecure Maven repositories"
-              isChecked={isInsecure}
+              isChecked={mvnInsecureSetting === true ? true : false}
               onChange={onChangeInsecure}
             />
           </CardBody>
