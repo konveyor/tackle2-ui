@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+  Alert,
   Button,
   Card,
   CardBody,
@@ -18,10 +19,14 @@ import { Setting } from "@app/api/models";
 import { getSettingById, updateSetting } from "@app/api/rest";
 import { useFetch } from "@app/shared/hooks/useFetch";
 import { useEffect } from "react";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export const RepositoriesMvn: React.FunctionComponent = () => {
   const { t } = useTranslation();
-  const [error, setError] = React.useState<AxiosError>();
+  const [forcedSettingError, setForcedSettingError] =
+    React.useState<AxiosError>();
+  const [insecureSettingError, setInsecureSettingError] =
+    React.useState<AxiosError>();
 
   const onChangeInsecure = () => {
     const setting: Setting = {
@@ -41,7 +46,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
         refreshMvnInsecureSetting();
       })
       .catch((error) => {
-        setError(error);
+        setInsecureSettingError(error);
       });
   };
 
@@ -63,7 +68,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
         refreshMvnForcedSetting();
       })
       .catch((error) => {
-        setError(error);
+        setForcedSettingError(error);
       });
   };
 
@@ -104,7 +109,9 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
       </PageSection>
       <PageSection>
         <Card>
-          {/* <CardBody>
+          {/* 
+        TODO: implement repo size text input   (stretch goal)
+          <CardBody>
             <TextInput
               value={"value"}
               className="repo"
@@ -118,6 +125,13 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
             </Button>
           </CardBody> */}
           <CardBody>
+            {forcedSettingError && (
+              <Alert
+                variant="danger"
+                isInline
+                title={getAxiosErrorMessage(forcedSettingError)}
+              />
+            )}
             <Switch
               id="maven-update"
               className="repo"
@@ -128,6 +142,13 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
             />
           </CardBody>
           <CardBody>
+            {insecureSettingError && (
+              <Alert
+                variant="danger"
+                isInline
+                title={getAxiosErrorMessage(insecureSettingError)}
+              />
+            )}
             <Switch
               id="maven-secure"
               className="repo"

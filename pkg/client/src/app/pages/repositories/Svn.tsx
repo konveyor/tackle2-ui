@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+  Alert,
   Card,
   CardBody,
   PageSection,
@@ -16,6 +17,7 @@ import { getSettingById, updateSetting } from "@app/api/rest";
 import { AxiosError, AxiosPromise } from "axios";
 import { useCallback, useEffect } from "react";
 import { useFetch } from "@app/shared/hooks";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export const RepositoriesSvn: React.FunctionComponent = () => {
   const { t } = useTranslation();
@@ -67,6 +69,13 @@ export const RepositoriesSvn: React.FunctionComponent = () => {
       <PageSection>
         <Card>
           <CardBody>
+            {error && (
+              <Alert
+                variant="danger"
+                isInline
+                title={getAxiosErrorMessage(error)}
+              />
+            )}
             <Switch
               id="svn"
               className="repo"
