@@ -11,11 +11,11 @@
   "devDependencies": {
     "concurrently": "^7.0.0",
     "husky": "^4.3.7",
-    "lint-staged": "^10.5.3"
+    "lint-staged": "^10.5.3",
+    "typescript": "^4.5.5"
   },
   "scripts": {
-    "build": "npm run build -w pkg/client",
-    "build:dev": "npm run build:dev -w pkg/client",
+    "dist": "rm -rf ./dist && mkdir -p ./dist/client && cp -r pkg/server dist/ && npm run build -w pkg/client && cp -r pkg/client/dist ./dist/client/",
     "proxy:hub": "kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080",
     "proxy:keycloak": "kubectl port-forward svc/tackle-keycloak-sso -n konveyor-tackle 9001:8080",
     "proxy:pathfinder": "kubectl port-forward svc/tackle-pathfinder-api -n konveyor-tackle 9003:8080",
