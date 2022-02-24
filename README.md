@@ -10,10 +10,8 @@ To install a Tackle2 cluster environment please refer to [Tackle documentation](
 
 ```
 git clone https://github.com/konveyor/tackle2-ui
-cd tackle-ui/pkg/server
-npm install
-cd ../client
-npm install
+cd tackle2-ui
+npm install -ws && npm install
 ```
 
 With a Tackle2 environment available (with kubectl authentication validated)  
@@ -28,7 +26,7 @@ If you're using minikube please read on.
 Tackle2 runs in a Kubernetes compatible environment (Openshift, Kubernetes or minikube) and is usually deployed with Tackle2 Operator (OLM).
 Alhtough the UI pod has access to tackle2 APIs from within the cluster, the UI can also be executed outside the cluster and access Tackle APIs endpoints by proxy.
 
-The UI being is composed of web pages (React) served by an http server (Express) with proxy capabilities (http-middleware-prox).
+The UI is composed of web pages (React) served by an http server (Express) with proxy capabilities (http-middleware-prox).
 So we when we run Express locally it forwards all API requests to the backend and at same time we keep watching any source changes to be immediatly reloaded.
 It's the equivalent of running webpack dev-server with proxy configuration.
 
@@ -109,14 +107,10 @@ http://192.168.0.1:18080/api/v1/namespaces/kubernetes-dashboard/services/http:ku
 
 ### Installing Tackle on Minikube or Kubernetes
 
-Follow Tackle2 documentation [https://github.com/konveyor/tackle2-operator/blob/main/docs/k8s.md](k8s.md) to install Tackle on Minikube or Kubernetes.
+For installation on Kubernetes refer to Tackle2 documentation [https://github.com/konveyor/tackle2-operator/blob/main/docs/k8s.md](k8s.md)
 
-Then deploy Tackle by running: 
+Once minikube is installed with OLM installed, as seen above, then deploy Tackle by running this command : 
 `kubectl apply -f https://raw.githubusercontent.com/konveyor/tackle2-operator/main/tackle-k8s.yaml`
-
-Wait few minutes, otherwise the next command will fail: 
-
-`kubectl wait deployment tackle-keycloak-sso -n konveyor-tackle --for condition=Available --timeout=5m` 
 
 Then launch Tackle by applying the following CR:
 
@@ -130,3 +124,7 @@ metadata:
 spec:
 EOF
 ```
+
+Wait few minutes to make sure tackle is fully deployed: 
+
+`kubectl wait deployment tackle-keycloak-sso -n konveyor-tackle --for condition=Available --timeout=5m` 
