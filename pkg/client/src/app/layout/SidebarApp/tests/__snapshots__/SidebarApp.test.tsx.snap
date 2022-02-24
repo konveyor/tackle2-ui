@@ -23,6 +23,6 @@ exports[`Renders without crashing 1`] = `
     }
   }
 >
-  <SidebarApp />
+  <Component />
 </Router>
 `;

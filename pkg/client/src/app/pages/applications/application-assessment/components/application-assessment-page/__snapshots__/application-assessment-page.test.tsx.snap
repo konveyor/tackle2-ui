@@ -5,7 +5,7 @@ exports[`ApplicationAssessmentPage Renders without crashing 1`] = `
   <PageSection
     variant="light"
   >
-    <ApplicationAssessmentPageHeader
+    <Component
       assessment={
         Object {
           "applicationId": 1,

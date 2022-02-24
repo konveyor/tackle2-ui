@@ -3,7 +3,7 @@
 exports[`Test snapshot 1`] = `
 <Page
   defaultManagedSidebarIsOpen={true}
-  header={<HeaderApp />}
+  header={<Unknown />}
   isBreadcrumbWidthLimited={false}
   isManagedSidebar={true}
   isNotificationDrawerExpanded={false}
@@ -11,7 +11,7 @@ exports[`Test snapshot 1`] = `
   mainTabIndex={-1}
   onNotificationDrawerExpand={[Function]}
   onPageResize={[Function]}
-  sidebar={<SidebarApp />}
+  sidebar={<Unknown />}
   skipToContent={
     <SkipToContent
       href="#main-content-page-layout-horizontal-nav"

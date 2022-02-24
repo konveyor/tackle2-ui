@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/**/node_modules
+/pkg/**/node_modules
 /pkg/client/public/locales/**/translation_old.json
 /.pnp
 .pnp.js
@@ -10,7 +10,6 @@
 /coverage
 
 # production
-/dist
 /pkg/client/dist
 /pkg/qa-tests/build
 
@@ -20,12 +19,14 @@
 .env.development.local
 .env.test.local
 .env.production.local
+
 npm-debug.log*
+
 .eslintcache
 
 # cypress
-/pkg/qa-tests/cypress/videos
-/pkg/qa-tests/cypress/screenshots
+/pkg/cypress/videos
+/pkg/cypress/screenshots
 .nyc_output
 
 # VSCode

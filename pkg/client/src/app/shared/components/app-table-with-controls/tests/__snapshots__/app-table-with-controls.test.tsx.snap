@@ -28,7 +28,7 @@ exports[`AppTableWithControls Renders adding toolbar 1`] = `
         }
         variant="pagination"
       >
-        <SimplePagination
+        <Component
           count={120}
           isTop={true}
           onChange={[MockFunction]}
@@ -42,7 +42,7 @@ exports[`AppTableWithControls Renders adding toolbar 1`] = `
       </ToolbarItem>
     </ToolbarContent>
   </Toolbar>
-  <AppTable
+  <Component
     cells={
       Array [
         Object {
@@ -65,7 +65,7 @@ exports[`AppTableWithControls Renders adding toolbar 1`] = `
       ]
     }
   />
-  <SimplePagination
+  <Component
     count={120}
     onChange={[MockFunction]}
     params={
@@ -103,7 +103,7 @@ exports[`AppTableWithControls Renders without crashing 1`] = `
         }
         variant="pagination"
       >
-        <SimplePagination
+        <Component
           count={120}
           isTop={true}
           onChange={[MockFunction]}
@@ -117,7 +117,7 @@ exports[`AppTableWithControls Renders without crashing 1`] = `
       </ToolbarItem>
     </ToolbarContent>
   </Toolbar>
-  <AppTable
+  <Component
     cells={
       Array [
         Object {
@@ -140,7 +140,7 @@ exports[`AppTableWithControls Renders without crashing 1`] = `
       ]
     }
   />
-  <SimplePagination
+  <Component
     count={120}
     onChange={[MockFunction]}
     params={

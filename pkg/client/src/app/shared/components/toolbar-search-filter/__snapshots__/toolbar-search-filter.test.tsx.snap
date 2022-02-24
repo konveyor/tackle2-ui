@@ -2,7 +2,7 @@
 
 exports[`ToolbarSearchFilter Renders without crashing 1`] = `
 <InputGroup>
-  <SimpleFilterDropdown
+  <Component
     label="Filter 1"
     onSelect={[Function]}
     options={
@@ -30,7 +30,7 @@ exports[`ToolbarSearchFilter Renders without crashing 1`] = `
 
 exports[`ToolbarSearchFilter Renders without crashing when no filter is provided 1`] = `
 <InputGroup>
-  <SimpleFilterDropdown
+  <Component
     onSelect={[Function]}
     options={Array []}
   />

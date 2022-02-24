@@ -17,9 +17,9 @@ exports[`Test snapshot 1`] = `
         }
       >
         <PageHeaderToolsItem>
-          <AppAboutModalState>
+          <Unknown>
             [Function]
-          </AppAboutModalState>
+          </Unknown>
         </PageHeaderToolsItem>
       </PageHeaderToolsGroup>
       <PageHeaderToolsGroup>
@@ -30,9 +30,9 @@ exports[`Test snapshot 1`] = `
             }
           }
         >
-          <MobileDropdown />
+          <Unknown />
         </PageHeaderToolsItem>
-        <SSOMenu />
+        <Unknown />
       </PageHeaderToolsGroup>
       <Avatar
         alt="Avatar image"
