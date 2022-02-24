@@ -12,7 +12,7 @@ exports[`ApplicationAssessmentPageHeader Renders without crashing 1`] = `
     }
   }
 >
-  <Component
+  <ApplicationAssessmentPageHeader
     assessment={
       Object {
         "applicationId": 1,
@@ -23,7 +23,7 @@ exports[`ApplicationAssessmentPageHeader Renders without crashing 1`] = `
       }
     }
   >
-    <Component
+    <PageHeader
       breadcrumbs={
         Array [
           Object {
@@ -55,7 +55,7 @@ exports[`ApplicationAssessmentPageHeader Renders without crashing 1`] = `
             <div
               className="pf-l-stack__item"
             >
-              <Component
+              <BreadCrumbPath
                 breadcrumbs={
                   Array [
                     Object {
@@ -159,7 +159,7 @@ exports[`ApplicationAssessmentPageHeader Renders without crashing 1`] = `
                     </ol>
                   </nav>
                 </Breadcrumb>
-              </Component>
+              </BreadCrumbPath>
             </div>
           </StackItem>
           <StackItem>
@@ -219,7 +219,7 @@ exports[`ApplicationAssessmentPageHeader Renders without crashing 1`] = `
           </StackItem>
         </div>
       </Stack>
-    </Component>
+    </PageHeader>
     <Modal
       actions={Array []}
       appendTo={[Function]}
@@ -262,6 +262,6 @@ exports[`ApplicationAssessmentPageHeader Renders without crashing 1`] = `
         />
       </Portal>
     </Modal>
-  </Component>
+  </ApplicationAssessmentPageHeader>
 </Provider>
 `;
