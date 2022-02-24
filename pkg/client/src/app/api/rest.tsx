@@ -29,12 +29,8 @@ import {
   ApplicationImportSummary,
   BulkCopyAssessment,
   BulkCopyReview,
-<<<<<<< HEAD
   Identity,
-=======
-  IdentityPage,
   Setting,
->>>>>>> 73d1412 (wip)
 } from "./models";
 
 export const CONTROLS_BASE_URL = "controls";
@@ -758,9 +754,9 @@ export const getBulkCopyAssessment = (
 ): AxiosPromise<BulkCopyAssessment> => {
   return APIClient.get<BulkCopyAssessment>(`${ASSESSMENTS}/bulk/${id}`);
 };
-<<<<<<< HEAD
 
 const identityHeaders = { Accept: "application/json" };
+const settingsHeaders = { Accept: "application/json" };
 
 export const getIdentities = (): AxiosPromise<Array<any>> => {
   return APIClient.get(`${IDENTITIES}`, {
@@ -778,8 +774,7 @@ export const updateIdentity = (obj: Identity): AxiosPromise<Identity> => {
 
 export const deleteIdentity = (id: number): AxiosPromise => {
   return APIClient.delete(`${IDENTITIES}/${id}`);
-=======
-const settingsHeaders = { Accept: "application/json" };
+};
 
 export const getSettingById = (id: number | string): AxiosPromise<Setting> => {
   return APIClient.get(`${SETTINGS}/${id}`, {
@@ -788,6 +783,9 @@ export const getSettingById = (id: number | string): AxiosPromise<Setting> => {
 };
 
 export const updateSetting = (obj: Setting): AxiosPromise<Setting> => {
-  return APIClient.put(`${SETTINGS}/${obj.key}`, settingsHeaders);
->>>>>>> 73d1412 (wip)
+  return APIClient.put(`${SETTINGS}/${obj.key}`, obj.value, settingsHeaders);
+};
+
+export const createSetting = (obj: Setting): AxiosPromise<Setting> => {
+  return APIClient.post(`${SETTINGS}`, obj);
 };

@@ -295,5 +295,5 @@ export interface IdentityPage {
 
 export interface Setting {
   key: string;
-  value: string;
+  value: boolean;
 }
