@@ -13,7 +13,7 @@ module.exports = function (app) {
   app.use(
     "/api/pathfinder",
     createProxyMiddleware({
-      target: process.env.PATHFINDER_API_URL || "http://localhost:9003",
+      target: process.env.PATHFINDER_URL || "http://localhost:9003",
       changeOrigin: true,
       pathRewrite: {
         "^/api/pathfinder": "/pathfinder",

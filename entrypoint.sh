@@ -7,8 +7,8 @@ if [[ -z "$TACKLE_HUB_URL" ]]; then
   exit 1
 fi
 
-if [[ -z "$PATHFINDER_API_URL" ]]; then
-  echo "You must provide PATHFINDER_API_URL environment variable" 1>&2
+if [[ -z "$PATHFINDER_URL" ]]; then
+  echo "You must provide PATHFINDER_URL environment variable" 1>&2
   exit 1
 fi
 
