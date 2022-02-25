@@ -61,8 +61,8 @@ export const IDENTITIES = "/identities";
 
 export const SETTINGS = "/settings";
 
-const legacyHeaders = { Accept: "application/hal+json" };
-const headers = { Accept: "application/json" };
+const halHeaders = { headers: { Accept: "application/hal+json" } };
+const jsonHeaders = { headers: { Accept: "application/json" } };
 
 type Direction = "asc" | "desc";
 
@@ -133,9 +133,7 @@ export const getBusinessServices = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${BUSINESS_SERVICES}?${query.join("&")}`, {
-    legacyHeaders,
-  });
+  return APIClient.get(`${BUSINESS_SERVICES}?${query.join("&")}`, halHeaders);
 };
 
 export const deleteBusinessService = (id: number | string): AxiosPromise => {
@@ -217,7 +215,7 @@ export const getStakeholders = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${STAKEHOLDERS}?${query.join("&")}`, { legacyHeaders });
+  return APIClient.get(`${STAKEHOLDERS}?${query.join("&")}`, halHeaders);
 };
 
 export const createJobFunction = (
@@ -299,9 +297,7 @@ export const getStakeholderGroups = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${STAKEHOLDER_GROUPS}?${query.join("&")}`, {
-    legacyHeaders,
-  });
+  return APIClient.get(`${STAKEHOLDER_GROUPS}?${query.join("&")}`, halHeaders);
 };
 
 export const deleteStakeholderGroup = (id: number): AxiosPromise => {
@@ -359,9 +355,7 @@ export const getJobFunctions = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${JOB_FUNCTIONS}?${query.join("&")}`, {
-    legacyHeaders,
-  });
+  return APIClient.get(`${JOB_FUNCTIONS}?${query.join("&")}`, halHeaders);
 };
 
 // Tag types
@@ -417,7 +411,7 @@ export const getTagTypes = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${TAG_TYPES}?${query.join("&")}`, { legacyHeaders });
+  return APIClient.get(`${TAG_TYPES}?${query.join("&")}`, halHeaders);
 };
 
 export const deleteTagType = (id: number): AxiosPromise => {
@@ -505,9 +499,7 @@ export const getApplications = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${APPLICATIONS}?${query.join("&")}`, {
-    legacyHeaders,
-  });
+  return APIClient.get(`${APPLICATIONS}?${query.join("&")}`, halHeaders);
 };
 
 export const deleteApplication = (id: number): AxiosPromise => {
@@ -550,9 +542,10 @@ export const getApplicationDependencies = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${APPLICATION_DEPENDENCY}?${query.join("&")}`, {
-    legacyHeaders,
-  });
+  return APIClient.get(
+    `${APPLICATION_DEPENDENCY}?${query.join("&")}`,
+    halHeaders
+  );
 };
 
 export const createApplicationDependency = (
@@ -643,9 +636,7 @@ export const getApplicationImportSummary = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${APP_IMPORT_SUMMARY}?${query.join("&")}`, {
-    legacyHeaders,
-  });
+  return APIClient.get(`${APP_IMPORT_SUMMARY}?${query.join("&")}`, halHeaders);
 };
 
 export const getApplicationImportSummaryById = (
@@ -674,13 +665,13 @@ export const getApplicationImport = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${APP_IMPORT}?${query.join("&")}`, { legacyHeaders });
+  return APIClient.get(`${APP_IMPORT}?${query.join("&")}`, halHeaders);
 };
 
 export const getApplicationSummaryCSV = (id: string): AxiosPromise => {
   return APIClient.get(`${APP_IMPORT_CSV}?importSummaryId=${id}`, {
     responseType: "arraybuffer",
-    legacyHeaders: { Accept: "text/csv", responseType: "blob" },
+    headers: { Accept: "text/csv", responseType: "blob" },
   });
 };
 
@@ -765,9 +756,7 @@ export const getBulkCopyAssessment = (
 };
 
 export const getIdentities = (): AxiosPromise<Array<any>> => {
-  return APIClient.get(`${IDENTITIES}`, {
-    headers,
-  });
+  return APIClient.get(`${IDENTITIES}`, jsonHeaders);
 };
 
 export const createIdentity = (obj: Identity): AxiosPromise<Identity> => {
@@ -783,16 +772,14 @@ export const deleteIdentity = (id: number): AxiosPromise => {
 };
 
 export const getSettingById = (id: number | string): AxiosPromise<boolean> => {
-  return APIClient.get(`${SETTINGS}/${id}`, {
-    headers,
-  });
+  return APIClient.get(`${SETTINGS}/${id}`, jsonHeaders);
 };
 
 export const updateSetting = (obj: Setting): AxiosPromise<Setting> => {
   return APIClient.put(
     `${SETTINGS}/${obj.key}`,
     obj.value?.toString(),
-    headers
+    jsonHeaders
   );
 };
 
