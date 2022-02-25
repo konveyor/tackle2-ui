@@ -80,6 +80,7 @@
             "discard": "Discard {{what}}?",
             "importApplicationFile": "Import application file",
             "leavePage": "Leave page",
+            "newApplication": "New application",
             "newBusinessService": "New business service",
             "newJobFunction": "New job function",
             "newStakeholder": "New stakeholder",
