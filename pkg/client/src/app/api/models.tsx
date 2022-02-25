@@ -286,3 +286,8 @@ export interface ApplicationImportPage {
   };
   total_count: number;
 }
+
+export interface Setting {
+  key: string;
+  value: boolean | undefined;
+}

@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+  Alert,
   Card,
   CardBody,
   PageSection,
@@ -11,14 +12,52 @@ import {
 import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
+import { Setting } from "@app/api/models";
+import { getSettingById, updateSetting } from "@app/api/rest";
+import { AxiosError, AxiosPromise } from "axios";
+import { useCallback, useEffect } from "react";
+import { useFetch } from "@app/shared/hooks";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export const RepositoriesSvn: React.FunctionComponent = () => {
   const { t } = useTranslation();
-  const [isInsecure, setInsecure] = React.useState(false);
+  const [error, setError] = React.useState<AxiosError>();
 
   const onChange = () => {
-    setInsecure(!isInsecure);
+    const setting: Setting = {
+      key: "svn.insecure.enabled",
+      value: !svnInsecureSetting,
+    };
+
+    let promise: AxiosPromise<Setting>;
+    if (svnInsecureSetting !== undefined) {
+      promise = updateSetting(setting);
+    } else {
+      promise = updateSetting(setting);
+    }
+
+    promise
+      .then((response) => {
+        refreshSvnInsecureSetting();
+      })
+      .catch((error) => {
+        setError(error);
+      });
   };
+
+  const fetchSvnInsecureSetting = useCallback(() => {
+    return getSettingById("svn.insecure.enabled");
+  }, []);
+
+  const { data: svnInsecureSetting, requestFetch: refreshSvnInsecureSetting } =
+    useFetch<boolean>({
+      defaultIsFetching: true,
+      onFetch: fetchSvnInsecureSetting,
+    });
+
+  useEffect(() => {
+    refreshSvnInsecureSetting();
+  }, [refreshSvnInsecureSetting]);
 
   return (
     <>
@@ -30,12 +69,19 @@ export const RepositoriesSvn: React.FunctionComponent = () => {
       <PageSection>
         <Card>
           <CardBody>
+            {error && (
+              <Alert
+                variant="danger"
+                isInline
+                title={getAxiosErrorMessage(error)}
+              />
+            )}
             <Switch
               id="svn"
               className="repo"
               label="Consume insecure Subversion repositories"
               aria-label="Insecure Subversion Repositories"
-              isChecked={isInsecure}
+              isChecked={svnInsecureSetting === true ? true : false}
               onChange={onChange}
             />
           </CardBody>

@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+  Alert,
   Card,
   CardBody,
   PageSection,
@@ -11,14 +12,52 @@ import {
 import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
+import { useCallback, useEffect } from "react";
+import { getSettingById, updateSetting } from "@app/api/rest";
+import { useFetch } from "@app/shared/hooks";
+import { Setting } from "@app/api/models";
+import { AxiosError, AxiosPromise } from "axios";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export const RepositoriesGit: React.FunctionComponent = () => {
   const { t } = useTranslation();
-  const [isInsecure, setInsecure] = React.useState(false);
+  const [error, setError] = React.useState<AxiosError>();
 
   const onChange = () => {
-    setInsecure(!isInsecure);
+    const setting: Setting = {
+      key: "git.insecure.enabled",
+      value: !gitInsecureSetting,
+    };
+
+    let promise: AxiosPromise<Setting>;
+    if (gitInsecureSetting !== undefined) {
+      promise = updateSetting(setting);
+    } else {
+      promise = updateSetting(setting);
+    }
+
+    promise
+      .then((response) => {
+        refreshGitInsecureSetting();
+      })
+      .catch((error) => {
+        setError(error);
+      });
   };
+
+  const fetchGitInsecureSetting = useCallback(() => {
+    return getSettingById("git.insecure.enabled");
+  }, []);
+
+  const { data: gitInsecureSetting, requestFetch: refreshGitInsecureSetting } =
+    useFetch<boolean>({
+      defaultIsFetching: true,
+      onFetch: fetchGitInsecureSetting,
+    });
+
+  useEffect(() => {
+    refreshGitInsecureSetting();
+  }, [refreshGitInsecureSetting]);
 
   return (
     <>
@@ -30,12 +69,19 @@ export const RepositoriesGit: React.FunctionComponent = () => {
       <PageSection>
         <Card>
           <CardBody>
+            {error && (
+              <Alert
+                variant="danger"
+                isInline
+                title={getAxiosErrorMessage(error)}
+              />
+            )}
             <Switch
               id="git"
               className="repo"
               label="Consume insecure Git repositories"
               aria-label="HTTP Proxy"
-              isChecked={isInsecure}
+              isChecked={gitInsecureSetting === true ? true : false}
               onChange={onChange}
             />
           </CardBody>
