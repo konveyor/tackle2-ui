@@ -30,14 +30,14 @@ The UI is composed of web pages (React) served by an http server (Express) with 
 So we when we run Express locally it forwards all API requests to the backend and at same time we keep watching any source changes to be immediatly reloaded.
 It's the equivalent of running webpack dev-server with proxy configuration.
 
-The Express server (pkg/server/setupProxy.js) uses by default the environment variables APPLICATION_INVENTORY_API_URL, CONTROLS_API_URL, PATHFINDER_API_URL and SSO_SERVER_URL to determine the backend endpoints. 
+The Express server (pkg/server/setupProxy.js) uses by default the environment variables TACKLE_HUB_URL, PATHFINDER_URL and SSO_SERVER_URL to determine the backend endpoints. 
 If no env. variables are defined, the server then listens on ports 9001 (SSO), 9002 (Application inventory and controls) and 9003 (Pathfinder).
 
 In which case the port forwarding must activated to route Tackle Keycloack (SSO), Tackle Hub and Tackle Pathfinder requests.
 To set-up kubectl port forwarding Tackle2 services to localhost, open a terminal and run each following command separatly: 
 `$ kubectl port-forward svc/tackle-keycloak-sso -n konveyor-tackle 9001:8080`
 `$ kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080`
-`$ kubectl port-forward svc/tackle-pathfinder-api -n konveyor-tackle 9003:8080` 
+`$ kubectl port-forward svc/tackle-pathfinder -n konveyor-tackle 9003:8080` 
 
 That's exactly what `start:dev:local` does by port forwarding all tackles2 services for us.
 

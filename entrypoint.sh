@@ -2,18 +2,13 @@
 
 set -e
 
-if [[ -z "$CONTROLS_API_URL" ]]; then
-  echo "You must provide CONTROLS_API_URL environment variable" 1>&2
+if [[ -z "$TACKLE_HUB_URL" ]]; then
+  echo "You must provide TACKLE_HUB_URL environment variable" 1>&2
   exit 1
 fi
 
-if [[ -z "$APPLICATION_INVENTORY_API_URL" ]]; then
-  echo "You must provide APPLICATION_INVENTORY_API_URL environment variable" 1>&2
-  exit 1
-fi
-
-if [[ -z "$PATHFINDER_API_URL" ]]; then
-  echo "You must provide PATHFINDER_API_URL environment variable" 1>&2
+if [[ -z "$PATHFINDER_URL" ]]; then
+  echo "You must provide PATHFINDER_URL environment variable" 1>&2
   exit 1
 fi
 
@@ -31,12 +26,6 @@ if [[ -z "$SSO_CLIENT_ID" ]]; then
   echo "You must provide SSO_CLIENT_ID environment variable" 1>&2
   exit 1
 fi
-
-# if [ -f ./build/keycloak.json.template ]; then
-#   echo "---> Processing keycloak.json.template configuration file..."
-#   cp ./build/keycloak.json.template ./build/keycloak.json
-#   # envsubst '${SSO_REALM} ${SSO_CLIENT_ID}' < ./build/keycloak.json.template > ./build/keycloak.json
-# fi
 
 cd pkg/server
 exec node index.js
