@@ -83,6 +83,7 @@ import { ApplicationListExpandedArea } from "../components/application-list-expa
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
 import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm";
+import { ApplicationListExpandedAreaAnalysis } from "../components/application-list-expanded-area/application-list-expanded-area-analysis";
 
 const toSortByQuery = (
   sortBy?: SortByQuery
@@ -390,7 +391,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       fullWidth: false,
       cells: [
         <div className="pf-c-table__expandable-row-content">
-          <ApplicationListExpandedArea application={item} />
+          <ApplicationListExpandedAreaAnalysis application={item} />
         </div>,
       ],
     });
