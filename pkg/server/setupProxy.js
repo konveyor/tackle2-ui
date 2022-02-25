@@ -25,8 +25,7 @@ module.exports = function (app) {
   app.use(
     "/api",
     createProxyMiddleware({
-      target:
-        process.env.APPLICATION_INVENTORY_API_URL || "http://localhost:9002",
+      target: process.env.TACKLE_HUB_URL || "http://localhost:9002",
       changeOrigin: true,
       pathRewrite: {
         "^/api": "",
