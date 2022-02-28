@@ -1,3 +1,4 @@
+import { StatusIconAssessmentType } from "@app/shared/components";
 import { boolean } from "yup";
 
 export interface PageQuery {
@@ -62,6 +63,21 @@ export interface Tag {
   tagType?: TagType;
 }
 
+export type TaskStatus =
+  | "Canceled"
+  | "Completed"
+  | "Failed"
+  | "InProgress"
+  | "NotStarted"
+  | "Scheduled";
+
+export interface Task {
+  id?: number;
+  name: string;
+  description?: string;
+  data: { application?: number };
+  status: TaskStatus;
+}
 // Application inventory
 export type ProposedAction =
   | "rehost"
@@ -74,7 +90,6 @@ export type ProposedAction =
 export type EffortEstimate = "small" | "medium" | "large" | "extra_large";
 
 export type ImportSummaryStatus = "Completed" | "In Progress" | "Failed";
-
 export interface Application {
   id?: number;
   name: string;
