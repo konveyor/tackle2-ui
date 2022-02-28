@@ -51,33 +51,6 @@ export const SidebarApp: React.FC = () => {
   const [selected, setSelected] = React.useState("Developer");
   const [isDevIcon, setDevIcon] = React.useState(true);
 
-  const onTogglePerspective = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const onSelectPerspective = (_, selection) => {
-    setSelected(selection);
-    setIsOpen(!isOpen);
-    if (selection === "Administrator") {
-      setDevIcon(false);
-      history.push(Paths.identities);
-    } else {
-      setDevIcon(true);
-      history.push(Paths.applications);
-    }
-  };
-
-  const Navigation2 = (
-    <Nav id="nav-primary-simple" theme="dark">
-      <NavList id="nav-list-simple">
-        {/* {routes.map(
-          (route, idx) =>
-            route.label && (!route.routes ? renderNavItem(route, idx) : renderNavGroup(route, idx))
-        )} */}
-      </NavList>
-    </Nav>
-  );
-
   const Navigation = (
     <>
       <Select
@@ -87,8 +60,20 @@ export const SidebarApp: React.FC = () => {
         aria-label="Select user perspective"
         selections={selected}
         isOpen={isOpen}
-        onSelect={onSelectPerspective}
-        onToggle={onTogglePerspective}
+        onSelect={(_, selection) => {
+          setSelected(selection as string);
+          setIsOpen(!isOpen);
+          if (selection === "Administrator") {
+            setDevIcon(false);
+            history.push(Paths.identities);
+          } else {
+            setDevIcon(true);
+            history.push(Paths.applications);
+          }
+        }}
+        onToggle={() => {
+          setIsOpen(!isOpen);
+        }}
       >
         {options}
       </Select>

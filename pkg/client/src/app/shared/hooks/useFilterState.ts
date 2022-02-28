@@ -20,7 +20,7 @@ export const useFilterState = <T>(
       const filterCategory = filterCategories.find(
         (category) => category.key === categoryKey
       );
-      let itemValue = item[categoryKey];
+      let itemValue = (item as any)[categoryKey];
       if (filterCategory?.getItemValue) {
         itemValue = filterCategory.getItemValue(item);
       }
