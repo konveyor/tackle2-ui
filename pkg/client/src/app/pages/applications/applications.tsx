@@ -22,9 +22,12 @@ const ApplicationsTableAnalyze = lazy(
   () => import("./applications-table-analyze")
 );
 
+const tabs: string[] = ["applicationsAssessmentTab", "applicationsAnalysisTab"];
+
 export const Applications: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
+  const [activeTabKey, setActiveTabKey] = React.useState(0);
 
   return (
     <>
@@ -37,37 +40,31 @@ export const Applications: React.FC = () => {
           </LevelItem>
         </Level>
         <Tabs
-          activeKey={"activeTabKey"}
-          onSelect={(_event, tabKey) =>
-            history.push(Paths[tabKey as keyof typeof Paths])
-          }
+          className={spacing.mtSm}
+          activeKey={activeTabKey}
+          onSelect={(_event, tabIndex) => {
+            setActiveTabKey(tabIndex as number);
+            history.push(Paths[tabs[tabIndex as number] as keyof typeof Paths]);
+          }}
         >
-          <Tab
-            key="applicationsAssessments"
-            eventKey="applicationsAssessments"
-            title={<TabTitleText>Assessment</TabTitleText>}
-          />
-          <Tab
-            key="applicationsAnalysis"
-            eventKey="applicationsAnalysis"
-            title={<TabTitleText>Analysis</TabTitleText>}
-          />
+          <Tab eventKey={0} title={<TabTitleText>Assessment</TabTitleText>} />
+          <Tab eventKey={1} title={<TabTitleText>Analysis</TabTitleText>} />
         </Tabs>
       </PageSection>
       <PageSection>
         <Suspense fallback={<AppPlaceholder />}>
           <Switch>
             <Route
-              path={Paths.applicationsAssessments}
+              path={Paths.applicationsAssessmentTab}
               component={ApplicationTable}
             />
             <Route
-              path={Paths.applicationsAnalysis}
+              path={Paths.applicationsAnalysisTab}
               component={ApplicationsTableAnalyze}
             />
             <Redirect
               from={Paths.applications}
-              to={Paths.applicationsAssessments}
+              to={Paths.applicationsAssessmentTab}
               exact
             />
           </Switch>

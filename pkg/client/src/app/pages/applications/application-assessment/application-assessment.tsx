@@ -3,11 +3,6 @@ import { useHistory, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FormikHelpers, FormikProvider, useFormik } from "formik";
 import { AxiosError } from "axios";
-
-import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
-import { confirmDialogActions } from "@app/store/confirmDialog";
-
 import {
   Alert,
   AlertActionCloseButton,
@@ -18,6 +13,9 @@ import {
 } from "@patternfly/react-core";
 import { BanIcon } from "@patternfly/react-icons/dist/esm/icons/ban-icon";
 
+import { useDispatch } from "react-redux";
+import { alertActions } from "@app/store/alert";
+import { confirmDialogActions } from "@app/store/confirmDialog";
 import {
   ConditionalRender,
   SimpleEmptyState,

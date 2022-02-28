@@ -31,6 +31,7 @@ import {
   BulkCopyReview,
   Identity,
   Setting,
+  Task,
 } from "./models";
 
 // TACKLE_HUB
@@ -525,4 +526,8 @@ export const createSetting = (obj: Setting): AxiosPromise<Setting> => {
 
 export const getTasks = (): AxiosPromise<Array<any>> => {
   return APIClient.get(`${TASKS}`, jsonHeaders);
+};
+
+export const createTask = (obj: Task): AxiosPromise<Task> => {
+  return APIClient.post(`${TASKS}`, obj);
 };

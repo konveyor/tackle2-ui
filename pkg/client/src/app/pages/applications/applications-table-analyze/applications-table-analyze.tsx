@@ -1,18 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { AxiosResponse } from "axios";
-import { useTranslation, Trans } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@konveyor/lib-ui";
-
 import {
   Button,
   ButtonVariant,
   DropdownItem,
   Modal,
-  ToolbarChip,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+
 import {
   cellWidth,
   expandable,
@@ -27,62 +26,31 @@ import {
 } from "@patternfly/react-table";
 import { TagIcon } from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import { PencilAltIcon } from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
-
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@app/store/rootReducer";
 import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 import { unknownTagsSelectors } from "@app/store/unknownTags";
 import { bulkCopySelectors } from "@app/store/bulkCopy";
-
 import {
-  ApplicationToolbarToggleGroup,
   AppPlaceholder,
   AppTableWithControls,
   ConditionalRender,
   NoDataEmptyState,
-  StatusIconAssessment,
   KebabDropdown,
 } from "@app/shared/components";
-import {
-  useTableControls,
-  useAssessApplication,
-  useMultipleFetch,
-  useFetch,
-  useEntityModal,
-  useDelete,
-  useApplicationToolbarFilter,
-} from "@app/shared/hooks";
+import { useFetch, useEntityModal, useDelete } from "@app/shared/hooks";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
-
-import { formatPath, Paths } from "@app/Paths";
-import { ApplicationFilterKey } from "@app/Constants";
-
-import {
-  Application,
-  ApplicationPage,
-  Assessment,
-  SortByQuery,
-  TagType,
-} from "@app/api/models";
-import {
-  deleteApplication,
-  deleteAssessment,
-  deleteReview,
-  getApplications,
-  getAssessments,
-  getTasks,
-} from "@app/api/rest";
+import { Paths } from "@app/Paths";
+import { Application } from "@app/api/models";
+import { deleteApplication, getApplications } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-
 import { ApplicationForm } from "../components/application-form";
-
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
-import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
 import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm";
 import { ApplicationListExpandedAreaAnalysis } from "../components/application-list-expanded-area/application-list-expanded-area-analysis";
-import { ApplicationAnalysisStatus } from "../components/application-analysis";
+import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import {
   FilterCategory,
@@ -91,18 +59,12 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
+import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 
 const ENTITY_FIELD = "entity";
 
 const getRow = (rowData: IRowData): Application => {
   return rowData[ENTITY_FIELD];
-};
-
-const searchAppAssessment = (id: number) => {
-  const result = getAssessments({ applicationId: id }).then(({ data }) =>
-    data[0] ? data[0] : undefined
-  );
-  return result;
 };
 
 export const ApplicationsTableAnalyze: React.FC = () => {
@@ -229,21 +191,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     onDelete: (t: Application) => deleteApplication(t.id!),
   });
 
-  // Copy assessment modal
-  const {
-    isOpen: isCopyAssessmentModalOpen,
-    data: applicationToCopyAssessmentFrom,
-    update: openCopyAssessmentModal,
-    close: closeCopyAssessmentModal,
-  } = useEntityModal<Application>();
-
-  // Copy assessment and review modal
-  const {
-    isOpen: isCopyAssessmentAndReviewModalOpen,
-    data: applicationToCopyAssessmentAndReviewFrom,
-    update: openCopyAssessmentAndReviewModal,
-    close: closeCopyAssessmentAndReviewModal,
-  } = useEntityModal<Application>();
+  // Analyze modal
+  const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
 
   // Dependencies modal
   const {
@@ -260,27 +209,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   // Application identity modal
   const [isApplicationCredsModalOpenset, setIsApplicationCredsModalOpen] =
     useState(false);
-
-  // Table's assessments
-  const {
-    getData: getApplicationAssessment,
-    isFetching: isFetchingApplicationAssessment,
-    fetchError: fetchErrorApplicationAssessment,
-    fetchCount: fetchCountApplicationAssessment,
-    triggerFetch: fetchApplicationsAssessment,
-  } = useMultipleFetch<number, Assessment | undefined>({
-    onFetchPromise: searchAppAssessment,
-  });
-
-  useEffect(() => {
-    if (applications) {
-      fetchApplicationsAssessment(applications.map((f) => f.id!));
-    }
-  }, [applications, fetchApplicationsAssessment]);
-
-  // Create assessment
-  const { assessApplication, inProgress: isApplicationAssessInProgress } =
-    useAssessApplication();
 
   // Expand, select rows
   const {
@@ -394,47 +322,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
     const actions: (IAction | ISeparator)[] = [];
 
-    const applicationAssessment = getApplicationAssessment(row.id!);
-    if (applicationAssessment?.status === "COMPLETE") {
-      actions.push({
-        title: t("actions.copyAssessment"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: Application = getRow(rowData);
-          openCopyAssessmentModal(row);
-        },
-      });
-    }
-    if (row.review) {
-      actions.push({
-        title: t("actions.copyAssessmentAndReview"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: Application = getRow(rowData);
-          openCopyAssessmentAndReviewModal(row);
-        },
-      });
-    }
-    if (applicationAssessment) {
-      actions.push({
-        title: t("actions.discardAssessment"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: Application = getRow(rowData);
-          discardAssessmentRow(row);
-        },
-      });
-    }
-
     actions.push(
       {
         title: t("actions.manageDependencies"),
@@ -515,131 +402,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     );
   };
 
-  const discardAssessmentRow = (row: Application) => {
-    dispatch(
-      confirmDialogActions.openDialog({
-        title: t("dialog.title.discard", {
-          what: t("terms.assessment").toLowerCase(),
-        }),
-        titleIconVariant: "warning",
-        message: (
-          <span>
-            <Trans
-              i18nKey="dialog.message.discardAssessment"
-              values={{ applicationName: row.name }}
-            >
-              The assessment for <strong>applicationName</strong> will be
-              discarded, as well as the review result. Do you wish to continue?
-            </Trans>
-          </span>
-        ),
-        confirmBtnVariant: ButtonVariant.primary,
-        confirmBtnLabel: t("actions.continue"),
-        cancelBtnLabel: t("actions.cancel"),
-        onConfirm: () => {
-          dispatch(confirmDialogActions.processing());
-
-          Promise.all([row.review ? deleteReview(row.review.id!) : undefined])
-            .then(() => {
-              const assessment = getApplicationAssessment(row.id!);
-              return Promise.all([
-                assessment ? deleteAssessment(assessment.id!) : undefined,
-              ]);
-            })
-            .then(() => {
-              dispatch(confirmDialogActions.closeDialog());
-              dispatch(
-                alertActions.addSuccess(
-                  t("toastr.success.assessmentDiscarded", {
-                    application: row.name,
-                  })
-                )
-              );
-              refreshTable();
-            })
-            .catch((error) => {
-              dispatch(confirmDialogActions.closeDialog());
-              dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-            });
-        },
-      })
-    );
-  };
-
   // Toolbar actions
-  const assessSelectedRows = () => {
-    if (selectedRows.length !== 1) {
-      const msg = "The number of applications to be assess must be 1";
-      dispatch(alertActions.addDanger(msg));
-      return;
-    }
-
-    const row = selectedRows[0];
-    assessApplication(
-      row,
-      (assessment: Assessment) => {
-        const redirectToAssessment = () => {
-          history.push(
-            formatPath(Paths.applicationsAssessment, {
-              assessmentId: assessment.id,
-            })
-          );
-        };
-
-        if (assessment.status === "COMPLETE") {
-          dispatch(
-            confirmDialogActions.openDialog({
-              // t("terms.assessment")
-              title: t("composed.editQuestion", {
-                what: t("terms.assessment").toLowerCase(),
-              }),
-              titleIconVariant: "warning",
-              message: t("message.overrideAssessmentConfirmation"),
-              confirmBtnVariant: ButtonVariant.primary,
-              confirmBtnLabel: t("actions.continue"),
-              cancelBtnLabel: t("actions.cancel"),
-              onConfirm: () => {
-                dispatch(confirmDialogActions.closeDialog());
-                redirectToAssessment();
-              },
-            })
-          );
-        } else {
-          redirectToAssessment();
-        }
-      },
-      (error) => {
-        dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-      }
-    );
-  };
-
-  const reviewSelectedRows = () => {
-    if (selectedRows.length !== 1) {
-      const msg = "The number of applications to be reviewed must be 1";
-      dispatch(alertActions.addDanger(msg));
-      return;
-    }
-
-    const row = selectedRows[0];
-    const assessment = getApplicationAssessment(row.id!);
-    if (!assessment) {
-      console.log("You must assess the application before reviewing it");
-      return;
-    }
-
-    history.push(
-      formatPath(Paths.applicationsReview, {
-        applicationId: row.id,
-      })
-    );
-  };
-
-  // Flags
-  const isReviewBtnDisabled = (row: Application) => {
-    const assessment = getApplicationAssessment(row.id!);
-    return assessment === undefined || assessment.status !== "COMPLETE";
-  };
 
   return (
     <>
@@ -687,11 +450,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                     type="button"
                     aria-label="analyze-application"
                     variant={ButtonVariant.primary}
-                    onClick={assessSelectedRows}
-                    isDisabled={
-                      selectedRows.length !== 1 || isApplicationAssessInProgress
-                    }
-                    isLoading={isApplicationAssessInProgress}
+                    onClick={() => setAnalyzeModalOpen(true)}
+                    isDisabled={selectedRows.length < 1}
                   >
                     {t("actions.analyze")}
                   </Button>
@@ -759,45 +519,12 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         />
       </Modal>
 
-      <Modal
-        isOpen={isCopyAssessmentModalOpen}
-        variant="large"
-        title={t("dialog.title.copyApplicationAssessmentFrom", {
-          what: applicationToCopyAssessmentFrom?.name,
-        })}
-        onClose={closeCopyAssessmentModal}
-      >
-        {applicationToCopyAssessmentFrom && (
-          <BulkCopyAssessmentReviewForm
-            application={applicationToCopyAssessmentFrom}
-            assessment={
-              getApplicationAssessment(applicationToCopyAssessmentFrom.id!)!
-            }
-            onSaved={closeCopyAssessmentModal}
-          />
-        )}
-      </Modal>
-      <Modal
-        isOpen={isCopyAssessmentAndReviewModalOpen}
-        variant="large"
-        title={t("dialog.title.copyApplicationAssessmentAndReviewFrom", {
-          what: applicationToCopyAssessmentAndReviewFrom?.name,
-        })}
-        onClose={closeCopyAssessmentAndReviewModal}
-      >
-        {applicationToCopyAssessmentAndReviewFrom && (
-          <BulkCopyAssessmentReviewForm
-            application={applicationToCopyAssessmentAndReviewFrom}
-            assessment={
-              getApplicationAssessment(
-                applicationToCopyAssessmentAndReviewFrom.id!
-              )!
-            }
-            review={applicationToCopyAssessmentAndReviewFrom.review}
-            onSaved={closeCopyAssessmentAndReviewModal}
-          />
-        )}
-      </Modal>
+      {isAnalyzeModalOpen && (
+        <AnalysisWizard
+          applications={selectedRows}
+          onClose={() => setAnalyzeModalOpen(false)}
+        />
+      )}
 
       <Modal
         isOpen={isDependenciesModalOpen}
