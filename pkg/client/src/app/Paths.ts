@@ -14,12 +14,13 @@ export enum Paths {
 
   // Developer perspective
   applications = "/applications",
-  applicationsAnalysis = "/applications/analysis",
-  applicationsAssessments = "/applications/assessment",
+  applicationsAnalysisTab = "/applications/analysis-tab",
+  applicationsAssessmentTab = "/applications/assessment-tab",
   applicationsImports = "/applications/application-imports",
   applicationsImportsDetails = "/applications/application-imports/:importId",
   applicationsAssessment = "/applications/assessment/:assessmentId",
   applicationsReview = "/applications/application/:applicationId/review",
+  applicationsAnalysis = "/applications/analysis",
   controls = "/controls",
   controlsBusinessServices = "/controls/business-services",
   controlsStakeholders = "/controls/stakeholders",

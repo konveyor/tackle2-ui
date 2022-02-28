@@ -1,6 +1,3 @@
-import { StatusIconAssessmentType } from "@app/shared/components";
-import { boolean } from "yup";
-
 export interface PageQuery {
   page: number;
   perPage: number;
@@ -69,21 +66,6 @@ export interface Tag {
   tagType?: Ref;
 }
 
-export type TaskStatus =
-  | "Canceled"
-  | "Completed"
-  | "Failed"
-  | "InProgress"
-  | "NotStarted"
-  | "Scheduled";
-
-export interface Task {
-  id?: number;
-  name: string;
-  description?: string;
-  data: { application?: number };
-  status: TaskStatus;
-}
 // Application inventory
 export type ProposedAction =
   | "rehost"
@@ -306,4 +288,74 @@ export interface ApplicationImportPage {
 export interface Setting {
   key: string;
   value: boolean | undefined;
+}
+
+// Analysis Task
+
+export type TaskStatus =
+  | "Canceled"
+  | "Completed"
+  | "Failed"
+  | "InProgress"
+  | "NotStarted"
+  | "Scheduled";
+
+export interface Task {
+  id?: number;
+  name: string;
+  // updateUser: string;
+  // createUser: string;
+  // locator: string;
+  addon: string;
+  data: TaskData;
+  error?: string;
+  image?: string;
+  started?: string;
+  terminated?: string;
+  status?: TaskStatus;
+  job?: string;
+  report?: TaskReport;
+}
+export interface TaskData {
+  application: number;
+  path: string;
+  mode: {
+    binary: boolean;
+    withDeps: boolean;
+    artifact?: {
+      bucket: number;
+      path: string;
+    };
+  };
+  targets: string[];
+  scope: {
+    withKnown: boolean;
+    packages: {
+      included: string[];
+      excluded: string[];
+    };
+  };
+  rules?: {
+    directory: {
+      bucket: number;
+      path: string;
+    };
+    tags: {
+      included: string[];
+      excluded: string[];
+    };
+  };
+}
+
+interface TaskReport {
+  activity: string;
+  completed: number;
+  createTime: string;
+  createUser: string;
+  error: string;
+  id: number;
+  status: string;
+  task: number;
+  total: number;
+  updateUser: string;
 }

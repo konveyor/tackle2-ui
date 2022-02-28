@@ -7,15 +7,14 @@ import { RepositoriesGit } from "./pages/repositories/Git";
 import { RepositoriesMvn } from "./pages/repositories/Mvn";
 import { RepositoriesSvn } from "./pages/repositories/Svn";
 import { Paths } from "@app/Paths";
+import { ApplicationAssessment } from "./pages/applications/application-assessment/application-assessment";
 
 const Applications = lazy(() => import("./pages/applications"));
 const ManageImports = lazy(() => import("./pages/applications/manage-imports"));
 const ImportDetails = lazy(
   () => import("./pages/applications/manage-imports-details")
 );
-const ApplicationAssessment = lazy(
-  () => import("./pages/applications/application-assessment")
-);
+
 const Reviews = lazy(() => import("./pages/applications/application-review"));
 const Reports = lazy(() => import("./pages/reports"));
 const Controls = lazy(() => import("./pages/controls"));
@@ -38,6 +37,11 @@ export const devRoutes: IRoute[] = [
   {
     path: Paths.applicationsImports,
     component: ManageImports,
+    exact: false,
+  },
+  {
+    path: Paths.applicationsAssessment,
+    component: ApplicationAssessment,
     exact: false,
   },
   {

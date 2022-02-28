@@ -5,7 +5,6 @@ import { useFetch } from "@app/shared/hooks";
 import { Task, TaskStatus } from "@app/api/models";
 import { getTasks } from "@app/api/rest";
 import { StatusIconAssessment } from "@app/shared/components";
-import { TypeOf } from "yup";
 
 export interface ApplicationAnalysisStatusProps {
   id: number;
@@ -14,6 +13,7 @@ export interface ApplicationAnalysisStatusProps {
 export const ApplicationAnalysisStatus: React.FC<
   ApplicationAnalysisStatusProps
 > = ({ id }) => {
+  // TODO resolve id
   const fetchTasks = useCallback(() => {
     return getTasks();
   }, [id]);
@@ -37,8 +37,8 @@ export const ApplicationAnalysisStatus: React.FC<
 
   let status: TaskStatus = "NotStarted";
   tasks?.forEach((task) => {
-    if (task.data && task.data.application === id) status = task.status;
+    if (task.data && task.status && task.data.application === id)
+      status = task.status;
   });
-  console.log(status);
   return <StatusIconAssessment status={status} />;
 };
