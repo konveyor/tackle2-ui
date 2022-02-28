@@ -33,11 +33,8 @@ import {
   Setting,
 } from "./models";
 
+// TACKLE_HUB
 export const CONTROLS_BASE_URL = "controls";
-export const APP_INVENTORY_BASE_URL = "application-inventory";
-
-export const PATHFINDER_BASE_URL = "pathfinder";
-
 export const BUSINESS_SERVICES = CONTROLS_BASE_URL + "/business-service";
 export const STAKEHOLDERS = CONTROLS_BASE_URL + "/stakeholder";
 export const STAKEHOLDER_GROUPS = CONTROLS_BASE_URL + "/stakeholder-group";
@@ -45,6 +42,7 @@ export const JOB_FUNCTIONS = CONTROLS_BASE_URL + "/job-function";
 export const TAG_TYPES = CONTROLS_BASE_URL + "/tag-type";
 export const TAGS = CONTROLS_BASE_URL + "/tag";
 
+export const APP_INVENTORY_BASE_URL = "application-inventory";
 export const APPLICATIONS = APP_INVENTORY_BASE_URL + "/application";
 export const APPLICATION_DEPENDENCY =
   APP_INVENTORY_BASE_URL + "/applications-dependency";
@@ -55,11 +53,13 @@ export const APP_IMPORT_SUMMARY = APP_INVENTORY_BASE_URL + "/import-summary";
 export const APP_IMPORT = APP_INVENTORY_BASE_URL + "/application-import";
 export const APP_IMPORT_CSV = APP_INVENTORY_BASE_URL + "/csv-export";
 
-export const ASSESSMENTS = PATHFINDER_BASE_URL + "/assessments";
-
 export const IDENTITIES = "/identities";
-
 export const SETTINGS = "/settings";
+export const TASKS = "/tasks";
+
+// PATHFINDER
+export const PATHFINDER_BASE_URL = "pathfinder";
+export const ASSESSMENTS = PATHFINDER_BASE_URL + "/assessments";
 
 const halHeaders = { headers: { Accept: "application/hal+json" } };
 const jsonHeaders = { headers: { Accept: "application/json" } };
@@ -785,4 +785,8 @@ export const updateSetting = (obj: Setting): AxiosPromise<Setting> => {
 
 export const createSetting = (obj: Setting): AxiosPromise<Setting> => {
   return APIClient.post(`${SETTINGS}`, obj);
+};
+
+export const getTasks = (): AxiosPromise<Array<any>> => {
+  return APIClient.get(`${TASKS}`, jsonHeaders);
 };

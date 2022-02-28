@@ -72,6 +72,7 @@ import {
   deleteReview,
   getApplications,
   getAssessments,
+  getTasks,
 } from "@app/api/rest";
 import { applicationPageMapper } from "@app/api/apiUtils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -79,10 +80,12 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationForm } from "../components/application-form";
 
 import { ApplicationBusinessService } from "../components/application-business-service";
-import { ApplicationListExpandedArea } from "../components/application-list-expanded-area";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
 import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm";
+import { ApplicationListExpandedAreaAnalysis } from "../components/application-list-expanded-area/application-list-expanded-area-analysis";
+import { IState } from "@app/shared/hooks/useFetch/useFetch";
+import { ApplicationAnalysisStatus } from "../components/application-analysis";
 
 const toSortByQuery = (
   sortBy?: SortByQuery
@@ -351,13 +354,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           ),
         },
         {
-          // "Not started" | "Scheduled" | "In-progress" | "Canceled" | "Failed" | "Completed"
-
-          title: item.review ? (
-            <StatusIconAssessment status="Completed" />
-          ) : (
-            <StatusIconAssessment status="NotStarted" />
-          ),
+          title: <>{item.id && <ApplicationAnalysisStatus id={item.id} />}</>,
         },
         {
           title: (
@@ -390,7 +387,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       fullWidth: false,
       cells: [
         <div className="pf-c-table__expandable-row-content">
-          <ApplicationListExpandedArea application={item} />
+          <ApplicationListExpandedAreaAnalysis application={item} />
         </div>,
       ],
     });

@@ -785,9 +785,11 @@ export const ApplicationsTable: React.FC = () => {
       </ConditionalRender>
 
       <Modal
-        title={t(`dialog.title.${applicationToUpdate ? "update" : "new"}`, {
-          what: t("terms.application").toLowerCase(),
-        })}
+        title={
+          applicationToUpdate
+            ? t("dialog.title.updateApplication")
+            : t("dialog.title.newApplication")
+        }
         variant="medium"
         isOpen={isApplicationModalOpen}
         onClose={closeApplicationModal}

@@ -1,22 +1,27 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-
 import { Flex, FlexItem, SpinnerProps } from "@patternfly/react-core";
 import { CheckCircleIcon } from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import { TimesCircleIcon } from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import { InProgressIcon } from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
 import { SVGIconProps } from "@patternfly/react-icons/dist/js/createIcon";
+import { ExclamationCircleIcon } from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 import {
   global_disabled_color_200 as disabledColor,
   global_success_color_100 as successColor,
   global_Color_dark_200 as unknownColor,
   global_info_color_200 as loadingColor,
+  global_danger_color_100 as errorColor,
+  global_info_color_100 as infoColor,
 } from "@patternfly/react-tokens";
 
 export type StatusIconAssessmentType =
-  | "NotStarted"
+  | "Canceled"
+  | "Completed"
+  | "Failed"
   | "InProgress"
-  | "Completed";
+  | "NotStarted"
+  | "Scheduled";
 
 type IconListType = {
   [key in StatusIconAssessmentType]: {
@@ -38,6 +43,18 @@ const iconList: IconListType = {
   Completed: {
     Icon: CheckCircleIcon,
     color: successColor,
+  },
+  Scheduled: {
+    Icon: InProgressIcon,
+    color: infoColor,
+  },
+  Canceled: {
+    Icon: TimesCircleIcon,
+    color: infoColor,
+  },
+  Failed: {
+    Icon: ExclamationCircleIcon,
+    color: errorColor,
   },
 };
 
@@ -66,14 +83,23 @@ export const StatusIconAssessment: React.FunctionComponent<
 
   let label: string;
   switch (status) {
-    case "NotStarted":
-      label = t("terms.notStarted");
+    case "Canceled":
+      label = t("terms.canceled");
+      break;
+    case "Completed":
+      label = t("terms.completed");
+      break;
+    case "Failed":
+      label = t("terms.failed");
       break;
     case "InProgress":
       label = t("terms.inProgress");
       break;
-    case "Completed":
-      label = t("terms.completed");
+    case "NotStarted":
+      label = t("terms.notStarted");
+      break;
+    case "Scheduled":
+      label = t("terms.scheduled");
       break;
     default:
       label = t("terms.unknown");
