@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
 import { useFormik, FormikProvider, FormikHelpers, useField } from "formik";
@@ -8,12 +8,9 @@ import {
   Alert,
   Button,
   ButtonVariant,
-  ExpandableSection,
   FileUpload,
   Form,
   FormGroup,
-  SelectVariant,
-  TextArea,
   TextInput,
 } from "@patternfly/react-core";
 
@@ -22,15 +19,14 @@ import {
   SingleSelectFetchOptionValueFormikField,
 } from "@app/shared/components";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { createIdentity, TagTypeSortBy, updateIdentity } from "@app/api/rest";
-import { Identity, Tag } from "@app/api/models";
+import { createIdentity, updateIdentity } from "@app/api/rest";
+import { Identity } from "@app/api/models";
 import {
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
 import "./identity-form.css";
-import { c_options_menu__toggle_active_BorderBottomColor } from "@patternfly/react-tokens";
 const xmllint = require("xmllint");
 const { XMLValidator } = require("fast-xml-parser");
 export interface FormValues {
@@ -137,7 +133,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   };
 
   const formik = useFormik({
-    enableReinitialize: true,
     initialValues: initialValues,
     validationSchema: validationSchema,
     onSubmit: onSubmit,
@@ -147,26 +142,30 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     formik.handleChange(event);
   };
 
-  const [file, setFile] = useState<File>();
   const [isFileRejected, setIsFileRejected] = useState(false);
   const [isSettingsFileRejected, setIsSettingsFileRejected] = useState(false);
 
   const handleFileRejected = () => {
     setIsFileRejected(true);
   };
-  const handleFileInputChange = (event, file, fieldName, fieldFileName) => {
+  const handleFileInputChange = (
+    event: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLElement>,
+    file: File,
+    fieldName: string,
+    fieldFileName: string
+  ) => {
     formik.handleChange(event);
     formik.setFieldValue(fieldName, file);
     formik.setFieldValue(fieldFileName, file.name);
   };
-  const handleTextOrDataChange = (value, fieldName) => {
+  const handleTextOrDataChange = (value: string, fieldName: string) => {
     formik.setFieldValue(fieldName, value);
   };
 
   const handleFileReadStarted = () => setIsLoading(true);
   const handleFileReadFinished = () => setIsLoading(false);
 
-  const validateXML = (value, filename) => {
+  const validateXML = (value: string | File, filename: string) => {
     const validationObject = XMLValidator.validate(value, {
       allowBooleanAttributes: true,
     });
@@ -177,12 +176,17 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       setIsSettingsFileRejected(true);
       formik.setFieldError("settings", validationObject.err?.msg);
       // formik.errors.settings = validationObject.err?.msg;
+      // formik.validateField("settings");
     }
     formik.setFieldValue("settings", value);
     formik.setFieldValue("settingsFilename", filename); // }
   };
 
-  const validateAgainstSchema = (value, filename, schema?) => {
+  const validateAgainstSchema = (
+    value: string | File,
+    filename: string,
+    schema?: string | File
+  ) => {
     const currentSchema = formik.values?.schema || schema;
 
     const validationResult = xmllint.xmllint.validateXML({
@@ -191,17 +195,12 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     });
 
     if (!validationResult.errors) {
-      // it was valid
-      // formik.setFieldValue("settings", value);
-      // formik.setFieldValue("settingsFilename", filename); // }
       setIsSettingsFileRejected(false);
     } else {
-      console.log("validationResult", validationResult.errors);
       setIsSettingsFileRejected(true);
       formik.setFieldError("settings", validationResult?.errors);
     }
   };
-  console.log("isSettingsfilerej", isSettingsFileRejected);
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
@@ -398,6 +397,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     "Upload your [SCM Private Key] file or paste its contents below."
                   }
                   helperTextInvalid="You should select a private key file."
+                  //TODO: PKI crypto validation
                   // validated={isFileRejected ? "error" : "default"}
                 >
                   <FileUpload
@@ -412,6 +412,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     }}
                     dropzoneProps={{
                       // accept: ".csv",
+                      //TODO: key file extention types
                       onDropRejected: handleFileRejected,
                     }}
                     validated={isFileRejected ? "error" : "default"}
@@ -466,7 +467,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               fieldId="settings"
               label={"Upload your Settings file or paste its contents below."}
               helperTextInvalid="You should select a valid settings.xml file."
-              validated={isSettingsFileRejected ? "error" : "default"}
+              // validated={isSettingsFileRejected ? "error" : "default"}
             >
               <FileUpload
                 id="file"
@@ -483,7 +484,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   accept: ".xml",
                   onDropRejected: handleFileRejected,
                 }}
-                validated={isSettingsFileRejected ? "error" : "default"}
+                // validated={isSettingsFileRejected ? "error" : "default"}
                 filenamePlaceholder="Drag and drop a file or upload one"
                 onFileInputChange={(event, file) =>
                   handleFileInputChange(
