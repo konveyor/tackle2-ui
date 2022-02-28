@@ -1,38 +1,40 @@
 {
+  "include": ["src/**/*"],
   "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "importHelpers": true,
-    "isolatedModules": true,
-    "jsx": "react",
+    "outDir": "dist",
+    "target": "es5",  
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
+    "sourceMap": true,
+    "allowJs": true,
+    "checkJs": true,
+    "downlevelIteration": true,
+    "importHelpers": true,
+    "noEmitHelpers": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react",
     "module": "esnext",
     "moduleResolution": "node",
-    "noEmit": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": false,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "outDir": "dist",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
     "paths": {
       "@app/*": ["src/app/*"],
       "@assets/*": ["node_modules/@patternfly/react-core/dist/styles/assets/*"]
     },
-    "resolveJsonModule": true,
-    "rootDir": ".",
     "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": true,
+    "strict": true, // Includes alwaysStrict and noImplicitAny
+    "noUnusedParameters": false, // TODO: activate when fixed
+    "noUnusedLocals": false, // TODO: activate when fixed
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitThis": true,
     "strictNullChecks": true,
-    "target": "es5",
-    
+    "noEmit": true 
   },
-  "include": ["./src/**/*.ts", "./src/**/*.tsx", "./src/**/*.jsx", "./src/**/*.js"],
 }
