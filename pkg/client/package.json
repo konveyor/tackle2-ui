@@ -14,10 +14,10 @@
     "proxy:pathfinder": "kubectl port-forward svc/tackle-pathfinder -n konveyor-tackle 9003:8080",
     "proxy": "concurrently -n keycloak,hub,pathfinder \"npm:proxy:keycloak\" \"npm:proxy:hub\" \"npm:proxy:pathfinder\"",
     "server": "node ../server/index.js",
-    "start:dev": "concurrently -n server,client \"npm:server\" \"npm:build:dev\"",
-    "start:dev:local": "concurrently -n proxy,server,client \"npm:proxy\" \"npm:server\" \"npm:build:dev\"",
     "start": "node ../server/index.js -r @cypress/instrument-cra",
-    "test:unit": "$(npm bin)/jest --rootDir=. --config=config/jest.config.js"
+    "start:dev": "concurrently -n proxy,server,client -c \"green.bold.inverse,blue.bold.inverse,yellow.bold.inverse\" \"npm:proxy\" \"npm:server\" \"npm:build:dev\"",
+    "test:unit": "$(npm bin)/jest --rootDir=. --config=config/jest.config.js",
+    "tsc": "$(npm bin)/tsc -p ./tsconfig.json"
   },
   "dependencies": {
     "@hot-loader/react-dom": "^17.0.2",
@@ -88,6 +88,7 @@
     "eslint-webpack-plugin": "^3.1.1",
     "exports-loader": "^3.1.0",
     "file-loader": "^6.2.0",
+    "fork-ts-checker-webpack-plugin": "^7.2.1",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^4.3.7",
     "i18next-parser": "^3.6.0",
