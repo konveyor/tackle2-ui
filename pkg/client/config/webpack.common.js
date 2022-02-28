@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
@@ -24,16 +25,13 @@ module.exports = (env) => {
     module: {
       rules: [
         {
-          test: /\.(tsx|ts|jsx)?$/,
-          use: [
-            {
-              loader: "ts-loader",
-              options: {
-                transpileOnly: true,
-                experimentalWatchApi: true,
-              },
-            },
-          ],
+          test: /\.tsx?$/,
+          loader: "ts-loader",
+          exclude: /node_modules/,
+          options: {
+            // disable type checker for fork-ts-checker-webpack-plugin
+            transpileOnly: true,
+          },
         },
         {
           test: /\.(svg|ttf|eot|woff|woff2)$/,
@@ -160,6 +158,7 @@ module.exports = (env) => {
       ],
     },
     plugins: [
+      new ForkTsCheckerWebpackPlugin(),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, "../public/index.html"),
         favicon: path.resolve(__dirname, "../public/favicon.ico"),
