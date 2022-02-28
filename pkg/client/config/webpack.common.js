@@ -5,8 +5,9 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+const { WatchIgnorePlugin } = require("webpack");
+
 const BG_IMAGES_DIRNAME = "images";
-// const ASSET_PATH = process.env.ASSET_PATH || "/";
 
 module.exports = (env) => {
   return {
@@ -19,7 +20,7 @@ module.exports = (env) => {
     output: {
       filename: "[name].bundle.js",
       path: path.resolve(__dirname, "../dist"),
-      // publicPath: ASSET_PATH,
+      // publicPath: "auto",
       clean: true,
     },
     module: {
@@ -179,6 +180,9 @@ module.exports = (env) => {
             to: path.resolve(__dirname, "../dist/manifest.json"),
           },
         ],
+      }),
+      new WatchIgnorePlugin({
+        paths: [/\.js$/, /\.d\.ts$/],
       }),
     ],
     resolve: {
