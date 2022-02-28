@@ -73,7 +73,7 @@ export const FilterToolbar = <T,>({
     filterCategories[0].key
   );
 
-  const onCategorySelect = (category) => {
+  const onCategorySelect = (category: FilterCategory<T>) => {
     setCurrentCategoryKey(category.key);
     setIsCategoryDropdownOpen(false);
   };

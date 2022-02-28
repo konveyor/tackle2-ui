@@ -37,7 +37,9 @@ export const Controls: React.FC = () => {
         </Level>
         <Tabs
           activeKey={"activeTabKey"}
-          onSelect={(_event, tabKey) => history.push(Paths[tabKey])}
+          onSelect={(_event, tabKey) =>
+            history.push(Paths[tabKey as keyof typeof Paths])
+          }
         >
           <Tab
             key="controlsStakeholders"
