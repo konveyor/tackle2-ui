@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { deleteIdentity, getIdentities } from "@app/api/rest";
 import {
@@ -23,7 +23,6 @@ import {
   TableHeader,
   TableText,
 } from "@patternfly/react-table";
-import { PencilAltIcon } from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import {
@@ -39,9 +38,7 @@ import { Identity } from "@app/api/models";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
-import { useFetch } from "@app/shared/hooks/useFetch";
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
-import { IdentityForm } from "./components/identity-form";
 import { AxiosResponse } from "axios";
 import { useDispatch } from "react-redux";
 import { alertActions } from "@app/store/alert";
@@ -50,6 +47,7 @@ import { confirmDialogActions } from "@app/store/confirmDialog";
 import { NewIdentityModal } from "./components/new-identity-modal";
 import { UpdateIdentityModal } from "./components/update-identity-modal";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
 
 const ENTITY_FIELD = "entity";
 
@@ -70,23 +68,15 @@ export const Identities: React.FunctionComponent = () => {
     close: closeIdentityModal,
   } = useEntityModal<Identity>();
 
-  const fetchIdentities = useCallback(() => {
-    return getIdentities();
-  }, []);
-
   const {
-    data: page,
-    isFetching,
-    fetchError,
-    requestFetch: refreshTable,
-  } = useFetch<Array<any>>({
-    defaultIsFetching: true,
-    onFetch: fetchIdentities,
-  });
+    identities,
+    fetchError: fetchErrorIdentities,
+    fetchIdentities,
+  } = useFetchIdentities();
 
-  const identities = useMemo(() => {
-    return page !== undefined ? page : undefined;
-  }, [page]);
+  useEffect(() => {
+    fetchIdentities();
+  }, [fetchIdentities]);
 
   const { requestDelete: requestDeleteIdentity } = useDelete<Identity>({
     onDelete: (t: Identity) => deleteIdentity(t.id!),
@@ -107,7 +97,7 @@ export const Identities: React.FunctionComponent = () => {
       type: FilterType.search,
       placeholderText: "Filter by name...",
       getItemValue: (item) => {
-        return item.name;
+        return item?.name || "";
       },
     },
     {
@@ -126,19 +116,19 @@ export const Identities: React.FunctionComponent = () => {
       type: FilterType.search,
       placeholderText: "Filter by created by...",
       getItemValue: (item) => {
-        return item.createUser;
+        return item.createUser || "";
       },
     },
   ];
 
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
-    identities || [],
+    identities?.data || [],
     filterCategories
   );
   const getSortValues = (identity: Identity) => [
-    identity.name,
-    identity.kind,
-    identity.createUser,
+    identity?.name || "",
+    identity?.kind || "",
+    identity?.createUser || "",
     "", // Action column
   ];
 
@@ -148,10 +138,6 @@ export const Identities: React.FunctionComponent = () => {
   );
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState(sortedItems, 10);
-
-  useEffect(() => {
-    refreshTable();
-  }, [refreshTable]);
 
   const columns: ICell[] = [
     {
@@ -193,7 +179,7 @@ export const Identities: React.FunctionComponent = () => {
             row,
             () => {
               dispatch(confirmDialogActions.closeDialog());
-              refreshTable();
+              fetchIdentities();
             },
             (error) => {
               dispatch(confirmDialogActions.closeDialog());
@@ -218,12 +204,12 @@ export const Identities: React.FunctionComponent = () => {
     }
 
     closeIdentityModal();
-    refreshTable();
+    fetchIdentities();
   };
 
   const handleOnIdentityUpdated = () => {
     setRowToUpdate(undefined);
-    refreshTable();
+    fetchIdentities();
   };
 
   const rows: IRow[] = [];
@@ -309,7 +295,7 @@ export const Identities: React.FunctionComponent = () => {
           onCancel={handleOnCancelUpdateIdentity}
         />
 
-        {identities && identities?.length > 0 ? (
+        {identities && identities?.data.length > 0 ? (
           <Table
             aria-label="Credentials table"
             cells={columns}
