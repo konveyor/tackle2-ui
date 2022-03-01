@@ -94,68 +94,68 @@ export const getAllApplicationDependencies = (filters: {
 //
 
 export const stakeholderPageMapper = (
-  page: StakeholderPage
+  page: Array<any>
 ): PageRepresentation<Stakeholder> => ({
-  meta: { count: page.total_count },
-  data: page._embedded.stakeholder,
+  meta: { count: 0 },
+  data: page,
 });
 
 export const stakeholderGroupPageMapper = (
-  page: StakeholderGroupPage
+  page: Array<any>
 ): PageRepresentation<StakeholderGroup> => ({
-  meta: { count: page.total_count },
-  data: page._embedded["stakeholder-group"],
+  meta: { count: 0 },
+  data: page,
 });
 
 export const bussinessServicePageMapper = (
-  page: BusinessServicePage
+  page: Array<any>
 ): PageRepresentation<BusinessService> => ({
-  meta: { count: page.total_count },
-  data: page._embedded["business-service"],
+  meta: { count: 0 },
+  data: page,
 });
 
 export const jobFunctionPageMapper = (
-  page: JobFunctionPage
+  page: Array<any>
 ): PageRepresentation<JobFunction> => ({
-  meta: { count: page.total_count },
-  data: page._embedded["job-function"],
+  meta: { count: 0 },
+  data: page,
 });
 
 export const tagTypePageMapper = (
-  page: TagTypePage
+  page: Array<any>
 ): PageRepresentation<TagType> => ({
-  meta: { count: page.total_count },
-  data: page._embedded["tag-type"],
+  meta: { count: 0 },
+  data: page,
 });
 
 //
 
 export const applicationPageMapper = (
-  page: ApplicationPage
+  page: Array<any>
 ): PageRepresentation<Application> => ({
-  meta: { count: page.total_count },
-  data: page._embedded.application,
+  meta: { count: 0 },
+  data: page,
 });
 
 export const applicationDependencyPageMapper = (
-  page: ApplicationDependencyPage
+  page: Array<any>
 ): PageRepresentation<ApplicationDependency> => ({
-  meta: { count: page.total_count },
-  data: page._embedded["applications-dependency"],
+  meta: { count: 0 },
+  data: page,
 });
 
 export const applicationImportSummaryPageMapper = (
-  page: ApplicationImportSummaryPage
+  page: Array<any>
 ): PageRepresentation<ApplicationImportSummary> => ({
-  meta: { count: page.total_count },
-  data: page._embedded["import-summary"],
+  meta: { count: 0 },
+  data: page,
 });
 
 export const applicationImportPageMapper = (
-  page: ApplicationImportPage
+  page: Array<any>
 ): PageRepresentation<ApplicationImport> => ({
-  meta: { count: page.total_count },
-  data: page._embedded["application-import"],
+  meta: { count: 0 },
+  data: page,
 });
 
 export const IdentityPageMapper = (

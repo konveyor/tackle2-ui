@@ -35,23 +35,21 @@ import {
 
 // TACKLE_HUB
 export const CONTROLS_BASE_URL = "controls";
-export const BUSINESS_SERVICES = CONTROLS_BASE_URL + "/business-service";
-export const STAKEHOLDERS = CONTROLS_BASE_URL + "/stakeholder";
-export const STAKEHOLDER_GROUPS = CONTROLS_BASE_URL + "/stakeholder-group";
-export const JOB_FUNCTIONS = CONTROLS_BASE_URL + "/job-function";
-export const TAG_TYPES = CONTROLS_BASE_URL + "/tag-type";
-export const TAGS = CONTROLS_BASE_URL + "/tag";
+export const BUSINESS_SERVICES = "/businessservices";
+export const STAKEHOLDERS = "/stakeholders";
+export const STAKEHOLDER_GROUPS = "/stakeholdergroups";
+export const JOB_FUNCTIONS = "/jobfunctions";
+export const TAG_TYPES = "/tagtypes";
+export const TAGS = "/tags";
 
-export const APP_INVENTORY_BASE_URL = "application-inventory";
-export const APPLICATIONS = APP_INVENTORY_BASE_URL + "/application";
-export const APPLICATION_DEPENDENCY =
-  APP_INVENTORY_BASE_URL + "/applications-dependency";
-export const REVIEW = APP_INVENTORY_BASE_URL + "/review";
-export const REPORT = APP_INVENTORY_BASE_URL + "/report";
-export const UPLOAD_FILE = APP_INVENTORY_BASE_URL + "/file/upload";
-export const APP_IMPORT_SUMMARY = APP_INVENTORY_BASE_URL + "/import-summary";
-export const APP_IMPORT = APP_INVENTORY_BASE_URL + "/application-import";
-export const APP_IMPORT_CSV = APP_INVENTORY_BASE_URL + "/csv-export";
+export const APPLICATIONS = "/applications";
+export const APPLICATION_DEPENDENCY = "/dependencies";
+export const REVIEW = "/review";
+export const REPORT = "/application-inventory/reports";
+export const UPLOAD_FILE = "/importsummaries/upload";
+export const APP_IMPORT_SUMMARY = "/importsummaries";
+export const APP_IMPORT = "/imports";
+export const APP_IMPORT_CSV = "/importsummaries/download";
 
 export const IDENTITIES = "/identities";
 export const SETTINGS = "/settings";
