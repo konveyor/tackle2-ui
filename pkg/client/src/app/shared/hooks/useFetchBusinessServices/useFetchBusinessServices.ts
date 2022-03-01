@@ -7,11 +7,7 @@ import {
   BusinessServiceSortByQuery,
   BusinessServiceSortBy,
 } from "@app/api/rest";
-import {
-  PageRepresentation,
-  BusinessService,
-  PageQuery,
-} from "@app/api/models";
+import { BusinessService, PageQuery } from "@app/api/models";
 
 export const {
   request: fetchRequest,
@@ -21,11 +17,11 @@ export const {
   "useFetchBusinessServices/fetch/request",
   "useFetchBusinessServices/fetch/success",
   "useFetchBusinessServices/fetch/failure"
-)<void, PageRepresentation<BusinessService>, AxiosError>();
+)<void, Array<BusinessService>, AxiosError>();
 
 type State = Readonly<{
   isFetching: boolean;
-  businessServices?: PageRepresentation<BusinessService>;
+  businessServices?: Array<BusinessService>;
   fetchError?: AxiosError;
   fetchCount: number;
 }>;
@@ -76,7 +72,7 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export interface IState {
-  businessServices?: PageRepresentation<BusinessService>;
+  businessServices?: Array<BusinessService>;
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;

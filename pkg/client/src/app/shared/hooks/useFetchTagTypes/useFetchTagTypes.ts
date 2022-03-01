@@ -3,7 +3,7 @@ import { AxiosError } from "axios";
 import { ActionType, createAsyncAction, getType } from "typesafe-actions";
 
 import { getTagTypes, TagTypeSortBy, TagTypeSortByQuery } from "@app/api/rest";
-import { PageRepresentation, PageQuery, TagType } from "@app/api/models";
+import { PageQuery, TagType } from "@app/api/models";
 
 export const {
   request: fetchRequest,
@@ -13,11 +13,11 @@ export const {
   "useFetchTagTypes/fetch/request",
   "useFetchTagTypes/fetch/success",
   "useFetchTagTypes/fetch/failure"
-)<void, PageRepresentation<TagType>, AxiosError>();
+)<void, Array<TagType>, AxiosError>();
 
 type State = Readonly<{
   isFetching: boolean;
-  tagTypes?: PageRepresentation<TagType>;
+  tagTypes?: Array<TagType>;
   fetchError?: AxiosError;
   fetchCount: number;
 }>;
@@ -68,7 +68,7 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export interface IState {
-  tagTypes?: PageRepresentation<TagType>;
+  tagTypes?: Array<TagType>;
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;

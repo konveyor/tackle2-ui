@@ -7,7 +7,7 @@ import {
   ApplicationSortByQuery,
   ApplicationSortBy,
 } from "@app/api/rest";
-import { PageRepresentation, Application, PageQuery } from "@app/api/models";
+import { Application, PageQuery } from "@app/api/models";
 
 export const {
   request: fetchRequest,
@@ -17,11 +17,11 @@ export const {
   "useFetchApplications/fetch/request",
   "useFetchApplications/fetch/success",
   "useFetchApplications/fetch/failure"
-)<void, PageRepresentation<Application>, AxiosError>();
+)<void, Array<Application>, AxiosError>();
 
 type State = Readonly<{
   isFetching: boolean;
-  applications?: PageRepresentation<Application>;
+  applications?: Array<Application>;
   fetchError?: AxiosError;
   fetchCount: number;
 }>;
@@ -72,7 +72,7 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export interface IState {
-  applications?: PageRepresentation<Application>;
+  applications?: Array<Application>;
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;

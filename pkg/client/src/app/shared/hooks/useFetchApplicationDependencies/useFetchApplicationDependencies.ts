@@ -3,7 +3,7 @@ import { AxiosError } from "axios";
 import { ActionType, createAsyncAction, getType } from "typesafe-actions";
 
 import { getApplicationDependencies } from "@app/api/rest";
-import { PageRepresentation, ApplicationDependency } from "@app/api/models";
+import { ApplicationDependency } from "@app/api/models";
 
 export const {
   request: fetchRequest,
@@ -13,11 +13,11 @@ export const {
   "useFetchApplicationDependencies/fetch/request",
   "useFetchApplicationDependencies/fetch/success",
   "useFetchApplicationDependencies/fetch/failure"
-)<void, PageRepresentation<ApplicationDependency>, AxiosError>();
+)<void, Array<ApplicationDependency>, AxiosError>();
 
 type State = Readonly<{
   isFetching: boolean;
-  applicationDependencies?: PageRepresentation<ApplicationDependency>;
+  applicationDependencies?: Array<ApplicationDependency>;
   fetchError?: AxiosError;
   fetchCount: number;
 }>;
@@ -68,7 +68,7 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export interface IState {
-  applicationDependencies?: PageRepresentation<ApplicationDependency>;
+  applicationDependencies?: Array<ApplicationDependency>;
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;

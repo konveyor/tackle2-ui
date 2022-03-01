@@ -11,11 +11,6 @@ export interface SortByQuery {
   direction: "asc" | "desc";
 }
 
-export interface PageRepresentation<T> {
-  meta: Meta;
-  data: T[];
-}
-
 export interface Meta {
   count: number;
 }
@@ -31,17 +26,17 @@ export interface BusinessService {
 
 export interface Stakeholder {
   id?: number;
-  displayName: string;
+  name: string;
   email: string;
   jobFunction?: JobFunction;
-  stakeholderGroups?: StakeholderGroup[];
+  stakeholderGroup?: StakeholderGroup[];
 }
 
 export interface StakeholderGroup {
   id?: number;
   name: string;
   description?: string;
-  stakeholders?: Stakeholder[];
+  stakeholder?: Stakeholder[];
 }
 
 export interface JobFunction {
