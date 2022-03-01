@@ -33,7 +33,7 @@ import {
   toIdentityDropdownOptionWithValue,
 } from "@app/utils/model-utils";
 import { PageRepresentation, Proxy } from "@app/api/models";
-import { createProxy, updateProxy } from "@app/api/rest";
+import { createProxy, deleteProxy, updateProxy } from "@app/api/rest";
 
 export interface FormValues {
   host: string;
@@ -45,19 +45,18 @@ export interface ProxyFormProps {
   proxy?: Proxy;
   isSecure?: boolean;
   onSaved: (response: AxiosResponse<any>) => void;
-  onCancel: () => void;
+  onDelete: () => void;
 }
 
 export const ProxyForm: React.FC<ProxyFormProps> = ({
   proxy,
   isSecure,
   onSaved,
-  onCancel,
+  onDelete,
 }) => {
   const [error, setError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
-  const [isHttpIdentityRequired, setIsHttpIdentityRequired] = useState(false);
-  const [isHttpsIdentityRequired, setIsHttpsIdentityRequired] = useState(false);
+  const [isIdentityRequired, setIsIdentityRequired] = useState(false);
 
   const {
     identities,
@@ -124,27 +123,40 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     [PORT]: proxy?.port || 8080,
     [IDENTITY]: identityInitialValue,
   };
-  console.log("initialValues", initialValues);
+
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: validationSchema({
       [HOST]: true,
       [PORT]: false,
-      [IDENTITY]: isHttpIdentityRequired || isHttpsIdentityRequired,
+      [IDENTITY]: isIdentityRequired,
     }),
     onSubmit: onSubmit,
   });
 
-  const onChangeIsHttpIdentityRequired = () => {
-    setIsHttpIdentityRequired(!isHttpIdentityRequired);
-  };
-
-  const onChangeIsHttpsIdentityRequired = () => {
-    setIsHttpsIdentityRequired(!isHttpsIdentityRequired);
+  const onChangeIsIdentityRequired = () => {
+    setIsIdentityRequired(!isIdentityRequired);
   };
 
   const onChangeField = (value: string, event: React.FormEvent<any>) => {
     formik.handleChange(event);
+  };
+
+  const handleDeleteProxy = () => {
+    let promise: AxiosPromise<Proxy>;
+    if (proxy?.id) {
+      promise = deleteProxy(proxy?.id);
+      promise
+        .then((response) => {
+          formik.resetForm();
+          onDelete();
+        })
+        .catch((error) => {
+          setError(error);
+        });
+    } else {
+      formik.resetForm();
+    }
   };
 
   return (
@@ -202,20 +214,22 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           />
         </FormGroup>
         <Switch
-          id="identityRequired"
+          id={isSecure ? "https-identity-required" : "http-identity-required"}
           className="identityRequired"
           label={
             isSecure ? "HTTPS proxy credentials" : "HTTP proxy credentials"
           }
           aria-label="identity required"
-          isChecked={isHttpIdentityRequired}
-          onChange={onChangeIsHttpIdentityRequired}
+          isChecked={isIdentityRequired}
+          onChange={onChangeIsIdentityRequired}
         />
-        {isHttpIdentityRequired && (
+        {isIdentityRequired && (
           <FormGroup
-            label="Http proxy credentials"
+            label={
+              isSecure ? "HTTPS proxy credentials" : "HTTP proxy credentials"
+            }
             fieldId={IDENTITY}
-            isRequired={isHttpIdentityRequired}
+            isRequired={isIdentityRequired}
             validated={getValidatedFromErrorTouched(
               formik.errors.identity,
               formik.touched.identity
@@ -243,39 +257,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             />
           </FormGroup>
         )}
-        {isHttpsIdentityRequired && (
-          <FormGroup
-            label="Https proxy credentials"
-            fieldId={IDENTITY}
-            isRequired={isHttpsIdentityRequired}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.identity,
-              formik.touched.identity
-            )}
-            helperTextInvalid={formik.errors.identity}
-          >
-            <SingleSelectFetchOptionValueFormikField
-              fieldConfig={{ name: IDENTITY }}
-              selectConfig={{
-                variant: "typeahead",
-                "aria-label": "identity",
-                "aria-describedby": "identity",
-                typeAheadAriaLabel: "identity",
-                toggleAriaLabel: "identity",
-                clearSelectionsAriaLabel: "identity",
-                removeSelectionAriaLabel: "identity",
-                placeholderText: "Select identity type",
-                menuAppendTo: () => document.body,
-                maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-                fetchError: fetchErrorIdentities,
-                isFetching: isFetchingIdentities,
-              }}
-              options={(identities?.data || []).map(toIdentityDropdown)}
-              toOptionWithValue={toIdentityDropdownOptionWithValue}
-            />
-          </FormGroup>
-        )}
-
         <ActionGroup>
           <Button
             type="submit"
@@ -289,6 +270,9 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             }
           >
             {!proxy ? "Save" : "Update"}
+          </Button>
+          <Button variant={ButtonVariant.secondary} onClick={handleDeleteProxy}>
+            {!proxy ? "Clear" : "Delete"}
           </Button>
         </ActionGroup>
       </Form>
