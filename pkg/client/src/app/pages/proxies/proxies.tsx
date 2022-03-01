@@ -20,20 +20,20 @@ import { useFetchProxies } from "@app/shared/hooks/useFetchProxies";
 
 export const Proxies: React.FunctionComponent = () => {
   const { t } = useTranslation();
-  const [isHttpProxy, setHttpProxy] = React.useState(false);
-  const [isHttpsProxy, setHttpsProxy] = React.useState(false);
   const dispatch = useDispatch();
 
-  const onChangeHttpProxy = () => {
-    setHttpProxy(!isHttpProxy);
+  const onChangeIsHttpProxy = () => {
+    setIsHttpProxy(!isHttpProxy);
     fetchProxies();
   };
 
-  const onChangeHttpsProxy = () => {
-    setHttpsProxy(!isHttpsProxy);
+  const onChangeIsHttpsProxy = () => {
+    setIsHttpsProxy(!isHttpsProxy);
+    fetchProxies();
   };
 
   const handleOnProxyCreated = (response: AxiosResponse<any>) => {
+    fetchProxies();
     dispatch(
       alertActions.addSuccess(
         t("toastr.success.added", {
@@ -44,12 +44,7 @@ export const Proxies: React.FunctionComponent = () => {
     );
   };
 
-  const handleOnCancelUpdateProxy = () => {};
-  const {
-    proxies,
-    fetchError: fetchErrorProxies,
-    fetchProxies,
-  } = useFetchProxies();
+  const { proxies, fetchProxies } = useFetchProxies();
 
   useEffect(() => {
     fetchProxies();
@@ -61,6 +56,15 @@ export const Proxies: React.FunctionComponent = () => {
   const existingHttpsProxy = proxies?.data.find(
     (proxy) => proxy.kind === "https"
   );
+  const [isHttpProxy, setIsHttpProxy] = React.useState(false);
+  const [isHttpsProxy, setIsHttpsProxy] = React.useState(false);
+  useEffect(() => {
+    setIsHttpProxy(!!existingHttpProxy);
+    setIsHttpsProxy(!!existingHttpsProxy);
+  }, []);
+  const handleOnDeleteProxy = () => {
+    fetchProxies();
+  };
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -78,7 +82,7 @@ export const Proxies: React.FunctionComponent = () => {
               label="HTTP proxy"
               aria-label="HTTP Proxy"
               isChecked={isHttpProxy}
-              onChange={onChangeHttpProxy}
+              onChange={onChangeIsHttpProxy}
             />
 
             {isHttpProxy && (
@@ -86,7 +90,7 @@ export const Proxies: React.FunctionComponent = () => {
                 proxy={existingHttpProxy}
                 isSecure={false}
                 onSaved={handleOnProxyCreated}
-                onCancel={handleOnCancelUpdateProxy}
+                onDelete={handleOnDeleteProxy}
               />
             )}
           </CardBody>
@@ -99,14 +103,14 @@ export const Proxies: React.FunctionComponent = () => {
               label="HTTPS proxy"
               aria-label="HTTPS Proxy"
               isChecked={isHttpsProxy}
-              onChange={onChangeHttpsProxy}
+              onChange={onChangeIsHttpsProxy}
             />
             {isHttpsProxy && (
               <ProxyForm
                 proxy={existingHttpsProxy}
                 isSecure={true}
                 onSaved={handleOnProxyCreated}
-                onCancel={handleOnCancelUpdateProxy}
+                onDelete={handleOnDeleteProxy}
               />
             )}
           </CardBody>
