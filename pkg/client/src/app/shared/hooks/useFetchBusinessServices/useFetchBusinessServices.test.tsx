@@ -96,7 +96,7 @@ describe("useFetchBusinessServices", () => {
       businessServices: items,
       isFetching,
       fetchError,
-      fetchAllBusinessServices: fetchAll,
+      fetchBusinessServices: fetch,
     } = result.current;
 
     expect(isFetching).toBe(false);
@@ -104,7 +104,7 @@ describe("useFetchBusinessServices", () => {
     expect(fetchError).toBeUndefined();
 
     // Init fetch
-    act(() => fetchAll());
+    act(() => fetch());
     expect(result.current.isFetching).toBe(true);
 
     // Fetch finished

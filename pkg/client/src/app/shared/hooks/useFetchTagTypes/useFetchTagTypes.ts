@@ -80,7 +80,7 @@ export interface IState {
     page: PageQuery,
     sortBy?: TagTypeSortByQuery
   ) => void;
-  fetchAllTagTypes: (sortBy?: TagTypeSortByQuery) => void;
+  fetchTagTypes: (sortBy?: TagTypeSortByQuery) => void;
 }
 
 export const useFetchTagTypes = (
@@ -120,7 +120,7 @@ export const useFetchTagTypes = (
     []
   );
 
-  const fetchAllTagTypes = useCallback((sortBy?: TagTypeSortByQuery) => {
+  const fetchTagTypes = useCallback((sortBy?: TagTypeSortByQuery) => {
     dispatch(fetchRequest());
 
     getTagTypes(
@@ -152,7 +152,7 @@ export const useFetchTagTypes = (
     fetchError: state.fetchError,
     fetchCount: state.fetchCount,
     fetchTagTypes,
-    fetchAllTagTypes,
+    fetchTagTypes,
   };
 };
 

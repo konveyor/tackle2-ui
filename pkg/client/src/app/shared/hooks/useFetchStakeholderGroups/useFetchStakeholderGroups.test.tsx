@@ -102,7 +102,7 @@ describe("useFetchStakeholderGroups", () => {
       stakeholderGroups,
       isFetching,
       fetchError,
-      fetchAllStakeholderGroups,
+      fetchStakeholderGroups,
     } = result.current;
 
     expect(isFetching).toBe(false);
@@ -110,7 +110,7 @@ describe("useFetchStakeholderGroups", () => {
     expect(fetchError).toBeUndefined();
 
     // Init fetch
-    act(() => fetchAllStakeholderGroups());
+    act(() => fetchStakeholderGroups());
     expect(result.current.isFetching).toBe(true);
 
     // Fetch finished

@@ -28,7 +28,7 @@ describe("useFetchApplicationDependencies", () => {
       applicationDependencies: items,
       isFetching,
       fetchError,
-      fetchAllApplicationDependencies: fetchAll,
+      fetchApplicationDependencies: fetch,
     } = result.current;
 
     expect(isFetching).toBe(false);
@@ -36,7 +36,7 @@ describe("useFetchApplicationDependencies", () => {
     expect(fetchError).toBeUndefined();
 
     // Init fetch
-    act(() => fetchAll({ from: ["1"] }));
+    act(() => fetch({ from: ["1"] }));
     expect(result.current.isFetching).toBe(true);
 
     // Fetch finished

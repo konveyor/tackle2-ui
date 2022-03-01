@@ -96,7 +96,7 @@ describe("useFetchTagTypes", () => {
       tagTypes: items,
       isFetching,
       fetchError,
-      fetchAllTagTypes: fetchAll,
+      fetchTagTypes: fetch,
     } = result.current;
 
     expect(isFetching).toBe(false);
@@ -104,7 +104,7 @@ describe("useFetchTagTypes", () => {
     expect(fetchError).toBeUndefined();
 
     // Init fetch
-    act(() => fetchAll());
+    act(() => fetch());
     expect(result.current.isFetching).toBe(true);
 
     // Fetch finished

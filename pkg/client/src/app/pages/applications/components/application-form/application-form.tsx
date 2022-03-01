@@ -72,12 +72,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     businessServices,
     isFetching: isFetchingBusinessServices,
     fetchError: fetchErrorBusinessServices,
-    fetchAllBusinessServices,
+    fetchBusinessServices,
   } = useFetchBusinessServices();
 
   useEffect(() => {
-    fetchAllBusinessServices();
-  }, [fetchAllBusinessServices]);
+    fetchBusinessServices();
+  }, [fetchBusinessServices]);
 
   // TagTypes
 
@@ -85,12 +85,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     tagTypes,
     isFetching: isFetchingTagTypes,
     fetchError: fetchErrorTagTypes,
-    fetchAllTagTypes,
+    fetchTagTypes,
   } = useFetchTagTypes();
 
   useEffect(() => {
-    fetchAllTagTypes({ field: TagTypeSortBy.RANK });
-  }, [fetchAllTagTypes]);
+    fetchTagTypes({ field: TagTypeSortBy.RANK });
+  }, [fetchTagTypes]);
 
   // Tags
 

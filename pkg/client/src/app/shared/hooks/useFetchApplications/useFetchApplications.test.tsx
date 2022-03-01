@@ -102,7 +102,7 @@ describe("useFetchApplications", () => {
       applications: items,
       isFetching,
       fetchError,
-      fetchAllApplications: fetchAll,
+      fetchApplications: fetch,
     } = result.current;
 
     expect(isFetching).toBe(false);
@@ -110,7 +110,7 @@ describe("useFetchApplications", () => {
     expect(fetchError).toBeUndefined();
 
     // Init fetch
-    act(() => fetchAll());
+    act(() => fetch());
     expect(result.current.isFetching).toBe(true);
 
     // Fetch finished

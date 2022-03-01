@@ -161,12 +161,12 @@ export const AdoptionCandidateGraph: React.FC = () => {
   // Dependencies
   const {
     applicationDependencies: dependencies,
-    fetchAllApplicationDependencies: fetchAllDependencies,
+    fetchApplicationDependencies: fetchDependencies,
   } = useFetchApplicationDependencies();
 
   useEffect(() => {
-    fetchAllDependencies({});
-  }, [fetchAllDependencies]);
+    fetchDependencies({});
+  }, [fetchDependencies]);
 
   // Chart data
   const legendAndPoints: ProposedActionChartDataListType = useMemo(() => {

@@ -89,7 +89,7 @@ export interface IState {
     page: PageQuery,
     sortBy?: StakeholderGroupSortByQuery
   ) => void;
-  fetchAllStakeholderGroups: () => void;
+  fetchStakeholderGroups: () => void;
 }
 
 export const useFetchStakeholderGroups = (
@@ -130,7 +130,7 @@ export const useFetchStakeholderGroups = (
     []
   );
 
-  const fetchAllStakeholderGroups = useCallback(() => {
+  const fetchStakeholderGroups = useCallback(() => {
     dispatch(fetchRequest());
 
     getStakeholderGroups(
@@ -162,7 +162,7 @@ export const useFetchStakeholderGroups = (
     fetchError: state.fetchError,
     fetchCount: state.fetchCount,
     fetchStakeholderGroups,
-    fetchAllStakeholderGroups,
+    fetchStakeholderGroups,
   };
 };
 

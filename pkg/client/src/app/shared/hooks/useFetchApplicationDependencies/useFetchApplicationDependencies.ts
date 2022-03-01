@@ -72,7 +72,7 @@ export interface IState {
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;
-  fetchAllApplicationDependencies: (filters: {
+  fetchApplicationDependencies: (filters: {
     from?: string[];
     to?: string[];
   }) => void;
@@ -83,7 +83,7 @@ export const useFetchApplicationDependencies = (
 ): IState => {
   const [state, dispatch] = useReducer(reducer, defaultIsFetching, initReducer);
 
-  const fetchAllApplicationDependencies = useCallback(
+  const fetchApplicationDependencies = useCallback(
     (filters: { from?: string[]; to?: string[] }) => {
       dispatch(fetchRequest());
 
@@ -113,7 +113,7 @@ export const useFetchApplicationDependencies = (
     isFetching: state.isFetching,
     fetchError: state.fetchError,
     fetchCount: state.fetchCount,
-    fetchAllApplicationDependencies,
+    fetchApplicationDependencies,
   };
 };
 

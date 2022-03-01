@@ -58,12 +58,12 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
     stakeholders,
     isFetching: isFetchingStakeholders,
     fetchError: fetchErrorStakeholders,
-    fetchAllStakeholders,
+    fetchStakeholders,
   } = useFetchStakeholders();
 
   useEffect(() => {
-    fetchAllStakeholders();
-  }, [fetchAllStakeholders]);
+    fetchStakeholders();
+  }, [fetchStakeholders]);
 
   const stakeholdersInitialValue: IStakeholderDropdown[] = useMemo(() => {
     return stakeholderGroup && stakeholderGroup.stakeholders
@@ -209,7 +209,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
               isFetching: isFetchingStakeholders,
               fetchError: fetchErrorStakeholders,
             }}
-            options={(stakeholders?.data || []).map(toIStakeholderDropdown)}
+            options={(stakeholders || []).map(toIStakeholderDropdown)}
             toOptionWithValue={toIStakeholderDropdownOptionWithValue}
             isEqual={isIModelEqual}
           />

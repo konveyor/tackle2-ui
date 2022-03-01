@@ -67,23 +67,23 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
     jobFunctions,
     isFetching: isFetchingJobFunctions,
     fetchError: fetchErrorJobFunctions,
-    fetchAllJobFunctions,
+    fetchJobFunctions,
   } = useFetchJobFunctions();
 
   useEffect(() => {
-    fetchAllJobFunctions();
-  }, [fetchAllJobFunctions]);
+    fetchJobFunctions();
+  }, [fetchJobFunctions]);
 
   const {
     stakeholderGroups,
     isFetching: isFetchingGroups,
     fetchError: fetchErrorGroups,
-    fetchAllStakeholderGroups,
+    fetchStakeholderGroups,
   } = useFetchStakeholderGroups();
 
   useEffect(() => {
-    fetchAllStakeholderGroups();
-  }, [fetchAllStakeholderGroups]);
+    fetchStakeholderGroups();
+  }, [fetchStakeholderGroups]);
 
   const jobFunctionInitialValue: IJobFunctionDropdown | null = useMemo(() => {
     return stakeholder && stakeholder.jobFunction

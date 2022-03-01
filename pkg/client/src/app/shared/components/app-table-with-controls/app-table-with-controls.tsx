@@ -15,12 +15,12 @@ import { AppTable, IAppTableProps } from "../app-table/app-table";
 import { SimplePagination } from "../simple-pagination";
 
 export interface IAppTableWithControlsProps extends IAppTableProps {
-  count: number;
-  pagination: {
+  count?: number;
+  pagination?: {
     perPage?: number;
     page?: number;
   };
-  onPaginationChange: ({
+  onPaginationChange?: ({
     page,
     perPage,
   }: {
@@ -70,29 +70,9 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
             </ToolbarToggleGroup>
           )}
           {toolbarActions}
-          {!withoutTopPagination && (
-            <ToolbarItem
-              variant={ToolbarItemVariant.pagination}
-              alignment={{ default: "alignRight" }}
-            >
-              <SimplePagination
-                count={count}
-                params={pagination}
-                onChange={onPaginationChange}
-                isTop={true}
-              />
-            </ToolbarItem>
-          )}
         </ToolbarContent>
       </Toolbar>
       <AppTable {...rest} />
-      {!withoutBottomPagination && (
-        <SimplePagination
-          count={count}
-          params={pagination}
-          onChange={onPaginationChange}
-        />
-      )}
     </div>
   );
 };

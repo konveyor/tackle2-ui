@@ -38,7 +38,7 @@ import { ApplicationFilterKey } from "@app/Constants";
 
 import { ApplicationSortBy, getApplications } from "@app/api/rest";
 import { Application, ApplicationPage } from "@app/api/models";
-import { applicationPageMapper, fetchAllPages } from "@app/api/apiUtils";
+import { applicationPageMapper, fetchPages } from "@app/api/apiUtils";
 
 import { ApplicationSelectionContextProvider } from "./application-selection-context";
 import { Landscape } from "./components/landscape";
@@ -84,7 +84,7 @@ export const Reports: React.FC = () => {
       );
     };
 
-    return fetchAllPages<Application, ApplicationPage>(
+    return fetchPages<Application, ApplicationPage>(
       getApplicationPage,
       (responseData) => applicationPageMapper(responseData).data,
       (responseData) => applicationPageMapper(responseData).meta.count

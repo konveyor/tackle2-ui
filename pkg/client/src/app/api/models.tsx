@@ -46,7 +46,7 @@ export interface StakeholderGroup {
 
 export interface JobFunction {
   id?: number;
-  role: string;
+  name: string;
 }
 
 export interface TagType {
@@ -249,13 +249,6 @@ export interface StakeholderPage {
 export interface StakeholderGroupPage {
   _embedded: {
     "stakeholder-group": StakeholderGroup[];
-  };
-  total_count: number;
-}
-
-export interface JobFunctionPage {
-  _embedded: {
-    "job-function": JobFunction[];
   };
   total_count: number;
 }

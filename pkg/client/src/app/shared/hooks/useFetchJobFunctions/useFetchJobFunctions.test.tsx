@@ -28,7 +28,7 @@ describe("useFetchJobFunctions", () => {
       jobFunctions: items,
       isFetching,
       fetchError,
-      fetchAllJobFunctions: fetchAll,
+      fetchJobFunctions: fetch,
     } = result.current;
 
     expect(isFetching).toBe(false);
@@ -36,7 +36,7 @@ describe("useFetchJobFunctions", () => {
     expect(fetchError).toBeUndefined();
 
     // Init fetch
-    act(() => fetchAll());
+    act(() => fetch());
     expect(result.current.isFetching).toBe(true);
 
     // Fetch finished

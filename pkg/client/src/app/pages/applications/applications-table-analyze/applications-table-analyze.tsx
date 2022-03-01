@@ -82,7 +82,10 @@ import { ApplicationForm } from "../components/application-form";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
-import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm";
+import {
+  ApplicationsIdentityForm,
+  ApplicationsIdentityFormProps,
+} from "../components/ApplicationsIdentityForm";
 import { ApplicationListExpandedAreaAnalysis } from "../components/application-list-expanded-area/application-list-expanded-area-analysis";
 import { IState } from "@app/shared/hooks/useFetch/useFetch";
 import { ApplicationAnalysisStatus } from "../components/application-analysis";
@@ -183,28 +186,18 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   }, [filtersValue, paginationQuery, sortByQuery]);
 
   const {
-    data: page,
+    data: applications,
     isFetching,
     fetchError,
     requestFetch: refreshTable,
-  } = useFetch<ApplicationPage>({
+  } = useFetch<any>({
     defaultIsFetching: true,
     onFetch: fetchApplications,
   });
 
-  const applications = useMemo(() => {
-    return page ? applicationPageMapper(page) : undefined;
-  }, [page]);
-
   useEffect(() => {
     refreshTable();
-  }, [
-    filtersValue,
-    paginationQuery,
-    sortByQuery,
-    isWatchingBulkCopy,
-    refreshTable,
-  ]);
+  }, [refreshTable]);
 
   // Create and update modal
   const {
@@ -281,7 +274,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   useEffect(() => {
     if (applications) {
-      fetchApplicationsAssessment(applications.data.map((f) => f.id!));
+      fetchApplicationsAssessment(applications?.map((f: Application) => f.id!));
     }
   }, [applications, fetchApplicationsAssessment]);
 
@@ -294,7 +287,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     isItemSelected: isRowExpanded,
     toggleItemSelected: toggleRowExpanded,
   } = useSelectionState<Application>({
-    items: applications?.data || [],
+    items: applications || [],
     isEqual: (a, b) => a.id === b.id,
   });
 
@@ -303,7 +296,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     toggleItemSelected: toggleRowSelected,
     selectedItems: selectedRows,
   } = useSelectionState<Application>({
-    items: applications?.data || [],
+    items: applications || [],
     isEqual: (a, b) => a.id === b.id,
   });
 
@@ -327,7 +320,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   ];
 
   const rows: IRow[] = [];
-  applications?.data.forEach((item) => {
+  applications?.forEach((item: Application) => {
     const isExpanded = isRowExpanded(item);
     const isSelected = isRowSelected(item);
 
@@ -659,7 +652,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         then={<AppPlaceholder />}
       >
         <AppTableWithControls
-          count={applications ? applications.meta.count : 0}
+          // count={applications ? applications.meta.count : 0}
+          count={0}
           pagination={paginationQuery}
           sortBy={sortByQuery}
           onPaginationChange={handlePaginationChange}

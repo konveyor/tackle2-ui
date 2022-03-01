@@ -4,17 +4,11 @@ import { APIClient } from "@app/axios-config";
 import {
   PageQuery,
   BusinessService,
-  BusinessServicePage,
   Stakeholder,
-  StakeholderPage,
   StakeholderGroup,
-  StakeholderGroupPage,
-  JobFunctionPage,
-  ApplicationPage,
   Application,
   Assessment,
   JobFunction,
-  ApplicationDependencyPage,
   ApplicationDependency,
   TagTypePage,
   TagType,
@@ -24,7 +18,6 @@ import {
   AssessmentQuestionRisk,
   ApplicationAdoptionPlan,
   AssessmentConfidence,
-  ApplicationImportSummaryPage,
   ApplicationImportPage,
   ApplicationImportSummary,
   BulkCopyAssessment,
@@ -59,7 +52,6 @@ export const TASKS = "/tasks";
 export const PATHFINDER_BASE_URL = "pathfinder";
 export const ASSESSMENTS = PATHFINDER_BASE_URL + "/assessments";
 
-const halHeaders = { headers: { Accept: "application/hal+json" } };
 const jsonHeaders = { headers: { Accept: "application/json" } };
 
 type Direction = "asc" | "desc";
@@ -95,43 +87,8 @@ export interface BusinessServiceSortByQuery {
   direction?: Direction;
 }
 
-export const getBusinessServices = (
-  filters: {
-    name?: string[];
-    description?: string[];
-    owner?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: BusinessServiceSortByQuery
-): AxiosPromise<BusinessServicePage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case BusinessServiceSortBy.NAME:
-        field = "name";
-        break;
-      case BusinessServiceSortBy.OWNER:
-        field = "owner.displayName";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    name: filters.name,
-    description: filters.description,
-    "owner.displayName": filters.owner,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${BUSINESS_SERVICES}?${query.join("&")}`, halHeaders);
+export const getBusinessServices = (): AxiosPromise<Array<any>> => {
+  return APIClient.get(`${BUSINESS_SERVICES}`, jsonHeaders);
 };
 
 export const deleteBusinessService = (id: number | string): AxiosPromise => {
@@ -169,51 +126,8 @@ export interface StakeholderSortByQuery {
   direction?: Direction;
 }
 
-export const getStakeholders = (
-  filters: {
-    email?: string[];
-    displayName?: string[];
-    jobFunction?: string[];
-    stakeholderGroup?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: StakeholderSortByQuery
-): AxiosPromise<StakeholderPage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case StakeholderSortBy.EMAIL:
-        field = "email";
-        break;
-      case StakeholderSortBy.DISPLAY_NAME:
-        field = "displayName";
-        break;
-      case StakeholderSortBy.JOB_FUNCTION:
-        field = "jobFunction.role";
-        break;
-      case StakeholderSortBy.STAKEHOLDER_GROUPS_COUNT:
-        field = "stakeholderGroups.size()";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    email: filters.email,
-    displayName: filters.displayName,
-    "jobFunction.role": filters.jobFunction,
-    "stakeholderGroups.name": filters.stakeholderGroup,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${STAKEHOLDERS}?${query.join("&")}`, halHeaders);
+export const getStakeholders = (): AxiosPromise<Array<any>> => {
+  return APIClient.get(`${STAKEHOLDERS}`);
 };
 
 export const createJobFunction = (
@@ -259,43 +173,8 @@ export interface StakeholderGroupSortByQuery {
   direction?: Direction;
 }
 
-export const getStakeholderGroups = (
-  filters: {
-    name?: string[];
-    description?: string[];
-    stakeholder?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: StakeholderGroupSortByQuery
-): AxiosPromise<StakeholderGroupPage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case StakeholderGroupSortBy.NAME:
-        field = "name";
-        break;
-      case StakeholderGroupSortBy.STAKEHOLDERS_COUNT:
-        field = "stakeholders.size()";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    name: filters.name,
-    description: filters.description,
-    "stakeholders.displayName": filters.stakeholder,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${STAKEHOLDER_GROUPS}?${query.join("&")}`, halHeaders);
+export const getStakeholderGroups = (): AxiosPromise<Array<any>> => {
+  return APIClient.get(`${STAKEHOLDER_GROUPS}`, jsonHeaders);
 };
 
 export const deleteStakeholderGroup = (id: number): AxiosPromise => {
@@ -324,36 +203,8 @@ export interface JobFunctionSortByQuery {
   direction?: Direction;
 }
 
-export const getJobFunctions = (
-  filters: {
-    role?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: JobFunctionSortByQuery
-): AxiosPromise<JobFunctionPage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case JobFunctionSortBy.ROLE:
-        field = "role";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    role: filters.role,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${JOB_FUNCTIONS}?${query.join("&")}`, halHeaders);
+export const getJobFunctions = (): AxiosPromise<Array<any>> => {
+  return APIClient.get(`${JOB_FUNCTIONS}`, jsonHeaders);
 };
 
 // Tag types
@@ -409,7 +260,7 @@ export const getTagTypes = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${TAG_TYPES}?${query.join("&")}`, halHeaders);
+  return APIClient.get(`${TAG_TYPES}?${query.join("&")}`, jsonHeaders);
 };
 
 export const deleteTagType = (id: number): AxiosPromise => {
@@ -465,39 +316,8 @@ export const getApplications = (
   },
   pagination: PageQuery,
   sortBy?: ApplicationSortByQuery
-): AxiosPromise<ApplicationPage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case ApplicationSortBy.NAME:
-        field = "name";
-        break;
-      case ApplicationSortBy.TAGS:
-        field = "tags.size()";
-        break;
-      case ApplicationSortBy.REVIEW:
-        field = "review.deleted,id";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    name: filters.name,
-    description: filters.description,
-    businessService: filters.businessService,
-    "tags.tag": filters.tag,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${APPLICATIONS}?${query.join("&")}`, halHeaders);
+): AxiosPromise<Array<any>> => {
+  return APIClient.get(`${APPLICATIONS}`, jsonHeaders);
 };
 
 export const deleteApplication = (id: number): AxiosPromise => {
@@ -530,20 +350,8 @@ export const getApplicationDependencies = (
     to?: string[];
   },
   pagination: PageQuery
-): AxiosPromise<ApplicationDependencyPage> => {
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-
-    "from.id": filters.from,
-    "to.id": filters.to,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(
-    `${APPLICATION_DEPENDENCY}?${query.join("&")}`,
-    halHeaders
-  );
+): AxiosPromise<Array<any>> => {
+  return APIClient.get(`${APPLICATION_DEPENDENCY}`, jsonHeaders);
 };
 
 export const createApplicationDependency = (
@@ -596,45 +404,8 @@ export interface ApplicationImportSummarySortByQuery {
   direction?: Direction;
 }
 
-export const getApplicationImportSummary = (
-  filters: {
-    filename?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: ApplicationImportSummarySortByQuery
-): AxiosPromise<ApplicationImportSummaryPage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case ApplicationImportSummarySortBy.DATE:
-        field = "createTime";
-        break;
-      case ApplicationImportSummarySortBy.USER:
-        field = "createUser";
-        break;
-      case ApplicationImportSummarySortBy.FILE_NAME:
-        field = "filename";
-        break;
-      case ApplicationImportSummarySortBy.STATUS:
-        field = "importStatus";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    filename: filters.filename,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${APP_IMPORT_SUMMARY}?${query.join("&")}`, halHeaders);
+export const getApplicationImportSummary = (): AxiosPromise<Array<any>> => {
+  return APIClient.get(`${APP_IMPORT_SUMMARY}`, jsonHeaders);
 };
 
 export const getApplicationImportSummaryById = (
@@ -663,7 +434,7 @@ export const getApplicationImport = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${APP_IMPORT}?${query.join("&")}`, halHeaders);
+  return APIClient.get(`${APP_IMPORT}?${query.join("&")}`, jsonHeaders);
 };
 
 export const getApplicationSummaryCSV = (id: string): AxiosPromise => {

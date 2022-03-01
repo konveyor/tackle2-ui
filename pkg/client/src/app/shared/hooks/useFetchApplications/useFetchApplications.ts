@@ -86,7 +86,7 @@ export interface IState {
     page: PageQuery,
     sortBy?: ApplicationSortByQuery
   ) => void;
-  fetchAllApplications: () => void;
+  fetchApplications: () => void;
 }
 
 export const useFetchApplications = (
@@ -128,7 +128,7 @@ export const useFetchApplications = (
     []
   );
 
-  const fetchAllApplications = useCallback(() => {
+  const fetchApplications = useCallback(() => {
     dispatch(fetchRequest());
 
     getApplications(
@@ -160,7 +160,7 @@ export const useFetchApplications = (
     fetchError: state.fetchError,
     fetchCount: state.fetchCount,
     fetchApplications,
-    fetchAllApplications,
+    fetchApplications,
   };
 };
 

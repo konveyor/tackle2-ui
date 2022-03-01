@@ -136,47 +136,16 @@ export const Stakeholders: React.FC = () => {
     useFetchStakeholders(true);
 
   const {
-    paginationQuery,
-    sortByQuery,
-    handlePaginationChange,
-    handleSortChange,
-  } = useTableControls({
-    sortByQuery: { direction: "asc", index: 1 },
-  });
-
-  const {
     isItemSelected: isItemExpanded,
     toggleItemSelected: toggleItemExpanded,
   } = useSelectionState<Stakeholder>({
-    items: stakeholders?.data || [],
+    items: stakeholders || [],
     isEqual: (a, b) => a.id === b.id,
   });
 
-  const refreshTable = useCallback(() => {
-    fetchStakeholders(
-      {
-        email: filtersValue.get(FilterKey.EMAIL),
-        displayName: filtersValue.get(FilterKey.DISPLAY_NAME),
-        jobFunction: filtersValue.get(FilterKey.JOB_FUNCTION),
-        stakeholderGroup: filtersValue.get(FilterKey.STAKEHOLDER_GROUP),
-      },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
-  }, [filtersValue, paginationQuery, sortByQuery, fetchStakeholders]);
-
   useEffect(() => {
-    fetchStakeholders(
-      {
-        email: filtersValue.get(FilterKey.EMAIL),
-        displayName: filtersValue.get(FilterKey.DISPLAY_NAME),
-        jobFunction: filtersValue.get(FilterKey.JOB_FUNCTION),
-        stakeholderGroup: filtersValue.get(FilterKey.STAKEHOLDER_GROUP),
-      },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
-  }, [filtersValue, paginationQuery, sortByQuery, fetchStakeholders]);
+    fetchStakeholders();
+  }, [fetchStakeholders]);
 
   const columns: ICell[] = [
     {
@@ -199,7 +168,7 @@ export const Stakeholders: React.FC = () => {
   ];
 
   const rows: IRow[] = [];
-  stakeholders?.data.forEach((item) => {
+  stakeholders?.forEach((item) => {
     const isExpanded = isItemExpanded(item);
     rows.push({
       [ENTITY_FIELD]: item,
@@ -216,7 +185,7 @@ export const Stakeholders: React.FC = () => {
         {
           title: (
             <TableText wrapModifier="truncate">
-              {item.jobFunction?.role}
+              {item.jobFunction?.name}
             </TableText>
           ),
         },
@@ -289,11 +258,7 @@ export const Stakeholders: React.FC = () => {
             row,
             () => {
               dispatch(confirmDialogActions.closeDialog());
-              if (stakeholders?.data.length === 1) {
-                handlePaginationChange({ page: paginationQuery.page - 1 });
-              } else {
-                refreshTable();
-              }
+              fetchStakeholders();
             },
             (error) => {
               dispatch(confirmDialogActions.closeDialog());
@@ -323,8 +288,6 @@ export const Stakeholders: React.FC = () => {
       const values: string[] = current.get(filterKey) || [];
       return new Map(current).set(filterKey, [...values, filterText]);
     });
-
-    handlePaginationChange({ page: 1 });
   };
 
   const handleOnDeleteFilter = (
@@ -345,8 +308,7 @@ export const Stakeholders: React.FC = () => {
 
   const handleOnCreatedNew = (response: AxiosResponse<Stakeholder>) => {
     setIsNewModalOpen(false);
-    refreshTable();
-
+    fetchStakeholders();
     dispatch(
       alertActions.addSuccess(
         t("toastr.success.added", {
@@ -365,7 +327,7 @@ export const Stakeholders: React.FC = () => {
 
   const handleOnUpdated = () => {
     setRowToUpdate(undefined);
-    refreshTable();
+    fetchStakeholders();
   };
 
   const handleOnUpdatedCancel = () => {
@@ -379,11 +341,7 @@ export const Stakeholders: React.FC = () => {
         then={<AppPlaceholder />}
       >
         <AppTableWithControls
-          count={stakeholders ? stakeholders.meta.count : 0}
-          pagination={paginationQuery}
-          sortBy={sortByQuery}
-          onPaginationChange={handlePaginationChange}
-          onSort={handleSortChange}
+          count={0}
           onCollapse={collapseRow}
           cells={columns}
           rows={rows}

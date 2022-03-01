@@ -53,12 +53,12 @@ export const SelectTagFilter: React.FC<SelectTagFilterProps> = ({
     tagTypes,
     isFetching: isFetchingTagTypes,
     fetchError: fetchErrorTagTypes,
-    fetchAllTagTypes,
+    fetchTagTypes,
   } = useFetchTagTypes();
 
   useEffect(() => {
-    fetchAllTagTypes({ field: TagTypeSortBy.RANK });
-  }, [fetchAllTagTypes]);
+    fetchTagTypes({ field: TagTypeSortBy.RANK });
+  }, [fetchTagTypes]);
 
   // Tags
 

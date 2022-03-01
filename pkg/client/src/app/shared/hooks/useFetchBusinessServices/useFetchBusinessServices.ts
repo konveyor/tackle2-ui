@@ -89,7 +89,7 @@ export interface IState {
     page: PageQuery,
     sortBy?: BusinessServiceSortByQuery
   ) => void;
-  fetchAllBusinessServices: () => void;
+  fetchBusinessServices: () => void;
 }
 
 export const useFetchBusinessServices = (
@@ -126,7 +126,7 @@ export const useFetchBusinessServices = (
     []
   );
 
-  const fetchAllBusinessServices = useCallback(() => {
+  const fetchBusinessServices = useCallback(() => {
     dispatch(fetchRequest());
 
     getBusinessServices(
@@ -158,7 +158,7 @@ export const useFetchBusinessServices = (
     fetchError: state.fetchError,
     fetchCount: state.fetchCount,
     fetchBusinessServices,
-    fetchAllBusinessServices,
+    fetchBusinessServices,
   };
 };
 

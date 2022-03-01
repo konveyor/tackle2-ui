@@ -17,11 +17,11 @@ export const {
   "useFetchJobFunctions/fetch/request",
   "useFetchJobFunctions/fetch/success",
   "useFetchJobFunctions/fetch/failure"
-)<void, PageRepresentation<JobFunction>, AxiosError>();
+)<void, Array<JobFunction>, AxiosError>();
 
 type State = Readonly<{
   isFetching: boolean;
-  jobFunctions?: PageRepresentation<JobFunction>;
+  jobFunctions?: Array<JobFunction>;
   fetchError?: AxiosError;
   fetchCount: number;
 }>;
@@ -72,18 +72,11 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export interface IState {
-  jobFunctions?: PageRepresentation<JobFunction>;
+  jobFunctions?: Array<JobFunction>;
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;
-  fetchJobFunctions: (
-    filters: {
-      role?: string[];
-    },
-    page: PageQuery,
-    sortBy?: JobFunctionSortByQuery
-  ) => void;
-  fetchAllJobFunctions: () => void;
+  fetchJobFunctions: () => void;
 }
 
 export const useFetchJobFunctions = (
@@ -91,55 +84,12 @@ export const useFetchJobFunctions = (
 ): IState => {
   const [state, dispatch] = useReducer(reducer, defaultIsFetching, initReducer);
 
-  const fetchJobFunctions = useCallback(
-    (
-      filters: { role?: string[] },
-      page: PageQuery,
-      sortBy?: JobFunctionSortByQuery
-    ) => {
-      dispatch(fetchRequest());
-
-      getJobFunctions(filters, page, sortBy)
-        .then(({ data }) => {
-          const list = data._embedded["job-function"];
-          const total = data.total_count;
-
-          dispatch(
-            fetchSuccess({
-              data: list,
-              meta: {
-                count: total,
-              },
-            })
-          );
-        })
-        .catch((error: AxiosError) => {
-          dispatch(fetchFailure(error));
-        });
-    },
-    []
-  );
-
-  const fetchAllJobFunctions = useCallback(() => {
+  const fetchJobFunctions = useCallback(() => {
     dispatch(fetchRequest());
 
-    getJobFunctions(
-      {},
-      { page: 1, perPage: 1000 },
-      { field: JobFunctionSortBy.ROLE }
-    )
+    getJobFunctions()
       .then(({ data }) => {
-        const list = data._embedded["job-function"];
-        const total = data.total_count;
-
-        dispatch(
-          fetchSuccess({
-            data: list,
-            meta: {
-              count: total,
-            },
-          })
-        );
+        dispatch(fetchSuccess(data));
       })
       .catch((error: AxiosError) => {
         dispatch(fetchFailure(error));
@@ -147,12 +97,11 @@ export const useFetchJobFunctions = (
   }, []);
 
   return {
-    jobFunctions: state.jobFunctions,
+    jobFunctions: state?.jobFunctions,
     isFetching: state.isFetching,
     fetchError: state.fetchError,
     fetchCount: state.fetchCount,
     fetchJobFunctions,
-    fetchAllJobFunctions,
   };
 };
 

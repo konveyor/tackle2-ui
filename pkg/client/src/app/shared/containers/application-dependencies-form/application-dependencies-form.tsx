@@ -69,27 +69,27 @@ export const ApplicationDependenciesForm: React.FC<
     applicationDependencies: northDependencies,
     isFetching: isFetchingNorthDependencies,
     fetchError: fetchErrorNorthDependencies,
-    fetchAllApplicationDependencies: fetchAllNorthDependencies,
+    fetchApplicationDependencies: fetchNorthDependencies,
   } = useFetchApplicationDependencies();
 
   const {
     applicationDependencies: southDependencies,
     isFetching: isFetchingSouthDependencies,
     fetchError: fetchErrorSouthDependencies,
-    fetchAllApplicationDependencies: fetchAllSouthDependencies,
+    fetchApplicationDependencies: fetchSouthDependencies,
   } = useFetchApplicationDependencies();
 
   useEffect(() => {
-    fetchAllNorthDependencies({
+    fetchNorthDependencies({
       to: [`${application.id}`],
     });
-  }, [application, fetchAllNorthDependencies]);
+  }, [application, fetchNorthDependencies]);
 
   useEffect(() => {
-    fetchAllSouthDependencies({
+    fetchSouthDependencies({
       from: [`${application.id}`],
     });
-  }, [application, fetchAllSouthDependencies]);
+  }, [application, fetchSouthDependencies]);
 
   // Applications
 
@@ -97,12 +97,12 @@ export const ApplicationDependenciesForm: React.FC<
     applications,
     isFetching: isFetchingApplications,
     fetchError: fetchErrorApplications,
-    fetchAllApplications,
+    fetchApplications,
   } = useFetchApplications();
 
   useEffect(() => {
-    fetchAllApplications();
-  }, [fetchAllApplications]);
+    fetchApplications();
+  }, [fetchApplications]);
 
   // Initial value
 

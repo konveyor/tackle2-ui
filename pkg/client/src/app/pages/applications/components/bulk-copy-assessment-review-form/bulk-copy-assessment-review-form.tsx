@@ -178,7 +178,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
   }, [filtersValue, pagination, sortBy, refreshTable]);
 
   // Fetch all applications for SELECT ALL
-  const fetchAllApplications = useCallback(
+  const fetchApplications = useCallback(
     (page: number, perPage: number) => {
       const nameVal = filtersValue.get(ApplicationFilterKey.NAME);
       const descriptionVal = filtersValue.get(ApplicationFilterKey.DESCRIPTION);
@@ -217,7 +217,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
     fetchError: fetchErrorAllApps,
     requestFetch: refreshAllApps,
   } = useFetchPagination<ApplicationPage, Application>({
-    requestFetch: fetchAllApplications,
+    requestFetch: fetchApplications,
     continueIf: continueFetchingAllAppsIf,
     toArray: allAppsResponseToArray,
   });

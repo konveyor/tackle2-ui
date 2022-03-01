@@ -48,12 +48,12 @@ export const SelectBusinessServiceFilter: React.FC<
     businessServices,
     isFetching: isFetchingBusinessServices,
     fetchError: fetchErrorBusinessServices,
-    fetchAllBusinessServices,
+    fetchBusinessServices,
   } = useFetchBusinessServices();
 
   useEffect(() => {
-    fetchAllBusinessServices();
-  }, [fetchAllBusinessServices]);
+    fetchBusinessServices();
+  }, [fetchBusinessServices]);
 
   return (
     <SimpleSelectFetch

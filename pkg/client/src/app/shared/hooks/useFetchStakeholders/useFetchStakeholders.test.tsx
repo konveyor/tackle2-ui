@@ -90,7 +90,7 @@ describe("useFetchStakeholders", () => {
       useFetchStakeholders()
     );
 
-    const { stakeholders, isFetching, fetchError, fetchAllStakeholders } =
+    const { stakeholders, isFetching, fetchError, fetchStakeholders } =
       result.current;
 
     expect(isFetching).toBe(false);
@@ -98,7 +98,7 @@ describe("useFetchStakeholders", () => {
     expect(fetchError).toBeUndefined();
 
     // Init fetch
-    act(() => fetchAllStakeholders());
+    act(() => fetchStakeholders());
     expect(result.current.isFetching).toBe(true);
 
     // Fetch finished
