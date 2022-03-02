@@ -3,7 +3,7 @@ import React from "react";
 import {
   BusinessService,
   JobFunction,
-  Stakeholder,
+  StakeholderRef,
   StakeholderGroup,
   Tag,
   TagType,
@@ -38,13 +38,13 @@ export const toIBusinessServiceDropdownOptionWithValue = (
 // Stakeholder dropdown
 
 export interface IStakeholderDropdown
-  extends Pick<Stakeholder, "id" | "displayName" | "email"> {}
+  extends Pick<StakeholderRef, "id" | "name"> {}
 
 export const toIStakeholderDropdown = (
   value: Stakeholder
 ): IStakeholderDropdown => ({
   id: value.id,
-  displayName: value.displayName,
+  name: value.name,
   email: value.email,
 });
 
@@ -52,7 +52,7 @@ export const toIStakeholderDropdownOptionWithValue = (
   value: IStakeholderDropdown
 ): OptionWithValue<IStakeholderDropdown> => ({
   value,
-  toString: () => value.displayName,
+  toString: () => value.name,
   props: {
     description: value.email,
   },

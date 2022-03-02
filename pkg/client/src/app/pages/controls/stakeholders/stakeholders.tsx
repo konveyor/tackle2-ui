@@ -128,7 +128,7 @@ export const Stakeholders: React.FC = () => {
           ),
         },
         {
-          title: item.stakeholderGroup ? item.stakeholderGroup.length : 0,
+          title: item.stakeholderGroups ? item.stakeholderGroups.length : 0,
         },
         {
           title: (
@@ -151,7 +151,7 @@ export const Stakeholders: React.FC = () => {
               <DescriptionListGroup>
                 <DescriptionListTerm>{t("terms.group(s)")}</DescriptionListTerm>
                 <DescriptionListDescription>
-                  {item.stakeholderGroup?.map((f) => f.name).join(", ")}
+                  {item.stakeholderGroups?.map((f) => f.name).join(", ")}
                 </DescriptionListDescription>
               </DescriptionListGroup>
             </DescriptionList>

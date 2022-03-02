@@ -138,33 +138,13 @@ export const StakeholderGroups: React.FC = () => {
     isItemSelected: isItemExpanded,
     toggleItemSelected: toggleItemExpanded,
   } = useSelectionState<StakeholderGroup>({
-    items: stakeholderGroups?.data || [],
+    items: stakeholderGroups || [],
     isEqual: (a, b) => a.id === b.id,
   });
 
-  const refreshTable = useCallback(() => {
-    fetchStakeholderGroups(
-      {
-        name: filtersValue.get(FilterKey.NAME),
-        description: filtersValue.get(FilterKey.DESCRIPTION),
-        stakeholder: filtersValue.get(FilterKey.STAKEHOLDER),
-      },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
-  }, [filtersValue, paginationQuery, sortByQuery, fetchStakeholderGroups]);
-
   useEffect(() => {
-    fetchStakeholderGroups(
-      {
-        name: filtersValue.get(FilterKey.NAME),
-        description: filtersValue.get(FilterKey.DESCRIPTION),
-        stakeholder: filtersValue.get(FilterKey.STAKEHOLDER),
-      },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
-  }, [filtersValue, paginationQuery, sortByQuery, fetchStakeholderGroups]);
+    fetchStakeholderGroups();
+  }, [fetchStakeholderGroups]);
 
   const columns: ICell[] = [
     {
@@ -186,7 +166,7 @@ export const StakeholderGroups: React.FC = () => {
   ];
 
   const rows: IRow[] = [];
-  stakeholderGroups?.data.forEach((item) => {
+  stakeholderGroups?.forEach((item) => {
     const isExpanded = isItemExpanded(item);
     rows.push({
       [ENTITY_FIELD]: item,
@@ -226,7 +206,7 @@ export const StakeholderGroups: React.FC = () => {
                   {t("terms.member(s)")}
                 </DescriptionListTerm>
                 <DescriptionListDescription>
-                  {item.stakeholders?.map((f) => f.displayName).join(", ")}
+                  {item.stakeholders?.map((f) => f.name).join(", ")}
                 </DescriptionListDescription>
               </DescriptionListGroup>
             </DescriptionList>
@@ -271,10 +251,10 @@ export const StakeholderGroups: React.FC = () => {
             row,
             () => {
               dispatch(confirmDialogActions.closeDialog());
-              if (stakeholderGroups?.data.length === 1) {
+              if (stakeholderGroups?.length === 1) {
                 handlePaginationChange({ page: paginationQuery.page - 1 });
               } else {
-                refreshTable();
+                fetchStakeholderGroups();
               }
             },
             (error) => {
@@ -327,7 +307,7 @@ export const StakeholderGroups: React.FC = () => {
 
   const handleOnCreatedNew = (response: AxiosResponse<StakeholderGroup>) => {
     setIsNewModalOpen(false);
-    refreshTable();
+    fetchStakeholderGroups();
 
     dispatch(
       alertActions.addSuccess(
@@ -347,7 +327,7 @@ export const StakeholderGroups: React.FC = () => {
 
   const handleOnUpdated = () => {
     setRowToUpdate(undefined);
-    refreshTable();
+    fetchStakeholderGroups();
   };
 
   const handleOnUpdatedCancel = () => {
@@ -361,11 +341,6 @@ export const StakeholderGroups: React.FC = () => {
         then={<AppPlaceholder />}
       >
         <AppTableWithControls
-          count={stakeholderGroups ? stakeholderGroups.meta.count : 0}
-          pagination={paginationQuery}
-          sortBy={sortByQuery}
-          onPaginationChange={handlePaginationChange}
-          onSort={handleSortChange}
           onCollapse={collapseRow}
           cells={columns}
           rows={rows}
@@ -373,25 +348,6 @@ export const StakeholderGroups: React.FC = () => {
           isLoading={isFetching}
           loadingVariant="skeleton"
           fetchError={fetchError}
-          toolbarClearAllFilters={handleOnClearAllFilters}
-          filtersApplied={
-            Array.from(filtersValue.values()).reduce(
-              (previous, current) => [...previous, ...current],
-              []
-            ).length > 0
-          }
-          toolbarToggle={
-            <AppTableToolbarToggleGroup
-              categories={filters}
-              chips={filtersValue}
-              onChange={handleOnDeleteFilter}
-            >
-              <SearchFilter
-                options={filters}
-                onApplyFilter={handleOnAddFilter}
-              />
-            </AppTableToolbarToggleGroup>
-          }
           toolbarActions={
             <ToolbarGroup variant="button-group">
               <ToolbarItem>

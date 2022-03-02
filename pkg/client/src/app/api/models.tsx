@@ -17,31 +17,44 @@ export interface Meta {
 
 // Controls
 
+export interface BusinessServiceRef {
+  id?: number;
+  name: string;
+}
 export interface BusinessService {
   id?: number;
   name: string;
   description?: string;
-  owner?: Stakeholder;
+  owner?: StakeholderRef;
 }
 
+export interface StakeholderRef {
+  id?: number;
+  name: string;
+}
 export interface Stakeholder {
   id?: number;
   name: string;
   email: string;
   jobFunction?: JobFunction;
-  stakeholderGroup?: StakeholderGroup[];
+  stakeholderGroups?: StakeholderGroupRef[];
 }
-
 export interface StakeholderGroup {
   id?: number;
   name: string;
   description?: string;
-  stakeholder?: Stakeholder[];
+  stakeholders?: StakeholderRef[];
+}
+
+export interface StakeholderGroupRef {
+  id?: number;
+  name: string;
 }
 
 export interface JobFunction {
   id?: number;
   name: string;
+  stakeholders: Array<StakeholderRef>;
 }
 
 export interface TagType {
@@ -50,6 +63,10 @@ export interface TagType {
   rank?: number;
   colour?: string;
   tags?: Tag[];
+}
+export interface TagTypeRef {
+  id?: number;
+  name: string;
 }
 
 export interface Tag {
@@ -90,7 +107,7 @@ export interface Application {
   name: string;
   description?: string;
   comments?: string;
-  businessService?: string;
+  businessService?: BusinessServiceRef;
   tags?: string[];
   review?: Review;
 }
