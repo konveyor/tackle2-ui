@@ -65,6 +65,7 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationBusinessService } from "../application-business-service";
 import { ApplicationAssessment } from "../application-assessment";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
 const toSortByQuery = (
   sortBy?: SortByQuery
@@ -398,6 +399,11 @@ export const BulkCopyAssessmentReviewForm: React.FC<
       });
   };
 
+  //Placeholder
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState([], 10);
+  //
+
   return (
     <div className="pf-c-form">
       <Card>
@@ -406,9 +412,8 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             variant="compact"
             withoutBottomPagination
             count={applications ? applications.meta.count : 0}
-            pagination={pagination}
+            paginationProps={paginationProps}
             sortBy={sortBy}
-            onPaginationChange={handlePaginationChange}
             onSort={handleSortChange}
             onSelect={selectRow}
             canSelectAll={false}

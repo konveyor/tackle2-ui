@@ -241,7 +241,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
               isFetching: isFetchingJobFunctions,
               fetchError: fetchErrorJobFunctions,
             }}
-            options={(jobFunctions?.data || []).map(toIJobFunctionDropdown)}
+            options={(jobFunctions || []).map(toIJobFunctionDropdown)}
             toOptionWithValue={toIJobFunctionDropdownOptionWithValue}
           />
         </FormGroup>

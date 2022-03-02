@@ -65,6 +65,7 @@ import { applicationImportSummaryPageMapper } from "@app/api/apiUtils";
 import { formatDate, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ImportApplicationsForm } from "../components/import-applications-form";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
 export enum FilterKey {
   FILE_NAME = "filename",
@@ -367,6 +368,11 @@ export const ManageImports: React.FC = () => {
     },
   ];
 
+  //Placeholder
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState([], 10);
+  //
+
   return (
     <>
       <PageSection variant="light">
@@ -392,9 +398,8 @@ export const ManageImports: React.FC = () => {
         >
           <AppTableWithControls
             count={imports ? imports.meta.count : 0}
-            pagination={paginationQuery}
+            paginationProps={paginationProps}
             sortBy={sortByQuery}
-            onPaginationChange={handlePaginationChange}
             onSort={handleSortChange}
             cells={columns}
             rows={rows}

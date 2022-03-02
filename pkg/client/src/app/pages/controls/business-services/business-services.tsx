@@ -46,6 +46,7 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { NewBusinessServiceModal } from "./components/new-business-service-modal";
 import { UpdateBusinessServiceModal } from "./components/update-business-service-modal";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
 enum FilterKey {
   NAME = "name",
@@ -328,6 +329,11 @@ export const BusinessServices: React.FC = () => {
     setRowToUpdate(undefined);
   };
 
+  //Placeholder
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState([], 10);
+  //
+
   return (
     <>
       <ConditionalRender
@@ -336,9 +342,8 @@ export const BusinessServices: React.FC = () => {
       >
         <AppTableWithControls
           count={businessServices ? businessServices.meta.count : 0}
-          pagination={paginationQuery}
+          paginationProps={paginationQuery}
           sortBy={sortByQuery}
-          onPaginationChange={handlePaginationChange}
           onSort={handleSortChange}
           cells={columns}
           rows={rows}

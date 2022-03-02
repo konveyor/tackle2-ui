@@ -54,6 +54,7 @@ import { StakeholderGroup, SortByQuery } from "@app/api/models";
 
 import { NewStakeholderGroupModal } from "./components/new-stakeholder-group-modal";
 import { UpdateStakeholderGroupModal } from "./components/update-stakeholder-group-modal";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
 enum FilterKey {
   NAME = "name",
@@ -353,6 +354,10 @@ export const StakeholderGroups: React.FC = () => {
   const handleOnUpdatedCancel = () => {
     setRowToUpdate(undefined);
   };
+  //Placeholder
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState([], 10);
+  //
 
   return (
     <>
@@ -362,9 +367,8 @@ export const StakeholderGroups: React.FC = () => {
       >
         <AppTableWithControls
           count={stakeholderGroups ? stakeholderGroups.meta.count : 0}
-          pagination={paginationQuery}
+          paginationProps={paginationQuery}
           sortBy={sortByQuery}
-          onPaginationChange={handlePaginationChange}
           onSort={handleSortChange}
           onCollapse={collapseRow}
           cells={columns}

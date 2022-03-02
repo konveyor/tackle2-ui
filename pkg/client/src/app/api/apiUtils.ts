@@ -62,14 +62,6 @@ export const getAllStakeholderGroups = () => {
   );
 };
 
-export const getAllJobFunctions = () => {
-  return getJobFunctions(
-    {},
-    { page: 1, perPage: 1000 },
-    { field: JobFunctionSortBy.ROLE }
-  );
-};
-
 export const getAllTagTypes = (
   sortBy: TagTypeSortByQuery = { field: TagTypeSortBy.NAME }
 ) => {
@@ -112,13 +104,6 @@ export const bussinessServicePageMapper = (
 ): PageRepresentation<BusinessService> => ({
   meta: { count: page.total_count },
   data: page._embedded["business-service"],
-});
-
-export const jobFunctionPageMapper = (
-  page: JobFunctionPage
-): PageRepresentation<JobFunction> => ({
-  meta: { count: page.total_count },
-  data: page._embedded["job-function"],
 });
 
 export const tagTypePageMapper = (

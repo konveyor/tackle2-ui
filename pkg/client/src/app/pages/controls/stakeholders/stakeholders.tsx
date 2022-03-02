@@ -54,6 +54,7 @@ import { Stakeholder, SortByQuery } from "@app/api/models";
 
 import { NewStakeholderModal } from "./components/new-stakeholder-modal";
 import { UpdateStakeholderModal } from "./components/update-stakeholder-modal";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
 enum FilterKey {
   EMAIL = "email",
@@ -216,7 +217,7 @@ export const Stakeholders: React.FC = () => {
         {
           title: (
             <TableText wrapModifier="truncate">
-              {item.jobFunction?.role}
+              {item.jobFunction?.name}
             </TableText>
           ),
         },
@@ -372,6 +373,11 @@ export const Stakeholders: React.FC = () => {
     setRowToUpdate(undefined);
   };
 
+  //Placeholder
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState([], 10);
+  //
+
   return (
     <>
       <ConditionalRender
@@ -379,10 +385,9 @@ export const Stakeholders: React.FC = () => {
         then={<AppPlaceholder />}
       >
         <AppTableWithControls
+          paginationProps={paginationProps}
           count={stakeholders ? stakeholders.meta.count : 0}
-          pagination={paginationQuery}
           sortBy={sortByQuery}
-          onPaginationChange={handlePaginationChange}
           onSort={handleSortChange}
           onCollapse={collapseRow}
           cells={columns}

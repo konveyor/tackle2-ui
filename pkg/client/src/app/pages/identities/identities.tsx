@@ -1,15 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { deleteIdentity, getIdentities } from "@app/api/rest";
+import { deleteIdentity } from "@app/api/rest";
 import {
   Button,
   ButtonVariant,
-  Modal,
-  PageSection,
-  PageSectionVariants,
-  Pagination,
-  Text,
-  TextContent,
+  ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
 import {
@@ -18,20 +13,14 @@ import {
   ICell,
   IRow,
   sortable,
-  Table,
-  TableBody,
-  TableHeader,
   TableText,
 } from "@patternfly/react-table";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import {
-  FilterToolbar,
-  FilterType,
-  FilterCategory,
-} from "@app/shared/components/FilterToolbar";
-import {
+  AppPlaceholder,
   AppTableActionButtons,
+  AppTableWithControls,
+  ConditionalRender,
   NoDataEmptyState,
 } from "@app/shared/components";
 import { Identity } from "@app/api/models";
@@ -42,12 +31,17 @@ import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { AxiosResponse } from "axios";
 import { useDispatch } from "react-redux";
 import { alertActions } from "@app/store/alert";
-import { useDelete } from "@app/shared/hooks";
+import { useDelete, useTableControls } from "@app/shared/hooks";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 import { NewIdentityModal } from "./components/new-identity-modal";
 import { UpdateIdentityModal } from "./components/update-identity-modal";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
 
 const ENTITY_FIELD = "entity";
 
@@ -70,6 +64,7 @@ export const Identities: React.FunctionComponent = () => {
 
   const {
     identities,
+    isFetching,
     fetchError: fetchErrorIdentities,
     fetchIdentities,
   } = useFetchIdentities();
@@ -107,7 +102,7 @@ export const Identities: React.FunctionComponent = () => {
       placeholderText: "Filter by type...",
       selectOptions: typeOptions,
       getItemValue: (item) => {
-        return item.kind ? "Warm" : "Cold";
+        return item.kind || "";
       },
     },
     {
@@ -122,7 +117,7 @@ export const Identities: React.FunctionComponent = () => {
   ];
 
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
-    identities?.data || [],
+    identities || [],
     filterCategories
   );
   const getSortValues = (identity: Identity) => [
@@ -136,8 +131,13 @@ export const Identities: React.FunctionComponent = () => {
     filteredItems,
     getSortValues
   );
+
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState(sortedItems, 10);
+
+  useEffect(() => {
+    fetchIdentities();
+  }, [fetchIdentities]);
 
   const columns: ICell[] = [
     {
@@ -212,6 +212,10 @@ export const Identities: React.FunctionComponent = () => {
     fetchIdentities();
   };
 
+  const handleOnClearAllFilters = () => {
+    setFilterValues({});
+  };
+
   const rows: IRow[] = [];
   currentPageItems?.forEach((item: Identity) => {
     const typeFormattedString = typeOptions.find(
@@ -252,18 +256,22 @@ export const Identities: React.FunctionComponent = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.credentials")}</Text>
-        </TextContent>
-      </PageSection>
-      <PageSection>
-        <FilterToolbar<Identity>
-          filterCategories={filterCategories}
-          filterValues={filterValues}
-          setFilterValues={setFilterValues}
-          endToolbarItems={
-            <>
+      <ConditionalRender
+        when={isFetching && !(identities || fetchErrorIdentities)}
+        then={<AppPlaceholder />}
+      >
+        <AppTableWithControls
+          count={identities ? identities.length : 0}
+          sortBy={sortBy}
+          onSort={onSort}
+          cells={columns}
+          rows={rows}
+          isLoading={isFetching}
+          loadingVariant="skeleton"
+          fetchError={fetchErrorIdentities}
+          toolbarClearAllFilters={handleOnClearAllFilters}
+          toolbarActions={
+            <ToolbarGroup variant="button-group">
               <ToolbarItem>
                 <Button
                   isSmall
@@ -274,56 +282,40 @@ export const Identities: React.FunctionComponent = () => {
                   Create new
                 </Button>
               </ToolbarItem>
-            </>
+            </ToolbarGroup>
           }
-          pagination={
-            <Pagination
-              className={spacing.mtMd}
-              {...paginationProps}
-              widgetId="plans-table-pagination-top"
+          noDataState={
+            <NoDataEmptyState
+              title={t("composed.noDataStateTitle", {
+                what: "credentials",
+              })}
+              description={
+                t("composed.noDataStateBody", {
+                  what: "credential",
+                }) + "."
+              }
+            />
+          }
+          paginationProps={paginationProps}
+          toolbarToggle={
+            <FilterToolbar<Identity>
+              filterCategories={filterCategories}
+              filterValues={filterValues}
+              setFilterValues={setFilterValues}
             />
           }
         />
-        <NewIdentityModal
-          isOpen={isIdentityModalOpen}
-          onSaved={handleOnIdentityCreated}
-          onCancel={closeIdentityModal}
-        />
-        <UpdateIdentityModal
-          identity={rowToUpdate}
-          onSaved={handleOnIdentityUpdated}
-          onCancel={handleOnCancelUpdateIdentity}
-        />
-
-        {identities && identities?.data.length > 0 ? (
-          <Table
-            aria-label="Credentials table"
-            cells={columns}
-            rows={rows}
-            sortBy={sortBy}
-            onSort={onSort}
-          >
-            <TableHeader />
-            <TableBody />
-          </Table>
-        ) : (
-          <NoDataEmptyState
-            title={t("composed.noDataStateTitle", {
-              what: "credentials",
-            })}
-            description={
-              t("composed.noDataStateBody", {
-                what: "credential",
-              }) + "."
-            }
-          />
-        )}
-        <Pagination
-          {...paginationProps}
-          widgetId="plans-table-pagination-bottom"
-          variant="bottom"
-        />
-      </PageSection>
+      </ConditionalRender>
+      <NewIdentityModal
+        isOpen={isIdentityModalOpen}
+        onSaved={handleOnIdentityCreated}
+        onCancel={closeIdentityModal}
+      />
+      <UpdateIdentityModal
+        identity={rowToUpdate}
+        onSaved={handleOnIdentityUpdated}
+        onCancel={handleOnCancelUpdateIdentity}
+      />
     </>
   );
 };

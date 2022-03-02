@@ -80,20 +80,20 @@ export const toIStakeholderGroupDropdownOptionWithValue = (
 // Job function dropdown
 
 export interface IJobFunctionDropdown
-  extends Pick<JobFunction, "id" | "role"> {}
+  extends Pick<JobFunction, "id" | "name"> {}
 
 export const toIJobFunctionDropdown = (
   value: JobFunction
 ): IJobFunctionDropdown => ({
   id: value.id,
-  role: value.role,
+  name: value.name,
 });
 
 export const toIJobFunctionDropdownOptionWithValue = (
   value: IJobFunctionDropdown
 ): OptionWithValue<IJobFunctionDropdown> => ({
   value,
-  toString: () => value.role,
+  toString: () => value.name,
 });
 
 // TagType

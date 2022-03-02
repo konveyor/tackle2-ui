@@ -86,6 +86,7 @@ import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm
 import { ApplicationListExpandedAreaAnalysis } from "../components/application-list-expanded-area/application-list-expanded-area-analysis";
 import { IState } from "@app/shared/hooks/useFetch/useFetch";
 import { ApplicationAnalysisStatus } from "../components/application-analysis";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
 const toSortByQuery = (
   sortBy?: SortByQuery
@@ -651,6 +652,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     const assessment = getApplicationAssessment(row.id!);
     return assessment === undefined || assessment.status !== "COMPLETE";
   };
+  //Placeholder
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState([], 10);
+  //
 
   return (
     <>
@@ -660,9 +665,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       >
         <AppTableWithControls
           count={applications ? applications.meta.count : 0}
-          pagination={paginationQuery}
+          paginationProps={paginationProps}
           sortBy={sortByQuery}
-          onPaginationChange={handlePaginationChange}
           onSort={handleSortChange}
           onCollapse={collapseRow}
           onSelect={selectRow}

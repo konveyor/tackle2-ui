@@ -318,43 +318,15 @@ export const updateStakeholderGroup = (
 // Job functions
 
 export enum JobFunctionSortBy {
-  ROLE,
+  NAME,
 }
 export interface JobFunctionSortByQuery {
   field: JobFunctionSortBy;
   direction?: Direction;
 }
 
-export const getJobFunctions = (
-  filters: {
-    role?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: JobFunctionSortByQuery
-): AxiosPromise<JobFunctionPage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case JobFunctionSortBy.ROLE:
-        field = "role";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    role: filters.role,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${JOB_FUNCTIONS}?${query.join("&")}`, halHeaders);
+export const getJobFunctions = (): AxiosPromise<JobFunctionPage> => {
+  return APIClient.get(`${JOB_FUNCTIONS}`, jsonHeaders);
 };
 
 // Tag types

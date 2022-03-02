@@ -53,6 +53,7 @@ import { UpdateTagTypeModal } from "./components/update-tag-type-modal";
 import { NewTagModal } from "./components/new-tag-modal";
 import { UpdateTagModal } from "./components/update-tag-modal";
 import { TagTable } from "./components/tag-table";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
 enum FilterKey {
   TAG_TYPE = "tagType",
@@ -414,6 +415,10 @@ export const Tags: React.FC = () => {
     setRowToUpdate(undefined);
     setTagToUpdate(undefined);
   };
+  //Placeholder
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState([], 10);
+  //
 
   return (
     <>
@@ -422,10 +427,9 @@ export const Tags: React.FC = () => {
         then={<AppPlaceholder />}
       >
         <AppTableWithControls
+          paginationProps={paginationProps}
           count={tagTypes ? tagTypes.meta.count : 0}
-          pagination={paginationQuery}
           sortBy={sortByQuery}
-          onPaginationChange={handlePaginationChange}
           onSort={handleSortChange}
           onCollapse={collapseRow}
           cells={columns}

@@ -84,6 +84,7 @@ import { ApplicationListExpandedArea } from "../components/application-list-expa
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
 import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
 const toSortByQuery = (
   sortBy?: SortByQuery
@@ -665,6 +666,10 @@ export const ApplicationsTable: React.FC = () => {
     return assessment === undefined || assessment.status !== "COMPLETE";
   };
 
+  //Placeholder
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState([], 10);
+  //
   return (
     <>
       <ConditionalRender
@@ -672,10 +677,8 @@ export const ApplicationsTable: React.FC = () => {
         then={<AppPlaceholder />}
       >
         <AppTableWithControls
+          paginationProps={paginationProps}
           count={applications ? applications.meta.count : 0}
-          pagination={paginationQuery}
-          sortBy={sortByQuery}
-          onPaginationChange={handlePaginationChange}
           onSort={handleSortChange}
           onCollapse={collapseRow}
           onSelect={selectRow}
