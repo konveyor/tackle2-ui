@@ -45,10 +45,10 @@ const reducer = (state: State, action: Action): State => {
     case getType(fetchRequest):
       return {
         ...state,
-        isFetching: action.payload.reduce((reducer, id) => {
+        isFetching: action?.payload?.reduce((reducer, id) => {
           return reducer.set(id, true);
         }, new Map(state.isFetching)),
-        fetchCount: action.payload.reduce((reducer, id) => {
+        fetchCount: action?.payload?.reduce((reducer, id) => {
           return reducer.set(id, (state.fetchCount.get(id) || 0) + 1);
         }, new Map(state.isFetching)),
       };
@@ -113,7 +113,7 @@ export const useMultipleFetch = <K, T>({
     (ids: K[]) => {
       dispatch(fetchRequest(ids));
 
-      ids.forEach((id) => {
+      ids?.forEach((id) => {
         let promise;
         if (onFetch) {
           promise = onFetch(id).then(({ data }) => {

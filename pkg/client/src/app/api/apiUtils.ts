@@ -133,8 +133,8 @@ export const tagTypePageMapper = (
 export const applicationPageMapper = (
   page: ApplicationPage
 ): PageRepresentation<Application> => ({
-  meta: { count: page.total_count },
-  data: page._embedded.application,
+  meta: { count: page?.total_count },
+  data: page._embedded?.application,
 });
 
 export const applicationDependencyPageMapper = (

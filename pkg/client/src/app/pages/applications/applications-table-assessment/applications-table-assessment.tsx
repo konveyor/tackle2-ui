@@ -280,7 +280,7 @@ export const ApplicationsTable: React.FC = () => {
 
   useEffect(() => {
     if (applications) {
-      fetchApplicationsAssessment(applications.data.map((f) => f.id!));
+      fetchApplicationsAssessment(applications.data?.map((f) => f.id!));
     }
   }, [applications, fetchApplicationsAssessment]);
 
@@ -327,7 +327,7 @@ export const ApplicationsTable: React.FC = () => {
   ];
 
   const rows: IRow[] = [];
-  applications?.data.forEach((item) => {
+  applications?.data?.forEach((item) => {
     const isExpanded = isRowExpanded(item);
     const isSelected = isRowSelected(item);
 
