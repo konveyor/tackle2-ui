@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -26,7 +26,7 @@ import {
 } from "@patternfly/react-core";
 import { HelpIcon } from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
-import { useApplicationToolbarFilter, useFetch } from "@app/shared/hooks";
+import { useFetch } from "@app/shared/hooks";
 import {
   ApplicationToolbarToggleGroup,
   AppPlaceholder,
@@ -37,8 +37,7 @@ import {
 import { ApplicationFilterKey } from "@app/Constants";
 
 import { ApplicationSortBy, getApplications } from "@app/api/rest";
-import { Application, ApplicationPage } from "@app/api/models";
-import { applicationPageMapper, fetchPages } from "@app/api/apiUtils";
+import { Application } from "@app/api/models";
 
 import { ApplicationSelectionContextProvider } from "./application-selection-context";
 import { Landscape } from "./components/landscape";
@@ -57,40 +56,6 @@ export const Reports: React.FC = () => {
   const [isAdoptionPlanOpen, setAdoptionPlanOpen] = useState(false);
   const [isRiskCardOpen, setIsRiskCardOpen] = useState(false);
 
-  // Toolbar filters
-  const {
-    filters: filtersValue,
-    addFilter,
-    setFilter,
-    clearAllFilters,
-  } = useApplicationToolbarFilter();
-
-  const fetchApplications = useCallback(() => {
-    const nameVal = filtersValue.get(ApplicationFilterKey.NAME);
-    const descriptionVal = filtersValue.get(ApplicationFilterKey.DESCRIPTION);
-    const serviceVal = filtersValue.get(ApplicationFilterKey.BUSINESS_SERVICE);
-    const tagVal = filtersValue.get(ApplicationFilterKey.TAG);
-
-    const getApplicationPage = (page: number) => {
-      return getApplications(
-        {
-          name: nameVal?.map((f) => f.key),
-          description: descriptionVal?.map((f) => f.key),
-          businessService: serviceVal?.map((f) => f.key),
-          tag: tagVal?.map((f) => f.key),
-        },
-        { page: page, perPage: 100 },
-        { field: ApplicationSortBy.NAME }
-      );
-    };
-
-    return fetchPages<Application, ApplicationPage>(
-      getApplicationPage,
-      (responseData) => applicationPageMapper(responseData).data,
-      (responseData) => applicationPageMapper(responseData).meta.count
-    );
-  }, [filtersValue]);
-
   const {
     data: applications,
     isFetching: isFetchingApplications,
@@ -98,27 +63,18 @@ export const Reports: React.FC = () => {
     requestFetch: refreshApplications,
   } = useFetch<Application[]>({
     defaultIsFetching: true,
-    onFetchPromise: fetchApplications,
+    // onFetchPromise: fetchApplications,
   });
 
   useEffect(() => {
     refreshApplications();
-  }, [filtersValue, refreshApplications]);
+  }, [refreshApplications]);
 
   const pageHeaderSection = (
     <PageSection variant={PageSectionVariants.light}>
       <TextContent>
         <Text component="h1">{t("terms.reports")}</Text>
       </TextContent>
-      <Toolbar clearAllFilters={clearAllFilters}>
-        <ToolbarContent style={{ paddingRight: 0, paddingLeft: 0 }}>
-          <ApplicationToolbarToggleGroup
-            value={filtersValue as Map<ApplicationFilterKey, ToolbarChip[]>}
-            addFilter={addFilter}
-            setFilter={setFilter}
-          />
-        </ToolbarContent>
-      </Toolbar>
     </PageSection>
   );
 

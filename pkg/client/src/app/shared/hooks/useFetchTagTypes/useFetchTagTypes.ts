@@ -3,7 +3,7 @@ import { AxiosError } from "axios";
 import { ActionType, createAsyncAction, getType } from "typesafe-actions";
 
 import { getTagTypes, TagTypeSortBy, TagTypeSortByQuery } from "@app/api/rest";
-import { PageQuery, TagType } from "@app/api/models";
+import { TagType } from "@app/api/models";
 
 export const {
   request: fetchRequest,
@@ -72,14 +72,6 @@ export interface IState {
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;
-  fetchTagTypes: (
-    filters: {
-      tagTypes?: string[];
-      tags?: string[];
-    },
-    page: PageQuery,
-    sortBy?: TagTypeSortByQuery
-  ) => void;
   fetchTagTypes: (sortBy?: TagTypeSortByQuery) => void;
 }
 
@@ -88,58 +80,12 @@ export const useFetchTagTypes = (
 ): IState => {
   const [state, dispatch] = useReducer(reducer, defaultIsFetching, initReducer);
 
-  const fetchTagTypes = useCallback(
-    (
-      filters: {
-        name?: string[];
-        tagTypes?: string[];
-      },
-      page: PageQuery,
-      sortBy?: TagTypeSortByQuery
-    ) => {
-      dispatch(fetchRequest());
-
-      getTagTypes(filters, page, sortBy)
-        .then(({ data }) => {
-          const list = data._embedded["tag-type"];
-          const total = data.total_count;
-
-          dispatch(
-            fetchSuccess({
-              data: list,
-              meta: {
-                count: total,
-              },
-            })
-          );
-        })
-        .catch((error: AxiosError) => {
-          dispatch(fetchFailure(error));
-        });
-    },
-    []
-  );
-
-  const fetchTagTypes = useCallback((sortBy?: TagTypeSortByQuery) => {
+  const fetchTagTypes = useCallback(() => {
     dispatch(fetchRequest());
 
-    getTagTypes(
-      {},
-      { page: 1, perPage: 1000 },
-      sortBy || { field: TagTypeSortBy.NAME }
-    )
+    getTagTypes()
       .then(({ data }) => {
-        const list = data._embedded["tag-type"];
-        const total = data.total_count;
-
-        dispatch(
-          fetchSuccess({
-            data: list,
-            meta: {
-              count: total,
-            },
-          })
-        );
+        dispatch(fetchSuccess(data));
       })
       .catch((error: AxiosError) => {
         dispatch(fetchFailure(error));
@@ -151,7 +97,6 @@ export const useFetchTagTypes = (
     isFetching: state.isFetching,
     fetchError: state.fetchError,
     fetchCount: state.fetchCount,
-    fetchTagTypes,
     fetchTagTypes,
   };
 };

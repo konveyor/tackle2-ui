@@ -2,12 +2,8 @@ import { useCallback, useReducer } from "react";
 import { AxiosError } from "axios";
 import { ActionType, createAsyncAction, getType } from "typesafe-actions";
 
-import {
-  getStakeholders,
-  StakeholderSortBy,
-  StakeholderSortByQuery,
-} from "@app/api/rest";
-import { Stakeholder, PageQuery } from "@app/api/models";
+import { getStakeholders } from "@app/api/rest";
+import { Stakeholder } from "@app/api/models";
 
 export const {
   request: fetchRequest,

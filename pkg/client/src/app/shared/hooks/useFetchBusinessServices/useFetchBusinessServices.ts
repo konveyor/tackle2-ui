@@ -7,7 +7,7 @@ import {
   BusinessServiceSortByQuery,
   BusinessServiceSortBy,
 } from "@app/api/rest";
-import { BusinessService, PageQuery } from "@app/api/models";
+import { BusinessService } from "@app/api/models";
 
 export const {
   request: fetchRequest,
@@ -76,15 +76,6 @@ export interface IState {
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;
-  fetchBusinessServices: (
-    filters: {
-      name?: string[];
-      description?: string[];
-      owner?: string[];
-    },
-    page: PageQuery,
-    sortBy?: BusinessServiceSortByQuery
-  ) => void;
   fetchBusinessServices: () => void;
 }
 
@@ -93,55 +84,12 @@ export const useFetchBusinessServices = (
 ): IState => {
   const [state, dispatch] = useReducer(reducer, defaultIsFetching, initReducer);
 
-  const fetchBusinessServices = useCallback(
-    (
-      filters: { name?: string[]; description?: string[]; owner?: string[] },
-      page: PageQuery,
-      sortBy?: BusinessServiceSortByQuery
-    ) => {
-      dispatch(fetchRequest());
-
-      getBusinessServices(filters, page, sortBy)
-        .then(({ data }) => {
-          const list = data._embedded["business-service"];
-          const total = data.total_count;
-
-          dispatch(
-            fetchSuccess({
-              data: list,
-              meta: {
-                count: total,
-              },
-            })
-          );
-        })
-        .catch((error: AxiosError) => {
-          dispatch(fetchFailure(error));
-        });
-    },
-    []
-  );
-
   const fetchBusinessServices = useCallback(() => {
     dispatch(fetchRequest());
 
-    getBusinessServices(
-      {},
-      { page: 1, perPage: 1000 },
-      { field: BusinessServiceSortBy.NAME }
-    )
+    getBusinessServices()
       .then(({ data }) => {
-        const list = data._embedded["business-service"];
-        const total = data.total_count;
-
-        dispatch(
-          fetchSuccess({
-            data: list,
-            meta: {
-              count: total,
-            },
-          })
-        );
+        dispatch(fetchSuccess(data));
       })
       .catch((error: AxiosError) => {
         dispatch(fetchFailure(error));
@@ -153,7 +101,6 @@ export const useFetchBusinessServices = (
     isFetching: state.isFetching,
     fetchError: state.fetchError,
     fetchCount: state.fetchCount,
-    fetchBusinessServices,
     fetchBusinessServices,
   };
 };

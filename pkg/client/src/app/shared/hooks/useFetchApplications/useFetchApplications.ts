@@ -7,7 +7,7 @@ import {
   ApplicationSortByQuery,
   ApplicationSortBy,
 } from "@app/api/rest";
-import { Application, PageQuery } from "@app/api/models";
+import { Application } from "@app/api/models";
 
 export const {
   request: fetchRequest,
@@ -76,16 +76,6 @@ export interface IState {
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;
-  fetchApplications: (
-    filters: {
-      name?: string[];
-      description?: string[];
-      businessService?: string[];
-      tag?: string[];
-    },
-    page: PageQuery,
-    sortBy?: ApplicationSortByQuery
-  ) => void;
   fetchApplications: () => void;
 }
 
@@ -94,60 +84,12 @@ export const useFetchApplications = (
 ): IState => {
   const [state, dispatch] = useReducer(reducer, defaultIsFetching, initReducer);
 
-  const fetchApplications = useCallback(
-    (
-      filters: {
-        name?: string[];
-        description?: string[];
-        businessService?: string[];
-        tag?: string[];
-      },
-      page: PageQuery,
-      sortBy?: ApplicationSortByQuery
-    ) => {
-      dispatch(fetchRequest());
-
-      getApplications(filters, page, sortBy)
-        .then(({ data }) => {
-          const list = data._embedded.application;
-          const total = data.total_count;
-
-          dispatch(
-            fetchSuccess({
-              data: list,
-              meta: {
-                count: total,
-              },
-            })
-          );
-        })
-        .catch((error: AxiosError) => {
-          dispatch(fetchFailure(error));
-        });
-    },
-    []
-  );
-
   const fetchApplications = useCallback(() => {
     dispatch(fetchRequest());
 
-    getApplications(
-      {},
-      { page: 1, perPage: 1000 },
-      { field: ApplicationSortBy.NAME }
-    )
+    getApplications()
       .then(({ data }) => {
-        const list = data._embedded.application;
-        const total = data.total_count;
-
-        dispatch(
-          fetchSuccess({
-            data: list,
-            meta: {
-              count: total,
-            },
-          })
-        );
+        dispatch(fetchSuccess(data));
       })
       .catch((error: AxiosError) => {
         dispatch(fetchFailure(error));
@@ -159,7 +101,6 @@ export const useFetchApplications = (
     isFetching: state.isFetching,
     fetchError: state.fetchError,
     fetchCount: state.fetchCount,
-    fetchApplications,
     fetchApplications,
   };
 };

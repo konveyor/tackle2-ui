@@ -1,20 +1,3 @@
-import { StatusIconAssessmentType } from "@app/shared/components";
-import { boolean } from "yup";
-
-export interface PageQuery {
-  page: number;
-  perPage: number;
-}
-
-export interface SortByQuery {
-  index: number;
-  direction: "asc" | "desc";
-}
-
-export interface Meta {
-  count: number;
-}
-
 // Controls
 
 export interface BusinessServiceRef {
@@ -240,71 +223,6 @@ export interface BulkCopyAssessment {
   fromAssessmentId: number;
   applications: { applicationId: number }[];
   completed?: boolean;
-}
-
-// Pagination
-
-export interface BusinessServicePage {
-  _embedded: {
-    "business-service": BusinessService[];
-  };
-  total_count: number;
-}
-
-export interface StakeholderPage {
-  _embedded: {
-    stakeholder: Stakeholder[];
-  };
-  total_count: number;
-}
-
-export interface StakeholderGroupPage {
-  _embedded: {
-    "stakeholder-group": StakeholderGroup[];
-  };
-  total_count: number;
-}
-
-export interface TagTypePage {
-  _embedded: {
-    "tag-type": TagType[];
-  };
-  total_count: number;
-}
-
-export interface TagTypePage {
-  _embedded: {
-    "tag-type": TagType[];
-  };
-  total_count: number;
-}
-
-export interface ApplicationPage {
-  _embedded: {
-    application: Application[];
-  };
-  total_count: number;
-}
-
-export interface ApplicationDependencyPage {
-  _embedded: {
-    "applications-dependency": ApplicationDependency[];
-  };
-  total_count: number;
-}
-
-export interface ApplicationImportSummaryPage {
-  _embedded: {
-    "import-summary": ApplicationImportSummary[];
-  };
-  total_count: number;
-}
-
-export interface ApplicationImportPage {
-  _embedded: {
-    "application-import": ApplicationImport[];
-  };
-  total_count: number;
 }
 
 export interface Setting {

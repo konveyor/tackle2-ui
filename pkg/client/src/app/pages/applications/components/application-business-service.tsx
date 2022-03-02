@@ -6,7 +6,7 @@ import { BusinessService } from "@app/api/models";
 import { getBusinessServiceById } from "@app/api/rest";
 
 export interface ApplicationBusinessServiceProps {
-  id: number | string;
+  id: number;
 }
 
 export const ApplicationBusinessService: React.FC<

@@ -9,7 +9,6 @@ import {
   ButtonVariant,
   DropdownItem,
   Modal,
-  ToolbarChip,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -45,7 +44,6 @@ import {
   KebabDropdown,
 } from "@app/shared/components";
 import {
-  useTableControls,
   useAssessApplication,
   useMultipleFetch,
   useFetch,
@@ -58,12 +56,7 @@ import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 import { formatPath, Paths } from "@app/Paths";
 import { ApplicationFilterKey } from "@app/Constants";
 
-import {
-  Application,
-  ApplicationPage,
-  Assessment,
-  SortByQuery,
-} from "@app/api/models";
+import { Application, Assessment } from "@app/api/models";
 import {
   ApplicationSortBy,
   ApplicationSortByQuery,
@@ -74,7 +67,6 @@ import {
   getAssessments,
   getTasks,
 } from "@app/api/rest";
-import { applicationPageMapper } from "@app/api/apiUtils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationForm } from "../components/application-form";
@@ -82,41 +74,10 @@ import { ApplicationForm } from "../components/application-form";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
-import {
-  ApplicationsIdentityForm,
-  ApplicationsIdentityFormProps,
-} from "../components/ApplicationsIdentityForm";
+import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm";
 import { ApplicationListExpandedAreaAnalysis } from "../components/application-list-expanded-area/application-list-expanded-area-analysis";
 import { IState } from "@app/shared/hooks/useFetch/useFetch";
 import { ApplicationAnalysisStatus } from "../components/application-analysis";
-
-const toSortByQuery = (
-  sortBy?: SortByQuery
-): ApplicationSortByQuery | undefined => {
-  if (!sortBy) {
-    return undefined;
-  }
-
-  let field: ApplicationSortBy;
-  switch (sortBy.index) {
-    case 2:
-      field = ApplicationSortBy.NAME;
-      break;
-    case 6:
-      field = ApplicationSortBy.REVIEW;
-      break;
-    case 7:
-      field = ApplicationSortBy.TAGS;
-      break;
-    default:
-      return undefined;
-  }
-
-  return {
-    field,
-    direction: sortBy.direction,
-  };
-};
 
 const ENTITY_FIELD = "entity";
 
@@ -158,32 +119,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     clearAllFilters,
   } = useApplicationToolbarFilter();
 
-  // Table data
-  const {
-    paginationQuery,
-    sortByQuery,
-    handlePaginationChange,
-    handleSortChange,
-  } = useTableControls({
-    sortByQuery: { direction: "asc", index: 2 },
-  });
-
   const fetchApplications = useCallback(() => {
-    const nameVal = filtersValue.get(ApplicationFilterKey.NAME);
-    const descriptionVal = filtersValue.get(ApplicationFilterKey.DESCRIPTION);
-    const serviceVal = filtersValue.get(ApplicationFilterKey.BUSINESS_SERVICE);
-    const tagVal = filtersValue.get(ApplicationFilterKey.TAG);
-    return getApplications(
-      {
-        name: nameVal?.map((f) => f.key),
-        description: descriptionVal?.map((f) => f.key),
-        businessService: serviceVal?.map((f) => f.key),
-        tag: tagVal?.map((f) => f.key),
-      },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
-  }, [filtersValue, paginationQuery, sortByQuery]);
+    return getApplications();
+  }, []);
 
   const {
     data: applications,
@@ -341,7 +279,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           title: (
             <TableText wrapModifier="truncate">
               {item.businessService && (
-                <ApplicationBusinessService id={item.businessService} />
+                <ApplicationBusinessService
+                  id={item.businessService?.id || 0}
+                />
               )}
             </TableText>
           ),
@@ -503,11 +443,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             row,
             () => {
               dispatch(confirmDialogActions.closeDialog());
-              if (applications?.data.length === 1) {
-                handlePaginationChange({ page: paginationQuery.page - 1 });
-              } else {
-                refreshTable();
-              }
+              refreshTable();
             },
             (error) => {
               dispatch(confirmDialogActions.closeDialog());
@@ -652,12 +588,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         then={<AppPlaceholder />}
       >
         <AppTableWithControls
-          // count={applications ? applications.meta.count : 0}
-          count={0}
-          pagination={paginationQuery}
-          sortBy={sortByQuery}
-          onPaginationChange={handlePaginationChange}
-          onSort={handleSortChange}
           onCollapse={collapseRow}
           onSelect={selectRow}
           canSelectAll={false}
@@ -667,15 +597,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           isLoading={isFetching}
           loadingVariant="skeleton"
           fetchError={fetchError}
-          toolbarClearAllFilters={clearAllFilters}
-          filtersApplied={areFiltersPresent}
-          toolbarToggle={
-            <ApplicationToolbarToggleGroup
-              value={filtersValue as Map<ApplicationFilterKey, ToolbarChip[]>}
-              addFilter={addFilter}
-              setFilter={setFilter}
-            />
-          }
           toolbarActions={
             <>
               <ToolbarGroup variant="button-group">

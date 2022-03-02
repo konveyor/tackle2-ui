@@ -87,19 +87,9 @@ export const useFetchApplicationDependencies = (
     (filters: { from?: string[]; to?: string[] }) => {
       dispatch(fetchRequest());
 
-      getApplicationDependencies(filters, { page: 1, perPage: 1000 })
+      getApplicationDependencies()
         .then(({ data }) => {
-          const list = data._embedded["applications-dependency"];
-          const total = data.total_count;
-
-          dispatch(
-            fetchSuccess({
-              data: list,
-              meta: {
-                count: total,
-              },
-            })
-          );
+          dispatch(fetchSuccess(data));
         })
         .catch((error: AxiosError) => {
           dispatch(fetchFailure(error));

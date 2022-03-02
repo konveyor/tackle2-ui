@@ -66,7 +66,7 @@ export const SelectTagFilter: React.FC<SelectTagFilterProps> = ({
 
   useEffect(() => {
     if (tagTypes) {
-      setTags(tagTypes.data.flatMap((f) => f.tags || []));
+      setTags(tagTypes.flatMap((f) => f.tags || []));
     }
   }, [tagTypes]);
 

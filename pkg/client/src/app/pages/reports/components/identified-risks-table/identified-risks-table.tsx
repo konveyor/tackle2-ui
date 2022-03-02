@@ -10,12 +10,7 @@ import {
   TableVariant,
 } from "@patternfly/react-table";
 
-import {
-  useApplicationToolbarFilter,
-  useFetch,
-  useTableControls,
-  useTableFilter,
-} from "@app/shared/hooks";
+import { useFetch } from "@app/shared/hooks";
 import {
   AppTableToolbarToggleGroup,
   AppTableWithControls,
@@ -55,15 +50,6 @@ export const IdentifiedRisksTable: React.FC<
     ApplicationSelectionContext
   );
 
-  // Toolbar filters data
-  const {
-    filters: filtersValue,
-    isPresent: areFiltersPresent,
-    addFilter,
-    setFilter,
-    clearAllFilters,
-  } = useApplicationToolbarFilter();
-
   // Table data
   const fetchTableData = useCallback(() => {
     if (applications.length > 0) {
@@ -99,156 +85,6 @@ export const IdentifiedRisksTable: React.FC<
     refreshTable();
   }, [applications, refreshTable]);
 
-  // Table pagination
-  const {
-    paginationQuery: pagination,
-    sortByQuery: sortBy,
-    handlePaginationChange: onPaginationChange,
-    handleSortChange: onSort,
-  } = useTableControls({
-    paginationQuery: { page: 1, perPage: 50 },
-  });
-
-  const compareToByColumn = useCallback(
-    (a: ITableRowData, b: ITableRowData, columnIndex?: number) => 0,
-    []
-  );
-
-  const filterItem = useCallback(
-    (item: ITableRowData) => {
-      // Application name
-      let applicationNameResult: boolean = true;
-      const applicationNameFiltersText = (
-        filtersValue.get(FilterKey.APPLICATION_NAME) || []
-      ).map((f) => f.key);
-      if (applicationNameFiltersText.length > 0) {
-        applicationNameResult = applicationNameFiltersText.some((filterText) =>
-          item.applications.some(
-            (application) =>
-              application.name
-                .toLowerCase()
-                .indexOf(filterText.toLowerCase()) !== -1
-          )
-        );
-      }
-
-      // Category
-      let categoryResult: boolean = true;
-      const categoryFiltersText = (
-        filtersValue.get(FilterKey.CATEGORY) || []
-      ).map((f) => f.key);
-      if (categoryFiltersText.length > 0) {
-        categoryResult = categoryFiltersText.some((filterText) => {
-          return (
-            item.category.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
-          );
-        });
-      }
-
-      // Question
-      let questionResult: boolean = true;
-      const questionFiltersText = (
-        filtersValue.get(FilterKey.QUESTION) || []
-      ).map((f) => f.key);
-      if (questionFiltersText.length > 0) {
-        questionResult = questionFiltersText.some((filterText) => {
-          return (
-            item.question.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
-          );
-        });
-      }
-
-      // Answer
-      let answerResult: boolean = true;
-      const answerFiltersText = (filtersValue.get(FilterKey.ANSWER) || []).map(
-        (f) => f.key
-      );
-      if (answerFiltersText.length > 0) {
-        answerResult = answerFiltersText.some((filterText) => {
-          return (
-            item.answer.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
-          );
-        });
-      }
-
-      return (
-        applicationNameResult &&
-        categoryResult &&
-        questionResult &&
-        answerResult
-      );
-    },
-    [filtersValue]
-  );
-
-  const { pageItems, filteredItems } = useTableFilter<ITableRowData>({
-    items: tableData,
-    sortBy,
-    compareToByColumn,
-    pagination,
-    filterItem,
-  });
-
-  // Filter components
-  const filterOptions = [
-    {
-      key: FilterKey.APPLICATION_NAME,
-      name: t("terms.application"),
-      input: (
-        <InputTextFilter
-          onApplyFilter={(filterText) => {
-            addFilter(FilterKey.APPLICATION_NAME, {
-              key: filterText,
-              node: filterText,
-            });
-          }}
-        />
-      ),
-    },
-    {
-      key: FilterKey.CATEGORY,
-      name: t("terms.category"),
-      input: (
-        <InputTextFilter
-          onApplyFilter={(filterText) => {
-            addFilter(FilterKey.CATEGORY, {
-              key: filterText,
-              node: filterText,
-            });
-          }}
-        />
-      ),
-    },
-    {
-      key: FilterKey.QUESTION,
-      name: t("terms.question"),
-      input: (
-        <InputTextFilter
-          onApplyFilter={(filterText) => {
-            addFilter(FilterKey.QUESTION, {
-              key: filterText,
-              node: filterText,
-            });
-          }}
-        />
-      ),
-    },
-    {
-      key: FilterKey.ANSWER,
-      name: t("terms.answer"),
-      input: (
-        <InputTextFilter
-          onApplyFilter={(filterText) => {
-            addFilter(FilterKey.ANSWER, {
-              key: filterText,
-              node: filterText,
-            });
-          }}
-        />
-      ),
-    },
-  ];
-
   // Table
   const columns: ICell[] = [
     {
@@ -278,7 +114,7 @@ export const IdentifiedRisksTable: React.FC<
   ];
 
   const rows: IRow[] = [];
-  pageItems.forEach((item) => {
+  assessmentQuestionRisks?.forEach((item) => {
     rows.push({
       cells: [
         {
@@ -291,7 +127,7 @@ export const IdentifiedRisksTable: React.FC<
           title: item.answer,
         },
         {
-          title: item.applications.map((f) => f.name).join(", "),
+          title: item.applications.map((f) => f),
         },
       ],
     });
@@ -300,31 +136,10 @@ export const IdentifiedRisksTable: React.FC<
   return (
     <AppTableWithControls
       variant={TableVariant.compact}
-      count={filteredItems.length}
-      pagination={pagination}
-      sortBy={sortBy}
-      onPaginationChange={onPaginationChange}
-      onSort={onSort}
       cells={columns}
       rows={rows}
       isLoading={isFetching}
       fetchError={fetchError}
-      filtersApplied={areFiltersPresent}
-      toolbarClearAllFilters={clearAllFilters}
-      toolbarToggle={
-        <AppTableToolbarToggleGroup
-          categories={filterOptions.map((f) => ({
-            key: f.key,
-            name: f.name,
-          }))}
-          chips={filtersValue}
-          onChange={(key, value) => {
-            setFilter(key as FilterKey, value as ToolbarChip[]);
-          }}
-        >
-          <ToolbarSearchFilter filters={filterOptions} />
-        </AppTableToolbarToggleGroup>
-      }
     />
   );
 };

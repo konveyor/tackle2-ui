@@ -41,11 +41,10 @@ export interface IStakeholderDropdown
   extends Pick<StakeholderRef, "id" | "name"> {}
 
 export const toIStakeholderDropdown = (
-  value: Stakeholder
+  value: StakeholderRef
 ): IStakeholderDropdown => ({
   id: value.id,
   name: value.name,
-  email: value.email,
 });
 
 export const toIStakeholderDropdownOptionWithValue = (
@@ -53,9 +52,6 @@ export const toIStakeholderDropdownOptionWithValue = (
 ): OptionWithValue<IStakeholderDropdown> => ({
   value,
   toString: () => value.name,
-  props: {
-    description: value.email,
-  },
 });
 
 // Stakeholder group dropdown

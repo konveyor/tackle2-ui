@@ -2,7 +2,6 @@ import { AxiosPromise } from "axios";
 import { APIClient } from "@app/axios-config";
 
 import {
-  PageQuery,
   BusinessService,
   Stakeholder,
   StakeholderGroup,
@@ -10,7 +9,6 @@ import {
   Assessment,
   JobFunction,
   ApplicationDependency,
-  TagTypePage,
   TagType,
   Tag,
   Review,
@@ -18,7 +16,6 @@ import {
   AssessmentQuestionRisk,
   ApplicationAdoptionPlan,
   AssessmentConfidence,
-  ApplicationImportPage,
   ApplicationImportSummary,
   BulkCopyAssessment,
   BulkCopyReview,
@@ -220,47 +217,8 @@ export interface TagTypeSortByQuery {
   direction?: Direction;
 }
 
-export const getTagTypes = (
-  filters: {
-    tagTypes?: string[];
-    tags?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: TagTypeSortByQuery
-): AxiosPromise<TagTypePage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case TagTypeSortBy.NAME:
-        field = "name";
-        break;
-      case TagTypeSortBy.RANK:
-        field = "rank";
-        break;
-      case TagTypeSortBy.COLOR:
-        field = "rank";
-        break;
-      case TagTypeSortBy.TAGS_COUNT:
-        field = "tags.size()";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    name: filters.tagTypes,
-    "tags.name": filters.tags,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${TAG_TYPES}?${query.join("&")}`, jsonHeaders);
+export const getTagTypes = (): AxiosPromise<Array<TagType>> => {
+  return APIClient.get(`${TAG_TYPES}`, jsonHeaders);
 };
 
 export const deleteTagType = (id: number): AxiosPromise => {
@@ -307,16 +265,7 @@ export interface ApplicationSortByQuery {
   direction?: Direction;
 }
 
-export const getApplications = (
-  filters: {
-    name?: string[];
-    description?: string[];
-    businessService?: string[];
-    tag?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: ApplicationSortByQuery
-): AxiosPromise<Array<any>> => {
+export const getApplications = (): AxiosPromise<Array<Application>> => {
   return APIClient.get(`${APPLICATIONS}`, jsonHeaders);
 };
 
@@ -344,13 +293,9 @@ export const getApplicationById = (
 
 //
 
-export const getApplicationDependencies = (
-  filters: {
-    from?: string[];
-    to?: string[];
-  },
-  pagination: PageQuery
-): AxiosPromise<Array<any>> => {
+export const getApplicationDependencies = (): AxiosPromise<
+  Array<ApplicationDependency>
+> => {
   return APIClient.get(`${APPLICATION_DEPENDENCY}`, jsonHeaders);
 };
 
@@ -404,7 +349,9 @@ export interface ApplicationImportSummarySortByQuery {
   direction?: Direction;
 }
 
-export const getApplicationImportSummary = (): AxiosPromise<Array<any>> => {
+export const getApplicationImportSummary = (): AxiosPromise<
+  Array<ApplicationImportSummary>
+> => {
   return APIClient.get(`${APP_IMPORT_SUMMARY}`, jsonHeaders);
 };
 
@@ -418,23 +365,8 @@ export const deleteApplicationImportSummary = (id: number): AxiosPromise => {
   return APIClient.delete(`${APP_IMPORT_SUMMARY}/${id}`);
 };
 
-export const getApplicationImport = (
-  filters: {
-    summaryId: string;
-    isValid?: boolean;
-  },
-  pagination: PageQuery
-): AxiosPromise<ApplicationImportPage> => {
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-
-    "importSummary.id": filters.summaryId,
-    isValid: filters.isValid,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${APP_IMPORT}?${query.join("&")}`, jsonHeaders);
+export const getApplicationImport = (): AxiosPromise<Array<any>> => {
+  return APIClient.get(`${APP_IMPORT}`, jsonHeaders);
 };
 
 export const getApplicationSummaryCSV = (id: string): AxiosPromise => {

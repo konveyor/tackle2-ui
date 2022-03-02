@@ -50,41 +50,10 @@ import {
   StakeholderGroupSortBy,
   StakeholderGroupSortByQuery,
 } from "@app/api/rest";
-import { StakeholderGroup, SortByQuery } from "@app/api/models";
+import { StakeholderGroup } from "@app/api/models";
 
 import { NewStakeholderGroupModal } from "./components/new-stakeholder-group-modal";
 import { UpdateStakeholderGroupModal } from "./components/update-stakeholder-group-modal";
-
-enum FilterKey {
-  NAME = "name",
-  DESCRIPTION = "description",
-  STAKEHOLDER = "stakeholder",
-}
-
-const toSortByQuery = (
-  sortBy?: SortByQuery
-): StakeholderGroupSortByQuery | undefined => {
-  if (!sortBy) {
-    return undefined;
-  }
-
-  let field: StakeholderGroupSortBy;
-  switch (sortBy.index) {
-    case 1:
-      field = StakeholderGroupSortBy.NAME;
-      break;
-    case 3:
-      field = StakeholderGroupSortBy.STAKEHOLDERS_COUNT;
-      break;
-    default:
-      throw new Error("Invalid column index=" + sortBy.index);
-  }
-
-  return {
-    field,
-    direction: sortBy.direction,
-  };
-};
 
 const ENTITY_FIELD = "entity";
 
@@ -95,24 +64,6 @@ const getRow = (rowData: IRowData): StakeholderGroup => {
 export const StakeholderGroups: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-
-  const filters = [
-    {
-      key: FilterKey.NAME,
-      name: t("terms.name"),
-    },
-    {
-      key: FilterKey.DESCRIPTION,
-      name: t("terms.description"),
-    },
-    {
-      key: FilterKey.STAKEHOLDER,
-      name: t("terms.member"),
-    },
-  ];
-  const [filtersValue, setFiltersValue] = useState<Map<FilterKey, string[]>>(
-    new Map([])
-  );
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<StakeholderGroup>();
@@ -264,38 +215,6 @@ export const StakeholderGroups: React.FC = () => {
           );
         },
       })
-    );
-  };
-
-  // Advanced filters
-
-  const handleOnClearAllFilters = () => {
-    setFiltersValue((current) => {
-      const newVal = new Map(current);
-      Array.from(newVal.keys()).forEach((key) => {
-        newVal.set(key, []);
-      });
-      return newVal;
-    });
-  };
-
-  const handleOnAddFilter = (key: string, filterText: string) => {
-    const filterKey: FilterKey = key as FilterKey;
-    setFiltersValue((current) => {
-      const values: string[] = current.get(filterKey) || [];
-      return new Map(current).set(filterKey, [...values, filterText]);
-    });
-
-    handlePaginationChange({ page: 1 });
-  };
-
-  const handleOnDeleteFilter = (
-    key: string,
-    value: (string | ToolbarChip)[]
-  ) => {
-    const filterKey: FilterKey = key as FilterKey;
-    setFiltersValue((current) =>
-      new Map(current).set(filterKey, value as string[])
     );
   };
 
