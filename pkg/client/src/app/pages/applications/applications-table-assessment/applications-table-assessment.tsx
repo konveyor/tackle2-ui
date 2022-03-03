@@ -65,8 +65,6 @@ import {
   SortByQuery,
 } from "@app/api/models";
 import {
-  ApplicationSortBy,
-  ApplicationSortByQuery,
   deleteApplication,
   deleteAssessment,
   deleteReview,
@@ -85,34 +83,6 @@ import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
 import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-
-const toSortByQuery = (
-  sortBy?: SortByQuery
-): ApplicationSortByQuery | undefined => {
-  if (!sortBy) {
-    return undefined;
-  }
-
-  let field: ApplicationSortBy;
-  switch (sortBy.index) {
-    case 2:
-      field = ApplicationSortBy.NAME;
-      break;
-    case 6:
-      field = ApplicationSortBy.REVIEW;
-      break;
-    case 7:
-      field = ApplicationSortBy.TAGS;
-      break;
-    default:
-      return undefined;
-  }
-
-  return {
-    field,
-    direction: sortBy.direction,
-  };
-};
 
 const ENTITY_FIELD = "entity";
 
@@ -165,20 +135,7 @@ export const ApplicationsTable: React.FC = () => {
   });
 
   const fetchApplications = useCallback(() => {
-    const nameVal = filtersValue.get(ApplicationFilterKey.NAME);
-    const descriptionVal = filtersValue.get(ApplicationFilterKey.DESCRIPTION);
-    const serviceVal = filtersValue.get(ApplicationFilterKey.BUSINESS_SERVICE);
-    const tagVal = filtersValue.get(ApplicationFilterKey.TAG);
-    return getApplications(
-      {
-        name: nameVal?.map((f) => f.key),
-        description: descriptionVal?.map((f) => f.key),
-        businessService: serviceVal?.map((f) => f.key),
-        tag: tagVal?.map((f) => f.key),
-      },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
+    return getApplications();
   }, [filtersValue, paginationQuery, sortByQuery]);
 
   const {
@@ -186,24 +143,18 @@ export const ApplicationsTable: React.FC = () => {
     isFetching,
     fetchError,
     requestFetch: refreshTable,
-  } = useFetch<ApplicationPage>({
+  } = useFetch<Array<Application>>({
     defaultIsFetching: true,
     onFetch: fetchApplications,
   });
 
   const applications = useMemo(() => {
-    return page ? applicationPageMapper(page) : undefined;
+    return page ? page : undefined;
   }, [page]);
 
   useEffect(() => {
     refreshTable();
-  }, [
-    filtersValue,
-    paginationQuery,
-    sortByQuery,
-    isWatchingBulkCopy,
-    refreshTable,
-  ]);
+  }, [isWatchingBulkCopy, refreshTable]);
 
   // Create and update modal
   const {
@@ -281,7 +232,7 @@ export const ApplicationsTable: React.FC = () => {
 
   useEffect(() => {
     if (applications) {
-      fetchApplicationsAssessment(applications.data?.map((f) => f.id!));
+      fetchApplicationsAssessment(applications?.map((f) => f.id!));
     }
   }, [applications, fetchApplicationsAssessment]);
 
@@ -294,7 +245,7 @@ export const ApplicationsTable: React.FC = () => {
     isItemSelected: isRowExpanded,
     toggleItemSelected: toggleRowExpanded,
   } = useSelectionState<Application>({
-    items: applications?.data || [],
+    items: applications || [],
     isEqual: (a, b) => a.id === b.id,
   });
 
@@ -303,7 +254,7 @@ export const ApplicationsTable: React.FC = () => {
     toggleItemSelected: toggleRowSelected,
     selectedItems: selectedRows,
   } = useSelectionState<Application>({
-    items: applications?.data || [],
+    items: applications || [],
     isEqual: (a, b) => a.id === b.id,
   });
 
@@ -328,7 +279,7 @@ export const ApplicationsTable: React.FC = () => {
   ];
 
   const rows: IRow[] = [];
-  applications?.data?.forEach((item) => {
+  applications?.forEach((item) => {
     const isExpanded = isRowExpanded(item);
     const isSelected = isRowSelected(item);
 
@@ -349,7 +300,7 @@ export const ApplicationsTable: React.FC = () => {
           title: (
             <TableText wrapModifier="truncate">
               {item.businessService && (
-                <ApplicationBusinessService id={item.businessService} />
+                <ApplicationBusinessService id={item.businessService.id} />
               )}
             </TableText>
           ),
@@ -525,11 +476,7 @@ export const ApplicationsTable: React.FC = () => {
             row,
             () => {
               dispatch(confirmDialogActions.closeDialog());
-              if (applications?.data.length === 1) {
-                handlePaginationChange({ page: paginationQuery.page - 1 });
-              } else {
-                refreshTable();
-              }
+              refreshTable();
             },
             (error) => {
               dispatch(confirmDialogActions.closeDialog());
@@ -678,7 +625,7 @@ export const ApplicationsTable: React.FC = () => {
       >
         <AppTableWithControls
           paginationProps={paginationProps}
-          count={applications ? applications.meta.count : 0}
+          count={applications ? applications.length : 0}
           onSort={handleSortChange}
           onCollapse={collapseRow}
           onSelect={selectRow}
