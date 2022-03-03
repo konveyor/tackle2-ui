@@ -37,7 +37,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
 
       Promise.all(
         application.tags
-          .map((f) => getTagById(f))
+          .map((f) => getTagById(f?.id || ""))
           .map((p) => p.catch(() => null))
       )
         .then((tags) => {

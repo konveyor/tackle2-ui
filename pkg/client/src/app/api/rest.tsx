@@ -234,16 +234,6 @@ export const getTagById = (id: number | string): AxiosPromise<Tag> => {
 
 // App inventory
 
-export enum ApplicationSortBy {
-  NAME,
-  TAGS,
-  REVIEW,
-}
-export interface ApplicationSortByQuery {
-  field: ApplicationSortBy;
-  direction?: Direction;
-}
-
 export const getApplications = (): AxiosPromise<Array<Application>> => {
   return APIClient.get(`${APPLICATIONS}`, jsonHeaders);
 };

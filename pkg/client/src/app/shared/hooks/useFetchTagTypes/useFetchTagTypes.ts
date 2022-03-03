@@ -2,8 +2,8 @@ import { useCallback, useReducer } from "react";
 import { AxiosError } from "axios";
 import { ActionType, createAsyncAction, getType } from "typesafe-actions";
 
-import { getTagTypes, TagTypeSortBy, TagTypeSortByQuery } from "@app/api/rest";
-import { PageRepresentation, PageQuery, TagType } from "@app/api/models";
+import { getTagTypes } from "@app/api/rest";
+import { TagType } from "@app/api/models";
 
 export const {
   request: fetchRequest,

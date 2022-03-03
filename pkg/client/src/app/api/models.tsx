@@ -101,8 +101,8 @@ export interface Application {
   name: string;
   description?: string;
   comments?: string;
-  businessService?: string;
-  tags?: string[];
+  businessService?: Ref;
+  tags?: Ref[];
   review?: Review;
 }
 

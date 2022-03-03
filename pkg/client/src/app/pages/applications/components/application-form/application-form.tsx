@@ -21,12 +21,8 @@ import {
 } from "@app/shared/components";
 import { useFetchBusinessServices, useFetchTagTypes } from "@app/shared/hooks";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import {
-  createApplication,
-  TagTypeSortBy,
-  updateApplication,
-} from "@app/api/rest";
-import { Application, Tag } from "@app/api/models";
+import { createApplication, updateApplication } from "@app/api/rest";
+import { Application, Ref, Tag } from "@app/api/models";
 import {
   getAxiosErrorMessage,
   getValidatedFromError,
@@ -85,20 +81,20 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     tagTypes,
     isFetching: isFetchingTagTypes,
     fetchError: fetchErrorTagTypes,
-    fetchAllTagTypes,
+    fetchTagTypes,
   } = useFetchTagTypes();
 
   useEffect(() => {
-    fetchAllTagTypes({ field: TagTypeSortBy.RANK });
-  }, [fetchAllTagTypes]);
+    fetchTagTypes();
+  }, [fetchTagTypes]);
 
   // Tags
 
-  const [tags, setTags] = useState<Tag[]>();
+  const [tags, setTags] = useState<Ref[]>();
 
   useEffect(() => {
     if (tagTypes) {
-      setTags(tagTypes.data.flatMap((f) => f.tags || []));
+      setTags(tagTypes.flatMap((f) => f.tags || []));
     }
   }, [tagTypes]);
 
@@ -128,7 +124,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
     if (application && application.tags && tags) {
       result = application.tags.reduce((prev, current) => {
-        const exists = tags.find((f) => `${f.id}` === current);
+        const exists = tags.find((f) => f.id === current.id);
         return exists ? [...prev, toITagDropdown(exists)] : prev;
       }, [] as ITagDropdown[]);
     }
@@ -167,9 +163,15 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       description: formValues.description.trim(),
       comments: formValues.comments.trim(),
       businessService: formValues.businessService
-        ? `${formValues.businessService.id}`
+        ? {
+            id: formValues.businessService.id,
+            name: formValues.businessService.name,
+          }
         : undefined,
-      tags: formValues.tags.map((f) => `${f.id}`),
+      tags: formValues.tags.map((f): Ref => {
+        const thisTag = { id: f.id, name: f.name };
+        return thisTag;
+      }),
       review: undefined, // The review should not updated through this form
     };
 
