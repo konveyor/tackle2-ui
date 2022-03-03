@@ -2,11 +2,7 @@ import { useCallback, useReducer } from "react";
 import { AxiosError } from "axios";
 import { ActionType, createAsyncAction, getType } from "typesafe-actions";
 
-import {
-  getBusinessServices,
-  BusinessServiceSortByQuery,
-  BusinessServiceSortBy,
-} from "@app/api/rest";
+import { getBusinessServices } from "@app/api/rest";
 import {
   PageRepresentation,
   BusinessService,
@@ -21,11 +17,11 @@ export const {
   "useFetchBusinessServices/fetch/request",
   "useFetchBusinessServices/fetch/success",
   "useFetchBusinessServices/fetch/failure"
-)<void, PageRepresentation<BusinessService>, AxiosError>();
+)<void, Array<BusinessService>, AxiosError>();
 
 type State = Readonly<{
   isFetching: boolean;
-  businessServices?: PageRepresentation<BusinessService>;
+  businessServices?: Array<BusinessService>;
   fetchError?: AxiosError;
   fetchCount: number;
 }>;
@@ -76,20 +72,11 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export interface IState {
-  businessServices?: PageRepresentation<BusinessService>;
+  businessServices?: Array<BusinessService>;
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;
-  fetchBusinessServices: (
-    filters: {
-      name?: string[];
-      description?: string[];
-      owner?: string[];
-    },
-    page: PageQuery,
-    sortBy?: BusinessServiceSortByQuery
-  ) => void;
-  fetchAllBusinessServices: () => void;
+  fetchBusinessServices: () => void;
 }
 
 export const useFetchBusinessServices = (
@@ -97,55 +84,12 @@ export const useFetchBusinessServices = (
 ): IState => {
   const [state, dispatch] = useReducer(reducer, defaultIsFetching, initReducer);
 
-  const fetchBusinessServices = useCallback(
-    (
-      filters: { name?: string[]; description?: string[]; owner?: string[] },
-      page: PageQuery,
-      sortBy?: BusinessServiceSortByQuery
-    ) => {
-      dispatch(fetchRequest());
-
-      getBusinessServices(filters, page, sortBy)
-        .then(({ data }) => {
-          const list = data._embedded["business-service"];
-          const total = data.total_count;
-
-          dispatch(
-            fetchSuccess({
-              data: list,
-              meta: {
-                count: total,
-              },
-            })
-          );
-        })
-        .catch((error: AxiosError) => {
-          dispatch(fetchFailure(error));
-        });
-    },
-    []
-  );
-
-  const fetchAllBusinessServices = useCallback(() => {
+  const fetchBusinessServices = useCallback(() => {
     dispatch(fetchRequest());
 
-    getBusinessServices(
-      {},
-      { page: 1, perPage: 1000 },
-      { field: BusinessServiceSortBy.NAME }
-    )
+    getBusinessServices()
       .then(({ data }) => {
-        const list = data._embedded["business-service"];
-        const total = data.total_count;
-
-        dispatch(
-          fetchSuccess({
-            data: list,
-            meta: {
-              count: total,
-            },
-          })
-        );
+        dispatch(fetchSuccess(data));
       })
       .catch((error: AxiosError) => {
         dispatch(fetchFailure(error));
@@ -158,7 +102,6 @@ export const useFetchBusinessServices = (
     fetchError: state.fetchError,
     fetchCount: state.fetchCount,
     fetchBusinessServices,
-    fetchAllBusinessServices,
   };
 };
 

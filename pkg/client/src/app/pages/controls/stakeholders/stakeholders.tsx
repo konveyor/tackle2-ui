@@ -59,13 +59,6 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 
-enum FilterKey {
-  EMAIL = "email",
-  DISPLAY_NAME = "displayName",
-  JOB_FUNCTION = "jobFunction",
-  STAKEHOLDER_GROUP = "stakeholderGroup",
-}
-
 const ENTITY_FIELD = "entity";
 
 const getRow = (rowData: IRowData): Stakeholder => {
@@ -87,15 +80,6 @@ export const Stakeholders: React.FC = () => {
     useFetchStakeholders(true);
 
   const {
-    paginationQuery,
-    sortByQuery,
-    handlePaginationChange,
-    handleSortChange,
-  } = useTableControls({
-    sortByQuery: { direction: "asc", index: 1 },
-  });
-
-  const {
     isItemSelected: isItemExpanded,
     toggleItemSelected: toggleItemExpanded,
   } = useSelectionState<Stakeholder>({
@@ -110,6 +94,74 @@ export const Stakeholders: React.FC = () => {
   useEffect(() => {
     fetchStakeholders();
   }, [fetchStakeholders]);
+
+  const filterCategories: FilterCategory<Stakeholder>[] = [
+    {
+      key: "email",
+      title: "Email",
+      type: FilterType.search,
+      placeholderText: "Filter by email...",
+      getItemValue: (item) => {
+        return item?.email || "";
+      },
+    },
+    {
+      key: "name",
+      title: "Name",
+      type: FilterType.search,
+      placeholderText: "Filter by description...",
+      getItemValue: (item) => {
+        return item?.name || "";
+      },
+    },
+    {
+      key: "jobFunction",
+      title: "Name",
+      type: FilterType.search,
+      placeholderText: "Filter by job function...",
+      getItemValue: (item) => {
+        return item.jobFunction?.name || "";
+      },
+    },
+    {
+      key: "stakeholders",
+      title: "Stakeholders",
+      type: FilterType.search,
+      placeholderText: "Filter by stakeholders...",
+      getItemValue: (stakeholder) => {
+        const stakeholderGroups = stakeholder.stakeholderGroups?.map(
+          (stakeholderGroup) => stakeholderGroup.name
+        );
+        return stakeholderGroups?.join(" ; ") || "";
+      },
+    },
+  ];
+  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+    stakeholders || [],
+    filterCategories
+  );
+  const getSortValues = (item: Stakeholder) => [
+    item?.name || "",
+    item?.email || "",
+    item.jobFunction?.name || "",
+    getStakeholderGroupNameList(item) || "",
+    "", // Action column
+  ];
+
+  const getStakeholderGroupNameList = (stakeholder: Stakeholder) => {
+    const stakeholderGroups = stakeholder.stakeholderGroups?.map(
+      (stakeholderGroup) => stakeholderGroup.name
+    );
+    return stakeholderGroups?.join(" ; ") || "";
+  };
+
+  const { sortBy, onSort, sortedItems } = useSortState(
+    filteredItems,
+    getSortValues
+  );
+
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState(sortedItems, 10);
 
   const columns: ICell[] = [
     {
@@ -132,7 +184,7 @@ export const Stakeholders: React.FC = () => {
   ];
 
   const rows: IRow[] = [];
-  stakeholders?.forEach((item) => {
+  currentPageItems?.forEach((item) => {
     const isExpanded = isItemExpanded(item);
     rows.push({
       [ENTITY_FIELD]: item,
@@ -270,67 +322,6 @@ export const Stakeholders: React.FC = () => {
   const handleOnUpdatedCancel = () => {
     setRowToUpdate(undefined);
   };
-
-  const filterCategories: FilterCategory<Stakeholder>[] = [
-    {
-      key: "name",
-      title: "Name",
-      type: FilterType.search,
-      placeholderText: "Filter by name...",
-      getItemValue: (item) => {
-        return item?.name || "";
-      },
-    },
-    {
-      key: "description",
-      title: "Description",
-      type: FilterType.search,
-      placeholderText: "Filter by description...",
-      getItemValue: (item) => {
-        return item?.name || "";
-      },
-    },
-    {
-      key: "stakeholders",
-      title: "Stakeholders",
-      type: FilterType.search,
-      placeholderText: "Filter by stakeholders...",
-      // getItemValue: (item) => {
-      //   return item?.stakeholders?.name || "";
-      // },
-      // getItemValue: (stakeholderGroup) => {
-      //   const stakeholders = stakeholderGroup.stakeholders?.map(
-      //     (stakeholder) => stakeholder.name
-      //   );
-      //   return stakeholders?.join(" ; ") || "";
-      // },
-    },
-  ];
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
-    stakeholders || [],
-    filterCategories
-  );
-  const getSortValues = (item: Stakeholder) => [
-    item?.name || "",
-    item.email || "",
-    // getStakeholderNameList(item) || "",
-    "", // Action column
-  ];
-
-  // const getStakeholderNameList = (stakeholderGroup: StakeholderGroup) => {
-  //   const stakeholders = stakeholderGroup.stakeholders?.map(
-  //     (stakeholder) => stakeholder.name
-  //   );
-  //   return stakeholders?.join(" ; ") || "";
-  // };
-
-  const { sortBy, onSort, sortedItems } = useSortState(
-    filteredItems,
-    getSortValues
-  );
-
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
 
   return (
     <>

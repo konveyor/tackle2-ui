@@ -12,7 +12,7 @@ const stakeholderToOption = (
   value: Stakeholder
 ): OptionWithValue<Stakeholder> => ({
   value,
-  toString: () => value.displayName,
+  toString: () => value.name,
   props: {
     description: value.email,
   },

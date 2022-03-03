@@ -87,52 +87,8 @@ const buildQuery = (params: any) => {
 
 // Business services
 
-export enum BusinessServiceSortBy {
-  NAME,
-  OWNER,
-}
-export interface BusinessServiceSortByQuery {
-  field: BusinessServiceSortBy;
-  direction?: Direction;
-}
-
-export const getBusinessServices = (
-  filters: {
-    name?: string[];
-    description?: string[];
-    owner?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: BusinessServiceSortByQuery
-): AxiosPromise<BusinessServicePage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case BusinessServiceSortBy.NAME:
-        field = "name";
-        break;
-      case BusinessServiceSortBy.OWNER:
-        field = "owner.displayName";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    name: filters.name,
-    description: filters.description,
-    "owner.displayName": filters.owner,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${BUSINESS_SERVICES}?${query.join("&")}`, halHeaders);
+export const getBusinessServices = (): AxiosPromise<Array<BusinessService>> => {
+  return APIClient.get(`${BUSINESS_SERVICES}`, jsonHeaders);
 };
 
 export const deleteBusinessService = (id: number | string): AxiosPromise => {
