@@ -14,6 +14,7 @@ import {
   JobFunction,
   JobFunctionPage,
   PageRepresentation,
+  Ref,
   Stakeholder,
   StakeholderGroup,
   StakeholderGroupPage,
@@ -32,8 +33,6 @@ import {
   getStakeholders,
   getTagTypes,
   JobFunctionSortBy,
-  StakeholderGroupSortBy,
-  StakeholderSortBy,
   TagTypeSortBy,
   TagTypeSortByQuery,
 } from "./rest";
@@ -43,22 +42,6 @@ export const getAllBusinessServices = () => {
     {},
     { page: 1, perPage: 1000 },
     { field: BusinessServiceSortBy.NAME }
-  );
-};
-
-export const getAllStakeholders = () => {
-  return getStakeholders(
-    {},
-    { page: 1, perPage: 1000 },
-    { field: StakeholderSortBy.DISPLAY_NAME }
-  );
-};
-
-export const getAllStakeholderGroups = () => {
-  return getStakeholderGroups(
-    {},
-    { page: 1, perPage: 1000 },
-    { field: StakeholderGroupSortBy.NAME }
   );
 };
 

@@ -31,17 +31,18 @@ export interface BusinessService {
 
 export interface Stakeholder {
   id?: number;
-  displayName: string;
+  name: string;
   email: string;
   jobFunction?: JobFunction;
-  stakeholderGroups?: StakeholderGroup[];
+  stakeholderGroups?: Ref[];
+  businessServices?: Ref[];
 }
 
 export interface StakeholderGroup {
   id?: number;
   name: string;
   description?: string;
-  stakeholders?: Stakeholder[];
+  stakeholders?: Ref[];
 }
 export interface Ref {
   id?: number;

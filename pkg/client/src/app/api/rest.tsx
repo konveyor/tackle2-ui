@@ -46,7 +46,7 @@ export const TAGS = "/tags";
 export const APPLICATIONS = "/applications";
 export const APPLICATION_DEPENDENCY = "/dependencies";
 export const REVIEW = "/review";
-export const REPORT = "/application-inventory/reports";
+export const REPORT = "/reports";
 export const UPLOAD_FILE = "/importsummaries/upload";
 export const APP_IMPORT_SUMMARY = "/importsummaries";
 export const APP_IMPORT = "/imports";
@@ -159,62 +159,8 @@ export const getBusinessServiceById = (
 
 // Stakeholders
 
-export enum StakeholderSortBy {
-  EMAIL,
-  DISPLAY_NAME,
-  JOB_FUNCTION,
-  STAKEHOLDER_GROUPS_COUNT,
-}
-export interface StakeholderSortByQuery {
-  field: StakeholderSortBy;
-  direction?: Direction;
-}
-
-export const getStakeholders = (
-  filters: {
-    email?: string[];
-    displayName?: string[];
-    jobFunction?: string[];
-    stakeholderGroup?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: StakeholderSortByQuery
-): AxiosPromise<StakeholderPage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case StakeholderSortBy.EMAIL:
-        field = "email";
-        break;
-      case StakeholderSortBy.DISPLAY_NAME:
-        field = "displayName";
-        break;
-      case StakeholderSortBy.JOB_FUNCTION:
-        field = "jobFunction.role";
-        break;
-      case StakeholderSortBy.STAKEHOLDER_GROUPS_COUNT:
-        field = "stakeholderGroups.size()";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    email: filters.email,
-    displayName: filters.displayName,
-    "jobFunction.role": filters.jobFunction,
-    "stakeholderGroups.name": filters.stakeholderGroup,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${STAKEHOLDERS}?${query.join("&")}`, halHeaders);
+export const getStakeholders = (): AxiosPromise<Array<Stakeholder>> => {
+  return APIClient.get(`${STAKEHOLDERS}`, jsonHeaders);
 };
 
 export const createJobFunction = (
@@ -255,48 +201,11 @@ export enum StakeholderGroupSortBy {
   NAME,
   STAKEHOLDERS_COUNT,
 }
-export interface StakeholderGroupSortByQuery {
-  field: StakeholderGroupSortBy;
-  direction?: Direction;
-}
 
-export const getStakeholderGroups = (
-  filters: {
-    name?: string[];
-    description?: string[];
-    stakeholder?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: StakeholderGroupSortByQuery
-): AxiosPromise<StakeholderGroupPage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case StakeholderGroupSortBy.NAME:
-        field = "name";
-        break;
-      case StakeholderGroupSortBy.STAKEHOLDERS_COUNT:
-        field = "stakeholders.size()";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    name: filters.name,
-    description: filters.description,
-    "stakeholders.displayName": filters.stakeholder,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${STAKEHOLDER_GROUPS}?${query.join("&")}`, halHeaders);
+export const getStakeholderGroups = (): AxiosPromise<
+  Array<StakeholderGroup>
+> => {
+  return APIClient.get(`${STAKEHOLDER_GROUPS}`, jsonHeaders);
 };
 
 export const deleteStakeholderGroup = (id: number): AxiosPromise => {
