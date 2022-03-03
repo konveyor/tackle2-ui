@@ -66,7 +66,7 @@ export interface TagType {
 export interface Tag {
   id?: number;
   name: string;
-  tagType?: TagType;
+  tagType?: Ref;
 }
 
 export type TaskStatus =

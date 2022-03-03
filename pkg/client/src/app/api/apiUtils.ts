@@ -23,8 +23,6 @@ import {
   TagTypePage,
 } from "./models";
 import {
-  ApplicationSortBy,
-  BusinessServiceSortBy,
   getApplicationDependencies,
   getApplications,
   getBusinessServices,
@@ -38,11 +36,7 @@ import {
 } from "./rest";
 
 export const getAllBusinessServices = () => {
-  return getBusinessServices(
-    {},
-    { page: 1, perPage: 1000 },
-    { field: BusinessServiceSortBy.NAME }
-  );
+  return getBusinessServices();
 };
 
 export const getAllTagTypes = (
@@ -52,11 +46,7 @@ export const getAllTagTypes = (
 };
 
 export const getAllApplications = () => {
-  return getApplications(
-    {},
-    { page: 1, perPage: 1000 },
-    { field: ApplicationSortBy.NAME }
-  );
+  return getApplications();
 };
 
 export const getAllApplicationDependencies = (filters: {

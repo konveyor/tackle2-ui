@@ -196,58 +196,8 @@ export const getJobFunctions = (): AxiosPromise<JobFunctionPage> => {
 
 // Tag types
 
-export enum TagTypeSortBy {
-  NAME,
-  RANK,
-  COLOR,
-  TAGS_COUNT,
-}
-export interface TagTypeSortByQuery {
-  field: TagTypeSortBy;
-  direction?: Direction;
-}
-
-export const getTagTypes = (
-  filters: {
-    tagTypes?: string[];
-    tags?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: TagTypeSortByQuery
-): AxiosPromise<TagTypePage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case TagTypeSortBy.NAME:
-        field = "name";
-        break;
-      case TagTypeSortBy.RANK:
-        field = "rank";
-        break;
-      case TagTypeSortBy.COLOR:
-        field = "rank";
-        break;
-      case TagTypeSortBy.TAGS_COUNT:
-        field = "tags.size()";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    name: filters.tagTypes,
-    "tags.name": filters.tags,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${TAG_TYPES}?${query.join("&")}`, halHeaders);
+export const getTagTypes = (): AxiosPromise<Array<TagType>> => {
+  return APIClient.get(`${TAG_TYPES}`, jsonHeaders);
 };
 
 export const deleteTagType = (id: number): AxiosPromise => {
@@ -294,48 +244,8 @@ export interface ApplicationSortByQuery {
   direction?: Direction;
 }
 
-export const getApplications = (
-  filters: {
-    name?: string[];
-    description?: string[];
-    businessService?: string[];
-    tag?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: ApplicationSortByQuery
-): AxiosPromise<ApplicationPage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case ApplicationSortBy.NAME:
-        field = "name";
-        break;
-      case ApplicationSortBy.TAGS:
-        field = "tags.size()";
-        break;
-      case ApplicationSortBy.REVIEW:
-        field = "review.deleted,id";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    name: filters.name,
-    description: filters.description,
-    businessService: filters.businessService,
-    "tags.tag": filters.tag,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${APPLICATIONS}?${query.join("&")}`, halHeaders);
+export const getApplications = (): AxiosPromise<Array<Application>> => {
+  return APIClient.get(`${APPLICATIONS}`, jsonHeaders);
 };
 
 export const deleteApplication = (id: number): AxiosPromise => {

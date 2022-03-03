@@ -72,12 +72,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     businessServices,
     isFetching: isFetchingBusinessServices,
     fetchError: fetchErrorBusinessServices,
-    fetchAllBusinessServices,
+    fetchBusinessServices,
   } = useFetchBusinessServices();
 
   useEffect(() => {
-    fetchAllBusinessServices();
-  }, [fetchAllBusinessServices]);
+    fetchBusinessServices();
+  }, [fetchBusinessServices]);
 
   // TagTypes
 
@@ -106,14 +106,9 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
   const businessServiceInitialValue = useMemo(() => {
     let result: IBusinessServiceDropdown | null = null;
-    if (
-      application &&
-      application.businessService &&
-      businessServices &&
-      businessServices.data
-    ) {
+    if (application && application.businessService && businessServices) {
       const businessServiceId = Number(application.businessService);
-      const businessService = businessServices.data.find(
+      const businessService = businessServices.find(
         (f) => f.id === businessServiceId
       );
 
@@ -302,9 +297,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 isFetching: isFetchingBusinessServices,
                 fetchError: fetchErrorBusinessServices,
               }}
-              options={(businessServices?.data || []).map(
-                toIBusinessServiceDropdown
-              )}
+              options={(businessServices || []).map(toIBusinessServiceDropdown)}
               toOptionWithValue={toIBusinessServiceDropdownOptionWithValue}
             />
           </FormGroup>
