@@ -152,14 +152,14 @@ export interface Identity {
 }
 
 export interface Proxy {
+  host: string;
+  kind: string;
+  port: number;
+  excluded: Array<string>;
+  identity?: number | null;
   createTime?: string;
   createUser?: string;
-  host: string;
-  id?: number;
-  identity?: number | null;
-  kind: string;
-  port?: number;
-  updateUser?: string;
+  id?: any;
 }
 
 // Pathfinder

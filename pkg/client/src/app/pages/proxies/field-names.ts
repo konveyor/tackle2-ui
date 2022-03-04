@@ -1,3 +1,9 @@
-export const HOST = "host";
-export const PORT = "port";
-export const IDENTITY = "identity";
+export const HTTP_HOST = "httpHost";
+export const HTTP_PORT = "httpPort";
+export const HTTP_IDENTITY = "httpIdentity";
+export const HTTPS_HOST = "httpsHost";
+export const HTTPS_PORT = "httpsPort";
+export const HTTPS_IDENTITY = "httpsIdentity";
+export const IS_HTTP_CHECKED = "isHttpChecked";
+export const IS_HTTPS_CHECKED = "isHttpsChecked";
+export const EXCLUDED = "excluded";
