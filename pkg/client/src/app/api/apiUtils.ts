@@ -31,18 +31,10 @@ import {
   getStakeholders,
   getTagTypes,
   JobFunctionSortBy,
-  TagTypeSortBy,
-  TagTypeSortByQuery,
 } from "./rest";
 
 export const getAllBusinessServices = () => {
   return getBusinessServices();
-};
-
-export const getAllTagTypes = (
-  sortBy: TagTypeSortByQuery = { field: TagTypeSortBy.NAME }
-) => {
-  return getTagTypes({}, { page: 1, perPage: 1000 }, sortBy);
 };
 
 export const getAllApplications = () => {
