@@ -48,12 +48,12 @@ export const SelectBusinessServiceFilter: React.FC<
     businessServices,
     isFetching: isFetchingBusinessServices,
     fetchError: fetchErrorBusinessServices,
-    fetchAllBusinessServices,
+    fetchBusinessServices,
   } = useFetchBusinessServices();
 
   useEffect(() => {
-    fetchAllBusinessServices();
-  }, [fetchAllBusinessServices]);
+    fetchBusinessServices();
+  }, [fetchBusinessServices]);
 
   return (
     <SimpleSelectFetch
@@ -63,11 +63,9 @@ export const SelectBusinessServiceFilter: React.FC<
       placeholderText={t("terms.businessService")}
       maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
       value={value
-        .map((f) =>
-          (businessServices?.data || []).find((b) => `${b.id}` === f.key)
-        )
+        .map((f) => (businessServices || []).find((b) => `${b.id}` === f.key))
         .map((f) => businessServiceToOption(f!))}
-      options={(businessServices?.data || []).map(businessServiceToOption)}
+      options={(businessServices || []).map(businessServiceToOption)}
       onChange={(option) => {
         const optionValue = (option as OptionWithValue<BusinessService>).value;
 

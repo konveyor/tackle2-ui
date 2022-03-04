@@ -8,7 +8,6 @@ import { useFetchTagTypes } from "@app/shared/hooks";
 
 import { Tag } from "@app/api/models";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { TagTypeSortBy } from "@app/api/rest";
 
 const tagToToolbarChip = (value: Tag): ToolbarChip => ({
   key: `${value.id}`,
@@ -53,12 +52,12 @@ export const SelectTagFilter: React.FC<SelectTagFilterProps> = ({
     tagTypes,
     isFetching: isFetchingTagTypes,
     fetchError: fetchErrorTagTypes,
-    fetchAllTagTypes,
+    fetchTagTypes,
   } = useFetchTagTypes();
 
   useEffect(() => {
-    fetchAllTagTypes({ field: TagTypeSortBy.RANK });
-  }, [fetchAllTagTypes]);
+    fetchTagTypes();
+  }, [fetchTagTypes]);
 
   // Tags
 
@@ -66,7 +65,7 @@ export const SelectTagFilter: React.FC<SelectTagFilterProps> = ({
 
   useEffect(() => {
     if (tagTypes) {
-      setTags(tagTypes.data.flatMap((f) => f.tags || []));
+      setTags(tagTypes.flatMap((f) => f.tags || []));
     }
   }, [tagTypes]);
 

@@ -17,7 +17,7 @@ export interface IAppTableProps extends TableProps {
   loadingVariant?: "skeleton" | "spinner" | "none";
   fetchError?: any;
 
-  filtersApplied: boolean;
+  filtersApplied?: boolean;
   noDataState?: any;
   noSearchResultsState?: any;
   errorState?: any;

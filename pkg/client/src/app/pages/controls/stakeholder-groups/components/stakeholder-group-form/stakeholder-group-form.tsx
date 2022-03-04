@@ -58,18 +58,28 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
     stakeholders,
     isFetching: isFetchingStakeholders,
     fetchError: fetchErrorStakeholders,
-    fetchAllStakeholders,
+    fetchStakeholders,
   } = useFetchStakeholders();
 
   useEffect(() => {
-    fetchAllStakeholders();
-  }, [fetchAllStakeholders]);
+    fetchStakeholders();
+  }, [fetchStakeholders]);
 
   const stakeholdersInitialValue: IStakeholderDropdown[] = useMemo(() => {
-    return stakeholderGroup && stakeholderGroup.stakeholders
-      ? stakeholderGroup.stakeholders.map(toIStakeholderDropdown)
+    return stakeholderGroup &&
+      stakeholderGroup.stakeholders &&
+      !isFetchingStakeholders &&
+      stakeholders
+      ? stakeholderGroup.stakeholders
+          .map((stakeholderRef, index): Stakeholder => {
+            const matchingRef = stakeholders.find(
+              (stakeholder) => stakeholder.id === stakeholderRef.id
+            );
+            return matchingRef || stakeholders[0];
+          })
+          .map(toIStakeholderDropdown)
       : [];
-  }, [stakeholderGroup]);
+  }, [stakeholderGroup, stakeholders]);
 
   const initialValues: FormValues = {
     name: stakeholderGroup?.name || "",
@@ -209,7 +219,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
               isFetching: isFetchingStakeholders,
               fetchError: fetchErrorStakeholders,
             }}
-            options={(stakeholders?.data || []).map(toIStakeholderDropdown)}
+            options={(stakeholders || []).map(toIStakeholderDropdown)}
             toOptionWithValue={toIStakeholderDropdownOptionWithValue}
             isEqual={isIModelEqual}
           />

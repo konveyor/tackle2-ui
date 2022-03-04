@@ -27,6 +27,7 @@ import { Application, AssessmentQuestionRisk } from "@app/api/models";
 import { getAssessmentIdentifiedRisks } from "@app/api/rest";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
 export enum FilterKey {
   APPLICATION_NAME = "application_name",
@@ -297,13 +298,16 @@ export const IdentifiedRisksTable: React.FC<
     });
   });
 
+  //Placeholder
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState([], 10);
+  //
   return (
     <AppTableWithControls
+      paginationProps={paginationProps}
       variant={TableVariant.compact}
       count={filteredItems.length}
-      pagination={pagination}
       sortBy={sortBy}
-      onPaginationChange={onPaginationChange}
       onSort={onSort}
       cells={columns}
       rows={rows}

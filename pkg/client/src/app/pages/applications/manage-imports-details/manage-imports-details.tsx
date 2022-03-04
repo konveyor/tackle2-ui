@@ -35,6 +35,7 @@ import {
 } from "@app/api/models";
 import { applicationImportPageMapper } from "@app/api/apiUtils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
 const ENTITY_FIELD = "entity";
 
@@ -139,6 +140,11 @@ export const ManageImportsDetails: React.FC = () => {
       });
   };
 
+  //Placeholder
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState([], 10);
+  //
+
   return (
     <>
       <PageSection variant="light">
@@ -168,9 +174,8 @@ export const ManageImportsDetails: React.FC = () => {
         >
           <AppTableWithControls
             count={imports ? imports.meta.count : 0}
-            pagination={paginationQuery}
+            paginationProps={paginationProps}
             sortBy={sortByQuery}
-            onPaginationChange={handlePaginationChange}
             onSort={handleSortChange}
             filtersApplied={false}
             cells={columns}

@@ -36,47 +36,21 @@ import {
   useDelete,
 } from "@app/shared/hooks";
 
-import { BusinessService, SortByQuery } from "@app/api/models";
-import {
-  BusinessServiceSortBy,
-  BusinessServiceSortByQuery,
-  deleteBusinessService,
-} from "@app/api/rest";
+import { BusinessService, Identity, SortByQuery } from "@app/api/models";
+import { deleteBusinessService } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { NewBusinessServiceModal } from "./components/new-business-service-modal";
 import { UpdateBusinessServiceModal } from "./components/update-business-service-modal";
-
-enum FilterKey {
-  NAME = "name",
-  DESCRIPTION = "description",
-  OWNER = "owner",
-}
-
-const toSortByQuery = (
-  sortBy?: SortByQuery
-): BusinessServiceSortByQuery | undefined => {
-  if (!sortBy) {
-    return undefined;
-  }
-
-  let field: BusinessServiceSortBy;
-  switch (sortBy.index) {
-    case 0:
-      field = BusinessServiceSortBy.NAME;
-      break;
-    case 2:
-      field = BusinessServiceSortBy.OWNER;
-      break;
-    default:
-      throw new Error("Invalid column index=" + sortBy.index);
-  }
-
-  return {
-    field,
-    direction: sortBy.direction,
-  };
-};
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
+import identities from "@app/pages/identities";
+import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useSortState } from "@app/shared/hooks/useSortState";
 
 const ENTITY_FIELD = "entity";
 
@@ -87,24 +61,6 @@ const ENTITY_FIELD = "entity";
 export const BusinessServices: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-
-  const filters = [
-    {
-      key: FilterKey.NAME,
-      name: t("terms.name"),
-    },
-    {
-      key: FilterKey.DESCRIPTION,
-      name: t("terms.description"),
-    },
-    {
-      key: FilterKey.OWNER,
-      name: t("terms.owner"),
-    },
-  ];
-  const [filtersValue, setFiltersValue] = useState<Map<FilterKey, string[]>>(
-    new Map([])
-  );
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<BusinessService>();
@@ -117,38 +73,62 @@ export const BusinessServices: React.FC = () => {
   const { businessServices, isFetching, fetchError, fetchBusinessServices } =
     useFetchBusinessServices(true);
 
-  const {
-    paginationQuery,
-    sortByQuery,
-    handlePaginationChange,
-    handleSortChange,
-  } = useTableControls({
-    sortByQuery: { direction: "asc", index: 0 },
-  });
-
   const refreshTable = useCallback(() => {
-    fetchBusinessServices(
-      {
-        name: filtersValue.get(FilterKey.NAME),
-        description: filtersValue.get(FilterKey.DESCRIPTION),
-        owner: filtersValue.get(FilterKey.OWNER),
-      },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
-  }, [filtersValue, paginationQuery, sortByQuery, fetchBusinessServices]);
+    fetchBusinessServices();
+  }, [fetchBusinessServices]);
 
   useEffect(() => {
-    fetchBusinessServices(
-      {
-        name: filtersValue.get(FilterKey.NAME),
-        description: filtersValue.get(FilterKey.DESCRIPTION),
-        owner: filtersValue.get(FilterKey.OWNER),
+    fetchBusinessServices();
+  }, [fetchBusinessServices]);
+
+  const filterCategories: FilterCategory<BusinessService>[] = [
+    {
+      key: "name",
+      title: "Name",
+      type: FilterType.search,
+      placeholderText: "Filter by name...",
+      getItemValue: (item) => {
+        return item?.name || "";
       },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
-  }, [filtersValue, paginationQuery, sortByQuery, fetchBusinessServices]);
+    },
+    {
+      key: "description",
+      title: "Description",
+      type: FilterType.search,
+      placeholderText: "Filter by description...",
+      getItemValue: (item) => {
+        return item.description || "";
+      },
+    },
+    {
+      key: "owner",
+      title: "Created By",
+      type: FilterType.search,
+      placeholderText: "Filter by owner...",
+      getItemValue: (item) => {
+        return item.owner?.name || "";
+      },
+    },
+  ];
+
+  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+    businessServices || [],
+    filterCategories
+  );
+  const getSortValues = (businessService: BusinessService) => [
+    businessService?.name || "",
+    businessService?.description || "",
+    businessService.owner?.name || "",
+    "", // Action column
+  ];
+
+  const { sortBy, onSort, sortedItems } = useSortState(
+    filteredItems,
+    getSortValues
+  );
+
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState(sortedItems, 10);
 
   const columns: ICell[] = [
     { title: t("terms.name"), transforms: [sortable, cellWidth(25)] },
@@ -163,7 +143,7 @@ export const BusinessServices: React.FC = () => {
   ];
 
   const rows: IRow[] = [];
-  businessServices?.data.forEach((item) => {
+  currentPageItems?.forEach((item) => {
     rows.push({
       [ENTITY_FIELD]: item,
       cells: [
@@ -177,9 +157,7 @@ export const BusinessServices: React.FC = () => {
         },
         {
           title: (
-            <TableText wrapModifier="truncate">
-              {item.owner?.displayName}
-            </TableText>
+            <TableText wrapModifier="truncate">{item.owner?.name}</TableText>
           ),
         },
         {
@@ -193,33 +171,6 @@ export const BusinessServices: React.FC = () => {
       ],
     });
   });
-
-  // Rows
-
-  // const actions: IActions = [
-  //   {
-  //     title: t("actions.edit"),
-  //     onClick: (
-  //       event: React.MouseEvent,
-  //       rowIndex: number,
-  //       rowData: IRowData
-  //     ) => {
-  //       const row: BusinessService = getRow(rowData);
-  //       editRow(row);
-  //     },
-  //   },
-  //   {
-  //     title: t("actions.delete"),
-  //     onClick: (
-  //       event: React.MouseEvent,
-  //       rowIndex: number,
-  //       rowData: IRowData
-  //     ) => {
-  //       const row: BusinessService = getRow(rowData);
-  //       deleteRow(row);
-  //     },
-  //   },
-  // ];
 
   const editRow = (row: BusinessService) => {
     setRowToUpdate(row);
@@ -243,11 +194,7 @@ export const BusinessServices: React.FC = () => {
             row,
             () => {
               dispatch(confirmDialogActions.closeDialog());
-              if (businessServices?.data.length === 1) {
-                handlePaginationChange({ page: paginationQuery.page - 1 });
-              } else {
-                refreshTable();
-              }
+              refreshTable();
             },
             (error) => {
               dispatch(confirmDialogActions.closeDialog());
@@ -262,33 +209,7 @@ export const BusinessServices: React.FC = () => {
   // Advanced filters
 
   const handleOnClearAllFilters = () => {
-    setFiltersValue((current) => {
-      const newVal = new Map(current);
-      Array.from(newVal.keys()).forEach((key) => {
-        newVal.set(key, []);
-      });
-      return newVal;
-    });
-  };
-
-  const handleOnAddFilter = (key: string, filterText: string) => {
-    const filterKey: FilterKey = key as FilterKey;
-    setFiltersValue((current) => {
-      const values: string[] = current.get(filterKey) || [];
-      return new Map(current).set(filterKey, [...values, filterText]);
-    });
-
-    handlePaginationChange({ page: 1 });
-  };
-
-  const handleOnDeleteFilter = (
-    key: string,
-    value: (string | ToolbarChip)[]
-  ) => {
-    const filterKey: FilterKey = key as FilterKey;
-    setFiltersValue((current) =>
-      new Map(current).set(filterKey, value as string[])
-    );
+    setFilterValues({});
   };
 
   // Create Modal
@@ -335,35 +256,22 @@ export const BusinessServices: React.FC = () => {
         then={<AppPlaceholder />}
       >
         <AppTableWithControls
-          count={businessServices ? businessServices.meta.count : 0}
-          pagination={paginationQuery}
-          sortBy={sortByQuery}
-          onPaginationChange={handlePaginationChange}
-          onSort={handleSortChange}
+          count={businessServices ? businessServices.length : 0}
+          paginationProps={paginationProps}
+          sortBy={sortBy}
+          onSort={onSort}
           cells={columns}
           rows={rows}
-          // actions={actions}
           isLoading={isFetching}
           loadingVariant="skeleton"
           fetchError={fetchError}
           toolbarClearAllFilters={handleOnClearAllFilters}
-          filtersApplied={
-            Array.from(filtersValue.values()).reduce(
-              (current, accumulator) => [...accumulator, ...current],
-              []
-            ).length > 0
-          }
           toolbarToggle={
-            <AppTableToolbarToggleGroup
-              categories={filters}
-              chips={filtersValue}
-              onChange={handleOnDeleteFilter}
-            >
-              <SearchFilter
-                options={filters}
-                onApplyFilter={handleOnAddFilter}
-              />
-            </AppTableToolbarToggleGroup>
+            <FilterToolbar<BusinessService>
+              filterCategories={filterCategories}
+              filterValues={filterValues}
+              setFilterValues={setFilterValues}
+            />
           }
           toolbarActions={
             <ToolbarGroup variant="button-group">

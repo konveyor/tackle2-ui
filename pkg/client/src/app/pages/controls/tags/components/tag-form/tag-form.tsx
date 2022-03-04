@@ -50,12 +50,12 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
     tagTypes,
     isFetching: isFetchingTagTypes,
     fetchError: fetchErrorTagTypes,
-    fetchAllTagTypes,
+    fetchTagTypes,
   } = useFetchTagTypes();
 
   useEffect(() => {
-    fetchAllTagTypes();
-  }, [fetchAllTagTypes]);
+    fetchTagTypes();
+  }, [fetchTagTypes]);
 
   const tagTypeInitialValue: ITagTypeDropdown | null = useMemo(() => {
     return tag && tag.tagType ? toITagTypeDropdown(tag.tagType) : null;
@@ -174,7 +174,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
               fetchError: fetchErrorTagTypes,
               isFetching: isFetchingTagTypes,
             }}
-            options={(tagTypes?.data || []).map(toITagTypeDropdown)}
+            options={(tagTypes || []).map(toITagTypeDropdown)}
             toOptionWithValue={toITagTypeDropdownOptionWithValue}
           />
         </FormGroup>

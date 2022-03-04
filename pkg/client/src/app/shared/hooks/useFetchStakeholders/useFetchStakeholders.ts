@@ -2,12 +2,8 @@ import { useCallback, useReducer } from "react";
 import { AxiosError } from "axios";
 import { ActionType, createAsyncAction, getType } from "typesafe-actions";
 
-import {
-  getStakeholders,
-  StakeholderSortBy,
-  StakeholderSortByQuery,
-} from "@app/api/rest";
-import { PageRepresentation, Stakeholder, PageQuery } from "@app/api/models";
+import { getStakeholders } from "@app/api/rest";
+import { Stakeholder } from "@app/api/models";
 
 export const {
   request: fetchRequest,
@@ -17,11 +13,11 @@ export const {
   "useFetchStakeholders/fetch/request",
   "useFetchStakeholders/fetch/success",
   "useFetchStakeholders/fetch/failure"
-)<void, PageRepresentation<Stakeholder>, AxiosError>();
+)<void, Array<Stakeholder>, AxiosError>();
 
 type State = Readonly<{
   isFetching: boolean;
-  stakeholders?: PageRepresentation<Stakeholder>;
+  stakeholders?: Array<Stakeholder>;
   fetchError?: AxiosError;
   fetchCount: number;
 }>;
@@ -72,21 +68,11 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export interface IState {
-  stakeholders?: PageRepresentation<Stakeholder>;
+  stakeholders?: Array<Stakeholder>;
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;
-  fetchStakeholders: (
-    filters: {
-      email?: string[];
-      displayName?: string[];
-      jobFunction?: string[];
-      stakeholderGroup?: string[];
-    },
-    page: PageQuery,
-    sortBy?: StakeholderSortByQuery
-  ) => void;
-  fetchAllStakeholders: () => void;
+  fetchStakeholders: () => void;
 }
 
 export const useFetchStakeholders = (
@@ -94,60 +80,12 @@ export const useFetchStakeholders = (
 ): IState => {
   const [state, dispatch] = useReducer(reducer, defaultIsFetching, initReducer);
 
-  const fetchStakeholders = useCallback(
-    (
-      filters: {
-        email?: string[];
-        displayName?: string[];
-        jobFunction?: string[];
-        stakeholderGroups?: string[];
-      },
-      page: PageQuery,
-      sortBy?: StakeholderSortByQuery
-    ) => {
-      dispatch(fetchRequest());
-
-      getStakeholders(filters, page, sortBy)
-        .then(({ data }) => {
-          const list = data._embedded.stakeholder;
-          const total = data.total_count;
-
-          dispatch(
-            fetchSuccess({
-              data: list,
-              meta: {
-                count: total,
-              },
-            })
-          );
-        })
-        .catch((error: AxiosError) => {
-          dispatch(fetchFailure(error));
-        });
-    },
-    []
-  );
-
-  const fetchAllStakeholders = useCallback(() => {
+  const fetchStakeholders = useCallback(() => {
     dispatch(fetchRequest());
 
-    getStakeholders(
-      {},
-      { page: 1, perPage: 1000 },
-      { field: StakeholderSortBy.DISPLAY_NAME }
-    )
+    getStakeholders()
       .then(({ data }) => {
-        const list = data._embedded.stakeholder;
-        const total = data.total_count;
-
-        dispatch(
-          fetchSuccess({
-            data: list,
-            meta: {
-              count: total,
-            },
-          })
-        );
+        dispatch(fetchSuccess(data));
       })
       .catch((error: AxiosError) => {
         dispatch(fetchFailure(error));
@@ -160,7 +98,6 @@ export const useFetchStakeholders = (
     fetchError: state.fetchError,
     fetchCount: state.fetchCount,
     fetchStakeholders,
-    fetchAllStakeholders,
   };
 };
 

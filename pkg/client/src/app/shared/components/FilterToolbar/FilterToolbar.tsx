@@ -86,55 +86,46 @@ export const FilterToolbar = <T,>({
   );
 
   return (
-    <Toolbar clearAllFilters={() => setFilterValues({})}>
-      <ToolbarContent>
-        {beginToolbarItems && <ToolbarGroup>{beginToolbarItems}</ToolbarGroup>}
+    <>
+      <ToolbarToggleGroup
+        variant="filter-group"
+        toggleIcon={<FilterIcon />}
+        breakpoint="2xl"
+      >
+        <ToolbarItem>
+          <Dropdown
+            toggle={
+              <DropdownToggle
+                onToggle={() =>
+                  setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
+                }
+              >
+                <FilterIcon /> {currentFilterCategory?.title}
+              </DropdownToggle>
+            }
+            isOpen={isCategoryDropdownOpen}
+            dropdownItems={filterCategories.map((category) => (
+              <DropdownItem
+                key={category.key}
+                onClick={() => onCategorySelect(category)}
+              >
+                {category.title}
+              </DropdownItem>
+            ))}
+          />
+        </ToolbarItem>
 
-        <ToolbarToggleGroup
-          variant="filter-group"
-          toggleIcon={<FilterIcon />}
-          breakpoint="2xl"
-        >
-          <ToolbarItem>
-            <Dropdown
-              toggle={
-                <DropdownToggle
-                  onToggle={() =>
-                    setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
-                  }
-                >
-                  <FilterIcon /> {currentFilterCategory?.title}
-                </DropdownToggle>
-              }
-              isOpen={isCategoryDropdownOpen}
-              dropdownItems={filterCategories.map((category) => (
-                <DropdownItem
-                  key={category.key}
-                  onClick={() => onCategorySelect(category)}
-                >
-                  {category.title}
-                </DropdownItem>
-              ))}
-            />
-          </ToolbarItem>
-
-          {filterCategories.map((category) => (
-            <FilterControl<T>
-              key={category.key}
-              category={category}
-              filterValue={filterValues[category.key]}
-              setFilterValue={(newValue) => setFilterValue(category, newValue)}
-              showToolbarItem={currentFilterCategory?.key === category.key}
-            />
-          ))}
-        </ToolbarToggleGroup>
-
-        {endToolbarItems && <ToolbarGroup>{endToolbarItems}</ToolbarGroup>}
-
-        {pagination && (
-          <ToolbarItem variant="pagination">{pagination}</ToolbarItem>
-        )}
-      </ToolbarContent>
-    </Toolbar>
+        {filterCategories.map((category) => (
+          <FilterControl<T>
+            key={category.key}
+            category={category}
+            filterValue={filterValues[category.key]}
+            setFilterValue={(newValue) => setFilterValue(category, newValue)}
+            showToolbarItem={currentFilterCategory?.key === category.key}
+          />
+        ))}
+      </ToolbarToggleGroup>
+      <ToolbarItem variant="pagination">{pagination}</ToolbarItem>
+    </>
   );
 };

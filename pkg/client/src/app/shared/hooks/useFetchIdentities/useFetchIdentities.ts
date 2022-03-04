@@ -1,7 +1,7 @@
 import { useCallback, useReducer } from "react";
 import { AxiosError } from "axios";
 import { ActionType, createAsyncAction, getType } from "typesafe-actions";
-import { Identity, PageRepresentation } from "@app/api/models";
+import { Identity } from "@app/api/models";
 import { getIdentities } from "@app/api/rest";
 
 export const {
@@ -16,7 +16,7 @@ export const {
 
 type State = Readonly<{
   isFetching: boolean;
-  identities?: PageRepresentation<Identity>;
+  identities?: Array<Identity>;
   fetchError?: AxiosError;
   fetchCount: number;
 }>;
@@ -67,7 +67,7 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export interface IState {
-  identities?: PageRepresentation<Identity>;
+  identities?: Array<Identity>;
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;
@@ -84,13 +84,7 @@ export const useFetchIdentities = (
 
     getIdentities()
       .then(({ data }) => {
-        const list = data;
-
-        dispatch(
-          fetchSuccess({
-            data: list,
-          })
-        );
+        dispatch(fetchSuccess(data));
       })
       .catch((error: AxiosError) => {
         dispatch(fetchFailure(error));

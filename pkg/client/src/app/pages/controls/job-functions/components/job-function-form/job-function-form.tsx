@@ -41,7 +41,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
   const [error, setError] = useState<AxiosError>();
 
   const initialValues: FormValues = {
-    name: jobFunction?.role || "",
+    name: jobFunction?.name || "",
   };
 
   const validationSchema = object().shape({
@@ -57,7 +57,8 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
     formikHelpers: FormikHelpers<FormValues>
   ) => {
     const payload: JobFunction = {
-      role: formValues.name.trim(),
+      name: formValues.name.trim(),
+      // stakeholders: [],
     };
 
     let promise: AxiosPromise<JobFunction>;

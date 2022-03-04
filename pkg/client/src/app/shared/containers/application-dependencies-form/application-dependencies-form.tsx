@@ -97,12 +97,12 @@ export const ApplicationDependenciesForm: React.FC<
     applications,
     isFetching: isFetchingApplications,
     fetchError: fetchErrorApplications,
-    fetchAllApplications,
+    fetchApplications,
   } = useFetchApplications();
 
   useEffect(() => {
-    fetchAllApplications();
-  }, [fetchAllApplications]);
+    fetchApplications();
+  }, [fetchApplications]);
 
   // Initial value
 
@@ -154,7 +154,7 @@ export const ApplicationDependenciesForm: React.FC<
           toStringFn={northToStringFn}
           value={northboundDependencies}
           setValue={setNorthboundDependencies}
-          options={(applications?.data || [])
+          options={(applications || [])
             .filter((f) => f.id !== application.id)
             .map((f) =>
               dependencyToOption({ from: f, to: application }, northToStringFn)
@@ -185,7 +185,7 @@ export const ApplicationDependenciesForm: React.FC<
           toStringFn={southToStringFn}
           value={southboundDependencies}
           setValue={setSouthboundDependencies}
-          options={(applications?.data || [])
+          options={(applications || [])
             .filter((f) => f.id !== application.id)
             .map((f) =>
               dependencyToOption({ from: application, to: f }, southToStringFn)

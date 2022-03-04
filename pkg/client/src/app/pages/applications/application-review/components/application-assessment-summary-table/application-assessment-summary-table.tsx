@@ -30,6 +30,7 @@ import {
 } from "@app/api/models";
 
 import { SelectRiskFilter } from "./components/select-risk-filter";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
 enum FilterKey {
   RISK = "risk",
@@ -198,12 +199,16 @@ export const ApplicationAssessmentSummaryTable: React.FC<
     });
   });
 
+  //Placeholder
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState([], 10);
+  //
+
   return (
     <AppTableWithControls
       count={filteredItems.length}
-      pagination={pagination}
+      paginationProps={paginationProps}
       sortBy={sortBy}
-      onPaginationChange={onPaginationChange}
       onSort={onSort}
       cells={columns}
       rows={rows}

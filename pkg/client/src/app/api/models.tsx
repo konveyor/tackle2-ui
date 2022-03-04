@@ -31,22 +31,28 @@ export interface BusinessService {
 
 export interface Stakeholder {
   id?: number;
-  displayName: string;
+  name: string;
   email: string;
   jobFunction?: JobFunction;
-  stakeholderGroups?: StakeholderGroup[];
+  stakeholderGroups?: Ref[];
+  businessServices?: Ref[];
 }
 
 export interface StakeholderGroup {
   id?: number;
   name: string;
   description?: string;
-  stakeholders?: Stakeholder[];
+  stakeholders?: Ref[];
+}
+export interface Ref {
+  id?: number;
+  name: string;
 }
 
 export interface JobFunction {
   id?: number;
-  role: string;
+  name: string;
+  stakeholders?: Array<Ref>;
 }
 
 export interface TagType {
@@ -60,7 +66,7 @@ export interface TagType {
 export interface Tag {
   id?: number;
   name: string;
-  tagType?: TagType;
+  tagType?: Ref;
 }
 
 export type TaskStatus =
@@ -95,8 +101,8 @@ export interface Application {
   name: string;
   description?: string;
   comments?: string;
-  businessService?: string;
-  tags?: string[];
+  businessService?: Ref;
+  tags?: Ref[];
   review?: Review;
 }
 
@@ -253,12 +259,7 @@ export interface StakeholderGroupPage {
   total_count: number;
 }
 
-export interface JobFunctionPage {
-  _embedded: {
-    "job-function": JobFunction[];
-  };
-  total_count: number;
-}
+export type JobFunctionPage = Array<JobFunction>;
 
 export interface TagTypePage {
   _embedded: {

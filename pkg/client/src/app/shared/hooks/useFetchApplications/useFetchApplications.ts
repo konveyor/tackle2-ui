@@ -2,12 +2,8 @@ import { useCallback, useReducer } from "react";
 import { AxiosError } from "axios";
 import { ActionType, createAsyncAction, getType } from "typesafe-actions";
 
-import {
-  getApplications,
-  ApplicationSortByQuery,
-  ApplicationSortBy,
-} from "@app/api/rest";
-import { PageRepresentation, Application, PageQuery } from "@app/api/models";
+import { getApplications } from "@app/api/rest";
+import { Application } from "@app/api/models";
 
 export const {
   request: fetchRequest,
@@ -17,11 +13,11 @@ export const {
   "useFetchApplications/fetch/request",
   "useFetchApplications/fetch/success",
   "useFetchApplications/fetch/failure"
-)<void, PageRepresentation<Application>, AxiosError>();
+)<void, Array<Application>, AxiosError>();
 
 type State = Readonly<{
   isFetching: boolean;
-  applications?: PageRepresentation<Application>;
+  applications?: Array<Application>;
   fetchError?: AxiosError;
   fetchCount: number;
 }>;
@@ -72,21 +68,11 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export interface IState {
-  applications?: PageRepresentation<Application>;
+  applications?: Array<Application>;
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;
-  fetchApplications: (
-    filters: {
-      name?: string[];
-      description?: string[];
-      businessService?: string[];
-      tag?: string[];
-    },
-    page: PageQuery,
-    sortBy?: ApplicationSortByQuery
-  ) => void;
-  fetchAllApplications: () => void;
+  fetchApplications: () => void;
 }
 
 export const useFetchApplications = (
@@ -94,60 +80,12 @@ export const useFetchApplications = (
 ): IState => {
   const [state, dispatch] = useReducer(reducer, defaultIsFetching, initReducer);
 
-  const fetchApplications = useCallback(
-    (
-      filters: {
-        name?: string[];
-        description?: string[];
-        businessService?: string[];
-        tag?: string[];
-      },
-      page: PageQuery,
-      sortBy?: ApplicationSortByQuery
-    ) => {
-      dispatch(fetchRequest());
-
-      getApplications(filters, page, sortBy)
-        .then(({ data }) => {
-          const list = data._embedded.application;
-          const total = data.total_count;
-
-          dispatch(
-            fetchSuccess({
-              data: list,
-              meta: {
-                count: total,
-              },
-            })
-          );
-        })
-        .catch((error: AxiosError) => {
-          dispatch(fetchFailure(error));
-        });
-    },
-    []
-  );
-
-  const fetchAllApplications = useCallback(() => {
+  const fetchApplications = useCallback(() => {
     dispatch(fetchRequest());
 
-    getApplications(
-      {},
-      { page: 1, perPage: 1000 },
-      { field: ApplicationSortBy.NAME }
-    )
+    getApplications()
       .then(({ data }) => {
-        const list = data._embedded.application;
-        const total = data.total_count;
-
-        dispatch(
-          fetchSuccess({
-            data: list,
-            meta: {
-              count: total,
-            },
-          })
-        );
+        dispatch(fetchSuccess(data));
       })
       .catch((error: AxiosError) => {
         dispatch(fetchFailure(error));
@@ -160,7 +98,6 @@ export const useFetchApplications = (
     fetchError: state.fetchError,
     fetchCount: state.fetchCount,
     fetchApplications,
-    fetchAllApplications,
   };
 };
 
