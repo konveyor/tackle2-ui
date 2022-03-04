@@ -12,44 +12,29 @@ import {
 import { FilterIcon } from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 
 import { AppTable, IAppTableProps } from "../app-table/app-table";
+import { PaginationStateProps } from "@app/shared/hooks/usePaginationState";
 import { SimplePagination } from "../simple-pagination";
 
 export interface IAppTableWithControlsProps extends IAppTableProps {
   count: number;
-  pagination: {
-    perPage?: number;
-    page?: number;
-  };
-  onPaginationChange: ({
-    page,
-    perPage,
-  }: {
-    page: number;
-    perPage: number;
-  }) => void;
-
   withoutTopPagination?: boolean;
   withoutBottomPagination?: boolean;
-
   toolbarBulkSelector?: any;
   toolbarToggle?: any;
   toolbarActions?: any;
   toolbarClearAllFilters?: () => void;
+  paginationProps: PaginationStateProps;
 }
 
 export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
   count,
-  pagination,
-  onPaginationChange,
-
   withoutTopPagination,
   withoutBottomPagination,
-
   toolbarBulkSelector,
   toolbarToggle,
   toolbarActions,
   toolbarClearAllFilters,
-
+  paginationProps,
   ...rest
 }) => {
   const { t } = useTranslation();
@@ -76,10 +61,8 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
               alignment={{ default: "alignRight" }}
             >
               <SimplePagination
-                count={count}
-                params={pagination}
-                onChange={onPaginationChange}
                 isTop={true}
+                paginationProps={paginationProps}
               />
             </ToolbarItem>
           )}
@@ -87,11 +70,7 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
       </Toolbar>
       <AppTable {...rest} />
       {!withoutBottomPagination && (
-        <SimplePagination
-          count={count}
-          params={pagination}
-          onChange={onPaginationChange}
-        />
+        <SimplePagination isTop={false} paginationProps={paginationProps} />
       )}
     </div>
   );

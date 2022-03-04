@@ -31,6 +31,7 @@ import {
 import { getAssessmentConfidence, getAssessmentLandscape } from "@app/api/rest";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
 export interface TableRowData {
   application: Application;
@@ -290,13 +291,17 @@ export const AdoptionCandidateTable: React.FC = () => {
     }
   };
 
+  //Placeholder
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState([], 10);
+  //
+
   return (
     <AppTableWithControls
+      paginationProps={paginationProps}
       variant={TableVariant.compact}
       count={allApplications.length}
-      pagination={pagination}
       sortBy={sortBy}
-      onPaginationChange={onPaginationChange}
       onSort={onSort}
       cells={columns}
       rows={rows}

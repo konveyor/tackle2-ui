@@ -46,6 +46,14 @@ import { SortByQuery, JobFunction } from "@app/api/models";
 
 import { NewJobFunctionModal } from "./components/new-job-function-modal";
 import { UpdateJobFunctionModal } from "./components/update-job-function-modal";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
+import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useSortState } from "@app/shared/hooks/useSortState";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
 enum FilterKey {
   NAME = "name",
@@ -61,7 +69,7 @@ const toSortByQuery = (
   let field: JobFunctionSortBy;
   switch (sortBy.index) {
     case 0:
-      field = JobFunctionSortBy.ROLE;
+      field = JobFunctionSortBy.NAME;
       break;
     default:
       throw new Error("Invalid column index=" + sortBy.index);
@@ -79,15 +87,37 @@ export const JobFunctions: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const filters = [
+  const { jobFunctions, isFetching, fetchError, fetchJobFunctions } =
+    useFetchJobFunctions(true);
+
+  const filterCategories: FilterCategory<JobFunction>[] = [
     {
-      key: FilterKey.NAME,
-      name: t("terms.name"),
+      key: "name",
+      title: "Name",
+      type: FilterType.search,
+      placeholderText: "Filter by name...",
+      getItemValue: (item) => {
+        return item?.name || "";
+      },
     },
   ];
-  const [filtersValue, setFiltersValue] = useState<Map<FilterKey, string[]>>(
-    new Map([])
+
+  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+    jobFunctions || [],
+    filterCategories
   );
+  const getSortValues = (jobFunction: JobFunction) => [
+    jobFunction.name || "",
+    "", // Action column
+  ];
+
+  const { sortBy, onSort, sortedItems } = useSortState(
+    filteredItems,
+    getSortValues
+  );
+
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState(sortedItems, 10);
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<JobFunction>();
@@ -96,39 +126,9 @@ export const JobFunctions: React.FC = () => {
     onDelete: (t: JobFunction) => deleteJobFunction(t.id!),
   });
 
-  const { jobFunctions, isFetching, fetchError, fetchJobFunctions } =
-    useFetchJobFunctions(true);
-
-  const {
-    paginationQuery,
-    sortByQuery,
-    handlePaginationChange,
-    handleSortChange,
-  } = useTableControls({
-    sortByQuery: { direction: "asc", index: 0 },
-  });
-
-  const refreshTable = useCallback(() => {
-    fetchJobFunctions(
-      {
-        role: filtersValue.get(FilterKey.NAME),
-      },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
-  }, [filtersValue, paginationQuery, sortByQuery, fetchJobFunctions]);
-
   useEffect(() => {
-    fetchJobFunctions(
-      {
-        role: filtersValue.get(FilterKey.NAME),
-      },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
-  }, [filtersValue, paginationQuery, sortByQuery, fetchJobFunctions]);
-
-  //
+    fetchJobFunctions();
+  }, [fetchJobFunctions]);
 
   const columns: ICell[] = [
     {
@@ -145,12 +145,12 @@ export const JobFunctions: React.FC = () => {
   ];
 
   const rows: IRow[] = [];
-  jobFunctions?.data.forEach((item) => {
+  jobFunctions?.forEach((item) => {
     rows.push({
       [ENTITY_FIELD]: item,
       cells: [
         {
-          title: <TableText wrapModifier="truncate">{item.role}</TableText>,
+          title: <TableText wrapModifier="truncate">{item.name}</TableText>,
         },
         {
           title: (
@@ -184,11 +184,7 @@ export const JobFunctions: React.FC = () => {
             row,
             () => {
               dispatch(confirmDialogActions.closeDialog());
-              if (jobFunctions?.data.length === 1) {
-                handlePaginationChange({ page: paginationQuery.page - 1 });
-              } else {
-                refreshTable();
-              }
+              fetchJobFunctions();
             },
             (error) => {
               dispatch(confirmDialogActions.closeDialog());
@@ -203,36 +199,8 @@ export const JobFunctions: React.FC = () => {
   // Advanced filters
 
   const handleOnClearAllFilters = () => {
-    setFiltersValue((current) => {
-      const newVal = new Map(current);
-      Array.from(newVal.keys()).forEach((key) => {
-        newVal.set(key, []);
-      });
-      return newVal;
-    });
+    setFilterValues({});
   };
-
-  const handleOnAddFilter = (key: string, filterText: string) => {
-    const filterKey: FilterKey = key as FilterKey;
-    setFiltersValue((current) => {
-      const values: string[] = current.get(filterKey) || [];
-      return new Map(current).set(filterKey, [...values, filterText]);
-    });
-
-    handlePaginationChange({ page: 1 });
-  };
-
-  const handleOnDeleteFilter = (
-    key: string,
-    value: (string | ToolbarChip)[]
-  ) => {
-    const filterKey: FilterKey = key as FilterKey;
-    setFiltersValue((current) =>
-      new Map(current).set(filterKey, value as string[])
-    );
-  };
-
-  // Create Modal
 
   const handleOnOpenCreateModal = () => {
     setIsNewModalOpen(true);
@@ -240,12 +208,12 @@ export const JobFunctions: React.FC = () => {
 
   const handleOnCreatedNew = (response: AxiosResponse<JobFunction>) => {
     setIsNewModalOpen(false);
-    refreshTable();
+    fetchJobFunctions();
 
     dispatch(
       alertActions.addSuccess(
         t("toastr.success.added", {
-          what: response.data.role,
+          what: response.data.name,
           type: "job function",
         })
       )
@@ -260,7 +228,7 @@ export const JobFunctions: React.FC = () => {
 
   const handleOnJobFunctionUpdated = () => {
     setRowToUpdate(undefined);
-    refreshTable();
+    fetchJobFunctions();
   };
 
   const handleOnUpdatedCancel = () => {
@@ -274,34 +242,22 @@ export const JobFunctions: React.FC = () => {
         then={<AppPlaceholder />}
       >
         <AppTableWithControls
-          count={jobFunctions ? jobFunctions.meta.count : 0}
-          pagination={paginationQuery}
-          sortBy={sortByQuery}
-          onPaginationChange={handlePaginationChange}
-          onSort={handleSortChange}
+          count={jobFunctions ? jobFunctions.length : 0}
+          sortBy={sortBy}
+          onSort={onSort}
           cells={columns}
           rows={rows}
           isLoading={isFetching}
           loadingVariant="skeleton"
           fetchError={fetchError}
           toolbarClearAllFilters={handleOnClearAllFilters}
-          filtersApplied={
-            Array.from(filtersValue.values()).reduce(
-              (previous, current) => [...previous, ...current],
-              []
-            ).length > 0
-          }
+          paginationProps={paginationProps}
           toolbarToggle={
-            <AppTableToolbarToggleGroup
-              categories={filters}
-              chips={filtersValue}
-              onChange={handleOnDeleteFilter}
-            >
-              <SearchFilter
-                options={filters}
-                onApplyFilter={handleOnAddFilter}
-              />
-            </AppTableToolbarToggleGroup>
+            <FilterToolbar<JobFunction>
+              filterCategories={filterCategories}
+              filterValues={filterValues}
+              setFilterValues={setFilterValues}
+            />
           }
           toolbarActions={
             <ToolbarGroup variant="button-group">

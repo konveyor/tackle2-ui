@@ -2,8 +2,8 @@ import { useCallback, useReducer } from "react";
 import { AxiosError } from "axios";
 import { ActionType, createAsyncAction, getType } from "typesafe-actions";
 
-import { getTagTypes, TagTypeSortBy, TagTypeSortByQuery } from "@app/api/rest";
-import { PageRepresentation, PageQuery, TagType } from "@app/api/models";
+import { getTagTypes } from "@app/api/rest";
+import { TagType } from "@app/api/models";
 
 export const {
   request: fetchRequest,
@@ -13,11 +13,11 @@ export const {
   "useFetchTagTypes/fetch/request",
   "useFetchTagTypes/fetch/success",
   "useFetchTagTypes/fetch/failure"
-)<void, PageRepresentation<TagType>, AxiosError>();
+)<void, Array<TagType>, AxiosError>();
 
 type State = Readonly<{
   isFetching: boolean;
-  tagTypes?: PageRepresentation<TagType>;
+  tagTypes?: Array<TagType>;
   fetchError?: AxiosError;
   fetchCount: number;
 }>;
@@ -68,19 +68,11 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export interface IState {
-  tagTypes?: PageRepresentation<TagType>;
+  tagTypes?: Array<TagType>;
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;
-  fetchTagTypes: (
-    filters: {
-      tagTypes?: string[];
-      tags?: string[];
-    },
-    page: PageQuery,
-    sortBy?: TagTypeSortByQuery
-  ) => void;
-  fetchAllTagTypes: (sortBy?: TagTypeSortByQuery) => void;
+  fetchTagTypes: () => void;
 }
 
 export const useFetchTagTypes = (
@@ -88,58 +80,12 @@ export const useFetchTagTypes = (
 ): IState => {
   const [state, dispatch] = useReducer(reducer, defaultIsFetching, initReducer);
 
-  const fetchTagTypes = useCallback(
-    (
-      filters: {
-        name?: string[];
-        tagTypes?: string[];
-      },
-      page: PageQuery,
-      sortBy?: TagTypeSortByQuery
-    ) => {
-      dispatch(fetchRequest());
-
-      getTagTypes(filters, page, sortBy)
-        .then(({ data }) => {
-          const list = data._embedded["tag-type"];
-          const total = data.total_count;
-
-          dispatch(
-            fetchSuccess({
-              data: list,
-              meta: {
-                count: total,
-              },
-            })
-          );
-        })
-        .catch((error: AxiosError) => {
-          dispatch(fetchFailure(error));
-        });
-    },
-    []
-  );
-
-  const fetchAllTagTypes = useCallback((sortBy?: TagTypeSortByQuery) => {
+  const fetchTagTypes = useCallback(() => {
     dispatch(fetchRequest());
 
-    getTagTypes(
-      {},
-      { page: 1, perPage: 1000 },
-      sortBy || { field: TagTypeSortBy.NAME }
-    )
+    getTagTypes()
       .then(({ data }) => {
-        const list = data._embedded["tag-type"];
-        const total = data.total_count;
-
-        dispatch(
-          fetchSuccess({
-            data: list,
-            meta: {
-              count: total,
-            },
-          })
-        );
+        dispatch(fetchSuccess(data));
       })
       .catch((error: AxiosError) => {
         dispatch(fetchFailure(error));
@@ -152,7 +98,6 @@ export const useFetchTagTypes = (
     fetchError: state.fetchError,
     fetchCount: state.fetchCount,
     fetchTagTypes,
-    fetchAllTagTypes,
   };
 };
 

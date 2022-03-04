@@ -45,46 +45,19 @@ import {
 } from "@app/shared/hooks";
 
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import {
-  deleteStakeholderGroup,
-  StakeholderGroupSortBy,
-  StakeholderGroupSortByQuery,
-} from "@app/api/rest";
-import { StakeholderGroup, SortByQuery } from "@app/api/models";
+import { deleteStakeholderGroup } from "@app/api/rest";
+import { StakeholderGroup } from "@app/api/models";
 
 import { NewStakeholderGroupModal } from "./components/new-stakeholder-group-modal";
 import { UpdateStakeholderGroupModal } from "./components/update-stakeholder-group-modal";
-
-enum FilterKey {
-  NAME = "name",
-  DESCRIPTION = "description",
-  STAKEHOLDER = "stakeholder",
-}
-
-const toSortByQuery = (
-  sortBy?: SortByQuery
-): StakeholderGroupSortByQuery | undefined => {
-  if (!sortBy) {
-    return undefined;
-  }
-
-  let field: StakeholderGroupSortBy;
-  switch (sortBy.index) {
-    case 1:
-      field = StakeholderGroupSortBy.NAME;
-      break;
-    case 3:
-      field = StakeholderGroupSortBy.STAKEHOLDERS_COUNT;
-      break;
-    default:
-      throw new Error("Invalid column index=" + sortBy.index);
-  }
-
-  return {
-    field,
-    direction: sortBy.direction,
-  };
-};
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
+import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useSortState } from "@app/shared/hooks/useSortState";
 
 const ENTITY_FIELD = "entity";
 
@@ -95,24 +68,6 @@ const getRow = (rowData: IRowData): StakeholderGroup => {
 export const StakeholderGroups: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-
-  const filters = [
-    {
-      key: FilterKey.NAME,
-      name: t("terms.name"),
-    },
-    {
-      key: FilterKey.DESCRIPTION,
-      name: t("terms.description"),
-    },
-    {
-      key: FilterKey.STAKEHOLDER,
-      name: t("terms.member"),
-    },
-  ];
-  const [filtersValue, setFiltersValue] = useState<Map<FilterKey, string[]>>(
-    new Map([])
-  );
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<StakeholderGroup>();
@@ -126,45 +81,16 @@ export const StakeholderGroups: React.FC = () => {
     useFetchStakeholderGroups(true);
 
   const {
-    paginationQuery,
-    sortByQuery,
-    handlePaginationChange,
-    handleSortChange,
-  } = useTableControls({
-    sortByQuery: { direction: "asc", index: 1 },
-  });
-
-  const {
     isItemSelected: isItemExpanded,
     toggleItemSelected: toggleItemExpanded,
   } = useSelectionState<StakeholderGroup>({
-    items: stakeholderGroups?.data || [],
+    items: stakeholderGroups || [],
     isEqual: (a, b) => a.id === b.id,
   });
 
-  const refreshTable = useCallback(() => {
-    fetchStakeholderGroups(
-      {
-        name: filtersValue.get(FilterKey.NAME),
-        description: filtersValue.get(FilterKey.DESCRIPTION),
-        stakeholder: filtersValue.get(FilterKey.STAKEHOLDER),
-      },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
-  }, [filtersValue, paginationQuery, sortByQuery, fetchStakeholderGroups]);
-
   useEffect(() => {
-    fetchStakeholderGroups(
-      {
-        name: filtersValue.get(FilterKey.NAME),
-        description: filtersValue.get(FilterKey.DESCRIPTION),
-        stakeholder: filtersValue.get(FilterKey.STAKEHOLDER),
-      },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
-  }, [filtersValue, paginationQuery, sortByQuery, fetchStakeholderGroups]);
+    fetchStakeholderGroups();
+  }, [fetchStakeholderGroups]);
 
   const columns: ICell[] = [
     {
@@ -175,7 +101,7 @@ export const StakeholderGroups: React.FC = () => {
     { title: t("terms.description"), transforms: [cellWidth(35)] },
     {
       title: t("terms.memberCount"),
-      transforms: [sortable],
+      // transforms: [sortable],
     },
     {
       title: "",
@@ -185,8 +111,65 @@ export const StakeholderGroups: React.FC = () => {
     },
   ];
 
+  const filterCategories: FilterCategory<StakeholderGroup>[] = [
+    {
+      key: "name",
+      title: "Name",
+      type: FilterType.search,
+      placeholderText: "Filter by name...",
+      getItemValue: (item) => {
+        return item?.name || "";
+      },
+    },
+    {
+      key: "description",
+      title: "Description",
+      type: FilterType.search,
+      placeholderText: "Filter by description...",
+      getItemValue: (item) => {
+        return item?.description || "";
+      },
+    },
+    {
+      key: "stakeholders",
+      title: "Stakeholders",
+      type: FilterType.search,
+      placeholderText: "Filter by stakeholders...",
+      getItemValue: (stakeholderGroup) => {
+        const stakeholders = stakeholderGroup.stakeholders?.map(
+          (stakeholder) => stakeholder.name
+        );
+        return stakeholders?.join(" ; ") || "";
+      },
+    },
+  ];
+  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+    stakeholderGroups || [],
+    filterCategories
+  );
+  const getSortValues = (item: StakeholderGroup) => [
+    item?.name || "",
+    item.description || "",
+    getStakeholderNameList(item) || "",
+    "", // Action column
+  ];
+
+  const getStakeholderNameList = (stakeholderGroup: StakeholderGroup) => {
+    const stakeholders = stakeholderGroup.stakeholders?.map(
+      (stakeholder) => stakeholder.name
+    );
+    return stakeholders?.join(" ; ") || "";
+  };
+
+  const { sortBy, onSort, sortedItems } = useSortState(
+    filteredItems,
+    getSortValues
+  );
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState(sortedItems, 10);
+
   const rows: IRow[] = [];
-  stakeholderGroups?.data.forEach((item) => {
+  currentPageItems?.forEach((item) => {
     const isExpanded = isItemExpanded(item);
     rows.push({
       [ENTITY_FIELD]: item,
@@ -226,7 +209,7 @@ export const StakeholderGroups: React.FC = () => {
                   {t("terms.member(s)")}
                 </DescriptionListTerm>
                 <DescriptionListDescription>
-                  {item.stakeholders?.map((f) => f.displayName).join(", ")}
+                  {item.stakeholders?.map((f) => f.name).join(", ")}
                 </DescriptionListDescription>
               </DescriptionListGroup>
             </DescriptionList>
@@ -271,11 +254,7 @@ export const StakeholderGroups: React.FC = () => {
             row,
             () => {
               dispatch(confirmDialogActions.closeDialog());
-              if (stakeholderGroups?.data.length === 1) {
-                handlePaginationChange({ page: paginationQuery.page - 1 });
-              } else {
-                refreshTable();
-              }
+              fetchStakeholderGroups();
             },
             (error) => {
               dispatch(confirmDialogActions.closeDialog());
@@ -290,33 +269,7 @@ export const StakeholderGroups: React.FC = () => {
   // Advanced filters
 
   const handleOnClearAllFilters = () => {
-    setFiltersValue((current) => {
-      const newVal = new Map(current);
-      Array.from(newVal.keys()).forEach((key) => {
-        newVal.set(key, []);
-      });
-      return newVal;
-    });
-  };
-
-  const handleOnAddFilter = (key: string, filterText: string) => {
-    const filterKey: FilterKey = key as FilterKey;
-    setFiltersValue((current) => {
-      const values: string[] = current.get(filterKey) || [];
-      return new Map(current).set(filterKey, [...values, filterText]);
-    });
-
-    handlePaginationChange({ page: 1 });
-  };
-
-  const handleOnDeleteFilter = (
-    key: string,
-    value: (string | ToolbarChip)[]
-  ) => {
-    const filterKey: FilterKey = key as FilterKey;
-    setFiltersValue((current) =>
-      new Map(current).set(filterKey, value as string[])
-    );
+    setFilterValues({});
   };
 
   // Create Modal
@@ -327,7 +280,7 @@ export const StakeholderGroups: React.FC = () => {
 
   const handleOnCreatedNew = (response: AxiosResponse<StakeholderGroup>) => {
     setIsNewModalOpen(false);
-    refreshTable();
+    fetchStakeholderGroups();
 
     dispatch(
       alertActions.addSuccess(
@@ -347,7 +300,7 @@ export const StakeholderGroups: React.FC = () => {
 
   const handleOnUpdated = () => {
     setRowToUpdate(undefined);
-    refreshTable();
+    fetchStakeholderGroups();
   };
 
   const handleOnUpdatedCancel = () => {
@@ -361,36 +314,23 @@ export const StakeholderGroups: React.FC = () => {
         then={<AppPlaceholder />}
       >
         <AppTableWithControls
-          count={stakeholderGroups ? stakeholderGroups.meta.count : 0}
-          pagination={paginationQuery}
-          sortBy={sortByQuery}
-          onPaginationChange={handlePaginationChange}
-          onSort={handleSortChange}
+          count={stakeholderGroups ? stakeholderGroups.length : 0}
+          paginationProps={paginationProps}
+          sortBy={sortBy}
+          onSort={onSort}
           onCollapse={collapseRow}
           cells={columns}
           rows={rows}
-          // actions={actions}
           isLoading={isFetching}
           loadingVariant="skeleton"
           fetchError={fetchError}
           toolbarClearAllFilters={handleOnClearAllFilters}
-          filtersApplied={
-            Array.from(filtersValue.values()).reduce(
-              (previous, current) => [...previous, ...current],
-              []
-            ).length > 0
-          }
           toolbarToggle={
-            <AppTableToolbarToggleGroup
-              categories={filters}
-              chips={filtersValue}
-              onChange={handleOnDeleteFilter}
-            >
-              <SearchFilter
-                options={filters}
-                onApplyFilter={handleOnAddFilter}
-              />
-            </AppTableToolbarToggleGroup>
+            <FilterToolbar<StakeholderGroup>
+              filterCategories={filterCategories}
+              filterValues={filterValues}
+              setFilterValues={setFilterValues}
+            />
           }
           toolbarActions={
             <ToolbarGroup variant="button-group">

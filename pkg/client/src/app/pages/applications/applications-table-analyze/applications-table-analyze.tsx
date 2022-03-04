@@ -63,10 +63,9 @@ import {
   ApplicationPage,
   Assessment,
   SortByQuery,
+  TagType,
 } from "@app/api/models";
 import {
-  ApplicationSortBy,
-  ApplicationSortByQuery,
   deleteApplication,
   deleteAssessment,
   deleteReview,
@@ -74,7 +73,6 @@ import {
   getAssessments,
   getTasks,
 } from "@app/api/rest";
-import { applicationPageMapper } from "@app/api/apiUtils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationForm } from "../components/application-form";
@@ -84,36 +82,15 @@ import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
 import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm";
 import { ApplicationListExpandedAreaAnalysis } from "../components/application-list-expanded-area/application-list-expanded-area-analysis";
-import { IState } from "@app/shared/hooks/useFetch/useFetch";
 import { ApplicationAnalysisStatus } from "../components/application-analysis";
-
-const toSortByQuery = (
-  sortBy?: SortByQuery
-): ApplicationSortByQuery | undefined => {
-  if (!sortBy) {
-    return undefined;
-  }
-
-  let field: ApplicationSortBy;
-  switch (sortBy.index) {
-    case 2:
-      field = ApplicationSortBy.NAME;
-      break;
-    case 6:
-      field = ApplicationSortBy.REVIEW;
-      break;
-    case 7:
-      field = ApplicationSortBy.TAGS;
-      break;
-    default:
-      return undefined;
-  }
-
-  return {
-    field,
-    direction: sortBy.direction,
-  };
-};
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
+import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useSortState } from "@app/shared/hooks/useSortState";
 
 const ENTITY_FIELD = "entity";
 
@@ -146,65 +123,81 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   // Router
   const history = useHistory();
 
-  // Toolbar filters
-  const {
-    filters: filtersValue,
-    isPresent: areFiltersPresent,
-    addFilter,
-    setFilter,
-    clearAllFilters,
-  } = useApplicationToolbarFilter();
-
-  // Table data
-  const {
-    paginationQuery,
-    sortByQuery,
-    handlePaginationChange,
-    handleSortChange,
-  } = useTableControls({
-    sortByQuery: { direction: "asc", index: 2 },
-  });
-
   const fetchApplications = useCallback(() => {
-    const nameVal = filtersValue.get(ApplicationFilterKey.NAME);
-    const descriptionVal = filtersValue.get(ApplicationFilterKey.DESCRIPTION);
-    const serviceVal = filtersValue.get(ApplicationFilterKey.BUSINESS_SERVICE);
-    const tagVal = filtersValue.get(ApplicationFilterKey.TAG);
-    return getApplications(
-      {
-        name: nameVal?.map((f) => f.key),
-        description: descriptionVal?.map((f) => f.key),
-        businessService: serviceVal?.map((f) => f.key),
-        tag: tagVal?.map((f) => f.key),
-      },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
-  }, [filtersValue, paginationQuery, sortByQuery]);
+    return getApplications();
+  }, []);
 
   const {
     data: page,
     isFetching,
     fetchError,
     requestFetch: refreshTable,
-  } = useFetch<ApplicationPage>({
+  } = useFetch<Array<Application>>({
     defaultIsFetching: true,
     onFetch: fetchApplications,
   });
 
   const applications = useMemo(() => {
-    return page ? applicationPageMapper(page) : undefined;
+    return page ? page : undefined;
   }, [page]);
 
   useEffect(() => {
     refreshTable();
-  }, [
-    filtersValue,
-    paginationQuery,
-    sortByQuery,
-    isWatchingBulkCopy,
-    refreshTable,
-  ]);
+  }, [isWatchingBulkCopy, refreshTable]);
+
+  const filterCategories: FilterCategory<Application>[] = [
+    {
+      key: "name",
+      title: "Name",
+      type: FilterType.search,
+      placeholderText: "Filter by name...",
+      getItemValue: (item) => {
+        return item?.name || "";
+      },
+    },
+    {
+      key: "description",
+      title: "Description",
+      type: FilterType.search,
+      placeholderText: "Filter by description...",
+      getItemValue: (item) => {
+        return item.description || "";
+      },
+    },
+    {
+      key: "businessService",
+      title: "Business service",
+      type: FilterType.search,
+      placeholderText: "Filter by business service...",
+      getItemValue: (item) => {
+        return item.businessService?.name || "";
+      },
+    },
+  ];
+  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+    applications || [],
+    filterCategories
+  );
+  const handleOnClearAllFilters = () => {
+    setFilterValues({});
+  };
+
+  const getSortValues = (item: Application) => [
+    item?.name || "",
+    item?.description || "",
+    item.businessService?.name || "",
+    // item?.analysis || "",
+    item.tags?.length || "",
+    "", // Action column
+  ];
+
+  const { sortBy, onSort, sortedItems } = useSortState(
+    filteredItems,
+    getSortValues
+  );
+
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState(sortedItems, 10);
 
   // Create and update modal
   const {
@@ -281,7 +274,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   useEffect(() => {
     if (applications) {
-      fetchApplicationsAssessment(applications.data.map((f) => f.id!));
+      fetchApplicationsAssessment(applications.map((f) => f.id!));
     }
   }, [applications, fetchApplicationsAssessment]);
 
@@ -294,7 +287,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     isItemSelected: isRowExpanded,
     toggleItemSelected: toggleRowExpanded,
   } = useSelectionState<Application>({
-    items: applications?.data || [],
+    items: applications || [],
     isEqual: (a, b) => a.id === b.id,
   });
 
@@ -303,7 +296,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     toggleItemSelected: toggleRowSelected,
     selectedItems: selectedRows,
   } = useSelectionState<Application>({
-    items: applications?.data || [],
+    items: applications || [],
     isEqual: (a, b) => a.id === b.id,
   });
 
@@ -327,7 +320,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   ];
 
   const rows: IRow[] = [];
-  applications?.data.forEach((item) => {
+  currentPageItems?.forEach((item) => {
     const isExpanded = isRowExpanded(item);
     const isSelected = isRowSelected(item);
 
@@ -348,7 +341,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           title: (
             <TableText wrapModifier="truncate">
               {item.businessService && (
-                <ApplicationBusinessService id={item.businessService} />
+                <ApplicationBusinessService id={item.businessService.id} />
               )}
             </TableText>
           ),
@@ -510,11 +503,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             row,
             () => {
               dispatch(confirmDialogActions.closeDialog());
-              if (applications?.data.length === 1) {
-                handlePaginationChange({ page: paginationQuery.page - 1 });
-              } else {
-                refreshTable();
-              }
+              refreshTable();
             },
             (error) => {
               dispatch(confirmDialogActions.closeDialog());
@@ -659,11 +648,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         then={<AppPlaceholder />}
       >
         <AppTableWithControls
-          count={applications ? applications.meta.count : 0}
-          pagination={paginationQuery}
-          sortBy={sortByQuery}
-          onPaginationChange={handlePaginationChange}
-          onSort={handleSortChange}
+          count={applications ? applications.length : 0}
+          paginationProps={paginationProps}
+          sortBy={sortBy}
+          onSort={onSort}
           onCollapse={collapseRow}
           onSelect={selectRow}
           canSelectAll={false}
@@ -673,15 +661,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           isLoading={isFetching}
           loadingVariant="skeleton"
           fetchError={fetchError}
-          toolbarClearAllFilters={clearAllFilters}
-          filtersApplied={areFiltersPresent}
           toolbarToggle={
-            <ApplicationToolbarToggleGroup
-              value={filtersValue as Map<ApplicationFilterKey, ToolbarChip[]>}
-              addFilter={addFilter}
-              setFilter={setFilter}
+            <FilterToolbar<Application>
+              filterCategories={filterCategories}
+              filterValues={filterValues}
+              setFilterValues={setFilterValues}
             />
           }
+          toolbarClearAllFilters={handleOnClearAllFilters}
           toolbarActions={
             <>
               <ToolbarGroup variant="button-group">

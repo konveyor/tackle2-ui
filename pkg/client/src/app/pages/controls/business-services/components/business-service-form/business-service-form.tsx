@@ -57,12 +57,12 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
     stakeholders,
     isFetching: isFetchingStakeholders,
     fetchError: fetchErrorStakeholders,
-    fetchAllStakeholders,
+    fetchStakeholders,
   } = useFetchStakeholders();
 
   useEffect(() => {
-    fetchAllStakeholders();
-  }, [fetchAllStakeholders]);
+    fetchStakeholders();
+  }, [fetchStakeholders]);
 
   const ownerInitialValue: IStakeholderDropdown | null = useMemo(() => {
     return businessService && businessService.owner
@@ -207,7 +207,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
               fetchError: fetchErrorStakeholders,
               isFetching: isFetchingStakeholders,
             }}
-            options={(stakeholders?.data || []).map(toIStakeholderDropdown)}
+            options={(stakeholders || []).map(toIStakeholderDropdown)}
             toOptionWithValue={toIStakeholderDropdownOptionWithValue}
           />
         </FormGroup>

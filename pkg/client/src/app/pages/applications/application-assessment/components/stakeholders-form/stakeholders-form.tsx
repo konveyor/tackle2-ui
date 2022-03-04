@@ -34,23 +34,23 @@ export const StakeholdersForm: React.FC<StakeholdersFormProps> = () => {
     stakeholders,
     isFetching: isFetchingStakeholders,
     fetchError: fetchErrorStakeholders,
-    fetchAllStakeholders,
+    fetchStakeholders,
   } = useFetchStakeholders();
 
   useEffect(() => {
-    fetchAllStakeholders();
-  }, [fetchAllStakeholders]);
+    fetchStakeholders();
+  }, [fetchStakeholders]);
 
   const {
     stakeholderGroups,
     isFetching: isFetchingStakeholderGroups,
     fetchError: fetchErrorStakeholderGroups,
-    fetchAllStakeholderGroups,
+    fetchStakeholderGroups,
   } = useFetchStakeholderGroups();
 
   useEffect(() => {
-    fetchAllStakeholderGroups();
-  }, [fetchAllStakeholderGroups]);
+    fetchStakeholderGroups();
+  }, [fetchStakeholderGroups]);
 
   return (
     <div className="pf-c-form">
@@ -98,7 +98,7 @@ export const StakeholdersForm: React.FC<StakeholdersFormProps> = () => {
                   isFetching: isFetchingStakeholders,
                   fetchError: fetchErrorStakeholders,
                 }}
-                stakeholders={stakeholders?.data || []}
+                stakeholders={stakeholders || []}
               />
             </FormGroup>
             <FormGroup
@@ -128,7 +128,7 @@ export const StakeholdersForm: React.FC<StakeholdersFormProps> = () => {
                   isFetching: isFetchingStakeholderGroups,
                   fetchError: fetchErrorStakeholderGroups,
                 }}
-                stakeholderGroups={stakeholderGroups?.data || []}
+                stakeholderGroups={stakeholderGroups || []}
               />
             </FormGroup>
           </FormSection>

@@ -43,7 +43,7 @@ import {
 
 export interface FormValues {
   email: string;
-  displayName: string;
+  name: string;
   jobFunction: IJobFunctionDropdown | null;
   stakeholderGroups: IStakeholderGroupDropdown[];
 }
@@ -78,12 +78,12 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
     stakeholderGroups,
     isFetching: isFetchingGroups,
     fetchError: fetchErrorGroups,
-    fetchAllStakeholderGroups,
+    fetchStakeholderGroups,
   } = useFetchStakeholderGroups();
 
   useEffect(() => {
-    fetchAllStakeholderGroups();
-  }, [fetchAllStakeholderGroups]);
+    fetchStakeholderGroups();
+  }, [fetchStakeholderGroups]);
 
   const jobFunctionInitialValue: IJobFunctionDropdown | null = useMemo(() => {
     return stakeholder && stakeholder.jobFunction
@@ -100,7 +100,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
 
   const initialValues: FormValues = {
     email: stakeholder?.email || "",
-    displayName: stakeholder?.displayName || "",
+    name: stakeholder?.name || "",
     jobFunction: jobFunctionInitialValue,
     stakeholderGroups: stakeholderGroupsInitialValue,
   };
@@ -112,7 +112,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
       .min(3, t("validation.minLength", { length: 3 }))
       .max(120, t("validation.maxLength", { length: 120 }))
       .email(t("validation.email")),
-    displayName: string()
+    name: string()
       .trim()
       .required(t("validation.required"))
       .min(3, t("validation.minLength", { length: 3 }))
@@ -125,7 +125,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
   ) => {
     const payload: Stakeholder = {
       email: formValues.email.trim(),
-      displayName: formValues.displayName.trim(),
+      name: formValues.name.trim(),
       jobFunction: formValues.jobFunction as JobFunction,
       stakeholderGroups: formValues.stakeholderGroups as StakeholderGroup[],
     };
@@ -195,24 +195,24 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
           />
         </FormGroup>
         <FormGroup
-          label={t("terms.displayName")}
-          fieldId="displayName"
+          label={t("terms.name")}
+          fieldId="name"
           isRequired={true}
-          validated={getValidatedFromError(formik.errors.displayName)}
-          helperTextInvalid={formik.errors.displayName}
+          validated={getValidatedFromError(formik.errors.name)}
+          helperTextInvalid={formik.errors.name}
         >
           <TextInput
             type="text"
-            name="displayName"
-            aria-label="displayName"
-            aria-describedby="displayName"
+            name="name"
+            aria-label="name"
+            aria-describedby="name"
             isRequired={true}
             onChange={onChangeField}
             onBlur={formik.handleBlur}
-            value={formik.values.displayName}
+            value={formik.values.name}
             validated={getValidatedFromErrorTouched(
-              formik.errors.displayName,
-              formik.touched.displayName
+              formik.errors.name,
+              formik.touched.name
             )}
           />
         </FormGroup>
@@ -241,7 +241,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
               isFetching: isFetchingJobFunctions,
               fetchError: fetchErrorJobFunctions,
             }}
-            options={(jobFunctions?.data || []).map(toIJobFunctionDropdown)}
+            options={(jobFunctions || []).map(toIJobFunctionDropdown)}
             toOptionWithValue={toIJobFunctionDropdownOptionWithValue}
           />
         </FormGroup>
@@ -270,9 +270,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
               isFetching: isFetchingGroups,
               fetchError: fetchErrorGroups,
             }}
-            options={(stakeholderGroups?.data || []).map(
-              toIStakeholderGroupDropdown
-            )}
+            options={(stakeholderGroups || []).map(toIStakeholderGroupDropdown)}
             toOptionWithValue={toIStakeholderGroupDropdownOptionWithValue}
             isEqual={isIModelEqual}
           />

@@ -53,8 +53,6 @@ import {
 
 import { ApplicationFilterKey } from "@app/Constants";
 import {
-  ApplicationSortBy,
-  ApplicationSortByQuery,
   createBulkCopyAssessment,
   createBulkCopyReview,
   getApplications,
@@ -65,28 +63,15 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationBusinessService } from "../application-business-service";
 import { ApplicationAssessment } from "../application-assessment";
-
-const toSortByQuery = (
-  sortBy?: SortByQuery
-): ApplicationSortByQuery | undefined => {
-  if (!sortBy) {
-    return undefined;
-  }
-
-  let field: ApplicationSortBy;
-  switch (sortBy.index) {
-    case 1:
-      field = ApplicationSortBy.NAME;
-      break;
-    default:
-      return undefined;
-  }
-
-  return {
-    field,
-    direction: sortBy.direction,
-  };
-};
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import identities from "@app/pages/identities";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
+import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useSortState } from "@app/shared/hooks/useSortState";
 
 const ENTITY_FIELD = "entity";
 
@@ -123,108 +108,77 @@ export const BulkCopyAssessmentReviewForm: React.FC<
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Toolbar filters
-  const {
-    filters: filtersValue,
-    isPresent: areFiltersPresent,
-    addFilter,
-    setFilter,
-    clearAllFilters,
-  } = useToolbarFilter<ToolbarChip>();
-
-  // Table data
-  const {
-    paginationQuery: pagination,
-    sortByQuery: sortBy,
-    handlePaginationChange,
-    handleSortChange,
-  } = useTableControls({
-    sortByQuery: { direction: "asc", index: 1 },
-  });
-
   const fetchApplications = useCallback(() => {
-    const nameVal = filtersValue.get(ApplicationFilterKey.NAME);
-    const descriptionVal = filtersValue.get(ApplicationFilterKey.DESCRIPTION);
-    const serviceVal = filtersValue.get(ApplicationFilterKey.BUSINESS_SERVICE);
-    const tagVal = filtersValue.get(ApplicationFilterKey.TAG);
-    return getApplications(
-      {
-        name: nameVal?.map((f) => f.key),
-        description: descriptionVal?.map((f) => f.key),
-        businessService: serviceVal?.map((f) => f.key),
-        tag: tagVal?.map((f) => f.key),
-      },
-      pagination,
-      toSortByQuery(sortBy)
-    );
-  }, [filtersValue, pagination, sortBy]);
+    return getApplications();
+  }, []);
 
   const {
     data: page,
     isFetching,
     fetchError,
     requestFetch: refreshTable,
-  } = useFetch<ApplicationPage>({
+  } = useFetch<Array<Application>>({
     defaultIsFetching: true,
     onFetch: fetchApplications,
   });
 
   const applications = useMemo(() => {
-    return page ? applicationPageMapper(page) : undefined;
+    return page ? page : undefined;
   }, [page]);
 
   useEffect(() => {
     refreshTable();
-  }, [filtersValue, pagination, sortBy, refreshTable]);
+  }, [refreshTable]);
 
-  // Fetch all applications for SELECT ALL
-  const fetchAllApplications = useCallback(
-    (page: number, perPage: number) => {
-      const nameVal = filtersValue.get(ApplicationFilterKey.NAME);
-      const descriptionVal = filtersValue.get(ApplicationFilterKey.DESCRIPTION);
-      const serviceVal = filtersValue.get(
-        ApplicationFilterKey.BUSINESS_SERVICE
-      );
-      const tagVal = filtersValue.get(ApplicationFilterKey.TAG);
-      return getApplications(
-        {
-          name: nameVal?.map((f) => f.key),
-          description: descriptionVal?.map((f) => f.key),
-          businessService: serviceVal?.map((f) => f.key),
-          tag: tagVal?.map((f) => f.key),
-        },
-        { page, perPage }
-      );
+  const filterCategories: FilterCategory<Application>[] = [
+    {
+      key: "name",
+      title: "Name",
+      type: FilterType.search,
+      placeholderText: "Filter by name...",
+      getItemValue: (item) => {
+        return item?.name || "";
+      },
     },
-    [filtersValue]
+    // {
+    //   key: "type",
+    //   title: "Type",
+    //   type: FilterType.select,
+    //   placeholderText: "Filter by type...",
+    //   selectOptions: typeOptions,
+    //   getItemValue: (item) => {
+    //     return item.kind || "";
+    //   },
+    // },
+    // {
+    //   key: "createUser",
+    //   title: "Created By",
+    //   type: FilterType.search,
+    //   placeholderText: "Filter by created by...",
+    //   getItemValue: (item) => {
+    //     return item.createUser || "";
+    //   },
+    // },
+  ];
+
+  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+    applications || [],
+    filterCategories
+  );
+  const getSortValues = (identity: Application) => [
+    identity?.name || "",
+    // identity?.kind || "",
+    // identity?.createUser || "",
+    "", // Action column
+  ];
+
+  const { sortBy, onSort, sortedItems } = useSortState(
+    filteredItems,
+    getSortValues
   );
 
-  const continueFetchingAllAppsIf = useCallback(
-    (page: ApplicationPage, currentPage: number, currentPageSize: number) => {
-      return page.total_count > currentPage * currentPageSize;
-    },
-    []
-  );
-
-  const allAppsResponseToArray = useCallback(
-    (page: ApplicationPage) => applicationPageMapper(page).data,
-    []
-  );
-
-  const {
-    data: allApps,
-    isFetching: isFetchingAllApps,
-    fetchError: fetchErrorAllApps,
-    requestFetch: refreshAllApps,
-  } = useFetchPagination<ApplicationPage, Application>({
-    requestFetch: fetchAllApplications,
-    continueIf: continueFetchingAllAppsIf,
-    toArray: allAppsResponseToArray,
-  });
-
-  useEffect(() => {
-    refreshAllApps(1, 1000);
-  }, [filtersValue, refreshAllApps]);
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState(sortedItems, 10);
 
   // Table's assessments
   const {
@@ -239,7 +193,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
 
   useEffect(() => {
     if (applications) {
-      fetchApplicationsAssessment(applications.data.map((f) => f.id!));
+      fetchApplicationsAssessment(applications.map((f) => f.id!));
     }
   }, [applications, fetchApplicationsAssessment]);
 
@@ -251,8 +205,8 @@ export const BulkCopyAssessmentReviewForm: React.FC<
     toggleItemSelected: toggleRowSelected,
     setSelectedItems: setSelectedRows,
   } = useSelectionFromPageState<Application>({
-    pageItems: applications?.data || [],
-    totalItems: applications?.meta.count || 0,
+    pageItems: applications || [],
+    totalItems: applications?.length || 0,
     isEqual: (a, b) => a.id === b.id,
   });
 
@@ -285,7 +239,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
   ];
 
   const rows: IRow[] = [];
-  applications?.data.forEach((item) => {
+  currentPageItems?.forEach((item) => {
     const isSelected = isRowSelected(item);
 
     rows.push({
@@ -300,7 +254,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
           title: (
             <>
               {item.businessService && (
-                <ApplicationBusinessService id={item.businessService} />
+                <ApplicationBusinessService id={item.businessService.id} />
               )}
             </>
           ),
@@ -397,6 +351,9 @@ export const BulkCopyAssessmentReviewForm: React.FC<
         onSaved();
       });
   };
+  const handleOnClearAllFilters = () => {
+    setFilterValues({});
+  };
 
   return (
     <div className="pf-c-form">
@@ -405,11 +362,10 @@ export const BulkCopyAssessmentReviewForm: React.FC<
           <AppTableWithControls
             variant="compact"
             withoutBottomPagination
-            count={applications ? applications.meta.count : 0}
-            pagination={pagination}
+            count={applications ? applications.length : 0}
+            paginationProps={paginationProps}
             sortBy={sortBy}
-            onPaginationChange={handlePaginationChange}
-            onSort={handleSortChange}
+            onSort={onSort}
             onSelect={selectRow}
             canSelectAll={false}
             cells={columns}
@@ -417,34 +373,33 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             isLoading={isFetching}
             loadingVariant="skeleton"
             fetchError={fetchError}
-            toolbarClearAllFilters={clearAllFilters}
-            filtersApplied={areFiltersPresent}
+            toolbarClearAllFilters={handleOnClearAllFilters}
             toolbarBulkSelector={
               <ToolbarItem variant="bulk-select">
                 <ToolbarBulkSelector
-                  isFetching={isFetchingAllApps}
-                  fetchError={fetchErrorAllApps}
+                  isFetching={isFetching}
+                  fetchError={fetchErrorApplicationAssessment}
                   areAllRowsSelected={areAllApplicationsSelected}
-                  pageSize={applications?.data.length || 0}
-                  totalItems={applications?.meta.count || 0}
+                  pageSize={applications?.length || 0}
+                  totalItems={applications?.length || 0}
                   totalSelectedRows={selectedRows.length}
                   onSelectNone={() => setSelectedRows([])}
                   onSelectCurrentPage={() => {
-                    const rows = filterInvalidRows(applications?.data);
+                    const rows = filterInvalidRows(applications);
                     setSelectedRows(rows);
                   }}
                   onSelectAll={() => {
-                    const rows = filterInvalidRows(allApps);
+                    const rows = filterInvalidRows(applications);
                     setSelectedRows(rows);
                   }}
                 />
               </ToolbarItem>
             }
             toolbarToggle={
-              <ApplicationToolbarToggleGroup
-                value={filtersValue as Map<ApplicationFilterKey, ToolbarChip[]>}
-                addFilter={addFilter}
-                setFilter={setFilter}
+              <FilterToolbar<Application>
+                filterCategories={filterCategories}
+                filterValues={filterValues}
+                setFilterValues={setFilterValues}
               />
             }
           />

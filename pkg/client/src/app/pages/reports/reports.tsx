@@ -36,7 +36,7 @@ import {
 
 import { ApplicationFilterKey } from "@app/Constants";
 
-import { ApplicationSortBy, getApplications } from "@app/api/rest";
+import { getApplications } from "@app/api/rest";
 import { Application, ApplicationPage } from "@app/api/models";
 import { applicationPageMapper, fetchAllPages } from "@app/api/apiUtils";
 
@@ -66,30 +66,8 @@ export const Reports: React.FC = () => {
   } = useApplicationToolbarFilter();
 
   const fetchApplications = useCallback(() => {
-    const nameVal = filtersValue.get(ApplicationFilterKey.NAME);
-    const descriptionVal = filtersValue.get(ApplicationFilterKey.DESCRIPTION);
-    const serviceVal = filtersValue.get(ApplicationFilterKey.BUSINESS_SERVICE);
-    const tagVal = filtersValue.get(ApplicationFilterKey.TAG);
-
-    const getApplicationPage = (page: number) => {
-      return getApplications(
-        {
-          name: nameVal?.map((f) => f.key),
-          description: descriptionVal?.map((f) => f.key),
-          businessService: serviceVal?.map((f) => f.key),
-          tag: tagVal?.map((f) => f.key),
-        },
-        { page: page, perPage: 100 },
-        { field: ApplicationSortBy.NAME }
-      );
-    };
-
-    return fetchAllPages<Application, ApplicationPage>(
-      getApplicationPage,
-      (responseData) => applicationPageMapper(responseData).data,
-      (responseData) => applicationPageMapper(responseData).meta.count
-    );
-  }, [filtersValue]);
+    return getApplications();
+  }, []);
 
   const {
     data: applications,
@@ -98,7 +76,7 @@ export const Reports: React.FC = () => {
     requestFetch: refreshApplications,
   } = useFetch<Application[]>({
     defaultIsFetching: true,
-    onFetchPromise: fetchApplications,
+    onFetch: fetchApplications,
   });
 
   useEffect(() => {

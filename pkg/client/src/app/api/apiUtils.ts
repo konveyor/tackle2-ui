@@ -14,6 +14,7 @@ import {
   JobFunction,
   JobFunctionPage,
   PageRepresentation,
+  Ref,
   Stakeholder,
   StakeholderGroup,
   StakeholderGroupPage,
@@ -22,8 +23,6 @@ import {
   TagTypePage,
 } from "./models";
 import {
-  ApplicationSortBy,
-  BusinessServiceSortBy,
   getApplicationDependencies,
   getApplications,
   getBusinessServices,
@@ -32,56 +31,14 @@ import {
   getStakeholders,
   getTagTypes,
   JobFunctionSortBy,
-  StakeholderGroupSortBy,
-  StakeholderSortBy,
-  TagTypeSortBy,
-  TagTypeSortByQuery,
 } from "./rest";
 
 export const getAllBusinessServices = () => {
-  return getBusinessServices(
-    {},
-    { page: 1, perPage: 1000 },
-    { field: BusinessServiceSortBy.NAME }
-  );
-};
-
-export const getAllStakeholders = () => {
-  return getStakeholders(
-    {},
-    { page: 1, perPage: 1000 },
-    { field: StakeholderSortBy.DISPLAY_NAME }
-  );
-};
-
-export const getAllStakeholderGroups = () => {
-  return getStakeholderGroups(
-    {},
-    { page: 1, perPage: 1000 },
-    { field: StakeholderGroupSortBy.NAME }
-  );
-};
-
-export const getAllJobFunctions = () => {
-  return getJobFunctions(
-    {},
-    { page: 1, perPage: 1000 },
-    { field: JobFunctionSortBy.ROLE }
-  );
-};
-
-export const getAllTagTypes = (
-  sortBy: TagTypeSortByQuery = { field: TagTypeSortBy.NAME }
-) => {
-  return getTagTypes({}, { page: 1, perPage: 1000 }, sortBy);
+  return getBusinessServices();
 };
 
 export const getAllApplications = () => {
-  return getApplications(
-    {},
-    { page: 1, perPage: 1000 },
-    { field: ApplicationSortBy.NAME }
-  );
+  return getApplications();
 };
 
 export const getAllApplicationDependencies = (filters: {
@@ -114,13 +71,6 @@ export const bussinessServicePageMapper = (
   data: page._embedded["business-service"],
 });
 
-export const jobFunctionPageMapper = (
-  page: JobFunctionPage
-): PageRepresentation<JobFunction> => ({
-  meta: { count: page.total_count },
-  data: page._embedded["job-function"],
-});
-
 export const tagTypePageMapper = (
   page: TagTypePage
 ): PageRepresentation<TagType> => ({
@@ -133,8 +83,8 @@ export const tagTypePageMapper = (
 export const applicationPageMapper = (
   page: ApplicationPage
 ): PageRepresentation<Application> => ({
-  meta: { count: page.total_count },
-  data: page._embedded.application,
+  meta: { count: page?.total_count },
+  data: page._embedded?.application,
 });
 
 export const applicationDependencyPageMapper = (

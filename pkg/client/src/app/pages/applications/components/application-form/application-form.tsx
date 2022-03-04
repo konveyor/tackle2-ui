@@ -21,12 +21,8 @@ import {
 } from "@app/shared/components";
 import { useFetchBusinessServices, useFetchTagTypes } from "@app/shared/hooks";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import {
-  createApplication,
-  TagTypeSortBy,
-  updateApplication,
-} from "@app/api/rest";
-import { Application, Tag } from "@app/api/models";
+import { createApplication, updateApplication } from "@app/api/rest";
+import { Application, Ref, Tag } from "@app/api/models";
 import {
   getAxiosErrorMessage,
   getValidatedFromError,
@@ -72,12 +68,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     businessServices,
     isFetching: isFetchingBusinessServices,
     fetchError: fetchErrorBusinessServices,
-    fetchAllBusinessServices,
+    fetchBusinessServices,
   } = useFetchBusinessServices();
 
   useEffect(() => {
-    fetchAllBusinessServices();
-  }, [fetchAllBusinessServices]);
+    fetchBusinessServices();
+  }, [fetchBusinessServices]);
 
   // TagTypes
 
@@ -85,20 +81,20 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     tagTypes,
     isFetching: isFetchingTagTypes,
     fetchError: fetchErrorTagTypes,
-    fetchAllTagTypes,
+    fetchTagTypes,
   } = useFetchTagTypes();
 
   useEffect(() => {
-    fetchAllTagTypes({ field: TagTypeSortBy.RANK });
-  }, [fetchAllTagTypes]);
+    fetchTagTypes();
+  }, [fetchTagTypes]);
 
   // Tags
 
-  const [tags, setTags] = useState<Tag[]>();
+  const [tags, setTags] = useState<Ref[]>();
 
   useEffect(() => {
     if (tagTypes) {
-      setTags(tagTypes.data.flatMap((f) => f.tags || []));
+      setTags(tagTypes.flatMap((f) => f.tags || []));
     }
   }, [tagTypes]);
 
@@ -106,14 +102,9 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
   const businessServiceInitialValue = useMemo(() => {
     let result: IBusinessServiceDropdown | null = null;
-    if (
-      application &&
-      application.businessService &&
-      businessServices &&
-      businessServices.data
-    ) {
+    if (application && application.businessService && businessServices) {
       const businessServiceId = Number(application.businessService);
-      const businessService = businessServices.data.find(
+      const businessService = businessServices.find(
         (f) => f.id === businessServiceId
       );
 
@@ -133,7 +124,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
     if (application && application.tags && tags) {
       result = application.tags.reduce((prev, current) => {
-        const exists = tags.find((f) => `${f.id}` === current);
+        const exists = tags.find((f) => f.id === current.id);
         return exists ? [...prev, toITagDropdown(exists)] : prev;
       }, [] as ITagDropdown[]);
     }
@@ -172,9 +163,15 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       description: formValues.description.trim(),
       comments: formValues.comments.trim(),
       businessService: formValues.businessService
-        ? `${formValues.businessService.id}`
+        ? {
+            id: formValues.businessService.id,
+            name: formValues.businessService.name,
+          }
         : undefined,
-      tags: formValues.tags.map((f) => `${f.id}`),
+      tags: formValues.tags.map((f): Ref => {
+        const thisTag = { id: f.id, name: f.name };
+        return thisTag;
+      }),
       review: undefined, // The review should not updated through this form
     };
 
@@ -302,9 +299,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 isFetching: isFetchingBusinessServices,
                 fetchError: fetchErrorBusinessServices,
               }}
-              options={(businessServices?.data || []).map(
-                toIBusinessServiceDropdown
-              )}
+              options={(businessServices || []).map(toIBusinessServiceDropdown)}
               toOptionWithValue={toIBusinessServiceDropdownOptionWithValue}
             />
           </FormGroup>
