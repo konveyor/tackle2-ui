@@ -129,7 +129,10 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             />
           ),
         },
-        { name: "Set targets", component: <SetTargets setValue={setValue} /> },
+        {
+          name: "Set targets",
+          component: <SetTargets getValues={getValues} setValue={setValue} />,
+        },
         {
           name: "Scope",
           component: <Scope setValue={setValue} getValues={getValues} />,
