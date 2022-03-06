@@ -13,7 +13,6 @@ import { Options } from "./options";
 import { Review } from "./review";
 import { createTask } from "@app/api/rest";
 import { alertActions } from "@app/store/alert";
-import { useTranslation } from "react-i18next";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { CustomRules } from "./custom-rules";
 
@@ -26,6 +25,10 @@ interface IAnalysisWizard {
 export interface IFormValues {
   mode: string;
   targets: string[];
+  scope: string;
+  includedPackages: string[];
+  excludedPackages: string[];
+  customRules: string[];
 }
 
 const defaultTaskData: TaskData = {
@@ -49,7 +52,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   applications,
   onClose,
 }: IAnalysisWizard) => {
-  const { t } = useTranslation();
   const title = "Application analysis";
   const dispatch = useDispatch();
 
@@ -60,12 +62,16 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     })
     .required();
 
-  const { register, setValue, handleSubmit, watch, formState } =
+  const { register, setValue, getValues, handleSubmit, watch, formState } =
     useForm<IFormValues>({
       resolver: yupResolver(schema),
       defaultValues: {
         mode: "Binary",
         targets: [],
+        scope: "depsOnly",
+        includedPackages: [],
+        excludedPackages: [],
+        customRules: [],
       },
     });
 
@@ -118,13 +124,16 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           component: (
             <AnalysisMode
               register={register}
-              formState={formState}
+              getValues={getValues}
               setValue={setValue}
             />
           ),
         },
         { name: "Set targets", component: <SetTargets setValue={setValue} /> },
-        { name: "Scope", component: <Scope /> },
+        {
+          name: "Scope",
+          component: <Scope setValue={setValue} getValues={getValues} />,
+        },
       ],
     },
     {
@@ -133,8 +142,10 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         {
           name: "Custom rules",
           component: (
-            // <CustomRules projectId={1} skipChangeToProvisional={true} />
-            <CustomRules />
+            <CustomRules
+            // projectId={1}
+            // skipChangeToProvisional={true}
+            />
           ),
         },
         { name: "Options", component: <Options /> },
@@ -142,12 +153,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
     {
       name: "Review",
-      component: <Review />,
+      component: <Review applications={applications} getValues={getValues} />,
       nextButtonText: "Run",
     },
   ];
 
-  // console.log(watch());
+  console.log(watch());
 
   return (
     <Wizard
