@@ -1,58 +1,41 @@
 import * as React from "react";
+import { FormGroup } from "@patternfly/react-core";
 import {
-  FormGroup,
-  Select,
-  SelectOption,
-  SelectVariant,
-} from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
+  UseFormGetValues,
+  UseFormRegister,
+  UseFormSetValue,
+} from "react-hook-form";
+
+import { Select, SelectOption, SelectVariant } from "@patternfly/react-core";
+
 import { IFormValues } from "./analysis-wizard";
-import { FormState, UseFormRegister, UseFormSetValue } from "react-hook-form";
 const options = [
-  <SelectOption
-    key="binary"
-    component="button"
-    // onClick={}
-    value="Binary"
-    isPlaceholder
-  />,
-  <SelectOption
-    key="source-code"
-    component="button"
-    // onClick={}
-    value="Source code"
-  />,
+  <SelectOption key="binary" component="button" value="Binary" isPlaceholder />,
+  <SelectOption key="source-code" component="button" value="Source code" />,
   <SelectOption
     key="source-code-deps"
     component="button"
-    // onClick={}
     value="Source code + dependencies"
   />,
 ];
 
 interface IAnalysisMode {
   register: UseFormRegister<IFormValues>;
+  getValues: UseFormGetValues<IFormValues>;
   setValue: UseFormSetValue<IFormValues>;
-  formState: FormState<IFormValues>;
 }
 
 export const AnalysisMode: React.FunctionComponent<IAnalysisMode> = ({
   register,
+  getValues,
   setValue,
-  formState,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [selected, setSelected] = React.useState("");
 
   return (
     <>
-      <FormGroup
-        label="Source for analysis" //{t("terms.sources")}
-        fieldId="sourceType"
-        isRequired={true}
-        // validated={getValidatedFromError(formik.errors.jobFunction)}
-        // helperTextInvalid={formik.errors.jobFunction}
-      >
+      <FormGroup label="Source for analysis" fieldId="sourceType">
         <Select
           {...register("mode")}
           variant={SelectVariant.single}
@@ -67,10 +50,10 @@ export const AnalysisMode: React.FunctionComponent<IAnalysisMode> = ({
           onToggle={() => {
             setIsOpen(!isOpen);
           }}
+          value={getValues("mode")}
         >
           {options}
         </Select>
-        <p>{formState.errors.mode?.message}</p>
       </FormGroup>
     </>
   );
