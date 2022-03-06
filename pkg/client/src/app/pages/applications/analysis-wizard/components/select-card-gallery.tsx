@@ -148,6 +148,8 @@ export const SelectCardGallery: React.FC<SelectCardGalleryProps> = ({
     );
   };
 
+  options.map((item) => console.log(item.options));
+
   return (
     <Gallery hasGutter>
       {options.map((elem, index) => (
