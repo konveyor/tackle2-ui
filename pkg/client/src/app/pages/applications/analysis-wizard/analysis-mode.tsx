@@ -31,7 +31,6 @@ export const AnalysisMode: React.FunctionComponent<IAnalysisMode> = ({
   setValue,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [selected, setSelected] = React.useState("");
 
   return (
     <>
@@ -40,17 +39,15 @@ export const AnalysisMode: React.FunctionComponent<IAnalysisMode> = ({
           {...register("mode")}
           variant={SelectVariant.single}
           aria-label="Select user perspective"
-          selections={selected}
+          selections={getValues("mode")}
           isOpen={isOpen}
           onSelect={(_, selection) => {
-            setSelected(selection as string);
             setValue("mode", selection as string);
             setIsOpen(!isOpen);
           }}
           onToggle={() => {
             setIsOpen(!isOpen);
           }}
-          value={getValues("mode")}
         >
           {options}
         </Select>
