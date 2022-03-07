@@ -35,7 +35,7 @@ export const SetTargets: React.FunctionComponent<IAnalysisMode> = ({
       </StackItem>
       <StackItem>
         <SelectCardGallery
-          value={getValues("targets")}
+          values={getValues("targets")}
           onChange={(value) => {
             setValue("targets", value);
           }}
