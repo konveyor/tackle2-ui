@@ -195,9 +195,9 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
 
   const httpIdentityInitialValue = useMemo(() => {
     let result: IdentityDropdown | null = null;
-    if (httpProxy && identities && identities.data) {
+    if (httpProxy && identities) {
       const identityId = Number(httpProxy.identity);
-      const identity = identities.data.find((i) => i.id === identityId);
+      const identity = identities.find((i) => i.id === identityId);
 
       if (identity) {
         result = toIdentityDropdown({
@@ -211,9 +211,9 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
 
   const httpsIdentityInitialValue = useMemo(() => {
     let result: IdentityDropdown | null = null;
-    if (httpsProxy && identities && identities.data) {
+    if (httpsProxy && identities) {
       const identityId = Number(httpsProxy.identity);
-      const identity = identities.data.find((i) => i.id === identityId);
+      const identity = identities.find((i) => i.id === identityId);
 
       if (identity) {
         result = toIdentityDropdown({
@@ -414,7 +414,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     fetchError: fetchErrorIdentities,
                     isFetching: isFetchingIdentities,
                   }}
-                  options={(identities?.data || []).map(toIdentityDropdown)}
+                  options={(identities || []).map(toIdentityDropdown)}
                   toOptionWithValue={toIdentityDropdownOptionWithValue}
                 />
               </FormGroup>
@@ -513,7 +513,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     fetchError: fetchErrorIdentities,
                     isFetching: isFetchingIdentities,
                   }}
-                  options={(identities?.data || []).map(toIdentityDropdown)}
+                  options={(identities || []).map(toIdentityDropdown)}
                   toOptionWithValue={toIdentityDropdownOptionWithValue}
                 />
               </FormGroup>
