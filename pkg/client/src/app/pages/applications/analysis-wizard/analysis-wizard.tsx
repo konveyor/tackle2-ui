@@ -144,12 +144,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       steps: [
         {
           name: "Custom rules",
-          component: (
-            <CustomRules
-            // projectId={1}
-            // skipChangeToProvisional={true}
-            />
-          ),
+          component: <CustomRules />,
         },
         { name: "Options", component: <Options /> },
       ],
@@ -160,8 +155,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       nextButtonText: "Run",
     },
   ];
-
-  console.log(watch());
 
   return (
     <Wizard

@@ -303,9 +303,6 @@ export type TaskStatus =
 export interface Task {
   id?: number;
   name: string;
-  // updateUser: string;
-  // createUser: string;
-  // locator: string;
   addon: string;
   data: TaskData;
   error?: string;
