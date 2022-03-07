@@ -29,6 +29,8 @@ import {
 import "./identity-form.css";
 const xmllint = require("xmllint");
 const { XMLValidator } = require("fast-xml-parser");
+const schema = require('./schema.xsd');
+
 export interface FormValues {
   application: number;
   createTime: string;
@@ -46,8 +48,6 @@ export interface FormValues {
   userCredentials: OptionWithValue<"" | string>;
   keyFilename: string;
   settingsFilename: string;
-  schema: string;
-  schemaFilename: string;
 }
 
 export interface IdentityFormProps {
@@ -83,8 +83,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     user: identity?.user || "",
     keyFilename: "",
     settingsFilename: "",
-    schemaFilename: "",
-    schema: "",
   };
 
   const validationSchema = object().shape({
@@ -185,9 +183,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const validateAgainstSchema = (
     value: string | File,
     filename: string,
-    schema?: string | File
   ) => {
-    const currentSchema = formik.values?.schema || schema;
+    const currentSchema = schema;
 
     const validationResult = xmllint.xmllint.validateXML({
       xml: value,
@@ -430,7 +427,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     }}
                     onReadStarted={handleFileReadStarted}
                     onReadFinished={handleFileReadFinished}
-                    // isLoading={isLoading}
                     allowEditingUploadedText
                     browseButtonText="Upload"
                   />
@@ -467,7 +463,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               fieldId="settings"
               label={"Upload your Settings file or paste its contents below."}
               helperTextInvalid="You should select a valid settings.xml file."
-              // validated={isSettingsFileRejected ? "error" : "default"}
+              validated={isSettingsFileRejected ? "error" : "default"}
             >
               <FileUpload
                 id="file"
@@ -477,14 +473,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 filename={formik.values.settingsFilename}
                 onChange={(value, filename) => {
                   validateXML(value, filename);
-                  if (formik.values?.schema)
                     validateAgainstSchema(value, filename);
                 }}
                 dropzoneProps={{
                   accept: ".xml",
                   onDropRejected: handleFileRejected,
                 }}
-                // validated={isSettingsFileRejected ? "error" : "default"}
+                validated={isSettingsFileRejected ? "error" : "default"}
                 filenamePlaceholder="Drag and drop a file or upload one"
                 onFileInputChange={(event, file) =>
                   handleFileInputChange(
@@ -503,51 +498,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 }}
                 onTextChange={(text) => {
                   handleTextOrDataChange(text, "settings");
-                }}
-                onReadStarted={handleFileReadStarted}
-                onReadFinished={handleFileReadFinished}
-                isLoading={isLoading}
-                allowEditingUploadedText
-                browseButtonText="Upload"
-              />
-            </FormGroup>
-            <FormGroup
-              fieldId="schema"
-              label={"Upload your Schema file or paste its contents below."}
-              // helperTextInvalid="You should select a schema file."
-              // validated={isFileRejected ? "error" : "default"}
-            >
-              <FileUpload
-                id="file"
-                name="file"
-                type="text"
-                value={formik.values.schema}
-                filename={formik.values.schemaFilename}
-                onChange={(value, filename) => {
-                  formik.setFieldValue("schema", value);
-                  formik.setFieldValue("schemaFilename", filename); // }
-                  validateAgainstSchema(
-                    formik.values.settings,
-                    formik.values.settingsFilename,
-                    value
-                  );
-                }}
-                dropzoneProps={{
-                  accept: ".xsd",
-                  onDropRejected: handleFileRejected,
-                }}
-                validated={isFileRejected ? "error" : "default"}
-                filenamePlaceholder="Drag and drop a file or upload one"
-                onFileInputChange={(event, file) =>
-                  handleFileInputChange(event, file, "schemaFilename", "schema")
-                }
-                onDataChange={(data) => handleTextOrDataChange(data, "schema")}
-                onClearClick={() => {
-                  formik.setFieldValue("schema", "");
-                  formik.setFieldValue("schemaFilename", "");
-                }}
-                onTextChange={(text) => {
-                  handleTextOrDataChange(text, "schema");
                 }}
                 onReadStarted={handleFileReadStarted}
                 onReadFinished={handleFileReadFinished}
