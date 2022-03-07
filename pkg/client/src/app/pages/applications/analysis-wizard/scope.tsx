@@ -113,9 +113,9 @@ export const Scope: React.FunctionComponent<IScope> = ({
             <StackItem>
               <List isPlain isBordered>
                 {includedPackages.map(
-                  (pkg) =>
+                  (pkg, index) =>
                     pkg && (
-                      <ListItem key={`${pkg}-${Math.random()}`}>
+                      <ListItem key={index}>
                         {pkg}
                         <Button
                           id="remove-from-packages-included"
@@ -169,9 +169,9 @@ export const Scope: React.FunctionComponent<IScope> = ({
             <StackItem>
               <List isPlain isBordered>
                 {excludedPackages.map(
-                  (pkg) =>
+                  (pkg, index) =>
                     pkg && (
-                      <ListItem key={`${pkg}-${Math.random()}`}>
+                      <ListItem key={index}>
                         {pkg}
                         <Button
                           id="remove-from-packages-excluded"
