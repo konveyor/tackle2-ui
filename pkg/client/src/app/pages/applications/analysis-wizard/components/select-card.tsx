@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import {
   EmptyState,
   EmptyStateIcon,
@@ -14,46 +14,29 @@ import {
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 
-import "./select-card.css";
-import { useState } from "react";
 import { TransformationTargets } from "./select-card-gallery";
 
-interface CardSelectOption {
-  value: string;
-  label: string;
-}
+import "./select-card.css";
 
 export interface SelectCardProps {
   item: TransformationTargets;
-  isSelected: boolean;
-  value: string;
-  onChange: (isSelected: boolean, value: string) => void;
+  onChange: (isNeweCard: boolean, value: string) => void;
 }
 
-export const SelectCard: React.FC<SelectCardProps> = ({
-  item,
-  isSelected,
-  value,
-  onChange,
-}) => {
-  const [isSelectOpen, setIsSelectOpen] = useState(false);
+export const SelectCard: React.FC<SelectCardProps> = ({ item, onChange }) => {
+  const [isCardSelected, setCardSelected] = React.useState(false);
+  const [isSelectOpen, setSelectOpen] = React.useState(false);
+  const [selectedRelease, setSelectedRelease] = React.useState(
+    [...item.options.keys()][0]
+  );
 
   const handleCardClick = (event: React.MouseEvent) => {
     // Workaround to stop 'select' event propagation
     const eventTarget: any = event.target;
-    if (eventTarget.type === "button") {
-      return;
-    }
+    if (eventTarget.type === "button") return;
 
-    if (Array.isArray(item.options)) {
-      onChange(!isSelected, value);
-    } else {
-      onChange(!isSelected, value || item.options);
-    }
-  };
-
-  const handleSelectToggle = (isOpen: boolean) => {
-    setIsSelectOpen(isOpen);
+    setCardSelected(!isCardSelected);
+    onChange(!isCardSelected, selectedRelease);
   };
 
   const handleSelectSelection = (
@@ -61,8 +44,8 @@ export const SelectCard: React.FC<SelectCardProps> = ({
     selection: string | SelectOptionObject
   ) => {
     event.stopPropagation();
-    setIsSelectOpen(false);
-    onChange(true, selection as any);
+    setSelectOpen(false);
+    setSelectedRelease(selection as string);
   };
 
   const getImage = (): React.ComponentType<any> => {
@@ -82,7 +65,7 @@ export const SelectCard: React.FC<SelectCardProps> = ({
     <Card
       onClick={handleCardClick}
       isSelectable
-      isSelected={isSelected}
+      isSelected={isCardSelected}
       className="pf-l-stack pf-l-stack__item pf-m-fill"
     >
       <CardBody>
@@ -94,18 +77,19 @@ export const SelectCard: React.FC<SelectCardProps> = ({
           <Title headingLevel="h4" size="md">
             {item.label}
           </Title>
-          {Array.isArray(item.options) && (
+          {item.options.size > 1 && (
             <Select
               variant={SelectVariant.single}
               aria-label="Select Input"
-              onToggle={handleSelectToggle}
+              onToggle={(isExpanded) => setSelectOpen(isExpanded)}
               onSelect={handleSelectSelection}
-              selections={value}
+              selections={selectedRelease}
               isOpen={isSelectOpen}
-              direction="down"
             >
-              {item.options.map((el: any, index: number) => (
-                <SelectOption key={index} value={el.value} />
+              {[...item.options].map((el: any, index: number) => (
+                <SelectOption key={index} value={el[0]}>
+                  {el[1]}
+                </SelectOption>
               ))}
             </Select>
           )}
