@@ -9,7 +9,6 @@ import {
   Text,
   TextContent,
   Title,
-  TitleSizes,
 } from "@patternfly/react-core";
 import { UseFormGetValues } from "react-hook-form";
 
@@ -36,12 +35,10 @@ export const Review: React.FunctionComponent<IReview> = ({
   return (
     <>
       <TextContent>
-        <Title headingLevel="h5" size={TitleSizes["lg"]}>
+        <Title headingLevel="h3" size="xl">
           Review analysis details
         </Title>
-        <Text component="p">
-          Review the information below, then run the analysis.
-        </Text>
+        <Text>Review the information below, then run the analysis.</Text>
       </TextContent>
       <DescriptionList isHorizontal>
         <DescriptionListGroup>

@@ -4,7 +4,6 @@ import {
   Stack,
   StackItem,
   TextContent,
-  TitleSizes,
   Text,
 } from "@patternfly/react-core";
 
@@ -22,25 +21,25 @@ export const SetTargets: React.FunctionComponent<IAnalysisMode> = ({
   setValue,
 }) => {
   return (
-    <Stack hasGutter>
-      <StackItem>
-        <TextContent>
-          <Title headingLevel="h5" size={TitleSizes["lg"]}>
-            Set targets
-          </Title>
-          <Text component="small">
-            Select one or more target options in focus for the analysis.
-          </Text>
-        </TextContent>
-      </StackItem>
-      <StackItem>
-        <SelectCardGallery
-          values={getValues("targets")}
-          onChange={(value) => {
-            setValue("targets", value);
-          }}
-        />
-      </StackItem>
-    </Stack>
+    <>
+      <TextContent>
+        <Title headingLevel="h3" size="xl">
+          Set targets
+        </Title>
+        <Text>
+          Select one or more target options in focus for the analysis.
+        </Text>
+      </TextContent>
+      <Stack>
+        <StackItem>
+          <SelectCardGallery
+            values={getValues("targets")}
+            onChange={(value) => {
+              setValue("targets", value);
+            }}
+          />
+        </StackItem>
+      </Stack>{" "}
+    </>
   );
 };

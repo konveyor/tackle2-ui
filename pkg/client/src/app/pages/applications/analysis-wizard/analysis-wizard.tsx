@@ -164,6 +164,8 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
   ];
 
+  console.log(watch());
+
   return (
     <Wizard
       isOpen={true}
