@@ -29,7 +29,8 @@ import {
 import "./identity-form.css";
 const xmllint = require("xmllint");
 const { XMLValidator } = require("fast-xml-parser");
-const schema = require('./schema.xsd');
+// const schema = require("./schema.xsd");
+import schema from "./schema.xsd";
 
 export interface FormValues {
   application: number;
@@ -94,6 +95,11 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     description: string()
       .trim()
       .max(250, t("validation.maxLength", { length: 250 })),
+    kind: object().shape({
+      value: string()
+        .trim()
+        .max(250, t("validation.maxLength", { length: 250 })),
+    }),
   });
 
   const onSubmit = (
@@ -169,7 +175,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     });
 
     if (validationObject === true) {
-      setIsSettingsFileRejected(false);
+      validateAgainstSchema(value);
     } else {
       setIsSettingsFileRejected(true);
       formik.setFieldError("settings", validationObject.err?.msg);
@@ -180,10 +186,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     formik.setFieldValue("settingsFilename", filename); // }
   };
 
-  const validateAgainstSchema = (
-    value: string | File,
-    filename: string,
-  ) => {
+  const validateAgainstSchema = (value: string | File) => {
     const currentSchema = schema;
 
     const validationResult = xmllint.xmllint.validateXML({
@@ -198,6 +201,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       formik.setFieldError("settings", validationResult?.errors);
     }
   };
+  console.log("values, errors", formik.values, formik.errors);
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
@@ -462,8 +466,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             <FormGroup
               fieldId="settings"
               label={"Upload your Settings file or paste its contents below."}
-              helperTextInvalid="You should select a valid settings.xml file."
-              validated={isSettingsFileRejected ? "error" : "default"}
+              isRequired={formik.values.kind?.value === "mvn"}
+              validated={getValidatedFromError(formik.errors.settings)}
+              helperTextInvalid={formik.errors.settings}
             >
               <FileUpload
                 id="file"
@@ -473,7 +478,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 filename={formik.values.settingsFilename}
                 onChange={(value, filename) => {
                   validateXML(value, filename);
-                    validateAgainstSchema(value, filename);
                 }}
                 dropzoneProps={{
                   accept: ".xml",

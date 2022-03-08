@@ -69,13 +69,11 @@ module.exports = (env) => {
         },
         {
           test: /\.(xsd)$/,
-          include: [
-            path.resolve(__dirname, "../src"),
-          ],
+          include: [path.resolve(__dirname, "../src")],
           use: {
             loader: "raw-loader",
             options: {
-              esModule: false,
+              esModule: true,
             },
           },
         },
