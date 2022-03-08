@@ -28,13 +28,11 @@ export const Scope: React.FunctionComponent<IScope> = ({
   getValues,
   setValue,
 }) => {
-  const { scope } = getValues();
-  const [packagesToInclude, setPackagesToInclude] = React.useState("");
-  const [includedPackages, setIncludedPackages] = React.useState([""]);
+  const { scope, includedPackages, excludedPackages } = getValues();
 
+  const [packagesToInclude, setPackagesToInclude] = React.useState("");
   const [excludedSwitch, setExcludedSwitch] = React.useState(false);
   const [packagesToExclude, setPackagesToExclude] = React.useState("");
-  const [excludedPackages, setExcludedPackages] = React.useState([""]);
 
   return (
     <Stack hasGutter>
@@ -52,7 +50,7 @@ export const Scope: React.FunctionComponent<IScope> = ({
       <StackItem>
         <Radio
           id="deps-only"
-          name="deps"
+          name="deps-only"
           isChecked={scope === "depsOnly"}
           onChange={() => {
             setValue("scope", "depsOnly");
@@ -64,7 +62,7 @@ export const Scope: React.FunctionComponent<IScope> = ({
       <StackItem>
         <Radio
           id="deps-all"
-          name="deps"
+          name="deps-all"
           isChecked={scope === "depsAll"}
           onChange={() => {
             setValue("scope", "depsAll");
@@ -76,7 +74,7 @@ export const Scope: React.FunctionComponent<IScope> = ({
       <StackItem>
         <Radio
           id="deps-select"
-          name="deps"
+          name="deps-select"
           isChecked={scope === "depsSelect"}
           onChange={() => {
             setValue("scope", "depsSelect");
@@ -101,7 +99,7 @@ export const Scope: React.FunctionComponent<IScope> = ({
                 variant="control"
                 onClick={() => {
                   const list = packagesToInclude.split(",");
-                  setIncludedPackages([...new Set(list)]);
+                  setValue("includedPackages", [...new Set(list)]);
                   setPackagesToInclude("");
                 }}
               >
@@ -122,7 +120,8 @@ export const Scope: React.FunctionComponent<IScope> = ({
                           variant="control"
                           icon={<DelIcon />}
                           onClick={() =>
-                            setIncludedPackages(
+                            setValue(
+                              "includedPackages",
                               includedPackages.filter((p) => p !== pkg)
                             )
                           }
@@ -157,7 +156,7 @@ export const Scope: React.FunctionComponent<IScope> = ({
                 variant="control"
                 onClick={() => {
                   const list = packagesToExclude.split(",");
-                  setExcludedPackages([...new Set(list)]);
+                  setValue("excludedPackages", [...new Set(list)]);
                   setPackagesToExclude("");
                 }}
               >
@@ -178,7 +177,8 @@ export const Scope: React.FunctionComponent<IScope> = ({
                           variant="control"
                           icon={<DelIcon />}
                           onClick={() =>
-                            setExcludedPackages(
+                            setValue(
+                              "excludedPackages",
                               excludedPackages.filter((p) => p !== pkg)
                             )
                           }
