@@ -414,7 +414,11 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     fetchError: fetchErrorIdentities,
                     isFetching: isFetchingIdentities,
                   }}
-                  options={(identities || []).map(toIdentityDropdown)}
+                  options={(
+                    identities?.filter(
+                      (identity) => identity.kind === "proxy"
+                    ) || []
+                  ).map(toIdentityDropdown)}
                   toOptionWithValue={toIdentityDropdownOptionWithValue}
                 />
               </FormGroup>
@@ -513,7 +517,11 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     fetchError: fetchErrorIdentities,
                     isFetching: isFetchingIdentities,
                   }}
-                  options={(identities || []).map(toIdentityDropdown)}
+                  options={(
+                    identities?.filter(
+                      (identity) => identity.kind === "proxy"
+                    ) || []
+                  ).map(toIdentityDropdown)}
                   toOptionWithValue={toIdentityDropdownOptionWithValue}
                 />
               </FormGroup>

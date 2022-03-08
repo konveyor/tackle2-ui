@@ -22,16 +22,6 @@ export const Proxies: React.FunctionComponent = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  // const onChangeIsHttpProxy = () => {
-  //   setIsHttpProxy(!isHttpProxy);
-  //   fetchProxies();
-  // };
-
-  // const onChangeIsHttpsProxy = () => {
-  //   setIsHttpsProxy(!isHttpsProxy);
-  //   fetchProxies();
-  // };
-
   const handleOnProxyCreated = (response: AxiosResponse<any>) => {
     fetchProxies();
     dispatch(
@@ -56,13 +46,6 @@ export const Proxies: React.FunctionComponent = () => {
   const existingHttpsProxy = proxies?.data.find(
     (proxy) => proxy.kind === "https"
   );
-  // const [isHttpProxy, setIsHttpProxy] = React.useState(false);
-  // const [isHttpsProxy, setIsHttpsProxy] = React.useState(false);
-
-  // useEffect(() => {
-  //   setIsHttpProxy(!!existingHttpProxy);
-  //   setIsHttpsProxy(!!existingHttpsProxy);
-  // }, []);
   const handleOnDeleteProxy = () => {
     fetchProxies();
   };
