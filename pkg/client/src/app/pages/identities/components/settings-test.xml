@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<p:person xmlns:p="http://www.namespace.org/person">
+  <firstName>name</firstName>
+  <surName>surname</surName>
+  <secondName>n2</secondName>
+</p:person>

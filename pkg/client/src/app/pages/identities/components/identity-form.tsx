@@ -95,9 +95,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       .trim()
       .max(250, t("validation.maxLength", { length: 250 })),
     kind: object().shape({
-      value: string()
-        .trim()
-        .max(250, t("validation.maxLength", { length: 250 })),
+      value: string().min(1, "value required").required(),
+      toString: object().required(),
     }),
   });
 
@@ -259,8 +258,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           label="Type"
           fieldId="type"
           isRequired={true}
-          validated={getValidatedFromError(formik.errors.kind)}
-          helperTextInvalid={formik.errors.kind}
+          validated={formik.errors.kind && "error"}
+          helperTextInvalid={formik.errors.kind && "This field is required"}
         >
           <SingleSelectFetchOptionValueFormikField
             fieldConfig={{ name: "kind" }}
