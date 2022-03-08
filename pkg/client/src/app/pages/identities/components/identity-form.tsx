@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import { useFormik, FormikProvider, FormikHelpers, useField } from "formik";
+import {
+  useFormik,
+  FormikProvider,
+  FormikHelpers,
+  useField,
+  yupToFormErrors,
+} from "formik";
 import { object, string } from "yup";
 import {
   ActionGroup,
@@ -97,6 +103,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     kind: object().shape({
       value: string().min(1, "value required").required(),
       toString: object().required(),
+    }),
+    settings: string().when("kind.value", {
+      is: "mvn",
+      then: string().required("Must upload xml settings file"),
     }),
   });
 
