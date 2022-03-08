@@ -84,8 +84,12 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   const [isHttpsProxy, setIsHttpsProxy] = React.useState(false);
 
   useEffect(() => {
-    setIsHttpProxy(httpProxy?.host !== "");
-    setIsHttpsProxy(httpsProxy?.host !== "");
+    if (httpProxy) {
+      setIsHttpProxy(httpProxy.enabled);
+    }
+    if (httpsProxy) {
+      setIsHttpsProxy(httpsProxy.enabled);
+    }
   }, [httpProxy, httpsProxy]);
 
   const onChangeIsHttpProxy = () => {
