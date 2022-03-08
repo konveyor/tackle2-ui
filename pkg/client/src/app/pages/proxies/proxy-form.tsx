@@ -53,8 +53,8 @@ import { createProxy, deleteProxy, updateProxy } from "@app/api/rest";
 export interface FormValues {
   httpHost: string;
   httpsHost: string;
-  httpIdentity: IdentityDropdown | null;
-  httpsIdentity: IdentityDropdown | null;
+  httpIdentity: IdentityDropdown;
+  httpsIdentity: IdentityDropdown;
   httpPort: number;
   httpsPort: number;
   isHttpChecked: boolean;
@@ -89,21 +89,52 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   }, [httpProxy, httpsProxy]);
 
   const onChangeIsHttpProxy = () => {
-    // formik.setFieldValue(IS_HTTP_CHECKED, !formik.values.isHttpChecked);
-    setIsHttpProxy(!isHttpProxy);
+    if (formik.values.isHttpChecked && httpProxy) {
+      const httpPayload = {
+        host: formik.values.httpHost,
+        kind: "http",
+        port: formik.values.httpPort,
+        id: httpProxy?.id,
+        enabled: !isHttpProxy,
+        excluded: httpProxy.excluded,
+      };
 
-    if (formik.values.isHttpChecked) {
-      formik.setFieldValue(HTTP_HOST, "");
-      formik.setFieldValue(HTTP_IDENTITY, "");
+      if (httpProxy) {
+        updateProxy({
+          ...httpPayload,
+        })
+          .then((response) => {
+            setIsHttpProxy(!isHttpProxy);
+          })
+          .catch((error) => {
+            setError(error);
+          });
+      }
     }
   };
 
   const onChangeIsHttpsProxy = () => {
-    setIsHttpsProxy(!isHttpsProxy);
-    // formik.setFieldValue(IS_HTTPS_CHECKED, !formik.values.isHttpsChecked);
-    if (formik.values.isHttpsChecked) {
-      formik.setFieldValue(HTTPS_HOST, "");
-      formik.setFieldValue(HTTPS_IDENTITY, "");
+    if (formik.values.isHttpsChecked && httpsProxy) {
+      const httpsPayload = {
+        host: formik.values.httpsHost,
+        kind: "https",
+        port: formik.values.httpsPort,
+        id: httpsProxy.id,
+        enabled: !isHttpsProxy,
+        excluded: httpsProxy.excluded,
+      };
+
+      if (httpsProxy) {
+        updateProxy({
+          ...httpsPayload,
+        })
+          .then((response) => {
+            setIsHttpsProxy(!isHttpsProxy);
+          })
+          .catch((error) => {
+            setError(error);
+          });
+      }
     }
   };
 
@@ -151,22 +182,37 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       kind: "https",
       excluded: formValues.excluded.split(","),
       host: formValues.httpsHost,
-      identity: formValues.httpsIdentity?.id || 0,
       port: formValues.httpsPort,
+      enabled: httpsProxy?.enabled || true,
+      id: httpsProxy?.id,
+      ...(formValues.httpsIdentity?.id &&
+        formValues.httpsIdentity?.name && {
+          identity: {
+            id: formValues.httpsIdentity?.id,
+            name: formValues.httpsIdentity?.name,
+          },
+        }),
     };
 
     const httpPayload: Proxy = {
       kind: "http",
       excluded: formValues.excluded.split(","),
       host: formValues.httpHost,
-      identity: formValues.httpIdentity?.id || 0,
       port: formValues.httpPort,
+      enabled: httpProxy?.enabled || true,
+      id: httpProxy?.id,
+      ...(formValues.httpIdentity?.id &&
+        formValues.httpIdentity?.name && {
+          identity: {
+            id: formValues.httpIdentity.id,
+            name: formValues.httpIdentity.name,
+          },
+        }),
     };
 
-    let promise: AxiosPromise<Proxy>;
     if (httpProxy && httpValuesHaveUpdate(formValues, httpProxy)) {
       updateProxy({
-        ...httpProxy,
+        // ...httpProxy,
         ...httpPayload,
       })
         .then((response) => {
@@ -180,7 +226,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
 
     if (httpsProxy && httpsValuesHaveUpdate(formValues, httpsProxy)) {
       updateProxy({
-        ...httpsProxy,
+        // ...httpsProxy,
         ...httpsPayload,
       })
         .then((response) => {
@@ -194,7 +240,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   };
 
   const httpIdentityInitialValue = useMemo(() => {
-    let result: IdentityDropdown | null = null;
+    let result: IdentityDropdown = { id: 0, name: "" };
     if (httpProxy && identities) {
       const identityId = Number(httpProxy.identity);
       const identity = identities.find((i) => i.id === identityId);
@@ -210,7 +256,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   }, [identities, httpProxy]);
 
   const httpsIdentityInitialValue = useMemo(() => {
-    let result: IdentityDropdown | null = null;
+    let result: IdentityDropdown = { id: 0, name: "" };
     if (httpsProxy && identities) {
       const identityId = Number(httpsProxy.identity);
       const identity = identities.find((i) => i.id === identityId);
@@ -261,54 +307,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
 
   const onChangeField = (value: string, event: React.FormEvent<any>) => {
     formik.handleChange(event);
-  };
-
-  const handleDeleteProxy = () => {
-    let httpPromise: AxiosPromise<Proxy>;
-    const emptyHttpPayload: Proxy = {
-      kind: "http",
-      excluded: [],
-      host: "",
-      identity: 0,
-      port: 0,
-    };
-    const emptyHttpsPayload: Proxy = {
-      kind: "https",
-      excluded: [],
-      host: "",
-      identity: 0,
-      port: 0,
-    };
-    if (httpProxy?.id || httpsProxy?.id) {
-      httpPromise = updateProxy({
-        ...httpProxy,
-        ...emptyHttpPayload,
-      });
-      httpPromise
-        .then((response) => {
-          formik.resetForm();
-          onDelete();
-        })
-        .catch((error) => {
-          setError(error);
-        });
-
-      let httpsPromise: AxiosPromise<Proxy>;
-      httpsPromise = updateProxy({
-        ...httpsProxy,
-        ...emptyHttpsPayload,
-      });
-      httpsPromise
-        .then((response) => {
-          formik.resetForm();
-          onDelete();
-        })
-        .catch((error) => {
-          setError(error);
-        });
-    } else {
-      formik.resetForm();
-    }
   };
 
   return (
@@ -394,7 +392,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 isRequired={isHttpIdentityRequired}
                 validated={getValidatedFromErrorTouched(
                   formik.errors.httpIdentity,
-                  formik.touched.httpIdentity
+                  formik.touched?.httpIdentity
                 )}
                 helperTextInvalid={formik.errors.httpIdentity}
               >
@@ -566,11 +564,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             httpsValuesHaveUpdate(formik.values, httpsProxy)
               ? "Save"
               : "Update"}
-          </Button>
-          <Button variant={ButtonVariant.secondary} onClick={handleDeleteProxy}>
-            Clear
-            {/* {httpValuesHaveUpdate(formik.values, httpProxy) ||
-              (httpsValuesHaveUpdate(formik.values, httpsProxy) && "Clear")} */}
           </Button>
         </ActionGroup>
       </Form>

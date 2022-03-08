@@ -156,10 +156,11 @@ export interface Proxy {
   kind: string;
   port: number;
   excluded: Array<string>;
-  identity?: number | null;
+  identity?: Ref;
   createTime?: string;
   createUser?: string;
-  id?: any;
+  id: any;
+  enabled: boolean;
 }
 
 // Pathfinder
