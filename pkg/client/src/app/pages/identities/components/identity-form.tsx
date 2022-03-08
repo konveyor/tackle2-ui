@@ -77,11 +77,14 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     identity: Identity
   ) => {
     switch (value) {
-      case "scm": {
+      case "source": {
         if (identity.user) {
           return { value: "userpass", toString: () => "Username/Password" };
         } else {
-          return { value: "scm", toString: () => "SCM Private Key/Passphrase" };
+          return {
+            value: "source",
+            toString: () => "SCM Private Key/Passphrase",
+          };
         }
       }
       default:
@@ -96,7 +99,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       case "scm": {
         return { value: value, toString: () => "Source Control" };
       }
-      case "mvn": {
+      case "maven": {
         return { value: value, toString: () => "Maven Settings File" };
       }
       default:
@@ -150,7 +153,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       toString: object().required(),
     }),
     settings: string().when("kind.value", {
-      is: "mvn",
+      is: "maven",
       then: string().required("Must upload xml settings file"),
     }),
   });
@@ -333,11 +336,11 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             }}
             options={[
               {
-                value: "scm",
+                value: "source",
                 toString: () => `Source Control`,
               },
               {
-                value: "mvn",
+                value: "maven",
                 toString: () => `Maven Settings File`,
               },
               {
@@ -353,7 +356,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             }}
           />
         </FormGroup>
-        {formik.values?.kind?.value === "scm" && (
+        {formik.values?.kind?.value === "source" && (
           <>
             <FormGroup
               label="User credentials"
@@ -383,7 +386,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   },
                   {
                     value: "scm",
-                    toString: () => `SCM Private Key/Passphrase`,
+                    toString: () => `source Private Key/Passphrase`,
                   },
                 ]}
                 toOptionWithValue={(value) => {
@@ -442,7 +445,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 </FormGroup>
               </>
             )}
-            {formik.values?.userCredentials.value === "scm" && (
+            {formik.values?.userCredentials.value === "source" && (
               <>
                 <FormGroup
                   fieldId="key"
@@ -513,12 +516,12 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             )}
           </>
         )}
-        {formik.values?.kind?.value === "mvn" && (
+        {formik.values?.kind?.value === "maven" && (
           <>
             <FormGroup
               fieldId="settings"
               label={"Upload your Settings file or paste its contents below."}
-              isRequired={formik.values.kind?.value === "mvn"}
+              isRequired={formik.values.kind?.value === "maven"}
               validated={getValidatedFromError(formik.errors.settings)}
               helperTextInvalid={formik.errors.settings}
             >
