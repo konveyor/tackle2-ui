@@ -15,6 +15,8 @@ import { FormState, UseFormGetValues, UseFormSetValue } from "react-hook-form";
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
+import "./scope.css";
+
 import { IFormValues } from "./analysis-wizard";
 interface IScope {
   getValues: UseFormGetValues<IFormValues>;
@@ -27,8 +29,8 @@ export const Scope: React.FunctionComponent<IScope> = ({
 }) => {
   const { scope, includedPackages, excludedPackages } = getValues();
 
-  const [packagesToInclude, setPackagesToInclude] = React.useState("");
   const [excludedSwitch, setExcludedSwitch] = React.useState(false);
+  const [packagesToInclude, setPackagesToInclude] = React.useState("");
   const [packagesToExclude, setPackagesToExclude] = React.useState("");
 
   return (
@@ -71,7 +73,7 @@ export const Scope: React.FunctionComponent<IScope> = ({
       />
       {scope === "depsSelect" && (
         <>
-          <InputGroup>
+          <InputGroup className={`${spacing.mtMd} ${spacing.plLg}`}>
             <TextArea
               name="included-packages"
               id="included-packages"
@@ -92,13 +94,14 @@ export const Scope: React.FunctionComponent<IScope> = ({
             </Button>
           </InputGroup>
           {includedPackages && (
-            <List isPlain isBordered>
+            <div className={spacing.plLg}>
               {includedPackages.map(
                 (pkg, index) =>
                   pkg && (
-                    <ListItem key={index}>
-                      {pkg}
+                    <InputGroup key={index}>
+                      <Text className="package">{pkg}</Text>
                       <Button
+                        isInline
                         id="remove-from-packages-included"
                         variant="control"
                         icon={<DelIcon />}
@@ -109,22 +112,22 @@ export const Scope: React.FunctionComponent<IScope> = ({
                           )
                         }
                       />
-                    </ListItem>
+                    </InputGroup>
                   )
               )}
-            </List>
+            </div>
           )}
-          <Switch
-            id="simple-switch"
-            label="Exclude packages"
-            isChecked={excludedSwitch}
-            onChange={() => setExcludedSwitch(!excludedSwitch)}
-          />
         </>
       )}
-      {excludedSwitch && (
-        <>
-          <InputGroup>
+      <>
+        <Switch
+          id="simple-switch"
+          label="Exclude packages"
+          isChecked={excludedSwitch}
+          onChange={() => setExcludedSwitch(!excludedSwitch)}
+        />
+        {excludedSwitch && (
+          <InputGroup className={`${spacing.mtMd} ${spacing.plLg}`}>
             <TextArea
               name="excluded-packages"
               id="excluded-packages"
@@ -144,14 +147,17 @@ export const Scope: React.FunctionComponent<IScope> = ({
               Add
             </Button>
           </InputGroup>
-          {excludedPackages && (
-            <List isPlain isBordered>
-              {excludedPackages.map(
-                (pkg, index) =>
-                  pkg && (
-                    <ListItem key={index}>
-                      {pkg}
+        )}
+        {excludedPackages && (
+          <div className={spacing.plLg}>
+            {excludedPackages.map(
+              (pkg, index) =>
+                pkg && (
+                  <div key={index}>
+                    <InputGroup key={index}>
+                      <Text className="package">{pkg}</Text>
                       <Button
+                        isInline
                         id="remove-from-packages-excluded"
                         variant="control"
                         icon={<DelIcon />}
@@ -162,13 +168,13 @@ export const Scope: React.FunctionComponent<IScope> = ({
                           )
                         }
                       />
-                    </ListItem>
-                  )
-              )}
-            </List>
-          )}
-        </>
-      )}
+                    </InputGroup>
+                  </div>
+                )
+            )}
+          </div>
+        )}
+      </>
     </Form>
   );
 };

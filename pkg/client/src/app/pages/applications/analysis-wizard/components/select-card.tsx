@@ -13,6 +13,7 @@ import {
   Text,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { TransformationTargets } from "./select-card-gallery";
 
@@ -93,7 +94,7 @@ export const SelectCard: React.FC<SelectCardProps> = ({ item, onChange }) => {
               ))}
             </Select>
           )}
-          <Text style={{ padding: "1em", textAlign: "left" }}>
+          <Text className={`${spacing.pMd} pf-u-text-align-left`}>
             {item.description}
           </Text>
         </EmptyState>
