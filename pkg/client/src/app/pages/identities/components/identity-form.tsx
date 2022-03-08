@@ -29,7 +29,6 @@ import {
 import "./identity-form.css";
 const xmllint = require("xmllint");
 const { XMLValidator } = require("fast-xml-parser");
-// const schema = require("./schema.xsd");
 import schema from "./schema.xsd";
 
 export interface FormValues {
@@ -191,7 +190,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
     const validationResult = xmllint.xmllint.validateXML({
       xml: value,
-      ...(currentSchema && { currentSchema }),
+      schema: currentSchema,
     });
 
     if (!validationResult.errors) {
@@ -477,7 +476,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 value={formik.values.settings}
                 filename={formik.values.settingsFilename}
                 onChange={(value, filename) => {
-                  validateXML(value, filename);
+                  if (value) {
+                    validateXML(value, filename);
+                  }
                 }}
                 dropzoneProps={{
                   accept: ".xml",
