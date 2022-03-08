@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
 import {
@@ -72,6 +72,49 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const [error, setError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
 
+  const getUserCredentialsInitialValue = (
+    value: string,
+    identity: Identity
+  ) => {
+    switch (value) {
+      case "scm": {
+        if (identity.user) {
+          return { value: "userpass", toString: () => "Username/Password" };
+        } else {
+          return { value: "scm", toString: () => "SCM Private Key/Passphrase" };
+        }
+      }
+      default:
+        return { value: "", toString: () => "" };
+    }
+  };
+  const getKindInitialValue = (value: string) => {
+    switch (value) {
+      case "proxy": {
+        return { value: value, toString: () => "Proxy" };
+      }
+      case "scm": {
+        return { value: value, toString: () => "Source Control" };
+      }
+      case "mvn": {
+        return { value: value, toString: () => "Maven Settings File" };
+      }
+      default:
+        return { value: "", toString: () => "" };
+    }
+  };
+  const kindInitialValue = useMemo(() => {
+    return identity && identity.kind
+      ? getKindInitialValue(identity.kind)
+      : { value: "", toString: () => "" };
+  }, [identity]);
+
+  const userCredentialsInitialValue = useMemo(() => {
+    return identity && identity.kind
+      ? getUserCredentialsInitialValue(identity.kind, identity)
+      : { value: "", toString: () => "" };
+  }, [identity]);
+
   const initialValues: FormValues = {
     application: 0,
     createTime: "",
@@ -80,15 +123,17 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     encrypted: identity?.encrypted || "",
     id: identity?.id || 0,
     key: identity?.key || "",
-    kind: { value: "", toString: () => "" },
-    userCredentials: { value: "", toString: () => "" },
+    kind: kindInitialValue,
+    userCredentials: userCredentialsInitialValue,
     name: identity?.name || "",
     password: identity?.password || "",
     settings: identity?.settings || "",
     updateUser: identity?.updateUser || "",
     user: identity?.user || "",
     keyFilename: "",
-    settingsFilename: "",
+    settingsFilename: identity?.encrypted
+      ? "Settings.xml - (File contents hidden)"
+      : "",
   };
 
   const validationSchema = object().shape({
@@ -122,6 +167,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       createUser: formValues.createUser.trim(),
       encrypted: formValues.encrypted.trim(),
       settings: formValues.settings.trim(),
+      password: formValues.password.trim(),
+      user: formValues.user.trim(),
     };
 
     let promise: AxiosPromise<Identity>;
@@ -187,8 +234,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     } else {
       setIsSettingsFileRejected(true);
       formik.setFieldError("settings", validationObject.err?.msg);
-      // formik.errors.settings = validationObject.err?.msg;
-      // formik.validateField("settings");
     }
     formik.setFieldValue("settings", value);
     formik.setFieldValue("settingsFilename", filename); // }
@@ -209,7 +254,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       formik.setFieldError("settings", validationResult?.errors);
     }
   };
-  console.log("values, errors", formik.values, formik.errors);
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
@@ -518,6 +562,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 isLoading={isLoading}
                 allowEditingUploadedText
                 browseButtonText="Upload"
+                hideDefaultPreview={!!formik.values.encrypted}
               />
             </FormGroup>
           </>
