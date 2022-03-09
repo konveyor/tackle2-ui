@@ -68,6 +68,16 @@ module.exports = (env) => {
           },
         },
         {
+          test: /\.(xsd)$/,
+          include: [path.resolve(__dirname, "../src")],
+          use: {
+            loader: "raw-loader",
+            options: {
+              esModule: true,
+            },
+          },
+        },
+        {
           test: /\.svg$/,
           include: (input) => input.indexOf("background-filter.svg") > 1,
           use: [

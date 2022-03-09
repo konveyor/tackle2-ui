@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import { useFormik, FormikProvider, FormikHelpers, useField } from "formik";
+import {
+  useFormik,
+  FormikProvider,
+  FormikHelpers,
+  useField,
+  yupToFormErrors,
+} from "formik";
 import { object, string } from "yup";
 import {
   ActionGroup,
@@ -26,9 +32,11 @@ import {
   getValidatedFromError,
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
+import schema from "./schema.xsd";
 import "./identity-form.css";
 const xmllint = require("xmllint");
 const { XMLValidator } = require("fast-xml-parser");
+
 export interface FormValues {
   application: number;
   createTime: string;
@@ -46,8 +54,6 @@ export interface FormValues {
   userCredentials: OptionWithValue<"" | string>;
   keyFilename: string;
   settingsFilename: string;
-  schema: string;
-  schemaFilename: string;
 }
 
 export interface IdentityFormProps {
@@ -66,6 +72,52 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const [error, setError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
 
+  const getUserCredentialsInitialValue = (
+    value: string,
+    identity: Identity
+  ) => {
+    switch (value) {
+      case "source": {
+        if (identity.user) {
+          return { value: "userpass", toString: () => "Username/Password" };
+        } else {
+          return {
+            value: "source",
+            toString: () => "SCM Private Key/Passphrase",
+          };
+        }
+      }
+      default:
+        return { value: "", toString: () => "" };
+    }
+  };
+  const getKindInitialValue = (value: string) => {
+    switch (value) {
+      case "proxy": {
+        return { value: value, toString: () => "Proxy" };
+      }
+      case "scm": {
+        return { value: value, toString: () => "Source Control" };
+      }
+      case "maven": {
+        return { value: value, toString: () => "Maven Settings File" };
+      }
+      default:
+        return { value: "", toString: () => "" };
+    }
+  };
+  const kindInitialValue = useMemo(() => {
+    return identity?.kind
+      ? getKindInitialValue(identity.kind)
+      : { value: "", toString: () => "" };
+  }, [identity]);
+
+  const userCredentialsInitialValue = useMemo(() => {
+    return identity && identity.kind
+      ? getUserCredentialsInitialValue(identity.kind, identity)
+      : { value: "", toString: () => "" };
+  }, [identity]);
+
   const initialValues: FormValues = {
     application: 0,
     createTime: "",
@@ -74,20 +126,18 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     encrypted: identity?.encrypted || "",
     id: identity?.id || 0,
     key: identity?.key || "",
-    kind: { value: "", toString: () => "" },
-    userCredentials: { value: "", toString: () => "" },
+    kind: kindInitialValue,
+    userCredentials: userCredentialsInitialValue,
     name: identity?.name || "",
     password: identity?.password || "",
-    settings: identity?.settings || "",
+    settings: identity?.encrypted ? "[Encrypted]" : "",
     updateUser: identity?.updateUser || "",
     user: identity?.user || "",
     keyFilename: "",
-    settingsFilename: "",
-    schemaFilename: "",
-    schema: "",
+    settingsFilename: identity?.settings || "",
   };
 
-  const validationSchema = object().shape({
+  const validationSchema = object({
     name: string()
       .trim()
       .required(t("validation.required"))
@@ -96,6 +146,14 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     description: string()
       .trim()
       .max(250, t("validation.maxLength", { length: 250 })),
+    kind: object().shape({
+      value: string().min(1, "value required").required(),
+      toString: object().required(),
+    }),
+    settings: string().when("kind.value", {
+      is: "maven",
+      then: string().required("Must upload xml settings file"),
+    }),
   });
 
   const onSubmit = (
@@ -110,6 +168,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       createUser: formValues.createUser.trim(),
       encrypted: formValues.encrypted.trim(),
       settings: formValues.settings.trim(),
+      password: formValues.password.trim(),
+      user: formValues.user.trim(),
     };
 
     let promise: AxiosPromise<Identity>;
@@ -171,27 +231,21 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     });
 
     if (validationObject === true) {
-      setIsSettingsFileRejected(false);
+      validateAgainstSchema(value);
     } else {
       setIsSettingsFileRejected(true);
       formik.setFieldError("settings", validationObject.err?.msg);
-      // formik.errors.settings = validationObject.err?.msg;
-      // formik.validateField("settings");
     }
     formik.setFieldValue("settings", value);
     formik.setFieldValue("settingsFilename", filename); // }
   };
 
-  const validateAgainstSchema = (
-    value: string | File,
-    filename: string,
-    schema?: string | File
-  ) => {
-    const currentSchema = formik.values?.schema || schema;
+  const validateAgainstSchema = (value: string | File) => {
+    const currentSchema = schema;
 
     const validationResult = xmllint.xmllint.validateXML({
       xml: value,
-      ...(currentSchema && { currentSchema }),
+      schema: currentSchema,
     });
 
     if (!validationResult.errors) {
@@ -259,8 +313,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           label="Type"
           fieldId="type"
           isRequired={true}
-          validated={getValidatedFromError(formik.errors.kind)}
-          helperTextInvalid={formik.errors.kind}
+          validated={formik.errors.kind && "error"}
+          helperTextInvalid={formik.errors.kind && "This field is required"}
         >
           <SingleSelectFetchOptionValueFormikField
             fieldConfig={{ name: "kind" }}
@@ -280,11 +334,11 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             }}
             options={[
               {
-                value: "scm",
+                value: "source",
                 toString: () => `Source Control`,
               },
               {
-                value: "mvn",
+                value: "maven",
                 toString: () => `Maven Settings File`,
               },
               {
@@ -300,7 +354,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             }}
           />
         </FormGroup>
-        {formik.values?.kind?.value === "scm" && (
+        {formik.values?.kind?.value === "source" && (
           <>
             <FormGroup
               label="User credentials"
@@ -330,7 +384,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   },
                   {
                     value: "scm",
-                    toString: () => `SCM Private Key/Passphrase`,
+                    toString: () => `Source Private Key/Passphrase`,
                   },
                 ]}
                 toOptionWithValue={(value) => {
@@ -389,7 +443,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 </FormGroup>
               </>
             )}
-            {formik.values?.userCredentials.value === "scm" && (
+            {formik.values?.userCredentials.value === "source" && (
               <>
                 <FormGroup
                   fieldId="key"
@@ -430,7 +484,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     }}
                     onReadStarted={handleFileReadStarted}
                     onReadFinished={handleFileReadFinished}
-                    // isLoading={isLoading}
                     allowEditingUploadedText
                     browseButtonText="Upload"
                   />
@@ -461,13 +514,14 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             )}
           </>
         )}
-        {formik.values?.kind?.value === "mvn" && (
+        {formik.values?.kind?.value === "maven" && (
           <>
             <FormGroup
               fieldId="settings"
               label={"Upload your Settings file or paste its contents below."}
-              helperTextInvalid="You should select a valid settings.xml file."
-              // validated={isSettingsFileRejected ? "error" : "default"}
+              isRequired={formik.values.kind?.value === "maven"}
+              validated={getValidatedFromError(formik.errors.settings)}
+              helperTextInvalid={formik.errors.settings}
             >
               <FileUpload
                 id="file"
@@ -476,15 +530,15 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 value={formik.values.settings}
                 filename={formik.values.settingsFilename}
                 onChange={(value, filename) => {
-                  validateXML(value, filename);
-                  if (formik.values?.schema)
-                    validateAgainstSchema(value, filename);
+                  if (value) {
+                    validateXML(value, filename);
+                  }
                 }}
                 dropzoneProps={{
                   accept: ".xml",
                   onDropRejected: handleFileRejected,
                 }}
-                // validated={isSettingsFileRejected ? "error" : "default"}
+                validated={isSettingsFileRejected ? "error" : "default"}
                 filenamePlaceholder="Drag and drop a file or upload one"
                 onFileInputChange={(event, file) =>
                   handleFileInputChange(
@@ -503,51 +557,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 }}
                 onTextChange={(text) => {
                   handleTextOrDataChange(text, "settings");
-                }}
-                onReadStarted={handleFileReadStarted}
-                onReadFinished={handleFileReadFinished}
-                isLoading={isLoading}
-                allowEditingUploadedText
-                browseButtonText="Upload"
-              />
-            </FormGroup>
-            <FormGroup
-              fieldId="schema"
-              label={"Upload your Schema file or paste its contents below."}
-              // helperTextInvalid="You should select a schema file."
-              // validated={isFileRejected ? "error" : "default"}
-            >
-              <FileUpload
-                id="file"
-                name="file"
-                type="text"
-                value={formik.values.schema}
-                filename={formik.values.schemaFilename}
-                onChange={(value, filename) => {
-                  formik.setFieldValue("schema", value);
-                  formik.setFieldValue("schemaFilename", filename); // }
-                  validateAgainstSchema(
-                    formik.values.settings,
-                    formik.values.settingsFilename,
-                    value
-                  );
-                }}
-                dropzoneProps={{
-                  accept: ".xsd",
-                  onDropRejected: handleFileRejected,
-                }}
-                validated={isFileRejected ? "error" : "default"}
-                filenamePlaceholder="Drag and drop a file or upload one"
-                onFileInputChange={(event, file) =>
-                  handleFileInputChange(event, file, "schemaFilename", "schema")
-                }
-                onDataChange={(data) => handleTextOrDataChange(data, "schema")}
-                onClearClick={() => {
-                  formik.setFieldValue("schema", "");
-                  formik.setFieldValue("schemaFilename", "");
-                }}
-                onTextChange={(text) => {
-                  handleTextOrDataChange(text, "schema");
                 }}
                 onReadStarted={handleFileReadStarted}
                 onReadFinished={handleFileReadFinished}
