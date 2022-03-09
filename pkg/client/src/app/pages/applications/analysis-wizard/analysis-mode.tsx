@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormGroup } from "@patternfly/react-core";
+import { FormGroup, Text, TextContent, Title } from "@patternfly/react-core";
 import {
   UseFormGetValues,
   UseFormRegister,
@@ -34,6 +34,12 @@ export const AnalysisMode: React.FunctionComponent<IAnalysisMode> = ({
 
   return (
     <>
+      <TextContent>
+        <Title headingLevel="h3" size="xl">
+          Review analysis details
+        </Title>
+        <Text>Review the information below, then run the analysis.</Text>
+      </TextContent>
       <FormGroup label="Source for analysis" fieldId="sourceType">
         <Select
           {...register("mode")}

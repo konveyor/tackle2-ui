@@ -9,7 +9,6 @@ import {
   Text,
   TextContent,
   Title,
-  TitleSizes,
 } from "@patternfly/react-core";
 import { UseFormGetValues } from "react-hook-form";
 
@@ -36,12 +35,10 @@ export const Review: React.FunctionComponent<IReview> = ({
   return (
     <>
       <TextContent>
-        <Title headingLevel="h5" size={TitleSizes["lg"]}>
+        <Title headingLevel="h3" size="xl">
           Review analysis details
         </Title>
-        <Text component="p">
-          Review the information below, then run the analysis.
-        </Text>
+        <Text>Review the information below, then run the analysis.</Text>
       </TextContent>
       <DescriptionList isHorizontal>
         <DescriptionListGroup>
@@ -66,8 +63,8 @@ export const Review: React.FunctionComponent<IReview> = ({
           </DescriptionListTerm>
           <DescriptionListDescription id="targets">
             <List isPlain>
-              {targets.map((target) => (
-                <ListItem key={target}>{target}</ListItem>
+              {targets.map((target, index) => (
+                <ListItem key={index}>{target}</ListItem>
               ))}
             </List>
           </DescriptionListDescription>
@@ -80,10 +77,20 @@ export const Review: React.FunctionComponent<IReview> = ({
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>Included packages</DescriptionListTerm>
-          <DescriptionListDescription id="packages">
+          <DescriptionListDescription id="included-packages">
             <List isPlain>
-              {includedPackages.map((pkg) => (
-                <ListItem key={pkg}>{pkg}</ListItem>
+              {includedPackages.map((pkg, index) => (
+                <ListItem key={index}>{pkg}</ListItem>
+              ))}
+            </List>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Excluded packages</DescriptionListTerm>
+          <DescriptionListDescription id="excluded-packages">
+            <List isPlain>
+              {excludedPackages.map((pkg, index) => (
+                <ListItem key={index}>{pkg}</ListItem>
               ))}
             </List>
           </DescriptionListDescription>
@@ -92,8 +99,8 @@ export const Review: React.FunctionComponent<IReview> = ({
           <DescriptionListTerm>Custom rules</DescriptionListTerm>
           <DescriptionListDescription id="rules">
             <List isPlain>
-              {customRules.map((rule) => (
-                <ListItem key={rule}>{rule}</ListItem>
+              {customRules.map((rule, index) => (
+                <ListItem key={index}>{rule}</ListItem>
               ))}
             </List>
           </DescriptionListDescription>
