@@ -68,9 +68,9 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       defaultValues: {
         mode: "Binary",
         targets: [],
-        scope: "depsOnly",
-        includedPackages: [],
-        excludedPackages: [],
+        scope: "",
+        includedPackages: [""],
+        excludedPackages: [""],
         customRules: [],
       },
     });
@@ -82,10 +82,18 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       data: {
         ...defaultTaskData,
         application: application.id || 0,
-        path: "/",
+        path: "",
         mode: {
           binary: data.mode.includes("Binary"),
           withDeps: data.mode.includes("dependencies"),
+        },
+        targets: data.targets,
+        scope: {
+          withKnown: data.scope.includes("depsAll") ? true : false,
+          packages: {
+            included: data.includedPackages,
+            excluded: data.excludedPackages,
+          },
         },
       },
     };
@@ -155,6 +163,8 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       nextButtonText: "Run",
     },
   ];
+
+  console.log(watch());
 
   return (
     <Wizard
