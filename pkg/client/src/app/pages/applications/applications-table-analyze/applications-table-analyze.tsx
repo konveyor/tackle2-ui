@@ -343,6 +343,17 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         },
       },
       {
+        title: "Manage credentials",
+        onClick: (
+          event: React.MouseEvent,
+          rowIndex: number,
+          rowData: IRowData
+        ) => {
+          const row: Application = getRow(rowData);
+          openCredentialsModal(row);
+        },
+      },
+      {
         title: t("actions.delete"),
         onClick: (
           event: React.MouseEvent,
@@ -408,6 +419,13 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         },
       })
     );
+  };
+
+  const handleOnApplicationIdentityUpdated = (
+    response: AxiosResponse<Application>
+  ) => {
+    closeCredentialsModal();
+    refreshTable();
   };
 
   // Toolbar actions
@@ -570,16 +588,13 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         title="Manage credentials"
         onClose={closeCredentialsModal}
       >
-        {/* {applicationToManageCredentials && (
+        {applicationToManageCredentials && (
           <ApplicationIdentityForm
             application={applicationToManageCredentials}
-            onSaved={() => {
-              closeCredentialsModal();
-              refreshTable();
-            }}
+            onSaved={handleOnApplicationIdentityUpdated}
             onCancel={closeCredentialsModal}
           />
-        )} */}
+        )}
       </Modal>
     </>
   );
