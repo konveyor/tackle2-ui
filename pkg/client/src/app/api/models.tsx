@@ -356,3 +356,10 @@ interface TaskReport {
   total: number;
   updateUser: string;
 }
+
+export interface Rule {
+  name: string;
+  source: string;
+  target: string;
+  total: number;
+}
