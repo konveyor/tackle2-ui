@@ -32,10 +32,10 @@ import {
   getValidatedFromError,
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
+import schema from "./schema.xsd";
 import "./identity-form.css";
 const xmllint = require("xmllint");
 const { XMLValidator } = require("fast-xml-parser");
-import schema from "./schema.xsd";
 
 export interface FormValues {
   application: number;
@@ -107,7 +107,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     }
   };
   const kindInitialValue = useMemo(() => {
-    return identity && identity.kind
+    return identity?.kind
       ? getKindInitialValue(identity.kind)
       : { value: "", toString: () => "" };
   }, [identity]);
@@ -130,16 +130,14 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     userCredentials: userCredentialsInitialValue,
     name: identity?.name || "",
     password: identity?.password || "",
-    settings: identity?.settings || "",
+    settings: identity?.encrypted ? "[Encrypted]" : "",
     updateUser: identity?.updateUser || "",
     user: identity?.user || "",
     keyFilename: "",
-    settingsFilename: identity?.encrypted
-      ? "Settings.xml - (File contents hidden)"
-      : "",
+    settingsFilename: identity?.settings || "",
   };
 
-  const validationSchema = object().shape({
+  const validationSchema = object({
     name: string()
       .trim()
       .required(t("validation.required"))
@@ -386,7 +384,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   },
                   {
                     value: "scm",
-                    toString: () => `source Private Key/Passphrase`,
+                    toString: () => `Source Private Key/Passphrase`,
                   },
                 ]}
                 toOptionWithValue={(value) => {
@@ -565,7 +563,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 isLoading={isLoading}
                 allowEditingUploadedText
                 browseButtonText="Upload"
-                hideDefaultPreview={!!formik.values.encrypted}
               />
             </FormGroup>
           </>
