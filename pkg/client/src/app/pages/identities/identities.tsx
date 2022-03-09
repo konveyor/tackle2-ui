@@ -82,8 +82,9 @@ export const Identities: React.FunctionComponent = () => {
   }
 
   const typeOptions: Array<ITypeOptions> = [
-    { key: "scm", value: "Source Control" },
-    { key: "mvn", value: "Maven Settings File" },
+    { key: "source", value: "Source Control" },
+    { key: "maven", value: "Maven Settings File" },
+    { key: "proxy", value: "Proxy" },
   ];
   const filterCategories: FilterCategory<Identity>[] = [
     {
