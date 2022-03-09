@@ -2,6 +2,7 @@ import React from "react";
 
 import {
   BusinessService,
+  Identity,
   JobFunction,
   Ref,
   Stakeholder,
@@ -34,6 +35,21 @@ export const toIBusinessServiceDropdownOptionWithValue = (
 ): OptionWithValue<IBusinessServiceDropdown> => ({
   value,
   toString: () => value.name,
+});
+
+// Identity dropdown
+export interface IdentityDropdown extends Pick<Identity, "id" | "name"> {}
+
+export const toIdentityDropdown = (value: Identity): IdentityDropdown => ({
+  id: value.id,
+  name: value.name,
+});
+
+export const toIdentityDropdownOptionWithValue = (
+  value: IdentityDropdown
+): OptionWithValue<IdentityDropdown> => ({
+  value,
+  toString: () => value?.name || "",
 });
 
 // Stakeholder dropdown

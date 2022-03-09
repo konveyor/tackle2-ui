@@ -48,7 +48,6 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationForm } from "../components/application-form";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
-import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm";
 import { ApplicationListExpandedAreaAnalysis } from "../components/application-list-expanded-area/application-list-expanded-area-analysis";
 import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
@@ -60,6 +59,7 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
+import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 
 const ENTITY_FIELD = "entity";
 
@@ -570,8 +570,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         title="Manage credentials"
         onClose={closeCredentialsModal}
       >
-        {applicationToManageCredentials && (
-          <ApplicationsIdentityForm
+        {/* {applicationToManageCredentials && (
+          <ApplicationIdentityForm
             application={applicationToManageCredentials}
             onSaved={() => {
               closeCredentialsModal();
@@ -579,7 +579,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             }}
             onCancel={closeCredentialsModal}
           />
-        )}
+        )} */}
       </Modal>
     </>
   );

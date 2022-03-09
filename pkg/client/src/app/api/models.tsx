@@ -86,6 +86,7 @@ export interface Application {
   businessService?: Ref;
   tags?: Ref[];
   review?: Review;
+  identities?: Ref[];
 }
 
 export interface Review {

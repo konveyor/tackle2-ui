@@ -81,8 +81,8 @@ import { ApplicationBusinessService } from "../components/application-business-s
 import { ApplicationListExpandedArea } from "../components/application-list-expanded-area";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
-import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 
 const ENTITY_FIELD = "entity";
 
@@ -632,6 +632,14 @@ export const ApplicationsTable: React.FC = () => {
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState([], 10);
   //
+
+  const handleOnApplicationIdentityUpdated = (
+    response: AxiosResponse<Application>
+  ) => {
+    closeCredentialsModal();
+    refreshTable();
+  };
+
   return (
     <>
       <ConditionalRender
@@ -843,12 +851,9 @@ export const ApplicationsTable: React.FC = () => {
         onClose={closeCredentialsModal}
       >
         {applicationToManageCredentials && (
-          <ApplicationsIdentityForm
+          <ApplicationIdentityForm
             application={applicationToManageCredentials}
-            onSaved={() => {
-              closeCredentialsModal();
-              refreshTable();
-            }}
+            onSaved={handleOnApplicationIdentityUpdated}
             onCancel={closeCredentialsModal}
           />
         )}
