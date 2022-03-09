@@ -211,12 +211,16 @@ export const ApplicationsTable: React.FC = () => {
     close: closeDependenciesModal,
   } = useEntityModal<Application>();
 
+  // Credentials modal
+  const {
+    isOpen: isCredentialsModalOpen,
+    data: applicationToManageCredentials,
+    update: openCredentialsModal,
+    close: closeCredentialsModal,
+  } = useEntityModal<Application>();
+
   // Application import modal
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    useState(false);
-
-  // Application identity modal
-  const [isApplicationCredsModalOpenset, setIsApplicationCredsModalOpen] =
     useState(false);
 
   // Table's assessments
@@ -418,6 +422,17 @@ export const ApplicationsTable: React.FC = () => {
         ) => {
           const row: Application = getRow(rowData);
           openDependenciesModal(row);
+        },
+      },
+      {
+        title: "Manage credentials",
+        onClick: (
+          event: React.MouseEvent,
+          rowIndex: number,
+          rowData: IRowData
+        ) => {
+          const row: Application = getRow(rowData);
+          openCredentialsModal(row);
         },
       },
       {
@@ -707,7 +722,7 @@ export const ApplicationsTable: React.FC = () => {
                       <DropdownItem
                         key="manage-application-credentials"
                         isDisabled={selectedRows.length < 1}
-                        onClick={() => setIsApplicationCredsModalOpen(true)}
+                        onClick={() => true}
                       >
                         {t("actions.manageCredentials")}
                       </DropdownItem>,
@@ -822,19 +837,21 @@ export const ApplicationsTable: React.FC = () => {
       </Modal>
 
       <Modal
-        isOpen={isApplicationCredsModalOpenset}
+        isOpen={isCredentialsModalOpen}
         variant="medium"
-        title={t("actions.manageCredentials")}
-        onClose={() => setIsApplicationCredsModalOpen((current) => !current)}
+        title="Manage credentials"
+        onClose={closeCredentialsModal}
       >
-        <ApplicationsIdentityForm
-          selectedApplications={selectedRows}
-          onSaved={() => {
-            setIsApplicationCredsModalOpen(false);
-            refreshTable();
-          }}
-          onCancel={() => setIsApplicationCredsModalOpen(false)}
-        />
+        {applicationToManageCredentials && (
+          <ApplicationsIdentityForm
+            application={applicationToManageCredentials}
+            onSaved={() => {
+              closeCredentialsModal();
+              refreshTable();
+            }}
+            onCancel={closeCredentialsModal}
+          />
+        )}
       </Modal>
     </>
   );

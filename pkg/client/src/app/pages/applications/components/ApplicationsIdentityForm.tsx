@@ -17,22 +17,19 @@ import { alertActions } from "@app/store/alert";
 
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Application } from "@app/api/models";
+import { c_options_menu__toggle_active_BorderBottomColor } from "@patternfly/react-tokens";
 
 export interface ApplicationsIdentityFormProps {
-  selectedApplications: Application[];
+  application: Application;
   onSaved: (response: AxiosResponse) => void;
   onCancel: () => void;
 }
 
 export const ApplicationsIdentityForm: React.FC<
   ApplicationsIdentityFormProps
-> = ({ selectedApplications, onSaved, onCancel }) => {
+> = ({ application, onSaved, onCancel }) => {
   const { t } = useTranslation();
-
-  const selectedApplicationsNames = selectedApplications
-    .reduce((names, app) => names.concat(app.name + ", "), "")
-    .slice(0, -2);
-
+  console.log("apps", application);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<AxiosError>();
 
@@ -72,7 +69,7 @@ export const ApplicationsIdentityForm: React.FC<
     <Form>
       {error && <Alert variant="danger" title={getAxiosErrorMessage(error)} />}
       <TextInput
-        value={selectedApplicationsNames}
+        value={application.name}
         type="text"
         aria-label="Manage credentials selected applications"
         isReadOnly

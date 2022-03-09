@@ -202,6 +202,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     close: closeDependenciesModal,
   } = useEntityModal<Application>();
 
+  // Credentials modal
+  const {
+    isOpen: isCredentialsModalOpen,
+    data: applicationToManageCredentials,
+    update: openCredentialsModal,
+    close: closeCredentialsModal,
+  } = useEntityModal<Application>();
+
   // Application import modal
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     useState(false);
@@ -557,19 +565,21 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       </Modal>
 
       <Modal
-        isOpen={isApplicationCredsModalOpenset}
+        isOpen={isCredentialsModalOpen}
         variant="medium"
-        title={t("actions.manageCredentials")}
-        onClose={() => setIsApplicationCredsModalOpen((current) => !current)}
+        title="Manage credentials"
+        onClose={closeCredentialsModal}
       >
-        <ApplicationsIdentityForm
-          selectedApplications={selectedRows}
-          onSaved={() => {
-            setIsApplicationCredsModalOpen(false);
-            refreshTable();
-          }}
-          onCancel={() => setIsApplicationCredsModalOpen(false)}
-        />
+        {applicationToManageCredentials && (
+          <ApplicationsIdentityForm
+            application={applicationToManageCredentials}
+            onSaved={() => {
+              closeCredentialsModal();
+              refreshTable();
+            }}
+            onCancel={closeCredentialsModal}
+          />
+        )}
       </Modal>
     </>
   );

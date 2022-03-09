@@ -44,6 +44,13 @@ export const ApplicationAssessmentPageHeader: React.FC<
     close: closeDependenciesModal,
   } = useEntityModal<Application>();
 
+  const {
+    isOpen: isCredentialsModalOpen,
+    data: applicationToManageCredentials,
+    update: openCredentialsModal,
+    close: closecredentialsModal,
+  } = useEntityModal<Application>();
+
   return (
     <>
       <PageHeader
@@ -74,13 +81,24 @@ export const ApplicationAssessmentPageHeader: React.FC<
           },
         ]}
         btnActions={
-          <>
-            {application && (
-              <Button onClick={() => openDependenciesModal(application)}>
-                {t("actions.manageDependencies")}
-              </Button>
-            )}
-          </>
+          ((
+            <>
+              {application && (
+                <Button onClick={() => openDependenciesModal(application)}>
+                  {t("actions.manageDependencies")}
+                </Button>
+              )}
+            </>
+          ),
+          (
+            <>
+              {application && (
+                <Button onClick={() => openCredentialsModal(application)}>
+                  Manage credentials
+                </Button>
+              )}
+            </>
+          ))
         }
         menuActions={[]}
       />
@@ -93,6 +111,12 @@ export const ApplicationAssessmentPageHeader: React.FC<
         })}
         onClose={closeDependenciesModal}
       >
+        {applicationToManageDependencies && (
+          <ApplicationDependenciesFormContainer
+            application={applicationToManageDependencies}
+            onCancel={closeDependenciesModal}
+          />
+        )}
         {applicationToManageDependencies && (
           <ApplicationDependenciesFormContainer
             application={applicationToManageDependencies}
