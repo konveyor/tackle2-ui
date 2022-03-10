@@ -34,11 +34,6 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
     fetchIdentities();
   }, [fetchIdentities]);
 
-  // const hasSourceCredentials = application?.identities.some(
-  //   (i) => {
-  //     i.kind === "source"
-  //   }
-  // );
   let matchingSourceCredsRef;
   if (identities) {
     matchingSourceCredsRef = getKindIDByRef(identities, application, "source");

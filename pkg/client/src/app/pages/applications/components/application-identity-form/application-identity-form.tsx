@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import axios, { AxiosError, AxiosPromise, AxiosResponse } from "axios";
+import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -15,7 +15,6 @@ import {
 import { useDispatch } from "react-redux";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Application, Identity, Ref } from "@app/api/models";
-import { c_options_menu__toggle_active_BorderBottomColor } from "@patternfly/react-tokens";
 import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
@@ -25,7 +24,7 @@ import {
   toIdentityDropdown,
   toIdentityDropdownOptionWithValue,
 } from "@app/utils/model-utils";
-import { useFormik, FormikProvider, FormikHelpers } from "formik";
+import { useFormik, FormikProvider } from "formik";
 import {
   APPLICATION_NAME,
   MAVEN_SETTINGS,
@@ -53,15 +52,7 @@ export const ApplicationIdentityForm: React.FC<
   console.log("apps", applications);
   const [error, setError] = useState<AxiosError>();
 
-  // Redux
-  const dispatch = useDispatch();
-
-  const {
-    identities,
-    isFetching,
-    fetchError: fetchErrorIdentities,
-    fetchIdentities,
-  } = useFetchIdentities();
+  const { identities, fetchIdentities } = useFetchIdentities();
 
   useEffect(() => {
     fetchIdentities();
@@ -166,16 +157,11 @@ export const ApplicationIdentityForm: React.FC<
     enableReinitialize: true,
     initialValues: initialValues,
     validationSchema: validationSchema({
-      [APPLICATION_NAME]: true,
       [SOURCE_CREDENTIALS]: true,
-      [MAVEN_SETTINGS]: true,
+      [MAVEN_SETTINGS]: false,
     }),
     onSubmit: onSubmit,
   });
-
-  const onChangeField = (value: string, event: React.FormEvent<any>) => {
-    formik.handleChange(event);
-  };
 
   return (
     <FormikProvider value={formik}>
@@ -214,7 +200,7 @@ export const ApplicationIdentityForm: React.FC<
             toOptionWithValue={toIdentityDropdownOptionWithValue}
           />
         </FormGroup>
-        <FormGroup label="Maven settings" isRequired fieldId={MAVEN_SETTINGS}>
+        <FormGroup label="Maven settings" fieldId={MAVEN_SETTINGS}>
           <SingleSelectFetchOptionValueFormikField
             fieldConfig={{ name: MAVEN_SETTINGS }}
             selectConfig={{
