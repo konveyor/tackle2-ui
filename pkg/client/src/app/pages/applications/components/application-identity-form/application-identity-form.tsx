@@ -7,17 +7,19 @@ import {
   Alert,
   Button,
   ButtonVariant,
+  Card,
   Form,
   FormGroup,
   TextInput,
+  Text,
 } from "@patternfly/react-core";
-
-import { useDispatch } from "react-redux";
+import { WarningTriangleIcon } from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Application, Identity, Ref } from "@app/api/models";
 import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import {
   getKindIDByRef,
   IdentityDropdown,
@@ -163,6 +165,18 @@ export const ApplicationIdentityForm: React.FC<
     onSubmit: onSubmit,
   });
 
+  useEffect(() => {
+    if (identities && applications) {
+      const isExistingSourceCreds = applications.some((app) => {
+        return getKindIDByRef(identities, app, "source");
+      });
+      const isExistingMavenCreds = applications.some((app) => {
+        return getKindIDByRef(identities, app, "maven");
+      });
+      setExistingIdentitiesError(isExistingMavenCreds || isExistingSourceCreds);
+    }
+  }, [identities, formik.values]);
+  const [existingIdentitiesError, setExistingIdentitiesError] = useState(false);
   return (
     <FormikProvider value={formik}>
       <Form>
@@ -221,6 +235,18 @@ export const ApplicationIdentityForm: React.FC<
             toOptionWithValue={toIdentityDropdownOptionWithValue}
           />
         </FormGroup>
+        <>
+          {existingIdentitiesError && (
+            <>
+              <Text>
+                <WarningTriangleIcon className={spacing.mrSm} color="orange" />
+                One or more of the selected applications have already been
+                assigned credentials. Any changes made will override the
+                existing values.
+              </Text>
+            </>
+          )}
+        </>
         <ActionGroup>
           <Button
             type="submit"
