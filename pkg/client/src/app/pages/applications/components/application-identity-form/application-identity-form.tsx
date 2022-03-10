@@ -14,7 +14,7 @@ import {
 
 import { useDispatch } from "react-redux";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { Application, Ref } from "@app/api/models";
+import { Application, Identity, Ref } from "@app/api/models";
 import { c_options_menu__toggle_active_BorderBottomColor } from "@patternfly/react-tokens";
 import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
@@ -69,48 +69,61 @@ export const ApplicationIdentityForm: React.FC<
 
   // Actions
 
-  const onSubmit = (
-    formValues: FormValues
-    // formikHelpers: FormikHelpers<FormValues>
-  ) => {
-    console.log("submit");
-    // const doesMavenSettingExist = application.identities?.some(
-    //   (i) => i.id === formValues.mavenSettings.id
-    // );
-    // const doesSourceSettingExist = application.identities?.some(
-    //   (i) => i.id === formValues.sourceCredentials.id
-    // );
-    // let updatedIdentities: Ref[] = [];
-    // if (application.identities) {
-    //   const identitiesCopy: Ref[] = [...application.identities];
-    //   updatedIdentities = [
-    //     ...identitiesCopy,
-    //     ...(!doesSourceSettingExist ? [formValues.sourceCredentials] : []),
-    //     ...(!doesMavenSettingExist ? [formValues.mavenSettings] : []),
-    //   ];
-    // }
-    // if (updatedIdentities.length && application) {
-    //   const payload: Application = {
-    //     name: formValues.applicationName.trim(),
-    //     identities: updatedIdentities,
-    //     id: application.id,
-    //     businessService: application.businessService,
-    //   };
-    //   let promise: AxiosPromise<Application>;
-    //   promise = updateApplication({
-    //     ...payload,
-    //   });
-    //   promise
-    //     .then((response) => {
-    //       formik.setSubmitting(false);
-    //       onSaved(response);
-    //     })
-    //     .catch((error) => {
-    //       formik.setSubmitting(false);
-    //       setError(error);
-    //     });
-    // }
+  const onSubmit = (formValues: FormValues) => {
+    let updatePromises: Array<AxiosPromise<Application>> = [];
+    applications.forEach((application) => {
+      let updatedIdentities: Ref[] = [];
+      if (application.identities && identities) {
+        let newSourceCredentials;
+        const { sourceCredentials } = formValues;
+        if (sourceCredentials.id) {
+          newSourceCredentials = sourceCredentials;
+          updatedIdentities.push(newSourceCredentials);
+        }
+        let newMavenSettings;
+        const { mavenSettings } = formValues;
+        if (mavenSettings.id) {
+          newMavenSettings = mavenSettings;
+          updatedIdentities.push(newMavenSettings);
+        }
+      }
+      if (application) {
+        const payload: Application = {
+          name: application.name,
+          identities: updatedIdentities,
+          id: application.id,
+          businessService: application.businessService,
+        };
+        let promise: AxiosPromise<Application>;
+        promise = updateApplication({
+          ...payload,
+        });
+        updatePromises.push(promise);
+      }
+    });
+    Promise.all(updatePromises)
+      .then((response) => {
+        formik.setSubmitting(false);
+        //All promises resolved successfully
+        onSaved(response[0]);
+      })
+      .catch((error) => {
+        //One or many promises failed
+        formik.setSubmitting(false);
+        setError(error);
+      });
   };
+  const emptyIdentity = { id: 0, name: "None", kind: "", createUser: "" };
+
+  let mavenIdentityOptions: Identity[] =
+    identities?.filter((i) => i.kind === "maven") || [];
+  mavenIdentityOptions.unshift(emptyIdentity);
+  mavenIdentityOptions.map(toIdentityDropdown);
+
+  let sourceIdentityOptions: Identity[] =
+    identities?.filter((i) => i.kind === "source") || [];
+  sourceIdentityOptions.unshift(emptyIdentity);
+  sourceIdentityOptions.map(toIdentityDropdown);
 
   const sourceCredentialsInitialValue = useMemo(() => {
     let result: IdentityDropdown = { id: 0, name: "" };
@@ -118,6 +131,8 @@ export const ApplicationIdentityForm: React.FC<
       const matchingID = getKindIDByRef(identities, applications[0], "source");
       if (matchingID) {
         result = toIdentityDropdown(matchingID);
+      } else {
+        result = emptyIdentity;
       }
     }
     return result;
@@ -129,6 +144,8 @@ export const ApplicationIdentityForm: React.FC<
       const matchingID = getKindIDByRef(identities, applications[0], "maven");
       if (matchingID) {
         result = toIdentityDropdown(matchingID);
+      } else {
+        result = emptyIdentity;
       }
     }
     return result;
@@ -193,9 +210,7 @@ export const ApplicationIdentityForm: React.FC<
               fetchError: undefined,
               isFetching: false,
             }}
-            options={(identities?.filter((i) => i.kind === "source") || []).map(
-              toIdentityDropdown
-            )}
+            options={sourceIdentityOptions}
             toOptionWithValue={toIdentityDropdownOptionWithValue}
           />
         </FormGroup>
@@ -216,9 +231,7 @@ export const ApplicationIdentityForm: React.FC<
               fetchError: undefined,
               isFetching: false,
             }}
-            options={(identities?.filter((i) => i.kind === "maven") || []).map(
-              toIdentityDropdown
-            )}
+            options={mavenIdentityOptions}
             toOptionWithValue={toIdentityDropdownOptionWithValue}
           />
         </FormGroup>
