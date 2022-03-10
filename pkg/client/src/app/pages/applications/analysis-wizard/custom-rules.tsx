@@ -59,7 +59,7 @@ export const CustomRules: React.FunctionComponent = () => {
       if (ruleSets && ruleSets.length > 0) {
         const metadata = ruleSets[0].getElementsByTagName("metadata");
 
-        if (metadata) {
+        if (metadata && metadata.length > 0) {
           const sources = metadata[0].getElementsByTagName("sourceTechnology");
           if (sources && sources.length > 0) source = sources[0].id;
 
