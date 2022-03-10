@@ -41,16 +41,16 @@ export interface FormValues {
 }
 
 export interface ApplicationIdentityFormProps {
-  application: Application;
+  applications: Application[];
   onSaved: (response: AxiosResponse) => void;
   onCancel: () => void;
 }
 
 export const ApplicationIdentityForm: React.FC<
   ApplicationIdentityFormProps
-> = ({ application, onSaved, onCancel }) => {
+> = ({ applications, onSaved, onCancel }) => {
   const { t } = useTranslation();
-  console.log("apps", application);
+  console.log("apps", applications);
   const [error, setError] = useState<AxiosError>();
 
   // Redux
@@ -73,70 +73,74 @@ export const ApplicationIdentityForm: React.FC<
     formValues: FormValues
     // formikHelpers: FormikHelpers<FormValues>
   ) => {
-    debugger;
     console.log("submit");
-    const doesMavenSettingExist = application.identities?.some(
-      (i) => i.id === formValues.mavenSettings.id
-    );
-    const doesSourceSettingExist = application.identities?.some(
-      (i) => i.id === formValues.sourceCredentials.id
-    );
-    let updatedIdentities: Ref[] = [];
-    if (application.identities) {
-      const identitiesCopy: Ref[] = [...application.identities];
-      updatedIdentities = [
-        ...identitiesCopy,
-        ...(!doesSourceSettingExist ? [formValues.sourceCredentials] : []),
-        ...(!doesMavenSettingExist ? [formValues.mavenSettings] : []),
-      ];
-    }
-    if (updatedIdentities.length && application) {
-      const payload: Application = {
-        name: formValues.applicationName.trim(),
-        identities: updatedIdentities,
-        id: application.id,
-        businessService: application.businessService,
-      };
-      let promise: AxiosPromise<Application>;
-      promise = updateApplication({
-        ...payload,
-      });
-      promise
-        .then((response) => {
-          formik.setSubmitting(false);
-          onSaved(response);
-        })
-        .catch((error) => {
-          formik.setSubmitting(false);
-          setError(error);
-        });
-    }
+    // const doesMavenSettingExist = application.identities?.some(
+    //   (i) => i.id === formValues.mavenSettings.id
+    // );
+    // const doesSourceSettingExist = application.identities?.some(
+    //   (i) => i.id === formValues.sourceCredentials.id
+    // );
+    // let updatedIdentities: Ref[] = [];
+    // if (application.identities) {
+    //   const identitiesCopy: Ref[] = [...application.identities];
+    //   updatedIdentities = [
+    //     ...identitiesCopy,
+    //     ...(!doesSourceSettingExist ? [formValues.sourceCredentials] : []),
+    //     ...(!doesMavenSettingExist ? [formValues.mavenSettings] : []),
+    //   ];
+    // }
+    // if (updatedIdentities.length && application) {
+    //   const payload: Application = {
+    //     name: formValues.applicationName.trim(),
+    //     identities: updatedIdentities,
+    //     id: application.id,
+    //     businessService: application.businessService,
+    //   };
+    //   let promise: AxiosPromise<Application>;
+    //   promise = updateApplication({
+    //     ...payload,
+    //   });
+    //   promise
+    //     .then((response) => {
+    //       formik.setSubmitting(false);
+    //       onSaved(response);
+    //     })
+    //     .catch((error) => {
+    //       formik.setSubmitting(false);
+    //       setError(error);
+    //     });
+    // }
   };
 
   const sourceCredentialsInitialValue = useMemo(() => {
     let result: IdentityDropdown = { id: 0, name: "" };
-    if (application && identities) {
-      const matchingID = getKindIDByRef(identities, application, "source");
+    if (applications && identities) {
+      const matchingID = getKindIDByRef(identities, applications[0], "source");
       if (matchingID) {
         result = toIdentityDropdown(matchingID);
       }
     }
     return result;
-  }, [identities, application]);
+  }, [identities, applications]);
 
   const mavenSettingsInitialValue = useMemo(() => {
     let result: IdentityDropdown = { id: 0, name: "" };
-    if (application && identities) {
-      const matchingID = getKindIDByRef(identities, application, "maven");
+    if (applications && identities) {
+      const matchingID = getKindIDByRef(identities, applications[0], "maven");
       if (matchingID) {
         result = toIdentityDropdown(matchingID);
       }
     }
     return result;
-  }, [identities, application]);
+  }, [identities, applications]);
+
+  const getApplicationNames = (applications: Application[]) => {
+    const listOfNames = applications.map((app: Application) => app.name);
+    return listOfNames.join(", ");
+  };
 
   const initialValues: FormValues = {
-    [APPLICATION_NAME]: application?.name || "",
+    [APPLICATION_NAME]: getApplicationNames(applications) || "",
     [SOURCE_CREDENTIALS]: sourceCredentialsInitialValue,
     [MAVEN_SETTINGS]: mavenSettingsInitialValue,
   };
@@ -163,7 +167,7 @@ export const ApplicationIdentityForm: React.FC<
           <Alert variant="danger" title={getAxiosErrorMessage(error)} />
         )}
         <TextInput
-          value={application.name}
+          value={formik.values.applicationName}
           type="text"
           aria-label="Manage credentials selected applications"
           isReadOnly

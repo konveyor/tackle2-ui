@@ -217,7 +217,7 @@ export const ApplicationsTable: React.FC = () => {
     data: applicationToManageCredentials,
     update: openCredentialsModal,
     close: closeCredentialsModal,
-  } = useEntityModal<Application>();
+  } = useEntityModal<Application[]>();
 
   // Application import modal
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
@@ -432,7 +432,9 @@ export const ApplicationsTable: React.FC = () => {
           rowData: IRowData
         ) => {
           const row: Application = getRow(rowData);
-          openCredentialsModal(row);
+          const applicationsList = [];
+          applicationsList.push(row);
+          openCredentialsModal(applicationsList);
         },
       },
       {
@@ -730,7 +732,10 @@ export const ApplicationsTable: React.FC = () => {
                       <DropdownItem
                         key="manage-application-credentials"
                         isDisabled={selectedRows.length < 1}
-                        onClick={() => true}
+                        onClick={() => {
+                          debugger;
+                          openCredentialsModal(selectedRows);
+                        }}
                       >
                         {t("actions.manageCredentials")}
                       </DropdownItem>,
@@ -852,7 +857,7 @@ export const ApplicationsTable: React.FC = () => {
       >
         {applicationToManageCredentials && (
           <ApplicationIdentityForm
-            application={applicationToManageCredentials}
+            applications={applicationToManageCredentials}
             onSaved={handleOnApplicationIdentityUpdated}
             onCancel={closeCredentialsModal}
           />

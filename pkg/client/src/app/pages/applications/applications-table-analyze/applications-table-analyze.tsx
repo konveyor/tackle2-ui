@@ -208,14 +208,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     data: applicationToManageCredentials,
     update: openCredentialsModal,
     close: closeCredentialsModal,
-  } = useEntityModal<Application>();
+  } = useEntityModal<Application[]>();
 
   // Application import modal
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    useState(false);
-
-  // Application identity modal
-  const [isApplicationCredsModalOpenset, setIsApplicationCredsModalOpen] =
     useState(false);
 
   // Expand, select rows
@@ -349,8 +345,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           rowIndex: number,
           rowData: IRowData
         ) => {
+          debugger;
           const row: Application = getRow(rowData);
-          openCredentialsModal(row);
+          const applicationsList = [];
+          applicationsList.push(row);
+          openCredentialsModal(applicationsList);
         },
       },
       {
@@ -503,7 +502,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                       <DropdownItem
                         key="manage-application-credentials"
                         isDisabled={selectedRows.length < 1}
-                        onClick={() => setIsApplicationCredsModalOpen(true)}
+                        onClick={() => openCredentialsModal(selectedRows)}
                       >
                         {t("actions.manageCredentials")}
                       </DropdownItem>,
@@ -590,7 +589,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       >
         {applicationToManageCredentials && (
           <ApplicationIdentityForm
-            application={applicationToManageCredentials}
+            applications={applicationToManageCredentials}
             onSaved={handleOnApplicationIdentityUpdated}
             onCancel={closeCredentialsModal}
           />
