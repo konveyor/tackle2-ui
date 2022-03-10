@@ -1,6 +1,7 @@
 import React from "react";
 
 import {
+  Application,
   BusinessService,
   Identity,
   JobFunction,
@@ -176,3 +177,20 @@ export function toISimpleOptionDropdownWithValue<T>(
     toString: () => value.name,
   };
 }
+
+export const getKindIDByRef = (
+  identities: Identity[],
+  application: Application,
+  kind: string
+) => {
+  const matchingIdentity = identities.find((i) => {
+    let matchingID;
+    application?.identities?.forEach((appIdentity) => {
+      if (appIdentity.id === i.id && i.kind === kind) {
+        matchingID = appIdentity;
+      }
+    });
+    return matchingID;
+  });
+  return matchingIdentity;
+};

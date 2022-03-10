@@ -20,6 +20,7 @@ import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components"
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
 import {
+  getKindIDByRef,
   IdentityDropdown,
   toIdentityDropdown,
   toIdentityDropdownOptionWithValue,
@@ -115,18 +116,9 @@ export const ApplicationIdentityForm: React.FC<
   const sourceCredentialsInitialValue = useMemo(() => {
     let result: IdentityDropdown = { id: 0, name: "" };
     if (application && identities) {
-      const matchingSourceIdentity = identities.find((i) => {
-        let matchingID;
-        application?.identities?.forEach((appIdentity) => {
-          if (appIdentity.id === i.id && i.kind === "source") {
-            matchingID = appIdentity;
-          }
-        });
-        return matchingID;
-      });
-
-      if (matchingSourceIdentity) {
-        result = toIdentityDropdown(matchingSourceIdentity);
+      const matchingID = getKindIDByRef(identities, application, "source");
+      if (matchingID) {
+        result = toIdentityDropdown(matchingID);
       }
     }
     return result;
@@ -135,17 +127,9 @@ export const ApplicationIdentityForm: React.FC<
   const mavenSettingsInitialValue = useMemo(() => {
     let result: IdentityDropdown = { id: 0, name: "" };
     if (application && identities) {
-      const matchingMavenIdentity = identities.find((i) => {
-        let matchingID;
-        application?.identities?.forEach((appIdentity) => {
-          if (appIdentity.id === i.id && i.kind === "maven") {
-            matchingID = appIdentity;
-          }
-        });
-        return matchingID;
-      });
-      if (matchingMavenIdentity) {
-        result = toIdentityDropdown(matchingMavenIdentity);
+      const matchingID = getKindIDByRef(identities, application, "maven");
+      if (matchingID) {
+        result = toIdentityDropdown(matchingID);
       }
     }
     return result;
