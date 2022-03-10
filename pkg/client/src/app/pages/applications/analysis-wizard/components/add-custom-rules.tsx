@@ -15,26 +15,31 @@ import {
 import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
+import { XMLValidator } from "fast-xml-parser";
 
-interface readFile {
+import XSDSchema from "./windup-jboss-ruleset.xsd";
+
+const xmllint = require("xmllint");
+
+export interface readFile {
   fileName: string;
   data?: string;
   loadResult?: "danger" | "success";
   loadError?: DOMException;
 }
+
 interface IAddCustomRules {
-  currentFiles: File[];
-  setCurrentFiles: React.Dispatch<React.SetStateAction<File[]>>;
+  readFileData: readFile[];
+  setReadFileData: React.Dispatch<React.SetStateAction<readFile[]>>;
 }
 
 export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
-  currentFiles,
-  setCurrentFiles,
+  readFileData,
+  setReadFileData,
 }) => {
-  const [readFileData, setReadFileData] = React.useState<readFile[]>([]);
+  const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
   const [showStatus, setShowStatus] = React.useState(false);
   const [modalText, setModalText] = React.useState("");
-  console.log("showStatus:", showStatus);
 
   // only show the status component once a file has been uploaded, but keep the status list component itself even if all files are removed
   if (!showStatus && currentFiles.length > 0) {
@@ -71,16 +76,43 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
     setReadFileData(newReadFiles);
   };
 
-  // callback that will be called by the react dropzone with the newly dropped file objects
+  const isSchemaValid = (value: string) => {
+    const validationResult = xmllint.xmllint.validateXML({
+      xml: value,
+      schema: XSDSchema,
+    });
+
+    if (!validationResult.errors) return true;
+    return false;
+  };
+
+  const validateXMLFile = (data: string) => {
+    // Filter out "data:text/xml;base64," from data
+    const payload = atob(data.substring(21));
+
+    let isXML = false;
+    let isXSD = false;
+
+    const validationObject = XMLValidator.validate(payload, {
+      allowBooleanAttributes: true,
+    });
+
+    if (validationObject === true) {
+      isXML = true;
+      if (isSchemaValid(payload)) {
+        isXSD = true;
+      }
+    }
+    console.log("XML :", isXML);
+    console.log("XSD :", isXSD);
+  };
+
   const handleFileDrop = (droppedFiles: File[]) => {
-    // identify what, if any, files are re-uploads of already uploaded files
     const currentFileNames = currentFiles.map((file) => file.name);
     const reUploads = droppedFiles.filter((droppedFile) =>
       currentFileNames.includes(droppedFile.name)
     );
 
-    /** this promise chain is needed because if the file removal is done at the same time as the file adding react
-     * won't realize that the status items for the re-uploaded files needs to be re-rendered */
     Promise.resolve()
       .then(() => removeFiles(reUploads.map((file) => file.name)))
       .then(() =>
@@ -88,8 +120,9 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
       );
   };
 
-  // callback called by the status item when a file is successfully read with the built-in file reader
   const handleReadSuccess = (data: string, file: File) => {
+    validateXMLFile(data);
+
     setReadFileData((prevReadFiles) => [
       ...prevReadFiles,
       { data, fileName: file.name, loadResult: "success" },
