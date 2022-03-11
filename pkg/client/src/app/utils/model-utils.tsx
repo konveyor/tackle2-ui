@@ -19,21 +19,6 @@ interface IModel {
 
 export const isIModelEqual = (a: IModel, b: IModel) => a.id === b.id;
 
-// Identity dropdown
-export interface IdentityDropdown extends Pick<Identity, "id" | "name"> {}
-
-export const toIdentityDropdown = (value: Identity): IdentityDropdown => ({
-  id: value.id,
-  name: value.name,
-});
-
-export const toIdentityDropdownOptionWithValue = (
-  value: IdentityDropdown
-): OptionWithValue<IdentityDropdown> => ({
-  value,
-  toString: () => value?.name || "",
-});
-
 // Business service dropdown
 
 export interface IBusinessServiceDropdown

@@ -528,29 +528,31 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 />
               </FormGroup>
             )}
-            <FormGroup
-              label="Excluded"
-              fieldId="excluded"
-              isRequired={false}
-              validated={getValidatedFromError(formik.errors.excluded)}
-              helperTextInvalid={formik.errors.excluded}
-            >
-              <TextArea
-                type="text"
-                name="excluded"
-                aria-label="excluded"
-                aria-describedby="excluded"
-                isRequired={false}
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.excluded}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.excluded,
-                  formik.touched.excluded
-                )}
-              />
-            </FormGroup>
           </>
+        )}
+        {(isHttpProxy || isHttpsProxy) && (
+          <FormGroup
+            label="Excluded"
+            fieldId="excluded"
+            isRequired={false}
+            validated={getValidatedFromError(formik.errors.excluded)}
+            helperTextInvalid={formik.errors.excluded}
+          >
+            <TextArea
+              type="text"
+              name="excluded"
+              aria-label="excluded"
+              aria-describedby="excluded"
+              isRequired={false}
+              onChange={onChangeField}
+              onBlur={formik.handleBlur}
+              value={formik.values.excluded}
+              validated={getValidatedFromErrorTouched(
+                formik.errors.excluded,
+                formik.touched.excluded
+              )}
+            />
+          </FormGroup>
         )}
         <ActionGroup>
           <Button

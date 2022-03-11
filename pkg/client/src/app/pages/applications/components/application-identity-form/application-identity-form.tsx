@@ -67,17 +67,17 @@ export const ApplicationIdentityForm: React.FC<
     applications.forEach((application) => {
       let updatedIdentities: Ref[] = [];
       if (application.identities && identities) {
-        let newSourceCredentials;
+        let newSourceCredentials: Ref | IdentityDropdown;
         const { sourceCredentials } = formValues;
         if (sourceCredentials.id) {
           newSourceCredentials = sourceCredentials;
-          updatedIdentities.push(newSourceCredentials);
+          updatedIdentities.push(newSourceCredentials as Ref);
         }
         let newMavenSettings;
         const { mavenSettings } = formValues;
         if (mavenSettings.id) {
           newMavenSettings = mavenSettings;
-          updatedIdentities.push(newMavenSettings);
+          updatedIdentities.push(newMavenSettings as Ref);
         }
       }
       if (application) {
