@@ -8,17 +8,15 @@ import {
 } from "@patternfly/react-core";
 
 import { SelectCardGallery } from "./components/select-card-gallery";
-import { UseFormGetValues, UseFormSetValue } from "react-hook-form";
-import { IFormValues } from "./analysis-wizard";
 
 interface IAnalysisMode {
-  getValues: UseFormGetValues<IFormValues>;
-  setValue: UseFormSetValue<IFormValues>;
+  targets: string[];
+  setTargets: (targets: string[]) => void;
 }
 
 export const SetTargets: React.FunctionComponent<IAnalysisMode> = ({
-  getValues,
-  setValue,
+  targets,
+  setTargets,
 }) => {
   return (
     <>
@@ -33,9 +31,9 @@ export const SetTargets: React.FunctionComponent<IAnalysisMode> = ({
       <Stack>
         <StackItem>
           <SelectCardGallery
-            values={getValues("targets")}
+            values={targets}
             onChange={(value) => {
-              setValue("targets", value);
+              setTargets(value);
             }}
           />
         </StackItem>
