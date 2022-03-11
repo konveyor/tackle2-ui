@@ -1,7 +1,9 @@
 import React from "react";
 
 import {
+  Application,
   BusinessService,
+  Identity,
   JobFunction,
   Ref,
   Stakeholder,
@@ -34,6 +36,21 @@ export const toIBusinessServiceDropdownOptionWithValue = (
 ): OptionWithValue<IBusinessServiceDropdown> => ({
   value,
   toString: () => value.name,
+});
+
+// Identity dropdown
+export interface IdentityDropdown extends Pick<Identity, "id" | "name"> {}
+
+export const toIdentityDropdown = (value: Identity): IdentityDropdown => ({
+  id: value.id,
+  name: value.name,
+});
+
+export const toIdentityDropdownOptionWithValue = (
+  value: IdentityDropdown
+): OptionWithValue<IdentityDropdown> => ({
+  value,
+  toString: () => value?.name || "",
 });
 
 // Stakeholder dropdown
@@ -160,3 +177,20 @@ export function toISimpleOptionDropdownWithValue<T>(
     toString: () => value.name,
   };
 }
+
+export const getKindIDByRef = (
+  identities: Identity[],
+  application: Application,
+  kind: string
+) => {
+  const matchingIdentity = identities.find((i) => {
+    let matchingID;
+    application?.identities?.forEach((appIdentity) => {
+      if (appIdentity.id === i.id && i.kind === kind) {
+        matchingID = appIdentity;
+      }
+    });
+    return matchingID;
+  });
+  return matchingIdentity;
+};

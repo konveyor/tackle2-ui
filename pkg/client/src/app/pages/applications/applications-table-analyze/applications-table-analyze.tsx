@@ -48,7 +48,6 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationForm } from "../components/application-form";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
-import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm";
 import { ApplicationListExpandedAreaAnalysis } from "../components/application-list-expanded-area/application-list-expanded-area-analysis";
 import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
@@ -60,6 +59,7 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
+import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 
 const ENTITY_FIELD = "entity";
 
@@ -202,12 +202,16 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     close: closeDependenciesModal,
   } = useEntityModal<Application>();
 
+  // Credentials modal
+  const {
+    isOpen: isCredentialsModalOpen,
+    data: applicationToManageCredentials,
+    update: openCredentialsModal,
+    close: closeCredentialsModal,
+  } = useEntityModal<Application[]>();
+
   // Application import modal
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    useState(false);
-
-  // Application identity modal
-  const [isApplicationCredsModalOpenset, setIsApplicationCredsModalOpen] =
     useState(false);
 
   // Expand, select rows
@@ -335,6 +339,20 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         },
       },
       {
+        title: "Manage credentials",
+        onClick: (
+          event: React.MouseEvent,
+          rowIndex: number,
+          rowData: IRowData
+        ) => {
+          debugger;
+          const row: Application = getRow(rowData);
+          const applicationsList = [];
+          applicationsList.push(row);
+          openCredentialsModal(applicationsList);
+        },
+      },
+      {
         title: t("actions.delete"),
         onClick: (
           event: React.MouseEvent,
@@ -400,6 +418,13 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         },
       })
     );
+  };
+
+  const handleOnApplicationIdentityUpdated = (
+    response: AxiosResponse<Application>
+  ) => {
+    closeCredentialsModal();
+    refreshTable();
   };
 
   // Toolbar actions
@@ -477,7 +502,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                       <DropdownItem
                         key="manage-application-credentials"
                         isDisabled={selectedRows.length < 1}
-                        onClick={() => setIsApplicationCredsModalOpen(true)}
+                        onClick={() => openCredentialsModal(selectedRows)}
                       >
                         {t("actions.manageCredentials")}
                       </DropdownItem>,
@@ -557,19 +582,18 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       </Modal>
 
       <Modal
-        isOpen={isApplicationCredsModalOpenset}
+        isOpen={isCredentialsModalOpen}
         variant="medium"
-        title={t("actions.manageCredentials")}
-        onClose={() => setIsApplicationCredsModalOpen((current) => !current)}
+        title="Manage credentials"
+        onClose={closeCredentialsModal}
       >
-        <ApplicationsIdentityForm
-          selectedApplications={selectedRows}
-          onSaved={() => {
-            setIsApplicationCredsModalOpen(false);
-            refreshTable();
-          }}
-          onCancel={() => setIsApplicationCredsModalOpen(false)}
-        />
+        {applicationToManageCredentials && (
+          <ApplicationIdentityForm
+            applications={applicationToManageCredentials}
+            onSaved={handleOnApplicationIdentityUpdated}
+            onCancel={closeCredentialsModal}
+          />
+        )}
       </Modal>
     </>
   );
