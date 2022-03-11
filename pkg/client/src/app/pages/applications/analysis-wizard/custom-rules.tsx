@@ -35,15 +35,15 @@ import { NoDataEmptyState } from "@app/shared/components";
 
 import "./custom-rules.css";
 
-import { readFile } from "./components/add-custom-rules";
+import { IReadFile } from "./components/add-custom-rules";
 
 export const CustomRules: React.FunctionComponent = () => {
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
-  const [files, setFiles] = React.useState<readFile[]>([]);
+  const [files, setFiles] = React.useState<IReadFile[]>([]);
 
   const rules = React.useMemo(() => {
-    const getRules = (file: readFile) => {
+    const getRules = (file: IReadFile) => {
       if (!file.data) return [];
 
       let source = "";
@@ -148,7 +148,16 @@ export const CustomRules: React.FunctionComponent = () => {
         {
           title: (
             <div className="pf-c-inline-edit__action pf-m-enable-editable">
-              <Button type="button" variant="plain" onClick={() => item}>
+              <Button
+                type="button"
+                variant="plain"
+                onClick={() => {
+                  const fileList = files.filter(
+                    (file) => file.fileName !== item.name
+                  );
+                  setFiles(fileList);
+                }}
+              >
                 <TrashIcon />
               </Button>
             </div>
