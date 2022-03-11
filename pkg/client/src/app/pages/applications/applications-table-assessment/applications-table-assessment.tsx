@@ -81,8 +81,8 @@ import { ApplicationBusinessService } from "../components/application-business-s
 import { ApplicationListExpandedArea } from "../components/application-list-expanded-area";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
-import { ApplicationsIdentityForm } from "../components/ApplicationsIdentityForm";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 
 const ENTITY_FIELD = "entity";
 
@@ -211,12 +211,16 @@ export const ApplicationsTable: React.FC = () => {
     close: closeDependenciesModal,
   } = useEntityModal<Application>();
 
+  // Credentials modal
+  const {
+    isOpen: isCredentialsModalOpen,
+    data: applicationToManageCredentials,
+    update: openCredentialsModal,
+    close: closeCredentialsModal,
+  } = useEntityModal<Application[]>();
+
   // Application import modal
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    useState(false);
-
-  // Application identity modal
-  const [isApplicationCredsModalOpenset, setIsApplicationCredsModalOpen] =
     useState(false);
 
   // Table's assessments
@@ -421,6 +425,19 @@ export const ApplicationsTable: React.FC = () => {
         },
       },
       {
+        title: "Manage credentials",
+        onClick: (
+          event: React.MouseEvent,
+          rowIndex: number,
+          rowData: IRowData
+        ) => {
+          const row: Application = getRow(rowData);
+          const applicationsList = [];
+          applicationsList.push(row);
+          openCredentialsModal(applicationsList);
+        },
+      },
+      {
         title: t("actions.delete"),
         onClick: (
           event: React.MouseEvent,
@@ -617,6 +634,14 @@ export const ApplicationsTable: React.FC = () => {
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState([], 10);
   //
+
+  const handleOnApplicationIdentityUpdated = (
+    response: AxiosResponse<Application>
+  ) => {
+    closeCredentialsModal();
+    refreshTable();
+  };
+
   return (
     <>
       <ConditionalRender
@@ -707,7 +732,10 @@ export const ApplicationsTable: React.FC = () => {
                       <DropdownItem
                         key="manage-application-credentials"
                         isDisabled={selectedRows.length < 1}
-                        onClick={() => setIsApplicationCredsModalOpen(true)}
+                        onClick={() => {
+                          debugger;
+                          openCredentialsModal(selectedRows);
+                        }}
                       >
                         {t("actions.manageCredentials")}
                       </DropdownItem>,
@@ -822,19 +850,18 @@ export const ApplicationsTable: React.FC = () => {
       </Modal>
 
       <Modal
-        isOpen={isApplicationCredsModalOpenset}
+        isOpen={isCredentialsModalOpen}
         variant="medium"
-        title={t("actions.manageCredentials")}
-        onClose={() => setIsApplicationCredsModalOpen((current) => !current)}
+        title="Manage credentials"
+        onClose={closeCredentialsModal}
       >
-        <ApplicationsIdentityForm
-          selectedApplications={selectedRows}
-          onSaved={() => {
-            setIsApplicationCredsModalOpen(false);
-            refreshTable();
-          }}
-          onCancel={() => setIsApplicationCredsModalOpen(false)}
-        />
+        {applicationToManageCredentials && (
+          <ApplicationIdentityForm
+            applications={applicationToManageCredentials}
+            onSaved={handleOnApplicationIdentityUpdated}
+            onCancel={closeCredentialsModal}
+          />
+        )}
       </Modal>
     </>
   );
