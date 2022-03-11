@@ -32,15 +32,23 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { Rule } from "@app/api/models";
 import { NoDataEmptyState } from "@app/shared/components";
-
-import "./custom-rules.css";
-
 import { IReadFile } from "./components/add-custom-rules";
 
-export const CustomRules: React.FunctionComponent = () => {
+import "./custom-rules.css";
+import { UseFormGetValues } from "react-hook-form";
+import { IFormValues } from "./analysis-wizard";
+
+interface ICustomRules {
+  customRulesFiles: IReadFile[];
+  setValue: (files: IReadFile[]) => void;
+}
+
+export const CustomRules: React.FunctionComponent<ICustomRules> = ({
+  customRulesFiles,
+  setValue,
+}) => {
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
-  const [files, setFiles] = React.useState<IReadFile[]>([]);
 
   const rules = React.useMemo(() => {
     const getRules = (file: IReadFile) => {
@@ -83,12 +91,12 @@ export const CustomRules: React.FunctionComponent = () => {
     };
 
     let rules: Rule[] = [];
-    files.forEach((file) => {
+    customRulesFiles.forEach((file) => {
       if (file.data) rules = [...rules, ...getRules(file)];
     });
 
     return rules.flat();
-  }, [files]);
+  }, [customRulesFiles]);
 
   const filterCategories: FilterCategory<Rule>[] = [
     {
@@ -152,10 +160,10 @@ export const CustomRules: React.FunctionComponent = () => {
                 type="button"
                 variant="plain"
                 onClick={() => {
-                  const fileList = files.filter(
+                  const fileList = customRulesFiles.filter(
                     (file) => file.fileName !== item.name
                   );
-                  setFiles(fileList);
+                  setValue(fileList);
                 }}
               >
                 <TrashIcon />
@@ -247,7 +255,10 @@ export const CustomRules: React.FunctionComponent = () => {
             </Button>,
           ]}
         >
-          <AddCustomRules readFileData={files} setReadFileData={setFiles} />
+          <AddCustomRules
+            readFileData={customRulesFiles}
+            setReadFileData={setValue}
+          />
         </Modal>
       )}
     </>

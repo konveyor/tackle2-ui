@@ -3,32 +3,34 @@ import {
   Button,
   Form,
   InputGroup,
-  List,
-  ListItem,
   Radio,
   Switch,
   Text,
   TextArea,
   Title,
 } from "@patternfly/react-core";
-import { FormState, UseFormGetValues, UseFormSetValue } from "react-hook-form";
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import "./scope.css";
+import "./set-scope.css";
 
-import { IFormValues } from "./analysis-wizard";
-interface IScope {
-  getValues: UseFormGetValues<IFormValues>;
-  setValue: UseFormSetValue<IFormValues>;
+interface ISetScope {
+  withKnown: string;
+  includedPackages: string[];
+  excludedPackages: string[];
+  setWithKnown: (withKnown: string) => void;
+  setIncludedPackages: (packages: string[]) => void;
+  setExcludedPackages: (packages: string[]) => void;
 }
 
-export const Scope: React.FunctionComponent<IScope> = ({
-  getValues,
-  setValue,
+export const SetScope: React.FunctionComponent<ISetScope> = ({
+  withKnown,
+  includedPackages,
+  excludedPackages,
+  setWithKnown,
+  setIncludedPackages,
+  setExcludedPackages,
 }) => {
-  const { scope, includedPackages, excludedPackages } = getValues();
-
   const [excludedSwitch, setExcludedSwitch] = React.useState(false);
   const [packagesToInclude, setPackagesToInclude] = React.useState("");
   const [packagesToExclude, setPackagesToExclude] = React.useState("");
@@ -44,9 +46,9 @@ export const Scope: React.FunctionComponent<IScope> = ({
       <Radio
         id="deps-only"
         name="deps-only"
-        isChecked={scope === "depsOnly"}
+        isChecked={withKnown === "depsOnly"}
         onChange={() => {
-          setValue("scope", "depsOnly");
+          setWithKnown("depsOnly");
         }}
         label="Application and internal dependencies only"
         className={spacing.mbXs}
@@ -54,9 +56,9 @@ export const Scope: React.FunctionComponent<IScope> = ({
       <Radio
         id="deps-all"
         name="deps-all"
-        isChecked={scope === "depsAll"}
+        isChecked={withKnown === "depsAll"}
         onChange={() => {
-          setValue("scope", "depsAll");
+          setWithKnown("depsAll");
         }}
         label="Application and all dependencies, including known Open Source libraries"
         className={spacing.mbXs}
@@ -64,14 +66,14 @@ export const Scope: React.FunctionComponent<IScope> = ({
       <Radio
         id="deps-select"
         name="deps-select"
-        isChecked={scope === "depsSelect"}
+        isChecked={withKnown === "depsSelect"}
         onChange={() => {
-          setValue("scope", "depsSelect");
+          setWithKnown("depsSelect");
         }}
         label="Select the list of packages to be analyzed manually"
         className={spacing.mbXs}
       />
-      {scope === "depsSelect" && (
+      {withKnown === "depsSelect" && (
         <>
           <InputGroup className={`${spacing.mtMd} ${spacing.plLg}`}>
             <TextArea
@@ -86,7 +88,7 @@ export const Scope: React.FunctionComponent<IScope> = ({
               variant="control"
               onClick={() => {
                 const list = packagesToInclude.split(",");
-                setValue("includedPackages", [...new Set(list)]);
+                setIncludedPackages([...new Set(list)]);
                 setPackagesToInclude("");
               }}
             >
@@ -106,8 +108,7 @@ export const Scope: React.FunctionComponent<IScope> = ({
                         variant="control"
                         icon={<DelIcon />}
                         onClick={() =>
-                          setValue(
-                            "includedPackages",
+                          setIncludedPackages(
                             includedPackages.filter((p) => p !== pkg)
                           )
                         }
@@ -140,7 +141,7 @@ export const Scope: React.FunctionComponent<IScope> = ({
               variant="control"
               onClick={() => {
                 const list = packagesToExclude.split(",");
-                setValue("excludedPackages", [...new Set(list)]);
+                setExcludedPackages([...new Set(list)]);
                 setPackagesToExclude("");
               }}
             >
@@ -162,8 +163,7 @@ export const Scope: React.FunctionComponent<IScope> = ({
                         variant="control"
                         icon={<DelIcon />}
                         onClick={() =>
-                          setValue(
-                            "excludedPackages",
+                          setExcludedPackages(
                             excludedPackages.filter((p) => p !== pkg)
                           )
                         }

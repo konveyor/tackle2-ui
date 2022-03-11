@@ -6,17 +6,19 @@ import { useDispatch } from "react-redux";
 import { Wizard } from "@patternfly/react-core";
 
 import { Application, Task, TaskData } from "@app/api/models";
-import { AnalysisMode } from "./analysis-mode";
+import { SetMode } from "./set-mode";
 import { SetTargets } from "./set-targets";
-import { Scope } from "./scope";
+import { SetScope } from "./set-scope";
 import { Options } from "./options";
 import { Review } from "./review";
 import { createTask } from "@app/api/rest";
 import { alertActions } from "@app/store/alert";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { CustomRules } from "./custom-rules";
+import { IReadFile } from "./components/add-custom-rules";
 
 import "./analysis-wizard.css";
+
 interface IAnalysisWizard {
   applications: Application[];
   onClose: () => void;
@@ -25,10 +27,13 @@ interface IAnalysisWizard {
 export interface IFormValues {
   mode: string;
   targets: string[];
-  scope: string;
+  withKnown: string;
   includedPackages: string[];
   excludedPackages: string[];
-  customRules: string[];
+  customRulesFiles: IReadFile[];
+  test: {
+    a: string;
+  };
 }
 
 const defaultTaskData: TaskData = {
@@ -68,10 +73,10 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       defaultValues: {
         mode: "Binary",
         targets: [],
-        scope: "",
+        withKnown: "",
         includedPackages: [""],
         excludedPackages: [""],
-        customRules: [],
+        customRulesFiles: [],
       },
     });
 
@@ -89,7 +94,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         },
         targets: data.targets,
         scope: {
-          withKnown: data.scope.includes("depsAll") ? true : false,
+          withKnown: data.withKnown.includes("depsAll") ? true : false,
           packages: {
             included: data.includedPackages,
             excluded: data.excludedPackages,
@@ -104,7 +109,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       console.log("Invalid form");
       return;
     }
-
     const tasks = applications.map((app) => setTask(app, data));
     const promises = Promise.all(tasks.map((task) => createTask(task)));
     promises
@@ -123,6 +127,15 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       });
   };
 
+  const {
+    mode,
+    targets,
+    customRulesFiles,
+    withKnown,
+    includedPackages,
+    excludedPackages,
+  } = getValues();
+
   const steps = [
     {
       name: "Configure analysis",
@@ -130,20 +143,34 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         {
           name: "Analysis mode",
           component: (
-            <AnalysisMode
+            <SetMode
               register={register}
-              getValues={getValues}
-              setValue={setValue}
+              mode={mode}
+              setMode={(val) => setValue("mode", val)}
             />
           ),
         },
         {
           name: "Set targets",
-          component: <SetTargets getValues={getValues} setValue={setValue} />,
+          component: (
+            <SetTargets
+              targets={targets}
+              setTargets={(val) => setValue("targets", val)}
+            />
+          ),
         },
         {
           name: "Scope",
-          component: <Scope setValue={setValue} getValues={getValues} />,
+          component: (
+            <SetScope
+              withKnown={withKnown}
+              includedPackages={includedPackages}
+              excludedPackages={excludedPackages}
+              setWithKnown={(val) => setValue("withKnown", val)}
+              setIncludedPackages={(val) => setValue("includedPackages", val)}
+              setExcludedPackages={(val) => setValue("excludedPackages", val)}
+            />
+          ),
         },
       ],
     },
@@ -152,7 +179,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       steps: [
         {
           name: "Custom rules",
-          component: <CustomRules />,
+          component: (
+            <CustomRules
+              customRulesFiles={customRulesFiles}
+              setValue={(val) => setValue("customRulesFiles", val)}
+            />
+          ),
         },
         { name: "Options", component: <Options /> },
       ],

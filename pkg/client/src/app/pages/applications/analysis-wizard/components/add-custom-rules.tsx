@@ -12,6 +12,7 @@ import {
   MultipleFileUploadTitleText,
   MultipleFileUploadTitleTextSeparator,
 } from "@patternfly/react-core";
+
 import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
@@ -30,7 +31,7 @@ export interface IReadFile {
 
 interface IAddCustomRules {
   readFileData: IReadFile[];
-  setReadFileData: React.Dispatch<React.SetStateAction<IReadFile[]>>;
+  setReadFileData: (files: IReadFile[]) => void;
 }
 
 export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
@@ -123,18 +124,26 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
   const handleReadSuccess = (data: string, file: File) => {
     validateXMLFile(data);
 
-    setReadFileData((prevReadFiles) => [
-      ...prevReadFiles,
-      { data, fileName: file.name, loadResult: "success" },
-    ]);
+    const fileList = [
+      ...readFileData,
+      { data, fileName: file.name, loadResult: "success" } as IReadFile,
+    ];
+
+    setReadFileData(fileList);
   };
 
   // callback called by the status item when a file encounters an error while being read with the built-in file reader
   const handleReadFail = (error: DOMException, file: File) => {
-    setReadFileData((prevReadFiles) => [
-      ...prevReadFiles,
-      { loadError: error, fileName: file.name, loadResult: "danger" },
-    ]);
+    const fileList = [
+      ...readFileData,
+      {
+        loadError: error,
+        fileName: file.name,
+        loadResult: "danger",
+      } as IReadFile,
+    ];
+
+    setReadFileData(fileList);
   };
 
   // dropzone prop that communicates to the user that files they've attempted to upload are not an appropriate type

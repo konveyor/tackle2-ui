@@ -1,14 +1,17 @@
 import * as React from "react";
-import { FormGroup, Text, TextContent, Title } from "@patternfly/react-core";
+import { UseFormRegister } from "react-hook-form";
 import {
-  UseFormGetValues,
-  UseFormRegister,
-  UseFormSetValue,
-} from "react-hook-form";
-
-import { Select, SelectOption, SelectVariant } from "@patternfly/react-core";
+  FormGroup,
+  Text,
+  TextContent,
+  Title,
+  Select,
+  SelectOption,
+  SelectVariant,
+} from "@patternfly/react-core";
 
 import { IFormValues } from "./analysis-wizard";
+
 const options = [
   <SelectOption key="binary" component="button" value="Binary" isPlaceholder />,
   <SelectOption key="source-code" component="button" value="Source code" />,
@@ -19,16 +22,16 @@ const options = [
   />,
 ];
 
-interface IAnalysisMode {
+interface ISetMode {
   register: UseFormRegister<IFormValues>;
-  getValues: UseFormGetValues<IFormValues>;
-  setValue: UseFormSetValue<IFormValues>;
+  mode: string;
+  setMode: (mode: string) => void;
 }
 
-export const AnalysisMode: React.FunctionComponent<IAnalysisMode> = ({
+export const SetMode: React.FunctionComponent<ISetMode> = ({
   register,
-  getValues,
-  setValue,
+  mode,
+  setMode,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -45,10 +48,10 @@ export const AnalysisMode: React.FunctionComponent<IAnalysisMode> = ({
           {...register("mode")}
           variant={SelectVariant.single}
           aria-label="Select user perspective"
-          selections={getValues("mode")}
+          selections={mode}
           isOpen={isOpen}
           onSelect={(_, selection) => {
-            setValue("mode", selection as string);
+            setMode(selection as string);
             setIsOpen(!isOpen);
           }}
           onToggle={() => {
