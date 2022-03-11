@@ -21,7 +21,7 @@ import XSDSchema from "./windup-jboss-ruleset.xsd";
 
 const xmllint = require("xmllint");
 
-export interface readFile {
+export interface IReadFile {
   fileName: string;
   data?: string;
   loadResult?: "danger" | "success";
@@ -29,8 +29,8 @@ export interface readFile {
 }
 
 interface IAddCustomRules {
-  readFileData: readFile[];
-  setReadFileData: React.Dispatch<React.SetStateAction<readFile[]>>;
+  readFileData: IReadFile[];
+  setReadFileData: React.Dispatch<React.SetStateAction<IReadFile[]>>;
 }
 
 export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
