@@ -53,6 +53,29 @@ const defaultTaskData: TaskData = {
   },
 };
 
+const defaultTargets = [
+  "camel",
+  "cloud-readiness",
+  "drools",
+  "eap",
+  "eap6",
+  "eap7",
+  "eapxp",
+  "fsw",
+  "fuse",
+  "hibernate",
+  "hibernate-search",
+  "jakarta-ee",
+  "java-ee",
+  "jbpm",
+  "linux",
+  "openjdk",
+  "quarkus",
+  "quarkus1",
+  "resteasy",
+  "rhr",
+];
+
 export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   applications,
   onClose,
@@ -186,7 +209,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             />
           ),
         },
-        { name: "Options", component: <Options /> },
+        { name: "Options", component: <Options targets={targets} /> },
       ],
     },
     {
