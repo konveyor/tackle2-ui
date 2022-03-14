@@ -11,18 +11,43 @@ import {
 import { useTranslation } from "react-i18next";
 
 import "./proxies.css";
+import { ProxyForm } from "./proxy-form";
+import { AxiosResponse } from "axios";
+import { alertActions } from "@app/store/alert";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { useFetchProxies } from "@app/shared/hooks/useFetchProxies";
 
 export const Proxies: React.FunctionComponent = () => {
   const { t } = useTranslation();
-  const [isHttpProxy, setHttpProxy] = React.useState(false);
-  const [isHttpsProxy, setHttpsProxy] = React.useState(false);
+  const dispatch = useDispatch();
 
-  const onChangeHttpProxy = () => {
-    setHttpProxy(!isHttpProxy);
+  const handleOnProxyCreated = (response: AxiosResponse<any>) => {
+    fetchProxies();
+    dispatch(
+      alertActions.addSuccess(
+        t("toastr.success.added", {
+          what: response.data.name,
+          type: t("terms.proxy").toLowerCase(),
+        })
+      )
+    );
   };
 
-  const onChangeHttpsProxy = () => {
-    setHttpsProxy(!isHttpsProxy);
+  const { proxies, fetchProxies } = useFetchProxies();
+
+  useEffect(() => {
+    fetchProxies();
+  }, [fetchProxies]);
+
+  const existingHttpProxy = proxies?.data.find(
+    (proxy) => proxy.kind === "http"
+  );
+  const existingHttpsProxy = proxies?.data.find(
+    (proxy) => proxy.kind === "https"
+  );
+  const handleOnDeleteProxy = () => {
+    fetchProxies();
   };
 
   return (
@@ -36,25 +61,11 @@ export const Proxies: React.FunctionComponent = () => {
       <PageSection>
         <Card>
           <CardBody>
-            <Switch
-              id="httpProxy"
-              className="proxy"
-              label="HTTP proxy"
-              aria-label="HTTP Proxy"
-              isChecked={isHttpProxy}
-              onChange={onChangeHttpProxy}
-            />
-          </CardBody>
-        </Card>
-        <Card>
-          <CardBody>
-            <Switch
-              id="httpsProxy"
-              className="proxy"
-              label="HTTPS proxy"
-              aria-label="HTTPS Proxy"
-              isChecked={isHttpsProxy}
-              onChange={onChangeHttpsProxy}
+            <ProxyForm
+              httpProxy={existingHttpProxy}
+              httpsProxy={existingHttpsProxy}
+              onSaved={handleOnProxyCreated}
+              onDelete={handleOnDeleteProxy}
             />
           </CardBody>
         </Card>

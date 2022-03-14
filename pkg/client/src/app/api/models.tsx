@@ -139,16 +139,28 @@ export interface BulkCopyReview {
 }
 export interface Identity {
   id?: number;
-  name: string;
+  name?: string;
   description?: string;
-  kind: string;
-  createUser: string;
+  kind?: string;
+  createUser?: string;
   encrypted?: string;
   key?: string;
   password?: string;
   user?: string;
   updateUser?: string;
   settings?: string;
+}
+
+export interface Proxy {
+  host: string;
+  kind: string;
+  port: number;
+  excluded: Array<string>;
+  identity?: Ref;
+  createTime?: string;
+  createUser?: string;
+  id: any;
+  enabled: boolean;
 }
 
 // Pathfinder

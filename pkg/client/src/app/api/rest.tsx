@@ -32,6 +32,7 @@ import {
   Identity,
   Setting,
   Task,
+  Proxy,
 } from "./models";
 
 // TACKLE_HUB
@@ -60,6 +61,8 @@ export const TASKS = "/tasks";
 // PATHFINDER
 export const PATHFINDER_BASE_URL = "pathfinder";
 export const ASSESSMENTS = PATHFINDER_BASE_URL + "/assessments";
+
+export const PROXIES = "/proxies";
 
 const halHeaders = { headers: { Accept: "application/hal+json" } };
 const jsonHeaders = { headers: { Accept: "application/json" } };
@@ -530,4 +533,20 @@ export const getTasks = (): AxiosPromise<Array<any>> => {
 
 export const createTask = (obj: Task): AxiosPromise<Task> => {
   return APIClient.post(`${TASKS}`, obj);
+}
+
+export const getProxies = (): AxiosPromise<Array<any>> => {
+  return APIClient.get(`${PROXIES}`, jsonHeaders);
+};
+
+export const createProxy = (obj: Proxy): AxiosPromise<Proxy> => {
+  return APIClient.post(`${PROXIES}`, obj);
+};
+
+export const updateProxy = (obj: Proxy): AxiosPromise<Proxy> => {
+  return APIClient.put(`${PROXIES}/${obj.id}`, obj);
+};
+
+export const deleteProxy = (id: number): AxiosPromise => {
+  return APIClient.delete(`${PROXIES}/${id}`);
 };

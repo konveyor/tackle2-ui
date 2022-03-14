@@ -25,7 +25,7 @@ export const getValidatedFromError = (
 
 export const getValidatedFromErrorTouched = (
   error: any,
-  touched: boolean | undefined
+  touched: any
 ): "success" | "warning" | "error" | "default" => {
   return error && touched ? "error" : "default";
 };
