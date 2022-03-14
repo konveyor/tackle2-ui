@@ -80,14 +80,15 @@ export const CustomRules: React.FunctionComponent<ICustomRules> = ({
           rulesCount = rulesGroup[0].getElementsByTagName("rule").length;
       }
 
-      return [
+      const rules: Rule[] = [
         {
           name: file.fileName,
           source: source,
           target: target,
           total: rulesCount,
         },
-      ] as Rule[];
+      ];
+      return rules;
     };
 
     let rules: Rule[] = [];
