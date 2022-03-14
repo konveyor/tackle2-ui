@@ -104,8 +104,6 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
         isXSD = true;
       }
     }
-    console.log("XML :", isXML);
-    console.log("XSD :", isXSD);
   };
 
   const handleFileDrop = (droppedFiles: File[]) => {
@@ -124,10 +122,12 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
   const handleReadSuccess = (data: string, file: File) => {
     validateXMLFile(data);
 
-    const fileList = [
-      ...readFileData,
-      { data, fileName: file.name, loadResult: "success" } as IReadFile,
-    ];
+    const newReadFile: IReadFile = {
+      data,
+      fileName: file.name,
+      loadResult: "success",
+    };
+    const fileList = [...readFileData, newReadFile];
 
     setReadFileData(fileList);
   };
