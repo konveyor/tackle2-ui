@@ -45,6 +45,13 @@ export interface FormValues {
   comments: string;
   businessService: IBusinessServiceDropdown | null;
   tags: ITagDropdown[];
+  sourceRepository: string;
+  branch: string;
+  rootPath: string;
+  group: string;
+  artifact: string;
+  version: string;
+  packaging: string;
 }
 
 export interface ApplicationFormProps {
@@ -368,8 +375,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           <FormGroup
             label={t("terms.sourceRepo")}
             fieldId="sourceRepository"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            validated={getValidatedFromError(formik.errors.sourceRepository)}
+            helperTextInvalid={formik.errors.sourceRepository}
           >
             <TextInput
               type="text"
@@ -379,18 +386,18 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               isRequired={true}
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.sourceRepository}
               validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
+                formik.errors.sourceRepository,
+                formik.touched.sourceRepository
               )}
             />
           </FormGroup>
           <FormGroup
             label={t("terms.sourceBranch")}
             fieldId="branch"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            validated={getValidatedFromError(formik.errors.branch)}
+            helperTextInvalid={formik.errors.branch}
           >
             <TextInput
               type="text"
@@ -399,18 +406,18 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               aria-describedby="Source Repository Branch"
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.branch}
               validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
+                formik.errors.branch,
+                formik.touched.branch
               )}
             />
           </FormGroup>
           <FormGroup
             label={t("terms.sourceRootPath")}
             fieldId="rootPath"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            validated={getValidatedFromError(formik.errors.rootPath)}
+            helperTextInvalid={formik.errors.rootPath}
           >
             <TextInput
               type="text"
@@ -419,10 +426,10 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               aria-describedby="Source Repository Root Path"
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.rootPath}
               validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
+                formik.errors.rootPath,
+                formik.touched.rootPath
               )}
             />
           </FormGroup>
@@ -437,8 +444,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           <FormGroup
             label={t("terms.binaryGroup")}
             fieldId="group"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            validated={getValidatedFromError(formik.errors.group)}
+            helperTextInvalid={formik.errors.group}
           >
             <TextInput
               type="text"
@@ -447,38 +454,38 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               aria-describedby="Binary Group"
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.group}
               validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
+                formik.errors.group,
+                formik.touched.group
               )}
             />
           </FormGroup>
           <FormGroup
             label={t("terms.binaryArtifact")}
-            fieldId="artifac"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            fieldId="artifact"
+            validated={getValidatedFromError(formik.errors.artifact)}
+            helperTextInvalid={formik.errors.artifact}
           >
             <TextInput
               type="text"
-              name="artifac"
-              aria-label="Binary Artifac"
-              aria-describedby="Binary Artifac"
+              name="artifact"
+              aria-label="Binary Artifact"
+              aria-describedby="Binary Artifact"
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.artifact}
               validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
+                formik.errors.artifact,
+                formik.touched.artifact
               )}
             />
           </FormGroup>
           <FormGroup
             label={t("terms.binaryVersion")}
             fieldId="version"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            validated={getValidatedFromError(formik.errors.version)}
+            helperTextInvalid={formik.errors.version}
           >
             <TextInput
               type="text"
@@ -487,18 +494,18 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               aria-describedby="Binary version"
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.version}
               validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
+                formik.errors.version,
+                formik.touched.version
               )}
             />
           </FormGroup>
           <FormGroup
             label={t("terms.binaryPackaging")}
             fieldId="packaging"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            validated={getValidatedFromError(formik.errors.packaging)}
+            helperTextInvalid={formik.errors.packaging}
           >
             <TextInput
               type="text"
@@ -507,10 +514,10 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               aria-describedby="Binary Packaging"
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.packaging}
               validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
+                formik.errors.packaging,
+                formik.touched.packaging
               )}
             />
           </FormGroup>
