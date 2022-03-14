@@ -49,8 +49,9 @@ import {
 } from "@app/utils/model-utils";
 import { PageRepresentation, Proxy } from "@app/api/models";
 import { createProxy, deleteProxy, updateProxy } from "@app/api/rest";
+import { useUpdateProxyMutation } from "@app/queries/proxies";
 
-export interface FormValues {
+export interface ProxyFormValues {
   httpHost: string;
   httpsHost: string;
   httpIdentity: IdentityDropdown;
@@ -66,18 +67,12 @@ export interface ProxyFormProps {
   httpProxy?: Proxy;
   httpsProxy?: Proxy;
   isSecure?: boolean;
-  onSaved: (response: AxiosResponse<any>) => void;
-  onDelete: () => void;
 }
 
 export const ProxyForm: React.FC<ProxyFormProps> = ({
   httpProxy,
   httpsProxy,
-  onSaved,
-  onDelete,
 }) => {
-  const [error, setError] = useState<AxiosError>();
-  const [isLoading, setIsLoading] = useState(false);
   const [isHttpIdentityRequired, setIsHttpIdentityRequired] = useState(false);
   const [isHttpsIdentityRequired, setIsHttpsIdentityRequired] = useState(false);
   const [isHttpProxy, setIsHttpProxy] = React.useState(false);
@@ -92,6 +87,31 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     }
   }, [httpProxy, httpsProxy]);
 
+  const onProxySubmitComplete = () => {
+    formik.setSubmitting(false);
+  };
+
+  const onChangeProxyStatusComplete = (proxyType: string) => {
+    if (proxyType === "http") {
+      setIsHttpProxy(!isHttpProxy);
+    }
+
+    if (proxyType === "http") {
+      setIsHttpsProxy(!isHttpsProxy);
+    }
+  };
+
+  const {
+    mutate: submitProxy,
+    putResult,
+    isLoading,
+    error,
+  } = useUpdateProxyMutation(onProxySubmitComplete);
+
+  const { mutate: changeProxyStatus } = useUpdateProxyMutation(
+    onChangeProxyStatusComplete
+  );
+
   const onChangeIsHttpProxy = () => {
     if (formik.values.isHttpChecked && httpProxy) {
       const httpPayload = {
@@ -104,15 +124,10 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       };
 
       if (httpProxy) {
-        updateProxy({
+        changeProxyStatus({
           ...httpPayload,
-        })
-          .then((response) => {
-            setIsHttpProxy(!isHttpProxy);
-          })
-          .catch((error) => {
-            setError(error);
-          });
+        });
+        setIsHttpProxy(!isHttpProxy);
       }
     }
   };
@@ -129,15 +144,9 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       };
 
       if (httpsProxy) {
-        updateProxy({
+        changeProxyStatus({
           ...httpsPayload,
-        })
-          .then((response) => {
-            setIsHttpsProxy(!isHttpsProxy);
-          })
-          .catch((error) => {
-            setError(error);
-          });
+        });
       }
     }
   };
@@ -153,7 +162,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     fetchIdentities();
   }, [fetchIdentities]);
 
-  const httpValuesHaveUpdate = (values: FormValues, httpProxy?: Proxy) => {
+  const httpValuesHaveUpdate = (values: ProxyFormValues, httpProxy?: Proxy) => {
     if (httpProxy?.host === "" && isHttpProxy) {
       return true;
     } else {
@@ -165,7 +174,10 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       );
     }
   };
-  const httpsValuesHaveUpdate = (values: FormValues, httpsProxy?: Proxy) => {
+  const httpsValuesHaveUpdate = (
+    values: ProxyFormValues,
+    httpsProxy?: Proxy
+  ) => {
     if (httpsProxy?.host === "" && isHttpsProxy) {
       return true;
     }
@@ -178,10 +190,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     );
   };
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
+  const onSubmit = (formValues: ProxyFormValues) => {
     const httpsPayload: Proxy = {
       kind: "https",
       excluded: formValues.excluded.split(","),
@@ -215,31 +224,11 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     };
 
     if (httpProxy && httpValuesHaveUpdate(formValues, httpProxy)) {
-      updateProxy({
-        // ...httpProxy,
-        ...httpPayload,
-      })
-        .then((response) => {
-          formikHelpers.setSubmitting(false);
-        })
-        .catch((error) => {
-          formikHelpers.setSubmitting(false);
-          setError(error);
-        });
+      submitProxy(httpPayload);
     }
 
     if (httpsProxy && httpsValuesHaveUpdate(formValues, httpsProxy)) {
-      updateProxy({
-        // ...httpsProxy,
-        ...httpsPayload,
-      })
-        .then((response) => {
-          formikHelpers.setSubmitting(false);
-        })
-        .catch((error) => {
-          formikHelpers.setSubmitting(false);
-          setError(error);
-        });
+      submitProxy(httpsPayload);
     }
   };
 
@@ -275,7 +264,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     return result;
   }, [identities, httpProxy]);
 
-  const initialValues: FormValues = {
+  const initialValues: ProxyFormValues = {
     [HTTP_HOST]: httpProxy?.host || "",
     [HTTP_PORT]: httpProxy?.port || 8080,
     [HTTP_IDENTITY]: httpIdentityInitialValue,
