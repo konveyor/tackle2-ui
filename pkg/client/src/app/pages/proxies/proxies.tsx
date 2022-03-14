@@ -16,14 +16,13 @@ import { AxiosResponse } from "axios";
 import { alertActions } from "@app/store/alert";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { useFetchProxies } from "@app/shared/hooks/useFetchProxies";
+import { useFetchProxies } from "@app/queries/proxies";
 
 export const Proxies: React.FunctionComponent = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
   const handleOnProxyCreated = (response: AxiosResponse<any>) => {
-    fetchProxies();
     dispatch(
       alertActions.addSuccess(
         t("toastr.success.added", {
@@ -34,21 +33,12 @@ export const Proxies: React.FunctionComponent = () => {
     );
   };
 
-  const { proxies, fetchProxies } = useFetchProxies();
+  const { proxies, isFetching, fetchError } = useFetchProxies();
 
-  useEffect(() => {
-    fetchProxies();
-  }, [fetchProxies]);
-
-  const existingHttpProxy = proxies?.data.find(
-    (proxy) => proxy.kind === "http"
+  const existingHttpProxy = proxies.find((proxy: any) => proxy.kind === "http");
+  const existingHttpsProxy = proxies.find(
+    (proxy: any) => proxy.kind === "https"
   );
-  const existingHttpsProxy = proxies?.data.find(
-    (proxy) => proxy.kind === "https"
-  );
-  const handleOnDeleteProxy = () => {
-    fetchProxies();
-  };
 
   return (
     <>
@@ -64,8 +54,6 @@ export const Proxies: React.FunctionComponent = () => {
             <ProxyForm
               httpProxy={existingHttpProxy}
               httpsProxy={existingHttpsProxy}
-              onSaved={handleOnProxyCreated}
-              onDelete={handleOnDeleteProxy}
             />
           </CardBody>
         </Card>
