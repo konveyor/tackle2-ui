@@ -311,7 +311,8 @@ export type TaskStatus =
   | "Failed"
   | "InProgress"
   | "NotStarted"
-  | "Scheduled";
+  | "Scheduled"
+  | "Unknown";
 
 export interface Task {
   id?: number;

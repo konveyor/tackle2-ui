@@ -10,6 +10,15 @@ export interface ApplicationAnalysisStatusProps {
   id: number;
 }
 
+const taskToUI: Map<string, TaskStatus> = new Map([
+  ["No task", "NotStarted"],
+  ["Ready", "Scheduled"],
+  ["Running", "InProgress"],
+  ["not supported", "Canceled"],
+  ["Failed", "Failed"],
+  ["Succeeded", "Completed"],
+]);
+
 export const ApplicationAnalysisStatus: React.FC<
   ApplicationAnalysisStatusProps
 > = ({ id }) => {
@@ -17,6 +26,14 @@ export const ApplicationAnalysisStatus: React.FC<
   const fetchTasks = useCallback(() => {
     return getTasks();
   }, [id]);
+
+  const getTaskStatus = (status: string): TaskStatus => {
+    if (taskToUI.has(status)) {
+      const value = taskToUI.get(status);
+      if (value) return value;
+    }
+    return "Unknown";
+  };
 
   const {
     data: tasks,
@@ -38,7 +55,7 @@ export const ApplicationAnalysisStatus: React.FC<
   let status: TaskStatus = "NotStarted";
   tasks?.forEach((task) => {
     if (task.data && task.status && task.data.application === id)
-      status = task.status;
+      status = getTaskStatus(task.status);
   });
   return <StatusIconAssessment status={status} />;
 };
