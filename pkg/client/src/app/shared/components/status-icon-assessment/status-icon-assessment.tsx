@@ -6,6 +6,7 @@ import { TimesCircleIcon } from "@patternfly/react-icons/dist/esm/icons/times-ci
 import { InProgressIcon } from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
 import { SVGIconProps } from "@patternfly/react-icons/dist/js/createIcon";
 import { ExclamationCircleIcon } from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+import { UnknownIcon } from "@patternfly/react-icons/dist/esm/icons/unknown-icon";
 import {
   global_disabled_color_200 as disabledColor,
   global_success_color_100 as successColor,
@@ -21,7 +22,8 @@ export type StatusIconAssessmentType =
   | "Failed"
   | "InProgress"
   | "NotStarted"
-  | "Scheduled";
+  | "Scheduled"
+  | "Unknown";
 
 type IconListType = {
   [key in StatusIconAssessmentType]: {
@@ -55,6 +57,10 @@ const iconList: IconListType = {
   Failed: {
     Icon: ExclamationCircleIcon,
     color: errorColor,
+  },
+  Unknown: {
+    Icon: UnknownIcon,
+    color: unknownColor,
   },
 };
 
