@@ -17,13 +17,13 @@ RUN microdnf -y install tar procps-ng && microdnf clean all
 
 USER 1001
 
-LABEL name="konveyor/tackle-ui" \
+LABEL name="konveyor/tackle2-ui" \
       description="Konveyor for Tackle - User Interface" \
       help="For more information visit https://konveyor.io" \
       license="Apache License 2.0" \
       maintainer="gdubreui@redhat.com,ibolton@redhat.com" \
       summary="Konveyor for Tackle - User Interface" \
-      url="https://quay.io/gildub/tackle2-ui" \
+      url="https://quay.io/konveyor/tackle2-ui" \
       usage="podman run -p 80 -v konveyor/tackle2-ui:latest" \
       com.redhat.component="konveyor-tackle2-ui-container" \
       io.k8s.display-name="tackle2-ui" \
