@@ -89,7 +89,6 @@ export interface Application {
   identities?: Ref[];
   repository?: {
     branch: string;
-    kind: string;
     path: string;
     tag: string;
     url: string;

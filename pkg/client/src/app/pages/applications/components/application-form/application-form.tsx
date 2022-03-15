@@ -166,6 +166,14 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     comments: string()
       .trim()
       .max(250, t("validation.maxLength", { length: 250 })),
+    repository: object().shape({
+      url: string()
+        .matches(
+          /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
+          "Enter correct url!"
+        )
+        .required("Please enter repository url"),
+    }),
   });
 
   const onSubmit = (
@@ -190,6 +198,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         url: formValues.sourceRepository.trim(),
         branch: formValues.branch.trim(),
         path: formValues.rootPath.trim(),
+        //TBD: How do we populate tag field
+        tag: "",
       },
       review: undefined, // The review should not updated through this form
     };
@@ -399,10 +409,10 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.sourceRepository}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.sourceRepository,
-                formik.touched.sourceRepository
-              )}
+              // validated={getValidatedFromErrorTouched(
+              //   formik.errors.sourceRepository,
+              //   formik.touched.sourceRepository
+              // )}
             />
           </FormGroup>
           <FormGroup
@@ -452,7 +462,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
           isExpanded={isBinaryExpanded}
         >
-          {" "}
           <FormGroup
             label={t("terms.binaryGroup")}
             fieldId="group"
@@ -467,6 +476,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.group}
+              isDisabled={true}
               validated={getValidatedFromErrorTouched(
                 formik.errors.group,
                 formik.touched.group
@@ -487,6 +497,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.artifact}
+              isDisabled={true}
               validated={getValidatedFromErrorTouched(
                 formik.errors.artifact,
                 formik.touched.artifact
@@ -507,6 +518,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.version}
+              isDisabled={true}
               validated={getValidatedFromErrorTouched(
                 formik.errors.version,
                 formik.touched.version
@@ -527,6 +539,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.packaging}
+              isDisabled={true}
               validated={getValidatedFromErrorTouched(
                 formik.errors.packaging,
                 formik.touched.packaging
