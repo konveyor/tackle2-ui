@@ -145,6 +145,9 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     comments: application?.comments || "",
     businessService: businessServiceInitialValue,
     tags: tagsInitialValue,
+    sourceRepository: application?.repository?.url || "",
+    branch: application?.repository?.branch || "",
+    rootPath: application?.repository?.rootPath || "",
   };
 
   const validationSchema = object().shape({
