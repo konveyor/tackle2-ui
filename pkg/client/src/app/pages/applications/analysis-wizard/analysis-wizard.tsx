@@ -53,29 +53,6 @@ const defaultTaskData: TaskData = {
   },
 };
 
-const defaultTargets = [
-  "camel",
-  "cloud-readiness",
-  "drools",
-  "eap",
-  "eap6",
-  "eap7",
-  "eapxp",
-  "fsw",
-  "fuse",
-  "hibernate",
-  "hibernate-search",
-  "jakarta-ee",
-  "java-ee",
-  "jbpm",
-  "linux",
-  "openjdk",
-  "quarkus",
-  "quarkus1",
-  "resteasy",
-  "rhr",
-];
-
 export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   applications,
   onClose,
@@ -159,6 +136,83 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     excludedPackages,
   } = getValues();
 
+  const defaultTargets = [
+    "camel",
+    "cloud-readiness",
+    "drools",
+    "eap",
+    "eap6",
+    "eap7",
+    "eapxp",
+    "fsw",
+    "fuse",
+    "hibernate",
+    "hibernate-search",
+    "jakarta-ee",
+    "java-ee",
+    "jbpm",
+    "linux",
+    "openjdk",
+    "quarkus",
+    "quarkus1",
+    "resteasy",
+    "rhr",
+  ];
+
+  const defaultSources = [
+    "agroal",
+    "amazon",
+    "artemis",
+    "avro",
+    "camel",
+    "config",
+    "drools",
+    "eap",
+    "eap6",
+    "eap7",
+    "eapxp",
+    "elytron",
+    "glassfish",
+    "hibernate",
+    "hibernate-search",
+    "java",
+    "java-ee",
+    "javaee",
+    "jbpm",
+    "jdbc",
+    "jonas",
+    "jrun",
+    "jsonb",
+    "jsonp",
+    "kafka",
+    "keycloak",
+    "kubernetes",
+    "log4j",
+    "logging",
+    "narayana",
+    "openshift",
+    "oraclejdk",
+    "orion",
+    "quarkus1",
+    "resin",
+    "resteasy",
+    "rmi",
+    "rpc",
+    "seam",
+    "soa",
+    "soa-p",
+    "sonic",
+    "sonicesb",
+    "springboot",
+    "thorntail",
+    "weblogic",
+    "websphere",
+  ];
+
+  const optionsTargets = defaultTargets.filter(
+    (target) => !targets.includes(target)
+  );
+
   const steps = [
     {
       name: "Configure analysis",
@@ -209,7 +263,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             />
           ),
         },
-        { name: "Options", component: <Options targets={targets} /> },
+        {
+          name: "Options",
+          component: (
+            <Options targets={optionsTargets} sources={defaultSources} />
+          ),
+        },
       ],
     },
     {
