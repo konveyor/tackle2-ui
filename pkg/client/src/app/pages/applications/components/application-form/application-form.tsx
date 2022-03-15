@@ -147,7 +147,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     tags: tagsInitialValue,
     sourceRepository: application?.repository?.url || "",
     branch: application?.repository?.branch || "",
-    rootPath: application?.repository?.rootPath || "",
+    rootPath: application?.repository?.path || "",
+    group: "",
+    version: "",
+    artifact: "",
+    packaging: "",
   };
 
   const validationSchema = object().shape({
@@ -182,6 +186,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         const thisTag = { id: f.id, name: f.name };
         return thisTag;
       }),
+      repository: {
+        url: formValues.sourceRepository.trim(),
+        branch: formValues.branch.trim(),
+        path: formValues.rootPath.trim(),
+      },
       review: undefined, // The review should not updated through this form
     };
 
