@@ -1,0 +1,623 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema targetNamespace="http://windup.jboss.org/schema/jboss-ruleset" xmlns="http://windup.jboss.org/schema/jboss-ruleset" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified">
+
+    <!-- Root element for Windup tests rules. -->
+    <xs:element name="ruletest">
+        <xs:annotation>
+            <xs:documentation>Root element of Windup rules test.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="testDataPath" minOccurs="1" type="xs:string" />
+                <xs:element name="sourceMode" minOccurs="0" maxOccurs="1" type="xs:boolean" />
+                <xs:element name="rulePath" minOccurs="0" maxOccurs="unbounded" type="xs:string" />
+                <xs:element name="source" minOccurs="0" maxOccurs="1" type="xs:string" />
+                <xs:element name="target" minOccurs="0" maxOccurs="1" type="xs:string" />
+                <xs:element ref="ruleset" minOccurs="0" maxOccurs="unbounded" />
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="id"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Root element. -->
+    <xs:element name="ruleset">
+        <xs:annotation>
+            <xs:documentation>Root element of Windup ruleset.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="metadata" maxOccurs="unbounded" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1" />
+                            <xs:element name="dependencies">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="addon" minOccurs="1" maxOccurs="unbounded">
+                                            <xs:complexType>
+                                                <xs:attribute type="xs:string" name="id" use="optional" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="sourceTechnology" type="technology" maxOccurs="unbounded" minOccurs="0" />
+                            <xs:element name="targetTechnology" type="technology" maxOccurs="unbounded" minOccurs="0" />
+                            <xs:element name="phase" maxOccurs="1" minOccurs="0">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="InitialAnalysisPhase" />
+                                        <xs:enumeration value="MigrationRulesPhase" />
+                                        <xs:enumeration value="PostMigrationRulesPhase" />
+                                        <xs:enumeration value="PreReportGenerationPhase" />
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="executeAfter" type="xs:string" maxOccurs="unbounded" minOccurs="0" />
+                            <xs:element name="executeBefore" type="xs:string" maxOccurs="unbounded" minOccurs="0" />
+                            <xs:element name="tag" type="xs:string" maxOccurs="unbounded" minOccurs="0" />
+                            <xs:element name="overrideRules" type="xs:boolean" maxOccurs="1" minOccurs="0" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="rules" minOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="rule" minOccurs="0" maxOccurs="unbounded" type="rule" />
+                            <xs:element name="file-mapping" type="mapping" minOccurs="0" maxOccurs="unbounded" />
+                            <xs:element name="package-mapping" type="mapping" minOccurs="0" maxOccurs="unbounded" />
+                            <xs:element name="javaclass-ignore" type="javaclass-ignore" minOccurs="0" maxOccurs="unbounded" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="package-mapping" type="mapping" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="file-mapping" type="mapping" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="javaclass-ignore" type="javaclass-ignore" minOccurs="0" maxOccurs="unbounded" />
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="id" use="optional" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="rule">
+        <xs:sequence>
+            <xs:element name="when" type="when" />
+            <xs:element name="perform" type="iteration"/>
+            <xs:element name="otherwise" type="iteration" minOccurs="0" maxOccurs="1" />
+            <xs:element name="where" type="where" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="required" />
+    </xs:complexType>
+
+
+    <!-- CONDITION DEFINITIONS -->
+
+
+    <!-- JavaClass -->
+    <xs:element name="javaclass">
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:element type="xs:string" name="location" minOccurs="0" maxOccurs="unbounded" />
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element ref="annotation-type"/>
+                    <xs:element ref="annotation-list"/>
+                    <xs:element ref="annotation-literal"/>
+                </xs:choice>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="references" />
+            <xs:attribute type="xs:string" name="matchesSource" />
+            <xs:attribute type="xs:string" name="as" use="optional" />
+            <xs:attribute type="xs:string" name="from" use="optional" />
+            <xs:attribute type="xs:string" name="in" use="optional" />
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Annotation Conditions -->
+    <xs:element name="annotation-type">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element ref="annotation-type"/>
+                    <xs:element ref="annotation-list"/>
+                    <xs:element ref="annotation-literal"/>
+                </xs:choice>
+            </xs:sequence>
+
+            <xs:attribute type="xs:string" name="name" use="optional"/>
+            <xs:attribute type="xs:string" name="pattern"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="annotation-list">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element ref="annotation-type"/>
+                    <xs:element ref="annotation-list"/>
+                    <xs:element ref="annotation-literal"/>
+                </xs:choice>
+            </xs:sequence>
+
+            <xs:attribute type="xs:string" name="name" use="optional"/>
+            <xs:attribute type="xs:integer" name="index" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="annotation-literal">
+        <xs:complexType>
+            <xs:attribute type="xs:string" name="name" use="optional"/>
+            <xs:attribute type="xs:string" name="pattern"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- XmlFile -->
+    <xs:element name="xmlfile">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="namespace" minOccurs="0" maxOccurs="unbounded" />
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="as" use="optional" />
+            <xs:attribute type="xs:string" name="xpathResultMatch" use="optional" />
+            <xs:attribute type="xs:string" name="matches" use="optional" />
+            <xs:attribute type="xs:string" name="public-id" use="optional" />
+            <xs:attribute type="xs:string" name="system-id" use="optional" />
+            <xs:attribute type="xs:string" name="in" use="optional" />
+            <xs:attribute type="xs:string" name="from" use="optional" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="namespace">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute type="xs:string" name="prefix" use="optional" />
+                    <xs:attribute type="xs:anyURI" name="uri" use="optional" />
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Project -->
+    <xs:element name="project">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="artifact">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute type="xs:string" name="groupId" />
+                                <xs:attribute type="xs:string" name="artifactId" />
+                                <xs:attribute type="xs:string" name="fromVersion" />
+                                <xs:attribute type="xs:string" name="toVersion" />
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="filecontent">
+        <xs:complexType>
+            <xs:attribute type="xs:string" name="from" />
+            <xs:attribute type="xs:string" name="pattern" use="required"/>
+            <xs:attribute type="xs:string" name="filename" />
+            <xs:attribute type="xs:string" name="as" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="file">
+        <xs:complexType>
+            <xs:attribute type="xs:string" name="from" />
+            <xs:attribute type="xs:string" name="filename" use="required"/>
+            <xs:attribute type="xs:string" name="as" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="has-classification">
+        <xs:complexType>
+            <xs:attribute type="xs:string" name="title" use="optional" />
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="has-hint">
+        <xs:complexType>
+            <xs:attribute type="xs:string" name="message" use="optional" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="iterable-filter">
+         <xs:complexContent>
+            <xs:extension base="when-base">
+                <xs:attribute name="size" type="xs:integer"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- GRAPH QUERY -->
+    <xs:complexType name="graph-query">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="property">
+                <xs:complexType mixed="true">
+                    <xs:attribute type="xs:string" name="name" use="required" />
+                    <xs:attribute type="property-type" name="type" use="optional" />
+                    <xs:attribute type="property-search-type" name="searchType" use="optional" />
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="discriminator" use="required" />
+        <xs:attribute type="xs:string" name="from" use="optional" />
+        <xs:attribute type="xs:string" name="as" use="optional" />
+    </xs:complexType>
+
+    <!-- Dependency -->
+    <xs:element name="dependency">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute type="xs:string" name="groupId" />
+                    <xs:attribute type="xs:string" name="artifactId" />
+                    <xs:attribute type="xs:string" name="fromVersion" />
+                    <xs:attribute type="xs:string" name="toVersion" />
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- TEST CONDITION DEFINITIONS -->
+
+   <xs:element name="classification-exists">
+      <xs:complexType>
+         <xs:attribute type="xs:string" name="classification" use="required"/>
+         <xs:attribute type="xs:string" name="in"/>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="file-exists">
+      <xs:complexType>
+         <xs:attribute type="xs:string" name="filename" use="required" />
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="hint-exists">
+      <xs:complexType>
+         <xs:attribute type="xs:string" name="message" use="required"/>
+         <xs:attribute type="xs:string" name="in"/>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="lineitem-exists">
+      <xs:complexType>
+         <xs:attribute type="xs:string" name="message" use="required"/>
+      </xs:complexType>
+   </xs:element>
+
+    <xs:element name="technology-tag-exists">
+        <xs:complexType>
+            <xs:attribute type="xs:string" name="technology-tag" use="required"/>
+            <xs:attribute type="xs:string" name="in"/>
+        </xs:complexType>
+    </xs:element>
+
+   <!-- OPERATION DEFINITIONS -->
+
+   <xs:element name="fail">
+      <xs:complexType>
+         <xs:attribute type="xs:string" name="message" />
+      </xs:complexType>
+   </xs:element>
+
+    <!-- OPERATION DEFINITIONS -->
+
+    <!-- Hint -->
+    <xs:element name="hint">
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:element name="message" minOccurs="0" maxOccurs="1" type="xs:string" />
+                <xs:element ref="link" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="tag" minOccurs="0" maxOccurs="unbounded" type="xs:string" />
+                <xs:element ref="quickfix" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="title" type="xs:string" use="required"/>
+            <xs:attribute name="category-id" type="category-id-type" use="optional" />
+            <xs:attribute name="issue-display-mode" type="issue-display-mode-type" use="optional" />
+            <xs:attribute name="in" type="xs:string" use="optional" />
+            <xs:attribute name="effort" type="xs:byte" use="optional" />
+            <!-- <xs:attribute type="xs:string" name="message" use="optional"/> -->
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="category-id-type">
+        <xs:restriction base="xs:string" />
+    </xs:simpleType>
+    
+    <xs:simpleType name="issue-display-mode-type">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+               This defines whether or not this particular issue will appear in summary reports
+               (eg, migration issues).
+            ]]></xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="detail-only"/>
+            <xs:enumeration value="all"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="quickfix-type">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+            This describes type of quick fix in type attribute.
+            There are currently 3 types supported 
+            for replacement -> REPLACE, addition -> INSERT_LINE and deleting -> DELETE_LINE.]]>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="REPLACE"/>
+            <xs:enumeration value="DELETE_LINE"/>
+            <xs:enumeration value="INSERT_LINE"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="property-search-type">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+            This defines the type of the value of the property.
+            It's optional and default is 'string'.]]>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="regex"/>
+            <xs:enumeration value="equals"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="property-type">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+            This defines the type of the value of the property.
+            It's optional and default is 'string'.]]>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="STRING"/>
+            <xs:enumeration value="BOOLEAN"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Classification -->
+    <xs:element name="classification">
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:element name="description" minOccurs="0" maxOccurs="unbounded" type="xs:string" />
+                <xs:element ref="link" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="tag" minOccurs="0" maxOccurs="unbounded" type="xs:string" />
+                <xs:element ref="quickfix" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="title" type="xs:string" use="required"/>
+            <xs:attribute name="effort" type="xs:byte" use="optional" />
+            <xs:attribute name="category-id" type="category-id-type" use="optional" />
+            <xs:attribute name="issue-display-mode" type="issue-display-mode-type" use="optional" />
+            <xs:attribute name="of" type="xs:string" use="optional" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="link">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute type="xs:anyURI" name="href" use="required"/>
+                    <xs:attribute type="xs:string" name="title" use="required"/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="quickfix">
+        <xs:annotation>
+            <xs:documentation>
+                Quick fix is supported element targeting tools to replace, delete or insert lines/strings.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:element name="newline" type="xs:string" maxOccurs="1" minOccurs="0" />
+                <xs:element name="replacement" type="xs:string" maxOccurs="1" minOccurs="0" />
+                <xs:element name="search" type="xs:string" maxOccurs="1" minOccurs="0" />
+            </xs:sequence>
+            <xs:attribute type="quickfix-type" name="type" use="required" />
+            <xs:attribute type="xs:string" name="name" use="required" />
+        </xs:complexType>
+    </xs:element>    
+
+    <xs:element name="log">
+        <xs:complexType>
+            <xs:attribute type="xs:string" name="message" />
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Line Hint -->
+    <xs:element name="lineitem">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute type="xs:string" name="message" use="required"/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- XSLT Transformation -->
+    <xs:element name="xslt">
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:element name="xslt-parameter" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute type="xs:string" name="property" />
+                                <xs:attribute type="xs:string" name="value" />
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="of" use="optional" />
+            <xs:attribute type="xs:string" name="title" use="required"/>
+            <xs:attribute type="xs:string" name="extension" use="required"/>
+            <xs:attribute type="xs:string" name="template" use="required"/>
+            <xs:attribute type="xs:boolean" name="use-saxon" use="optional"/>
+            <xs:attribute type="xs:byte" name="effort" use="optional" />
+        </xs:complexType>
+    </xs:element>
+
+    <!-- technology-identified - TechnologyIdentifiedHandler -->
+    <xs:complexType name="technology-identified" mixed="true">
+        <xs:sequence>
+            <xs:element ref="tag" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="number-found" type="xs:byte" use="optional" />
+    </xs:complexType>
+
+    <xs:element name="tag">
+        <xs:complexType>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="technology-tag">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute name="level" type="technology-tag-level" />
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="technology-tag-level">
+        <xs:annotation>
+            <xs:documentation><![CDATA[
+               This defines the level of a technology tag.
+            ]]></xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="INFORMATIONAL"/>
+            <xs:enumeration value="IMPORTANT"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- MAIN BUILDING BLOCKS -->
+    <xs:complexType name="where">
+        <xs:sequence>
+            <xs:element name="matches" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute type="xs:string" name="pattern" />
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="param" use="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="when-base">
+        <!-- Conditions -->
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="true" minOccurs="0" maxOccurs="1" />
+            <xs:element name="false" minOccurs="0" maxOccurs="1" />
+            <xs:element ref="javaclass" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="xmlfile" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="project" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="filecontent" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="file" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="classification-exists" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="file-exists" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="hint-exists" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="lineitem-exists" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="technology-statistics-exists" type="technology-identified" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="iterable-filter" type="iterable-filter" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="to-file-model" type="when-base" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="graph-query" type="graph-query" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="technology-tag-exists" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="dependency" minOccurs="0" maxOccurs="unbounded" />
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="when">
+        <xs:complexContent>
+            <xs:extension base="when-base">
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element name="or" type="when" minOccurs="0" maxOccurs="unbounded" />
+                    <xs:element name="and" type="when" minOccurs="0" maxOccurs="unbounded" />
+                    <xs:element name="not" type="when" minOccurs="0" maxOccurs="unbounded" />
+                </xs:choice>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="iteration-when">
+        <xs:complexContent>
+            <xs:extension base="when-base">
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element ref="has-classification" />
+                    <xs:element ref="has-hint" />
+                    <xs:element name="or" type="iteration-when" minOccurs="0" maxOccurs="unbounded" />
+                    <xs:element name="and" type="iteration-when" minOccurs="0" maxOccurs="unbounded" />
+                    <xs:element name="not" type="iteration-when" minOccurs="0" maxOccurs="unbounded" />
+                </xs:choice>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="iteration">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="when" type="iteration-when" minOccurs="0" maxOccurs="1" />
+            <xs:element name="perform" type="iteration" />
+            <xs:element name="otherwise" type="iteration" minOccurs="0" maxOccurs="1" />
+            <xs:element name="iteration" type="iteration" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="classification" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="hint" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="log" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="xslt" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="lineitem" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="fail" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="classification-exists" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="file-exists" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="hint-exists" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="lineitem-exists" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="technology-identified" type="technology-identified" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="technology-tag" minOccurs="0" maxOccurs="unbounded" />
+        </xs:choice>
+        <xs:attribute type="xs:string" name="over" />
+        <!-- <xs:attribute type="xs:string" name="as" /> not supported in handler yet -->
+    </xs:complexType>
+
+
+    <xs:complexType name="technology">
+        <xs:attribute type="xs:string" name="versionRange" />
+        <xs:attribute type="xs:string" name="id" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="mapping">
+        <xs:attribute type="xs:string" name="from" use="required" />
+        <xs:attribute type="xs:string" name="to" use="required" />
+        <xs:attribute type="xs:string" name="id" use="required"/>
+        <xs:attribute type="onParseError-type" name="onParseError" />
+    </xs:complexType>
+
+    <xs:simpleType name="onParseError-type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ignore"/>
+            <xs:enumeration value="warn"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="javaclass-ignore">
+        <xs:attribute type="xs:string" name="reference-prefix" use="required" />
+    </xs:complexType>
+
+</xs:schema>

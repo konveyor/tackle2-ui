@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import * as React from "react";
 import { Gallery, GalleryItem } from "@patternfly/react-core";
 
 import { SelectCard } from "./select-card";
@@ -82,8 +82,6 @@ export const SelectCardGallery: React.FC<SelectCardGalleryProps> = ({
   values,
   onChange,
 }) => {
-  const [CardsSelected, setCardsSelected] = React.useState();
-
   const handleOnCardChange = (
     isNewCard: boolean,
     selectionValue: string,

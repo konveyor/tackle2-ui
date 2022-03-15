@@ -27,10 +27,10 @@ export const Review: React.FunctionComponent<IReview> = ({
   const {
     mode,
     targets,
-    scope,
+    withKnown,
     includedPackages,
     excludedPackages,
-    customRules,
+    customRulesFiles,
   } = getValues();
   return (
     <>
@@ -72,7 +72,7 @@ export const Review: React.FunctionComponent<IReview> = ({
         <DescriptionListGroup>
           <DescriptionListTerm>Scope</DescriptionListTerm>
           <DescriptionListDescription id="scope">
-            {scope}
+            {withKnown}
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
@@ -99,8 +99,8 @@ export const Review: React.FunctionComponent<IReview> = ({
           <DescriptionListTerm>Custom rules</DescriptionListTerm>
           <DescriptionListDescription id="rules">
             <List isPlain>
-              {customRules.map((rule, index) => (
-                <ListItem key={index}>{rule}</ListItem>
+              {customRulesFiles.map((rule, index) => (
+                <ListItem key={index}>{rule.fileName}</ListItem>
               ))}
             </List>
           </DescriptionListDescription>
