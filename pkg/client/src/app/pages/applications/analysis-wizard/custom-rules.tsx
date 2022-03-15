@@ -38,12 +38,16 @@ import "./wizard.css";
 
 interface ICustomRules {
   customRulesFiles: IReadFile[];
-  setValue: (files: IReadFile[]) => void;
+  sources: string[];
+  setCustomRulesFiles: (files: IReadFile[]) => void;
+  setSources: (sources: string[]) => void;
 }
 
 export const CustomRules: React.FunctionComponent<ICustomRules> = ({
   customRulesFiles,
-  setValue,
+  sources,
+  setCustomRulesFiles,
+  setSources,
 }) => {
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
@@ -86,6 +90,9 @@ export const CustomRules: React.FunctionComponent<ICustomRules> = ({
           total: rulesCount,
         },
       ];
+
+      if (!sources.includes(source)) setSources([...sources, source]);
+
       return rules;
     };
 
@@ -95,7 +102,7 @@ export const CustomRules: React.FunctionComponent<ICustomRules> = ({
     });
 
     return rules.flat();
-  }, [customRulesFiles]);
+  }, [customRulesFiles, sources, setSources]);
 
   const filterCategories: FilterCategory<Rule>[] = [
     {
@@ -162,7 +169,7 @@ export const CustomRules: React.FunctionComponent<ICustomRules> = ({
                   const fileList = customRulesFiles.filter(
                     (file) => file.fileName !== item.name
                   );
-                  setValue(fileList);
+                  setCustomRulesFiles(fileList);
                 }}
               >
                 <TrashIcon />
@@ -243,7 +250,7 @@ export const CustomRules: React.FunctionComponent<ICustomRules> = ({
                 return;
               }}
             >
-              Add
+              AddsetValue
             </Button>,
             <Button
               key="cancel"
@@ -256,7 +263,7 @@ export const CustomRules: React.FunctionComponent<ICustomRules> = ({
         >
           <AddCustomRules
             readFileData={customRulesFiles}
-            setReadFileData={setValue}
+            setReadFileData={setCustomRulesFiles}
           />
         </Modal>
       )}

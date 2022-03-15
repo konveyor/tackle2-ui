@@ -339,6 +339,7 @@ export interface TaskData {
     };
   };
   targets: string[];
+  sources: string[];
   scope: {
     withKnown: boolean;
     packages: {

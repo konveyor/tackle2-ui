@@ -27,6 +27,7 @@ export const Review: React.FunctionComponent<IReview> = ({
   const {
     mode,
     targets,
+    sources,
     withKnown,
     includedPackages,
     excludedPackages,
@@ -65,6 +66,18 @@ export const Review: React.FunctionComponent<IReview> = ({
             <List isPlain>
               {targets.map((target, index) => (
                 <ListItem key={index}>{target}</ListItem>
+              ))}
+            </List>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>
+            {targets.length > 1 ? "Sources" : "Source"}
+          </DescriptionListTerm>
+          <DescriptionListDescription id="sources">
+            <List isPlain>
+              {sources.map((source, index) => (
+                <ListItem key={index}>{source}</ListItem>
               ))}
             </List>
           </DescriptionListDescription>

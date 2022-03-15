@@ -18,32 +18,98 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 interface IOptions {
   targets: string[];
   sources: string[];
+  setTargets: (val: string[]) => void;
+  setSources: (val: string[]) => void;
 }
+
+const defaultTargets = [
+  "camel",
+  "cloud-readiness",
+  "drools",
+  "eap",
+  "eap6",
+  "eap7",
+  "eapxp",
+  "fsw",
+  "fuse",
+  "hibernate",
+  "hibernate-search",
+  "jakarta-ee",
+  "java-ee",
+  "jbpm",
+  "linux",
+  "openjdk",
+  "quarkus",
+  "quarkus1",
+  "resteasy",
+  "rhr",
+];
+
+const defaultSources = [
+  "agroal",
+  "amazon",
+  "artemis",
+  "avro",
+  "camel",
+  "config",
+  "drools",
+  "eap",
+  "eap6",
+  "eap7",
+  "eapxp",
+  "elytron",
+  "glassfish",
+  "hibernate",
+  "hibernate-search",
+  "java",
+  "java-ee",
+  "javaee",
+  "jbpm",
+  "jdbc",
+  "jonas",
+  "jrun",
+  "jsonb",
+  "jsonp",
+  "kafka",
+  "keycloak",
+  "kubernetes",
+  "log4j",
+  "logging",
+  "narayana",
+  "openshift",
+  "oraclejdk",
+  "orion",
+  "quarkus1",
+  "resin",
+  "resteasy",
+  "rmi",
+  "rpc",
+  "seam",
+  "soa",
+  "soa-p",
+  "sonic",
+  "sonicesb",
+  "springboot",
+  "thorntail",
+  "weblogic",
+  "websphere",
+];
 
 export const Options: React.FunctionComponent<IOptions> = ({
   targets,
   sources,
+  setTargets,
+  setSources,
 }) => {
   React.useState(false);
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
-
-  const [selectedTargets, setSelectedTargets] = React.useState<string[]>([]);
-  const [selectedSources, setSelectedSources] = React.useState<string[]>([]);
   const [excludedRulesTags, setExcludedRulesTags] = React.useState<string[]>(
     []
   );
 
   const [rulesToExclude, setRulesToExclude] = React.useState("");
-
-  const targetsOptions = targets.map((target, index) => {
-    return <SelectOption key={index} component="button" value={target} />;
-  });
-
-  const sourcesOptions = sources.map((source, index) => {
-    return <SelectOption key={index} component="button" value={source} />;
-  });
 
   return (
     <>
@@ -58,50 +124,48 @@ export const Options: React.FunctionComponent<IOptions> = ({
           <Select
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select targets"
-            selections={selectedTargets}
+            selections={targets}
             isOpen={isSelectTargetsOpen}
             onSelect={(_, selection) => {
-              if (!selectedTargets.includes(selection as string))
-                setSelectedTargets([...selectedTargets, selection] as string[]);
-              else
-                setSelectedTargets(
-                  selectedTargets.filter((target) => target !== selection)
-                );
+              if (!targets.includes(selection as string))
+                setTargets([...targets, selection] as string[]);
+              else setTargets(targets.filter((target) => target !== selection));
               setSelectTargetsOpen(!isSelectTargetsOpen);
             }}
             onToggle={() => {
               setSelectTargetsOpen(!isSelectTargetsOpen);
             }}
             onClear={() => {
-              setSelectedTargets([]);
+              setTargets([]);
             }}
           >
-            {targetsOptions}
+            {defaultTargets.map((target, index) => (
+              <SelectOption key={index} component="button" value={target} />
+            ))}
           </Select>
         </FormGroup>
         <FormGroup label="Sources" fieldId="sources">
           <Select
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select sources"
-            selections={selectedSources}
+            selections={sources}
             isOpen={isSelectSourcesOpen}
             onSelect={(_, selection) => {
-              if (!selectedSources.includes(selection as string))
-                setSelectedSources([...selectedSources, selection] as string[]);
-              else
-                setSelectedSources(
-                  selectedSources.filter((source) => source !== selection)
-                );
+              if (!sources.includes(selection as string))
+                setSources([...sources, selection] as string[]);
+              else setSources(sources.filter((source) => source !== selection));
               setSelectSourcesOpen(!isSelectSourcesOpen);
             }}
             onToggle={() => {
               setSelectSourcesOpen(!isSelectSourcesOpen);
             }}
             onClear={() => {
-              setSelectedSources([]);
+              setSources([]);
             }}
           >
-            {sourcesOptions}
+            {defaultSources.map((source, index) => (
+              <SelectOption key={index} component="button" value={source} />
+            ))}
           </Select>
         </FormGroup>
         <FormGroup label="Excluded rules tags" fieldId="excluded-rules">

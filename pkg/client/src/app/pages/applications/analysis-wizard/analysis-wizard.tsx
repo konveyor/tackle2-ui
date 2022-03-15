@@ -27,6 +27,7 @@ interface IAnalysisWizard {
 export interface IFormValues {
   mode: string;
   targets: string[];
+  sources: string[];
   withKnown: string;
   includedPackages: string[];
   excludedPackages: string[];
@@ -44,6 +45,7 @@ const defaultTaskData: TaskData = {
     withDeps: false,
   },
   targets: [],
+  sources: [],
   scope: {
     withKnown: false,
     packages: {
@@ -73,6 +75,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       defaultValues: {
         mode: "Binary",
         targets: [],
+        sources: [],
         withKnown: "",
         includedPackages: [""],
         excludedPackages: [""],
@@ -130,88 +133,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   const {
     mode,
     targets,
+    sources,
     customRulesFiles,
     withKnown,
     includedPackages,
     excludedPackages,
   } = getValues();
-
-  const defaultTargets = [
-    "camel",
-    "cloud-readiness",
-    "drools",
-    "eap",
-    "eap6",
-    "eap7",
-    "eapxp",
-    "fsw",
-    "fuse",
-    "hibernate",
-    "hibernate-search",
-    "jakarta-ee",
-    "java-ee",
-    "jbpm",
-    "linux",
-    "openjdk",
-    "quarkus",
-    "quarkus1",
-    "resteasy",
-    "rhr",
-  ];
-
-  const defaultSources = [
-    "agroal",
-    "amazon",
-    "artemis",
-    "avro",
-    "camel",
-    "config",
-    "drools",
-    "eap",
-    "eap6",
-    "eap7",
-    "eapxp",
-    "elytron",
-    "glassfish",
-    "hibernate",
-    "hibernate-search",
-    "java",
-    "java-ee",
-    "javaee",
-    "jbpm",
-    "jdbc",
-    "jonas",
-    "jrun",
-    "jsonb",
-    "jsonp",
-    "kafka",
-    "keycloak",
-    "kubernetes",
-    "log4j",
-    "logging",
-    "narayana",
-    "openshift",
-    "oraclejdk",
-    "orion",
-    "quarkus1",
-    "resin",
-    "resteasy",
-    "rmi",
-    "rpc",
-    "seam",
-    "soa",
-    "soa-p",
-    "sonic",
-    "sonicesb",
-    "springboot",
-    "thorntail",
-    "weblogic",
-    "websphere",
-  ];
-
-  const optionsTargets = defaultTargets.filter(
-    (target) => !targets.includes(target)
-  );
 
   const steps = [
     {
@@ -259,14 +186,21 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           component: (
             <CustomRules
               customRulesFiles={customRulesFiles}
-              setValue={(val) => setValue("customRulesFiles", val)}
+              sources={sources}
+              setCustomRulesFiles={(val) => setValue("customRulesFiles", val)}
+              setSources={(val) => setValue("sources", val)}
             />
           ),
         },
         {
           name: "Options",
           component: (
-            <Options targets={optionsTargets} sources={defaultSources} />
+            <Options
+              targets={targets}
+              sources={sources}
+              setTargets={(val) => setValue("targets", val)}
+              setSources={(val) => setValue("sources", val)}
+            />
           ),
         },
       ],
