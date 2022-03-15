@@ -9,7 +9,7 @@ import { Application, Task, TaskData } from "@app/api/models";
 import { SetMode } from "./set-mode";
 import { SetTargets } from "./set-targets";
 import { SetScope } from "./set-scope";
-import { Options } from "./options";
+import { SetOptions } from "./set-options";
 import { Review } from "./review";
 import { createTask } from "@app/api/rest";
 import { alertActions } from "@app/store/alert";
@@ -161,7 +161,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             <SetMode
               register={register}
               mode={mode}
-              setMode={(val) => setValue("mode", val)}
+              setMode={(mode) => setValue("mode", mode)}
             />
           ),
         },
@@ -170,7 +170,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           component: (
             <SetTargets
               targets={targets}
-              setTargets={(val) => setValue("targets", val)}
+              setTargets={(target) => setValue("targets", target)}
             />
           ),
         },
@@ -181,9 +181,13 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
               withKnown={withKnown}
               includedPackages={includedPackages}
               excludedPackages={excludedPackages}
-              setWithKnown={(val) => setValue("withKnown", val)}
-              setIncludedPackages={(val) => setValue("includedPackages", val)}
-              setExcludedPackages={(val) => setValue("excludedPackages", val)}
+              setWithKnown={(withKnown) => setValue("withKnown", withKnown)}
+              setIncludedPackages={(packages) =>
+                setValue("includedPackages", packages)
+              }
+              setExcludedPackages={(packages) =>
+                setValue("excludedPackages", packages)
+              }
             />
           ),
         },
@@ -198,21 +202,25 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             <CustomRules
               customRulesFiles={customRulesFiles}
               sources={sources}
-              setCustomRulesFiles={(val) => setValue("customRulesFiles", val)}
-              setSources={(val) => setValue("sources", val)}
+              setCustomRulesFiles={(rulesFiles) =>
+                setValue("customRulesFiles", rulesFiles)
+              }
+              setSources={(sources) => setValue("sources", sources)}
             />
           ),
         },
         {
           name: "Options",
           component: (
-            <Options
+            <SetOptions
               targets={targets}
               sources={sources}
               excludedRulesTags={excludedRulesTags}
-              setTargets={(val) => setValue("targets", val)}
-              setSources={(val) => setValue("sources", val)}
-              setExcludedRulesTags={(val) => setValue("excludedRulesTags", val)}
+              setTargets={(targets) => setValue("targets", targets)}
+              setSources={(sources) => setValue("sources", sources)}
+              setExcludedRulesTags={(tags) =>
+                setValue("excludedRulesTags", tags)
+              }
             />
           ),
         },

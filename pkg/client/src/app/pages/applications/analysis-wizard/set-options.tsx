@@ -15,7 +15,7 @@ import {
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-interface IOptions {
+interface ISetOptions {
   targets: string[];
   sources: string[];
   excludedRulesTags: string[];
@@ -97,7 +97,7 @@ const defaultSources = [
   "websphere",
 ];
 
-export const Options: React.FunctionComponent<IOptions> = ({
+export const SetOptions: React.FunctionComponent<ISetOptions> = ({
   targets,
   sources,
   setTargets,
