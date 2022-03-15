@@ -32,9 +32,7 @@ export interface IFormValues {
   includedPackages: string[];
   excludedPackages: string[];
   customRulesFiles: IReadFile[];
-  test: {
-    a: string;
-  };
+  excludedRulesTags: string[];
 }
 
 const defaultTaskData: TaskData = {
@@ -50,6 +48,11 @@ const defaultTaskData: TaskData = {
     withKnown: false,
     packages: {
       included: [],
+      excluded: [],
+    },
+  },
+  rules: {
+    tags: {
       excluded: [],
     },
   },
@@ -80,6 +83,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         includedPackages: [""],
         excludedPackages: [""],
         customRulesFiles: [],
+        excludedRulesTags: [""],
       },
     });
 
@@ -96,11 +100,17 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           withDeps: data.mode.includes("dependencies"),
         },
         targets: data.targets,
+        sources: data.sources,
         scope: {
           withKnown: data.withKnown.includes("depsAll") ? true : false,
           packages: {
             included: data.includedPackages,
             excluded: data.excludedPackages,
+          },
+        },
+        rules: {
+          tags: {
+            excluded: data.excludedRulesTags,
           },
         },
       },
@@ -138,6 +148,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     withKnown,
     includedPackages,
     excludedPackages,
+    excludedRulesTags,
   } = getValues();
 
   const steps = [
@@ -198,8 +209,10 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             <Options
               targets={targets}
               sources={sources}
+              excludedRulesTags={excludedRulesTags}
               setTargets={(val) => setValue("targets", val)}
               setSources={(val) => setValue("sources", val)}
+              setExcludedRulesTags={(val) => setValue("excludedRulesTags", val)}
             />
           ),
         },

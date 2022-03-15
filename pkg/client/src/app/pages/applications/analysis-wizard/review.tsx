@@ -20,6 +20,15 @@ interface IReview {
   getValues: UseFormGetValues<IFormValues>;
 }
 
+const defaultScopes: Map<string, string> = new Map([
+  ["depsOnly", "Application and internal dependencies only"],
+  [
+    "depsAll",
+    "Application and all dependencies, including known Open Source libraries",
+  ],
+  ["depsSelect", "list of packages to be analyzed manually"],
+]);
+
 export const Review: React.FunctionComponent<IReview> = ({
   applications,
   getValues,
@@ -32,7 +41,9 @@ export const Review: React.FunctionComponent<IReview> = ({
     includedPackages,
     excludedPackages,
     customRulesFiles,
+    excludedRulesTags,
   } = getValues();
+
   return (
     <>
       <TextContent>
@@ -85,7 +96,7 @@ export const Review: React.FunctionComponent<IReview> = ({
         <DescriptionListGroup>
           <DescriptionListTerm>Scope</DescriptionListTerm>
           <DescriptionListDescription id="scope">
-            {withKnown}
+            {defaultScopes.get(withKnown)}
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
@@ -117,11 +128,15 @@ export const Review: React.FunctionComponent<IReview> = ({
               ))}
             </List>
           </DescriptionListDescription>
-        </DescriptionListGroup>
+        </DescriptionListGroup>{" "}
         <DescriptionListGroup>
-          <DescriptionListTerm>Advanced options</DescriptionListTerm>
-          <DescriptionListDescription id="options">
-            {"Todo"}
+          <DescriptionListTerm>Excluded rules tags</DescriptionListTerm>
+          <DescriptionListDescription id="excluded-rules-tags">
+            <List isPlain>
+              {excludedRulesTags.map((tag, index) => (
+                <ListItem key={index}>{tag}</ListItem>
+              ))}
+            </List>
           </DescriptionListDescription>
         </DescriptionListGroup>
       </DescriptionList>

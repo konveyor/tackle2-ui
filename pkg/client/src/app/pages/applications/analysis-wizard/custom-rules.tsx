@@ -250,7 +250,7 @@ export const CustomRules: React.FunctionComponent<ICustomRules> = ({
                 return;
               }}
             >
-              AddsetValue
+              Add
             </Button>,
             <Button
               key="cancel"

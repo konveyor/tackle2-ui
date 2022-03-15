@@ -348,12 +348,11 @@ export interface TaskData {
     };
   };
   rules?: {
-    directory: {
+    directory?: {
       bucket: number;
       path: string;
     };
     tags: {
-      included: string[];
       excluded: string[];
     };
   };

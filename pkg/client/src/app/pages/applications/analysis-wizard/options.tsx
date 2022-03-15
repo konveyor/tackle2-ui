@@ -18,8 +18,10 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 interface IOptions {
   targets: string[];
   sources: string[];
+  excludedRulesTags: string[];
   setTargets: (val: string[]) => void;
   setSources: (val: string[]) => void;
+  setExcludedRulesTags: (val: string[]) => void;
 }
 
 const defaultTargets = [
@@ -99,15 +101,14 @@ export const Options: React.FunctionComponent<IOptions> = ({
   targets,
   sources,
   setTargets,
+  excludedRulesTags,
+  setExcludedRulesTags,
   setSources,
 }) => {
   React.useState(false);
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
-  const [excludedRulesTags, setExcludedRulesTags] = React.useState<string[]>(
-    []
-  );
 
   const [rulesToExclude, setRulesToExclude] = React.useState("");
 
