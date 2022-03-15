@@ -1,4 +1,7 @@
 # tackle2-ui
+
+[![Operator Repository on Quay](https://quay.io/repository/konveyor/tackle2-ui/status "Operator Repository on Quay")](https://quay.io/repository/konveyor/tackle2-ui) [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/konveyor/tackle2-ui/pulls)
+
 Tackle (2nd generation) UI component.
 
 To install a Tackle2 cluster environment please refer to [Tackle documentation](https://github.com/konveyor/tackle).
