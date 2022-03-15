@@ -12,7 +12,7 @@ import {
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import "./set-scope.css";
+import "./wizard.css";
 
 interface ISetScope {
   withKnown: string;

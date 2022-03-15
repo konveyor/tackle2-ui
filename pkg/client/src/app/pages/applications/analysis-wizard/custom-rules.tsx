@@ -34,9 +34,7 @@ import { Rule } from "@app/api/models";
 import { NoDataEmptyState } from "@app/shared/components";
 import { IReadFile } from "./components/add-custom-rules";
 
-import "./custom-rules.css";
-import { UseFormGetValues } from "react-hook-form";
-import { IFormValues } from "./analysis-wizard";
+import "./wizard.css";
 
 interface ICustomRules {
   customRulesFiles: IReadFile[];
@@ -184,7 +182,7 @@ export const CustomRules: React.FunctionComponent<ICustomRules> = ({
         </Title>
         <Text>Upload the rules you want to include in the analysis.</Text>
       </TextContent>
-      <div className="foo">
+      <div className="line">
         <Toolbar
           className="pf-m-toggle-group-container"
           collapseListedFiltersBreakpoint="xl"

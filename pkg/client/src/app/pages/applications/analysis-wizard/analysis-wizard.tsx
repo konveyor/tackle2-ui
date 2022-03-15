@@ -17,7 +17,7 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { CustomRules } from "./custom-rules";
 import { IReadFile } from "./components/add-custom-rules";
 
-import "./analysis-wizard.css";
+import "./wizard.css";
 
 interface IAnalysisWizard {
   applications: Application[];
