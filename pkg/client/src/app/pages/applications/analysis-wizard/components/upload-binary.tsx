@@ -27,8 +27,7 @@ export interface IReadFile {
 interface IUploadBinary {}
 
 export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
-  const [readFileData, setReadFileData] = React.useState<IReadFile>();
-
+  const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
   const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
   const [showStatus, setShowStatus] = React.useState(false);
   const [modalText, setModalText] = React.useState("");
@@ -40,12 +39,13 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
 
   // determine the icon that should be shown for the overall status list
   const getStatusIcon = () => {
-    // if (readFileData.length < currentFiles.length) {
-    //   return <InProgressIcon />;
-    // }
+    if (readFileData.length < currentFiles.length) {
+      return <InProgressIcon />;
+    }
 
-    if (readFileData && readFileData.loadResult === "success")
+    if (readFileData.every((file) => file.loadResult === "success")) {
       return <CheckCircleIcon />;
+    }
 
     return <TimesCircleIcon />;
   };
@@ -59,7 +59,10 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
 
     setCurrentFiles(newCurrentFiles);
 
-    const newReadFiles = readFileData;
+    const newReadFiles = readFileData.filter(
+      (readFile) =>
+        !namesOfFilesToRemove.some((fileName) => fileName === readFile.fileName)
+    );
 
     setReadFileData(newReadFiles);
   };
@@ -84,18 +87,27 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
       loadResult: "success",
     };
 
-    setReadFileData(newReadFile);
+    // const fileList = [...readFileData, newReadFile];
+    const fileList = [newReadFile];
+
+    setCurrentFiles(
+      currentFiles.filter((file) => file.name === fileList[0].fileName)
+    );
+    setReadFileData(fileList);
   };
 
   // callback called by the status item when a file encounters an error while being read with the built-in file reader
   const handleReadFail = (error: DOMException, file: File) => {
-    const nfile: IReadFile = {
-      loadError: error,
-      fileName: file.name,
-      loadResult: "danger",
-    };
+    const fileList = [
+      ...readFileData,
+      {
+        loadError: error,
+        fileName: file.name,
+        loadResult: "danger",
+      } as IReadFile,
+    ];
 
-    setReadFileData(nfile);
+    setReadFileData(fileList);
   };
 
   // dropzone prop that communicates to the user that files they've attempted to upload are not an appropriate type
@@ -114,7 +126,9 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
     }
   };
 
-  const successfullyReadFileCount = 1;
+  const successfullyReadFileCount = readFileData.filter(
+    (fileData) => fileData.loadResult === "success"
+  ).length;
 
   return (
     <MultipleFileUpload
