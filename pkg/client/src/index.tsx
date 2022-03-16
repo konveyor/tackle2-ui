@@ -15,9 +15,11 @@ import i18n from "@app/i18n";
 import { NinjaErrorBoundary } from "@app/ninja-error-boundary";
 
 import "./index.css";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 initApi();
 i18n.init();
+const queryClient = new QueryClient();
 
 ReactDOM.render(
   <ReactKeycloakProvider
@@ -51,7 +53,9 @@ ReactDOM.render(
   >
     <Provider store={configureStore()}>
       <NinjaErrorBoundary>
-        <App />
+        <QueryClientProvider client={queryClient}>
+          <App />
+        </QueryClientProvider>
       </NinjaErrorBoundary>
     </Provider>
   </ReactKeycloakProvider>,
