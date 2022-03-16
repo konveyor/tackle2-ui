@@ -246,9 +246,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         });
       }
     }
-    //set initial checkbox
     setIsHttpIdentityRequired(!!result.id);
-
     return result;
   }, [identities, httpProxy]);
 
