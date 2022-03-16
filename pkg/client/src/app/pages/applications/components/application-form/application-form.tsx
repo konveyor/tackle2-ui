@@ -45,6 +45,13 @@ export interface FormValues {
   comments: string;
   businessService: IBusinessServiceDropdown | null;
   tags: ITagDropdown[];
+  sourceRepository: string;
+  branch: string;
+  rootPath: string;
+  group: string;
+  artifact: string;
+  version: string;
+  packaging: string;
 }
 
 export interface ApplicationFormProps {
@@ -138,6 +145,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     comments: application?.comments || "",
     businessService: businessServiceInitialValue,
     tags: tagsInitialValue,
+    sourceRepository: application?.repository?.url || "",
+    branch: application?.repository?.branch || "",
+    rootPath: application?.repository?.path || "",
+    group: "",
+    version: "",
+    artifact: "",
+    packaging: "",
   };
 
   const validationSchema = object().shape({
@@ -149,9 +163,47 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     description: string()
       .trim()
       .max(250, t("validation.maxLength", { length: 250 })),
+    businessService: object().shape({
+      id: string()
+        .trim()
+        .required()
+        .max(250, t("validation.maxLength", { length: 250 })),
+      value: string()
+        .trim()
+        .max(250, t("validation.maxLength", { length: 250 })),
+    }),
     comments: string()
       .trim()
       .max(250, t("validation.maxLength", { length: 250 })),
+    branch: string()
+      .trim()
+      .max(250, t("validation.maxLength", { length: 250 })),
+    rootPath: string()
+      .trim()
+      .max(250, t("validation.maxLength", { length: 250 })),
+    sourceRepository: string()
+      .when("branch", {
+        is: (branch: any) => branch?.length > 0,
+        then: (schema) =>
+          schema
+            .matches(
+              /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
+              "Enter correct url!"
+            )
+            .required("Please enter repository url"),
+        otherwise: (schema) => schema.min(0),
+      })
+      .when("rootPath", {
+        is: (rootPath: any) => rootPath?.length > 0,
+        then: (schema) =>
+          schema
+            .matches(
+              /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
+              "Enter correct url!"
+            )
+            .required("Please enter repository url"),
+        otherwise: (schema) => schema.min(0),
+      }),
   });
 
   const onSubmit = (
@@ -171,6 +223,15 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       tags: formValues.tags.map((f): Ref => {
         const thisTag = { id: f.id, name: f.name };
         return thisTag;
+      }),
+      ...(formValues.sourceRepository && {
+        repository: {
+          url: formValues.sourceRepository
+            ? formValues.sourceRepository.trim()
+            : undefined,
+          branch: formValues.branch.trim(),
+          path: formValues.rootPath.trim(),
+        },
       }),
       review: undefined, // The review should not updated through this form
     };
@@ -274,9 +335,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           <FormGroup
             label={t("terms.businessService")}
             fieldId="businessService"
-            isRequired={false}
+            isRequired={true}
             validated={getValidatedFromError(formik.errors.businessService)}
-            helperTextInvalid={formik.errors.businessService}
+            helperTextInvalid={
+              formik.errors.businessService && "This field is required"
+            }
           >
             <SingleSelectFetchOptionValueFormikField<IBusinessServiceDropdown>
               fieldConfig={{
@@ -290,7 +353,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 toggleAriaLabel: "business-service",
                 clearSelectionsAriaLabel: "business-service",
                 removeSelectionAriaLabel: "business-service",
-                // t("terms.businessService")
                 placeholderText: t("composed.selectOne", {
                   what: t("terms.businessService").toLowerCase(),
                 }),
@@ -368,8 +430,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           <FormGroup
             label={t("terms.sourceRepo")}
             fieldId="sourceRepository"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            validated={getValidatedFromError(formik.errors.sourceRepository)}
+            helperTextInvalid={formik.errors.sourceRepository}
           >
             <TextInput
               type="text"
@@ -379,18 +441,14 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               isRequired={true}
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
-              )}
+              value={formik.values.sourceRepository}
             />
           </FormGroup>
           <FormGroup
             label={t("terms.sourceBranch")}
             fieldId="branch"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            validated={getValidatedFromError(formik.errors.branch)}
+            helperTextInvalid={formik.errors.branch}
           >
             <TextInput
               type="text"
@@ -399,18 +457,18 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               aria-describedby="Source Repository Branch"
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.branch}
               validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
+                formik.errors.branch,
+                formik.touched.branch
               )}
             />
           </FormGroup>
           <FormGroup
             label={t("terms.sourceRootPath")}
             fieldId="rootPath"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            validated={getValidatedFromError(formik.errors.rootPath)}
+            helperTextInvalid={formik.errors.rootPath}
           >
             <TextInput
               type="text"
@@ -419,10 +477,10 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               aria-describedby="Source Repository Root Path"
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.rootPath}
               validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
+                formik.errors.rootPath,
+                formik.touched.rootPath
               )}
             />
           </FormGroup>
@@ -433,12 +491,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
           isExpanded={isBinaryExpanded}
         >
-          {" "}
           <FormGroup
             label={t("terms.binaryGroup")}
             fieldId="group"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            validated={getValidatedFromError(formik.errors.group)}
+            helperTextInvalid={formik.errors.group}
           >
             <TextInput
               type="text"
@@ -447,38 +504,40 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               aria-describedby="Binary Group"
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.group}
+              isDisabled={true}
               validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
+                formik.errors.group,
+                formik.touched.group
               )}
             />
           </FormGroup>
           <FormGroup
             label={t("terms.binaryArtifact")}
-            fieldId="artifac"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            fieldId="artifact"
+            validated={getValidatedFromError(formik.errors.artifact)}
+            helperTextInvalid={formik.errors.artifact}
           >
             <TextInput
               type="text"
-              name="artifac"
-              aria-label="Binary Artifac"
-              aria-describedby="Binary Artifac"
+              name="artifact"
+              aria-label="Binary Artifact"
+              aria-describedby="Binary Artifact"
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.artifact}
+              isDisabled={true}
               validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
+                formik.errors.artifact,
+                formik.touched.artifact
               )}
             />
           </FormGroup>
           <FormGroup
             label={t("terms.binaryVersion")}
             fieldId="version"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            validated={getValidatedFromError(formik.errors.version)}
+            helperTextInvalid={formik.errors.version}
           >
             <TextInput
               type="text"
@@ -487,18 +546,19 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               aria-describedby="Binary version"
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.version}
+              isDisabled={true}
               validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
+                formik.errors.version,
+                formik.touched.version
               )}
             />
           </FormGroup>
           <FormGroup
             label={t("terms.binaryPackaging")}
             fieldId="packaging"
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
+            validated={getValidatedFromError(formik.errors.packaging)}
+            helperTextInvalid={formik.errors.packaging}
           >
             <TextInput
               type="text"
@@ -507,10 +567,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               aria-describedby="Binary Packaging"
               onChange={onChangeField}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.packaging}
+              isDisabled={true}
               validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
+                formik.errors.packaging,
+                formik.touched.packaging
               )}
             />
           </FormGroup>
