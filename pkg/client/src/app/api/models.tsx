@@ -87,6 +87,11 @@ export interface Application {
   tags?: Ref[];
   review?: Review;
   identities?: Ref[];
+  repository?: {
+    branch?: string;
+    path?: string;
+    url?: string;
+  };
 }
 
 export interface Review {
