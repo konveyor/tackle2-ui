@@ -15,6 +15,7 @@ import {
 import { useFormContext } from "react-hook-form";
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { SimpleSelect } from "@app/shared/components";
 
 const defaultTargets = [
   "camel",
@@ -95,9 +96,6 @@ export const SetOptions: React.FunctionComponent = () => {
   const sources: string[] = getValues("sources");
   const excludedRulesTags: string[] = getValues("excludedRulesTags");
 
-  const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
-  const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
-
   const [rulesToExclude, setRulesToExclude] = React.useState("");
 
   return (
@@ -110,12 +108,12 @@ export const SetOptions: React.FunctionComponent = () => {
       </TextContent>
       <Form isHorizontal>
         <FormGroup label="Targets" fieldId="targets">
-          <Select
+          <SimpleSelect
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select targets"
-            selections={targets}
-            isOpen={isSelectTargetsOpen}
-            onSelect={(_, selection) => {
+            placeholderText="Select a target"
+            value={targets}
+            onChange={(selection) => {
               if (!targets.includes(selection as string))
                 setValue("targets", [...targets, selection] as string[]);
               else
@@ -123,27 +121,22 @@ export const SetOptions: React.FunctionComponent = () => {
                   "targets",
                   targets.filter((target) => target !== selection)
                 );
-              setSelectTargetsOpen(!isSelectTargetsOpen);
-            }}
-            onToggle={() => {
-              setSelectTargetsOpen(!isSelectTargetsOpen);
             }}
             onClear={() => {
               setValue("targets", []);
             }}
-          >
-            {defaultTargets.map((target, index) => (
+            options={defaultTargets.map((target, index) => (
               <SelectOption key={index} component="button" value={target} />
             ))}
-          </Select>
+          />
         </FormGroup>
         <FormGroup label="Sources" fieldId="sources">
-          <Select
+          <SimpleSelect
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select sources"
-            selections={sources}
-            isOpen={isSelectSourcesOpen}
-            onSelect={(_, selection) => {
+            placeholderText="Select a source"
+            value={sources}
+            onChange={(selection) => {
               if (!sources.includes(selection as string))
                 setValue("sources", [...sources, selection] as string[]);
               else
@@ -151,19 +144,14 @@ export const SetOptions: React.FunctionComponent = () => {
                   "sources",
                   sources.filter((source) => source !== selection)
                 );
-              setSelectSourcesOpen(!isSelectSourcesOpen);
-            }}
-            onToggle={() => {
-              setSelectSourcesOpen(!isSelectSourcesOpen);
             }}
             onClear={() => {
               setValue("sources", []);
             }}
-          >
-            {defaultSources.map((source, index) => (
+            options={defaultSources.map((source, index) => (
               <SelectOption key={index} component="button" value={source} />
             ))}
-          </Select>
+          />
         </FormGroup>
         <FormGroup label="Excluded rules tags" fieldId="excluded-rules">
           <InputGroup>

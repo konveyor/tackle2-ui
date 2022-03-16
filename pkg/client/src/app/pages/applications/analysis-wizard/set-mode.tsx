@@ -12,6 +12,7 @@ import {
 import { useFormContext } from "react-hook-form";
 
 import { IFormValues } from "./analysis-wizard";
+import { SimpleSelect } from "@app/shared/components";
 
 const options = [
   <SelectOption key="binary" component="button" value="Binary" isPlaceholder />,
@@ -27,8 +28,6 @@ export const SetMode: React.FunctionComponent = () => {
   const { register, getValues, setValue } = useFormContext();
   const mode: string = getValues("mode");
 
-  const [isOpen, setIsOpen] = React.useState(false);
-
   return (
     <>
       <TextContent>
@@ -38,22 +37,16 @@ export const SetMode: React.FunctionComponent = () => {
         <Text>Review the information below, then run the analysis.</Text>
       </TextContent>
       <FormGroup label="Source for analysis" fieldId="sourceType">
-        <Select
+        <SimpleSelect
           {...register("mode")}
           variant={SelectVariant.single}
           aria-label="Select user perspective"
-          selections={mode}
-          isOpen={isOpen}
-          onSelect={(_, selection) => {
+          value={mode}
+          onChange={(selection) => {
             setValue("mode", selection as string);
-            setIsOpen(!isOpen);
           }}
-          onToggle={() => {
-            setIsOpen(!isOpen);
-          }}
-        >
-          {options}
-        </Select>
+          options={options}
+        />
       </FormGroup>
     </>
   );
