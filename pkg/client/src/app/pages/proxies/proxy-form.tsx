@@ -96,7 +96,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       setIsHttpProxy(!isHttpProxy);
     }
 
-    if (proxyType === "http") {
+    if (proxyType === "https") {
       setIsHttpsProxy(!isHttpsProxy);
     }
   };
@@ -147,6 +147,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         changeProxyStatus({
           ...httpsPayload,
         });
+        setIsHttpsProxy(!isHttpsProxy);
       }
     }
   };
