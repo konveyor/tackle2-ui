@@ -20,6 +20,7 @@ import {
   TableHeader,
   TableText,
 } from "@patternfly/react-table";
+import { useFormContext } from "react-hook-form";
 import { FilterIcon } from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import { TrashIcon } from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 
@@ -36,19 +37,12 @@ import { IReadFile } from "./components/add-custom-rules";
 
 import "./wizard.css";
 
-interface ICustomRules {
-  customRulesFiles: IReadFile[];
-  sources: string[];
-  setCustomRulesFiles: (files: IReadFile[]) => void;
-  setSources: (sources: string[]) => void;
-}
+export const CustomRules: React.FunctionComponent = () => {
+  const { getValues, setValue } = useFormContext();
 
-export const CustomRules: React.FunctionComponent<ICustomRules> = ({
-  customRulesFiles,
-  sources,
-  setCustomRulesFiles,
-  setSources,
-}) => {
+  const sources: string[] = getValues("sources");
+  const customRulesFiles: IReadFile[] = getValues("customRulesFiles");
+
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
 
@@ -91,7 +85,7 @@ export const CustomRules: React.FunctionComponent<ICustomRules> = ({
         },
       ];
 
-      if (!sources.includes(source)) setSources([...sources, source]);
+      if (!sources.includes(source)) setValue("sources", [...sources, source]);
 
       return rules;
     };
@@ -102,7 +96,7 @@ export const CustomRules: React.FunctionComponent<ICustomRules> = ({
     });
 
     return rules.flat();
-  }, [customRulesFiles, sources, setSources]);
+  }, [customRulesFiles, sources, setValue]);
 
   const filterCategories: FilterCategory<Rule>[] = [
     {
@@ -169,7 +163,7 @@ export const CustomRules: React.FunctionComponent<ICustomRules> = ({
                   const fileList = customRulesFiles.filter(
                     (file) => file.fileName !== item.name
                   );
-                  setCustomRulesFiles(fileList);
+                  setValue("customRulesFiles", fileList);
                 }}
               >
                 <TrashIcon />
@@ -261,10 +255,7 @@ export const CustomRules: React.FunctionComponent<ICustomRules> = ({
             </Button>,
           ]}
         >
-          <AddCustomRules
-            readFileData={customRulesFiles}
-            setReadFileData={setCustomRulesFiles}
-          />
+          <AddCustomRules />
         </Modal>
       )}
     </>

@@ -10,14 +10,13 @@ import {
   TextContent,
   Title,
 } from "@patternfly/react-core";
-import { UseFormGetValues } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
-import { IFormValues } from "./analysis-wizard";
 import { Application } from "@app/api/models";
+import { IReadFile } from "./components/add-custom-rules";
 
 interface IReview {
   applications: Application[];
-  getValues: UseFormGetValues<IFormValues>;
 }
 
 const defaultScopes: Map<string, string> = new Map([
@@ -29,20 +28,16 @@ const defaultScopes: Map<string, string> = new Map([
   ["depsSelect", "list of packages to be analyzed manually"],
 ]);
 
-export const Review: React.FunctionComponent<IReview> = ({
-  applications,
-  getValues,
-}) => {
-  const {
-    mode,
-    targets,
-    sources,
-    withKnown,
-    includedPackages,
-    excludedPackages,
-    customRulesFiles,
-    excludedRulesTags,
-  } = getValues();
+export const Review: React.FunctionComponent<IReview> = ({ applications }) => {
+  const { getValues } = useFormContext();
+  const mode: string = getValues("mode");
+  const targets: string[] = getValues("targets");
+  const sources: string[] = getValues("sources");
+  const withKnown: string = getValues("withKnown");
+  const includedPackages: string[] = getValues("includedPackages");
+  const excludedPackages: string[] = getValues("excludedPackages");
+  const customRulesFiles: IReadFile[] = getValues("customRulesFiles");
+  const excludedRulesTags: string[] = getValues("excludedRulesTags");
 
   return (
     <>

@@ -9,6 +9,7 @@ import {
   SelectOption,
   SelectVariant,
 } from "@patternfly/react-core";
+import { useFormContext } from "react-hook-form";
 
 import { IFormValues } from "./analysis-wizard";
 
@@ -22,17 +23,10 @@ const options = [
   />,
 ];
 
-interface ISetMode {
-  register: UseFormRegister<IFormValues>;
-  mode: string;
-  setMode: (mode: string) => void;
-}
+export const SetMode: React.FunctionComponent = () => {
+  const { register, getValues, setValue } = useFormContext();
+  const mode: string = getValues("mode");
 
-export const SetMode: React.FunctionComponent<ISetMode> = ({
-  register,
-  mode,
-  setMode,
-}) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
@@ -51,7 +45,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
           selections={mode}
           isOpen={isOpen}
           onSelect={(_, selection) => {
-            setMode(selection as string);
+            setValue("mode", selection as string);
             setIsOpen(!isOpen);
           }}
           onToggle={() => {

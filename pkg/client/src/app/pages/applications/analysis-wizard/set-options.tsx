@@ -12,17 +12,9 @@ import {
   TextContent,
   Title,
 } from "@patternfly/react-core";
+import { useFormContext } from "react-hook-form";
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-
-interface ISetOptions {
-  targets: string[];
-  sources: string[];
-  excludedRulesTags: string[];
-  setTargets: (val: string[]) => void;
-  setSources: (val: string[]) => void;
-  setExcludedRulesTags: (val: string[]) => void;
-}
 
 const defaultTargets = [
   "camel",
@@ -97,15 +89,11 @@ const defaultSources = [
   "websphere",
 ];
 
-export const SetOptions: React.FunctionComponent<ISetOptions> = ({
-  targets,
-  sources,
-  setTargets,
-  excludedRulesTags,
-  setExcludedRulesTags,
-  setSources,
-}) => {
-  React.useState(false);
+export const SetOptions: React.FunctionComponent = () => {
+  const { getValues, setValue } = useFormContext();
+  const targets: string[] = getValues("targets");
+  const sources: string[] = getValues("sources");
+  const excludedRulesTags: string[] = getValues("excludedRulesTags");
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
@@ -129,15 +117,19 @@ export const SetOptions: React.FunctionComponent<ISetOptions> = ({
             isOpen={isSelectTargetsOpen}
             onSelect={(_, selection) => {
               if (!targets.includes(selection as string))
-                setTargets([...targets, selection] as string[]);
-              else setTargets(targets.filter((target) => target !== selection));
+                setValue("targets", [...targets, selection] as string[]);
+              else
+                setValue(
+                  "targets",
+                  targets.filter((target) => target !== selection)
+                );
               setSelectTargetsOpen(!isSelectTargetsOpen);
             }}
             onToggle={() => {
               setSelectTargetsOpen(!isSelectTargetsOpen);
             }}
             onClear={() => {
-              setTargets([]);
+              setValue("targets", []);
             }}
           >
             {defaultTargets.map((target, index) => (
@@ -153,15 +145,19 @@ export const SetOptions: React.FunctionComponent<ISetOptions> = ({
             isOpen={isSelectSourcesOpen}
             onSelect={(_, selection) => {
               if (!sources.includes(selection as string))
-                setSources([...sources, selection] as string[]);
-              else setSources(sources.filter((source) => source !== selection));
+                setValue("sources", [...sources, selection] as string[]);
+              else
+                setValue(
+                  "sources",
+                  sources.filter((source) => source !== selection)
+                );
               setSelectSourcesOpen(!isSelectSourcesOpen);
             }}
             onToggle={() => {
               setSelectSourcesOpen(!isSelectSourcesOpen);
             }}
             onClear={() => {
-              setSources([]);
+              setValue("sources", []);
             }}
           >
             {defaultSources.map((source, index) => (
@@ -183,7 +179,7 @@ export const SetOptions: React.FunctionComponent<ISetOptions> = ({
               variant="control"
               onClick={() => {
                 const list = rulesToExclude.split(",");
-                setExcludedRulesTags([...new Set(list)]);
+                setValue("excludedRulesTags", [...new Set(list)]);
                 setRulesToExclude("");
               }}
             >
@@ -201,7 +197,8 @@ export const SetOptions: React.FunctionComponent<ISetOptions> = ({
                     variant="control"
                     icon={<DelIcon />}
                     onClick={() =>
-                      setExcludedRulesTags(
+                      setValue(
+                        "excludedRulesTags",
                         excludedRulesTags.filter((p) => p !== pkg)
                       )
                     }

@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
+import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { Wizard } from "@patternfly/react-core";
 
@@ -72,22 +72,21 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     })
     .required();
 
-  const { register, setValue, getValues, handleSubmit, watch, formState } =
-    useForm<IFormValues>({
-      resolver: yupResolver(schema),
-      defaultValues: {
-        mode: "Binary",
-        targets: [],
-        sources: [],
-        withKnown: "",
-        includedPackages: [""],
-        excludedPackages: [""],
-        customRulesFiles: [],
-        excludedRulesTags: [""],
-      },
-    });
+  const methods = useForm<IFormValues>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      mode: "Binary",
+      targets: [],
+      sources: [],
+      withKnown: "",
+      includedPackages: [""],
+      excludedPackages: [""],
+      customRulesFiles: [],
+      excludedRulesTags: [""],
+    },
+  });
 
-  const setTask = (application: Application, data: IFormValues): Task => {
+  const setTask = (application: Application, data: FieldValues): Task => {
     return {
       name: `${application.name}-windup-test`,
       addon: "windup",
@@ -117,7 +116,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     };
   };
 
-  const onSubmit = (data: IFormValues) => {
+  const onSubmit = (data: FieldValues) => {
     if (data.targets.length < 1) {
       console.log("Invalid form");
       return;
@@ -140,56 +139,21 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       });
   };
 
-  const {
-    mode,
-    targets,
-    sources,
-    customRulesFiles,
-    withKnown,
-    includedPackages,
-    excludedPackages,
-    excludedRulesTags,
-  } = getValues();
-
   const steps = [
     {
       name: "Configure analysis",
       steps: [
         {
           name: "Analysis mode",
-          component: (
-            <SetMode
-              register={register}
-              mode={mode}
-              setMode={(mode) => setValue("mode", mode)}
-            />
-          ),
+          component: <SetMode />,
         },
         {
           name: "Set targets",
-          component: (
-            <SetTargets
-              targets={targets}
-              setTargets={(target) => setValue("targets", target)}
-            />
-          ),
+          component: <SetTargets />,
         },
         {
           name: "Scope",
-          component: (
-            <SetScope
-              withKnown={withKnown}
-              includedPackages={includedPackages}
-              excludedPackages={excludedPackages}
-              setWithKnown={(withKnown) => setValue("withKnown", withKnown)}
-              setIncludedPackages={(packages) =>
-                setValue("includedPackages", packages)
-              }
-              setExcludedPackages={(packages) =>
-                setValue("excludedPackages", packages)
-              }
-            />
-          ),
+          component: <SetScope />,
         },
       ],
     },
@@ -198,53 +162,33 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       steps: [
         {
           name: "Custom rules",
-          component: (
-            <CustomRules
-              customRulesFiles={customRulesFiles}
-              sources={sources}
-              setCustomRulesFiles={(rulesFiles) =>
-                setValue("customRulesFiles", rulesFiles)
-              }
-              setSources={(sources) => setValue("sources", sources)}
-            />
-          ),
+          component: <CustomRules />,
         },
         {
           name: "Options",
-          component: (
-            <SetOptions
-              targets={targets}
-              sources={sources}
-              excludedRulesTags={excludedRulesTags}
-              setTargets={(targets) => setValue("targets", targets)}
-              setSources={(sources) => setValue("sources", sources)}
-              setExcludedRulesTags={(tags) =>
-                setValue("excludedRulesTags", tags)
-              }
-            />
-          ),
+          component: <SetOptions />,
         },
       ],
     },
     {
       name: "Review",
-      component: <Review applications={applications} getValues={getValues} />,
+      component: <Review applications={applications} />,
       nextButtonText: "Run",
     },
   ];
-
-  console.log(watch());
-
+  console.log(methods.watch());
   return (
-    <Wizard
-      isOpen={true}
-      title="Application analysis"
-      description={applications.map((app) => app.name).join(", ")}
-      navAriaLabel={`${title} steps`}
-      mainAriaLabel={`${title} content`}
-      steps={steps}
-      onSave={handleSubmit(onSubmit)}
-      onClose={onClose}
-    />
+    <FormProvider {...methods}>
+      <Wizard
+        isOpen={true}
+        title="Application analysis"
+        description={applications.map((app) => app.name).join(", ")}
+        navAriaLabel={`${title} steps`}
+        mainAriaLabel={`${title} content`}
+        steps={steps}
+        onSave={methods.handleSubmit(onSubmit)}
+        onClose={onClose}
+      />
+    </FormProvider>
   );
 };
