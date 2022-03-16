@@ -184,24 +184,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     sourceRepository: string()
       .when("branch", {
         is: (branch: any) => branch?.length > 0,
-        then: (schema) =>
-          schema
-            .matches(
-              /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
-              "Enter correct url!"
-            )
-            .required("Please enter repository url"),
+        then: (schema) => schema.url().required("Please enter repository url"),
         otherwise: (schema) => schema.min(0),
       })
       .when("rootPath", {
         is: (rootPath: any) => rootPath?.length > 0,
-        then: (schema) =>
-          schema
-            .matches(
-              /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
-              "Enter correct url!"
-            )
-            .required("Please enter repository url"),
+        then: (schema) => schema.url().required("Please enter repository url"),
         otherwise: (schema) => schema.min(0),
       }),
   });
