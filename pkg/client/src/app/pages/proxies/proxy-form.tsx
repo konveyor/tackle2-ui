@@ -296,10 +296,18 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   });
 
   const onChangeIsHttpsIdentityRequired = () => {
+    if (isHttpsIdentityRequired) {
+      let result: IdentityDropdown = { id: 0, name: "" };
+      formik.setFieldValue(HTTPS_IDENTITY, result);
+    }
     setIsHttpsIdentityRequired(!isHttpsIdentityRequired);
   };
 
   const onChangeIsHttpIdentityRequired = () => {
+    if (isHttpIdentityRequired) {
+      let result: IdentityDropdown = { id: 0, name: "" };
+      formik.setFieldValue(HTTP_IDENTITY, result);
+    }
     setIsHttpIdentityRequired(!isHttpIdentityRequired);
   };
 
