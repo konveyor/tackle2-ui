@@ -88,10 +88,9 @@ export interface Application {
   review?: Review;
   identities?: Ref[];
   repository?: {
-    branch: string;
-    path: string;
-    tag: string;
-    url: string;
+    branch?: string;
+    path?: string;
+    url?: string;
   };
 }
 

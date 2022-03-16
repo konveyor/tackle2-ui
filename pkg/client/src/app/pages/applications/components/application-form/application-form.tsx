@@ -163,6 +163,15 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     description: string()
       .trim()
       .max(250, t("validation.maxLength", { length: 250 })),
+    businessService: object().shape({
+      id: string()
+        .trim()
+        .required()
+        .max(250, t("validation.maxLength", { length: 250 })),
+      value: string()
+        .trim()
+        .max(250, t("validation.maxLength", { length: 250 })),
+    }),
     comments: string()
       .trim()
       .max(250, t("validation.maxLength", { length: 250 })),
@@ -215,13 +224,15 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         const thisTag = { id: f.id, name: f.name };
         return thisTag;
       }),
-      repository: {
-        url: formValues.sourceRepository.trim(),
-        branch: formValues.branch.trim(),
-        path: formValues.rootPath.trim(),
-        //TBD: How do we populate tag field
-        tag: "",
-      },
+      ...(formValues.sourceRepository && {
+        repository: {
+          url: formValues.sourceRepository
+            ? formValues.sourceRepository.trim()
+            : undefined,
+          branch: formValues.branch.trim(),
+          path: formValues.rootPath.trim(),
+        },
+      }),
       review: undefined, // The review should not updated through this form
     };
 
@@ -330,9 +341,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           <FormGroup
             label={t("terms.businessService")}
             fieldId="businessService"
-            isRequired={false}
+            isRequired={true}
             validated={getValidatedFromError(formik.errors.businessService)}
-            helperTextInvalid={formik.errors.businessService}
+            helperTextInvalid={
+              formik.errors.businessService && "This field is required"
+            }
           >
             <SingleSelectFetchOptionValueFormikField<IBusinessServiceDropdown>
               fieldConfig={{
@@ -346,7 +359,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 toggleAriaLabel: "business-service",
                 clearSelectionsAriaLabel: "business-service",
                 removeSelectionAriaLabel: "business-service",
-                // t("terms.businessService")
                 placeholderText: t("composed.selectOne", {
                   what: t("terms.businessService").toLowerCase(),
                 }),
@@ -436,10 +448,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.sourceRepository}
-              // validated={getValidatedFromErrorTouched(
-              //   formik.errors.sourceRepository,
-              //   formik.touched.sourceRepository
-              // )}
             />
           </FormGroup>
           <FormGroup
