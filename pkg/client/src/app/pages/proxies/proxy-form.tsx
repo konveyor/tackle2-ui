@@ -236,7 +236,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   const httpIdentityInitialValue = useMemo(() => {
     let result: IdentityDropdown = { id: 0, name: "" };
     if (httpProxy && identities) {
-      const identityId = Number(httpProxy.identity);
+      const identityId = Number(httpProxy.identity?.id);
       const identity = identities.find((i) => i.id === identityId);
 
       if (identity) {
@@ -246,13 +246,16 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         });
       }
     }
+    //set initial checkbox
+    setIsHttpIdentityRequired(!!result.id);
+
     return result;
   }, [identities, httpProxy]);
 
   const httpsIdentityInitialValue = useMemo(() => {
     let result: IdentityDropdown = { id: 0, name: "" };
     if (httpsProxy && identities) {
-      const identityId = Number(httpsProxy.identity);
+      const identityId = Number(httpsProxy.identity?.id);
       const identity = identities.find((i) => i.id === identityId);
 
       if (identity) {
@@ -262,6 +265,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         });
       }
     }
+    setIsHttpsIdentityRequired(!!result.id);
     return result;
   }, [identities, httpProxy]);
 
