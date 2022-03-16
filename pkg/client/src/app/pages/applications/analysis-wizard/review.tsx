@@ -14,6 +14,7 @@ import { useFormContext } from "react-hook-form";
 
 import { Application } from "@app/api/models";
 import { IReadFile } from "./components/add-custom-rules";
+import { IAnalysisWizardFormValues } from "./analysis-wizard";
 
 interface IReview {
   applications: Application[];
@@ -29,15 +30,17 @@ const defaultScopes: Map<string, string> = new Map([
 ]);
 
 export const Review: React.FunctionComponent<IReview> = ({ applications }) => {
-  const { getValues } = useFormContext();
-  const mode: string = getValues("mode");
-  const targets: string[] = getValues("targets");
-  const sources: string[] = getValues("sources");
-  const withKnown: string = getValues("withKnown");
-  const includedPackages: string[] = getValues("includedPackages");
-  const excludedPackages: string[] = getValues("excludedPackages");
-  const customRulesFiles: IReadFile[] = getValues("customRulesFiles");
-  const excludedRulesTags: string[] = getValues("excludedRulesTags");
+  const { getValues } = useFormContext<IAnalysisWizardFormValues>();
+  const {
+    mode,
+    targets,
+    sources,
+    withKnown,
+    includedPackages,
+    excludedPackages,
+    customRulesFiles,
+    excludedRulesTags,
+  } = getValues();
 
   return (
     <>

@@ -24,7 +24,7 @@ interface IAnalysisWizard {
   onClose: () => void;
 }
 
-export interface IFormValues {
+export interface IAnalysisWizardFormValues {
   mode: string;
   targets: string[];
   sources: string[];
@@ -72,7 +72,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     })
     .required();
 
-  const methods = useForm<IFormValues>({
+  const methods = useForm<IAnalysisWizardFormValues>({
     resolver: yupResolver(schema),
     defaultValues: {
       mode: "Binary",
@@ -176,7 +176,9 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       nextButtonText: "Run",
     },
   ];
+
   console.log(methods.watch());
+
   return (
     <FormProvider {...methods}>
       <Wizard

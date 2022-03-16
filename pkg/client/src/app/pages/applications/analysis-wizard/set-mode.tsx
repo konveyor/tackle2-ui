@@ -5,13 +5,11 @@ import {
   Text,
   TextContent,
   Title,
-  Select,
   SelectOption,
   SelectVariant,
 } from "@patternfly/react-core";
 import { useFormContext } from "react-hook-form";
 
-import { IFormValues } from "./analysis-wizard";
 import { SimpleSelect } from "@app/shared/components";
 
 const options = [
