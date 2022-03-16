@@ -10,28 +10,38 @@ import {
   TextContent,
   Title,
 } from "@patternfly/react-core";
-import { UseFormGetValues } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
-import { IFormValues } from "./analysis-wizard";
 import { Application } from "@app/api/models";
+import { IReadFile } from "./components/add-custom-rules";
+import { IAnalysisWizardFormValues } from "./analysis-wizard";
 
 interface IReview {
   applications: Application[];
-  getValues: UseFormGetValues<IFormValues>;
 }
 
-export const Review: React.FunctionComponent<IReview> = ({
-  applications,
-  getValues,
-}) => {
+const defaultScopes: Map<string, string> = new Map([
+  ["depsOnly", "Application and internal dependencies only"],
+  [
+    "depsAll",
+    "Application and all dependencies, including known Open Source libraries",
+  ],
+  ["depsSelect", "list of packages to be analyzed manually"],
+]);
+
+export const Review: React.FunctionComponent<IReview> = ({ applications }) => {
+  const { getValues } = useFormContext<IAnalysisWizardFormValues>();
   const {
     mode,
     targets,
+    sources,
     withKnown,
     includedPackages,
     excludedPackages,
     customRulesFiles,
+    excludedRulesTags,
   } = getValues();
+
   return (
     <>
       <TextContent>
@@ -70,9 +80,21 @@ export const Review: React.FunctionComponent<IReview> = ({
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
+          <DescriptionListTerm>
+            {targets.length > 1 ? "Sources" : "Source"}
+          </DescriptionListTerm>
+          <DescriptionListDescription id="sources">
+            <List isPlain>
+              {sources.map((source, index) => (
+                <ListItem key={index}>{source}</ListItem>
+              ))}
+            </List>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+        <DescriptionListGroup>
           <DescriptionListTerm>Scope</DescriptionListTerm>
           <DescriptionListDescription id="scope">
-            {withKnown}
+            {defaultScopes.get(withKnown)}
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
@@ -104,11 +126,15 @@ export const Review: React.FunctionComponent<IReview> = ({
               ))}
             </List>
           </DescriptionListDescription>
-        </DescriptionListGroup>
+        </DescriptionListGroup>{" "}
         <DescriptionListGroup>
-          <DescriptionListTerm>Advanced options</DescriptionListTerm>
-          <DescriptionListDescription id="options">
-            {"Todo"}
+          <DescriptionListTerm>Excluded rules tags</DescriptionListTerm>
+          <DescriptionListDescription id="excluded-rules-tags">
+            <List isPlain>
+              {excludedRulesTags.map((tag, index) => (
+                <ListItem key={index}>{tag}</ListItem>
+              ))}
+            </List>
           </DescriptionListDescription>
         </DescriptionListGroup>
       </DescriptionList>

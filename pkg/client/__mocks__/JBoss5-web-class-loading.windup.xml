@@ -11,7 +11,7 @@
             <addon id="org.jboss.windup.rules,windup-rules-javaee,3.0.0.Final"/>
             <addon id="org.jboss.windup.rules,windup-rules-java,3.0.0.Final"/>
         </dependencies>
-        <sourceTechnology id="eap7" versionRange="(4,5)"/>
+        <sourceTechnology id="amazon" versionRange="(4,5)"/>
         <targetTechnology id="cloud-readiness" versionRange="(4,1)"/>
     </metadata>
     <rules>

@@ -344,6 +344,7 @@ export interface TaskData {
     };
   };
   targets: string[];
+  sources: string[];
   scope: {
     withKnown: boolean;
     packages: {
@@ -352,12 +353,11 @@ export interface TaskData {
     };
   };
   rules?: {
-    directory: {
+    directory?: {
       bucket: number;
       path: string;
     };
     tags: {
-      included: string[];
       excluded: string[];
     };
   };

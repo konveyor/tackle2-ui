@@ -12,6 +12,7 @@ import {
   MultipleFileUploadTitleText,
   MultipleFileUploadTitleTextSeparator,
 } from "@patternfly/react-core";
+import { useFormContext } from "react-hook-form";
 
 import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
@@ -29,15 +30,10 @@ export interface IReadFile {
   loadError?: DOMException;
 }
 
-interface IAddCustomRules {
-  readFileData: IReadFile[];
-  setReadFileData: (files: IReadFile[]) => void;
-}
+export const AddCustomRules: React.FunctionComponent = () => {
+  const { getValues, setValue } = useFormContext();
+  const readFileData: IReadFile[] = getValues("customRulesFiles");
 
-export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
-  readFileData,
-  setReadFileData,
-}) => {
   const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
   const [showStatus, setShowStatus] = React.useState(false);
   const [modalText, setModalText] = React.useState("");
@@ -74,7 +70,7 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
         !namesOfFilesToRemove.some((fileName) => fileName === readFile.fileName)
     );
 
-    setReadFileData(newReadFiles);
+    setValue("customRulesFiles", newReadFiles);
   };
 
   const isSchemaValid = (value: string) => {
@@ -129,7 +125,7 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
     };
     const fileList = [...readFileData, newReadFile];
 
-    setReadFileData(fileList);
+    setValue("customRulesFiles", fileList);
   };
 
   // callback called by the status item when a file encounters an error while being read with the built-in file reader
@@ -143,7 +139,7 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
       } as IReadFile,
     ];
 
-    setReadFileData(fileList);
+    setValue("customRulesFiles", fileList);
   };
 
   // dropzone prop that communicates to the user that files they've attempted to upload are not an appropriate type
