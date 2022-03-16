@@ -271,13 +271,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   const [isBasicExpanded, setBasicExpanded] = React.useState(true);
   const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(false);
   const [isBinaryExpanded, setBinaryExpanded] = React.useState(false);
-  console.log(
-    "formik",
-    formik.values,
-    formik.isValid,
-    formik.dirty,
-    formik.errors
-  );
+
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
