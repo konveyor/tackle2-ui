@@ -15,7 +15,7 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { TransformationTargets } from "./select-card-gallery";
+import { TransformationTargets } from "../set-targets";
 
 import "./select-card.css";
 

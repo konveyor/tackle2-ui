@@ -9,28 +9,19 @@ import {
   TextArea,
   Title,
 } from "@patternfly/react-core";
+import { useFormContext } from "react-hook-form";
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import "./set-scope.css";
+import "./wizard.css";
 
-interface ISetScope {
-  withKnown: string;
-  includedPackages: string[];
-  excludedPackages: string[];
-  setWithKnown: (withKnown: string) => void;
-  setIncludedPackages: (packages: string[]) => void;
-  setExcludedPackages: (packages: string[]) => void;
-}
+export const SetScope: React.FunctionComponent = () => {
+  const { getValues, setValue } = useFormContext();
 
-export const SetScope: React.FunctionComponent<ISetScope> = ({
-  withKnown,
-  includedPackages,
-  excludedPackages,
-  setWithKnown,
-  setIncludedPackages,
-  setExcludedPackages,
-}) => {
+  const withKnown: string = getValues("withKnown");
+  const includedPackages: string[] = getValues("includedPackages");
+  const excludedPackages: string[] = getValues("excludedPackages");
+
   const [excludedSwitch, setExcludedSwitch] = React.useState(false);
   const [packagesToInclude, setPackagesToInclude] = React.useState("");
   const [packagesToExclude, setPackagesToExclude] = React.useState("");
@@ -48,7 +39,7 @@ export const SetScope: React.FunctionComponent<ISetScope> = ({
         name="deps-only"
         isChecked={withKnown === "depsOnly"}
         onChange={() => {
-          setWithKnown("depsOnly");
+          setValue("withKnown", "depsOnly");
         }}
         label="Application and internal dependencies only"
         className={spacing.mbXs}
@@ -58,7 +49,7 @@ export const SetScope: React.FunctionComponent<ISetScope> = ({
         name="deps-all"
         isChecked={withKnown === "depsAll"}
         onChange={() => {
-          setWithKnown("depsAll");
+          setValue("withKnown", "depsAll");
         }}
         label="Application and all dependencies, including known Open Source libraries"
         className={spacing.mbXs}
@@ -68,7 +59,7 @@ export const SetScope: React.FunctionComponent<ISetScope> = ({
         name="deps-select"
         isChecked={withKnown === "depsSelect"}
         onChange={() => {
-          setWithKnown("depsSelect");
+          setValue("withKnown", "depsSelect");
         }}
         label="Select the list of packages to be analyzed manually"
         className={spacing.mbXs}
@@ -88,7 +79,7 @@ export const SetScope: React.FunctionComponent<ISetScope> = ({
               variant="control"
               onClick={() => {
                 const list = packagesToInclude.split(",");
-                setIncludedPackages([...new Set(list)]);
+                setValue("includedPackages", [...new Set(list)]);
                 setPackagesToInclude("");
               }}
             >
@@ -108,7 +99,8 @@ export const SetScope: React.FunctionComponent<ISetScope> = ({
                         variant="control"
                         icon={<DelIcon />}
                         onClick={() =>
-                          setIncludedPackages(
+                          setValue(
+                            "includedPackages",
                             includedPackages.filter((p) => p !== pkg)
                           )
                         }
@@ -141,7 +133,7 @@ export const SetScope: React.FunctionComponent<ISetScope> = ({
               variant="control"
               onClick={() => {
                 const list = packagesToExclude.split(",");
-                setExcludedPackages([...new Set(list)]);
+                setValue("excludedPackages", [...new Set(list)]);
                 setPackagesToExclude("");
               }}
             >
@@ -163,7 +155,8 @@ export const SetScope: React.FunctionComponent<ISetScope> = ({
                         variant="control"
                         icon={<DelIcon />}
                         onClick={() =>
-                          setExcludedPackages(
+                          setValue(
+                            "excludedPackages",
                             excludedPackages.filter((p) => p !== pkg)
                           )
                         }
