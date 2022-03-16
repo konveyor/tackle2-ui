@@ -110,7 +110,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   const businessServiceInitialValue = useMemo(() => {
     let result: IBusinessServiceDropdown | null = null;
     if (application && application.businessService && businessServices) {
-      const businessServiceId = Number(application.businessService);
+      const businessServiceId = Number(application.businessService.id);
       const businessService = businessServices.find(
         (f) => f.id === businessServiceId
       );
@@ -442,6 +442,10 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.sourceRepository}
+              isDisabled={
+                !(formik.values.branch?.length > 0) &&
+                !(formik.values.rootPath?.length > 0)
+              }
             />
           </FormGroup>
           <FormGroup
