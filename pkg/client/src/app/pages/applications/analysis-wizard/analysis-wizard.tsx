@@ -95,7 +95,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         application: application.id || 0,
         path: "",
         mode: {
-          binary: data.mode.includes("Binary"),
+          binary: data.mode.includes("Binary") || data.mode.includes("binary"),
           withDeps: data.mode.includes("dependencies"),
         },
         targets: data.targets,
@@ -145,7 +145,9 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       steps: [
         {
           name: "Analysis mode",
-          component: <SetMode />,
+          component: (
+            <SetMode isSingleApp={applications.length === 1 ? true : false} />
+          ),
         },
         {
           name: "Set targets",
