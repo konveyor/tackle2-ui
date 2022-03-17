@@ -185,12 +185,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       .when("branch", {
         is: (branch: any) => branch?.length > 0,
         then: (schema) => schema.url().required("Please enter repository url"),
-        otherwise: (schema) => schema.min(0),
+        otherwise: (schema) => schema.url(),
       })
       .when("rootPath", {
         is: (rootPath: any) => rootPath?.length > 0,
         then: (schema) => schema.url().required("Please enter repository url"),
-        otherwise: (schema) => schema.min(0),
+        otherwise: (schema) => schema.url(),
       }),
   });
 
@@ -419,7 +419,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             label={t("terms.sourceRepo")}
             fieldId="sourceRepository"
             validated={getValidatedFromError(formik.errors.sourceRepository)}
-            helperTextInvalid={formik.errors.sourceRepository}
+            helperTextInvalid={"Must be a valid URL."}
           >
             <TextInput
               type="text"
@@ -430,10 +430,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.sourceRepository}
-              isDisabled={
-                !(formik.values.branch?.length > 0) &&
-                !(formik.values.rootPath?.length > 0)
-              }
             />
           </FormGroup>
           <FormGroup
