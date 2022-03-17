@@ -23,7 +23,7 @@ interface IUploadBinary {}
 
 export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
-  const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
+  const [currentFile, setCurrentFile] = React.useState<File>();
   const [showStatus, setShowStatus] = React.useState(false);
   const [modalText, setModalText] = React.useState("");
 
@@ -31,31 +31,21 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
     setShowStatus(true);
   }
 
-  const removeFiles = (namesOfFilesToRemove: string[]) => {
-    const newCurrentFiles = currentFiles.filter(
-      (currentFile) =>
-        !namesOfFilesToRemove.some((fileName) => fileName === currentFile.name)
-    );
-
-    setCurrentFiles(newCurrentFiles);
+  const removeFiles = (nameOfFileToRemove: string) => {
+    if (currentFile && currentFile.name === nameOfFileToRemove)
+      setCurrentFile(undefined);
 
     const newReadFiles = readFileData.filter(
-      (readFile) =>
-        !namesOfFilesToRemove.some((fileName) => fileName === readFile.fileName)
+      (readFile) => readFile.fileName !== nameOfFileToRemove
     );
 
     setReadFileData(newReadFiles);
   };
 
   const handleFileDrop = (droppedFiles: File[]) => {
-    const currentFileNames = currentFiles.map((file) => file.name);
-    const reUploads = droppedFiles.filter((droppedFile) =>
-      currentFileNames.includes(droppedFile.name)
-    );
-
     Promise.resolve()
-      .then(() => removeFiles(reUploads.map((file) => file.name)))
-      .then(() => setCurrentFiles([...droppedFiles]));
+      .then(() => removeFiles(droppedFiles[0].name))
+      .then(() => setCurrentFile(droppedFiles[0]));
   };
 
   const handleReadSuccess = (data: string, file: File) => {
@@ -65,12 +55,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
       loadResult: "success",
     };
 
-    const fileList = [newReadFile];
-
-    setCurrentFiles(
-      currentFiles.filter((file) => file.name === fileList[0].fileName)
-    );
-    setReadFileData(fileList);
+    setReadFileData([newReadFile]);
   };
 
   const handleReadFail = (error: DOMException, file: File) => {
@@ -124,11 +109,11 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
           Accepted file: war, ear, jar or zip.
         </MultipleFileUploadInfo>
       </MultipleFileUploadMain>
-      {showStatus && currentFiles.length > 0 && (
+      {showStatus && currentFile && (
         <MultipleFileUploadStatusItem
-          file={currentFiles[0]}
-          key={currentFiles[0].name}
-          onClearClick={() => removeFiles([currentFiles[0].name])}
+          file={currentFile}
+          key={currentFile.name}
+          onClearClick={() => removeFiles(currentFile.name)}
           onReadSuccess={handleReadSuccess}
           onReadFail={handleReadFail}
         />
