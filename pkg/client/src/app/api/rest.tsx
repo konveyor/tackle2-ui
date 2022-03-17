@@ -552,6 +552,20 @@ export const uploadFileTask = (
   return APIClient.post(`${TASKS}/${id}/bucket/${path}`, file, formHeaders);
 };
 
+export const uploadLocalBinaryFile = ({
+  currentTaskID,
+  file,
+}: {
+  currentTaskID: any;
+  file: any;
+}): AxiosPromise<any> => {
+  return APIClient.post(
+    `${TASKS}/${currentTaskID}/bucket/binary/uploaded-file`,
+    file,
+    jsonHeaders
+  );
+};
+
 export const getProxies = (): AxiosPromise<Array<any>> => {
   return APIClient.get(`${PROXIES}`, jsonHeaders);
 };

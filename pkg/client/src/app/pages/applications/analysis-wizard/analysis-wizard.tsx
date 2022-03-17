@@ -1,16 +1,15 @@
 import * as React from "react";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { FieldValues, FormProvider, useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
-import { Wizard } from "@patternfly/react-core";
-
+import {
+  FieldValues,
+  FormProvider,
+  useForm,
+  useFormContext,
+} from "react-hook-form";
 import { Application, Task, TaskData } from "@app/api/models";
-import { SetMode } from "./set-mode";
-import { SetTargets } from "./set-targets";
-import { SetScope } from "./set-scope";
-import { SetOptions } from "./set-options";
-import { Review } from "./review";
+import "./wizard.css";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { useEffect, useState } from "react";
 import {
   createTask,
   submitTask,
@@ -18,16 +17,25 @@ import {
   uploadFileTask,
 } from "@app/api/rest";
 import { alertActions } from "@app/store/alert";
+import { useDispatch } from "react-redux";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import {
+  Button,
+  Wizard,
+  WizardContextConsumer,
+  WizardFooter,
+  WizardStepFunctionType,
+} from "@patternfly/react-core";
 import { CustomRules } from "./custom-rules";
-import { IReadFile } from "./components/add-custom-rules";
-
-import "./wizard.css";
+import { Review } from "./review";
+import { SetMode } from "./set-mode";
+import { SetOptions } from "./set-options";
+import { SetScope } from "./set-scope";
+import { SetTargets } from "./set-targets";
 interface IAnalysisWizard {
   applications: Application[];
   onClose: () => void;
 }
-
 export interface IAnalysisWizardFormValues {
   mode: string;
   output: string;
@@ -36,8 +44,9 @@ export interface IAnalysisWizardFormValues {
   withKnown: string;
   includedPackages: string[];
   excludedPackages: string[];
-  customRulesFiles: IReadFile[];
+  customRulesFiles: any;
   excludedRulesTags: string[];
+  createdTasks: Array<Task>;
 }
 
 const defaultTaskData: TaskData = {
@@ -63,11 +72,15 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   applications,
   onClose,
 }: IAnalysisWizard) => {
-  const title = "Application analysis";
-  const dispatch = useDispatch();
+  useEffect(() => {
+    if (!isInitTasks) {
+      initTasks();
+    }
 
-  const [isInitTasks, setInitTasks] = React.useState(false);
-  const [createdTasks, setCreatedTasks] = React.useState<Array<Task>>([]);
+    return () => {
+      setInitTasks(false);
+    };
+  }, []);
 
   const schema = yup
     .object({
@@ -91,6 +104,24 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
   });
 
+  console.log(methods.watch());
+  const [isInitTasks, setInitTasks] = React.useState(false);
+
+  const { register, getValues, setValue, handleSubmit, watch, reset } = methods;
+
+  const {
+    mode,
+    targets,
+    sources,
+    withKnown,
+    includedPackages,
+    excludedPackages,
+    customRulesFiles,
+    excludedRulesTags,
+    createdTasks,
+  } = getValues();
+
+  //Task initialization
   const initTask = (application: Application): Task => {
     return {
       name: `${application.name}.${application.id}.windup`,
@@ -108,7 +139,8 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     promises
       .then((response) => {
         setInitTasks(true);
-        setCreatedTasks(
+        setValue(
+          "createdTasks",
           response.map((res) => {
             dispatch(
               alertActions.addSuccess(`Tasks ${res.data.id}`, "created")
@@ -155,13 +187,28 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     };
   };
 
+  const [stepIdReached, setStepIdReached] = useState(1);
+
+  enum stepId {
+    AnalysisMode = 1,
+    UploadBinaryStep,
+    SetTargets,
+    Scope,
+    CustomRules,
+    Options,
+    Review,
+  }
+
+  const title = "Application analysis";
+  const dispatch = useDispatch();
+
   const onSubmit = (data: FieldValues) => {
     if (data.targets.length < 1) {
       console.log("Invalid form");
       return;
     }
 
-    const tasks = createdTasks.map((task) => setTask(task, data));
+    const tasks = createdTasks.map((task: Task) => setTask(task, data));
 
     Promise.all(
       tasks.map((task) =>
@@ -198,49 +245,143 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       });
   };
 
+  const onMove: WizardStepFunctionType = (
+    { id, name },
+    { prevId, prevName }
+  ) => {
+    if (id && prevId && prevId === 1) {
+      //   console.log("moving past first step -- create task here");
+    }
+
+    if (id && stepIdReached < id) {
+      setStepIdReached(id as number);
+    }
+    if (prevId && id && prevId > 1 && id === 1) {
+    }
+  };
+
+  const setTargetsStep = {
+    id: stepId.SetTargets,
+    name: "Set targets",
+    component: <SetTargets />,
+  };
+  const scopeStep = {
+    id: stepId.Scope,
+    name: "Scope",
+    component: <SetScope />,
+  };
+  const advancedSteps = {
+    name: "Advanced",
+    steps: [
+      {
+        id: stepId.CustomRules,
+        name: "Custom rules",
+        component: <CustomRules />,
+      },
+      {
+        id: stepId.Options,
+        name: "Options",
+        component: <SetOptions />,
+      },
+    ],
+  };
+  const reviewStep = {
+    id: stepId.Review,
+    name: "Review",
+    component: <Review applications={applications} />,
+    nextButtonText: "Run",
+  };
+
   const steps = [
     {
       name: "Configure analysis",
       steps: [
         {
+          id: stepId.AnalysisMode,
           name: "Analysis mode",
           component: (
             <SetMode isSingleApp={applications.length === 1 ? true : false} />
           ),
+          canJumpTo: stepIdReached >= stepId.AnalysisMode,
         },
-        {
-          name: "Set targets",
-          component: <SetTargets />,
-        },
-        {
-          name: "Scope",
-          component: <SetScope />,
-        },
+        setTargetsStep,
+        scopeStep,
       ],
     },
-    {
-      name: "Advanced",
-      steps: [
-        {
-          name: "Custom rules",
-          component: <CustomRules />,
-        },
-        {
-          name: "Options",
-          component: <SetOptions />,
-        },
-      ],
-    },
-    {
-      name: "Review",
-      component: <Review applications={applications} />,
-      nextButtonText: "Run",
-    },
+    advancedSteps,
+    reviewStep,
   ];
 
-  if (!isInitTasks) initTasks();
+  console.log(watch());
 
-  console.log(methods.watch());
+  const CustomFooter = (
+    <WizardFooter>
+      <WizardContextConsumer>
+        {({
+          activeStep,
+          goToStepByName,
+          goToStepById,
+          onNext,
+          onBack,
+          onClose,
+        }) => {
+          const isNextEnabled = () => {
+            //TODO: Implement next button validation here
+            return true;
+          };
+
+          return (
+            <>
+              <Button
+                variant="primary"
+                type="submit"
+                onClick={(event) => {
+                  getNextStep(activeStep, onNext);
+                }}
+                isDisabled={!isNextEnabled()}
+              >
+                {activeStep.name === "Results" ? "Finish" : "Next"}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => getPreviousStep(activeStep, onBack)}
+                className={activeStep.name === "General" ? "pf-m-disabled" : ""}
+                isDisabled={activeStep.name === "Analysis mode"}
+              >
+                Back
+              </Button>
+              <Button variant="link" onClick={onClose}>
+                Cancel
+              </Button>
+            </>
+          );
+        }}
+      </WizardContextConsumer>
+    </WizardFooter>
+  );
+
+  const getNextStep = (activeStep: any, callback?: any) => {
+    if (activeStep.id === 1 && mode === "Upload a local binary") {
+      setTimeout(() => {
+        callback();
+      });
+    } else {
+      setTimeout(() => {
+        callback();
+      });
+    }
+  };
+
+  const getPreviousStep = (activeStep: any, callback: any) => {
+    setTimeout(() => {
+      callback();
+    });
+  };
+  const handleClose = () => {
+    onClose();
+    setStepIdReached(stepId.AnalysisMode);
+    reset();
+  };
 
   return (
     <FormProvider {...methods}>
@@ -251,8 +392,13 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         navAriaLabel={`${title} steps`}
         mainAriaLabel={`${title} content`}
         steps={steps}
-        onSave={methods.handleSubmit(onSubmit)}
-        onClose={onClose}
+        footer={CustomFooter}
+        onNext={onMove}
+        onBack={onMove}
+        onSave={handleSubmit(onSubmit)}
+        onClose={() => {
+          handleClose();
+        }}
       />
     </FormProvider>
   );

@@ -11,14 +11,26 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { SimpleSelect } from "@app/shared/components";
 import { UploadBinary } from "./components/upload-binary";
+import { IAnalysisWizardFormValues } from "./analysis-wizard";
 
 interface ISetMode {
   isSingleApp: boolean;
 }
 
 export const SetMode: React.FunctionComponent<ISetMode> = ({ isSingleApp }) => {
-  const { register, getValues, setValue } = useFormContext();
-  const mode: string = getValues("mode");
+  const { register, getValues, setValue } =
+    useFormContext<IAnalysisWizardFormValues>();
+
+  const {
+    mode,
+    targets,
+    sources,
+    withKnown,
+    includedPackages,
+    excludedPackages,
+    customRulesFiles,
+    excludedRulesTags,
+  } = getValues();
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [isUpload, setIsUpload] = React.useState(false);
@@ -56,12 +68,12 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({ isSingleApp }) => {
       </TextContent>
       <FormGroup label="Source for analysis" fieldId="sourceType">
         <SimpleSelect
-          {...register("mode")}
           variant={SelectVariant.single}
+          {...register("mode")}
           aria-label="Select user perspective"
           value={mode}
           onChange={(selection) => {
-            setValue("mode", selection);
+            setValue("mode", selection as string);
             if (selection === "Upload a local binary") setIsUpload(true);
             else setIsUpload(false);
             setIsOpen(!isOpen);

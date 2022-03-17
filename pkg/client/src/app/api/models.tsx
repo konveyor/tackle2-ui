@@ -342,9 +342,9 @@ export interface TaskData {
     withDeps: boolean;
     artifact: string;
   };
-  targets: string[];
-  sources: string[];
-  scope: {
+  targets?: string[];
+  sources?: string[];
+  scope?: {
     withKnown: boolean;
     packages: {
       included: string[];
