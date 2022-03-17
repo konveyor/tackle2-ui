@@ -55,9 +55,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
 
     Promise.resolve()
       .then(() => removeFiles(reUploads.map((file) => file.name)))
-      .then(() =>
-        setCurrentFiles((prevFiles: File[]) => [...prevFiles, ...droppedFiles])
-      );
+      .then(() => setCurrentFiles([...droppedFiles]));
   };
 
   const handleReadSuccess = (data: string, file: File) => {
