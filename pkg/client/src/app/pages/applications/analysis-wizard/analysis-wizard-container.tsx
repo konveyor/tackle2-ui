@@ -34,6 +34,7 @@ import { UploadBinary } from "./components/upload-binary";
 import { setTokenExpiryHandler } from "@konveyor/lib-ui";
 import { UploadBinaryStep } from "./upload-binary-step";
 import { useState } from "react";
+import { useCreateInitialTaskMutation, useFetchTask } from "@app/queries/tasks";
 
 interface IAnalysisWizard {
   applications: Application[];
@@ -77,6 +78,17 @@ const defaultTaskData: TaskData = {
 export const AnalysisWizardContainer: React.FunctionComponent<
   IAnalysisWizard
 > = ({ applications, onClose }: IAnalysisWizard) => {
+  const completeTask = () => {
+    console.log("complete task");
+  };
+
+  const {
+    mutate: createTask,
+    postResult,
+    isLoading: isCreateInitialTaskLoading,
+    error,
+  } = useCreateInitialTaskMutation(completeTask());
+
   const { register, getValues, setValue, handleSubmit, watch, reset } =
     useFormContext<IAnalysisWizardFormValues>();
 
@@ -109,7 +121,6 @@ export const AnalysisWizardContainer: React.FunctionComponent<
   }
 
   const title = "Application analysis";
-  const dispatch = useDispatch();
 
   const setTask = (application: Application, data: FieldValues): Task => {
     return {
@@ -142,32 +153,45 @@ export const AnalysisWizardContainer: React.FunctionComponent<
   };
 
   const onSubmit = (data: FieldValues) => {
-    if (data.targets.length < 1) {
-      console.log("Invalid form");
-      return;
-    }
-    const tasks = applications.map((app) => setTask(app, data));
-    const promises = Promise.all(tasks.map((task) => createTask(task)));
-    promises
-      .then((response) => {
-        dispatch(
-          alertActions.addSuccess(
-            `Task(s) ${response
-              .map((res) => res.data.name)
-              .join(", ")} were added`
-          )
-        );
-        onClose();
-      })
-      .catch((error) => {
-        dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-      });
+    // if (data.targets.length < 1) {
+    //   console.log("Invalid form");
+    //   return;
+    // }
+    // const tasks = applications.map((app) => setTask(app, data));
+    // const promises = Promise.all(tasks.map((task) => createTask(task)));
+    // promises
+    //   .then((response) => {
+    //     dispatch(
+    //       alertActions.addSuccess(
+    //         `Task(s) ${response
+    //           .map((res) => res.data.name)
+    //           .join(", ")} were added`
+    //       )
+    //     );
+    //     onClose();
+    //   })
+    //   .catch((error) => {
+    //     dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    //   });
   };
 
   const onMove: WizardStepFunctionType = (
     { id, name },
     { prevId, prevName }
   ) => {
+    if (id && prevId && prevId === 1) {
+      console.log("moving past first step -- create task here");
+      const initialTask: Task = {
+        name: `${applications[0].name}-windup-test`,
+        addon: "windup",
+        data: {
+          application: applications[0].id || 0,
+        },
+      };
+
+      createTask(initialTask);
+    }
+
     if (id && stepIdReached < id) {
       setStepIdReached(id as number);
     }

@@ -334,8 +334,8 @@ export interface Task {
 }
 export interface TaskData {
   application: number;
-  path: string;
-  mode: {
+  path?: string;
+  mode?: {
     binary: boolean;
     withDeps: boolean;
     artifact?: {
@@ -343,9 +343,9 @@ export interface TaskData {
       path: string;
     };
   };
-  targets: string[];
-  sources: string[];
-  scope: {
+  targets?: string[];
+  sources?: string[];
+  scope?: {
     withKnown: boolean;
     packages: {
       included: string[];
