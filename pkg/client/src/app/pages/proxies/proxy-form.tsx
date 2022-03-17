@@ -236,7 +236,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   const httpIdentityInitialValue = useMemo(() => {
     let result: IdentityDropdown = { id: 0, name: "" };
     if (httpProxy && identities) {
-      const identityId = Number(httpProxy.identity);
+      const identityId = Number(httpProxy.identity?.id);
       const identity = identities.find((i) => i.id === identityId);
 
       if (identity) {
@@ -246,13 +246,14 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         });
       }
     }
+    setIsHttpIdentityRequired(!!result.id);
     return result;
   }, [identities, httpProxy]);
 
   const httpsIdentityInitialValue = useMemo(() => {
     let result: IdentityDropdown = { id: 0, name: "" };
     if (httpsProxy && identities) {
-      const identityId = Number(httpsProxy.identity);
+      const identityId = Number(httpsProxy.identity?.id);
       const identity = identities.find((i) => i.id === identityId);
 
       if (identity) {
@@ -262,6 +263,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         });
       }
     }
+    setIsHttpsIdentityRequired(!!result.id);
     return result;
   }, [identities, httpProxy]);
 
@@ -292,10 +294,18 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   });
 
   const onChangeIsHttpsIdentityRequired = () => {
+    if (isHttpsIdentityRequired) {
+      let result: IdentityDropdown = { id: 0, name: "" };
+      formik.setFieldValue(HTTPS_IDENTITY, result);
+    }
     setIsHttpsIdentityRequired(!isHttpsIdentityRequired);
   };
 
   const onChangeIsHttpIdentityRequired = () => {
+    if (isHttpIdentityRequired) {
+      let result: IdentityDropdown = { id: 0, name: "" };
+      formik.setFieldValue(HTTP_IDENTITY, result);
+    }
     setIsHttpIdentityRequired(!isHttpIdentityRequired);
   };
 
