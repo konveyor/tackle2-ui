@@ -5,17 +5,12 @@ import {
   MultipleFileUploadButton,
   MultipleFileUploadInfo,
   MultipleFileUploadMain,
-  MultipleFileUploadStatus,
   MultipleFileUploadStatusItem,
   MultipleFileUploadTitle,
   MultipleFileUploadTitleIcon,
   MultipleFileUploadTitleText,
   MultipleFileUploadTitleTextSeparator,
 } from "@patternfly/react-core";
-
-import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
-import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 
 export interface IReadFile {
   fileName: string;
@@ -32,25 +27,10 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
   const [showStatus, setShowStatus] = React.useState(false);
   const [modalText, setModalText] = React.useState("");
 
-  // only show the status component once a file has been uploaded, but keep the status list component itself even if all files are removed
   if (!showStatus && readFileData) {
     setShowStatus(true);
   }
 
-  // determine the icon that should be shown for the overall status list
-  const getStatusIcon = () => {
-    if (readFileData.length < currentFiles.length) {
-      return <InProgressIcon />;
-    }
-
-    if (readFileData.every((file) => file.loadResult === "success")) {
-      return <CheckCircleIcon />;
-    }
-
-    return <TimesCircleIcon />;
-  };
-
-  // remove files from both state arrays based on their name
   const removeFiles = (namesOfFilesToRemove: string[]) => {
     const newCurrentFiles = currentFiles.filter(
       (currentFile) =>
@@ -87,7 +67,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
       loadResult: "success",
     };
 
-    // const fileList = [...readFileData, newReadFile];
     const fileList = [newReadFile];
 
     setCurrentFiles(
@@ -96,7 +75,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
     setReadFileData(fileList);
   };
 
-  // callback called by the status item when a file encounters an error while being read with the built-in file reader
   const handleReadFail = (error: DOMException, file: File) => {
     const fileList = [
       ...readFileData,
@@ -110,7 +88,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
     setReadFileData(fileList);
   };
 
-  // dropzone prop that communicates to the user that files they've attempted to upload are not an appropriate type
   const handleDropRejected = (
     files: File[],
     _event: React.DragEvent<HTMLElement>
@@ -125,10 +102,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
       setModalText(`${rejectedMessages}are not accepted file types`);
     }
   };
-
-  const successfullyReadFileCount = readFileData.filter(
-    (fileData) => fileData.loadResult === "success"
-  ).length;
 
   return (
     <MultipleFileUpload
@@ -153,21 +126,14 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
           Accepted file: war, ear, jar or zip.
         </MultipleFileUploadInfo>
       </MultipleFileUploadMain>
-      {showStatus && (
-        <MultipleFileUploadStatus
-          statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
-          statusToggleIcon={getStatusIcon()}
-        >
-          {currentFiles.map((file) => (
-            <MultipleFileUploadStatusItem
-              file={file}
-              key={file.name}
-              onClearClick={() => removeFiles([file.name])}
-              onReadSuccess={handleReadSuccess}
-              onReadFail={handleReadFail}
-            />
-          ))}
-        </MultipleFileUploadStatus>
+      {showStatus && currentFiles.length > 0 && (
+        <MultipleFileUploadStatusItem
+          file={currentFiles[0]}
+          key={currentFiles[0].name}
+          onClearClick={() => removeFiles([currentFiles[0].name])}
+          onReadSuccess={handleReadSuccess}
+          onReadFail={handleReadFail}
+        />
       )}
       <Modal
         isOpen={!!modalText}
