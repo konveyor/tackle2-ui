@@ -38,15 +38,15 @@ export const ApplicationAnalysisStatus: React.FC<
   const {
     data: tasks,
     fetchError,
-    requestFetch: refreshBusinessService,
+    requestFetch: refreshTasks,
   } = useFetch<Array<Task>>({
     defaultIsFetching: true,
     onFetch: fetchTasks,
   });
 
   useEffect(() => {
-    refreshBusinessService();
-  }, [refreshBusinessService]);
+    refreshTasks();
+  }, [refreshTasks]);
 
   if (fetchError) {
     return <StatusIconAssessment status="NotStarted" />;
@@ -54,7 +54,12 @@ export const ApplicationAnalysisStatus: React.FC<
 
   let status: TaskStatus = "NotStarted";
   tasks?.forEach((task) => {
-    if (task.data && task.status && task.data.application === id)
+    if (
+      task.data &&
+      task.status &&
+      task.application &&
+      task.application.id === id
+    )
       status = getTaskStatus(task.status);
   });
   return <StatusIconAssessment status={status} />;
