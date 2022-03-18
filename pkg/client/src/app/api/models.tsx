@@ -321,6 +321,7 @@ export type TaskStatus =
 
 export interface Task {
   id?: number;
+  application: { id: number };
   name: string;
   addon: string;
   data: TaskData;
@@ -332,8 +333,8 @@ export interface Task {
   job?: string;
   report?: TaskReport;
 }
+
 export interface TaskData {
-  application: number;
   path: string;
   mode: {
     binary: boolean;

@@ -533,7 +533,15 @@ export const getTasks = (): AxiosPromise<Array<any>> => {
 
 export const createTask = (obj: Task): AxiosPromise<Task> => {
   return APIClient.post(`${TASKS}`, obj);
-}
+};
+
+export const updateTask = (obj: Task): AxiosPromise<Task> => {
+  return APIClient.put(`${TASKS}/${obj.id}`, obj);
+};
+
+export const submitTask = (obj: Task): AxiosPromise<Task> => {
+  return APIClient.put(`${TASKS}/${obj.id}/submit`, obj);
+};
 
 export const getProxies = (): AxiosPromise<Array<any>> => {
   return APIClient.get(`${PROXIES}`, jsonHeaders);
