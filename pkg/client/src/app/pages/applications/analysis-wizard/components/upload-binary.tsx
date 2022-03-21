@@ -35,7 +35,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     "danger" | "success" | "warning" | undefined
   >(undefined);
 
-  const { setValue } = useFormContext<IAnalysisWizardFormValues>();
+  const { setValue } = useFormContext();
 
   const dispatch = useDispatch();
 
@@ -47,6 +47,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
   }, []);
 
   const completedUpload = (response: any) => {
+    dispatch(alertActions.addInfo(`Task ${taskId}`, `Uploading binary file.`));
     setFileUploadStatus("success");
     setFileUploadProgress(100);
   };
