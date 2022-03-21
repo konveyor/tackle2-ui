@@ -1,12 +1,5 @@
-import React, { Fragment, useEffect, useMemo, useState } from "react";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import {
-  useFormik,
-  FormikProvider,
-  FormikHelpers,
-  validateYupSchema,
-} from "formik";
-import { object, string } from "yup";
+import React, { useEffect, useMemo, useState } from "react";
+import { useFormik, FormikProvider } from "formik";
 import {
   ActionGroup,
   Alert,
@@ -18,10 +11,7 @@ import {
   TextArea,
   TextInput,
 } from "@patternfly/react-core";
-import {
-  OptionWithValue,
-  SingleSelectFetchOptionValueFormikField,
-} from "@app/shared/components";
+import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import {
   getAxiosErrorMessage,
@@ -47,8 +37,7 @@ import {
   toIdentityDropdown,
   toIdentityDropdownOptionWithValue,
 } from "@app/utils/model-utils";
-import { PageRepresentation, Proxy } from "@app/api/models";
-import { createProxy, deleteProxy, updateProxy } from "@app/api/rest";
+import { Proxy } from "@app/api/models";
 import { useUpdateProxyMutation } from "@app/queries/proxies";
 
 export interface ProxyFormValues {
@@ -317,7 +306,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
 
   const [hasUpdate, setHasUpdate] = useState(false);
   useEffect(() => {
-    console.log(formik.values, httpProxy);
     if (
       httpValuesHaveUpdate(formik.values, httpProxy) ||
       httpsValuesHaveUpdate(formik.values, httpsProxy)
