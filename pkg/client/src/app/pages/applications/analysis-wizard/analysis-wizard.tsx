@@ -1,15 +1,10 @@
 import * as React from "react";
-import {
-  FieldValues,
-  FormProvider,
-  useForm,
-  useFormContext,
-} from "react-hook-form";
+import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import { Application, Task, TaskData } from "@app/api/models";
 import "./wizard.css";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   createTask,
   submitTask,
@@ -26,12 +21,14 @@ import {
   WizardFooter,
   WizardStepFunctionType,
 } from "@patternfly/react-core";
+
 import { CustomRules } from "./custom-rules";
 import { Review } from "./review";
 import { SetMode } from "./set-mode";
 import { SetOptions } from "./set-options";
 import { SetScope } from "./set-scope";
 import { SetTargets } from "./set-targets";
+import { useIsMutating, useQueryClient } from "react-query";
 interface IAnalysisWizard {
   applications: Application[];
   onClose: () => void;
@@ -45,6 +42,7 @@ export interface IReadFile {
 export interface IAnalysisWizardFormValues {
   mode: string;
   output: string;
+  artifact: string;
   targets: string[];
   sources: string[];
   withKnown: string;
@@ -82,6 +80,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const [isInitTasks, setInitTasks] = React.useState(false);
   const [createdTasks, setCreatedTasks] = React.useState<Array<Task>>([]);
+  const isMutating = useIsMutating();
 
   const schema = yup
     .object({
@@ -95,6 +94,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     defaultValues: {
       mode: "Binary",
       output: "",
+      artifact: "",
       targets: [],
       sources: [],
       withKnown: "",
@@ -126,14 +126,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     promises
       .then((response) => {
         setInitTasks(true);
-        setCreatedTasks(
-          response.map((res) => {
-            dispatch(
-              alertActions.addSuccess(`Tasks ${res.data.id}`, "created")
-            );
-            return res.data as Task;
-          })
-        );
+        setCreatedTasks(response.map((res) => res.data as Task));
       })
       .catch((error) => {
         dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
@@ -149,7 +142,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         mode: {
           binary: data.mode.includes("Binary"),
           withDeps: data.mode.includes("dependencies"),
-          artifact: data.artifact,
+          artifact: data.artifact ? `/binary/${data.artifact}` : "",
         },
         targets: data.targets,
         sources: data.sources,
@@ -202,12 +195,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         data.customRulesFiles.forEach((file: any) => {
           const formFile = new FormData();
           formFile.append("file", file.file);
-          dispatch(
-            alertActions.addInfo(
-              `Task ${task.id}`,
-              `Uploading File /rules/${file.fileName}`
-            )
-          );
 
           return uploadFileTask({
             id: task.id as number,
@@ -219,11 +206,14 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     );
 
     const promises = Promise.all(tasks.map((task) => updateTask(task)));
+
     promises
       .then(() => {
         const submissions = Promise.all(tasks.map((task) => submitTask(task)));
         submissions.then((response) => {
-          dispatch(alertActions.addSuccess("Tasks", "Submitted for analysis"));
+          dispatch(
+            alertActions.addSuccess("Applications", "Submitted for analysis")
+          );
         });
         onClose();
       })
@@ -310,8 +300,19 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           onClose,
         }) => {
           const isNextEnabled = () => {
-            //TODO: Implement next button validation here
-            return true;
+            switch (activeStep.name) {
+              case "Analysis mode":
+                {
+                  if (isMutating) {
+                    return false;
+                  } else {
+                    return true;
+                  }
+                }
+                break;
+              default:
+                return true;
+            }
           };
 
           return (

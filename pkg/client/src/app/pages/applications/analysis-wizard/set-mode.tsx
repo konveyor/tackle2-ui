@@ -12,7 +12,6 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { SimpleSelect } from "@app/shared/components";
 import { UploadBinary } from "./components/upload-binary";
 import { IAnalysisWizardFormValues } from "./analysis-wizard";
-import { Task } from "@app/api/models";
 
 interface ISetMode {
   isSingleApp: boolean;
@@ -26,7 +25,6 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
   const { register, getValues, setValue } = useFormContext();
 
   const { mode } = getValues();
-
   const [isOpen, setIsOpen] = React.useState(false);
   const [isUpload, setIsUpload] = React.useState(false);
 
