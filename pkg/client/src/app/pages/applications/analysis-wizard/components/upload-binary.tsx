@@ -11,21 +11,54 @@ import {
   MultipleFileUploadTitleText,
   MultipleFileUploadTitleTextSeparator,
 } from "@patternfly/react-core";
+import { useFormContext } from "react-hook-form";
+import { useUploadFileMutation } from "@app/queries/tasks";
+import { IAnalysisWizardFormValues, IReadFile } from "../analysis-wizard";
+import { Task } from "@app/api/models";
 
-export interface IReadFile {
-  fileName: string;
-  data?: string;
-  loadResult?: "danger" | "success";
-  loadError?: DOMException;
+interface IUploadBinary {
+  createdTaskID: number;
 }
 
-interface IUploadBinary {}
-
-export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
+export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
+  createdTaskID,
+}) => {
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
   const [currentFile, setCurrentFile] = React.useState<File>();
   const [showStatus, setShowStatus] = React.useState(false);
   const [modalText, setModalText] = React.useState("");
+  const [fileUploadProgress, setFileUploadProgress] = React.useState<
+    number | undefined
+  >(undefined);
+  const [fileUploadStatus, setFileUploadStatus] = React.useState<
+    "danger" | "success" | "warning" | undefined
+  >(undefined);
+
+  React.useEffect(() => {
+    return () => {
+      setFileUploadProgress(undefined);
+      setFileUploadStatus(undefined);
+    };
+  }, []);
+
+  const completedUpload = (response: any) => {
+    setFileUploadStatus("success");
+    setFileUploadProgress(100);
+  };
+
+  const failedUpload = (response: any) => {
+    setFileUploadStatus("danger");
+    setFileUploadProgress(0);
+  };
+
+  const {
+    mutate: uploadFile,
+    isLoading: isFileUploadLoading,
+    error,
+  } = useUploadFileMutation(completedUpload, failedUpload);
+
+  const { register, getValues, setValue } =
+    useFormContext<IAnalysisWizardFormValues>();
 
   if (!showStatus && readFileData) {
     setShowStatus(true);
@@ -116,6 +149,19 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
           onClearClick={() => removeFiles(currentFile.name)}
           onReadSuccess={handleReadSuccess}
           onReadFail={handleReadFail}
+          customFileHandler={(file) => {
+            var form = new FormData();
+            form.append("file", file);
+            //TODO: Find correct task to associate with bucket
+            let currentTaskID = createdTaskID || null;
+            uploadFile({
+              id: currentTaskID,
+              path: "file-upload",
+              file: form,
+            });
+          }}
+          progressValue={fileUploadProgress}
+          progressVariant={fileUploadStatus}
         />
       )}
       <Modal

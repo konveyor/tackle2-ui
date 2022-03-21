@@ -544,11 +544,15 @@ export const submitTask = (obj: Task): AxiosPromise<Task> => {
   return APIClient.put(`${TASKS}/${obj.id}/submit`, obj);
 };
 
-export const uploadFileTask = (
-  id: number,
-  path: string,
-  file: any
-): AxiosPromise<Task> => {
+export const uploadFileTask = ({
+  id,
+  path,
+  file,
+}: {
+  id: number;
+  path: string;
+  file: any;
+}): AxiosPromise<Task> => {
   return APIClient.post(`${TASKS}/${id}/bucket/${path}`, file, formHeaders);
 };
 
