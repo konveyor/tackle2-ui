@@ -157,7 +157,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
             var form = new FormData();
             form.append("file", file);
             //TODO: Find correct task to associate with bucket
-            let currentTaskID = createdTasks[0].id;
+            let currentTaskID = createdTasks[0]?.id;
             uploadFile({
               id: currentTaskID,
               path: "file-upload",
