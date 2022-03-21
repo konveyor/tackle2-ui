@@ -33,9 +33,9 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { Rule } from "@app/api/models";
 import { NoDataEmptyState } from "@app/shared/components";
-import { IReadFile } from "./components/add-custom-rules";
 
 import "./wizard.css";
+import { IReadFile } from "./analysis-wizard";
 
 export const CustomRules: React.FunctionComponent = () => {
   const { getValues, setValue } = useFormContext();
