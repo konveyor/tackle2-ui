@@ -28,6 +28,7 @@ export interface IReadFile {
   data?: string;
   loadResult?: "danger" | "success";
   loadError?: DOMException;
+  file: File;
 }
 
 export const AddCustomRules: React.FunctionComponent = () => {
@@ -122,6 +123,7 @@ export const AddCustomRules: React.FunctionComponent = () => {
       data,
       fileName: file.name,
       loadResult: "success",
+      file: file,
     };
     const fileList = [...readFileData, newReadFile];
 
