@@ -12,7 +12,7 @@ import {
   MultipleFileUploadTitleTextSeparator,
 } from "@patternfly/react-core";
 import { useFormContext } from "react-hook-form";
-import { useUploadLocalBinaryMutation } from "@app/queries/tasks";
+import { useUploadFileMutation } from "@app/queries/tasks";
 import { IAnalysisWizardFormValues, IReadFile } from "../analysis-wizard";
 import { Task } from "@app/api/models";
 
@@ -55,7 +55,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     mutate: uploadFile,
     isLoading: isFileUploadLoading,
     error,
-  } = useUploadLocalBinaryMutation(completedUpload, failedUpload);
+  } = useUploadFileMutation(completedUpload, failedUpload);
 
   const { register, getValues, setValue } =
     useFormContext<IAnalysisWizardFormValues>();

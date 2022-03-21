@@ -29,39 +29,13 @@ export const {
   "useFetchProxies/fetch/failure"
 )<void, any, AxiosError>();
 
-export interface IFetchState {
-  currentTasks: any;
-  isFetching: boolean;
-  fetchError: any;
-}
-export const useFetchTasks = (
-  defaultIsFetching: boolean = false
-): IFetchState => {
-  const [tasks, setTasks] = useState<Array<Task>>([]);
-  const { isLoading, isError, data, error } = useQuery("tasks", () =>
-    getTasks()
-      .then((res) => res)
-      .then(({ data }) => {
-        setTasks(data);
-      })
-      .catch((error) => {
-        console.log("error, ", error);
-      })
-  );
-  return {
-    currentTasks: tasks,
-    isFetching: isLoading,
-    fetchError: error,
-  };
-};
-
 export interface IMutateState {
   mutate: any;
   isLoading: boolean;
   error: any;
 }
 
-export const useUploadLocalBinaryMutation = (
+export const useUploadFileMutation = (
   successCallback: any,
   errorCallback: any
 ): IMutateState => {

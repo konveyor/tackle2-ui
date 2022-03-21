@@ -121,7 +121,7 @@ export const Review: React.FunctionComponent<IReview> = ({ applications }) => {
           <DescriptionListTerm>Custom rules</DescriptionListTerm>
           <DescriptionListDescription id="rules">
             <List isPlain>
-              {customRulesFiles.map((rule: any, index: any) => (
+              {customRulesFiles.map((rule, index) => (
                 <ListItem key={index}>{rule.fileName}</ListItem>
               ))}
             </List>
