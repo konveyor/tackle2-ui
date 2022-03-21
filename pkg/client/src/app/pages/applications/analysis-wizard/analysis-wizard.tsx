@@ -107,18 +107,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   console.log(methods.watch());
 
-  const { register, getValues, setValue, handleSubmit, watch, reset } = methods;
-
-  const {
-    mode,
-    targets,
-    sources,
-    withKnown,
-    includedPackages,
-    excludedPackages,
-    customRulesFiles,
-    excludedRulesTags,
-  } = getValues();
+  const { handleSubmit, watch, reset } = methods;
 
   //Task initialization
   const initTask = (application: Application): Task => {
@@ -295,7 +284,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           component: (
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
-              createdTasks={createdTasks}
+              createdTaskID={createdTasks[0]?.id || null}
             />
           ),
           canJumpTo: stepIdReached >= stepId.AnalysisMode,

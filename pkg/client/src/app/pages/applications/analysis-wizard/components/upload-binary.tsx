@@ -17,11 +17,11 @@ import { IAnalysisWizardFormValues, IReadFile } from "../analysis-wizard";
 import { Task } from "@app/api/models";
 
 interface IUploadBinary {
-  createdTasks: Array<Task>;
+  createdTaskID: number;
 }
 
 export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
-  createdTasks,
+  createdTaskID,
 }) => {
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
   const [currentFile, setCurrentFile] = React.useState<File>();
@@ -153,7 +153,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
             var form = new FormData();
             form.append("file", file);
             //TODO: Find correct task to associate with bucket
-            let currentTaskID = createdTasks[0]?.id;
+            let currentTaskID = createdTaskID || null;
             uploadFile({
               id: currentTaskID,
               path: "file-upload",
