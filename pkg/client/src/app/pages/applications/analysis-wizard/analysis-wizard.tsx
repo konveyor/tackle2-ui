@@ -97,7 +97,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       withKnown: "",
       includedPackages: [""],
       excludedPackages: [""],
-      customRulesFiles: undefined,
+      customRulesFiles: [],
       excludedRulesTags: [""],
     },
   });
