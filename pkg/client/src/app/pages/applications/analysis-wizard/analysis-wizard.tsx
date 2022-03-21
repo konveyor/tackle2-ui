@@ -28,6 +28,7 @@ import { SetMode } from "./set-mode";
 import { SetOptions } from "./set-options";
 import { SetScope } from "./set-scope";
 import { SetTargets } from "./set-targets";
+import { useIsMutating, useQueryClient } from "react-query";
 interface IAnalysisWizard {
   applications: Application[];
   onClose: () => void;
@@ -79,6 +80,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const [isInitTasks, setInitTasks] = React.useState(false);
   const [createdTasks, setCreatedTasks] = React.useState<Array<Task>>([]);
+  const isMutating = useIsMutating();
 
   const schema = yup
     .object({
@@ -298,8 +300,19 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           onClose,
         }) => {
           const isNextEnabled = () => {
-            //TODO: Implement next button validation here
-            return true;
+            switch (activeStep.name) {
+              case "Analysis mode":
+                {
+                  if (isMutating) {
+                    return false;
+                  } else {
+                    return true;
+                  }
+                }
+                break;
+              default:
+                true;
+            }
           };
 
           return (

@@ -35,7 +35,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     "danger" | "success" | "warning" | undefined
   >(undefined);
 
-  const { setValue } = useFormContext<IAnalysisWizardFormValues>();
+  const { setValue } = useFormContext();
 
   const dispatch = useDispatch();
 
