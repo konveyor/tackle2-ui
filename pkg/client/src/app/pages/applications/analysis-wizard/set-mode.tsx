@@ -12,12 +12,17 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { SimpleSelect } from "@app/shared/components";
 import { UploadBinary } from "./components/upload-binary";
 import { IAnalysisWizardFormValues } from "./analysis-wizard";
+import { Task } from "@app/api/models";
 
 interface ISetMode {
   isSingleApp: boolean;
+  createdTasks: Array<Task>;
 }
 
-export const SetMode: React.FunctionComponent<ISetMode> = ({ isSingleApp }) => {
+export const SetMode: React.FunctionComponent<ISetMode> = ({
+  isSingleApp,
+  createdTasks,
+}) => {
   const { register, getValues, setValue } =
     useFormContext<IAnalysisWizardFormValues>();
 
@@ -81,7 +86,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({ isSingleApp }) => {
           options={options}
         />
       </FormGroup>
-      {isUpload && <UploadBinary />}
+      {isUpload && <UploadBinary createdTasks={createdTasks} />}
     </>
   );
 };

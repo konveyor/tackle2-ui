@@ -36,6 +36,12 @@ interface IAnalysisWizard {
   applications: Application[];
   onClose: () => void;
 }
+export interface IReadFile {
+  fileName: string;
+  data?: string;
+  loadResult?: "danger" | "success";
+  loadError?: DOMException;
+}
 export interface IAnalysisWizardFormValues {
   mode: string;
   output: string;
@@ -44,9 +50,8 @@ export interface IAnalysisWizardFormValues {
   withKnown: string;
   includedPackages: string[];
   excludedPackages: string[];
-  customRulesFiles: any;
+  customRulesFiles: IReadFile[];
   excludedRulesTags: string[];
-  createdTasks: Array<Task>;
 }
 
 const defaultTaskData: TaskData = {
@@ -72,15 +77,8 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   applications,
   onClose,
 }: IAnalysisWizard) => {
-  useEffect(() => {
-    if (!isInitTasks) {
-      initTasks();
-    }
-
-    return () => {
-      setInitTasks(false);
-    };
-  }, []);
+  const [isInitTasks, setInitTasks] = React.useState(false);
+  const [createdTasks, setCreatedTasks] = React.useState<Array<Task>>([]);
 
   const schema = yup
     .object({
@@ -99,13 +97,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       withKnown: "",
       includedPackages: [""],
       excludedPackages: [""],
-      customRulesFiles: [],
+      customRulesFiles: undefined,
       excludedRulesTags: [""],
     },
   });
 
   console.log(methods.watch());
-  const [isInitTasks, setInitTasks] = React.useState(false);
 
   const { register, getValues, setValue, handleSubmit, watch, reset } = methods;
 
@@ -118,7 +115,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     excludedPackages,
     customRulesFiles,
     excludedRulesTags,
-    createdTasks,
   } = getValues();
 
   //Task initialization
@@ -139,8 +135,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     promises
       .then((response) => {
         setInitTasks(true);
-        setValue(
-          "createdTasks",
+        setCreatedTasks(
           response.map((res) => {
             dispatch(
               alertActions.addSuccess(`Tasks ${res.data.id}`, "created")
@@ -187,6 +182,10 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     };
   };
 
+  if (!isInitTasks) {
+    initTasks();
+  }
+
   const [stepIdReached, setStepIdReached] = useState(1);
 
   enum stepId {
@@ -201,7 +200,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const title = "Application analysis";
   const dispatch = useDispatch();
-
   const onSubmit = (data: FieldValues) => {
     if (data.targets.length < 1) {
       console.log("Invalid form");
@@ -249,14 +247,8 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     { id, name },
     { prevId, prevName }
   ) => {
-    if (id && prevId && prevId === 1) {
-      //   console.log("moving past first step -- create task here");
-    }
-
     if (id && stepIdReached < id) {
       setStepIdReached(id as number);
-    }
-    if (prevId && id && prevId > 1 && id === 1) {
     }
   };
 
@@ -300,7 +292,10 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           id: stepId.AnalysisMode,
           name: "Analysis mode",
           component: (
-            <SetMode isSingleApp={applications.length === 1 ? true : false} />
+            <SetMode
+              isSingleApp={applications.length === 1 ? true : false}
+              createdTasks={createdTasks}
+            />
           ),
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
         },
@@ -361,15 +356,9 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   );
 
   const getNextStep = (activeStep: any, callback?: any) => {
-    if (activeStep.id === 1 && mode === "Upload a local binary") {
-      setTimeout(() => {
-        callback();
-      });
-    } else {
-      setTimeout(() => {
-        callback();
-      });
-    }
+    setTimeout(() => {
+      callback();
+    });
   };
 
   const getPreviousStep = (activeStep: any, callback: any) => {

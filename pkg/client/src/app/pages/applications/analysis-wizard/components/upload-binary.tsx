@@ -13,18 +13,16 @@ import {
 } from "@patternfly/react-core";
 import { useFormContext } from "react-hook-form";
 import { useUploadLocalBinaryMutation } from "@app/queries/tasks";
-import { IAnalysisWizardFormValues } from "../analysis-wizard";
+import { IAnalysisWizardFormValues, IReadFile } from "../analysis-wizard";
+import { Task } from "@app/api/models";
 
-export interface IReadFile {
-  fileName: string;
-  data?: string;
-  loadResult?: "danger" | "success";
-  loadError?: DOMException;
+interface IUploadBinary {
+  createdTasks: Array<Task>;
 }
 
-interface IUploadBinary {}
-
-export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
+export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
+  createdTasks,
+}) => {
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
   const [currentFile, setCurrentFile] = React.useState<File>();
   const [showStatus, setShowStatus] = React.useState(false);
@@ -61,8 +59,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = () => {
 
   const { register, getValues, setValue } =
     useFormContext<IAnalysisWizardFormValues>();
-
-  const { createdTasks } = getValues();
 
   if (!showStatus && readFileData) {
     setShowStatus(true);
