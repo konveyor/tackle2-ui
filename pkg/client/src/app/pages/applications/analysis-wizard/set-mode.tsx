@@ -6,7 +6,7 @@ import {
   SelectOption,
   SelectVariant,
 } from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
+import { FieldValues, useFormContext } from "react-hook-form";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { SimpleSelect } from "@app/shared/components";
@@ -23,8 +23,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
   isSingleApp,
   createdTaskID,
 }) => {
-  const { register, getValues, setValue } =
-    useFormContext<IAnalysisWizardFormValues>();
+  const { register, getValues, setValue } = useFormContext();
 
   const { mode } = getValues();
 
@@ -69,7 +68,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
           aria-label="Select user perspective"
           value={mode}
           onChange={(selection) => {
-            setValue("mode", selection as string);
+            setValue("mode", selection);
             if (selection === "Upload a local binary") setIsUpload(true);
             else setIsUpload(false);
             setIsOpen(!isOpen);
