@@ -11,17 +11,15 @@ import {
   MultipleFileUploadTitleText,
   MultipleFileUploadTitleTextSeparator,
 } from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
-import { useUploadFileMutation } from "@app/queries/tasks";
-import { IAnalysisWizardFormValues, IReadFile } from "../analysis-wizard";
-import { Task } from "@app/api/models";
 
+import { useUploadFileMutation } from "@app/queries/tasks";
+import { IReadFile } from "../analysis-wizard";
 interface IUploadBinary {
-  createdTaskID: number;
+  taskId: number;
 }
 
 export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
-  createdTaskID,
+  taskId,
 }) => {
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
   const [currentFile, setCurrentFile] = React.useState<File>();
@@ -51,14 +49,10 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     setFileUploadProgress(0);
   };
 
-  const {
-    mutate: uploadFile,
-    isLoading: isFileUploadLoading,
-    error,
-  } = useUploadFileMutation(completedUpload, failedUpload);
-
-  const { register, getValues, setValue } =
-    useFormContext<IAnalysisWizardFormValues>();
+  const { mutate: uploadFile } = useUploadFileMutation(
+    completedUpload,
+    failedUpload
+  );
 
   if (!showStatus && readFileData) {
     setShowStatus(true);
@@ -150,12 +144,10 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
           onReadSuccess={handleReadSuccess}
           onReadFail={handleReadFail}
           customFileHandler={(file) => {
-            var form = new FormData();
+            const form = new FormData();
             form.append("file", file);
-            //TODO: Find correct task to associate with bucket
-            let currentTaskID = createdTaskID || null;
             uploadFile({
-              id: currentTaskID,
+              id: taskId,
               path: "file-upload",
               file: form,
             });
