@@ -61,21 +61,6 @@ export interface IMutateState {
   error: any;
 }
 
-export const useCreateInitialTaskMutation = (callback: any): IMutateState => {
-  const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(createTask, {
-    onSuccess: (res, context: any) => {
-      callback && callback(res);
-    },
-    onError: (err) => {},
-  });
-  return {
-    mutate,
-    isLoading,
-    error,
-  };
-};
-
 export const useUploadLocalBinaryMutation = (
   successCallback: any,
   errorCallback: any
@@ -85,7 +70,7 @@ export const useUploadLocalBinaryMutation = (
       successCallback && successCallback(res);
     },
     onError: (err) => {
-      errorCallback && successCallback(err);
+      errorCallback && errorCallback(err);
     },
   });
   return {
