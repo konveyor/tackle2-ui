@@ -222,11 +222,11 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             )
           );
 
-          return uploadFileTask(
-            task.id as number,
-            `/rules/${file.fileName}`,
-            formFile
-          );
+          return uploadFileTask({
+            id: task.id as number,
+            path: `/rules/${file.fileName}`,
+            file: formFile,
+          });
         })
       )
     );

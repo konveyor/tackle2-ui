@@ -544,26 +544,16 @@ export const submitTask = (obj: Task): AxiosPromise<Task> => {
   return APIClient.put(`${TASKS}/${obj.id}/submit`, obj);
 };
 
-export const uploadFileTask = (
-  id: number,
-  path: string,
-  file: any
-): AxiosPromise<Task> => {
-  return APIClient.post(`${TASKS}/${id}/bucket/${path}`, file, formHeaders);
-};
-
-export const uploadLocalBinaryFile = ({
-  currentTaskID,
+export const uploadFileTask = ({
+  id,
+  path,
   file,
 }: {
-  currentTaskID: any;
+  id: number;
+  path: string;
   file: any;
-}): AxiosPromise<any> => {
-  return APIClient.post(
-    `${TASKS}/${currentTaskID}/bucket/binary/uploaded-file`,
-    file,
-    jsonHeaders
-  );
+}): AxiosPromise<Task> => {
+  return APIClient.post(`${TASKS}/${id}/bucket/${path}`, file, formHeaders);
 };
 
 export const getProxies = (): AxiosPromise<Array<any>> => {

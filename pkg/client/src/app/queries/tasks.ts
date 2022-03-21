@@ -7,7 +7,7 @@ import {
   getTasks,
   PROXIES,
   updateProxy,
-  uploadLocalBinaryFile,
+  uploadFileTask,
 } from "@app/api/rest";
 import { Proxy, Task } from "@app/api/models";
 import {
@@ -80,7 +80,7 @@ export const useUploadLocalBinaryMutation = (
   successCallback: any,
   errorCallback: any
 ): IMutateState => {
-  const { isLoading, mutate, error } = useMutation(uploadLocalBinaryFile, {
+  const { isLoading, mutate, error } = useMutation(uploadFileTask, {
     onSuccess: (res) => {
       successCallback && successCallback(res);
     },
