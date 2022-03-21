@@ -1,15 +1,10 @@
 import * as React from "react";
-import {
-  FieldValues,
-  FormProvider,
-  useForm,
-  useFormContext,
-} from "react-hook-form";
+import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import { Application, Task, TaskData } from "@app/api/models";
 import "./wizard.css";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   createTask,
   submitTask,
@@ -26,6 +21,7 @@ import {
   WizardFooter,
   WizardStepFunctionType,
 } from "@patternfly/react-core";
+
 import { CustomRules } from "./custom-rules";
 import { Review } from "./review";
 import { SetMode } from "./set-mode";
@@ -45,6 +41,7 @@ export interface IReadFile {
 export interface IAnalysisWizardFormValues {
   mode: string;
   output: string;
+  artifact: string;
   targets: string[];
   sources: string[];
   withKnown: string;
@@ -95,6 +92,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     defaultValues: {
       mode: "Binary",
       output: "",
+      artifact: "",
       targets: [],
       sources: [],
       withKnown: "",
@@ -149,7 +147,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         mode: {
           binary: data.mode.includes("Binary"),
           withDeps: data.mode.includes("dependencies"),
-          artifact: data.artifact,
+          artifact: data.artifact ? `/binary/${data.artifact}` : "",
         },
         targets: data.targets,
         sources: data.sources,

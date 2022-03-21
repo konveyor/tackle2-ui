@@ -13,7 +13,10 @@ import {
 } from "@patternfly/react-core";
 
 import { useUploadFileMutation } from "@app/queries/tasks";
-import { IReadFile } from "../analysis-wizard";
+import { IAnalysisWizardFormValues, IReadFile } from "../analysis-wizard";
+import { useFormContext } from "react-hook-form";
+import { alertActions } from "@app/store/alert";
+import { useDispatch } from "react-redux";
 interface IUploadBinary {
   taskId: number;
 }
@@ -32,6 +35,10 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     "danger" | "success" | "warning" | undefined
   >(undefined);
 
+  const { setValue } = useFormContext<IAnalysisWizardFormValues>();
+
+  const dispatch = useDispatch();
+
   React.useEffect(() => {
     return () => {
       setFileUploadProgress(undefined);
@@ -40,11 +47,15 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
   }, []);
 
   const completedUpload = (response: any) => {
+    dispatch(alertActions.addInfo(`Task ${taskId}`, `Uploading binary file.`));
     setFileUploadStatus("success");
     setFileUploadProgress(100);
   };
 
   const failedUpload = (response: any) => {
+    dispatch(
+      alertActions.addDanger(`Task ${taskId}`, `Binary file upload failed.`)
+    );
     setFileUploadStatus("danger");
     setFileUploadProgress(0);
   };
@@ -148,9 +159,10 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
             form.append("file", file);
             uploadFile({
               id: taskId,
-              path: "file-upload",
+              path: `binary/${file.name}`,
               file: form,
             });
+            setValue("artifact", file.name as string);
           }}
           progressValue={fileUploadProgress}
           progressVariant={fileUploadStatus}
