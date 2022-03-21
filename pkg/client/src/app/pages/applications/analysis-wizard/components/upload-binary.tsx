@@ -47,12 +47,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
   }, []);
 
   const completedUpload = (response: any) => {
-    dispatch(
-      alertActions.addSuccess(
-        `Task ${taskId}`,
-        `Binary file uploaded successfully.`
-      )
-    );
     setFileUploadStatus("success");
     setFileUploadProgress(100);
   };

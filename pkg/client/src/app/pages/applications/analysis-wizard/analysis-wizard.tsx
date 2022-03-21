@@ -124,14 +124,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     promises
       .then((response) => {
         setInitTasks(true);
-        setCreatedTasks(
-          response.map((res) => {
-            dispatch(
-              alertActions.addSuccess(`Tasks ${res.data.id}`, "created")
-            );
-            return res.data as Task;
-          })
-        );
+        setCreatedTasks(response.map((res) => res.data as Task));
       })
       .catch((error) => {
         dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
@@ -200,12 +193,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         data.customRulesFiles.forEach((file: any) => {
           const formFile = new FormData();
           formFile.append("file", file.file);
-          dispatch(
-            alertActions.addInfo(
-              `Task ${task.id}`,
-              `Uploading File /rules/${file.fileName}`
-            )
-          );
 
           return uploadFileTask({
             id: task.id as number,
@@ -217,11 +204,14 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     );
 
     const promises = Promise.all(tasks.map((task) => updateTask(task)));
+
     promises
       .then(() => {
         const submissions = Promise.all(tasks.map((task) => submitTask(task)));
         submissions.then((response) => {
-          dispatch(alertActions.addSuccess("Tasks", "Submitted for analysis"));
+          dispatch(
+            alertActions.addSuccess("Applications", "Submitted for analysis")
+          );
         });
         onClose();
       })
