@@ -336,13 +336,11 @@ export interface Task {
 
 export interface TaskData {
   path: string;
+  output: string;
   mode: {
     binary: boolean;
     withDeps: boolean;
-    artifact?: {
-      bucket: number;
-      path: string;
-    };
+    artifact: string;
   };
   targets: string[];
   sources: string[];
@@ -354,10 +352,7 @@ export interface TaskData {
     };
   };
   rules?: {
-    directory?: {
-      bucket: number;
-      path: string;
-    };
+    path: string;
     tags: {
       excluded: string[];
     };

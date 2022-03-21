@@ -66,6 +66,7 @@ export const PROXIES = "/proxies";
 
 const halHeaders = { headers: { Accept: "application/hal+json" } };
 const jsonHeaders = { headers: { Accept: "application/json" } };
+const formHeaders = { headers: { Accept: "multipart/form-data" } };
 
 type Direction = "asc" | "desc";
 
@@ -541,6 +542,14 @@ export const updateTask = (obj: Task): AxiosPromise<Task> => {
 
 export const submitTask = (obj: Task): AxiosPromise<Task> => {
   return APIClient.put(`${TASKS}/${obj.id}/submit`, obj);
+};
+
+export const uploadFileTask = (
+  id: number,
+  path: string,
+  file: any
+): AxiosPromise<Task> => {
+  return APIClient.post(`${TASKS}/${id}/bucket/${path}`, file, formHeaders);
 };
 
 export const getProxies = (): AxiosPromise<Array<any>> => {

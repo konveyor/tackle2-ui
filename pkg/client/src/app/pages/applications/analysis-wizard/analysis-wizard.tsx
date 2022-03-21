@@ -11,7 +11,12 @@ import { SetTargets } from "./set-targets";
 import { SetScope } from "./set-scope";
 import { SetOptions } from "./set-options";
 import { Review } from "./review";
-import { createTask, submitTask, updateTask } from "@app/api/rest";
+import {
+  createTask,
+  submitTask,
+  updateTask,
+  uploadFileTask,
+} from "@app/api/rest";
 import { alertActions } from "@app/store/alert";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { CustomRules } from "./custom-rules";
@@ -25,6 +30,7 @@ interface IAnalysisWizard {
 
 export interface IAnalysisWizardFormValues {
   mode: string;
+  output: string;
   targets: string[];
   sources: string[];
   withKnown: string;
@@ -36,9 +42,11 @@ export interface IAnalysisWizardFormValues {
 
 const defaultTaskData: TaskData = {
   path: "",
+  output: "/windup/report",
   mode: {
     binary: false,
     withDeps: false,
+    artifact: "",
   },
   targets: [],
   sources: [],
@@ -46,11 +54,6 @@ const defaultTaskData: TaskData = {
     withKnown: false,
     packages: {
       included: [],
-      excluded: [],
-    },
-  },
-  rules: {
-    tags: {
       excluded: [],
     },
   },
@@ -77,6 +80,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     resolver: yupResolver(schema),
     defaultValues: {
       mode: "Binary",
+      output: "",
       targets: [],
       sources: [],
       withKnown: "",
@@ -104,11 +108,13 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     promises
       .then((response) => {
         setInitTasks(true);
-        setCreatedTasks(response.map((res) => res.data as Task));
-        dispatch(
-          alertActions.addSuccess(
-            `Task(s) ${response.map((res) => res.data.name).join(", ")} created`
-          )
+        setCreatedTasks(
+          response.map((res) => {
+            dispatch(
+              alertActions.addSuccess(`Tasks ${res.data.id}`, "created")
+            );
+            return res.data as Task;
+          })
         );
       })
       .catch((error) => {
@@ -122,10 +128,10 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       ...task,
       data: {
         ...defaultTaskData,
-        path: "",
         mode: {
           binary: data.mode.includes("Binary"),
           withDeps: data.mode.includes("dependencies"),
+          artifact: data.artifact,
         },
         targets: data.targets,
         sources: data.sources,
@@ -136,11 +142,15 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             excluded: data.excludedPackages,
           },
         },
-        rules: {
-          tags: {
-            excluded: data.excludedRulesTags,
-          },
-        },
+        rules:
+          data.customRulesFiles.length > 0
+            ? {
+                path: "/rules",
+                tags: {
+                  excluded: data.excludedRulesTags,
+                },
+              }
+            : undefined,
       },
     };
   };
@@ -153,27 +163,33 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
     const tasks = createdTasks.map((task) => setTask(task, data));
 
-    const promises = Promise.all(tasks.map((task) => updateTask(task)));
-    promises
-      .then((response) => {
-        dispatch(
-          alertActions.addSuccess(
-            `Task(s) ${response
-              .map((res) => res.data.name)
-              .join(", ")} were updated`
-          )
-        );
-      })
-      .then((response) => {
-        const submissions = Promise.all(tasks.map((task) => submitTask(task)));
-        submissions.then((response) => {
+    Promise.all(
+      tasks.map((task) =>
+        data.customRulesFiles.forEach((file: any) => {
+          const formFile = new FormData();
+          formFile.append("file", file.file);
           dispatch(
-            alertActions.addSuccess(
-              `Task(s) ${response
-                .map((res) => res.data.name)
-                .join(", ")} were submitted for analysis`
+            alertActions.addInfo(
+              `Task ${task.id}`,
+              `Uploading File /rules/${file.fileName}`
             )
           );
+
+          return uploadFileTask(
+            task.id as number,
+            `/rules/${file.fileName}`,
+            formFile
+          );
+        })
+      )
+    );
+
+    const promises = Promise.all(tasks.map((task) => updateTask(task)));
+    promises
+      .then(() => {
+        const submissions = Promise.all(tasks.map((task) => submitTask(task)));
+        submissions.then((response) => {
+          dispatch(alertActions.addSuccess("Tasks", "Submitted for analysis"));
         });
         onClose();
       })
