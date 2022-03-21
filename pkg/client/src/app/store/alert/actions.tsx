@@ -1,6 +1,6 @@
 import { addNotification } from "@redhat-cloud-services/frontend-components-notifications/redux";
 
-type Variant = "danger" | "success";
+type Variant = "danger" | "success" | "info";
 
 export const addAlert = (
   variant: Variant,
@@ -12,6 +12,10 @@ export const addAlert = (
     title,
     description,
   });
+};
+
+export const addInfo = (title: string, description?: string) => {
+  return addAlert("info", title, description);
 };
 
 export const addSuccess = (title: string, description?: string) => {
