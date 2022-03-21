@@ -311,7 +311,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
                 }
                 break;
               default:
-                true;
+                return true;
             }
           };
 
