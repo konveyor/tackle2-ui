@@ -26,16 +26,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
   const { register, getValues, setValue } =
     useFormContext<IAnalysisWizardFormValues>();
 
-  const {
-    mode,
-    targets,
-    sources,
-    withKnown,
-    includedPackages,
-    excludedPackages,
-    customRulesFiles,
-    excludedRulesTags,
-  } = getValues();
+  const { mode } = getValues();
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [isUpload, setIsUpload] = React.useState(false);
