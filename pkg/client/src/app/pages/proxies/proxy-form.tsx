@@ -168,10 +168,11 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       return true;
     } else {
       return (
-        values.excluded !== httpProxy?.excluded.join(),
+        values.excluded !== httpProxy?.excluded.join() ||
         values.httpHost !== httpProxy?.host ||
-          values.httpIdentity !== httpProxy?.identity ||
-          values.httpPort !== httpProxy?.port
+        (values.httpIdentity.id &&
+          values.httpIdentity !== httpProxy?.identity) ||
+        values.httpPort !== httpProxy?.port
       );
     }
   };
@@ -184,10 +185,11 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     }
 
     return (
-      values.excluded !== httpsProxy?.excluded.join(),
+      values.excluded !== httpsProxy?.excluded.join() ||
       values.httpsHost !== httpsProxy?.host ||
-        values.httpsIdentity !== httpsProxy?.identity ||
-        values.httpsPort !== httpsProxy?.port
+      (values.httpsIdentity.id &&
+        values.httpsIdentity !== httpsProxy?.identity) ||
+      values.httpsPort !== httpsProxy?.port
     );
   };
 
@@ -312,6 +314,19 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   const onChangeField = (value: string, event: React.FormEvent<any>) => {
     formik.handleChange(event);
   };
+
+  const [hasUpdate, setHasUpdate] = useState(false);
+  useEffect(() => {
+    console.log(formik.values, httpProxy);
+    if (
+      httpValuesHaveUpdate(formik.values, httpProxy) ||
+      httpsValuesHaveUpdate(formik.values, httpsProxy)
+    ) {
+      setHasUpdate(true);
+    } else {
+      setHasUpdate(false);
+    }
+  }, [formik.values, httpProxy, httpsProxy]);
 
   return (
     <FormikProvider value={formik}>
@@ -561,9 +576,9 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             variant={ButtonVariant.primary}
             isDisabled={
               !formik.isValid ||
-              !formik.dirty ||
               formik.isSubmitting ||
-              formik.isValidating
+              formik.isValidating ||
+              !hasUpdate
             }
           >
             {httpValuesHaveUpdate(formik.values, httpProxy) ||
