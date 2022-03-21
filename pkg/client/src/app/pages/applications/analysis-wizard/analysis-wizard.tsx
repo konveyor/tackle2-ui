@@ -77,6 +77,9 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   applications,
   onClose,
 }: IAnalysisWizard) => {
+  const title = "Application analysis";
+  const dispatch = useDispatch();
+
   const [isInitTasks, setInitTasks] = React.useState(false);
   const [createdTasks, setCreatedTasks] = React.useState<Array<Task>>([]);
 
@@ -198,8 +201,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     Review,
   }
 
-  const title = "Application analysis";
-  const dispatch = useDispatch();
   const onSubmit = (data: FieldValues) => {
     if (data.targets.length < 1) {
       console.log("Invalid form");
