@@ -109,7 +109,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const { handleSubmit, watch, reset } = methods;
 
-  //Task initialization
   const initTask = (application: Application): Task => {
     return {
       name: `${application.name}.${application.id}.windup`,

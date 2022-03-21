@@ -77,9 +77,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
           options={options}
         />
       </FormGroup>
-      {isUpload && createdTaskID && (
-        <UploadBinary createdTaskID={createdTaskID} />
-      )}
+      {isUpload && createdTaskID && <UploadBinary taskId={createdTaskID} />}
     </>
   );
 };
