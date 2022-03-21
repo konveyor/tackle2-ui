@@ -4,36 +4,18 @@ import {
   CardBody,
   PageSection,
   PageSectionVariants,
-  Switch,
   Text,
   TextContent,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-
-import "./proxies.css";
 import { ProxyForm } from "./proxy-form";
-import { AxiosResponse } from "axios";
-import { alertActions } from "@app/store/alert";
-import { useDispatch } from "react-redux";
-import { useEffect } from "react";
 import { useFetchProxies } from "@app/queries/proxies";
+import "./proxies.css";
 
 export const Proxies: React.FunctionComponent = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
 
-  const handleOnProxyCreated = (response: AxiosResponse<any>) => {
-    dispatch(
-      alertActions.addSuccess(
-        t("toastr.success.added", {
-          what: response.data.name,
-          type: t("terms.proxy").toLowerCase(),
-        })
-      )
-    );
-  };
-
-  const { proxies, isFetching, fetchError } = useFetchProxies();
+  const { proxies } = useFetchProxies();
 
   const existingHttpProxy = proxies.find((proxy: any) => proxy.kind === "http");
   const existingHttpsProxy = proxies.find(
