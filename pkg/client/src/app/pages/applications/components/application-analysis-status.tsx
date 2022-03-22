@@ -13,7 +13,7 @@ export interface ApplicationAnalysisStatusProps {
 const taskToUI: Map<string, TaskStatus> = new Map([
   ["No task", "NotStarted"],
   ["Ready", "Scheduled"],
-  ["Created", "Created"],
+  ["Created", "Scheduled"],
   ["Running", "InProgress"],
   ["not supported", "Canceled"],
   ["Failed", "Failed"],

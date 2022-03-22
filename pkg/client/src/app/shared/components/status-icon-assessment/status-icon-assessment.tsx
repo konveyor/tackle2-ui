@@ -18,7 +18,6 @@ import {
 
 export type StatusIconAssessmentType =
   | "Canceled"
-  | "Created"
   | "Completed"
   | "Failed"
   | "InProgress"
@@ -37,10 +36,6 @@ type IconListType = {
 const iconList: IconListType = {
   Canceled: {
     Icon: TimesCircleIcon,
-    color: infoColor,
-  },
-  Created: {
-    Icon: CheckCircleIcon,
     color: infoColor,
   },
   Completed: {
@@ -96,9 +91,6 @@ export const StatusIconAssessment: React.FunctionComponent<
   switch (status) {
     case "Canceled":
       label = t("terms.canceled");
-      break;
-    case "Created":
-      label = t("terms.created");
       break;
     case "Completed":
       label = t("terms.completed");
