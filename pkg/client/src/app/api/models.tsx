@@ -312,6 +312,7 @@ export interface Setting {
 
 export type TaskStatus =
   | "Canceled"
+  | "Created"
   | "Completed"
   | "Failed"
   | "InProgress"
@@ -329,7 +330,7 @@ export interface Task {
   image?: string;
   started?: string;
   terminated?: string;
-  status?: TaskStatus;
+  state?: TaskStatus;
   job?: string;
   report?: TaskReport;
 }
