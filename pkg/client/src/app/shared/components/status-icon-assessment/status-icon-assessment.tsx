@@ -18,6 +18,7 @@ import {
 
 export type StatusIconAssessmentType =
   | "Canceled"
+  | "Created"
   | "Completed"
   | "Failed"
   | "InProgress"
@@ -34,29 +35,33 @@ type IconListType = {
   };
 };
 const iconList: IconListType = {
-  NotStarted: {
+  Canceled: {
     Icon: TimesCircleIcon,
-    color: unknownColor,
+    color: infoColor,
   },
-  InProgress: {
-    Icon: InProgressIcon,
-    color: loadingColor,
+  Created: {
+    Icon: CheckCircleIcon,
+    color: infoColor,
   },
   Completed: {
     Icon: CheckCircleIcon,
     color: successColor,
   },
-  Scheduled: {
-    Icon: InProgressIcon,
-    color: infoColor,
-  },
-  Canceled: {
-    Icon: TimesCircleIcon,
-    color: infoColor,
-  },
   Failed: {
     Icon: ExclamationCircleIcon,
     color: errorColor,
+  },
+  InProgress: {
+    Icon: InProgressIcon,
+    color: loadingColor,
+  },
+  NotStarted: {
+    Icon: TimesCircleIcon,
+    color: unknownColor,
+  },
+  Scheduled: {
+    Icon: InProgressIcon,
+    color: infoColor,
   },
   Unknown: {
     Icon: UnknownIcon,
@@ -91,6 +96,9 @@ export const StatusIconAssessment: React.FunctionComponent<
   switch (status) {
     case "Canceled":
       label = t("terms.canceled");
+      break;
+    case "Created":
+      label = t("terms.created");
       break;
     case "Completed":
       label = t("terms.completed");
