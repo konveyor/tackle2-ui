@@ -436,18 +436,20 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     refreshTable();
   };
 
-  const isAnalysisActivated = () => {
-    const candidateTasks = selectedRows.filter((app) =>
-      tasks.some(
-        (task) =>
-          task.application.id === app.id &&
-          (task.state === "Running" ||
-            task.state === "Ready" ||
-            task.state === "Created")
-      )
+  const isTaskingAllowed = () => {
+    const candidateTasks = selectedRows.filter(
+      (app) =>
+        !tasks.some(
+          (task) =>
+            task.application.id === app.id &&
+            (task.state === "Running" ||
+              task.state === "Ready" ||
+              task.state === "Created")
+        )
     );
-    if (candidateTasks.length > 1) return false;
-    return true;
+    console.log("candidateTasks: ", candidateTasks);
+    if (candidateTasks.length === selectedRows.length) return true;
+    return false;
   };
 
   return (
@@ -499,9 +501,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                     onClick={() => {
                       setAnalyzeModalOpen(true);
                     }}
-                    isDisabled={
-                      selectedRows.length < 1 || isAnalysisActivated()
-                    }
+                    isDisabled={selectedRows.length < 1 || !isTaskingAllowed()}
                   >
                     {t("actions.analyze")}
                   </Button>
