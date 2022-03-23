@@ -61,6 +61,10 @@ import { useSortState } from "@app/shared/hooks/useSortState";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import { useDeleteTaskMutation, useFetchTasks } from "@app/queries/tasks";
+import { RBAC } from "@app/rbac";
+import * as roles from "@app/roles";
+import { checkAccess } from "@app/common/rbac-utils";
+import keycloak from "@app/keycloak";
 
 const ENTITY_FIELD = "entity";
 
@@ -69,6 +73,9 @@ const getRow = (rowData: IRowData): Application => {
 };
 
 export const ApplicationsTableAnalyze: React.FC = () => {
+  //RBAC
+  const token = keycloak.tokenParsed || undefined;
+
   // i18
   const { t } = useTranslation();
 
@@ -319,13 +326,15 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         {
           title: (
             <div className="pf-c-inline-edit__action pf-m-enable-editable">
-              <Button
-                type="button"
-                variant="plain"
-                onClick={() => openUpdateApplicationModal(item)}
-              >
-                <PencilAltIcon />
-              </Button>
+              <RBAC allowedRoles={roles.writeScopes}>
+                <Button
+                  type="button"
+                  variant="plain"
+                  onClick={() => openUpdateApplicationModal(item)}
+                >
+                  <PencilAltIcon />
+                </Button>
+              </RBAC>
             </div>
           ),
         },
@@ -353,26 +362,30 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     }
 
     const actions: (IAction | ISeparator)[] = [];
-
-    actions.push(
-      {
-        title: t("actions.manageDependencies"),
-        onClick: () => openDependenciesModal(row),
-      },
-      {
-        title: "Manage credentials",
-        onClick: () => openCredentialsModal([row]),
-      },
-      {
-        title: "Cancel analysis",
-        isDisabled: !isTaskCancellable(row),
-        onClick: () => cancelAnalysis(row),
-      },
-      {
-        title: t("actions.delete"),
-        onClick: () => deleteRow(row),
-      }
-    );
+    //@ts-ignore
+    const userScopes: string[] = token?.scope.split(" "),
+      access = userScopes && checkAccess(userScopes, roles.writeScopes);
+    if (access) {
+      actions.push(
+        {
+          title: t("actions.manageDependencies"),
+          onClick: () => openDependenciesModal(row),
+        },
+        {
+          title: "Manage credentials",
+          onClick: () => openCredentialsModal([row]),
+        },
+        {
+          title: "Cancel analysis",
+          isDisabled: !isTaskCancellable(row),
+          onClick: () => cancelAnalysis(row),
+        },
+        {
+          title: t("actions.delete"),
+          onClick: () => deleteRow(row),
+        }
+      );
+    }
 
     return actions;
   };
@@ -486,59 +499,65 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           toolbarActions={
             <>
               <ToolbarGroup variant="button-group">
-                <ToolbarItem>
-                  <Button
-                    type="button"
-                    aria-label="create-application"
-                    variant={ButtonVariant.primary}
-                    onClick={openCreateApplicationModal}
-                  >
-                    {t("actions.createNew")}
-                  </Button>
-                </ToolbarItem>
-                <ToolbarItem>
-                  <Button
-                    type="button"
-                    aria-label="analyze-application"
-                    variant={ButtonVariant.primary}
-                    onClick={() => {
-                      setAnalyzeModalOpen(true);
-                    }}
-                    isDisabled={
-                      selectedRows.length < 1 || !isAnalyzingAllowed()
-                    }
-                  >
-                    {t("actions.analyze")}
-                  </Button>
-                </ToolbarItem>
-                <ToolbarItem>
-                  <KebabDropdown
-                    dropdownItems={[
-                      <DropdownItem
-                        key="import-applications"
-                        component="button"
-                        onClick={() => setIsApplicationImportModalOpen(true)}
-                      >
-                        {t("actions.import")}
-                      </DropdownItem>,
-                      <DropdownItem
-                        key="manage-application-imports"
-                        onClick={() => {
-                          history.push(Paths.applicationsImports);
-                        }}
-                      >
-                        {t("actions.manageImports")}
-                      </DropdownItem>,
-                      <DropdownItem
-                        key="manage-application-credentials"
-                        isDisabled={selectedRows.length < 1}
-                        onClick={() => openCredentialsModal(selectedRows)}
-                      >
-                        {t("actions.manageCredentials")}
-                      </DropdownItem>,
-                    ]}
-                  />
-                </ToolbarItem>
+                <RBAC allowedRoles={roles.writeScopes}>
+                  <ToolbarItem>
+                    <Button
+                      type="button"
+                      aria-label="create-application"
+                      variant={ButtonVariant.primary}
+                      onClick={openCreateApplicationModal}
+                    >
+                      {t("actions.createNew")}
+                    </Button>
+                  </ToolbarItem>
+                </RBAC>
+                <RBAC allowedRoles={roles.taskWriteScopes}>
+                  <ToolbarItem>
+                    <Button
+                      type="button"
+                      aria-label="analyze-application"
+                      variant={ButtonVariant.primary}
+                      onClick={() => {
+                        setAnalyzeModalOpen(true);
+                      }}
+                      isDisabled={
+                        selectedRows.length < 1 || !isAnalyzingAllowed()
+                      }
+                    >
+                      {t("actions.analyze")}
+                    </Button>
+                  </ToolbarItem>
+                </RBAC>
+                <RBAC
+                  key="import-applications"
+                  allowedRoles={roles.writeScopes}
+                >
+                  <ToolbarItem>
+                    <KebabDropdown
+                      dropdownItems={[
+                        <DropdownItem
+                          component="button"
+                          onClick={() => setIsApplicationImportModalOpen(true)}
+                        >
+                          {t("actions.import")}
+                        </DropdownItem>,
+                        <DropdownItem
+                          onClick={() => {
+                            history.push(Paths.applicationsImports);
+                          }}
+                        >
+                          {t("actions.manageImports")}
+                        </DropdownItem>,
+                        <DropdownItem
+                          isDisabled={selectedRows.length < 1}
+                          onClick={() => openCredentialsModal(selectedRows)}
+                        >
+                          {t("actions.manageCredentials")}
+                        </DropdownItem>,
+                      ]}
+                    />
+                  </ToolbarItem>
+                </RBAC>
               </ToolbarGroup>
             </>
           }

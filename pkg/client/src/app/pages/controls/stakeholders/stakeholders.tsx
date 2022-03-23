@@ -58,6 +58,8 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
+import { RBAC } from "@app/rbac";
+import * as roles from "@app/roles";
 
 const ENTITY_FIELD = "entity";
 
@@ -352,14 +354,16 @@ export const Stakeholders: React.FC = () => {
           toolbarActions={
             <ToolbarGroup variant="button-group">
               <ToolbarItem>
-                <Button
-                  type="button"
-                  aria-label="create-stakeholder"
-                  variant={ButtonVariant.primary}
-                  onClick={handleOnOpenCreateNewModal}
-                >
-                  {t("actions.createNew")}
-                </Button>
+                <RBAC allowedRoles={roles.writeScopes}>
+                  <Button
+                    type="button"
+                    aria-label="create-stakeholder"
+                    variant={ButtonVariant.primary}
+                    onClick={handleOnOpenCreateNewModal}
+                  >
+                    {t("actions.createNew")}
+                  </Button>
+                </RBAC>
               </ToolbarItem>
             </ToolbarGroup>
           }

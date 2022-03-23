@@ -54,6 +54,8 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { RBAC } from "@app/rbac";
+import * as roles from "@app/roles";
 
 enum FilterKey {
   NAME = "name",
@@ -262,14 +264,16 @@ export const JobFunctions: React.FC = () => {
           toolbarActions={
             <ToolbarGroup variant="button-group">
               <ToolbarItem>
-                <Button
-                  type="button"
-                  aria-label="create-job-function"
-                  variant={ButtonVariant.primary}
-                  onClick={handleOnOpenCreateModal}
-                >
-                  {t("actions.createNew")}
-                </Button>
+                <RBAC allowedRoles={roles.writeScopes}>
+                  <Button
+                    type="button"
+                    aria-label="create-job-function"
+                    variant={ButtonVariant.primary}
+                    onClick={handleOnOpenCreateModal}
+                  >
+                    {t("actions.createNew")}
+                  </Button>
+                </RBAC>
               </ToolbarItem>
             </ToolbarGroup>
           }
