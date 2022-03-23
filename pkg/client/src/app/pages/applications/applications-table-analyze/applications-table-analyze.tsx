@@ -42,7 +42,7 @@ import {
 import { useFetch, useEntityModal, useDelete } from "@app/shared/hooks";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 import { Paths } from "@app/Paths";
-import { Application } from "@app/api/models";
+import { Application, Task } from "@app/api/models";
 import { deleteApplication, getApplications } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationForm } from "../components/application-form";
@@ -60,6 +60,7 @@ import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
+import { useFetchTasks } from "@app/queries/tasks";
 
 const ENTITY_FIELD = "entity";
 
@@ -106,6 +107,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   useEffect(() => {
     refreshTable();
   }, [isWatchingBulkCopy, refreshTable]);
+
+  const { tasks } = useFetchTasks();
+
+  const getTask = (application: Application) =>
+    tasks.find((task: Task) => task.application.id === application.id);
 
   const filterCategories: FilterCategory<Application>[] = [
     {
@@ -312,7 +318,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       fullWidth: false,
       cells: [
         <div className="pf-c-table__expandable-row-content">
-          <ApplicationListExpandedAreaAnalysis application={item} />
+          <ApplicationListExpandedAreaAnalysis
+            application={item}
+            task={getTask(item)}
+          />
         </div>,
       ],
     });
@@ -427,7 +436,21 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     refreshTable();
   };
 
-  // Toolbar actions
+  const isTaskingAllowed = () => {
+    const candidateTasks = selectedRows.filter(
+      (app) =>
+        !tasks.some(
+          (task) =>
+            task.application.id === app.id &&
+            (task.state === "Running" ||
+              task.state === "Ready" ||
+              task.state === "Created")
+        )
+    );
+
+    if (candidateTasks.length === selectedRows.length) return true;
+    return false;
+  };
 
   return (
     <>
@@ -475,8 +498,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                     type="button"
                     aria-label="analyze-application"
                     variant={ButtonVariant.primary}
-                    onClick={() => setAnalyzeModalOpen(true)}
-                    isDisabled={selectedRows.length < 1}
+                    onClick={() => {
+                      setAnalyzeModalOpen(true);
+                    }}
+                    isDisabled={selectedRows.length < 1 || !isTaskingAllowed()}
                   >
                     {t("actions.analyze")}
                   </Button>

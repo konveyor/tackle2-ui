@@ -41,7 +41,7 @@ import {
   AppTableWithControls,
   ConditionalRender,
   NoDataEmptyState,
-  StatusIconAssessment,
+  StatusIcon,
   KebabDropdown,
 } from "@app/shared/components";
 import {
@@ -321,9 +321,9 @@ export const ApplicationsTable: React.FC = () => {
         },
         {
           title: item.review ? (
-            <StatusIconAssessment status="Completed" />
+            <StatusIcon status="Completed" />
           ) : (
-            <StatusIconAssessment status="NotStarted" />
+            <StatusIcon status="NotStarted" />
           ),
         },
         {

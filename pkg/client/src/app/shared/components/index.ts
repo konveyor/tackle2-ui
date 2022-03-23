@@ -19,6 +19,6 @@ export { SearchFilter } from "./search-filter";
 export { SimpleEmptyState } from "./simple-empty-state";
 export * from "./simple-select";
 export { SimpleFilterDropdown } from "./simple-filter-dropdown";
-export * from "./status-icon-assessment";
+export * from "./status-icon";
 export { ToolbarSearchFilter } from "./toolbar-search-filter";
 export { ToolbarBulkSelector } from "./toolbar-bulk-selector";

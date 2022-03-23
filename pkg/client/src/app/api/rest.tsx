@@ -36,7 +36,6 @@ import {
 } from "./models";
 
 // TACKLE_HUB
-// TACKLE_HUB
 export const CONTROLS_BASE_URL = "controls";
 export const BUSINESS_SERVICES = "/businessservices";
 export const STAKEHOLDERS = "/stakeholders";
