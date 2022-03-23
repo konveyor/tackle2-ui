@@ -2,22 +2,30 @@ import React, { useCallback, useEffect } from "react";
 
 import { useFetch } from "@app/shared/hooks";
 
-import { Task, TaskStatus } from "@app/api/models";
+import { Task, TaskState } from "@app/api/models";
 import { getTasks } from "@app/api/rest";
-import { StatusIconAssessment } from "@app/shared/components";
+import { StatusIcon } from "@app/shared/components";
 
 export interface ApplicationAnalysisStatusProps {
   id: number;
 }
 
-const taskToUI: Map<string, TaskStatus> = new Map([
+export type AnalysisState =
+  | "Canceled"
+  | "Scheduled"
+  | "Completed"
+  | "Failed"
+  | "InProgress"
+  | "NotStarted";
+
+const taskStateToAnalyze: Map<TaskState, AnalysisState> = new Map([
+  ["not supported", "Canceled"],
+  ["Created", "Scheduled"],
+  ["Succeeded", "Completed"],
+  ["Failed", "Failed"],
+  ["Running", "InProgress"],
   ["No task", "NotStarted"],
   ["Ready", "Scheduled"],
-  ["Created", "Scheduled"],
-  ["Running", "InProgress"],
-  ["not supported", "Canceled"],
-  ["Failed", "Failed"],
-  ["Succeeded", "Completed"],
 ]);
 
 export const ApplicationAnalysisStatus: React.FC<
@@ -28,12 +36,12 @@ export const ApplicationAnalysisStatus: React.FC<
     return getTasks();
   }, [id]);
 
-  const getTaskStatus = (status: string): TaskStatus => {
-    if (taskToUI.has(status)) {
-      const value = taskToUI.get(status);
+  const getTaskStatus = (state: TaskState): AnalysisState => {
+    if (taskStateToAnalyze.has(state)) {
+      const value = taskStateToAnalyze.get(state);
       if (value) return value;
     }
-    return "Unknown";
+    return "NotStarted";
   };
 
   const {
@@ -50,10 +58,10 @@ export const ApplicationAnalysisStatus: React.FC<
   }, [refreshTasks]);
 
   if (fetchError) {
-    return <StatusIconAssessment status="NotStarted" />;
+    return <StatusIcon status="NotStarted" />;
   }
 
-  let state: TaskStatus = "NotStarted";
+  let state: AnalysisState = "NotStarted";
   tasks?.forEach((task) => {
     if (
       task.data &&
@@ -63,5 +71,5 @@ export const ApplicationAnalysisStatus: React.FC<
     )
       state = getTaskStatus(task.state);
   });
-  return <StatusIconAssessment status={state} />;
+  return <StatusIcon status={state} />;
 };
