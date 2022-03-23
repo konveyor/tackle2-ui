@@ -447,7 +447,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
               task.state === "Created")
         )
     );
-    console.log("candidateTasks: ", candidateTasks);
+
     if (candidateTasks.length === selectedRows.length) return true;
     return false;
   };
