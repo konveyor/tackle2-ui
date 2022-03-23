@@ -31,7 +31,7 @@ import { bulkCopyActions } from "@app/store/bulkCopy";
 import {
   ApplicationToolbarToggleGroup,
   AppTableWithControls,
-  StatusIconAssessment,
+  StatusIcon,
   ToolbarBulkSelector,
 } from "@app/shared/components";
 import {
@@ -271,9 +271,9 @@ export const BulkCopyAssessmentReviewForm: React.FC<
         },
         {
           title: item.review ? (
-            <StatusIconAssessment status="Completed" />
+            <StatusIcon status="Completed" />
           ) : (
-            <StatusIconAssessment status="NotStarted" />
+            <StatusIcon status="NotStarted" />
           ),
         },
       ],

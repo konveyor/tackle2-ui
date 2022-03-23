@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next";
 
 import {
   EmptyTextMessage,
-  StatusIconAssessment,
-  StatusIconAssessmentType,
+  StatusIcon,
+  StatusIconType,
 } from "@app/shared/components";
 import { Assessment } from "@app/api/models";
 
@@ -16,9 +16,7 @@ export interface ApplicationAssessmentProps {
   fetchCount: number;
 }
 
-const getStatusIconFrom = (
-  assessment: Assessment
-): StatusIconAssessmentType => {
+const getStatusIconFrom = (assessment: Assessment): StatusIconType => {
   switch (assessment.status) {
     case "EMPTY":
       return "NotStarted";
@@ -47,8 +45,8 @@ export const ApplicationAssessment: React.FC<ApplicationAssessmentProps> = ({
   }
 
   return assessment ? (
-    <StatusIconAssessment status={getStatusIconFrom(assessment)} />
+    <StatusIcon status={getStatusIconFrom(assessment)} />
   ) : (
-    <StatusIconAssessment status="NotStarted" />
+    <StatusIcon status="NotStarted" />
   );
 };

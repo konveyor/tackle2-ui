@@ -16,7 +16,7 @@ import {
   global_info_color_100 as infoColor,
 } from "@patternfly/react-tokens";
 
-export type StatusIconAssessmentType =
+export type StatusIconType =
   | "Canceled"
   | "Completed"
   | "Failed"
@@ -26,7 +26,7 @@ export type StatusIconAssessmentType =
   | "Unknown";
 
 type IconListType = {
-  [key in StatusIconAssessmentType]: {
+  [key in StatusIconType]: {
     Icon:
       | React.ComponentClass<SVGIconProps>
       | React.FunctionComponent<SpinnerProps>;
@@ -64,19 +64,17 @@ const iconList: IconListType = {
   },
 };
 
-export interface IStatusIconAssessmentProps {
-  status: StatusIconAssessmentType;
+export interface IStatusIconProps {
+  status: StatusIconType;
   isDisabled?: boolean;
   className?: string;
 }
 
-export const StatusIconAssessment: React.FunctionComponent<
-  IStatusIconAssessmentProps
-> = ({
+export const StatusIcon: React.FunctionComponent<IStatusIconProps> = ({
   status,
   isDisabled = false,
   className = "",
-}: IStatusIconAssessmentProps) => {
+}: IStatusIconProps) => {
   const { t } = useTranslation();
 
   const Icon = iconList[status].Icon;

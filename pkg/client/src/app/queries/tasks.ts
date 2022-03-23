@@ -1,33 +1,45 @@
 import { useState } from "react";
-import { AxiosError } from "axios";
-import { createAsyncAction, getType } from "typesafe-actions";
-import {
-  createTask,
-  getProxies,
-  getTasks,
-  PROXIES,
-  updateProxy,
-  uploadFileTask,
-} from "@app/api/rest";
-import { Proxy, Task } from "@app/api/models";
-import {
-  useMutation,
-  UseMutationResult,
-  useQuery,
-  useQueryClient,
-} from "react-query";
-import { ProxyFormValues } from "@app/pages/proxies/proxy-form";
-import { APIClient } from "@app/axios-config";
+import { useMutation, useQuery } from "react-query";
 
-export const {
-  request: fetchRequest,
-  success: fetchSuccess,
-  failure: fetchFailure,
-} = createAsyncAction(
-  "useFetchProxies/fetch/request",
-  "useFetchProxies/fetch/success",
-  "useFetchProxies/fetch/failure"
-)<void, any, AxiosError>();
+import { Task } from "@app/api/models";
+import { getTasks, uploadFileTask } from "@app/api/rest";
+
+export interface IFetchState {
+  tasks: Task[];
+  isFetching: boolean;
+  fetchError: any;
+}
+
+export const useFetchTasks = (
+  defaultIsFetching: boolean = false
+): IFetchState => {
+  const [tasks, setTasks] = useState<Array<Task>>([]);
+  const { isLoading, data, error } = useQuery("tasks", () =>
+    getTasks()
+      .then((res) => res)
+      .then(({ data }) => {
+        let uniqLatestTasks: Task[] = [];
+        data.forEach((task) => {
+          const aTask = uniqLatestTasks.find(
+            (item) => task.application.id === item.application.id
+          );
+          if (aTask && aTask.createTime && task.createTime > aTask.createTime) {
+            const others = uniqLatestTasks.filter((t) => t.id !== aTask.id);
+            uniqLatestTasks = [...others, task];
+          } else uniqLatestTasks.push(task);
+        });
+        setTasks(uniqLatestTasks);
+      })
+      .catch((error) => {
+        console.log("error, ", error);
+      })
+  );
+  return {
+    tasks: tasks,
+    isFetching: isLoading,
+    fetchError: error,
+  };
+};
 
 export interface IMutateState {
   mutate: any;

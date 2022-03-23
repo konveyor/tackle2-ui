@@ -310,18 +310,18 @@ export interface Setting {
 
 // Analysis Task
 
-export type TaskStatus =
-  | "Canceled"
+export type TaskState =
+  | "not supported"
   | "Created"
-  | "Completed"
+  | "Succeeded"
   | "Failed"
-  | "InProgress"
-  | "NotStarted"
-  | "Scheduled"
-  | "Unknown";
+  | "Running"
+  | "No task"
+  | "Ready";
 
 export interface Task {
   id?: number;
+  createTime?: string;
   application: { id: number };
   name: string;
   addon: string;
@@ -330,7 +330,7 @@ export interface Task {
   image?: string;
   started?: string;
   terminated?: string;
-  state?: TaskStatus;
+  state?: TaskState;
   job?: string;
   report?: TaskReport;
 }
