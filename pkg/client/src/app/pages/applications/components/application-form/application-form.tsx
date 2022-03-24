@@ -138,6 +138,28 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
     return result;
   }, [application, tags]);
+  const getBinaryInitialValue = (
+    application: Application | undefined,
+    fieldName: string
+  ) => {
+    const fieldList = application?.binary?.split(":") || [];
+    switch (fieldName) {
+      case "group":
+        return fieldList[0] || "";
+        break;
+      case "artifact":
+        return fieldList[1] || "";
+        break;
+      case "version":
+        return fieldList[2] || "";
+        break;
+      case "packaging":
+        return fieldList[3] || "";
+        break;
+      default:
+        return "";
+    }
+  };
 
   const initialValues: FormValues = {
     name: application?.name || "",
@@ -148,52 +170,109 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     sourceRepository: application?.repository?.url || "",
     branch: application?.repository?.branch || "",
     rootPath: application?.repository?.path || "",
-    group: "",
-    version: "",
-    artifact: "",
-    packaging: "",
+    //application.binary: "<group>:<artifact>:<version>:<packaging>"
+    group: getBinaryInitialValue(application, "group"),
+    artifact: getBinaryInitialValue(application, "artifact"),
+    version: getBinaryInitialValue(application, "version"),
+    packaging: getBinaryInitialValue(application, "packaging"),
   };
 
-  const validationSchema = object().shape({
-    name: string()
-      .trim()
-      .required(t("validation.required"))
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 })),
-    description: string()
-      .trim()
-      .max(250, t("validation.maxLength", { length: 250 })),
-    businessService: object().shape({
-      id: string()
+  const validationSchema = object().shape(
+    {
+      name: string()
         .trim()
-        .required()
-        .max(250, t("validation.maxLength", { length: 250 })),
-      value: string()
+        .required(t("validation.required"))
+        .min(3, t("validation.minLength", { length: 3 }))
+        .max(120, t("validation.maxLength", { length: 120 })),
+      description: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
-    }),
-    comments: string()
-      .trim()
-      .max(250, t("validation.maxLength", { length: 250 })),
-    branch: string()
-      .trim()
-      .max(250, t("validation.maxLength", { length: 250 })),
-    rootPath: string()
-      .trim()
-      .max(250, t("validation.maxLength", { length: 250 })),
-    sourceRepository: string()
-      .when("branch", {
-        is: (branch: any) => branch?.length > 0,
-        then: (schema) => schema.url().required("Please enter repository url"),
-        otherwise: (schema) => schema.url(),
-      })
-      .when("rootPath", {
-        is: (rootPath: any) => rootPath?.length > 0,
-        then: (schema) => schema.url().required("Please enter repository url"),
-        otherwise: (schema) => schema.url(),
+      businessService: object().shape({
+        id: string()
+          .trim()
+          .required()
+          .max(250, t("validation.maxLength", { length: 250 })),
+        value: string()
+          .trim()
+          .max(250, t("validation.maxLength", { length: 250 })),
       }),
-  });
-
+      comments: string()
+        .trim()
+        .max(250, t("validation.maxLength", { length: 250 })),
+      branch: string()
+        .trim()
+        .max(250, t("validation.maxLength", { length: 250 })),
+      rootPath: string()
+        .trim()
+        .max(250, t("validation.maxLength", { length: 250 })),
+      sourceRepository: string()
+        .when("branch", {
+          is: (branch: any) => branch?.length > 0,
+          then: (schema) =>
+            schema.url().required("Please enter repository url"),
+          otherwise: (schema) => schema.url(),
+        })
+        .when("rootPath", {
+          is: (rootPath: any) => rootPath?.length > 0,
+          then: (schema) =>
+            schema.url().required("Please enter repository url"),
+          otherwise: (schema) => schema.url(),
+        }),
+      group: string()
+        .when("artifact", {
+          is: (artifact: string) => artifact?.length > 0,
+          then: (schema) => schema.required("This field is required."),
+          otherwise: (schema) => schema.trim(),
+        })
+        .when("version", {
+          is: (version: string) => version?.length > 0,
+          then: (schema) => schema.required("This field is required."),
+          otherwise: (schema) => schema.trim(),
+        }),
+      artifact: string()
+        .when("group", {
+          is: (group: string) => group?.length > 0,
+          then: (schema) => schema.required("This field is required."),
+          otherwise: (schema) => schema.trim(),
+        })
+        .when("version", {
+          is: (version: string) => version?.length > 0,
+          then: (schema) => schema.required("This field is required."),
+          otherwise: (schema) => schema.trim(),
+        }),
+      version: string()
+        .when("group", {
+          is: (group: string) => group?.length > 0,
+          then: (schema) => schema.required("This field is required."),
+          otherwise: (schema) => schema.trim(),
+        })
+        .when("artifact", {
+          is: (artifact: string) => artifact?.length > 0,
+          then: (schema) => schema.required("This field is required."),
+          otherwise: (schema) => schema.trim(),
+        }),
+    },
+    [
+      ["version", "group"],
+      ["version", "artifact"],
+      ["artifact", "group"],
+      ["artifact", "version"],
+      ["group", "artifact"],
+      ["group", "version"],
+    ]
+  );
+  const buildBinaryFieldString = (
+    group: string,
+    artifact: string,
+    version: string,
+    packaging: string
+  ) => {
+    if (packaging) {
+      return `${group}:${artifact}:${version}:${packaging}`;
+    } else {
+      return `${group}:${artifact}:${version}`;
+    }
+  };
   const onSubmit = (
     formValues: FormValues,
     formikHelpers: FormikHelpers<FormValues>
@@ -221,6 +300,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           path: formValues.rootPath.trim(),
         },
       }),
+      binary: buildBinaryFieldString(
+        formValues.group,
+        formValues.artifact,
+        formValues.version,
+        formValues.packaging
+      ),
       review: undefined, // The review should not updated through this form
     };
 
@@ -493,7 +578,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.group}
-              isDisabled={true}
               validated={getValidatedFromErrorTouched(
                 formik.errors.group,
                 formik.touched.group
@@ -514,7 +598,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.artifact}
-              isDisabled={true}
               validated={getValidatedFromErrorTouched(
                 formik.errors.artifact,
                 formik.touched.artifact
@@ -535,7 +618,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.version}
-              isDisabled={true}
               validated={getValidatedFromErrorTouched(
                 formik.errors.version,
                 formik.touched.version
@@ -556,7 +638,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.packaging}
-              isDisabled={true}
               validated={getValidatedFromErrorTouched(
                 formik.errors.packaging,
                 formik.touched.packaging
