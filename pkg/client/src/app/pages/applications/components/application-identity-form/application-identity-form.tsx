@@ -111,12 +111,14 @@ export const ApplicationIdentityForm: React.FC<
   let mavenIdentityOptions: Identity[] =
     identities?.filter((i) => i.kind === "maven") || [];
   mavenIdentityOptions.unshift(emptyIdentity);
-  mavenIdentityOptions.map(toIdentityDropdown);
+  mavenIdentityOptions = mavenIdentityOptions.map((i) => toIdentityDropdown(i));
 
   let sourceIdentityOptions: Identity[] =
     identities?.filter((i) => i.kind === "source") || [];
   sourceIdentityOptions.unshift(emptyIdentity);
-  sourceIdentityOptions.map(toIdentityDropdown);
+  sourceIdentityOptions = sourceIdentityOptions.map((i) =>
+    toIdentityDropdown(i)
+  );
 
   const sourceCredentialsInitialValue = useMemo(() => {
     let result: IdentityDropdown = { id: 0, name: "" };
