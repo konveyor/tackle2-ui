@@ -543,6 +543,10 @@ export const submitTask = (obj: Task): AxiosPromise<Task> => {
   return APIClient.put(`${TASKS}/${obj.id}/submit`, obj);
 };
 
+export const deleteTask = (id: number): AxiosPromise => {
+  return APIClient.delete(`${TASKS}/${id}`);
+};
+
 export const uploadFileTask = ({
   id,
   path,
