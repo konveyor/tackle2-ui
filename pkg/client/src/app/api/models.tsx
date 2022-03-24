@@ -92,6 +92,7 @@ export interface Application {
     path?: string;
     url?: string;
   };
+  binary?: string;
 }
 
 export interface Review {
