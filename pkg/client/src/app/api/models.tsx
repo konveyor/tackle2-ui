@@ -362,7 +362,7 @@ export interface TaskData {
 }
 
 interface TaskReport {
-  activity: string;
+  activity: string[];
   completed: number;
   createTime: string;
   createUser: string;

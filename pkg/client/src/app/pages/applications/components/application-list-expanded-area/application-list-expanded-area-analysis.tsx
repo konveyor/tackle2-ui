@@ -7,14 +7,16 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Tooltip,
 } from "@patternfly/react-core";
-import { Application, Task } from "@app/api/models";
+import { Link } from "react-router-dom";
+import { stringify } from "yaml";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
+import { Application, Task } from "@app/api/models";
 import { ApplicationTags } from "../application-tags";
 import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
 import { getKindIDByRef } from "@app/utils/model-utils";
-import { Link } from "react-router-dom";
 
 export interface IApplicationListExpandedAreaProps {
   application: Application;
@@ -27,6 +29,7 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
   const { t } = useTranslation();
 
   const [isReport, setIsReport] = React.useState(false);
+  const [isFailedTask, setIsFailedTask] = React.useState(false);
 
   const { identities, fetchIdentities } = useFetchIdentities();
 
@@ -36,6 +39,7 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
 
   useEffect(() => {
     if (task?.state === "Succeeded") setIsReport(true);
+    else if (task?.state === "Failed") setIsFailedTask(true);
   }, [task]);
 
   let matchingSourceCredsRef;
@@ -74,14 +78,28 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
         <DescriptionListTerm>{t("terms.analysis")}</DescriptionListTerm>
         <DescriptionListDescription cy-data="analysis">
           {isReport ? (
-            <Button variant="link" isInline>
-              <Link
-                to={`/api/applications/${application.id}/bucket/`}
-                target="_blank"
+            <Tooltip content="Click to view Analysis report">
+              <Button variant="link" isInline>
+                <Link
+                  to={`/api/applications/${application.id}/bucket/`}
+                  target="_blank"
+                >
+                  Report
+                </Link>
+              </Button>
+            </Tooltip>
+          ) : isFailedTask ? (
+            <Tooltip content="Click to dump task data to console log">
+              <Button
+                variant="link"
+                isInline
+                onClick={() => {
+                  console.log(stringify(task));
+                }}
               >
-                Report
-              </Link>
-            </Button>
+                Error
+              </Button>
+            </Tooltip>
           ) : (
             "Not available"
           )}
