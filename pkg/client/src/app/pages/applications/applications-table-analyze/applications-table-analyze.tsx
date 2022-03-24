@@ -42,7 +42,7 @@ import {
 import { useFetch, useEntityModal, useDelete } from "@app/shared/hooks";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 import { Paths } from "@app/Paths";
-import { Application, Task } from "@app/api/models";
+import { Application, ApplicationAdoptionPlan, Task } from "@app/api/models";
 import { deleteApplication, getApplications } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationForm } from "../components/application-form";
@@ -60,7 +60,7 @@ import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
-import { useFetchTasks } from "@app/queries/tasks";
+import { useDeleteTaskMutation, useFetchTasks } from "@app/queries/tasks";
 
 const ENTITY_FIELD = "entity";
 
@@ -109,6 +109,25 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   }, [isWatchingBulkCopy, refreshTable]);
 
   const { tasks } = useFetchTasks();
+
+  const completedDeleteTask = () => {
+    dispatch(alertActions.addInfo("Task", "Deleted"));
+  };
+
+  const failedDeleteTask = () => {
+    dispatch(alertActions.addDanger("Task", "Deletion failed."));
+  };
+
+  const { mutate: deleteTask } = useDeleteTaskMutation(
+    completedDeleteTask,
+    failedDeleteTask
+  );
+
+  const isTaskCancellable = (application: Application) => {
+    const task = getTask(application);
+    if (task?.state && task.state.match(/(Created|Running|Ready)/)) return true;
+    return false;
+  };
 
   const getTask = (application: Application) =>
     tasks.find((task: Task) => task.application.id === application.id);
@@ -338,39 +357,20 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     actions.push(
       {
         title: t("actions.manageDependencies"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: Application = getRow(rowData);
-          openDependenciesModal(row);
-        },
+        onClick: () => openDependenciesModal(row),
       },
       {
         title: "Manage credentials",
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          debugger;
-          const row: Application = getRow(rowData);
-          const applicationsList = [];
-          applicationsList.push(row);
-          openCredentialsModal(applicationsList);
-        },
+        onClick: () => openCredentialsModal([row]),
+      },
+      {
+        title: "Cancel analysis",
+        isDisabled: !isTaskCancellable(row),
+        onClick: () => cancelAnalysis(row),
       },
       {
         title: t("actions.delete"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: Application = getRow(rowData);
-          deleteRow(row);
-        },
+        onClick: () => deleteRow(row),
       }
     );
 
@@ -429,6 +429,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     );
   };
 
+  const cancelAnalysis = (row: Application) => {
+    const task = tasks.find((task) => task.application.id === row.id);
+    if (task) deleteTask(task.id);
+  };
+
   const handleOnApplicationIdentityUpdated = (
     response: AxiosResponse<Application>
   ) => {
@@ -436,15 +441,13 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     refreshTable();
   };
 
-  const isTaskingAllowed = () => {
+  const isAnalyzingAllowed = () => {
     const candidateTasks = selectedRows.filter(
       (app) =>
         !tasks.some(
           (task) =>
             task.application.id === app.id &&
-            (task.state === "Running" ||
-              task.state === "Ready" ||
-              task.state === "Created")
+            task.state?.match(/(Created|Running|Ready)/)
         )
     );
 
@@ -501,7 +504,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                     onClick={() => {
                       setAnalyzeModalOpen(true);
                     }}
-                    isDisabled={selectedRows.length < 1 || !isTaskingAllowed()}
+                    isDisabled={
+                      selectedRows.length < 1 || !isAnalyzingAllowed()
+                    }
                   >
                     {t("actions.analyze")}
                   </Button>
