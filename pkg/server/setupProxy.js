@@ -11,24 +11,21 @@ module.exports = function (app) {
   );
 
   app.use(
-    "/api/pathfinder",
+    "/pathfinder",
     createProxyMiddleware({
       target: process.env.PATHFINDER_URL || "http://localhost:9003",
       changeOrigin: true,
-      pathRewrite: {
-        "^/api/pathfinder": "/pathfinder",
-      },
       logLevel: process.env.DEBUG ? "debug" : "info",
     })
   );
 
   app.use(
-    "/api",
+    "/hub",
     createProxyMiddleware({
       target: process.env.TACKLE_HUB_URL || "http://localhost:9002",
       changeOrigin: true,
       pathRewrite: {
-        "^/api": "",
+        "^/hub": "",
       },
       logLevel: process.env.DEBUG ? "debug" : "info",
     })
