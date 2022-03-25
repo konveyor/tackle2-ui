@@ -4,19 +4,14 @@ import { APIClient } from "@app/axios-config";
 import {
   PageQuery,
   BusinessService,
-  BusinessServicePage,
   Stakeholder,
-  StakeholderPage,
   StakeholderGroup,
-  StakeholderGroupPage,
   JobFunctionPage,
-  ApplicationPage,
   Application,
   Assessment,
   JobFunction,
   ApplicationDependencyPage,
   ApplicationDependency,
-  TagTypePage,
   TagType,
   Tag,
   Review,
@@ -36,32 +31,32 @@ import {
 } from "./models";
 
 // TACKLE_HUB
-export const CONTROLS_BASE_URL = "controls";
-export const BUSINESS_SERVICES = "/businessservices";
-export const STAKEHOLDERS = "/stakeholders";
-export const STAKEHOLDER_GROUPS = "/stakeholdergroups";
-export const JOB_FUNCTIONS = "/jobfunctions";
-export const TAG_TYPES = "/tagtypes";
-export const TAGS = "/tags";
+export const HUB = "/hub";
 
-export const APPLICATIONS = "/applications";
-export const APPLICATION_DEPENDENCY = "/dependencies";
-export const REVIEW = "/review";
-export const REPORT = "/reports";
-export const UPLOAD_FILE = "/importsummaries/upload";
-export const APP_IMPORT_SUMMARY = "/importsummaries";
-export const APP_IMPORT = "/imports";
-export const APP_IMPORT_CSV = "/importsummaries/download";
+export const BUSINESS_SERVICES = HUB + "/businessservices";
+export const STAKEHOLDERS = HUB + "/stakeholders";
+export const STAKEHOLDER_GROUPS = HUB + "/stakeholdergroups";
+export const JOB_FUNCTIONS = HUB + "/jobfunctions";
+export const TAG_TYPES = HUB + "/tagtypes";
+export const TAGS = HUB + "/tags";
 
-export const IDENTITIES = "/identities";
-export const SETTINGS = "/settings";
-export const TASKS = "/tasks";
+export const APPLICATIONS = HUB + "/applications";
+export const APPLICATION_DEPENDENCY = HUB + "/dependencies";
+export const REVIEW = HUB + "/reviews";
+export const REPORT = HUB + "/reports";
+export const UPLOAD_FILE = HUB + "/importsummaries/upload";
+export const APP_IMPORT_SUMMARY = HUB + "/importsummaries";
+export const APP_IMPORT = HUB + "/imports";
+export const APP_IMPORT_CSV = HUB + "/importsummaries/download";
+
+export const IDENTITIES = HUB + "/identities";
+export const SETTINGS = HUB + "/settings";
+export const TASKS = HUB + "/tasks";
+export const PROXIES = HUB + "/proxies";
 
 // PATHFINDER
-export const PATHFINDER_BASE_URL = "pathfinder";
-export const ASSESSMENTS = PATHFINDER_BASE_URL + "/assessments";
-
-export const PROXIES = "/proxies";
+export const PATHFINDER = "/pathfinder";
+export const ASSESSMENTS = PATHFINDER + "/assessments";
 
 const halHeaders = { headers: { Accept: "application/hal+json" } };
 const jsonHeaders = { headers: { Accept: "application/json" } };

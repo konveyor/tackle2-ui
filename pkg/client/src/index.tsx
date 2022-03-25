@@ -6,7 +6,7 @@ import reportWebVitals from "@app/reportWebVitals";
 import { Provider } from "react-redux";
 import configureStore from "@app/store";
 
-import { initApi, initInterceptors } from "@app/axios-config";
+import { initInterceptors } from "@app/axios-config";
 
 import { ReactKeycloakProvider } from "@react-keycloak/web";
 import keycloak from "@app/keycloak";
@@ -17,7 +17,6 @@ import { NinjaErrorBoundary } from "@app/ninja-error-boundary";
 import "./index.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 
-initApi();
 i18n.init();
 const queryClient = new QueryClient();
 
