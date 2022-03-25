@@ -81,7 +81,7 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
             <Tooltip content="Click to view Analysis report">
               <Button variant="link" isInline>
                 <Link
-                  to={`/api/applications/${application.id}/bucket/`}
+                  to={`/hub/applications/${application.id}/bucket/${task?.data?.output}/`}
                   target="_blank"
                 >
                   Report
