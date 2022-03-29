@@ -95,7 +95,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     isFetching,
     fetchError,
     requestFetch: refreshTable,
-  } = useFetch<Array<Application>>({
+  } = useFetch<Application[]>({
     defaultIsFetching: true,
     onFetch: fetchApplications,
   });
@@ -432,6 +432,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const cancelAnalysis = (row: Application) => {
     const task = tasks.find((task) => task.application.id === row.id);
     if (task) deleteTask(task.id);
+    refreshTable();
   };
 
   const handleOnApplicationIdentityUpdated = (
@@ -575,7 +576,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       {isAnalyzeModalOpen && (
         <AnalysisWizard
           applications={selectedRows}
-          onClose={() => setAnalyzeModalOpen(false)}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+            refreshTable();
+          }}
         />
       )}
 
