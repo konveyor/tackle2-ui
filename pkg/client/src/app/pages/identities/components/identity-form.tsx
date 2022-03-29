@@ -96,7 +96,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       case "proxy": {
         return { value: value, toString: () => "Proxy" };
       }
-      case "scm": {
+      case "source": {
         return { value: value, toString: () => "Source Control" };
       }
       case "maven": {
@@ -383,7 +383,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     toString: () => `Username/Password`,
                   },
                   {
-                    value: "scm",
+                    value: "source",
                     toString: () => `Source Private Key/Passphrase`,
                   },
                 ]}
@@ -395,7 +395,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 }}
               />
             </FormGroup>
-            {formik.values?.userCredentials.value === "userpass" && (
+            {formik.values?.userCredentials?.value === "userpass" && (
               <>
                 <FormGroup
                   label="Username"
