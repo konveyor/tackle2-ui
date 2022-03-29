@@ -151,10 +151,12 @@ export interface Identity {
   createUser?: string;
   encrypted?: string;
   key?: string;
+  keyFilename?: string;
   password?: string;
   user?: string;
   updateUser?: string;
   settings?: string;
+  settingsFilename?: string;
 }
 
 export interface Proxy {

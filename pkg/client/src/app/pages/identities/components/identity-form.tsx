@@ -120,15 +120,15 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     encrypted: identity?.encrypted || "",
     id: identity?.id || 0,
     key: identity?.key || "",
+    keyFilename: identity?.keyFilename || "",
     kind: kindInitialValue,
     userCredentials: userCredentialsInitialValue,
     name: identity?.name || "",
     password: identity?.password || "",
-    settings: identity?.encrypted ? "[Encrypted]" : "",
+    settings: identity?.settings || "",
+    settingsFilename: identity?.settingsFilename || "",
     updateUser: identity?.updateUser || "",
     user: identity?.user || "",
-    keyFilename: "",
-    settingsFilename: identity?.settings || "",
   };
 
   const validationSchema = object({
@@ -160,16 +160,27 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       id: formValues.id,
       kind: formValues.kind.value.trim(),
       createUser: formValues.createUser.trim(),
-      encrypted: formValues.encrypted.trim(),
-      settings: formValues.settings.trim(),
+      ...(formValues.kind.value === "maven" && {
+        settings: formValues.settings.trim(),
+      }),
+      ...(formValues.kind.value === "maven" && {
+        settingsFilename: formValues.settingsFilename.trim(),
+      }),
       password: formValues.password.trim(),
       user: formValues.user.trim(),
+      ...(formValues?.kind.value === "source" &&
+        formValues?.userCredentials.value === "source" && {
+          key: formValues.key.trim(),
+        }),
+      ...(formValues?.kind.value === "source" &&
+        formValues?.userCredentials.value === "source" && {
+          keyFilename: formValues.keyFilename.trim(),
+        }),
     };
 
     let promise: AxiosPromise<Identity>;
     if (identity) {
       promise = updateIdentity({
-        ...identity,
         ...payload,
       });
     } else {
@@ -213,12 +224,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     formik.setFieldValue(fieldName, file);
     formik.setFieldValue(fieldFileName, file.name);
   };
-  const handleTextOrDataChange = (value: string, fieldName: string) => {
-    formik.setFieldValue(fieldName, value);
-  };
-
-  const handleFileReadStarted = () => setIsLoading(true);
-  const handleFileReadFinished = () => setIsLoading(false);
 
   const validateXML = (value: string | File, filename: string) => {
     const validationObject = XMLValidator.validate(value, {
@@ -253,8 +258,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     }
   };
 
-  console.log("formik.error", formik, formik.errors);
-  console.log("isSettingsFileRejected", isSettingsFileRejected);
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
@@ -456,7 +459,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 >
                   <FileUpload
                     id="file"
-                    name="file"
+                    name="key"
                     type="text"
                     value={formik.values.key}
                     filename={formik.values.keyFilename}
@@ -474,16 +477,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     onFileInputChange={(event, file) =>
                       handleFileInputChange(event, file, "keyFilename", "key")
                     }
-                    onDataChange={(data) => handleTextOrDataChange(data, "key")}
                     onClearClick={() => {
                       formik.setFieldValue("key", "");
                       formik.setFieldValue("keyFilename", "");
                     }}
-                    onTextChange={(text) => {
-                      handleTextOrDataChange(text, "key");
-                    }}
-                    onReadStarted={handleFileReadStarted}
-                    onReadFinished={handleFileReadFinished}
                     allowEditingUploadedText
                     browseButtonText="Upload"
                   />
@@ -527,7 +524,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 id="file"
                 name="settings"
                 type="text"
-                value={formik.values.settings}
+                value={formik.values.settings && "[Encrypted]"}
                 filename={formik.values.settingsFilename}
                 onChange={(value, filename) => {
                   if (value) {
@@ -549,9 +546,11 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   )
                 }
                 onClearClick={() => {
-                  formik.setFieldValue("settings", "");
-                  formik.setFieldValue("settingsFilename", "");
+                  formik.setFieldValue("settings", "", false);
+                  formik.setFieldValue("settingsFilename", "", false);
                 }}
+                onReadStarted={() => setIsLoading(true)}
+                onReadFinished={() => setIsLoading(false)}
                 isLoading={isLoading}
                 allowEditingUploadedText
                 browseButtonText="Upload"
@@ -618,7 +617,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               !formik.isValid ||
               !formik.dirty ||
               formik.isSubmitting ||
-              formik.isValidating
+              formik.isValidating ||
+              isLoading
             }
           >
             {!identity ? "Create" : "Save"}
