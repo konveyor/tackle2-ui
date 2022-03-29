@@ -1,13 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import {
-  useFormik,
-  FormikProvider,
-  FormikHelpers,
-  useField,
-  yupToFormErrors,
-} from "formik";
+import { useFormik, FormikProvider, FormikHelpers } from "formik";
 import { object, string } from "yup";
 import {
   ActionGroup,
@@ -193,6 +187,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   };
 
   const formik = useFormik({
+    enableReinitialize: false,
     initialValues: initialValues,
     validationSchema: validationSchema,
     onSubmit: onSubmit,
@@ -232,12 +227,14 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
     if (validationObject === true) {
       validateAgainstSchema(value);
+      formik.setFieldValue("settings", value, false);
+      formik.setFieldValue("settingsFilename", filename, false);
     } else {
       setIsSettingsFileRejected(true);
+      formik.setFieldValue("settings", value, false);
+      formik.setFieldValue("settingsFilename", filename, false);
       formik.setFieldError("settings", validationObject.err?.msg);
     }
-    formik.setFieldValue("settings", value);
-    formik.setFieldValue("settingsFilename", filename); // }
   };
 
   const validateAgainstSchema = (value: string | File) => {
@@ -255,6 +252,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       formik.setFieldError("settings", validationResult?.errors);
     }
   };
+
+  console.log("formik.error", formik, formik.errors);
+  console.log("isSettingsFileRejected", isSettingsFileRejected);
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
@@ -525,7 +525,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             >
               <FileUpload
                 id="file"
-                name="file"
+                name="settings"
                 type="text"
                 value={formik.values.settings}
                 filename={formik.values.settingsFilename}
@@ -548,18 +548,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     "settings"
                   )
                 }
-                onDataChange={(data) =>
-                  handleTextOrDataChange(data, "settings")
-                }
                 onClearClick={() => {
                   formik.setFieldValue("settings", "");
                   formik.setFieldValue("settingsFilename", "");
                 }}
-                onTextChange={(text) => {
-                  handleTextOrDataChange(text, "settings");
-                }}
-                onReadStarted={handleFileReadStarted}
-                onReadFinished={handleFileReadFinished}
                 isLoading={isLoading}
                 allowEditingUploadedText
                 browseButtonText="Upload"
