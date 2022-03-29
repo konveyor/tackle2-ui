@@ -166,15 +166,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     };
   };
 
-  if (!isInitTasks) {
-    initTasks();
-  }
+  !isInitTasks && initTasks();
 
   const [stepIdReached, setStepIdReached] = useState(1);
 
   enum stepId {
     AnalysisMode = 1,
-    UploadBinaryStep,
     SetTargets,
     Scope,
     CustomRules,
@@ -231,38 +228,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     }
   };
 
-  const setTargetsStep = {
-    id: stepId.SetTargets,
-    name: "Set targets",
-    component: <SetTargets />,
-  };
-  const scopeStep = {
-    id: stepId.Scope,
-    name: "Scope",
-    component: <SetScope />,
-  };
-  const advancedSteps = {
-    name: "Advanced",
-    steps: [
-      {
-        id: stepId.CustomRules,
-        name: "Custom rules",
-        component: <CustomRules />,
-      },
-      {
-        id: stepId.Options,
-        name: "Options",
-        component: <SetOptions />,
-      },
-    ],
-  };
-  const reviewStep = {
-    id: stepId.Review,
-    name: "Review",
-    component: <Review applications={applications} />,
-    nextButtonText: "Run",
-  };
-
   const steps = [
     {
       name: "Configure analysis",
@@ -277,16 +242,51 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             />
           ),
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
+          enableNext: true, //forms.general.isValid,
         },
-        setTargetsStep,
-        scopeStep,
+        {
+          id: stepId.SetTargets,
+          name: "Set targets",
+          component: <SetTargets />,
+          canJumpTo: stepIdReached >= stepId.SetTargets,
+          enableNext: true,
+        },
+        {
+          id: stepId.Scope,
+          name: "Scope",
+          component: <SetScope />,
+          canJumpTo: stepIdReached >= stepId.Scope,
+          enableNext: true,
+        },
       ],
     },
-    advancedSteps,
-    reviewStep,
+    {
+      name: "Advanced",
+      steps: [
+        {
+          id: stepId.CustomRules,
+          name: "Custom rules",
+          component: <CustomRules />,
+          canJumpTo: stepIdReached >= stepId.CustomRules,
+          enableNext: true,
+        },
+        {
+          id: stepId.Options,
+          name: "Options",
+          component: <SetOptions />,
+          canJumpTo: stepIdReached >= stepId.Options,
+          enableNext: true,
+        },
+      ],
+    },
+    {
+      id: stepId.Review,
+      name: "Review",
+      component: <Review applications={applications} />,
+      nextButtonText: "Run",
+      canJumpTo: stepIdReached >= stepId.Review,
+    },
   ];
-
-  console.log(watch());
 
   const CustomFooter = (
     <WizardFooter>
@@ -302,14 +302,8 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           const isNextEnabled = () => {
             switch (activeStep.name) {
               case "Analysis mode":
-                {
-                  if (isMutating) {
-                    return false;
-                  } else {
-                    return true;
-                  }
-                }
-                break;
+                if (isMutating) return false;
+                return true;
               default:
                 return true;
             }
