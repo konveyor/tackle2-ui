@@ -33,7 +33,6 @@ export const SingleSelectFetchOptionValueFormikField = <T extends any>({
         const selectionValue = (selection as OptionWithValue<T>).value;
         helpers.setValue(selectionValue);
       }}
-      onClear={() => helpers.setValue(null)}
       {...selectConfig}
     />
   );

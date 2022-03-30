@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
 import { useFormik, FormikProvider, FormikHelpers } from "formik";
@@ -65,6 +65,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
   const [error, setError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
+  const [hasUpdate, setHasUpdate] = useState(false);
 
   const getUserCredentialsInitialValue = (
     value: string,
@@ -120,35 +121,69 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     encrypted: identity?.encrypted || "",
     id: identity?.id || 0,
     key: identity?.key || "",
-    keyFilename: identity?.keyFilename || "",
+    keyFilename: "",
     kind: kindInitialValue,
     userCredentials: userCredentialsInitialValue,
     name: identity?.name || "",
     password: identity?.password || "",
     settings: identity?.settings || "",
-    settingsFilename: identity?.settingsFilename || "",
+    settingsFilename: "",
     updateUser: identity?.updateUser || "",
     user: identity?.user || "",
   };
 
-  const validationSchema = object({
-    name: string()
-      .trim()
-      .required(t("validation.required"))
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 })),
-    description: string()
-      .trim()
-      .max(250, t("validation.maxLength", { length: 250 })),
-    kind: object().shape({
-      value: string().min(1, "value required").required(),
-      toString: object().required(),
-    }),
-    settings: string().when("kind.value", {
-      is: "maven",
-      then: string().required("Must upload xml settings file"),
-    }),
-  });
+  const validationSchema = object().shape(
+    {
+      name: string()
+        .trim()
+        .required(t("validation.required"))
+        .min(3, t("validation.minLength", { length: 3 }))
+        .max(120, t("validation.maxLength", { length: 120 })),
+      description: string()
+        .trim()
+        .max(250, t("validation.maxLength", { length: 250 })),
+      kind: object().shape({
+        value: string().min(1, "value required").required(),
+        toString: object().required(),
+      }),
+      settings: string().when("kind.value", {
+        is: "maven",
+        then: string().required("Must upload xml settings file"),
+      }),
+      user: string()
+        .when("kind", {
+          is: (kind: any) => kind.value === "proxy",
+          then: (schema) => schema.required("This field is required."),
+          otherwise: (schema) => schema.trim(),
+        })
+        .when("kind", {
+          is: (kind: any) => kind.value === "source",
+          then: (schema) => schema.required("This field is required."),
+          otherwise: (schema) => schema.trim(),
+        }),
+      password: string()
+        .when("kind", {
+          is: (kind: any) => kind.value === "proxy",
+          then: (schema) => schema.required("This field is required."),
+          otherwise: (schema) => schema.trim(),
+        })
+        .when("kind", {
+          is: (kind: any) => kind.value === "source",
+          then: (schema) => schema.required("This field is required."),
+          otherwise: (schema) => schema.trim(),
+        }),
+      key: string().when("kind", {
+        is: (kind: any) => kind.value === "source",
+        then: (schema) => schema.required("This field is required."),
+        otherwise: (schema) => schema.trim(),
+      }),
+    },
+    [
+      ["kind", "password"],
+      ["kind", "username"],
+      ["kind", "key"],
+    ]
+  );
 
   const onSubmit = (
     formValues: FormValues,
@@ -204,6 +239,33 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     onSubmit: onSubmit,
   });
 
+  const identityValuesHaveUpdate = (
+    values: FormValues,
+    identity?: Identity
+  ) => {
+    if (identity?.name === "" && identity) {
+      return true;
+    } else {
+      return (
+        values.name !== identity?.name ||
+        values.description !== identity?.description ||
+        values.kind.value !== identity?.kind ||
+        values.user !== identity?.user ||
+        values.password !== identity?.password ||
+        values.key !== identity?.key ||
+        values.settings !== identity?.settings
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (identityValuesHaveUpdate(formik.values, identity)) {
+      setHasUpdate(true);
+    } else {
+      setHasUpdate(false);
+    }
+  }, [formik.values, identity]);
+
   const onChangeField = (value: string, event: React.FormEvent<any>) => {
     formik.handleChange(event);
   };
@@ -257,7 +319,12 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       formik.setFieldError("settings", validationResult?.errors);
     }
   };
-
+  console.log("formik", formik);
+  // const handleFileInputChange = (event, file) => this.setState({ filename: file.name });
+  // const handleTextOrDataChange = value => this.setState({ value });
+  // const handleClear = event => this.setState({ filename: '', value: '' });
+  // const handleFileReadStarted = fileHandle => this.setState({ isLoading: true });
+  // const handleFileReadFinished = fileHandle => this.setState({ isLoading: false });
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
@@ -314,7 +381,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         </FormGroup>
         <FormGroup
           label="Type"
-          fieldId="type"
+          fieldId="kind"
           isRequired={true}
           validated={formik.errors.kind && "error"}
           helperTextInvalid={formik.errors.kind && "This field is required"}
@@ -477,6 +544,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     onFileInputChange={(event, file) =>
                       handleFileInputChange(event, file, "keyFilename", "key")
                     }
+                    // onDataChange={this.handleTextOrDataChange}
+                    // onTextChange={this.handleTextOrDataChange}
+                    // onReadStarted={this.handleFileReadStarted}
+                    // onReadFinished={this.handleFileReadFinished}
                     onClearClick={() => {
                       formik.setFieldValue("key", "");
                       formik.setFieldValue("keyFilename", "");
@@ -615,10 +686,11 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             variant={ButtonVariant.primary}
             isDisabled={
               !formik.isValid ||
-              !formik.dirty ||
               formik.isSubmitting ||
               formik.isValidating ||
-              isLoading
+              isLoading ||
+              // !formik.dirty ||
+              !hasUpdate
             }
           >
             {!identity ? "Create" : "Save"}
