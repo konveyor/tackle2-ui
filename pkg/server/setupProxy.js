@@ -4,7 +4,7 @@ module.exports = function (app) {
   app.use(
     "/auth",
     createProxyMiddleware({
-      target: process.env.SSO_SERVER_URL || "http://localhost:9001",
+      target: process.env.KEYCLOAK_HOST || "http://localhost:9001",
       changeOrigin: true,
       logLevel: process.env.DEBUG ? "debug" : "info",
     })
