@@ -1,37 +1,36 @@
 import * as React from "react";
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
-import { Application, Task, TaskData } from "@app/api/models";
-import "./wizard.css";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Wizard, WizardStepFunctionType } from "@patternfly/react-core";
+
+import { Application, Task, TaskData } from "@app/api/models";
 import {
   createTask,
   submitTask,
   updateTask,
   uploadFileTask,
 } from "@app/api/rest";
-import { alertActions } from "@app/store/alert";
-import { useDispatch } from "react-redux";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import {
-  Button,
-  Wizard,
-  WizardContextConsumer,
-  WizardFooter,
-  WizardStepFunctionType,
-} from "@patternfly/react-core";
-
+import { alertActions } from "@app/store/alert";
 import { CustomRules } from "./custom-rules";
 import { Review } from "./review";
 import { SetMode } from "./set-mode";
 import { SetOptions } from "./set-options";
 import { SetScope } from "./set-scope";
 import { SetTargets } from "./set-targets";
-import { useIsMutating, useQueryClient } from "react-query";
-interface IAnalysisWizard {
-  applications: Application[];
-  onClose: () => void;
+
+import "./wizard.css";
+import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
+
+enum stepId {
+  AnalysisMode = 1,
+  SetTargets,
+  Scope,
+  CustomRules,
+  Options,
+  Review,
 }
 export interface IReadFile {
   fileName: string;
@@ -50,6 +49,11 @@ export interface IAnalysisWizardFormValues {
   excludedPackages: string[];
   customRulesFiles: IReadFile[];
   excludedRulesTags: string[];
+}
+
+interface IAnalysisWizard {
+  applications: Application[];
+  onClose: () => void;
 }
 
 const defaultTaskData: TaskData = {
@@ -80,7 +84,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const [isInitTasks, setInitTasks] = React.useState(false);
   const [createdTasks, setCreatedTasks] = React.useState<Array<Task>>([]);
-  const isMutating = useIsMutating();
 
   const schema = yup
     .object({
@@ -97,7 +100,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       artifact: "",
       targets: [],
       sources: [],
-      withKnown: "",
+      withKnown: "depsOnly",
       includedPackages: [""],
       excludedPackages: [""],
       customRulesFiles: [],
@@ -105,9 +108,49 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
   });
 
-  console.log(methods.watch());
+  const { identities, fetchIdentities } = useFetchIdentities();
+
+  React.useEffect(() => {
+    fetchIdentities();
+  }, [fetchIdentities]);
+
+  const hasIdentity = (application: Application, kind: string): boolean =>
+    !!application.identities?.some((appIdentity) =>
+      identities?.find(
+        (identity) => appIdentity.id === identity.id && identity.kind === kind
+      )
+    );
+
+  const areApplicationsBinaryEnabled = (): boolean =>
+    applications.every(
+      (application) =>
+        application.binary !== "::" &&
+        application.identities &&
+        application.identities.length > 0 &&
+        hasIdentity(application, "maven")
+    );
+
+  const areApplicationsSourceCodeEnabled = (): boolean =>
+    applications.every(
+      (application) =>
+        application.repository &&
+        application.repository.url !== "" &&
+        application.identities &&
+        application.identities.length > 0
+    );
+
+  const areApplicationsSourceCodeDepsEnabled = (): boolean =>
+    applications.every(
+      (application) =>
+        application.repository &&
+        application.repository.url !== "" &&
+        application.identities &&
+        application.identities.length > 0 &&
+        hasIdentity(application, "maven")
+    );
 
   const { handleSubmit, watch, reset } = methods;
+  console.log(watch());
 
   const initTask = (application: Application): Task => {
     return {
@@ -140,7 +183,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       data: {
         ...defaultTaskData,
         mode: {
-          binary: data.mode.includes("Binary"),
+          binary: data.mode.includes("Binary") || data.mode.includes("binary"),
           withDeps: data.mode.includes("dependencies"),
           artifact: data.artifact ? `/binary/${data.artifact}` : "",
         },
@@ -168,16 +211,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   !isInitTasks && initTasks();
 
-  const [stepIdReached, setStepIdReached] = useState(1);
-
-  enum stepId {
-    AnalysisMode = 1,
-    SetTargets,
-    Scope,
-    CustomRules,
-    Options,
-    Review,
-  }
+  const [stepIdReached, setStepIdReached] = React.useState(1);
 
   const onSubmit = (data: FieldValues) => {
     if (data.targets.length < 1) {
@@ -219,13 +253,20 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       });
   };
 
-  const onMove: WizardStepFunctionType = (
-    { id, name },
-    { prevId, prevName }
-  ) => {
+  const onMove: WizardStepFunctionType = ({ id }) => {
     if (id && stepIdReached < id) {
       setStepIdReached(id as number);
     }
+  };
+
+  const { mode, artifact, targets } = methods.getValues();
+
+  const isModeValid = (): boolean => {
+    if (mode.includes("Upload")) return artifact !== "";
+    if (mode.includes("Binary")) return areApplicationsBinaryEnabled();
+    else if (mode.includes("dependencies"))
+      return areApplicationsSourceCodeDepsEnabled();
+    else return areApplicationsSourceCodeEnabled();
   };
 
   const steps = [
@@ -242,14 +283,14 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             />
           ),
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
-          enableNext: true, //forms.general.isValid,
+          enableNext: isModeValid(),
         },
         {
           id: stepId.SetTargets,
           name: "Set targets",
           component: <SetTargets />,
           canJumpTo: stepIdReached >= stepId.SetTargets,
-          enableNext: true,
+          enableNext: targets.length > 0,
         },
         {
           id: stepId.Scope,
@@ -288,68 +329,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
   ];
 
-  const CustomFooter = (
-    <WizardFooter>
-      <WizardContextConsumer>
-        {({
-          activeStep,
-          goToStepByName,
-          goToStepById,
-          onNext,
-          onBack,
-          onClose,
-        }) => {
-          const isNextEnabled = () => {
-            switch (activeStep.name) {
-              case "Analysis mode":
-                if (isMutating) return false;
-                return true;
-              default:
-                return true;
-            }
-          };
-
-          return (
-            <>
-              <Button
-                variant="primary"
-                type="submit"
-                onClick={(event) => {
-                  getNextStep(activeStep, onNext);
-                }}
-                isDisabled={!isNextEnabled()}
-              >
-                {activeStep.name === "Results" ? "Finish" : "Next"}
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => getPreviousStep(activeStep, onBack)}
-                className={activeStep.name === "General" ? "pf-m-disabled" : ""}
-                isDisabled={activeStep.name === "Analysis mode"}
-              >
-                Back
-              </Button>
-              <Button variant="link" onClick={onClose}>
-                Cancel
-              </Button>
-            </>
-          );
-        }}
-      </WizardContextConsumer>
-    </WizardFooter>
-  );
-
-  const getNextStep = (activeStep: any, callback?: any) => {
-    setTimeout(() => {
-      callback();
-    });
-  };
-
-  const getPreviousStep = (activeStep: any, callback: any) => {
-    setTimeout(() => {
-      callback();
-    });
-  };
   const handleClose = () => {
     onClose();
     setStepIdReached(stepId.AnalysisMode);
@@ -365,7 +344,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         navAriaLabel={`${title} steps`}
         mainAriaLabel={`${title} content`}
         steps={steps}
-        footer={CustomFooter}
         onNext={onMove}
         onBack={onMove}
         onSave={handleSubmit(onSubmit)}
