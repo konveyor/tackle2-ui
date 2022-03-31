@@ -282,6 +282,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
               createdTaskID={createdTasks[0]?.id || null}
+              isModeValid={isModeValid()}
             />
           ),
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
@@ -336,17 +337,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     setStepIdReached(stepId.AnalysisMode);
     reset();
   };
-  console.log("isModeValid: ", isModeValid());
-  console.log("areApplicationsBinaryEnabled: ", areApplicationsBinaryEnabled());
-  console.log(
-    "areApplicationsSourceCodeDepsEnabled: ",
-    areApplicationsSourceCodeDepsEnabled()
-  );
-  console.log(
-    "areApplicationsSourceCodeEnabled: ",
-    areApplicationsSourceCodeEnabled()
-  );
-  console.log("isMutating: ", isMutating);
+
   return (
     <FormProvider {...methods}>
       <Wizard
