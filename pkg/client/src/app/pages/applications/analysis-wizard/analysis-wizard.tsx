@@ -152,7 +152,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     );
 
   const { handleSubmit, watch, reset } = methods;
-  console.log(watch());
+  const watchAllFields = watch();
 
   const initTask = (application: Application): Task => {
     return {
