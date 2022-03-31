@@ -12,18 +12,9 @@ if [[ -z "$PATHFINDER_URL" ]]; then
   exit 1
 fi
 
-if [[ -z "$KEYCLOAK_REALM" ]]; then
-  echo "You must provide SSO_REALM environment variable" 1>&2
-  exit 1
-fi
 
-if [[ -z "$KEYCLOAK_HOST" ]]; then
+if [[ -z "$KEYCLOAK_SERVER_URL" ]]; then
   echo "You must provide SSO_SERVER_URL environment variable" 1>&2
-  exit 1
-fi
-
-if [[ -z "$KEYCLOAK_CLIENT_ID" ]]; then
-  echo "You must provide SSO_CLIENT_ID environment variable" 1>&2
   exit 1
 fi
 
