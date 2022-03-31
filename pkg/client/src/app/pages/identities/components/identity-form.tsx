@@ -43,134 +43,50 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
   const [axiosError, setAxiosError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
-  const [hasUpdate, setHasUpdate] = useState(false);
   const [identity, setIdentity] = useState(initialIdentity);
   useEffect(() => {
     setIdentity(initialIdentity);
+    return () => {
+      setIdentity(undefined);
+    };
   }, []);
-  const getUserCredentialsInitialValue = (
-    value?: string,
-    identity?: Identity
-  ) => {
-    switch (value) {
-      case "source": {
-        if (identity?.user) {
-          return { value: "userpass", toString: () => "Username/Password" };
-        } else if (identity?.key) {
-          return {
-            value: "source",
-            toString: () => "SCM Private Key/Passphrase",
-          };
-        } else {
-          return { value: "", toString: () => "" };
-        }
-      }
-      default:
-        return { value: "", toString: () => "" };
-    }
-  };
-  const getKindInitialValue = (kind?: string): OptionWithValue<any> => {
-    switch (kind) {
-      case "proxy": {
-        return { value: kind, toString: () => "Proxy" };
-      }
-      case "source": {
-        return { value: kind, toString: () => "Source Control" };
-      }
-      case "maven": {
-        return { value: kind, toString: () => "Maven Settings File" };
-      }
-      default:
-        return { value: "", toString: () => "" };
-    }
-  };
 
-  const validationSchema = object().shape(
-    {
-      name: string()
-        .trim()
-        .required(t("validation.required"))
-        .min(3, t("validation.minLength", { length: 3 }))
-        .max(120, t("validation.maxLength", { length: 120 })),
-      description: string()
-        .trim()
-        .max(250, t("validation.maxLength", { length: 250 })),
-      kind: object().shape({
-        value: string().min(1, "value required").required(),
-        toString: object().required(),
-      }),
-      settings: string().when("kind.value", {
-        is: "maven",
-        then: string().required("Must upload xml settings file"),
-      }),
-      password: string()
-        .when("kind", {
-          is: (kind: any) => kind?.value === "proxy",
-          then: (schema) => schema.required("This field is required."),
-          otherwise: (schema) => schema.trim(),
-        })
-        .when(["kind", "userCredentials"], {
-          is: (kind: any, userCredentials: any) =>
-            kind?.value === "source" && userCredentials === "Username/Password",
-          then: (schema) => schema.required("This field is required."),
-          otherwise: (schema) => schema.trim(),
-        }),
-      key: string()
-        .when(["kind", "userCredentials"], {
-          is: (kind: any, userCredentials: any) =>
-            kind?.value === "source" && userCredentials.value === "source",
-          then: (schema) => schema.required("This field is required."),
-          otherwise: (schema) => schema.trim(),
-        })
-        .when("userCredentials", {
-          is: (userCredentials: any) =>
-            userCredentials === "Source Private Key/Passphrase",
-          then: (schema) => schema.required("This field is required."),
-        }),
-      userCredentials: string().when("kind", {
-        is: (kind: any) => kind?.value === "source",
-        then: (schema) => schema.required("This field is required."),
-        otherwise: (schema) => schema.trim(),
-      }),
-      user: string().when(["kind", "userCredentials"], {
-        is: (kind: any, userCredentials: any) =>
-          kind?.value === "source" && userCredentials === "Username/Password",
-        then: (schema) => schema.required("This field is required."),
-        otherwise: (schema) => schema.trim(),
-      }),
-    },
-    [
-      ["kind", "password"],
-      ["kind", "user"],
-      ["userCredentials", "key"],
-      ["userCredentials", "user"],
-      ["userCredentials", "kind"],
-      ["userCredentials", "password"],
-    ]
-  );
+  const getUserCredentialsInitialValue = (identity?: Identity) => {
+    if (identity?.kind === "source" && identity?.user && identity?.password) {
+      return "userpass";
+    } else if (identity?.kind === "source") {
+      return "source";
+    } else {
+      return "";
+    }
+  };
 
   const onSubmit = (formValues: FieldValues) => {
     const payload: Identity = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       id: formValues.id,
-      kind: formValues.kind.value.trim(),
+      kind: formValues.kind.trim(),
       createUser: formValues.createUser.trim(),
-      ...(formValues.kind.value === "maven" && {
+      ...(formValues.kind === "maven" && {
         settings: formValues.settings.trim(),
       }),
-      ...(formValues.kind.value === "maven" && {
+      ...(formValues.kind === "maven" && {
         settingsFilename: formValues.settingsFilename.trim(),
       }),
       password: formValues.password.trim(),
       user: formValues.user.trim(),
-      ...(formValues?.kind.value === "source" &&
-        formValues?.userCredentials.value === "source" && {
+      ...(formValues?.kind === "source" &&
+        formValues?.userCredentials === "source" && {
           key: formValues.key.trim(),
         }),
-      ...(formValues?.kind.value === "source" &&
-        formValues?.userCredentials.value === "source" && {
+      ...(formValues?.kind === "source" &&
+        formValues?.userCredentials === "source" && {
           keyFilename: formValues.keyFilename.trim(),
+        }),
+      ...(formValues?.kind === "source" &&
+        formValues?.userCredentials === "userpass" && {
+          key: "",
         }),
     };
 
@@ -184,14 +100,57 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     }
     promise
       .then((response) => {
-        // formikHelpers.setSubmitting(false);
         onSaved(response);
       })
       .catch((error) => {
-        // formikHelpers.setSubmitting(false);
         setAxiosError(error);
       });
   };
+
+  const validationSchema = object().shape({
+    name: string()
+      .trim()
+      .required(t("validation.required"))
+      .min(3, t("validation.minLength", { length: 3 }))
+      .max(120, t("validation.maxLength", { length: 120 })),
+    description: string()
+      .trim()
+      .max(250, t("validation.maxLength", { length: 250 })),
+    kind: string().required(),
+    settings: string().when("kind", {
+      is: "maven",
+      then: string().required("Must upload xml settings file"),
+    }),
+    user: string()
+      .when("kind", {
+        is: "proxy",
+        then: string().required("This value is required"),
+        otherwise: (schema) => schema.trim(),
+      })
+      .when(["kind", "userCredentials"], {
+        is: (kind: string, userCredentials: string) =>
+          kind === "source" && userCredentials === "userpass",
+        then: (schema) => schema.required("This field is required."),
+      }),
+
+    password: string()
+      .when("kind", {
+        is: "proxy",
+        then: string().required("This value is required"),
+        otherwise: (schema) => schema.trim(),
+      })
+      .when(["kind", "userCredentials"], {
+        is: (kind: string, userCredentials: string) =>
+          kind === "source" && userCredentials === "userpass",
+        then: (schema) => schema.required("This field is required."),
+      }),
+    key: string().when(["kind", "userCredentials"], {
+      is: (kind: string, userCredentials: string) =>
+        kind === "source" && userCredentials === "source",
+      then: (schema) => schema.required("This field is required."),
+      otherwise: (schema) => schema.trim(),
+    }),
+  });
 
   const {
     register,
@@ -221,8 +180,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       id: identity?.id || 0,
       key: identity?.key || "",
       keyFilename: "",
-      kind: getKindInitialValue(identity?.kind),
-      userCredentials: getUserCredentialsInitialValue(identity?.kind, identity),
+      kind: identity?.kind || "",
+      userCredentials: identity?.kind
+        ? getUserCredentialsInitialValue({ ...identity })
+        : "",
       name: identity?.name || "",
       password: identity?.password || "",
       settings: identity?.settings || "",
@@ -234,33 +195,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     mode: "onChange",
   });
   const values = getValues();
-
-  const identityValuesHaveUpdate = (
-    values: FieldValues,
-    identity?: Identity
-  ) => {
-    if (identity?.name === "" && identity) {
-      return true;
-    } else {
-      return (
-        values.name !== identity?.name ||
-        values.description !== identity?.description ||
-        values.kind.value !== identity?.kind ||
-        values.user !== identity?.user ||
-        values.password !== identity?.password ||
-        values.key !== identity?.key ||
-        values.settings !== identity?.settings
-      );
-    }
-  };
-
-  useEffect(() => {
-    if (identityValuesHaveUpdate(values, identity)) {
-      setHasUpdate(true);
-    } else {
-      setHasUpdate(false);
-    }
-  }, [values, identity]);
 
   const [isFileRejected, setIsFileRejected] = useState(false);
   const [isSettingsFileRejected, setIsSettingsFileRejected] = useState(false);
@@ -302,12 +236,39 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     }
   };
 
-  const watchFields = watch(["kind", "userCredentials"]); // when pass nothing as argument, you are watching everything
+  const watchAllFields = watch();
 
+  const userCredentialsOptions = [
+    {
+      value: "userpass",
+      toString: () => `Username/Password`,
+    },
+    {
+      value: "source",
+      toString: () => `Source Private Key/Passphrase`,
+    },
+  ];
+
+  const kindOptions = [
+    {
+      value: "source",
+      toString: () => `Source Control`,
+    },
+    {
+      value: "maven",
+      toString: () => `Maven Settings File`,
+    },
+    {
+      value: "proxy",
+      toString: () => `Proxy`,
+    },
+  ];
+
+  const toOptionLike = (value: string, options: OptionWithValue[]) => {
+    return options.find((option) => option.value === value);
+  };
   console.log("values", values);
-  console.log("errors", errors);
-  console.log("isValid", isValid);
-  console.log("isValid", isDirty);
+  console.log("identity", identity);
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       {axiosError && (
@@ -391,31 +352,17 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           }) => (
             <SimpleSelect
               aria-label={name}
-              value={value ? value.toString() : undefined}
-              options={[
-                {
-                  value: "source",
-                  toString: () => `Source Control`,
-                },
-                {
-                  value: "maven",
-                  toString: () => `Maven Settings File`,
-                },
-                {
-                  value: "proxy",
-                  toString: () => `Proxy`,
-                },
-              ]}
-              // options.map(toOptionWithValue)}
+              value={value ? toOptionLike(value, kindOptions) : undefined}
+              options={kindOptions}
               onChange={(selection) => {
                 const selectionValue = selection as OptionWithValue<any>;
-                setValue(name, selectionValue);
+                setValue(name, selectionValue.value);
               }}
             />
           )}
         />
       </FormGroup>
-      {values?.kind?.value === "source" && (
+      {values?.kind === "source" && (
         <>
           <FormGroup
             label="User credentials"
@@ -436,26 +383,21 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               }) => (
                 <SimpleSelect
                   aria-label={name}
-                  value={value.toString()}
-                  options={[
-                    {
-                      value: "userpass",
-                      toString: () => `Username/Password`,
-                    },
-                    {
-                      value: "source",
-                      toString: () => `Source Private Key/Passphrase`,
-                    },
-                  ]}
+                  value={
+                    value
+                      ? toOptionLike(value, userCredentialsOptions)
+                      : undefined
+                  }
+                  options={userCredentialsOptions}
                   onChange={(selection) => {
                     const selectionValue = selection as OptionWithValue<any>;
-                    setValue(name, selectionValue);
+                    setValue(name, selectionValue.value);
                   }}
                 />
               )}
             />
           </FormGroup>
-          {values?.userCredentials?.value === "userpass" && (
+          {values?.userCredentials === "userpass" && (
             <>
               <FormGroup
                 label="Username"
@@ -517,7 +459,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               </FormGroup>
             </>
           )}
-          {values?.userCredentials.value === "source" && (
+          {values?.userCredentials === "source" && (
             <>
               <FormGroup
                 fieldId="key"
@@ -592,12 +534,12 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           )}
         </>
       )}
-      {values?.kind?.value === "maven" && (
+      {values?.kind === "maven" && (
         <>
           <FormGroup
             fieldId="settings"
             label={"Upload your Settings file or paste its contents below."}
-            isRequired={values.kind?.value === "maven"}
+            isRequired={values.kind === "maven"}
             validated={getValidatedFromError(errors.settings)}
             helperTextInvalid={errors?.settings?.message}
           >
@@ -646,7 +588,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         </>
       )}
 
-      {values?.kind?.value === "proxy" && (
+      {values?.kind === "proxy" && (
         <>
           <FormGroup
             label="Username"
@@ -716,7 +658,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           variant={ButtonVariant.primary}
           isDisabled={
             !isValid || isSubmitting || isValidating || isLoading || !isDirty
-            // !hasUpdate
           }
         >
           {!identity ? "Create" : "Save"}

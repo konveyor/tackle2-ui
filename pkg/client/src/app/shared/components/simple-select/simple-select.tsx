@@ -13,7 +13,7 @@ export interface OptionWithValue<T = string> extends SelectOptionObject {
   props?: Partial<SelectOptionProps>; // Extra props for <SelectOption>, e.g. children, className
 }
 
-type OptionLike = string | SelectOptionObject | OptionWithValue;
+export type OptionLike = string | SelectOptionObject | OptionWithValue;
 
 export interface ISimpleSelectProps
   extends Omit<
