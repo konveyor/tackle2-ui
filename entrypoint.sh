@@ -12,11 +12,11 @@ if [[ -z "$PATHFINDER_URL" ]]; then
   exit 1
 fi
 
-
-if [[ -z "$KEYCLOAK_SERVER_URL" ]]; then
-  echo "You must provide SSO_SERVER_URL environment variable" 1>&2
-  exit 1
+if [[ $AUTH_REQUIRED == "true" ]]; then
+  if [[ -z "$KEYCLOAK_SERVER_URL" ]]; then
+    echo "You must provide SSO_SERVER_URL environment variable" 1>&2
+    exit 1
+  fi
 fi
-
 cd pkg/server
 exec node index.js
