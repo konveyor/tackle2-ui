@@ -4,6 +4,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useDispatch } from "react-redux";
 import { Wizard, WizardStepFunctionType } from "@patternfly/react-core";
+import { useIsMutating } from "react-query";
 
 import { Application, Task, TaskData } from "@app/api/models";
 import {
@@ -81,6 +82,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 }: IAnalysisWizard) => {
   const title = "Application analysis";
   const dispatch = useDispatch();
+  const isMutating = useIsMutating();
 
   const [isInitTasks, setInitTasks] = React.useState(false);
   const [createdTasks, setCreatedTasks] = React.useState<Array<Task>>([]);
@@ -262,7 +264,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   const { mode, artifact, targets } = methods.getValues();
 
   const isModeValid = (): boolean => {
-    if (mode.includes("Upload")) return artifact !== "";
+    if (mode.includes("Upload")) return !isMutating && artifact !== "";
     if (mode.includes("Binary")) return areApplicationsBinaryEnabled();
     else if (mode.includes("dependencies"))
       return areApplicationsSourceCodeDepsEnabled();
@@ -334,7 +336,17 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     setStepIdReached(stepId.AnalysisMode);
     reset();
   };
-
+  console.log("isModeValid: ", isModeValid());
+  console.log("areApplicationsBinaryEnabled: ", areApplicationsBinaryEnabled());
+  console.log(
+    "areApplicationsSourceCodeDepsEnabled: ",
+    areApplicationsSourceCodeDepsEnabled()
+  );
+  console.log(
+    "areApplicationsSourceCodeEnabled: ",
+    areApplicationsSourceCodeEnabled()
+  );
+  console.log("isMutating: ", isMutating);
   return (
     <FormProvider {...methods}>
       <Wizard
