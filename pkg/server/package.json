@@ -9,5 +9,8 @@
   },
   "scripts": {
     "start": "node index.js"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13"
   }
 }

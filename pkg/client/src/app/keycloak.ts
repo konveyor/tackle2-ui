@@ -6,8 +6,8 @@ import Keycloak, { KeycloakConfig } from "keycloak-js";
 
 const config: KeycloakConfig = {
   url: "/auth",
-  realm: "tackle",
-  clientId: "tackle-ui",
+  realm: process.env.KEYCLOAK_REALM || "tackle",
+  clientId: process.env.KEYCLOAK_CLIENT_ID || "tackle-ui",
 };
 
 const keycloak = Keycloak(config);
