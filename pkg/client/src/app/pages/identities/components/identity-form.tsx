@@ -67,26 +67,35 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       description: formValues.description.trim(),
       id: formValues.id,
       kind: formValues.kind.trim(),
-      createUser: formValues.createUser.trim(),
+      //proxy cred
+      ...(formValues.kind === "proxy" && {
+        password: formValues.password.trim(),
+        user: formValues.user.trim(),
+        key: "",
+        settings: "",
+      }),
+      // mvn cred
       ...(formValues.kind === "maven" && {
         settings: formValues.settings.trim(),
+        key: "",
+        password: "",
+        user: "",
       }),
-      ...(formValues.kind === "maven" && {
-        settingsFilename: formValues.settingsFilename.trim(),
-      }),
-      password: formValues.password.trim(),
-      user: formValues.user.trim(),
-      ...(formValues?.kind === "source" &&
-        formValues?.userCredentials === "source" && {
+      //source credentials with key
+      ...(formValues.kind === "source" &&
+        formValues.userCredentials === "source" && {
           key: formValues.key.trim(),
+          password: formValues.password.trim(),
+          settings: "",
+          user: "",
         }),
-      ...(formValues?.kind === "source" &&
-        formValues?.userCredentials === "source" && {
-          keyFilename: formValues.keyFilename.trim(),
-        }),
-      ...(formValues?.kind === "source" &&
-        formValues?.userCredentials === "userpass" && {
+      //source credentials with unamepass
+      ...(formValues.kind === "source" &&
+        formValues.userCredentials === "userpass" && {
+          password: formValues.password.trim(),
+          user: formValues.user.trim(),
           key: "",
+          settings: "",
         }),
     };
 
