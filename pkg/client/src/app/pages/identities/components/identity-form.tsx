@@ -225,7 +225,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       setIsSettingsFileRejected(true);
       setValue("settings", value);
       setValue("settingsFilename", filename);
-      setError("settings", validationObject.err?.msg);
+      setError("settings", {
+        type: "custom",
+        message: validationObject?.err?.msg?.toString(),
+      });
     }
   };
 
@@ -241,7 +244,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       setIsSettingsFileRejected(false);
     } else {
       setIsSettingsFileRejected(true);
-      setError("settings", validationResult?.errors);
+      setError("settings", {
+        type: "custom",
+        message: validationResult?.errors?.toString(),
+      });
     }
   };
 
@@ -276,8 +282,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const toOptionLike = (value: string, options: OptionWithValue[]) => {
     return options.find((option) => option.value === value);
   };
-  console.log("values", values);
-  console.log("identity", identity);
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       {axiosError && (
