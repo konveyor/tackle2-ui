@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`StatusIcon Renders without crashing 1`] = `
+<Flex
+  alignItems={
+    Object {
+      "default": "alignItemsCenter",
+    }
+  }
+  className=""
+  flexWrap={
+    Object {
+      "default": "nowrap",
+    }
+  }
+  spaceItems={
+    Object {
+      "default": "spaceItemsSm",
+    }
+  }
+  style={
+    Object {
+      "whiteSpace": "nowrap",
+    }
+  }
+>
+  <FlexItem>
+    <Component
+      className=""
+      color="#6a6e73"
+    />
+  </FlexItem>
+  <FlexItem>
+    terms.notStarted
+  </FlexItem>
+</Flex>
+`;

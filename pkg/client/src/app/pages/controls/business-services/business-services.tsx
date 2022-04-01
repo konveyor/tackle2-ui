@@ -51,6 +51,7 @@ import {
 import identities from "@app/pages/identities";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
+import { RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
 
 const ENTITY_FIELD = "entity";
 
@@ -276,14 +277,19 @@ export const BusinessServices: React.FC = () => {
           toolbarActions={
             <ToolbarGroup variant="button-group">
               <ToolbarItem>
-                <Button
-                  type="button"
-                  aria-label="create-business-service"
-                  variant={ButtonVariant.primary}
-                  onClick={handleOnOpenCreateNewBusinessServiceModal}
+                <RBAC
+                  allowedPermissions={writeScopes}
+                  rbacType={RBAC_TYPE.Scope}
                 >
-                  {t("actions.createNew")}
-                </Button>
+                  <Button
+                    type="button"
+                    aria-label="create-business-service"
+                    variant={ButtonVariant.primary}
+                    onClick={handleOnOpenCreateNewBusinessServiceModal}
+                  >
+                    {t("actions.createNew")}
+                  </Button>
+                </RBAC>
               </ToolbarItem>
             </ToolbarGroup>
           }

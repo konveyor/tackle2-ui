@@ -2,62 +2,32 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "@app/App";
 import reportWebVitals from "@app/reportWebVitals";
-
 import { Provider } from "react-redux";
 import configureStore from "@app/store";
-
-import { initInterceptors } from "@app/axios-config";
-
-import { ReactKeycloakProvider } from "@react-keycloak/web";
-import keycloak from "@app/keycloak";
-
 import i18n from "@app/i18n";
 import { NinjaErrorBoundary } from "@app/ninja-error-boundary";
 
-import "./index.css";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { LocalStorageContextProvider } from "@app/context/LocalStorageContext";
+import { KeycloakProvider } from "@app/common/KeycloakProvider";
+
+import "./index.css";
 
 i18n.init();
 const queryClient = new QueryClient();
 
 ReactDOM.render(
-  <ReactKeycloakProvider
-    authClient={keycloak}
-    initOptions={{ onLoad: "login-required" }}
-    LoadingComponent={<span>Loading...</span>}
-    isLoadingCheck={(keycloak) => {
-      if (keycloak.authenticated) {
-        initInterceptors(() => {
-          return new Promise<string>((resolve, reject) => {
-            if (keycloak.token) {
-              keycloak
-                .updateToken(5)
-                .then(() => resolve(keycloak.token!))
-                .catch(() => reject("Failed to refresh token"));
-            } else {
-              keycloak.login();
-              reject("Not logged in");
-            }
-          });
-        });
-
-        const kcLocale = (keycloak.tokenParsed as any)["locale"];
-        if (kcLocale) {
-          i18n.changeLanguage(kcLocale);
-        }
-      }
-
-      return !keycloak.authenticated;
-    }}
-  >
-    <Provider store={configureStore()}>
-      <NinjaErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <App />
-        </QueryClientProvider>
-      </NinjaErrorBoundary>
-    </Provider>
-  </ReactKeycloakProvider>,
+  <LocalStorageContextProvider>
+    <KeycloakProvider>
+      <Provider store={configureStore()}>
+        <NinjaErrorBoundary>
+          <QueryClientProvider client={queryClient}>
+            <App />
+          </QueryClientProvider>
+        </NinjaErrorBoundary>
+      </Provider>
+    </KeycloakProvider>
+  </LocalStorageContextProvider>,
   document.getElementById("root")
 );
 

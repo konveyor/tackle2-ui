@@ -36,7 +36,7 @@
     "formik": "^2.2.6",
     "i18next": "^19.8.4",
     "i18next-http-backend": "^1.0.22",
-    "keycloak-js": "12.0.2",
+    "keycloak-js": "^16.1.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.27.1",
