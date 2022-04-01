@@ -14,24 +14,31 @@ export const useFetchTasks = (
   defaultIsFetching: boolean = false
 ): IFetchState => {
   const [tasks, setTasks] = useState<Array<Task>>([]);
-  const { isLoading, data, error } = useQuery("tasks", () =>
-    getTasks()
-      .then(({ data }) => {
-        let uniqLatestTasks: Task[] = [];
-        data.forEach((task) => {
-          const aTask = uniqLatestTasks.find(
-            (item) => task.application.id === item.application.id
-          );
-          if (aTask && aTask.createTime && task.createTime > aTask.createTime) {
-            const others = uniqLatestTasks.filter((t) => t.id !== aTask.id);
-            uniqLatestTasks = [...others, task];
-          } else uniqLatestTasks.push(task);
-        });
-        setTasks(uniqLatestTasks);
-      })
-      .catch((error) => {
-        console.log("error, ", error);
-      })
+  const { isLoading, data, error } = useQuery(
+    "tasks",
+    () =>
+      getTasks()
+        .then(({ data }) => {
+          let uniqLatestTasks: Task[] = [];
+          data.forEach((task) => {
+            const aTask = uniqLatestTasks.find(
+              (item) => task.application.id === item.application.id
+            );
+            if (
+              aTask &&
+              aTask.createTime &&
+              task.createTime > aTask.createTime
+            ) {
+              const others = uniqLatestTasks.filter((t) => t.id !== aTask.id);
+              uniqLatestTasks = [...others, task];
+            } else uniqLatestTasks.push(task);
+          });
+          setTasks(uniqLatestTasks);
+        })
+        .catch((error) => {
+          console.log("error, ", error);
+        }),
+    { refetchInterval: 1000 * 60 }
   );
   return {
     tasks: tasks,
