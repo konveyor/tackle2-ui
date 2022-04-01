@@ -9,7 +9,7 @@ import { RepositoriesSvn } from "./pages/repositories/Svn";
 import { Paths } from "@app/Paths";
 import { ApplicationAssessment } from "./pages/applications/application-assessment/application-assessment";
 import { RouteWrapper } from "./common/RouteWrapper";
-import * as roles from "./roles";
+import { adminRoles, devRoles } from "./rbac";
 
 const Applications = lazy(() => import("./pages/applications"));
 const ManageImports = lazy(() => import("./pages/applications/manage-imports"));
@@ -99,7 +99,7 @@ export const AppRoutes = () => {
           <RouteWrapper
             comp={props.component}
             key={index}
-            roles={roles.devRoutes.roles}
+            roles={devRoles}
             {...props}
           />
         ))}
@@ -107,7 +107,7 @@ export const AppRoutes = () => {
           <RouteWrapper
             comp={props.component}
             key={index}
-            roles={roles.adminRoutes.roles}
+            roles={adminRoles}
             {...props}
           />
         ))}

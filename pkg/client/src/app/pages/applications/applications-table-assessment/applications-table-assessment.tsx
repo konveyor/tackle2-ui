@@ -83,8 +83,7 @@ import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
-import { RBAC } from "@app/rbac";
-import * as roles from "@app/roles";
+import { legacyPathfinderRoles, RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
 
@@ -345,7 +344,7 @@ export const ApplicationsTable: React.FC = () => {
         {
           title: (
             <div className="pf-c-inline-edit__action pf-m-enable-editable">
-              <RBAC allowedRoles={roles.writeScopes}>
+              <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
                 <Button
                   type="button"
                   variant="plain"
@@ -420,7 +419,7 @@ export const ApplicationsTable: React.FC = () => {
       });
     }
     const userScopes: string[] = token?.scope.split(" "),
-      access = userScopes && checkAccess(userScopes, roles.writeScopes);
+      access = userScopes && checkAccess(userScopes, writeScopes);
     if (access) {
       actions.push(
         {
@@ -685,7 +684,10 @@ export const ApplicationsTable: React.FC = () => {
             <>
               <ToolbarGroup variant="button-group">
                 <ToolbarItem>
-                  <RBAC allowedRoles={roles.writeScopes}>
+                  <RBAC
+                    allowedPermissions={writeScopes}
+                    rbacType={RBAC_TYPE.Scope}
+                  >
                     <Button
                       type="button"
                       aria-label="create-application"
@@ -696,35 +698,49 @@ export const ApplicationsTable: React.FC = () => {
                     </Button>
                   </RBAC>
                 </ToolbarItem>
-                <ToolbarItem>
-                  <Button
-                    type="button"
-                    aria-label="assess-application"
-                    variant={ButtonVariant.primary}
-                    onClick={assessSelectedRows}
-                    isDisabled={
-                      selectedRows.length !== 1 || isApplicationAssessInProgress
-                    }
-                    isLoading={isApplicationAssessInProgress}
-                  >
-                    {t("actions.assess")}
-                  </Button>
-                </ToolbarItem>
-                <ToolbarItem>
-                  <Button
-                    type="button"
-                    aria-label="review-application"
-                    variant={ButtonVariant.primary}
-                    onClick={reviewSelectedRows}
-                    isDisabled={
-                      selectedRows.length !== 1 ||
-                      isReviewBtnDisabled(selectedRows[0])
-                    }
-                  >
-                    {t("actions.review")}
-                  </Button>
-                </ToolbarItem>
-                <RBAC allowedRoles={roles.writeScopes}>
+                <RBAC
+                  allowedPermissions={legacyPathfinderRoles}
+                  rbacType={RBAC_TYPE.Role}
+                >
+                  <ToolbarItem>
+                    <Button
+                      type="button"
+                      aria-label="assess-application"
+                      variant={ButtonVariant.primary}
+                      onClick={assessSelectedRows}
+                      isDisabled={
+                        selectedRows.length !== 1 ||
+                        isApplicationAssessInProgress
+                      }
+                      isLoading={isApplicationAssessInProgress}
+                    >
+                      {t("actions.assess")}
+                    </Button>
+                  </ToolbarItem>
+                </RBAC>
+                <RBAC
+                  allowedPermissions={legacyPathfinderRoles}
+                  rbacType={RBAC_TYPE.Role}
+                >
+                  <ToolbarItem>
+                    <Button
+                      type="button"
+                      aria-label="review-application"
+                      variant={ButtonVariant.primary}
+                      onClick={reviewSelectedRows}
+                      isDisabled={
+                        selectedRows.length !== 1 ||
+                        isReviewBtnDisabled(selectedRows[0])
+                      }
+                    >
+                      {t("actions.review")}
+                    </Button>
+                  </ToolbarItem>
+                </RBAC>
+                <RBAC
+                  rbacType={RBAC_TYPE.Role}
+                  allowedPermissions={writeScopes}
+                >
                   <ToolbarItem>
                     <KebabDropdown
                       dropdownItems={[

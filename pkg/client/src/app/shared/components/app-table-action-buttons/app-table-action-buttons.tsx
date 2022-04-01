@@ -1,8 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Button, Flex, FlexItem } from "@patternfly/react-core";
-import * as roles from "@app/roles";
-import { RBAC } from "@app/rbac";
+import { RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
 
 export interface AppTableActionButtonsProps {
   onEdit: () => void;
@@ -16,7 +15,7 @@ export const AppTableActionButtons: React.FC<AppTableActionButtonsProps> = ({
   const { t } = useTranslation();
 
   return (
-    <RBAC allowedRoles={roles.writeScopes}>
+    <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
       <Flex>
         <FlexItem align={{ default: "alignRight" }}>
           <Button aria-label="edit" variant="secondary" onClick={onEdit}>

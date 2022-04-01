@@ -1,4 +1,9 @@
-export const checkAccess = (userRoles: string[], roles: string[]) => {
-  const access = userRoles.some((role) => roles.includes(role));
+export const checkAccess = (
+  userPermissions: string[],
+  allowedPermissions: string[]
+) => {
+  const access = userPermissions.some((userPermission) =>
+    allowedPermissions.includes(userPermission)
+  );
   return access;
 };

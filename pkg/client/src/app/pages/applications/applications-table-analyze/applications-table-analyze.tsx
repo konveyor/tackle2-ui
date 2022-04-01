@@ -61,8 +61,7 @@ import { useSortState } from "@app/shared/hooks/useSortState";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import { useDeleteTaskMutation, useFetchTasks } from "@app/queries/tasks";
-import { RBAC } from "@app/rbac";
-import * as roles from "@app/roles";
+import { RBAC, RBAC_TYPE, taskWriteScopes, writeScopes } from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
 
@@ -326,7 +325,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         {
           title: (
             <div className="pf-c-inline-edit__action pf-m-enable-editable">
-              <RBAC allowedRoles={roles.writeScopes}>
+              <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
                 <Button
                   type="button"
                   variant="plain"
@@ -362,9 +361,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     }
 
     const actions: (IAction | ISeparator)[] = [];
-    //@ts-ignore
     const userScopes: string[] = token?.scope.split(" "),
-      access = userScopes && checkAccess(userScopes, roles.writeScopes);
+      access = userScopes && checkAccess(userScopes, writeScopes);
     if (access) {
       actions.push(
         {
@@ -499,7 +497,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           toolbarActions={
             <>
               <ToolbarGroup variant="button-group">
-                <RBAC allowedRoles={roles.writeScopes}>
+                <RBAC
+                  allowedPermissions={writeScopes}
+                  rbacType={RBAC_TYPE.Scope}
+                >
                   <ToolbarItem>
                     <Button
                       type="button"
@@ -511,7 +512,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                     </Button>
                   </ToolbarItem>
                 </RBAC>
-                <RBAC allowedRoles={roles.taskWriteScopes}>
+                <RBAC
+                  allowedPermissions={taskWriteScopes}
+                  rbacType={RBAC_TYPE.Scope}
+                >
                   <ToolbarItem>
                     <Button
                       type="button"
@@ -530,7 +534,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                 </RBAC>
                 <RBAC
                   key="import-applications"
-                  allowedRoles={roles.writeScopes}
+                  allowedPermissions={writeScopes}
+                  rbacType={RBAC_TYPE.Scope}
                 >
                   <ToolbarItem>
                     <KebabDropdown
