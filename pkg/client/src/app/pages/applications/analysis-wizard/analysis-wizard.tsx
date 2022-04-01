@@ -21,9 +21,9 @@ import { SetMode } from "./set-mode";
 import { SetOptions } from "./set-options";
 import { SetScope } from "./set-scope";
 import { SetTargets } from "./set-targets";
+import { useHasIdentity } from "@app/shared/hooks/useHasIdentity";
 
 import "./wizard.css";
-import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
 
 enum stepId {
   AnalysisMode = 1,
@@ -87,6 +87,8 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   const [isInitTasks, setInitTasks] = React.useState(false);
   const [createdTasks, setCreatedTasks] = React.useState<Array<Task>>([]);
 
+  const { hasIdentity, fetchIdentities } = useHasIdentity();
+
   const schema = yup
     .object({
       mode: yup.string().required(),
@@ -110,18 +112,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
   });
 
-  const { identities, fetchIdentities } = useFetchIdentities();
-
-  React.useEffect(() => {
-    fetchIdentities();
-  }, [fetchIdentities]);
-
-  const hasIdentity = (application: Application, kind: string): boolean =>
-    !!application.identities?.some((appIdentity) =>
-      identities?.find(
-        (identity) => appIdentity.id === identity.id && identity.kind === kind
-      )
-    );
+  React.useEffect(() => fetchIdentities(), [fetchIdentities]);
 
   const areApplicationsBinaryEnabled = (): boolean =>
     applications.every(
@@ -286,7 +277,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             />
           ),
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
-          enableNext: isModeValid(),
+          enableNext: true,
         },
         {
           id: stepId.SetTargets,

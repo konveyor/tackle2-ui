@@ -84,7 +84,8 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
         >
           <p>
             Some of the selected applications cannot be analyzed with the
-            selected source because those values have not been defined.
+            selected source because those values have not been defined. By
+            continuing, these applications won't be included in the analysis.
           </p>
         </Alert>
       )}
