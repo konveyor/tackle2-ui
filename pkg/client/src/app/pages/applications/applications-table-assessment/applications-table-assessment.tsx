@@ -83,6 +83,9 @@ import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
+import { legacyPathfinderRoles, RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
+import { checkAccess } from "@app/common/rbac-utils";
+import keycloak from "@app/keycloak";
 
 const ENTITY_FIELD = "entity";
 
@@ -98,6 +101,8 @@ const searchAppAssessment = (id: number) => {
 };
 
 export const ApplicationsTable: React.FC = () => {
+  //RBAC
+  const token = keycloak.tokenParsed;
   // i18
   const { t } = useTranslation();
 
@@ -339,13 +344,15 @@ export const ApplicationsTable: React.FC = () => {
         {
           title: (
             <div className="pf-c-inline-edit__action pf-m-enable-editable">
-              <Button
-                type="button"
-                variant="plain"
-                onClick={() => openUpdateApplicationModal(item)}
-              >
-                <PencilAltIcon />
-              </Button>
+              <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
+                <Button
+                  type="button"
+                  variant="plain"
+                  onClick={() => openUpdateApplicationModal(item)}
+                >
+                  <PencilAltIcon />
+                </Button>
+              </RBAC>
             </div>
           ),
         },
@@ -411,44 +418,47 @@ export const ApplicationsTable: React.FC = () => {
         },
       });
     }
-
-    actions.push(
-      {
-        title: t("actions.manageDependencies"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: Application = getRow(rowData);
-          openDependenciesModal(row);
+    const userScopes: string[] = token?.scope.split(" "),
+      access = userScopes && checkAccess(userScopes, writeScopes);
+    if (access) {
+      actions.push(
+        {
+          title: t("actions.manageDependencies"),
+          onClick: (
+            event: React.MouseEvent,
+            rowIndex: number,
+            rowData: IRowData
+          ) => {
+            const row: Application = getRow(rowData);
+            openDependenciesModal(row);
+          },
         },
-      },
-      {
-        title: "Manage credentials",
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: Application = getRow(rowData);
-          const applicationsList = [];
-          applicationsList.push(row);
-          openCredentialsModal(applicationsList);
+        {
+          title: "Manage credentials",
+          onClick: (
+            event: React.MouseEvent,
+            rowIndex: number,
+            rowData: IRowData
+          ) => {
+            const row: Application = getRow(rowData);
+            const applicationsList = [];
+            applicationsList.push(row);
+            openCredentialsModal(applicationsList);
+          },
         },
-      },
-      {
-        title: t("actions.delete"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: Application = getRow(rowData);
-          deleteRow(row);
-        },
-      }
-    );
+        {
+          title: t("actions.delete"),
+          onClick: (
+            event: React.MouseEvent,
+            rowIndex: number,
+            rowData: IRowData
+          ) => {
+            const row: Application = getRow(rowData);
+            deleteRow(row);
+          },
+        }
+      );
+    }
 
     return actions;
   };
@@ -674,74 +684,92 @@ export const ApplicationsTable: React.FC = () => {
             <>
               <ToolbarGroup variant="button-group">
                 <ToolbarItem>
-                  <Button
-                    type="button"
-                    aria-label="create-application"
-                    variant={ButtonVariant.primary}
-                    onClick={openCreateApplicationModal}
+                  <RBAC
+                    allowedPermissions={writeScopes}
+                    rbacType={RBAC_TYPE.Scope}
                   >
-                    {t("actions.createNew")}
-                  </Button>
+                    <Button
+                      type="button"
+                      aria-label="create-application"
+                      variant={ButtonVariant.primary}
+                      onClick={openCreateApplicationModal}
+                    >
+                      {t("actions.createNew")}
+                    </Button>
+                  </RBAC>
                 </ToolbarItem>
-                <ToolbarItem>
-                  <Button
-                    type="button"
-                    aria-label="assess-application"
-                    variant={ButtonVariant.primary}
-                    onClick={assessSelectedRows}
-                    isDisabled={
-                      selectedRows.length !== 1 || isApplicationAssessInProgress
-                    }
-                    isLoading={isApplicationAssessInProgress}
-                  >
-                    {t("actions.assess")}
-                  </Button>
-                </ToolbarItem>
-                <ToolbarItem>
-                  <Button
-                    type="button"
-                    aria-label="review-application"
-                    variant={ButtonVariant.primary}
-                    onClick={reviewSelectedRows}
-                    isDisabled={
-                      selectedRows.length !== 1 ||
-                      isReviewBtnDisabled(selectedRows[0])
-                    }
-                  >
-                    {t("actions.review")}
-                  </Button>
-                </ToolbarItem>
-                <ToolbarItem>
-                  <KebabDropdown
-                    dropdownItems={[
-                      <DropdownItem
-                        key="import-applications"
-                        component="button"
-                        onClick={() => setIsApplicationImportModalOpen(true)}
-                      >
-                        {t("actions.import")}
-                      </DropdownItem>,
-                      <DropdownItem
-                        key="manage-application-imports"
-                        onClick={() => {
-                          history.push(Paths.applicationsImports);
-                        }}
-                      >
-                        {t("actions.manageImports")}
-                      </DropdownItem>,
-                      <DropdownItem
-                        key="manage-application-credentials"
-                        isDisabled={selectedRows.length < 1}
-                        onClick={() => {
-                          debugger;
-                          openCredentialsModal(selectedRows);
-                        }}
-                      >
-                        {t("actions.manageCredentials")}
-                      </DropdownItem>,
-                    ]}
-                  />
-                </ToolbarItem>
+                <RBAC
+                  allowedPermissions={legacyPathfinderRoles}
+                  rbacType={RBAC_TYPE.Role}
+                >
+                  <ToolbarItem>
+                    <Button
+                      type="button"
+                      aria-label="assess-application"
+                      variant={ButtonVariant.primary}
+                      onClick={assessSelectedRows}
+                      isDisabled={
+                        selectedRows.length !== 1 ||
+                        isApplicationAssessInProgress
+                      }
+                      isLoading={isApplicationAssessInProgress}
+                    >
+                      {t("actions.assess")}
+                    </Button>
+                  </ToolbarItem>
+                </RBAC>
+                <RBAC
+                  allowedPermissions={legacyPathfinderRoles}
+                  rbacType={RBAC_TYPE.Role}
+                >
+                  <ToolbarItem>
+                    <Button
+                      type="button"
+                      aria-label="review-application"
+                      variant={ButtonVariant.primary}
+                      onClick={reviewSelectedRows}
+                      isDisabled={
+                        selectedRows.length !== 1 ||
+                        isReviewBtnDisabled(selectedRows[0])
+                      }
+                    >
+                      {t("actions.review")}
+                    </Button>
+                  </ToolbarItem>
+                </RBAC>
+                <RBAC
+                  rbacType={RBAC_TYPE.Role}
+                  allowedPermissions={writeScopes}
+                >
+                  <ToolbarItem>
+                    <KebabDropdown
+                      dropdownItems={[
+                        <DropdownItem
+                          key="import-applications"
+                          component="button"
+                          onClick={() => setIsApplicationImportModalOpen(true)}
+                        >
+                          {t("actions.import")}
+                        </DropdownItem>,
+                        <DropdownItem
+                          onClick={() => {
+                            history.push(Paths.applicationsImports);
+                          }}
+                        >
+                          {t("actions.manageImports")}
+                        </DropdownItem>,
+                        <DropdownItem
+                          isDisabled={selectedRows.length < 1}
+                          onClick={() => {
+                            openCredentialsModal(selectedRows);
+                          }}
+                        >
+                          {t("actions.manageCredentials")}
+                        </DropdownItem>,
+                      ]}
+                    />
+                  </ToolbarItem>
+                </RBAC>
               </ToolbarGroup>
             </>
           }

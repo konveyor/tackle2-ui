@@ -22,7 +22,6 @@ export const SSOMenu: React.FC = () => {
   const onDropdownToggle = (isOpen: boolean) => {
     setIsDropdownOpen(isOpen);
   };
-
   return (
     <PageHeaderToolsItem
       visibility={{
@@ -50,7 +49,12 @@ export const SSOMenu: React.FC = () => {
               >
                 {t("actions.manageAccount")}
               </DropdownItem>
-              <DropdownItem key="sso_logout" onClick={() => keycloak.logout()}>
+              <DropdownItem
+                key="sso_logout"
+                onClick={() => {
+                  keycloak.logout();
+                }}
+              >
                 {t("actions.logout")}
               </DropdownItem>
             </DropdownGroup>,

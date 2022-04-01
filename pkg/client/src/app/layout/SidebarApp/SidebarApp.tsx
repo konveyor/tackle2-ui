@@ -17,8 +17,14 @@ import DevIcon from "@patternfly/react-icons/dist/esm/icons/code-icon";
 import { Paths } from "@app/Paths";
 import { LayoutTheme } from "../LayoutUtils";
 import "./SidebarApp.css";
+import { checkAccess } from "@app/common/rbac-utils";
+import keycloak from "@app/keycloak";
 
 export const SidebarApp: React.FC = () => {
+  const token = keycloak.tokenParsed || undefined;
+  const userRoles = token?.realm_access?.roles,
+    adminAccess = userRoles && checkAccess(userRoles, ["tackle-admin"]);
+
   const { t } = useTranslation();
   const { search } = useLocation();
   const history = useHistory();
@@ -39,12 +45,16 @@ export const SidebarApp: React.FC = () => {
       value="Developer"
       isPlaceholder
     />,
-    <SelectOption
-      key="admin"
-      component="button"
-      onClick={onAdminClick}
-      value="Administrator"
-    />,
+    ...(adminAccess
+      ? [
+          <SelectOption
+            key="admin"
+            component="button"
+            onClick={onAdminClick}
+            value="Administrator"
+          />,
+        ]
+      : []),
   ];
 
   const [isOpen, setIsOpen] = React.useState(false);

@@ -8,6 +8,8 @@ import { RepositoriesMvn } from "./pages/repositories/Mvn";
 import { RepositoriesSvn } from "./pages/repositories/Svn";
 import { Paths } from "@app/Paths";
 import { ApplicationAssessment } from "./pages/applications/application-assessment/application-assessment";
+import { RouteWrapper } from "./common/RouteWrapper";
+import { adminRoles, devRoles } from "./rbac";
 
 const Applications = lazy(() => import("./pages/applications"));
 const ManageImports = lazy(() => import("./pages/applications/manage-imports"));
@@ -89,16 +91,25 @@ export const adminRoutes: IRoute[] = [
   },
   { component: Proxies, path: "/proxies", exact: false },
 ];
-
 export const AppRoutes = () => {
   return (
     <Suspense fallback={<AppPlaceholder />}>
       <Switch>
         {devRoutes.map(({ ...props }, index) => (
-          <Route key={index} {...props} />
+          <RouteWrapper
+            comp={props.component}
+            key={index}
+            roles={devRoles}
+            {...props}
+          />
         ))}
         {adminRoutes.map(({ ...props }, index) => (
-          <Route key={index} {...props} />
+          <RouteWrapper
+            comp={props.component}
+            key={index}
+            roles={adminRoles}
+            {...props}
+          />
         ))}
         <Redirect from="/" to="/applications" exact />
       </Switch>
