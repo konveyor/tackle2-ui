@@ -3,6 +3,11 @@ import ReactDOM from "react-dom";
 import App from "@app/App";
 import reportWebVitals from "@app/reportWebVitals";
 import { Provider } from "react-redux";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
+
+import reportWebVitals from "@app/reportWebVitals";
+import App from "@app/App";
 import configureStore from "@app/store";
 import i18n from "@app/i18n";
 import { NinjaErrorBoundary } from "@app/ninja-error-boundary";

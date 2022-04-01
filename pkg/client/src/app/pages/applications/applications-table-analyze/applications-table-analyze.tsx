@@ -61,13 +61,10 @@ import { useSortState } from "@app/shared/hooks/useSortState";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import { useDeleteTaskMutation, useFetchTasks } from "@app/queries/tasks";
-<<<<<<< HEAD
 import { RBAC, RBAC_TYPE, taskWriteScopes, writeScopes } from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
-=======
 import { useFetchApplications } from "@app/queries/applications";
->>>>>>> acf24de (Applications analysis table: use react query)
 
 const ENTITY_FIELD = "entity";
 
