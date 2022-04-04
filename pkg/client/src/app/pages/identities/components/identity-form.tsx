@@ -24,9 +24,11 @@ import {
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
 import schema from "./schema.xsd";
-import "./identity-form.css";
+import { toOptionLike } from "@app/utils/model-utils";
 const xmllint = require("xmllint");
 const { XMLValidator } = require("fast-xml-parser");
+
+import "./identity-form.css";
 
 export interface IdentityFormProps {
   identity?: Identity;
@@ -128,34 +130,82 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     kind: string().required(),
     settings: string().when("kind", {
       is: "maven",
-      then: string().required("Must upload xml settings file"),
+      then: string().test({
+        name: "xml-validation",
+        test: function (value) {
+          if (value) {
+            const validationObject = XMLValidator.validate(value, {
+              allowBooleanAttributes: true,
+            });
+
+            //if xml is valid, check against schema
+            if (validationObject === true) {
+              const currentSchema = schema;
+
+              const validationResult = xmllint.xmllint.validateXML({
+                xml: value,
+                schema: currentSchema,
+              });
+
+              if (!validationResult.errors) {
+                //valid against  schema
+                return true;
+              } else {
+                //not valid against  schema
+                return this.createError({
+                  message: validationResult?.errors?.toString(),
+                  path: "settings",
+                });
+              }
+            } else {
+              return this.createError({
+                message: validationObject?.err?.msg?.toString(),
+                path: "settings",
+              });
+            }
+          } else {
+            return false;
+          }
+        },
+      }),
     }),
     user: string()
       .when("kind", {
         is: "proxy",
-        then: string().required("This value is required"),
+        then: string()
+          .required("This value is required")
+          .min(3, t("validation.minLength", { length: 3 }))
+          .max(120, t("validation.maxLength", { length: 120 })),
+
         otherwise: (schema) => schema.trim(),
       })
       .when(["kind", "userCredentials"], {
         is: (kind: string, userCredentials: string) =>
           kind === "source" && userCredentials === "userpass",
-        then: (schema) => schema.required("This field is required."),
-      })
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 })),
+        then: (schema) =>
+          schema
+            .required("This field is required.")
+            .min(3, t("validation.minLength", { length: 3 }))
+            .max(120, t("validation.maxLength", { length: 120 })),
+      }),
     password: string()
       .when("kind", {
         is: "proxy",
-        then: string().required("This value is required"),
+        then: string()
+          .required("This value is required")
+          .min(3, t("validation.minLength", { length: 3 }))
+          .max(120, t("validation.maxLength", { length: 120 })),
         otherwise: (schema) => schema.trim(),
       })
       .when(["kind", "userCredentials"], {
         is: (kind: string, userCredentials: string) =>
           kind === "source" && userCredentials === "userpass",
-        then: (schema) => schema.required("This field is required."),
-      })
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 })),
+        then: (schema) =>
+          schema
+            .required("This field is required.")
+            .min(3, t("validation.minLength", { length: 3 }))
+            .max(120, t("validation.maxLength", { length: 120 })),
+      }),
     key: string().when(["kind", "userCredentials"], {
       is: (kind: string, userCredentials: string) =>
         kind === "source" && userCredentials === "source",
@@ -207,45 +257,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     setIsFileRejected(true);
   };
 
-  const validateXML = (value: string | File, filename: string) => {
-    const validationObject = XMLValidator.validate(value, {
-      allowBooleanAttributes: true,
-    });
-
-    if (validationObject === true) {
-      validateAgainstSchema(value);
-      setValue("settings", value);
-      setValue("settingsFilename", filename);
-    } else {
-      setIsSettingsFileRejected(true);
-      setValue("settings", value);
-      setValue("settingsFilename", filename);
-      setError("settings", {
-        type: "custom",
-        message: validationObject?.err?.msg?.toString(),
-      });
-    }
-  };
-
-  const validateAgainstSchema = (value: string | File) => {
-    const currentSchema = schema;
-
-    const validationResult = xmllint.xmllint.validateXML({
-      xml: value,
-      schema: currentSchema,
-    });
-
-    if (!validationResult.errors) {
-      setIsSettingsFileRejected(false);
-    } else {
-      setIsSettingsFileRejected(true);
-      setError("settings", {
-        type: "custom",
-        message: validationResult?.errors?.toString(),
-      });
-    }
-  };
-
   const watchAllFields = watch();
 
   const userCredentialsOptions = [
@@ -274,9 +285,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     },
   ];
 
-  const toOptionLike = (value: string, options: OptionWithValue[]) => {
-    return options.find((option) => option.value === value);
-  };
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       {axiosError && (
@@ -531,22 +539,21 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             label={"Upload your Settings file or paste its contents below."}
             isRequired={values.kind === "maven"}
             validated={getValidatedFromError(errors.settings)}
-            helperTextInvalid={errors?.settings?.message}
+            helperTextInvalid={!isLoading && errors?.settings?.message}
           >
             <Controller
               control={control}
-              name="key"
-              render={({ field: { value, name } }) => (
+              name="settings"
+              render={({ field: { onChange, value, name } }) => (
                 <FileUpload
                   id="file"
                   name={name}
                   type="text"
                   value={value && "[Encrypted]"}
                   filename={values.settingsFilename}
-                  onChange={(value, filename) => {
-                    if (value) {
-                      validateXML(value, filename);
-                    }
+                  onChange={(fileContents, fileName, event) => {
+                    onChange(fileContents);
+                    setValue("settingsFilename", fileName);
                   }}
                   dropzoneProps={{
                     accept: ".xml",
