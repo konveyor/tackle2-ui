@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
 import { object, string } from "yup";
@@ -12,7 +12,7 @@ import {
   FormGroup,
   TextInput,
 } from "@patternfly/react-core";
-import { FieldValues, useForm, Controller, useWatch } from "react-hook-form";
+import { FieldValues, useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
@@ -164,19 +164,11 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const {
     register,
     handleSubmit,
-    formState: {
-      errors,
-      touchedFields,
-      isSubmitting,
-      isValidating,
-      isValid,
-      isDirty,
-    },
+    formState: { errors, isSubmitting, isValidating, isValid, isDirty },
     getValues,
     setValue,
     setError,
     control,
-    reset,
     resetField,
     watch,
   } = useForm({
@@ -303,7 +295,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           name="name"
           render={({
             field: { onChange, onBlur, value, name, ref },
-            fieldState: { invalid, isTouched, isDirty, error },
+            fieldState: { isTouched, error },
             formState,
           }) => (
             <TextInput
@@ -358,11 +350,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         <Controller
           control={control}
           name="kind"
-          render={({
-            field: { onChange, onBlur, value, name, ref },
-            fieldState: { invalid, isTouched, isDirty, error },
-            formState,
-          }) => (
+          render={({ field: { value, name } }) => (
             <SimpleSelect
               aria-label={name}
               value={value ? toOptionLike(value, kindOptions) : undefined}
@@ -389,11 +377,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             <Controller
               control={control}
               name="userCredentials"
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { invalid, isTouched, isDirty, error },
-                formState,
-              }) => (
+              render={({ field: { value, name } }) => (
                 <SimpleSelect
                   aria-label={name}
                   value={
@@ -424,8 +408,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   name="user"
                   render={({
                     field: { onChange, onBlur, value, name, ref },
-                    fieldState: { invalid, isTouched, isDirty, error },
-                    formState,
+                    fieldState: { isTouched, error },
                   }) => (
                     <TextInput
                       type="text"
@@ -453,8 +436,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   name="password"
                   render={({
                     field: { onChange, onBlur, value, name, ref },
-                    fieldState: { invalid, isTouched, isDirty, error },
-                    formState,
+                    fieldState: { isTouched, error },
                   }) => (
                     <TextInput
                       type="password"
@@ -486,11 +468,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 <Controller
                   control={control}
                   name="key"
-                  render={({
-                    field: { onChange, onBlur, value, name, ref },
-                    fieldState: { invalid, isTouched, isDirty, error },
-                    formState,
-                  }) => (
+                  render={({ field: { value, name } }) => (
                     <FileUpload
                       id="file"
                       name={name}
@@ -526,11 +504,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 <Controller
                   control={control}
                   name="password"
-                  render={({
-                    field: { onChange, onBlur, value, name, ref },
-                    fieldState: { invalid, isTouched, isDirty, error },
-                    formState,
-                  }) => (
+                  render={({ field: { onChange, onBlur, value, name } }) => (
                     <TextInput
                       type="password"
                       name={name}
@@ -559,16 +533,12 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             <Controller
               control={control}
               name="key"
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { invalid, isTouched, isDirty, error },
-                formState,
-              }) => (
+              render={({ field: { value, name } }) => (
                 <FileUpload
                   id="file"
-                  name="settings"
+                  name={name}
                   type="text"
-                  value={values.settings && "[Encrypted]"}
+                  value={value && "[Encrypted]"}
                   filename={values.settingsFilename}
                   onChange={(value, filename) => {
                     if (value) {
@@ -614,9 +584,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               control={control}
               name="user"
               render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { invalid, isTouched, isDirty, error },
-                formState,
+                field: { onChange, onBlur, value },
+                fieldState: { isTouched, error },
               }) => (
                 <TextInput
                   type="text"
@@ -644,8 +613,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               name="password"
               render={({
                 field: { onChange, onBlur, value, name, ref },
-                fieldState: { invalid, isTouched, isDirty, error },
-                formState,
+                fieldState: { isTouched, error },
               }) => (
                 <TextInput
                   type="password"
