@@ -196,7 +196,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     }
 
     closeApplicationModal();
-    // refreshTable();
   };
 
   // Delete
@@ -410,7 +409,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             row,
             () => {
               dispatch(confirmDialogActions.closeDialog());
-              // refreshTable();
             },
             (error) => {
               dispatch(confirmDialogActions.closeDialog());
@@ -425,14 +423,12 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const cancelAnalysis = (row: Application) => {
     const task = tasks.find((task) => task.application.id === row.id);
     if (task) deleteTask(task.id);
-    // refreshTable();
   };
 
   const handleOnApplicationIdentityUpdated = (
     response: AxiosResponse<Application>
   ) => {
     closeCredentialsModal();
-    // refreshTable();
   };
 
   const isAnalyzingAllowed = () => {
@@ -584,7 +580,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           applications={selectedRows}
           onClose={() => {
             setAnalyzeModalOpen(false);
-            // refreshTable();
           }}
         />
       )}
@@ -614,7 +609,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         <ImportApplicationsForm
           onSaved={() => {
             setIsApplicationImportModalOpen(false);
-            // refreshTable();
           }}
         />
       </Modal>
