@@ -13,7 +13,7 @@ export interface OptionWithValue<T = string> extends SelectOptionObject {
   props?: Partial<SelectOptionProps>; // Extra props for <SelectOption>, e.g. children, className
 }
 
-export type OptionLike = string | SelectOptionObject | OptionWithValue;
+type OptionLike = string | SelectOptionObject | OptionWithValue;
 
 export interface ISimpleSelectProps
   extends Omit<
@@ -41,7 +41,7 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
       placeholderText={placeholderText}
       isOpen={isOpen}
       onToggle={setIsOpen}
-      onSelect={(_, selection: OptionLike) => {
+      onSelect={(_, selection) => {
         onChange(selection);
         if (props.variant !== "checkbox") {
           setIsOpen(false);

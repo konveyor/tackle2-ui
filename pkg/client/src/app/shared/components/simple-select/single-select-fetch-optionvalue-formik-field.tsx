@@ -37,9 +37,6 @@ export const SingleSelectFetchOptionValueFormikField = <T extends any>({
         if (clearFieldsCallback) {
           clearFieldsCallback();
         }
-        // clearFields?.forEach(field=>{
-        //   helpers.setFieldValue(field)
-        // })
       }}
       {...selectConfig}
     />
