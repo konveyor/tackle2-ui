@@ -11,5 +11,4 @@ const config: KeycloakConfig = {
 };
 
 const keycloak = Keycloak(config);
-
 export default keycloak;

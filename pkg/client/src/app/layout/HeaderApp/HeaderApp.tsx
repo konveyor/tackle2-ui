@@ -19,6 +19,7 @@ import navBrandImage from "@app/images/tackle.png";
 import imgAvatar from "@app/images/avatar.svg";
 
 export const HeaderApp: React.FC = () => {
+  const isAuthRequired = process.env["AUTH_REQUIRED"] === "true";
   const toolbar = (
     <PageHeaderTools>
       <PageHeaderToolsGroup
@@ -56,7 +57,7 @@ export const HeaderApp: React.FC = () => {
         >
           <MobileDropdown />
         </PageHeaderToolsItem>
-        <SSOMenu />
+        {isAuthRequired && <SSOMenu />}
       </PageHeaderToolsGroup>
       <Avatar src={imgAvatar} alt="Avatar image" />
     </PageHeaderTools>

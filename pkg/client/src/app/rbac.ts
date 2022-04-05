@@ -10,16 +10,21 @@ export const RBAC = ({
   rbacType,
   children,
 }: IRBACProps) => {
-  const token = keycloak.tokenParsed || undefined;
-  if (rbacType === RBAC_TYPE.Role) {
-    let userRoles = token?.realm_access?.roles,
-      access = userRoles && checkAccess(userRoles, allowedPermissions);
-    return access && children;
-  } else if (rbacType === RBAC_TYPE.Scope) {
-    const userScopes: string[] = token?.scope.split(" ");
-    const access = userScopes && checkAccess(userScopes, allowedPermissions);
+  const isAuthRequired = process.env["AUTH_REQUIRED"] === "true";
+  if (isAuthRequired) {
+    const token = keycloak.tokenParsed || undefined;
+    if (rbacType === RBAC_TYPE.Role) {
+      let userRoles = token?.realm_access?.roles,
+        access = userRoles && checkAccess(userRoles, allowedPermissions);
+      return access && children;
+    } else if (rbacType === RBAC_TYPE.Scope) {
+      const userScopes: string[] = token?.scope.split(" ");
+      const access = userScopes && checkAccess(userScopes, allowedPermissions);
 
-    return access && children;
+      return access && children;
+    }
+  } else {
+    return children;
   }
 };
 
