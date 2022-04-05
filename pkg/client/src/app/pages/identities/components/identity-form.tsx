@@ -1,13 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import {
-  useFormik,
-  FormikProvider,
-  FormikHelpers,
-  useField,
-  yupToFormErrors,
-} from "formik";
 import { object, string } from "yup";
 import {
   ActionGroup,
@@ -19,12 +12,10 @@ import {
   FormGroup,
   TextInput,
 } from "@patternfly/react-core";
+import { FieldValues, useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
-import {
-  OptionWithValue,
-  SingleSelectFetchOptionValueFormikField,
-} from "@app/shared/components";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { createIdentity, updateIdentity } from "@app/api/rest";
 import { Identity } from "@app/api/models";
 import {
@@ -33,28 +24,11 @@ import {
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
 import schema from "./schema.xsd";
-import "./identity-form.css";
+import { toOptionLike } from "@app/utils/model-utils";
 const xmllint = require("xmllint");
 const { XMLValidator } = require("fast-xml-parser");
 
-export interface FormValues {
-  application: number;
-  createTime: string;
-  createUser: string;
-  description: string;
-  encrypted: string;
-  id: number;
-  key: string;
-  kind: OptionWithValue<"" | string>;
-  name: string;
-  password: string;
-  settings: string;
-  updateUser: string;
-  user: string;
-  userCredentials: OptionWithValue<"" | string>;
-  keyFilename: string;
-  settingsFilename: string;
-}
+import "./identity-form.css";
 
 export interface IdentityFormProps {
   identity?: Identity;
@@ -63,81 +37,88 @@ export interface IdentityFormProps {
 }
 
 export const IdentityForm: React.FC<IdentityFormProps> = ({
-  identity,
+  identity: initialIdentity,
   onSaved,
   onCancel,
 }) => {
   const { t } = useTranslation();
 
-  const [error, setError] = useState<AxiosError>();
+  const [axiosError, setAxiosError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
+  const [identity, setIdentity] = useState(initialIdentity);
+  useEffect(() => {
+    setIdentity(initialIdentity);
+    return () => {
+      setIdentity(undefined);
+    };
+  }, []);
 
-  const getUserCredentialsInitialValue = (
-    value: string,
-    identity: Identity
-  ) => {
-    switch (value) {
-      case "source": {
-        if (identity.user) {
-          return { value: "userpass", toString: () => "Username/Password" };
-        } else {
-          return {
-            value: "source",
-            toString: () => "SCM Private Key/Passphrase",
-          };
-        }
-      }
-      default:
-        return { value: "", toString: () => "" };
+  const getUserCredentialsInitialValue = (identity?: Identity) => {
+    if (identity?.kind === "source" && identity?.user && identity?.password) {
+      return "userpass";
+    } else if (identity?.kind === "source") {
+      return "source";
+    } else {
+      return "";
     }
   };
-  const getKindInitialValue = (value: string) => {
-    switch (value) {
-      case "proxy": {
-        return { value: value, toString: () => "Proxy" };
-      }
-      case "scm": {
-        return { value: value, toString: () => "Source Control" };
-      }
-      case "maven": {
-        return { value: value, toString: () => "Maven Settings File" };
-      }
-      default:
-        return { value: "", toString: () => "" };
+
+  const onSubmit = (formValues: FieldValues) => {
+    const payload: Identity = {
+      name: formValues.name.trim(),
+      description: formValues.description.trim(),
+      id: formValues.id,
+      kind: formValues.kind.trim(),
+      //proxy cred
+      ...(formValues.kind === "proxy" && {
+        password: formValues.password.trim(),
+        user: formValues.user.trim(),
+        key: "",
+        settings: "",
+      }),
+      // mvn cred
+      ...(formValues.kind === "maven" && {
+        settings: formValues.settings.trim(),
+        key: "",
+        password: "",
+        user: "",
+      }),
+      //source credentials with key
+      ...(formValues.kind === "source" &&
+        formValues.userCredentials === "source" && {
+          key: formValues.key.trim(),
+          password: formValues.password.trim(),
+          settings: "",
+          user: "",
+        }),
+      //source credentials with unamepass
+      ...(formValues.kind === "source" &&
+        formValues.userCredentials === "userpass" && {
+          password: formValues.password.trim(),
+          user: formValues.user.trim(),
+          key: "",
+          settings: "",
+        }),
+    };
+
+    let promise: AxiosPromise<Identity>;
+    if (identity) {
+      promise = updateIdentity({
+        ...payload,
+      });
+    } else {
+      promise = createIdentity(payload);
     }
-  };
-  const kindInitialValue = useMemo(() => {
-    return identity?.kind
-      ? getKindInitialValue(identity.kind)
-      : { value: "", toString: () => "" };
-  }, [identity]);
-
-  const userCredentialsInitialValue = useMemo(() => {
-    return identity && identity.kind
-      ? getUserCredentialsInitialValue(identity.kind, identity)
-      : { value: "", toString: () => "" };
-  }, [identity]);
-
-  const initialValues: FormValues = {
-    application: 0,
-    createTime: "",
-    createUser: identity?.createUser || "",
-    description: identity?.description || "",
-    encrypted: identity?.encrypted || "",
-    id: identity?.id || 0,
-    key: identity?.key || "",
-    kind: kindInitialValue,
-    userCredentials: userCredentialsInitialValue,
-    name: identity?.name || "",
-    password: identity?.password || "",
-    settings: identity?.encrypted ? "[Encrypted]" : "",
-    updateUser: identity?.updateUser || "",
-    user: identity?.user || "",
-    keyFilename: "",
-    settingsFilename: identity?.settings || "",
+    promise
+      .then((response) => {
+        onSaved(response);
+      })
+      .catch((error) => {
+        setAxiosError(error);
+      });
   };
 
-  const validationSchema = object({
+  const validationSchema = object().shape({
     name: string()
       .trim()
       .required(t("validation.required"))
@@ -146,61 +127,128 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     description: string()
       .trim()
       .max(250, t("validation.maxLength", { length: 250 })),
-    kind: object().shape({
-      value: string().min(1, "value required").required(),
-      toString: object().required(),
-    }),
-    settings: string().when("kind.value", {
+    kind: string().required(),
+    settings: string().when("kind", {
       is: "maven",
-      then: string().required("Must upload xml settings file"),
+      then: string().test({
+        name: "xml-validation",
+        test: function (value) {
+          if (value) {
+            const validationObject = XMLValidator.validate(value, {
+              allowBooleanAttributes: true,
+            });
+
+            //if xml is valid, check against schema
+            if (validationObject === true) {
+              const currentSchema = schema;
+
+              const validationResult = xmllint.xmllint.validateXML({
+                xml: value,
+                schema: currentSchema,
+              });
+
+              if (!validationResult.errors) {
+                //valid against  schema
+                return true;
+              } else {
+                //not valid against  schema
+                return this.createError({
+                  message: validationResult?.errors?.toString(),
+                  path: "settings",
+                });
+              }
+            } else {
+              return this.createError({
+                message: validationObject?.err?.msg?.toString(),
+                path: "settings",
+              });
+            }
+          } else {
+            return false;
+          }
+        },
+      }),
+    }),
+    user: string()
+      .when("kind", {
+        is: "proxy",
+        then: string()
+          .required("This value is required")
+          .min(3, t("validation.minLength", { length: 3 }))
+          .max(120, t("validation.maxLength", { length: 120 })),
+
+        otherwise: (schema) => schema.trim(),
+      })
+      .when(["kind", "userCredentials"], {
+        is: (kind: string, userCredentials: string) =>
+          kind === "source" && userCredentials === "userpass",
+        then: (schema) =>
+          schema
+            .required("This field is required.")
+            .min(3, t("validation.minLength", { length: 3 }))
+            .max(120, t("validation.maxLength", { length: 120 })),
+      }),
+    password: string()
+      .when("kind", {
+        is: "proxy",
+        then: string()
+          .required("This value is required")
+          .min(3, t("validation.minLength", { length: 3 }))
+          .max(120, t("validation.maxLength", { length: 120 })),
+        otherwise: (schema) => schema.trim(),
+      })
+      .when(["kind", "userCredentials"], {
+        is: (kind: string, userCredentials: string) =>
+          kind === "source" && userCredentials === "userpass",
+        then: (schema) =>
+          schema
+            .required("This field is required.")
+            .min(3, t("validation.minLength", { length: 3 }))
+            .max(120, t("validation.maxLength", { length: 120 })),
+      }),
+    key: string().when(["kind", "userCredentials"], {
+      is: (kind: string, userCredentials: string) =>
+        kind === "source" && userCredentials === "source",
+      then: (schema) => schema.required("This field is required."),
+      otherwise: (schema) => schema.trim(),
     }),
   });
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
-    const payload: Identity = {
-      name: formValues.name.trim(),
-      description: formValues.description.trim(),
-      id: formValues.id,
-      kind: formValues.kind.value.trim(),
-      createUser: formValues.createUser.trim(),
-      encrypted: formValues.encrypted.trim(),
-      settings: formValues.settings.trim(),
-      password: formValues.password.trim(),
-      user: formValues.user.trim(),
-    };
-
-    let promise: AxiosPromise<Identity>;
-    if (identity) {
-      promise = updateIdentity({
-        ...identity,
-        ...payload,
-      });
-    } else {
-      promise = createIdentity(payload);
-    }
-    promise
-      .then((response) => {
-        formikHelpers.setSubmitting(false);
-        onSaved(response);
-      })
-      .catch((error) => {
-        formikHelpers.setSubmitting(false);
-        setError(error);
-      });
-  };
-
-  const formik = useFormik({
-    initialValues: initialValues,
-    validationSchema: validationSchema,
-    onSubmit: onSubmit,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValidating, isValid, isDirty },
+    getValues,
+    setValue,
+    setError,
+    control,
+    resetField,
+    watch,
+  } = useForm({
+    defaultValues: {
+      application: 0,
+      createTime: "",
+      createUser: identity?.createUser || "",
+      description: identity?.description || "",
+      encrypted: identity?.encrypted || "",
+      id: identity?.id || 0,
+      key: identity?.key || "",
+      keyFilename: "",
+      kind: identity?.kind || "",
+      userCredentials: identity?.kind
+        ? getUserCredentialsInitialValue({ ...identity })
+        : "",
+      name: identity?.name || "",
+      password: identity?.password || "",
+      settings: identity?.settings || "",
+      settingsFilename: "",
+      updateUser: identity?.updateUser || "",
+      user: identity?.user || "",
+    },
+    resolver: yupResolver(validationSchema),
+    mode: "onChange",
   });
-
-  const onChangeField = (value: string, event: React.FormEvent<any>) => {
-    formik.handleChange(event);
-  };
+  const values = getValues();
 
   const [isFileRejected, setIsFileRejected] = useState(false);
   const [isSettingsFileRejected, setIsSettingsFileRejected] = useState(false);
@@ -208,440 +256,413 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const handleFileRejected = () => {
     setIsFileRejected(true);
   };
-  const handleFileInputChange = (
-    event: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLElement>,
-    file: File,
-    fieldName: string,
-    fieldFileName: string
-  ) => {
-    formik.handleChange(event);
-    formik.setFieldValue(fieldName, file);
-    formik.setFieldValue(fieldFileName, file.name);
-  };
-  const handleTextOrDataChange = (value: string, fieldName: string) => {
-    formik.setFieldValue(fieldName, value);
-  };
 
-  const handleFileReadStarted = () => setIsLoading(true);
-  const handleFileReadFinished = () => setIsLoading(false);
+  const watchAllFields = watch();
 
-  const validateXML = (value: string | File, filename: string) => {
-    const validationObject = XMLValidator.validate(value, {
-      allowBooleanAttributes: true,
-    });
+  const userCredentialsOptions = [
+    {
+      value: "userpass",
+      toString: () => `Username/Password`,
+    },
+    {
+      value: "source",
+      toString: () => `Source Private Key/Passphrase`,
+    },
+  ];
 
-    if (validationObject === true) {
-      validateAgainstSchema(value);
-    } else {
-      setIsSettingsFileRejected(true);
-      formik.setFieldError("settings", validationObject.err?.msg);
-    }
-    formik.setFieldValue("settings", value);
-    formik.setFieldValue("settingsFilename", filename); // }
-  };
+  const kindOptions = [
+    {
+      value: "source",
+      toString: () => `Source Control`,
+    },
+    {
+      value: "maven",
+      toString: () => `Maven Settings File`,
+    },
+    {
+      value: "proxy",
+      toString: () => `Proxy`,
+    },
+  ];
 
-  const validateAgainstSchema = (value: string | File) => {
-    const currentSchema = schema;
-
-    const validationResult = xmllint.xmllint.validateXML({
-      xml: value,
-      schema: currentSchema,
-    });
-
-    if (!validationResult.errors) {
-      setIsSettingsFileRejected(false);
-    } else {
-      setIsSettingsFileRejected(true);
-      formik.setFieldError("settings", validationResult?.errors);
-    }
-  };
   return (
-    <FormikProvider value={formik}>
-      <Form onSubmit={formik.handleSubmit}>
-        {error && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(error)}
-          />
-        )}
-        <FormGroup
-          label="Name"
-          fieldId="name"
-          isRequired={true}
-          validated={getValidatedFromError(formik.errors.name)}
-          helperTextInvalid={formik.errors.name}
-        >
-          <TextInput
-            type="text"
-            name="name"
-            aria-label="name"
-            aria-describedby="name"
-            isRequired={true}
-            onChange={onChangeField}
-            onBlur={formik.handleBlur}
-            value={formik.values.name}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.name,
-              formik.touched.name
-            )}
-          />
-        </FormGroup>
-        <FormGroup
-          label="Description"
-          fieldId="description"
-          isRequired={false}
-          validated={getValidatedFromError(formik.errors.description)}
-          helperTextInvalid={formik.errors.description}
-        >
-          <TextInput
-            type="text"
-            name="description"
-            aria-label="description"
-            aria-describedby="description"
-            isRequired={true}
-            onChange={onChangeField}
-            onBlur={formik.handleBlur}
-            value={formik.values.description}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.description,
-              formik.touched.description
-            )}
-          />
-        </FormGroup>
-        <FormGroup
-          label="Type"
-          fieldId="type"
-          isRequired={true}
-          validated={formik.errors.kind && "error"}
-          helperTextInvalid={formik.errors.kind && "This field is required"}
-        >
-          <SingleSelectFetchOptionValueFormikField
-            fieldConfig={{ name: "kind" }}
-            selectConfig={{
-              variant: "typeahead",
-              "aria-label": "type",
-              "aria-describedby": "type",
-              typeAheadAriaLabel: "type",
-              toggleAriaLabel: "type",
-              clearSelectionsAriaLabel: "type",
-              removeSelectionAriaLabel: "type",
-              placeholderText: "Select identity type",
-              menuAppendTo: () => document.body,
-              maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-              fetchError: undefined,
-              isFetching: false,
-            }}
-            options={[
-              {
-                value: "source",
-                toString: () => `Source Control`,
-              },
-              {
-                value: "maven",
-                toString: () => `Maven Settings File`,
-              },
-              {
-                value: "proxy",
-                toString: () => `Proxy`,
-              },
-            ]}
-            toOptionWithValue={(value) => {
-              return {
-                value,
-                toString: () => value.toString(),
-              };
-            }}
-          />
-        </FormGroup>
-        {formik.values?.kind?.value === "source" && (
-          <>
-            <FormGroup
-              label="User credentials"
-              isRequired
-              fieldId="userCredentials"
-            >
-              <SingleSelectFetchOptionValueFormikField
-                fieldConfig={{ name: "userCredentials" }}
-                selectConfig={{
-                  variant: "typeahead",
-                  "aria-label": "userCredentials",
-                  "aria-describedby": "userCredentials",
-                  typeAheadAriaLabel: "userCredentials",
-                  toggleAriaLabel: "userCredentials",
-                  clearSelectionsAriaLabel: "userCredentials",
-                  removeSelectionAriaLabel: "userCredentials",
-                  placeholderText: "",
-                  menuAppendTo: () => document.body,
-                  maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-                  fetchError: undefined,
-                  isFetching: false,
-                }}
-                options={[
-                  {
-                    value: "userpass",
-                    toString: () => `Username/Password`,
-                  },
-                  {
-                    value: "scm",
-                    toString: () => `Source Private Key/Passphrase`,
-                  },
-                ]}
-                toOptionWithValue={(value) => {
-                  return {
-                    value,
-                    toString: () => value.toString(),
-                  };
-                }}
-              />
-            </FormGroup>
-            {formik.values?.userCredentials.value === "userpass" && (
-              <>
-                <FormGroup
-                  label="Username"
-                  fieldId="user"
-                  isRequired={true}
-                  validated={getValidatedFromError(formik.errors.user)}
-                  helperTextInvalid={formik.errors.user}
-                >
-                  <TextInput
-                    type="text"
-                    name="user"
-                    aria-label="user"
-                    aria-describedby="user"
-                    isRequired={true}
-                    onChange={onChangeField}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.user}
-                    validated={getValidatedFromErrorTouched(
-                      formik.errors.user,
-                      formik.touched.user
-                    )}
-                  />
-                </FormGroup>
-                <FormGroup
-                  label="Password"
-                  fieldId="password"
-                  isRequired={true}
-                  validated={getValidatedFromError(formik.errors.password)}
-                  helperTextInvalid={formik.errors.password}
-                >
-                  <TextInput
-                    type="password"
-                    name="password"
-                    aria-label="password"
-                    aria-describedby="password"
-                    isRequired={true}
-                    onChange={onChangeField}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.password}
-                    validated={getValidatedFromErrorTouched(
-                      formik.errors.password,
-                      formik.touched.password
-                    )}
-                  />
-                </FormGroup>
-              </>
-            )}
-            {formik.values?.userCredentials.value === "source" && (
-              <>
-                <FormGroup
-                  fieldId="key"
-                  label={
-                    "Upload your [SCM Private Key] file or paste its contents below."
-                  }
-                  helperTextInvalid="You should select a private key file."
-                  //TODO: PKI crypto validation
-                  // validated={isFileRejected ? "error" : "default"}
-                >
-                  <FileUpload
-                    id="file"
-                    name="file"
-                    type="text"
-                    value={formik.values.key}
-                    filename={formik.values.keyFilename}
-                    onChange={(value, filename) => {
-                      formik.setFieldValue("key", value);
-                      formik.setFieldValue("keyFilename", filename);
-                    }}
-                    dropzoneProps={{
-                      // accept: ".csv",
-                      //TODO: key file extention types
-                      onDropRejected: handleFileRejected,
-                    }}
-                    validated={isFileRejected ? "error" : "default"}
-                    filenamePlaceholder="Drag and drop a file or upload one"
-                    onFileInputChange={(event, file) =>
-                      handleFileInputChange(event, file, "keyFilename", "key")
-                    }
-                    onDataChange={(data) => handleTextOrDataChange(data, "key")}
-                    onClearClick={() => {
-                      formik.setFieldValue("key", "");
-                      formik.setFieldValue("keyFilename", "");
-                    }}
-                    onTextChange={(text) => {
-                      handleTextOrDataChange(text, "key");
-                    }}
-                    onReadStarted={handleFileReadStarted}
-                    onReadFinished={handleFileReadFinished}
-                    allowEditingUploadedText
-                    browseButtonText="Upload"
-                  />
-                </FormGroup>
-                <FormGroup
-                  label="Private Key Passphrase"
-                  fieldId="password"
-                  isRequired={false}
-                  validated={getValidatedFromError(formik.errors.password)}
-                  helperTextInvalid={formik.errors.password}
-                >
-                  <TextInput
-                    type="password"
-                    name="password"
-                    aria-label="Private Key Passphrase"
-                    aria-describedby="Private Key Passphrase"
-                    isRequired={true}
-                    onChange={onChangeField}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.password}
-                    validated={getValidatedFromErrorTouched(
-                      formik.errors.password,
-                      formik.touched.password
-                    )}
-                  />
-                </FormGroup>
-              </>
-            )}
-          </>
-        )}
-        {formik.values?.kind?.value === "maven" && (
-          <>
-            <FormGroup
-              fieldId="settings"
-              label={"Upload your Settings file or paste its contents below."}
-              isRequired={formik.values.kind?.value === "maven"}
-              validated={getValidatedFromError(formik.errors.settings)}
-              helperTextInvalid={formik.errors.settings}
-            >
-              <FileUpload
-                id="file"
-                name="file"
-                type="text"
-                value={formik.values.settings}
-                filename={formik.values.settingsFilename}
-                onChange={(value, filename) => {
-                  if (value) {
-                    validateXML(value, filename);
-                  }
-                }}
-                dropzoneProps={{
-                  accept: ".xml",
-                  onDropRejected: handleFileRejected,
-                }}
-                validated={isSettingsFileRejected ? "error" : "default"}
-                filenamePlaceholder="Drag and drop a file or upload one"
-                onFileInputChange={(event, file) =>
-                  handleFileInputChange(
-                    event,
-                    file,
-                    "settingsFilename",
-                    "settings"
-                  )
-                }
-                onDataChange={(data) =>
-                  handleTextOrDataChange(data, "settings")
-                }
-                onClearClick={() => {
-                  formik.setFieldValue("settings", "");
-                  formik.setFieldValue("settingsFilename", "");
-                }}
-                onTextChange={(text) => {
-                  handleTextOrDataChange(text, "settings");
-                }}
-                onReadStarted={handleFileReadStarted}
-                onReadFinished={handleFileReadFinished}
-                isLoading={isLoading}
-                allowEditingUploadedText
-                browseButtonText="Upload"
-              />
-            </FormGroup>
-          </>
-        )}
-
-        {formik.values?.kind?.value === "proxy" && (
-          <>
-            <FormGroup
-              label="Username"
-              fieldId="user"
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      {axiosError && (
+        <Alert
+          variant="danger"
+          isInline
+          title={getAxiosErrorMessage(axiosError)}
+        />
+      )}
+      <FormGroup
+        label="Name"
+        fieldId="name"
+        isRequired={true}
+        validated={getValidatedFromError(errors.name)}
+        helperTextInvalid={errors?.name?.message}
+      >
+        <Controller
+          control={control}
+          name="name"
+          render={({
+            field: { onChange, onBlur, value, name, ref },
+            fieldState: { isTouched, error },
+            formState,
+          }) => (
+            <TextInput
+              onChange={onChange}
+              type="text"
+              name={name}
+              aria-label="name"
+              aria-describedby="name"
               isRequired={true}
-              validated={getValidatedFromError(formik.errors.user)}
-              helperTextInvalid={formik.errors.user}
-            >
-              <TextInput
-                type="text"
-                name="user"
-                aria-label="user"
-                aria-describedby="user"
-                isRequired={true}
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.user}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.user,
-                  formik.touched.user
-                )}
-              />
-            </FormGroup>
-            <FormGroup
-              label="Password"
-              fieldId="password"
+              value={value}
+              validated={getValidatedFromErrorTouched(error, isTouched)}
+            />
+          )}
+        />
+      </FormGroup>
+      <FormGroup
+        label="Description"
+        fieldId="description"
+        isRequired={false}
+        validated={getValidatedFromError(errors.description)}
+        helperTextInvalid={errors?.description?.message}
+      >
+        <Controller
+          control={control}
+          name="description"
+          render={({
+            field: { onChange, onBlur, value, name, ref },
+            fieldState: { invalid, isTouched, isDirty, error },
+            formState,
+          }) => (
+            <TextInput
+              type="text"
+              name={name}
+              aria-label="description"
+              aria-describedby="description"
               isRequired={true}
-              validated={getValidatedFromError(formik.errors.password)}
-              helperTextInvalid={formik.errors.password}
-            >
-              <TextInput
-                type="password"
-                name="password"
-                aria-label="password"
-                aria-describedby="password"
-                isRequired={true}
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.password}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.password,
-                  formik.touched.password
-                )}
-              />
-            </FormGroup>
-          </>
-        )}
-
-        <ActionGroup>
-          <Button
-            type="submit"
-            aria-label="submit"
-            variant={ButtonVariant.primary}
-            isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
+              onChange={onChange}
+              onBlur={onBlur}
+              value={value}
+              validated={getValidatedFromErrorTouched(error, isTouched)}
+            />
+          )}
+        />
+      </FormGroup>
+      <FormGroup
+        label="Type"
+        fieldId="kind"
+        isRequired={true}
+        validated={errors.kind && "error"}
+        helperTextInvalid={errors?.kind && "This field is required"}
+      >
+        <Controller
+          control={control}
+          name="kind"
+          render={({ field: { value, name } }) => (
+            <SimpleSelect
+              aria-label={name}
+              value={value ? toOptionLike(value, kindOptions) : undefined}
+              options={kindOptions}
+              onChange={(selection) => {
+                const selectionValue = selection as OptionWithValue<any>;
+                setValue(name, selectionValue.value);
+              }}
+            />
+          )}
+        />
+      </FormGroup>
+      {values?.kind === "source" && (
+        <>
+          <FormGroup
+            label="User credentials"
+            isRequired
+            fieldId="userCredentials"
+            validated={errors.userCredentials && "error"}
+            helperTextInvalid={
+              errors?.userCredentials && "This field is required"
             }
           >
-            {!identity ? "Create" : "Save"}
-          </Button>
-          <Button
-            type="button"
-            aria-label="cancel"
-            variant={ButtonVariant.link}
-            isDisabled={formik.isSubmitting || formik.isValidating}
-            onClick={onCancel}
+            <Controller
+              control={control}
+              name="userCredentials"
+              render={({ field: { value, name } }) => (
+                <SimpleSelect
+                  aria-label={name}
+                  value={
+                    value
+                      ? toOptionLike(value, userCredentialsOptions)
+                      : undefined
+                  }
+                  options={userCredentialsOptions}
+                  onChange={(selection) => {
+                    const selectionValue = selection as OptionWithValue<any>;
+                    setValue(name, selectionValue.value);
+                  }}
+                />
+              )}
+            />
+          </FormGroup>
+          {values?.userCredentials === "userpass" && (
+            <>
+              <FormGroup
+                label="Username"
+                fieldId="user"
+                isRequired={true}
+                validated={getValidatedFromError(errors.user)}
+                helperTextInvalid={errors?.user?.message}
+              >
+                <Controller
+                  control={control}
+                  name="user"
+                  render={({
+                    field: { onChange, onBlur, value, name, ref },
+                    fieldState: { isTouched, error },
+                  }) => (
+                    <TextInput
+                      type="text"
+                      name={name}
+                      aria-label="user"
+                      aria-describedby="user"
+                      isRequired={true}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      value={value}
+                      validated={getValidatedFromErrorTouched(error, isTouched)}
+                    />
+                  )}
+                />
+              </FormGroup>
+              <FormGroup
+                label="Password"
+                fieldId="password"
+                isRequired={true}
+                validated={getValidatedFromError(errors.password)}
+                helperTextInvalid={errors?.password?.message}
+              >
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({
+                    field: { onChange, onBlur, value, name, ref },
+                    fieldState: { isTouched, error },
+                  }) => (
+                    <TextInput
+                      type="password"
+                      name={name}
+                      aria-label="password"
+                      aria-describedby="password"
+                      isRequired={true}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      value={value}
+                      validated={getValidatedFromErrorTouched(error, isTouched)}
+                    />
+                  )}
+                />
+              </FormGroup>
+            </>
+          )}
+          {values?.userCredentials === "source" && (
+            <>
+              <FormGroup
+                fieldId="key"
+                label={
+                  "Upload your [SCM Private Key] file or paste its contents below."
+                }
+                helperTextInvalid="You should select a private key file."
+                //TODO: PKI crypto validation
+                // validated={isFileRejected ? "error" : "default"}
+              >
+                <Controller
+                  control={control}
+                  name="key"
+                  render={({ field: { value, name } }) => (
+                    <FileUpload
+                      id="file"
+                      name={name}
+                      type="text"
+                      value={value}
+                      filename={values.keyFilename}
+                      onChange={(value, filename) => {
+                        setValue("key", value);
+                        setValue("keyFilename", filename);
+                      }}
+                      dropzoneProps={{
+                        // accept: ".csv",
+                        //TODO: key file extention types
+                        onDropRejected: handleFileRejected,
+                      }}
+                      validated={isFileRejected ? "error" : "default"}
+                      filenamePlaceholder="Drag and drop a file or upload one"
+                      onFileInputChange={(event, file) => {
+                        setValue(name, file);
+                        setValue("keyFilename", file.name);
+                      }}
+                      onClearClick={() => {
+                        resetField("key");
+                        resetField("keyFilename");
+                      }}
+                      allowEditingUploadedText
+                      browseButtonText="Upload"
+                    />
+                  )}
+                />
+              </FormGroup>
+              <FormGroup label="Private Key Passphrase" fieldId="password">
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({ field: { onChange, onBlur, value, name } }) => (
+                    <TextInput
+                      type="password"
+                      name={name}
+                      aria-label="Private Key Passphrase"
+                      aria-describedby="Private Key Passphrase"
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      value={value}
+                    />
+                  )}
+                />
+              </FormGroup>
+            </>
+          )}
+        </>
+      )}
+      {values?.kind === "maven" && (
+        <>
+          <FormGroup
+            fieldId="settings"
+            label={"Upload your Settings file or paste its contents below."}
+            isRequired={values.kind === "maven"}
+            validated={getValidatedFromError(errors.settings)}
+            helperTextInvalid={!isLoading && errors?.settings?.message}
           >
-            Cancel
-          </Button>
-        </ActionGroup>
-      </Form>
-    </FormikProvider>
+            <Controller
+              control={control}
+              name="settings"
+              render={({ field: { onChange, value, name } }) => (
+                <FileUpload
+                  id="file"
+                  name={name}
+                  type="text"
+                  value={value && "[Encrypted]"}
+                  filename={values.settingsFilename}
+                  onChange={(fileContents, fileName, event) => {
+                    onChange(fileContents);
+                    setValue("settingsFilename", fileName);
+                  }}
+                  dropzoneProps={{
+                    accept: ".xml",
+                    onDropRejected: handleFileRejected,
+                  }}
+                  validated={isSettingsFileRejected ? "error" : "default"}
+                  filenamePlaceholder="Drag and drop a file or upload one"
+                  onFileInputChange={(event, file) => {
+                    setValue(name, file);
+                    setValue("settingsFilename", file.name);
+                  }}
+                  onClearClick={() => {
+                    resetField("settings");
+                    resetField("settingsFilename");
+                  }}
+                  onReadStarted={() => setIsLoading(true)}
+                  onReadFinished={() => setIsLoading(false)}
+                  isLoading={isLoading}
+                  allowEditingUploadedText
+                  browseButtonText="Upload"
+                />
+              )}
+            />
+          </FormGroup>
+        </>
+      )}
+
+      {values?.kind === "proxy" && (
+        <>
+          <FormGroup
+            label="Username"
+            fieldId="user"
+            isRequired={true}
+            validated={getValidatedFromError(errors.user)}
+            helperTextInvalid={errors?.user?.message}
+          >
+            <Controller
+              control={control}
+              name="user"
+              render={({
+                field: { onChange, onBlur, value },
+                fieldState: { isTouched, error },
+              }) => (
+                <TextInput
+                  type="text"
+                  name="user"
+                  aria-label="user"
+                  aria-describedby="user"
+                  isRequired={true}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                />
+              )}
+            />
+          </FormGroup>
+          <FormGroup
+            label="Password"
+            fieldId="password"
+            isRequired={true}
+            validated={getValidatedFromError(errors.password)}
+            helperTextInvalid={errors?.password?.message}
+          >
+            <Controller
+              control={control}
+              name="password"
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { isTouched, error },
+              }) => (
+                <TextInput
+                  type="password"
+                  name={name}
+                  aria-label="password"
+                  aria-describedby="password"
+                  isRequired={true}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                />
+              )}
+            />
+          </FormGroup>
+        </>
+      )}
+
+      <ActionGroup>
+        <Button
+          type="submit"
+          aria-label="submit"
+          variant={ButtonVariant.primary}
+          isDisabled={
+            !isValid || isSubmitting || isValidating || isLoading || !isDirty
+          }
+        >
+          {!identity ? "Create" : "Save"}
+        </Button>
+        <Button
+          type="button"
+          aria-label="cancel"
+          variant={ButtonVariant.link}
+          isDisabled={isSubmitting || isValidating}
+          onClick={onCancel}
+        >
+          Cancel
+        </Button>
+      </ActionGroup>
+    </Form>
   );
 };

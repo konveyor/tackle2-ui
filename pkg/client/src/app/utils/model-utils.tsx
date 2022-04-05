@@ -194,3 +194,7 @@ export const getKindIDByRef = (
   });
   return matchingIdentity;
 };
+
+export const toOptionLike = (value: string, options: OptionWithValue[]) => {
+  return options.find((option) => option.value === value);
+};
