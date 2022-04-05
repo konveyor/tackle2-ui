@@ -15,6 +15,7 @@ export interface ISingleSelectFetchOptionValueFormikFieldProps<T> {
   >;
   options: T[];
   toOptionWithValue: (option: T) => OptionWithValue<T>;
+  clearFieldsCallback?: () => void;
 }
 
 export const SingleSelectFetchOptionValueFormikField = <T extends any>({
@@ -22,6 +23,7 @@ export const SingleSelectFetchOptionValueFormikField = <T extends any>({
   selectConfig,
   options,
   toOptionWithValue,
+  clearFieldsCallback,
 }: ISingleSelectFetchOptionValueFormikFieldProps<T>) => {
   const [field, , helpers] = useField(fieldConfig);
 
@@ -32,8 +34,10 @@ export const SingleSelectFetchOptionValueFormikField = <T extends any>({
       onChange={(selection) => {
         const selectionValue = (selection as OptionWithValue<T>).value;
         helpers.setValue(selectionValue);
+        if (clearFieldsCallback) {
+          clearFieldsCallback();
+        }
       }}
-      onClear={() => helpers.setValue(null)}
       {...selectConfig}
     />
   );

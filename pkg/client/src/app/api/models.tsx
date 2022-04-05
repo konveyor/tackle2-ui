@@ -150,11 +150,13 @@ export interface Identity {
   kind?: string;
   createUser?: string;
   encrypted?: string;
-  key?: string;
+  key?: string | File;
+  keyFilename?: string;
   password?: string;
   user?: string;
   updateUser?: string;
-  settings?: string;
+  settings?: string | File;
+  settingsFilename?: string;
 }
 
 export interface Proxy {
