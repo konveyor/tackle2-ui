@@ -380,3 +380,19 @@ export interface Rule {
   target: string;
   total: number;
 }
+
+export interface TaskgroupTask {
+  name: string;
+  data: {
+    application: number;
+  };
+  application: Ref;
+}
+
+export interface Taskgroup {
+  id?: number;
+  name: string;
+  addon: string;
+  data: TaskData;
+  tasks: TaskgroupTask[];
+}

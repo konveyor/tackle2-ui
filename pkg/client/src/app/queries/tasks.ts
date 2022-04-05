@@ -22,7 +22,7 @@ export const useFetchTasks = (
           let uniqLatestTasks: Task[] = [];
           data.forEach((task) => {
             const aTask = uniqLatestTasks.find(
-              (item) => task.application.id === item.application.id
+              (item) => task.application?.id === item.application?.id
             );
             if (
               aTask &&
@@ -38,7 +38,7 @@ export const useFetchTasks = (
         .catch((error) => {
           console.log("error, ", error);
         }),
-    { refetchInterval: 1000 * 60 }
+    { refetchInterval: 1000 * 10 }
   );
   return {
     tasks: tasks,

@@ -31,7 +31,6 @@ import { RootState } from "@app/store/rootReducer";
 import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 import { unknownTagsSelectors } from "@app/store/unknownTags";
-import { bulkCopySelectors } from "@app/store/bulkCopy";
 import {
   AppPlaceholder,
   AppTableWithControls,
@@ -89,14 +88,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     unknownTagsSelectors.unknownTagIds(state)
   );
 
-  const { applications, isFetching, fetchError, refetch } =
-    useFetchApplications();
+  const { applications, isFetching, fetchError } = useFetchApplications();
 
   const { tasks } = useFetchTasks();
 
-  React.useEffect(() => {
-    refetch();
-  }, [tasks, refetch]);
+  React.useEffect(() => {}, []);
 
   const completedDeleteTask = () => {
     dispatch(alertActions.addInfo("Task", "Deleted"));
@@ -111,14 +107,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     failedDeleteTask
   );
 
+  const getTask = (application: Application) =>
+    tasks.find((task: Task) => task.application?.id === application.id);
+
   const isTaskCancellable = (application: Application) => {
     const task = getTask(application);
     if (task?.state && task.state.match(/(Created|Running|Ready)/)) return true;
     return false;
   };
-
-  const getTask = (application: Application) =>
-    tasks.find((task: Task) => task.application.id === application.id);
 
   const filterCategories: FilterCategory<Application>[] = [
     {
@@ -421,7 +417,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   };
 
   const cancelAnalysis = (row: Application) => {
-    const task = tasks.find((task) => task.application.id === row.id);
+    const task = tasks.find((task) => task.application?.id === row.id);
     if (task) deleteTask(task.id);
   };
 
@@ -436,7 +432,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       (app) =>
         !tasks.some(
           (task) =>
-            task.application.id === app.id &&
+            task.application?.id === app.id &&
             task.state?.match(/(Created|Running|Ready)/)
         )
     );

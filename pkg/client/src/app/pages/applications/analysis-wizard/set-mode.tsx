@@ -15,12 +15,12 @@ import { IAnalysisWizardFormValues } from "./analysis-wizard";
 
 interface ISetMode {
   isSingleApp: boolean;
-  createdTaskID: number | null;
+  taskgroupID: number | null;
 }
 
 export const SetMode: React.FunctionComponent<ISetMode> = ({
   isSingleApp,
-  createdTaskID,
+  taskgroupID,
 }) => {
   const { register, getValues, setValue } = useFormContext();
 
@@ -43,7 +43,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
     />,
   ];
 
-  if (isSingleApp && createdTaskID)
+  if (isSingleApp && taskgroupID)
     options.push(
       <SelectOption
         key="binary-upload"
@@ -74,7 +74,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
           options={options}
         />
       </FormGroup>
-      {isUpload && createdTaskID && <UploadBinary taskId={createdTaskID} />}
+      {isUpload && taskgroupID && <UploadBinary taskId={taskgroupID} />}
     </>
   );
 };

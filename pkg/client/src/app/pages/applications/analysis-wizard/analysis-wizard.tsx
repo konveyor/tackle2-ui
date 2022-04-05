@@ -1,19 +1,18 @@
 import * as React from "react";
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
-import { Application, Task, TaskData } from "@app/api/models";
+import {
+  Application,
+  TaskData,
+  Taskgroup,
+  TaskgroupTask,
+} from "@app/api/models";
 import "./wizard.css";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useState } from "react";
-import {
-  createTask,
-  submitTask,
-  updateTask,
-  uploadFileTask,
-} from "@app/api/rest";
+
 import { alertActions } from "@app/store/alert";
 import { useDispatch } from "react-redux";
-import { getAxiosErrorMessage } from "@app/utils/utils";
 import {
   Button,
   Wizard,
@@ -28,7 +27,12 @@ import { SetMode } from "./set-mode";
 import { SetOptions } from "./set-options";
 import { SetScope } from "./set-scope";
 import { SetTargets } from "./set-targets";
-import { useIsMutating, useQueryClient } from "react-query";
+import { useIsMutating } from "react-query";
+import {
+  useCreateTaskgroupMutation,
+  useSubmitTaskgroupMutation,
+} from "@app/queries/taskgroups";
+import { uploadFileTaskgroup } from "@app/api/rest";
 interface IAnalysisWizard {
   applications: Application[];
   onClose: () => void;
@@ -78,9 +82,39 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   const title = "Application analysis";
   const dispatch = useDispatch();
 
-  const [isInitTasks, setInitTasks] = React.useState(false);
-  const [createdTasks, setCreatedTasks] = React.useState<Array<Task>>([]);
+  const [isInitTaskgroup, setInitTaskgroup] = React.useState(false);
+  const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
   const isMutating = useIsMutating();
+
+  const onCreateTaskgroupSuccess = (response: any) => {
+    setInitTaskgroup(true);
+    setCreatedTaskgroup(response.data);
+  };
+
+  const onCreateTaskgroupError = (error: Error | unknown) => {
+    console.log("Taskgroup creation failed: ", error);
+    dispatch(alertActions.addDanger("Taskgroup creation failed"));
+    onClose();
+  };
+
+  const { mutate: createTaskgroup } = useCreateTaskgroupMutation(
+    onCreateTaskgroupSuccess,
+    onCreateTaskgroupError
+  );
+
+  const onSubmitTaskgroupSuccess = (response: any) => {
+    dispatch(alertActions.addSuccess("Applications", "Submitted for analysis"));
+  };
+
+  const onSubmitTaskgroupError = (error: Error | unknown) => {
+    console.log("Taskgroup submit failed: ", error);
+    dispatch(alertActions.addDanger("Taskgroup submit failed"));
+  };
+
+  const { mutate: submitTaskgroup } = useSubmitTaskgroupMutation(
+    onSubmitTaskgroupSuccess,
+    onSubmitTaskgroupError
+  );
 
   const schema = yup
     .object({
@@ -105,38 +139,35 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
   });
 
-  console.log(methods.watch());
-
   const { handleSubmit, watch, reset } = methods;
+  const watchAllFields = watch();
 
-  const initTask = (application: Application): Task => {
-    return {
-      name: `${application.name}.${application.id}.windup`,
+  if (!isInitTaskgroup) {
+    const initTask = (application: Application): TaskgroupTask => {
+      return {
+        name: `${application.name}.${application.id}.windup`,
+        data: {
+          application: application.id as number,
+        },
+        application: { id: application.id as number, name: application.name },
+      };
+    };
+
+    const taskgroup: Taskgroup = {
+      name: `taskgroup.windup`,
       addon: "windup",
-      application: { id: application.id || 0 },
       data: {
         ...defaultTaskData,
       },
+      tasks: applications.map((app) => initTask(app)),
     };
-  };
 
-  const initTasks = () => {
-    const tasks = applications.map((app) => initTask(app));
-    const promises = Promise.all(tasks.map((task) => createTask(task)));
-    promises
-      .then((response) => {
-        setInitTasks(true);
-        setCreatedTasks(response.map((res) => res.data as Task));
-      })
-      .catch((error) => {
-        dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-        onClose();
-      });
-  };
+    createTaskgroup(taskgroup);
+  }
 
-  const setTask = (task: Task, data: FieldValues): Task => {
+  const setTaskgroup = (taskgroup: Taskgroup, data: FieldValues): Taskgroup => {
     return {
-      ...task,
+      ...taskgroup,
       data: {
         ...defaultTaskData,
         mode: {
@@ -166,10 +197,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     };
   };
 
-  if (!isInitTasks) {
-    initTasks();
-  }
-
   const [stepIdReached, setStepIdReached] = useState(1);
 
   enum stepId {
@@ -188,38 +215,24 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       return;
     }
 
-    const tasks = createdTasks.map((task: Task) => setTask(task, data));
-
-    Promise.all(
-      tasks.map((task) =>
-        data.customRulesFiles.forEach((file: any) => {
+    if (createdTaskgroup) {
+      const taskgroup = setTaskgroup(createdTaskgroup, data);
+      Promise.all(
+        data.customRulesFiles.map((file: any) => {
           const formFile = new FormData();
           formFile.append("file", file.file);
 
-          return uploadFileTask({
-            id: task.id as number,
+          return uploadFileTaskgroup({
+            id: taskgroup.id as number,
             path: `/rules/${file.fileName}`,
             file: formFile,
           });
         })
-      )
-    );
+      );
 
-    const promises = Promise.all(tasks.map((task) => updateTask(task)));
-
-    promises
-      .then(() => {
-        const submissions = Promise.all(tasks.map((task) => submitTask(task)));
-        submissions.then((response) => {
-          dispatch(
-            alertActions.addSuccess("Applications", "Submitted for analysis")
-          );
-        });
-        onClose();
-      })
-      .catch((error) => {
-        dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-      });
+      submitTaskgroup(taskgroup);
+    }
+    onClose();
   };
 
   const onMove: WizardStepFunctionType = (
@@ -273,7 +286,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           component: (
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
-              createdTaskID={createdTasks[0]?.id || null}
+              taskgroupID={createdTaskgroup?.id || null}
             />
           ),
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
@@ -285,8 +298,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     advancedSteps,
     reviewStep,
   ];
-
-  console.log(watch());
 
   const CustomFooter = (
     <WizardFooter>
@@ -302,14 +313,8 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           const isNextEnabled = () => {
             switch (activeStep.name) {
               case "Analysis mode":
-                {
-                  if (isMutating) {
-                    return false;
-                  } else {
-                    return true;
-                  }
-                }
-                break;
+                if (isMutating) return false;
+                return true;
               default:
                 return true;
             }
