@@ -5,11 +5,14 @@
 Tackle (2nd generation) UI component.
 
 To install a Tackle2 cluster environment please refer to [Tackle documentation](https://github.com/konveyor/tackle).
+
 # Development
+
 ## Prerequisites
 
 - [NodeJS](https://nodejs.org/en/) >= 16.x
-## Getting Started 
+
+## Getting Started
 
 ```
 git clone https://github.com/konveyor/tackle2-ui
@@ -18,7 +21,7 @@ npm install -ws && npm install
 ```
 
 With a Tackle2 environment available (with kubectl authentication validated)  
-then one can start a tackle-ui instance locallly serving the pages from the current source code: 
+then one can start a tackle-ui instance locallly serving the pages from the current source code:
 
 `npm run start:dev:local`
 
@@ -33,14 +36,14 @@ The UI is composed of web pages (React) served by an http server (Express) with 
 So we when we run Express locally it forwards all API requests to the backend and at same time we keep watching any source changes to be immediatly reloaded.
 It's the equivalent of running webpack dev-server with proxy configuration.
 
-The Express server (pkg/server/setupProxy.js) uses by default the environment variables TACKLE_HUB_URL, PATHFINDER_URL and SSO_SERVER_URL to determine the backend endpoints. 
+The Express server (pkg/server/setupProxy.js) uses by default the environment variables TACKLE_HUB_URL, PATHFINDER_URL and SSO_SERVER_URL to determine the backend endpoints.
 If no env. variables are defined, the server then listens on ports 9001 (SSO), 9002 (Application inventory and controls) and 9003 (Pathfinder).
 
 In which case the port forwarding must activated to route Tackle Keycloack (SSO), Tackle Hub and Tackle Pathfinder requests.
-To set-up kubectl port forwarding Tackle2 services to localhost, open a terminal and run each following command separatly: 
+To set-up kubectl port forwarding Tackle2 services to localhost, open a terminal and run each following command separatly:
 `$ kubectl port-forward svc/tackle-keycloak-sso -n konveyor-tackle 9001:8080`
 `$ kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080`
-`$ kubectl port-forward svc/tackle-pathfinder -n konveyor-tackle 9003:8080` 
+`$ kubectl port-forward svc/tackle-pathfinder -n konveyor-tackle 9003:8080`
 
 That's exactly what `start:dev:local` does by port forwarding all tackles2 services for us.
 
@@ -74,7 +77,6 @@ We need to enable the dashboard, ingress and olm addons. The dashboard addon ins
 `$ minikube addons enable ingress`
 `$ minikube addons enable olm`
 
-
 The following command gives us the IP address assigned to the virtual machine created by Minikube.
 It's used when interacting with tackle UI image installed on the minikube cluster.
 
@@ -84,6 +86,7 @@ $ minikube ip
 ```
 
 ### Configuring kubectl (optional)
+
 Minikube allows us to use the kubectl command with `minikube kubectl. To make the experience more Kubernetes-like, we can set a shell alias to simply use kubectl.
 The following example shows how to do it for Bash on Fedora 35.
 
@@ -96,6 +99,7 @@ $ source ~/.bashrc
 ```
 
 ### Accessing the Kubernetes dashboard
+
 We may need to access the dashboard, either simply to see what's happening under the hood, or to troubleshoot an issue. We have already enabled the dashboard addon in a previous command.
 
 We can use the kubectl proxy command to enable that. The following command sets up the proxy to listen on any network interface (useful for remote access), on the 18080/tcp port (easy to remember), with requests filtering disabled (less secure, but necessary).
@@ -103,16 +107,15 @@ We can use the kubectl proxy command to enable that. The following command sets 
 `$ kubectl proxy --address=0.0.0.0 --port 18080 --disable-filter=true`
 
 We can now access the minikube dashboard through the proxy.
-In the following URL, replace the IP address with your workstation IP address. 
+In the following URL, replace the IP address with your workstation IP address.
 
 http://192.168.0.1:18080/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/#/
-
 
 ### Installing Tackle on Minikube or Kubernetes
 
 For installation on Kubernetes refer to Tackle2 documentation [https://github.com/konveyor/tackle2-operator/blob/main/docs/k8s.md](k8s.md)
 
-Once minikube is installed with OLM installed, as seen above, then deploy Tackle by running this command : 
+Once minikube is installed with OLM installed, as seen above, then deploy Tackle by running this command :
 `kubectl apply -f https://raw.githubusercontent.com/konveyor/tackle2-operator/main/tackle-k8s.yaml`
 
 Then launch Tackle by applying the following CR:
@@ -128,6 +131,10 @@ spec:
 EOF
 ```
 
-Wait few minutes to make sure tackle is fully deployed: 
+Wait few minutes to make sure tackle is fully deployed:
 
-`kubectl wait deployment tackle-keycloak-sso -n konveyor-tackle --for condition=Available --timeout=5m` 
+`kubectl wait deployment tackle-keycloak-sso -n konveyor-tackle --for condition=Available --timeout=5m`
+
+### Setup '.env' file
+
+There is an example .env file inside the 'pkg/client/config' directory. This will be required when reading in keycloak values from the tackle2-operator. Please copy the contents to a '.env' file on your local machine.
