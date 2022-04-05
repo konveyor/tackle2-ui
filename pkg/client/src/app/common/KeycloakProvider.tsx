@@ -2,6 +2,7 @@ import { initInterceptors } from "@app/axios-config";
 import i18n from "@app/i18n";
 import keycloak from "@app/keycloak";
 import { Flex, FlexItem, Spinner } from "@patternfly/react-core";
+import { c_options_menu__toggle_active_BorderBottomColor } from "@patternfly/react-tokens";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
 import React from "react";
 
@@ -12,14 +13,10 @@ interface IKeycloakProviderProps {
 export const KeycloakProvider: React.FunctionComponent<
   IKeycloakProviderProps
 > = ({ children }) => {
-  // const [isAuthRequired, setIsAuthRequired] = useLocalStorageContext(
-  //   LocalStorageKey.isAuthRequired
-  // );
   // TODO: Implement a short circuit for overriding auth requirements
-  //   const overrideAuth = process.env["AUTH_REQUIRED"];
-
-  return (
-    <>
+  const isAuthRequired = process.env["AUTH_REQUIRED"] === "true";
+  if (isAuthRequired) {
+    return (
       <ReactKeycloakProvider
         authClient={keycloak}
         initOptions={{ onLoad: "login-required" }}
@@ -75,6 +72,8 @@ export const KeycloakProvider: React.FunctionComponent<
       >
         {children}
       </ReactKeycloakProvider>
-    </>
-  );
+    );
+  } else {
+    return <>{children}</>;
+  }
 };
