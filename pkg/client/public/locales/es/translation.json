@@ -6,7 +6,8 @@
         "introduction": "Tackle es una colección de herramientas que ayudan en la migración y modernización de aplicaciones a gran escala a Kubernetes."
     },
     "actions": {
-        "analyze": "",
+        "analysisDetails": "Detalles del análisis",
+        "analyze": "Analizar",
         "assess": "Evaluar",
         "back": "Atrás",
         "cancel": "Cancelar",
@@ -37,9 +38,6 @@
         "save": "Guardar",
         "saveAndReview": "Guardar y revisar",
         "saveAsDraft": "Guardar como borrador",
-        "selectAll": "Seleccionar todos",
-        "selectNone": "Seleccionar ninguno",
-        "selectPage": "Seleccionar página",
         "submitReview": "Enviar revisión",
         "viewErrorReport": "Ver reporte"
     },
@@ -233,7 +231,6 @@
         "risk": "Riesgo",
         "scheduled": "Programado",
         "select": "Seleccione",
-        "selected": "Seleccionado",
         "sourceBranch": "Rama",
         "sourceCode": "Código fuente.",
         "sourceRepo": "Repositorio",

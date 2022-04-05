@@ -5,7 +5,9 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const { WatchIgnorePlugin, DefinePlugin } = require("webpack");
+const { WatchIgnorePlugin } = require("webpack");
+
+const helpers = require('../../server/helpers');
 
 const BG_IMAGES_DIRNAME = "images";
 
@@ -170,12 +172,28 @@ module.exports = (env) => {
     },
     plugins: [
       new ForkTsCheckerWebpackPlugin({ typescript: { memoryLimit: 4096 } }),
+      // new HtmlWebpackPlugin({
+      //   template: path.resolve(__dirname, "../public/index.html"),
+      //   favicon: path.resolve(__dirname, "../public/favicon.ico"),
+      // }),
       new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, "../public/index.html"),
-        favicon: path.resolve(__dirname, "../public/favicon.ico"),
+        ...(env !== 'production' 
+          ? {
+              // In dev mode, populate window._env at build time
+              filename: 'index.html',
+              template: path.resolve(__dirname, "../public/index.html.ejs"),
+              favicon: path.resolve(__dirname, "../public/favicon.ico"),
+              templateParameters: {
+                _env: helpers.getEncodedEnv(),
+              },
+            }
+          : {
+              // In real prod mode, populate window._env at run time with express
+              filename: 'index.html.ejs',
+              template: `!!raw-loader!${path.resolve(__dirname, '../public/index.html.ejs')}`,
+            }),
       }),
       new Dotenv({
-        path: "./.env",
         systemvars: true,
         silent: true,
       }),
@@ -204,18 +222,6 @@ module.exports = (env) => {
       }),
       new WatchIgnorePlugin({
         paths: [/\.js$/, /\.d\.ts$/],
-      }),
-      new DefinePlugin({
-        "process.env.AUTH_REQUIRED": JSON.stringify(process.env.AUTH_REQUIRED),
-        "process.env.KEYCLOAK_REALM": JSON.stringify(
-          process.env.KEYCLOAK_REALM
-        ),
-        "process.env.KEYCLOAK_CLIENT_ID": JSON.stringify(
-          process.env.KEYCLOAK_CLIENT_ID
-        ),
-        "process.env.KEYCLOAK_SERVER_URL": JSON.stringify(
-          process.env.KEYCLOAK_SERVER_URL
-        ),
       }),
     ],
     resolve: {
