@@ -6,6 +6,10 @@ declare namespace NodeJS {
   interface ProcessEnv {
     readonly NODE_ENV: "development" | "production" | "test";
     readonly PUBLIC_URL: string;
+    readonly KEYCLOAK_REALM: string;
+    readonly KEYCLOAK_CLIENT_ID: string;
+    readonly KEYCLOAK_SERVER_URL: string;
+    readonly AUTH_REQUIRED: string;
   }
 }
 
