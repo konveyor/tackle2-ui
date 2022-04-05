@@ -383,9 +383,7 @@ export interface Rule {
 
 export interface TaskgroupTask {
   name: string;
-  data: {
-    application: number;
-  };
+  data: any;
   application: Ref;
 }
 

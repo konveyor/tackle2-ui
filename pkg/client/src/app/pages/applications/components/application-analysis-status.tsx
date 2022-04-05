@@ -1,13 +1,11 @@
-import React, { useCallback, useEffect } from "react";
+import React from "react";
 
-import { useFetch } from "@app/shared/hooks";
-
-import { Task, TaskState } from "@app/api/models";
-import { getTasks } from "@app/api/rest";
 import { StatusIcon } from "@app/shared/components";
+import { useFetchTasks } from "@app/queries/tasks";
+import { TaskState } from "@app/api/models";
 
 export interface ApplicationAnalysisStatusProps {
-  id: number;
+  applicationID: number;
 }
 
 export type AnalysisState =
@@ -30,11 +28,8 @@ const taskStateToAnalyze: Map<TaskState, AnalysisState> = new Map([
 
 export const ApplicationAnalysisStatus: React.FC<
   ApplicationAnalysisStatusProps
-> = ({ id }) => {
-  // TODO resolve id
-  const fetchTasks = useCallback(() => {
-    return getTasks();
-  }, [id]);
+> = ({ applicationID }) => {
+  const { tasks, fetchError } = useFetchTasks();
 
   const getTaskStatus = (state: TaskState): AnalysisState => {
     if (taskStateToAnalyze.has(state)) {
@@ -43,19 +38,6 @@ export const ApplicationAnalysisStatus: React.FC<
     }
     return "NotStarted";
   };
-
-  const {
-    data: tasks,
-    fetchError,
-    requestFetch: refreshTasks,
-  } = useFetch<Array<Task>>({
-    defaultIsFetching: true,
-    onFetch: fetchTasks,
-  });
-
-  useEffect(() => {
-    refreshTasks();
-  }, [refreshTasks]);
 
   if (fetchError) {
     return <StatusIcon status="NotStarted" />;
@@ -67,7 +49,7 @@ export const ApplicationAnalysisStatus: React.FC<
       task.data &&
       task.state &&
       task.application &&
-      task.application.id === id
+      task.application.id === applicationID
     )
       state = getTaskStatus(task.state);
   });

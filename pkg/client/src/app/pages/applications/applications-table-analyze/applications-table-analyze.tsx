@@ -287,7 +287,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           ),
         },
         {
-          title: <>{item.id && <ApplicationAnalysisStatus id={item.id} />}</>,
+          title: (
+            <>
+              {item.id && <ApplicationAnalysisStatus applicationID={item.id} />}
+            </>
+          ),
         },
         {
           title: (

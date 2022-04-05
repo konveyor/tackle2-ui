@@ -156,9 +156,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     const initTask = (application: Application): TaskgroupTask => {
       return {
         name: `${application.name}.${application.id}.windup`,
-        data: {
-          application: application.id as number,
-        },
+        data: {},
         application: { id: application.id as number, name: application.name },
       };
     };
