@@ -30,6 +30,7 @@ import { SetTargets } from "./set-targets";
 import { useIsMutating } from "react-query";
 import {
   useCreateTaskgroupMutation,
+  useDeleteTaskgroupMutation,
   useSubmitTaskgroupMutation,
 } from "@app/queries/taskgroups";
 import { uploadFileTaskgroup } from "@app/api/rest";
@@ -107,13 +108,22 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   };
 
   const onSubmitTaskgroupError = (error: Error | unknown) => {
-    console.log("Taskgroup submit failed: ", error);
+    console.log("Taskgroup: submit failed: ", error);
     dispatch(alertActions.addDanger("Taskgroup submit failed"));
   };
 
   const { mutate: submitTaskgroup } = useSubmitTaskgroupMutation(
     onSubmitTaskgroupSuccess,
     onSubmitTaskgroupError
+  );
+
+  const onDeleteTaskgroupError = (error: Error | unknown) => {
+    console.log("Taskgroup: delete failed: ", error);
+    dispatch(alertActions.addDanger("Taskgroup: delete failed"));
+  };
+
+  const { mutate: deleteTaskgroup } = useDeleteTaskgroupMutation(
+    onDeleteTaskgroupError
   );
 
   const schema = yup
@@ -361,10 +371,13 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       callback();
     });
   };
+
   const handleClose = () => {
-    onClose();
     setStepIdReached(stepId.AnalysisMode);
     reset();
+    if (isInitTaskgroup && createdTaskgroup)
+      deleteTaskgroup(createdTaskgroup.id);
+    onClose();
   };
 
   return (

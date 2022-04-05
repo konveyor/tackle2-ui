@@ -568,6 +568,10 @@ export const uploadFileTaskgroup = ({
   );
 };
 
+export const deleteTaskgroup = (id: number): AxiosPromise => {
+  return APIClient.delete(`${TASKGROUPS}/${id}`);
+};
+
 export const getProxies = (): AxiosPromise<Array<any>> => {
   return APIClient.get(`${PROXIES}`, jsonHeaders);
 };
