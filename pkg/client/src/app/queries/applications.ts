@@ -25,7 +25,7 @@ export const useFetchApplications = (
         .catch((error) => {
           console.log("error, ", error);
         }),
-    { refetchInterval: 1000 * 10 }
+    { refetchInterval: 1000 }
   );
   return {
     applications: applications,

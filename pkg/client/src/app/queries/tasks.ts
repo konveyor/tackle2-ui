@@ -38,7 +38,7 @@ export const useFetchTasks = (
         .catch((error) => {
           console.log("error, ", error);
         }),
-    { refetchInterval: 1000 * 10 }
+    { refetchInterval: 1000 }
   );
   return {
     tasks: tasks,
