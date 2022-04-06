@@ -34,6 +34,8 @@ import {
   useSubmitTaskgroupMutation,
 } from "@app/queries/taskgroups";
 import { uploadFileTaskgroup } from "@app/api/rest";
+import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
+
 interface IAnalysisWizard {
   applications: Application[];
   onClose: () => void;
@@ -82,6 +84,8 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 }: IAnalysisWizard) => {
   const title = "Application analysis";
   const dispatch = useDispatch();
+
+  const { identities, fetchIdentities } = useFetchIdentities();
 
   const [isInitTaskgroup, setInitTaskgroup] = React.useState(false);
   const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
@@ -149,6 +153,42 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
   });
 
+  const hasIdentity = (application: Application, kind: string) => {
+    fetchIdentities();
+    return !!application.identities?.some((appIdentity) =>
+      identities?.find(
+        (identity) => appIdentity.id === identity.id && identity.kind === kind
+      )
+    );
+  };
+
+  const areApplicationsBinaryEnabled = (): boolean =>
+    applications.every(
+      (application) =>
+        application.binary !== "::" &&
+        application.identities &&
+        application.identities.length > 0 &&
+        hasIdentity(application, "maven")
+    );
+
+  const areApplicationsSourceCodeEnabled = (): boolean =>
+    applications.every(
+      (application) =>
+        application.repository &&
+        application.repository.url !== "" &&
+        application.identities &&
+        application.identities.length > 0
+    );
+
+  const areApplicationsSourceCodeDepsEnabled = (): boolean =>
+    applications.every(
+      (application) =>
+        application.repository &&
+        application.repository.url !== "" &&
+        application.identities &&
+        application.identities.length > 0 &&
+        hasIdentity(application, "maven")
+    );
   const { handleSubmit, watch, reset } = methods;
   const watchAllFields = watch();
 
@@ -252,6 +292,16 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     }
   };
 
+  const { mode, artifact } = methods.getValues();
+
+  const isModeValid = (): boolean => {
+    if (mode.includes("Upload")) return !isMutating && artifact !== "";
+    if (mode.includes("Binary")) return areApplicationsBinaryEnabled();
+    else if (mode.includes("dependencies"))
+      return areApplicationsSourceCodeDepsEnabled();
+    else return areApplicationsSourceCodeEnabled();
+  };
+
   const setTargetsStep = {
     id: stepId.SetTargets,
     name: "Set targets",
@@ -295,6 +345,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
               taskgroupID={createdTaskgroup?.id || null}
+              isModeValid={isModeValid()}
             />
           ),
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
