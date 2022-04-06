@@ -1,11 +1,10 @@
 import React from "react";
 
-import { StatusIcon } from "@app/shared/components";
-import { useFetchTasks } from "@app/queries/tasks";
 import { TaskState } from "@app/api/models";
+import { StatusIcon } from "@app/shared/components";
 
 export interface ApplicationAnalysisStatusProps {
-  applicationID: number;
+  state: TaskState;
 }
 
 export type AnalysisState =
@@ -28,9 +27,7 @@ const taskStateToAnalyze: Map<TaskState, AnalysisState> = new Map([
 
 export const ApplicationAnalysisStatus: React.FC<
   ApplicationAnalysisStatusProps
-> = ({ applicationID }) => {
-  const { tasks, fetchError } = useFetchTasks();
-
+> = ({ state }) => {
   const getTaskStatus = (state: TaskState): AnalysisState => {
     if (taskStateToAnalyze.has(state)) {
       const value = taskStateToAnalyze.get(state);
@@ -39,19 +36,5 @@ export const ApplicationAnalysisStatus: React.FC<
     return "NotStarted";
   };
 
-  if (fetchError) {
-    return <StatusIcon status="NotStarted" />;
-  }
-
-  let state: AnalysisState = "NotStarted";
-  tasks?.forEach((task) => {
-    if (
-      task.data &&
-      task.state &&
-      task.application &&
-      task.application.id === applicationID
-    )
-      state = getTaskStatus(task.state);
-  });
-  return <StatusIcon status={state} />;
+  return <StatusIcon status={getTaskStatus(state)} />;
 };

@@ -91,7 +91,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const { applications, isFetching, fetchError } = useFetchApplications();
 
   const { tasks } = useFetchTasks();
-
+  console.log("tasks: ", tasks);
   React.useEffect(() => {}, []);
 
   const completedDeleteTask = () => {
@@ -259,6 +259,12 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     },
   ];
 
+  const getTaskState = (application: Application) => {
+    const task = getTask(application);
+    if (task && task.state) return task.state;
+    return "No task";
+  };
+
   const rows: IRow[] = [];
   currentPageItems?.forEach((item) => {
     const isExpanded = isRowExpanded(item);
@@ -289,7 +295,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         {
           title: (
             <>
-              {item.id && <ApplicationAnalysisStatus applicationID={item.id} />}
+              {item.id && (
+                <ApplicationAnalysisStatus state={getTaskState(item)} />
+              )}
             </>
           ),
         },
