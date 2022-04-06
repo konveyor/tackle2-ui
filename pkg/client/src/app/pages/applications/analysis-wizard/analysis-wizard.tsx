@@ -141,7 +141,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       artifact: "",
       targets: [],
       sources: [],
-      withKnown: "",
+      withKnown: "depsOnly",
       includedPackages: [""],
       excludedPackages: [""],
       customRulesFiles: [],
