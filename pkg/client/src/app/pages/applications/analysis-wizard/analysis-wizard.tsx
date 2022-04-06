@@ -317,21 +317,18 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             />
           ),
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
-          enableNext: true,
         },
         {
           id: stepId.SetTargets,
           name: "Set targets",
           component: <SetTargets />,
           canJumpTo: stepIdReached >= stepId.SetTargets,
-          enableNext: targets.length > 0,
         },
         {
           id: stepId.Scope,
           name: "Scope",
           component: <SetScope />,
           canJumpTo: stepIdReached >= stepId.Scope,
-          enableNext: true,
         },
       ],
     },
@@ -343,14 +340,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           name: "Custom rules",
           component: <CustomRules />,
           canJumpTo: stepIdReached >= stepId.CustomRules,
-          enableNext: true,
         },
         {
           id: stepId.Options,
           name: "Options",
           component: <SetOptions />,
           canJumpTo: stepIdReached >= stepId.Options,
-          enableNext: true,
         },
       ],
     },
@@ -394,7 +389,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
                 }}
                 isDisabled={!isNextEnabled()}
               >
-                {activeStep.name === "Results" ? "Finish" : "Next"}
+                {activeStep.name === "Review" ? "Run" : "Next"}
               </Button>
               <Button
                 variant="secondary"
