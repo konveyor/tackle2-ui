@@ -28,6 +28,7 @@ import {
   Setting,
   Task,
   Proxy,
+  Taskgroup,
 } from "./models";
 
 // TACKLE_HUB
@@ -50,9 +51,10 @@ export const APP_IMPORT = HUB + "/imports";
 export const APP_IMPORT_CSV = HUB + "/importsummaries/download";
 
 export const IDENTITIES = HUB + "/identities";
+export const PROXIES = HUB + "/proxies";
 export const SETTINGS = HUB + "/settings";
 export const TASKS = HUB + "/tasks";
-export const PROXIES = HUB + "/proxies";
+export const TASKGROUPS = HUB + "/taskgroups";
 
 // PATHFINDER
 export const PATHFINDER = "/pathfinder";
@@ -526,18 +528,6 @@ export const getTasks = (): AxiosPromise<Array<any>> => {
   return APIClient.get(`${TASKS}`, jsonHeaders);
 };
 
-export const createTask = (obj: Task): AxiosPromise<Task> => {
-  return APIClient.post(`${TASKS}`, obj);
-};
-
-export const updateTask = (obj: Task): AxiosPromise<Task> => {
-  return APIClient.put(`${TASKS}/${obj.id}`, obj);
-};
-
-export const submitTask = (obj: Task): AxiosPromise<Task> => {
-  return APIClient.put(`${TASKS}/${obj.id}/submit`, obj);
-};
-
 export const deleteTask = (id: number): AxiosPromise => {
   return APIClient.delete(`${TASKS}/${id}`);
 };
@@ -552,6 +542,34 @@ export const uploadFileTask = ({
   file: any;
 }): AxiosPromise<Task> => {
   return APIClient.post(`${TASKS}/${id}/bucket/${path}`, file, formHeaders);
+};
+
+export const createTaskgroup = (obj: Taskgroup): AxiosPromise<Task> => {
+  return APIClient.post(`${TASKGROUPS}`, obj);
+};
+
+export const submitTaskgroup = (obj: Taskgroup): AxiosPromise<Task> => {
+  return APIClient.put(`${TASKGROUPS}/${obj.id}/submit`, obj);
+};
+
+export const uploadFileTaskgroup = ({
+  id,
+  path,
+  file,
+}: {
+  id: number;
+  path: string;
+  file: any;
+}): AxiosPromise<Task> => {
+  return APIClient.post(
+    `${TASKGROUPS}/${id}/bucket/${path}`,
+    file,
+    formHeaders
+  );
+};
+
+export const deleteTaskgroup = (id: number): AxiosPromise => {
+  return APIClient.delete(`${TASKGROUPS}/${id}`);
 };
 
 export const getProxies = (): AxiosPromise<Array<any>> => {

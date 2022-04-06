@@ -5,24 +5,26 @@ import {
   Title,
   SelectOption,
   SelectVariant,
+  Alert,
 } from "@patternfly/react-core";
-import { FieldValues, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { SimpleSelect } from "@app/shared/components";
 import { UploadBinary } from "./components/upload-binary";
-import { IAnalysisWizardFormValues } from "./analysis-wizard";
 
 interface ISetMode {
   isSingleApp: boolean;
-  createdTaskID: number | null;
+  taskgroupID: number | null;
+  isModeValid: boolean;
 }
 
 export const SetMode: React.FunctionComponent<ISetMode> = ({
   isSingleApp,
-  createdTaskID,
+  taskgroupID,
+  isModeValid,
 }) => {
-  const { register, getValues, setValue } = useFormContext();
+  const { getValues, setValue } = useFormContext();
 
   const { mode } = getValues();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -43,7 +45,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
     />,
   ];
 
-  if (isSingleApp && createdTaskID)
+  if (isSingleApp && taskgroupID)
     options.push(
       <SelectOption
         key="binary-upload"
@@ -62,7 +64,6 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
       <FormGroup label="Source for analysis" fieldId="sourceType">
         <SimpleSelect
           variant={SelectVariant.single}
-          {...register("mode")}
           aria-label="Select user perspective"
           value={mode}
           onChange={(selection) => {
@@ -74,7 +75,20 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
           options={options}
         />
       </FormGroup>
-      {isUpload && createdTaskID && <UploadBinary taskId={createdTaskID} />}
+      {!isModeValid && (
+        <Alert
+          variant="warning"
+          isInline
+          title="Some applications cannot be analyzed"
+        >
+          <p>
+            Some of the selected applications cannot be analyzed with the
+            selected source because those values have not been defined. By
+            continuing, these applications won't be included in the analysis.
+          </p>
+        </Alert>
+      )}
+      {isUpload && taskgroupID && <UploadBinary taskId={taskgroupID} />}
     </>
   );
 };
