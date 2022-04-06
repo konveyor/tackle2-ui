@@ -11,6 +11,7 @@ interface IRouteWrapperProps {
 export const RouteWrapper = ({
   comp: Component,
   roles,
+  ...rest
 }: IRouteWrapperProps) => {
   const token = keycloak.tokenParsed || undefined;
   let userRoles = token?.realm_access?.roles,
@@ -23,5 +24,5 @@ export const RouteWrapper = ({
     return <Redirect to="/" />;
   }
 
-  return <Route render={(props) => <Component {...props} />} />;
+  return <Route {...rest} render={(props) => <Component {...props} />} />;
 };
