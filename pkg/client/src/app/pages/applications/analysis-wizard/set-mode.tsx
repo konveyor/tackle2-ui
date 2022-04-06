@@ -24,7 +24,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
   taskgroupID,
   isModeValid,
 }) => {
-  const { register, getValues, setValue } = useFormContext();
+  const { getValues, setValue } = useFormContext();
 
   const { mode } = getValues();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -64,7 +64,6 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
       <FormGroup label="Source for analysis" fieldId="sourceType">
         <SimpleSelect
           variant={SelectVariant.single}
-          {...register("mode")}
           aria-label="Select user perspective"
           value={mode}
           onChange={(selection) => {
