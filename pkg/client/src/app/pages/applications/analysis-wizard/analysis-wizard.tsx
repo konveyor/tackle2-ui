@@ -292,7 +292,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     }
   };
 
-  const { mode, artifact } = methods.getValues();
+  const { mode, artifact, targets } = methods.getValues();
 
   const isModeValid = (): boolean => {
     if (mode.includes("Upload")) return !isMutating && artifact !== "";
@@ -300,38 +300,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     else if (mode.includes("dependencies"))
       return areApplicationsSourceCodeDepsEnabled();
     else return areApplicationsSourceCodeEnabled();
-  };
-
-  const setTargetsStep = {
-    id: stepId.SetTargets,
-    name: "Set targets",
-    component: <SetTargets />,
-  };
-  const scopeStep = {
-    id: stepId.Scope,
-    name: "Scope",
-    component: <SetScope />,
-  };
-  const advancedSteps = {
-    name: "Advanced",
-    steps: [
-      {
-        id: stepId.CustomRules,
-        name: "Custom rules",
-        component: <CustomRules />,
-      },
-      {
-        id: stepId.Options,
-        name: "Options",
-        component: <SetOptions />,
-      },
-    ],
-  };
-  const reviewStep = {
-    id: stepId.Review,
-    name: "Review",
-    component: <Review applications={applications} />,
-    nextButtonText: "Run",
   };
 
   const steps = [
@@ -349,13 +317,50 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             />
           ),
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
+          enableNext: true,
         },
-        setTargetsStep,
-        scopeStep,
+        {
+          id: stepId.SetTargets,
+          name: "Set targets",
+          component: <SetTargets />,
+          canJumpTo: stepIdReached >= stepId.SetTargets,
+          enableNext: targets.length > 0,
+        },
+        {
+          id: stepId.Scope,
+          name: "Scope",
+          component: <SetScope />,
+          canJumpTo: stepIdReached >= stepId.Scope,
+          enableNext: true,
+        },
       ],
     },
-    advancedSteps,
-    reviewStep,
+    {
+      name: "Advanced",
+      steps: [
+        {
+          id: stepId.CustomRules,
+          name: "Custom rules",
+          component: <CustomRules />,
+          canJumpTo: stepIdReached >= stepId.CustomRules,
+          enableNext: true,
+        },
+        {
+          id: stepId.Options,
+          name: "Options",
+          component: <SetOptions />,
+          canJumpTo: stepIdReached >= stepId.Options,
+          enableNext: true,
+        },
+      ],
+    },
+    {
+      id: stepId.Review,
+      name: "Review",
+      component: <Review applications={applications} />,
+      nextButtonText: "Run",
+      canJumpTo: stepIdReached >= stepId.Review,
+    },
   ];
 
   const CustomFooter = (
