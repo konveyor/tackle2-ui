@@ -20,7 +20,7 @@ export const useFetchTasks = (
         let uniqLatestTasks: Task[] = [];
         data.forEach((task) => {
           const aTask = uniqLatestTasks.find(
-            (item) => task.application.id === item.application.id
+            (item) => task.application?.id === item.application?.id
           );
           if (aTask && aTask.createTime && task.createTime > aTask.createTime) {
             const others = uniqLatestTasks.filter((t) => t.id !== aTask.id);

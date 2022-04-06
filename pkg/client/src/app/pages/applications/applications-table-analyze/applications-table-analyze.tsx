@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import * as React from "react";
 import { useHistory } from "react-router-dom";
 import { AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
@@ -11,7 +11,6 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-
 import {
   cellWidth,
   expandable,
@@ -27,11 +26,11 @@ import {
 import { TagIcon } from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import { PencilAltIcon } from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
 import { useDispatch, useSelector } from "react-redux";
+
 import { RootState } from "@app/store/rootReducer";
 import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 import { unknownTagsSelectors } from "@app/store/unknownTags";
-import { bulkCopySelectors } from "@app/store/bulkCopy";
 import {
   AppPlaceholder,
   AppTableWithControls,
@@ -39,11 +38,11 @@ import {
   NoDataEmptyState,
   KebabDropdown,
 } from "@app/shared/components";
-import { useFetch, useEntityModal, useDelete } from "@app/shared/hooks";
+import { useEntityModal, useDelete } from "@app/shared/hooks";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 import { Paths } from "@app/Paths";
-import { Application, ApplicationAdoptionPlan, Task } from "@app/api/models";
-import { deleteApplication, getApplications } from "@app/api/rest";
+import { Application, Task } from "@app/api/models";
+import { deleteApplication } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationForm } from "../components/application-form";
 import { ApplicationBusinessService } from "../components/application-business-service";
@@ -64,6 +63,7 @@ import { useDeleteTaskMutation, useFetchTasks } from "@app/queries/tasks";
 import { RBAC, RBAC_TYPE, taskWriteScopes, writeScopes } from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
+import { useFetchApplications } from "@app/queries/applications";
 
 const ENTITY_FIELD = "entity";
 
@@ -81,38 +81,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   // Redux
   const dispatch = useDispatch();
 
+  // Router
+  const history = useHistory();
+
   const unknownTagIds = useSelector((state: RootState) =>
     unknownTagsSelectors.unknownTagIds(state)
   );
 
-  const isWatchingBulkCopy = useSelector((state: RootState) =>
-    bulkCopySelectors.isWatching(state)
-  );
-
-  // Router
-  const history = useHistory();
-
-  const fetchApplications = useCallback(() => {
-    return getApplications();
-  }, []);
-
-  const {
-    data: page,
-    isFetching,
-    fetchError,
-    requestFetch: refreshTable,
-  } = useFetch<Application[]>({
-    defaultIsFetching: true,
-    onFetch: fetchApplications,
-  });
-
-  const applications = useMemo(() => {
-    return page ? page : undefined;
-  }, [page]);
-
-  useEffect(() => {
-    refreshTable();
-  }, [isWatchingBulkCopy, refreshTable]);
+  const { applications, isFetching, fetchError } = useFetchApplications();
 
   const { tasks } = useFetchTasks();
 
@@ -129,14 +105,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     failedDeleteTask
   );
 
+  const getTask = (application: Application) =>
+    tasks.find((task: Task) => task.application?.id === application.id);
+
   const isTaskCancellable = (application: Application) => {
     const task = getTask(application);
     if (task?.state && task.state.match(/(Created|Running|Ready)/)) return true;
     return false;
   };
-
-  const getTask = (application: Application) =>
-    tasks.find((task: Task) => task.application.id === application.id);
 
   const filterCategories: FilterCategory<Application>[] = [
     {
@@ -214,7 +190,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     }
 
     closeApplicationModal();
-    refreshTable();
   };
 
   // Delete
@@ -243,7 +218,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   // Application import modal
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    useState(false);
+    React.useState(false);
 
   // Expand, select rows
   const {
@@ -282,6 +257,12 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     },
   ];
 
+  const getTaskState = (application: Application) => {
+    const task = getTask(application);
+    if (task && task.state) return task.state;
+    return "No task";
+  };
+
   const rows: IRow[] = [];
   currentPageItems?.forEach((item) => {
     const isExpanded = isRowExpanded(item);
@@ -310,7 +291,13 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           ),
         },
         {
-          title: <>{item.id && <ApplicationAnalysisStatus id={item.id} />}</>,
+          title: (
+            <>
+              {item.id && (
+                <ApplicationAnalysisStatus state={getTaskState(item)} />
+              )}
+            </>
+          ),
         },
         {
           title: (
@@ -428,7 +415,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             row,
             () => {
               dispatch(confirmDialogActions.closeDialog());
-              refreshTable();
             },
             (error) => {
               dispatch(confirmDialogActions.closeDialog());
@@ -441,16 +427,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   };
 
   const cancelAnalysis = (row: Application) => {
-    const task = tasks.find((task) => task.application.id === row.id);
+    const task = tasks.find((task) => task.application?.id === row.id);
     if (task) deleteTask(task.id);
-    refreshTable();
   };
 
   const handleOnApplicationIdentityUpdated = (
     response: AxiosResponse<Application>
   ) => {
     closeCredentialsModal();
-    refreshTable();
   };
 
   const isAnalyzingAllowed = () => {
@@ -458,7 +442,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       (app) =>
         !tasks.some(
           (task) =>
-            task.application.id === app.id &&
+            task.application?.id === app.id &&
             task.state?.match(/(Created|Running|Ready)/)
         )
     );
@@ -542,12 +526,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                     <KebabDropdown
                       dropdownItems={[
                         <DropdownItem
+                          key="import"
                           component="button"
                           onClick={() => setIsApplicationImportModalOpen(true)}
                         >
                           {t("actions.import")}
                         </DropdownItem>,
                         <DropdownItem
+                          key="manage-imports"
                           onClick={() => {
                             history.push(Paths.applicationsImports);
                           }}
@@ -555,6 +541,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                           {t("actions.manageImports")}
                         </DropdownItem>,
                         <DropdownItem
+                          key="manage-creds"
                           isDisabled={selectedRows.length < 1}
                           onClick={() => openCredentialsModal(selectedRows)}
                         >
@@ -602,7 +589,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           applications={selectedRows}
           onClose={() => {
             setAnalyzeModalOpen(false);
-            refreshTable();
           }}
         />
       )}
@@ -632,7 +618,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         <ImportApplicationsForm
           onSaved={() => {
             setIsApplicationImportModalOpen(false);
-            refreshTable();
           }}
         />
       </Modal>

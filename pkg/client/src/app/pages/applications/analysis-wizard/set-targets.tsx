@@ -8,13 +8,12 @@ import {
   Gallery,
   GalleryItem,
 } from "@patternfly/react-core";
-import jbossLogo from "@app/images/jboss.svg";
-import openshiftLogo from "@app/images/openshift.svg";
-import linuxLogo from "@app/images/linux.svg";
-import openjdkLogo from "@app/images/openjdk.svg";
-import camelLogo from "@app/images/camel.svg";
-import quarkusLogo from "@app/images/quarkus.svg";
-import rhRuntimesLogo from "@app/images/rh-runtimes.svg";
+import migrationIcon from "@app/images/Icon-Red_Hat-Migration-A-Black-RGB.svg";
+import appOnServerIcon from "@app/images/Icon-Red_Hat-App_on_server-A-Black-RGB.svg";
+import cloudIcon from "@app/images/Icon-Red_Hat-Cloud-A-Black-RGB.svg";
+import serverIcon from "@app/images/Icon-Red_Hat-Server-A-Black-RGB.svg";
+import mugIcon from "@app/images/Icon-Red_Hat-Mug-A-Black-RGB.svg";
+import multiplyIcon from "@app/images/Icon-Red_Hat-Multiply-A-Black-RGB.svg";
 
 import { SelectCard } from "./components/select-card";
 import { useFormContext } from "react-hook-form";
@@ -31,53 +30,73 @@ const options: TransformationTargets[] = [
   {
     label: "Application server migration to",
     description:
-      "Upgrade to the latest Release of JBoss EAP or migrate your applications to JBoss EAP from competitors' Enterprise Application Server (e.g. Oracle WebLogic Server).",
+      "Upgrade to the latest Release of JBoss EAP or migrate your applications to JBoss EAP from other Enterprise Application Server (e.g. Oracle WebLogic Server).",
     options: new Map([
       ["eap7", "JBoss EAP 7"],
       ["eap6", "JBoss EAP 6"],
     ]),
-    iconSrc: jbossLogo,
+    iconSrc: appOnServerIcon,
   },
   {
     label: "Containerization",
     description:
-      "A comprehensive set of cloud and container readiness rules to assess applications for suitability for deployment on OpenShift Container Platform.",
+      "A comprehensive set of cloud and container readiness rules to assess applications for suitability for deployment on Kubernetes.",
     options: new Map([["cloud-readiness", "cloud-readiness"]]),
-    iconSrc: openshiftLogo,
-  },
-  {
-    label: "Linux",
-    description:
-      "Ensure there are no Microsoft Windows paths hard coded into your applications.",
-    options: new Map([["linux", "linux"]]),
-    iconSrc: linuxLogo,
-  },
-  {
-    label: "OpenJDK",
-    description: "Rules to support the migration to OpenJDK from OracleJDK.",
-    options: new Map([["openjdk", "openjdk"]]),
-    iconSrc: openjdkLogo,
-  },
-  {
-    label: "Camel",
-    description:
-      "A comprehensive set of rules for migration from Apache Camel 2 to Apache Camel 3.",
-    options: new Map([["camel", "camel"]]),
-    iconSrc: camelLogo,
+    iconSrc: cloudIcon,
   },
   {
     label: "Quarkus",
     description:
       "Rules to support the migration of Spring Boot applications to Quarkus.",
     options: new Map([["quarkus", "quarkus"]]),
-    iconSrc: quarkusLogo,
+    iconSrc: migrationIcon,
+  },
+  {
+    label: "OpenJDK",
+    description: "Rules to support the migration to OpenJDK from OracleJDK.",
+    options: new Map([["openjdk", "openjdk"]]),
+    iconSrc: mugIcon,
+  },
+  {
+    label: "OpenJDK 11",
+    description: "Rules to support the migration to OpenJDK 11 from OpenJDK 8",
+    options: new Map([["openjdk11", "openjdk11"]]),
+    iconSrc: mugIcon,
+  },
+  {
+    label: "Linux",
+    description:
+      "Ensure there are no Microsoft Windows paths hard coded into your applications.",
+    options: new Map([["linux", "linux"]]),
+    iconSrc: serverIcon,
+  },
+  {
+    label: "Jakarta EE 9",
+    description:
+      "A collection of rules to support migrating applications from Java EE 8 to Jakarta EE 9. The rules cover project dependencies, package renaming, updating XML Schema namespaces, the renaming of application configuration properties and bootstraping files.",
+    options: new Map([["jakartaee", "jakartaee"]]),
+    iconSrc: migrationIcon,
   },
   {
     label: "Spring Boot on Red Hat Runtimes",
     description:
       "A set of rules for assessing the compatibility of applications against the versions of Spring Boot libraries supported by Red Hat Runtimes.",
     options: new Map([["rhr", "rhr"]]),
-    iconSrc: rhRuntimesLogo,
+    iconSrc: migrationIcon,
+  },
+  {
+    label: "Open Liberty",
+    description:
+      "A comprehensive set of rulesfor migrating traditional WebSphere applications to Open Liberty.",
+    options: new Map([["openliberty", "openliberty"]]),
+    iconSrc: migrationIcon,
+  },
+  {
+    label: "Camel",
+    description:
+      "A comprehensive set of rules for migration from Apache Camel 2 to Apache Camel 3.",
+    options: new Map([["camel", "camel"]]),
+    iconSrc: multiplyIcon,
   },
 ];
 

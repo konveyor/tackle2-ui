@@ -1,13 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
+
 import App from "@app/App";
 import reportWebVitals from "@app/reportWebVitals";
-import { Provider } from "react-redux";
 import configureStore from "@app/store";
 import i18n from "@app/i18n";
 import { NinjaErrorBoundary } from "@app/ninja-error-boundary";
-
-import { QueryClient, QueryClientProvider } from "react-query";
 import { LocalStorageContextProvider } from "@app/context/LocalStorageContext";
 import { KeycloakProvider } from "@app/common/KeycloakProvider";
 
@@ -23,6 +24,7 @@ ReactDOM.render(
         <NinjaErrorBoundary>
           <QueryClientProvider client={queryClient}>
             <App />
+            <ReactQueryDevtools initialIsOpen={false} />
           </QueryClientProvider>
         </NinjaErrorBoundary>
       </Provider>
