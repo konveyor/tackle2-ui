@@ -31,7 +31,7 @@ const options: TransformationTargets[] = [
   {
     label: "Application server migration to",
     description:
-      "Upgrade to the latest Release of JBoss EAP or migrate your applications to JBoss EAP from competitors' Enterprise Application Server (e.g. Oracle WebLogic Server).",
+      "Upgrade to the latest Release of JBoss EAP or migrate your applications to JBoss EAP from other Enterprise Application Server (e.g. Oracle WebLogic Server).",
     options: new Map([
       ["eap7", "JBoss EAP 7"],
       ["eap6", "JBoss EAP 6"],
@@ -41,7 +41,7 @@ const options: TransformationTargets[] = [
   {
     label: "Containerization",
     description:
-      "A comprehensive set of cloud and container readiness rules to assess applications for suitability for deployment on OpenShift Container Platform.",
+      "A comprehensive set of cloud and container readiness rules to assess applications for suitability for deployment on Kubernetes.",
     options: new Map([["cloud-readiness", "cloud-readiness"]]),
     iconSrc: openshiftLogo,
   },
