@@ -91,8 +91,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const { applications, isFetching, fetchError } = useFetchApplications();
 
   const { tasks } = useFetchTasks();
-  console.log("tasks: ", tasks);
-  React.useEffect(() => {}, []);
 
   const completedDeleteTask = () => {
     dispatch(alertActions.addInfo("Task", "Deleted"));
@@ -528,12 +526,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                     <KebabDropdown
                       dropdownItems={[
                         <DropdownItem
+                          key="import"
                           component="button"
                           onClick={() => setIsApplicationImportModalOpen(true)}
                         >
                           {t("actions.import")}
                         </DropdownItem>,
                         <DropdownItem
+                          key="manage-imports"
                           onClick={() => {
                             history.push(Paths.applicationsImports);
                           }}
@@ -541,6 +541,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                           {t("actions.manageImports")}
                         </DropdownItem>,
                         <DropdownItem
+                          key="manage-creds"
                           isDisabled={selectedRows.length < 1}
                           onClick={() => openCredentialsModal(selectedRows)}
                         >
