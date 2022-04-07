@@ -60,7 +60,6 @@ export const TASKGROUPS = HUB + "/taskgroups";
 export const PATHFINDER = "/pathfinder";
 export const ASSESSMENTS = PATHFINDER + "/assessments";
 
-const halHeaders = { headers: { Accept: "application/hal+json" } };
 const jsonHeaders = { headers: { Accept: "application/json" } };
 const formHeaders = { headers: { Accept: "multipart/form-data" } };
 
@@ -399,7 +398,7 @@ export const getApplicationImport = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${APP_IMPORT}?${query.join("&")}`, halHeaders);
+  return APIClient.get(`${APP_IMPORT}?${query.join("&")}`);
 };
 
 export const getApplicationSummaryCSV = (id: string): AxiosPromise => {
