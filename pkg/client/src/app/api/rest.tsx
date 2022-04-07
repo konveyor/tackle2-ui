@@ -532,18 +532,6 @@ export const deleteTask = (id: number): AxiosPromise => {
   return APIClient.delete(`${TASKS}/${id}`);
 };
 
-export const uploadFileTask = ({
-  id,
-  path,
-  file,
-}: {
-  id: number;
-  path: string;
-  file: any;
-}): AxiosPromise<Task> => {
-  return APIClient.post(`${TASKS}/${id}/bucket/${path}`, file, formHeaders);
-};
-
 export const createTaskgroup = (obj: Taskgroup): AxiosPromise<Task> => {
   return APIClient.post(`${TASKGROUPS}`, obj);
 };
