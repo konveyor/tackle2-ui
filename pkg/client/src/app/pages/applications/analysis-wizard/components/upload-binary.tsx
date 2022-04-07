@@ -11,12 +11,13 @@ import {
   MultipleFileUploadTitleText,
   MultipleFileUploadTitleTextSeparator,
 } from "@patternfly/react-core";
-
-import { useUploadFileMutation } from "@app/queries/tasks";
-import { IAnalysisWizardFormValues, IReadFile } from "../analysis-wizard";
 import { useFormContext } from "react-hook-form";
-import { alertActions } from "@app/store/alert";
 import { useDispatch } from "react-redux";
+
+import { IReadFile } from "../analysis-wizard";
+import { alertActions } from "@app/store/alert";
+import { useUploadFileTaskgroupMutation } from "@app/queries/taskgroups";
+
 interface IUploadBinary {
   taskId: number;
 }
@@ -60,7 +61,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     setFileUploadProgress(0);
   };
 
-  const { mutate: uploadFile } = useUploadFileMutation(
+  const { mutate: uploadFile } = useUploadFileTaskgroupMutation(
     completedUpload,
     failedUpload
   );

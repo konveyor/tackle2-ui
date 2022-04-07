@@ -15,14 +15,17 @@ export const useFetchApplications = (
   defaultIsFetching: boolean = false
 ): IFetchState => {
   const [applications, setApplications] = useState<Application[]>([]);
-  const { isLoading, error, refetch } = useQuery("applications", () =>
-    getApplications()
-      .then(({ data }) => {
-        setApplications(data);
-      })
-      .catch((error) => {
-        console.log("error, ", error);
-      })
+  const { isLoading, error, refetch } = useQuery(
+    "applications",
+    () =>
+      getApplications()
+        .then(({ data }) => {
+          setApplications(data);
+        })
+        .catch((error) => {
+          console.log("error, ", error);
+        }),
+    { refetchInterval: 5000 }
   );
   return {
     applications: applications,
