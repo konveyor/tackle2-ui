@@ -2,6 +2,7 @@ import * as React from "react";
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import {
   Application,
+  Identity,
   TaskData,
   Taskgroup,
   TaskgroupTask,
@@ -34,10 +35,10 @@ import {
   useSubmitTaskgroupMutation,
 } from "@app/queries/taskgroups";
 import { uploadFileTaskgroup } from "@app/api/rest";
-import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
 
 interface IAnalysisWizard {
   applications: Application[];
+  identities: Identity[];
   onClose: () => void;
 }
 export interface IReadFile {
@@ -80,12 +81,11 @@ const defaultTaskData: TaskData = {
 
 export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   applications,
+  identities,
   onClose,
 }: IAnalysisWizard) => {
   const title = "Application analysis";
   const dispatch = useDispatch();
-
-  const { identities, fetchIdentities } = useFetchIdentities();
 
   const [isInitTaskgroup, setInitTaskgroup] = React.useState(false);
   const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
@@ -154,7 +154,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   });
 
   const hasIdentity = (application: Application, kind: string) => {
-    fetchIdentities();
     return !!application.identities?.some((appIdentity) =>
       identities?.find(
         (identity) => appIdentity.id === identity.id && identity.kind === kind
@@ -189,6 +188,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         application.identities.length > 0 &&
         hasIdentity(application, "maven")
     );
+
   const { handleSubmit, watch, reset } = methods;
   const watchAllFields = watch();
 

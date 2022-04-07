@@ -64,6 +64,7 @@ import { RBAC, RBAC_TYPE, taskWriteScopes, writeScopes } from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
 import { useFetchApplications } from "@app/queries/applications";
+import { useFetchIdentities } from "@app/queries/identities";
 
 const ENTITY_FIELD = "entity";
 
@@ -91,6 +92,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const { applications, isFetching, fetchError } = useFetchApplications();
 
   const { tasks } = useFetchTasks();
+  const { identities } = useFetchIdentities();
 
   const completedDeleteTask = () => {
     dispatch(alertActions.addInfo("Task", "Deleted"));
@@ -587,6 +589,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       {isAnalyzeModalOpen && (
         <AnalysisWizard
           applications={selectedRows}
+          identities={identities}
           onClose={() => {
             setAnalyzeModalOpen(false);
           }}
