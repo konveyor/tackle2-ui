@@ -134,6 +134,9 @@ export const SetTargets: React.FunctionComponent = () => {
               <GalleryItem key={index}>
                 <SelectCard
                   item={elem}
+                  cardSelected={[...elem.options.keys()].some((key) =>
+                    targets.includes(key)
+                  )}
                   onChange={(isNewCard: boolean, selectionValue: string) => {
                     handleOnCardChange(isNewCard, selectionValue, elem);
                   }}

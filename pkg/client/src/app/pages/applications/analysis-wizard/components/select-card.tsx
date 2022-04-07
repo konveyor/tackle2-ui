@@ -21,11 +21,16 @@ import "./select-card.css";
 
 export interface SelectCardProps {
   item: TransformationTargets;
-  onChange: (isNeweCard: boolean, value: string) => void;
+  cardSelected: boolean;
+  onChange: (isNewCard: boolean, value: string) => void;
 }
 
-export const SelectCard: React.FC<SelectCardProps> = ({ item, onChange }) => {
-  const [isCardSelected, setCardSelected] = React.useState(false);
+export const SelectCard: React.FC<SelectCardProps> = ({
+  item,
+  cardSelected,
+  onChange,
+}) => {
+  const [isCardSelected, setCardSelected] = React.useState(cardSelected);
   const [isSelectOpen, setSelectOpen] = React.useState(false);
   const [selectedRelease, setSelectedRelease] = React.useState(
     [...item.options.keys()][0]

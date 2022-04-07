@@ -292,7 +292,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     }
   };
 
-  const { mode, artifact, targets } = methods.getValues();
+  const { mode, artifact } = methods.getValues();
 
   const isModeValid = (): boolean => {
     if (mode.includes("Upload")) return !isMutating && artifact !== "";
@@ -394,7 +394,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
               <Button
                 variant="secondary"
                 onClick={() => getPreviousStep(activeStep, onBack)}
-                className={activeStep.name === "General" ? "pf-m-disabled" : ""}
                 isDisabled={activeStep.name === "Analysis mode"}
               >
                 Back
