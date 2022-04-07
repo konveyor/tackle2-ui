@@ -4,9 +4,10 @@ import {
   createTaskgroup,
   deleteTaskgroup,
   submitTaskgroup,
+  uploadFileTaskgroup,
 } from "@app/api/rest";
 
-export interface IMutateState {
+export interface ITaskgroupMutateState {
   mutate: any;
   isLoading: boolean;
   error: any;
@@ -15,7 +16,7 @@ export interface IMutateState {
 export const useCreateTaskgroupMutation = (
   onSuccess: (res: any) => void,
   onError: (err: Error | unknown) => void
-): IMutateState => {
+): ITaskgroupMutateState => {
   const { isLoading, mutate, error } = useMutation(createTaskgroup, {
     onSuccess: (res) => {
       onSuccess(res);
@@ -34,7 +35,7 @@ export const useCreateTaskgroupMutation = (
 export const useSubmitTaskgroupMutation = (
   onSuccess: (res: any) => void,
   onError: (err: Error | unknown) => void
-): IMutateState => {
+): ITaskgroupMutateState => {
   const queryClient = useQueryClient();
 
   const { isLoading, mutate, error } = useMutation(submitTaskgroup, {
@@ -54,9 +55,28 @@ export const useSubmitTaskgroupMutation = (
   };
 };
 
+export const useUploadFileTaskgroupMutation = (
+  successCallback: (res: any) => void,
+  errorCallback: (err: Error | null) => void
+): ITaskgroupMutateState => {
+  const { isLoading, mutate, error } = useMutation(uploadFileTaskgroup, {
+    onSuccess: (res) => {
+      successCallback && successCallback(res);
+    },
+    onError: (err: Error) => {
+      errorCallback && errorCallback(error);
+    },
+  });
+  return {
+    mutate,
+    isLoading,
+    error,
+  };
+};
+
 export const useDeleteTaskgroupMutation = (
   onError: (err: Error | unknown) => void
-): IMutateState => {
+): ITaskgroupMutateState => {
   const queryClient = useQueryClient();
 
   const { isLoading, mutate, error } = useMutation(deleteTaskgroup, {

@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 
 import { Task } from "@app/api/models";
-import { deleteTask, getTasks, uploadFileTask } from "@app/api/rest";
+import { deleteTask, getTasks } from "@app/api/rest";
 
-export interface IFetchState {
+export interface ITaskFetchState {
   tasks: Task[];
   isFetching: boolean;
   fetchError: any;
@@ -12,9 +12,9 @@ export interface IFetchState {
 
 export const useFetchTasks = (
   defaultIsFetching: boolean = false
-): IFetchState => {
+): ITaskFetchState => {
   const [tasks, setTasks] = useState<Array<Task>>([]);
-  const { isLoading, data, error } = useQuery("tasks", () =>
+  const { isLoading, error } = useQuery("tasks", () =>
     getTasks()
       .then(({ data }) => {
         let uniqLatestTasks: Task[] = [];
@@ -40,35 +40,16 @@ export const useFetchTasks = (
   };
 };
 
-export interface IMutateState {
+export interface ITaskMutateState {
   mutate: any;
   isLoading: boolean;
   error: any;
 }
 
-export const useUploadFileMutation = (
-  successCallback: (res: any) => void,
-  errorCallback: (err: Error | null) => void
-): IMutateState => {
-  const { isLoading, mutate, error } = useMutation(uploadFileTask, {
-    onSuccess: (res) => {
-      successCallback && successCallback(res);
-    },
-    onError: (err: Error) => {
-      errorCallback && errorCallback(error);
-    },
-  });
-  return {
-    mutate,
-    isLoading,
-    error,
-  };
-};
-
 export const useDeleteTaskMutation = (
   onSuccess: () => void,
   onError: (err: Error | null) => void
-): IMutateState => {
+): ITaskMutateState => {
   const { mutate, isLoading, error } = useMutation(deleteTask, {
     onSuccess: () => {
       onSuccess && onSuccess();
