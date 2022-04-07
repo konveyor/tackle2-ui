@@ -279,10 +279,7 @@ export const getApplicationDependencies = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(
-    `${APPLICATION_DEPENDENCY}?${query.join("&")}`,
-    halHeaders
-  );
+  return APIClient.get(`${APPLICATION_DEPENDENCY}?${query.join("&")}`);
 };
 
 export const createApplicationDependency = (
@@ -373,7 +370,7 @@ export const getApplicationImportSummary = (
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${APP_IMPORT_SUMMARY}?${query.join("&")}`, halHeaders);
+  return APIClient.get(`${APP_IMPORT_SUMMARY}?${query.join("&")}`);
 };
 
 export const getApplicationImportSummaryById = (
