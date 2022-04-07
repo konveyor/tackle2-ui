@@ -29,6 +29,7 @@ const xmllint = require("xmllint");
 const { XMLValidator } = require("fast-xml-parser");
 
 import "./identity-form.css";
+import keycloak from "@app/keycloak";
 
 export interface IdentityFormProps {
   identity?: Identity;
@@ -64,11 +65,16 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   };
 
   const onSubmit = (formValues: FieldValues) => {
+    const createUpdateUser = keycloak?.tokenParsed?.preferred_username;
+
     const payload: Identity = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       id: formValues.id,
       kind: formValues.kind.trim(),
+      ...(initialIdentity
+        ? { updateUser: createUpdateUser }
+        : { createUser: createUpdateUser }),
       //proxy cred
       ...(formValues.kind === "proxy" && {
         password: formValues.password.trim(),
@@ -284,7 +290,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       toString: () => `Proxy`,
     },
   ];
-
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       {axiosError && (
