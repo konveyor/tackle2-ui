@@ -1,5 +1,11 @@
-import React, { lazy, Suspense } from "react";
-import { Redirect, Route, Switch, useHistory } from "react-router-dom";
+import React, { lazy, Suspense, useEffect } from "react";
+import {
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useLocation,
+} from "react-router-dom";
 import {
   Level,
   LevelItem,
@@ -17,7 +23,9 @@ import { AppPlaceholder } from "@app/shared/components";
 
 import { useTranslation } from "react-i18next";
 
-const ApplicationTable = lazy(() => import("./applications-table-assessment"));
+const ApplicationsTableAssessment = lazy(
+  () => import("./applications-table-assessment")
+);
 const ApplicationsTableAnalyze = lazy(
   () => import("./applications-table-analyze")
 );
@@ -28,6 +36,16 @@ export const Applications: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const [activeTabKey, setActiveTabKey] = React.useState(0);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (
+      location.pathname === "/applications/assessment-tab" ||
+      location.pathname === "/applications"
+    )
+      setActiveTabKey(0);
+    else setActiveTabKey(1);
+  }, [location.key, location.pathname]);
 
   return (
     <>
@@ -56,7 +74,7 @@ export const Applications: React.FC = () => {
           <Switch>
             <Route
               path={Paths.applicationsAssessmentTab}
-              component={ApplicationTable}
+              component={ApplicationsTableAssessment}
             />
             <Route
               path={Paths.applicationsAnalysisTab}
