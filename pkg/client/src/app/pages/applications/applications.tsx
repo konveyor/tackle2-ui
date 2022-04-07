@@ -42,10 +42,11 @@ export const Applications: React.FC = () => {
     if (
       location.pathname === "/applications/assessment-tab" ||
       location.pathname === "/applications"
-    ) {
+    )
       setActiveTabKey(0);
-    }
-  }, [location.key]);
+    else setActiveTabKey(1);
+  }, [location.key, location.pathname]);
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light} className={spacing.pb_0}>
