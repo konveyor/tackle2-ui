@@ -6,7 +6,7 @@ import { unknownTagsActions } from "@app/store/unknownTags";
 import { ConditionalRender } from "@app/shared/components";
 
 import { Application, Tag, TagType } from "@app/api/models";
-import { getTagById } from "@app/api/rest";
+import { getTagById, getTagTypeById } from "@app/api/rest";
 import {
   Label,
   LabelGroup,
@@ -58,16 +58,25 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
             .filter((e) => !validTagIds.includes(e));
 
           validResponses.forEach((e) => {
-            const tagType = e.tagType;
-            if (tagType) {
-              // Tag types
-              newTagTypes.set(tagType.id!, tagType);
+            const tagTypeRef = e.tagType;
+            if (tagTypeRef?.id) {
+              let fullTagType: TagType;
+              const resIDCALL = getTagTypeById(tagTypeRef.id).then((res) => {
+                console.log(" tag  type by id res", res);
+                fullTagType = res.data;
+                const tagTypeWithColour: TagType = {
+                  ...tagTypeRef,
+                  colour: fullTagType?.colour || "",
+                };
+                newTagTypes.set(tagTypeWithColour.id!, tagTypeWithColour);
 
-              // Tags
-              newTags.set(tagType.id!, [
-                ...(newTags.get(tagType.id!) || []),
-                e,
-              ]);
+                // // Tags
+                newTags.set(tagTypeWithColour.id!, [
+                  ...(newTags.get(tagTypeWithColour.id!) || []),
+                  e,
+                ]);
+              });
+              // Tag types
             }
           });
 
@@ -76,6 +85,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           setTags(newTags);
 
           setIsFetching(false);
+          getTagTypeById;
         })
         .catch(() => {
           setIsFetching(false);
