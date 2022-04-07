@@ -4,59 +4,49 @@ import { useMutation, useQuery } from "react-query";
 import { Task } from "@app/api/models";
 import { deleteTask, getTasks } from "@app/api/rest";
 
-export interface ITaskFetchState {
-  tasks: Task[];
-  isFetching: boolean;
-  fetchError: any;
-}
-
-export const useFetchTasks = (
-  defaultIsFetching: boolean = false
-): ITaskFetchState => {
-  const [tasks, setTasks] = useState<Array<Task>>([]);
-  const { isLoading, error } = useQuery("tasks", () =>
-    getTasks()
-      .then(({ data }) => {
-        let uniqLatestTasks: Task[] = [];
-        data.forEach((task) => {
-          const aTask = uniqLatestTasks.find(
-            (item) => task.application?.id === item.application?.id
-          );
-          if (aTask && aTask.createTime && task.createTime > aTask.createTime) {
-            const others = uniqLatestTasks.filter((t) => t.id !== aTask.id);
-            uniqLatestTasks = [...others, task];
-          } else uniqLatestTasks.push(task);
-        });
-        setTasks(uniqLatestTasks);
-      })
-      .catch((error) => {
-        console.log("error, ", error);
-      })
-  );
+export const useFetchTasks = () => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const { isLoading, error, refetch } = useQuery("tasks", getTasks, {
+    refetchInterval: 5000,
+    onSuccess: (data) => {
+      let uniqLatestTasks: Task[] = [];
+      data.forEach((task) => {
+        const aTask = uniqLatestTasks.find(
+          (item) => task.application?.id === item.application?.id
+        );
+        if (
+          aTask?.createTime &&
+          task?.createTime &&
+          task.createTime > aTask.createTime
+        ) {
+          const others = uniqLatestTasks.filter((t) => t.id !== aTask.id);
+          uniqLatestTasks = [...others, task];
+        } else uniqLatestTasks.push(task);
+      });
+      setTasks(uniqLatestTasks);
+    },
+    onError: (err) => {
+      console.log(error);
+    },
+  });
   return {
-    tasks: tasks,
+    tasks,
     isFetching: isLoading,
     fetchError: error,
+    refetch,
   };
 };
-
-export interface ITaskMutateState {
-  mutate: any;
-  isLoading: boolean;
-  error: any;
-}
 
 export const useDeleteTaskMutation = (
   onSuccess: () => void,
   onError: (err: Error | null) => void
-): ITaskMutateState => {
-  const { mutate, isLoading, error } = useMutation(deleteTask, {
+) => {
+  return useMutation(deleteTask, {
     onSuccess: () => {
       onSuccess && onSuccess();
     },
     onError: (err: Error) => {
-      onError && onError(error);
+      onError && onError(err);
     },
   });
-  return { mutate, isLoading, error };
 };

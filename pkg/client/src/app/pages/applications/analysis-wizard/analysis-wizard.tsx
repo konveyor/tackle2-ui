@@ -1,18 +1,8 @@
 import * as React from "react";
+import { useIsMutating } from "react-query";
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
-import {
-  Application,
-  Identity,
-  TaskData,
-  Taskgroup,
-  TaskgroupTask,
-} from "@app/api/models";
-import "./wizard.css";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useState } from "react";
-
-import { alertActions } from "@app/store/alert";
 import { useDispatch } from "react-redux";
 import {
   Button,
@@ -22,19 +12,28 @@ import {
   WizardStepFunctionType,
 } from "@patternfly/react-core";
 
+import {
+  Application,
+  Identity,
+  TaskData,
+  Taskgroup,
+  TaskgroupTask,
+} from "@app/api/models";
+import { alertActions } from "@app/store/alert";
 import { CustomRules } from "./custom-rules";
 import { Review } from "./review";
 import { SetMode } from "./set-mode";
 import { SetOptions } from "./set-options";
 import { SetScope } from "./set-scope";
 import { SetTargets } from "./set-targets";
-import { useIsMutating } from "react-query";
 import {
   useCreateTaskgroupMutation,
   useDeleteTaskgroupMutation,
   useSubmitTaskgroupMutation,
+  useUploadFileMutation,
 } from "@app/queries/taskgroups";
-import { uploadFileTaskgroup } from "@app/api/rest";
+
+import "./wizard.css";
 
 interface IAnalysisWizard {
   applications: Application[];
@@ -91,9 +90,9 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
   const isMutating = useIsMutating();
 
-  const onCreateTaskgroupSuccess = (response: any) => {
+  const onCreateTaskgroupSuccess = (data: Taskgroup) => {
     setInitTaskgroup(true);
-    setCreatedTaskgroup(response.data);
+    setCreatedTaskgroup(data);
   };
 
   const onCreateTaskgroupError = (error: Error | unknown) => {
@@ -107,7 +106,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     onCreateTaskgroupError
   );
 
-  const onSubmitTaskgroupSuccess = (response: any) => {
+  const onSubmitTaskgroupSuccess = (data: Taskgroup) => {
     dispatch(alertActions.addSuccess("Applications", "Submitted for analysis"));
   };
 
@@ -120,6 +119,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     onSubmitTaskgroupSuccess,
     onSubmitTaskgroupError
   );
+
+  const onUploadError = (error: Error | unknown) => {
+    console.log("Taskgroup upload failed: ", error);
+  };
+
+  const { mutate: uploadFile } = useUploadFileMutation(() => {}, onUploadError);
 
   const onDeleteTaskgroupError = (error: Error | unknown) => {
     console.log("Taskgroup: delete failed: ", error);
@@ -245,7 +250,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     };
   };
 
-  const [stepIdReached, setStepIdReached] = useState(1);
+  const [stepIdReached, setStepIdReached] = React.useState(1);
 
   enum stepId {
     AnalysisMode = 1,
@@ -265,18 +270,17 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
     if (createdTaskgroup) {
       const taskgroup = setTaskgroup(createdTaskgroup, data);
-      Promise.all(
-        data.customRulesFiles.map((file: any) => {
-          const formFile = new FormData();
-          formFile.append("file", file.file);
 
-          return uploadFileTaskgroup({
-            id: taskgroup.id as number,
-            path: `/rules/${file.fileName}`,
-            file: formFile,
-          });
-        })
-      );
+      data.customRulesFiles.forEach((file: any) => {
+        const formFile = new FormData();
+        formFile.append("file", file.file);
+
+        uploadFile({
+          id: taskgroup.id as number,
+          path: `/rules/${file.fileName}`,
+          file: formFile,
+        });
+      });
 
       submitTaskgroup(taskgroup);
     }
@@ -423,7 +427,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   const handleClose = () => {
     setStepIdReached(stepId.AnalysisMode);
     reset();
-    if (isInitTaskgroup && createdTaskgroup)
+    if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
       deleteTaskgroup(createdTaskgroup.id);
     onClose();
   };

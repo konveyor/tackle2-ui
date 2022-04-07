@@ -80,7 +80,7 @@ export const useFetchIdentities = (): IIdentityFetchState => {
       })
   );
   return {
-    identities: identities,
+    identities,
     isFetching: isLoading,
     fetchError: error,
   };
