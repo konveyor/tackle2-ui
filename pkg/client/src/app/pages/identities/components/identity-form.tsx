@@ -16,7 +16,6 @@ import { FieldValues, useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import { createIdentity, updateIdentity } from "@app/api/rest";
 import { Identity } from "@app/api/models";
 import {
   getAxiosErrorMessage,
@@ -29,6 +28,14 @@ const xmllint = require("xmllint");
 const { XMLValidator } = require("fast-xml-parser");
 
 import "./identity-form.css";
+import { useQueryClient } from "react-query";
+import {
+  IdentitiesQueryKey,
+  useCreateIdentityMutation,
+  useUpdateIdentityMutation,
+} from "@app/queries/identities";
+import { useDispatch } from "react-redux";
+import { alertActions } from "@app/store/alert";
 
 export interface IdentityFormProps {
   identity?: Identity;
@@ -46,6 +53,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const [axiosError, setAxiosError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
   const [identity, setIdentity] = useState(initialIdentity);
+  const dispatch = useDispatch();
+
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     setIdentity(initialIdentity);
     return () => {
@@ -62,6 +73,23 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       return "";
     }
   };
+  const onCreateUpdateIdentitySuccess = (response: any) => {
+    onSaved(response);
+  };
+
+  const onCreateUpdateIdentityError = (error: AxiosError) => {
+    setAxiosError(error);
+  };
+
+  const { mutate: createIdentity } = useCreateIdentityMutation(
+    onCreateUpdateIdentitySuccess,
+    onCreateUpdateIdentityError
+  );
+
+  const { mutate: updateIdentity } = useUpdateIdentityMutation(
+    onCreateUpdateIdentitySuccess,
+    onCreateUpdateIdentityError
+  );
 
   const onSubmit = (formValues: FieldValues) => {
     const payload: Identity = {
@@ -101,21 +129,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         }),
     };
 
-    let promise: AxiosPromise<Identity>;
     if (identity) {
-      promise = updateIdentity({
+      updateIdentity({
         ...payload,
       });
     } else {
-      promise = createIdentity(payload);
+      createIdentity(payload);
     }
-    promise
-      .then((response) => {
-        onSaved(response);
-      })
-      .catch((error) => {
-        setAxiosError(error);
-      });
   };
 
   const validationSchema = object().shape({
@@ -123,7 +143,28 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       .trim()
       .required(t("validation.required"))
       .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 })),
+      .max(120, t("validation.maxLength", { length: 120 }))
+      .test(
+        "Duplicate name",
+        "An identity with this name already exists. Please use a different name.",
+        (value) => {
+          const identities: Identity[] =
+            queryClient.getQueryData(IdentitiesQueryKey) || [];
+          let duplicateList = [...identities];
+          if (identity) {
+            const index = duplicateList.findIndex(
+              (id) => id.name === identity.name
+            );
+            if (index > -1) {
+              duplicateList.splice(index, 1);
+            }
+          }
+          const hasDuplicate = duplicateList.some(
+            (identity) => identity.name === value
+          );
+          return !hasDuplicate;
+        }
+      ),
     description: string()
       .trim()
       .max(250, t("validation.maxLength", { length: 250 })),
@@ -168,6 +209,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           }
         },
       }),
+    }),
+    userCredentials: string().when("kind", {
+      is: "source",
+      then: string().required(),
     }),
     user: string()
       .when("kind", {
@@ -248,6 +293,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     resolver: yupResolver(validationSchema),
     mode: "onChange",
   });
+
   const values = getValues();
 
   const [isFileRejected, setIsFileRejected] = useState(false);

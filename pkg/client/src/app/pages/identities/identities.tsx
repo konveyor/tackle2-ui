@@ -28,7 +28,7 @@ import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useDispatch } from "react-redux";
 import { alertActions } from "@app/store/alert";
 import { useDelete, useTableControls } from "@app/shared/hooks";
@@ -36,12 +36,15 @@ import { confirmDialogActions } from "@app/store/confirmDialog";
 import { NewIdentityModal } from "./components/new-identity-modal";
 import { UpdateIdentityModal } from "./components/update-identity-modal";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
+import {
+  useDeleteIdentityMutation,
+  useFetchIdentities,
+} from "@app/queries/identities";
 
 const ENTITY_FIELD = "entity";
 
@@ -52,6 +55,19 @@ export const Identities: React.FunctionComponent = () => {
   const dispatch = useDispatch();
 
   const [rowToUpdate, setRowToUpdate] = useState<Identity>();
+  const onDeleteIdentitySuccess = (response: any) => {
+    dispatch(confirmDialogActions.closeDialog());
+  };
+
+  const onDeleteIdentityError = (error: AxiosError) => {
+    dispatch(confirmDialogActions.closeDialog());
+    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+  };
+
+  const { mutate: deleteIdentity } = useDeleteIdentityMutation(
+    onDeleteIdentitySuccess,
+    onDeleteIdentityError
+  );
 
   // Create and update modal
   const {
@@ -66,16 +82,8 @@ export const Identities: React.FunctionComponent = () => {
     identities,
     isFetching,
     fetchError: fetchErrorIdentities,
-    fetchIdentities,
   } = useFetchIdentities();
 
-  useEffect(() => {
-    fetchIdentities();
-  }, [fetchIdentities]);
-
-  const { requestDelete: requestDeleteIdentity } = useDelete<Identity>({
-    onDelete: (t: Identity) => deleteIdentity(t.id!),
-  });
   interface ITypeOptions {
     key: string;
     value: string;
@@ -136,10 +144,6 @@ export const Identities: React.FunctionComponent = () => {
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState(sortedItems, 10);
 
-  useEffect(() => {
-    fetchIdentities();
-  }, [fetchIdentities]);
-
   const columns: ICell[] = [
     {
       title: "Name",
@@ -176,17 +180,7 @@ export const Identities: React.FunctionComponent = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          requestDeleteIdentity(
-            row,
-            () => {
-              dispatch(confirmDialogActions.closeDialog());
-              fetchIdentities();
-            },
-            (error) => {
-              dispatch(confirmDialogActions.closeDialog());
-              dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-            }
-          );
+          deleteIdentity(row.id);
         },
       })
     );
@@ -205,12 +199,10 @@ export const Identities: React.FunctionComponent = () => {
     }
 
     closeIdentityModal();
-    fetchIdentities();
   };
 
   const handleOnIdentityUpdated = () => {
     setRowToUpdate(undefined);
-    fetchIdentities();
   };
 
   const handleOnClearAllFilters = () => {
