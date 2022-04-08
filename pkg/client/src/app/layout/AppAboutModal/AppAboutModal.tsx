@@ -27,7 +27,7 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
     <AboutModal
       isOpen={isOpen}
       onClose={onClose}
-      trademark="COPYRIGHT © 2021."
+      trademark="COPYRIGHT © 2022."
       brandImageSrc={brandImage}
       brandImageAlt="Logo"
       productName="Tackle"
@@ -66,7 +66,7 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
         <TextContent>
           <TextList component="dl">
             <TextListItem component="dt">{t("terms.version")}</TextListItem>
-            <TextListItem component="dd">1.2.0</TextListItem>
+            <TextListItem component="dd">2.0</TextListItem>
           </TextList>
         </TextContent>
       </TextContent>
