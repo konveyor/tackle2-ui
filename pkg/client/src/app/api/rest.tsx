@@ -541,9 +541,6 @@ export const deleteProxy = (id: number): AxiosPromise => {
 export const getApplicationsQuery = () =>
   axios.get<Application[]>(APPLICATIONS).then((response) => response.data);
 
-export const getIdentitiesQuery = () =>
-  axios.get<Identity[]>(IDENTITIES).then((response) => response.data);
-
 export const getTasks = () =>
   axios.get<Task[]>(TASKS).then((response) => response.data);
 
