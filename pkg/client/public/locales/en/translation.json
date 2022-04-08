@@ -195,6 +195,7 @@
         "group(s)": "Group(s)",
         "groupCount": "Group count",
         "highRisk": "High risk",
+        "identity": "Identity",
         "identifiedRisks": "Identified risks",
         "impactfulButMigratable": "Impactful but migratable",
         "impactfulButNotAdvisableToMove": "Impactful but not advisable to move",
@@ -268,7 +269,7 @@
     },
     "toastr": {
         "success": {
-            "added": "Success! {{what}} was added as a {{type}}.",
+            "added": "Success! {{what}} was added as a(n) {{type}}.",
             "assessmentAndReviewCopied": "Success! Assessment and review copied to selected applications",
             "assessmentCopied": "Success! Assessment copied to selected applications",
             "assessmentDiscarded": "Success! Assessment discarded for {{application}}.",
