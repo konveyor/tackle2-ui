@@ -14,7 +14,6 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Paths } from "@app/Paths";
 import { AppPlaceholder } from "@app/shared/components";
-
 import { useTranslation } from "react-i18next";
 
 const Stakeholders = lazy(() => import("./stakeholders"));
@@ -27,6 +26,10 @@ export const Controls: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
 
+  const [activeTabKey, setActiveTabKey] = React.useState(
+    "controlsStakeholders"
+  );
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light} className={spacing.pb_0}>
@@ -36,10 +39,11 @@ export const Controls: React.FC = () => {
           </LevelItem>
         </Level>
         <Tabs
-          activeKey={"activeTabKey"}
-          onSelect={(_event, tabKey) =>
-            history.push(Paths[tabKey as keyof typeof Paths])
-          }
+          activeKey={activeTabKey}
+          onSelect={(_event, tabKey) => {
+            setActiveTabKey(tabKey as string);
+            history.push(Paths[tabKey as keyof typeof Paths]);
+          }}
         >
           <Tab
             key="controlsStakeholders"
