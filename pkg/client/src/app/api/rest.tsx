@@ -1,4 +1,4 @@
-import { AxiosPromise } from "axios";
+import axios, { AxiosPromise } from "axios";
 import { APIClient } from "@app/axios-config";
 
 import {
@@ -520,42 +520,6 @@ export const createSetting = (obj: Setting): AxiosPromise<Setting> => {
   return APIClient.post(`${SETTINGS}`, obj);
 };
 
-export const getTasks = (): AxiosPromise<Array<any>> => {
-  return APIClient.get(`${TASKS}`, jsonHeaders);
-};
-
-export const deleteTask = (id: number): AxiosPromise => {
-  return APIClient.delete(`${TASKS}/${id}`);
-};
-
-export const createTaskgroup = (obj: Taskgroup): AxiosPromise<Task> => {
-  return APIClient.post(`${TASKGROUPS}`, obj);
-};
-
-export const submitTaskgroup = (obj: Taskgroup): AxiosPromise<Task> => {
-  return APIClient.put(`${TASKGROUPS}/${obj.id}/submit`, obj);
-};
-
-export const uploadFileTaskgroup = ({
-  id,
-  path,
-  file,
-}: {
-  id: number;
-  path: string;
-  file: any;
-}): AxiosPromise<Task> => {
-  return APIClient.post(
-    `${TASKGROUPS}/${id}/bucket/${path}`,
-    file,
-    formHeaders
-  );
-};
-
-export const deleteTaskgroup = (id: number): AxiosPromise => {
-  return APIClient.delete(`${TASKGROUPS}/${id}`);
-};
-
 export const getProxies = (): AxiosPromise<Array<any>> => {
   return APIClient.get(`${PROXIES}`, jsonHeaders);
 };
@@ -570,4 +534,41 @@ export const updateProxy = (obj: Proxy): AxiosPromise<Proxy> => {
 
 export const deleteProxy = (id: number): AxiosPromise => {
   return APIClient.delete(`${PROXIES}/${id}`);
+};
+
+// Axios direct
+
+export const getApplicationsQuery = () =>
+  axios.get<Application[]>(APPLICATIONS).then((response) => response.data);
+
+export const getTasks = () =>
+  axios.get<Task[]>(TASKS).then((response) => response.data);
+
+export const deleteTask = (id: number) => axios.delete<Task>(`${TASKS}/${id}`);
+
+export const createTaskgroup = (obj: Taskgroup) =>
+  axios.post<Taskgroup>(TASKGROUPS, obj).then((response) => response.data);
+
+export const submitTaskgroup = (obj: Taskgroup) =>
+  axios
+    .put<Taskgroup>(`${TASKGROUPS}/${obj.id}/submit`, obj)
+    .then((response) => response.data);
+
+export const deleteTaskgroup = (id: number): AxiosPromise =>
+  axios.delete(`${TASKGROUPS}/${id}`);
+
+export const uploadFileTaskgroup = ({
+  id,
+  path,
+  file,
+}: {
+  id: number;
+  path: string;
+  file: any;
+}) => {
+  return axios.post<Taskgroup>(
+    `${TASKGROUPS}/${id}/bucket/${path}`,
+    file,
+    formHeaders
+  );
 };

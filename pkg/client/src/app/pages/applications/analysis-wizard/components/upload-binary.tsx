@@ -19,11 +19,11 @@ import { alertActions } from "@app/store/alert";
 import { useUploadFileTaskgroupMutation } from "@app/queries/taskgroups";
 
 interface IUploadBinary {
-  taskId: number;
+  taskgroupID: number;
 }
 
 export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
-  taskId,
+  taskgroupID,
 }) => {
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
   const [currentFile, setCurrentFile] = React.useState<File>();
@@ -47,15 +47,20 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     };
   }, []);
 
-  const completedUpload = (response: any) => {
-    dispatch(alertActions.addInfo(`Task ${taskId}`, "Uploading binary file."));
+  const completedUpload = () => {
+    dispatch(
+      alertActions.addInfo(`Task ${taskgroupID}`, "Uploading binary file.")
+    );
     setFileUploadStatus("success");
     setFileUploadProgress(100);
   };
 
   const failedUpload = (response: any) => {
     dispatch(
-      alertActions.addDanger(`Task ${taskId}`, "Binary file upload failed.")
+      alertActions.addDanger(
+        `Taskgroup ${taskgroupID}`,
+        "Binary file upload failed."
+      )
     );
     setFileUploadStatus("danger");
     setFileUploadProgress(0);
@@ -159,7 +164,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
             const form = new FormData();
             form.append("file", file);
             uploadFile({
-              id: taskId,
+              id: taskgroupID,
               path: `binary/${file.name}`,
               file: form,
             });
