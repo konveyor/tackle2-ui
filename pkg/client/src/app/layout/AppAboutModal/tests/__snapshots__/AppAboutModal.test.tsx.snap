@@ -11,7 +11,7 @@ exports[`AppAboutModal 1`] = `
   noAboutModalBoxContentContainer={false}
   onClose={[MockFunction]}
   productName="Tackle"
-  trademark="COPYRIGHT © 2021."
+  trademark="COPYRIGHT © 2022."
 >
   <TextContent
     className="pf-u-py-xl"
@@ -78,7 +78,7 @@ exports[`AppAboutModal 1`] = `
         <TextListItem
           component="dd"
         >
-          1.2.0
+          2.0
         </TextListItem>
       </TextList>
     </TextContent>
