@@ -6,7 +6,7 @@ import { unknownTagsActions } from "@app/store/unknownTags";
 import { ConditionalRender } from "@app/shared/components";
 
 import { Application, Tag, TagType } from "@app/api/models";
-import { getTagById } from "@app/api/rest";
+import { getTagById, getTagTypeById } from "@app/api/rest";
 import {
   Label,
   LabelGroup,
@@ -44,7 +44,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           const newTagTypes: Map<number, TagType> = new Map();
           const newTags: Map<number, Tag[]> = new Map();
 
-          const validResponses = tags.reduce((prev, current) => {
+          const tagValidResponses = tags.reduce((prev, current) => {
             if (current) {
               return [...prev, current.data];
             } else {
@@ -52,30 +52,50 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
             }
           }, [] as Tag[]);
 
-          const validTagIds = validResponses.map((e) => e.id);
+          const validTagIds = tagValidResponses.map((e) => e.id);
           const newUnknownTagIds = application.tags
             ?.map((e) => Number(e))
             .filter((e) => !validTagIds.includes(e));
 
-          validResponses.forEach((e) => {
-            const tagType = e.tagType;
-            if (tagType) {
-              // Tag types
-              newTagTypes.set(tagType.id!, tagType);
+          Promise.all(
+            tagValidResponses.map((tag) =>
+              getTagTypeById(tag?.tagType?.id || 0)
+            )
+          ).then((tagTypes) => {
+            // Tag types
+            const tagTypeValidResponses = tagTypes.reduce((prev, current) => {
+              if (current) {
+                return [...prev, current.data];
+              } else {
+                return prev;
+              }
+            }, [] as TagType[]);
+            tagValidResponses.forEach((tag) => {
+              const tagTypeRef = tag.tagType;
+              if (tagTypeRef?.id) {
+                const thisTagsFullTagType = tagTypeValidResponses.find(
+                  (tagType) => tagType.id === tagTypeRef?.id
+                );
+                const tagTypeWithColour: TagType = {
+                  ...tagTypeRef,
+                  colour: thisTagsFullTagType?.colour || "",
+                };
+                newTagTypes.set(tagTypeWithColour.id!, tagTypeWithColour);
 
-              // Tags
-              newTags.set(tagType.id!, [
-                ...(newTags.get(tagType.id!) || []),
-                e,
-              ]);
-            }
+                // // // Tags
+                newTags.set(tagTypeWithColour.id!, [
+                  ...(newTags.get(tagTypeWithColour.id!) || []),
+                  tag,
+                ]);
+              }
+            });
+
+            setUnknownTagIds(newUnknownTagIds || []);
+            setTagTypes(newTagTypes);
+            setTags(newTags);
+
+            setIsFetching(false);
           });
-
-          setUnknownTagIds(newUnknownTagIds || []);
-          setTagTypes(newTagTypes);
-          setTags(newTags);
-
-          setIsFetching(false);
         })
         .catch(() => {
           setIsFetching(false);
