@@ -246,7 +246,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
           />
         </FormGroup>
         <FormGroup
-          label={t("terms.group(s)")}
+          label={t("terms.stakeholderGroup")}
           fieldId="stakeholderGroups"
           isRequired={false}
           validated={getValidatedFromError(formik.errors.stakeholderGroups)}
@@ -263,7 +263,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
               clearSelectionsAriaLabel: "stakeholder-groups",
               removeSelectionAriaLabel: "stakeholder-groups",
               placeholderText: t("composed.selectOne", {
-                what: t("terms.group").toLowerCase(),
+                what: t("terms.stakeholderGroup").toLowerCase(),
               }),
               menuAppendTo: () => document.body,
               maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
