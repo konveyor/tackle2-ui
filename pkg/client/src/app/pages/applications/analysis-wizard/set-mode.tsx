@@ -88,7 +88,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
           </p>
         </Alert>
       )}
-      {isUpload && taskgroupID && <UploadBinary taskId={taskgroupID} />}
+      {isUpload && taskgroupID && <UploadBinary taskgroupID={taskgroupID} />}
     </>
   );
 };

@@ -1,54 +1,68 @@
 import { useState } from "react";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { Application } from "@app/api/models";
-import { deleteApplication, getApplications } from "@app/api/rest";
+import {
+  deleteApplication,
+  getApplicationsQuery,
+  updateApplication,
+} from "@app/api/rest";
 
-export interface IFetchState {
-  applications: Application[];
-  isFetching: boolean;
-  fetchError: any;
-  refetch: () => void;
-}
-
-export const useFetchApplications = (
-  defaultIsFetching: boolean = false
-): IFetchState => {
+export const useFetchApplications = () => {
   const [applications, setApplications] = useState<Application[]>([]);
-  const { isLoading, error, refetch } = useQuery("applications", () =>
-    getApplications()
-      .then(({ data }) => {
-        setApplications(data);
-      })
-      .catch((error) => {
-        console.log("error, ", error);
-      })
+  const { isLoading, error, refetch } = useQuery(
+    "applications",
+    getApplicationsQuery,
+    {
+      // TODO Remove refetchInterval once applications mutations are handled via queries
+      // with invalidateQueries and setQueryData
+      refetchInterval: 5000,
+      onSuccess: (data: Application[]) => setApplications(data),
+      onError: (err: Error) => {
+        console.log(error);
+      },
+    }
   );
   return {
-    applications: applications,
+    applications,
     isFetching: isLoading,
     fetchError: error,
-    refetch: refetch,
+    refetch,
   };
 };
 
-export interface IMutateState {
-  mutate: any;
-  isLoading: boolean;
-  error: any;
-}
+export const useApplicationMutation = () => {
+  const queryClient = useQueryClient();
+  queryClient.getQueryData("applications");
+
+  return useMutation(updateApplication, {
+    onMutate: async (newApplication) => {
+      const previousApplications = queryClient.getQueryData("applications");
+      queryClient.setQueryData<Application>(
+        "applications",
+        (old: Application[]) => [...old, newApplication]
+      );
+      return { previousApplications };
+    },
+    onError: (err, newApplication, context: any) => {
+      queryClient.setQueryData("applications", context.previousApplications);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries("applications");
+    },
+  });
+};
 
 export const useDeleteApplicationMutation = (
   onSuccess: () => void,
   onError: (err: Error | null) => void
-): IMutateState => {
-  const { mutate, isLoading, error } = useMutation(deleteApplication, {
+) => {
+  return useMutation(deleteApplication, {
     onSuccess: () => {
       onSuccess && onSuccess();
     },
     onError: (err: Error) => {
-      onError && onError(error);
+      onError && onError(err);
     },
   });
-  return { mutate, isLoading, error };
 };

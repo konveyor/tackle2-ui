@@ -430,7 +430,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const cancelAnalysis = (row: Application) => {
     const task = tasks.find((task) => task.application?.id === row.id);
-    if (task) deleteTask(task.id);
+    if (task?.id) deleteTask(task.id);
   };
 
   const handleOnApplicationIdentityUpdated = (
