@@ -337,6 +337,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
     if (application) {
       updateApplication({
+        ...application,
         ...payload,
       });
     } else {

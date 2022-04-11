@@ -34,6 +34,7 @@ import {
 } from "./field-names";
 import validationSchema from "./validation-schema";
 import { updateApplication } from "@app/api/rest";
+import { useUpdateApplicationMutation } from "@app/queries/applications";
 
 export interface FormValues {
   applicationName: string;
@@ -51,8 +52,7 @@ export const ApplicationIdentityForm: React.FC<
   ApplicationIdentityFormProps
 > = ({ applications, onSaved, onCancel }) => {
   const { t } = useTranslation();
-  console.log("apps", applications);
-  const [error, setError] = useState<AxiosError>();
+  const [error, setAxiosError] = useState<AxiosError>();
 
   const { identities, fetchIdentities } = useFetchIdentities();
 
@@ -61,6 +61,18 @@ export const ApplicationIdentityForm: React.FC<
   }, [fetchIdentities]);
 
   // Actions
+  const onCreateUpdateApplicationSuccess = (response: any) => {
+    onSaved(response);
+  };
+
+  const onCreateUpdateApplicationError = (error: AxiosError) => {
+    setAxiosError(error);
+  };
+
+  const { mutate: updateApplication } = useUpdateApplicationMutation(
+    onCreateUpdateApplicationSuccess,
+    onCreateUpdateApplicationError
+  );
 
   const onSubmit = (formValues: FormValues) => {
     let updatePromises: Array<AxiosPromise<Application>> = [];
@@ -89,6 +101,7 @@ export const ApplicationIdentityForm: React.FC<
         };
         let promise: AxiosPromise<Application>;
         promise = updateApplication({
+          ...application,
           ...payload,
         });
         updatePromises.push(promise);
@@ -98,12 +111,13 @@ export const ApplicationIdentityForm: React.FC<
       .then((response) => {
         formik.setSubmitting(false);
         //All promises resolved successfully
-        onSaved(response[0]);
+        // onSaved(response[0]);
+        onCreateUpdateApplicationSuccess(response[0]);
       })
       .catch((error) => {
         //One or many promises failed
         formik.setSubmitting(false);
-        setError(error);
+        onCreateUpdateApplicationError(error);
       });
   };
   const emptyIdentity = { id: 0, name: "None", kind: "", createUser: "" };
