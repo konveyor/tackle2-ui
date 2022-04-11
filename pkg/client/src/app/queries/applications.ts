@@ -3,20 +3,26 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { Application } from "@app/api/models";
 import {
+  createApplication,
   deleteApplication,
   getApplicationsQuery,
   updateApplication,
 } from "@app/api/rest";
+import { AxiosError } from "axios";
+
+export interface IApplicationMutateState {
+  mutate: any;
+  isLoading: boolean;
+  error: any;
+}
+export const ApplicationsQueryKey = "applications";
 
 export const useFetchApplications = () => {
   const [applications, setApplications] = useState<Application[]>([]);
   const { isLoading, error, refetch } = useQuery(
-    "applications",
+    ApplicationsQueryKey,
     getApplicationsQuery,
     {
-      // TODO Remove refetchInterval once applications mutations are handled via queries
-      // with invalidateQueries and setQueryData
-      refetchInterval: 5000,
       onSuccess: (data: Application[]) => setApplications(data),
       onError: (err: Error) => {
         console.log(error);
@@ -31,26 +37,46 @@ export const useFetchApplications = () => {
   };
 };
 
-export const useApplicationMutation = () => {
+export const useUpdateApplicationMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+): IApplicationMutateState => {
   const queryClient = useQueryClient();
-  queryClient.getQueryData("applications");
-
-  return useMutation(updateApplication, {
-    onMutate: async (newApplication) => {
-      const previousApplications = queryClient.getQueryData("applications");
-      queryClient.setQueryData<Application>(
-        "applications",
-        (old: Application[]) => [...old, newApplication]
-      );
-      return { previousApplications };
+  const { isLoading, mutate, error } = useMutation(updateApplication, {
+    onSuccess: (res) => {
+      onSuccess(res);
+      queryClient.invalidateQueries(ApplicationsQueryKey);
     },
-    onError: (err, newApplication, context: any) => {
-      queryClient.setQueryData("applications", context.previousApplications);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries("applications");
+    onError: (err: AxiosError) => {
+      onError(err);
     },
   });
+  return {
+    mutate,
+    isLoading,
+    error,
+  };
+};
+
+export const useCreateApplicationMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+): IApplicationMutateState => {
+  const queryClient = useQueryClient();
+  const { isLoading, mutate, error } = useMutation(createApplication, {
+    onSuccess: (res) => {
+      onSuccess(res);
+      queryClient.invalidateQueries(ApplicationsQueryKey);
+    },
+    onError: (err: AxiosError) => {
+      onError(err);
+    },
+  });
+  return {
+    mutate,
+    isLoading,
+    error,
+  };
 };
 
 export const useDeleteApplicationMutation = (
