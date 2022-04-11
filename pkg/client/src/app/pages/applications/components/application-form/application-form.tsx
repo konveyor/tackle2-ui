@@ -170,7 +170,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     sourceRepository: application?.repository?.url || "",
     branch: application?.repository?.branch || "",
     rootPath: application?.repository?.path || "",
-    //application.binary: "<group>:<artifact>:<version>:<packaging>"
     group: getBinaryInitialValue(application, "group"),
     artifact: getBinaryInitialValue(application, "artifact"),
     version: getBinaryInitialValue(application, "version"),
@@ -291,15 +290,17 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         const thisTag = { id: f.id, name: f.name };
         return thisTag;
       }),
-      ...(formValues.sourceRepository && {
-        repository: {
-          url: formValues.sourceRepository
-            ? formValues.sourceRepository.trim()
-            : undefined,
-          branch: formValues.branch.trim(),
-          path: formValues.rootPath.trim(),
-        },
-      }),
+      ...(formValues.sourceRepository
+        ? {
+            repository: {
+              url: formValues.sourceRepository
+                ? formValues.sourceRepository.trim()
+                : undefined,
+              branch: formValues.branch.trim(),
+              path: formValues.rootPath.trim(),
+            },
+          }
+        : { repository: undefined }),
       binary: buildBinaryFieldString(
         formValues.group,
         formValues.artifact,
