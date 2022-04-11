@@ -90,14 +90,10 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
             </Tooltip>
           ) : isFailedTask ? (
             <Tooltip content="Click to dump task data to console log">
-              <Button
-                variant="link"
-                isInline
-                onClick={() => {
-                  console.log(stringify(task));
-                }}
-              >
-                Error
+              <Button variant="link" isInline>
+                <Link to={`/hub/tasks/${task?.id}`} target="_blank">
+                  Error
+                </Link>
               </Button>
             </Tooltip>
           ) : (
