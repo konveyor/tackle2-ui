@@ -21,7 +21,6 @@ import {
 } from "@app/shared/components";
 import { useFetchBusinessServices, useFetchTagTypes } from "@app/shared/hooks";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { createApplication, updateApplication } from "@app/api/rest";
 import { Application, Ref, Tag } from "@app/api/models";
 import {
   getAxiosErrorMessage,
@@ -39,6 +38,10 @@ import {
 } from "@app/utils/model-utils";
 
 import "./application-form.css";
+import {
+  useCreateApplicationMutation,
+  useUpdateApplicationMutation,
+} from "@app/queries/applications";
 export interface FormValues {
   name: string;
   description: string;
@@ -52,6 +55,7 @@ export interface FormValues {
   artifact: string;
   version: string;
   packaging: string;
+  id: number;
 }
 
 export interface ApplicationFormProps {
@@ -67,7 +71,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const [error, setError] = useState<AxiosError>();
+  const [axiosError, setAxiosError] = useState<AxiosError>();
 
   // Business services
 
@@ -164,13 +168,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   const initialValues: FormValues = {
     name: application?.name || "",
     description: application?.description || "",
+    id: application?.id || 0,
     comments: application?.comments || "",
     businessService: businessServiceInitialValue,
     tags: tagsInitialValue,
     sourceRepository: application?.repository?.url || "",
     branch: application?.repository?.branch || "",
     rootPath: application?.repository?.path || "",
-    //application.binary: "<group>:<artifact>:<version>:<packaging>"
     group: getBinaryInitialValue(application, "group"),
     artifact: getBinaryInitialValue(application, "artifact"),
     version: getBinaryInitialValue(application, "version"),
@@ -273,6 +277,25 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       return `${group}:${artifact}:${version}`;
     }
   };
+
+  const onCreateUpdateApplicationSuccess = (response: any) => {
+    onSaved(response);
+  };
+
+  const onCreateUpdateApplicationError = (error: AxiosError) => {
+    setAxiosError(error);
+  };
+
+  const { mutate: createApplication } = useCreateApplicationMutation(
+    onCreateUpdateApplicationSuccess,
+    onCreateUpdateApplicationError
+  );
+
+  const { mutate: updateApplication } = useUpdateApplicationMutation(
+    onCreateUpdateApplicationSuccess,
+    onCreateUpdateApplicationError
+  );
+
   const onSubmit = (
     formValues: FormValues,
     formikHelpers: FormikHelpers<FormValues>
@@ -291,15 +314,17 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         const thisTag = { id: f.id, name: f.name };
         return thisTag;
       }),
-      ...(formValues.sourceRepository && {
-        repository: {
-          url: formValues.sourceRepository
-            ? formValues.sourceRepository.trim()
-            : undefined,
-          branch: formValues.branch.trim(),
-          path: formValues.rootPath.trim(),
-        },
-      }),
+      ...(formValues.sourceRepository
+        ? {
+            repository: {
+              url: formValues.sourceRepository
+                ? formValues.sourceRepository.trim()
+                : undefined,
+              branch: formValues.branch.trim(),
+              path: formValues.rootPath.trim(),
+            },
+          }
+        : { repository: undefined }),
       binary: buildBinaryFieldString(
         formValues.group,
         formValues.artifact,
@@ -307,27 +332,16 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         formValues.packaging
       ),
       review: undefined, // The review should not updated through this form
+      id: formValues.id,
     };
 
-    let promise: AxiosPromise<Application>;
     if (application) {
-      promise = updateApplication({
-        ...application,
+      updateApplication({
         ...payload,
       });
     } else {
-      promise = createApplication(payload);
+      createApplication(payload);
     }
-
-    promise
-      .then((response) => {
-        formikHelpers.setSubmitting(false);
-        onSaved(response);
-      })
-      .catch((error) => {
-        formikHelpers.setSubmitting(false);
-        setError(error);
-      });
   };
 
   const formik = useFormik({
@@ -348,11 +362,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
-        {error && (
+        {axiosError && (
           <Alert
             variant="danger"
             isInline
-            title={getAxiosErrorMessage(error)}
+            title={getAxiosErrorMessage(axiosError)}
           />
         )}
         <ExpandableSection
