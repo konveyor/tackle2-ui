@@ -283,7 +283,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   };
 
   const onCreateUpdateApplicationError = (error: AxiosError) => {
-    // setAxiosError(error);
+    setAxiosError(error);
   };
 
   const { mutate: createApplication } = useCreateApplicationMutation(
