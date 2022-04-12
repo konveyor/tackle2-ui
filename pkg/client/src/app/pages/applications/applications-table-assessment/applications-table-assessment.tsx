@@ -57,19 +57,13 @@ import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 import { formatPath, Paths } from "@app/Paths";
 import { ApplicationFilterKey } from "@app/Constants";
 
-import {
-  Application,
-  ApplicationPage,
-  Assessment,
-  SortByQuery,
-} from "@app/api/models";
+import { Application, Assessment } from "@app/api/models";
 import {
   deleteAssessment,
   deleteReview,
   getApplications,
   getAssessments,
 } from "@app/api/rest";
-import { applicationPageMapper } from "@app/api/apiUtils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationForm } from "../components/application-form";
@@ -713,8 +707,9 @@ export const ApplicationsTable: React.FC = () => {
                   </ToolbarItem>
                 </RBAC>
                 <RBAC
+                  //TODO: update to granular scope validation once new pathfinder image is available
                   rbacType={RBAC_TYPE.Role}
-                  allowedPermissions={writeScopes}
+                  allowedPermissions={legacyPathfinderRoles}
                 >
                   <ToolbarItem>
                     <KebabDropdown

@@ -33,7 +33,6 @@ import {
   ApplicationImportPage,
   ApplicationImportSummary,
 } from "@app/api/models";
-import { applicationImportPageMapper } from "@app/api/apiUtils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 
@@ -89,10 +88,6 @@ export const ManageImportsDetails: React.FC = () => {
     defaultIsFetching: true,
     onFetch: fetchApplicationImports,
   });
-
-  const imports = useMemo(() => {
-    return page ? applicationImportPageMapper(page) : undefined;
-  }, [page]);
 
   useEffect(() => {
     refreshTable();
