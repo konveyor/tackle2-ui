@@ -267,7 +267,6 @@ export const ManageImports: React.FC = () => {
   const deleteRow = (row: ApplicationImportSummary) => {
     dispatch(
       confirmDialogActions.openDialog({
-        // t("terms.summaryImport")
         title: t("dialog.title.delete", {
           what: t("terms.summaryImport").toLowerCase(),
         }),
@@ -278,21 +277,6 @@ export const ManageImports: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           deleteImportSummary(row.id);
-          // requestDeleteApplication(
-          //   row,
-          //   () => {
-          //     dispatch(confirmDialogActions.closeDialog());
-          //     if (imports?.data.length === 1) {
-          //       handlePaginationChange({ page: paginationQuery.page - 1 });
-          //     } else {
-          //       refreshTable();
-          //     }
-          //   },
-          //   (error) => {
-          //     dispatch(confirmDialogActions.closeDialog());
-          //     dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-          //   }
-          // );
         },
       })
     );

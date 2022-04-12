@@ -86,48 +86,6 @@ export const useFetchImportSummaryByID = (
   };
 };
 
-// export const useUpdateApplicationMutation = (
-//   onSuccess: (res: any) => void,
-//   onError: (err: AxiosError) => void
-// ): IApplicationMutateState => {
-//   const queryClient = useQueryClient();
-//   const { isLoading, mutate, error } = useMutation(updateApplication, {
-//     onSuccess: (res) => {
-//       onSuccess(res);
-//       queryClient.invalidateQueries(ApplicationsQueryKey);
-//     },
-//     onError: (err: AxiosError) => {
-//       onError(err);
-//     },
-//   });
-//   return {
-//     mutate,
-//     isLoading,
-//     error,
-//   };
-// };
-
-// export const useCreateApplicationMutation = (
-//   onSuccess: (res: any) => void,
-//   onError: (err: AxiosError) => void
-// ): IApplicationMutateState => {
-//   const queryClient = useQueryClient();
-//   const { isLoading, mutate, error } = useMutation(createApplication, {
-//     onSuccess: (res) => {
-//       onSuccess(res);
-//       queryClient.invalidateQueries(ApplicationsQueryKey);
-//     },
-//     onError: (err: AxiosError) => {
-//       onError(err);
-//     },
-//   });
-//   return {
-//     mutate,
-//     isLoading,
-//     error,
-//   };
-// };
-
 export const useDeleteImportSummaryMutation = (
   onSuccess: () => void,
   onError: (err: AxiosError) => void
