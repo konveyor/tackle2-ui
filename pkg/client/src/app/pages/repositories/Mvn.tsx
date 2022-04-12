@@ -135,7 +135,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
             <Switch
               id="maven-update"
               className="repo"
-              label="Force update of depencies"
+              label="Force update of dependencies"
               aria-label="Force update of Maven repositories"
               isChecked={mvnForcedSetting === true ? true : false}
               onChange={onChangeForced}
