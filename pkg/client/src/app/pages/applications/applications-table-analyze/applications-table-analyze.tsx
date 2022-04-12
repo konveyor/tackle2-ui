@@ -212,7 +212,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     onDeleteApplicationError
   );
 
-  // Analyze moda:AxiosErrorl
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
 
   // Dependencies modal
