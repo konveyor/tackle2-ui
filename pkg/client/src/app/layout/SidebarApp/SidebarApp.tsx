@@ -19,6 +19,10 @@ import { LayoutTheme } from "../LayoutUtils";
 import "./SidebarApp.css";
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
+import {
+  LocalStorageKey,
+  useLocalStorageContext,
+} from "@app/context/LocalStorageContext";
 
 export const SidebarApp: React.FC = () => {
   const token = keycloak.tokenParsed || undefined;
@@ -58,7 +62,9 @@ export const SidebarApp: React.FC = () => {
   ];
 
   const [isOpen, setIsOpen] = React.useState(false);
-  const [selected, setSelected] = React.useState("Developer");
+  const [selectedPersona, setSelectedPersona] = useLocalStorageContext(
+    LocalStorageKey.selectedPersona
+  );
   const [isDevIcon, setDevIcon] = React.useState(true);
 
   const Navigation = (
@@ -68,10 +74,10 @@ export const SidebarApp: React.FC = () => {
         className="perspective"
         variant={SelectVariant.single}
         aria-label="Select user perspective"
-        selections={selected}
+        selections={selectedPersona}
         isOpen={isOpen}
         onSelect={(_, selection) => {
-          setSelected(selection as string);
+          setSelectedPersona(selection as string);
           setIsOpen(!isOpen);
           if (selection === "Administrator") {
             setDevIcon(false);
@@ -87,7 +93,7 @@ export const SidebarApp: React.FC = () => {
       >
         {options}
       </Select>
-      {selected === "Developer" ? (
+      {selectedPersona === "Developer" ? (
         <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
           <NavList title="Global">
             <NavItem>

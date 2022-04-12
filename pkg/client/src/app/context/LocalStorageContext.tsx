@@ -6,6 +6,7 @@ import * as React from "react";
 enum LocalStorageKey {
   currentUser = "currentUser",
   parsedToken = "parsedToken",
+  selectedPersona = "selectedPersona",
 }
 
 type LocalStorageValues = { [key in LocalStorageKey]?: string };
