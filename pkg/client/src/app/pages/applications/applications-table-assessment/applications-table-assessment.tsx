@@ -32,7 +32,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@app/store/rootReducer";
 import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
-import { unknownTagsSelectors } from "@app/store/unknownTags";
 import { bulkCopySelectors } from "@app/store/bulkCopy";
 
 import {
@@ -108,10 +107,6 @@ export const ApplicationsTable: React.FC = () => {
 
   // Redux
   const dispatch = useDispatch();
-
-  const unknownTagIds = useSelector((state: RootState) =>
-    unknownTagsSelectors.unknownTagIds(state)
-  );
 
   const isWatchingBulkCopy = useSelector((state: RootState) =>
     bulkCopySelectors.isWatching(state)
@@ -334,10 +329,7 @@ export const ApplicationsTable: React.FC = () => {
         {
           title: (
             <>
-              <TagIcon />{" "}
-              {item.tags
-                ? item.tags.filter((e) => !unknownTagIds.has(Number(e))).length
-                : 0}
+              <TagIcon /> {item.tags ? item.tags.length : 0}
             </>
           ),
         },

@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-import { useDispatch } from "react-redux";
-import { unknownTagsActions } from "@app/store/unknownTags";
-
 import { ConditionalRender } from "@app/shared/components";
 
 import { Application, Tag, TagType } from "@app/api/models";
@@ -23,11 +20,8 @@ export interface ApplicationTagsProps {
 export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
   application,
 }) => {
-  const dispatch = useDispatch();
-
   const [tagTypes, setTagTypes] = useState<Map<number, TagType>>(new Map()); // <tagTypeId, tagType>
   const [tags, setTags] = useState<Map<number, Tag[]>>(new Map()); // <tagTypeId, tags[]>
-  const [unknownTagIds, setUnknownTagIds] = useState<number[]>([]);
 
   const [isFetching, setIsFetching] = useState(false);
 
@@ -51,11 +45,6 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
               return prev;
             }
           }, [] as Tag[]);
-
-          const validTagIds = tagValidResponses.map((e) => e.id);
-          const newUnknownTagIds = application.tags
-            ?.map((e) => Number(e))
-            .filter((e) => !validTagIds.includes(e));
 
           Promise.all(
             tagValidResponses.map((tag) =>
@@ -90,7 +79,6 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
               }
             });
 
-            setUnknownTagIds(newUnknownTagIds || []);
             setTagTypes(newTagTypes);
             setTags(newTags);
 
@@ -102,10 +90,6 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
         });
     }
   }, [application]);
-
-  useEffect(() => {
-    dispatch(unknownTagsActions.addUnknownTagIdsToRegistry(unknownTagIds));
-  }, [unknownTagIds, dispatch]);
 
   return (
     <ConditionalRender when={isFetching} then={<Spinner isSVG size="md" />}>
