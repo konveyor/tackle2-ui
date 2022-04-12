@@ -12,8 +12,6 @@ import { NinjaErrorBoundary } from "@app/ninja-error-boundary";
 import { LocalStorageContextProvider } from "@app/context/LocalStorageContext";
 import { KeycloakProvider } from "@app/common/KeycloakProvider";
 
-import "./index.css";
-
 i18n.init();
 const queryClient = new QueryClient();
 

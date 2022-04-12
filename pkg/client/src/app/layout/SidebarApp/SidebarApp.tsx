@@ -16,13 +16,14 @@ import DevIcon from "@patternfly/react-icons/dist/esm/icons/code-icon";
 
 import { Paths } from "@app/Paths";
 import { LayoutTheme } from "../LayoutUtils";
-import "./SidebarApp.css";
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
 import {
   LocalStorageKey,
   useLocalStorageContext,
 } from "@app/context/LocalStorageContext";
+
+import "./SidebarApp.css";
 
 export const SidebarApp: React.FC = () => {
   const token = keycloak.tokenParsed || undefined;
@@ -70,8 +71,12 @@ export const SidebarApp: React.FC = () => {
   const Navigation = (
     <>
       <Select
+        style={{
+          borderStyle: "solid",
+          borderWidth: "0.1em",
+          borderColor: "white",
+        }}
         toggleIcon={isDevIcon ? <DevIcon /> : <AdminIcon />}
-        className="perspective"
         variant={SelectVariant.single}
         aria-label="Select user perspective"
         selections={selectedPersona}
