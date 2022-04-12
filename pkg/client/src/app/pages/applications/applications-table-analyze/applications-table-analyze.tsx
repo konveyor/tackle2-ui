@@ -25,12 +25,10 @@ import {
 } from "@patternfly/react-table";
 import { TagIcon } from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import { PencilAltIcon } from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
-import { RootState } from "@app/store/rootReducer";
 import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
-import { unknownTagsSelectors } from "@app/store/unknownTags";
 import {
   AppPlaceholder,
   AppTableWithControls,
@@ -84,10 +82,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   // Router
   const history = useHistory();
-
-  const unknownTagIds = useSelector((state: RootState) =>
-    unknownTagsSelectors.unknownTagIds(state)
-  );
 
   const { applications, isFetching, fetchError } = useFetchApplications();
 
@@ -304,10 +298,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         {
           title: (
             <>
-              <TagIcon />{" "}
-              {item.tags
-                ? item.tags.filter((e) => !unknownTagIds.has(Number(e))).length
-                : 0}
+              <TagIcon /> {item.tags ? item.tags.length : 0}
             </>
           ),
         },
