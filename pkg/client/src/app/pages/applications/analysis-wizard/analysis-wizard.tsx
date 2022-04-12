@@ -158,6 +158,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
   });
 
+  // TODO Assess if useful in future to keep or discard
   const hasIdentity = (application: Application, kind: string) => {
     return !!application.identities?.some((appIdentity) =>
       identities?.find(
@@ -169,29 +170,19 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   const areApplicationsBinaryEnabled = (): boolean =>
     applications.every(
       (application) =>
-        application.binary !== "::" &&
-        application.identities &&
-        application.identities.length > 0 &&
-        hasIdentity(application, "maven")
+        application.binary !== "::" && application.binary?.match(/.+:.+:.+/)
     );
 
   const areApplicationsSourceCodeEnabled = (): boolean =>
     applications.every(
       (application) =>
-        application.repository &&
-        application.repository.url !== "" &&
-        application.identities &&
-        application.identities.length > 0
+        application.repository && application.repository.url !== ""
     );
 
   const areApplicationsSourceCodeDepsEnabled = (): boolean =>
     applications.every(
       (application) =>
-        application.repository &&
-        application.repository.url !== "" &&
-        application.identities &&
-        application.identities.length > 0 &&
-        hasIdentity(application, "maven")
+        application.repository && application.repository.url !== ""
     );
 
   const { handleSubmit, watch, reset } = methods;
