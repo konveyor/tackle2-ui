@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useHistory } from "react-router-dom";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@konveyor/lib-ui";
 import {
@@ -40,7 +40,6 @@ import { useEntityModal, useDelete } from "@app/shared/hooks";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 import { Paths } from "@app/Paths";
 import { Application, Task } from "@app/api/models";
-import { deleteApplication } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationForm } from "../components/application-form";
 import { ApplicationBusinessService } from "../components/application-business-service";
@@ -61,7 +60,10 @@ import { useDeleteTaskMutation, useFetchTasks } from "@app/queries/tasks";
 import { RBAC, RBAC_TYPE, taskWriteScopes, writeScopes } from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
-import { useFetchApplications } from "@app/queries/applications";
+import {
+  useDeleteApplicationMutation,
+  useFetchApplications,
+} from "@app/queries/applications";
 import { useFetchIdentities } from "@app/queries/identities";
 
 const ENTITY_FIELD = "entity";
@@ -189,11 +191,21 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   };
 
   // Delete
-  const { requestDelete: requestDeleteApplication } = useDelete<Application>({
-    onDelete: (t: Application) => deleteApplication(t.id!),
-  });
 
-  // Analyze modal
+  const onDeleteApplicationSuccess = () => {
+    dispatch(confirmDialogActions.processing());
+    dispatch(confirmDialogActions.closeDialog());
+  };
+
+  const onDeleteApplicationError = (error: AxiosError) => {
+    dispatch(confirmDialogActions.closeDialog());
+    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+  };
+  const { mutate: deleteApplication } = useDeleteApplicationMutation(
+    onDeleteApplicationSuccess,
+    onDeleteApplicationError
+  );
+
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
 
   // Dependencies modal
@@ -403,17 +415,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         confirmBtnLabel: t("actions.delete"),
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
-          dispatch(confirmDialogActions.processing());
-          requestDeleteApplication(
-            row,
-            () => {
-              dispatch(confirmDialogActions.closeDialog());
-            },
-            (error) => {
-              dispatch(confirmDialogActions.closeDialog());
-              dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-            }
-          );
+          deleteApplication(row?.id || 0);
         },
       })
     );

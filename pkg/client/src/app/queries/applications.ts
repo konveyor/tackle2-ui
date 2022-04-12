@@ -81,14 +81,16 @@ export const useCreateApplicationMutation = (
 
 export const useDeleteApplicationMutation = (
   onSuccess: () => void,
-  onError: (err: Error | null) => void
+  onError: (err: AxiosError) => void
 ) => {
+  const queryClient = useQueryClient();
   return useMutation(deleteApplication, {
     onSuccess: () => {
-      onSuccess && onSuccess();
+      onSuccess();
+      queryClient.invalidateQueries(ApplicationsQueryKey);
     },
-    onError: (err: Error) => {
-      onError && onError(err);
+    onError: (err: AxiosError) => {
+      onError(err);
     },
   });
 };
