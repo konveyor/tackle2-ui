@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation, Trans } from "react-i18next";
 import { useSelectionState } from "@konveyor/lib-ui";
 
@@ -65,7 +65,6 @@ import {
   SortByQuery,
 } from "@app/api/models";
 import {
-  deleteApplication,
   deleteAssessment,
   deleteReview,
   getApplications,
@@ -86,6 +85,10 @@ import { ApplicationIdentityForm } from "../components/application-identity-form
 import { legacyPathfinderRoles, RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
+import {
+  useDeleteApplicationMutation,
+  useFetchApplications,
+} from "@app/queries/applications";
 
 const ENTITY_FIELD = "entity";
 
@@ -139,27 +142,8 @@ export const ApplicationsTable: React.FC = () => {
     sortByQuery: { direction: "asc", index: 2 },
   });
 
-  const fetchApplications = useCallback(() => {
-    return getApplications();
-  }, [filtersValue, paginationQuery, sortByQuery]);
-
-  const {
-    data: page,
-    isFetching,
-    fetchError,
-    requestFetch: refreshTable,
-  } = useFetch<Array<Application>>({
-    defaultIsFetching: true,
-    onFetch: fetchApplications,
-  });
-
-  const applications = useMemo(() => {
-    return page ? page : undefined;
-  }, [page]);
-
-  useEffect(() => {
-    refreshTable();
-  }, [isWatchingBulkCopy, refreshTable]);
+  const { applications, isFetching, fetchError, refetch } =
+    useFetchApplications();
 
   // Create and update modal
   const {
@@ -184,13 +168,23 @@ export const ApplicationsTable: React.FC = () => {
     }
 
     closeApplicationModal();
-    refreshTable();
+    refetch();
   };
 
   // Delete
-  const { requestDelete: requestDeleteApplication } = useDelete<Application>({
-    onDelete: (t: Application) => deleteApplication(t.id!),
-  });
+  const onDeleteApplicationSuccess = () => {
+    dispatch(confirmDialogActions.processing());
+    dispatch(confirmDialogActions.closeDialog());
+  };
+
+  const onDeleteApplicationError = (error: AxiosError) => {
+    dispatch(confirmDialogActions.closeDialog());
+    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+  };
+  const { mutate: deleteApplication } = useDeleteApplicationMutation(
+    onDeleteApplicationSuccess,
+    onDeleteApplicationError
+  );
 
   // Copy assessment modal
   const {
@@ -498,18 +492,7 @@ export const ApplicationsTable: React.FC = () => {
         confirmBtnLabel: t("actions.delete"),
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
-          dispatch(confirmDialogActions.processing());
-          requestDeleteApplication(
-            row,
-            () => {
-              dispatch(confirmDialogActions.closeDialog());
-              refreshTable();
-            },
-            (error) => {
-              dispatch(confirmDialogActions.closeDialog());
-              dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-            }
-          );
+          deleteApplication(row?.id || 0);
         },
       })
     );
@@ -555,7 +538,7 @@ export const ApplicationsTable: React.FC = () => {
                   })
                 )
               );
-              refreshTable();
+              refetch();
             })
             .catch((error) => {
               dispatch(confirmDialogActions.closeDialog());
@@ -649,7 +632,7 @@ export const ApplicationsTable: React.FC = () => {
     response: AxiosResponse<Application>
   ) => {
     closeCredentialsModal();
-    refreshTable();
+    refetch();
   };
 
   return (
@@ -872,7 +855,7 @@ export const ApplicationsTable: React.FC = () => {
         <ImportApplicationsForm
           onSaved={() => {
             setIsApplicationImportModalOpen(false);
-            refreshTable();
+            refetch();
           }}
         />
       </Modal>
