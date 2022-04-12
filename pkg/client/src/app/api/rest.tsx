@@ -304,9 +304,7 @@ export const getApplicationAdoptionPlan = (
   );
 };
 
-export const getApplicationImportSummary = (): AxiosPromise<
-  ApplicationImportSummary[]
-> => {
+export const getApplicationImportSummary = (): AxiosPromise<any> => {
   return APIClient.get(`${APP_IMPORT_SUMMARY}`);
 };
 

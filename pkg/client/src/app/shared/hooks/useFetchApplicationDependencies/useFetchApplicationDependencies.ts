@@ -68,7 +68,7 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export interface IState {
-  applicationDependencies?: PageRepresentation<ApplicationDependency>;
+  applicationDependencies?: ApplicationDependency[];
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;

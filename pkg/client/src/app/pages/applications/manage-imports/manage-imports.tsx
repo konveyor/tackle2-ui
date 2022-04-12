@@ -33,19 +33,10 @@ import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 
 import {
-  useApplicationToolbarFilter,
-  useDelete,
-  useFetch,
-  useTableControls,
-} from "@app/shared/hooks";
-import {
   AppPlaceholder,
-  AppTableToolbarToggleGroup,
   AppTableWithControls,
   ConditionalRender,
-  InputTextFilter,
   PageHeader,
-  ToolbarSearchFilter,
   KebabDropdown,
 } from "@app/shared/components";
 
