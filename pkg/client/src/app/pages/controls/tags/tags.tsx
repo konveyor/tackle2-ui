@@ -224,6 +224,7 @@ export const Tags: React.FC = () => {
           title: (
             <AppTableActionButtons
               isDeleteEnabled={!!item.tags?.length}
+              tooltipMessage="Cannot delete non empty tag type"
               onEdit={() => setRowToUpdate(item)}
               onDelete={() => deleteRow(item)}
             />
