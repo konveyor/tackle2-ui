@@ -4,13 +4,7 @@ import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useDispatch } from "react-redux";
-import {
-  Button,
-  Wizard,
-  WizardContextConsumer,
-  WizardFooter,
-  WizardStepFunctionType,
-} from "@patternfly/react-core";
+import { Wizard, WizardStepFunctionType } from "@patternfly/react-core";
 
 import {
   Application,
