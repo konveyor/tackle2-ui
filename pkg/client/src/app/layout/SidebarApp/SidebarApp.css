@@ -1,4 +1,4 @@
-.pf-c-select {
+.perspective {
   --pf-global--Color--100: var(--pf-global--palette--white);
   --pf-global--BorderColor--100: var(--pf-global--palette--black-600);
   --pf-c-select__menu--BackgroundColor: var(--pf-global--palette--black-850);
@@ -13,4 +13,5 @@
   --pf-c-select__toggle--m-expanded--before--BorderBottomColor: var(
     --pf-global--palette--black-600
   );
+  border: 0.1em solid white;
 }
