@@ -1,14 +1,17 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Flex, FlexItem } from "@patternfly/react-core";
+import { Button, Flex, FlexItem, Tooltip } from "@patternfly/react-core";
 import { RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
+import { ConditionalTooltip } from "../ConditionalTooltip";
 
 export interface AppTableActionButtonsProps {
+  isDeleteEnabled: boolean;
   onEdit: () => void;
   onDelete: () => void;
 }
 
 export const AppTableActionButtons: React.FC<AppTableActionButtonsProps> = ({
+  isDeleteEnabled,
   onEdit,
   onDelete,
 }) => {
@@ -23,9 +26,19 @@ export const AppTableActionButtons: React.FC<AppTableActionButtonsProps> = ({
           </Button>
         </FlexItem>
         <FlexItem>
-          <Button aria-label="delete" variant="link" onClick={onDelete}>
-            {t("actions.delete")}
-          </Button>
+          <ConditionalTooltip
+            isTooltipEnabled={isDeleteEnabled}
+            content="Cannot delete non empty tag type"
+          >
+            <Button
+              aria-label="delete"
+              variant="link"
+              onClick={onDelete}
+              isAriaDisabled={isDeleteEnabled}
+            >
+              {t("actions.delete")}
+            </Button>
+          </ConditionalTooltip>
         </FlexItem>
       </Flex>
     </RBAC>
