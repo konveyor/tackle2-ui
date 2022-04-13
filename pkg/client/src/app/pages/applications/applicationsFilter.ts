@@ -55,7 +55,6 @@ export const getApplicationsFilterValues = (
     item?.name || "",
     item?.description || "",
     item.businessService?.name || "",
-    // item?.analysis || "",
     item.tags?.length || "",
     "", // Action column
   ];
