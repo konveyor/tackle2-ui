@@ -12,6 +12,10 @@ interface IKeycloakProviderProps {
 export const KeycloakProvider: React.FunctionComponent<
   IKeycloakProviderProps
 > = ({ children }) => {
+  const fetchResponsePromise = fetch("/env")
+    .then((res) => res.json())
+    .then((data) => console.log("data", data));
+
   const isAuthRequired = process.env["AUTH_REQUIRED"] === "true";
   if (isAuthRequired) {
     return (

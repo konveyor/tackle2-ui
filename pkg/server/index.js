@@ -12,6 +12,10 @@ setupProxy(app);
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
+app.get("/env", function (req, res) {
+  res.send({ auth_required: process.env.AUTH_REQUIRED || true });
+});
+
 // Handles any requests that don't match the ones above
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/dist/index.html"));
