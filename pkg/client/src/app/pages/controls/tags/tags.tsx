@@ -162,7 +162,13 @@ export const Tags: React.FC = () => {
             },
             (error) => {
               dispatch(confirmDialogActions.closeDialog());
-              dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+              if (
+                error.response?.status === 500 &&
+                error.response?.data.error === "FOREIGN KEY constraint failed"
+              )
+                dispatch(alertActions.addDanger("Cannot delete a used tag"));
+              else
+                dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
             }
           );
         },
@@ -217,6 +223,7 @@ export const Tags: React.FC = () => {
         {
           title: (
             <AppTableActionButtons
+              isDeleteEnabled={!!item.tags?.length}
               onEdit={() => setRowToUpdate(item)}
               onDelete={() => deleteRow(item)}
             />
@@ -282,7 +289,15 @@ export const Tags: React.FC = () => {
             },
             (error) => {
               dispatch(confirmDialogActions.closeDialog());
-              dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+              if (
+                error.response?.status === 500 &&
+                error.response?.data.error === "FOREIGN KEY constraint failed"
+              )
+                dispatch(
+                  alertActions.addDanger("Cannot delete a non empty tag type")
+                );
+              else
+                dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
             }
           );
         },
