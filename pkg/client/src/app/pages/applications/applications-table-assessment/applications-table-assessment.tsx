@@ -72,7 +72,10 @@ import {
   useDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
-import { getApplicationsFilterValues } from "../applicationsFilter";
+import {
+  ApplicationTableType,
+  getApplicationsFilterValues,
+} from "../applicationsFilter";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
 
 const ENTITY_FIELD = "entity";
@@ -135,7 +138,10 @@ export const ApplicationsTable: React.FC = () => {
     setFilterValues,
     handleOnClearAllFilters,
     currentPageItems,
-  } = getApplicationsFilterValues(applications);
+  } = getApplicationsFilterValues(
+    applications,
+    ApplicationTableType.Assessment
+  );
 
   // Create and update modal
   const {

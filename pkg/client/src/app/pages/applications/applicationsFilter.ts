@@ -6,8 +6,14 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
-
-export const getApplicationsFilterValues = (applications: Application[]) => {
+export enum ApplicationTableType {
+  Assessment = "assessment",
+  Analysis = "analysis",
+}
+export const getApplicationsFilterValues = (
+  applications: Application[],
+  tableType: string
+) => {
   const filterCategories: FilterCategory<Application>[] = [
     {
       key: "name",

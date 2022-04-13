@@ -65,7 +65,10 @@ import {
   useFetchApplications,
 } from "@app/queries/applications";
 import { useFetchIdentities } from "@app/queries/identities";
-import { getApplicationsFilterValues } from "../applicationsFilter";
+import {
+  ApplicationTableType,
+  getApplicationsFilterValues,
+} from "../applicationsFilter";
 
 const ENTITY_FIELD = "entity";
 
@@ -97,7 +100,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     setFilterValues,
     handleOnClearAllFilters,
     currentPageItems,
-  } = getApplicationsFilterValues(applications);
+  } = getApplicationsFilterValues(applications, ApplicationTableType.Analysis);
 
   const { tasks } = useFetchTasks();
   const { identities } = useFetchIdentities();
