@@ -13,11 +13,11 @@ export const {
   "useFetchApplicationDependencies/fetch/request",
   "useFetchApplicationDependencies/fetch/success",
   "useFetchApplicationDependencies/fetch/failure"
-)<void, PageRepresentation<ApplicationDependency>, AxiosError>();
+)<void, ApplicationDependency[], AxiosError>();
 
 type State = Readonly<{
   isFetching: boolean;
-  applicationDependencies?: PageRepresentation<ApplicationDependency>;
+  applicationDependencies?: ApplicationDependency[];
   fetchError?: AxiosError;
   fetchCount: number;
 }>;
@@ -68,7 +68,7 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export interface IState {
-  applicationDependencies?: PageRepresentation<ApplicationDependency>;
+  applicationDependencies?: ApplicationDependency[];
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;
@@ -87,19 +87,9 @@ export const useFetchApplicationDependencies = (
     (filters: { from?: string[]; to?: string[] }) => {
       dispatch(fetchRequest());
 
-      getApplicationDependencies(filters, { page: 1, perPage: 1000 })
+      getApplicationDependencies()
         .then(({ data }) => {
-          const list = data._embedded["applications-dependency"];
-          const total = data.total_count;
-
-          dispatch(
-            fetchSuccess({
-              data: list,
-              meta: {
-                count: total,
-              },
-            })
-          );
+          dispatch(fetchSuccess(data));
         })
         .catch((error: AxiosError) => {
           dispatch(fetchFailure(error));

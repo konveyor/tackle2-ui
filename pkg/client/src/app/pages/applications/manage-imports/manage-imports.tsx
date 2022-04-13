@@ -33,74 +33,31 @@ import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 
 import {
-  useApplicationToolbarFilter,
-  useDelete,
-  useFetch,
-  useTableControls,
-} from "@app/shared/hooks";
-import {
   AppPlaceholder,
-  AppTableToolbarToggleGroup,
   AppTableWithControls,
   ConditionalRender,
-  InputTextFilter,
   PageHeader,
-  ToolbarSearchFilter,
   KebabDropdown,
 } from "@app/shared/components";
 
 import { formatPath, Paths } from "@app/Paths";
-import {
-  ApplicationImportSummarySortBy,
-  ApplicationImportSummarySortByQuery,
-  deleteApplicationImportSummary,
-  getApplicationImportSummary,
-} from "@app/api/rest";
-import {
-  ApplicationImportSummary,
-  ApplicationImportSummaryPage,
-  SortByQuery,
-} from "@app/api/models";
-import { applicationImportSummaryPageMapper } from "@app/api/apiUtils";
+import { ApplicationImportSummary } from "@app/api/models";
 import { formatDate, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-
-export enum FilterKey {
-  FILE_NAME = "filename",
-}
-
-const toSortByQuery = (
-  sortBy?: SortByQuery
-): ApplicationImportSummarySortByQuery | undefined => {
-  if (!sortBy) {
-    return undefined;
-  }
-
-  let field: ApplicationImportSummarySortBy;
-  switch (sortBy.index) {
-    case 0:
-      field = ApplicationImportSummarySortBy.DATE;
-      break;
-    case 1:
-      field = ApplicationImportSummarySortBy.USER;
-      break;
-    case 2:
-      field = ApplicationImportSummarySortBy.FILE_NAME;
-      break;
-    case 3:
-      field = ApplicationImportSummarySortBy.STATUS;
-      break;
-    default:
-      return undefined;
-  }
-
-  return {
-    field,
-    direction: sortBy.direction,
-  };
-};
+import { AxiosError } from "axios";
+import {
+  useDeleteImportSummaryMutation,
+  useFetchImportSummaries,
+} from "@app/queries/imports";
+import { useFilterState } from "@app/shared/hooks/useFilterState";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar/FilterToolbar";
+import { useSortState } from "@app/shared/hooks/useSortState";
 
 const ENTITY_FIELD = "entity";
 
@@ -118,62 +75,61 @@ export const ManageImports: React.FC = () => {
   // Router
   const history = useHistory();
 
+  const { importSummaries, isFetching, fetchError, refetch } =
+    useFetchImportSummaries();
+
   // Application import modal
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     useState(false);
 
   // Delete
-  const { requestDelete: requestDeleteApplication } =
-    useDelete<ApplicationImportSummary>({
-      onDelete: (t: ApplicationImportSummary) =>
-        deleteApplicationImportSummary(t.id),
-    });
 
-  // Toolbar filters
-  const {
-    filters: filtersValue,
-    isPresent: areFiltersPresent,
-    addFilter,
-    setFilter,
-    clearAllFilters,
-  } = useApplicationToolbarFilter();
+  const onDeleteImportSummarySuccess = () => {
+    dispatch(confirmDialogActions.processing());
+    dispatch(confirmDialogActions.closeDialog());
+  };
 
-  // Table data
-  const {
-    paginationQuery,
-    sortByQuery,
-    handlePaginationChange,
-    handleSortChange,
-  } = useTableControls({ sortByQuery: { index: 0, direction: "desc" } });
+  const onDeleteImportSummaryError = (error: AxiosError) => {
+    dispatch(confirmDialogActions.closeDialog());
+    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+  };
+  const { mutate: deleteImportSummary } = useDeleteImportSummaryMutation(
+    onDeleteImportSummarySuccess,
+    onDeleteImportSummaryError
+  );
 
-  const fetchApplicationImports = useCallback(() => {
-    const filenameVal = filtersValue.get(FilterKey.FILE_NAME);
-    return getApplicationImportSummary(
-      {
-        filename: filenameVal?.map((f) => f.key),
+  const filterCategories: FilterCategory<ApplicationImportSummary>[] = [
+    {
+      key: "filename",
+      title: "File Name",
+      type: FilterType.search,
+      placeholderText: "Filter by filename...",
+      getItemValue: (item) => {
+        return item?.filename || "";
       },
-      paginationQuery,
-      toSortByQuery(sortByQuery)
-    );
-  }, [filtersValue, paginationQuery, sortByQuery]);
+    },
+  ];
 
-  const {
-    data: page,
-    isFetching,
-    fetchError,
-    requestFetch: refreshTable,
-  } = useFetch<ApplicationImportSummaryPage>({
-    defaultIsFetching: true,
-    onFetch: fetchApplicationImports,
-  });
+  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+    importSummaries || [],
+    filterCategories
+  );
+  const handleOnClearAllFilters = () => {
+    setFilterValues({});
+  };
 
-  const imports = useMemo(() => {
-    return page ? applicationImportSummaryPageMapper(page) : undefined;
-  }, [page]);
+  const getSortValues = (item: ApplicationImportSummary) => [
+    item?.filename || "",
+    "", // Action column
+  ];
 
-  useEffect(() => {
-    refreshTable();
-  }, [filtersValue, paginationQuery, sortByQuery, refreshTable]);
+  const { sortBy, onSort, sortedItems } = useSortState(
+    filteredItems,
+    getSortValues
+  );
+
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState(sortedItems, 10);
 
   // Table
   const columns: ICell[] = [
@@ -197,7 +153,7 @@ export const ManageImports: React.FC = () => {
   ];
 
   const rows: IRow[] = [];
-  imports?.data.forEach((item) => {
+  importSummaries.forEach((item) => {
     let status;
     if (item.importStatus === "Completed") {
       status = <StatusIcon status="Ok" label={t("terms.completed")} />;
@@ -311,7 +267,6 @@ export const ManageImports: React.FC = () => {
   const deleteRow = (row: ApplicationImportSummary) => {
     dispatch(
       confirmDialogActions.openDialog({
-        // t("terms.summaryImport")
         title: t("dialog.title.delete", {
           what: t("terms.summaryImport").toLowerCase(),
         }),
@@ -321,22 +276,7 @@ export const ManageImports: React.FC = () => {
         confirmBtnLabel: t("actions.delete"),
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
-          dispatch(confirmDialogActions.processing());
-          requestDeleteApplication(
-            row,
-            () => {
-              dispatch(confirmDialogActions.closeDialog());
-              if (imports?.data.length === 1) {
-                handlePaginationChange({ page: paginationQuery.page - 1 });
-              } else {
-                refreshTable();
-              }
-            },
-            (error) => {
-              dispatch(confirmDialogActions.closeDialog());
-              dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-            }
-          );
+          deleteImportSummary(row.id);
         },
       })
     );
@@ -349,29 +289,6 @@ export const ManageImports: React.FC = () => {
       })
     );
   };
-
-  // Filter components
-  const filterOptions = [
-    {
-      key: FilterKey.FILE_NAME,
-      name: t("terms.filename"),
-      input: (
-        <InputTextFilter
-          onApplyFilter={(filterText) => {
-            addFilter(FilterKey.FILE_NAME, {
-              key: filterText,
-              node: filterText,
-            });
-          }}
-        />
-      ),
-    },
-  ];
-
-  //Placeholder
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState([], 10);
-  //
 
   return (
     <>
@@ -393,35 +310,26 @@ export const ManageImports: React.FC = () => {
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isFetching && !(imports || fetchError)}
+          when={isFetching && !(importSummaries || fetchError)}
           then={<AppPlaceholder />}
         >
           <AppTableWithControls
-            count={imports ? imports.meta.count : 0}
+            count={importSummaries ? importSummaries.length : 0}
             paginationProps={paginationProps}
-            sortBy={sortByQuery}
-            onSort={handleSortChange}
+            sortBy={sortBy}
+            onSort={onSort}
             cells={columns}
             rows={rows}
             actionResolver={actionResolver}
             isLoading={isFetching}
             loadingVariant="skeleton"
             fetchError={fetchError}
-            toolbarClearAllFilters={clearAllFilters}
-            filtersApplied={areFiltersPresent}
             toolbarToggle={
-              <AppTableToolbarToggleGroup
-                categories={filterOptions.map((f) => ({
-                  key: f.key,
-                  name: f.name,
-                }))}
-                chips={filtersValue}
-                onChange={(key, value) => {
-                  setFilter(key as FilterKey, value as ToolbarChip[]);
-                }}
-              >
-                <ToolbarSearchFilter filters={filterOptions} />
-              </AppTableToolbarToggleGroup>
+              <FilterToolbar<ApplicationImportSummary>
+                filterCategories={filterCategories}
+                filterValues={filterValues}
+                setFilterValues={setFilterValues}
+              />
             }
             toolbarActions={
               <>
@@ -466,7 +374,7 @@ export const ManageImports: React.FC = () => {
         <ImportApplicationsForm
           onSaved={() => {
             setIsApplicationImportModalOpen(false);
-            refreshTable();
+            refetch();
           }}
         />
       </Modal>

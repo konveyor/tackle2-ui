@@ -6,7 +6,6 @@ import { useSelectionState } from "@konveyor/lib-ui";
 import {
   Button,
   ButtonVariant,
-  ToolbarChip,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -28,20 +27,14 @@ import {
   AppTableActionButtons,
   AppTableWithControls,
   ConditionalRender,
-  AppTableToolbarToggleGroup,
   NoDataEmptyState,
-  SearchFilter,
   Color,
 } from "@app/shared/components";
-import {
-  useTableControls,
-  useFetchTagTypes,
-  useDelete,
-} from "@app/shared/hooks";
+import { useFetchTagTypes, useDelete } from "@app/shared/hooks";
 
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { deleteTag, deleteTagType } from "@app/api/rest";
-import { SortByQuery, Stakeholder, Tag, TagType } from "@app/api/models";
+import { Tag, TagType } from "@app/api/models";
 
 import { NewTagTypeModal } from "./components/new-tag-type-modal";
 import { UpdateTagTypeModal } from "./components/update-tag-type-modal";
@@ -54,10 +47,8 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { FilterKey } from "@app/pages/applications/manage-imports/manage-imports";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
-import stakeholders from "../stakeholders";
 
 const ENTITY_FIELD = "entity";
 

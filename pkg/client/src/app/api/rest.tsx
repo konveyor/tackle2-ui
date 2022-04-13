@@ -6,11 +6,9 @@ import {
   BusinessService,
   Stakeholder,
   StakeholderGroup,
-  JobFunctionPage,
   Application,
   Assessment,
   JobFunction,
-  ApplicationDependencyPage,
   ApplicationDependency,
   TagType,
   Tag,
@@ -19,8 +17,6 @@ import {
   AssessmentQuestionRisk,
   ApplicationAdoptionPlan,
   AssessmentConfidence,
-  ApplicationImportSummaryPage,
-  ApplicationImportPage,
   ApplicationImportSummary,
   BulkCopyAssessment,
   BulkCopyReview,
@@ -29,6 +25,7 @@ import {
   Task,
   Proxy,
   Taskgroup,
+  ApplicationImport,
 } from "./models";
 
 // TACKLE_HUB
@@ -190,7 +187,7 @@ export interface JobFunctionSortByQuery {
   direction?: Direction;
 }
 
-export const getJobFunctions = (): AxiosPromise<JobFunctionPage> => {
+export const getJobFunctions = (): AxiosPromise<JobFunction[]> => {
   return APIClient.get(`${JOB_FUNCTIONS}`, jsonHeaders);
 };
 
@@ -262,23 +259,10 @@ export const getApplicationById = (
 
 //
 
-export const getApplicationDependencies = (
-  filters: {
-    from?: string[];
-    to?: string[];
-  },
-  pagination: PageQuery
-): AxiosPromise<ApplicationDependencyPage> => {
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-
-    "from.id": filters.from,
-    "to.id": filters.to,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${APPLICATION_DEPENDENCY}?${query.join("&")}`);
+export const getApplicationDependencies = (): AxiosPromise<
+  ApplicationDependency[]
+> => {
+  return APIClient.get(`${APPLICATION_DEPENDENCY}`);
 };
 
 export const createApplicationDependency = (
@@ -320,56 +304,8 @@ export const getApplicationAdoptionPlan = (
   );
 };
 
-export enum ApplicationImportSummarySortBy {
-  DATE,
-  USER,
-  FILE_NAME,
-  STATUS,
-}
-export interface ApplicationImportSummarySortByQuery {
-  field: ApplicationImportSummarySortBy;
-  direction?: Direction;
-}
-
-export const getApplicationImportSummary = (
-  filters: {
-    filename?: string[];
-  },
-  pagination: PageQuery,
-  sortBy?: ApplicationImportSummarySortByQuery
-): AxiosPromise<ApplicationImportSummaryPage> => {
-  let sortByQuery: string | undefined = undefined;
-  if (sortBy) {
-    let field;
-    switch (sortBy.field) {
-      case ApplicationImportSummarySortBy.DATE:
-        field = "createTime";
-        break;
-      case ApplicationImportSummarySortBy.USER:
-        field = "createUser";
-        break;
-      case ApplicationImportSummarySortBy.FILE_NAME:
-        field = "filename";
-        break;
-      case ApplicationImportSummarySortBy.STATUS:
-        field = "importStatus";
-        break;
-      default:
-        throw new Error("Could not define SortBy field name");
-    }
-    sortByQuery = `${sortBy.direction === "desc" ? "-" : ""}${field}`;
-  }
-
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-    sort: sortByQuery,
-
-    filename: filters.filename,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${APP_IMPORT_SUMMARY}?${query.join("&")}`);
+export const getApplicationImportSummary = (): AxiosPromise<any> => {
+  return APIClient.get(`${APP_IMPORT_SUMMARY}`);
 };
 
 export const getApplicationImportSummaryById = (
@@ -382,23 +318,8 @@ export const deleteApplicationImportSummary = (id: number): AxiosPromise => {
   return APIClient.delete(`${APP_IMPORT_SUMMARY}/${id}`);
 };
 
-export const getApplicationImport = (
-  filters: {
-    summaryId: string;
-    isValid?: boolean;
-  },
-  pagination: PageQuery
-): AxiosPromise<ApplicationImportPage> => {
-  const params = {
-    page: pagination.page - 1,
-    size: pagination.perPage,
-
-    "importSummary.id": filters.summaryId,
-    isValid: filters.isValid,
-  };
-
-  const query: string[] = buildQuery(params);
-  return APIClient.get(`${APP_IMPORT}?${query.join("&")}`);
+export const getApplicationImports = (): AxiosPromise<ApplicationImport[]> => {
+  return APIClient.get(`${APP_IMPORT}`);
 };
 
 export const getApplicationSummaryCSV = (id: string): AxiosPromise => {

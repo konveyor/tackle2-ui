@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React from "react";
 import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { saveAs } from "file-saver";
@@ -15,7 +15,6 @@ import { cellWidth, ICell, IRow, truncate } from "@patternfly/react-table";
 import { useDispatch } from "react-redux";
 import { alertActions } from "@app/store/alert";
 
-import { useFetch, useTableControls } from "@app/shared/hooks";
 import {
   AppPlaceholder,
   AppTableWithControls,
@@ -24,18 +23,21 @@ import {
 } from "@app/shared/components";
 
 import { ImportSummaryRoute, Paths } from "@app/Paths";
-import {
-  getApplicationImport,
-  getApplicationImportSummaryById,
-  getApplicationSummaryCSV,
-} from "@app/api/rest";
-import {
-  ApplicationImportPage,
-  ApplicationImportSummary,
-} from "@app/api/models";
-import { applicationImportPageMapper } from "@app/api/apiUtils";
+import { getApplicationSummaryCSV } from "@app/api/rest";
+import { ApplicationImport } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import {
+  useFetchImports,
+  useFetchImportSummaryByID,
+} from "@app/queries/imports";
+import {
+  FilterCategory,
+  FilterType,
+} from "@app/shared/components/FilterToolbar/FilterToolbar";
+import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useSortState } from "@app/shared/hooks/useSortState";
+import { AxiosError } from "axios";
 
 const ENTITY_FIELD = "entity";
 
@@ -48,55 +50,6 @@ export const ManageImportsDetails: React.FC = () => {
 
   // Redux
   const dispatch = useDispatch();
-
-  const fetchApplicationImportSummary = useCallback(() => {
-    return getApplicationImportSummaryById(importId);
-  }, [importId]);
-
-  const {
-    data: applicationImportSummary,
-    requestFetch: refreshApplicationImportSummary,
-  } = useFetch<ApplicationImportSummary>({
-    defaultIsFetching: true,
-    onFetch: fetchApplicationImportSummary,
-  });
-
-  useEffect(() => {
-    refreshApplicationImportSummary();
-  }, [refreshApplicationImportSummary]);
-
-  // Table data
-  const {
-    paginationQuery,
-    sortByQuery,
-    handlePaginationChange,
-    handleSortChange,
-  } = useTableControls();
-
-  const fetchApplicationImports = useCallback(() => {
-    return getApplicationImport(
-      { summaryId: importId, isValid: false },
-      paginationQuery
-    );
-  }, [importId, paginationQuery]);
-
-  const {
-    data: page,
-    isFetching,
-    fetchError,
-    requestFetch: refreshTable,
-  } = useFetch<ApplicationImportPage>({
-    defaultIsFetching: true,
-    onFetch: fetchApplicationImports,
-  });
-
-  const imports = useMemo(() => {
-    return page ? applicationImportPageMapper(page) : undefined;
-  }, [page]);
-
-  useEffect(() => {
-    refreshTable();
-  }, [paginationQuery, sortByQuery, refreshTable]);
 
   // Table
   const columns: ICell[] = [
@@ -112,8 +65,20 @@ export const ManageImportsDetails: React.FC = () => {
     },
   ];
 
+  const { imports, isFetching, fetchError } = useFetchImports();
+
+  const onFetchImportSummaryByIDError = (err: AxiosError) => {
+    console.log("err", err);
+  };
+
+  const {
+    importSummary,
+    isFetching: isFetchingImportSummary,
+    fetchError: importSummaryFetchError,
+  } = useFetchImportSummaryByID(onFetchImportSummaryByIDError);
+
   const rows: IRow[] = [];
-  imports?.data.forEach((item) => {
+  imports?.forEach((item) => {
     rows.push({
       [ENTITY_FIELD]: item,
       cells: [
@@ -132,7 +97,7 @@ export const ManageImportsDetails: React.FC = () => {
   const exportCSV = () => {
     getApplicationSummaryCSV(importId)
       .then((response) => {
-        const fileName = applicationImportSummary?.filename || "file.csv";
+        const fileName = importSummary?.filename || "file.csv";
         saveAs(new Blob([response.data]), fileName);
       })
       .catch((error) => {
@@ -140,10 +105,38 @@ export const ManageImportsDetails: React.FC = () => {
       });
   };
 
-  //Placeholder
+  const filterCategories: FilterCategory<ApplicationImport>[] = [
+    {
+      key: "Application Name",
+      title: "Application Name",
+      type: FilterType.search,
+      placeholderText: "Filter by application name...",
+      getItemValue: (item) => {
+        return item["Application Name"] || "";
+      },
+    },
+  ];
+
+  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+    imports || [],
+    filterCategories
+  );
+  const handleOnClearAllFilters = () => {
+    setFilterValues({});
+  };
+
+  const getSortValues = (item: ApplicationImport) => [
+    item?.["Application Name"] || "",
+    "", // Action column
+  ];
+
+  const { sortBy, onSort, sortedItems } = useSortState(
+    filteredItems,
+    getSortValues
+  );
+
   const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState([], 10);
-  //
+    usePaginationState(sortedItems, 10);
 
   return (
     <>
@@ -160,7 +153,7 @@ export const ManageImportsDetails: React.FC = () => {
               path: Paths.applicationsImports,
             },
             {
-              title: applicationImportSummary?.filename || "",
+              title: importSummary?.filename || "",
               path: "",
             },
           ]}
@@ -173,10 +166,10 @@ export const ManageImportsDetails: React.FC = () => {
           then={<AppPlaceholder />}
         >
           <AppTableWithControls
-            count={imports ? imports.meta.count : 0}
+            count={imports ? imports.length : 0}
             paginationProps={paginationProps}
-            sortBy={sortByQuery}
-            onSort={handleSortChange}
+            sortBy={sortBy}
+            onSort={onSort}
             filtersApplied={false}
             cells={columns}
             rows={rows}

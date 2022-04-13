@@ -108,7 +108,7 @@ export const ApplicationDependenciesForm: React.FC<
 
   useEffect(() => {
     if (northDependencies) {
-      const north = northDependencies.data
+      const north = northDependencies
         .filter((f) => f.to.id === application.id)
         .map((f) => dependencyToOption(f, northToStringFn));
       setNorthboundDependencies(north);
@@ -117,7 +117,7 @@ export const ApplicationDependenciesForm: React.FC<
 
   useEffect(() => {
     if (southDependencies) {
-      const south = southDependencies.data
+      const south = southDependencies
         .filter((f) => f.from.id === application.id)
         .map((f) => dependencyToOption(f, southToStringFn));
       setSouthboundDependencies(south);
