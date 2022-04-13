@@ -38,7 +38,6 @@ import { ApplicationFilterKey } from "@app/Constants";
 
 import { getApplications } from "@app/api/rest";
 import { Application, ApplicationPage } from "@app/api/models";
-import { applicationPageMapper, fetchAllPages } from "@app/api/apiUtils";
 
 import { ApplicationSelectionContextProvider } from "./application-selection-context";
 import { Landscape } from "./components/landscape";

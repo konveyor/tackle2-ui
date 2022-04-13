@@ -236,7 +236,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
       .map((key) => legendAndPoints[key as ProposedAction].datapoints)
       .flatMap((f) => f);
 
-    return dependencies.data.reduce((prev, current) => {
+    return dependencies.reduce((prev, current) => {
       const fromPoint = points.find(
         (f) => f.application.id === current.from.id
       );

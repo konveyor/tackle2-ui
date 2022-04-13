@@ -51,14 +51,12 @@ import {
   SortByQuery,
 } from "@app/api/models";
 
-import { ApplicationFilterKey } from "@app/Constants";
 import {
   createBulkCopyAssessment,
   createBulkCopyReview,
   getApplications,
   getAssessments,
 } from "@app/api/rest";
-import { applicationPageMapper } from "@app/api/apiUtils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationBusinessService } from "../application-business-service";
