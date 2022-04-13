@@ -71,11 +71,8 @@ export const SidebarApp: React.FC = () => {
   const Navigation = (
     <>
       <Select
-        style={{
-          borderStyle: "solid",
-          borderWidth: "0.1em",
-          borderColor: "white",
-        }}
+        style={{ border: "0.1em solid white" }}
+        className="perspective"
         toggleIcon={isDevIcon ? <DevIcon /> : <AdminIcon />}
         variant={SelectVariant.single}
         aria-label="Select user perspective"
