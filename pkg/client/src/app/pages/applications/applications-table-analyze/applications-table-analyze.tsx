@@ -65,6 +65,10 @@ import {
   useFetchApplications,
 } from "@app/queries/applications";
 import { useFetchIdentities } from "@app/queries/identities";
+import {
+  ApplicationTableType,
+  getApplicationsFilterValues,
+} from "../applicationsFilter";
 
 const ENTITY_FIELD = "entity";
 
@@ -86,6 +90,17 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const history = useHistory();
 
   const { applications, isFetching, fetchError } = useFetchApplications();
+
+  const {
+    paginationProps,
+    sortBy,
+    onSort,
+    filterCategories,
+    filterValues,
+    setFilterValues,
+    handleOnClearAllFilters,
+    currentPageItems,
+  } = getApplicationsFilterValues(applications, ApplicationTableType.Analysis);
 
   const { tasks } = useFetchTasks();
   const { identities } = useFetchIdentities();
@@ -111,60 +126,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (task?.state && task.state.match(/(Created|Running|Ready)/)) return true;
     return false;
   };
-
-  const filterCategories: FilterCategory<Application>[] = [
-    {
-      key: "name",
-      title: "Name",
-      type: FilterType.search,
-      placeholderText: "Filter by name...",
-      getItemValue: (item) => {
-        return item?.name || "";
-      },
-    },
-    {
-      key: "description",
-      title: "Description",
-      type: FilterType.search,
-      placeholderText: "Filter by description...",
-      getItemValue: (item) => {
-        return item.description || "";
-      },
-    },
-    {
-      key: "businessService",
-      title: "Business service",
-      type: FilterType.search,
-      placeholderText: "Filter by business service...",
-      getItemValue: (item) => {
-        return item.businessService?.name || "";
-      },
-    },
-  ];
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
-    applications || [],
-    filterCategories
-  );
-  const handleOnClearAllFilters = () => {
-    setFilterValues({});
-  };
-
-  const getSortValues = (item: Application) => [
-    item?.name || "",
-    item?.description || "",
-    item.businessService?.name || "",
-    // item?.analysis || "",
-    item.tags?.length || "",
-    "", // Action column
-  ];
-
-  const { sortBy, onSort, sortedItems } = useSortState(
-    filteredItems,
-    getSortValues
-  );
-
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
 
   // Create and update modal
   const {

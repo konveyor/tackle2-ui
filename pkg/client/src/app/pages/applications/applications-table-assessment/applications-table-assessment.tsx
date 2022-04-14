@@ -35,7 +35,6 @@ import { confirmDialogActions } from "@app/store/confirmDialog";
 import { bulkCopySelectors } from "@app/store/bulkCopy";
 
 import {
-  ApplicationToolbarToggleGroup,
   AppPlaceholder,
   AppTableWithControls,
   ConditionalRender,
@@ -47,23 +46,15 @@ import {
   useTableControls,
   useAssessApplication,
   useMultipleFetch,
-  useFetch,
   useEntityModal,
-  useDelete,
   useApplicationToolbarFilter,
 } from "@app/shared/hooks";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 
 import { formatPath, Paths } from "@app/Paths";
-import { ApplicationFilterKey } from "@app/Constants";
 
 import { Application, Assessment } from "@app/api/models";
-import {
-  deleteAssessment,
-  deleteReview,
-  getApplications,
-  getAssessments,
-} from "@app/api/rest";
+import { deleteAssessment, deleteReview, getAssessments } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationForm } from "../components/application-form";
@@ -73,7 +64,6 @@ import { ApplicationBusinessService } from "../components/application-business-s
 import { ApplicationListExpandedArea } from "../components/application-list-expanded-area";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import { legacyPathfinderRoles, RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
@@ -82,6 +72,11 @@ import {
   useDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
+import {
+  ApplicationTableType,
+  getApplicationsFilterValues,
+} from "../applicationsFilter";
+import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
 
 const ENTITY_FIELD = "entity";
 
@@ -133,6 +128,20 @@ export const ApplicationsTable: React.FC = () => {
 
   const { applications, isFetching, fetchError, refetch } =
     useFetchApplications();
+
+  const {
+    paginationProps,
+    sortBy,
+    onSort,
+    filterCategories,
+    filterValues,
+    setFilterValues,
+    handleOnClearAllFilters,
+    currentPageItems,
+  } = getApplicationsFilterValues(
+    applications,
+    ApplicationTableType.Assessment
+  );
 
   // Create and update modal
   const {
@@ -271,7 +280,7 @@ export const ApplicationsTable: React.FC = () => {
   ];
 
   const rows: IRow[] = [];
-  applications?.forEach((item) => {
+  currentPageItems?.forEach((item) => {
     const isExpanded = isRowExpanded(item);
     const isSelected = isRowSelected(item);
 
@@ -609,11 +618,6 @@ export const ApplicationsTable: React.FC = () => {
     return assessment === undefined || assessment.status !== "COMPLETE";
   };
 
-  //Placeholder
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState([], 10);
-  //
-
   const handleOnApplicationIdentityUpdated = (
     response: AxiosResponse<Application>
   ) => {
@@ -630,7 +634,8 @@ export const ApplicationsTable: React.FC = () => {
         <AppTableWithControls
           paginationProps={paginationProps}
           count={applications ? applications.length : 0}
-          onSort={handleSortChange}
+          sortBy={sortBy}
+          onSort={onSort}
           onCollapse={collapseRow}
           onSelect={selectRow}
           canSelectAll={false}
@@ -640,15 +645,15 @@ export const ApplicationsTable: React.FC = () => {
           isLoading={isFetching}
           loadingVariant="skeleton"
           fetchError={fetchError}
-          toolbarClearAllFilters={clearAllFilters}
           filtersApplied={areFiltersPresent}
           toolbarToggle={
-            <ApplicationToolbarToggleGroup
-              value={filtersValue as Map<ApplicationFilterKey, ToolbarChip[]>}
-              addFilter={addFilter}
-              setFilter={setFilter}
+            <FilterToolbar<Application>
+              filterCategories={filterCategories}
+              filterValues={filterValues}
+              setFilterValues={setFilterValues}
             />
           }
+          toolbarClearAllFilters={handleOnClearAllFilters}
           toolbarActions={
             <>
               <ToolbarGroup variant="button-group">
