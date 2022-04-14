@@ -339,7 +339,6 @@ export interface Task {
 }
 
 export interface TaskData {
-  path: string;
   output: string;
   mode: {
     binary: boolean;
