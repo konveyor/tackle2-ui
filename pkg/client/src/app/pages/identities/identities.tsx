@@ -114,15 +114,6 @@ export const Identities: React.FunctionComponent = () => {
         return item.kind || "";
       },
     },
-    {
-      key: "createUser",
-      title: "Created By",
-      type: FilterType.search,
-      placeholderText: "Filter by created by...",
-      getItemValue: (item) => {
-        return item.createUser || "";
-      },
-    },
   ];
 
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
