@@ -4,13 +4,7 @@ import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useDispatch } from "react-redux";
-import {
-  Button,
-  Wizard,
-  WizardContextConsumer,
-  WizardFooter,
-  WizardStepFunctionType,
-} from "@patternfly/react-core";
+import { Wizard, WizardStepFunctionType } from "@patternfly/react-core";
 
 import {
   Application,
@@ -282,12 +276,10 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     { id, name },
     { prevId, prevName }
   ) => {
-    if (id && stepIdReached < id) {
-      setStepIdReached(id as number);
-    }
+    if (id && stepIdReached < id) setStepIdReached(id as number);
   };
 
-  const { mode, artifact } = methods.getValues();
+  const { mode, artifact, targets } = methods.getValues();
 
   const isModeValid = (): boolean => {
     if (mode.includes("Upload")) return !isMutating && artifact !== "";
@@ -311,12 +303,15 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
               isModeValid={isModeValid()}
             />
           ),
+
+          enableNext: !isMutating,
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
         },
         {
           id: stepId.SetTargets,
           name: "Set targets",
           component: <SetTargets />,
+          enableNext: targets.length > 0,
           canJumpTo: stepIdReached >= stepId.SetTargets,
         },
         {
@@ -353,68 +348,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
   ];
 
-  const CustomFooter = (
-    <WizardFooter>
-      <WizardContextConsumer>
-        {({
-          activeStep,
-          goToStepByName,
-          goToStepById,
-          onNext,
-          onBack,
-          onClose,
-        }) => {
-          const isNextEnabled = () => {
-            switch (activeStep.name) {
-              case "Analysis mode":
-                if (isMutating) return false;
-                return true;
-              default:
-                return true;
-            }
-          };
-
-          return (
-            <>
-              <Button
-                variant="primary"
-                type="submit"
-                onClick={(event) => {
-                  getNextStep(activeStep, onNext);
-                }}
-                isDisabled={!isNextEnabled()}
-              >
-                {activeStep.name === "Review" ? "Run" : "Next"}
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => getPreviousStep(activeStep, onBack)}
-                isDisabled={activeStep.name === "Analysis mode"}
-              >
-                Back
-              </Button>
-              <Button variant="link" onClick={onClose}>
-                Cancel
-              </Button>
-            </>
-          );
-        }}
-      </WizardContextConsumer>
-    </WizardFooter>
-  );
-
-  const getNextStep = (activeStep: any, callback?: any) => {
-    setTimeout(() => {
-      callback();
-    });
-  };
-
-  const getPreviousStep = (activeStep: any, callback: any) => {
-    setTimeout(() => {
-      callback();
-    });
-  };
-
   const handleClose = () => {
     setStepIdReached(stepId.AnalysisMode);
     reset();
@@ -432,7 +365,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         navAriaLabel={`${title} steps`}
         mainAriaLabel={`${title} content`}
         steps={steps}
-        footer={CustomFooter}
         onNext={onMove}
         onBack={onMove}
         onSave={handleSubmit(onSubmit)}
