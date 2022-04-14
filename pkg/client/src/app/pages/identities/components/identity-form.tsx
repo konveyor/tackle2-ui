@@ -289,11 +289,11 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         ? getUserCredentialsInitialValue({ ...identity })
         : "",
       name: identity?.name || "",
-      password: identity?.password || "",
+      password: "",
       settings: identity?.settings || "",
       settingsFilename: "",
       updateUser: identity?.updateUser || "",
-      user: identity?.user || "",
+      user: "",
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
@@ -531,6 +531,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   "Upload your [SCM Private Key] file or paste its contents below."
                 }
                 helperTextInvalid="You should select a private key file."
+                isRequired
                 //TODO: PKI crypto validation
                 // validated={isFileRejected ? "error" : "default"}
               >
@@ -545,7 +546,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                       value={value}
                       filename={values.keyFilename}
                       onChange={(value, filename) => {
-                        setValue("key", value);
+                        setValue("key", value as string);
                         setValue("keyFilename", filename);
                       }}
                       dropzoneProps={{
@@ -555,10 +556,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                       }}
                       validated={isFileRejected ? "error" : "default"}
                       filenamePlaceholder="Drag and drop a file or upload one"
-                      onFileInputChange={(event, file) => {
-                        setValue(name, file);
-                        setValue("keyFilename", file.name);
-                      }}
                       onClearClick={() => {
                         resetField("key");
                         resetField("keyFilename");
@@ -629,10 +626,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   }}
                   validated={isSettingsFileRejected ? "error" : "default"}
                   filenamePlaceholder="Drag and drop a file or upload one"
-                  onFileInputChange={(event, file) => {
-                    setValue(name, file);
-                    setValue("settingsFilename", file.name);
-                  }}
                   onClearClick={() => {
                     resetField("settings");
                     resetField("settingsFilename");
