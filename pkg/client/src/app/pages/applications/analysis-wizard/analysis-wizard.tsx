@@ -54,7 +54,6 @@ export interface IAnalysisWizardFormValues {
 }
 
 const defaultTaskData: TaskData = {
-  path: "",
   output: "/windup/report",
   mode: {
     binary: false,
