@@ -10,7 +10,6 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  ToolbarChip,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -34,19 +33,13 @@ import {
   AppTableActionButtons,
   AppTableWithControls,
   ConditionalRender,
-  SearchFilter,
-  AppTableToolbarToggleGroup,
   NoDataEmptyState,
 } from "@app/shared/components";
-import {
-  useTableControls,
-  useFetchStakeholders,
-  useDelete,
-} from "@app/shared/hooks";
+import { useFetchStakeholders, useDelete } from "@app/shared/hooks";
 
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { deleteStakeholder } from "@app/api/rest";
-import { Stakeholder, SortByQuery } from "@app/api/models";
+import { Stakeholder } from "@app/api/models";
 
 import { NewStakeholderModal } from "./components/new-stakeholder-modal";
 import { UpdateStakeholderModal } from "./components/update-stakeholder-modal";
@@ -125,10 +118,10 @@ export const Stakeholders: React.FC = () => {
       },
     },
     {
-      key: "stakeholders",
-      title: "Stakeholders",
+      key: "stakeholderGroups",
+      title: "Stakeholder groups",
       type: FilterType.search,
-      placeholderText: "Filter by stakeholders...",
+      placeholderText: "Filter by stakeholder groups...",
       getItemValue: (stakeholder) => {
         const stakeholderGroups = stakeholder.stakeholderGroups?.map(
           (stakeholderGroup) => stakeholderGroup.name
