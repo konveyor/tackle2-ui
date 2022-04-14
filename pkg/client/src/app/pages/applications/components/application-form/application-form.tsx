@@ -23,6 +23,7 @@ import { useFetchBusinessServices, useFetchTagTypes } from "@app/shared/hooks";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { Application, Ref, Tag } from "@app/api/models";
 import {
+  duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
@@ -39,9 +40,11 @@ import {
 
 import "./application-form.css";
 import {
+  ApplicationsQueryKey,
   useCreateApplicationMutation,
   useUpdateApplicationMutation,
 } from "@app/queries/applications";
+import { useQueryClient } from "react-query";
 export interface FormValues {
   name: string;
   description: string;
@@ -180,14 +183,27 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     version: getBinaryInitialValue(application, "version"),
     packaging: getBinaryInitialValue(application, "packaging"),
   };
-
+  const queryClient = useQueryClient();
   const validationSchema = object().shape(
     {
       name: string()
         .trim()
         .required(t("validation.required"))
         .min(3, t("validation.minLength", { length: 3 }))
-        .max(120, t("validation.maxLength", { length: 120 })),
+        .max(120, t("validation.maxLength", { length: 120 }))
+        .test(
+          "Duplicate name",
+          "An application with this name already exists. Please use a different name.",
+          (value) => {
+            const applications: Application[] =
+              queryClient.getQueryData(ApplicationsQueryKey) || [];
+            return duplicateNameCheck(
+              applications,
+              application || null,
+              value || ""
+            );
+          }
+        ),
       description: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
