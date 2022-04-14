@@ -114,15 +114,6 @@ export const Identities: React.FunctionComponent = () => {
         return item.kind || "";
       },
     },
-    {
-      key: "createUser",
-      title: "Created By",
-      type: FilterType.search,
-      placeholderText: "Filter by created by...",
-      getItemValue: (item) => {
-        return item.createUser || "";
-      },
-    },
   ];
 
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
@@ -131,11 +122,11 @@ export const Identities: React.FunctionComponent = () => {
   );
   const getSortValues = (identity: Identity) => [
     identity?.name || "",
+    "", // description column
     identity?.kind || "",
     identity?.createUser || "",
     "", // Action column
   ];
-
   const { sortBy, onSort, sortedItems } = useSortState(
     filteredItems,
     getSortValues
