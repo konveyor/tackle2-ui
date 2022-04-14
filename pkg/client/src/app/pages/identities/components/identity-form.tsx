@@ -18,6 +18,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { Identity } from "@app/api/models";
 import {
+  duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
@@ -150,19 +151,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         (value) => {
           const identities: Identity[] =
             queryClient.getQueryData(IdentitiesQueryKey) || [];
-          let duplicateList = [...identities];
-          if (identity) {
-            const index = duplicateList.findIndex(
-              (id) => id.name === identity.name
-            );
-            if (index > -1) {
-              duplicateList.splice(index, 1);
-            }
-          }
-          const hasDuplicate = duplicateList.some(
-            (identity) => identity.name === value
-          );
-          return !hasDuplicate;
+          return duplicateNameCheck(identities, identity || null, value || "");
         }
       ),
     description: string()
