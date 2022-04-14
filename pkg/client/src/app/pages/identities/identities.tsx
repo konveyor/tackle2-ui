@@ -131,11 +131,11 @@ export const Identities: React.FunctionComponent = () => {
   );
   const getSortValues = (identity: Identity) => [
     identity?.name || "",
+    "", // description column
     identity?.kind || "",
     identity?.createUser || "",
     "", // Action column
   ];
-
   const { sortBy, onSort, sortedItems } = useSortState(
     filteredItems,
     getSortValues
