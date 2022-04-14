@@ -36,6 +36,7 @@ import {
 } from "@app/queries/identities";
 import { useDispatch } from "react-redux";
 import { alertActions } from "@app/store/alert";
+import KeyDisplayToggle from "@app/common/KeyDisplayToggle";
 
 export interface IdentityFormProps {
   identity?: Identity;
@@ -53,8 +54,12 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const [axiosError, setAxiosError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
   const [identity, setIdentity] = useState(initialIdentity);
-  const dispatch = useDispatch();
-
+  const [isPasswordHidden, setIsPasswordHidden] = useState(true);
+  const toggleHidePassword = (e: React.FormEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsPasswordHidden(!isPasswordHidden);
+  };
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -483,6 +488,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               </FormGroup>
               <FormGroup
                 label="Password"
+                labelIcon={
+                  <KeyDisplayToggle
+                    keyName="password"
+                    isKeyHidden={isPasswordHidden}
+                    onClick={toggleHidePassword}
+                  />
+                }
                 fieldId="password"
                 isRequired={true}
                 validated={getValidatedFromError(errors.password)}
@@ -496,7 +508,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     fieldState: { isTouched, error },
                   }) => (
                     <TextInput
-                      type="password"
+                      type={isPasswordHidden ? "password" : "text"}
                       name={name}
                       aria-label="password"
                       aria-describedby="password"
@@ -557,13 +569,23 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   )}
                 />
               </FormGroup>
-              <FormGroup label="Private Key Passphrase" fieldId="password">
+              <FormGroup
+                label="Private Key Passphrase"
+                fieldId="password"
+                labelIcon={
+                  <KeyDisplayToggle
+                    keyName="password"
+                    isKeyHidden={isPasswordHidden}
+                    onClick={toggleHidePassword}
+                  />
+                }
+              >
                 <Controller
                   control={control}
                   name="password"
                   render={({ field: { onChange, onBlur, value, name } }) => (
                     <TextInput
-                      type="password"
+                      type={isPasswordHidden ? "password" : "text"}
                       name={name}
                       aria-label="Private Key Passphrase"
                       aria-describedby="Private Key Passphrase"
@@ -659,6 +681,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           </FormGroup>
           <FormGroup
             label="Password"
+            labelIcon={
+              <KeyDisplayToggle
+                keyName="password"
+                isKeyHidden={isPasswordHidden}
+                onClick={toggleHidePassword}
+              />
+            }
             fieldId="password"
             isRequired={true}
             validated={getValidatedFromError(errors.password)}
@@ -672,7 +701,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 fieldState: { isTouched, error },
               }) => (
                 <TextInput
-                  type="password"
+                  type={isPasswordHidden ? "password" : "text"}
                   name={name}
                   aria-label="password"
                   aria-describedby="password"
