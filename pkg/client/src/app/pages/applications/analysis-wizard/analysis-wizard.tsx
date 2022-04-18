@@ -31,8 +31,8 @@ import "./wizard.css";
 
 interface IAnalysisWizard {
   applications: Application[];
-  identities: Identity[];
   onClose: () => void;
+  isOpen: boolean;
 }
 export interface IReadFile {
   fileName: string;
@@ -73,8 +73,8 @@ const defaultTaskData: TaskData = {
 
 export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   applications,
-  identities,
   onClose,
+  isOpen,
 }: IAnalysisWizard) => {
   const title = "Application analysis";
   const dispatch = useDispatch();
@@ -150,15 +150,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       excludedRulesTags: [""],
     },
   });
-
-  // TODO Assess if useful in future to keep or discard
-  const hasIdentity = (application: Application, kind: string) => {
-    return !!application.identities?.some((appIdentity) =>
-      identities?.find(
-        (identity) => appIdentity.id === identity.id && identity.kind === kind
-      )
-    );
-  };
 
   const areApplicationsBinaryEnabled = (): boolean =>
     applications.every(
@@ -356,21 +347,25 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   };
 
   return (
-    <FormProvider {...methods}>
-      <Wizard
-        isOpen={true}
-        title="Application analysis"
-        description={applications.map((app) => app.name).join(", ")}
-        navAriaLabel={`${title} steps`}
-        mainAriaLabel={`${title} content`}
-        steps={steps}
-        onNext={onMove}
-        onBack={onMove}
-        onSave={handleSubmit(onSubmit)}
-        onClose={() => {
-          handleClose();
-        }}
-      />
-    </FormProvider>
+    <>
+      {isOpen && (
+        <FormProvider {...methods}>
+          <Wizard
+            isOpen={isOpen}
+            title="Application analysis"
+            description={applications.map((app) => app.name).join(", ")}
+            navAriaLabel={`${title} steps`}
+            mainAriaLabel={`${title} content`}
+            steps={steps}
+            onNext={onMove}
+            onBack={onMove}
+            onSave={handleSubmit(onSubmit)}
+            onClose={() => {
+              handleClose();
+            }}
+          />
+        </FormProvider>
+      )}
+    </>
   );
 };
