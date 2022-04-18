@@ -52,8 +52,6 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useSortState } from "@app/shared/hooks/useSortState";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import { useDeleteTaskMutation, useFetchTasks } from "@app/queries/tasks";
@@ -64,7 +62,6 @@ import {
   useDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
-import { useFetchIdentities } from "@app/queries/identities";
 import {
   ApplicationTableType,
   getApplicationsFilterValues,
@@ -103,7 +100,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   } = getApplicationsFilterValues(applications, ApplicationTableType.Analysis);
 
   const { tasks } = useFetchTasks();
-  const { identities } = useFetchIdentities();
 
   const completedDeleteTask = () => {
     dispatch(alertActions.addInfo("Task", "Deleted"));
@@ -543,7 +539,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       {isAnalyzeModalOpen && (
         <AnalysisWizard
           applications={selectedRows}
-          identities={identities}
+          isOpen={isAnalyzeModalOpen}
           onClose={() => {
             setAnalyzeModalOpen(false);
           }}
