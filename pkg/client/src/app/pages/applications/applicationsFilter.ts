@@ -52,9 +52,13 @@ export const getApplicationsFilterValues = (
   };
 
   const getSortValues = (item: Application) => [
+    "",
+    "",
     item?.name || "",
-    item?.description || "",
+    "",
     item.businessService?.name || "",
+    "",
+    ...(tableType === ApplicationTableType.Assessment ? [""] : []),
     item.tags?.length || "",
     "", // Action column
   ];
