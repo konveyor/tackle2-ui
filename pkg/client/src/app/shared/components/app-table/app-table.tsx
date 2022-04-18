@@ -11,6 +11,7 @@ import {
 import { StateNoData } from "./state-no-data";
 import { StateNoResults } from "./state-no-results";
 import { StateError } from "./state-error";
+import "./app-table.css";
 
 export interface IAppTableProps extends TableProps {
   isLoading: boolean;
@@ -70,7 +71,12 @@ export const AppTable: React.FC<IAppTableProps> = ({
     }
 
     return (
-      <Table aria-label={ariaLabel} cells={cells} rows={rows}>
+      <Table
+        className="app-table"
+        aria-label={ariaLabel}
+        cells={cells}
+        rows={rows}
+      >
         <TableHeader />
         <TableBody />
       </Table>
@@ -92,7 +98,12 @@ export const AppTable: React.FC<IAppTableProps> = ({
   if (rows.length === 0) {
     return filtersApplied ? (
       <>
-        <Table aria-label={ariaLabel} cells={cells} rows={[]}>
+        <Table
+          className="app-table"
+          aria-label={ariaLabel}
+          cells={cells}
+          rows={[]}
+        >
           <TableHeader />
           <TableBody />
         </Table>
@@ -100,7 +111,12 @@ export const AppTable: React.FC<IAppTableProps> = ({
       </>
     ) : (
       <>
-        <Table aria-label={ariaLabel} cells={cells} rows={[]}>
+        <Table
+          className="app-table"
+          aria-label={ariaLabel}
+          cells={cells}
+          rows={[]}
+        >
           <TableHeader />
           <TableBody />
         </Table>
@@ -110,7 +126,13 @@ export const AppTable: React.FC<IAppTableProps> = ({
   }
 
   return (
-    <Table aria-label={ariaLabel} cells={cells} rows={rows} {...rest}>
+    <Table
+      className="app-table"
+      aria-label={ariaLabel}
+      cells={cells}
+      rows={rows}
+      {...rest}
+    >
       <TableHeader />
       <TableBody />
     </Table>
