@@ -103,14 +103,14 @@ export const Stakeholders: React.FC = () => {
       key: "name",
       title: "Name",
       type: FilterType.search,
-      placeholderText: "Filter by description...",
+      placeholderText: "Filter by name...",
       getItemValue: (item) => {
         return item?.name || "";
       },
     },
     {
       key: "jobFunction",
-      title: "Name",
+      title: "Job function",
       type: FilterType.search,
       placeholderText: "Filter by job function...",
       getItemValue: (item) => {
@@ -135,19 +135,13 @@ export const Stakeholders: React.FC = () => {
     filterCategories
   );
   const getSortValues = (item: Stakeholder) => [
-    item?.name || "",
+    "",
     item?.email || "",
+    item?.name || "",
     item.jobFunction?.name || "",
-    getStakeholderGroupNameList(item) || "",
+    item?.stakeholderGroups?.length || 0,
     "", // Action column
   ];
-
-  const getStakeholderGroupNameList = (stakeholder: Stakeholder) => {
-    const stakeholderGroups = stakeholder.stakeholderGroups?.map(
-      (stakeholderGroup) => stakeholderGroup.name
-    );
-    return stakeholderGroups?.join(" ; ") || "";
-  };
 
   const { sortBy, onSort, sortedItems } = useSortState(
     filteredItems,
