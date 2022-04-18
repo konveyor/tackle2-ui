@@ -215,8 +215,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       cellFormatters: [expandable],
     },
     { title: t("terms.description"), transforms: [cellWidth(25)] },
-    { title: t("terms.businessService"), transforms: [cellWidth(20)] },
-    { title: t("terms.analysis"), transforms: [sortable, cellWidth(10)] },
+    {
+      title: t("terms.businessService"),
+      transforms: [sortable, cellWidth(20)],
+    },
+    { title: t("terms.analysis"), transforms: [cellWidth(10)] },
     { title: t("terms.tagCount"), transforms: [sortable, cellWidth(10)] },
     {
       title: "",
@@ -406,7 +409,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (candidateTasks.length === selectedRows.length) return true;
     return false;
   };
-
   return (
     <>
       <ConditionalRender

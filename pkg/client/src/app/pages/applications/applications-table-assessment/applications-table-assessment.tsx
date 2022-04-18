@@ -267,9 +267,12 @@ export const ApplicationsTable: React.FC = () => {
       cellFormatters: [expandable],
     },
     { title: t("terms.description"), transforms: [cellWidth(25)] },
-    { title: t("terms.businessService"), transforms: [cellWidth(20)] },
+    {
+      title: t("terms.businessService"),
+      transforms: [sortable, cellWidth(20)],
+    },
     { title: t("terms.assessment"), transforms: [cellWidth(10)] },
-    { title: t("terms.review"), transforms: [sortable, cellWidth(10)] },
+    { title: t("terms.review"), transforms: [cellWidth(10)] },
     { title: t("terms.tagCount"), transforms: [sortable, cellWidth(10)] },
     {
       title: "",
