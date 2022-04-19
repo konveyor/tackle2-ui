@@ -1,5 +1,11 @@
-import React, { lazy, Suspense } from "react";
-import { Redirect, Route, Switch, useHistory } from "react-router-dom";
+import React, { lazy, Suspense, useEffect } from "react";
+import {
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useLocation,
+} from "react-router-dom";
 import {
   Level,
   LevelItem,
@@ -22,14 +28,37 @@ const JobFunctions = lazy(() => import("./job-functions"));
 const businessServices = lazy(() => import("./business-services"));
 const Tags = lazy(() => import("./tags"));
 
+const tabs: string[] = [
+  "controlsStakeholders",
+  "controlsStakeholderGroups",
+  "controlsJobFunctions",
+  "controlsBusinessServices",
+  "controlsTags",
+];
+
 export const Controls: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
 
-  const [activeTabKey, setActiveTabKey] = React.useState(
-    "controlsStakeholders"
-  );
+  const [activeTabKey, setActiveTabKey] = React.useState(0);
+  const location = useLocation();
 
+  useEffect(() => {
+    switch (location.pathname) {
+      case "/controls/stakeholders":
+        return setActiveTabKey(0);
+      case "/controls/stakeholder-groups":
+        return setActiveTabKey(1);
+      case "/controls/job-functions":
+        return setActiveTabKey(2);
+      case "/controls/business-services":
+        return setActiveTabKey(3);
+      case "/controls/tags":
+        return setActiveTabKey(4);
+      default:
+        return setActiveTabKey(0);
+    }
+  }, [location.pathname]);
   return (
     <>
       <PageSection variant={PageSectionVariants.light} className={spacing.pb_0}>
@@ -40,36 +69,26 @@ export const Controls: React.FC = () => {
         </Level>
         <Tabs
           activeKey={activeTabKey}
-          onSelect={(_event, tabKey) => {
-            setActiveTabKey(tabKey as string);
-            history.push(Paths[tabKey as keyof typeof Paths]);
+          onSelect={(_event, tabIndex) => {
+            setActiveTabKey(tabIndex as number);
+
+            history.push(Paths[tabs[tabIndex as number] as keyof typeof Paths]);
           }}
         >
+          <Tab eventKey={0} title={<TabTitleText>Stakeholders</TabTitleText>} />
           <Tab
-            key="controlsStakeholders"
-            eventKey="controlsStakeholders"
-            title={<TabTitleText>Stakeholders</TabTitleText>}
-          />
-          <Tab
-            key="controlsStakeholderGroups"
-            eventKey="controlsStakeholderGroups"
+            eventKey={1}
             title={<TabTitleText>Stakeholders groups</TabTitleText>}
           />
           <Tab
-            key="controlsJobFunctions"
-            eventKey="controlsJobFunctions"
+            eventKey={2}
             title={<TabTitleText>Job functions</TabTitleText>}
           />
           <Tab
-            key="controlsBusinessServices"
-            eventKey="controlsBusinessServices"
+            eventKey={3}
             title={<TabTitleText>Business services</TabTitleText>}
           />
-          <Tab
-            key="controlsTags"
-            eventKey="controlsTags"
-            title={<TabTitleText>Tags</TabTitleText>}
-          />
+          <Tab eventKey={4} title={<TabTitleText>Tags</TabTitleText>} />
         </Tabs>
       </PageSection>
       <PageSection>

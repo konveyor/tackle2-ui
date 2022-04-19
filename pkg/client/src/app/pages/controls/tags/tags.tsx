@@ -49,6 +49,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
+import { DEFAULT_COLOR_LABELS } from "@app/Constants";
 
 const ENTITY_FIELD = "entity";
 
@@ -117,7 +118,8 @@ export const Tags: React.FC = () => {
       type: FilterType.search,
       placeholderText: "Filter by color...",
       getItemValue: (item) => {
-        return item?.colour || "";
+        const colorLabel = DEFAULT_COLOR_LABELS.get(item?.colour || "");
+        return colorLabel || "";
       },
     },
   ];
@@ -126,9 +128,11 @@ export const Tags: React.FC = () => {
     filterCategories
   );
   const getSortValues = (item: TagType) => [
+    "",
     item?.name || "",
     item?.rank || "",
-    item?.colour || "",
+    "",
+    item?.tags?.length || 0,
     "", // Action column
   ];
 
