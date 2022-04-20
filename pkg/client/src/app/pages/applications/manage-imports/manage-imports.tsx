@@ -119,7 +119,10 @@ export const ManageImports: React.FC = () => {
   };
 
   const getSortValues = (item: ApplicationImportSummary) => [
+    "",
+    "",
     item?.filename || "",
+    "",
     "", // Action column
   ];
 
@@ -135,11 +138,11 @@ export const ManageImports: React.FC = () => {
   const columns: ICell[] = [
     {
       title: t("terms.date"),
-      transforms: [sortable, cellWidth(25)],
+      transforms: [cellWidth(25)],
     },
     {
       title: t("terms.user"),
-      transforms: [sortable, cellWidth(15)],
+      transforms: [cellWidth(15)],
       cellTransforms: [truncate],
     },
     {
@@ -147,13 +150,13 @@ export const ManageImports: React.FC = () => {
       transforms: [sortable, cellWidth(30)],
       cellTransforms: [truncate],
     },
-    { title: t("terms.status"), transforms: [sortable, cellWidth(10)] },
+    { title: t("terms.status"), transforms: [cellWidth(10)] },
     { title: t("terms.accepted"), transforms: [cellWidth(10)] },
     { title: t("terms.rejected"), transforms: [cellWidth(10)] },
   ];
 
   const rows: IRow[] = [];
-  importSummaries.forEach((item) => {
+  currentPageItems.forEach((item) => {
     let status;
     if (item.importStatus === "Completed") {
       status = <StatusIcon status="Ok" label={t("terms.completed")} />;
