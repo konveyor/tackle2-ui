@@ -23,7 +23,7 @@ exports[`AppTable Renders without crashing 1`] = `
       },
     ]
   }
-  className=""
+  className="app-table"
   collapseAllAriaLabel=""
   contentId="expanded-content"
   dropdownDirection="down"
