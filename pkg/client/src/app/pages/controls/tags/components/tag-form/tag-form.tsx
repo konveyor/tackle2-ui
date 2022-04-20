@@ -21,6 +21,7 @@ import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createTag, updateTag } from "@app/api/rest";
 import { Tag, TagType } from "@app/api/models";
 import {
+  duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
@@ -30,6 +31,8 @@ import {
   toITagTypeDropdown,
   toITagTypeDropdownOptionWithValue,
 } from "@app/utils/model-utils";
+import { TagsQueryKey, useFetchTags } from "@app/queries/tags";
+import { useQueryClient } from "react-query";
 
 export interface FormValues {
   name: string;
@@ -45,6 +48,13 @@ export interface TagFormProps {
 export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
   const { t } = useTranslation();
   const [error, setError] = useState<AxiosError>();
+
+  const {
+    tags,
+    isFetching: isFetchingTags,
+    fetchError: fetchErrorTags,
+    refetch,
+  } = useFetchTags();
 
   const {
     tagTypes,
@@ -66,12 +76,22 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
     tagType: tagTypeInitialValue,
   };
 
+  const queryClient = useQueryClient();
+
   const validationSchema = object().shape({
     name: string()
       .trim()
       .required(t("validation.required"))
-      .min(1, t("validation.minLength", { length: 1 }))
-      .max(40, t("validation.maxLength", { length: 40 })),
+      .min(3, t("validation.minLength", { length: 3 }))
+      .max(120, t("validation.maxLength", { length: 120 }))
+      .test(
+        "Duplicate name",
+        "An tag with this name already exists. Please use a different name.",
+        (value) => {
+          const tags: Tag[] = queryClient.getQueryData(TagsQueryKey) || [];
+          return duplicateNameCheck(tags, tag || null, value || "");
+        }
+      ),
     tagType: mixed().required(t("validation.required")),
   });
 
