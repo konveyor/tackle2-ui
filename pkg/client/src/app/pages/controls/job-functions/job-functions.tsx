@@ -56,32 +56,6 @@ import { useSortState } from "@app/shared/hooks/useSortState";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
 
-enum FilterKey {
-  NAME = "name",
-}
-
-const toSortByQuery = (
-  sortBy?: SortByQuery
-): JobFunctionSortByQuery | undefined => {
-  if (!sortBy) {
-    return undefined;
-  }
-
-  let field: JobFunctionSortBy;
-  switch (sortBy.index) {
-    case 0:
-      field = JobFunctionSortBy.NAME;
-      break;
-    default:
-      throw new Error("Invalid column index=" + sortBy.index);
-  }
-
-  return {
-    field,
-    direction: sortBy.direction,
-  };
-};
-
 const ENTITY_FIELD = "entity";
 
 export const JobFunctions: React.FC = () => {
@@ -146,7 +120,7 @@ export const JobFunctions: React.FC = () => {
   ];
 
   const rows: IRow[] = [];
-  jobFunctions?.forEach((item) => {
+  currentPageItems?.forEach((item) => {
     rows.push({
       [ENTITY_FIELD]: item,
       cells: [
