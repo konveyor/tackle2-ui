@@ -207,7 +207,7 @@ export const Tags: React.FC = () => {
 
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {
-    const isExpanded = isItemExpanded(item);
+    const isExpanded = isItemExpanded(item) && !!item?.tags?.length;
     rows.push({
       [ENTITY_FIELD]: item,
       isOpen: (item.tags || []).length > 0 ? isExpanded : undefined,
