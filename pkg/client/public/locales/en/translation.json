@@ -207,6 +207,7 @@
         "lowRisk": "Low risk",
         "mavenConfig": "Maven configuration",
         "mediumRisk": "Medium risk",
+        "member": "team member",
         "member(s)": "Member(s)",
         "memberCount": "Member count",
         "message": "Message",
