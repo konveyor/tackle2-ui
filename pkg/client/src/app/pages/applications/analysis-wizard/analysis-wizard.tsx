@@ -144,10 +144,10 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       targets: [],
       sources: [],
       withKnown: "depsOnly",
-      includedPackages: [""],
-      excludedPackages: [""],
+      includedPackages: [],
+      excludedPackages: [],
       customRulesFiles: [],
-      excludedRulesTags: [""],
+      excludedRulesTags: [],
     },
   });
 
