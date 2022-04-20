@@ -27,6 +27,7 @@ import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createStakeholder, updateStakeholder } from "@app/api/rest";
 import { JobFunction, Stakeholder, StakeholderGroup } from "@app/api/models";
 import {
+  duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
@@ -40,6 +41,11 @@ import {
   toIStakeholderGroupDropdown,
   isIModelEqual,
 } from "@app/utils/model-utils";
+import {
+  StakeholdersQueryKey,
+  useFetchStakeholders,
+} from "@app/queries/stakeholders";
+import { useQueryClient } from "react-query";
 
 export interface FormValues {
   email: string;
@@ -62,6 +68,12 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
   const { t } = useTranslation();
 
   const [error, setError] = useState<AxiosError>();
+
+  const {
+    stakeholders,
+    isFetching: isFetchingStakeholders,
+    fetchError: fetchErrorStakeholders,
+  } = useFetchStakeholders();
 
   const {
     jobFunctions,
@@ -105,6 +117,8 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
     stakeholderGroups: stakeholderGroupsInitialValue,
   };
 
+  const queryClient = useQueryClient();
+
   const validationSchema = object().shape({
     email: string()
       .trim()
@@ -116,7 +130,20 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
       .trim()
       .required(t("validation.required"))
       .min(3, t("validation.minLength", { length: 3 }))
-      .max(250, t("validation.maxLength", { length: 250 })),
+      .max(120, t("validation.maxLength", { length: 120 }))
+      .test(
+        "Duplicate name",
+        "A stakeholder with this name already exists. Please use a different name.",
+        (value) => {
+          const stakeholders: Stakeholder[] =
+            queryClient.getQueryData(StakeholdersQueryKey) || [];
+          return duplicateNameCheck(
+            stakeholders,
+            stakeholder || null,
+            value || ""
+          );
+        }
+      ),
   });
 
   const onSubmit = (
