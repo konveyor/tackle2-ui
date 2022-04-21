@@ -89,6 +89,24 @@ export const getApplicationsFilterValues = (
         return fileExt;
       },
     },
+    {
+      key: "binary",
+      title: "Artifact",
+      placeholderText: "Filter by Artifact...",
+      type: FilterType.select,
+      selectOptions: [
+        { key: "binary", value: "Associated artifact" },
+        { key: "none", value: "No associated artifact" },
+      ],
+      getItemValue: (item) => {
+        const hasBinary =
+          item.binary !== "::" && item.binary?.match(/.+:.+:.+/)
+            ? "binary"
+            : "none";
+
+        return hasBinary;
+      },
+    },
   ];
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
     applications || [],
