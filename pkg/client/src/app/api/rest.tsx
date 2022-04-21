@@ -229,6 +229,10 @@ export const getTagById = (id: number | string): AxiosPromise<Tag> => {
   return APIClient.get(`${TAGS}/${id}`);
 };
 
+export const getTags = (): AxiosPromise<Tag[]> => {
+  return APIClient.get(`${TAGS}`, jsonHeaders);
+};
+
 // App inventory
 
 export const getApplications = (): AxiosPromise<Array<Application>> => {
