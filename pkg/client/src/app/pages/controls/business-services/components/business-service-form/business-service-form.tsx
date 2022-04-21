@@ -16,12 +16,16 @@ import {
 } from "@patternfly/react-core";
 
 import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
-import { useFetchStakeholders } from "@app/shared/hooks";
+import {
+  useFetchBusinessServices,
+  useFetchStakeholders,
+} from "@app/shared/hooks";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createBusinessService, updateBusinessService } from "@app/api/rest";
 import { BusinessService, Stakeholder } from "@app/api/models";
 import {
+  duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
@@ -54,6 +58,17 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
   const [error, setError] = useState<AxiosError>();
 
   const {
+    businessServices,
+    isFetching: isFetchingBusinessServices,
+    fetchError: fetchErrorBusinessServices,
+    fetchBusinessServices,
+  } = useFetchBusinessServices();
+
+  useEffect(() => {
+    fetchBusinessServices();
+  }, [fetchBusinessServices]);
+
+  const {
     stakeholders,
     isFetching: isFetchingStakeholders,
     fetchError: fetchErrorStakeholders,
@@ -81,7 +96,18 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
       .trim()
       .required(t("validation.required"))
       .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 })),
+      .max(120, t("validation.maxLength", { length: 120 }))
+      .test(
+        "Duplicate name",
+        "A business service with this name already exists. Please use a different name.",
+        (value) => {
+          return duplicateNameCheck(
+            businessServices || [],
+            businessService || null,
+            value || ""
+          );
+        }
+      ),
     description: string()
       .trim()
       .max(250, t("validation.maxLength", { length: 250 })),
