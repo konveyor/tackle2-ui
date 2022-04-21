@@ -16,12 +16,16 @@ import {
 } from "@patternfly/react-core";
 
 import { MultiSelectFetchOptionValueFormikField } from "@app/shared/components";
-import { useFetchStakeholders } from "@app/shared/hooks";
+import {
+  useFetchStakeholderGroups,
+  useFetchStakeholders,
+} from "@app/shared/hooks";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createStakeholderGroup, updateStakeholderGroup } from "@app/api/rest";
 import { Stakeholder, StakeholderGroup } from "@app/api/models";
 import {
+  duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
@@ -61,6 +65,17 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
     fetchStakeholders,
   } = useFetchStakeholders();
 
+  const {
+    stakeholderGroups,
+    isFetching: isFetchingStakeholderGroups,
+    fetchError: fetchErrorStakeholderGroups,
+    fetchStakeholderGroups,
+  } = useFetchStakeholderGroups();
+
+  useEffect(() => {
+    fetchStakeholderGroups();
+  }, [fetchStakeholderGroups]);
+
   useEffect(() => {
     fetchStakeholders();
   }, [fetchStakeholders]);
@@ -92,7 +107,18 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
       .trim()
       .required(t("validation.required"))
       .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 })),
+      .max(120, t("validation.maxLength", { length: 120 }))
+      .test(
+        "Duplicate name",
+        "An stakeholder group with this name already exists. Please use a different name.",
+        (value) => {
+          return duplicateNameCheck(
+            stakeholderGroups || [],
+            stakeholderGroup || null,
+            value || ""
+          );
+        }
+      ),
     description: string()
       .trim()
       .max(250, t("validation.maxLength", { length: 250 })),
