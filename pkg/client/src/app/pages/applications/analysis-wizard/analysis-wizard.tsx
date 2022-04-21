@@ -199,7 +199,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       data: {
         ...defaultTaskData,
         mode: {
-          binary: data.mode.includes("Binary"),
+          binary: data.mode.includes("Binary") || data.mode.includes("binary"),
           withDeps: data.mode.includes("dependencies"),
           artifact: data.artifact ? `/binary/${data.artifact}` : "",
         },
