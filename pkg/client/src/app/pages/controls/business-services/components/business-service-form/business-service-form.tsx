@@ -209,6 +209,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
             }}
             options={(stakeholders || []).map(toIStakeholderDropdown)}
             toOptionWithValue={toIStakeholderDropdownOptionWithValue}
+            isClearable={true}
           />
         </FormGroup>
 
