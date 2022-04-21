@@ -74,6 +74,21 @@ export const getApplicationsFilterValues = (
         return searchString;
       },
     },
+    {
+      key: "repository",
+      title: "Repository type",
+      placeholderText: "Filter by repository type...",
+      type: FilterType.select,
+      selectOptions: [
+        { key: "git", value: "Git" },
+        { key: "svn", value: "SVN" },
+      ],
+      getItemValue: (item) => {
+        const url = item?.repository?.url || "";
+        const fileExt = url.split(".").pop() || "";
+        return fileExt;
+      },
+    },
   ];
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
     applications || [],
