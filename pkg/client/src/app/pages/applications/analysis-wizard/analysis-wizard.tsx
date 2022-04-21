@@ -8,7 +8,6 @@ import { Wizard, WizardStepFunctionType } from "@patternfly/react-core";
 
 import {
   Application,
-  Identity,
   TaskData,
   Taskgroup,
   TaskgroupTask,
@@ -143,7 +142,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       artifact: "",
       targets: [],
       sources: [],
-      withKnown: "depsOnly",
+      withKnown: "app",
       includedPackages: [],
       excludedPackages: [],
       customRulesFiles: [],
@@ -206,7 +205,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         targets: data.targets,
         sources: data.sources,
         scope: {
-          withKnown: data.withKnown.includes("depsAll") ? true : false,
+          withKnown: data.withKnown.includes("oss") ? true : false,
           packages: {
             included: data.includedPackages,
             excluded: data.excludedPackages,
