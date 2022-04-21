@@ -171,7 +171,7 @@ export const BusinessServices: React.FC = () => {
           title: (
             <AppTableActionButtons
               isDeleteEnabled={isAssignedToApplication}
-              tooltipMessage="Remove associated application(s)"
+              tooltipMessage="Cannot remove a business service associated with application(s)"
               onEdit={() => editRow(item)}
               onDelete={() => deleteRow(item)}
             />
