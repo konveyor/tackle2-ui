@@ -237,8 +237,9 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
               toggleAriaLabel: "stakeholders",
               clearSelectionsAriaLabel: "stakeholders",
               removeSelectionAriaLabel: "stakeholders",
+              // t('terms.teamMember')
               placeholderText: t("composed.selectOne", {
-                what: t("terms.member").toLowerCase(),
+                what: t("terms.teamMember").toLowerCase(),
               }),
               menuAppendTo: () => document.body,
               maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
