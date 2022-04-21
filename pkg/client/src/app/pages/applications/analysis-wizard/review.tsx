@@ -13,7 +13,6 @@ import {
 import { useFormContext } from "react-hook-form";
 
 import { Application } from "@app/api/models";
-import { IReadFile } from "./components/add-custom-rules";
 import { IAnalysisWizardFormValues } from "./analysis-wizard";
 
 interface IReview {
@@ -21,12 +20,9 @@ interface IReview {
 }
 
 const defaultScopes: Map<string, string> = new Map([
-  ["depsOnly", "Application and internal dependencies only"],
-  [
-    "depsAll",
-    "Application and all dependencies, including known Open Source libraries",
-  ],
-  ["depsSelect", "list of packages to be analyzed manually"],
+  ["app", "Application and internal dependencies"],
+  ["oss", "Known Open Source libraries"],
+  ["select", "List of packages to be analyzed manually"],
 ]);
 
 export const Review: React.FunctionComponent<IReview> = ({ applications }) => {
@@ -94,7 +90,11 @@ export const Review: React.FunctionComponent<IReview> = ({ applications }) => {
         <DescriptionListGroup>
           <DescriptionListTerm>Scope</DescriptionListTerm>
           <DescriptionListDescription id="scope">
-            {defaultScopes.get(withKnown)}
+            <List isPlain>
+              {withKnown.split(",").map((scope, index) => (
+                <ListItem key={index}>{defaultScopes.get(scope)}</ListItem>
+              ))}
+            </List>
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>

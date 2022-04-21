@@ -37,9 +37,9 @@ export const SetScope: React.FunctionComponent = () => {
       <Radio
         id="deps-only"
         name="deps-only"
-        isChecked={withKnown === "depsOnly"}
+        isChecked={withKnown === "app"}
         onChange={() => {
-          setValue("withKnown", "depsOnly");
+          setValue("withKnown", "app");
         }}
         label="Application and internal dependencies only"
         className={spacing.mbXs}
@@ -47,9 +47,9 @@ export const SetScope: React.FunctionComponent = () => {
       <Radio
         id="deps-all"
         name="deps-all"
-        isChecked={withKnown === "depsAll"}
+        isChecked={withKnown === "app,oss"}
         onChange={() => {
-          setValue("withKnown", "depsAll");
+          setValue("withKnown", "app,oss");
         }}
         label="Application and all dependencies, including known Open Source libraries"
         className={spacing.mbXs}
@@ -57,9 +57,9 @@ export const SetScope: React.FunctionComponent = () => {
       <Radio
         id="deps-select"
         name="deps-select"
-        isChecked={withKnown === "depsSelect"}
+        isChecked={withKnown === "app,oss,select"}
         onChange={() => {
-          setValue("withKnown", "depsSelect");
+          setValue("withKnown", "app,oss,select");
         }}
         label="Select the list of packages to be analyzed manually"
         className={spacing.mbXs}
