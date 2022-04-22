@@ -457,6 +457,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           }
           toolbarBulkSelector={
             <ToolbarBulkSelector
+              isExpandable={true}
               onExpandAll={expandAll}
               onSelectAll={selectAll}
               areAllExpanded={areAllExpanded}

@@ -41,6 +41,7 @@ import {
   NoDataEmptyState,
   StatusIcon,
   KebabDropdown,
+  ToolbarBulkSelector,
 } from "@app/shared/components";
 import {
   useTableControls,
@@ -245,14 +246,20 @@ export const ApplicationsTable: React.FC = () => {
   const {
     isItemSelected: isRowExpanded,
     toggleItemSelected: toggleRowExpanded,
+    selectAll: expandAll,
+    areAllSelected: areAllExpanded,
   } = useSelectionState<Application>({
     items: applications || [],
     isEqual: (a, b) => a.id === b.id,
   });
 
+  //Bulk selection
   const {
     isItemSelected: isRowSelected,
     toggleItemSelected: toggleRowSelected,
+    selectAll,
+    selectMultiple,
+    areAllSelected,
     selectedItems: selectedRows,
   } = useSelectionState<Application>({
     items: applications || [],
@@ -654,6 +661,19 @@ export const ApplicationsTable: React.FC = () => {
               filterCategories={filterCategories}
               filterValues={filterValues}
               setFilterValues={setFilterValues}
+            />
+          }
+          toolbarBulkSelector={
+            <ToolbarBulkSelector
+              isExpandable={true}
+              onExpandAll={expandAll}
+              onSelectAll={selectAll}
+              areAllExpanded={areAllExpanded}
+              areAllSelected={areAllSelected}
+              selectedRows={selectedRows}
+              paginationProps={paginationProps}
+              currentPageItems={currentPageItems}
+              onSelectMultiple={selectMultiple}
             />
           }
           toolbarClearAllFilters={handleOnClearAllFilters}
