@@ -70,6 +70,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
+import { useSelectionState } from "@konveyor/lib-ui/dist/hooks/useSelectionState/useSelectionState";
 
 const ENTITY_FIELD = "entity";
 
@@ -197,14 +198,14 @@ export const BulkCopyAssessmentReviewForm: React.FC<
 
   // Select rows
   const {
-    selectedItems: selectedRows,
-    areAllSelected: areAllApplicationsSelected,
     isItemSelected: isRowSelected,
     toggleItemSelected: toggleRowSelected,
-    setSelectedItems: setSelectedRows,
-  } = useSelectionFromPageState<Application>({
-    pageItems: applications || [],
-    totalItems: applications?.length || 0,
+    selectAll,
+    selectMultiple,
+    areAllSelected,
+    selectedItems: selectedRows,
+  } = useSelectionState<Application>({
+    items: applications || [],
     isEqual: (a, b) => a.id === b.id,
   });
 
@@ -373,25 +374,34 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             fetchError={fetchError}
             toolbarClearAllFilters={handleOnClearAllFilters}
             toolbarBulkSelector={
-              <ToolbarItem variant="bulk-select">
-                <ToolbarBulkSelector
-                  isFetching={isFetching}
-                  fetchError={fetchErrorApplicationAssessment}
-                  areAllRowsSelected={areAllApplicationsSelected}
-                  pageSize={applications?.length || 0}
-                  totalItems={applications?.length || 0}
-                  totalSelectedRows={selectedRows.length}
-                  onSelectNone={() => setSelectedRows([])}
-                  onSelectCurrentPage={() => {
-                    const rows = filterInvalidRows(applications);
-                    setSelectedRows(rows);
-                  }}
-                  onSelectAll={() => {
-                    const rows = filterInvalidRows(applications);
-                    setSelectedRows(rows);
-                  }}
-                />
-              </ToolbarItem>
+              <ToolbarBulkSelector
+                onSelectAll={selectAll}
+                areAllSelected={areAllSelected}
+                selectedRows={selectedRows}
+                paginationProps={paginationProps}
+                currentPageItems={currentPageItems}
+                onSelectMultiple={selectMultiple}
+              />
+
+              // <ToolbarItem variant="bulk-select">
+              //   <ToolbarBulkSelector
+              //     isFetching={isFetching}
+              //     fetchError={fetchErrorApplicationAssessment}
+              //     areAllRowsSelected={areAllApplicationsSelected}
+              //     pageSize={applications?.length || 0}
+              //     totalItems={applications?.length || 0}
+              //     totalSelectedRows={selectedRows.length}
+              //     onSelectNone={() => setSelectedRows([])}
+              //     onSelectCurrentPage={() => {
+              //       const rows = filterInvalidRows(applications);
+              //       setSelectedRows(rows);
+              //     }}
+              //     onSelectAll={() => {
+              //       const rows = filterInvalidRows(applications);
+              //       setSelectedRows(rows);
+              //     }}
+              //   />
+              // </ToolbarItem>
             }
             toolbarToggle={
               <FilterToolbar<Application>

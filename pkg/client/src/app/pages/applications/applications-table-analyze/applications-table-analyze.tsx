@@ -6,8 +6,12 @@ import { useSelectionState } from "@konveyor/lib-ui";
 import {
   Button,
   ButtonVariant,
+  Dropdown,
   DropdownItem,
+  DropdownToggle,
+  DropdownToggleCheckbox,
   Modal,
+  Pagination,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -26,7 +30,6 @@ import {
 import { TagIcon } from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import { PencilAltIcon } from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
 import { useDispatch } from "react-redux";
-
 import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 import {
@@ -35,6 +38,7 @@ import {
   ConditionalRender,
   NoDataEmptyState,
   KebabDropdown,
+  ToolbarBulkSelector,
 } from "@app/shared/components";
 import { useEntityModal, useDelete } from "@app/shared/hooks";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
@@ -216,6 +220,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const {
     isItemSelected: isRowExpanded,
     toggleItemSelected: toggleRowExpanded,
+    selectAll: expandAll,
+    areAllSelected: areAllExpanded,
   } = useSelectionState<Application>({
     items: applications || [],
     isEqual: (a, b) => a.id === b.id,
@@ -232,21 +238,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   } = useSelectionState<Application>({
     items: applications || [],
     isEqual: (a, b) => a.id === b.id,
-    // items: sortedItems.map((vm) => vm.id),
-    // externalState: [form.fields.selectedVMIds.value, form.fields.selectedVMIds.setValue],
   });
-
-  const getBulkSelectState = () => {
-    let state: boolean | null;
-    if (areAllSelected) {
-      state = true;
-    } else if (selectedRows.length === 0) {
-      state = false;
-    } else {
-      state = null;
-    }
-    return state;
-  };
 
   //
 
@@ -424,6 +416,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (candidateTasks.length === selectedRows.length) return true;
     return false;
   };
+
   return (
     <>
       <ConditionalRender
@@ -450,42 +443,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
               filterValues={filterValues}
               setFilterValues={setFilterValues}
               endToolbarItems={
-                <ToolbarItem>{`${form.values.selectedVMIds.length} selected`}</ToolbarItem>
+                <ToolbarItem>{`${selectedRows.length} selected`}</ToolbarItem>
               }
-              beginToolbarItems={
-                <>
-                  <ToolbarItem>{collapseAllBtn()}</ToolbarItem>
-
-                  <ToolbarItem>
-                    <Dropdown
-                      toggle={
-                        <DropdownToggle
-                          splitButtonItems={[
-                            <DropdownToggleCheckbox
-                              id="bulk-selected-vms-checkbox"
-                              key="bulk-select-checkbox"
-                              aria-label="Select all"
-                              onChange={() => {
-                                if (getBulkSelectState() !== false) {
-                                  selectAll(false);
-                                } else {
-                                  selectAll(true);
-                                }
-                              }}
-                              isChecked={getBulkSelectState()}
-                            />,
-                          ]}
-                          onToggle={(isOpen) => {
-                            setBulkSelectOpen(isOpen);
-                          }}
-                        />
-                      }
-                      isOpen={bulkSelectOpen}
-                      dropdownItems={dropdownItems}
-                    />
-                  </ToolbarItem>
-                </>
-              }
+              beginToolbarItems={<></>}
               pagination={
                 <Pagination
                   isCompact
@@ -493,6 +453,18 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                   widgetId="vms-table-pagination-top"
                 />
               }
+            />
+          }
+          toolbarBulkSelector={
+            <ToolbarBulkSelector
+              onExpandAll={expandAll}
+              onSelectAll={selectAll}
+              areAllExpanded={areAllExpanded}
+              areAllSelected={areAllSelected}
+              selectedRows={selectedRows}
+              paginationProps={paginationProps}
+              currentPageItems={currentPageItems}
+              onSelectMultiple={selectMultiple}
             />
           }
           toolbarClearAllFilters={handleOnClearAllFilters}

@@ -32,6 +32,8 @@ import { getAssessmentConfidence, getAssessmentLandscape } from "@app/api/rest";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { useSortState } from "@app/shared/hooks/useSortState";
+import { useSelectionState } from "@konveyor/lib-ui";
 
 export interface TableRowData {
   application: Application;
@@ -91,24 +93,38 @@ const getRow = (rowData: IRowData): TableRowData => {
   return rowData[ENTITY_FIELD];
 };
 
-export const AdoptionCandidateTable: React.FC = () => {
+interface IAdoptionCandidateTable {
+  selectAll: () => void;
+  areAllSelected: boolean;
+  selectedRows: Application[];
+  allApplications: Application[];
+}
+
+export const AdoptionCandidateTable: React.FunctionComponent<
+  IAdoptionCandidateTable
+> = ({
+  // selectAll,
+  // areAllSelected,
+  selectedRows: selectedApplications,
+  allApplications,
+}: IAdoptionCandidateTable) => {
   // i18
   const { t } = useTranslation();
 
   // Context
-  const {
-    allItems: allApplications,
-    selectedItems: selectedApplications,
-    areAllSelected: areAllApplicationsSelected,
-    isItemSelected: isApplicationSelected,
-    toggleItemSelected: toggleApplicationSelected,
-    selectAll: selectAllApplication,
-    setSelectedItems: setSelectedRows,
-  } = useContext(ApplicationSelectionContext);
+  // const {
+  //   allItems: allApplications,
+  //   selectedItems: selectedApplications,
+  //   areAllSelected: areAllApplicationsSelected,
+  //   isItemSelected: isApplicationSelected,
+  //   toggleItemSelected: toggleApplicationSelected,
+  //   selectAll: selectAllApplication,
+  //   setSelectedItems: setSelectedRows,
+  // } = useContext(ApplicationSelectionContext);
 
   // Confidence
   const fetchChartData = useCallback(() => {
-    return getAssessmentConfidence(allApplications.map((f) => f.id!)).then(
+    return getAssessmentConfidence(allApplications.map((app) => app.id!)).then(
       ({ data }) => data
     );
   }, [allApplications]);
@@ -163,24 +179,19 @@ export const AdoptionCandidateTable: React.FC = () => {
     });
   }, [allApplications, confidence, risks]);
 
-  // Table
-  const {
-    paginationQuery: pagination,
-    sortByQuery: sortBy,
-    handlePaginationChange: onPaginationChange,
-    handleSortChange: onSort,
-  } = useTableControls({
-    paginationQuery: { page: 1, perPage: 10 },
-    sortByQuery: { direction: "asc", index: 0 },
-  });
+  const getSortValues = (item: TableRowData) => [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "", // Action column
+  ];
 
-  const { pageItems } = useTableFilter<TableRowData>({
-    items: allRows,
-    sortBy,
-    compareToByColumn,
-    pagination,
-    filterItem: filterItem,
-  });
+  const { sortBy, onSort, sortedItems } = useSortState(allRows, getSortValues);
+
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState(sortedItems, 10);
 
   // Table
   const columns: ICell[] = [
@@ -221,13 +232,17 @@ export const AdoptionCandidateTable: React.FC = () => {
     },
   ];
 
+  const isApplicationSelected = (application: Application) =>
+    selectedApplications.some((row) => row.id === application.id);
+
   const rows: IRow[] = [];
-  pageItems.forEach((item) => {
-    const isSelected = isApplicationSelected(item.application);
+  currentPageItems.forEach((item) => {
+    // const isSelected = isApplicationSelected(item.application);
+    // const isSelected = isRowSelected(item);
 
     rows.push({
       [ENTITY_FIELD]: item,
-      selected: isSelected,
+      // selected: isSelected,
       cells: [
         {
           title: item.application.name,
@@ -274,8 +289,18 @@ export const AdoptionCandidateTable: React.FC = () => {
       ],
     });
   });
+  // const {
+  //   isItemSelected: isRowSelected,
+  //   toggleItemSelected: toggleRowSelected,
+  //   selectAll,
+  //   selectMultiple,
+  //   areAllSelected,
+  //   selectedItems: selectedRows,
+  // } = useSelectionState<TableRowData>({
+  //   items: allRows || [],
+  //   isEqual: (a, b) => a.application.id === b.application.id,
+  // });
 
-  // Row actions
   const selectRow = (
     event: React.FormEvent<HTMLInputElement>,
     isSelected: boolean,
@@ -283,18 +308,9 @@ export const AdoptionCandidateTable: React.FC = () => {
     rowData: IRowData,
     extraData: IExtraData
   ) => {
-    if (rowIndex === -1) {
-      isSelected ? selectAllApplication() : setSelectedRows([]);
-    } else {
-      const row = getRow(rowData);
-      toggleApplicationSelected(row.application);
-    }
+    const row = getRow(rowData);
+    // toggleRowSelected(row);
   };
-
-  //Placeholder
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState([], 10);
-  //
 
   return (
     <AppTableWithControls
@@ -309,24 +325,34 @@ export const AdoptionCandidateTable: React.FC = () => {
       canSelectAll={false}
       isLoading={false}
       filtersApplied={false}
-      toolbarToggle={
-        <>
-          <ToolbarItem variant="bulk-select">
-            <ToolbarBulkSelector
-              isFetching={false}
-              areAllRowsSelected={areAllApplicationsSelected}
-              pageSize={pagination.perPage}
-              totalItems={allApplications.length}
-              totalSelectedRows={selectedApplications.length}
-              onSelectAll={selectAllApplication}
-              onSelectNone={() => setSelectedRows([])}
-              onSelectCurrentPage={() => {
-                setSelectedRows(pageItems.map((f) => f.application));
-              }}
-            />
-          </ToolbarItem>
-        </>
-      }
+      // toolbarToggle={
+      //   <>
+      //     <ToolbarItem variant="bulk-select">
+      //       <ToolbarBulkSelector
+      //         isFetching={false}
+      //         areAllRowsSelected={areAllApplicationsSelected}
+      //         pageSize={pagination.perPage}
+      //         totalItems={allApplications.length}
+      //         totalSelectedRows={selectedApplications.length}
+      //         onSelectAll={selectAllApplication}
+      //         onSelectNone={() => setSelectedRows([])}
+      //         onSelectCurrentPage={() => {
+      //           setSelectedRows(pageItems.map((f) => f.application));
+      //         }}
+      //       />
+      //     </ToolbarItem>
+      //   </>
+      // }
+      // toolbarBulkSelector={
+      //   <ToolbarBulkSelector
+      //     onSelectAll={selectAllApplication}
+      //     areAllSelected={areAllApplicationsSelected}
+      //     selectedRows={selectedApplications}
+      //     paginationProps={paginationProps}
+      //     currentPageItems={currentPageItems}
+      //     onSelectMultiple={}
+      //   />
+      // }
     />
   );
 };
