@@ -94,10 +94,10 @@ const getRow = (rowData: IRowData): TableRowData => {
 };
 
 interface IAdoptionCandidateTable {
-  selectAll: () => void;
-  areAllSelected: boolean;
-  selectedRows: Application[];
-  allApplications: Application[];
+  selectAll?: () => void;
+  areAllSelected?: boolean;
+  selectedRows?: Application[];
+  allApplications?: Application[];
 }
 
 export const AdoptionCandidateTable: React.FunctionComponent<
@@ -105,8 +105,8 @@ export const AdoptionCandidateTable: React.FunctionComponent<
 > = ({
   // selectAll,
   // areAllSelected,
-  selectedRows: selectedApplications,
-  allApplications,
+  // selectedRows: selectedApplications,
+  allApplications = [],
 }: IAdoptionCandidateTable) => {
   // i18
   const { t } = useTranslation();
@@ -232,17 +232,28 @@ export const AdoptionCandidateTable: React.FunctionComponent<
     },
   ];
 
-  const isApplicationSelected = (application: Application) =>
-    selectedApplications.some((row) => row.id === application.id);
+  // const isApplicationSelected = (application: Application) =>
+  //   selectedApplications.some((row) => row.id === application.id);
+  const {
+    isItemSelected: isRowSelected,
+    toggleItemSelected: toggleRowSelected,
+    selectAll,
+    selectMultiple,
+    areAllSelected,
+    selectedItems: selectedRows,
+  } = useSelectionState<TableRowData>({
+    items: allRows || [],
+    isEqual: (a, b) => a.application.id === b.application.id,
+  });
 
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {
     // const isSelected = isApplicationSelected(item.application);
-    // const isSelected = isRowSelected(item);
+    const isSelected = isRowSelected(item);
 
     rows.push({
       [ENTITY_FIELD]: item,
-      // selected: isSelected,
+      selected: isSelected,
       cells: [
         {
           title: item.application.name,
@@ -289,17 +300,6 @@ export const AdoptionCandidateTable: React.FunctionComponent<
       ],
     });
   });
-  // const {
-  //   isItemSelected: isRowSelected,
-  //   toggleItemSelected: toggleRowSelected,
-  //   selectAll,
-  //   selectMultiple,
-  //   areAllSelected,
-  //   selectedItems: selectedRows,
-  // } = useSelectionState<TableRowData>({
-  //   items: allRows || [],
-  //   isEqual: (a, b) => a.application.id === b.application.id,
-  // });
 
   const selectRow = (
     event: React.FormEvent<HTMLInputElement>,
@@ -309,7 +309,7 @@ export const AdoptionCandidateTable: React.FunctionComponent<
     extraData: IExtraData
   ) => {
     const row = getRow(rowData);
-    // toggleRowSelected(row);
+    toggleRowSelected(row);
   };
 
   return (
@@ -343,16 +343,16 @@ export const AdoptionCandidateTable: React.FunctionComponent<
       //     </ToolbarItem>
       //   </>
       // }
-      // toolbarBulkSelector={
-      //   <ToolbarBulkSelector
-      //     onSelectAll={selectAllApplication}
-      //     areAllSelected={areAllApplicationsSelected}
-      //     selectedRows={selectedApplications}
-      //     paginationProps={paginationProps}
-      //     currentPageItems={currentPageItems}
-      //     onSelectMultiple={}
-      //   />
-      // }
+      toolbarBulkSelector={
+        <ToolbarBulkSelector
+          onSelectAll={selectAll}
+          areAllSelected={areAllSelected}
+          selectedRows={selectedRows}
+          paginationProps={paginationProps}
+          currentPageItems={currentPageItems}
+          onSelectMultiple={selectMultiple}
+        />
+      }
     />
   );
 };

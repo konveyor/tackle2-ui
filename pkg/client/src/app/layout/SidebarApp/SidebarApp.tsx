@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, useHistory, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -63,6 +63,7 @@ export const SidebarApp: React.FC = () => {
   ];
 
   const [isOpen, setIsOpen] = React.useState(false);
+  // const [selectedPersona, setSelectedPersona] = useState("Administrator");
   const [selectedPersona, setSelectedPersona] = useLocalStorageContext(
     LocalStorageKey.selectedPersona
   );
