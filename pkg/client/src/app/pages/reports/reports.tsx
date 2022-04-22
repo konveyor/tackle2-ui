@@ -63,74 +63,11 @@ export const Reports: React.FC = () => {
   const [isRiskCardOpen, setIsRiskCardOpen] = useState(false);
 
   const { applications, isFetching, fetchError } = useFetchApplications();
-  const {
-    isItemSelected: isRowSelected,
-    toggleItemSelected: toggleRowSelected,
-    selectAll,
-    selectMultiple,
-    areAllSelected,
-    selectedItems: selectedRows,
-  } = useSelectionState<Application>({
-    items: applications || [],
-    isEqual: (a, b) => a.id === b.id,
-  });
-
-  const filterCategories: FilterCategory<Application>[] = [
-    {
-      key: "name",
-      title: "Name",
-      type: FilterType.search,
-      placeholderText: "Filter by name...",
-      getItemValue: (item) => {
-        return item?.name || "";
-      },
-    },
-  ];
-
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
-    applications || [],
-    filterCategories
-  );
-
-  const getSortValues = (application: Application) => [
-    application?.name || "",
-    "", // description column
-    "", // description column
-    "", // description column
-    "", // Action column
-  ];
-  const { sortBy, onSort, sortedItems } = useSortState(
-    filteredItems,
-    getSortValues
-  );
-
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
-
   const pageHeaderSection = (
     <PageSection variant={PageSectionVariants.light}>
       <TextContent>
         <Text component="h1">{t("terms.reports")}</Text>
       </TextContent>
-      <Toolbar>
-        <ToolbarContent style={{ paddingRight: 0, paddingLeft: 0 }}>
-          <FilterToolbar<Application>
-            filterCategories={filterCategories}
-            filterValues={filterValues}
-            setFilterValues={setFilterValues}
-            endToolbarItems={
-              <ToolbarItem>{`${selectedRows.length} selected`}</ToolbarItem>
-            }
-            pagination={
-              <Pagination
-                isCompact
-                {...paginationProps}
-                widgetId="vms-table-pagination-top"
-              />
-            }
-          />
-        </ToolbarContent>
-      </Toolbar>
     </PageSection>
   );
 
@@ -201,12 +138,7 @@ export const Reports: React.FC = () => {
                   </CardHeader>
                   <CardBody>
                     {isAdoptionCandidateTable ? (
-                      <AdoptionCandidateTable
-                        // selectAll={selectAll}
-                        // areAllSelected={areAllSelected}
-                        // selectedRows={selectedRows}
-                        allApplications={applications}
-                      />
+                      <AdoptionCandidateTable allApplications={applications} />
                     ) : (
                       <AdoptionCandidateGraph />
                     )}
