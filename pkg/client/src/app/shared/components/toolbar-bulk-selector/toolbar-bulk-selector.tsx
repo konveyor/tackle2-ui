@@ -2,107 +2,144 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
+  Button,
   Dropdown,
   DropdownItem,
   DropdownPosition,
   DropdownToggle,
   DropdownToggleCheckbox,
+  ToolbarItem,
 } from "@patternfly/react-core";
 
-export interface IToolbarBulkSelectorProps {
-  pageSize: number;
-  totalItems: number;
-  totalSelectedRows: number;
-  areAllRowsSelected: boolean;
-  onSelectNone: () => void;
-  onSelectCurrentPage: () => void;
-  onSelectAll: () => void;
+import AngleDownIcon from "@patternfly/react-icons/dist/esm/icons/angle-down-icon";
+import AngleRightIcon from "@patternfly/react-icons/dist/esm/icons/angle-right-icon";
 
-  isFetching: boolean;
-  fetchError?: any;
+export interface IToolbarBulkSelectorProps {
+  areAllSelected: boolean;
+  areAllExpanded?: boolean;
+  onSelectAll: (flag: boolean) => void;
+  onExpandAll?: (flag: boolean) => void;
+  selectedRows: any;
+  onSelectMultiple: any;
+  currentPageItems: any;
+  paginationProps: any;
+  isExpandable?: boolean;
 }
 
 export const ToolbarBulkSelector: React.FC<IToolbarBulkSelectorProps> = ({
-  pageSize,
-  totalItems,
-  areAllRowsSelected,
-  totalSelectedRows,
-  onSelectNone,
-  onSelectCurrentPage,
+  currentPageItems,
+  areAllSelected,
   onSelectAll,
-
-  isFetching,
-  fetchError,
+  onExpandAll,
+  areAllExpanded,
+  selectedRows,
+  onSelectMultiple,
+  paginationProps,
+  isExpandable,
 }) => {
   // i18
   const { t } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const onDropDownSelect = () => {
-    setIsOpen((current) => !current);
+  const toggleCollapseAll = (collapse: boolean) => {
+    onExpandAll && onExpandAll(!collapse);
+  };
+  const collapseAllBtn = () => (
+    <Button
+      variant="control"
+      title={`${!areAllExpanded ? "Expand" : "Collapse"} all`}
+      onClick={() => {
+        areAllExpanded !== undefined && toggleCollapseAll(areAllExpanded);
+      }}
+    >
+      {areAllExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
+    </Button>
+  );
+
+  const getBulkSelectState = () => {
+    let state: boolean | null;
+    if (areAllSelected) {
+      state = true;
+    } else if (selectedRows.length === 0) {
+      state = false;
+    } else {
+      state = null;
+    }
+    return state;
+  };
+  const [bulkSelectOpen, setBulkSelectOpen] = React.useState(false);
+  const handleSelectAll = (checked: boolean) => {
+    onSelectAll(!!checked);
   };
 
-  const onDropDownToggle = (isOpen: boolean) => {
-    setIsOpen(isOpen);
-  };
+  const dropdownItems = [
+    <DropdownItem
+      onClick={() => {
+        handleSelectAll(false);
+      }}
+      data-action="none"
+      key="select-none"
+      component="button"
+    >
+      Select none (0)
+    </DropdownItem>,
+    <DropdownItem
+      onClick={() => {
+        onSelectMultiple(
+          currentPageItems.map((app: any) => app),
+          true
+        );
+      }}
+      data-action="page"
+      key="select-page"
+      component="button"
+    >
+      Select page ({currentPageItems.length})
+    </DropdownItem>,
+    <DropdownItem
+      onClick={() => {
+        handleSelectAll(true);
+      }}
+      data-action="all"
+      key="select-all"
+      component="button"
+    >
+      Select all ({paginationProps.itemCount})
+    </DropdownItem>,
+  ];
 
-  if (fetchError) {
-    return (
-      <Dropdown
-        toggle={<DropdownToggle isDisabled>Error</DropdownToggle>}
-        isOpen={false}
-        dropdownItems={[]}
-      />
-    );
-  }
-  // const getPageItemCount =
   return (
-    <Dropdown
-      isOpen={isOpen}
-      position={DropdownPosition.left}
-      onSelect={onDropDownSelect}
-      dropdownItems={[
-        <DropdownItem key="item-1" onClick={onSelectNone}>
-          {t("actions.selectNone")} (0 items)
-        </DropdownItem>,
-        <DropdownItem key="item-2" onClick={onSelectCurrentPage}>
-          {t("actions.selectPage")} ({getPageItemCount()} items)
-        </DropdownItem>,
-        <DropdownItem key="item-3" onClick={onSelectAll}>
-          {t("actions.selectAll")} ({totalItems} items)
-        </DropdownItem>,
-      ]}
-      toggle={
-        <DropdownToggle
-          onToggle={onDropDownToggle}
-          isDisabled={isFetching}
-          splitButtonItems={[
-            <DropdownToggleCheckbox
-              id="toolbar-bulk-select"
-              key="toolbar-bulk-select"
-              aria-label="Select"
-              isDisabled={isFetching}
-              isChecked={
-                areAllRowsSelected
-                  ? true
-                  : totalSelectedRows === 0
-                  ? false
-                  : null
-              }
-              onClick={() => {
-                totalSelectedRows > 0 ? onSelectNone() : onSelectAll();
+    <>
+      {isExpandable && <ToolbarItem>{collapseAllBtn()}</ToolbarItem>}
+      <ToolbarItem>
+        <Dropdown
+          toggle={
+            <DropdownToggle
+              splitButtonItems={[
+                <DropdownToggleCheckbox
+                  id="bulk-selected-apps-checkbox"
+                  key="bulk-select-checkbox"
+                  aria-label="Select all"
+                  onChange={() => {
+                    if (getBulkSelectState() !== false) {
+                      onSelectAll(false);
+                    } else {
+                      onSelectAll(true);
+                    }
+                  }}
+                  isChecked={getBulkSelectState()}
+                />,
+              ]}
+              onToggle={(isOpen) => {
+                setBulkSelectOpen(isOpen);
               }}
-            ></DropdownToggleCheckbox>,
-          ]}
-        >
-          {totalSelectedRows !== 0 && (
-            <>
-              {totalSelectedRows} {t("terms.selected").toLowerCase()}
-            </>
-          )}
-        </DropdownToggle>
-      }
-    />
+            />
+          }
+          isOpen={bulkSelectOpen}
+          dropdownItems={dropdownItems}
+        />
+      </ToolbarItem>
+    </>
   );
 };

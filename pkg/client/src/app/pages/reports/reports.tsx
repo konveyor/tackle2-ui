@@ -11,6 +11,7 @@ import {
   CardTitle,
   PageSection,
   PageSectionVariants,
+  Pagination,
   Popover,
   Split,
   SplitItem,
@@ -23,6 +24,7 @@ import {
   Toolbar,
   ToolbarChip,
   ToolbarContent,
+  ToolbarItem,
 } from "@patternfly/react-core";
 import { HelpIcon } from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
@@ -45,6 +47,13 @@ import { AdoptionCandidateTable } from "./components/adoption-candidate-table";
 import { AdoptionPlan } from "./components/adoption-plan";
 import { IdentifiedRisksTable } from "./components/identified-risks-table";
 import { AdoptionCandidateGraph } from "./components/adoption-candidate-graph/adoption-candidate-graph";
+import { useFetchApplications } from "@app/queries/applications";
+import { FilterToolbar } from "@app/shared/components/FilterToolbar";
+import {
+  ApplicationTableType,
+  getApplicationsFilterValues,
+} from "../applications/applicationsFilter";
+import { useSelectionState } from "@konveyor/lib-ui/dist/hooks/useSelectionState/useSelectionState";
 
 export const Reports: React.FC = () => {
   // i18
@@ -56,50 +65,55 @@ export const Reports: React.FC = () => {
   const [isAdoptionPlanOpen, setAdoptionPlanOpen] = useState(false);
   const [isRiskCardOpen, setIsRiskCardOpen] = useState(false);
 
-  // Toolbar filters
+  const { applications, isFetching, fetchError } = useFetchApplications();
   const {
-    filters: filtersValue,
-    addFilter,
-    setFilter,
-    clearAllFilters,
-  } = useApplicationToolbarFilter();
-
-  const fetchApplications = useCallback(() => {
-    return getApplications();
-  }, []);
-
+    paginationProps,
+    sortBy,
+    onSort,
+    filterCategories,
+    filterValues,
+    setFilterValues,
+    handleOnClearAllFilters,
+    currentPageItems,
+  } = getApplicationsFilterValues(applications, ApplicationTableType.Analysis);
+  //Bulk selection
   const {
-    data: applications,
-    isFetching: isFetchingApplications,
-    fetchError: fetchErrorApplications,
-    requestFetch: refreshApplications,
-  } = useFetch<Application[]>({
-    defaultIsFetching: true,
-    onFetch: fetchApplications,
+    isItemSelected: isRowSelected,
+    toggleItemSelected: toggleRowSelected,
+    selectAll,
+    selectMultiple,
+    areAllSelected,
+    selectedItems: selectedRows,
+  } = useSelectionState<Application>({
+    items: applications || [],
+    isEqual: (a, b) => a.id === b.id,
   });
-
-  useEffect(() => {
-    refreshApplications();
-  }, [filtersValue, refreshApplications]);
 
   const pageHeaderSection = (
     <PageSection variant={PageSectionVariants.light}>
       <TextContent>
         <Text component="h1">{t("terms.reports")}</Text>
       </TextContent>
-      <Toolbar clearAllFilters={clearAllFilters}>
-        <ToolbarContent style={{ paddingRight: 0, paddingLeft: 0 }}>
-          <ApplicationToolbarToggleGroup
-            value={filtersValue as Map<ApplicationFilterKey, ToolbarChip[]>}
-            addFilter={addFilter}
-            setFilter={setFilter}
+      <FilterToolbar<Application>
+        filterCategories={filterCategories}
+        filterValues={filterValues}
+        setFilterValues={setFilterValues}
+        endToolbarItems={
+          <ToolbarItem>{`${selectedRows.length} selected`}</ToolbarItem>
+        }
+        beginToolbarItems={<></>}
+        pagination={
+          <Pagination
+            isCompact
+            {...paginationProps}
+            widgetId="vms-table-pagination-top"
           />
-        </ToolbarContent>
-      </Toolbar>
+        }
+      />
     </PageSection>
   );
 
-  if (fetchErrorApplications) {
+  if (fetchError) {
     return (
       <>
         {pageHeaderSection}
@@ -114,10 +128,7 @@ export const Reports: React.FC = () => {
     <>
       {pageHeaderSection}
       <PageSection>
-        <ConditionalRender
-          when={isFetchingApplications}
-          then={<AppPlaceholder />}
-        >
+        <ConditionalRender when={isFetching} then={<AppPlaceholder />}>
           <ApplicationSelectionContextProvider
             applications={applications || []}
           >
@@ -169,7 +180,12 @@ export const Reports: React.FC = () => {
                   </CardHeader>
                   <CardBody>
                     {isAdoptionCandidateTable ? (
-                      <AdoptionCandidateTable />
+                      <AdoptionCandidateTable
+                        selectAll={selectAll}
+                        areAllSelected={areAllSelected}
+                        selectedRows={selectedRows}
+                        allApplications={applications}
+                      />
                     ) : (
                       <AdoptionCandidateGraph />
                     )}
