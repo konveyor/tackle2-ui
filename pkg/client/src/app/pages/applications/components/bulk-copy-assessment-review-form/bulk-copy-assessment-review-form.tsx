@@ -70,7 +70,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
-import { useSelectionState } from "@konveyor/lib-ui/dist/hooks/useSelectionState/useSelectionState";
+import { useSelectionState } from "@konveyor/lib-ui";
 
 const ENTITY_FIELD = "entity";
 
@@ -373,43 +373,43 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             loadingVariant="skeleton"
             fetchError={fetchError}
             toolbarClearAllFilters={handleOnClearAllFilters}
-            toolbarBulkSelector={
-              <ToolbarBulkSelector
-                onSelectAll={selectAll}
-                areAllSelected={areAllSelected}
-                selectedRows={selectedRows}
-                paginationProps={paginationProps}
-                currentPageItems={currentPageItems}
-                onSelectMultiple={selectMultiple}
-              />
+            // toolbarBulkSelector={
+            // <ToolbarBulkSelector
+            //   onSelectAll={selectAll}
+            //   areAllSelected={areAllSelected}
+            //   selectedRows={selectedRows}
+            //   paginationProps={paginationProps}
+            //   currentPageItems={currentPageItems}
+            //   onSelectMultiple={selectMultiple}
+            // />
 
-              // <ToolbarItem variant="bulk-select">
-              //   <ToolbarBulkSelector
-              //     isFetching={isFetching}
-              //     fetchError={fetchErrorApplicationAssessment}
-              //     areAllRowsSelected={areAllApplicationsSelected}
-              //     pageSize={applications?.length || 0}
-              //     totalItems={applications?.length || 0}
-              //     totalSelectedRows={selectedRows.length}
-              //     onSelectNone={() => setSelectedRows([])}
-              //     onSelectCurrentPage={() => {
-              //       const rows = filterInvalidRows(applications);
-              //       setSelectedRows(rows);
-              //     }}
-              //     onSelectAll={() => {
-              //       const rows = filterInvalidRows(applications);
-              //       setSelectedRows(rows);
-              //     }}
-              //   />
-              // </ToolbarItem>
-            }
-            toolbarToggle={
-              <FilterToolbar<Application>
-                filterCategories={filterCategories}
-                filterValues={filterValues}
-                setFilterValues={setFilterValues}
-              />
-            }
+            // <ToolbarItem variant="bulk-select">
+            //   <ToolbarBulkSelector
+            //     isFetching={isFetching}
+            //     fetchError={fetchErrorApplicationAssessment}
+            //     areAllRowsSelected={areAllApplicationsSelected}
+            //     pageSize={applications?.length || 0}
+            //     totalItems={applications?.length || 0}
+            //     totalSelectedRows={selectedRows.length}
+            //     onSelectNone={() => setSelectedRows([])}
+            //     onSelectCurrentPage={() => {
+            //       const rows = filterInvalidRows(applications);
+            //       setSelectedRows(rows);
+            //     }}
+            //     onSelectAll={() => {
+            //       const rows = filterInvalidRows(applications);
+            //       setSelectedRows(rows);
+            //     }}
+            //   />
+            // </ToolbarItem>
+            // }
+            // toolbarToggle={
+            //   <FilterToolbar<Application>
+            //     filterCategories={filterCategories}
+            //     filterValues={filterValues}
+            //     setFilterValues={setFilterValues}
+            //   />
+            // }
           />
         </CardBody>
       </Card>
