@@ -34,6 +34,12 @@ import { ApplicationSelectionContext } from "../../application-selection-context
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { useSelectionState } from "@konveyor/lib-ui";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
+import { useFilterState } from "@app/shared/hooks/useFilterState";
 
 export interface TableRowData {
   application: Application;
@@ -102,25 +108,9 @@ interface IAdoptionCandidateTable {
 
 export const AdoptionCandidateTable: React.FunctionComponent<
   IAdoptionCandidateTable
-> = ({
-  // selectAll,
-  // areAllSelected,
-  // selectedRows: selectedApplications,
-  allApplications = [],
-}: IAdoptionCandidateTable) => {
+> = ({ allApplications = [] }: IAdoptionCandidateTable) => {
   // i18
   const { t } = useTranslation();
-
-  // Context
-  // const {
-  //   allItems: allApplications,
-  //   selectedItems: selectedApplications,
-  //   areAllSelected: areAllApplicationsSelected,
-  //   isItemSelected: isApplicationSelected,
-  //   toggleItemSelected: toggleApplicationSelected,
-  //   selectAll: selectAllApplication,
-  //   setSelectedItems: setSelectedRows,
-  // } = useContext(ApplicationSelectionContext);
 
   // Confidence
   const fetchChartData = useCallback(() => {
@@ -179,20 +169,6 @@ export const AdoptionCandidateTable: React.FunctionComponent<
     });
   }, [allApplications, confidence, risks]);
 
-  const getSortValues = (item: TableRowData) => [
-    "",
-    "",
-    "",
-    "",
-    "",
-    "", // Action column
-  ];
-
-  const { sortBy, onSort, sortedItems } = useSortState(allRows, getSortValues);
-
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
-
   // Table
   const columns: ICell[] = [
     {
@@ -245,6 +221,38 @@ export const AdoptionCandidateTable: React.FunctionComponent<
     items: allRows || [],
     isEqual: (a, b) => a.application.id === b.application.id,
   });
+  const filterCategories: FilterCategory<TableRowData>[] = [
+    {
+      key: "name",
+      title: "Name",
+      type: FilterType.search,
+      placeholderText: "Filter by name...",
+      getItemValue: (item) => {
+        return item?.application.name || "";
+      },
+    },
+  ];
+
+  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+    allRows || [],
+    filterCategories
+  );
+
+  const getSortValues = (item: TableRowData) => [
+    item.application.name || "",
+    "",
+    "",
+    "",
+    "",
+    "", // Action column
+  ];
+  const { sortBy, onSort, sortedItems } = useSortState(
+    filteredItems,
+    getSortValues
+  );
+
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState(sortedItems, 10);
 
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {
@@ -311,6 +319,9 @@ export const AdoptionCandidateTable: React.FunctionComponent<
     const row = getRow(rowData);
     toggleRowSelected(row);
   };
+  const handleOnClearAllFilters = () => {
+    setFilterValues({});
+  };
 
   return (
     <AppTableWithControls
@@ -325,24 +336,14 @@ export const AdoptionCandidateTable: React.FunctionComponent<
       canSelectAll={false}
       isLoading={false}
       filtersApplied={false}
-      // toolbarToggle={
-      //   <>
-      //     <ToolbarItem variant="bulk-select">
-      //       <ToolbarBulkSelector
-      //         isFetching={false}
-      //         areAllRowsSelected={areAllApplicationsSelected}
-      //         pageSize={pagination.perPage}
-      //         totalItems={allApplications.length}
-      //         totalSelectedRows={selectedApplications.length}
-      //         onSelectAll={selectAllApplication}
-      //         onSelectNone={() => setSelectedRows([])}
-      //         onSelectCurrentPage={() => {
-      //           setSelectedRows(pageItems.map((f) => f.application));
-      //         }}
-      //       />
-      //     </ToolbarItem>
-      //   </>
-      // }
+      toolbarClearAllFilters={handleOnClearAllFilters}
+      toolbarToggle={
+        <FilterToolbar<TableRowData>
+          filterCategories={filterCategories}
+          filterValues={filterValues}
+          setFilterValues={setFilterValues}
+        />
+      }
       toolbarBulkSelector={
         <ToolbarBulkSelector
           onSelectAll={selectAll}
