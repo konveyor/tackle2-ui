@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -11,6 +11,7 @@ import {
   CardTitle,
   PageSection,
   PageSectionVariants,
+  Pagination,
   Popover,
   Split,
   SplitItem,
@@ -21,23 +22,18 @@ import {
   ToggleGroup,
   ToggleGroupItem,
   Toolbar,
-  ToolbarChip,
   ToolbarContent,
+  ToolbarItem,
 } from "@patternfly/react-core";
 import { HelpIcon } from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
-import { useApplicationToolbarFilter, useFetch } from "@app/shared/hooks";
 import {
-  ApplicationToolbarToggleGroup,
   AppPlaceholder,
   ConditionalRender,
   StateError,
 } from "@app/shared/components";
 
-import { ApplicationFilterKey } from "@app/Constants";
-
-import { getApplications } from "@app/api/rest";
-import { Application, ApplicationPage } from "@app/api/models";
+import { Application, ApplicationPage, Identity } from "@app/api/models";
 
 import { ApplicationSelectionContextProvider } from "./application-selection-context";
 import { Landscape } from "./components/landscape";
@@ -45,6 +41,16 @@ import { AdoptionCandidateTable } from "./components/adoption-candidate-table";
 import { AdoptionPlan } from "./components/adoption-plan";
 import { IdentifiedRisksTable } from "./components/identified-risks-table";
 import { AdoptionCandidateGraph } from "./components/adoption-candidate-graph/adoption-candidate-graph";
+import { useFetchApplications } from "@app/queries/applications";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
+import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { useSortState } from "@app/shared/hooks/useSortState";
+import { useSelectionState } from "@konveyor/lib-ui";
 
 export const Reports: React.FC = () => {
   // i18
@@ -56,50 +62,16 @@ export const Reports: React.FC = () => {
   const [isAdoptionPlanOpen, setAdoptionPlanOpen] = useState(false);
   const [isRiskCardOpen, setIsRiskCardOpen] = useState(false);
 
-  // Toolbar filters
-  const {
-    filters: filtersValue,
-    addFilter,
-    setFilter,
-    clearAllFilters,
-  } = useApplicationToolbarFilter();
-
-  const fetchApplications = useCallback(() => {
-    return getApplications();
-  }, []);
-
-  const {
-    data: applications,
-    isFetching: isFetchingApplications,
-    fetchError: fetchErrorApplications,
-    requestFetch: refreshApplications,
-  } = useFetch<Application[]>({
-    defaultIsFetching: true,
-    onFetch: fetchApplications,
-  });
-
-  useEffect(() => {
-    refreshApplications();
-  }, [filtersValue, refreshApplications]);
-
+  const { applications, isFetching, fetchError } = useFetchApplications();
   const pageHeaderSection = (
     <PageSection variant={PageSectionVariants.light}>
       <TextContent>
         <Text component="h1">{t("terms.reports")}</Text>
       </TextContent>
-      <Toolbar clearAllFilters={clearAllFilters}>
-        <ToolbarContent style={{ paddingRight: 0, paddingLeft: 0 }}>
-          <ApplicationToolbarToggleGroup
-            value={filtersValue as Map<ApplicationFilterKey, ToolbarChip[]>}
-            addFilter={addFilter}
-            setFilter={setFilter}
-          />
-        </ToolbarContent>
-      </Toolbar>
     </PageSection>
   );
 
-  if (fetchErrorApplications) {
+  if (fetchError) {
     return (
       <>
         {pageHeaderSection}
@@ -114,10 +86,7 @@ export const Reports: React.FC = () => {
     <>
       {pageHeaderSection}
       <PageSection>
-        <ConditionalRender
-          when={isFetchingApplications}
-          then={<AppPlaceholder />}
-        >
+        <ConditionalRender when={isFetching} then={<AppPlaceholder />}>
           <ApplicationSelectionContextProvider
             applications={applications || []}
           >
@@ -169,7 +138,7 @@ export const Reports: React.FC = () => {
                   </CardHeader>
                   <CardBody>
                     {isAdoptionCandidateTable ? (
-                      <AdoptionCandidateTable />
+                      <AdoptionCandidateTable allApplications={applications} />
                     ) : (
                       <AdoptionCandidateGraph />
                     )}

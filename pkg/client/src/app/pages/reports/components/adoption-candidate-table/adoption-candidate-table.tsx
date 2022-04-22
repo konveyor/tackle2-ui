@@ -32,6 +32,14 @@ import { getAssessmentConfidence, getAssessmentLandscape } from "@app/api/rest";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { useSortState } from "@app/shared/hooks/useSortState";
+import { useSelectionState } from "@konveyor/lib-ui";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
+import { useFilterState } from "@app/shared/hooks/useFilterState";
 
 export interface TableRowData {
   application: Application;
@@ -91,24 +99,22 @@ const getRow = (rowData: IRowData): TableRowData => {
   return rowData[ENTITY_FIELD];
 };
 
-export const AdoptionCandidateTable: React.FC = () => {
+interface IAdoptionCandidateTable {
+  selectAll?: () => void;
+  areAllSelected?: boolean;
+  selectedRows?: Application[];
+  allApplications?: Application[];
+}
+
+export const AdoptionCandidateTable: React.FunctionComponent<
+  IAdoptionCandidateTable
+> = ({ allApplications = [] }: IAdoptionCandidateTable) => {
   // i18
   const { t } = useTranslation();
 
-  // Context
-  const {
-    allItems: allApplications,
-    selectedItems: selectedApplications,
-    areAllSelected: areAllApplicationsSelected,
-    isItemSelected: isApplicationSelected,
-    toggleItemSelected: toggleApplicationSelected,
-    selectAll: selectAllApplication,
-    setSelectedItems: setSelectedRows,
-  } = useContext(ApplicationSelectionContext);
-
   // Confidence
   const fetchChartData = useCallback(() => {
-    return getAssessmentConfidence(allApplications.map((f) => f.id!)).then(
+    return getAssessmentConfidence(allApplications.map((app) => app.id!)).then(
       ({ data }) => data
     );
   }, [allApplications]);
@@ -164,25 +170,6 @@ export const AdoptionCandidateTable: React.FC = () => {
   }, [allApplications, confidence, risks]);
 
   // Table
-  const {
-    paginationQuery: pagination,
-    sortByQuery: sortBy,
-    handlePaginationChange: onPaginationChange,
-    handleSortChange: onSort,
-  } = useTableControls({
-    paginationQuery: { page: 1, perPage: 10 },
-    sortByQuery: { direction: "asc", index: 0 },
-  });
-
-  const { pageItems } = useTableFilter<TableRowData>({
-    items: allRows,
-    sortBy,
-    compareToByColumn,
-    pagination,
-    filterItem: filterItem,
-  });
-
-  // Table
   const columns: ICell[] = [
     {
       title: t("terms.applicationName"),
@@ -221,9 +208,54 @@ export const AdoptionCandidateTable: React.FC = () => {
     },
   ];
 
+  const {
+    isItemSelected: isRowSelected,
+    toggleItemSelected: toggleRowSelected,
+    selectAll,
+    selectMultiple,
+    areAllSelected,
+    selectedItems: selectedRows,
+  } = useSelectionState<TableRowData>({
+    items: allRows || [],
+    isEqual: (a, b) => a.application.id === b.application.id,
+  });
+  const filterCategories: FilterCategory<TableRowData>[] = [
+    {
+      key: "name",
+      title: "Name",
+      type: FilterType.search,
+      placeholderText: "Filter by name...",
+      getItemValue: (item) => {
+        return item?.application.name || "";
+      },
+    },
+  ];
+
+  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+    allRows || [],
+    filterCategories
+  );
+
+  const getSortValues = (item: TableRowData) => [
+    item.application.name || "",
+    "",
+    "",
+    "",
+    "",
+    "", // Action column
+  ];
+  const { sortBy, onSort, sortedItems } = useSortState(
+    filteredItems,
+    getSortValues
+  );
+
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState(sortedItems, 10);
+
   const rows: IRow[] = [];
-  pageItems.forEach((item) => {
-    const isSelected = isApplicationSelected(item.application);
+  currentPageItems.forEach((item) => {
+    // const isSelected = isApplicationSelected(item.application);
+    const isSelected = isRowSelected(item);
 
     rows.push({
       [ENTITY_FIELD]: item,
@@ -275,7 +307,6 @@ export const AdoptionCandidateTable: React.FC = () => {
     });
   });
 
-  // Row actions
   const selectRow = (
     event: React.FormEvent<HTMLInputElement>,
     isSelected: boolean,
@@ -283,18 +314,12 @@ export const AdoptionCandidateTable: React.FC = () => {
     rowData: IRowData,
     extraData: IExtraData
   ) => {
-    if (rowIndex === -1) {
-      isSelected ? selectAllApplication() : setSelectedRows([]);
-    } else {
-      const row = getRow(rowData);
-      toggleApplicationSelected(row.application);
-    }
+    const row = getRow(rowData);
+    toggleRowSelected(row);
   };
-
-  //Placeholder
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState([], 10);
-  //
+  const handleOnClearAllFilters = () => {
+    setFilterValues({});
+  };
 
   return (
     <AppTableWithControls
@@ -309,23 +334,23 @@ export const AdoptionCandidateTable: React.FC = () => {
       canSelectAll={false}
       isLoading={false}
       filtersApplied={false}
+      toolbarClearAllFilters={handleOnClearAllFilters}
       toolbarToggle={
-        <>
-          <ToolbarItem variant="bulk-select">
-            <ToolbarBulkSelector
-              isFetching={false}
-              areAllRowsSelected={areAllApplicationsSelected}
-              pageSize={pagination.perPage}
-              totalItems={allApplications.length}
-              totalSelectedRows={selectedApplications.length}
-              onSelectAll={selectAllApplication}
-              onSelectNone={() => setSelectedRows([])}
-              onSelectCurrentPage={() => {
-                setSelectedRows(pageItems.map((f) => f.application));
-              }}
-            />
-          </ToolbarItem>
-        </>
+        <FilterToolbar<TableRowData>
+          filterCategories={filterCategories}
+          filterValues={filterValues}
+          setFilterValues={setFilterValues}
+        />
+      }
+      toolbarBulkSelector={
+        <ToolbarBulkSelector
+          onSelectAll={selectAll}
+          areAllSelected={areAllSelected}
+          selectedRows={selectedRows}
+          paginationProps={paginationProps}
+          currentPageItems={currentPageItems}
+          onSelectMultiple={selectMultiple}
+        />
       }
     />
   );
