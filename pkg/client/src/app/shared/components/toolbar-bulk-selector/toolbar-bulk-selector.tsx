@@ -56,7 +56,7 @@ export const ToolbarBulkSelector: React.FC<IToolbarBulkSelectorProps> = ({
       />
     );
   }
-
+  // const getPageItemCount =
   return (
     <Dropdown
       isOpen={isOpen}
@@ -67,7 +67,7 @@ export const ToolbarBulkSelector: React.FC<IToolbarBulkSelectorProps> = ({
           {t("actions.selectNone")} (0 items)
         </DropdownItem>,
         <DropdownItem key="item-2" onClick={onSelectCurrentPage}>
-          {t("actions.selectPage")} ({pageSize} items)
+          {t("actions.selectPage")} ({getPageItemCount()} items)
         </DropdownItem>,
         <DropdownItem key="item-3" onClick={onSelectAll}>
           {t("actions.selectAll")} ({totalItems} items)

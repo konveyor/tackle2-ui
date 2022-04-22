@@ -344,8 +344,8 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       deleteTaskgroup(createdTaskgroup.id);
     onClose();
   };
-
-  return (
+console.log('wizard render");
+  'eturn (
     <>
       {isOpen && (
         <FormProvider {...methods}>

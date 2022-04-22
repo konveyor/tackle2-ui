@@ -185,24 +185,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     React.useState(false);
 
-  // Expand, select rows
-  const {
-    isItemSelected: isRowExpanded,
-    toggleItemSelected: toggleRowExpanded,
-  } = useSelectionState<Application>({
-    items: applications || [],
-    isEqual: (a, b) => a.id === b.id,
-  });
-
-  const {
-    isItemSelected: isRowSelected,
-    toggleItemSelected: toggleRowSelected,
-    selectedItems: selectedRows,
-  } = useSelectionState<Application>({
-    items: applications || [],
-    isEqual: (a, b) => a.id === b.id,
-  });
-
   // Table
   const columns: ICell[] = [
     {
@@ -230,6 +212,43 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (task && task.state) return task.state;
     return "No task";
   };
+  // Expand, select rows
+  const {
+    isItemSelected: isRowExpanded,
+    toggleItemSelected: toggleRowExpanded,
+  } = useSelectionState<Application>({
+    items: applications || [],
+    isEqual: (a, b) => a.id === b.id,
+  });
+
+  //Bulk selection
+  const {
+    isItemSelected: isRowSelected,
+    toggleItemSelected: toggleRowSelected,
+    selectAll,
+    selectMultiple,
+    areAllSelected,
+    selectedItems: selectedRows,
+  } = useSelectionState<Application>({
+    items: applications || [],
+    isEqual: (a, b) => a.id === b.id,
+    // items: sortedItems.map((vm) => vm.id),
+    // externalState: [form.fields.selectedVMIds.value, form.fields.selectedVMIds.setValue],
+  });
+
+  const getBulkSelectState = () => {
+    let state: boolean | null;
+    if (areAllSelected) {
+      state = true;
+    } else if (selectedRows.length === 0) {
+      state = false;
+    } else {
+      state = null;
+    }
+    return state;
+  };
+
+  //
 
   const rows: IRow[] = [];
   currentPageItems?.forEach((item) => {
@@ -430,6 +449,50 @@ export const ApplicationsTableAnalyze: React.FC = () => {
               filterCategories={filterCategories}
               filterValues={filterValues}
               setFilterValues={setFilterValues}
+              endToolbarItems={
+                <ToolbarItem>{`${form.values.selectedVMIds.length} selected`}</ToolbarItem>
+              }
+              beginToolbarItems={
+                <>
+                  <ToolbarItem>{collapseAllBtn()}</ToolbarItem>
+
+                  <ToolbarItem>
+                    <Dropdown
+                      toggle={
+                        <DropdownToggle
+                          splitButtonItems={[
+                            <DropdownToggleCheckbox
+                              id="bulk-selected-vms-checkbox"
+                              key="bulk-select-checkbox"
+                              aria-label="Select all"
+                              onChange={() => {
+                                if (getBulkSelectState() !== false) {
+                                  selectAll(false);
+                                } else {
+                                  selectAll(true);
+                                }
+                              }}
+                              isChecked={getBulkSelectState()}
+                            />,
+                          ]}
+                          onToggle={(isOpen) => {
+                            setBulkSelectOpen(isOpen);
+                          }}
+                        />
+                      }
+                      isOpen={bulkSelectOpen}
+                      dropdownItems={dropdownItems}
+                    />
+                  </ToolbarItem>
+                </>
+              }
+              pagination={
+                <Pagination
+                  isCompact
+                  {...paginationProps}
+                  widgetId="vms-table-pagination-top"
+                />
+              }
             />
           }
           toolbarClearAllFilters={handleOnClearAllFilters}
