@@ -139,25 +139,6 @@ export const BulkCopyAssessmentReviewForm: React.FC<
         return item?.name || "";
       },
     },
-    // {
-    //   key: "type",
-    //   title: "Type",
-    //   type: FilterType.select,
-    //   placeholderText: "Filter by type...",
-    //   selectOptions: typeOptions,
-    //   getItemValue: (item) => {
-    //     return item.kind || "";
-    //   },
-    // },
-    // {
-    //   key: "createUser",
-    //   title: "Created By",
-    //   type: FilterType.search,
-    //   placeholderText: "Filter by created by...",
-    //   getItemValue: (item) => {
-    //     return item.createUser || "";
-    //   },
-    // },
   ];
 
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
@@ -166,8 +147,6 @@ export const BulkCopyAssessmentReviewForm: React.FC<
   );
   const getSortValues = (identity: Application) => [
     identity?.name || "",
-    // identity?.kind || "",
-    // identity?.createUser || "",
     "", // Action column
   ];
 
@@ -373,43 +352,6 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             loadingVariant="skeleton"
             fetchError={fetchError}
             toolbarClearAllFilters={handleOnClearAllFilters}
-            // toolbarBulkSelector={
-            // <ToolbarBulkSelector
-            //   onSelectAll={selectAll}
-            //   areAllSelected={areAllSelected}
-            //   selectedRows={selectedRows}
-            //   paginationProps={paginationProps}
-            //   currentPageItems={currentPageItems}
-            //   onSelectMultiple={selectMultiple}
-            // />
-
-            // <ToolbarItem variant="bulk-select">
-            //   <ToolbarBulkSelector
-            //     isFetching={isFetching}
-            //     fetchError={fetchErrorApplicationAssessment}
-            //     areAllRowsSelected={areAllApplicationsSelected}
-            //     pageSize={applications?.length || 0}
-            //     totalItems={applications?.length || 0}
-            //     totalSelectedRows={selectedRows.length}
-            //     onSelectNone={() => setSelectedRows([])}
-            //     onSelectCurrentPage={() => {
-            //       const rows = filterInvalidRows(applications);
-            //       setSelectedRows(rows);
-            //     }}
-            //     onSelectAll={() => {
-            //       const rows = filterInvalidRows(applications);
-            //       setSelectedRows(rows);
-            //     }}
-            //   />
-            // </ToolbarItem>
-            // }
-            // toolbarToggle={
-            //   <FilterToolbar<Application>
-            //     filterCategories={filterCategories}
-            //     filterValues={filterValues}
-            //     setFilterValues={setFilterValues}
-            //   />
-            // }
           />
         </CardBody>
       </Card>

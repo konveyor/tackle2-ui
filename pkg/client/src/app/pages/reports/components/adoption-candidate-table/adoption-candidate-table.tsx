@@ -208,8 +208,6 @@ export const AdoptionCandidateTable: React.FunctionComponent<
     },
   ];
 
-  // const isApplicationSelected = (application: Application) =>
-  //   selectedApplications.some((row) => row.id === application.id);
   const {
     isItemSelected: isRowSelected,
     toggleItemSelected: toggleRowSelected,
