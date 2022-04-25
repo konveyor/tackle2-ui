@@ -52,6 +52,7 @@ import identities from "@app/pages/identities";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
+import { useFetchApplications } from "@app/queries/applications";
 
 const ENTITY_FIELD = "entity";
 
@@ -81,6 +82,8 @@ export const BusinessServices: React.FC = () => {
   useEffect(() => {
     fetchBusinessServices();
   }, [fetchBusinessServices]);
+
+  const { applications } = useFetchApplications();
 
   const filterCategories: FilterCategory<BusinessService>[] = [
     {
@@ -145,6 +148,9 @@ export const BusinessServices: React.FC = () => {
 
   const rows: IRow[] = [];
   currentPageItems?.forEach((item) => {
+    const isAssignedToApplication = applications.some(
+      (app) => app.businessService?.id === item.id
+    );
     rows.push({
       [ENTITY_FIELD]: item,
       cells: [
@@ -164,6 +170,8 @@ export const BusinessServices: React.FC = () => {
         {
           title: (
             <AppTableActionButtons
+              isDeleteEnabled={isAssignedToApplication}
+              tooltipMessage="Cannot remove a business service associated with application(s)"
               onEdit={() => editRow(item)}
               onDelete={() => deleteRow(item)}
             />
