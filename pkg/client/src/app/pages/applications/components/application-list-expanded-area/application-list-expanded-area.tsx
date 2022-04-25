@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -12,10 +12,11 @@ import {
 import { EmptyTextMessage } from "@app/shared/components";
 
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
-import { Application } from "@app/api/models";
+import { Application, Review } from "@app/api/models";
 
 import { ApplicationTags } from "../application-tags";
 import { ApplicationRisk } from "./application-risk";
+import { useFetchReviews } from "@app/queries/reviews";
 
 export interface IApplicationListExpandedAreaProps {
   application: Application;
@@ -29,24 +30,34 @@ export const ApplicationListExpandedArea: React.FC<
   const notYetReviewed = (
     <EmptyTextMessage message={t("terms.notYetReviewed")} />
   );
+  const {
+    reviews,
+    isFetching: isFetchingReviews,
+    fetchError: fetchErrorReviews,
+  } = useFetchReviews();
+  const [appReview, setAppReview] = useState<Review>();
+  useEffect(() => {
+    const appReview = reviews?.find(
+      (review) => review.id === application?.review?.id
+    );
+    setAppReview(appReview);
+  }, [application, reviews]);
 
-  const reviewToShown = application.review
+  const reviewToShown = appReview
     ? {
         proposedAction: (
           <Label>
-            {PROPOSED_ACTION_LIST[application.review.proposedAction]
-              ? t(
-                  PROPOSED_ACTION_LIST[application.review.proposedAction].i18Key
-                )
-              : application.review.proposedAction}
+            {PROPOSED_ACTION_LIST[appReview.proposedAction]
+              ? t(PROPOSED_ACTION_LIST[appReview.proposedAction].i18Key)
+              : appReview.proposedAction}
           </Label>
         ),
-        effortEstimate: EFFORT_ESTIMATE_LIST[application.review.effortEstimate]
-          ? t(EFFORT_ESTIMATE_LIST[application.review.effortEstimate].i18Key)
-          : application.review.effortEstimate,
-        criticality: application.review.businessCriticality,
-        workPriority: application.review.workPriority,
-        comments: application.review.comments,
+        effortEstimate: EFFORT_ESTIMATE_LIST[appReview.effortEstimate]
+          ? t(EFFORT_ESTIMATE_LIST[appReview.effortEstimate].i18Key)
+          : appReview.effortEstimate,
+        criticality: appReview.businessCriticality,
+        workPriority: appReview.workPriority,
+        comments: appReview.comments,
       }
     : {
         proposedAction: notYetReviewed,
