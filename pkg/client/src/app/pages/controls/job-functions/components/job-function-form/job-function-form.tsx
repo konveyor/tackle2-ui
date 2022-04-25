@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
 import { useFormik, FormikProvider, FormikHelpers } from "formik";
@@ -17,10 +17,13 @@ import {
 import { createJobFunction, updateJobFunction } from "@app/api/rest";
 import { JobFunction } from "@app/api/models";
 import {
+  duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
+import { useQueryClient } from "react-query";
+import { useFetchJobFunctions } from "@app/shared/hooks";
 
 export interface FormValues {
   name: string;
@@ -39,6 +42,12 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const [error, setError] = useState<AxiosError>();
+  const { jobFunctions, isFetching, fetchError, fetchJobFunctions } =
+    useFetchJobFunctions(true);
+
+  useEffect(() => {
+    fetchJobFunctions();
+  }, [fetchJobFunctions]);
 
   const initialValues: FormValues = {
     name: jobFunction?.name || "",
@@ -49,7 +58,18 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
       .trim()
       .required(t("validation.required"))
       .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 })),
+      .max(120, t("validation.maxLength", { length: 120 }))
+      .test(
+        "Duplicate name",
+        "A job function with this name already exists. Please use a different name.",
+        (value) => {
+          return duplicateNameCheck(
+            jobFunctions || [],
+            jobFunction || null,
+            value || ""
+          );
+        }
+      ),
   });
 
   const onSubmit = (
