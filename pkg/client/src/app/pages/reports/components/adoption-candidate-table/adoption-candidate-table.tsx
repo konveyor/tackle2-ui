@@ -26,6 +26,7 @@ import {
   Application,
   AssessmentConfidence,
   AssessmentRisk,
+  Review,
   Risk,
 } from "@app/api/models";
 import { getAssessmentConfidence, getAssessmentLandscape } from "@app/api/rest";
@@ -40,59 +41,14 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useFetchReviews } from "@app/queries/reviews";
 
 export interface TableRowData {
   application: Application;
   confidence?: number;
   risk: Risk;
+  review: Review | undefined;
 }
-
-export enum ColumnIndex {
-  APP_NAME = 1,
-  CRITICALITY = 2,
-  PRIORITY = 3,
-  CONFIDENCE = 4,
-  EFFORT = 5,
-}
-
-export const compareToByColumn = (
-  a: TableRowData,
-  b: TableRowData,
-  columnIndex?: number
-) => {
-  switch (columnIndex) {
-    case ColumnIndex.APP_NAME: // AppName
-      return a.application.name.localeCompare(b.application.name);
-    case ColumnIndex.CRITICALITY: // Criticality
-      return (
-        (a.application.review?.businessCriticality ?? -1) -
-        (b.application.review?.businessCriticality ?? -1)
-      );
-    case ColumnIndex.PRIORITY: // Priority
-      return (
-        (a.application.review?.workPriority ?? -1) -
-        (b.application.review?.workPriority ?? -1)
-      );
-    case ColumnIndex.CONFIDENCE: // Confidence
-      return (a.confidence ?? -1) - (b.confidence ?? -1);
-    case ColumnIndex.EFFORT: // Effort
-      const aEffortSortFactor = a.application.review
-        ? EFFORT_ESTIMATE_LIST[a.application.review.effortEstimate]
-            ?.sortFactor || 0
-        : 0;
-      const bEffortSortFactor = b.application.review
-        ? EFFORT_ESTIMATE_LIST[b.application.review.effortEstimate]
-            ?.sortFactor || 0
-        : 0;
-      return aEffortSortFactor - bEffortSortFactor;
-    case 6: // Risk
-      return RISK_LIST[a.risk].sortFactor - RISK_LIST[b.risk].sortFactor;
-    default:
-      return 0;
-  }
-};
-
-const filterItem = () => true;
 
 const ENTITY_FIELD = "entity";
 const getRow = (rowData: IRowData): TableRowData => {
@@ -126,6 +82,12 @@ export const AdoptionCandidateTable: React.FunctionComponent<
     onFetchPromise: fetchChartData,
   });
 
+  const {
+    reviews,
+    isFetching: isFetchingReviews,
+    fetchError: fetchErrorReviews,
+  } = useFetchReviews();
+
   // Risk
   const fetchRiskData = useCallback(() => {
     if (allApplications.length > 0) {
@@ -158,12 +120,17 @@ export const AdoptionCandidateTable: React.FunctionComponent<
       const confidenceData = confidence?.find(
         (e) => e.applicationId === app.id
       );
+
+      const reviewData = reviews?.find(
+        (review) => review.id === app.review?.id
+      );
       const riskData = risks?.find((e) => e.applicationId === app.id);
 
       const result: TableRowData = {
         application: app,
         confidence: confidenceData?.confidence,
         risk: riskData ? riskData.risk : "UNKNOWN",
+        review: reviewData ? reviewData : undefined,
       };
       return result;
     });
@@ -237,12 +204,14 @@ export const AdoptionCandidateTable: React.FunctionComponent<
   );
 
   const getSortValues = (item: TableRowData) => [
-    item.application.name || "",
     "",
+    item?.application?.name || "",
+    item?.review?.businessCriticality || "",
+    item?.review?.workPriority || "",
+    item?.confidence || "",
+    item?.review?.effortEstimate || "",
+    item?.risk || "",
     "",
-    "",
-    "",
-    "", // Action column
   ];
   const { sortBy, onSort, sortedItems } = useSortState(
     filteredItems,
@@ -254,7 +223,6 @@ export const AdoptionCandidateTable: React.FunctionComponent<
 
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {
-    // const isSelected = isApplicationSelected(item.application);
     const isSelected = isRowSelected(item);
 
     rows.push({
@@ -265,10 +233,10 @@ export const AdoptionCandidateTable: React.FunctionComponent<
           title: item.application.name,
         },
         {
-          title: item.application.review?.businessCriticality,
+          title: item.review?.businessCriticality,
         },
         {
-          title: item.application.review?.workPriority,
+          title: item.review?.workPriority,
         },
         {
           title: item.confidence,
@@ -276,14 +244,10 @@ export const AdoptionCandidateTable: React.FunctionComponent<
         {
           title: (
             <>
-              {item.application.review &&
-                (EFFORT_ESTIMATE_LIST[item.application.review.effortEstimate]
-                  ? t(
-                      EFFORT_ESTIMATE_LIST[
-                        item.application.review.effortEstimate
-                      ].i18Key
-                    )
-                  : item.application.review.effortEstimate)}
+              {item.review &&
+                (EFFORT_ESTIMATE_LIST[item.review.effortEstimate]
+                  ? t(EFFORT_ESTIMATE_LIST[item.review.effortEstimate].i18Key)
+                  : item.review.effortEstimate)}
             </>
           ),
         },
@@ -293,10 +257,8 @@ export const AdoptionCandidateTable: React.FunctionComponent<
         {
           title: (
             <>
-              {item.application.review ? (
-                <ProposedActionLabel
-                  action={item.application.review.proposedAction}
-                />
+              {item.review ? (
+                <ProposedActionLabel action={item?.review?.proposedAction} />
               ) : (
                 <Label>{t("terms.notReviewed")}</Label>
               )}

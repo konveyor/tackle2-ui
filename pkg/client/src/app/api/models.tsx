@@ -85,7 +85,7 @@ export interface Application {
   comments?: string;
   businessService?: Ref;
   tags?: Ref[];
-  review?: Review;
+  review?: Ref;
   identities?: Ref[];
   repository?: {
     branch?: string;
