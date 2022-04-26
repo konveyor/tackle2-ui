@@ -201,15 +201,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             excluded: data.excludedPackages,
           },
         },
-        rules:
-          data.customRulesFiles.length > 0
-            ? {
-                path: "/rules",
-                tags: {
-                  excluded: data.excludedRulesTags,
-                },
-              }
-            : undefined,
+        rules: {
+          path: data.customRulesFiles.length > 0 ? "/rules" : "",
+          tags: {
+            excluded: data.excludedRulesTags,
+          },
+        },
       },
     };
   };
