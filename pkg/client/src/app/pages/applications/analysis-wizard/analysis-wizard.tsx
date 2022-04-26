@@ -1,8 +1,6 @@
 import * as React from "react";
 import { useIsMutating } from "react-query";
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { useDispatch } from "react-redux";
 import { Wizard, WizardStepFunctionType } from "@patternfly/react-core";
 
@@ -127,15 +125,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     onDeleteTaskgroupError
   );
 
-  const schema = yup
-    .object({
-      mode: yup.string().required(),
-      target: yup.array().min(1, "Select one or more target"),
-    })
-    .required();
-
   const methods = useForm<IAnalysisWizardFormValues>({
-    resolver: yupResolver(schema),
     defaultValues: {
       mode: "Binary",
       output: "",
@@ -344,6 +334,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       deleteTaskgroup(createdTaskgroup.id);
     onClose();
   };
+
   return (
     <>
       {isOpen && (
