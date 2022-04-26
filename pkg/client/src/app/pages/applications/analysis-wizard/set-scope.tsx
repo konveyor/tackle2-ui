@@ -94,7 +94,7 @@ export const SetScope: React.FunctionComponent = () => {
                   pattern: {
                     value: /^[a-z]+(.[a-z0-9]+)*$/,
                     message:
-                      "Invalid package name - Should be of type ^[a-z]+(.[a-z0-9]+)*$",
+                      "The package name should be a valid Java package name",
                   },
                 })}
                 onChange={onChangePackageToInclude}
@@ -166,7 +166,7 @@ export const SetScope: React.FunctionComponent = () => {
                   pattern: {
                     value: /^[a-z]+(.[a-z0-9]+)*$/,
                     message:
-                      "Invalid package name - Should be of type ^[a-z]+(.[a-z0-9]+)*$",
+                      "The package name should be a valid Java package name",
                   },
                 })}
                 onChange={onChangePackageToExclude}
