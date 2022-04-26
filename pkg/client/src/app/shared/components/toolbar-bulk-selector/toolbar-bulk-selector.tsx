@@ -138,7 +138,13 @@ export const ToolbarBulkSelector: React.FC<IToolbarBulkSelectorProps> = ({
           }
           isOpen={bulkSelectOpen}
           dropdownItems={dropdownItems}
-        />
+        >
+          {selectedRows !== 0 && (
+            <>
+              {selectedRows} {t("terms.selected").toLowerCase()}
+            </>
+          )}
+        </Dropdown>
       </ToolbarItem>
     </>
   );
