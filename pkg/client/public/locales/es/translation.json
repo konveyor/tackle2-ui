@@ -37,6 +37,9 @@
         "save": "Guardar",
         "saveAndReview": "Guardar y revisar",
         "saveAsDraft": "Guardar como borrador",
+        "selectAll": "Seleccionar todos",
+        "selectNone": "Seleccionar ninguno",
+        "selectPage": "Seleccionar página",
         "submitReview": "Enviar revisión",
         "viewErrorReport": "Ver reporte"
     },
@@ -230,6 +233,7 @@
         "risk": "Riesgo",
         "scheduled": "Programado",
         "select": "Seleccione",
+        "selected": "Seleccionado",
         "sourceBranch": "Rama",
         "sourceCode": "Código fuente.",
         "sourceRepo": "Repositorio",

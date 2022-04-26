@@ -37,6 +37,9 @@
         "save": "Save",
         "saveAndReview": "Save and review",
         "saveAsDraft": "Save as draft",
+        "selectAll": "Select all",
+        "selectNone": "Select none",
+        "selectPage": "Select page",
         "submitReview": "Submit review",
         "viewErrorReport": "View error report"
     },
@@ -230,6 +233,7 @@
         "risk": "Risk",
         "scheduled": "Scheduled",
         "select": "Select",
+        "selected": "Selected",
         "sourceBranch": "Branch",
         "sourceCode": "Source code",
         "sourceRepo": "Source Repository",
