@@ -29,6 +29,7 @@
     },
     "skipLibCheck": true,
     "strict": true, // Includes alwaysStrict and noImplicitAny
+    "noImplicitAny": false,
     "noUnusedParameters": false, // TODO: activate when fixed
     "noUnusedLocals": false, // TODO: activate when fixed
     "noImplicitReturns": true,

@@ -1,4 +1,5 @@
 import { initInterceptors } from "@app/axios-config";
+import { ENV } from "@app/Constants";
 import i18n from "@app/i18n";
 import keycloak from "@app/keycloak";
 import { Flex, FlexItem, Spinner } from "@patternfly/react-core";
@@ -12,11 +13,7 @@ interface IKeycloakProviderProps {
 export const KeycloakProvider: React.FunctionComponent<
   IKeycloakProviderProps
 > = ({ children }) => {
-  const fetchResponsePromise = fetch("/env")
-    .then((res) => res.json())
-    .then((data) => console.log("data", data));
-
-  const isAuthRequired = process.env["AUTH_REQUIRED"] === "true";
+  const isAuthRequired = ENV.AUTH_REQUIRED === "true";
   if (isAuthRequired) {
     return (
       <ReactKeycloakProvider
