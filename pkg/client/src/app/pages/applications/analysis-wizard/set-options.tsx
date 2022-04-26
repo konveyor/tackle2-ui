@@ -197,9 +197,7 @@ export const SetOptions: React.FunctionComponent = () => {
             <Button
               id="add-rule-tag"
               variant="control"
-              isDisabled={
-                getValidatedFromError(errors.ruleTagToExclude) === "error"
-              }
+              isDisabled={!!errors.ruleTagToExclude}
               onClick={() => {
                 setValue("excludedRulesTags", [
                   ...excludedRulesTags,
