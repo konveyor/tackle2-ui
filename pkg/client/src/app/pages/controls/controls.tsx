@@ -1,11 +1,5 @@
-import React, { lazy, Suspense, useEffect } from "react";
-import {
-  Redirect,
-  Route,
-  Switch,
-  useHistory,
-  useLocation,
-} from "react-router-dom";
+import React, { lazy, Suspense, useEffect } from 'react';
+import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom';
 import {
   Level,
   LevelItem,
@@ -15,25 +9,25 @@ import {
   Tabs,
   TabTitleText,
   Title,
-} from "@patternfly/react-core";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+} from '@patternfly/react-core';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 
-import { Paths } from "@app/Paths";
-import { AppPlaceholder } from "@app/shared/components";
-import { useTranslation } from "react-i18next";
+import { Paths } from '@app/Paths';
+import { AppPlaceholder } from '@app/shared/components';
+import { useTranslation } from 'react-i18next';
 
-const Stakeholders = lazy(() => import("./stakeholders"));
-const StakeholderGroups = lazy(() => import("./stakeholder-groups"));
-const JobFunctions = lazy(() => import("./job-functions"));
-const businessServices = lazy(() => import("./business-services"));
-const Tags = lazy(() => import("./tags"));
+const Stakeholders = lazy(() => import('./stakeholders'));
+const StakeholderGroups = lazy(() => import('./stakeholder-groups'));
+const JobFunctions = lazy(() => import('./job-functions'));
+const businessServices = lazy(() => import('./business-services'));
+const Tags = lazy(() => import('./tags'));
 
 const tabs: string[] = [
-  "controlsStakeholders",
-  "controlsStakeholderGroups",
-  "controlsJobFunctions",
-  "controlsBusinessServices",
-  "controlsTags",
+  'controlsStakeholders',
+  'controlsStakeholderGroups',
+  'controlsJobFunctions',
+  'controlsBusinessServices',
+  'controlsTags',
 ];
 
 export const Controls: React.FC = () => {
@@ -45,15 +39,15 @@ export const Controls: React.FC = () => {
 
   useEffect(() => {
     switch (location.pathname) {
-      case "/controls/stakeholders":
+      case '/controls/stakeholders':
         return setActiveTabKey(0);
-      case "/controls/stakeholder-groups":
+      case '/controls/stakeholder-groups':
         return setActiveTabKey(1);
-      case "/controls/job-functions":
+      case '/controls/job-functions':
         return setActiveTabKey(2);
-      case "/controls/business-services":
+      case '/controls/business-services':
         return setActiveTabKey(3);
-      case "/controls/tags":
+      case '/controls/tags':
         return setActiveTabKey(4);
       default:
         return setActiveTabKey(0);
@@ -64,7 +58,7 @@ export const Controls: React.FC = () => {
       <PageSection variant={PageSectionVariants.light} className={spacing.pb_0}>
         <Level>
           <LevelItem>
-            <Title headingLevel="h1">{t("terms.controls")}</Title>
+            <Title headingLevel="h1">{t('terms.controls')}</Title>
           </LevelItem>
         </Level>
         <Tabs
@@ -76,18 +70,9 @@ export const Controls: React.FC = () => {
           }}
         >
           <Tab eventKey={0} title={<TabTitleText>Stakeholders</TabTitleText>} />
-          <Tab
-            eventKey={1}
-            title={<TabTitleText>Stakeholders groups</TabTitleText>}
-          />
-          <Tab
-            eventKey={2}
-            title={<TabTitleText>Job functions</TabTitleText>}
-          />
-          <Tab
-            eventKey={3}
-            title={<TabTitleText>Business services</TabTitleText>}
-          />
+          <Tab eventKey={1} title={<TabTitleText>Stakeholders groups</TabTitleText>} />
+          <Tab eventKey={2} title={<TabTitleText>Job functions</TabTitleText>} />
+          <Tab eventKey={3} title={<TabTitleText>Business services</TabTitleText>} />
           <Tab eventKey={4} title={<TabTitleText>Tags</TabTitleText>} />
         </Tabs>
       </PageSection>
@@ -95,21 +80,11 @@ export const Controls: React.FC = () => {
         <Suspense fallback={<AppPlaceholder />}>
           <Switch>
             <Route path={Paths.controlsStakeholders} component={Stakeholders} />
-            <Route
-              path={Paths.controlsStakeholderGroups}
-              component={StakeholderGroups}
-            />
+            <Route path={Paths.controlsStakeholderGroups} component={StakeholderGroups} />
             <Route path={Paths.controlsJobFunctions} component={JobFunctions} />
-            <Route
-              path={Paths.controlsBusinessServices}
-              component={businessServices}
-            />
+            <Route path={Paths.controlsBusinessServices} component={businessServices} />
             <Route path={Paths.controlsTags} component={Tags} />
-            <Redirect
-              from={Paths.controls}
-              to={Paths.controlsStakeholders}
-              exact
-            />
+            <Redirect from={Paths.controls} to={Paths.controlsStakeholders} exact />
           </Switch>
         </Suspense>
       </PageSection>

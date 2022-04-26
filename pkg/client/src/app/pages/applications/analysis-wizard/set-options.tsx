@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   Button,
   Form,
@@ -11,83 +11,83 @@ import {
   TextContent,
   TextInput,
   Title,
-} from "@patternfly/react-core";
-import { useForm, useFormContext } from "react-hook-form";
-import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { getValidatedFromError } from "@app/utils/utils";
+} from '@patternfly/react-core';
+import { useForm, useFormContext } from 'react-hook-form';
+import DelIcon from '@patternfly/react-icons/dist/esm/icons/error-circle-o-icon';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
+import { getValidatedFromError } from '@app/utils/utils';
 
 const defaultTargets = [
-  "camel",
-  "cloud-readiness",
-  "drools",
-  "eap",
-  "eap6",
-  "eap7",
-  "eapxp",
-  "fsw",
-  "fuse",
-  "hibernate",
-  "hibernate-search",
-  "jakarta-ee",
-  "java-ee",
-  "jbpm",
-  "linux",
-  "openjdk",
-  "quarkus",
-  "quarkus1",
-  "resteasy",
-  "rhr",
+  'camel',
+  'cloud-readiness',
+  'drools',
+  'eap',
+  'eap6',
+  'eap7',
+  'eapxp',
+  'fsw',
+  'fuse',
+  'hibernate',
+  'hibernate-search',
+  'jakarta-ee',
+  'java-ee',
+  'jbpm',
+  'linux',
+  'openjdk',
+  'quarkus',
+  'quarkus1',
+  'resteasy',
+  'rhr',
 ];
 
 const defaultSources = [
-  "agroal",
-  "amazon",
-  "artemis",
-  "avro",
-  "camel",
-  "config",
-  "drools",
-  "eap",
-  "eap6",
-  "eap7",
-  "eapxp",
-  "elytron",
-  "glassfish",
-  "hibernate",
-  "hibernate-search",
-  "java",
-  "java-ee",
-  "javaee",
-  "jbpm",
-  "jdbc",
-  "jonas",
-  "jrun",
-  "jsonb",
-  "jsonp",
-  "kafka",
-  "keycloak",
-  "kubernetes",
-  "log4j",
-  "logging",
-  "narayana",
-  "openshift",
-  "oraclejdk",
-  "orion",
-  "quarkus1",
-  "resin",
-  "resteasy",
-  "rmi",
-  "rpc",
-  "seam",
-  "soa",
-  "soa-p",
-  "sonic",
-  "sonicesb",
-  "springboot",
-  "thorntail",
-  "weblogic",
-  "websphere",
+  'agroal',
+  'amazon',
+  'artemis',
+  'avro',
+  'camel',
+  'config',
+  'drools',
+  'eap',
+  'eap6',
+  'eap7',
+  'eapxp',
+  'elytron',
+  'glassfish',
+  'hibernate',
+  'hibernate-search',
+  'java',
+  'java-ee',
+  'javaee',
+  'jbpm',
+  'jdbc',
+  'jonas',
+  'jrun',
+  'jsonb',
+  'jsonp',
+  'kafka',
+  'keycloak',
+  'kubernetes',
+  'log4j',
+  'logging',
+  'narayana',
+  'openshift',
+  'oraclejdk',
+  'orion',
+  'quarkus1',
+  'resin',
+  'resteasy',
+  'rmi',
+  'rpc',
+  'seam',
+  'soa',
+  'soa-p',
+  'sonic',
+  'sonicesb',
+  'springboot',
+  'thorntail',
+  'weblogic',
+  'websphere',
 ];
 
 export const SetOptions: React.FunctionComponent = () => {
@@ -95,15 +95,15 @@ export const SetOptions: React.FunctionComponent = () => {
   const {
     register,
     formState: { errors },
-  } = useForm({ mode: "onBlur" });
+  } = useForm({ mode: 'onBlur' });
 
-  const targets: string[] = getValues("targets");
-  const sources: string[] = getValues("sources");
-  const excludedRulesTags: string[] = getValues("excludedRulesTags");
+  const targets: string[] = getValues('targets');
+  const sources: string[] = getValues('sources');
+  const excludedRulesTags: string[] = getValues('excludedRulesTags');
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
-  const [ruleToExclude, setRuleToExclude] = React.useState("");
+  const [ruleToExclude, setRuleToExclude] = React.useState('');
 
   return (
     <>
@@ -122,10 +122,10 @@ export const SetOptions: React.FunctionComponent = () => {
             isOpen={isSelectTargetsOpen}
             onSelect={(_, selection) => {
               if (!targets.includes(selection as string))
-                setValue("targets", [...targets, selection] as string[]);
+                setValue('targets', [...targets, selection] as string[]);
               else
                 setValue(
-                  "targets",
+                  'targets',
                   targets.filter((target) => target !== selection)
                 );
               setSelectTargetsOpen(!isSelectTargetsOpen);
@@ -134,7 +134,7 @@ export const SetOptions: React.FunctionComponent = () => {
               setSelectTargetsOpen(!isSelectTargetsOpen);
             }}
             onClear={() => {
-              setValue("targets", []);
+              setValue('targets', []);
             }}
           >
             {defaultTargets.map((target, index) => (
@@ -150,10 +150,10 @@ export const SetOptions: React.FunctionComponent = () => {
             isOpen={isSelectSourcesOpen}
             onSelect={(_, selection) => {
               if (!sources.includes(selection as string))
-                setValue("sources", [...sources, selection] as string[]);
+                setValue('sources', [...sources, selection] as string[]);
               else
                 setValue(
-                  "sources",
+                  'sources',
                   sources.filter((source) => source !== selection)
                 );
               setSelectSourcesOpen(!isSelectSourcesOpen);
@@ -162,7 +162,7 @@ export const SetOptions: React.FunctionComponent = () => {
               setSelectSourcesOpen(!isSelectSourcesOpen);
             }}
             onClear={() => {
-              setValue("sources", []);
+              setValue('sources', []);
             }}
           >
             {defaultSources.map((source, index) => (
@@ -180,14 +180,14 @@ export const SetOptions: React.FunctionComponent = () => {
             <TextInput
               id="ruleTagToExclude"
               aria-label="Rule tag to exclude"
-              {...register("ruleTagToExclude", {
+              {...register('ruleTagToExclude', {
                 minLength: {
                   value: 2,
-                  message: "A rule tag must be at least 2 characters",
+                  message: 'A rule tag must be at least 2 characters',
                 },
                 maxLength: {
                   value: 60,
-                  message: "A rule tag cannot exceed 60 characters",
+                  message: 'A rule tag cannot exceed 60 characters',
                 },
               })}
               onChange={(value) => setRuleToExclude(value)}
@@ -199,11 +199,8 @@ export const SetOptions: React.FunctionComponent = () => {
               variant="control"
               isDisabled={!!errors.ruleTagToExclude}
               onClick={() => {
-                setValue("excludedRulesTags", [
-                  ...excludedRulesTags,
-                  ruleToExclude,
-                ]);
-                setRuleToExclude("");
+                setValue('excludedRulesTags', [...excludedRulesTags, ruleToExclude]);
+                setRuleToExclude('');
               }}
             >
               Add
@@ -221,7 +218,7 @@ export const SetOptions: React.FunctionComponent = () => {
                     icon={<DelIcon />}
                     onClick={() =>
                       setValue(
-                        "excludedRulesTags",
+                        'excludedRulesTags',
                         excludedRulesTags.filter((p) => p !== pkg)
                       )
                     }

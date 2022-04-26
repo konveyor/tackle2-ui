@@ -1,8 +1,8 @@
-import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
-import { useHistory } from "react-router-dom";
+import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
 
-import { encodeValues, objectToQueryParams, removeUndefined } from "./helpers";
-import { useDecodedLocation } from "./useDecodedLocation";
+import { encodeValues, objectToQueryParams, removeUndefined } from './helpers';
+import { useDecodedLocation } from './useDecodedLocation';
 
 type DispatchState<TState> = Dispatch<SetStateAction<TState>>;
 type RouteObject = Record<string, string[]>;
@@ -15,11 +15,8 @@ export const useQueryString = (
 
   const updateQuery: DispatchState<RouteObject> = useCallback(
     (dispatch: SetStateAction<RouteObject>) => {
-      const updatedParams =
-        typeof dispatch === "function" ? dispatch(search) : dispatch;
-      history.replace(
-        pathname + objectToQueryParams(encodeValues(updatedParams))
-      );
+      const updatedParams = typeof dispatch === 'function' ? dispatch(search) : dispatch;
+      history.replace(pathname + objectToQueryParams(encodeValues(updatedParams)));
     },
     [search, pathname, history]
   );

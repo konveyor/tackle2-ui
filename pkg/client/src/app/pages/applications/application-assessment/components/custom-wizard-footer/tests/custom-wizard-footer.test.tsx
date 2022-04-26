@@ -1,8 +1,8 @@
-import React from "react";
-import { mount } from "enzyme";
-import { CustomWizardFooter } from "../custom-wizard-footer";
+import React from 'react';
+import { mount } from 'enzyme';
+import { CustomWizardFooter } from '../custom-wizard-footer';
 
-describe("AppPlaceholder", () => {
+describe('AppPlaceholder', () => {
   it("First step: should use 'next' label and 'back' be disabled", () => {
     const wrapper = mount(
       <CustomWizardFooter
@@ -15,7 +15,7 @@ describe("AppPlaceholder", () => {
       />
     );
 
-    expect(wrapper.find("button[cy-data='next']").text()).toBe("actions.next");
+    expect(wrapper.find("button[cy-data='next']").text()).toBe('actions.next');
     expect(wrapper.find("button[cy-data='back']")).toBeDisabled();
   });
 
@@ -31,7 +31,7 @@ describe("AppPlaceholder", () => {
       />
     );
 
-    expect(wrapper.find("button[cy-data='next']").text()).toBe("actions.save");
+    expect(wrapper.find("button[cy-data='next']").text()).toBe('actions.save');
   });
 
   it("Last step: should have 'saveAndReview' button", () => {
@@ -46,9 +46,7 @@ describe("AppPlaceholder", () => {
       />
     );
 
-    expect(wrapper.find("button[cy-data='save-and-review']").text()).toBe(
-      "actions.saveAndReview"
-    );
+    expect(wrapper.find("button[cy-data='save-and-review']").text()).toBe('actions.saveAndReview');
   });
 
   it("Disable all using 'isDisabled=true'", () => {
@@ -101,7 +99,7 @@ describe("AppPlaceholder", () => {
       />
     );
 
-    wrapper.find("button[cy-data='next']").simulate("click");
+    wrapper.find("button[cy-data='next']").simulate('click');
     expect(onSaveSpy).toHaveBeenCalledTimes(1);
   });
 
@@ -119,7 +117,7 @@ describe("AppPlaceholder", () => {
       />
     );
 
-    wrapper.find("button[cy-data='save-as-draft']").simulate("click");
+    wrapper.find("button[cy-data='save-as-draft']").simulate('click');
     expect(onSaveAsDraftSpy).toHaveBeenCalledTimes(1);
   });
 });

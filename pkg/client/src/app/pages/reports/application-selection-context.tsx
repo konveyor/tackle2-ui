@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { useSelectionState, ISelectionState } from "@konveyor/lib-ui";
-import { Application } from "@app/api/models";
+import React, { useState } from 'react';
+import { useSelectionState, ISelectionState } from '@konveyor/lib-ui';
+import { Application } from '@app/api/models';
 
 interface IApplicationSelectionContext extends ISelectionState<Application> {
   allItems: Application[];
@@ -38,9 +38,7 @@ export const ApplicationSelectionContextProvider: React.FC<
   });
 
   return (
-    <ApplicationSelectionContext.Provider
-      value={{ allItems, ...selectionState }}
-    >
+    <ApplicationSelectionContext.Provider value={{ allItems, ...selectionState }}>
       {children}
     </ApplicationSelectionContext.Provider>
   );

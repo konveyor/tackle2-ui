@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   Button,
   Form,
@@ -9,29 +9,29 @@ import {
   Text,
   TextInput,
   Title,
-} from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
-import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useForm } from "react-hook-form";
-import { getValidatedFromError } from "@app/utils/utils";
+} from '@patternfly/react-core';
+import { useFormContext } from 'react-hook-form';
+import DelIcon from '@patternfly/react-icons/dist/esm/icons/error-circle-o-icon';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
+import { useForm } from 'react-hook-form';
+import { getValidatedFromError } from '@app/utils/utils';
 
-import "./wizard.css";
+import './wizard.css';
 
 export const SetScope: React.FunctionComponent = () => {
   const { getValues, setValue } = useFormContext();
   const {
     register,
     formState: { errors },
-  } = useForm({ mode: "onBlur" });
+  } = useForm({ mode: 'onBlur' });
 
-  const withKnown: string = getValues("withKnown");
-  const includedPackages: string[] = getValues("includedPackages");
-  const excludedPackages: string[] = getValues("excludedPackages");
+  const withKnown: string = getValues('withKnown');
+  const includedPackages: string[] = getValues('includedPackages');
+  const excludedPackages: string[] = getValues('excludedPackages');
 
   const [excludedSwitch, setExcludedSwitch] = React.useState(false);
-  const [packageToInclude, setPackageToInclude] = React.useState("");
-  const [packageToExclude, setPackageToExclude] = React.useState("");
+  const [packageToInclude, setPackageToInclude] = React.useState('');
+  const [packageToExclude, setPackageToExclude] = React.useState('');
 
   const onChangePackageToInclude = (value: string) => {
     setPackageToInclude(value);
@@ -46,15 +46,13 @@ export const SetScope: React.FunctionComponent = () => {
       <Title headingLevel="h3" size="xl">
         Scope
       </Title>
-      <Text>
-        Select the scope of dependencies you want to include in the analysis.
-      </Text>
+      <Text>Select the scope of dependencies you want to include in the analysis.</Text>
       <Radio
         id="app"
         name="app"
-        isChecked={withKnown === "app"}
+        isChecked={withKnown === 'app'}
         onChange={() => {
-          setValue("withKnown", "app");
+          setValue('withKnown', 'app');
         }}
         label="Application and internal dependencies only"
         className={spacing.mbXs}
@@ -62,9 +60,9 @@ export const SetScope: React.FunctionComponent = () => {
       <Radio
         id="oss"
         name="oss"
-        isChecked={withKnown === "app,oss"}
+        isChecked={withKnown === 'app,oss'}
         onChange={() => {
-          setValue("withKnown", "app,oss");
+          setValue('withKnown', 'app,oss');
         }}
         label="Application and all dependencies, including known Open Source libraries"
         className={spacing.mbXs}
@@ -72,14 +70,14 @@ export const SetScope: React.FunctionComponent = () => {
       <Radio
         id="select"
         name="select"
-        isChecked={withKnown === "app,oss,select"}
+        isChecked={withKnown === 'app,oss,select'}
         onChange={() => {
-          setValue("withKnown", "app,oss,select");
+          setValue('withKnown', 'app,oss,select');
         }}
         label="Select the list of packages to be analyzed manually"
         className={spacing.mbXs}
       />
-      {withKnown.includes("select") && (
+      {withKnown.includes('select') && (
         <>
           <FormGroup
             fieldId="packageToInclude"
@@ -90,11 +88,10 @@ export const SetScope: React.FunctionComponent = () => {
             <InputGroup>
               <TextInput
                 aria-label="Packages to include"
-                {...register("packageToInclude", {
+                {...register('packageToInclude', {
                   pattern: {
                     value: /^[a-z]+(.[a-z0-9]+)*$/,
-                    message:
-                      "The package name should be a valid Java package name",
+                    message: 'The package name should be a valid Java package name',
                   },
                 })}
                 onChange={onChangePackageToInclude}
@@ -104,15 +101,10 @@ export const SetScope: React.FunctionComponent = () => {
               <Button
                 id="add-package"
                 variant="control"
-                isDisabled={
-                  getValidatedFromError(errors.packageToInclude) === "error"
-                }
+                isDisabled={getValidatedFromError(errors.packageToInclude) === 'error'}
                 onClick={() => {
-                  setValue("includedPackages", [
-                    ...includedPackages,
-                    packageToInclude,
-                  ]);
-                  setPackageToInclude("");
+                  setValue('includedPackages', [...includedPackages, packageToInclude]);
+                  setPackageToInclude('');
                 }}
               >
                 Add
@@ -133,7 +125,7 @@ export const SetScope: React.FunctionComponent = () => {
                         icon={<DelIcon />}
                         onClick={() =>
                           setValue(
-                            "includedPackages",
+                            'includedPackages',
                             includedPackages.filter((p) => p !== pkg)
                           )
                         }
@@ -162,11 +154,10 @@ export const SetScope: React.FunctionComponent = () => {
             <InputGroup>
               <TextInput
                 aria-label="Packages to exclude"
-                {...register("packageToExclude", {
+                {...register('packageToExclude', {
                   pattern: {
                     value: /^[a-z]+(.[a-z0-9]+)*$/,
-                    message:
-                      "The package name should be a valid Java package name",
+                    message: 'The package name should be a valid Java package name',
                   },
                 })}
                 onChange={onChangePackageToExclude}
@@ -176,15 +167,10 @@ export const SetScope: React.FunctionComponent = () => {
               <Button
                 id="add-to-excluded-packages-list"
                 variant="control"
-                isDisabled={
-                  getValidatedFromError(errors.packageToExclude) === "error"
-                }
+                isDisabled={getValidatedFromError(errors.packageToExclude) === 'error'}
                 onClick={() => {
-                  setValue("excludedPackages", [
-                    ...excludedPackages,
-                    packageToExclude,
-                  ]);
-                  setPackageToExclude("");
+                  setValue('excludedPackages', [...excludedPackages, packageToExclude]);
+                  setPackageToExclude('');
                 }}
               >
                 Add
@@ -207,7 +193,7 @@ export const SetScope: React.FunctionComponent = () => {
                         icon={<DelIcon />}
                         onClick={() =>
                           setValue(
-                            "excludedPackages",
+                            'excludedPackages',
                             excludedPackages.filter((p) => p !== pkg)
                           )
                         }

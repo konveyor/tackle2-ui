@@ -1,18 +1,18 @@
-import { useCallback, useReducer } from "react";
-import { AxiosError } from "axios";
-import { ActionType, createAsyncAction, getType } from "typesafe-actions";
+import { useCallback, useReducer } from 'react';
+import { AxiosError } from 'axios';
+import { ActionType, createAsyncAction, getType } from 'typesafe-actions';
 
-import { getApplications } from "@app/api/rest";
-import { Application } from "@app/api/models";
+import { getApplications } from '@app/api/rest';
+import { Application } from '@app/api/models';
 
 export const {
   request: fetchRequest,
   success: fetchSuccess,
   failure: fetchFailure,
 } = createAsyncAction(
-  "useFetchApplications/fetch/request",
-  "useFetchApplications/fetch/success",
-  "useFetchApplications/fetch/failure"
+  'useFetchApplications/fetch/request',
+  'useFetchApplications/fetch/success',
+  'useFetchApplications/fetch/failure'
 )<void, Array<Application>, AxiosError>();
 
 type State = Readonly<{
@@ -29,9 +29,7 @@ const defaultState: State = {
   fetchCount: 0,
 };
 
-type Action = ActionType<
-  typeof fetchRequest | typeof fetchSuccess | typeof fetchFailure
->;
+type Action = ActionType<typeof fetchRequest | typeof fetchSuccess | typeof fetchFailure>;
 
 const initReducer = (isFetching: boolean): State => {
   return {
@@ -75,9 +73,7 @@ export interface IState {
   fetchApplications: () => void;
 }
 
-export const useFetchApplications = (
-  defaultIsFetching: boolean = false
-): IState => {
+export const useFetchApplications = (defaultIsFetching = false): IState => {
   const [state, dispatch] = useReducer(reducer, defaultIsFetching, initReducer);
 
   const fetchApplications = useCallback(() => {

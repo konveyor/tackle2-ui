@@ -1,1 +1,1 @@
-export { AppAboutModalState } from "./AppAboutModalState";
+export { AppAboutModalState } from './AppAboutModalState';

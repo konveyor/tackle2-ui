@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import { OkIcon } from "@patternfly/react-icons";
+import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { OkIcon } from '@patternfly/react-icons';
 import {
   Button,
   DescriptionList,
@@ -8,24 +8,25 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   Tooltip,
-} from "@patternfly/react-core";
-import { Link } from "react-router-dom";
-import { stringify } from "yaml";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+} from '@patternfly/react-core';
+import { Link } from 'react-router-dom';
+import { stringify } from 'yaml';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 
-import { Application, Task } from "@app/api/models";
-import { ApplicationTags } from "../application-tags";
-import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
-import { getKindIDByRef } from "@app/utils/model-utils";
+import { Application, Task } from '@app/api/models';
+import { ApplicationTags } from '../application-tags';
+import { useFetchIdentities } from '@app/shared/hooks/useFetchIdentities';
+import { getKindIDByRef } from '@app/utils/model-utils';
 
 export interface IApplicationListExpandedAreaProps {
   application: Application;
   task: Task | undefined;
 }
 
-export const ApplicationListExpandedAreaAnalysis: React.FC<
-  IApplicationListExpandedAreaProps
-> = ({ application, task }) => {
+export const ApplicationListExpandedAreaAnalysis: React.FC<IApplicationListExpandedAreaProps> = ({
+  application,
+  task,
+}) => {
   const { t } = useTranslation();
 
   const [isReport, setIsReport] = React.useState(false);
@@ -38,31 +39,31 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
   }, [fetchIdentities]);
 
   useEffect(() => {
-    if (task?.state === "Succeeded") setIsReport(true);
-    else if (task?.state === "Failed") setIsFailedTask(true);
+    if (task?.state === 'Succeeded') setIsReport(true);
+    else if (task?.state === 'Failed') setIsFailedTask(true);
   }, [task]);
 
   let matchingSourceCredsRef;
   if (identities) {
-    matchingSourceCredsRef = getKindIDByRef(identities, application, "source");
+    matchingSourceCredsRef = getKindIDByRef(identities, application, 'source');
   }
 
   return (
     <DescriptionList isHorizontal>
       <DescriptionListGroup>
-        <DescriptionListTerm>{t("terms.tags")}</DescriptionListTerm>
+        <DescriptionListTerm>{t('terms.tags')}</DescriptionListTerm>
         <DescriptionListDescription cy-data="tags">
           <ApplicationTags application={application} />
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
-        <DescriptionListTerm>{t("terms.comments")}</DescriptionListTerm>
+        <DescriptionListTerm>{t('terms.comments')}</DescriptionListTerm>
         <DescriptionListDescription cy-data="comments">
           {application.comments}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
-        <DescriptionListTerm>{t("terms.credentials")}</DescriptionListTerm>
+        <DescriptionListTerm>{t('terms.credentials')}</DescriptionListTerm>
         <DescriptionListDescription cy-data="credentials">
           {matchingSourceCredsRef ? (
             <>
@@ -70,12 +71,12 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
               <span className={spacing.mlSm}>(Source)</span>
             </>
           ) : (
-            "Not available"
+            'Not available'
           )}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
-        <DescriptionListTerm>{t("terms.analysis")}</DescriptionListTerm>
+        <DescriptionListTerm>{t('terms.analysis')}</DescriptionListTerm>
         <DescriptionListDescription cy-data="analysis">
           {isReport ? (
             <Tooltip content="Click to view Analysis report">
@@ -97,7 +98,7 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
               </Button>
             </Tooltip>
           ) : (
-            "Not available"
+            'Not available'
           )}
         </DescriptionListDescription>
       </DescriptionListGroup>

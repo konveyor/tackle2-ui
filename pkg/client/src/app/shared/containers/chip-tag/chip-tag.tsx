@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect } from 'react';
 
-import { useFetch } from "@app/shared/hooks";
-import { NodeFetch } from "@app/shared/components";
+import { useFetch } from '@app/shared/hooks';
+import { NodeFetch } from '@app/shared/components';
 
-import { BusinessService } from "@app/api/models";
-import { getTagById } from "@app/api/rest";
+import { BusinessService } from '@app/api/models';
+import { getTagById } from '@app/api/rest';
 
 export interface IChipTagProps {
   id: number | string;
@@ -29,11 +29,5 @@ export const ChipTag: React.FC<IChipTagProps> = ({ id }) => {
     refreshTag();
   }, [refreshTag]);
 
-  return (
-    <NodeFetch
-      isFetching={isFetching}
-      fetchError={fetchError}
-      node={tag?.name}
-    />
-  );
+  return <NodeFetch isFetching={isFetching} fetchError={fetchError} node={tag?.name} />;
 };

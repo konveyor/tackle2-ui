@@ -1,32 +1,20 @@
-import React, { useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import { useFormikContext } from "formik";
+import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useFormikContext } from 'formik';
 
-import {
-  FormGroup,
-  FormSection,
-  Grid,
-  GridItem,
-  Text,
-  TextContent,
-} from "@patternfly/react-core";
+import { FormGroup, FormSection, Grid, GridItem, Text, TextContent } from '@patternfly/react-core';
 
-import {
-  useFetchStakeholderGroups,
-  useFetchStakeholders,
-} from "@app/shared/hooks";
+import { useFetchStakeholderGroups, useFetchStakeholders } from '@app/shared/hooks';
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { getValidatedFromError } from "@app/utils/utils";
+import { DEFAULT_SELECT_MAX_HEIGHT } from '@app/Constants';
+import { getValidatedFromError } from '@app/utils/utils';
 
-import { IFormValues } from "../../form-utils";
+import { IFormValues } from '../../form-utils';
 
-import { StakeholderSelect } from "./stakeholder-select";
-import { StakeholderGroupSelect } from "./stakeholder-group-select";
+import { StakeholderSelect } from './stakeholder-select';
+import { StakeholderGroupSelect } from './stakeholder-group-select';
 
-export interface StakeholdersFormProps {}
-
-export const StakeholdersForm: React.FC<StakeholdersFormProps> = () => {
+export const StakeholdersForm: React.FC = () => {
   const { t } = useTranslation();
   const formik = useFormikContext<IFormValues>();
 
@@ -59,12 +47,12 @@ export const StakeholdersForm: React.FC<StakeholdersFormProps> = () => {
           <Text component="h1">
             {
               // t('terms.stakeholders')
-              t("composed.selectMany", {
-                what: t("terms.stakeholders").toLowerCase(),
+              t('composed.selectMany', {
+                what: t('terms.stakeholders').toLowerCase(),
               })
             }
           </Text>
-          <Text component="p">{t("message.assessmentStakeholderHeader")}</Text>
+          <Text component="p">{t('message.assessmentStakeholderHeader')}</Text>
         </TextContent>
       </FormSection>
 
@@ -72,7 +60,7 @@ export const StakeholdersForm: React.FC<StakeholdersFormProps> = () => {
         <GridItem md={6} className="pf-c-form">
           <FormSection>
             <FormGroup
-              label={t("terms.stakeholders")}
+              label={t('terms.stakeholders')}
               fieldId="stakeholders"
               isRequired={false}
               validated={getValidatedFromError(formik.errors.stakeholders)}
@@ -80,19 +68,19 @@ export const StakeholdersForm: React.FC<StakeholdersFormProps> = () => {
             >
               <StakeholderSelect
                 fieldConfig={{
-                  name: "stakeholders",
+                  name: 'stakeholders',
                 }}
                 selectConfig={{
-                  variant: "typeaheadmulti",
-                  "aria-label": "stakeholders",
-                  "aria-describedby": "stakeholders",
-                  typeAheadAriaLabel: "stakeholders",
-                  toggleAriaLabel: "stakeholders",
-                  clearSelectionsAriaLabel: "stakeholders",
-                  removeSelectionAriaLabel: "stakeholders",
+                  variant: 'typeaheadmulti',
+                  'aria-label': 'stakeholders',
+                  'aria-describedby': 'stakeholders',
+                  typeAheadAriaLabel: 'stakeholders',
+                  toggleAriaLabel: 'stakeholders',
+                  clearSelectionsAriaLabel: 'stakeholders',
+                  removeSelectionAriaLabel: 'stakeholders',
                   // t('terms.stakeholder(s)')
-                  placeholderText: t("composed.selectMany", {
-                    what: t("terms.stakeholder(s)").toLowerCase(),
+                  placeholderText: t('composed.selectMany', {
+                    what: t('terms.stakeholder(s)').toLowerCase(),
                   }),
                   maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
                   isFetching: isFetchingStakeholders,
@@ -102,7 +90,7 @@ export const StakeholdersForm: React.FC<StakeholdersFormProps> = () => {
               />
             </FormGroup>
             <FormGroup
-              label={t("terms.stakeholderGroups")}
+              label={t('terms.stakeholderGroups')}
               fieldId="stakeholderGroups"
               isRequired={false}
               validated={getValidatedFromError(formik.errors.stakeholderGroups)}
@@ -110,19 +98,19 @@ export const StakeholdersForm: React.FC<StakeholdersFormProps> = () => {
             >
               <StakeholderGroupSelect
                 fieldConfig={{
-                  name: "stakeholderGroups",
+                  name: 'stakeholderGroups',
                 }}
                 selectConfig={{
-                  variant: "typeaheadmulti",
-                  "aria-label": "stakeholder-groups",
-                  "aria-describedby": "stakeholder-groups",
-                  typeAheadAriaLabel: "stakeholder-groups",
-                  toggleAriaLabel: "stakeholder-groups",
-                  clearSelectionsAriaLabel: "stakeholder-groups",
-                  removeSelectionAriaLabel: "stakeholder-groups",
+                  variant: 'typeaheadmulti',
+                  'aria-label': 'stakeholder-groups',
+                  'aria-describedby': 'stakeholder-groups',
+                  typeAheadAriaLabel: 'stakeholder-groups',
+                  toggleAriaLabel: 'stakeholder-groups',
+                  clearSelectionsAriaLabel: 'stakeholder-groups',
+                  removeSelectionAriaLabel: 'stakeholder-groups',
                   // t('terms.stakeholderGroup(s)')
-                  placeholderText: t("composed.selectMany", {
-                    what: t("terms.stakeholderGroup(s)").toLowerCase(),
+                  placeholderText: t('composed.selectMany', {
+                    what: t('terms.stakeholderGroup(s)').toLowerCase(),
                   }),
                   maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
                   isFetching: isFetchingStakeholderGroups,

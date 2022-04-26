@@ -1,1 +1,1 @@
-export { ApplicationAssessment as default } from "./application-assessment";
+export { ApplicationAssessment as default } from './application-assessment';

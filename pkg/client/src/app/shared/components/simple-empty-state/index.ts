@@ -1,1 +1,1 @@
-export { SimpleEmptyState } from "./simple-empty-state";
+export { SimpleEmptyState } from './simple-empty-state';

@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   cellWidth,
@@ -9,7 +9,7 @@ import {
   IRowData,
   sortable,
   truncate,
-} from "@patternfly/react-table";
+} from '@patternfly/react-table';
 import {
   ActionGroup,
   Button,
@@ -20,20 +20,20 @@ import {
   FormGroup,
   ToolbarChip,
   ToolbarItem,
-} from "@patternfly/react-core";
-import { ExclamationTriangleIcon } from "@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon";
-import { global_palette_gold_400 as gold } from "@patternfly/react-tokens";
+} from '@patternfly/react-core';
+import { ExclamationTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
+import { global_palette_gold_400 as gold } from '@patternfly/react-tokens';
 
-import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
-import { bulkCopyActions } from "@app/store/bulkCopy";
+import { useDispatch } from 'react-redux';
+import { alertActions } from '@app/store/alert';
+import { bulkCopyActions } from '@app/store/bulkCopy';
 
 import {
   ApplicationToolbarToggleGroup,
   AppTableWithControls,
   StatusIcon,
   ToolbarBulkSelector,
-} from "@app/shared/components";
+} from '@app/shared/components';
 import {
   useFetch,
   useMultipleFetch,
@@ -41,38 +41,28 @@ import {
   useToolbarFilter,
   useSelectionFromPageState,
   useFetchPagination,
-} from "@app/shared/hooks";
+} from '@app/shared/hooks';
 
-import {
-  Application,
-  ApplicationPage,
-  Assessment,
-  Review,
-  SortByQuery,
-} from "@app/api/models";
+import { Application, ApplicationPage, Assessment, Review, SortByQuery } from '@app/api/models';
 
 import {
   createBulkCopyAssessment,
   createBulkCopyReview,
   getApplications,
   getAssessments,
-} from "@app/api/rest";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+} from '@app/api/rest';
+import { getAxiosErrorMessage } from '@app/utils/utils';
 
-import { ApplicationBusinessService } from "../application-business-service";
-import { ApplicationAssessment } from "../application-assessment";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import identities from "@app/pages/identities";
-import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useSortState } from "@app/shared/hooks/useSortState";
-import { useSelectionState } from "@konveyor/lib-ui";
+import { ApplicationBusinessService } from '../application-business-service';
+import { ApplicationAssessment } from '../application-assessment';
+import { usePaginationState } from '@app/shared/hooks/usePaginationState';
+import identities from '@app/pages/identities';
+import { FilterCategory, FilterToolbar, FilterType } from '@app/shared/components/FilterToolbar';
+import { useFilterState } from '@app/shared/hooks/useFilterState';
+import { useSortState } from '@app/shared/hooks/useSortState';
+import { useSelectionState } from '@konveyor/lib-ui';
 
-const ENTITY_FIELD = "entity";
+const ENTITY_FIELD = 'entity';
 
 const getRow = (rowData: IRowData): Application => {
   return rowData[ENTITY_FIELD];
@@ -92,9 +82,12 @@ interface BulkCopyAssessmentReviewFormProps {
   onSaved: () => void;
 }
 
-export const BulkCopyAssessmentReviewForm: React.FC<
-  BulkCopyAssessmentReviewFormProps
-> = ({ application, assessment, review, onSaved }) => {
+export const BulkCopyAssessmentReviewForm: React.FC<BulkCopyAssessmentReviewFormProps> = ({
+  application,
+  assessment,
+  review,
+  onSaved,
+}) => {
   // i18
   const { t } = useTranslation();
 
@@ -131,12 +124,12 @@ export const BulkCopyAssessmentReviewForm: React.FC<
 
   const filterCategories: FilterCategory<Application>[] = [
     {
-      key: "name",
-      title: "Name",
+      key: 'name',
+      title: 'Name',
       type: FilterType.search,
-      placeholderText: "Filter by name...",
+      placeholderText: 'Filter by name...',
       getItemValue: (item) => {
-        return item?.name || "";
+        return item?.name || '';
       },
     },
   ];
@@ -146,17 +139,13 @@ export const BulkCopyAssessmentReviewForm: React.FC<
     filterCategories
   );
   const getSortValues = (identity: Application) => [
-    identity?.name || "",
-    "", // Action column
+    identity?.name || '',
+    '', // Action column
   ];
 
-  const { sortBy, onSort, sortedItems } = useSortState(
-    filteredItems,
-    getSortValues
-  );
+  const { sortBy, onSort, sortedItems } = useSortState(filteredItems, getSortValues);
 
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+  const { currentPageItems, setPageNumber, paginationProps } = usePaginationState(sortedItems, 10);
 
   // Table's assessments
   const {
@@ -195,22 +184,22 @@ export const BulkCopyAssessmentReviewForm: React.FC<
   // Table
   const columns: ICell[] = [
     {
-      title: t("terms.name"),
+      title: t('terms.name'),
       transforms: [sortable, cellWidth(40)],
       cellTransforms: [truncate],
     },
     {
-      title: t("terms.businessService"),
+      title: t('terms.businessService'),
       transforms: [cellWidth(30)],
       cellTransforms: [truncate],
     },
     {
-      title: t("terms.assessment"),
+      title: t('terms.assessment'),
       transforms: [cellWidth(15)],
       cellTransforms: [truncate],
     },
     {
-      title: t("terms.review"),
+      title: t('terms.review'),
       transforms: [cellWidth(15)],
       cellTransforms: [truncate],
     },
@@ -231,9 +220,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
         {
           title: (
             <>
-              {item.businessService && (
-                <ApplicationBusinessService id={item.businessService.id} />
-              )}
+              {item.businessService && <ApplicationBusinessService id={item.businessService.id} />}
             </>
           ),
         },
@@ -272,14 +259,11 @@ export const BulkCopyAssessmentReviewForm: React.FC<
 
   // Confirmation checbox
   useEffect(() => {
-    let selectedAnyAppWithAssessment = selectedRows.some((f) =>
-      getApplicationAssessment(f.id!)
-    );
+    let selectedAnyAppWithAssessment = selectedRows.some((f) => getApplicationAssessment(f.id!));
 
     if (review) {
       const selectedAnyAppWithReview = selectedRows.some((f) => f.review);
-      selectedAnyAppWithAssessment =
-        selectedAnyAppWithAssessment || selectedAnyAppWithReview;
+      selectedAnyAppWithAssessment = selectedAnyAppWithAssessment || selectedAnyAppWithReview;
     }
 
     setRequestConfirmation(selectedAnyAppWithAssessment);
@@ -292,7 +276,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
   // Copy
   const onSubmit = () => {
     if (requestConfirmation && !confirmationAccepted) {
-      console.log("Accept confirmation to continue");
+      console.log('Accept confirmation to continue');
       return;
     }
 
@@ -365,19 +349,17 @@ export const BulkCopyAssessmentReviewForm: React.FC<
               </span>
               &nbsp;&nbsp;
               {review
-                ? t("message.copyAssessmentAndReviewQuestion")
-                : t("message.copyAssessmentQuestion")}
+                ? t('message.copyAssessmentAndReviewQuestion')
+                : t('message.copyAssessmentQuestion')}
             </>
           }
           isStack
         >
-          {review
-            ? t("message.copyAssessmentAndReviewBody")
-            : t("message.copyAssessmentBody")}
+          {review ? t('message.copyAssessmentAndReviewBody') : t('message.copyAssessmentBody')}
           <Checkbox
             id="confirm"
             name="confirm"
-            label={t("message.continueConfirmation")}
+            label={t('message.continueConfirmation')}
             aria-label="Confirm"
             isChecked={confirmationAccepted}
             onChange={(isChecked) => setConfirmationAccepted(isChecked)}
@@ -396,7 +378,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             isSubmitting
           }
         >
-          {t("actions.copy")}
+          {t('actions.copy')}
         </Button>
       </ActionGroup>
     </div>

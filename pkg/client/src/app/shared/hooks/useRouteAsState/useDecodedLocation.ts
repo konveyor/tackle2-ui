@@ -1,6 +1,6 @@
-import { useMemo } from "react";
-import { useLocation } from "react-router";
-import { getQueryParamsAsObject } from "./helpers";
+import { useMemo } from 'react';
+import { useLocation } from 'react-router';
+import { getQueryParamsAsObject } from './helpers';
 
 export const useDecodedLocation = () => {
   const { search, ...rest } = useLocation();

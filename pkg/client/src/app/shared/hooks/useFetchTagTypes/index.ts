@@ -1,1 +1,1 @@
-export { useFetchTagTypes } from "./useFetchTagTypes";
+export { useFetchTagTypes } from './useFetchTagTypes';

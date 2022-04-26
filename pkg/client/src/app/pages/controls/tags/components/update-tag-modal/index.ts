@@ -1,1 +1,1 @@
-export { UpdateTagModal } from "./update-tag-modal";
+export { UpdateTagModal } from './update-tag-modal';

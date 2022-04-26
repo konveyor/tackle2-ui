@@ -1,2 +1,2 @@
-export * from "./app-table";
-export { StateError } from "./state-error";
+export * from './app-table';
+export { StateError } from './state-error';

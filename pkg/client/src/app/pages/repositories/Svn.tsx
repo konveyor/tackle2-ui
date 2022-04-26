@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   Alert,
   Card,
@@ -8,16 +8,16 @@ import {
   Switch,
   Text,
   TextContent,
-} from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
+} from '@patternfly/react-core';
+import { useTranslation } from 'react-i18next';
 
-import "./Repositories.css";
-import { Setting } from "@app/api/models";
-import { getSettingById, updateSetting } from "@app/api/rest";
-import { AxiosError, AxiosPromise } from "axios";
-import { useCallback, useEffect } from "react";
-import { useFetch } from "@app/shared/hooks";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import './Repositories.css';
+import { Setting } from '@app/api/models';
+import { getSettingById, updateSetting } from '@app/api/rest';
+import { AxiosError, AxiosPromise } from 'axios';
+import { useCallback, useEffect } from 'react';
+import { useFetch } from '@app/shared/hooks';
+import { getAxiosErrorMessage } from '@app/utils/utils';
 
 export const RepositoriesSvn: React.FunctionComponent = () => {
   const { t } = useTranslation();
@@ -25,7 +25,7 @@ export const RepositoriesSvn: React.FunctionComponent = () => {
 
   const onChange = () => {
     const setting: Setting = {
-      key: "svn.insecure.enabled",
+      key: 'svn.insecure.enabled',
       value: !svnInsecureSetting,
     };
 
@@ -46,14 +46,13 @@ export const RepositoriesSvn: React.FunctionComponent = () => {
   };
 
   const fetchSvnInsecureSetting = useCallback(() => {
-    return getSettingById("svn.insecure.enabled");
+    return getSettingById('svn.insecure.enabled');
   }, []);
 
-  const { data: svnInsecureSetting, requestFetch: refreshSvnInsecureSetting } =
-    useFetch<boolean>({
-      defaultIsFetching: true,
-      onFetch: fetchSvnInsecureSetting,
-    });
+  const { data: svnInsecureSetting, requestFetch: refreshSvnInsecureSetting } = useFetch<boolean>({
+    defaultIsFetching: true,
+    onFetch: fetchSvnInsecureSetting,
+  });
 
   useEffect(() => {
     refreshSvnInsecureSetting();
@@ -63,19 +62,13 @@ export const RepositoriesSvn: React.FunctionComponent = () => {
     <>
       <PageSection variant={PageSectionVariants.light}>
         <TextContent>
-          <Text component="h1">{t("terms.svnConfig")}</Text>
+          <Text component="h1">{t('terms.svnConfig')}</Text>
         </TextContent>
       </PageSection>
       <PageSection>
         <Card>
           <CardBody>
-            {error && (
-              <Alert
-                variant="danger"
-                isInline
-                title={getAxiosErrorMessage(error)}
-              />
-            )}
+            {error && <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />}
             <Switch
               id="svn"
               className="repo"

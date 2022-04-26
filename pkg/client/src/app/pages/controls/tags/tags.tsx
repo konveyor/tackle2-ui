@@ -1,26 +1,14 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { AxiosResponse } from "axios";
-import { useTranslation } from "react-i18next";
-import { useSelectionState } from "@konveyor/lib-ui";
+import React, { useCallback, useEffect, useState } from 'react';
+import { AxiosResponse } from 'axios';
+import { useTranslation } from 'react-i18next';
+import { useSelectionState } from '@konveyor/lib-ui';
 
-import {
-  Button,
-  ButtonVariant,
-  ToolbarGroup,
-  ToolbarItem,
-} from "@patternfly/react-core";
-import {
-  expandable,
-  ICell,
-  IExtraData,
-  IRow,
-  IRowData,
-  sortable,
-} from "@patternfly/react-table";
+import { Button, ButtonVariant, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
+import { expandable, ICell, IExtraData, IRow, IRowData, sortable } from '@patternfly/react-table';
 
-import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
-import { confirmDialogActions } from "@app/store/confirmDialog";
+import { useDispatch } from 'react-redux';
+import { alertActions } from '@app/store/alert';
+import { confirmDialogActions } from '@app/store/confirmDialog';
 
 import {
   AppPlaceholder,
@@ -29,29 +17,25 @@ import {
   ConditionalRender,
   NoDataEmptyState,
   Color,
-} from "@app/shared/components";
-import { useFetchTagTypes, useDelete } from "@app/shared/hooks";
+} from '@app/shared/components';
+import { useFetchTagTypes, useDelete } from '@app/shared/hooks';
 
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { deleteTag, deleteTagType } from "@app/api/rest";
-import { Tag, TagType } from "@app/api/models";
+import { getAxiosErrorMessage } from '@app/utils/utils';
+import { deleteTag, deleteTagType } from '@app/api/rest';
+import { Tag, TagType } from '@app/api/models';
 
-import { NewTagTypeModal } from "./components/new-tag-type-modal";
-import { UpdateTagTypeModal } from "./components/update-tag-type-modal";
-import { NewTagModal } from "./components/new-tag-modal";
-import { UpdateTagModal } from "./components/update-tag-modal";
-import { TagTable } from "./components/tag-table";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useSortState } from "@app/shared/hooks/useSortState";
-import { DEFAULT_COLOR_LABELS } from "@app/Constants";
+import { NewTagTypeModal } from './components/new-tag-type-modal';
+import { UpdateTagTypeModal } from './components/update-tag-type-modal';
+import { NewTagModal } from './components/new-tag-modal';
+import { UpdateTagModal } from './components/update-tag-modal';
+import { TagTable } from './components/tag-table';
+import { usePaginationState } from '@app/shared/hooks/usePaginationState';
+import { FilterCategory, FilterToolbar, FilterType } from '@app/shared/components/FilterToolbar';
+import { useFilterState } from '@app/shared/hooks/useFilterState';
+import { useSortState } from '@app/shared/hooks/useSortState';
+import { DEFAULT_COLOR_LABELS } from '@app/Constants';
 
-const ENTITY_FIELD = "entity";
+const ENTITY_FIELD = 'entity';
 
 const getRow = (rowData: IRowData): TagType => {
   return rowData[ENTITY_FIELD];
@@ -74,16 +58,13 @@ export const Tags: React.FC = () => {
     onDelete: (t: Tag) => deleteTag(t.id!),
   });
 
-  const { tagTypes, isFetching, fetchError, fetchTagTypes } =
-    useFetchTagTypes(true);
+  const { tagTypes, isFetching, fetchError, fetchTagTypes } = useFetchTagTypes(true);
 
-  const {
-    isItemSelected: isItemExpanded,
-    toggleItemSelected: toggleItemExpanded,
-  } = useSelectionState<TagType>({
-    items: tagTypes || [],
-    isEqual: (a, b) => a.id === b.id,
-  });
+  const { isItemSelected: isItemExpanded, toggleItemSelected: toggleItemExpanded } =
+    useSelectionState<TagType>({
+      items: tagTypes || [],
+      isEqual: (a, b) => a.id === b.id,
+    });
 
   const refreshTable = useCallback(() => {
     fetchTagTypes();
@@ -95,31 +76,31 @@ export const Tags: React.FC = () => {
 
   const filterCategories: FilterCategory<TagType>[] = [
     {
-      key: "name",
-      title: "Name",
+      key: 'name',
+      title: 'Name',
       type: FilterType.search,
-      placeholderText: "Filter by name...",
+      placeholderText: 'Filter by name...',
       getItemValue: (item) => {
-        return item?.name || "";
+        return item?.name || '';
       },
     },
     {
-      key: "rank",
-      title: "Rank",
+      key: 'rank',
+      title: 'Rank',
       type: FilterType.search,
-      placeholderText: "Filter by rank...",
+      placeholderText: 'Filter by rank...',
       getItemValue: (item) => {
-        return item.rank?.toString() || "";
+        return item.rank?.toString() || '';
       },
     },
     {
-      key: "color",
-      title: "Color",
+      key: 'color',
+      title: 'Color',
       type: FilterType.search,
-      placeholderText: "Filter by color...",
+      placeholderText: 'Filter by color...',
       getItemValue: (item) => {
-        const colorLabel = DEFAULT_COLOR_LABELS.get(item?.colour || "");
-        return colorLabel || "";
+        const colorLabel = DEFAULT_COLOR_LABELS.get(item?.colour || '');
+        return colorLabel || '';
       },
     },
   ];
@@ -128,21 +109,17 @@ export const Tags: React.FC = () => {
     filterCategories
   );
   const getSortValues = (item: TagType) => [
-    "",
-    item?.name || "",
-    item?.rank || "",
-    "",
+    '',
+    item?.name || '',
+    item?.rank || '',
+    '',
     item?.tags?.length || 0,
-    "", // Action column
+    '', // Action column
   ];
 
-  const { sortBy, onSort, sortedItems } = useSortState(
-    filteredItems,
-    getSortValues
-  );
+  const { sortBy, onSort, sortedItems } = useSortState(filteredItems, getSortValues);
 
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+  const { currentPageItems, setPageNumber, paginationProps } = usePaginationState(sortedItems, 10);
 
   //
 
@@ -150,12 +127,12 @@ export const Tags: React.FC = () => {
     dispatch(
       confirmDialogActions.openDialog({
         // t("terms.tag")
-        title: t("dialog.title.delete", { what: t("terms.tag").toLowerCase() }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
+        title: t('dialog.title.delete', { what: t('terms.tag').toLowerCase() }),
+        titleIconVariant: 'warning',
+        message: t('dialog.message.delete'),
         confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
+        confirmBtnLabel: t('actions.delete'),
+        cancelBtnLabel: t('actions.cancel'),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
           requestDeleteTag(
@@ -168,11 +145,10 @@ export const Tags: React.FC = () => {
               dispatch(confirmDialogActions.closeDialog());
               if (
                 error.response?.status === 500 &&
-                error.response?.data.error === "FOREIGN KEY constraint failed"
+                error.response?.data.error === 'FOREIGN KEY constraint failed'
               )
-                dispatch(alertActions.addDanger("Cannot delete a used tag"));
-              else
-                dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+                dispatch(alertActions.addDanger('Cannot delete a used tag'));
+              else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
             }
           );
         },
@@ -184,23 +160,23 @@ export const Tags: React.FC = () => {
 
   const columns: ICell[] = [
     {
-      title: t("terms.tagType"),
+      title: t('terms.tagType'),
       transforms: [sortable],
       cellFormatters: [expandable],
     },
-    { title: t("terms.rank"), transforms: [sortable] },
+    { title: t('terms.rank'), transforms: [sortable] },
     {
-      title: t("terms.color"),
+      title: t('terms.color'),
       transforms: [],
     },
     {
-      title: t("terms.tagCount"),
+      title: t('terms.tagCount'),
       transforms: [sortable],
     },
     {
-      title: "",
+      title: '',
       props: {
-        className: "pf-u-text-align-right",
+        className: 'pf-u-text-align-right',
       },
     },
   ];
@@ -246,11 +222,7 @@ export const Tags: React.FC = () => {
           {
             title: (
               <div>
-                <TagTable
-                  tagType={item}
-                  onEdit={setTagToUpdate}
-                  onDelete={deleteTagFromTable}
-                />
+                <TagTable tagType={item} onEdit={setTagToUpdate} onDelete={deleteTagFromTable} />
               </div>
             ),
           },
@@ -276,14 +248,14 @@ export const Tags: React.FC = () => {
     dispatch(
       confirmDialogActions.openDialog({
         // t("terms.tagType")
-        title: t("dialog.title.delete", {
-          what: t("terms.tagType").toLowerCase(),
+        title: t('dialog.title.delete', {
+          what: t('terms.tagType').toLowerCase(),
         }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
+        titleIconVariant: 'warning',
+        message: t('dialog.message.delete'),
         confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
+        confirmBtnLabel: t('actions.delete'),
+        cancelBtnLabel: t('actions.cancel'),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
           requestDeleteTagType(
@@ -296,13 +268,10 @@ export const Tags: React.FC = () => {
               dispatch(confirmDialogActions.closeDialog());
               if (
                 error.response?.status === 500 &&
-                error.response?.data.error === "FOREIGN KEY constraint failed"
+                error.response?.data.error === 'FOREIGN KEY constraint failed'
               )
-                dispatch(
-                  alertActions.addDanger("Cannot delete a non empty tag type")
-                );
-              else
-                dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+                dispatch(alertActions.addDanger('Cannot delete a non empty tag type'));
+              else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
             }
           );
         },
@@ -332,9 +301,9 @@ export const Tags: React.FC = () => {
 
     dispatch(
       alertActions.addSuccess(
-        t("toastr.success.added", {
+        t('toastr.success.added', {
           what: response.data.name,
-          type: "tag type",
+          type: 'tag type',
         })
       )
     );
@@ -346,9 +315,9 @@ export const Tags: React.FC = () => {
 
     dispatch(
       alertActions.addSuccess(
-        t("toastr.success.added", {
+        t('toastr.success.added', {
           what: response.data.name,
-          type: "tag",
+          type: 'tag',
         })
       )
     );
@@ -378,10 +347,7 @@ export const Tags: React.FC = () => {
 
   return (
     <>
-      <ConditionalRender
-        when={isFetching && !(tagTypes || fetchError)}
-        then={<AppPlaceholder />}
-      >
+      <ConditionalRender when={isFetching && !(tagTypes || fetchError)} then={<AppPlaceholder />}>
         <AppTableWithControls
           paginationProps={paginationProps}
           count={tagTypes ? tagTypes.length : 0}
@@ -410,7 +376,7 @@ export const Tags: React.FC = () => {
                   variant={ButtonVariant.primary}
                   onClick={handleOnOpenCreateNewTagModal}
                 >
-                  {t("actions.createTag")}
+                  {t('actions.createTag')}
                 </Button>
               </ToolbarItem>
               <ToolbarItem>
@@ -420,7 +386,7 @@ export const Tags: React.FC = () => {
                   variant={ButtonVariant.secondary}
                   onClick={handleOnOpenCreateNewTagTypeModal}
                 >
-                  {t("actions.createTagType")}
+                  {t('actions.createTagType')}
                 </Button>
               </ToolbarItem>
             </ToolbarGroup>
@@ -428,14 +394,14 @@ export const Tags: React.FC = () => {
           noDataState={
             <NoDataEmptyState
               // t('terms.tagTypes')
-              title={t("composed.noDataStateTitle", {
-                what: t("terms.tagTypes").toLowerCase(),
+              title={t('composed.noDataStateTitle', {
+                what: t('terms.tagTypes').toLowerCase(),
               })}
               // t('terms.stakeholderGroup')
               description={
-                t("composed.noDataStateBody", {
-                  what: t("terms.tagType").toLowerCase(),
-                }) + "."
+                t('composed.noDataStateBody', {
+                  what: t('terms.tagType').toLowerCase(),
+                }) + '.'
               }
             />
           }

@@ -1,1 +1,1 @@
-export { ApplicationTags } from "./application-tags";
+export { ApplicationTags } from './application-tags';

@@ -1,1 +1,1 @@
-export { UpdateJobFunctionModal } from "./update-job-function-modal";
+export { UpdateJobFunctionModal } from './update-job-function-modal';

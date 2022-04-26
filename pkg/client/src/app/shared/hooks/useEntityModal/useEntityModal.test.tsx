@@ -1,8 +1,8 @@
-import { renderHook, act } from "@testing-library/react-hooks";
-import { useEntityModal } from "./useEntityModal";
+import { renderHook, act } from '@testing-library/react-hooks';
+import { useEntityModal } from './useEntityModal';
 
-describe("useEntityModal", () => {
-  it("onCreate", () => {
+describe('useEntityModal', () => {
+  it('onCreate', () => {
     const { result } = renderHook(() => useEntityModal());
 
     //
@@ -12,8 +12,8 @@ describe("useEntityModal", () => {
     expect(result.current.data).toBeUndefined();
   });
 
-  it("onUpdate", () => {
-    const ENTITY = "hello";
+  it('onUpdate', () => {
+    const ENTITY = 'hello';
 
     const { result } = renderHook(() => useEntityModal<string>());
 
@@ -25,8 +25,8 @@ describe("useEntityModal", () => {
     expect(result.current.data).toEqual(ENTITY);
   });
 
-  it("Close after update", () => {
-    const ENTITY = "hello";
+  it('Close after update', () => {
+    const ENTITY = 'hello';
 
     const { result } = renderHook(() => useEntityModal<string>());
     const { update, close } = result.current;

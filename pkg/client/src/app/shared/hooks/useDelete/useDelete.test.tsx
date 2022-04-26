@@ -1,14 +1,14 @@
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
-import { renderHook, act } from "@testing-library/react-hooks";
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import { renderHook, act } from '@testing-library/react-hooks';
 
-import { Application } from "@app/api/models";
-import { deleteApplication, APPLICATIONS } from "@app/api/rest";
+import { Application } from '@app/api/models';
+import { deleteApplication, APPLICATIONS } from '@app/api/rest';
 
-import { useDelete } from "./useDelete";
+import { useDelete } from './useDelete';
 
-describe("useDelete", () => {
-  it("Valid initial status", () => {
+describe('useDelete', () => {
+  it('Valid initial status', () => {
     // Use hook
     const { result } = renderHook(() =>
       useDelete<Application>({
@@ -22,10 +22,10 @@ describe("useDelete", () => {
     expect(requestDelete).toBeDefined();
   });
 
-  it("Delete error", async () => {
+  it('Delete error', async () => {
     const app: Application = {
       id: 1,
-      name: "any name",
+      name: 'any name',
     };
     const onSuccessMock = jest.fn();
     const onErrorMock = jest.fn();
@@ -38,9 +38,7 @@ describe("useDelete", () => {
       return deleteApplication(application.id!);
     };
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useDelete<Application>({ onDelete })
-    );
+    const { result, waitForNextUpdate } = renderHook(() => useDelete<Application>({ onDelete }));
     const { requestDelete } = result.current;
 
     // Init delete
@@ -54,10 +52,10 @@ describe("useDelete", () => {
     expect(onErrorMock).toHaveBeenCalledTimes(1);
   });
 
-  it("Delete success", async () => {
+  it('Delete success', async () => {
     const version: Application = {
       id: 1,
-      name: "any name",
+      name: 'any name',
     };
     const onSuccessMock = jest.fn();
     const onErrorMock = jest.fn();
@@ -70,9 +68,7 @@ describe("useDelete", () => {
       return deleteApplication(application.id!);
     };
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useDelete<Application>({ onDelete })
-    );
+    const { result, waitForNextUpdate } = renderHook(() => useDelete<Application>({ onDelete }));
     const { requestDelete: deleteBusinessService } = result.current;
 
     // Init delete

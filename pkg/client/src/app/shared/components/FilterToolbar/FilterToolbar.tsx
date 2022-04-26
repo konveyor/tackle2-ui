@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   SelectOptionProps,
   Toolbar,
@@ -9,21 +9,20 @@ import {
   Dropdown,
   DropdownToggle,
   DropdownItem,
-} from "@patternfly/react-core";
-import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
+} from '@patternfly/react-core';
+import FilterIcon from '@patternfly/react-icons/dist/esm/icons/filter-icon';
 
-import { FilterControl } from "./FilterControl";
+import { FilterControl } from './FilterControl';
 
 export enum FilterType {
-  select = "select",
-  search = "search",
+  select = 'select',
+  search = 'search',
 }
 
 export type FilterValue = string[] | undefined | null;
 
 // TODO workaround until https://github.com/patternfly/patternfly-react/pull/6147 is GA
-export interface OptionPropsWithKey
-  extends Omit<SelectOptionProps, "isLastOptionBeforeFooter"> {
+export interface OptionPropsWithKey extends Omit<SelectOptionProps, 'isLastOptionBeforeFooter'> {
   key: string;
 }
 
@@ -42,9 +41,7 @@ export interface ISearchFilterCategory<T> extends IBasicFilterCategory<T> {
   placeholderText: string;
 }
 
-export type FilterCategory<T> =
-  | ISearchFilterCategory<T>
-  | ISelectFilterCategory<T>;
+export type FilterCategory<T> = ISearchFilterCategory<T> | ISelectFilterCategory<T>;
 
 export interface IFilterValues {
   [categoryKey: string]: FilterValue;
@@ -67,11 +64,8 @@ export const FilterToolbar = <T,>({
   endToolbarItems,
   pagination,
 }: React.PropsWithChildren<IFilterToolbarProps<T>>): JSX.Element | null => {
-  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] =
-    React.useState(false);
-  const [currentCategoryKey, setCurrentCategoryKey] = React.useState(
-    filterCategories[0].key
-  );
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = React.useState(false);
+  const [currentCategoryKey, setCurrentCategoryKey] = React.useState(filterCategories[0].key);
 
   const onCategorySelect = (category: FilterCategory<T>) => {
     setCurrentCategoryKey(category.key);
@@ -87,28 +81,17 @@ export const FilterToolbar = <T,>({
 
   return (
     <>
-      <ToolbarToggleGroup
-        variant="filter-group"
-        toggleIcon={<FilterIcon />}
-        breakpoint="2xl"
-      >
+      <ToolbarToggleGroup variant="filter-group" toggleIcon={<FilterIcon />} breakpoint="2xl">
         <ToolbarItem>
           <Dropdown
             toggle={
-              <DropdownToggle
-                onToggle={() =>
-                  setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
-                }
-              >
+              <DropdownToggle onToggle={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}>
                 <FilterIcon /> {currentFilterCategory?.title}
               </DropdownToggle>
             }
             isOpen={isCategoryDropdownOpen}
             dropdownItems={filterCategories.map((category) => (
-              <DropdownItem
-                key={category.key}
-                onClick={() => onCategorySelect(category)}
-              >
+              <DropdownItem key={category.key} onClick={() => onCategorySelect(category)}>
                 {category.title}
               </DropdownItem>
             ))}

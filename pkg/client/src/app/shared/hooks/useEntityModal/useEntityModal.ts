@@ -1,9 +1,9 @@
-import { useCallback, useReducer } from "react";
-import { ActionType, createAction, getType } from "typesafe-actions";
+import { useCallback, useReducer } from 'react';
+import { ActionType, createAction, getType } from 'typesafe-actions';
 
-const startCreate = createAction("useEntityModal/action/startCreate")();
-const startUpdate = createAction("useEntityModal/action/startUpdate")<any>();
-const startClose = createAction("useEntityModal/action/startClose")();
+const startCreate = createAction('useEntityModal/action/startCreate')();
+const startUpdate = createAction('useEntityModal/action/startUpdate')<any>();
+const startClose = createAction('useEntityModal/action/startClose')();
 
 // State
 type State = Readonly<{
@@ -18,9 +18,7 @@ const defaultState: State = {
 
 // Reducer
 
-type Action = ActionType<
-  typeof startCreate | typeof startUpdate | typeof startClose
->;
+type Action = ActionType<typeof startCreate | typeof startUpdate | typeof startClose>;
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {

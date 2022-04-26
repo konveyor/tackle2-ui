@@ -1,1 +1,1 @@
-export { HorizontalNav as Welcome } from "./horizontal-nav";
+export { HorizontalNav as Welcome } from './horizontal-nav';

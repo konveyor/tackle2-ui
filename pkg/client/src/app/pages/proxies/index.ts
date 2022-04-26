@@ -1,1 +1,1 @@
-export { Proxies as default } from "./proxies";
+export { Proxies as default } from './proxies';

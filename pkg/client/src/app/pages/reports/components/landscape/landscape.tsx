@@ -1,18 +1,18 @@
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { Skeleton, Split, SplitItem } from "@patternfly/react-core";
+import { Skeleton, Split, SplitItem } from '@patternfly/react-core';
 
-import { ConditionalRender, StateError } from "@app/shared/components";
-import { useFetch } from "@app/shared/hooks";
+import { ConditionalRender, StateError } from '@app/shared/components';
+import { useFetch } from '@app/shared/hooks';
 
-import { RISK_LIST } from "@app/Constants";
-import { AssessmentRisk } from "@app/api/models";
-import { getAssessmentLandscape } from "@app/api/rest";
+import { RISK_LIST } from '@app/Constants';
+import { AssessmentRisk } from '@app/api/models';
+import { getAssessmentLandscape } from '@app/api/rest';
 
-import { ApplicationSelectionContext } from "../../application-selection-context";
-import { NoApplicationSelectedEmptyState } from "../no-application-selected-empty-state";
-import { Donut } from "./donut";
+import { ApplicationSelectionContext } from '../../application-selection-context';
+import { NoApplicationSelectedEmptyState } from '../no-application-selected-empty-state';
+import { Donut } from './donut';
 
 interface ILandscapeData {
   low: number;
@@ -21,10 +21,7 @@ interface ILandscapeData {
   unassesed: number;
 }
 
-const extractLandscapeData = (
-  totalApps: number,
-  data: AssessmentRisk[]
-): ILandscapeData => {
+const extractLandscapeData = (totalApps: number, data: AssessmentRisk[]): ILandscapeData => {
   let low = 0;
   let medium = 0;
   let high = 0;
@@ -32,13 +29,13 @@ const extractLandscapeData = (
 
   data.forEach((elem) => {
     switch (elem.risk) {
-      case "GREEN":
+      case 'GREEN':
         low++;
         break;
-      case "AMBER":
+      case 'AMBER':
         medium++;
         break;
-      case "RED":
+      case 'RED':
         high++;
         break;
     }
@@ -48,9 +45,7 @@ const extractLandscapeData = (
   return { low, medium, high, unassesed };
 };
 
-export interface ILandscapeProps {}
-
-export const Landscape: React.FC<ILandscapeProps> = () => {
+export const Landscape: React.FC = () => {
   const { t } = useTranslation();
 
   // Context
@@ -59,9 +54,7 @@ export const Landscape: React.FC<ILandscapeProps> = () => {
   // Data
   const fetchLandscapeData = useCallback(() => {
     if (applications.length > 0) {
-      return getAssessmentLandscape(applications.map((f) => f.id!)).then(
-        ({ data }) => data
-      );
+      return getAssessmentLandscape(applications.map((f) => f.id!)).then(({ data }) => data);
     } else {
       return Promise.resolve([]);
     }
@@ -112,36 +105,36 @@ export const Landscape: React.FC<ILandscapeProps> = () => {
             <Donut
               value={landscapeData.low}
               total={applications.length}
-              color={RISK_LIST["GREEN"].hexColor}
-              riskLabel={t("terms.lowRisk")}
-              riskDescription={t("terms.cloudNativeReady")}
+              color={RISK_LIST['GREEN'].hexColor}
+              riskLabel={t('terms.lowRisk')}
+              riskDescription={t('terms.cloudNativeReady')}
             />
           </SplitItem>
           <SplitItem>
             <Donut
               value={landscapeData.medium}
               total={applications.length}
-              color={RISK_LIST["AMBER"].hexColor}
-              riskLabel={t("terms.mediumRisk")}
-              riskDescription={t("terms.modernizable")}
+              color={RISK_LIST['AMBER'].hexColor}
+              riskLabel={t('terms.mediumRisk')}
+              riskDescription={t('terms.modernizable')}
             />
           </SplitItem>
           <SplitItem>
             <Donut
               value={landscapeData.high}
               total={applications.length}
-              color={RISK_LIST["RED"].hexColor}
-              riskLabel={t("terms.highRisk")}
-              riskDescription={t("terms.unsuitableForContainers")}
+              color={RISK_LIST['RED'].hexColor}
+              riskLabel={t('terms.highRisk')}
+              riskDescription={t('terms.unsuitableForContainers')}
             />
           </SplitItem>
           <SplitItem>
             <Donut
               value={landscapeData.unassesed}
               total={applications.length}
-              color={RISK_LIST["UNKNOWN"].hexColor}
-              riskLabel={t("terms.unassesed")}
-              riskDescription={t("terms.notYetAssessed")}
+              color={RISK_LIST['UNKNOWN'].hexColor}
+              riskLabel={t('terms.unassesed')}
+              riskDescription={t('terms.notYetAssessed')}
             />
           </SplitItem>
         </Split>

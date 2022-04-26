@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   DescriptionList,
   DescriptionListDescription,
@@ -9,20 +9,20 @@ import {
   Text,
   TextContent,
   Title,
-} from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
+} from '@patternfly/react-core';
+import { useFormContext } from 'react-hook-form';
 
-import { Application } from "@app/api/models";
-import { IAnalysisWizardFormValues } from "./analysis-wizard";
+import { Application } from '@app/api/models';
+import { IAnalysisWizardFormValues } from './analysis-wizard';
 
 interface IReview {
   applications: Application[];
 }
 
 const defaultScopes: Map<string, string> = new Map([
-  ["app", "Application and internal dependencies"],
-  ["oss", "Known Open Source libraries"],
-  ["select", "List of packages to be analyzed manually"],
+  ['app', 'Application and internal dependencies'],
+  ['oss', 'Known Open Source libraries'],
+  ['select', 'List of packages to be analyzed manually'],
 ]);
 
 export const Review: React.FunctionComponent<IReview> = ({ applications }) => {
@@ -59,14 +59,10 @@ export const Review: React.FunctionComponent<IReview> = ({ applications }) => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>Mode</DescriptionListTerm>
-          <DescriptionListDescription id="mode">
-            {mode}
-          </DescriptionListDescription>
+          <DescriptionListDescription id="mode">{mode}</DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>
-            {targets.length > 1 ? "Targets" : "Target"}
-          </DescriptionListTerm>
+          <DescriptionListTerm>{targets.length > 1 ? 'Targets' : 'Target'}</DescriptionListTerm>
           <DescriptionListDescription id="targets">
             <List isPlain>
               {targets.map((target, index) => (
@@ -76,9 +72,7 @@ export const Review: React.FunctionComponent<IReview> = ({ applications }) => {
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>
-            {targets.length > 1 ? "Sources" : "Source"}
-          </DescriptionListTerm>
+          <DescriptionListTerm>{targets.length > 1 ? 'Sources' : 'Source'}</DescriptionListTerm>
           <DescriptionListDescription id="sources">
             <List isPlain>
               {sources.map((source, index) => (
@@ -91,7 +85,7 @@ export const Review: React.FunctionComponent<IReview> = ({ applications }) => {
           <DescriptionListTerm>Scope</DescriptionListTerm>
           <DescriptionListDescription id="scope">
             <List isPlain>
-              {withKnown.split(",").map((scope, index) => (
+              {withKnown.split(',').map((scope, index) => (
                 <ListItem key={index}>{defaultScopes.get(scope)}</ListItem>
               ))}
             </List>
@@ -126,7 +120,7 @@ export const Review: React.FunctionComponent<IReview> = ({ applications }) => {
               ))}
             </List>
           </DescriptionListDescription>
-        </DescriptionListGroup>{" "}
+        </DescriptionListGroup>{' '}
         <DescriptionListGroup>
           <DescriptionListTerm>Excluded rules tags</DescriptionListTerm>
           <DescriptionListDescription id="excluded-rules-tags">

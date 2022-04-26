@@ -1,1 +1,1 @@
-export { IdentityForm } from "./identity-form";
+export { IdentityForm } from './identity-form';

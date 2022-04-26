@@ -1,8 +1,8 @@
-import { QuestionnaireCategory, Question } from "@app/api/models";
+import { QuestionnaireCategory, Question } from '@app/api/models';
 
-export const COMMENTS_KEY = "comments";
-export const QUESTIONS_KEY = "questions";
-export const SAVE_ACTION_KEY = "saveAction";
+export const COMMENTS_KEY = 'comments';
+export const QUESTIONS_KEY = 'questions';
+export const SAVE_ACTION_KEY = 'saveAction';
 
 export enum SAVE_ACTION_VALUE {
   SAVE,
@@ -22,10 +22,7 @@ export interface IFormValues {
   [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE;
 }
 
-export const getCommentFieldName = (
-  category: QuestionnaireCategory,
-  fullName: boolean
-) => {
+export const getCommentFieldName = (category: QuestionnaireCategory, fullName: boolean) => {
   const fieldName = `category-${category.id}`;
   return fullName ? `${COMMENTS_KEY}.${fieldName}` : fieldName;
 };

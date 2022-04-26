@@ -1,1 +1,1 @@
-export { EmptyTextMessage } from "./empty-text-message";
+export { EmptyTextMessage } from './empty-text-message';

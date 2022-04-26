@@ -1,1 +1,1 @@
-export { CustomWizardFooter } from "./custom-wizard-footer";
+export { CustomWizardFooter } from './custom-wizard-footer';

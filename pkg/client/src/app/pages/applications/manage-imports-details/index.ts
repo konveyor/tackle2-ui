@@ -1,1 +1,1 @@
-export { ManageImportsDetails as default } from "./manage-imports-details";
+export { ManageImportsDetails as default } from './manage-imports-details';

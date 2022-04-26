@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   Alert,
   Button,
@@ -10,27 +10,25 @@ import {
   Text,
   TextContent,
   TextInput,
-} from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
+} from '@patternfly/react-core';
+import { useTranslation } from 'react-i18next';
 
-import "./Repositories.css";
-import { AxiosError, AxiosPromise } from "axios";
-import { Setting } from "@app/api/models";
-import { getSettingById, updateSetting } from "@app/api/rest";
-import { useFetch } from "@app/shared/hooks/useFetch";
-import { useEffect } from "react";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import './Repositories.css';
+import { AxiosError, AxiosPromise } from 'axios';
+import { Setting } from '@app/api/models';
+import { getSettingById, updateSetting } from '@app/api/rest';
+import { useFetch } from '@app/shared/hooks/useFetch';
+import { useEffect } from 'react';
+import { getAxiosErrorMessage } from '@app/utils/utils';
 
 export const RepositoriesMvn: React.FunctionComponent = () => {
   const { t } = useTranslation();
-  const [forcedSettingError, setForcedSettingError] =
-    React.useState<AxiosError>();
-  const [insecureSettingError, setInsecureSettingError] =
-    React.useState<AxiosError>();
+  const [forcedSettingError, setForcedSettingError] = React.useState<AxiosError>();
+  const [insecureSettingError, setInsecureSettingError] = React.useState<AxiosError>();
 
   const onChangeInsecure = () => {
     const setting: Setting = {
-      key: "mvn.insecure.enabled",
+      key: 'mvn.insecure.enabled',
       value: !mvnInsecureSetting,
     };
 
@@ -52,7 +50,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
 
   const onChangeForced = () => {
     const setting: Setting = {
-      key: "mvn.dependencies.update.forced",
+      key: 'mvn.dependencies.update.forced',
       value: !mvnForcedSetting,
     };
 
@@ -73,24 +71,22 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
   };
 
   const fetchMvnForcedSetting = React.useCallback(() => {
-    return getSettingById("mvn.dependencies.update.forced");
+    return getSettingById('mvn.dependencies.update.forced');
   }, []);
 
   const fetchMvnInsecureSetting = React.useCallback(() => {
-    return getSettingById("mvn.insecure.enabled");
+    return getSettingById('mvn.insecure.enabled');
   }, []);
 
-  const { data: mvnInsecureSetting, requestFetch: refreshMvnInsecureSetting } =
-    useFetch<boolean>({
-      defaultIsFetching: true,
-      onFetch: fetchMvnInsecureSetting,
-    });
+  const { data: mvnInsecureSetting, requestFetch: refreshMvnInsecureSetting } = useFetch<boolean>({
+    defaultIsFetching: true,
+    onFetch: fetchMvnInsecureSetting,
+  });
 
-  const { data: mvnForcedSetting, requestFetch: refreshMvnForcedSetting } =
-    useFetch<boolean>({
-      defaultIsFetching: true,
-      onFetch: fetchMvnForcedSetting,
-    });
+  const { data: mvnForcedSetting, requestFetch: refreshMvnForcedSetting } = useFetch<boolean>({
+    defaultIsFetching: true,
+    onFetch: fetchMvnForcedSetting,
+  });
 
   useEffect(() => {
     refreshMvnInsecureSetting();
@@ -104,7 +100,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
     <>
       <PageSection variant={PageSectionVariants.light}>
         <TextContent>
-          <Text component="h1">{t("terms.mavenConfig")}</Text>
+          <Text component="h1">{t('terms.mavenConfig')}</Text>
         </TextContent>
       </PageSection>
       <PageSection>
@@ -126,11 +122,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
           </CardBody> */}
           <CardBody>
             {forcedSettingError && (
-              <Alert
-                variant="danger"
-                isInline
-                title={getAxiosErrorMessage(forcedSettingError)}
-              />
+              <Alert variant="danger" isInline title={getAxiosErrorMessage(forcedSettingError)} />
             )}
             <Switch
               id="maven-update"
@@ -143,11 +135,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
           </CardBody>
           <CardBody>
             {insecureSettingError && (
-              <Alert
-                variant="danger"
-                isInline
-                title={getAxiosErrorMessage(insecureSettingError)}
-              />
+              <Alert variant="danger" isInline title={getAxiosErrorMessage(insecureSettingError)} />
             )}
             <Switch
               id="maven-secure"

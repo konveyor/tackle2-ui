@@ -1,1 +1,1 @@
-export { SidebarApp } from "./SidebarApp";
+export { SidebarApp } from './SidebarApp';

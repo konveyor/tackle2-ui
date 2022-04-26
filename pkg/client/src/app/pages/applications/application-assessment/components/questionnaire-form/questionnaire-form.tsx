@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo } from "react";
-import { Field } from "formik";
-import { useTranslation } from "react-i18next";
+import React, { useEffect, useMemo } from 'react';
+import { Field } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import {
   Popover,
@@ -11,31 +11,27 @@ import {
   Text,
   TextArea,
   TextContent,
-} from "@patternfly/react-core";
-import { HelpIcon } from "@patternfly/react-icons/dist/esm/icons/help-icon";
+} from '@patternfly/react-core';
+import { HelpIcon } from '@patternfly/react-icons/dist/esm/icons/help-icon';
 
-import { QuestionnaireCategory } from "@app/api/models";
-import { getValidatedFromError } from "@app/utils/utils";
+import { QuestionnaireCategory } from '@app/api/models';
+import { getValidatedFromError } from '@app/utils/utils';
 
-import { MultiInputSelection } from "./multi-input-selection";
-import { Question, QuestionHeader, QuestionBody } from "./question";
+import { MultiInputSelection } from './multi-input-selection';
+import { Question, QuestionHeader, QuestionBody } from './question';
 
-import { getCommentFieldName } from "../../form-utils";
+import { getCommentFieldName } from '../../form-utils';
 
 export interface QuestionnaireFormProps {
   category: QuestionnaireCategory;
 }
 
-export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
-  category,
-}) => {
+export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ category }) => {
   const { t } = useTranslation();
 
   // Force the wizard parent to reset the scroll
   useEffect(() => {
-    const parentWizardBody = document.getElementsByClassName(
-      "pf-c-wizard__main-body"
-    );
+    const parentWizardBody = document.getElementsByClassName('pf-c-wizard__main-body');
     if (parentWizardBody && parentWizardBody[0]) {
       parentWizardBody[0].scrollIntoView();
     }
@@ -54,7 +50,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
 
     let error;
     if (val && val.length > maxLength) {
-      error = t("validation.maxLength", { length: maxLength });
+      error = t('validation.maxLength', { length: maxLength });
     }
     return error;
   };
@@ -94,9 +90,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
       ))}
       <StackItem>
         <Question>
-          <QuestionHeader>
-            {t("terms.additionalNotesOrComments")}
-          </QuestionHeader>
+          <QuestionHeader>{t('terms.additionalNotesOrComments')}</QuestionHeader>
           <QuestionBody>
             <Field name={commentFieldName} validate={validateComment}>
               {({ field, form, meta }: any) => (

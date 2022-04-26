@@ -1,1 +1,1 @@
-export { AdoptionCandidateTable } from "./adoption-candidate-table";
+export { AdoptionCandidateTable } from './adoption-candidate-table';

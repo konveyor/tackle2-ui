@@ -1,12 +1,12 @@
-import React from "react";
-import { AxiosResponse } from "axios";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { AxiosResponse } from 'axios';
+import { useTranslation } from 'react-i18next';
 
-import { Modal, ModalVariant } from "@patternfly/react-core";
+import { Modal, ModalVariant } from '@patternfly/react-core';
 
-import { JobFunction } from "@app/api/models";
+import { JobFunction } from '@app/api/models';
 
-import { JobFunctionForm } from "../job-function-form";
+import { JobFunctionForm } from '../job-function-form';
 
 export interface UpdateJobFunctionModalProps {
   jobFunction?: JobFunction;
@@ -23,16 +23,12 @@ export const UpdateJobFunctionModal: React.FC<UpdateJobFunctionModalProps> = ({
 
   return (
     <Modal
-      title={t("dialog.title.updateJobFunction")}
+      title={t('dialog.title.updateJobFunction')}
       variant={ModalVariant.medium}
       isOpen={!!jobFunction}
       onClose={onCancel}
     >
-      <JobFunctionForm
-        jobFunction={jobFunction}
-        onSaved={onSaved}
-        onCancel={onCancel}
-      />
+      <JobFunctionForm jobFunction={jobFunction} onSaved={onSaved} onCancel={onCancel} />
     </Modal>
   );
 };

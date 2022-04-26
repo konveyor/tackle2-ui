@@ -1,10 +1,10 @@
-import React, { useEffect } from "react";
-import { ToolbarChip } from "@patternfly/react-core";
+import React, { useEffect } from 'react';
+import { ToolbarChip } from '@patternfly/react-core';
 
-import { useQueryString, useToolbarFilter } from "@app/shared/hooks";
-import { ChipBusinessService, ChipTag } from "@app/shared/containers";
+import { useQueryString, useToolbarFilter } from '@app/shared/hooks';
+import { ChipBusinessService, ChipTag } from '@app/shared/containers';
 
-import { ApplicationFilterKey } from "@app/Constants";
+import { ApplicationFilterKey } from '@app/Constants';
 
 export interface IState {
   filters: Map<string, ToolbarChip[]>;

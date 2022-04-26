@@ -1,1 +1,1 @@
-export { ConditionalRender } from "./conditional-render";
+export { ConditionalRender } from './conditional-render';

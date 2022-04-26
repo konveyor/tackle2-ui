@@ -1,1 +1,1 @@
-export { IdentifiedRisksTable } from "./identified-risks-table";
+export { IdentifiedRisksTable } from './identified-risks-table';

@@ -6,14 +6,9 @@ import {
   global_palette_orange_300 as orange,
   global_palette_red_300 as red,
   global_palette_black_400 as black,
-} from "@patternfly/react-tokens";
+} from '@patternfly/react-tokens';
 
-import {
-  EffortEstimate,
-  PageQuery,
-  ProposedAction,
-  Risk,
-} from "@app/api/models";
+import { EffortEstimate, PageQuery, ProposedAction, Risk } from '@app/api/models';
 
 export const DEFAULT_PAGINATION: PageQuery = {
   page: 1,
@@ -32,12 +27,12 @@ export const DEFAULT_SELECT_MAX_HEIGHT = 200;
 // t('colors.red')
 
 export const DEFAULT_COLOR_LABELS: Map<string, string> = new Map([
-  [blue.value, "blue"],
-  [cyan.value, "cyan"],
-  [green.value, "green"],
-  [orange.value, "orange"],
-  [purple.value, "purple"],
-  [red.value, "red"],
+  [blue.value, 'blue'],
+  [cyan.value, 'cyan'],
+  [green.value, 'green'],
+  [orange.value, 'orange'],
+  [purple.value, 'purple'],
+  [red.value, 'red'],
 ]);
 
 export const DEFAULT_COLOR_PALETE = [
@@ -54,14 +49,7 @@ type RiskListType = {
   [key in Risk]: {
     i18Key: string;
     hexColor: string;
-    labelColor:
-      | "blue"
-      | "cyan"
-      | "green"
-      | "orange"
-      | "purple"
-      | "red"
-      | "grey";
+    labelColor: 'blue' | 'cyan' | 'green' | 'orange' | 'purple' | 'red' | 'grey';
     sortFactor: number;
   };
 };
@@ -73,27 +61,27 @@ type RiskListType = {
 
 export const RISK_LIST: RiskListType = {
   GREEN: {
-    i18Key: "risks.low",
-    hexColor: "#68b240",
-    labelColor: "green",
+    i18Key: 'risks.low',
+    hexColor: '#68b240',
+    labelColor: 'green',
     sortFactor: 1,
   },
   AMBER: {
-    i18Key: "risks.medium",
-    hexColor: "#f0ab0b",
-    labelColor: "orange",
+    i18Key: 'risks.medium',
+    hexColor: '#f0ab0b',
+    labelColor: 'orange',
     sortFactor: 2,
   },
   RED: {
-    i18Key: "risks.high",
-    hexColor: "#cb440d",
-    labelColor: "red",
+    i18Key: 'risks.high',
+    hexColor: '#cb440d',
+    labelColor: 'red',
     sortFactor: 3,
   },
   UNKNOWN: {
-    i18Key: "risks.unknown",
+    i18Key: 'risks.unknown',
     hexColor: black.value,
-    labelColor: "grey",
+    labelColor: 'grey',
     sortFactor: 4,
   },
 };
@@ -103,14 +91,7 @@ type ProposedActionListType = {
   [key in ProposedAction]: {
     i18Key: string;
     hexColor: string;
-    labelColor:
-      | "blue"
-      | "cyan"
-      | "green"
-      | "orange"
-      | "purple"
-      | "red"
-      | "grey";
+    labelColor: 'blue' | 'cyan' | 'green' | 'orange' | 'purple' | 'red' | 'grey';
   };
 };
 
@@ -123,33 +104,33 @@ type ProposedActionListType = {
 
 export const PROPOSED_ACTION_LIST: ProposedActionListType = {
   rehost: {
-    i18Key: "proposedActions.rehost",
-    labelColor: "green",
+    i18Key: 'proposedActions.rehost',
+    labelColor: 'green',
     hexColor: green.value,
   },
   replatform: {
-    i18Key: "proposedActions.replatform",
-    labelColor: "orange",
+    i18Key: 'proposedActions.replatform',
+    labelColor: 'orange',
     hexColor: orange.value,
   },
   refactor: {
-    i18Key: "proposedActions.refactor",
-    labelColor: "red",
-    hexColor: "#cb440d",
+    i18Key: 'proposedActions.refactor',
+    labelColor: 'red',
+    hexColor: '#cb440d',
   },
   repurchase: {
-    i18Key: "proposedActions.repurchase",
-    labelColor: "purple",
+    i18Key: 'proposedActions.repurchase',
+    labelColor: 'purple',
     hexColor: purple.value,
   },
   retire: {
-    i18Key: "proposedActions.retire",
-    labelColor: "cyan",
+    i18Key: 'proposedActions.retire',
+    labelColor: 'cyan',
     hexColor: cyan.value,
   },
   retain: {
-    i18Key: "proposedActions.retain",
-    labelColor: "blue",
+    i18Key: 'proposedActions.retain',
+    labelColor: 'blue',
     hexColor: blue.value,
   },
 };
@@ -170,22 +151,22 @@ type EffortEstimateListType = {
 
 export const EFFORT_ESTIMATE_LIST: EffortEstimateListType = {
   small: {
-    i18Key: "efforts.small",
+    i18Key: 'efforts.small',
     sortFactor: 1,
     size: 10,
   },
   medium: {
-    i18Key: "efforts.medium",
+    i18Key: 'efforts.medium',
     sortFactor: 2,
     size: 20,
   },
   large: {
-    i18Key: "efforts.large",
+    i18Key: 'efforts.large',
     sortFactor: 3,
     size: 30,
   },
   extra_large: {
-    i18Key: "efforts.extraLarge",
+    i18Key: 'efforts.extraLarge',
     sortFactor: 4,
     size: 40,
   },
@@ -194,17 +175,17 @@ export const EFFORT_ESTIMATE_LIST: EffortEstimateListType = {
 // Application toolbar
 
 export enum ApplicationFilterKey {
-  NAME = "name",
-  DESCRIPTION = "description",
-  BUSINESS_SERVICE = "business_service",
-  TAG = "tag",
+  NAME = 'name',
+  DESCRIPTION = 'description',
+  BUSINESS_SERVICE = 'business_service',
+  TAG = 'tag',
 }
 
 // Identity toolbar
 
 export enum IdentityFilterKey {
-  NAME = "name",
-  DESCRIPTION = "description",
-  KIND = "kind",
-  CREATEUSER = "createuser",
+  NAME = 'name',
+  DESCRIPTION = 'description',
+  KIND = 'kind',
+  CREATEUSER = 'createuser',
 }

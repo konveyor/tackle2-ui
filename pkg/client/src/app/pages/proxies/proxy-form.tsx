@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useFormik, FormikProvider } from "formik";
+import React, { useEffect, useMemo, useState } from 'react';
+import { useFormik, FormikProvider } from 'formik';
 import {
   ActionGroup,
   Alert,
@@ -10,15 +10,15 @@ import {
   Switch,
   TextArea,
   TextInput,
-} from "@patternfly/react-core";
-import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+} from '@patternfly/react-core';
+import { SingleSelectFetchOptionValueFormikField } from '@app/shared/components';
+import { DEFAULT_SELECT_MAX_HEIGHT } from '@app/Constants';
 import {
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
-} from "@app/utils/utils";
-import validationSchema from "./proxies-validation-schema";
+} from '@app/utils/utils';
+import validationSchema from './proxies-validation-schema';
 import {
   EXCLUDED,
   HTTPS_HOST,
@@ -29,16 +29,16 @@ import {
   HTTP_PORT,
   IS_HTTPS_CHECKED,
   IS_HTTP_CHECKED,
-} from "./field-names";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
+} from './field-names';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
+import { useFetchIdentities } from '@app/shared/hooks/useFetchIdentities';
 import {
   IdentityDropdown,
   toIdentityDropdown,
   toIdentityDropdownOptionWithValue,
-} from "@app/utils/model-utils";
-import { Proxy } from "@app/api/models";
-import { useUpdateProxyMutation } from "@app/queries/proxies";
+} from '@app/utils/model-utils';
+import { Proxy } from '@app/api/models';
+import { useUpdateProxyMutation } from '@app/queries/proxies';
 
 export interface ProxyFormValues {
   httpHost: string;
@@ -58,10 +58,7 @@ export interface ProxyFormProps {
   isSecure?: boolean;
 }
 
-export const ProxyForm: React.FC<ProxyFormProps> = ({
-  httpProxy,
-  httpsProxy,
-}) => {
+export const ProxyForm: React.FC<ProxyFormProps> = ({ httpProxy, httpsProxy }) => {
   const [isHttpIdentityRequired, setIsHttpIdentityRequired] = useState(false);
   const [isHttpsIdentityRequired, setIsHttpsIdentityRequired] = useState(false);
   const [isHttpProxy, setIsHttpProxy] = React.useState(false);
@@ -81,11 +78,11 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   };
 
   const onChangeProxyStatusComplete = (proxyType: string) => {
-    if (proxyType === "http") {
+    if (proxyType === 'http') {
       setIsHttpProxy(!isHttpProxy);
     }
 
-    if (proxyType === "https") {
+    if (proxyType === 'https') {
       setIsHttpsProxy(!isHttpsProxy);
     }
   };
@@ -97,15 +94,13 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     error,
   } = useUpdateProxyMutation(onProxySubmitComplete);
 
-  const { mutate: changeProxyStatus } = useUpdateProxyMutation(
-    onChangeProxyStatusComplete
-  );
+  const { mutate: changeProxyStatus } = useUpdateProxyMutation(onChangeProxyStatusComplete);
 
   const onChangeIsHttpProxy = () => {
     if (formik.values.isHttpChecked && httpProxy) {
       const httpPayload = {
         host: formik.values.httpHost,
-        kind: "http",
+        kind: 'http',
         port: formik.values.httpPort,
         id: httpProxy?.id,
         enabled: !isHttpProxy,
@@ -125,7 +120,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     if (formik.values.isHttpsChecked && httpsProxy) {
       const httpsPayload = {
         host: formik.values.httpsHost,
-        kind: "https",
+        kind: 'https',
         port: formik.values.httpsPort,
         id: httpsProxy.id,
         enabled: !isHttpsProxy,
@@ -153,39 +148,34 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   }, [fetchIdentities]);
 
   const httpValuesHaveUpdate = (values: ProxyFormValues, httpProxy?: Proxy) => {
-    if (httpProxy?.host === "" && isHttpProxy) {
+    if (httpProxy?.host === '' && isHttpProxy) {
       return true;
     } else {
       return (
         values.excluded !== httpProxy?.excluded.join() ||
         values.httpHost !== httpProxy?.host ||
-        (values.httpIdentity.id &&
-          values.httpIdentity !== httpProxy?.identity) ||
+        (values.httpIdentity.id && values.httpIdentity !== httpProxy?.identity) ||
         values.httpPort !== httpProxy?.port
       );
     }
   };
-  const httpsValuesHaveUpdate = (
-    values: ProxyFormValues,
-    httpsProxy?: Proxy
-  ) => {
-    if (httpsProxy?.host === "" && isHttpsProxy) {
+  const httpsValuesHaveUpdate = (values: ProxyFormValues, httpsProxy?: Proxy) => {
+    if (httpsProxy?.host === '' && isHttpsProxy) {
       return true;
     }
 
     return (
       values.excluded !== httpsProxy?.excluded.join() ||
       values.httpsHost !== httpsProxy?.host ||
-      (values.httpsIdentity.id &&
-        values.httpsIdentity !== httpsProxy?.identity) ||
+      (values.httpsIdentity.id && values.httpsIdentity !== httpsProxy?.identity) ||
       values.httpsPort !== httpsProxy?.port
     );
   };
 
   const onSubmit = (formValues: ProxyFormValues) => {
     const httpsPayload: Proxy = {
-      kind: "https",
-      excluded: formValues.excluded.split(","),
+      kind: 'https',
+      excluded: formValues.excluded.split(','),
       host: formValues.httpsHost,
       port: formValues.httpsPort,
       enabled: httpsProxy?.enabled || true,
@@ -200,8 +190,8 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     };
 
     const httpPayload: Proxy = {
-      kind: "http",
-      excluded: formValues.excluded.split(","),
+      kind: 'http',
+      excluded: formValues.excluded.split(','),
       host: formValues.httpHost,
       port: formValues.httpPort,
       enabled: httpProxy?.enabled || true,
@@ -225,7 +215,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   };
 
   const httpIdentityInitialValue = useMemo(() => {
-    let result: IdentityDropdown = { id: 0, name: "" };
+    let result: IdentityDropdown = { id: 0, name: '' };
     if (httpProxy && identities) {
       const identityId = Number(httpProxy.identity?.id);
       const identity = identities.find((i) => i.id === identityId);
@@ -242,7 +232,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   }, [identities, httpProxy]);
 
   const httpsIdentityInitialValue = useMemo(() => {
-    let result: IdentityDropdown = { id: 0, name: "" };
+    let result: IdentityDropdown = { id: 0, name: '' };
     if (httpsProxy && identities) {
       const identityId = Number(httpsProxy.identity?.id);
       const identity = identities.find((i) => i.id === identityId);
@@ -259,15 +249,15 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   }, [identities, httpProxy]);
 
   const initialValues: ProxyFormValues = {
-    [HTTP_HOST]: httpProxy?.host || "",
+    [HTTP_HOST]: httpProxy?.host || '',
     [HTTP_PORT]: httpProxy?.port || 8080,
     [HTTP_IDENTITY]: httpIdentityInitialValue,
     [IS_HTTP_CHECKED]: !!httpProxy || false,
-    [HTTPS_HOST]: httpsProxy?.host || "",
+    [HTTPS_HOST]: httpsProxy?.host || '',
     [HTTPS_PORT]: httpsProxy?.port || 8080,
     [HTTPS_IDENTITY]: httpsIdentityInitialValue,
     [IS_HTTPS_CHECKED]: !!httpsProxy || false,
-    [EXCLUDED]: httpProxy?.excluded.join(",") || "",
+    [EXCLUDED]: httpProxy?.excluded.join(',') || '',
   };
 
   const formik = useFormik({
@@ -286,7 +276,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
 
   const onChangeIsHttpsIdentityRequired = () => {
     if (isHttpsIdentityRequired) {
-      let result: IdentityDropdown = { id: 0, name: "" };
+      const result: IdentityDropdown = { id: 0, name: '' };
       formik.setFieldValue(HTTPS_IDENTITY, result);
     }
     setIsHttpsIdentityRequired(!isHttpsIdentityRequired);
@@ -294,7 +284,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
 
   const onChangeIsHttpIdentityRequired = () => {
     if (isHttpIdentityRequired) {
-      let result: IdentityDropdown = { id: 0, name: "" };
+      const result: IdentityDropdown = { id: 0, name: '' };
       formik.setFieldValue(HTTP_IDENTITY, result);
     }
     setIsHttpIdentityRequired(!isHttpIdentityRequired);
@@ -319,13 +309,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   return (
     <FormikProvider value={formik}>
       <Form className={spacing.mMd} onSubmit={formik.handleSubmit}>
-        {error && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(error)}
-          />
-        )}
+        {error && <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />}
         <Switch
           id="httpProxy"
           className="proxy"
@@ -406,24 +390,22 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 <SingleSelectFetchOptionValueFormikField
                   fieldConfig={{ name: HTTP_IDENTITY }}
                   selectConfig={{
-                    variant: "typeahead",
-                    "aria-label": "identity",
-                    "aria-describedby": "identity",
-                    typeAheadAriaLabel: "identity",
-                    toggleAriaLabel: "identity",
-                    clearSelectionsAriaLabel: "identity",
-                    removeSelectionAriaLabel: "identity",
-                    placeholderText: "Select identity type",
+                    variant: 'typeahead',
+                    'aria-label': 'identity',
+                    'aria-describedby': 'identity',
+                    typeAheadAriaLabel: 'identity',
+                    toggleAriaLabel: 'identity',
+                    clearSelectionsAriaLabel: 'identity',
+                    removeSelectionAriaLabel: 'identity',
+                    placeholderText: 'Select identity type',
                     menuAppendTo: () => document.body,
                     maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
                     fetchError: fetchErrorIdentities,
                     isFetching: isFetchingIdentities,
                   }}
-                  options={(
-                    identities?.filter(
-                      (identity) => identity.kind === "proxy"
-                    ) || []
-                  ).map(toIdentityDropdown)}
+                  options={(identities?.filter((identity) => identity.kind === 'proxy') || []).map(
+                    toIdentityDropdown
+                  )}
                   toOptionWithValue={toIdentityDropdownOptionWithValue}
                 />
               </FormGroup>
@@ -509,24 +491,22 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 <SingleSelectFetchOptionValueFormikField
                   fieldConfig={{ name: HTTPS_IDENTITY }}
                   selectConfig={{
-                    variant: "typeahead",
-                    "aria-label": "identity",
-                    "aria-describedby": "identity",
-                    typeAheadAriaLabel: "identity",
-                    toggleAriaLabel: "identity",
-                    clearSelectionsAriaLabel: "identity",
-                    removeSelectionAriaLabel: "identity",
-                    placeholderText: "Select identity type",
+                    variant: 'typeahead',
+                    'aria-label': 'identity',
+                    'aria-describedby': 'identity',
+                    typeAheadAriaLabel: 'identity',
+                    toggleAriaLabel: 'identity',
+                    clearSelectionsAriaLabel: 'identity',
+                    removeSelectionAriaLabel: 'identity',
+                    placeholderText: 'Select identity type',
                     menuAppendTo: () => document.body,
                     maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
                     fetchError: fetchErrorIdentities,
                     isFetching: isFetchingIdentities,
                   }}
-                  options={(
-                    identities?.filter(
-                      (identity) => identity.kind === "proxy"
-                    ) || []
-                  ).map(toIdentityDropdown)}
+                  options={(identities?.filter((identity) => identity.kind === 'proxy') || []).map(
+                    toIdentityDropdown
+                  )}
                   toOptionWithValue={toIdentityDropdownOptionWithValue}
                 />
               </FormGroup>
@@ -562,17 +542,12 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             type="submit"
             aria-label="submit"
             variant={ButtonVariant.primary}
-            isDisabled={
-              !formik.isValid ||
-              formik.isSubmitting ||
-              formik.isValidating ||
-              !hasUpdate
-            }
+            isDisabled={!formik.isValid || formik.isSubmitting || formik.isValidating || !hasUpdate}
           >
             {httpValuesHaveUpdate(formik.values, httpProxy) ||
             httpsValuesHaveUpdate(formik.values, httpsProxy)
-              ? "Save"
-              : "Update"}
+              ? 'Save'
+              : 'Update'}
           </Button>
         </ActionGroup>
       </Form>

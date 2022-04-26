@@ -1,1 +1,1 @@
-export { useEntityModal } from "./useEntityModal";
+export { useEntityModal } from './useEntityModal';

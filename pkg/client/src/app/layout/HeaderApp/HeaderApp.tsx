@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   PageHeader,
   Brand,
@@ -8,27 +8,27 @@ import {
   PageHeaderToolsItem,
   Button,
   ButtonVariant,
-} from "@patternfly/react-core";
-import { HelpIcon } from "@patternfly/react-icons/dist/esm/icons/help-icon";
+} from '@patternfly/react-core';
+import { HelpIcon } from '@patternfly/react-icons/dist/esm/icons/help-icon';
 
-import { AppAboutModalState } from "../AppAboutModalState";
-import { SSOMenu } from "./SSOMenu";
-import { MobileDropdown } from "./MobileDropdown";
+import { AppAboutModalState } from '../AppAboutModalState';
+import { SSOMenu } from './SSOMenu';
+import { MobileDropdown } from './MobileDropdown';
 
-import navBrandImage from "@app/images/tackle.png";
-import imgAvatar from "@app/images/avatar.svg";
+import navBrandImage from '@app/images/tackle.png';
+import imgAvatar from '@app/images/avatar.svg';
 
 export const HeaderApp: React.FC = () => {
   const toolbar = (
     <PageHeaderTools>
       <PageHeaderToolsGroup
         visibility={{
-          default: "hidden",
-          "2xl": "visible",
-          xl: "visible",
-          lg: "visible",
-          md: "hidden",
-          sm: "hidden",
+          default: 'hidden',
+          '2xl': 'visible',
+          xl: 'visible',
+          lg: 'visible',
+          md: 'hidden',
+          sm: 'hidden',
         }}
       >
         <PageHeaderToolsItem>
@@ -51,7 +51,7 @@ export const HeaderApp: React.FC = () => {
       <PageHeaderToolsGroup>
         <PageHeaderToolsItem
           visibility={{
-            lg: "hidden",
+            lg: 'hidden',
           }} /** this kebab dropdown replaces the icon buttons and is hidden for desktop sizes */
         >
           <MobileDropdown />

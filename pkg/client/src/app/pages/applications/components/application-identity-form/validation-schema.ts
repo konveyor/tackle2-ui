@@ -1,11 +1,7 @@
-import * as yup from "yup";
-import {
-  APPLICATION_NAME,
-  SOURCE_CREDENTIALS,
-  MAVEN_SETTINGS,
-} from "./field-names";
+import * as yup from 'yup';
+import { APPLICATION_NAME, SOURCE_CREDENTIALS, MAVEN_SETTINGS } from './field-names';
 
-const REQUIRED_MESSAGE = "This field is required";
+const REQUIRED_MESSAGE = 'This field is required';
 
 export default function validationSchema(
   mandatoryFields = {

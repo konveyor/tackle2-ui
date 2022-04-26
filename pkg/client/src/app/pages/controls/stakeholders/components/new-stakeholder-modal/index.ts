@@ -1,1 +1,1 @@
-export { NewStakeholderModal } from "./new-stakeholder-modal";
+export { NewStakeholderModal } from './new-stakeholder-modal';

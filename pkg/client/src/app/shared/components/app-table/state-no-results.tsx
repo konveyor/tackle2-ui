@@ -1,5 +1,5 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   EmptyState,
@@ -7,8 +7,8 @@ import {
   EmptyStateIcon,
   EmptyStateVariant,
   Title,
-} from "@patternfly/react-core";
-import { SearchIcon } from "@patternfly/react-icons/dist/esm/icons/search-icon";
+} from '@patternfly/react-core';
+import { SearchIcon } from '@patternfly/react-icons/dist/esm/icons/search-icon';
 
 export const StateNoResults: React.FC = () => {
   const { t } = useTranslation();
@@ -17,9 +17,9 @@ export const StateNoResults: React.FC = () => {
     <EmptyState variant={EmptyStateVariant.small}>
       <EmptyStateIcon icon={SearchIcon} />
       <Title headingLevel="h2" size="lg">
-        {t("message.noResultsFoundTitle")}
+        {t('message.noResultsFoundTitle')}
       </Title>
-      <EmptyStateBody>{t("message.noResultsFoundBody")}</EmptyStateBody>
+      <EmptyStateBody>{t('message.noResultsFoundBody')}</EmptyStateBody>
     </EmptyState>
   );
 };

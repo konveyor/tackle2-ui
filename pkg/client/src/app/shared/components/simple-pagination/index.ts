@@ -1,1 +1,1 @@
-export { SimplePagination } from "./simple-pagination";
+export { SimplePagination } from './simple-pagination';

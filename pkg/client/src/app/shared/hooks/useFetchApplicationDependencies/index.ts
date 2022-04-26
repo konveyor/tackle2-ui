@@ -1,1 +1,1 @@
-export { useFetchApplicationDependencies } from "./useFetchApplicationDependencies";
+export { useFetchApplicationDependencies } from './useFetchApplicationDependencies';

@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   Alert,
   Card,
@@ -8,16 +8,16 @@ import {
   Switch,
   Text,
   TextContent,
-} from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
+} from '@patternfly/react-core';
+import { useTranslation } from 'react-i18next';
 
-import "./Repositories.css";
-import { useCallback, useEffect } from "react";
-import { getSettingById, updateSetting } from "@app/api/rest";
-import { useFetch } from "@app/shared/hooks";
-import { Setting } from "@app/api/models";
-import { AxiosError, AxiosPromise } from "axios";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import './Repositories.css';
+import { useCallback, useEffect } from 'react';
+import { getSettingById, updateSetting } from '@app/api/rest';
+import { useFetch } from '@app/shared/hooks';
+import { Setting } from '@app/api/models';
+import { AxiosError, AxiosPromise } from 'axios';
+import { getAxiosErrorMessage } from '@app/utils/utils';
 
 export const RepositoriesGit: React.FunctionComponent = () => {
   const { t } = useTranslation();
@@ -25,7 +25,7 @@ export const RepositoriesGit: React.FunctionComponent = () => {
 
   const onChange = () => {
     const setting: Setting = {
-      key: "git.insecure.enabled",
+      key: 'git.insecure.enabled',
       value: !gitInsecureSetting,
     };
 
@@ -46,14 +46,13 @@ export const RepositoriesGit: React.FunctionComponent = () => {
   };
 
   const fetchGitInsecureSetting = useCallback(() => {
-    return getSettingById("git.insecure.enabled");
+    return getSettingById('git.insecure.enabled');
   }, []);
 
-  const { data: gitInsecureSetting, requestFetch: refreshGitInsecureSetting } =
-    useFetch<boolean>({
-      defaultIsFetching: true,
-      onFetch: fetchGitInsecureSetting,
-    });
+  const { data: gitInsecureSetting, requestFetch: refreshGitInsecureSetting } = useFetch<boolean>({
+    defaultIsFetching: true,
+    onFetch: fetchGitInsecureSetting,
+  });
 
   useEffect(() => {
     refreshGitInsecureSetting();
@@ -63,19 +62,13 @@ export const RepositoriesGit: React.FunctionComponent = () => {
     <>
       <PageSection variant={PageSectionVariants.light}>
         <TextContent>
-          <Text component="h1">{t("terms.gitConfig")}</Text>
+          <Text component="h1">{t('terms.gitConfig')}</Text>
         </TextContent>
       </PageSection>
       <PageSection>
         <Card>
           <CardBody>
-            {error && (
-              <Alert
-                variant="danger"
-                isInline
-                title={getAxiosErrorMessage(error)}
-              />
-            )}
+            {error && <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />}
             <Switch
               id="git"
               className="repo"

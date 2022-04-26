@@ -1,1 +1,1 @@
-export { MultiInputSelection } from "./multi-input-selection";
+export { MultiInputSelection } from './multi-input-selection';

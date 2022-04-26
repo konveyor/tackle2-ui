@@ -1,1 +1,1 @@
-export { ApplicationAssessmentDonutChart } from "./application-assessment-donut-chart";
+export { ApplicationAssessmentDonutChart } from './application-assessment-donut-chart';

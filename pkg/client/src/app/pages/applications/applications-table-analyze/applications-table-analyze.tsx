@@ -1,20 +1,17 @@
-import * as React from "react";
-import { useHistory } from "react-router-dom";
-import { AxiosError, AxiosResponse } from "axios";
-import { useTranslation } from "react-i18next";
-import { useSelectionState } from "@konveyor/lib-ui";
+import * as React from 'react';
+import { useHistory } from 'react-router-dom';
+import { AxiosError, AxiosResponse } from 'axios';
+import { useTranslation } from 'react-i18next';
+import { useSelectionState } from '@konveyor/lib-ui';
 import {
   Button,
   ButtonVariant,
-  Dropdown,
   DropdownItem,
-  DropdownToggle,
-  DropdownToggleCheckbox,
   Modal,
   Pagination,
   ToolbarGroup,
   ToolbarItem,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 import {
   cellWidth,
   expandable,
@@ -26,12 +23,12 @@ import {
   ISeparator,
   sortable,
   TableText,
-} from "@patternfly/react-table";
-import { TagIcon } from "@patternfly/react-icons/dist/esm/icons/tag-icon";
-import { PencilAltIcon } from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
-import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
-import { confirmDialogActions } from "@app/store/confirmDialog";
+} from '@patternfly/react-table';
+import { TagIcon } from '@patternfly/react-icons/dist/esm/icons/tag-icon';
+import { PencilAltIcon } from '@patternfly/react-icons/dist/esm/icons/pencil-alt-icon';
+import { useDispatch } from 'react-redux';
+import { alertActions } from '@app/store/alert';
+import { confirmDialogActions } from '@app/store/confirmDialog';
 import {
   AppPlaceholder,
   AppTableWithControls,
@@ -39,40 +36,30 @@ import {
   NoDataEmptyState,
   KebabDropdown,
   ToolbarBulkSelector,
-} from "@app/shared/components";
-import { useEntityModal, useDelete } from "@app/shared/hooks";
-import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
-import { Paths } from "@app/Paths";
-import { Application, Task } from "@app/api/models";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { ApplicationForm } from "../components/application-form";
-import { ApplicationBusinessService } from "../components/application-business-service";
-import { ImportApplicationsForm } from "../components/import-applications-form";
-import { ApplicationListExpandedAreaAnalysis } from "../components/application-list-expanded-area/application-list-expanded-area-analysis";
-import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
-import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
-import { useDeleteTaskMutation, useFetchTasks } from "@app/queries/tasks";
-import { RBAC, RBAC_TYPE, taskWriteScopes, writeScopes } from "@app/rbac";
-import { checkAccess } from "@app/common/rbac-utils";
-import keycloak from "@app/keycloak";
-import {
-  useDeleteApplicationMutation,
-  useFetchApplications,
-} from "@app/queries/applications";
-import {
-  ApplicationTableType,
-  getApplicationsFilterValues,
-} from "../applicationsFilter";
-import { useFetchTags } from "@app/queries/tags";
+} from '@app/shared/components';
+import { useEntityModal, useDelete } from '@app/shared/hooks';
+import { ApplicationDependenciesFormContainer } from '@app/shared/containers';
+import { Paths } from '@app/Paths';
+import { Application, Task } from '@app/api/models';
+import { getAxiosErrorMessage } from '@app/utils/utils';
+import { ApplicationForm } from '../components/application-form';
+import { ApplicationBusinessService } from '../components/application-business-service';
+import { ImportApplicationsForm } from '../components/import-applications-form';
+import { ApplicationListExpandedAreaAnalysis } from '../components/application-list-expanded-area/application-list-expanded-area-analysis';
+import { ApplicationAnalysisStatus } from '../components/application-analysis-status';
+import { usePaginationState } from '@app/shared/hooks/usePaginationState';
+import { FilterCategory, FilterToolbar, FilterType } from '@app/shared/components/FilterToolbar';
+import { AnalysisWizard } from '../analysis-wizard/analysis-wizard';
+import { ApplicationIdentityForm } from '../components/application-identity-form/application-identity-form';
+import { useDeleteTaskMutation, useFetchTasks } from '@app/queries/tasks';
+import { RBAC, RBAC_TYPE, taskWriteScopes, writeScopes } from '@app/rbac';
+import { checkAccess } from '@app/common/rbac-utils';
+import keycloak from '@app/keycloak';
+import { useDeleteApplicationMutation, useFetchApplications } from '@app/queries/applications';
+import { ApplicationTableType, getApplicationsFilterValues } from '../applicationsFilter';
+import { useFetchTags } from '@app/queries/tags';
 
-const ENTITY_FIELD = "entity";
+const ENTITY_FIELD = 'entity';
 
 const getRow = (rowData: IRowData): Application => {
   return rowData[ENTITY_FIELD];
@@ -104,26 +91,19 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     setFilterValues,
     handleOnClearAllFilters,
     currentPageItems,
-  } = getApplicationsFilterValues(
-    applications,
-    ApplicationTableType.Analysis,
-    tags
-  );
+  } = getApplicationsFilterValues(applications, ApplicationTableType.Analysis, tags);
 
   const { tasks } = useFetchTasks();
 
   const completedDeleteTask = () => {
-    dispatch(alertActions.addInfo("Task", "Deleted"));
+    dispatch(alertActions.addInfo('Task', 'Deleted'));
   };
 
   const failedDeleteTask = () => {
-    dispatch(alertActions.addDanger("Task", "Deletion failed."));
+    dispatch(alertActions.addDanger('Task', 'Deletion failed.'));
   };
 
-  const { mutate: deleteTask } = useDeleteTaskMutation(
-    completedDeleteTask,
-    failedDeleteTask
-  );
+  const { mutate: deleteTask } = useDeleteTaskMutation(completedDeleteTask, failedDeleteTask);
 
   const getTask = (application: Application) =>
     tasks.find((task: Task) => task.application?.id === application.id);
@@ -147,9 +127,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (!applicationToUpdate) {
       dispatch(
         alertActions.addSuccess(
-          t("toastr.success.added", {
+          t('toastr.success.added', {
             what: response.data.name,
-            type: t("terms.application").toLowerCase(),
+            type: t('terms.application').toLowerCase(),
           })
         )
       );
@@ -193,27 +173,26 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   } = useEntityModal<Application[]>();
 
   // Application import modal
-  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    React.useState(false);
+  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] = React.useState(false);
 
   // Table
   const columns: ICell[] = [
     {
-      title: t("terms.name"),
+      title: t('terms.name'),
       transforms: [sortable, cellWidth(20)],
       cellFormatters: [expandable],
     },
-    { title: t("terms.description"), transforms: [cellWidth(25)] },
+    { title: t('terms.description'), transforms: [cellWidth(25)] },
     {
-      title: t("terms.businessService"),
+      title: t('terms.businessService'),
       transforms: [sortable, cellWidth(20)],
     },
-    { title: t("terms.analysis"), transforms: [cellWidth(10)] },
-    { title: t("terms.tagCount"), transforms: [sortable, cellWidth(10)] },
+    { title: t('terms.analysis'), transforms: [cellWidth(10)] },
+    { title: t('terms.tagCount'), transforms: [sortable, cellWidth(10)] },
     {
-      title: "",
+      title: '',
       props: {
-        className: "pf-c-table__inline-edit-action",
+        className: 'pf-c-table__inline-edit-action',
       },
     },
   ];
@@ -221,7 +200,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const getTaskState = (application: Application) => {
     const task = getTask(application);
     if (task && task.state) return task.state;
-    return "No task";
+    return 'No task';
   };
   // Expand, select rows
   const {
@@ -263,27 +242,17 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           title: <TableText wrapModifier="truncate">{item.name}</TableText>,
         },
         {
-          title: (
-            <TableText wrapModifier="truncate">{item.description}</TableText>
-          ),
+          title: <TableText wrapModifier="truncate">{item.description}</TableText>,
         },
         {
           title: (
             <TableText wrapModifier="truncate">
-              {item.businessService && (
-                <ApplicationBusinessService id={item.businessService.id} />
-              )}
+              {item.businessService && <ApplicationBusinessService id={item.businessService.id} />}
             </TableText>
           ),
         },
         {
-          title: (
-            <>
-              {item.id && (
-                <ApplicationAnalysisStatus state={getTaskState(item)} />
-              )}
-            </>
-          ),
+          title: <>{item.id && <ApplicationAnalysisStatus state={getTaskState(item)} />}</>,
         },
         {
           title: (
@@ -314,12 +283,13 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       parent: rows.length - 1,
       fullWidth: false,
       cells: [
-        <div className="pf-c-table__expandable-row-content">
-          <ApplicationListExpandedAreaAnalysis
-            application={item}
-            task={getTask(item)}
-          />
-        </div>,
+        {
+          title: (
+            <div className="pf-c-table__expandable-row-content">
+              <ApplicationListExpandedAreaAnalysis application={item} task={getTask(item)} />
+            </div>
+          ),
+        },
       ],
     });
   });
@@ -331,25 +301,25 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     }
 
     const actions: (IAction | ISeparator)[] = [];
-    const userScopes: string[] = token?.scope.split(" "),
+    const userScopes: string[] = token?.scope.split(' '),
       access = userScopes && checkAccess(userScopes, writeScopes);
     if (access) {
       actions.push(
         {
-          title: t("actions.manageDependencies"),
+          title: t('actions.manageDependencies'),
           onClick: () => openDependenciesModal(row),
         },
         {
-          title: "Manage credentials",
+          title: 'Manage credentials',
           onClick: () => openCredentialsModal([row]),
         },
         {
-          title: "Cancel analysis",
+          title: 'Cancel analysis',
           isDisabled: !isTaskCancellable(row),
           onClick: () => cancelAnalysis(row),
         },
         {
-          title: t("actions.delete"),
+          title: t('actions.delete'),
           onClick: () => deleteRow(row),
         }
       );
@@ -384,14 +354,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const deleteRow = (row: Application) => {
     dispatch(
       confirmDialogActions.openDialog({
-        title: t("dialog.title.delete", {
-          what: t("terms.application").toLowerCase(),
+        title: t('dialog.title.delete', {
+          what: t('terms.application').toLowerCase(),
         }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
+        titleIconVariant: 'warning',
+        message: t('dialog.message.delete'),
         confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
+        confirmBtnLabel: t('actions.delete'),
+        cancelBtnLabel: t('actions.cancel'),
         onConfirm: () => {
           deleteApplication(row?.id || 0);
         },
@@ -404,9 +374,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (task?.id) deleteTask(task.id);
   };
 
-  const handleOnApplicationIdentityUpdated = (
-    response: AxiosResponse<Application>
-  ) => {
+  const handleOnApplicationIdentityUpdated = (response: AxiosResponse<Application>) => {
     closeCredentialsModal();
   };
 
@@ -414,9 +382,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     const candidateTasks = selectedRows.filter(
       (app) =>
         !tasks.some(
-          (task) =>
-            task.application?.id === app.id &&
-            task.state?.match(/(Created|Running|Ready)/)
+          (task) => task.application?.id === app.id && task.state?.match(/(Created|Running|Ready)/)
         )
     );
 
@@ -449,16 +415,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
               filterCategories={filterCategories}
               filterValues={filterValues}
               setFilterValues={setFilterValues}
-              endToolbarItems={
-                <ToolbarItem>{`${selectedRows.length} selected`}</ToolbarItem>
-              }
+              endToolbarItems={<ToolbarItem>{`${selectedRows.length} selected`}</ToolbarItem>}
               beginToolbarItems={<></>}
               pagination={
-                <Pagination
-                  isCompact
-                  {...paginationProps}
-                  widgetId="vms-table-pagination-top"
-                />
+                <Pagination isCompact {...paginationProps} widgetId="vms-table-pagination-top" />
               }
             />
           }
@@ -479,10 +439,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           toolbarActions={
             <>
               <ToolbarGroup variant="button-group">
-                <RBAC
-                  allowedPermissions={writeScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
+                <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
                   <ToolbarItem>
                     <Button
                       type="button"
@@ -490,14 +447,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                       variant={ButtonVariant.primary}
                       onClick={openCreateApplicationModal}
                     >
-                      {t("actions.createNew")}
+                      {t('actions.createNew')}
                     </Button>
                   </ToolbarItem>
                 </RBAC>
-                <RBAC
-                  allowedPermissions={taskWriteScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
+                <RBAC allowedPermissions={taskWriteScopes} rbacType={RBAC_TYPE.Scope}>
                   <ToolbarItem>
                     <Button
                       type="button"
@@ -506,11 +460,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                       onClick={() => {
                         setAnalyzeModalOpen(true);
                       }}
-                      isDisabled={
-                        selectedRows.length < 1 || !isAnalyzingAllowed()
-                      }
+                      isDisabled={selectedRows.length < 1 || !isAnalyzingAllowed()}
                     >
-                      {t("actions.analyze")}
+                      {t('actions.analyze')}
                     </Button>
                   </ToolbarItem>
                 </RBAC>
@@ -527,7 +479,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                           component="button"
                           onClick={() => setIsApplicationImportModalOpen(true)}
                         >
-                          {t("actions.import")}
+                          {t('actions.import')}
                         </DropdownItem>,
                         <DropdownItem
                           key="manage-imports"
@@ -535,14 +487,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                             history.push(Paths.applicationsImports);
                           }}
                         >
-                          {t("actions.manageImports")}
+                          {t('actions.manageImports')}
                         </DropdownItem>,
                         <DropdownItem
                           key="manage-creds"
                           isDisabled={selectedRows.length < 1}
                           onClick={() => openCredentialsModal(selectedRows)}
                         >
-                          {t("actions.manageCredentials")}
+                          {t('actions.manageCredentials')}
                         </DropdownItem>,
                       ]}
                     />
@@ -554,14 +506,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           noDataState={
             <NoDataEmptyState
               // t('terms.applications')
-              title={t("composed.noDataStateTitle", {
-                what: t("terms.applications").toLowerCase(),
+              title={t('composed.noDataStateTitle', {
+                what: t('terms.applications').toLowerCase(),
               })}
               // t('terms.application')
               description={
-                t("composed.noDataStateBody", {
-                  what: t("terms.application").toLowerCase(),
-                }) + "."
+                t('composed.noDataStateBody', {
+                  what: t('terms.application').toLowerCase(),
+                }) + '.'
               }
             />
           }
@@ -569,7 +521,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       </ConditionalRender>
 
       <Modal
-        title={applicationToUpdate ? "Update application" : "New application"}
+        title={applicationToUpdate ? 'Update application' : 'New application'}
         variant="medium"
         isOpen={isApplicationModalOpen}
         onClose={closeApplicationModal}
@@ -594,7 +546,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       <Modal
         isOpen={isDependenciesModalOpen}
         variant="medium"
-        title={t("composed.manageDependenciesFor", {
+        title={t('composed.manageDependenciesFor', {
           what: applicationToManageDependencies?.name,
         })}
         onClose={closeDependenciesModal}
@@ -610,7 +562,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       <Modal
         isOpen={isApplicationImportModalOpen}
         variant="medium"
-        title={t("dialog.title.importApplicationFile")}
+        title={t('dialog.title.importApplicationFile')}
         onClose={() => setIsApplicationImportModalOpen((current) => !current)}
       >
         <ImportApplicationsForm

@@ -1,10 +1,5 @@
-import React from "react";
-import {
-  ToolbarChip,
-  ToolbarChipGroup,
-  ToolbarFilter,
-  ToolbarGroup,
-} from "@patternfly/react-core";
+import React from 'react';
+import { ToolbarChip, ToolbarChipGroup, ToolbarFilter, ToolbarGroup } from '@patternfly/react-core';
 
 interface FilterOption {
   key: string;
@@ -19,22 +14,22 @@ export interface AppTableToolbarToggleGroupProps {
   children: React.ReactNode;
 }
 
-export const AppTableToolbarToggleGroup: React.FC<
-  AppTableToolbarToggleGroupProps
-> = ({ categories, chips, children, onChange }) => {
-  const handleOnDeleteChip = (
-    category: string | ToolbarChipGroup,
-    chip: ToolbarChip | string
-  ) => {
+export const AppTableToolbarToggleGroup: React.FC<AppTableToolbarToggleGroupProps> = ({
+  categories,
+  chips,
+  children,
+  onChange,
+}) => {
+  const handleOnDeleteChip = (category: string | ToolbarChipGroup, chip: ToolbarChip | string) => {
     let categoryKey: string;
-    if (typeof category === "string") {
+    if (typeof category === 'string') {
       categoryKey = category;
     } else {
       categoryKey = category.key;
     }
 
     let chipKey: string;
-    if (typeof chip === "string") {
+    if (typeof chip === 'string') {
       chipKey = chip;
     } else {
       chipKey = chip.key;
@@ -42,11 +37,11 @@ export const AppTableToolbarToggleGroup: React.FC<
 
     const currentFilters = chips.get(categoryKey);
     if (!currentFilters) {
-      throw new Error("Could not find category");
+      throw new Error('Could not find category');
     }
 
     const newFilters = currentFilters.filter((f) => {
-      if (typeof f === "string") {
+      if (typeof f === 'string') {
         return f !== chipKey;
       } else {
         return f.key !== chipKey;
@@ -58,7 +53,7 @@ export const AppTableToolbarToggleGroup: React.FC<
 
   const handleOnDeleteChipGroup = (category: string | ToolbarChipGroup) => {
     let categoryKey: string;
-    if (typeof category === "string") {
+    if (typeof category === 'string') {
       categoryKey = category;
     } else {
       categoryKey = category.key;
@@ -72,9 +67,7 @@ export const AppTableToolbarToggleGroup: React.FC<
       {categories.map((elem, index) => (
         <ToolbarFilter
           key={index}
-          chips={
-            typeof elem === "string" ? chips.get(elem) : chips.get(elem.key)
-          }
+          chips={typeof elem === 'string' ? chips.get(elem) : chips.get(elem.key)}
           deleteChip={handleOnDeleteChip}
           deleteChipGroup={handleOnDeleteChipGroup}
           categoryName={elem}

@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import { useFormik, FormikProvider, FormikHelpers } from "formik";
-import { object, string, mixed } from "yup";
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AxiosError, AxiosPromise, AxiosResponse } from 'axios';
+import { useFormik, FormikProvider, FormikHelpers } from 'formik';
+import { object, string, mixed } from 'yup';
 
 import {
   ActionGroup,
@@ -12,27 +12,27 @@ import {
   Form,
   FormGroup,
   TextInput,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
-import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
-import { useFetchTagTypes } from "@app/shared/hooks";
+import { SingleSelectFetchOptionValueFormikField } from '@app/shared/components';
+import { useFetchTagTypes } from '@app/shared/hooks';
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { createTag, updateTag } from "@app/api/rest";
-import { Tag, TagType } from "@app/api/models";
+import { DEFAULT_SELECT_MAX_HEIGHT } from '@app/Constants';
+import { createTag, updateTag } from '@app/api/rest';
+import { Tag, TagType } from '@app/api/models';
 import {
   duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
-} from "@app/utils/utils";
+} from '@app/utils/utils';
 import {
   ITagTypeDropdown,
   toITagTypeDropdown,
   toITagTypeDropdownOptionWithValue,
-} from "@app/utils/model-utils";
-import { TagsQueryKey, useFetchTags } from "@app/queries/tags";
-import { useQueryClient } from "react-query";
+} from '@app/utils/model-utils';
+import { TagsQueryKey, useFetchTags } from '@app/queries/tags';
+import { useQueryClient } from 'react-query';
 
 export interface FormValues {
   name: string;
@@ -49,12 +49,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
   const { t } = useTranslation();
   const [error, setError] = useState<AxiosError>();
 
-  const {
-    tags,
-    isFetching: isFetchingTags,
-    fetchError: fetchErrorTags,
-    refetch,
-  } = useFetchTags();
+  const { tags, isFetching: isFetchingTags, fetchError: fetchErrorTags, refetch } = useFetchTags();
 
   const {
     tagTypes,
@@ -72,7 +67,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
   }, [tag]);
 
   const initialValues: FormValues = {
-    name: tag?.name || "",
+    name: tag?.name || '',
     tagType: tagTypeInitialValue,
   };
 
@@ -81,24 +76,21 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
   const validationSchema = object().shape({
     name: string()
       .trim()
-      .required(t("validation.required"))
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 }))
+      .required(t('validation.required'))
+      .min(3, t('validation.minLength', { length: 3 }))
+      .max(120, t('validation.maxLength', { length: 120 }))
       .test(
-        "Duplicate name",
-        "An tag with this name already exists. Please use a different name.",
+        'Duplicate name',
+        'An tag with this name already exists. Please use a different name.',
         (value) => {
           const tags: Tag[] = queryClient.getQueryData(TagsQueryKey) || [];
-          return duplicateNameCheck(tags, tag || null, value || "");
+          return duplicateNameCheck(tags, tag || null, value || '');
         }
       ),
-    tagType: mixed().required(t("validation.required")),
+    tagType: mixed().required(t('validation.required')),
   });
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
+  const onSubmit = (formValues: FormValues, formikHelpers: FormikHelpers<FormValues>) => {
     const payload: Tag = {
       name: formValues.name.trim(),
       tagType: formValues.tagType as TagType,
@@ -139,15 +131,9 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
-        {error && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(error)}
-          />
-        )}
+        {error && <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />}
         <FormGroup
-          label={t("terms.name")}
+          label={t('terms.name')}
           fieldId="name"
           isRequired={true}
           validated={getValidatedFromError(formik.errors.name)}
@@ -162,32 +148,29 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
             onChange={onChangeField}
             onBlur={formik.handleBlur}
             value={formik.values.name}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.name,
-              formik.touched.name
-            )}
+            validated={getValidatedFromErrorTouched(formik.errors.name, formik.touched.name)}
             autoComplete="off"
           />
         </FormGroup>
         <FormGroup
-          label={t("terms.tagType")}
+          label={t('terms.tagType')}
           fieldId="tagType"
           isRequired={true}
           validated={getValidatedFromError(formik.errors.tagType)}
           helperTextInvalid={formik.errors.tagType}
         >
           <SingleSelectFetchOptionValueFormikField<ITagTypeDropdown>
-            fieldConfig={{ name: "tagType" }}
+            fieldConfig={{ name: 'tagType' }}
             selectConfig={{
-              variant: "single",
-              "aria-label": "tag-type",
-              "aria-describedby": "tag-type",
-              typeAheadAriaLabel: "tag-type",
-              toggleAriaLabel: "Options menu",
-              clearSelectionsAriaLabel: "tag-type",
-              removeSelectionAriaLabel: "tag-type",
-              placeholderText: t("composed.selectOne", {
-                what: t("terms.tagType").toLowerCase(),
+              variant: 'single',
+              'aria-label': 'tag-type',
+              'aria-describedby': 'tag-type',
+              typeAheadAriaLabel: 'tag-type',
+              toggleAriaLabel: 'Options menu',
+              clearSelectionsAriaLabel: 'tag-type',
+              removeSelectionAriaLabel: 'tag-type',
+              placeholderText: t('composed.selectOne', {
+                what: t('terms.tagType').toLowerCase(),
               }),
               menuAppendTo: () => document.body,
               maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
@@ -205,13 +188,10 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
             aria-label="submit"
             variant={ButtonVariant.primary}
             isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
+              !formik.isValid || !formik.dirty || formik.isSubmitting || formik.isValidating
             }
           >
-            {!tag ? t("actions.create") : t("actions.save")}
+            {!tag ? t('actions.create') : t('actions.save')}
           </Button>
           <Button
             type="button"
@@ -220,7 +200,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
             isDisabled={formik.isSubmitting || formik.isValidating}
             onClick={onCancel}
           >
-            {t("actions.cancel")}
+            {t('actions.cancel')}
           </Button>
         </ActionGroup>
       </Form>

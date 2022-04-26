@@ -1,6 +1,6 @@
-import { useCallback, useReducer } from "react";
-import { AxiosPromise } from "axios";
-import { ActionType, createAsyncAction, getType } from "typesafe-actions";
+import { useCallback, useReducer } from 'react';
+import { AxiosPromise } from 'axios';
+import { ActionType, createAsyncAction, getType } from 'typesafe-actions';
 
 interface IFetchData<K = any, T = any> {
   id: K;
@@ -17,9 +17,9 @@ export const {
   success: fetchSuccess,
   failure: fetchFailure,
 } = createAsyncAction(
-  "useMultipleFetch/fetch/request",
-  "useMultipleFetch/fetch/success",
-  "useMultipleFetch/fetch/failure"
+  'useMultipleFetch/fetch/request',
+  'useMultipleFetch/fetch/success',
+  'useMultipleFetch/fetch/failure'
 )<any[], IFetchData, IFetchError>();
 
 interface State<K = any, T = any> {
@@ -36,9 +36,7 @@ const defaultState: State = {
   fetchCount: new Map(),
 };
 
-type Action = ActionType<
-  typeof fetchRequest | typeof fetchSuccess | typeof fetchFailure
->;
+type Action = ActionType<typeof fetchRequest | typeof fetchSuccess | typeof fetchFailure>;
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -63,10 +61,7 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         isFetching: new Map(state.isFetching).set(action.payload.id, false),
-        fetchError: new Map(state.fetchError).set(
-          action.payload.id,
-          action.payload.error
-        ),
+        fetchError: new Map(state.fetchError).set(action.payload.id, action.payload.error),
       };
     default:
       return state;
@@ -87,10 +82,7 @@ export interface IState<K, T> {
   triggerFetch: (ids: K[]) => void;
 }
 
-export const useMultipleFetch = <K, T>({
-  onFetch,
-  onFetchPromise,
-}: IArgs<T, K>): IState<K, T> => {
+export const useMultipleFetch = <K, T>({ onFetch, onFetchPromise }: IArgs<T, K>): IState<K, T> => {
   const [state, dispatch] = useReducer(reducer, defaultState);
 
   const getData = (id: K) => {

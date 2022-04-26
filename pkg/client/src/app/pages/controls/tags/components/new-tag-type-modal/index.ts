@@ -1,1 +1,1 @@
-export { NewTagTypeModal } from "./new-tag-type-modal";
+export { NewTagTypeModal } from './new-tag-type-modal';

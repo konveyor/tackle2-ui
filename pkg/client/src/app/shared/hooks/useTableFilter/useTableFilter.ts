@@ -1,6 +1,6 @@
-import { SortByDirection } from "@patternfly/react-table";
-import { PageQuery, SortByQuery } from "@app/api/models";
-import { useMemo } from "react";
+import { SortByDirection } from '@patternfly/react-table';
+import { PageQuery, SortByQuery } from '@app/api/models';
+import { useMemo } from 'react';
 
 // Hook
 

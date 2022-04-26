@@ -1,11 +1,6 @@
-import React, { useState } from "react";
-import {
-  Dropdown,
-  DropdownPosition,
-  DropdownToggle,
-  DropdownItem,
-} from "@patternfly/react-core";
-import { FilterIcon } from "@patternfly/react-icons/dist/esm/icons/filter-icon";
+import React, { useState } from 'react';
+import { Dropdown, DropdownPosition, DropdownToggle, DropdownItem } from '@patternfly/react-core';
+import { FilterIcon } from '@patternfly/react-icons/dist/esm/icons/filter-icon';
 
 export interface DropdownOption {
   key: string;
@@ -44,11 +39,7 @@ export const SimpleFilterDropdown: React.FC<SimpleFilterDropdownProps> = ({
         </DropdownToggle>
       }
       dropdownItems={options.map((elem, index) => (
-        <DropdownItem
-          key={index}
-          component="button"
-          onClick={() => onSelect(elem)}
-        >
+        <DropdownItem key={index} component="button" onClick={() => onSelect(elem)}>
           {elem.name}
         </DropdownItem>
       ))}

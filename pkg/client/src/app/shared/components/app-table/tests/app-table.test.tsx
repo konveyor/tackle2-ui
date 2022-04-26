@@ -1,24 +1,18 @@
-import React from "react";
-import { mount, shallow } from "enzyme";
-import { Label, Skeleton, Spinner } from "@patternfly/react-core";
-import {
-  ICell,
-  IRow,
-  IActions,
-  SortColumn,
-  sortable,
-} from "@patternfly/react-table";
+import React from 'react';
+import { mount, shallow } from 'enzyme';
+import { Label, Skeleton, Spinner } from '@patternfly/react-core';
+import { ICell, IRow, IActions, SortColumn, sortable } from '@patternfly/react-table';
 
-import { AppTable } from "../app-table";
-import { StateNoData } from "../state-no-data";
-import { StateNoResults } from "../state-no-results";
-import { StateError } from "../state-error";
+import { AppTable } from '../app-table';
+import { StateNoData } from '../state-no-data';
+import { StateNoResults } from '../state-no-results';
+import { StateError } from '../state-error';
 
-describe("AppTable", () => {
+describe('AppTable', () => {
   const columns: ICell[] = [
-    { title: "Col1", transforms: [sortable] },
-    { title: "Col2" },
-    { title: "Col3" },
+    { title: 'Col1', transforms: [sortable] },
+    { title: 'Col2' },
+    { title: 'Col3' },
   ];
   const rows: IRow[] = [...Array(15)].map((_, rowIndex) => {
     return {
@@ -29,41 +23,36 @@ describe("AppTable", () => {
   });
   const actions: IActions = [
     {
-      title: "Action1",
+      title: 'Action1',
       onClick: jest.fn,
     },
     {
-      title: "Action2",
+      title: 'Action2',
       onClick: jest.fn,
     },
   ];
 
-  it("Renders without crashing", () => {
+  it('Renders without crashing', () => {
     const wrapper = shallow(
-      <AppTable
-        cells={columns}
-        rows={rows}
-        isLoading={false}
-        filtersApplied={false}
-      />
+      <AppTable cells={columns} rows={rows} isLoading={false} filtersApplied={false} />
     );
     expect(wrapper).toMatchSnapshot();
   });
 
-  it.skip("Renders error", () => {
+  it.skip('Renders error', () => {
     const wrapper = mount(
       <AppTable
         cells={columns}
         rows={rows}
         isLoading={false}
-        fetchError={"Any error"}
+        fetchError={'Any error'}
         filtersApplied={false}
       />
     );
     expect(wrapper.find(StateError).length).toEqual(1);
   });
 
-  it("Renders loading with skeleton", () => {
+  it('Renders loading with skeleton', () => {
     const wrapper = mount(
       <AppTable
         cells={columns}
@@ -76,7 +65,7 @@ describe("AppTable", () => {
     expect(wrapper.find(Skeleton).length).toBeGreaterThan(1);
   });
 
-  it("Renders loading with spinner", () => {
+  it('Renders loading with spinner', () => {
     const wrapper = mount(
       <AppTable
         cells={columns}
@@ -89,31 +78,21 @@ describe("AppTable", () => {
     expect(wrapper.find(Spinner).length).toBe(1);
   });
 
-  it.skip("Renders empty table without aplying filters", () => {
+  it.skip('Renders empty table without aplying filters', () => {
     const wrapper = mount(
-      <AppTable
-        cells={columns}
-        rows={[]}
-        isLoading={false}
-        filtersApplied={false}
-      />
+      <AppTable cells={columns} rows={[]} isLoading={false} filtersApplied={false} />
     );
     expect(wrapper.find(StateNoData).length).toEqual(1);
   });
 
-  it.skip("Renders empty table after applying filters", () => {
+  it.skip('Renders empty table after applying filters', () => {
     const wrapper = mount(
-      <AppTable
-        cells={columns}
-        rows={[]}
-        isLoading={false}
-        filtersApplied={true}
-      />
+      <AppTable cells={columns} rows={[]} isLoading={false} filtersApplied={true} />
     );
     expect(wrapper.find(StateNoResults).length).toEqual(1);
   });
 
-  it("Render rows with static actions", () => {
+  it('Render rows with static actions', () => {
     const wrapper = mount(
       <AppTable
         cells={columns}
@@ -126,7 +105,7 @@ describe("AppTable", () => {
     expect(wrapper.find(Label).length).toEqual(45); // 3 columns * 15 rows
   });
 
-  it("Renders on sort", () => {
+  it('Renders on sort', () => {
     const onSortMock = jest.fn();
 
     const wrapper = mount(

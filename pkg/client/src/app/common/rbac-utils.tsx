@@ -1,7 +1,4 @@
-export const checkAccess = (
-  userPermissions: string[],
-  allowedPermissions: string[]
-) => {
+export const checkAccess = (userPermissions: string[], allowedPermissions: string[]) => {
   const access = userPermissions.some((userPermission) =>
     allowedPermissions.includes(userPermission)
   );

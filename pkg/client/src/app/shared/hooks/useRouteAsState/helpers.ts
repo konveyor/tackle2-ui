@@ -17,9 +17,7 @@ export const removeUndefined = <T extends Record<string, any>>(obj: T) =>
       };
     }, {} as Record<string, any>);
 
-export const objectToQueryParams = (
-  params: Record<string, string | string[]>
-) => {
+export const objectToQueryParams = (params: Record<string, string | string[]>) => {
   const query: string[] = [];
 
   Object.keys(params).forEach((key) => {
@@ -36,7 +34,7 @@ export const objectToQueryParams = (
     }
   });
 
-  return "?" + query.join("&");
+  return '?' + query.join('&');
 };
 
 export const encodeValues = (obj: Record<string, string[]>) =>

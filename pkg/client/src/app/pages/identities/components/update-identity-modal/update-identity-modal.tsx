@@ -1,10 +1,10 @@
-import React from "react";
-import { AxiosResponse } from "axios";
+import React from 'react';
+import { AxiosResponse } from 'axios';
 
-import { Modal, ModalVariant } from "@patternfly/react-core";
+import { Modal, ModalVariant } from '@patternfly/react-core';
 
-import { Identity } from "@app/api/models";
-import { IdentityForm } from "../identity-form";
+import { Identity } from '@app/api/models';
+import { IdentityForm } from '../identity-form';
 
 export interface UpdateIdentityModalProps {
   identity?: Identity;

@@ -1,1 +1,1 @@
-export { ChipTag } from "./chip-tag";
+export { ChipTag } from './chip-tag';

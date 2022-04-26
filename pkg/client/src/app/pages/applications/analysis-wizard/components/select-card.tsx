@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   EmptyState,
   EmptyStateIcon,
@@ -11,13 +11,14 @@ import {
   SelectVariant,
   SelectOptionObject,
   Text,
-} from "@patternfly/react-core";
-import { CubesIcon } from "@patternfly/react-icons";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+} from '@patternfly/react-core';
+import { CubesIcon } from '@patternfly/react-icons';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 
-import { TransformationTargets } from "../set-targets";
+import { TransformationTargets } from '../set-targets';
 
-import "./select-card.css";
+import './select-card.css';
+import { JsxElement } from 'typescript';
 
 export interface SelectCardProps {
   item: TransformationTargets;
@@ -25,21 +26,15 @@ export interface SelectCardProps {
   onChange: (isNewCard: boolean, value: string) => void;
 }
 
-export const SelectCard: React.FC<SelectCardProps> = ({
-  item,
-  cardSelected,
-  onChange,
-}) => {
+export const SelectCard: React.FC<SelectCardProps> = ({ item, cardSelected, onChange }) => {
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
   const [isSelectOpen, setSelectOpen] = React.useState(false);
-  const [selectedRelease, setSelectedRelease] = React.useState(
-    [...item.options.keys()][0]
-  );
+  const [selectedRelease, setSelectedRelease] = React.useState([...item.options.keys()][0]);
 
   const handleCardClick = (event: React.MouseEvent) => {
     // Workaround to stop 'select' event propagation
     const eventTarget: any = event.target;
-    if (eventTarget.type === "button") return;
+    if (eventTarget.type === 'button') return;
 
     setCardSelected(!isCardSelected);
     onChange(!isCardSelected, selectedRelease);
@@ -54,14 +49,16 @@ export const SelectCard: React.FC<SelectCardProps> = ({
     setSelectedRelease(selection as string);
   };
 
+  const img = () => {
+    return <img src={item.iconSrc} alt="Card logo" style={{ height: 80 }} />;
+  };
+
   const getImage = (): React.ComponentType<any> => {
     let result: React.ComponentType<any> = CubesIcon;
     if (item.icon) {
       result = item.icon;
     } else if (item.iconSrc) {
-      result = () => (
-        <img src={item.iconSrc} alt="Card logo" style={{ height: 80 }} />
-      );
+      result = img() as unknown as React.ComponentType<any>;
     }
 
     return result;
@@ -99,9 +96,7 @@ export const SelectCard: React.FC<SelectCardProps> = ({
               ))}
             </Select>
           )}
-          <Text className={`${spacing.pMd} pf-u-text-align-left`}>
-            {item.description}
-          </Text>
+          <Text className={`${spacing.pMd} pf-u-text-align-left`}>{item.description}</Text>
         </EmptyState>
       </CardBody>
     </Card>

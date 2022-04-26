@@ -1,1 +1,1 @@
-export { ProposedActionLabel } from "./proposed-action-label";
+export { ProposedActionLabel } from './proposed-action-label';

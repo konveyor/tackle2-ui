@@ -1,12 +1,12 @@
-import React from "react";
-import { AxiosResponse } from "axios";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { AxiosResponse } from 'axios';
+import { useTranslation } from 'react-i18next';
 
-import { Modal, ModalVariant } from "@patternfly/react-core";
+import { Modal, ModalVariant } from '@patternfly/react-core';
 
-import { Stakeholder } from "@app/api/models";
+import { Stakeholder } from '@app/api/models';
 
-import { StakeholderForm } from "../stakeholder-form";
+import { StakeholderForm } from '../stakeholder-form';
 
 export interface NewStakeholderModalProps {
   isOpen: boolean;
@@ -23,7 +23,7 @@ export const NewStakeholderModal: React.FC<NewStakeholderModalProps> = ({
 
   return (
     <Modal
-      title={t("dialog.title.newStakeholder")}
+      title={t('dialog.title.newStakeholder')}
       variant={ModalVariant.medium}
       isOpen={isOpen}
       onClose={onCancel}

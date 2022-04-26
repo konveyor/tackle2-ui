@@ -1,27 +1,25 @@
-import React, { useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { SelectVariant, ToolbarChip } from "@patternfly/react-core";
+import { SelectVariant, ToolbarChip } from '@patternfly/react-core';
 
-import { SimpleSelectFetch, OptionWithValue } from "@app/shared/components";
-import { useFetchBusinessServices } from "@app/shared/hooks";
+import { SimpleSelectFetch, OptionWithValue } from '@app/shared/components';
+import { useFetchBusinessServices } from '@app/shared/hooks';
 
-import { BusinessService } from "@app/api/models";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import { BusinessService } from '@app/api/models';
+import { DEFAULT_SELECT_MAX_HEIGHT } from '@app/Constants';
 
 const businessServiceToToolbarChip = (value: BusinessService): ToolbarChip => ({
   key: `${value.id}`,
   node: value.name,
 });
 
-const businessServiceToOption = (
-  value: BusinessService
-): OptionWithValue<BusinessService> => ({
+const businessServiceToOption = (value: BusinessService): OptionWithValue<BusinessService> => ({
   value,
   toString: () => value.name,
   compareTo: (selectOption: any) => {
     // If "string" we are just filtering
-    if (typeof selectOption === "string") {
+    if (typeof selectOption === 'string') {
       return value.name.toLowerCase().includes(selectOption.toLowerCase());
     }
     // If not "string" we are selecting a checkbox
@@ -39,9 +37,10 @@ export interface BusinessServiceFilterProps {
   onApplyFilter: (values: ToolbarChip[]) => void;
 }
 
-export const SelectBusinessServiceFilter: React.FC<
-  BusinessServiceFilterProps
-> = ({ value = [], onApplyFilter }) => {
+export const SelectBusinessServiceFilter: React.FC<BusinessServiceFilterProps> = ({
+  value = [],
+  onApplyFilter,
+}) => {
   const { t } = useTranslation();
 
   const {
@@ -60,7 +59,7 @@ export const SelectBusinessServiceFilter: React.FC<
       variant={SelectVariant.checkbox}
       aria-label="business-service"
       aria-labelledby="business-service"
-      placeholderText={t("terms.businessService")}
+      placeholderText={t('terms.businessService')}
       maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
       value={value
         .map((f) => (businessServices || []).find((b) => `${b.id}` === f.key))

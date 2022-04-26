@@ -1,5 +1,5 @@
-import React from "react";
-import { useTranslation, Trans } from "react-i18next";
+import React from 'react';
+import { useTranslation, Trans } from 'react-i18next';
 
 import {
   AboutModal,
@@ -8,19 +8,16 @@ import {
   TextVariants,
   TextList,
   TextListItem,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
-import brandImage from "@app/images/tackle.png";
+import brandImage from '@app/images/tackle.png';
 
 export interface AppAboutModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const AppAboutModal: React.FC<AppAboutModalProps> = ({
-  isOpen,
-  onClose,
-}) => {
+export const AppAboutModal: React.FC<AppAboutModalProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
 
   return (
@@ -33,16 +30,12 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
       productName="Tackle"
     >
       <TextContent className="pf-u-py-xl">
-        <Text component={TextVariants.p}>{t("about.introduction")}</Text>
-        <Text component={TextVariants.p}>{t("about.description")}</Text>
+        <Text component={TextVariants.p}>{t('about.introduction')}</Text>
+        <Text component={TextVariants.p}>{t('about.description')}</Text>
         <Text component={TextVariants.p}>
           <Trans i18nKey="about.bottom1">
-            Tackle is a project within the{" "}
-            <Text
-              component={TextVariants.a}
-              href="https://www.konveyor.io/"
-              target="_blank"
-            >
+            Tackle is a project within the{' '}
+            <Text component={TextVariants.a} href="https://www.konveyor.io/" target="_blank">
               Konveyor community
             </Text>
             .
@@ -50,7 +43,7 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
         </Text>
         <Text component={TextVariants.p}>
           <Trans i18nKey="about.bottom2">
-            For more information please refer to{" "}
+            For more information please refer to{' '}
             <Text
               component={TextVariants.a}
               href="https://tackle-docs.konveyor.io/"
@@ -65,7 +58,7 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
       <TextContent className="pf-u-py-xl">
         <TextContent>
           <TextList component="dl">
-            <TextListItem component="dt">{t("terms.version")}</TextListItem>
+            <TextListItem component="dt">{t('terms.version')}</TextListItem>
             <TextListItem component="dd">2.0</TextListItem>
           </TextList>
         </TextContent>

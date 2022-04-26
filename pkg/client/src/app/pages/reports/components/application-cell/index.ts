@@ -1,1 +1,1 @@
-export { ApplicationCell } from "./application-cell";
+export { ApplicationCell } from './application-cell';

@@ -1,5 +1,5 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   Toolbar,
@@ -7,13 +7,13 @@ import {
   ToolbarItem,
   ToolbarItemVariant,
   ToolbarToggleGroup,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
-import { FilterIcon } from "@patternfly/react-icons/dist/esm/icons/filter-icon";
+import { FilterIcon } from '@patternfly/react-icons/dist/esm/icons/filter-icon';
 
-import { AppTable, IAppTableProps } from "../app-table/app-table";
-import { PaginationStateProps } from "@app/shared/hooks/usePaginationState";
-import { SimplePagination } from "../simple-pagination";
+import { AppTable, IAppTableProps } from '../app-table/app-table';
+import { PaginationStateProps } from '@app/shared/hooks/usePaginationState';
+import { SimplePagination } from '../simple-pagination';
 
 export interface IAppTableWithControlsProps extends IAppTableProps {
   count: number;
@@ -40,12 +40,12 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div style={{ backgroundColor: "var(--pf-global--BackgroundColor--100)" }}>
+    <div style={{ backgroundColor: 'var(--pf-global--BackgroundColor--100)' }}>
       <Toolbar
         className="pf-m-toggle-group-container"
         collapseListedFiltersBreakpoint="xl"
         clearAllFilters={toolbarClearAllFilters}
-        clearFiltersButtonText={t("actions.clearAllFilters")}
+        clearFiltersButtonText={t('actions.clearAllFilters')}
       >
         <ToolbarContent>
           {toolbarBulkSelector}
@@ -58,12 +58,9 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
           {!withoutTopPagination && (
             <ToolbarItem
               variant={ToolbarItemVariant.pagination}
-              alignment={{ default: "alignRight" }}
+              alignment={{ default: 'alignRight' }}
             >
-              <SimplePagination
-                isTop={true}
-                paginationProps={paginationProps}
-              />
+              <SimplePagination isTop={true} paginationProps={paginationProps} />
             </ToolbarItem>
           )}
         </ToolbarContent>

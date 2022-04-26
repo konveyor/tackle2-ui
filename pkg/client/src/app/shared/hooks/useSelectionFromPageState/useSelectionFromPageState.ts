@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 export interface ISelectionStateArgs<T> {
   pageItems: T[];
@@ -28,8 +28,7 @@ export const useSelectionFromPageState = <T>({
   const internalState = useState<T[]>(initialSelected);
   const [selectedItems, setSelectedItems] = externalState || internalState;
 
-  const isItemSelected = (item: T) =>
-    selectedItems.some((i) => isEqual(item, i));
+  const isItemSelected = (item: T) => selectedItems.some((i) => isEqual(item, i));
 
   const toggleItemSelected = (item: T, isSelecting = !isItemSelected(item)) => {
     if (isSelecting) {
@@ -50,8 +49,7 @@ export const useSelectionFromPageState = <T>({
     }
   };
 
-  const selectAllPage = (isSelecting = true) =>
-    selectMultiple(pageItems, isSelecting);
+  const selectAllPage = (isSelecting = true) => selectMultiple(pageItems, isSelecting);
   const areAllSelected = selectedItems.length === totalItems;
 
   return {

@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import { useFormik, FormikProvider, FormikHelpers } from "formik";
-import { object, string } from "yup";
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AxiosError, AxiosPromise, AxiosResponse } from 'axios';
+import { useFormik, FormikProvider, FormikHelpers } from 'formik';
+import { object, string } from 'yup';
 
 import {
   ActionGroup,
@@ -13,29 +13,26 @@ import {
   FormGroup,
   TextArea,
   TextInput,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
-import { MultiSelectFetchOptionValueFormikField } from "@app/shared/components";
-import {
-  useFetchStakeholderGroups,
-  useFetchStakeholders,
-} from "@app/shared/hooks";
+import { MultiSelectFetchOptionValueFormikField } from '@app/shared/components';
+import { useFetchStakeholderGroups, useFetchStakeholders } from '@app/shared/hooks';
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { createStakeholderGroup, updateStakeholderGroup } from "@app/api/rest";
-import { Stakeholder, StakeholderGroup } from "@app/api/models";
+import { DEFAULT_SELECT_MAX_HEIGHT } from '@app/Constants';
+import { createStakeholderGroup, updateStakeholderGroup } from '@app/api/rest';
+import { Stakeholder, StakeholderGroup } from '@app/api/models';
 import {
   duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
-} from "@app/utils/utils";
+} from '@app/utils/utils';
 import {
   isIModelEqual,
   IStakeholderDropdown,
   toIStakeholderDropdownOptionWithValue,
   toIStakeholderDropdown,
-} from "@app/utils/model-utils";
+} from '@app/utils/model-utils';
 
 export interface FormValues {
   name: string;
@@ -97,37 +94,30 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
   }, [stakeholderGroup, stakeholders]);
 
   const initialValues: FormValues = {
-    name: stakeholderGroup?.name || "",
-    description: stakeholderGroup?.description || "",
+    name: stakeholderGroup?.name || '',
+    description: stakeholderGroup?.description || '',
     stakeholders: stakeholdersInitialValue,
   };
 
   const validationSchema = object().shape({
     name: string()
       .trim()
-      .required(t("validation.required"))
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 }))
+      .required(t('validation.required'))
+      .min(3, t('validation.minLength', { length: 3 }))
+      .max(120, t('validation.maxLength', { length: 120 }))
       .test(
-        "Duplicate name",
-        "An stakeholder group with this name already exists. Please use a different name.",
+        'Duplicate name',
+        'An stakeholder group with this name already exists. Please use a different name.',
         (value) => {
-          return duplicateNameCheck(
-            stakeholderGroups || [],
-            stakeholderGroup || null,
-            value || ""
-          );
+          return duplicateNameCheck(stakeholderGroups || [], stakeholderGroup || null, value || '');
         }
       ),
     description: string()
       .trim()
-      .max(250, t("validation.maxLength", { length: 250 })),
+      .max(250, t('validation.maxLength', { length: 250 })),
   });
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
+  const onSubmit = (formValues: FormValues, formikHelpers: FormikHelpers<FormValues>) => {
     const payload: StakeholderGroup = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
@@ -169,15 +159,9 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
-        {error && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(error)}
-          />
-        )}
+        {error && <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />}
         <FormGroup
-          label={t("terms.name")}
+          label={t('terms.name')}
           fieldId="name"
           isRequired={true}
           validated={getValidatedFromError(formik.errors.name)}
@@ -192,14 +176,11 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
             onChange={onChangeField}
             onBlur={formik.handleBlur}
             value={formik.values.name}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.name,
-              formik.touched.name
-            )}
+            validated={getValidatedFromErrorTouched(formik.errors.name, formik.touched.name)}
           />
         </FormGroup>
         <FormGroup
-          label={t("terms.description")}
+          label={t('terms.description')}
           fieldId="description"
           isRequired={false}
           validated={getValidatedFromError(formik.errors.description)}
@@ -221,25 +202,25 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
           />
         </FormGroup>
         <FormGroup
-          label={t("terms.member(s)")}
+          label={t('terms.member(s)')}
           fieldId="stakeholders"
           isRequired={false}
           validated={getValidatedFromError(formik.errors.stakeholders)}
           helperTextInvalid={formik.errors.stakeholders}
         >
           <MultiSelectFetchOptionValueFormikField<IStakeholderDropdown>
-            fieldConfig={{ name: "stakeholders" }}
+            fieldConfig={{ name: 'stakeholders' }}
             selectConfig={{
-              variant: "typeaheadmulti",
-              "aria-label": "stakeholders",
-              "aria-describedby": "stakeholders",
-              typeAheadAriaLabel: "stakeholders",
-              toggleAriaLabel: "stakeholders",
-              clearSelectionsAriaLabel: "stakeholders",
-              removeSelectionAriaLabel: "stakeholders",
+              variant: 'typeaheadmulti',
+              'aria-label': 'stakeholders',
+              'aria-describedby': 'stakeholders',
+              typeAheadAriaLabel: 'stakeholders',
+              toggleAriaLabel: 'stakeholders',
+              clearSelectionsAriaLabel: 'stakeholders',
+              removeSelectionAriaLabel: 'stakeholders',
               // t('terms.teamMember')
-              placeholderText: t("composed.selectOne", {
-                what: t("terms.teamMember").toLowerCase(),
+              placeholderText: t('composed.selectOne', {
+                what: t('terms.teamMember').toLowerCase(),
               }),
               menuAppendTo: () => document.body,
               maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
@@ -258,13 +239,10 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
             aria-label="submit"
             variant={ButtonVariant.primary}
             isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
+              !formik.isValid || !formik.dirty || formik.isSubmitting || formik.isValidating
             }
           >
-            {!stakeholderGroup ? t("actions.create") : t("actions.save")}
+            {!stakeholderGroup ? t('actions.create') : t('actions.save')}
           </Button>
           <Button
             type="button"
@@ -273,7 +251,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
             isDisabled={formik.isSubmitting || formik.isValidating}
             onClick={onCancel}
           >
-            {t("actions.cancel")}
+            {t('actions.cancel')}
           </Button>
         </ActionGroup>
       </Form>

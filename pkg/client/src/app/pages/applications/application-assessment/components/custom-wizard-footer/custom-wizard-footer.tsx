@@ -1,11 +1,7 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
-import {
-  Button,
-  WizardContextConsumer,
-  WizardFooter,
-} from "@patternfly/react-core";
+import { Button, WizardContextConsumer, WizardFooter } from '@patternfly/react-core';
 
 export interface CustomWizardFooterProps {
   isFirstStep: boolean;
@@ -31,9 +27,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
       <WizardContextConsumer>
         {({ onNext, onBack, onClose, activeStep }) => {
           const enableNext =
-            activeStep && activeStep.enableNext !== undefined
-              ? activeStep.enableNext
-              : true;
+            activeStep && activeStep.enableNext !== undefined ? activeStep.enableNext : true;
 
           return (
             <>
@@ -45,7 +39,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
                     isDisabled={!enableNext || isDisabled || isFormInvalid}
                     cy-data="next"
                   >
-                    {t("actions.save")}
+                    {t('actions.save')}
                   </Button>
                   <Button
                     variant="primary"
@@ -53,7 +47,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
                     isDisabled={!enableNext || isDisabled || isFormInvalid}
                     cy-data="save-and-review"
                   >
-                    {t("actions.saveAndReview")}
+                    {t('actions.saveAndReview')}
                   </Button>
                 </>
               ) : (
@@ -63,7 +57,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
                   isDisabled={!enableNext || isDisabled || isFormInvalid}
                   cy-data="next"
                 >
-                  {t("actions.next")}
+                  {t('actions.next')}
                 </Button>
               )}
               <Button
@@ -72,15 +66,10 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
                 isDisabled={isFirstStep || isDisabled || isFormInvalid}
                 cy-data="back"
               >
-                {t("actions.back")}
+                {t('actions.back')}
               </Button>
-              <Button
-                variant="link"
-                onClick={onClose}
-                isDisabled={isDisabled}
-                cy-data="cancel"
-              >
-                {t("actions.cancel")}
+              <Button variant="link" onClick={onClose} isDisabled={isDisabled} cy-data="cancel">
+                {t('actions.cancel')}
               </Button>
               <Button
                 variant="link"
@@ -88,7 +77,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
                 isDisabled={isDisabled || isFormInvalid}
                 cy-data="save-as-draft"
               >
-                {t("actions.saveAsDraft")}
+                {t('actions.saveAsDraft')}
               </Button>
             </>
           );

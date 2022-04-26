@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import { useFormik, FormikProvider, FormikHelpers } from "formik";
-import { object, string, number } from "yup";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AxiosError, AxiosPromise, AxiosResponse } from 'axios';
+import { useFormik, FormikProvider, FormikHelpers } from 'formik';
+import { object, string, number } from 'yup';
 
 import {
   ActionGroup,
@@ -13,22 +13,22 @@ import {
   FormGroup,
   NumberInput,
   TextInput,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
-import { SingleSelectOptionValueFormikField } from "@app/shared/components";
+import { SingleSelectOptionValueFormikField } from '@app/shared/components';
 
 import {
   DEFAULT_SELECT_MAX_HEIGHT,
   DEFAULT_COLOR_PALETE as DEFAULT_COLOR_PALETTE,
-} from "@app/Constants";
-import { createTagType, updateTagType } from "@app/api/rest";
-import { TagType } from "@app/api/models";
+} from '@app/Constants';
+import { createTagType, updateTagType } from '@app/api/rest';
+import { TagType } from '@app/api/models';
 import {
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
-} from "@app/utils/utils";
-import { colorHexToOptionWithValue } from "@app/utils/model-utils";
+} from '@app/utils/utils';
+import { colorHexToOptionWithValue } from '@app/utils/model-utils';
 
 export interface FormValues {
   name: string;
@@ -42,17 +42,13 @@ export interface TagTypeFormProps {
   onCancel: () => void;
 }
 
-export const TagTypeForm: React.FC<TagTypeFormProps> = ({
-  tagType,
-  onSaved,
-  onCancel,
-}) => {
+export const TagTypeForm: React.FC<TagTypeFormProps> = ({ tagType, onSaved, onCancel }) => {
   const { t } = useTranslation();
 
   const [error, setError] = useState<AxiosError>();
 
   const initialValues: FormValues = {
-    name: tagType?.name || "",
+    name: tagType?.name || '',
     rank: tagType?.rank || 1,
     color: tagType?.colour || null,
   };
@@ -60,21 +56,18 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
   const validationSchema = object().shape({
     name: string()
       .trim()
-      .required(t("validation.required"))
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(40, t("validation.maxLength", { length: 40 })),
-    rank: number().min(1, t("validation.min", { value: 1 })),
+      .required(t('validation.required'))
+      .min(3, t('validation.minLength', { length: 3 }))
+      .max(40, t('validation.maxLength', { length: 40 })),
+    rank: number().min(1, t('validation.min', { value: 1 })),
     color: string()
       .trim()
       .nullable()
-      .required(t("validation.required"))
-      .min(1, t("validation.minLength", { length: 3 })),
+      .required(t('validation.required'))
+      .min(1, t('validation.minLength', { length: 3 })),
   });
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
+  const onSubmit = (formValues: FormValues, formikHelpers: FormikHelpers<FormValues>) => {
     const payload: TagType = {
       name: formValues.name.trim(),
       rank: formValues.rank,
@@ -116,15 +109,9 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
-        {error && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(error)}
-          />
-        )}
+        {error && <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />}
         <FormGroup
-          label={t("terms.name")}
+          label={t('terms.name')}
           fieldId="name"
           isRequired={true}
           validated={getValidatedFromError(formik.errors.name)}
@@ -139,15 +126,12 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
             onChange={onChangeField}
             onBlur={formik.handleBlur}
             value={formik.values.name}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.name,
-              formik.touched.name
-            )}
+            validated={getValidatedFromErrorTouched(formik.errors.name, formik.touched.name)}
             autoComplete="off"
           />
         </FormGroup>
         <FormGroup
-          label={t("terms.rank")}
+          label={t('terms.rank')}
           fieldId="rank"
           isRequired={false}
           validated={getValidatedFromError(formik.errors.rank)}
@@ -160,33 +144,33 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
             plusBtnAriaLabel="plus"
             value={formik.values.rank}
             onMinus={() => {
-              formik.setFieldValue("rank", (formik.values.rank || 0) - 1);
+              formik.setFieldValue('rank', (formik.values.rank || 0) - 1);
             }}
             onChange={formik.handleChange}
             onPlus={() => {
-              formik.setFieldValue("rank", (formik.values.rank || 0) + 1);
+              formik.setFieldValue('rank', (formik.values.rank || 0) + 1);
             }}
           />
         </FormGroup>
         <FormGroup
-          label={t("terms.color")}
+          label={t('terms.color')}
           fieldId="color"
           isRequired={true}
           validated={getValidatedFromError(formik.errors.color)}
           helperTextInvalid={formik.errors.color}
         >
           <SingleSelectOptionValueFormikField<string>
-            fieldConfig={{ name: "color" }}
+            fieldConfig={{ name: 'color' }}
             selectConfig={{
-              variant: "single",
-              "aria-label": "color",
-              "aria-describedby": "color",
-              typeAheadAriaLabel: "color",
-              toggleAriaLabel: "Options menu",
-              clearSelectionsAriaLabel: "color",
-              removeSelectionAriaLabel: "color",
-              placeholderText: t("composed.selectOne", {
-                what: t("terms.color").toLowerCase(),
+              variant: 'single',
+              'aria-label': 'color',
+              'aria-describedby': 'color',
+              typeAheadAriaLabel: 'color',
+              toggleAriaLabel: 'Options menu',
+              clearSelectionsAriaLabel: 'color',
+              removeSelectionAriaLabel: 'color',
+              placeholderText: t('composed.selectOne', {
+                what: t('terms.color').toLowerCase(),
               }),
               menuAppendTo: () => document.body,
               maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
@@ -202,13 +186,10 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
             aria-label="submit"
             variant={ButtonVariant.primary}
             isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
+              !formik.isValid || !formik.dirty || formik.isSubmitting || formik.isValidating
             }
           >
-            {!tagType ? t("actions.create") : t("actions.save")}
+            {!tagType ? t('actions.create') : t('actions.save')}
           </Button>
           <Button
             type="button"
@@ -217,7 +198,7 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
             isDisabled={formik.isSubmitting || formik.isValidating}
             onClick={onCancel}
           >
-            {t("actions.cancel")}
+            {t('actions.cancel')}
           </Button>
         </ActionGroup>
       </Form>

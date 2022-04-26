@@ -1,1 +1,1 @@
-export { SimpleFilterDropdown } from "./simple-filter-dropdown";
+export { SimpleFilterDropdown } from './simple-filter-dropdown';

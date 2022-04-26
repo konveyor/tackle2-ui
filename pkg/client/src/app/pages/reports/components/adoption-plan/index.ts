@@ -1,1 +1,1 @@
-export { AdoptionPlan } from "./adoption-plan";
+export { AdoptionPlan } from './adoption-plan';

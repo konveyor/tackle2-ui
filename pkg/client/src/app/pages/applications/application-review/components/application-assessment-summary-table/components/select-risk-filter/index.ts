@@ -1,1 +1,1 @@
-export { SelectRiskFilter } from "./select-risk-filter";
+export { SelectRiskFilter } from './select-risk-filter';

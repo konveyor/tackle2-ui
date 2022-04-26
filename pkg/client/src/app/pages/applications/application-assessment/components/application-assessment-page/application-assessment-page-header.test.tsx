@@ -1,18 +1,18 @@
-import React from "react";
-import { ApplicationAssessmentPageHeader } from "./application-assessment-page-header";
-import { Assessment } from "@app/api/models";
-import { mountWithRedux } from "@app/store/reducerUtils";
+import React from 'react';
+import { ApplicationAssessmentPageHeader } from './application-assessment-page-header';
+import { Assessment } from '@app/api/models';
+import { mountWithRedux } from '@app/store/reducerUtils';
 
-describe("ApplicationAssessmentPageHeader", () => {
+describe('ApplicationAssessmentPageHeader', () => {
   const assessment: Assessment = {
-    status: "STARTED",
+    status: 'STARTED',
     applicationId: 1,
     questionnaire: {
       categories: [],
     },
   };
 
-  it("Renders without crashing", () => {
+  it('Renders without crashing', () => {
     const wrapper = mountWithRedux(
       <ApplicationAssessmentPageHeader assessment={assessment}>
         Body of page

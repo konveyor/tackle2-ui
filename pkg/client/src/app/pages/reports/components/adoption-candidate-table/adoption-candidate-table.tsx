@@ -1,5 +1,5 @@
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   cellWidth,
@@ -10,38 +10,28 @@ import {
   sortable,
   TableVariant,
   truncate,
-} from "@patternfly/react-table";
-import { Label, ToolbarItem } from "@patternfly/react-core";
+} from '@patternfly/react-table';
+import { Label, ToolbarItem } from '@patternfly/react-core';
 
-import { useFetch, useTableControls, useTableFilter } from "@app/shared/hooks";
+import { useFetch, useTableControls, useTableFilter } from '@app/shared/hooks';
 import {
   AppTableWithControls,
   ProposedActionLabel,
   RiskLabel,
   ToolbarBulkSelector,
-} from "@app/shared/components";
+} from '@app/shared/components';
 
-import { EFFORT_ESTIMATE_LIST, RISK_LIST } from "@app/Constants";
-import {
-  Application,
-  AssessmentConfidence,
-  AssessmentRisk,
-  Review,
-  Risk,
-} from "@app/api/models";
-import { getAssessmentConfidence, getAssessmentLandscape } from "@app/api/rest";
+import { EFFORT_ESTIMATE_LIST, RISK_LIST } from '@app/Constants';
+import { Application, AssessmentConfidence, AssessmentRisk, Review, Risk } from '@app/api/models';
+import { getAssessmentConfidence, getAssessmentLandscape } from '@app/api/rest';
 
-import { ApplicationSelectionContext } from "../../application-selection-context";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import { useSortState } from "@app/shared/hooks/useSortState";
-import { useSelectionState } from "@konveyor/lib-ui";
-import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useFetchReviews } from "@app/queries/reviews";
+import { ApplicationSelectionContext } from '../../application-selection-context';
+import { usePaginationState } from '@app/shared/hooks/usePaginationState';
+import { useSortState } from '@app/shared/hooks/useSortState';
+import { useSelectionState } from '@konveyor/lib-ui';
+import { FilterCategory, FilterToolbar, FilterType } from '@app/shared/components/FilterToolbar';
+import { useFilterState } from '@app/shared/hooks/useFilterState';
+import { useFetchReviews } from '@app/queries/reviews';
 
 export interface TableRowData {
   application: Application;
@@ -50,7 +40,7 @@ export interface TableRowData {
   review: Review | undefined;
 }
 
-const ENTITY_FIELD = "entity";
+const ENTITY_FIELD = 'entity';
 const getRow = (rowData: IRowData): TableRowData => {
   return rowData[ENTITY_FIELD];
 };
@@ -62,22 +52,18 @@ interface IAdoptionCandidateTable {
   allApplications?: Application[];
 }
 
-export const AdoptionCandidateTable: React.FunctionComponent<
-  IAdoptionCandidateTable
-> = ({ allApplications = [] }: IAdoptionCandidateTable) => {
+export const AdoptionCandidateTable: React.FunctionComponent<IAdoptionCandidateTable> = ({
+  allApplications = [],
+}: IAdoptionCandidateTable) => {
   // i18
   const { t } = useTranslation();
 
   // Confidence
   const fetchChartData = useCallback(() => {
-    return getAssessmentConfidence(allApplications.map((app) => app.id!)).then(
-      ({ data }) => data
-    );
+    return getAssessmentConfidence(allApplications.map((app) => app.id!)).then(({ data }) => data);
   }, [allApplications]);
 
-  const { data: confidence, requestFetch: refreshConfidence } = useFetch<
-    AssessmentConfidence[]
-  >({
+  const { data: confidence, requestFetch: refreshConfidence } = useFetch<AssessmentConfidence[]>({
     defaultIsFetching: true,
     onFetchPromise: fetchChartData,
   });
@@ -91,17 +77,13 @@ export const AdoptionCandidateTable: React.FunctionComponent<
   // Risk
   const fetchRiskData = useCallback(() => {
     if (allApplications.length > 0) {
-      return getAssessmentLandscape(allApplications.map((f) => f.id!)).then(
-        ({ data }) => data
-      );
+      return getAssessmentLandscape(allApplications.map((f) => f.id!)).then(({ data }) => data);
     } else {
       return Promise.resolve([]);
     }
   }, [allApplications]);
 
-  const { data: risks, requestFetch: refreshRisks } = useFetch<
-    AssessmentRisk[]
-  >({
+  const { data: risks, requestFetch: refreshRisks } = useFetch<AssessmentRisk[]>({
     defaultIsFetching: true,
     onFetchPromise: fetchRiskData,
   });
@@ -117,19 +99,15 @@ export const AdoptionCandidateTable: React.FunctionComponent<
   // Table data
   const allRows = useMemo(() => {
     return allApplications.map((app) => {
-      const confidenceData = confidence?.find(
-        (e) => e.applicationId === app.id
-      );
+      const confidenceData = confidence?.find((e) => e.applicationId === app.id);
 
-      const reviewData = reviews?.find(
-        (review) => review.id === app.review?.id
-      );
+      const reviewData = reviews?.find((review) => review.id === app.review?.id);
       const riskData = risks?.find((e) => e.applicationId === app.id);
 
       const result: TableRowData = {
         application: app,
         confidence: confidenceData?.confidence,
-        risk: riskData ? riskData.risk : "UNKNOWN",
+        risk: riskData ? riskData.risk : 'UNKNOWN',
         review: reviewData ? reviewData : undefined,
       };
       return result;
@@ -139,37 +117,37 @@ export const AdoptionCandidateTable: React.FunctionComponent<
   // Table
   const columns: ICell[] = [
     {
-      title: t("terms.applicationName"),
+      title: t('terms.applicationName'),
       transforms: [sortable, cellWidth(25)],
       cellTransforms: [truncate],
     },
     {
-      title: t("terms.criticality"),
+      title: t('terms.criticality'),
       transforms: [sortable, cellWidth(15)],
       cellTransforms: [],
     },
     {
-      title: t("terms.priority"),
+      title: t('terms.priority'),
       transforms: [sortable, cellWidth(15)],
       cellTransforms: [],
     },
     {
-      title: t("terms.confidence"),
+      title: t('terms.confidence'),
       transforms: [sortable, cellWidth(15)],
       cellTransforms: [],
     },
     {
-      title: t("terms.effort"),
+      title: t('terms.effort'),
       transforms: [sortable, cellWidth(10)],
       cellTransforms: [],
     },
     {
-      title: t("terms.risk"),
+      title: t('terms.risk'),
       transforms: [sortable, cellWidth(10)],
       cellTransforms: [],
     },
     {
-      title: t("terms.decision"),
+      title: t('terms.decision'),
       transforms: [cellWidth(10)],
       cellTransforms: [],
     },
@@ -188,12 +166,12 @@ export const AdoptionCandidateTable: React.FunctionComponent<
   });
   const filterCategories: FilterCategory<TableRowData>[] = [
     {
-      key: "name",
-      title: "Name",
+      key: 'name',
+      title: 'Name',
       type: FilterType.search,
-      placeholderText: "Filter by name...",
+      placeholderText: 'Filter by name...',
       getItemValue: (item) => {
-        return item?.application.name || "";
+        return item?.application.name || '';
       },
     },
   ];
@@ -204,22 +182,18 @@ export const AdoptionCandidateTable: React.FunctionComponent<
   );
 
   const getSortValues = (item: TableRowData) => [
-    "",
-    item?.application?.name || "",
-    item?.review?.businessCriticality || "",
-    item?.review?.workPriority || "",
-    item?.confidence || "",
-    item?.review?.effortEstimate || "",
-    item?.risk || "",
-    "",
+    '',
+    item?.application?.name || '',
+    item?.review?.businessCriticality || '',
+    item?.review?.workPriority || '',
+    item?.confidence || '',
+    item?.review?.effortEstimate || '',
+    item?.risk || '',
+    '',
   ];
-  const { sortBy, onSort, sortedItems } = useSortState(
-    filteredItems,
-    getSortValues
-  );
+  const { sortBy, onSort, sortedItems } = useSortState(filteredItems, getSortValues);
 
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+  const { currentPageItems, setPageNumber, paginationProps } = usePaginationState(sortedItems, 10);
 
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {
@@ -260,7 +234,7 @@ export const AdoptionCandidateTable: React.FunctionComponent<
               {item.review ? (
                 <ProposedActionLabel action={item?.review?.proposedAction} />
               ) : (
-                <Label>{t("terms.notReviewed")}</Label>
+                <Label>{t('terms.notReviewed')}</Label>
               )}
             </>
           ),

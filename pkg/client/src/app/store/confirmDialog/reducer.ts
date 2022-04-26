@@ -1,8 +1,8 @@
-import { ButtonVariant } from "@patternfly/react-core";
-import { ActionType, getType } from "typesafe-actions";
-import { closeDialog, openDialog, processing } from "./actions";
+import { ButtonVariant } from '@patternfly/react-core';
+import { ActionType, getType } from 'typesafe-actions';
+import { closeDialog, openDialog, processing } from './actions';
 
-export const stateKey = "confirmDialog";
+export const stateKey = 'confirmDialog';
 
 export type ConfirmDialogState = Readonly<{
   isOpen: boolean;
@@ -10,11 +10,11 @@ export type ConfirmDialogState = Readonly<{
 
   title: string;
   titleIconVariant?:
-    | "success"
-    | "danger"
-    | "warning"
-    | "info"
-    | "default"
+    | 'success'
+    | 'danger'
+    | 'warning'
+    | 'info'
+    | 'default'
     | React.ComponentType<any>;
   message: string | React.ReactNode;
   confirmBtnLabel: string;
@@ -28,11 +28,11 @@ export const defaultState: ConfirmDialogState = {
   isOpen: false,
   isProcessing: false,
 
-  title: "",
+  title: '',
   titleIconVariant: undefined,
-  message: "",
-  confirmBtnLabel: "Confirm",
-  cancelBtnLabel: "Cancel",
+  message: '',
+  confirmBtnLabel: 'Confirm',
+  cancelBtnLabel: 'Cancel',
   confirmBtnVariant: ButtonVariant.primary,
 
   onConfirm: () => {},

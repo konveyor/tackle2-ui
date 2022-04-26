@@ -1,18 +1,18 @@
-import { useCallback, useReducer } from "react";
-import { AxiosError } from "axios";
-import { ActionType, createAsyncAction, getType } from "typesafe-actions";
+import { useCallback, useReducer } from 'react';
+import { AxiosError } from 'axios';
+import { ActionType, createAsyncAction, getType } from 'typesafe-actions';
 
-import { getApplicationDependencies } from "@app/api/rest";
-import { PageRepresentation, ApplicationDependency } from "@app/api/models";
+import { getApplicationDependencies } from '@app/api/rest';
+import { PageRepresentation, ApplicationDependency } from '@app/api/models';
 
 export const {
   request: fetchRequest,
   success: fetchSuccess,
   failure: fetchFailure,
 } = createAsyncAction(
-  "useFetchApplicationDependencies/fetch/request",
-  "useFetchApplicationDependencies/fetch/success",
-  "useFetchApplicationDependencies/fetch/failure"
+  'useFetchApplicationDependencies/fetch/request',
+  'useFetchApplicationDependencies/fetch/success',
+  'useFetchApplicationDependencies/fetch/failure'
 )<void, ApplicationDependency[], AxiosError>();
 
 type State = Readonly<{
@@ -29,9 +29,7 @@ const defaultState: State = {
   fetchCount: 0,
 };
 
-type Action = ActionType<
-  typeof fetchRequest | typeof fetchSuccess | typeof fetchFailure
->;
+type Action = ActionType<typeof fetchRequest | typeof fetchSuccess | typeof fetchFailure>;
 
 const initReducer = (isFetching: boolean): State => {
   return {
@@ -72,15 +70,10 @@ export interface IState {
   isFetching: boolean;
   fetchError?: AxiosError;
   fetchCount: number;
-  fetchAllApplicationDependencies: (filters: {
-    from?: string[];
-    to?: string[];
-  }) => void;
+  fetchAllApplicationDependencies: (filters: { from?: string[]; to?: string[] }) => void;
 }
 
-export const useFetchApplicationDependencies = (
-  defaultIsFetching: boolean = false
-): IState => {
+export const useFetchApplicationDependencies = (defaultIsFetching = false): IState => {
   const [state, dispatch] = useReducer(reducer, defaultIsFetching, initReducer);
 
   const fetchAllApplicationDependencies = useCallback(

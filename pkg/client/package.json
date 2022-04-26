@@ -9,7 +9,7 @@
     "build:instrumentation": "CYPRESS_INSTRUMENT_PRODUCTION=true react-scripts -r @cypress/instrument-cra build",
     "build": "NODE_ENV=production $(npm bin)/webpack --config ./config/webpack.prod.js",
     "extract": "i18next --config i18next-parser.config.js",
-    "lint": "$(npm bin)/eslint .",
+    "lint": "$(npm bin)/eslint src",
     "lint:fix": "npm run lint -- --fix",
     "proxy:hub": "kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080",
     "proxy:keycloak": "kubectl port-forward svc/tackle-keycloak-sso -n konveyor-tackle 9001:8080",

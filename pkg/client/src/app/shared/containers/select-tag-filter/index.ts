@@ -1,1 +1,1 @@
-export { SelectTagFilter } from "./select-tag-filter";
+export { SelectTagFilter } from './select-tag-filter';

@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useHistory } from "react-router";
-import { useTranslation } from "react-i18next";
-import { StatusIcon } from "@konveyor/lib-ui";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useHistory } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import { StatusIcon } from '@konveyor/lib-ui';
 
 import {
   Button,
@@ -15,7 +15,7 @@ import {
   ToolbarChip,
   ToolbarGroup,
   ToolbarItem,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 import {
   cellWidth,
   IAction,
@@ -25,12 +25,12 @@ import {
   ISeparator,
   sortable,
   truncate,
-} from "@patternfly/react-table";
-import { InProgressIcon } from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
+} from '@patternfly/react-table';
+import { InProgressIcon } from '@patternfly/react-icons/dist/esm/icons/in-progress-icon';
 
-import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
-import { confirmDialogActions } from "@app/store/confirmDialog";
+import { useDispatch } from 'react-redux';
+import { alertActions } from '@app/store/alert';
+import { confirmDialogActions } from '@app/store/confirmDialog';
 
 import {
   AppPlaceholder,
@@ -38,28 +38,25 @@ import {
   ConditionalRender,
   PageHeader,
   KebabDropdown,
-} from "@app/shared/components";
+} from '@app/shared/components';
 
-import { formatPath, Paths } from "@app/Paths";
-import { ApplicationImportSummary } from "@app/api/models";
-import { formatDate, getAxiosErrorMessage } from "@app/utils/utils";
+import { formatPath, Paths } from '@app/Paths';
+import { ApplicationImportSummary } from '@app/api/models';
+import { formatDate, getAxiosErrorMessage } from '@app/utils/utils';
 
-import { ImportApplicationsForm } from "../components/import-applications-form";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import { AxiosError } from "axios";
-import {
-  useDeleteImportSummaryMutation,
-  useFetchImportSummaries,
-} from "@app/queries/imports";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { ImportApplicationsForm } from '../components/import-applications-form';
+import { usePaginationState } from '@app/shared/hooks/usePaginationState';
+import { AxiosError } from 'axios';
+import { useDeleteImportSummaryMutation, useFetchImportSummaries } from '@app/queries/imports';
+import { useFilterState } from '@app/shared/hooks/useFilterState';
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
-} from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useSortState } from "@app/shared/hooks/useSortState";
+} from '@app/shared/components/FilterToolbar/FilterToolbar';
+import { useSortState } from '@app/shared/hooks/useSortState';
 
-const ENTITY_FIELD = "entity";
+const ENTITY_FIELD = 'entity';
 
 const getRow = (rowData: IRowData): ApplicationImportSummary => {
   return rowData[ENTITY_FIELD];
@@ -75,12 +72,10 @@ export const ManageImports: React.FC = () => {
   // Router
   const history = useHistory();
 
-  const { importSummaries, isFetching, fetchError, refetch } =
-    useFetchImportSummaries();
+  const { importSummaries, isFetching, fetchError, refetch } = useFetchImportSummaries();
 
   // Application import modal
-  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    useState(false);
+  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] = useState(false);
 
   // Delete
 
@@ -100,12 +95,12 @@ export const ManageImports: React.FC = () => {
 
   const filterCategories: FilterCategory<ApplicationImportSummary>[] = [
     {
-      key: "filename",
-      title: "File Name",
+      key: 'filename',
+      title: 'File Name',
       type: FilterType.search,
-      placeholderText: "Filter by filename...",
+      placeholderText: 'Filter by filename...',
       getItemValue: (item) => {
-        return item?.filename || "";
+        return item?.filename || '';
       },
     },
   ];
@@ -119,59 +114,55 @@ export const ManageImports: React.FC = () => {
   };
 
   const getSortValues = (item: ApplicationImportSummary) => [
-    "",
-    "",
-    item?.filename || "",
-    "",
-    "", // Action column
+    '',
+    '',
+    item?.filename || '',
+    '',
+    '', // Action column
   ];
 
-  const { sortBy, onSort, sortedItems } = useSortState(
-    filteredItems,
-    getSortValues
-  );
+  const { sortBy, onSort, sortedItems } = useSortState(filteredItems, getSortValues);
 
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+  const { currentPageItems, setPageNumber, paginationProps } = usePaginationState(sortedItems, 10);
 
   // Table
   const columns: ICell[] = [
     {
-      title: t("terms.date"),
+      title: t('terms.date'),
       transforms: [cellWidth(25)],
     },
     {
-      title: t("terms.user"),
+      title: t('terms.user'),
       transforms: [cellWidth(15)],
       cellTransforms: [truncate],
     },
     {
-      title: t("terms.filename"),
+      title: t('terms.filename'),
       transforms: [sortable, cellWidth(30)],
       cellTransforms: [truncate],
     },
-    { title: t("terms.status"), transforms: [cellWidth(10)] },
-    { title: t("terms.accepted"), transforms: [cellWidth(10)] },
-    { title: t("terms.rejected"), transforms: [cellWidth(10)] },
+    { title: t('terms.status'), transforms: [cellWidth(10)] },
+    { title: t('terms.accepted'), transforms: [cellWidth(10)] },
+    { title: t('terms.rejected'), transforms: [cellWidth(10)] },
   ];
 
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {
     let status;
-    if (item.importStatus === "Completed") {
-      status = <StatusIcon status="Ok" label={t("terms.completed")} />;
-    } else if (item.importStatus === "In Progress") {
+    if (item.importStatus === 'Completed') {
+      status = <StatusIcon status="Ok" label={t('terms.completed')} />;
+    } else if (item.importStatus === 'In Progress') {
       status = (
         <Flex
-          spaceItems={{ default: "spaceItemsSm" }}
-          alignItems={{ default: "alignItemsCenter" }}
-          flexWrap={{ default: "nowrap" }}
-          style={{ whiteSpace: "nowrap" }}
+          spaceItems={{ default: 'spaceItemsSm' }}
+          alignItems={{ default: 'alignItemsCenter' }}
+          flexWrap={{ default: 'nowrap' }}
+          style={{ whiteSpace: 'nowrap' }}
         >
           <FlexItem>
             <InProgressIcon />
           </FlexItem>
-          <FlexItem>{t("terms.inProgress")}</FlexItem>
+          <FlexItem>{t('terms.inProgress')}</FlexItem>
         </Flex>
       );
     } else {
@@ -181,9 +172,7 @@ export const ManageImports: React.FC = () => {
           label={
             <Popover
               position="right"
-              bodyContent={
-                <div>{t("message.importErrorCheckDocumentation")}</div>
-              }
+              bodyContent={<div>{t('message.importErrorCheckDocumentation')}</div>}
               footerContent={
                 <div>
                   <a
@@ -191,13 +180,13 @@ export const ManageImports: React.FC = () => {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    {t("actions.checkDocumentation")}
+                    {t('actions.checkDocumentation')}
                   </a>
                 </div>
               }
             >
               <Button variant={ButtonVariant.link} isInline>
-                {t("terms.error")}
+                {t('terms.error')}
               </Button>
             </Popover>
           }
@@ -209,7 +198,7 @@ export const ManageImports: React.FC = () => {
       [ENTITY_FIELD]: item,
       cells: [
         {
-          title: item.importTime ? formatDate(new Date(item.importTime)) : "",
+          title: item.importTime ? formatDate(new Date(item.importTime)) : '',
         },
         {
           title: item.createUser,
@@ -238,25 +227,17 @@ export const ManageImports: React.FC = () => {
 
     const actions: (IAction | ISeparator)[] = [];
     actions.push({
-      title: t("actions.delete"),
-      onClick: (
-        event: React.MouseEvent,
-        rowIndex: number,
-        rowData: IRowData
-      ) => {
+      title: t('actions.delete'),
+      onClick: (event: React.MouseEvent, rowIndex: number, rowData: IRowData) => {
         const row: ApplicationImportSummary = getRow(rowData);
         deleteRow(row);
       },
     });
 
-    if (row.importStatus === "Completed" && row.invalidCount > 0) {
+    if (row.importStatus === 'Completed' && row.invalidCount > 0) {
       actions.push({
-        title: t("actions.viewErrorReport"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
+        title: t('actions.viewErrorReport'),
+        onClick: (event: React.MouseEvent, rowIndex: number, rowData: IRowData) => {
           const row: ApplicationImportSummary = getRow(rowData);
           viewRowDetails(row);
         },
@@ -270,14 +251,14 @@ export const ManageImports: React.FC = () => {
   const deleteRow = (row: ApplicationImportSummary) => {
     dispatch(
       confirmDialogActions.openDialog({
-        title: t("dialog.title.delete", {
-          what: t("terms.summaryImport").toLowerCase(),
+        title: t('dialog.title.delete', {
+          what: t('terms.summaryImport').toLowerCase(),
         }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
+        titleIconVariant: 'warning',
+        message: t('dialog.message.delete'),
         confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
+        confirmBtnLabel: t('actions.delete'),
+        cancelBtnLabel: t('actions.cancel'),
         onConfirm: () => {
           deleteImportSummary(row.id);
         },
@@ -297,15 +278,15 @@ export const ManageImports: React.FC = () => {
     <>
       <PageSection variant="light">
         <PageHeader
-          title={t("terms.applicationImports")}
+          title={t('terms.applicationImports')}
           breadcrumbs={[
             {
-              title: t("terms.applications"),
+              title: t('terms.applications'),
               path: Paths.applications,
             },
             {
-              title: t("terms.applicationImports"),
-              path: "",
+              title: t('terms.applicationImports'),
+              path: '',
             },
           ]}
           menuActions={[]}
@@ -344,7 +325,7 @@ export const ManageImports: React.FC = () => {
                       variant={ButtonVariant.primary}
                       onClick={() => setIsApplicationImportModalOpen(true)}
                     >
-                      {t("actions.import")}
+                      {t('actions.import')}
                     </Button>
                   </ToolbarItem>
                   <ToolbarItem>
@@ -354,7 +335,7 @@ export const ManageImports: React.FC = () => {
                           key="download-csv-sample"
                           component={
                             <a href="/sample_application_import.csv" download>
-                              {t("actions.downloadCsvTemplate")}
+                              {t('actions.downloadCsvTemplate')}
                             </a>
                           }
                         />,
@@ -371,7 +352,7 @@ export const ManageImports: React.FC = () => {
       <Modal
         isOpen={isApplicationImportModalOpen}
         variant="medium"
-        title={t("dialog.title.importApplicationFile")}
+        title={t('dialog.title.importApplicationFile')}
         onClose={() => setIsApplicationImportModalOpen((current) => !current)}
       >
         <ImportApplicationsForm

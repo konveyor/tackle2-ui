@@ -1,6 +1,6 @@
-import React from "react";
-import { NavLink, useHistory, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { NavLink, useHistory, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Nav,
   NavItem,
@@ -10,36 +10,33 @@ import {
   SelectOption,
   SelectVariant,
   NavExpandable,
-} from "@patternfly/react-core";
-import AdminIcon from "@patternfly/react-icons/dist/esm/icons/cogs-icon";
-import DevIcon from "@patternfly/react-icons/dist/esm/icons/code-icon";
+} from '@patternfly/react-core';
+import AdminIcon from '@patternfly/react-icons/dist/esm/icons/cogs-icon';
+import DevIcon from '@patternfly/react-icons/dist/esm/icons/code-icon';
 
-import { Paths } from "@app/Paths";
-import { LayoutTheme } from "../LayoutUtils";
-import { checkAccess } from "@app/common/rbac-utils";
-import keycloak from "@app/keycloak";
-import {
-  LocalStorageKey,
-  useLocalStorageContext,
-} from "@app/context/LocalStorageContext";
+import { Paths } from '@app/Paths';
+import { LayoutTheme } from '../LayoutUtils';
+import { checkAccess } from '@app/common/rbac-utils';
+import keycloak from '@app/keycloak';
+import { LocalStorageKey, useLocalStorageContext } from '@app/context/LocalStorageContext';
 
-import "./SidebarApp.css";
+import './SidebarApp.css';
 
 export const SidebarApp: React.FC = () => {
   const token = keycloak.tokenParsed || undefined;
   const userRoles = token?.realm_access?.roles,
-    adminAccess = userRoles && checkAccess(userRoles, ["tackle-admin"]);
+    adminAccess = userRoles && checkAccess(userRoles, ['tackle-admin']);
 
   const { t } = useTranslation();
   const { search } = useLocation();
   const history = useHistory();
 
   const onAdminClick = () => {
-    console.log("Admin Selected");
+    console.log('Admin Selected');
   };
 
   const onDevClick = () => {
-    console.log("Dev Selected");
+    console.log('Dev Selected');
   };
 
   const options = [
@@ -71,7 +68,7 @@ export const SidebarApp: React.FC = () => {
   const Navigation = (
     <>
       <Select
-        style={{ border: "0.1em solid white" }}
+        style={{ border: '0.1em solid white' }}
         className="perspective"
         toggleIcon={isDevIcon ? <DevIcon /> : <AdminIcon />}
         variant={SelectVariant.single}
@@ -81,7 +78,7 @@ export const SidebarApp: React.FC = () => {
         onSelect={(_, selection) => {
           setSelectedPersona(selection as string);
           setIsOpen(!isOpen);
-          if (selection === "Administrator") {
+          if (selection === 'Administrator') {
             setDevIcon(false);
             history.push(Paths.identities);
           } else {
@@ -95,28 +92,22 @@ export const SidebarApp: React.FC = () => {
       >
         {options}
       </Select>
-      {selectedPersona === "Developer" ? (
+      {selectedPersona === 'Developer' ? (
         <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
           <NavList title="Global">
             <NavItem>
-              <NavLink
-                to={Paths.applications + search}
-                activeClassName="pf-m-current"
-              >
-                {t("sidebar.applicationInventory")}
+              <NavLink to={Paths.applications + search} activeClassName="pf-m-current">
+                {t('sidebar.applicationInventory')}
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink
-                to={Paths.reports + search}
-                activeClassName="pf-m-current"
-              >
-                {t("sidebar.reports")}
+              <NavLink to={Paths.reports + search} activeClassName="pf-m-current">
+                {t('sidebar.reports')}
               </NavLink>
             </NavItem>
             <NavItem>
               <NavLink to={Paths.controls} activeClassName="pf-m-current">
-                {t("sidebar.controls")}
+                {t('sidebar.controls')}
               </NavLink>
             </NavItem>
           </NavList>
@@ -126,36 +117,22 @@ export const SidebarApp: React.FC = () => {
           <NavList title="Admin">
             <NavItem>
               <NavLink to={Paths.identities} activeClassName="pf-m-current">
-                {t("terms.credentials")}
+                {t('terms.credentials')}
               </NavLink>
             </NavItem>
-            <NavExpandable
-              title="Repositories"
-              srText="SR Link"
-              groupId="admin-repos"
-              isExpanded
-            >
+            <NavExpandable title="Repositories" srText="SR Link" groupId="admin-repos" isExpanded>
               <NavItem>
-                <NavLink
-                  to={Paths.repositoriesGit}
-                  activeClassName="pf-m-current"
-                >
+                <NavLink to={Paths.repositoriesGit} activeClassName="pf-m-current">
                   Git
                 </NavLink>
               </NavItem>
               <NavItem>
-                <NavLink
-                  to={Paths.repositoriesSvn}
-                  activeClassName="pf-m-current"
-                >
+                <NavLink to={Paths.repositoriesSvn} activeClassName="pf-m-current">
                   Subversion
                 </NavLink>
               </NavItem>
               <NavItem>
-                <NavLink
-                  to={Paths.repositoriesMvn}
-                  activeClassName="pf-m-current"
-                >
+                <NavLink to={Paths.repositoriesMvn} activeClassName="pf-m-current">
                   Maven
                 </NavLink>
               </NavItem>

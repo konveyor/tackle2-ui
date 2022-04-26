@@ -1,9 +1,9 @@
-import { useCallback, useReducer } from "react";
-import { ActionType, createAction, getType } from "typesafe-actions";
-import { IExtraColumnData, SortByDirection } from "@patternfly/react-table";
+import { useCallback, useReducer } from 'react';
+import { ActionType, createAction, getType } from 'typesafe-actions';
+import { IExtraColumnData, SortByDirection } from '@patternfly/react-table';
 
-import { DEFAULT_PAGINATION } from "@app/Constants";
-import { PageQuery, SortByQuery } from "@app/api/models";
+import { DEFAULT_PAGINATION } from '@app/Constants';
+import { PageQuery, SortByQuery } from '@app/api/models';
 
 interface PaginationAction {
   page: number;
@@ -12,16 +12,14 @@ interface PaginationAction {
 
 interface SortAction {
   index: number;
-  direction: "asc" | "desc";
+  direction: 'asc' | 'desc';
 }
 
 // Actions
 
-const setPagination = createAction(
-  "tableControls/pagination/change"
-)<PaginationAction>();
+const setPagination = createAction('tableControls/pagination/change')<PaginationAction>();
 
-const setSortBy = createAction("tableControls/sortBy/change")<SortAction>();
+const setSortBy = createAction('tableControls/sortBy/change')<SortAction>();
 
 // State
 type State = Readonly<{
@@ -52,9 +50,7 @@ const reducer = (state: State, action: Action): State => {
         changed: true,
         paginationQuery: {
           page: action.payload.page,
-          perPage: action.payload.perPage
-            ? action.payload.perPage
-            : state.paginationQuery.perPage,
+          perPage: action.payload.perPage ? action.payload.perPage : state.paginationQuery.perPage,
         },
       };
     case getType(setSortBy):
@@ -97,10 +93,7 @@ export const useTableControls = (args?: HookArgs): HookState => {
       args && args.paginationQuery
         ? { ...args.paginationQuery }
         : { ...defaultState.paginationQuery },
-    sortByQuery:
-      args && args.sortByQuery
-        ? { ...args.sortByQuery }
-        : defaultState.sortByQuery,
+    sortByQuery: args && args.sortByQuery ? { ...args.sortByQuery } : defaultState.sortByQuery,
   });
 
   const handlePaginationChange = useCallback((pagination: PaginationAction) => {

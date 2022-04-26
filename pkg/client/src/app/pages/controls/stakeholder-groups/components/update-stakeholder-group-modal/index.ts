@@ -1,1 +1,1 @@
-export { UpdateStakeholderGroupModal } from "./update-stakeholder-group-modal";
+export { UpdateStakeholderGroupModal } from './update-stakeholder-group-modal';

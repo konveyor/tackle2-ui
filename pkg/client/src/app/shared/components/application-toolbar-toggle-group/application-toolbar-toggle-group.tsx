@@ -1,17 +1,14 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { ToolbarChip } from "@patternfly/react-core";
+import { ToolbarChip } from '@patternfly/react-core';
 
-import {
-  SelectBusinessServiceFilter,
-  SelectTagFilter,
-} from "@app/shared/containers";
-import { ApplicationFilterKey } from "@app/Constants";
+import { SelectBusinessServiceFilter, SelectTagFilter } from '@app/shared/containers';
+import { ApplicationFilterKey } from '@app/Constants';
 
-import { AppTableToolbarToggleGroup } from "../app-table-toolbar-toggle-group";
-import { ToolbarSearchFilter } from "../toolbar-search-filter";
-import { InputTextFilter } from "../input-text-filter";
+import { AppTableToolbarToggleGroup } from '../app-table-toolbar-toggle-group';
+import { ToolbarSearchFilter } from '../toolbar-search-filter';
+import { InputTextFilter } from '../input-text-filter';
 
 export interface IApplicationToolbarToggleGroupProps {
   value: Map<ApplicationFilterKey, ToolbarChip[]>;
@@ -19,9 +16,11 @@ export interface IApplicationToolbarToggleGroupProps {
   setFilter: (key: ApplicationFilterKey, value: ToolbarChip[]) => void;
 }
 
-export const ApplicationToolbarToggleGroup: React.FC<
-  IApplicationToolbarToggleGroupProps
-> = ({ value, addFilter, setFilter }) => {
+export const ApplicationToolbarToggleGroup: React.FC<IApplicationToolbarToggleGroupProps> = ({
+  value,
+  addFilter,
+  setFilter,
+}) => {
   // i18
   const { t } = useTranslation();
 
@@ -29,7 +28,7 @@ export const ApplicationToolbarToggleGroup: React.FC<
   const filterOptions = [
     {
       key: ApplicationFilterKey.NAME,
-      name: t("terms.name"),
+      name: t('terms.name'),
       input: (
         <InputTextFilter
           onApplyFilter={(filterText) => {
@@ -43,7 +42,7 @@ export const ApplicationToolbarToggleGroup: React.FC<
     },
     {
       key: ApplicationFilterKey.DESCRIPTION,
-      name: t("terms.description"),
+      name: t('terms.description'),
       input: (
         <InputTextFilter
           onApplyFilter={(filterText) => {
@@ -57,7 +56,7 @@ export const ApplicationToolbarToggleGroup: React.FC<
     },
     {
       key: ApplicationFilterKey.BUSINESS_SERVICE,
-      name: t("terms.businessService"),
+      name: t('terms.businessService'),
       input: (
         <SelectBusinessServiceFilter
           value={value.get(ApplicationFilterKey.BUSINESS_SERVICE)}
@@ -69,13 +68,11 @@ export const ApplicationToolbarToggleGroup: React.FC<
     },
     {
       key: ApplicationFilterKey.TAG,
-      name: t("terms.tag"),
+      name: t('terms.tag'),
       input: (
         <SelectTagFilter
           value={value.get(ApplicationFilterKey.TAG)}
-          onApplyFilter={(values) =>
-            setFilter(ApplicationFilterKey.TAG, values)
-          }
+          onApplyFilter={(values) => setFilter(ApplicationFilterKey.TAG, values)}
         />
       ),
     },

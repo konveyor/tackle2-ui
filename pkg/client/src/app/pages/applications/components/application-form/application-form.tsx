@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import { useFormik, FormikProvider, FormikHelpers } from "formik";
-import { object, string } from "yup";
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AxiosError, AxiosPromise, AxiosResponse } from 'axios';
+import { useFormik, FormikProvider, FormikHelpers } from 'formik';
+import { object, string } from 'yup';
 import {
   ActionGroup,
   Alert,
@@ -13,21 +13,21 @@ import {
   FormGroup,
   TextArea,
   TextInput,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
 import {
   SingleSelectFetchOptionValueFormikField,
   MultiSelectFetchOptionValueFormikField,
-} from "@app/shared/components";
-import { useFetchBusinessServices, useFetchTagTypes } from "@app/shared/hooks";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { Application, Ref, Tag } from "@app/api/models";
+} from '@app/shared/components';
+import { useFetchBusinessServices, useFetchTagTypes } from '@app/shared/hooks';
+import { DEFAULT_SELECT_MAX_HEIGHT } from '@app/Constants';
+import { Application, Ref, Tag } from '@app/api/models';
 import {
   duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
-} from "@app/utils/utils";
+} from '@app/utils/utils';
 import {
   IBusinessServiceDropdown,
   isIModelEqual,
@@ -36,15 +36,15 @@ import {
   toIBusinessServiceDropdownOptionWithValue,
   toITagDropdown,
   toITagDropdownOptionWithValue,
-} from "@app/utils/model-utils";
+} from '@app/utils/model-utils';
 
-import "./application-form.css";
+import './application-form.css';
 import {
   ApplicationsQueryKey,
   useCreateApplicationMutation,
   useUpdateApplicationMutation,
-} from "@app/queries/applications";
-import { useQueryClient } from "react-query";
+} from '@app/queries/applications';
+import { useQueryClient } from 'react-query';
 export interface FormValues {
   name: string;
   description: string;
@@ -118,9 +118,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     let result: IBusinessServiceDropdown | null = null;
     if (application && application.businessService && businessServices) {
       const businessServiceId = Number(application.businessService.id);
-      const businessService = businessServices.find(
-        (f) => f.id === businessServiceId
-      );
+      const businessService = businessServices.find((f) => f.id === businessServiceId);
 
       if (businessService) {
         result = toIBusinessServiceDropdown({
@@ -145,140 +143,131 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
     return result;
   }, [application, tags]);
-  const getBinaryInitialValue = (
-    application: Application | undefined,
-    fieldName: string
-  ) => {
-    const fieldList = application?.binary?.split(":") || [];
+  const getBinaryInitialValue = (application: Application | undefined, fieldName: string) => {
+    const fieldList = application?.binary?.split(':') || [];
     switch (fieldName) {
-      case "group":
-        return fieldList[0] || "";
+      case 'group':
+        return fieldList[0] || '';
         break;
-      case "artifact":
-        return fieldList[1] || "";
+      case 'artifact':
+        return fieldList[1] || '';
         break;
-      case "version":
-        return fieldList[2] || "";
+      case 'version':
+        return fieldList[2] || '';
         break;
-      case "packaging":
-        return fieldList[3] || "";
+      case 'packaging':
+        return fieldList[3] || '';
         break;
       default:
-        return "";
+        return '';
     }
   };
 
   const initialValues: FormValues = {
-    name: application?.name || "",
-    description: application?.description || "",
+    name: application?.name || '',
+    description: application?.description || '',
     id: application?.id || 0,
-    comments: application?.comments || "",
+    comments: application?.comments || '',
     businessService: businessServiceInitialValue,
     tags: tagsInitialValue,
-    sourceRepository: application?.repository?.url || "",
-    branch: application?.repository?.branch || "",
-    rootPath: application?.repository?.path || "",
-    group: getBinaryInitialValue(application, "group"),
-    artifact: getBinaryInitialValue(application, "artifact"),
-    version: getBinaryInitialValue(application, "version"),
-    packaging: getBinaryInitialValue(application, "packaging"),
+    sourceRepository: application?.repository?.url || '',
+    branch: application?.repository?.branch || '',
+    rootPath: application?.repository?.path || '',
+    group: getBinaryInitialValue(application, 'group'),
+    artifact: getBinaryInitialValue(application, 'artifact'),
+    version: getBinaryInitialValue(application, 'version'),
+    packaging: getBinaryInitialValue(application, 'packaging'),
   };
   const queryClient = useQueryClient();
   const validationSchema = object().shape(
     {
       name: string()
         .trim()
-        .required(t("validation.required"))
-        .min(3, t("validation.minLength", { length: 3 }))
-        .max(120, t("validation.maxLength", { length: 120 }))
+        .required(t('validation.required'))
+        .min(3, t('validation.minLength', { length: 3 }))
+        .max(120, t('validation.maxLength', { length: 120 }))
         .test(
-          "Duplicate name",
-          "An application with this name already exists. Please use a different name.",
+          'Duplicate name',
+          'An application with this name already exists. Please use a different name.',
           (value) => {
             const applications: Application[] =
               queryClient.getQueryData(ApplicationsQueryKey) || [];
-            return duplicateNameCheck(
-              applications,
-              application || null,
-              value || ""
-            );
+            return duplicateNameCheck(applications, application || null, value || '');
           }
         ),
       description: string()
         .trim()
-        .max(250, t("validation.maxLength", { length: 250 })),
+        .max(250, t('validation.maxLength', { length: 250 })),
       businessService: object().shape({
         id: string()
           .trim()
           .required()
-          .max(250, t("validation.maxLength", { length: 250 })),
+          .max(250, t('validation.maxLength', { length: 250 })),
         value: string()
           .trim()
-          .max(250, t("validation.maxLength", { length: 250 })),
+          .max(250, t('validation.maxLength', { length: 250 })),
       }),
       comments: string()
         .trim()
-        .max(250, t("validation.maxLength", { length: 250 })),
+        .max(250, t('validation.maxLength', { length: 250 })),
       branch: string()
         .trim()
-        .max(250, t("validation.maxLength", { length: 250 })),
+        .max(250, t('validation.maxLength', { length: 250 })),
       rootPath: string()
         .trim()
-        .max(250, t("validation.maxLength", { length: 250 })),
+        .max(250, t('validation.maxLength', { length: 250 })),
       sourceRepository: string()
-        .when("branch", {
+        .when('branch', {
           is: (branch: any) => branch?.length > 0,
-          then: (schema) =>
-            schema.url().required("Please enter repository url"),
+          then: (schema) => schema.url().required('Please enter repository url'),
           otherwise: (schema) => schema.url(),
         })
-        .when("rootPath", {
+        .when('rootPath', {
           is: (rootPath: any) => rootPath?.length > 0,
-          then: (schema) =>
-            schema.url().required("Please enter repository url"),
+          then: (schema) => schema.url().required('Please enter repository url'),
           otherwise: (schema) => schema.url(),
         }),
       group: string()
-        .when("artifact", {
+        .when('artifact', {
           is: (artifact: string) => artifact?.length > 0,
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required('This field is required.'),
           otherwise: (schema) => schema.trim(),
         })
-        .when("version", {
+        .when('version', {
           is: (version: string) => version?.length > 0,
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required('This field is required.'),
           otherwise: (schema) => schema.trim(),
         }),
       artifact: string()
-        .when("group", {
+        .when('group', {
           is: (group: string) => group?.length > 0,
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required('This field is required.'),
           otherwise: (schema) => schema.trim(),
         })
-        .when("version", {
+        .when('version', {
           is: (version: string) => version?.length > 0,
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required('This field is required.'),
           otherwise: (schema) => schema.trim(),
         }),
       version: string()
-        .when("group", {
+        .when('group', {
           is: (group: string) => group?.length > 0,
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required('This field is required.'),
           otherwise: (schema) => schema.trim(),
         })
-        .when("artifact", {
+        .when('artifact', {
           is: (artifact: string) => artifact?.length > 0,
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required('This field is required.'),
           otherwise: (schema) => schema.trim(),
         }),
     },
     [
-      ["version", "group"],
-      ["version", "artifact"],
-      ["artifact", "group"],
-      ["artifact", "version"],
-      ["group", "artifact"],
-      ["group", "version"],
+      ['version', 'group'],
+      ['version', 'artifact'],
+      ['artifact', 'group'],
+      ['artifact', 'version'],
+      ['group', 'artifact'],
+      ['group', 'version'],
     ]
   );
   const buildBinaryFieldString = (
@@ -312,10 +301,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     onCreateUpdateApplicationError
   );
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
+  const onSubmit = (formValues: FormValues, formikHelpers: FormikHelpers<FormValues>) => {
     const payload: Application = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
@@ -333,9 +319,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       ...(formValues.sourceRepository
         ? {
             repository: {
-              url: formValues.sourceRepository
-                ? formValues.sourceRepository.trim()
-                : undefined,
+              url: formValues.sourceRepository ? formValues.sourceRepository.trim() : undefined,
               branch: formValues.branch.trim(),
               path: formValues.rootPath.trim(),
             },
@@ -379,21 +363,15 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
-        {axiosError && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(axiosError)}
-          />
-        )}
+        {axiosError && <Alert variant="danger" isInline title={getAxiosErrorMessage(axiosError)} />}
         <ExpandableSection
-          toggleText={"Basic information"}
+          toggleText={'Basic information'}
           className="toggle"
           onToggle={() => setBasicExpanded(!isBasicExpanded)}
           isExpanded={isBasicExpanded}
         >
           <FormGroup
-            label={t("terms.name")}
+            label={t('terms.name')}
             fieldId="name"
             isRequired={true}
             validated={getValidatedFromError(formik.errors.name)}
@@ -408,14 +386,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.name}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
-              )}
+              validated={getValidatedFromErrorTouched(formik.errors.name, formik.touched.name)}
             />
           </FormGroup>
           <FormGroup
-            label={t("terms.description")}
+            label={t('terms.description')}
             fieldId="description"
             isRequired={false}
             validated={getValidatedFromError(formik.errors.description)}
@@ -437,28 +412,26 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             />
           </FormGroup>
           <FormGroup
-            label={t("terms.businessService")}
+            label={t('terms.businessService')}
             fieldId="businessService"
             isRequired={true}
             validated={getValidatedFromError(formik.errors.businessService)}
-            helperTextInvalid={
-              formik.errors.businessService && "This field is required"
-            }
+            helperTextInvalid={formik.errors.businessService && 'This field is required'}
           >
             <SingleSelectFetchOptionValueFormikField<IBusinessServiceDropdown>
               fieldConfig={{
-                name: "businessService",
+                name: 'businessService',
               }}
               selectConfig={{
-                variant: "typeahead",
-                "aria-label": "business-service",
-                "aria-describedby": "business-service",
-                typeAheadAriaLabel: "business-service",
-                toggleAriaLabel: "business-service",
-                clearSelectionsAriaLabel: "business-service",
-                removeSelectionAriaLabel: "business-service",
-                placeholderText: t("composed.selectOne", {
-                  what: t("terms.businessService").toLowerCase(),
+                variant: 'typeahead',
+                'aria-label': 'business-service',
+                'aria-describedby': 'business-service',
+                typeAheadAriaLabel: 'business-service',
+                toggleAriaLabel: 'business-service',
+                clearSelectionsAriaLabel: 'business-service',
+                removeSelectionAriaLabel: 'business-service',
+                placeholderText: t('composed.selectOne', {
+                  what: t('terms.businessService').toLowerCase(),
                 }),
                 menuAppendTo: () => document.body,
                 maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
@@ -470,7 +443,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             />
           </FormGroup>
           <FormGroup
-            label={t("terms.tags")}
+            label={t('terms.tags')}
             fieldId="tags"
             isRequired={false}
             validated={getValidatedFromError(formik.errors.tags)}
@@ -478,19 +451,19 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           >
             <MultiSelectFetchOptionValueFormikField<ITagDropdown>
               fieldConfig={{
-                name: "tags",
+                name: 'tags',
               }}
               selectConfig={{
-                variant: "typeaheadmulti",
-                "aria-label": "tags",
-                "aria-describedby": "tags",
-                typeAheadAriaLabel: "tags",
-                toggleAriaLabel: "tags",
-                clearSelectionsAriaLabel: "tags",
-                removeSelectionAriaLabel: "tags",
+                variant: 'typeaheadmulti',
+                'aria-label': 'tags',
+                'aria-describedby': 'tags',
+                typeAheadAriaLabel: 'tags',
+                toggleAriaLabel: 'tags',
+                clearSelectionsAriaLabel: 'tags',
+                removeSelectionAriaLabel: 'tags',
                 // t("terms.tag(s)")
-                placeholderText: t("composed.selectOne", {
-                  what: t("terms.tag(s)").toLowerCase(),
+                placeholderText: t('composed.selectOne', {
+                  what: t('terms.tag(s)').toLowerCase(),
                 }),
                 menuAppendTo: () => document.body,
                 maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
@@ -503,7 +476,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             />
           </FormGroup>
           <FormGroup
-            label={t("terms.comments")}
+            label={t('terms.comments')}
             fieldId="comments"
             isRequired={false}
             validated={getValidatedFromError(formik.errors.comments)}
@@ -526,16 +499,16 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           </FormGroup>
         </ExpandableSection>
         <ExpandableSection
-          toggleText={t("terms.sourceCode")}
+          toggleText={t('terms.sourceCode')}
           className="toggle"
           onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
           isExpanded={isSourceCodeExpanded}
         >
           <FormGroup
-            label={t("terms.sourceRepo")}
+            label={t('terms.sourceRepo')}
             fieldId="sourceRepository"
             validated={getValidatedFromError(formik.errors.sourceRepository)}
-            helperTextInvalid={"Must be a valid URL."}
+            helperTextInvalid={'Must be a valid URL.'}
           >
             <TextInput
               type="text"
@@ -549,7 +522,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             />
           </FormGroup>
           <FormGroup
-            label={t("terms.sourceBranch")}
+            label={t('terms.sourceBranch')}
             fieldId="branch"
             validated={getValidatedFromError(formik.errors.branch)}
             helperTextInvalid={formik.errors.branch}
@@ -562,14 +535,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.branch}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.branch,
-                formik.touched.branch
-              )}
+              validated={getValidatedFromErrorTouched(formik.errors.branch, formik.touched.branch)}
             />
           </FormGroup>
           <FormGroup
-            label={t("terms.sourceRootPath")}
+            label={t('terms.sourceRootPath')}
             fieldId="rootPath"
             validated={getValidatedFromError(formik.errors.rootPath)}
             helperTextInvalid={formik.errors.rootPath}
@@ -590,13 +560,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           </FormGroup>
         </ExpandableSection>
         <ExpandableSection
-          toggleText={t("terms.binary")}
+          toggleText={t('terms.binary')}
           className="toggle"
           onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
           isExpanded={isBinaryExpanded}
         >
           <FormGroup
-            label={t("terms.binaryGroup")}
+            label={t('terms.binaryGroup')}
             fieldId="group"
             validated={getValidatedFromError(formik.errors.group)}
             helperTextInvalid={formik.errors.group}
@@ -609,14 +579,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               onChange={onChangeField}
               onBlur={formik.handleBlur}
               value={formik.values.group}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.group,
-                formik.touched.group
-              )}
+              validated={getValidatedFromErrorTouched(formik.errors.group, formik.touched.group)}
             />
           </FormGroup>
           <FormGroup
-            label={t("terms.binaryArtifact")}
+            label={t('terms.binaryArtifact')}
             fieldId="artifact"
             validated={getValidatedFromError(formik.errors.artifact)}
             helperTextInvalid={formik.errors.artifact}
@@ -636,7 +603,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             />
           </FormGroup>
           <FormGroup
-            label={t("terms.binaryVersion")}
+            label={t('terms.binaryVersion')}
             fieldId="version"
             validated={getValidatedFromError(formik.errors.version)}
             helperTextInvalid={formik.errors.version}
@@ -656,7 +623,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             />
           </FormGroup>
           <FormGroup
-            label={t("terms.binaryPackaging")}
+            label={t('terms.binaryPackaging')}
             fieldId="packaging"
             validated={getValidatedFromError(formik.errors.packaging)}
             helperTextInvalid={formik.errors.packaging}
@@ -682,13 +649,10 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             aria-label="submit"
             variant={ButtonVariant.primary}
             isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
+              !formik.isValid || !formik.dirty || formik.isSubmitting || formik.isValidating
             }
           >
-            {!application ? t("actions.create") : t("actions.save")}
+            {!application ? t('actions.create') : t('actions.save')}
           </Button>
           <Button
             type="button"
@@ -697,7 +661,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             isDisabled={formik.isSubmitting || formik.isValidating}
             onClick={onCancel}
           >
-            {t("actions.cancel")}
+            {t('actions.cancel')}
           </Button>
         </ActionGroup>
       </Form>

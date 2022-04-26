@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 import {
   Application,
@@ -10,8 +10,8 @@ import {
   StakeholderGroup,
   Tag,
   TagType,
-} from "@app/api/models";
-import { Color, OptionWithValue } from "@app/shared/components";
+} from '@app/api/models';
+import { Color, OptionWithValue } from '@app/shared/components';
 
 interface IModel {
   id?: string | number;
@@ -21,12 +21,9 @@ export const isIModelEqual = (a: IModel, b: IModel) => a.id === b.id;
 
 // Business service dropdown
 
-export interface IBusinessServiceDropdown
-  extends Pick<BusinessService, "id" | "name"> {}
+export type IBusinessServiceDropdown = Pick<BusinessService, 'id' | 'name'>;
 
-export const toIBusinessServiceDropdown = (
-  value: BusinessService
-): IBusinessServiceDropdown => ({
+export const toIBusinessServiceDropdown = (value: BusinessService): IBusinessServiceDropdown => ({
   id: value.id,
   name: value.name,
 });
@@ -39,7 +36,7 @@ export const toIBusinessServiceDropdownOptionWithValue = (
 });
 
 // Identity dropdown
-export interface IdentityDropdown extends Pick<Identity, "id" | "name"> {}
+export type IdentityDropdown = Pick<Identity, 'id' | 'name'>;
 
 export const toIdentityDropdown = (value: Identity): IdentityDropdown => ({
   id: value.id,
@@ -50,20 +47,17 @@ export const toIdentityDropdownOptionWithValue = (
   value: IdentityDropdown
 ): OptionWithValue<IdentityDropdown> => ({
   value,
-  toString: () => value?.name || "",
+  toString: () => value?.name || '',
 });
 
 // Stakeholder dropdown
 
-export interface IStakeholderDropdown
-  extends Pick<Stakeholder, "id" | "name" | "email"> {}
+export type IStakeholderDropdown = Pick<Stakeholder, 'id' | 'name' | 'email'>;
 
-export const toIStakeholderDropdown = (
-  value: Stakeholder | undefined
-): IStakeholderDropdown => ({
+export const toIStakeholderDropdown = (value: Stakeholder | undefined): IStakeholderDropdown => ({
   id: value?.id,
-  name: value?.name || "",
-  email: value?.email || "",
+  name: value?.name || '',
+  email: value?.email || '',
 });
 
 export const toIStakeholderDropdownOptionWithValue = (
@@ -78,8 +72,7 @@ export const toIStakeholderDropdownOptionWithValue = (
 
 // Stakeholder group dropdown
 
-export interface IStakeholderGroupDropdown
-  extends Pick<StakeholderGroup, "id" | "name"> {}
+export type IStakeholderGroupDropdown = Pick<StakeholderGroup, 'id' | 'name'>;
 
 export const toIStakeholderGroupDropdown = (
   value: StakeholderGroup
@@ -97,12 +90,9 @@ export const toIStakeholderGroupDropdownOptionWithValue = (
 
 // Job function dropdown
 
-export interface IJobFunctionDropdown
-  extends Pick<JobFunction, "id" | "name"> {}
+export type IJobFunctionDropdown = Pick<JobFunction, 'id' | 'name'>;
 
-export const toIJobFunctionDropdown = (
-  value: JobFunction
-): IJobFunctionDropdown => ({
+export const toIJobFunctionDropdown = (value: JobFunction): IJobFunctionDropdown => ({
   id: value.id,
   name: value.name,
 });
@@ -116,7 +106,7 @@ export const toIJobFunctionDropdownOptionWithValue = (
 
 // TagType
 
-export interface ITagTypeDropdown extends Pick<TagType, "id" | "name"> {}
+export type ITagTypeDropdown = Pick<TagType, 'id' | 'name'>;
 
 export const toITagTypeDropdown = (value: TagType): ITagTypeDropdown => ({
   id: value.id,
@@ -132,7 +122,7 @@ export const toITagTypeDropdownOptionWithValue = (
 
 // Tag
 
-export interface ITagDropdown extends Pick<Tag, "id" | "name" | "tagType"> {}
+export type ITagDropdown = Pick<Tag, 'id' | 'name' | 'tagType'>;
 
 export const toITagDropdown = (value: Tag): ITagDropdown => ({
   id: value.id,
@@ -146,15 +136,13 @@ export const toITagDropdownOptionWithValue = (
   value,
   toString: () => value.name,
   props: {
-    description: value.tagType ? value.tagType.name : "",
+    description: value.tagType ? value.tagType.name : '',
   },
 });
 
 // Colors
 
-export const colorHexToOptionWithValue = (
-  hex: string
-): OptionWithValue<string> => ({
+export const colorHexToOptionWithValue = (hex: string): OptionWithValue<string> => ({
   value: hex,
   toString: () => hex,
   props: {
@@ -178,11 +166,7 @@ export function toISimpleOptionDropdownWithValue<T>(
   };
 }
 
-export const getKindIDByRef = (
-  identities: Identity[],
-  application: Application,
-  kind: string
-) => {
+export const getKindIDByRef = (identities: Identity[], application: Application, kind: string) => {
   const matchingIdentity = identities.find((i) => {
     let matchingID;
     application?.identities?.forEach((appIdentity) => {

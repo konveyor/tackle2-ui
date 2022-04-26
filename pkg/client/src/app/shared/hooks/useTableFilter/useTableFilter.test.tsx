@@ -1,12 +1,12 @@
-import { renderHook } from "@testing-library/react-hooks";
-import { PageQuery } from "@app/api/models";
+import { renderHook } from '@testing-library/react-hooks';
+import { PageQuery } from '@app/api/models';
 
-import { useTableFilter } from "./useTableFilter";
+import { useTableFilter } from './useTableFilter';
 
-describe("useTableFilter", () => {
-  it("Pagination", () => {
+describe('useTableFilter', () => {
+  it('Pagination', () => {
     const items = [...Array(15)].map((_, index) => index + 1);
-    let page: PageQuery = { page: 1, perPage: 10 };
+    const page: PageQuery = { page: 1, perPage: 10 };
 
     const { result } = renderHook(() =>
       useTableFilter<number>({
@@ -21,9 +21,9 @@ describe("useTableFilter", () => {
     expect(result.current.pageItems).toEqual(items.slice(0, 10));
   });
 
-  it("Filter", () => {
+  it('Filter', () => {
     const items = [...Array(15)].map((_, index) => index + 1);
-    let page: PageQuery = { page: 1, perPage: 10 };
+    const page: PageQuery = { page: 1, perPage: 10 };
 
     const { result } = renderHook(() =>
       useTableFilter<number>({
@@ -39,9 +39,9 @@ describe("useTableFilter", () => {
     expect(result.current.pageItems).toEqual(expectedResult);
   });
 
-  it("SortBy", () => {
+  it('SortBy', () => {
     const items = [...Array(15)].map((_, index) => index + 1);
-    let page: PageQuery = { page: 1, perPage: 10 };
+    const page: PageQuery = { page: 1, perPage: 10 };
     const filterItem = () => true;
     const compareToByColumn = (a: number, b: number, indexCol?: number) =>
       indexCol === 7 ? a - b : 0;
@@ -52,7 +52,7 @@ describe("useTableFilter", () => {
         items: items,
         pagination: page,
         filterItem: filterItem,
-        sortBy: { direction: "asc", index: 7 },
+        sortBy: { direction: 'asc', index: 7 },
         compareToByColumn: compareToByColumn,
       })
     );
@@ -66,7 +66,7 @@ describe("useTableFilter", () => {
         items: items,
         pagination: page,
         filterItem: filterItem,
-        sortBy: { direction: "desc", index: 7 },
+        sortBy: { direction: 'desc', index: 7 },
         compareToByColumn: compareToByColumn,
       })
     );
@@ -77,7 +77,7 @@ describe("useTableFilter", () => {
 
   it("SortBy when 'compareToByColumn' return always 0", () => {
     const items = [...Array(15)].map((_, index) => index + 1);
-    let page: PageQuery = { page: 1, perPage: 10 };
+    const page: PageQuery = { page: 1, perPage: 10 };
 
     const expectedResult = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -87,7 +87,7 @@ describe("useTableFilter", () => {
         items: items,
         pagination: page,
         filterItem: () => true,
-        sortBy: { direction: "asc", index: 7 },
+        sortBy: { direction: 'asc', index: 7 },
         compareToByColumn: () => 0, // forcing comparison true
       })
     );
@@ -100,7 +100,7 @@ describe("useTableFilter", () => {
         items: items,
         pagination: page,
         filterItem: () => true,
-        sortBy: { direction: "desc", index: 7 },
+        sortBy: { direction: 'desc', index: 7 },
         compareToByColumn: () => 0, // forcing comparison true
       })
     );
@@ -110,7 +110,7 @@ describe("useTableFilter", () => {
 
   it("SortBy when 'compareToByColumn' return always 0 and 'filter' is applied", () => {
     const items = [...Array(25)].map((_, index) => index + 1);
-    let page: PageQuery = { page: 1, perPage: 10 };
+    const page: PageQuery = { page: 1, perPage: 10 };
     const filterItem = (val: number) => val % 2 === 0;
     const compareToByColumn = () => 0; // forcing comparison true
 
@@ -122,7 +122,7 @@ describe("useTableFilter", () => {
         items: items,
         pagination: page,
         filterItem: filterItem,
-        sortBy: { direction: "asc", index: 7 },
+        sortBy: { direction: 'asc', index: 7 },
         compareToByColumn: compareToByColumn,
       })
     );
@@ -135,7 +135,7 @@ describe("useTableFilter", () => {
         items: items,
         pagination: page,
         filterItem: filterItem,
-        sortBy: { direction: "desc", index: 7 },
+        sortBy: { direction: 'desc', index: 7 },
         compareToByColumn: compareToByColumn,
       })
     );

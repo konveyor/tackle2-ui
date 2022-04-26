@@ -1,1 +1,1 @@
-export { ApplicationReview as default } from "./application-review";
+export { ApplicationReview as default } from './application-review';

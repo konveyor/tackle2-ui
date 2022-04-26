@@ -1,10 +1,10 @@
-import React from "react";
-import { BrowserRouter as Router } from "react-router-dom";
-import { shallow } from "enzyme";
-import { SidebarApp } from "../SidebarApp";
+import React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { shallow } from 'enzyme';
+import { SidebarApp } from '../SidebarApp';
 
-it("Renders without crashing", () => {
-  jest.mock("react-i18next", () => ({
+it('Renders without crashing', () => {
+  jest.mock('react-i18next', () => ({
     useTranslation: () => {
       return {
         t: (str: any) => str,

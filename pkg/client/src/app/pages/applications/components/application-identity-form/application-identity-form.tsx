@@ -1,40 +1,34 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import { useTranslation } from "react-i18next";
+import React, { useEffect, useMemo, useState } from 'react';
+import { AxiosError, AxiosPromise, AxiosResponse } from 'axios';
+import { useTranslation } from 'react-i18next';
 
 import {
   ActionGroup,
   Alert,
   Button,
   ButtonVariant,
-  Card,
   Form,
   FormGroup,
   TextInput,
   Text,
-} from "@patternfly/react-core";
-import { WarningTriangleIcon } from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { Application, Identity, Ref } from "@app/api/models";
-import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+} from '@patternfly/react-core';
+import { WarningTriangleIcon } from '@patternfly/react-icons/dist/esm/icons/warning-triangle-icon';
+import { getAxiosErrorMessage } from '@app/utils/utils';
+import { Application, Identity, Ref } from '@app/api/models';
+import { SingleSelectFetchOptionValueFormikField } from '@app/shared/components';
+import { DEFAULT_SELECT_MAX_HEIGHT } from '@app/Constants';
+import { useFetchIdentities } from '@app/shared/hooks/useFetchIdentities';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 import {
   getKindIDByRef,
   IdentityDropdown,
   toIdentityDropdown,
   toIdentityDropdownOptionWithValue,
-} from "@app/utils/model-utils";
-import { useFormik, FormikProvider } from "formik";
-import {
-  APPLICATION_NAME,
-  MAVEN_SETTINGS,
-  SOURCE_CREDENTIALS,
-} from "./field-names";
-import validationSchema from "./validation-schema";
-import { updateApplication } from "@app/api/rest";
-import { useUpdateApplicationMutation } from "@app/queries/applications";
+} from '@app/utils/model-utils';
+import { useFormik, FormikProvider } from 'formik';
+import { APPLICATION_NAME, MAVEN_SETTINGS, SOURCE_CREDENTIALS } from './field-names';
+import validationSchema from './validation-schema';
+import { useUpdateApplicationMutation } from '@app/queries/applications';
 
 export interface FormValues {
   applicationName: string;
@@ -48,9 +42,11 @@ export interface ApplicationIdentityFormProps {
   onCancel: () => void;
 }
 
-export const ApplicationIdentityForm: React.FC<
-  ApplicationIdentityFormProps
-> = ({ applications, onSaved, onCancel }) => {
+export const ApplicationIdentityForm: React.FC<ApplicationIdentityFormProps> = ({
+  applications,
+  onSaved,
+  onCancel,
+}) => {
   const { t } = useTranslation();
   const [error, setAxiosError] = useState<AxiosError>();
 
@@ -75,9 +71,9 @@ export const ApplicationIdentityForm: React.FC<
   );
 
   const onSubmit = (formValues: FormValues) => {
-    let updatePromises: Array<AxiosPromise<Application>> = [];
+    const updatePromises: Array<AxiosPromise<Application>> = [];
     applications.forEach((application) => {
-      let updatedIdentities: Ref[] = [];
+      const updatedIdentities: Ref[] = [];
       if (application.identities && identities) {
         let newSourceCredentials: Ref | IdentityDropdown;
         const { sourceCredentials } = formValues;
@@ -99,8 +95,7 @@ export const ApplicationIdentityForm: React.FC<
           id: application.id,
           businessService: application.businessService,
         };
-        let promise: AxiosPromise<Application>;
-        promise = updateApplication({
+        const promise: AxiosPromise<Application> = updateApplication({
           ...application,
           ...payload,
         });
@@ -120,24 +115,20 @@ export const ApplicationIdentityForm: React.FC<
         onCreateUpdateApplicationError(error);
       });
   };
-  const emptyIdentity = { id: 0, name: "None", kind: "", createUser: "" };
+  const emptyIdentity = { id: 0, name: 'None', kind: '', createUser: '' };
 
-  let mavenIdentityOptions: Identity[] =
-    identities?.filter((i) => i.kind === "maven") || [];
+  let mavenIdentityOptions: Identity[] = identities?.filter((i) => i.kind === 'maven') || [];
   mavenIdentityOptions.unshift(emptyIdentity);
   mavenIdentityOptions = mavenIdentityOptions.map((i) => toIdentityDropdown(i));
 
-  let sourceIdentityOptions: Identity[] =
-    identities?.filter((i) => i.kind === "source") || [];
+  let sourceIdentityOptions: Identity[] = identities?.filter((i) => i.kind === 'source') || [];
   sourceIdentityOptions.unshift(emptyIdentity);
-  sourceIdentityOptions = sourceIdentityOptions.map((i) =>
-    toIdentityDropdown(i)
-  );
+  sourceIdentityOptions = sourceIdentityOptions.map((i) => toIdentityDropdown(i));
 
   const sourceCredentialsInitialValue = useMemo(() => {
-    let result: IdentityDropdown = { id: 0, name: "" };
+    let result: IdentityDropdown = { id: 0, name: '' };
     if (applications && identities) {
-      const matchingID = getKindIDByRef(identities, applications[0], "source");
+      const matchingID = getKindIDByRef(identities, applications[0], 'source');
       if (matchingID) {
         result = toIdentityDropdown(matchingID);
       } else {
@@ -148,9 +139,9 @@ export const ApplicationIdentityForm: React.FC<
   }, [identities, applications]);
 
   const mavenSettingsInitialValue = useMemo(() => {
-    let result: IdentityDropdown = { id: 0, name: "" };
+    let result: IdentityDropdown = { id: 0, name: '' };
     if (applications && identities) {
-      const matchingID = getKindIDByRef(identities, applications[0], "maven");
+      const matchingID = getKindIDByRef(identities, applications[0], 'maven');
       if (matchingID) {
         result = toIdentityDropdown(matchingID);
       } else {
@@ -162,11 +153,11 @@ export const ApplicationIdentityForm: React.FC<
 
   const getApplicationNames = (applications: Application[]) => {
     const listOfNames = applications.map((app: Application) => app.name);
-    return listOfNames.join(", ");
+    return listOfNames.join(', ');
   };
 
   const initialValues: FormValues = {
-    [APPLICATION_NAME]: getApplicationNames(applications) || "",
+    [APPLICATION_NAME]: getApplicationNames(applications) || '',
     [SOURCE_CREDENTIALS]: sourceCredentialsInitialValue,
     [MAVEN_SETTINGS]: mavenSettingsInitialValue,
   };
@@ -184,10 +175,10 @@ export const ApplicationIdentityForm: React.FC<
   useEffect(() => {
     if (identities && applications) {
       const isExistingSourceCreds = applications.some((app) => {
-        return getKindIDByRef(identities, app, "source");
+        return getKindIDByRef(identities, app, 'source');
       });
       const isExistingMavenCreds = applications.some((app) => {
-        return getKindIDByRef(identities, app, "maven");
+        return getKindIDByRef(identities, app, 'maven');
       });
       setExistingIdentitiesError(isExistingMavenCreds || isExistingSourceCreds);
     }
@@ -196,31 +187,25 @@ export const ApplicationIdentityForm: React.FC<
   return (
     <FormikProvider value={formik}>
       <Form>
-        {error && (
-          <Alert variant="danger" title={getAxiosErrorMessage(error)} />
-        )}
+        {error && <Alert variant="danger" title={getAxiosErrorMessage(error)} />}
         <TextInput
           value={formik.values.applicationName}
           type="text"
           aria-label="Manage credentials selected applications"
           isReadOnly
         />
-        <FormGroup
-          label="Source credentials"
-          isRequired
-          fieldId={SOURCE_CREDENTIALS}
-        >
+        <FormGroup label="Source credentials" isRequired fieldId={SOURCE_CREDENTIALS}>
           <SingleSelectFetchOptionValueFormikField
             fieldConfig={{ name: SOURCE_CREDENTIALS }}
             selectConfig={{
-              variant: "typeahead",
-              "aria-label": "sourceCredentials",
-              "aria-describedby": "sourceCredentials",
-              typeAheadAriaLabel: "sourceCredentials",
-              toggleAriaLabel: "sourceCredentials",
-              clearSelectionsAriaLabel: "sourceCredentials",
-              removeSelectionAriaLabel: "sourceCredentials",
-              placeholderText: "",
+              variant: 'typeahead',
+              'aria-label': 'sourceCredentials',
+              'aria-describedby': 'sourceCredentials',
+              typeAheadAriaLabel: 'sourceCredentials',
+              toggleAriaLabel: 'sourceCredentials',
+              clearSelectionsAriaLabel: 'sourceCredentials',
+              removeSelectionAriaLabel: 'sourceCredentials',
+              placeholderText: '',
               menuAppendTo: () => document.body,
               maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
               fetchError: undefined,
@@ -234,14 +219,14 @@ export const ApplicationIdentityForm: React.FC<
           <SingleSelectFetchOptionValueFormikField
             fieldConfig={{ name: MAVEN_SETTINGS }}
             selectConfig={{
-              variant: "typeahead",
-              "aria-label": "mavenSettings",
-              "aria-describedby": "mavenSettings",
-              typeAheadAriaLabel: "mavenSettings",
-              toggleAriaLabel: "mavenSettings",
-              clearSelectionsAriaLabel: "mavenSettings",
-              removeSelectionAriaLabel: "mavenSettings",
-              placeholderText: "",
+              variant: 'typeahead',
+              'aria-label': 'mavenSettings',
+              'aria-describedby': 'mavenSettings',
+              typeAheadAriaLabel: 'mavenSettings',
+              toggleAriaLabel: 'mavenSettings',
+              clearSelectionsAriaLabel: 'mavenSettings',
+              removeSelectionAriaLabel: 'mavenSettings',
+              placeholderText: '',
               menuAppendTo: () => document.body,
               maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
               fetchError: undefined,
@@ -256,9 +241,8 @@ export const ApplicationIdentityForm: React.FC<
             <>
               <Text>
                 <WarningTriangleIcon className={spacing.mrSm} color="orange" />
-                One or more of the selected applications have already been
-                assigned credentials. Any changes made will override the
-                existing values.
+                One or more of the selected applications have already been assigned credentials. Any
+                changes made will override the existing values.
               </Text>
             </>
           )}
@@ -273,21 +257,13 @@ export const ApplicationIdentityForm: React.FC<
             }}
             variant={ButtonVariant.primary}
             isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
+              !formik.isValid || !formik.dirty || formik.isSubmitting || formik.isValidating
             }
           >
-            {t("actions.save")}
+            {t('actions.save')}
           </Button>
-          <Button
-            type="button"
-            aria-label="cancel"
-            variant={ButtonVariant.link}
-            onClick={onCancel}
-          >
-            {t("actions.cancel")}
+          <Button type="button" aria-label="cancel" variant={ButtonVariant.link} onClick={onCancel}>
+            {t('actions.cancel')}
           </Button>
         </ActionGroup>
       </Form>

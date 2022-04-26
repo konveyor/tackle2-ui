@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { AxiosError } from "axios";
-import { createAsyncAction, getType } from "typesafe-actions";
-import { getProxies, PROXIES, updateProxy } from "@app/api/rest";
-import { Proxy } from "@app/api/models";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useState } from 'react';
+import { AxiosError } from 'axios';
+import { createAsyncAction, getType } from 'typesafe-actions';
+import { getProxies, PROXIES, updateProxy } from '@app/api/rest';
+import { Proxy } from '@app/api/models';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 export const {
   request: fetchRequest,
   success: fetchSuccess,
   failure: fetchFailure,
 } = createAsyncAction(
-  "useFetchProxies/fetch/request",
-  "useFetchProxies/fetch/success",
-  "useFetchProxies/fetch/failure"
+  'useFetchProxies/fetch/request',
+  'useFetchProxies/fetch/success',
+  'useFetchProxies/fetch/failure'
 )<void, any, AxiosError>();
 
 export interface IFetchState {
@@ -21,18 +21,16 @@ export interface IFetchState {
   fetchError: any;
 }
 
-export const useFetchProxies = (
-  defaultIsFetching: boolean = false
-): IFetchState => {
+export const useFetchProxies = (defaultIsFetching = false): IFetchState => {
   const [proxies, setProxies] = useState<Array<Proxy>>([]);
-  const { isLoading, refetch, isError, data, error } = useQuery("proxies", () =>
+  const { isLoading, refetch, isError, data, error } = useQuery('proxies', () =>
     getProxies()
       .then((res) => res)
       .then(({ data }) => {
         setProxies(data);
       })
       .catch((error) => {
-        console.log("error, ", error);
+        console.log('error, ', error);
       })
   );
   return {
@@ -57,11 +55,11 @@ export const useUpdateProxyMutation = (onSuccess: any): IMutateState => {
     onSuccess: (res) => {
       onSuccess();
       setPutResult(res);
-      queryClient.invalidateQueries("proxies");
+      queryClient.invalidateQueries('proxies');
     },
     onError: (err) => {
       setPutResult(err);
-      queryClient.invalidateQueries("proxies");
+      queryClient.invalidateQueries('proxies');
     },
   });
   return {

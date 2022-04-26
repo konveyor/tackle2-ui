@@ -1,1 +1,1 @@
-export { JobFunctionForm } from "./job-function-form";
+export { JobFunctionForm } from './job-function-form';

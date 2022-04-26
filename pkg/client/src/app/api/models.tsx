@@ -5,7 +5,7 @@ export interface PageQuery {
 
 export interface SortByQuery {
   index: number;
-  direction: "asc" | "desc";
+  direction: 'asc' | 'desc';
 }
 
 export interface PageRepresentation<T> {
@@ -68,16 +68,16 @@ export interface Tag {
 
 // Application inventory
 export type ProposedAction =
-  | "rehost"
-  | "replatform"
-  | "refactor"
-  | "repurchase"
-  | "retire"
-  | "retain";
+  | 'rehost'
+  | 'replatform'
+  | 'refactor'
+  | 'repurchase'
+  | 'retire'
+  | 'retain';
 
-export type EffortEstimate = "small" | "medium" | "large" | "extra_large";
+export type EffortEstimate = 'small' | 'medium' | 'large' | 'extra_large';
 
-export type ImportSummaryStatus = "Completed" | "In Progress" | "Failed";
+export type ImportSummaryStatus = 'Completed' | 'In Progress' | 'Failed';
 export interface Application {
   id?: number;
   name: string;
@@ -132,7 +132,7 @@ export interface ApplicationImportSummary {
 }
 
 export interface ApplicationImport {
-  "Application Name": string;
+  'Application Name': string;
   errorMessage: string;
   isValid: boolean;
 }
@@ -173,8 +173,8 @@ export interface Proxy {
 
 // Pathfinder
 
-export type AssessmentStatus = "EMPTY" | "STARTED" | "COMPLETE";
-export type Risk = "GREEN" | "AMBER" | "RED" | "UNKNOWN";
+export type AssessmentStatus = 'EMPTY' | 'STARTED' | 'COMPLETE';
+export type Risk = 'GREEN' | 'AMBER' | 'RED' | 'UNKNOWN';
 
 export interface Assessment {
   id?: number;
@@ -243,7 +243,7 @@ export interface BulkCopyAssessment {
 
 export interface BusinessServicePage {
   _embedded: {
-    "business-service": BusinessService[];
+    'business-service': BusinessService[];
   };
   total_count: number;
 }
@@ -257,7 +257,7 @@ export interface StakeholderPage {
 
 export interface StakeholderGroupPage {
   _embedded: {
-    "stakeholder-group": StakeholderGroup[];
+    'stakeholder-group': StakeholderGroup[];
   };
   total_count: number;
 }
@@ -266,14 +266,14 @@ export type JobFunctionPage = Array<JobFunction>;
 
 export interface TagTypePage {
   _embedded: {
-    "tag-type": TagType[];
+    'tag-type': TagType[];
   };
   total_count: number;
 }
 
 export interface TagTypePage {
   _embedded: {
-    "tag-type": TagType[];
+    'tag-type': TagType[];
   };
   total_count: number;
 }
@@ -287,21 +287,21 @@ export interface ApplicationPage {
 
 export interface ApplicationDependencyPage {
   _embedded: {
-    "applications-dependency": ApplicationDependency[];
+    'applications-dependency': ApplicationDependency[];
   };
   total_count: number;
 }
 
 export interface ApplicationImportSummaryPage {
   _embedded: {
-    "import-summary": ApplicationImportSummary[];
+    'import-summary': ApplicationImportSummary[];
   };
   total_count: number;
 }
 
 export interface ApplicationImportPage {
   _embedded: {
-    "application-import": ApplicationImport[];
+    'application-import': ApplicationImport[];
   };
   total_count: number;
 }
@@ -314,13 +314,13 @@ export interface Setting {
 // Analysis Task
 
 export type TaskState =
-  | "not supported"
-  | "Created"
-  | "Succeeded"
-  | "Failed"
-  | "Running"
-  | "No task"
-  | "Ready";
+  | 'not supported'
+  | 'Created'
+  | 'Succeeded'
+  | 'Failed'
+  | 'Running'
+  | 'No task'
+  | 'Ready';
 
 export interface Task {
   id?: number;

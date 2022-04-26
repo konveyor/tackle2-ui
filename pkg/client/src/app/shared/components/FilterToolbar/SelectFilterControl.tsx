@@ -1,12 +1,7 @@
-import * as React from "react";
-import {
-  ToolbarFilter,
-  Select,
-  SelectOption,
-  SelectOptionObject,
-} from "@patternfly/react-core";
-import { IFilterControlProps } from "./FilterControl";
-import { ISelectFilterCategory } from "./FilterToolbar";
+import * as React from 'react';
+import { ToolbarFilter, Select, SelectOption, SelectOptionObject } from '@patternfly/react-core';
+import { IFilterControlProps } from './FilterControl';
+import { ISelectFilterCategory } from './FilterToolbar';
 
 export interface ISelectFilterControlProps<T> extends IFilterControlProps<T> {
   category: ISelectFilterCategory<T>;
@@ -17,27 +12,17 @@ export const SelectFilterControl = <T,>({
   filterValue,
   setFilterValue,
   showToolbarItem,
-}: React.PropsWithChildren<
-  ISelectFilterControlProps<T>
->): JSX.Element | null => {
+}: React.PropsWithChildren<ISelectFilterControlProps<T>>): JSX.Element | null => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
 
-  const getOptionKeyFromOptionValue = (
-    optionValue: string | SelectOptionObject
-  ) =>
-    category.selectOptions.find(
-      (optionProps) => optionProps.value === optionValue
-    )?.key;
-  const getChipFromOptionValue = (
-    optionValue: string | SelectOptionObject | undefined
-  ) => (optionValue ? optionValue.toString() : "");
+  const getOptionKeyFromOptionValue = (optionValue: string | SelectOptionObject) =>
+    category.selectOptions.find((optionProps) => optionProps.value === optionValue)?.key;
+  const getChipFromOptionValue = (optionValue: string | SelectOptionObject | undefined) =>
+    optionValue ? optionValue.toString() : '';
   const getOptionKeyFromChip = (chip: string) =>
-    category.selectOptions.find(
-      (optionProps) => optionProps.value.toString() === chip
-    )?.key;
+    category.selectOptions.find((optionProps) => optionProps.value.toString() === chip)?.key;
   const getOptionValueFromOptionKey = (optionKey: string) =>
-    category.selectOptions.find((optionProps) => optionProps.key === optionKey)
-      ?.value;
+    category.selectOptions.find((optionProps) => optionProps.key === optionKey)?.value;
 
   const onFilterSelect = (value: string | SelectOptionObject) => {
     const optionKey = getOptionKeyFromOptionValue(value);
@@ -49,16 +34,12 @@ export const SelectFilterControl = <T,>({
   };
   const onFilterClear = (chip: string) => {
     const optionKey = getOptionKeyFromChip(chip);
-    const newValue = filterValue
-      ? filterValue.filter((val) => val !== optionKey)
-      : [];
+    const newValue = filterValue ? filterValue.filter((val) => val !== optionKey) : [];
     setFilterValue(newValue.length > 0 ? newValue : null);
   };
 
   // Select expects "selections" to be an array of the "value" props from the relevant optionProps
-  const selections = filterValue
-    ? filterValue.map(getOptionValueFromOptionKey)
-    : null;
+  const selections = filterValue ? filterValue.map(getOptionValueFromOptionKey) : null;
   const chips = selections ? selections.map(getChipFromOptionValue) : [];
 
   return (

@@ -1,1 +1,1 @@
-export { ToolbarBulkSelector } from "./toolbar-bulk-selector";
+export { ToolbarBulkSelector } from './toolbar-bulk-selector';

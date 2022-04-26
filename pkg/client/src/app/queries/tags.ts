@@ -1,8 +1,8 @@
-import React from "react";
-import { useQuery } from "react-query";
+import React from 'react';
+import { useQuery } from 'react-query';
 
-import { getTags } from "@app/api/rest";
-import { Tag } from "@app/api/models";
+import { getTags } from '@app/api/rest';
+import { Tag } from '@app/api/models';
 
 export interface ITagFetchState {
   tags: Tag[];
@@ -11,7 +11,7 @@ export interface ITagFetchState {
   refetch: any;
 }
 
-export const TagsQueryKey = "tags";
+export const TagsQueryKey = 'tags';
 
 export const useFetchTags = (): ITagFetchState => {
   const [tags, setTags] = React.useState<Tag[]>([]);
@@ -22,7 +22,7 @@ export const useFetchTags = (): ITagFetchState => {
         return data;
       })
       .catch((error) => {
-        console.log("error, ", error);
+        console.log('error, ', error);
         return error;
       })
   );

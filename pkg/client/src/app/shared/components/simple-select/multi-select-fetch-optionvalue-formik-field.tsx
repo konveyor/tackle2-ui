@@ -1,24 +1,18 @@
-import React from "react";
-import { FieldHookConfig, useField } from "formik";
+import React from 'react';
+import { FieldHookConfig, useField } from 'formik';
 
-import {
-  ISimpleSelectFetchProps,
-  SimpleSelectFetch,
-} from "./simple-select-fetch";
-import { OptionWithValue } from "./simple-select";
+import { ISimpleSelectFetchProps, SimpleSelectFetch } from './simple-select-fetch';
+import { OptionWithValue } from './simple-select';
 
 export interface IMultiSelectFetchOptionValueFormikFieldProps<T> {
   fieldConfig: FieldHookConfig<T[]>;
-  selectConfig: Omit<
-    ISimpleSelectFetchProps,
-    "value" | "options" | "onChange" | "onClear"
-  >;
+  selectConfig: Omit<ISimpleSelectFetchProps, 'value' | 'options' | 'onChange' | 'onClear'>;
   options: T[];
   toOptionWithValue: (option: T) => OptionWithValue<T>;
   isEqual: (a: T, b: T) => boolean;
 }
 
-export const MultiSelectFetchOptionValueFormikField = <T extends any>({
+export const MultiSelectFetchOptionValueFormikField = <T,>({
   fieldConfig,
   selectConfig,
   options,
@@ -42,9 +36,7 @@ export const MultiSelectFetchOptionValueFormikField = <T extends any>({
         });
 
         if (elementExists) {
-          nextValue = currentValue.filter(
-            (f: T) => !isEqual(f, selectionValue)
-          );
+          nextValue = currentValue.filter((f: T) => !isEqual(f, selectionValue));
         } else {
           nextValue = [...currentValue, selectionValue];
         }

@@ -1,1 +1,1 @@
-export { TagTypeForm } from "./tag-type-form";
+export { TagTypeForm } from './tag-type-form';

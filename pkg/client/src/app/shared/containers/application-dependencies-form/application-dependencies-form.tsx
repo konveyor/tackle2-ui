@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   ActionGroup,
@@ -10,19 +10,16 @@ import {
   Spinner,
   Text,
   TextContent,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
-import { OptionWithValue } from "@app/shared/components";
-import {
-  useFetchApplicationDependencies,
-  useFetchApplications,
-} from "@app/shared/hooks";
+import { OptionWithValue } from '@app/shared/components';
+import { useFetchApplicationDependencies, useFetchApplications } from '@app/shared/hooks';
 
-import { Application, ApplicationDependency } from "@app/api/models";
+import { Application, ApplicationDependency } from '@app/api/models';
 
-import { FormContext } from "./form-context";
-import { SelectDependency } from "./select-dependency";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { FormContext } from './form-context';
+import { SelectDependency } from './select-dependency';
+import { getAxiosErrorMessage } from '@app/utils/utils';
 
 const northToStringFn = (value: ApplicationDependency) => value.from.name;
 const southToStringFn = (value: ApplicationDependency) => value.to.name;
@@ -40,9 +37,10 @@ export interface ApplicationDependenciesFormProps {
   onCancel: () => void;
 }
 
-export const ApplicationDependenciesForm: React.FC<
-  ApplicationDependenciesFormProps
-> = ({ application, onCancel }) => {
+export const ApplicationDependenciesForm: React.FC<ApplicationDependenciesFormProps> = ({
+  application,
+  onCancel,
+}) => {
   const {
     isNorthBeingSaved,
     isSouthBeingSaved,
@@ -126,28 +124,26 @@ export const ApplicationDependenciesForm: React.FC<
 
   const savingMsg = (
     <div className="pf-u-font-size-sm">
-      <Spinner isSVG size="sm" /> {`${t("message.savingSelection")}...`}
+      <Spinner isSVG size="sm" /> {`${t('message.savingSelection')}...`}
     </div>
   );
 
   return (
     <Form>
       <TextContent>
-        <Text component="p">{t("message.manageDependenciesInstructions")}</Text>
+        <Text component="p">{t('message.manageDependenciesInstructions')}</Text>
       </TextContent>
 
       <FormGroup
         // t("terms.northboundDependencies")
-        label={t("composed.add", {
-          what: t("terms.northboundDependencies").toLowerCase(),
+        label={t('composed.add', {
+          what: t('terms.northboundDependencies').toLowerCase(),
         })}
         fieldId="northbound-dependencies"
         isRequired={false}
-        validated={northSaveError ? "error" : "default"}
-        helperTextInvalid={
-          northSaveError ? getAxiosErrorMessage(northSaveError) : ""
-        }
-        helperText={isNorthBeingSaved ? savingMsg : ""}
+        validated={northSaveError ? 'error' : 'default'}
+        helperTextInvalid={northSaveError ? getAxiosErrorMessage(northSaveError) : ''}
+        helperText={isNorthBeingSaved ? savingMsg : ''}
       >
         <SelectDependency
           fieldId="northbound-dependencies"
@@ -156,9 +152,7 @@ export const ApplicationDependenciesForm: React.FC<
           setValue={setNorthboundDependencies}
           options={(applications || [])
             .filter((f) => f.id !== application.id)
-            .map((f) =>
-              dependencyToOption({ from: f, to: application }, northToStringFn)
-            )}
+            .map((f) => dependencyToOption({ from: f, to: application }, northToStringFn))}
           isFetching={isFetchingApplications || isFetchingNorthDependencies}
           fetchError={fetchErrorApplications || fetchErrorNorthDependencies}
           isSaving={isNorthBeingSaved}
@@ -169,16 +163,14 @@ export const ApplicationDependenciesForm: React.FC<
       </FormGroup>
       <FormGroup
         // t("terms.southboundDependencies")
-        label={t("composed.add", {
-          what: t("terms.southboundDependencies").toLowerCase(),
+        label={t('composed.add', {
+          what: t('terms.southboundDependencies').toLowerCase(),
         })}
         fieldId="southbound-dependencies"
         isRequired={false}
-        validated={southSaveError ? "error" : "default"}
-        helperTextInvalid={
-          southSaveError ? getAxiosErrorMessage(southSaveError) : ""
-        }
-        helperText={isSouthBeingSaved ? savingMsg : ""}
+        validated={southSaveError ? 'error' : 'default'}
+        helperTextInvalid={southSaveError ? getAxiosErrorMessage(southSaveError) : ''}
+        helperText={isSouthBeingSaved ? savingMsg : ''}
       >
         <SelectDependency
           fieldId="southbound-dependencies"
@@ -187,9 +179,7 @@ export const ApplicationDependenciesForm: React.FC<
           setValue={setSouthboundDependencies}
           options={(applications || [])
             .filter((f) => f.id !== application.id)
-            .map((f) =>
-              dependencyToOption({ from: application, to: f }, southToStringFn)
-            )}
+            .map((f) => dependencyToOption({ from: application, to: f }, southToStringFn))}
           isFetching={isFetchingApplications || isFetchingSouthDependencies}
           fetchError={fetchErrorApplications || fetchErrorSouthDependencies}
           isSaving={isSouthBeingSaved}
@@ -207,7 +197,7 @@ export const ApplicationDependenciesForm: React.FC<
           onClick={onCancel}
           isDisabled={isNorthBeingSaved || isSouthBeingSaved}
         >
-          {t("actions.close")}
+          {t('actions.close')}
         </Button>
       </ActionGroup>
     </Form>

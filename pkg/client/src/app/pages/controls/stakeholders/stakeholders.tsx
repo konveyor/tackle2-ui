@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { AxiosResponse } from "axios";
-import { useTranslation } from "react-i18next";
-import { useSelectionState } from "@konveyor/lib-ui";
+import React, { useCallback, useEffect, useState } from 'react';
+import { AxiosResponse } from 'axios';
+import { useTranslation } from 'react-i18next';
+import { useSelectionState } from '@konveyor/lib-ui';
 
 import {
   Button,
@@ -12,21 +12,20 @@ import {
   DescriptionListTerm,
   ToolbarGroup,
   ToolbarItem,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 import {
   cellWidth,
   expandable,
   ICell,
-  IExtraData,
   IRow,
   IRowData,
   sortable,
   TableText,
-} from "@patternfly/react-table";
+} from '@patternfly/react-table';
 
-import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
-import { confirmDialogActions } from "@app/store/confirmDialog";
+import { useDispatch } from 'react-redux';
+import { alertActions } from '@app/store/alert';
+import { confirmDialogActions } from '@app/store/confirmDialog';
 
 import {
   AppPlaceholder,
@@ -34,26 +33,22 @@ import {
   AppTableWithControls,
   ConditionalRender,
   NoDataEmptyState,
-} from "@app/shared/components";
-import { useFetchStakeholders, useDelete } from "@app/shared/hooks";
+} from '@app/shared/components';
+import { useFetchStakeholders, useDelete } from '@app/shared/hooks';
 
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { deleteStakeholder } from "@app/api/rest";
-import { Stakeholder } from "@app/api/models";
+import { getAxiosErrorMessage } from '@app/utils/utils';
+import { deleteStakeholder } from '@app/api/rest';
+import { Stakeholder } from '@app/api/models';
 
-import { NewStakeholderModal } from "./components/new-stakeholder-modal";
-import { UpdateStakeholderModal } from "./components/update-stakeholder-modal";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useSortState } from "@app/shared/hooks/useSortState";
-import { RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
+import { NewStakeholderModal } from './components/new-stakeholder-modal';
+import { UpdateStakeholderModal } from './components/update-stakeholder-modal';
+import { usePaginationState } from '@app/shared/hooks/usePaginationState';
+import { FilterCategory, FilterToolbar, FilterType } from '@app/shared/components/FilterToolbar';
+import { useFilterState } from '@app/shared/hooks/useFilterState';
+import { useSortState } from '@app/shared/hooks/useSortState';
+import { RBAC, RBAC_TYPE, writeScopes } from '@app/rbac';
 
-const ENTITY_FIELD = "entity";
+const ENTITY_FIELD = 'entity';
 
 const getRow = (rowData: IRowData): Stakeholder => {
   return rowData[ENTITY_FIELD];
@@ -70,16 +65,13 @@ export const Stakeholders: React.FC = () => {
     onDelete: (t: Stakeholder) => deleteStakeholder(t.id!),
   });
 
-  const { stakeholders, isFetching, fetchError, fetchStakeholders } =
-    useFetchStakeholders(true);
+  const { stakeholders, isFetching, fetchError, fetchStakeholders } = useFetchStakeholders(true);
 
-  const {
-    isItemSelected: isItemExpanded,
-    toggleItemSelected: toggleItemExpanded,
-  } = useSelectionState<Stakeholder>({
-    items: stakeholders || [],
-    isEqual: (a, b) => a.id === b.id,
-  });
+  const { isItemSelected: isItemExpanded, toggleItemSelected: toggleItemExpanded } =
+    useSelectionState<Stakeholder>({
+      items: stakeholders || [],
+      isEqual: (a, b) => a.id === b.id,
+    });
 
   const refreshTable = useCallback(() => {
     fetchStakeholders();
@@ -91,42 +83,42 @@ export const Stakeholders: React.FC = () => {
 
   const filterCategories: FilterCategory<Stakeholder>[] = [
     {
-      key: "email",
-      title: "Email",
+      key: 'email',
+      title: 'Email',
       type: FilterType.search,
-      placeholderText: "Filter by email...",
+      placeholderText: 'Filter by email...',
       getItemValue: (item) => {
-        return item?.email || "";
+        return item?.email || '';
       },
     },
     {
-      key: "name",
-      title: "Name",
+      key: 'name',
+      title: 'Name',
       type: FilterType.search,
-      placeholderText: "Filter by name...",
+      placeholderText: 'Filter by name...',
       getItemValue: (item) => {
-        return item?.name || "";
+        return item?.name || '';
       },
     },
     {
-      key: "jobFunction",
-      title: "Job function",
+      key: 'jobFunction',
+      title: 'Job function',
       type: FilterType.search,
-      placeholderText: "Filter by job function...",
+      placeholderText: 'Filter by job function...',
       getItemValue: (item) => {
-        return item.jobFunction?.name || "";
+        return item.jobFunction?.name || '';
       },
     },
     {
-      key: "stakeholderGroups",
-      title: "Stakeholder groups",
+      key: 'stakeholderGroups',
+      title: 'Stakeholder groups',
       type: FilterType.search,
-      placeholderText: "Filter by stakeholder groups...",
+      placeholderText: 'Filter by stakeholder groups...',
       getItemValue: (stakeholder) => {
         const stakeholderGroups = stakeholder.stakeholderGroups?.map(
           (stakeholderGroup) => stakeholderGroup.name
         );
-        return stakeholderGroups?.join(" ; ") || "";
+        return stakeholderGroups?.join(' ; ') || '';
       },
     },
   ];
@@ -135,38 +127,34 @@ export const Stakeholders: React.FC = () => {
     filterCategories
   );
   const getSortValues = (item: Stakeholder) => [
-    "",
-    item?.email || "",
-    item?.name || "",
-    item.jobFunction?.name || "",
+    '',
+    item?.email || '',
+    item?.name || '',
+    item.jobFunction?.name || '',
     item?.stakeholderGroups?.length || 0,
-    "", // Action column
+    '', // Action column
   ];
 
-  const { sortBy, onSort, sortedItems } = useSortState(
-    filteredItems,
-    getSortValues
-  );
+  const { sortBy, onSort, sortedItems } = useSortState(filteredItems, getSortValues);
 
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+  const { currentPageItems, setPageNumber, paginationProps } = usePaginationState(sortedItems, 10);
 
   const columns: ICell[] = [
     {
-      title: t("terms.email"),
+      title: t('terms.email'),
       transforms: [sortable, cellWidth(20)],
       cellFormatters: [expandable],
     },
-    { title: t("terms.displayName"), transforms: [sortable, cellWidth(25)] },
-    { title: t("terms.jobFunction"), transforms: [sortable, cellWidth(20)] },
+    { title: t('terms.displayName'), transforms: [sortable, cellWidth(25)] },
+    { title: t('terms.jobFunction'), transforms: [sortable, cellWidth(20)] },
     {
-      title: t("terms.groupCount"),
+      title: t('terms.groupCount'),
       transforms: [sortable],
     },
     {
-      title: "",
+      title: '',
       props: {
-        className: "pf-u-text-align-right",
+        className: 'pf-u-text-align-right',
       },
     },
   ];
@@ -185,21 +173,14 @@ export const Stakeholders: React.FC = () => {
           title: <TableText wrapModifier="truncate">{item.name}</TableText>,
         },
         {
-          title: (
-            <TableText wrapModifier="truncate">
-              {item.jobFunction?.name}
-            </TableText>
-          ),
+          title: <TableText wrapModifier="truncate">{item.jobFunction?.name}</TableText>,
         },
         {
           title: item.stakeholderGroups ? item.stakeholderGroups.length : 0,
         },
         {
           title: (
-            <AppTableActionButtons
-              onEdit={() => editRow(item)}
-              onDelete={() => deleteRow(item)}
-            />
+            <AppTableActionButtons onEdit={() => editRow(item)} onDelete={() => deleteRow(item)} />
           ),
         },
       ],
@@ -210,16 +191,20 @@ export const Stakeholders: React.FC = () => {
         parent: rows.length - 1,
         fullWidth: false,
         cells: [
-          <div className="pf-c-table__expandable-row-content">
-            <DescriptionList>
-              <DescriptionListGroup>
-                <DescriptionListTerm>{t("terms.group(s)")}</DescriptionListTerm>
-                <DescriptionListDescription>
-                  {item.stakeholderGroups?.map((f) => f.name).join(", ")}
-                </DescriptionListDescription>
-              </DescriptionListGroup>
-            </DescriptionList>
-          </div>,
+          {
+            title: (
+              <div className="pf-c-table__expandable-row-content">
+                <DescriptionList>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('terms.group(s)')}</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      {item.stakeholderGroups?.map((f) => f.name).join(', ')}
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                </DescriptionList>
+              </div>
+            ),
+          },
         ],
       });
     }
@@ -231,8 +216,7 @@ export const Stakeholders: React.FC = () => {
     event: React.MouseEvent,
     rowIndex: number,
     isOpen: boolean,
-    rowData: IRowData,
-    extraData: IExtraData
+    rowData: IRowData
   ) => {
     const row = getRow(rowData);
     toggleItemExpanded(row);
@@ -246,14 +230,14 @@ export const Stakeholders: React.FC = () => {
     dispatch(
       confirmDialogActions.openDialog({
         // t("terms.stakeholder")
-        title: t("dialog.title.delete", {
-          what: t("terms.stakeholder").toLowerCase(),
+        title: t('dialog.title.delete', {
+          what: t('terms.stakeholder').toLowerCase(),
         }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
+        titleIconVariant: 'warning',
+        message: t('dialog.message.delete'),
         confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
+        confirmBtnLabel: t('actions.delete'),
+        cancelBtnLabel: t('actions.cancel'),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
           requestDeleteStakeholder(
@@ -288,9 +272,9 @@ export const Stakeholders: React.FC = () => {
 
     dispatch(
       alertActions.addSuccess(
-        t("toastr.success.added", {
+        t('toastr.success.added', {
           what: response.data.name,
-          type: "stakeholder",
+          type: 'stakeholder',
         })
       )
     );
@@ -340,17 +324,14 @@ export const Stakeholders: React.FC = () => {
           toolbarActions={
             <ToolbarGroup variant="button-group">
               <ToolbarItem>
-                <RBAC
-                  allowedPermissions={writeScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
+                <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
                   <Button
                     type="button"
                     aria-label="create-stakeholder"
                     variant={ButtonVariant.primary}
                     onClick={handleOnOpenCreateNewModal}
                   >
-                    {t("actions.createNew")}
+                    {t('actions.createNew')}
                   </Button>
                 </RBAC>
               </ToolbarItem>
@@ -359,14 +340,14 @@ export const Stakeholders: React.FC = () => {
           noDataState={
             <NoDataEmptyState
               // t('terms.stakeholders')
-              title={t("composed.noDataStateTitle", {
-                what: t("terms.stakeholders").toLowerCase(),
+              title={t('composed.noDataStateTitle', {
+                what: t('terms.stakeholders').toLowerCase(),
               })}
               // t('terms.stakeholder')
               description={
-                t("composed.noDataStateBody", {
-                  what: t("terms.stakeholder").toLowerCase(),
-                }) + "."
+                t('composed.noDataStateBody', {
+                  what: t('terms.stakeholder').toLowerCase(),
+                }) + '.'
               }
             />
           }

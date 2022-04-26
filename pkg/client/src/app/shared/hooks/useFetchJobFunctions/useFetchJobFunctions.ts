@@ -1,18 +1,18 @@
-import { useCallback, useReducer } from "react";
-import { AxiosError } from "axios";
-import { ActionType, createAsyncAction, getType } from "typesafe-actions";
+import { useCallback, useReducer } from 'react';
+import { AxiosError } from 'axios';
+import { ActionType, createAsyncAction, getType } from 'typesafe-actions';
 
-import { getJobFunctions } from "@app/api/rest";
-import { JobFunction, PageQuery } from "@app/api/models";
+import { getJobFunctions } from '@app/api/rest';
+import { JobFunction, PageQuery } from '@app/api/models';
 
 export const {
   request: fetchRequest,
   success: fetchSuccess,
   failure: fetchFailure,
 } = createAsyncAction(
-  "useFetchJobFunctions/fetch/request",
-  "useFetchJobFunctions/fetch/success",
-  "useFetchJobFunctions/fetch/failure"
+  'useFetchJobFunctions/fetch/request',
+  'useFetchJobFunctions/fetch/success',
+  'useFetchJobFunctions/fetch/failure'
 )<void, Array<JobFunction>, AxiosError>();
 
 type State = Readonly<{
@@ -29,9 +29,7 @@ const defaultState: State = {
   fetchCount: 0,
 };
 
-type Action = ActionType<
-  typeof fetchRequest | typeof fetchSuccess | typeof fetchFailure
->;
+type Action = ActionType<typeof fetchRequest | typeof fetchSuccess | typeof fetchFailure>;
 
 const initReducer = (isFetching: boolean): State => {
   return {
@@ -76,9 +74,7 @@ export interface IState {
   fetchAllJobFunctions: () => void;
 }
 
-export const useFetchJobFunctions = (
-  defaultIsFetching: boolean = false
-): IState => {
+export const useFetchJobFunctions = (defaultIsFetching = false): IState => {
   const [state, dispatch] = useReducer(reducer, defaultIsFetching, initReducer);
 
   const fetchJobFunctions = useCallback(() => {

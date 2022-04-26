@@ -1,1 +1,1 @@
-export { useFetchStakeholders } from "./useFetchStakeholders";
+export { useFetchStakeholders } from './useFetchStakeholders';

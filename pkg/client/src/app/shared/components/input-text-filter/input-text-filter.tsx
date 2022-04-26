@@ -1,19 +1,17 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { Button, InputGroup, TextInput } from "@patternfly/react-core";
-import { SearchIcon } from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import { Button, InputGroup, TextInput } from '@patternfly/react-core';
+import { SearchIcon } from '@patternfly/react-icons/dist/esm/icons/search-icon';
 
 export interface InputTextFilterProps {
   onApplyFilter: (filterText: string) => void;
 }
 
-export const InputTextFilter: React.FC<InputTextFilterProps> = ({
-  onApplyFilter,
-}) => {
+export const InputTextFilter: React.FC<InputTextFilterProps> = ({ onApplyFilter }) => {
   const { t } = useTranslation();
 
-  const [filterText, setFilterText] = useState("");
+  const [filterText, setFilterText] = useState('');
 
   const handleOnChangeFilterText = (value: string) => {
     setFilterText(value);
@@ -22,12 +20,12 @@ export const InputTextFilter: React.FC<InputTextFilterProps> = ({
   const handleOnSearch = () => {
     if (filterText.trim().length > 0) {
       onApplyFilter(filterText.trim());
-      setFilterText("");
+      setFilterText('');
     }
   };
 
   const handleOnSearchKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key === "Enter") {
+    if (event.key === 'Enter') {
       handleOnSearch();
     }
   };
@@ -39,7 +37,7 @@ export const InputTextFilter: React.FC<InputTextFilterProps> = ({
         value={filterText}
         onChange={handleOnChangeFilterText}
         onKeyPress={handleOnSearchKeyPress}
-        placeholder={t("terms.filter")}
+        placeholder={t('terms.filter')}
         aria-label="filter-text"
       />
       <Button variant="control" aria-label="search" onClick={handleOnSearch}>

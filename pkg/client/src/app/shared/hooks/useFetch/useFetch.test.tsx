@@ -1,16 +1,16 @@
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
-import { renderHook, act } from "@testing-library/react-hooks";
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import { renderHook, act } from '@testing-library/react-hooks';
 
-import { useFetch } from "./useFetch";
+import { useFetch } from './useFetch';
 
-describe("useFetch", () => {
-  it("Initial value", async () => {
+describe('useFetch', () => {
+  it('Initial value', async () => {
     // Use hook
     const { result, waitForNextUpdate } = renderHook(() =>
       useFetch<string>({
         defaultIsFetching: true,
-        onFetch: () => axios.get("/myendpoint"),
+        onFetch: () => axios.get('/myendpoint'),
       })
     );
 
@@ -21,14 +21,14 @@ describe("useFetch", () => {
     expect(fetchError).toBeUndefined();
   });
 
-  it("Fetch error due to no REST API found", async () => {
+  it('Fetch error due to no REST API found', async () => {
     // Mock REST API
-    new MockAdapter(axios).onGet("/myendpoint").networkError();
+    new MockAdapter(axios).onGet('/myendpoint').networkError();
 
     // Use hook
     const { result, waitForNextUpdate } = renderHook(() =>
       useFetch<string>({
-        onFetch: () => axios.get("/myendpoint"),
+        onFetch: () => axios.get('/myendpoint'),
       })
     );
 
@@ -49,17 +49,17 @@ describe("useFetch", () => {
     expect(result.current.fetchError).not.toBeUndefined();
   });
 
-  it("Fetch success", async () => {
+  it('Fetch success', async () => {
     // Mock REST API
-    const responseData = "Hello world!";
+    const responseData = 'Hello world!';
 
-    new MockAdapter(axios).onGet("/myendpoint").reply(200, responseData);
+    new MockAdapter(axios).onGet('/myendpoint').reply(200, responseData);
 
     // Use hook
     const { result, waitForNextUpdate } = renderHook(() =>
       useFetch<string>({
         onFetch: () => {
-          return axios.get("/myendpoint");
+          return axios.get('/myendpoint');
         },
       })
     );

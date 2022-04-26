@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 export interface ConditionalRenderProps {
   when: boolean;
@@ -6,10 +6,6 @@ export interface ConditionalRenderProps {
   children: any;
 }
 
-export const ConditionalRender: React.FC<ConditionalRenderProps> = ({
-  when,
-  then,
-  children,
-}) => {
+export const ConditionalRender: React.FC<ConditionalRenderProps> = ({ when, then, children }) => {
   return when ? then : children || <></>;
 };

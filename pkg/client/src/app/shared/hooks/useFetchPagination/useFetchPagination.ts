@@ -1,15 +1,15 @@
-import { useCallback, useReducer } from "react";
-import { AxiosPromise } from "axios";
-import { ActionType, createAsyncAction, getType } from "typesafe-actions";
+import { useCallback, useReducer } from 'react';
+import { AxiosPromise } from 'axios';
+import { ActionType, createAsyncAction, getType } from 'typesafe-actions';
 
 export const {
   request: fetchRequest,
   success: fetchSuccess,
   failure: fetchFailure,
 } = createAsyncAction(
-  "useFetchPagination/fetch/request",
-  "useFetchPagination/fetch/success",
-  "useFetchPagination/fetch/failure"
+  'useFetchPagination/fetch/request',
+  'useFetchPagination/fetch/success',
+  'useFetchPagination/fetch/failure'
 )<void, any, any>();
 
 type State = Readonly<{
@@ -26,9 +26,7 @@ const defaultState: State = {
   fetchCount: 0,
 };
 
-type Action = ActionType<
-  typeof fetchRequest | typeof fetchSuccess | typeof fetchFailure
->;
+type Action = ActionType<typeof fetchRequest | typeof fetchSuccess | typeof fetchFailure>;
 
 const initReducer = (isFetching: boolean): State => {
   return {
@@ -67,11 +65,7 @@ const reducer = (state: State, action: Action): State => {
 export interface IArgs<T, U> {
   defaultIsFetching?: boolean;
   requestFetch: (page: number, pageSize: number) => AxiosPromise<T>;
-  continueIf: (
-    currentResponseData: T,
-    currentPage: number,
-    currentPageSize: number
-  ) => boolean;
+  continueIf: (currentResponseData: T, currentPage: number, currentPageSize: number) => boolean;
   toArray: (currentResponseData: T) => U[];
 }
 

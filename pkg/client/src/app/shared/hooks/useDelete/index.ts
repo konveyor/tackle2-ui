@@ -1,1 +1,1 @@
-export { useDelete } from "./useDelete";
+export { useDelete } from './useDelete';

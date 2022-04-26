@@ -1,39 +1,33 @@
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { ToolbarChip } from "@patternfly/react-core";
-import {
-  breakWord,
-  cellWidth,
-  ICell,
-  IRow,
-  TableVariant,
-} from "@patternfly/react-table";
+import { ToolbarChip } from '@patternfly/react-core';
+import { breakWord, cellWidth, ICell, IRow, TableVariant } from '@patternfly/react-table';
 
 import {
   useApplicationToolbarFilter,
   useFetch,
   useTableControls,
   useTableFilter,
-} from "@app/shared/hooks";
+} from '@app/shared/hooks';
 import {
   AppTableToolbarToggleGroup,
   AppTableWithControls,
   InputTextFilter,
   ToolbarSearchFilter,
-} from "@app/shared/components";
+} from '@app/shared/components';
 
-import { Application, AssessmentQuestionRisk } from "@app/api/models";
-import { getAssessmentIdentifiedRisks } from "@app/api/rest";
+import { Application, AssessmentQuestionRisk } from '@app/api/models';
+import { getAssessmentIdentifiedRisks } from '@app/api/rest';
 
-import { ApplicationSelectionContext } from "../../application-selection-context";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { ApplicationSelectionContext } from '../../application-selection-context';
+import { usePaginationState } from '@app/shared/hooks/usePaginationState';
 
 export enum FilterKey {
-  APPLICATION_NAME = "application_name",
-  CATEGORY = "category",
-  QUESTION = "question",
-  ANSWER = "answer",
+  APPLICATION_NAME = 'application_name',
+  CATEGORY = 'category',
+  QUESTION = 'question',
+  ANSWER = 'answer',
 }
 
 export interface ITableRowData {
@@ -43,18 +37,12 @@ export interface ITableRowData {
   applications: Application[];
 }
 
-export interface IIdentifiedRisksTableProps {}
-
-export const IdentifiedRisksTable: React.FC<
-  IIdentifiedRisksTableProps
-> = () => {
+export const IdentifiedRisksTable: React.FC = () => {
   // i18
   const { t } = useTranslation();
 
   // Context
-  const { selectedItems: applications } = useContext(
-    ApplicationSelectionContext
-  );
+  const { selectedItems: applications } = useContext(ApplicationSelectionContext);
 
   // Toolbar filters data
   const {
@@ -68,9 +56,7 @@ export const IdentifiedRisksTable: React.FC<
   // Table data
   const fetchTableData = useCallback(() => {
     if (applications.length > 0) {
-      return getAssessmentIdentifiedRisks(applications.map((f) => f.id!)).then(
-        ({ data }) => data
-      );
+      return getAssessmentIdentifiedRisks(applications.map((f) => f.id!)).then(({ data }) => data);
     } else {
       return Promise.resolve([]);
     }
@@ -118,66 +104,46 @@ export const IdentifiedRisksTable: React.FC<
   const filterItem = useCallback(
     (item: ITableRowData) => {
       // Application name
-      let applicationNameResult: boolean = true;
-      const applicationNameFiltersText = (
-        filtersValue.get(FilterKey.APPLICATION_NAME) || []
-      ).map((f) => f.key);
+      let applicationNameResult = true;
+      const applicationNameFiltersText = (filtersValue.get(FilterKey.APPLICATION_NAME) || []).map(
+        (f) => f.key
+      );
       if (applicationNameFiltersText.length > 0) {
         applicationNameResult = applicationNameFiltersText.some((filterText) =>
           item.applications.some(
-            (application) =>
-              application.name
-                .toLowerCase()
-                .indexOf(filterText.toLowerCase()) !== -1
+            (application) => application.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
           )
         );
       }
 
       // Category
-      let categoryResult: boolean = true;
-      const categoryFiltersText = (
-        filtersValue.get(FilterKey.CATEGORY) || []
-      ).map((f) => f.key);
+      let categoryResult = true;
+      const categoryFiltersText = (filtersValue.get(FilterKey.CATEGORY) || []).map((f) => f.key);
       if (categoryFiltersText.length > 0) {
         categoryResult = categoryFiltersText.some((filterText) => {
-          return (
-            item.category.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
-          );
+          return item.category.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
         });
       }
 
       // Question
-      let questionResult: boolean = true;
-      const questionFiltersText = (
-        filtersValue.get(FilterKey.QUESTION) || []
-      ).map((f) => f.key);
+      let questionResult = true;
+      const questionFiltersText = (filtersValue.get(FilterKey.QUESTION) || []).map((f) => f.key);
       if (questionFiltersText.length > 0) {
         questionResult = questionFiltersText.some((filterText) => {
-          return (
-            item.question.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
-          );
+          return item.question.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
         });
       }
 
       // Answer
-      let answerResult: boolean = true;
-      const answerFiltersText = (filtersValue.get(FilterKey.ANSWER) || []).map(
-        (f) => f.key
-      );
+      let answerResult = true;
+      const answerFiltersText = (filtersValue.get(FilterKey.ANSWER) || []).map((f) => f.key);
       if (answerFiltersText.length > 0) {
         answerResult = answerFiltersText.some((filterText) => {
-          return (
-            item.answer.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
-          );
+          return item.answer.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
         });
       }
 
-      return (
-        applicationNameResult &&
-        categoryResult &&
-        questionResult &&
-        answerResult
-      );
+      return applicationNameResult && categoryResult && questionResult && answerResult;
     },
     [filtersValue]
   );
@@ -194,7 +160,7 @@ export const IdentifiedRisksTable: React.FC<
   const filterOptions = [
     {
       key: FilterKey.APPLICATION_NAME,
-      name: t("terms.application"),
+      name: t('terms.application'),
       input: (
         <InputTextFilter
           onApplyFilter={(filterText) => {
@@ -208,7 +174,7 @@ export const IdentifiedRisksTable: React.FC<
     },
     {
       key: FilterKey.CATEGORY,
-      name: t("terms.category"),
+      name: t('terms.category'),
       input: (
         <InputTextFilter
           onApplyFilter={(filterText) => {
@@ -222,7 +188,7 @@ export const IdentifiedRisksTable: React.FC<
     },
     {
       key: FilterKey.QUESTION,
-      name: t("terms.question"),
+      name: t('terms.question'),
       input: (
         <InputTextFilter
           onApplyFilter={(filterText) => {
@@ -236,7 +202,7 @@ export const IdentifiedRisksTable: React.FC<
     },
     {
       key: FilterKey.ANSWER,
-      name: t("terms.answer"),
+      name: t('terms.answer'),
       input: (
         <InputTextFilter
           onApplyFilter={(filterText) => {
@@ -253,25 +219,25 @@ export const IdentifiedRisksTable: React.FC<
   // Table
   const columns: ICell[] = [
     {
-      title: t("terms.category"),
+      title: t('terms.category'),
       transforms: [cellWidth(15)],
       cellTransforms: [breakWord],
       cellFormatters: [],
     },
     {
-      title: t("terms.question"),
+      title: t('terms.question'),
       transforms: [cellWidth(35)],
       cellTransforms: [breakWord],
       cellFormatters: [],
     },
     {
-      title: t("terms.answer"),
+      title: t('terms.answer'),
       transforms: [cellWidth(35)],
       cellTransforms: [breakWord],
       cellFormatters: [],
     },
     {
-      title: t("terms.application(s)"),
+      title: t('terms.application(s)'),
       transforms: [cellWidth(15)],
       cellTransforms: [breakWord],
       cellFormatters: [],
@@ -292,15 +258,14 @@ export const IdentifiedRisksTable: React.FC<
           title: item.answer,
         },
         {
-          title: item.applications.map((f) => f.name).join(", "),
+          title: item.applications.map((f) => f.name).join(', '),
         },
       ],
     });
   });
 
   //Placeholder
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState([], 10);
+  const { currentPageItems, setPageNumber, paginationProps } = usePaginationState([], 10);
   //
   return (
     <AppTableWithControls

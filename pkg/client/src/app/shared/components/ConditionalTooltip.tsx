@@ -1,5 +1,5 @@
-import React from "react";
-import { Tooltip, TooltipProps } from "@patternfly/react-core";
+import React from 'react';
+import { Tooltip, TooltipProps } from '@patternfly/react-core';
 
 export interface IConditionalTooltipProps extends TooltipProps {
   isTooltipEnabled: boolean;
@@ -7,7 +7,9 @@ export interface IConditionalTooltipProps extends TooltipProps {
 }
 
 // TODO: lib-ui candidate
-export const ConditionalTooltip: React.FunctionComponent<
-  IConditionalTooltipProps
-> = ({ isTooltipEnabled, children, ...props }: IConditionalTooltipProps) =>
+export const ConditionalTooltip: React.FunctionComponent<IConditionalTooltipProps> = ({
+  isTooltipEnabled,
+  children,
+  ...props
+}: IConditionalTooltipProps) =>
   isTooltipEnabled ? <Tooltip {...props}>{children}</Tooltip> : children;

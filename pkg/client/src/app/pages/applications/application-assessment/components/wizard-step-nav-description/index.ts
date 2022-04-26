@@ -1,1 +1,1 @@
-export { WizardStepNavDescription } from "./wizard-step-nav-description";
+export { WizardStepNavDescription } from './wizard-step-nav-description';

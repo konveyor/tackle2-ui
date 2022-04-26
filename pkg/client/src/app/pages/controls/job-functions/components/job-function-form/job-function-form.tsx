@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import { useFormik, FormikProvider, FormikHelpers } from "formik";
-import { object, string } from "yup";
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AxiosError, AxiosPromise, AxiosResponse } from 'axios';
+import { useFormik, FormikProvider, FormikHelpers } from 'formik';
+import { object, string } from 'yup';
 
 import {
   ActionGroup,
@@ -12,18 +12,18 @@ import {
   Form,
   FormGroup,
   TextInput,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
-import { createJobFunction, updateJobFunction } from "@app/api/rest";
-import { JobFunction } from "@app/api/models";
+import { createJobFunction, updateJobFunction } from '@app/api/rest';
+import { JobFunction } from '@app/api/models';
 import {
   duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
-} from "@app/utils/utils";
-import { useQueryClient } from "react-query";
-import { useFetchJobFunctions } from "@app/shared/hooks";
+} from '@app/utils/utils';
+import { useQueryClient } from 'react-query';
+import { useFetchJobFunctions } from '@app/shared/hooks';
 
 export interface FormValues {
   name: string;
@@ -42,40 +42,32 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const [error, setError] = useState<AxiosError>();
-  const { jobFunctions, isFetching, fetchError, fetchJobFunctions } =
-    useFetchJobFunctions(true);
+  const { jobFunctions, isFetching, fetchError, fetchJobFunctions } = useFetchJobFunctions(true);
 
   useEffect(() => {
     fetchJobFunctions();
   }, [fetchJobFunctions]);
 
   const initialValues: FormValues = {
-    name: jobFunction?.name || "",
+    name: jobFunction?.name || '',
   };
 
   const validationSchema = object().shape({
     name: string()
       .trim()
-      .required(t("validation.required"))
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 }))
+      .required(t('validation.required'))
+      .min(3, t('validation.minLength', { length: 3 }))
+      .max(120, t('validation.maxLength', { length: 120 }))
       .test(
-        "Duplicate name",
-        "A job function with this name already exists. Please use a different name.",
+        'Duplicate name',
+        'A job function with this name already exists. Please use a different name.',
         (value) => {
-          return duplicateNameCheck(
-            jobFunctions || [],
-            jobFunction || null,
-            value || ""
-          );
+          return duplicateNameCheck(jobFunctions || [], jobFunction || null, value || '');
         }
       ),
   });
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
+  const onSubmit = (formValues: FormValues, formikHelpers: FormikHelpers<FormValues>) => {
     const payload: JobFunction = {
       name: formValues.name.trim(),
       // stakeholders: [],
@@ -116,15 +108,9 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
-        {error && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(error)}
-          />
-        )}
+        {error && <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />}
         <FormGroup
-          label={t("terms.name")}
+          label={t('terms.name')}
           fieldId="name"
           isRequired={true}
           validated={getValidatedFromError(formik.errors.name)}
@@ -139,10 +125,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
             onChange={onChangeField}
             onBlur={formik.handleBlur}
             value={formik.values.name}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.name,
-              formik.touched.name
-            )}
+            validated={getValidatedFromErrorTouched(formik.errors.name, formik.touched.name)}
             autoComplete="off"
           />
         </FormGroup>
@@ -153,13 +136,10 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
             aria-label="submit"
             variant={ButtonVariant.primary}
             isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
+              !formik.isValid || !formik.dirty || formik.isSubmitting || formik.isValidating
             }
           >
-            {!jobFunction ? t("actions.create") : t("actions.save")}
+            {!jobFunction ? t('actions.create') : t('actions.save')}
           </Button>
           <Button
             type="button"
@@ -168,7 +148,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
             isDisabled={formik.isSubmitting || formik.isValidating}
             onClick={onCancel}
           >
-            {t("actions.cancel")}
+            {t('actions.cancel')}
           </Button>
         </ActionGroup>
       </Form>

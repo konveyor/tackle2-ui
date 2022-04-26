@@ -1,20 +1,8 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import Measure from "react-measure";
-import { useTranslation } from "react-i18next";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import Measure from 'react-measure';
+import { useTranslation } from 'react-i18next';
 
-import {
-  Bullseye,
-  Checkbox,
-  Skeleton,
-  Stack,
-  StackItem,
-} from "@patternfly/react-core";
+import { Bullseye, Checkbox, Skeleton, Stack, StackItem } from '@patternfly/react-core';
 import {
   Chart,
   ChartAxis,
@@ -23,28 +11,24 @@ import {
   ChartScatter,
   ChartThemeColor,
   ChartTooltip,
-} from "@patternfly/react-charts";
+} from '@patternfly/react-charts';
 import {
   global_palette_black_800 as black,
   chart_color_green_100 as green,
   global_palette_white as white,
-} from "@patternfly/react-tokens";
+} from '@patternfly/react-tokens';
 
-import { useFetch, useFetchApplicationDependencies } from "@app/shared/hooks";
-import { ConditionalRender, StateError } from "@app/shared/components";
+import { useFetch, useFetchApplicationDependencies } from '@app/shared/hooks';
+import { ConditionalRender, StateError } from '@app/shared/components';
 
-import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
-import { getAssessmentConfidence } from "@app/api/rest";
-import {
-  Application,
-  AssessmentConfidence,
-  ProposedAction,
-} from "@app/api/models";
+import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from '@app/Constants';
+import { getAssessmentConfidence } from '@app/api/rest';
+import { Application, AssessmentConfidence, ProposedAction } from '@app/api/models';
 
-import { ApplicationSelectionContext } from "../../application-selection-context";
-import { CartesianSquare } from "./cartesian-square";
-import { Arrow } from "./arrow";
-import { useFetchReviews } from "@app/queries/reviews";
+import { ApplicationSelectionContext } from '../../application-selection-context';
+import { CartesianSquare } from './cartesian-square';
+import { Arrow } from './arrow';
+import { useFetchReviews } from '@app/queries/reviews';
 
 interface Line {
   from: LinePoint;
@@ -83,43 +67,43 @@ export const AdoptionCandidateGraph: React.FC = () => {
     return {
       rehost: {
         legend: {
-          name: t(PROPOSED_ACTION_LIST["rehost"].i18Key),
-          hexColor: PROPOSED_ACTION_LIST["rehost"].hexColor,
+          name: t(PROPOSED_ACTION_LIST['rehost'].i18Key),
+          hexColor: PROPOSED_ACTION_LIST['rehost'].hexColor,
         },
         datapoints: [],
       },
       replatform: {
         legend: {
-          name: t(PROPOSED_ACTION_LIST["replatform"].i18Key),
-          hexColor: PROPOSED_ACTION_LIST["replatform"].hexColor,
+          name: t(PROPOSED_ACTION_LIST['replatform'].i18Key),
+          hexColor: PROPOSED_ACTION_LIST['replatform'].hexColor,
         },
         datapoints: [],
       },
       refactor: {
         legend: {
-          name: t(PROPOSED_ACTION_LIST["refactor"].i18Key),
-          hexColor: PROPOSED_ACTION_LIST["refactor"].hexColor,
+          name: t(PROPOSED_ACTION_LIST['refactor'].i18Key),
+          hexColor: PROPOSED_ACTION_LIST['refactor'].hexColor,
         },
         datapoints: [],
       },
       repurchase: {
         legend: {
-          name: t(PROPOSED_ACTION_LIST["repurchase"].i18Key),
-          hexColor: PROPOSED_ACTION_LIST["repurchase"].hexColor,
+          name: t(PROPOSED_ACTION_LIST['repurchase'].i18Key),
+          hexColor: PROPOSED_ACTION_LIST['repurchase'].hexColor,
         },
         datapoints: [],
       },
       retire: {
         legend: {
-          name: t(PROPOSED_ACTION_LIST["retire"].i18Key),
-          hexColor: PROPOSED_ACTION_LIST["retire"].hexColor,
+          name: t(PROPOSED_ACTION_LIST['retire'].i18Key),
+          hexColor: PROPOSED_ACTION_LIST['retire'].hexColor,
         },
         datapoints: [],
       },
       retain: {
         legend: {
-          name: t(PROPOSED_ACTION_LIST["retain"].i18Key),
-          hexColor: PROPOSED_ACTION_LIST["retain"].hexColor,
+          name: t(PROPOSED_ACTION_LIST['retain'].i18Key),
+          hexColor: PROPOSED_ACTION_LIST['retain'].hexColor,
         },
         datapoints: [],
       },
@@ -127,9 +111,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
   }, [t]);
 
   // Context
-  const { selectedItems: applications } = useContext(
-    ApplicationSelectionContext
-  );
+  const { selectedItems: applications } = useContext(ApplicationSelectionContext);
 
   // Checkboxes
   const [showDependencies, setShowDependencies] = useState(true);
@@ -137,9 +119,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
   // Confidence
   const fetchChartData = useCallback(() => {
     if (applications.length > 0) {
-      return getAssessmentConfidence(applications.map((f) => f.id!)).then(
-        ({ data }) => data
-      );
+      return getAssessmentConfidence(applications.map((f) => f.id!)).then(({ data }) => data);
     } else {
       return Promise.resolve([]);
     }
@@ -182,12 +162,8 @@ export const AdoptionCandidateGraph: React.FC = () => {
     }
 
     return applications.reduce((prev, current) => {
-      const appConfidence = confidences.find(
-        (elem) => elem.applicationId === current.id
-      );
-      const appReview = reviews?.find(
-        (review) => review.id === current?.review?.id
-      );
+      const appConfidence = confidences.find((elem) => elem.applicationId === current.id);
+      const appReview = reviews?.find((review) => review.id === current?.review?.id);
 
       if (appConfidence && appReview) {
         const key = appReview.proposedAction;
@@ -247,9 +223,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
       .flatMap((f) => f);
 
     return dependencies.reduce((prev, current) => {
-      const fromPoint = points.find(
-        (f) => f.application.id === current.from.id
-      );
+      const fromPoint = points.find((f) => f.application.id === current.from.id);
       const toPoint = points.find((f) => f.application.id === current.to.id);
 
       if (fromPoint && toPoint) {
@@ -286,7 +260,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
           <Checkbox
             id="show-dependencies"
             name="show-dependencies"
-            label={t("terms.dependencies")}
+            label={t('terms.dependencies')}
             isChecked={showDependencies}
             onChange={() => setShowDependencies((current) => !current)}
           />
@@ -329,15 +303,15 @@ export const AdoptionCandidateGraph: React.FC = () => {
                       width={chartWidth}
                       domain={{ x: [0, 100], y: [0, 10] }}
                       style={{
-                        background: { fill: "url(#axis_gradient)" },
+                        background: { fill: 'url(#axis_gradient)' },
                       }}
                     >
                       <ChartAxis
-                        label={t("terms.confidence")}
+                        label={t('terms.confidence')}
                         showGrid
                         tickValues={[
-                          0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65,
-                          70, 75, 80, 85, 90, 95, 100,
+                          0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90,
+                          95, 100,
                         ]}
                         tickLabelComponent={<></>}
                         style={{
@@ -345,7 +319,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
                         }}
                       />
                       <ChartAxis
-                        label={t("terms.businessCriticality")}
+                        label={t('terms.businessCriticality')}
                         showGrid
                         dependentAxis
                         tickValues={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
@@ -361,8 +335,8 @@ export const AdoptionCandidateGraph: React.FC = () => {
                       />
                       <ChartGroup>
                         <ChartScatter
-                          key={"scatter-1"}
-                          name={"scatter-1"}
+                          key={'scatter-1'}
+                          name={'scatter-1'}
                           data={bubblePoints}
                           labels={({ datum }) => {
                             const point = datum as BubblePoint;
@@ -389,8 +363,8 @@ export const AdoptionCandidateGraph: React.FC = () => {
                       {showDependencies &&
                         lines.map((line, i) => (
                           <ChartLine
-                            key={"line-" + i}
-                            name={"line-" + i}
+                            key={'line-' + i}
+                            name={'line-' + i}
                             data={[
                               { x: line.from.x, y: line.from.y },
                               {
@@ -409,13 +383,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
 
                     <svg style={{ height: 0 }}>
                       <defs>
-                        <linearGradient
-                          id="axis_gradient"
-                          x1="0%"
-                          y1="0%"
-                          x2="100%"
-                          y2="0%"
-                        >
+                        <linearGradient id="axis_gradient" x1="0%" y1="0%" x2="100%" y2="0%">
                           <stop
                             offset="50%"
                             style={{

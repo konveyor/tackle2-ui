@@ -1,1 +1,1 @@
-export { ApplicationAssessmentSummaryTable } from "./application-assessment-summary-table";
+export { ApplicationAssessmentSummaryTable } from './application-assessment-summary-table';

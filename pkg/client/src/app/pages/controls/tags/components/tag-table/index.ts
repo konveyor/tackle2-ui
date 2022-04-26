@@ -1,1 +1,1 @@
-export { TagTable } from "./tag-table";
+export { TagTable } from './tag-table';

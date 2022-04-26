@@ -1,1 +1,1 @@
-export { NodeFetch } from "./node-fetch";
+export { NodeFetch } from './node-fetch';

@@ -1,16 +1,16 @@
-import { useCallback, useReducer } from "react";
-import { AxiosPromise } from "axios";
-import { ActionType, createAsyncAction, getType } from "typesafe-actions";
+import { useCallback, useReducer } from 'react';
+import { AxiosPromise } from 'axios';
+import { ActionType, createAsyncAction, getType } from 'typesafe-actions';
 
 export const {
   request: fetchRequest,
   success: fetchSuccess,
   failure: fetchFailure,
-} = createAsyncAction(
-  "useFetch/fetch/request",
-  "useFetch/fetch/success",
-  "useFetch/fetch/failure"
-)<void, any, any>();
+} = createAsyncAction('useFetch/fetch/request', 'useFetch/fetch/success', 'useFetch/fetch/failure')<
+  void,
+  any,
+  any
+>();
 
 type State = Readonly<{
   isFetching: boolean;
@@ -26,9 +26,7 @@ const defaultState: State = {
   fetchCount: 0,
 };
 
-type Action = ActionType<
-  typeof fetchRequest | typeof fetchSuccess | typeof fetchFailure
->;
+type Action = ActionType<typeof fetchRequest | typeof fetchSuccess | typeof fetchFailure>;
 
 const initReducer = (isFetching: boolean): State => {
   return {

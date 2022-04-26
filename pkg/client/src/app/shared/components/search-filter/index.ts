@@ -1,1 +1,1 @@
-export { SearchFilter } from "./search-filter";
+export { SearchFilter } from './search-filter';

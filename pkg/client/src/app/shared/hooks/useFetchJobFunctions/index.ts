@@ -1,1 +1,1 @@
-export { useFetchJobFunctions } from "./useFetchJobFunctions";
+export { useFetchJobFunctions } from './useFetchJobFunctions';

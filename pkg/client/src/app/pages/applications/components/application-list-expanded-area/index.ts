@@ -1,1 +1,1 @@
-export { ApplicationListExpandedArea } from "./application-list-expanded-area";
+export { ApplicationListExpandedArea } from './application-list-expanded-area';

@@ -1,1 +1,1 @@
-export { Identities as default } from "./identities";
+export { Identities as default } from './identities';

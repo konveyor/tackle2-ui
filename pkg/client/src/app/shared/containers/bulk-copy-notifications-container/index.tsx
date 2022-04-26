@@ -1,1 +1,1 @@
-export { BulkCopyNotificationsContainer } from "./bulk-copy-notifications-container";
+export { BulkCopyNotificationsContainer } from './bulk-copy-notifications-container';

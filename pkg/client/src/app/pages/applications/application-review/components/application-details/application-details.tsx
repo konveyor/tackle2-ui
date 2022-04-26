@@ -1,5 +1,5 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   DescriptionList,
@@ -8,9 +8,9 @@ import {
   DescriptionListTerm,
   List,
   ListItem,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
-import { Application, Assessment } from "@app/api/models";
+import { Application, Assessment } from '@app/api/models';
 
 export interface IApplicationDetailsProps {
   application: Application;
@@ -26,19 +26,15 @@ export const ApplicationDetails: React.FC<IApplicationDetailsProps> = ({
   return (
     <DescriptionList>
       <DescriptionListGroup>
-        <DescriptionListTerm>{t("terms.applicationName")}</DescriptionListTerm>
-        <DescriptionListDescription>
-          {application.name}
-        </DescriptionListDescription>
+        <DescriptionListTerm>{t('terms.applicationName')}</DescriptionListTerm>
+        <DescriptionListDescription>{application.name}</DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
-        <DescriptionListTerm>{t("terms.description")}</DescriptionListTerm>
-        <DescriptionListDescription>
-          {application.description}
-        </DescriptionListDescription>
+        <DescriptionListTerm>{t('terms.description')}</DescriptionListTerm>
+        <DescriptionListDescription>{application.description}</DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
-        <DescriptionListTerm>{t("terms.assessmentNotes")}</DescriptionListTerm>
+        <DescriptionListTerm>{t('terms.assessmentNotes')}</DescriptionListTerm>
         <DescriptionListDescription>
           <List>
             {assessment?.questionnaire.categories

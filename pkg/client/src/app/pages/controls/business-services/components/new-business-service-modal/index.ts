@@ -1,1 +1,1 @@
-export { NewBusinessServiceModal } from "./new-business-service-modal";
+export { NewBusinessServiceModal } from './new-business-service-modal';

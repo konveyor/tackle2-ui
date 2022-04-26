@@ -1,39 +1,24 @@
-import React, { useCallback, useEffect, useMemo } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { ToolbarChip } from "@patternfly/react-core";
-import {
-  cellWidth,
-  ICell,
-  IRow,
-  sortable,
-  TableText,
-} from "@patternfly/react-table";
+import { ToolbarChip } from '@patternfly/react-core';
+import { cellWidth, ICell, IRow, sortable, TableText } from '@patternfly/react-table';
 
 import {
   AppTableToolbarToggleGroup,
   AppTableWithControls,
   RiskLabel,
-} from "@app/shared/components";
-import {
-  useToolbarFilter,
-  useTableControls,
-  useTableFilter,
-} from "@app/shared/hooks";
+} from '@app/shared/components';
+import { useToolbarFilter, useTableControls, useTableFilter } from '@app/shared/hooks';
 
-import { RISK_LIST } from "@app/Constants";
-import {
-  Assessment,
-  Question,
-  QuestionnaireCategory,
-  Risk,
-} from "@app/api/models";
+import { RISK_LIST } from '@app/Constants';
+import { Assessment, Question, QuestionnaireCategory, Risk } from '@app/api/models';
 
-import { SelectRiskFilter } from "./components/select-risk-filter";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { SelectRiskFilter } from './components/select-risk-filter';
+import { usePaginationState } from '@app/shared/hooks/usePaginationState';
 
 enum FilterKey {
-  RISK = "risk",
+  RISK = 'risk',
 }
 
 interface ITableItem {
@@ -57,7 +42,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
   const filters = [
     {
       key: FilterKey.RISK,
-      name: t("terms.risk"),
+      name: t('terms.risk'),
     },
   ];
 
@@ -75,12 +60,10 @@ export const ApplicationAssessmentSummaryTable: React.FC<
       .slice(0)
       .map((category) => {
         const result: ITableItem[] = category.questions.map((question) => {
-          const checkedOption = question.options.find(
-            (q) => q.checked === true
-          );
+          const checkedOption = question.options.find((q) => q.checked === true);
           const item: ITableItem = {
-            answerValue: checkedOption ? checkedOption.option : "",
-            riskValue: checkedOption ? checkedOption.risk : "UNKNOWN",
+            answerValue: checkedOption ? checkedOption.option : '',
+            riskValue: checkedOption ? checkedOption.risk : 'UNKNOWN',
             category,
             question,
           };
@@ -98,24 +81,18 @@ export const ApplicationAssessmentSummaryTable: React.FC<
       });
   }, [assessment]);
 
-  const compareToByColumn = useCallback(
-    (a: ITableItem, b: ITableItem, columnIndex?: number) => {
-      switch (columnIndex) {
-        case 3: // Risk
-          return (
-            RISK_LIST[a.riskValue].sortFactor -
-            RISK_LIST[b.riskValue].sortFactor
-          );
-        default:
-          return 0;
-      }
-    },
-    []
-  );
+  const compareToByColumn = useCallback((a: ITableItem, b: ITableItem, columnIndex?: number) => {
+    switch (columnIndex) {
+      case 3: // Risk
+        return RISK_LIST[a.riskValue].sortFactor - RISK_LIST[b.riskValue].sortFactor;
+      default:
+        return 0;
+    }
+  }, []);
 
   const filterItem = useCallback(
     (item: ITableItem) => {
-      let result: boolean = true;
+      let result = true;
 
       const risks = filtersValue.get(FilterKey.RISK)?.map((f) => f.key);
       if (risks && risks.length > 0) {
@@ -150,22 +127,22 @@ export const ApplicationAssessmentSummaryTable: React.FC<
 
   const columns: ICell[] = [
     {
-      title: t("terms.category"),
+      title: t('terms.category'),
       transforms: [cellWidth(20)],
       cellFormatters: [],
     },
     {
-      title: t("terms.question"),
+      title: t('terms.question'),
       transforms: [cellWidth(35)],
       cellFormatters: [],
     },
     {
-      title: t("terms.answer"),
+      title: t('terms.answer'),
       transforms: [cellWidth(35)],
       cellFormatters: [],
     },
     {
-      title: t("terms.risk"),
+      title: t('terms.risk'),
       transforms: [cellWidth(10), sortable],
       cellFormatters: [],
     },
@@ -176,21 +153,13 @@ export const ApplicationAssessmentSummaryTable: React.FC<
     rows.push({
       cells: [
         {
-          title: (
-            <TableText wrapModifier="truncate">{item.category.title}</TableText>
-          ),
+          title: <TableText wrapModifier="truncate">{item.category.title}</TableText>,
         },
         {
-          title: (
-            <TableText wrapModifier="truncate">
-              {item.question.question}
-            </TableText>
-          ),
+          title: <TableText wrapModifier="truncate">{item.question.question}</TableText>,
         },
         {
-          title: (
-            <TableText wrapModifier="truncate">{item.answerValue}</TableText>
-          ),
+          title: <TableText wrapModifier="truncate">{item.answerValue}</TableText>,
         },
         {
           title: <RiskLabel risk={item.riskValue} />,
@@ -200,8 +169,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
   });
 
   //Placeholder
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState([], 10);
+  const { currentPageItems, setPageNumber, paginationProps } = usePaginationState([], 10);
   //
 
   return (

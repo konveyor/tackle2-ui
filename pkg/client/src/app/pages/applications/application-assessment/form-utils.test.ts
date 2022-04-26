@@ -1,7 +1,7 @@
-import { Question, QuestionnaireCategory } from "@app/api/models";
-import { getCommentFieldName, getQuestionFieldName } from "./form-utils";
+import { Question, QuestionnaireCategory } from '@app/api/models';
+import { getCommentFieldName, getQuestionFieldName } from './form-utils';
 
-describe("Application assessment - form utils", () => {
+describe('Application assessment - form utils', () => {
   const category: QuestionnaireCategory = {
     id: 123,
     order: 1,
@@ -11,27 +11,27 @@ describe("Application assessment - form utils", () => {
     id: 321,
     order: 1,
     options: [],
-    description: "",
-    question: "",
+    description: '',
+    question: '',
   };
 
-  it("getCommentFieldName: fullName", () => {
+  it('getCommentFieldName: fullName', () => {
     const fieldName = getCommentFieldName(category, true);
-    expect(fieldName).toBe("comments.category-123");
+    expect(fieldName).toBe('comments.category-123');
   });
 
-  it("getCommentFieldName: singleName", () => {
+  it('getCommentFieldName: singleName', () => {
     const fieldName = getCommentFieldName(category, false);
-    expect(fieldName).toBe("category-123");
+    expect(fieldName).toBe('category-123');
   });
 
-  it("getQuestionFieldName: fullName", () => {
+  it('getQuestionFieldName: fullName', () => {
     const fieldName = getQuestionFieldName(question, true);
-    expect(fieldName).toBe("questions.question-321");
+    expect(fieldName).toBe('questions.question-321');
   });
 
-  it("getQuestionFieldName: singleName", () => {
+  it('getQuestionFieldName: singleName', () => {
     const fieldName = getQuestionFieldName(question, false);
-    expect(fieldName).toBe("question-321");
+    expect(fieldName).toBe('question-321');
   });
 });

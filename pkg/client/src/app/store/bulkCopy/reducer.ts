@@ -1,11 +1,7 @@
-import { ActionType, getType } from "typesafe-actions";
-import {
-  scheduleWatchBulk,
-  assessmentBulkCompleted,
-  reviewBulkCompleted,
-} from "./actions";
+import { ActionType, getType } from 'typesafe-actions';
+import { scheduleWatchBulk, assessmentBulkCompleted, reviewBulkCompleted } from './actions';
 
-export const stateKey = "bulkCopy";
+export const stateKey = 'bulkCopy';
 
 export type BulkCopyState = Readonly<{
   assessmentBulk?: number;
@@ -25,9 +21,7 @@ export const defaultState: BulkCopyState = {
 };
 
 export type BulkCopyAction = ActionType<
-  | typeof scheduleWatchBulk
-  | typeof assessmentBulkCompleted
-  | typeof reviewBulkCompleted
+  typeof scheduleWatchBulk | typeof assessmentBulkCompleted | typeof reviewBulkCompleted
 >;
 
 export const reducer = (

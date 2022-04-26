@@ -1,1 +1,1 @@
-export { RiskLabel } from "./risk-label";
+export { RiskLabel } from './risk-label';

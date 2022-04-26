@@ -1,1 +1,1 @@
-export { useFetchIdentities } from "./useFetchIdentities";
+export { useFetchIdentities } from './useFetchIdentities';

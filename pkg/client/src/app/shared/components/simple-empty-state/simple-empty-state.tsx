@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react';
 import {
   EmptyState,
   EmptyStateBody,
   EmptyStateIcon,
   EmptyStateVariant,
   Title,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
 export interface SimpleEmptyStateProps {
   icon?: any;

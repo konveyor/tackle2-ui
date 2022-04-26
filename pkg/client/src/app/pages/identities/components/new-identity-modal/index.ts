@@ -1,1 +1,1 @@
-export { NewIdentityModal } from "./new-identity-modal";
+export { NewIdentityModal } from './new-identity-modal';

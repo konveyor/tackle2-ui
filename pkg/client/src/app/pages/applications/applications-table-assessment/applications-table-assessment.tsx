@@ -1,18 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
-import { AxiosError, AxiosResponse } from "axios";
-import { useTranslation, Trans } from "react-i18next";
-import { useSelectionState } from "@konveyor/lib-ui";
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { AxiosError, AxiosResponse } from 'axios';
+import { useTranslation, Trans } from 'react-i18next';
+import { useSelectionState } from '@konveyor/lib-ui';
 
 import {
   Button,
   ButtonVariant,
   DropdownItem,
   Modal,
-  ToolbarChip,
   ToolbarGroup,
   ToolbarItem,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 import {
   cellWidth,
   expandable,
@@ -24,15 +23,15 @@ import {
   ISeparator,
   sortable,
   TableText,
-} from "@patternfly/react-table";
-import { TagIcon } from "@patternfly/react-icons/dist/esm/icons/tag-icon";
-import { PencilAltIcon } from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
+} from '@patternfly/react-table';
+import { TagIcon } from '@patternfly/react-icons/dist/esm/icons/tag-icon';
+import { PencilAltIcon } from '@patternfly/react-icons/dist/esm/icons/pencil-alt-icon';
 
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@app/store/rootReducer";
-import { alertActions } from "@app/store/alert";
-import { confirmDialogActions } from "@app/store/confirmDialog";
-import { bulkCopySelectors } from "@app/store/bulkCopy";
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@app/store/rootReducer';
+import { alertActions } from '@app/store/alert';
+import { confirmDialogActions } from '@app/store/confirmDialog';
+import { bulkCopySelectors } from '@app/store/bulkCopy';
 
 import {
   AppPlaceholder,
@@ -42,46 +41,40 @@ import {
   StatusIcon,
   KebabDropdown,
   ToolbarBulkSelector,
-} from "@app/shared/components";
+} from '@app/shared/components';
 import {
   useTableControls,
   useAssessApplication,
   useMultipleFetch,
   useEntityModal,
   useApplicationToolbarFilter,
-} from "@app/shared/hooks";
-import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
+} from '@app/shared/hooks';
+import { ApplicationDependenciesFormContainer } from '@app/shared/containers';
 
-import { formatPath, Paths } from "@app/Paths";
+import { formatPath, Paths } from '@app/Paths';
 
-import { Application, Assessment, Review } from "@app/api/models";
-import { deleteAssessment, deleteReview, getAssessments } from "@app/api/rest";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { Application, Assessment, Review } from '@app/api/models';
+import { deleteAssessment, deleteReview, getAssessments } from '@app/api/rest';
+import { getAxiosErrorMessage } from '@app/utils/utils';
 
-import { ApplicationForm } from "../components/application-form";
+import { ApplicationForm } from '../components/application-form';
 
-import { ApplicationAssessment } from "../components/application-assessment";
-import { ApplicationBusinessService } from "../components/application-business-service";
-import { ApplicationListExpandedArea } from "../components/application-list-expanded-area";
-import { ImportApplicationsForm } from "../components/import-applications-form";
-import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
-import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
-import { legacyPathfinderRoles, RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
-import { checkAccess } from "@app/common/rbac-utils";
-import keycloak from "@app/keycloak";
-import {
-  useDeleteApplicationMutation,
-  useFetchApplications,
-} from "@app/queries/applications";
-import {
-  ApplicationTableType,
-  getApplicationsFilterValues,
-} from "../applicationsFilter";
-import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useFetchTags } from "@app/queries/tags";
-import { useFetchReviews } from "@app/queries/reviews";
+import { ApplicationAssessment } from '../components/application-assessment';
+import { ApplicationBusinessService } from '../components/application-business-service';
+import { ApplicationListExpandedArea } from '../components/application-list-expanded-area';
+import { ImportApplicationsForm } from '../components/import-applications-form';
+import { BulkCopyAssessmentReviewForm } from '../components/bulk-copy-assessment-review-form';
+import { ApplicationIdentityForm } from '../components/application-identity-form/application-identity-form';
+import { legacyPathfinderRoles, RBAC, RBAC_TYPE, writeScopes } from '@app/rbac';
+import { checkAccess } from '@app/common/rbac-utils';
+import keycloak from '@app/keycloak';
+import { useDeleteApplicationMutation, useFetchApplications } from '@app/queries/applications';
+import { ApplicationTableType, getApplicationsFilterValues } from '../applicationsFilter';
+import { FilterToolbar } from '@app/shared/components/FilterToolbar/FilterToolbar';
+import { useFetchTags } from '@app/queries/tags';
+import { useFetchReviews } from '@app/queries/reviews';
 
-const ENTITY_FIELD = "entity";
+const ENTITY_FIELD = 'entity';
 
 const getRow = (rowData: IRowData): Application => {
   return rowData[ENTITY_FIELD];
@@ -103,9 +96,7 @@ export const ApplicationsTable: React.FC = () => {
   // Redux
   const dispatch = useDispatch();
 
-  const isWatchingBulkCopy = useSelector((state: RootState) =>
-    bulkCopySelectors.isWatching(state)
-  );
+  const isWatchingBulkCopy = useSelector((state: RootState) => bulkCopySelectors.isWatching(state));
 
   // Router
   const history = useHistory();
@@ -120,17 +111,12 @@ export const ApplicationsTable: React.FC = () => {
   } = useApplicationToolbarFilter();
 
   // Table data
-  const {
-    paginationQuery,
-    sortByQuery,
-    handlePaginationChange,
-    handleSortChange,
-  } = useTableControls({
-    sortByQuery: { direction: "asc", index: 2 },
-  });
+  const { paginationQuery, sortByQuery, handlePaginationChange, handleSortChange } =
+    useTableControls({
+      sortByQuery: { direction: 'asc', index: 2 },
+    });
 
-  const { applications, isFetching, fetchError, refetch } =
-    useFetchApplications();
+  const { applications, isFetching, fetchError, refetch } = useFetchApplications();
 
   const { tags } = useFetchTags();
 
@@ -143,11 +129,7 @@ export const ApplicationsTable: React.FC = () => {
     setFilterValues,
     handleOnClearAllFilters,
     currentPageItems,
-  } = getApplicationsFilterValues(
-    applications,
-    ApplicationTableType.Assessment,
-    tags
-  );
+  } = getApplicationsFilterValues(applications, ApplicationTableType.Assessment, tags);
 
   // Create and update modal
   const {
@@ -163,9 +145,9 @@ export const ApplicationsTable: React.FC = () => {
       dispatch(
         alertActions.addSuccess(
           // t('terms.application')
-          t("toastr.success.added", {
+          t('toastr.success.added', {
             what: response.data.name,
-            type: t("terms.application").toLowerCase(),
+            type: t('terms.application').toLowerCase(),
           })
         )
       );
@@ -215,8 +197,7 @@ export const ApplicationsTable: React.FC = () => {
   const [appReview, setAppReview] = useState<Review>();
   useEffect(() => {
     const appReview = reviews?.find(
-      (review) =>
-        review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
+      (review) => review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
     );
     setAppReview(appReview);
   }, [applicationToCopyAssessmentAndReviewFrom, reviews]);
@@ -238,8 +219,7 @@ export const ApplicationsTable: React.FC = () => {
   } = useEntityModal<Application[]>();
 
   // Application import modal
-  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    useState(false);
+  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] = useState(false);
 
   // Table's assessments
   const {
@@ -259,8 +239,7 @@ export const ApplicationsTable: React.FC = () => {
   }, [applications, fetchApplicationsAssessment]);
 
   // Create assessment
-  const { assessApplication, inProgress: isApplicationAssessInProgress } =
-    useAssessApplication();
+  const { assessApplication, inProgress: isApplicationAssessInProgress } = useAssessApplication();
 
   // Expand, select rows
   const {
@@ -289,22 +268,22 @@ export const ApplicationsTable: React.FC = () => {
   // Table
   const columns: ICell[] = [
     {
-      title: t("terms.name"),
+      title: t('terms.name'),
       transforms: [sortable, cellWidth(20)],
       cellFormatters: [expandable],
     },
-    { title: t("terms.description"), transforms: [cellWidth(25)] },
+    { title: t('terms.description'), transforms: [cellWidth(25)] },
     {
-      title: t("terms.businessService"),
+      title: t('terms.businessService'),
       transforms: [sortable, cellWidth(20)],
     },
-    { title: t("terms.assessment"), transforms: [cellWidth(10)] },
-    { title: t("terms.review"), transforms: [cellWidth(10)] },
-    { title: t("terms.tagCount"), transforms: [sortable, cellWidth(10)] },
+    { title: t('terms.assessment'), transforms: [cellWidth(10)] },
+    { title: t('terms.review'), transforms: [cellWidth(10)] },
+    { title: t('terms.tagCount'), transforms: [sortable, cellWidth(10)] },
     {
-      title: "",
+      title: '',
       props: {
-        className: "pf-c-table__inline-edit-action",
+        className: 'pf-c-table__inline-edit-action',
       },
     },
   ];
@@ -323,16 +302,12 @@ export const ApplicationsTable: React.FC = () => {
           title: <TableText wrapModifier="truncate">{item.name}</TableText>,
         },
         {
-          title: (
-            <TableText wrapModifier="truncate">{item.description}</TableText>
-          ),
+          title: <TableText wrapModifier="truncate">{item.description}</TableText>,
         },
         {
           title: (
             <TableText wrapModifier="truncate">
-              {item.businessService && (
-                <ApplicationBusinessService id={item.businessService.id} />
-              )}
+              {item.businessService && <ApplicationBusinessService id={item.businessService.id} />}
             </TableText>
           ),
         },
@@ -398,14 +373,10 @@ export const ApplicationsTable: React.FC = () => {
     const actions: (IAction | ISeparator)[] = [];
 
     const applicationAssessment = getApplicationAssessment(row.id!);
-    if (applicationAssessment?.status === "COMPLETE") {
+    if (applicationAssessment?.status === 'COMPLETE') {
       actions.push({
-        title: t("actions.copyAssessment"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
+        title: t('actions.copyAssessment'),
+        onClick: (event: React.MouseEvent, rowIndex: number, rowData: IRowData) => {
           const row: Application = getRow(rowData);
           openCopyAssessmentModal(row);
         },
@@ -413,12 +384,8 @@ export const ApplicationsTable: React.FC = () => {
     }
     if (row.review) {
       actions.push({
-        title: t("actions.copyAssessmentAndReview"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
+        title: t('actions.copyAssessmentAndReview'),
+        onClick: (event: React.MouseEvent, rowIndex: number, rowData: IRowData) => {
           const row: Application = getRow(rowData);
           openCopyAssessmentAndReviewModal(row);
         },
@@ -426,39 +393,27 @@ export const ApplicationsTable: React.FC = () => {
     }
     if (applicationAssessment) {
       actions.push({
-        title: t("actions.discardAssessment"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
+        title: t('actions.discardAssessment'),
+        onClick: (event: React.MouseEvent, rowIndex: number, rowData: IRowData) => {
           const row: Application = getRow(rowData);
           discardAssessmentRow(row);
         },
       });
     }
-    const userScopes: string[] = token?.scope.split(" "),
+    const userScopes: string[] = token?.scope.split(' '),
       access = userScopes && checkAccess(userScopes, writeScopes);
     if (access) {
       actions.push(
         {
-          title: t("actions.manageDependencies"),
-          onClick: (
-            event: React.MouseEvent,
-            rowIndex: number,
-            rowData: IRowData
-          ) => {
+          title: t('actions.manageDependencies'),
+          onClick: (event: React.MouseEvent, rowIndex: number, rowData: IRowData) => {
             const row: Application = getRow(rowData);
             openDependenciesModal(row);
           },
         },
         {
-          title: "Manage credentials",
-          onClick: (
-            event: React.MouseEvent,
-            rowIndex: number,
-            rowData: IRowData
-          ) => {
+          title: 'Manage credentials',
+          onClick: (event: React.MouseEvent, rowIndex: number, rowData: IRowData) => {
             const row: Application = getRow(rowData);
             const applicationsList: Application[] = [];
             applicationsList.push(row);
@@ -466,12 +421,8 @@ export const ApplicationsTable: React.FC = () => {
           },
         },
         {
-          title: t("actions.delete"),
-          onClick: (
-            event: React.MouseEvent,
-            rowIndex: number,
-            rowData: IRowData
-          ) => {
+          title: t('actions.delete'),
+          onClick: (event: React.MouseEvent, rowIndex: number, rowData: IRowData) => {
             const row: Application = getRow(rowData);
             deleteRow(row);
           },
@@ -487,8 +438,7 @@ export const ApplicationsTable: React.FC = () => {
     event: React.MouseEvent,
     rowIndex: number,
     isOpen: boolean,
-    rowData: IRowData,
-    extraData: IExtraData
+    rowData: IRowData
   ) => {
     const row = getRow(rowData);
     toggleRowExpanded(row);
@@ -508,14 +458,14 @@ export const ApplicationsTable: React.FC = () => {
   const deleteRow = (row: Application) => {
     dispatch(
       confirmDialogActions.openDialog({
-        title: t("dialog.title.delete", {
-          what: t("terms.application").toLowerCase(),
+        title: t('dialog.title.delete', {
+          what: t('terms.application').toLowerCase(),
         }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
+        titleIconVariant: 'warning',
+        message: t('dialog.message.delete'),
         confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
+        confirmBtnLabel: t('actions.delete'),
+        cancelBtnLabel: t('actions.cancel'),
         onConfirm: () => {
           deleteApplication(row?.id || 0);
         },
@@ -526,39 +476,37 @@ export const ApplicationsTable: React.FC = () => {
   const discardAssessmentRow = (row: Application) => {
     dispatch(
       confirmDialogActions.openDialog({
-        title: t("dialog.title.discard", {
-          what: t("terms.assessment").toLowerCase(),
+        title: t('dialog.title.discard', {
+          what: t('terms.assessment').toLowerCase(),
         }),
-        titleIconVariant: "warning",
+        titleIconVariant: 'warning',
         message: (
           <span>
             <Trans
               i18nKey="dialog.message.discardAssessment"
               values={{ applicationName: row.name }}
             >
-              The assessment for <strong>applicationName</strong> will be
-              discarded, as well as the review result. Do you wish to continue?
+              The assessment for <strong>applicationName</strong> will be discarded, as well as the
+              review result. Do you wish to continue?
             </Trans>
           </span>
         ),
         confirmBtnVariant: ButtonVariant.primary,
-        confirmBtnLabel: t("actions.continue"),
-        cancelBtnLabel: t("actions.cancel"),
+        confirmBtnLabel: t('actions.continue'),
+        cancelBtnLabel: t('actions.cancel'),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
 
           Promise.all([row.review ? deleteReview(row.review.id!) : undefined])
             .then(() => {
               const assessment = getApplicationAssessment(row.id!);
-              return Promise.all([
-                assessment ? deleteAssessment(assessment.id!) : undefined,
-              ]);
+              return Promise.all([assessment ? deleteAssessment(assessment.id!) : undefined]);
             })
             .then(() => {
               dispatch(confirmDialogActions.closeDialog());
               dispatch(
                 alertActions.addSuccess(
-                  t("toastr.success.assessmentDiscarded", {
+                  t('toastr.success.assessmentDiscarded', {
                     application: row.name,
                   })
                 )
@@ -577,7 +525,7 @@ export const ApplicationsTable: React.FC = () => {
   // Toolbar actions
   const assessSelectedRows = () => {
     if (selectedRows.length !== 1) {
-      const msg = "The number of applications to be assess must be 1";
+      const msg = 'The number of applications to be assess must be 1';
       dispatch(alertActions.addDanger(msg));
       return;
     }
@@ -594,17 +542,17 @@ export const ApplicationsTable: React.FC = () => {
           );
         };
 
-        if (assessment.status === "COMPLETE") {
+        if (assessment.status === 'COMPLETE') {
           dispatch(
             confirmDialogActions.openDialog({
-              title: t("composed.editQuestion", {
-                what: t("terms.assessment").toLowerCase(),
+              title: t('composed.editQuestion', {
+                what: t('terms.assessment').toLowerCase(),
               }),
-              titleIconVariant: "warning",
-              message: t("message.overrideAssessmentConfirmation"),
+              titleIconVariant: 'warning',
+              message: t('message.overrideAssessmentConfirmation'),
               confirmBtnVariant: ButtonVariant.primary,
-              confirmBtnLabel: t("actions.continue"),
-              cancelBtnLabel: t("actions.cancel"),
+              confirmBtnLabel: t('actions.continue'),
+              cancelBtnLabel: t('actions.cancel'),
               onConfirm: () => {
                 dispatch(confirmDialogActions.closeDialog());
                 redirectToAssessment();
@@ -623,7 +571,7 @@ export const ApplicationsTable: React.FC = () => {
 
   const reviewSelectedRows = () => {
     if (selectedRows.length !== 1) {
-      const msg = "The number of applications to be reviewed must be 1";
+      const msg = 'The number of applications to be reviewed must be 1';
       dispatch(alertActions.addDanger(msg));
       return;
     }
@@ -631,7 +579,7 @@ export const ApplicationsTable: React.FC = () => {
     const row = selectedRows[0];
     const assessment = getApplicationAssessment(row.id!);
     if (!assessment) {
-      console.log("You must assess the application before reviewing it");
+      console.log('You must assess the application before reviewing it');
       return;
     }
 
@@ -645,12 +593,10 @@ export const ApplicationsTable: React.FC = () => {
   // Flags
   const isReviewBtnDisabled = (row: Application) => {
     const assessment = getApplicationAssessment(row.id!);
-    return assessment === undefined || assessment.status !== "COMPLETE";
+    return assessment === undefined || assessment.status !== 'COMPLETE';
   };
 
-  const handleOnApplicationIdentityUpdated = (
-    response: AxiosResponse<Application>
-  ) => {
+  const handleOnApplicationIdentityUpdated = (response: AxiosResponse<Application>) => {
     closeCredentialsModal();
     refetch();
   };
@@ -701,56 +647,41 @@ export const ApplicationsTable: React.FC = () => {
             <>
               <ToolbarGroup variant="button-group">
                 <ToolbarItem>
-                  <RBAC
-                    allowedPermissions={writeScopes}
-                    rbacType={RBAC_TYPE.Scope}
-                  >
+                  <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
                     <Button
                       type="button"
                       aria-label="create-application"
                       variant={ButtonVariant.primary}
                       onClick={openCreateApplicationModal}
                     >
-                      {t("actions.createNew")}
+                      {t('actions.createNew')}
                     </Button>
                   </RBAC>
                 </ToolbarItem>
-                <RBAC
-                  allowedPermissions={legacyPathfinderRoles}
-                  rbacType={RBAC_TYPE.Role}
-                >
+                <RBAC allowedPermissions={legacyPathfinderRoles} rbacType={RBAC_TYPE.Role}>
                   <ToolbarItem>
                     <Button
                       type="button"
                       aria-label="assess-application"
                       variant={ButtonVariant.primary}
                       onClick={assessSelectedRows}
-                      isDisabled={
-                        selectedRows.length !== 1 ||
-                        isApplicationAssessInProgress
-                      }
+                      isDisabled={selectedRows.length !== 1 || isApplicationAssessInProgress}
                       isLoading={isApplicationAssessInProgress}
                     >
-                      {t("actions.assess")}
+                      {t('actions.assess')}
                     </Button>
                   </ToolbarItem>
                 </RBAC>
-                <RBAC
-                  allowedPermissions={legacyPathfinderRoles}
-                  rbacType={RBAC_TYPE.Role}
-                >
+                <RBAC allowedPermissions={legacyPathfinderRoles} rbacType={RBAC_TYPE.Role}>
                   <ToolbarItem>
                     <Button
                       type="button"
                       aria-label="review-application"
                       variant={ButtonVariant.primary}
                       onClick={reviewSelectedRows}
-                      isDisabled={
-                        selectedRows.length !== 1 ||
-                        isReviewBtnDisabled(selectedRows[0])
-                      }
+                      isDisabled={selectedRows.length !== 1 || isReviewBtnDisabled(selectedRows[0])}
                     >
-                      {t("actions.review")}
+                      {t('actions.review')}
                     </Button>
                   </ToolbarItem>
                 </RBAC>
@@ -767,22 +698,24 @@ export const ApplicationsTable: React.FC = () => {
                           component="button"
                           onClick={() => setIsApplicationImportModalOpen(true)}
                         >
-                          {t("actions.import")}
+                          {t('actions.import')}
                         </DropdownItem>,
                         <DropdownItem
+                          key="imports"
                           onClick={() => {
                             history.push(Paths.applicationsImports);
                           }}
                         >
-                          {t("actions.manageImports")}
+                          {t('actions.manageImports')}
                         </DropdownItem>,
                         <DropdownItem
+                          key="manage-credentials"
                           isDisabled={selectedRows.length < 1}
                           onClick={() => {
                             openCredentialsModal(selectedRows);
                           }}
                         >
-                          {t("actions.manageCredentials")}
+                          {t('actions.manageCredentials')}
                         </DropdownItem>,
                       ]}
                     />
@@ -794,14 +727,14 @@ export const ApplicationsTable: React.FC = () => {
           noDataState={
             <NoDataEmptyState
               // t('terms.applications')
-              title={t("composed.noDataStateTitle", {
-                what: t("terms.applications").toLowerCase(),
+              title={t('composed.noDataStateTitle', {
+                what: t('terms.applications').toLowerCase(),
               })}
               // t('terms.application')
               description={
-                t("composed.noDataStateBody", {
-                  what: t("terms.application").toLowerCase(),
-                }) + "."
+                t('composed.noDataStateBody', {
+                  what: t('terms.application').toLowerCase(),
+                }) + '.'
               }
             />
           }
@@ -811,8 +744,8 @@ export const ApplicationsTable: React.FC = () => {
       <Modal
         title={
           applicationToUpdate
-            ? t("dialog.title.updateApplication")
-            : t("dialog.title.newApplication")
+            ? t('dialog.title.updateApplication')
+            : t('dialog.title.newApplication')
         }
         variant="medium"
         isOpen={isApplicationModalOpen}
@@ -828,7 +761,7 @@ export const ApplicationsTable: React.FC = () => {
       <Modal
         isOpen={isCopyAssessmentModalOpen}
         variant="large"
-        title={t("dialog.title.copyApplicationAssessmentFrom", {
+        title={t('dialog.title.copyApplicationAssessmentFrom', {
           what: applicationToCopyAssessmentFrom?.name,
         })}
         onClose={closeCopyAssessmentModal}
@@ -836,9 +769,7 @@ export const ApplicationsTable: React.FC = () => {
         {applicationToCopyAssessmentFrom && (
           <BulkCopyAssessmentReviewForm
             application={applicationToCopyAssessmentFrom}
-            assessment={
-              getApplicationAssessment(applicationToCopyAssessmentFrom.id!)!
-            }
+            assessment={getApplicationAssessment(applicationToCopyAssessmentFrom.id!)!}
             onSaved={closeCopyAssessmentModal}
           />
         )}
@@ -846,7 +777,7 @@ export const ApplicationsTable: React.FC = () => {
       <Modal
         isOpen={isCopyAssessmentAndReviewModalOpen}
         variant="large"
-        title={t("dialog.title.copyApplicationAssessmentAndReviewFrom", {
+        title={t('dialog.title.copyApplicationAssessmentAndReviewFrom', {
           what: applicationToCopyAssessmentAndReviewFrom?.name,
         })}
         onClose={closeCopyAssessmentAndReviewModal}
@@ -854,11 +785,7 @@ export const ApplicationsTable: React.FC = () => {
         {applicationToCopyAssessmentAndReviewFrom && (
           <BulkCopyAssessmentReviewForm
             application={applicationToCopyAssessmentAndReviewFrom}
-            assessment={
-              getApplicationAssessment(
-                applicationToCopyAssessmentAndReviewFrom.id!
-              )!
-            }
+            assessment={getApplicationAssessment(applicationToCopyAssessmentAndReviewFrom.id!)!}
             review={appReview}
             onSaved={closeCopyAssessmentAndReviewModal}
           />
@@ -868,7 +795,7 @@ export const ApplicationsTable: React.FC = () => {
       <Modal
         isOpen={isDependenciesModalOpen}
         variant="medium"
-        title={t("composed.manageDependenciesFor", {
+        title={t('composed.manageDependenciesFor', {
           what: applicationToManageDependencies?.name,
         })}
         onClose={closeDependenciesModal}
@@ -884,7 +811,7 @@ export const ApplicationsTable: React.FC = () => {
       <Modal
         isOpen={isApplicationImportModalOpen}
         variant="medium"
-        title={t("dialog.title.importApplicationFile")}
+        title={t('dialog.title.importApplicationFile')}
         onClose={() => setIsApplicationImportModalOpen((current) => !current)}
       >
         <ImportApplicationsForm

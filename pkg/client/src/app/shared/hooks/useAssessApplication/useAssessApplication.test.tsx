@@ -1,22 +1,22 @@
-import axios from "axios";
-import MockAdapter from "axios-mock-adapter";
-import { renderHook, act } from "@testing-library/react-hooks";
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import { renderHook, act } from '@testing-library/react-hooks';
 
-import { Application } from "@app/api/models";
-import { ASSESSMENTS } from "@app/api/rest";
+import { Application } from '@app/api/models';
+import { ASSESSMENTS } from '@app/api/rest';
 
-import { useAssessApplication } from "./useAssessApplication";
+import { useAssessApplication } from './useAssessApplication';
 
-describe("useAssessApplication", () => {
-  it("Initial status", () => {
+describe('useAssessApplication', () => {
+  it('Initial status', () => {
     const { result } = renderHook(() => useAssessApplication());
     const { inProgress } = result.current;
     expect(inProgress).toBe(false);
   });
 
-  it("getCurrentAssessment: application without ID", async () => {
+  it('getCurrentAssessment: application without ID', async () => {
     const application: Application = {
-      name: "some",
+      name: 'some',
     };
 
     // Use hook
@@ -29,20 +29,16 @@ describe("useAssessApplication", () => {
     expect(result.current.inProgress).toBe(false);
   });
 
-  it("getCurrentAssessment: endpoint fails", async () => {
+  it('getCurrentAssessment: endpoint fails', async () => {
     const application: Application = {
       id: 1,
-      name: "some",
+      name: 'some',
     };
 
-    new MockAdapter(axios)
-      .onGet(`${ASSESSMENTS}?applicationId=${application.id}}`)
-      .networkError();
+    new MockAdapter(axios).onGet(`${ASSESSMENTS}?applicationId=${application.id}}`).networkError();
 
     // Use hook
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAssessApplication()
-    );
+    const { result, waitForNextUpdate } = renderHook(() => useAssessApplication());
 
     // Start call
     const { getCurrentAssessment } = result.current;
@@ -60,21 +56,17 @@ describe("useAssessApplication", () => {
     expect(onErrorSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("getCurrentAssessment: endpoints works with empty array response", async () => {
+  it('getCurrentAssessment: endpoints works with empty array response', async () => {
     const application: Application = {
       id: 1,
-      name: "some",
+      name: 'some',
     };
 
     // Mock REST API
-    new MockAdapter(axios)
-      .onGet(`${ASSESSMENTS}?applicationId=${application.id}`)
-      .reply(200, []);
+    new MockAdapter(axios).onGet(`${ASSESSMENTS}?applicationId=${application.id}`).reply(200, []);
 
     // Use hook
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAssessApplication()
-    );
+    const { result, waitForNextUpdate } = renderHook(() => useAssessApplication());
 
     // Start call
     const { getCurrentAssessment } = result.current;
@@ -93,10 +85,10 @@ describe("useAssessApplication", () => {
     expect(onErrorSpy).toHaveBeenCalledTimes(0);
   });
 
-  it("getCurrentAssessment: endpoints works with filled array response", async () => {
+  it('getCurrentAssessment: endpoints works with filled array response', async () => {
     const application: Application = {
       id: 1,
-      name: "some",
+      name: 'some',
     };
 
     const response = { id: 123 };
@@ -106,9 +98,7 @@ describe("useAssessApplication", () => {
       .reply(200, [response]);
 
     // Use hook
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAssessApplication()
-    );
+    const { result, waitForNextUpdate } = renderHook(() => useAssessApplication());
 
     // Start call
     const { getCurrentAssessment } = result.current;
@@ -129,9 +119,9 @@ describe("useAssessApplication", () => {
 
   //
 
-  it("assessApplication: application without ID", async () => {
+  it('assessApplication: application without ID', async () => {
     const application: Application = {
-      name: "some",
+      name: 'some',
     };
 
     // Use hook
@@ -144,20 +134,16 @@ describe("useAssessApplication", () => {
     expect(result.current.inProgress).toBe(false);
   });
 
-  it("assessApplication: fetchAssessment fails", async () => {
+  it('assessApplication: fetchAssessment fails', async () => {
     const application: Application = {
       id: 1,
-      name: "some",
+      name: 'some',
     };
 
-    new MockAdapter(axios)
-      .onGet(`${ASSESSMENTS}?applicationId=${application.id}}`)
-      .networkError();
+    new MockAdapter(axios).onGet(`${ASSESSMENTS}?applicationId=${application.id}}`).networkError();
 
     // Use hook
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAssessApplication()
-    );
+    const { result, waitForNextUpdate } = renderHook(() => useAssessApplication());
 
     // Start call
     const { assessApplication } = result.current;
@@ -175,20 +161,16 @@ describe("useAssessApplication", () => {
     expect(onErrorSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("assessApplication: createAssessment fails", async () => {
+  it('assessApplication: createAssessment fails', async () => {
     const application: Application = {
       id: 1,
-      name: "some",
+      name: 'some',
     };
 
-    new MockAdapter(axios)
-      .onGet(`${ASSESSMENTS}?applicationId=${application.id}}`)
-      .reply(200, []);
+    new MockAdapter(axios).onGet(`${ASSESSMENTS}?applicationId=${application.id}}`).reply(200, []);
 
     // Use hook
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAssessApplication()
-    );
+    const { result, waitForNextUpdate } = renderHook(() => useAssessApplication());
 
     // Start call
     const { assessApplication } = result.current;
@@ -209,7 +191,7 @@ describe("useAssessApplication", () => {
   it("assessApplication: if assessment exists already => don't create a new assessment", async () => {
     const application: Application = {
       id: 1,
-      name: "some",
+      name: 'some',
     };
 
     // Mock REST API
@@ -219,9 +201,7 @@ describe("useAssessApplication", () => {
       .reply(200, [assessmentResponse]);
 
     // Use hook
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAssessApplication()
-    );
+    const { result, waitForNextUpdate } = renderHook(() => useAssessApplication());
 
     // Start call
     const { assessApplication } = result.current;
@@ -243,7 +223,7 @@ describe("useAssessApplication", () => {
   it("assessApplication: if assessment doesn't exists => create a new assessment", async () => {
     const application: Application = {
       id: 1,
-      name: "some",
+      name: 'some',
     };
 
     // Mock REST API
@@ -256,9 +236,7 @@ describe("useAssessApplication", () => {
       .reply(200, assessmentResponse);
 
     // Use hook
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAssessApplication()
-    );
+    const { result, waitForNextUpdate } = renderHook(() => useAssessApplication());
 
     // Start call
     const { assessApplication } = result.current;

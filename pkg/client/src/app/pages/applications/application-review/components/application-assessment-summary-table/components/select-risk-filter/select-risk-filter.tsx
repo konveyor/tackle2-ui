@@ -1,24 +1,21 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { SelectVariant, ToolbarChip } from "@patternfly/react-core";
-import { FilterIcon } from "@patternfly/react-icons/dist/esm/icons/filter-icon";
+import { SelectVariant, ToolbarChip } from '@patternfly/react-core';
+import { FilterIcon } from '@patternfly/react-icons/dist/esm/icons/filter-icon';
 
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { OptionWithValue, SimpleSelect } from '@app/shared/components';
 
-import { RISK_LIST, DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { Risk } from "@app/api/models";
-import { getToolbarChipKey } from "@app/utils/utils";
+import { RISK_LIST, DEFAULT_SELECT_MAX_HEIGHT } from '@app/Constants';
+import { Risk } from '@app/api/models';
+import { getToolbarChipKey } from '@app/utils/utils';
 
 export interface ISelectRiskFilterProps {
   value?: ToolbarChip[];
   onChange: (values: ToolbarChip[]) => void;
 }
 
-export const SelectRiskFilter: React.FC<ISelectRiskFilterProps> = ({
-  value = [],
-  onChange,
-}) => {
+export const SelectRiskFilter: React.FC<ISelectRiskFilterProps> = ({ value = [], onChange }) => {
   const { t } = useTranslation();
 
   const riskToToolbarChip = (value: Risk): ToolbarChip => {
@@ -40,15 +37,12 @@ export const SelectRiskFilter: React.FC<ISelectRiskFilterProps> = ({
       toString: () => label,
       compareTo: (selectOption: any) => {
         // If "string" we are just filtering
-        if (typeof selectOption === "string") {
+        if (typeof selectOption === 'string') {
           return label.toLowerCase().includes(selectOption.toLowerCase());
         }
         // If not "string" we are selecting a checkbox
         else {
-          return (
-            selectOption.value &&
-            (selectOption as OptionWithValue<Risk>).value === value
-          );
+          return selectOption.value && (selectOption as OptionWithValue<Risk>).value === value;
         }
       },
     };
@@ -61,7 +55,7 @@ export const SelectRiskFilter: React.FC<ISelectRiskFilterProps> = ({
       variant={SelectVariant.checkbox}
       aria-label="risk"
       aria-labelledby="risk"
-      placeholderText={t("terms.risk")}
+      placeholderText={t('terms.risk')}
       maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
       value={value
         .map((a) => {
@@ -74,9 +68,7 @@ export const SelectRiskFilter: React.FC<ISelectRiskFilterProps> = ({
       onChange={(option) => {
         const optionValue = (option as OptionWithValue<Risk>).value;
 
-        const elementExists = value.some(
-          (f) => getToolbarChipKey(f) === optionValue
-        );
+        const elementExists = value.some((f) => getToolbarChipKey(f) === optionValue);
         let newIds: ToolbarChip[];
         if (elementExists) {
           newIds = value.filter((f) => getToolbarChipKey(f) !== optionValue);

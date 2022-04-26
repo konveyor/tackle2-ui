@@ -1,10 +1,9 @@
-import { RootState } from "../rootReducer";
-import { stateKey } from "./reducer";
+import { RootState } from '../rootReducer';
+import { stateKey } from './reducer';
 
 export const confirmDialogState = (state: RootState) => state[stateKey];
 
-export const isProcessing = (state: RootState) =>
-  confirmDialogState(state).isProcessing;
+export const isProcessing = (state: RootState) => confirmDialogState(state).isProcessing;
 
 export const isOpen = (state: RootState) => confirmDialogState(state).isOpen;
 
@@ -17,5 +16,4 @@ export const modal = (state: RootState) => ({
   confirmBtnVariant: confirmDialogState(state).confirmBtnVariant,
 });
 
-export const onConfirm = (state: RootState) =>
-  confirmDialogState(state).onConfirm;
+export const onConfirm = (state: RootState) => confirmDialogState(state).onConfirm;

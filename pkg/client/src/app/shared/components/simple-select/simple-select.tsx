@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 import {
   Select,
@@ -6,7 +6,7 @@ import {
   SelectOptionObject,
   SelectOptionProps,
   SelectProps,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
 export interface OptionWithValue<T = string> extends SelectOptionObject {
   value: T;
@@ -18,9 +18,9 @@ type OptionLike = string | SelectOptionObject | OptionWithValue;
 export interface ISimpleSelectProps
   extends Omit<
     SelectProps,
-    "onChange" | "isOpen" | "onToggle" | "onSelect" | "selections" | "value"
+    'onChange' | 'isOpen' | 'onToggle' | 'onSelect' | 'selections' | 'value'
   > {
-  "aria-label": string;
+  'aria-label': string;
   onChange: (selection: OptionLike) => void;
   options: OptionLike[];
   value?: OptionLike | OptionLike[];
@@ -30,7 +30,7 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
   onChange,
   options,
   value,
-  placeholderText = "Select...",
+  placeholderText = 'Select...',
 
   ...props
 }) => {
@@ -43,7 +43,7 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
       onToggle={setIsOpen}
       onSelect={(_, selection) => {
         onChange(selection);
-        if (props.variant !== "checkbox") {
+        if (props.variant !== 'checkbox') {
           setIsOpen(false);
         }
       }}
@@ -54,7 +54,7 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
         <SelectOption
           key={`${index}-${option.toString()}`}
           value={option}
-          {...(typeof option === "object" && (option as OptionWithValue).props)}
+          {...(typeof option === 'object' && (option as OptionWithValue).props)}
         />
       ))}
     </Select>

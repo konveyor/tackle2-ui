@@ -1,21 +1,16 @@
-import React from "react";
-import {
-  Button,
-  Modal,
-  ButtonVariant,
-  ModalVariant,
-} from "@patternfly/react-core";
+import React from 'react';
+import { Button, Modal, ButtonVariant, ModalVariant } from '@patternfly/react-core';
 
 export interface ConfirmDialogProps {
   isOpen: boolean;
 
   title: string;
   titleIconVariant?:
-    | "success"
-    | "danger"
-    | "warning"
-    | "info"
-    | "default"
+    | 'success'
+    | 'danger'
+    | 'warning'
+    | 'info'
+    | 'default'
     | React.ComponentType<any>;
   message: string | React.ReactNode;
 

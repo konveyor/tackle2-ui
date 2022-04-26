@@ -1,1 +1,1 @@
-export { MenuActions } from "./menu-actions";
+export { MenuActions } from './menu-actions';

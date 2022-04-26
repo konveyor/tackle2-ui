@@ -1,1 +1,1 @@
-export { UpdateStakeholderModal } from "./update-stakeholder-modal";
+export { UpdateStakeholderModal } from './update-stakeholder-modal';

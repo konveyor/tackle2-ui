@@ -1,5 +1,5 @@
-import * as React from "react";
-import { IFilterValues, FilterCategory } from "../components/FilterToolbar";
+import * as React from 'react';
+import { IFilterValues, FilterCategory } from '../components/FilterToolbar';
 
 export interface IFilterStateHook<T> {
   filterValues: IFilterValues;
@@ -17,9 +17,7 @@ export const useFilterState = <T>(
     Object.keys(filterValues).every((categoryKey) => {
       const values = filterValues[categoryKey];
       if (!values || values.length === 0) return true;
-      const filterCategory = filterCategories.find(
-        (category) => category.key === categoryKey
-      );
+      const filterCategory = filterCategories.find((category) => category.key === categoryKey);
       let itemValue = (item as any)[categoryKey];
       if (filterCategory?.getItemValue) {
         itemValue = filterCategory.getItemValue(item);

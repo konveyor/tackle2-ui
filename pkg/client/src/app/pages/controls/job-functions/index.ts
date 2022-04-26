@@ -1,1 +1,1 @@
-export { JobFunctions as default } from "./job-functions";
+export { JobFunctions as default } from './job-functions';

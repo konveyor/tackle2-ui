@@ -1,39 +1,37 @@
-import React from "react";
+import React from 'react';
 
-import { TaskState } from "@app/api/models";
-import { StatusIcon } from "@app/shared/components";
+import { TaskState } from '@app/api/models';
+import { StatusIcon } from '@app/shared/components';
 
 export interface ApplicationAnalysisStatusProps {
   state: TaskState;
 }
 
 export type AnalysisState =
-  | "Canceled"
-  | "Scheduled"
-  | "Completed"
-  | "Failed"
-  | "InProgress"
-  | "NotStarted";
+  | 'Canceled'
+  | 'Scheduled'
+  | 'Completed'
+  | 'Failed'
+  | 'InProgress'
+  | 'NotStarted';
 
 const taskStateToAnalyze: Map<TaskState, AnalysisState> = new Map([
-  ["not supported", "Canceled"],
-  ["Created", "Scheduled"],
-  ["Succeeded", "Completed"],
-  ["Failed", "Failed"],
-  ["Running", "InProgress"],
-  ["No task", "NotStarted"],
-  ["Ready", "Scheduled"],
+  ['not supported', 'Canceled'],
+  ['Created', 'Scheduled'],
+  ['Succeeded', 'Completed'],
+  ['Failed', 'Failed'],
+  ['Running', 'InProgress'],
+  ['No task', 'NotStarted'],
+  ['Ready', 'Scheduled'],
 ]);
 
-export const ApplicationAnalysisStatus: React.FC<
-  ApplicationAnalysisStatusProps
-> = ({ state }) => {
+export const ApplicationAnalysisStatus: React.FC<ApplicationAnalysisStatusProps> = ({ state }) => {
   const getTaskStatus = (state: TaskState): AnalysisState => {
     if (taskStateToAnalyze.has(state)) {
       const value = taskStateToAnalyze.get(state);
       if (value) return value;
     }
-    return "NotStarted";
+    return 'NotStarted';
   };
 
   return <StatusIcon status={getTaskStatus(state)} />;

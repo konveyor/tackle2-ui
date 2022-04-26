@@ -1,12 +1,12 @@
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from 'react-query';
 
 import {
   createTaskgroup,
   deleteTaskgroup,
   submitTaskgroup,
   uploadFileTaskgroup,
-} from "@app/api/rest";
-import { Taskgroup } from "@app/api/models";
+} from '@app/api/rest';
+import { Taskgroup } from '@app/api/models';
 
 export const useCreateTaskgroupMutation = (
   onSuccess: (res: any) => void,
@@ -30,11 +30,11 @@ export const useSubmitTaskgroupMutation = (
   return useMutation(submitTaskgroup, {
     onSuccess: (data) => {
       onSuccess(data);
-      queryClient.invalidateQueries("tasks");
+      queryClient.invalidateQueries('tasks');
     },
     onError: (err) => {
       onError(err);
-      queryClient.invalidateQueries("tasks");
+      queryClient.invalidateQueries('tasks');
     },
   });
 };
@@ -53,15 +53,13 @@ export const useUploadFileTaskgroupMutation = (
   });
 };
 
-export const useDeleteTaskgroupMutation = (
-  onError: (err: Error | unknown) => void
-) => {
+export const useDeleteTaskgroupMutation = (onError: (err: Error | unknown) => void) => {
   const queryClient = useQueryClient();
 
   return useMutation(deleteTaskgroup, {
     onError: (err) => {
       onError(err);
-      queryClient.invalidateQueries("tasks");
+      queryClient.invalidateQueries('tasks');
     },
   });
 };

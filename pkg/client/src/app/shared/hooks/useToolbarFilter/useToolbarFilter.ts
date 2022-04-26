@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { ToolbarChip } from "@patternfly/react-core";
-import { getToolbarChipKey } from "@app/utils/utils";
+import { useState } from 'react';
+import { ToolbarChip } from '@patternfly/react-core';
+import { getToolbarChipKey } from '@app/utils/utils';
 
 // Hook
 
@@ -21,10 +21,8 @@ export const useToolbarFilter = <T extends FilterType>(
   const [filters, setFilters] = useState<Map<string, T[]>>(initialValue);
 
   const isPresent =
-    Array.from(filters.values()).reduce(
-      (previous, current) => [...previous, ...current],
-      []
-    ).length > 0;
+    Array.from(filters.values()).reduce((previous, current) => [...previous, ...current], [])
+      .length > 0;
 
   const addFilter = (key: string, value: T) => {
     setFilters((current) => {

@@ -1,1 +1,1 @@
-export { StakeholderGroups as default } from "./stakeholder-groups";
+export { StakeholderGroups as default } from './stakeholder-groups';

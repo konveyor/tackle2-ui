@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { AppAboutModal } from "../AppAboutModal";
+import React, { useState } from 'react';
+import { AppAboutModal } from '../AppAboutModal';
 
 export interface ChildrenProps {
   isOpen: boolean;
@@ -10,9 +10,7 @@ export interface AppAboutModalStateProps {
   children: (args: ChildrenProps) => any;
 }
 
-export const AppAboutModalState: React.FC<AppAboutModalStateProps> = ({
-  children,
-}) => {
+export const AppAboutModalState: React.FC<AppAboutModalStateProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleModal = () => {

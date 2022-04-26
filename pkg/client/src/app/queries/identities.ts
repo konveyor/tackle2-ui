@@ -1,14 +1,9 @@
-import React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import React from 'react';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 
-import {
-  createIdentity,
-  deleteIdentity,
-  getIdentities,
-  updateIdentity,
-} from "@app/api/rest";
-import { Identity } from "@app/api/models";
-import { AxiosError } from "axios";
+import { createIdentity, deleteIdentity, getIdentities, updateIdentity } from '@app/api/rest';
+import { Identity } from '@app/api/models';
+import { AxiosError } from 'axios';
 
 export interface IIdentityFetchState {
   identities: Identity[];
@@ -22,7 +17,7 @@ export interface IIdentityMutateState {
   error: any;
 }
 
-export const IdentitiesQueryKey = "identities";
+export const IdentitiesQueryKey = 'identities';
 
 export const useUpdateIdentityMutation = (
   onSuccess: (res: any) => void,
@@ -32,7 +27,7 @@ export const useUpdateIdentityMutation = (
   const { isLoading, mutate, error } = useMutation(updateIdentity, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries("identities");
+      queryClient.invalidateQueries('identities');
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -53,7 +48,7 @@ export const useCreateIdentityMutation = (
   const { isLoading, mutate, error } = useMutation(createIdentity, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries("identities");
+      queryClient.invalidateQueries('identities');
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -75,7 +70,7 @@ export const useFetchIdentities = (): IIdentityFetchState => {
         return data;
       })
       .catch((error) => {
-        console.log("error, ", error);
+        console.log('error, ', error);
         return error;
       })
   );
@@ -95,11 +90,11 @@ export const useDeleteIdentityMutation = (
   const { isLoading, mutate, error } = useMutation(deleteIdentity, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries("identities");
+      queryClient.invalidateQueries('identities');
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries("identities");
+      queryClient.invalidateQueries('identities');
     },
   });
   return {

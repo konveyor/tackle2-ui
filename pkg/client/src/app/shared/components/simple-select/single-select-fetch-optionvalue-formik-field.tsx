@@ -1,25 +1,19 @@
-import React from "react";
-import { FieldHookConfig, useField } from "formik";
+import React from 'react';
+import { FieldHookConfig, useField } from 'formik';
 
-import {
-  ISimpleSelectFetchProps,
-  SimpleSelectFetch,
-} from "./simple-select-fetch";
-import { OptionWithValue } from "./simple-select";
+import { ISimpleSelectFetchProps, SimpleSelectFetch } from './simple-select-fetch';
+import { OptionWithValue } from './simple-select';
 
 export interface ISingleSelectFetchOptionValueFormikFieldProps<T> {
   fieldConfig: FieldHookConfig<T | null>;
-  selectConfig: Omit<
-    ISimpleSelectFetchProps,
-    "value" | "options" | "onChange" | "onClear"
-  >;
+  selectConfig: Omit<ISimpleSelectFetchProps, 'value' | 'options' | 'onChange' | 'onClear'>;
   options: T[];
   toOptionWithValue: (option: T) => OptionWithValue<T>;
   clearFieldsCallback?: () => void;
   isClearable?: boolean;
 }
 
-export const SingleSelectFetchOptionValueFormikField = <T extends any>({
+export const SingleSelectFetchOptionValueFormikField = <T,>({
   fieldConfig,
   selectConfig,
   options,

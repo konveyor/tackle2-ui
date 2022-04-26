@@ -1,21 +1,15 @@
-import React from "react";
-import { Bullseye, Spinner, Skeleton } from "@patternfly/react-core";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  IRow,
-  TableProps,
-} from "@patternfly/react-table";
+import React from 'react';
+import { Bullseye, Spinner, Skeleton } from '@patternfly/react-core';
+import { Table, TableHeader, TableBody, IRow, TableProps } from '@patternfly/react-table';
 
-import { StateNoData } from "./state-no-data";
-import { StateNoResults } from "./state-no-results";
-import { StateError } from "./state-error";
-import "./app-table.css";
+import { StateNoData } from './state-no-data';
+import { StateNoResults } from './state-no-results';
+import { StateError } from './state-error';
+import './app-table.css';
 
 export interface IAppTableProps extends TableProps {
   isLoading: boolean;
-  loadingVariant?: "skeleton" | "spinner" | "none";
+  loadingVariant?: 'skeleton' | 'spinner' | 'none';
   fetchError?: any;
 
   filtersApplied?: boolean;
@@ -27,11 +21,11 @@ export interface IAppTableProps extends TableProps {
 export const AppTable: React.FC<IAppTableProps> = ({
   cells,
   rows,
-  "aria-label": ariaLabel = "main-table",
+  'aria-label': ariaLabel = 'main-table',
 
   isLoading,
   fetchError,
-  loadingVariant = "skeleton",
+  loadingVariant = 'skeleton',
 
   filtersApplied,
   noDataState,
@@ -40,9 +34,9 @@ export const AppTable: React.FC<IAppTableProps> = ({
 
   ...rest
 }) => {
-  if (isLoading && loadingVariant !== "none") {
+  if (isLoading && loadingVariant !== 'none') {
     let rows: IRow[] = [];
-    if (loadingVariant === "skeleton") {
+    if (loadingVariant === 'skeleton') {
       rows = [...Array(10)].map(() => {
         return {
           cells: [...Array(cells.length)].map(() => ({
@@ -50,7 +44,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
           })),
         };
       });
-    } else if (loadingVariant === "spinner") {
+    } else if (loadingVariant === 'spinner') {
       rows = [
         {
           heightAuto: true,
@@ -67,16 +61,11 @@ export const AppTable: React.FC<IAppTableProps> = ({
         },
       ];
     } else {
-      throw new Error("Can not determine the loading state of table");
+      throw new Error('Can not determine the loading state of table');
     }
 
     return (
-      <Table
-        className="app-table"
-        aria-label={ariaLabel}
-        cells={cells}
-        rows={rows}
-      >
+      <Table className="app-table" aria-label={ariaLabel} cells={cells} rows={rows}>
         <TableHeader />
         <TableBody />
       </Table>
@@ -98,12 +87,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
   if (rows.length === 0) {
     return filtersApplied ? (
       <>
-        <Table
-          className="app-table"
-          aria-label={ariaLabel}
-          cells={cells}
-          rows={[]}
-        >
+        <Table className="app-table" aria-label={ariaLabel} cells={cells} rows={[]}>
           <TableHeader />
           <TableBody />
         </Table>
@@ -111,12 +95,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
       </>
     ) : (
       <>
-        <Table
-          className="app-table"
-          aria-label={ariaLabel}
-          cells={cells}
-          rows={[]}
-        >
+        <Table className="app-table" aria-label={ariaLabel} cells={cells} rows={[]}>
           <TableHeader />
           <TableBody />
         </Table>
@@ -126,13 +105,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
   }
 
   return (
-    <Table
-      className="app-table"
-      aria-label={ariaLabel}
-      cells={cells}
-      rows={rows}
-      {...rest}
-    >
+    <Table className="app-table" aria-label={ariaLabel} cells={cells} rows={rows} {...rest}>
       <TableHeader />
       <TableBody />
     </Table>

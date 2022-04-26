@@ -1,13 +1,9 @@
-import React from "react";
-import { AxiosError } from "axios";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { AxiosError } from 'axios';
+import { useTranslation } from 'react-i18next';
 
-import {
-  EmptyTextMessage,
-  StatusIcon,
-  StatusIconType,
-} from "@app/shared/components";
-import { Assessment } from "@app/api/models";
+import { EmptyTextMessage, StatusIcon, StatusIconType } from '@app/shared/components';
+import { Assessment } from '@app/api/models';
 
 export interface ApplicationAssessmentProps {
   assessment?: Assessment;
@@ -18,14 +14,14 @@ export interface ApplicationAssessmentProps {
 
 const getStatusIconFrom = (assessment: Assessment): StatusIconType => {
   switch (assessment.status) {
-    case "EMPTY":
-      return "NotStarted";
-    case "STARTED":
-      return "InProgress";
-    case "COMPLETE":
-      return "Completed";
+    case 'EMPTY':
+      return 'NotStarted';
+    case 'STARTED':
+      return 'InProgress';
+    case 'COMPLETE':
+      return 'Completed';
     default:
-      return "NotStarted";
+      return 'NotStarted';
   }
 };
 
@@ -38,7 +34,7 @@ export const ApplicationAssessment: React.FC<ApplicationAssessmentProps> = ({
   const { t } = useTranslation();
 
   if (fetchError) {
-    return <EmptyTextMessage message={t("terms.notAvailable")} />;
+    return <EmptyTextMessage message={t('terms.notAvailable')} />;
   }
   if (isFetching || fetchCount === 0) {
     return <></>;

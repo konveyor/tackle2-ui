@@ -1,6 +1,6 @@
-import React from "react";
-import { Curve } from "victory-line";
-import { global_palette_black_800 as black } from "@patternfly/react-tokens";
+import React from 'react';
+import { Curve } from 'victory-line';
+import { global_palette_black_800 as black } from '@patternfly/react-tokens';
 
 export const Arrow: React.FC = (props) => {
   return (

@@ -1,21 +1,19 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Breadcrumb, BreadcrumbItem, Button } from "@patternfly/react-core";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Breadcrumb, BreadcrumbItem, Button } from '@patternfly/react-core';
 
 export interface BreadCrumbPathProps {
   breadcrumbs: { title: string; path: string | (() => void) }[];
 }
 
-export const BreadCrumbPath: React.FC<BreadCrumbPathProps> = ({
-  breadcrumbs,
-}) => {
+export const BreadCrumbPath: React.FC<BreadCrumbPathProps> = ({ breadcrumbs }) => {
   return (
     <Breadcrumb>
       {breadcrumbs.map((crumb, i, { length }) => {
         const isLast = i === length - 1;
 
         const link =
-          typeof crumb.path === "string" ? (
+          typeof crumb.path === 'string' ? (
             <Link className="pf-c-breadcrumb__link" to={crumb.path}>
               {crumb.title}
             </Link>

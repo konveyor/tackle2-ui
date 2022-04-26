@@ -1,24 +1,24 @@
-import React from "react";
-import { BrowserRouter as Router } from "react-router-dom";
-import { mount, shallow } from "enzyme";
-import { BreadCrumbPath } from "../breadcrumb-path";
+import React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { mount, shallow } from 'enzyme';
+import { BreadCrumbPath } from '../breadcrumb-path';
 
-describe("BreadCrumbPath", () => {
-  it("Renders without crashing", () => {
+describe('BreadCrumbPath', () => {
+  it('Renders without crashing', () => {
     const wrapper = shallow(
       <BreadCrumbPath
         breadcrumbs={[
           {
-            title: "first",
-            path: "/first",
+            title: 'first',
+            path: '/first',
           },
           {
-            title: "second",
-            path: "/second",
+            title: 'second',
+            path: '/second',
           },
           {
-            title: "thrid",
-            path: "/thrid",
+            title: 'thrid',
+            path: '/thrid',
           },
         ]}
       />
@@ -26,7 +26,7 @@ describe("BreadCrumbPath", () => {
     expect(wrapper).toMatchSnapshot();
   });
 
-  it("Given a function path, should callback", () => {
+  it('Given a function path, should callback', () => {
     const secondBreadcrumbSpy = jest.fn();
 
     const wrapper = mount(
@@ -34,23 +34,23 @@ describe("BreadCrumbPath", () => {
         <BreadCrumbPath
           breadcrumbs={[
             {
-              title: "first",
-              path: "/first",
+              title: 'first',
+              path: '/first',
             },
             {
-              title: "second",
+              title: 'second',
               path: secondBreadcrumbSpy,
             },
             {
-              title: "thrid",
-              path: "/thrid",
+              title: 'thrid',
+              path: '/thrid',
             },
           ]}
         />
       </Router>
     );
 
-    wrapper.find("button").simulate("click");
+    wrapper.find('button').simulate('click');
     expect(secondBreadcrumbSpy).toHaveBeenCalledTimes(1);
   });
 });

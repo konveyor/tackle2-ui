@@ -1,5 +1,5 @@
-import React from "react";
-import { Form, FormGroup, TextInput } from "@patternfly/react-core";
+import React from 'react';
+import { Form, FormGroup, TextInput } from '@patternfly/react-core';
 
 interface ISampleForm {
   formValue: string;
@@ -8,7 +8,7 @@ interface ISampleForm {
 }
 
 export const SampleForm: React.FunctionComponent<ISampleForm> = ({
-  formValue = "",
+  formValue = '',
   isFormValid = false,
   onChange,
 }: ISampleForm) => {
@@ -22,7 +22,7 @@ export const SampleForm: React.FunctionComponent<ISampleForm> = ({
     onChange(isValid, value);
   };
 
-  const validated = isValid ? "default" : "error";
+  const validated = isValid ? 'default' : 'error';
 
   return (
     <Form>

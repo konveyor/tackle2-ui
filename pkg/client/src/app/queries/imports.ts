@@ -1,35 +1,31 @@
-import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 import {
   deleteApplicationImportSummary,
   getApplicationImports,
   getApplicationImportSummary,
   getApplicationImportSummaryById,
-} from "@app/api/rest";
-import { ApplicationImportSummary, ApplicationImport } from "@app/api/models";
-import { AxiosError } from "axios";
+} from '@app/api/rest';
+import { ApplicationImportSummary, ApplicationImport } from '@app/api/models';
+import { AxiosError } from 'axios';
 
 export interface IImportMutateState {
   mutate: any;
   isLoading: boolean;
   error: any;
 }
-export const ImportsQueryKey = "imports";
-export const ImportQueryKey = "import";
+export const ImportsQueryKey = 'imports';
+export const ImportQueryKey = 'import';
 
 export const useFetchImports = () => {
   const [imports, setImports] = useState<ApplicationImport[]>([]);
-  const { isLoading, error, refetch } = useQuery(
-    ImportsQueryKey,
-    getApplicationImports,
-    {
-      onSuccess: (data: ApplicationImport[]) => setImports(data),
-      onError: (err: Error) => {
-        console.log(error);
-      },
-    }
-  );
+  const { isLoading, error, refetch } = useQuery(ImportsQueryKey, getApplicationImports, {
+    onSuccess: (data: ApplicationImport[]) => setImports(data),
+    onError: (err: Error) => {
+      console.log(error);
+    },
+  });
   return {
     imports,
     isFetching: isLoading,
@@ -39,9 +35,7 @@ export const useFetchImports = () => {
 };
 
 export const useFetchImportSummaries = () => {
-  const [importSummaries, setImportSummaries] = useState<
-    ApplicationImportSummary[]
-  >([]);
+  const [importSummaries, setImportSummaries] = useState<ApplicationImportSummary[]>([]);
   const { isLoading, error, refetch } = useQuery(ImportsQueryKey, () =>
     getApplicationImportSummary()
       .then(({ data }) => {
@@ -49,7 +43,7 @@ export const useFetchImportSummaries = () => {
         return data;
       })
       .catch((error) => {
-        console.log("error, ", error);
+        console.log('error, ', error);
         return error;
       })
   );
@@ -60,12 +54,9 @@ export const useFetchImportSummaries = () => {
     refetch,
   };
 };
-export const useFetchImportSummaryByID = (
-  onError: (err: AxiosError) => void
-) => {
+export const useFetchImportSummaryByID = (onError: (err: AxiosError) => void) => {
   const queryClient = useQueryClient();
-  const [importSummary, setImportSummary] =
-    useState<ApplicationImportSummary>();
+  const [importSummary, setImportSummary] = useState<ApplicationImportSummary>();
   const { isLoading, error, refetch } = useQuery(
     ImportQueryKey,
     () => getApplicationImportSummaryById,

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Bullseye,
   EmptyState,
@@ -6,9 +6,10 @@ import {
   EmptyStateIcon,
   EmptyStateVariant,
   Title,
-} from "@patternfly/react-core";
-import { UserNinjaIcon } from "@patternfly/react-icons/dist/esm/icons/user-ninja-icon";
+} from '@patternfly/react-core';
+import { UserNinjaIcon } from '@patternfly/react-icons/dist/esm/icons/user-ninja-icon';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface NinjaErrorBoundaryProps {}
 interface NinjaErrorBoundaryState {
   hasError: boolean;
@@ -40,9 +41,7 @@ export class NinjaErrorBoundary extends React.Component<
             <Title headingLevel="h2" size="lg">
               Ops! Something went wrong.
             </Title>
-            <EmptyStateBody>
-              Try to refresh your page or contact your admin.
-            </EmptyStateBody>
+            <EmptyStateBody>Try to refresh your page or contact your admin.</EmptyStateBody>
           </EmptyState>
         </Bullseye>
       );

@@ -1,10 +1,10 @@
-import { IExtraColumnData, SortByDirection } from "@patternfly/react-table";
-import { renderHook, act } from "@testing-library/react-hooks";
-import { DEFAULT_PAGINATION } from "@app/Constants";
-import { useTableControls } from "./useTableControls";
+import { IExtraColumnData, SortByDirection } from '@patternfly/react-table';
+import { renderHook, act } from '@testing-library/react-hooks';
+import { DEFAULT_PAGINATION } from '@app/Constants';
+import { useTableControls } from './useTableControls';
 
-describe("useTableControls", () => {
-  it("Update pagination correctly", () => {
+describe('useTableControls', () => {
+  it('Update pagination correctly', () => {
     const { result } = renderHook(() => useTableControls());
 
     //
@@ -16,7 +16,7 @@ describe("useTableControls", () => {
     });
   });
 
-  it("Update state sortBy correctly", () => {
+  it('Update state sortBy correctly', () => {
     const COLUMN_INDEX = 2;
 
     const { result } = renderHook(() => useTableControls());
@@ -24,12 +24,7 @@ describe("useTableControls", () => {
     //
     const { handleSortChange } = result.current;
     act(() =>
-      handleSortChange(
-        jest.fn() as any,
-        COLUMN_INDEX,
-        SortByDirection.desc,
-        jest.fn() as any
-      )
+      handleSortChange(jest.fn() as any, COLUMN_INDEX, SortByDirection.desc, jest.fn() as any)
     );
 
     expect(result.current.sortByQuery).toMatchObject({
@@ -38,7 +33,7 @@ describe("useTableControls", () => {
     });
   });
 
-  it("Start with default pagination", () => {
+  it('Start with default pagination', () => {
     const { result } = renderHook(() =>
       useTableControls({ paginationQuery: { page: 2, perPage: 50 } })
     );
@@ -50,11 +45,11 @@ describe("useTableControls", () => {
     expect(paginationQuery.perPage).toBe(50);
   });
 
-  it("Start with default sortBy", () => {
+  it('Start with default sortBy', () => {
     const { result } = renderHook(() =>
       useTableControls({
         paginationQuery: DEFAULT_PAGINATION,
-        sortByQuery: { index: 2, direction: "desc" },
+        sortByQuery: { index: 2, direction: 'desc' },
       })
     );
 
@@ -62,7 +57,7 @@ describe("useTableControls", () => {
     const { sortByQuery } = result.current;
 
     expect(sortByQuery?.index).toBe(2);
-    expect(sortByQuery?.direction).toBe("desc");
+    expect(sortByQuery?.direction).toBe('desc');
   });
 
   it("Doesn't allow Zero or negative page values", () => {

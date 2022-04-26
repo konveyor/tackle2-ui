@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { AxiosError, AxiosPromise } from "axios";
+import { useState } from 'react';
+import { AxiosError, AxiosPromise } from 'axios';
 
 export interface IArgs<T> {
   onDelete: (t: T) => AxiosPromise;
@@ -7,21 +7,13 @@ export interface IArgs<T> {
 
 export interface IState<T> {
   isDeleting: boolean;
-  requestDelete: (
-    t: T,
-    onSuccess: () => void,
-    onError: (error: AxiosError) => void
-  ) => void;
+  requestDelete: (t: T, onSuccess: () => void, onError: (error: AxiosError) => void) => void;
 }
 
 export const useDelete = <T>({ onDelete }: IArgs<T>): IState<T> => {
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const deleteHandler = (
-    t: T,
-    onSuccess: () => void,
-    onError: (error: AxiosError) => void
-  ) => {
+  const deleteHandler = (t: T, onSuccess: () => void, onError: (error: AxiosError) => void) => {
     setIsDeleting(true);
     onDelete(t)
       .then(() => {

@@ -1,10 +1,10 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { ChartDonut } from "@patternfly/react-charts";
-import { global_palette_black_300 as black } from "@patternfly/react-tokens";
+import { ChartDonut } from '@patternfly/react-charts';
+import { global_palette_black_300 as black } from '@patternfly/react-tokens';
 
-import { Stack, StackItem, Text, TextContent } from "@patternfly/react-core";
+import { Stack, StackItem, Text, TextContent } from '@patternfly/react-core';
 
 export interface IDonutProps {
   value: number;
@@ -26,17 +26,17 @@ export const Donut: React.FC<IDonutProps> = ({
   return (
     <Stack>
       <StackItem>
-        <div style={{ height: "200px", width: "200px" }}>
+        <div style={{ height: '200px', width: '200px' }}>
           <ChartDonut
             ariaDesc="risk-donut-chart"
             title={value.toString()}
-            subTitle={t("composed.ofTotalApplications", {
+            subTitle={t('composed.ofTotalApplications', {
               count: total,
             }).toLocaleLowerCase()}
             constrainToVisibleArea={true}
             data={[
               { x: riskLabel, y: value },
-              { x: t("terms.other"), y: total - value },
+              { x: t('terms.other'), y: total - value },
             ]}
             labels={({ datum }) => `${datum.x}: ${datum.y}`}
             colorScale={[color, black.value]}

@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import { useFormik, FormikProvider, FormikHelpers } from "formik";
-import { object, string } from "yup";
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AxiosError, AxiosPromise, AxiosResponse } from 'axios';
+import { useFormik, FormikProvider, FormikHelpers } from 'formik';
+import { object, string } from 'yup';
 
 import {
   ActionGroup,
@@ -13,28 +13,25 @@ import {
   FormGroup,
   TextArea,
   TextInput,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
-import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
-import {
-  useFetchBusinessServices,
-  useFetchStakeholders,
-} from "@app/shared/hooks";
+import { SingleSelectFetchOptionValueFormikField } from '@app/shared/components';
+import { useFetchBusinessServices, useFetchStakeholders } from '@app/shared/hooks';
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { createBusinessService, updateBusinessService } from "@app/api/rest";
-import { BusinessService, Stakeholder } from "@app/api/models";
+import { DEFAULT_SELECT_MAX_HEIGHT } from '@app/Constants';
+import { createBusinessService, updateBusinessService } from '@app/api/rest';
+import { BusinessService, Stakeholder } from '@app/api/models';
 import {
   duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
-} from "@app/utils/utils";
+} from '@app/utils/utils';
 import {
   IStakeholderDropdown,
   toIStakeholderDropdownOptionWithValue,
   toIStakeholderDropdown,
-} from "@app/utils/model-utils";
+} from '@app/utils/model-utils';
 
 export interface FormValues {
   name: string;
@@ -86,37 +83,30 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
   }, [businessService]);
 
   const initialValues: FormValues = {
-    name: businessService?.name || "",
-    description: businessService?.description || "",
+    name: businessService?.name || '',
+    description: businessService?.description || '',
     owner: ownerInitialValue,
   };
 
   const validationSchema = object().shape({
     name: string()
       .trim()
-      .required(t("validation.required"))
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 }))
+      .required(t('validation.required'))
+      .min(3, t('validation.minLength', { length: 3 }))
+      .max(120, t('validation.maxLength', { length: 120 }))
       .test(
-        "Duplicate name",
-        "A business service with this name already exists. Please use a different name.",
+        'Duplicate name',
+        'A business service with this name already exists. Please use a different name.',
         (value) => {
-          return duplicateNameCheck(
-            businessServices || [],
-            businessService || null,
-            value || ""
-          );
+          return duplicateNameCheck(businessServices || [], businessService || null, value || '');
         }
       ),
     description: string()
       .trim()
-      .max(250, t("validation.maxLength", { length: 250 })),
+      .max(250, t('validation.maxLength', { length: 250 })),
   });
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
+  const onSubmit = (formValues: FormValues, formikHelpers: FormikHelpers<FormValues>) => {
     const payload: BusinessService = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
@@ -158,15 +148,9 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
-        {error && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(error)}
-          />
-        )}
+        {error && <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />}
         <FormGroup
-          label={t("terms.name")}
+          label={t('terms.name')}
           fieldId="name"
           isRequired={true}
           validated={getValidatedFromError(formik.errors.name)}
@@ -181,15 +165,12 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
             onChange={onChangeField}
             onBlur={formik.handleBlur}
             value={formik.values.name}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.name,
-              formik.touched.name
-            )}
+            validated={getValidatedFromErrorTouched(formik.errors.name, formik.touched.name)}
             autoComplete="off"
           />
         </FormGroup>
         <FormGroup
-          label={t("terms.description")}
+          label={t('terms.description')}
           fieldId="description"
           isRequired={false}
           validated={getValidatedFromError(formik.errors.description)}
@@ -211,23 +192,23 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
           />
         </FormGroup>
         <FormGroup
-          label={t("terms.owner")}
+          label={t('terms.owner')}
           fieldId="owner"
           isRequired={false}
           validated={getValidatedFromError(formik.errors.owner)}
           helperTextInvalid={formik.errors.owner}
         >
           <SingleSelectFetchOptionValueFormikField<IStakeholderDropdown>
-            fieldConfig={{ name: "owner" }}
+            fieldConfig={{ name: 'owner' }}
             selectConfig={{
-              variant: "typeahead",
-              "aria-label": "owner",
-              "aria-describedby": "owner",
-              typeAheadAriaLabel: "owner",
-              toggleAriaLabel: "owner",
-              clearSelectionsAriaLabel: "owner",
-              removeSelectionAriaLabel: "owner",
-              placeholderText: t("message.selectOwnerFromStakeholdersList"),
+              variant: 'typeahead',
+              'aria-label': 'owner',
+              'aria-describedby': 'owner',
+              typeAheadAriaLabel: 'owner',
+              toggleAriaLabel: 'owner',
+              clearSelectionsAriaLabel: 'owner',
+              removeSelectionAriaLabel: 'owner',
+              placeholderText: t('message.selectOwnerFromStakeholdersList'),
               menuAppendTo: () => document.body,
               maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
               fetchError: fetchErrorStakeholders,
@@ -245,13 +226,10 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
             aria-label="submit"
             variant={ButtonVariant.primary}
             isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
+              !formik.isValid || !formik.dirty || formik.isSubmitting || formik.isValidating
             }
           >
-            {!businessService ? t("actions.create") : t("actions.save")}
+            {!businessService ? t('actions.create') : t('actions.save')}
           </Button>
           <Button
             type="button"
@@ -260,7 +238,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
             isDisabled={formik.isSubmitting || formik.isValidating}
             onClick={onCancel}
           >
-            {t("actions.cancel")}
+            {t('actions.cancel')}
           </Button>
         </ActionGroup>
       </Form>

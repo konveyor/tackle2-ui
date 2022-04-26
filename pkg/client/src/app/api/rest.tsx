@@ -1,5 +1,5 @@
-import axios, { AxiosPromise } from "axios";
-import { APIClient } from "@app/axios-config";
+import axios, { AxiosPromise } from 'axios';
+import { APIClient } from '@app/axios-config';
 
 import {
   PageQuery,
@@ -26,41 +26,41 @@ import {
   Proxy,
   Taskgroup,
   ApplicationImport,
-} from "./models";
+} from './models';
 
 // TACKLE_HUB
-export const HUB = "/hub";
+export const HUB = '/hub';
 
-export const BUSINESS_SERVICES = HUB + "/businessservices";
-export const STAKEHOLDERS = HUB + "/stakeholders";
-export const STAKEHOLDER_GROUPS = HUB + "/stakeholdergroups";
-export const JOB_FUNCTIONS = HUB + "/jobfunctions";
-export const TAG_TYPES = HUB + "/tagtypes";
-export const TAGS = HUB + "/tags";
+export const BUSINESS_SERVICES = HUB + '/businessservices';
+export const STAKEHOLDERS = HUB + '/stakeholders';
+export const STAKEHOLDER_GROUPS = HUB + '/stakeholdergroups';
+export const JOB_FUNCTIONS = HUB + '/jobfunctions';
+export const TAG_TYPES = HUB + '/tagtypes';
+export const TAGS = HUB + '/tags';
 
-export const APPLICATIONS = HUB + "/applications";
-export const APPLICATION_DEPENDENCY = HUB + "/dependencies";
-export const REVIEWS = HUB + "/reviews";
-export const REPORT = HUB + "/reports";
-export const UPLOAD_FILE = HUB + "/importsummaries/upload";
-export const APP_IMPORT_SUMMARY = HUB + "/importsummaries";
-export const APP_IMPORT = HUB + "/imports";
-export const APP_IMPORT_CSV = HUB + "/importsummaries/download";
+export const APPLICATIONS = HUB + '/applications';
+export const APPLICATION_DEPENDENCY = HUB + '/dependencies';
+export const REVIEWS = HUB + '/reviews';
+export const REPORT = HUB + '/reports';
+export const UPLOAD_FILE = HUB + '/importsummaries/upload';
+export const APP_IMPORT_SUMMARY = HUB + '/importsummaries';
+export const APP_IMPORT = HUB + '/imports';
+export const APP_IMPORT_CSV = HUB + '/importsummaries/download';
 
-export const IDENTITIES = HUB + "/identities";
-export const PROXIES = HUB + "/proxies";
-export const SETTINGS = HUB + "/settings";
-export const TASKS = HUB + "/tasks";
-export const TASKGROUPS = HUB + "/taskgroups";
+export const IDENTITIES = HUB + '/identities';
+export const PROXIES = HUB + '/proxies';
+export const SETTINGS = HUB + '/settings';
+export const TASKS = HUB + '/tasks';
+export const TASKGROUPS = HUB + '/taskgroups';
 
 // PATHFINDER
-export const PATHFINDER = "/pathfinder";
-export const ASSESSMENTS = PATHFINDER + "/assessments";
+export const PATHFINDER = '/pathfinder';
+export const ASSESSMENTS = PATHFINDER + '/assessments';
 
-const jsonHeaders = { headers: { Accept: "application/json" } };
-const formHeaders = { headers: { Accept: "multipart/form-data" } };
+const jsonHeaders = { headers: { Accept: 'application/json' } };
+const formHeaders = { headers: { Accept: 'multipart/form-data' } };
 
-type Direction = "asc" | "desc";
+type Direction = 'asc' | 'desc';
 
 const buildQuery = (params: any) => {
   const query: string[] = [];
@@ -92,21 +92,15 @@ export const deleteBusinessService = (id: number | string): AxiosPromise => {
   return APIClient.delete(`${BUSINESS_SERVICES}/${id}`);
 };
 
-export const createBusinessService = (
-  obj: BusinessService
-): AxiosPromise<BusinessService> => {
+export const createBusinessService = (obj: BusinessService): AxiosPromise<BusinessService> => {
   return APIClient.post(`${BUSINESS_SERVICES}`, obj);
 };
 
-export const updateBusinessService = (
-  obj: BusinessService
-): AxiosPromise<BusinessService> => {
+export const updateBusinessService = (obj: BusinessService): AxiosPromise<BusinessService> => {
   return APIClient.put(`${BUSINESS_SERVICES}/${obj.id}`, obj);
 };
 
-export const getBusinessServiceById = (
-  id: number | string
-): AxiosPromise<BusinessService> => {
+export const getBusinessServiceById = (id: number | string): AxiosPromise<BusinessService> => {
   return APIClient.get(`${BUSINESS_SERVICES}/${id}`);
 };
 
@@ -116,15 +110,11 @@ export const getStakeholders = (): AxiosPromise<Array<Stakeholder>> => {
   return APIClient.get(`${STAKEHOLDERS}`, jsonHeaders);
 };
 
-export const createJobFunction = (
-  obj: JobFunction
-): AxiosPromise<JobFunction> => {
+export const createJobFunction = (obj: JobFunction): AxiosPromise<JobFunction> => {
   return APIClient.post(`${JOB_FUNCTIONS}`, obj);
 };
 
-export const updateJobFunction = (
-  obj: JobFunction
-): AxiosPromise<JobFunction> => {
+export const updateJobFunction = (obj: JobFunction): AxiosPromise<JobFunction> => {
   return APIClient.put(`${JOB_FUNCTIONS}/${obj.id}`, obj);
 };
 
@@ -136,15 +126,11 @@ export const deleteStakeholder = (id: number): AxiosPromise => {
   return APIClient.delete(`${STAKEHOLDERS}/${id}`);
 };
 
-export const createStakeholder = (
-  obj: Stakeholder
-): AxiosPromise<Stakeholder> => {
+export const createStakeholder = (obj: Stakeholder): AxiosPromise<Stakeholder> => {
   return APIClient.post(`${STAKEHOLDERS}`, obj);
 };
 
-export const updateStakeholder = (
-  obj: Stakeholder
-): AxiosPromise<Stakeholder> => {
+export const updateStakeholder = (obj: Stakeholder): AxiosPromise<Stakeholder> => {
   return APIClient.put(`${STAKEHOLDERS}/${obj.id}`, obj);
 };
 
@@ -155,9 +141,7 @@ export enum StakeholderGroupSortBy {
   STAKEHOLDERS_COUNT,
 }
 
-export const getStakeholderGroups = (): AxiosPromise<
-  Array<StakeholderGroup>
-> => {
+export const getStakeholderGroups = (): AxiosPromise<Array<StakeholderGroup>> => {
   return APIClient.get(`${STAKEHOLDER_GROUPS}`, jsonHeaders);
 };
 
@@ -165,15 +149,11 @@ export const deleteStakeholderGroup = (id: number): AxiosPromise => {
   return APIClient.delete(`${STAKEHOLDER_GROUPS}/${id}`);
 };
 
-export const createStakeholderGroup = (
-  obj: StakeholderGroup
-): AxiosPromise<StakeholderGroup> => {
+export const createStakeholderGroup = (obj: StakeholderGroup): AxiosPromise<StakeholderGroup> => {
   return APIClient.post(`${STAKEHOLDER_GROUPS}`, obj);
 };
 
-export const updateStakeholderGroup = (
-  obj: StakeholderGroup
-): AxiosPromise<StakeholderGroup> => {
+export const updateStakeholderGroup = (obj: StakeholderGroup): AxiosPromise<StakeholderGroup> => {
   return APIClient.put(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj);
 };
 
@@ -243,29 +223,21 @@ export const deleteApplication = (id: number): AxiosPromise => {
   return APIClient.delete(`${APPLICATIONS}/${id}`);
 };
 
-export const createApplication = (
-  obj: Application
-): AxiosPromise<Application> => {
+export const createApplication = (obj: Application): AxiosPromise<Application> => {
   return APIClient.post(`${APPLICATIONS}`, obj);
 };
 
-export const updateApplication = (
-  obj: Application
-): AxiosPromise<Application> => {
+export const updateApplication = (obj: Application): AxiosPromise<Application> => {
   return APIClient.put(`${APPLICATIONS}/${obj.id}`, obj);
 };
 
-export const getApplicationById = (
-  id: number | string
-): AxiosPromise<Application> => {
+export const getApplicationById = (id: number | string): AxiosPromise<Application> => {
   return APIClient.get(`${APPLICATIONS}/${id}`);
 };
 
 //
 
-export const getApplicationDependencies = (): AxiosPromise<
-  ApplicationDependency[]
-> => {
+export const getApplicationDependencies = (): AxiosPromise<ApplicationDependency[]> => {
   return APIClient.get(`${APPLICATION_DEPENDENCY}`);
 };
 
@@ -332,14 +304,12 @@ export const getApplicationImports = (): AxiosPromise<ApplicationImport[]> => {
 
 export const getApplicationSummaryCSV = (id: string): AxiosPromise => {
   return APIClient.get(`${APP_IMPORT_CSV}?importSummaryId=${id}`, {
-    responseType: "arraybuffer",
-    headers: { Accept: "text/csv", responseType: "blob" },
+    responseType: 'arraybuffer',
+    headers: { Accept: 'text/csv', responseType: 'blob' },
   });
 };
 
-export const createBulkCopyReview = (
-  bulk: BulkCopyReview
-): AxiosPromise<BulkCopyReview> => {
+export const createBulkCopyReview = (bulk: BulkCopyReview): AxiosPromise<BulkCopyReview> => {
   return APIClient.post<BulkCopyReview>(`${REVIEWS}/bulk`, bulk);
 };
 
@@ -357,7 +327,7 @@ export const getAssessments = (filters: {
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${ASSESSMENTS}?${query.join("&")}`);
+  return APIClient.get(`${ASSESSMENTS}?${query.join('&')}`);
 };
 
 export const createAssessment = (obj: Assessment): AxiosPromise<Assessment> => {
@@ -368,9 +338,7 @@ export const patchAssessment = (obj: Assessment): AxiosPromise<Assessment> => {
   return APIClient.patch(`${ASSESSMENTS}/${obj.id}`, obj);
 };
 
-export const getAssessmentById = (
-  id: number | string
-): AxiosPromise<Assessment> => {
+export const getAssessmentById = (id: number | string): AxiosPromise<Assessment> => {
   return APIClient.get(`${ASSESSMENTS}/${id}`);
 };
 
@@ -411,9 +379,7 @@ export const createBulkCopyAssessment = (
   return APIClient.post<BulkCopyAssessment>(`${ASSESSMENTS}/bulk`, bulk);
 };
 
-export const getBulkCopyAssessment = (
-  id: number
-): AxiosPromise<BulkCopyAssessment> => {
+export const getBulkCopyAssessment = (id: number): AxiosPromise<BulkCopyAssessment> => {
   return APIClient.get<BulkCopyAssessment>(`${ASSESSMENTS}/bulk/${id}`);
 };
 
@@ -438,11 +404,7 @@ export const getSettingById = (id: number | string): AxiosPromise<boolean> => {
 };
 
 export const updateSetting = (obj: Setting): AxiosPromise<Setting> => {
-  return APIClient.put(
-    `${SETTINGS}/${obj.key}`,
-    obj.value?.toString(),
-    jsonHeaders
-  );
+  return APIClient.put(`${SETTINGS}/${obj.key}`, obj.value?.toString(), jsonHeaders);
 };
 
 export const createSetting = (obj: Setting): AxiosPromise<Setting> => {
@@ -470,8 +432,7 @@ export const deleteProxy = (id: number): AxiosPromise => {
 export const getApplicationsQuery = () =>
   axios.get<Application[]>(APPLICATIONS).then((response) => response.data);
 
-export const getTasks = () =>
-  axios.get<Task[]>(TASKS).then((response) => response.data);
+export const getTasks = () => axios.get<Task[]>(TASKS).then((response) => response.data);
 
 export const deleteTask = (id: number) => axios.delete<Task>(`${TASKS}/${id}`);
 
@@ -479,12 +440,9 @@ export const createTaskgroup = (obj: Taskgroup) =>
   axios.post<Taskgroup>(TASKGROUPS, obj).then((response) => response.data);
 
 export const submitTaskgroup = (obj: Taskgroup) =>
-  axios
-    .put<Taskgroup>(`${TASKGROUPS}/${obj.id}/submit`, obj)
-    .then((response) => response.data);
+  axios.put<Taskgroup>(`${TASKGROUPS}/${obj.id}/submit`, obj).then((response) => response.data);
 
-export const deleteTaskgroup = (id: number): AxiosPromise =>
-  axios.delete(`${TASKGROUPS}/${id}`);
+export const deleteTaskgroup = (id: number): AxiosPromise => axios.delete(`${TASKGROUPS}/${id}`);
 
 export const uploadFileTaskgroup = ({
   id,
@@ -495,9 +453,5 @@ export const uploadFileTaskgroup = ({
   path: string;
   file: any;
 }) => {
-  return axios.post<Taskgroup>(
-    `${TASKGROUPS}/${id}/bucket/${path}`,
-    file,
-    formHeaders
-  );
+  return axios.post<Taskgroup>(`${TASKGROUPS}/${id}/bucket/${path}`, file, formHeaders);
 };

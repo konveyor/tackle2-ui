@@ -1,1 +1,1 @@
-export { ChipBusinessService } from "./business-service-chip";
+export { ChipBusinessService } from './business-service-chip';

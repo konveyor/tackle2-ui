@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { SelectVariant, ToolbarChip } from "@patternfly/react-core";
+import { SelectVariant, ToolbarChip } from '@patternfly/react-core';
 
-import { SimpleSelectFetch, OptionWithValue } from "@app/shared/components";
-import { useFetchTagTypes } from "@app/shared/hooks";
+import { SimpleSelectFetch, OptionWithValue } from '@app/shared/components';
+import { useFetchTagTypes } from '@app/shared/hooks';
 
-import { Tag } from "@app/api/models";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import { Tag } from '@app/api/models';
+import { DEFAULT_SELECT_MAX_HEIGHT } from '@app/Constants';
 
 const tagToToolbarChip = (value: Tag): ToolbarChip => ({
   key: `${value.id}`,
@@ -19,15 +19,12 @@ const tagToOption = (value: Tag): OptionWithValue<Tag> => ({
   toString: () => value.name,
   compareTo: (selectOption: any) => {
     // If "string" we are just filtering
-    if (typeof selectOption === "string") {
+    if (typeof selectOption === 'string') {
       return value.name.toLowerCase().includes(selectOption.toLowerCase());
     }
     // If not "string" we are selecting a checkbox
     else {
-      return (
-        selectOption.value &&
-        (selectOption as OptionWithValue<Tag>).value.id === value.id
-      );
+      return selectOption.value && (selectOption as OptionWithValue<Tag>).value.id === value.id;
     }
   },
   props: {
@@ -40,10 +37,7 @@ export interface SelectTagFilterProps {
   onApplyFilter: (values: ToolbarChip[]) => void;
 }
 
-export const SelectTagFilter: React.FC<SelectTagFilterProps> = ({
-  value = [],
-  onApplyFilter,
-}) => {
+export const SelectTagFilter: React.FC<SelectTagFilterProps> = ({ value = [], onApplyFilter }) => {
   const { t } = useTranslation();
 
   // Tag types
@@ -75,7 +69,7 @@ export const SelectTagFilter: React.FC<SelectTagFilterProps> = ({
       variant={SelectVariant.checkbox}
       aria-label="tag"
       aria-labelledby="tag"
-      placeholderText={t("terms.tag")}
+      placeholderText={t('terms.tag')}
       maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
       value={value
         .map((f) => {

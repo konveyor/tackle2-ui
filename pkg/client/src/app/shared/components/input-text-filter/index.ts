@@ -1,1 +1,1 @@
-export { InputTextFilter } from "./input-text-filter";
+export { InputTextFilter } from './input-text-filter';

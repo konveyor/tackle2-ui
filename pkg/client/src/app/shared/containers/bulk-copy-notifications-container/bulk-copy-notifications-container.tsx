@@ -1,15 +1,15 @@
-import React, { useCallback, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { useDispatch, useSelector } from "react-redux";
-import { alertActions } from "@app/store/alert";
-import { RootState } from "@app/store/rootReducer";
-import { bulkCopySelectors, bulkCopyActions } from "@app/store/bulkCopy";
+import { useDispatch, useSelector } from 'react-redux';
+import { alertActions } from '@app/store/alert';
+import { RootState } from '@app/store/rootReducer';
+import { bulkCopySelectors, bulkCopyActions } from '@app/store/bulkCopy';
 
-import { useFetch } from "@app/shared/hooks";
+import { useFetch } from '@app/shared/hooks';
 
-import { BulkCopyAssessment, BulkCopyReview } from "@app/api/models";
-import { getBulkCopyAssessment, getBulkCopyReview } from "@app/api/rest";
+import { BulkCopyAssessment, BulkCopyReview } from '@app/api/models';
+import { getBulkCopyAssessment, getBulkCopyReview } from '@app/api/rest';
 
 export const BulkCopyNotificationsContainer: React.FC = () => {
   // i18
@@ -18,27 +18,21 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
   // Redux
   const dispatch = useDispatch();
 
-  const isWatching = useSelector((state: RootState) =>
-    bulkCopySelectors.isWatching(state)
-  );
+  const isWatching = useSelector((state: RootState) => bulkCopySelectors.isWatching(state));
   const assessmentBulkCopyId = useSelector((state: RootState) =>
     bulkCopySelectors.assessmentBulk(state)
   );
-  const reviewBulkCopyId = useSelector((state: RootState) =>
-    bulkCopySelectors.reviewBulk(state)
-  );
+  const reviewBulkCopyId = useSelector((state: RootState) => bulkCopySelectors.reviewBulk(state));
 
   // Assessment
   const fetchAssessmentBulkCopy = useCallback(() => {
     return getBulkCopyAssessment(assessmentBulkCopyId!);
   }, [assessmentBulkCopyId]);
 
-  const {
-    data: assessmentBulkCopy,
-    requestFetch: requestFetchAssessmentBulkCopy,
-  } = useFetch<BulkCopyAssessment>({
-    onFetch: fetchAssessmentBulkCopy,
-  });
+  const { data: assessmentBulkCopy, requestFetch: requestFetchAssessmentBulkCopy } =
+    useFetch<BulkCopyAssessment>({
+      onFetch: fetchAssessmentBulkCopy,
+    });
 
   // Review
   const fetchReviewBulkCopy = useCallback(() => {
@@ -90,19 +84,12 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
       dispatch(
         alertActions.addSuccess(
           reviewBulkCopyId
-            ? t("toastr.success.assessmentAndReviewCopied")
-            : t("toastr.success.assessmentCopied")
+            ? t('toastr.success.assessmentAndReviewCopied')
+            : t('toastr.success.assessmentCopied')
         )
       );
     }
-  }, [
-    isWatching,
-    assessmentBulkCopy,
-    reviewBulkCopy,
-    reviewBulkCopyId,
-    dispatch,
-    t,
-  ]);
+  }, [isWatching, assessmentBulkCopy, reviewBulkCopy, reviewBulkCopyId, dispatch, t]);
 
   return <></>;
 };

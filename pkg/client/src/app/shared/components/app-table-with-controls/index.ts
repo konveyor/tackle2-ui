@@ -1,1 +1,1 @@
-export { AppTableWithControls } from "./app-table-with-controls";
+export { AppTableWithControls } from './app-table-with-controls';

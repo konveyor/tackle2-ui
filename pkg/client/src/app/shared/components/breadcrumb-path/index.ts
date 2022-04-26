@@ -1,1 +1,1 @@
-export { BreadCrumbPath } from "./breadcrumb-path";
+export { BreadCrumbPath } from './breadcrumb-path';

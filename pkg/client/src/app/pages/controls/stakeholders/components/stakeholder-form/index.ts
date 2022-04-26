@@ -1,1 +1,1 @@
-export { StakeholderForm } from "./stakeholder-form";
+export { StakeholderForm } from './stakeholder-form';

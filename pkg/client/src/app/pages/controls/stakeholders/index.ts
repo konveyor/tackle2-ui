@@ -1,1 +1,1 @@
-export { Stakeholders as default } from "./stakeholders";
+export { Stakeholders as default } from './stakeholders';

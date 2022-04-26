@@ -1,1 +1,1 @@
-export { UpdateIdentityModal } from "./update-identity-modal";
+export { UpdateIdentityModal } from './update-identity-modal';

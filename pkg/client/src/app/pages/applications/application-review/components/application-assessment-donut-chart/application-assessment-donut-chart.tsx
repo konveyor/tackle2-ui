@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { ChartDonut, ChartLegend } from "@patternfly/react-charts";
+import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ChartDonut, ChartLegend } from '@patternfly/react-charts';
 
-import { global_palette_blue_300 as defaultColor } from "@patternfly/react-tokens";
+import { global_palette_blue_300 as defaultColor } from '@patternfly/react-tokens';
 
-import { RISK_LIST } from "@app/Constants";
-import { Assessment, QuestionnaireCategory } from "@app/api/models";
+import { RISK_LIST } from '@app/Constants';
+import { Assessment, QuestionnaireCategory } from '@app/api/models';
 
 export interface ChartData {
   red: number;
@@ -14,9 +14,7 @@ export interface ChartData {
   unknown: number;
 }
 
-export const getChartDataFromCategories = (
-  categories: QuestionnaireCategory[]
-): ChartData => {
+export const getChartDataFromCategories = (categories: QuestionnaireCategory[]): ChartData => {
   let green = 0;
   let amber = 0;
   let red = 0;
@@ -28,13 +26,13 @@ export const getChartDataFromCategories = (
     .filter((f) => f.checked === true)
     .forEach((f) => {
       switch (f.risk) {
-        case "GREEN":
+        case 'GREEN':
           green++;
           break;
-        case "AMBER":
+        case 'AMBER':
           amber++;
           break;
-        case "RED":
+        case 'RED':
           red++;
           break;
         default:
@@ -54,9 +52,9 @@ export interface IApplicationAssessmentDonutChartProps {
   assessment: Assessment;
 }
 
-export const ApplicationAssessmentDonutChart: React.FC<
-  IApplicationAssessmentDonutChartProps
-> = ({ assessment }) => {
+export const ApplicationAssessmentDonutChart: React.FC<IApplicationAssessmentDonutChartProps> = ({
+  assessment,
+}) => {
   const { t } = useTranslation();
 
   const charData: ChartData = useMemo(() => {
@@ -65,45 +63,41 @@ export const ApplicationAssessmentDonutChart: React.FC<
 
   const chartDefinition = [
     {
-      x: t(RISK_LIST["GREEN"].i18Key),
+      x: t(RISK_LIST['GREEN'].i18Key),
       y: charData.green,
-      color: RISK_LIST["GREEN"].hexColor,
+      color: RISK_LIST['GREEN'].hexColor,
     },
     {
-      x: t(RISK_LIST["AMBER"].i18Key),
+      x: t(RISK_LIST['AMBER'].i18Key),
       y: charData.amber,
-      color: RISK_LIST["AMBER"].hexColor,
+      color: RISK_LIST['AMBER'].hexColor,
     },
     {
-      x: t(RISK_LIST["RED"].i18Key),
+      x: t(RISK_LIST['RED'].i18Key),
       y: charData.red,
-      color: RISK_LIST["RED"].hexColor,
+      color: RISK_LIST['RED'].hexColor,
     },
     {
-      x: t(RISK_LIST["UNKNOWN"].i18Key),
+      x: t(RISK_LIST['UNKNOWN'].i18Key),
       y: charData.unknown,
-      color: RISK_LIST["UNKNOWN"].hexColor,
+      color: RISK_LIST['UNKNOWN'].hexColor,
     },
   ].filter((f) => f.y > 0);
 
   return (
-    <div style={{ height: "250px", width: "380px" }}>
+    <div style={{ height: '250px', width: '380px' }}>
       <ChartDonut
         ariaDesc="risk-donut-chart"
         constrainToVisibleArea={true}
         data={chartDefinition.map((elem) => ({ x: elem.x, y: elem.y }))}
         labels={({ datum }) => `${datum.x}: ${datum.y}`}
-        colorScale={chartDefinition.map(
-          (elem) => elem.color || defaultColor.value
-        )}
+        colorScale={chartDefinition.map((elem) => elem.color || defaultColor.value)}
         legendComponent={
           <ChartLegend
             data={chartDefinition.map((elem) => ({
               name: `${elem.x}: ${elem.y}`,
             }))}
-            colorScale={chartDefinition.map(
-              (elem) => elem.color || defaultColor.value
-            )}
+            colorScale={chartDefinition.map((elem) => elem.color || defaultColor.value)}
           />
         }
         legendOrientation="vertical"

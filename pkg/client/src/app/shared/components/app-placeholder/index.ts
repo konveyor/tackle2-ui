@@ -1,1 +1,1 @@
-export { AppPlaceholder } from "./app-placeholder";
+export { AppPlaceholder } from './app-placeholder';

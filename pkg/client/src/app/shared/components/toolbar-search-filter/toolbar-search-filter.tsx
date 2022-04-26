@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import { InputGroup } from "@patternfly/react-core";
-import { SimpleFilterDropdown } from "@app/shared/components";
+import { InputGroup } from '@patternfly/react-core';
+import { SimpleFilterDropdown } from '@app/shared/components';
 
 interface FilterOption {
   key: string;
@@ -13,9 +13,7 @@ export interface IToolbarSearchFilterProps {
   filters: FilterOption[];
 }
 
-export const ToolbarSearchFilter: React.FC<IToolbarSearchFilterProps> = ({
-  filters,
-}) => {
+export const ToolbarSearchFilter: React.FC<IToolbarSearchFilterProps> = ({ filters }) => {
   const [selectedKey, setSelectedKey] = useState<string | undefined>(
     filters.length > 0 ? filters[0].key : undefined
   );

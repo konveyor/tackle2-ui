@@ -1,5 +1,5 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   cellWidth,
@@ -10,12 +10,12 @@ import {
   Table,
   TableBody,
   TableHeader,
-} from "@patternfly/react-table";
+} from '@patternfly/react-table';
 
-import { Tag, TagType } from "@app/api/models";
-import "./tag-table.css";
+import { Tag, TagType } from '@app/api/models';
+import './tag-table.css';
 
-const ENTITY_FIELD = "entity";
+const ENTITY_FIELD = 'entity';
 
 const getRow = (rowData: IRowData): Tag => {
   return rowData[ENTITY_FIELD];
@@ -27,20 +27,16 @@ export interface TabTableProps {
   onDelete: (tag: Tag) => void;
 }
 
-export const TagTable: React.FC<TabTableProps> = ({
-  tagType,
-  onEdit,
-  onDelete,
-}) => {
+export const TagTable: React.FC<TabTableProps> = ({ tagType, onEdit, onDelete }) => {
   const { t } = useTranslation();
 
   const columns: ICell[] = [
     {
-      title: t("terms.tagName"),
+      title: t('terms.tagName'),
       transforms: [cellWidth(100)],
       cellFormatters: [],
       props: {
-        className: "columnPadding",
+        className: 'columnPadding',
       },
     },
   ];
@@ -72,23 +68,15 @@ export const TagTable: React.FC<TabTableProps> = ({
 
   const actions: IActions = [
     {
-      title: t("actions.edit"),
-      onClick: (
-        event: React.MouseEvent,
-        rowIndex: number,
-        rowData: IRowData
-      ) => {
+      title: t('actions.edit'),
+      onClick: (event: React.MouseEvent, rowIndex: number, rowData: IRowData) => {
         const row: Tag = getRow(rowData);
         editRow(row);
       },
     },
     {
-      title: t("actions.delete"),
-      onClick: (
-        event: React.MouseEvent,
-        rowIndex: number,
-        rowData: IRowData
-      ) => {
+      title: t('actions.delete'),
+      onClick: (event: React.MouseEvent, rowIndex: number, rowData: IRowData) => {
         const row: Tag = getRow(rowData);
         deleteRow(row);
       },

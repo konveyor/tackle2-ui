@@ -1,12 +1,12 @@
-import React from "react";
-import { AxiosResponse } from "axios";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { AxiosResponse } from 'axios';
+import { useTranslation } from 'react-i18next';
 
-import { Modal, ModalVariant } from "@patternfly/react-core";
+import { Modal, ModalVariant } from '@patternfly/react-core';
 
-import { Tag } from "@app/api/models";
+import { Tag } from '@app/api/models';
 
-import { TagForm } from "../tag-form";
+import { TagForm } from '../tag-form';
 
 export interface UpdateTagModalProps {
   tag?: Tag;
@@ -14,16 +14,12 @@ export interface UpdateTagModalProps {
   onCancel: () => void;
 }
 
-export const UpdateTagModal: React.FC<UpdateTagModalProps> = ({
-  tag,
-  onSaved,
-  onCancel,
-}) => {
+export const UpdateTagModal: React.FC<UpdateTagModalProps> = ({ tag, onSaved, onCancel }) => {
   const { t } = useTranslation();
 
   return (
     <Modal
-      title={t("dialog.title.updateTag")}
+      title={t('dialog.title.updateTag')}
       variant={ModalVariant.medium}
       isOpen={!!tag}
       onClose={onCancel}

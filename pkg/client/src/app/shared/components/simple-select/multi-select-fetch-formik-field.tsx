@@ -1,20 +1,19 @@
-import React from "react";
-import { FieldHookConfig, useField } from "formik";
+import React from 'react';
+import { FieldHookConfig, useField } from 'formik';
 
-import {
-  ISimpleSelectFetchProps,
-  SimpleSelectFetch,
-} from "./simple-select-fetch";
+import { ISimpleSelectFetchProps, SimpleSelectFetch } from './simple-select-fetch';
 
 export interface IMultiSelectFetchFormikFieldProps {
   fieldConfig: FieldHookConfig<any>;
-  selectConfig: Omit<ISimpleSelectFetchProps, "value" | "onChange" | "onClear">;
+  selectConfig: Omit<ISimpleSelectFetchProps, 'value' | 'onChange' | 'onClear'>;
   isEqual: (a: any, b: any) => boolean;
 }
 
-export const MultiSelectFetchFormikField: React.FC<
-  IMultiSelectFetchFormikFieldProps
-> = ({ fieldConfig, selectConfig, isEqual }) => {
+export const MultiSelectFetchFormikField: React.FC<IMultiSelectFetchFormikFieldProps> = ({
+  fieldConfig,
+  selectConfig,
+  isEqual,
+}) => {
   const [field, , helpers] = useField(fieldConfig);
 
   return (

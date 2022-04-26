@@ -1,9 +1,9 @@
-import React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import React from 'react';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 
-import { AxiosError } from "axios";
-import { Stakeholder } from "@app/api/models";
-import { getStakeholders } from "@app/api/rest";
+import { AxiosError } from 'axios';
+import { Stakeholder } from '@app/api/models';
+import { getStakeholders } from '@app/api/rest';
 
 export interface IStakeholderFetchState {
   stakeholders: Stakeholder[];
@@ -11,7 +11,7 @@ export interface IStakeholderFetchState {
   fetchError: any;
 }
 
-export const StakeholdersQueryKey = "stakeholders";
+export const StakeholdersQueryKey = 'stakeholders';
 
 export const useFetchStakeholders = (): IStakeholderFetchState => {
   const [stakeholders, setStakeholders] = React.useState<Stakeholder[]>([]);
@@ -22,7 +22,7 @@ export const useFetchStakeholders = (): IStakeholderFetchState => {
         return data;
       })
       .catch((error) => {
-        console.log("error, ", error);
+        console.log('error, ', error);
         return error;
       })
   );

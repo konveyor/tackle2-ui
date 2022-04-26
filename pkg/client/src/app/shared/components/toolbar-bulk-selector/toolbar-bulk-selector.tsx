@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   Button,
@@ -9,10 +9,10 @@ import {
   DropdownToggle,
   DropdownToggleCheckbox,
   ToolbarItem,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
-import AngleDownIcon from "@patternfly/react-icons/dist/esm/icons/angle-down-icon";
-import AngleRightIcon from "@patternfly/react-icons/dist/esm/icons/angle-right-icon";
+import AngleDownIcon from '@patternfly/react-icons/dist/esm/icons/angle-down-icon';
+import AngleRightIcon from '@patternfly/react-icons/dist/esm/icons/angle-right-icon';
 
 export interface IToolbarBulkSelectorProps {
   areAllSelected: boolean;
@@ -48,7 +48,7 @@ export const ToolbarBulkSelector: React.FC<IToolbarBulkSelectorProps> = ({
   const collapseAllBtn = () => (
     <Button
       variant="control"
-      title={`${!areAllExpanded ? "Expand" : "Collapse"} all`}
+      title={`${!areAllExpanded ? 'Expand' : 'Collapse'} all`}
       onClick={() => {
         areAllExpanded !== undefined && toggleCollapseAll(areAllExpanded);
       }}

@@ -1,1 +1,1 @@
-export { UpdateTagTypeModal } from "./update-tag-type-modal";
+export { UpdateTagTypeModal } from './update-tag-type-modal';

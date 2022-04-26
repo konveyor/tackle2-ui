@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { AxiosResponse } from "axios";
-import { useTranslation } from "react-i18next";
+import React, { useCallback, useEffect, useState } from 'react';
+import { AxiosResponse } from 'axios';
+import { useTranslation } from 'react-i18next';
 
 import {
   Button,
@@ -8,18 +8,12 @@ import {
   ToolbarChip,
   ToolbarGroup,
   ToolbarItem,
-} from "@patternfly/react-core";
-import {
-  cellWidth,
-  ICell,
-  IRow,
-  sortable,
-  TableText,
-} from "@patternfly/react-table";
+} from '@patternfly/react-core';
+import { cellWidth, ICell, IRow, sortable, TableText } from '@patternfly/react-table';
 
-import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
-import { confirmDialogActions } from "@app/store/confirmDialog";
+import { useDispatch } from 'react-redux';
+import { alertActions } from '@app/store/alert';
+import { confirmDialogActions } from '@app/store/confirmDialog';
 
 import {
   AppPlaceholder,
@@ -29,50 +23,37 @@ import {
   AppTableToolbarToggleGroup,
   NoDataEmptyState,
   SearchFilter,
-} from "@app/shared/components";
-import {
-  useTableControls,
-  useDelete,
-  useFetchJobFunctions,
-} from "@app/shared/hooks";
+} from '@app/shared/components';
+import { useTableControls, useDelete, useFetchJobFunctions } from '@app/shared/hooks';
 
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import {
-  deleteJobFunction,
-  JobFunctionSortBy,
-  JobFunctionSortByQuery,
-} from "@app/api/rest";
-import { SortByQuery, JobFunction } from "@app/api/models";
+import { getAxiosErrorMessage } from '@app/utils/utils';
+import { deleteJobFunction, JobFunctionSortBy, JobFunctionSortByQuery } from '@app/api/rest';
+import { SortByQuery, JobFunction } from '@app/api/models';
 
-import { NewJobFunctionModal } from "./components/new-job-function-modal";
-import { UpdateJobFunctionModal } from "./components/update-job-function-modal";
-import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useSortState } from "@app/shared/hooks/useSortState";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import { RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
+import { NewJobFunctionModal } from './components/new-job-function-modal';
+import { UpdateJobFunctionModal } from './components/update-job-function-modal';
+import { FilterCategory, FilterToolbar, FilterType } from '@app/shared/components/FilterToolbar';
+import { useFilterState } from '@app/shared/hooks/useFilterState';
+import { useSortState } from '@app/shared/hooks/useSortState';
+import { usePaginationState } from '@app/shared/hooks/usePaginationState';
+import { RBAC, RBAC_TYPE, writeScopes } from '@app/rbac';
 
-const ENTITY_FIELD = "entity";
+const ENTITY_FIELD = 'entity';
 
 export const JobFunctions: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const { jobFunctions, isFetching, fetchError, fetchJobFunctions } =
-    useFetchJobFunctions(true);
+  const { jobFunctions, isFetching, fetchError, fetchJobFunctions } = useFetchJobFunctions(true);
 
   const filterCategories: FilterCategory<JobFunction>[] = [
     {
-      key: "name",
-      title: "Name",
+      key: 'name',
+      title: 'Name',
       type: FilterType.search,
-      placeholderText: "Filter by name...",
+      placeholderText: 'Filter by name...',
       getItemValue: (item) => {
-        return item?.name || "";
+        return item?.name || '';
       },
     },
   ];
@@ -82,17 +63,13 @@ export const JobFunctions: React.FC = () => {
     filterCategories
   );
   const getSortValues = (jobFunction: JobFunction) => [
-    jobFunction.name || "",
-    "", // Action column
+    jobFunction.name || '',
+    '', // Action column
   ];
 
-  const { sortBy, onSort, sortedItems } = useSortState(
-    filteredItems,
-    getSortValues
-  );
+  const { sortBy, onSort, sortedItems } = useSortState(filteredItems, getSortValues);
 
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+  const { currentPageItems, setPageNumber, paginationProps } = usePaginationState(sortedItems, 10);
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<JobFunction>();
@@ -107,14 +84,14 @@ export const JobFunctions: React.FC = () => {
 
   const columns: ICell[] = [
     {
-      title: t("terms.name"),
+      title: t('terms.name'),
       transforms: [sortable, cellWidth(70)],
       cellFormatters: [],
     },
     {
-      title: "",
+      title: '',
       props: {
-        className: "pf-u-text-align-right",
+        className: 'pf-u-text-align-right',
       },
     },
   ];
@@ -145,14 +122,14 @@ export const JobFunctions: React.FC = () => {
     dispatch(
       confirmDialogActions.openDialog({
         // t("terms.jobFunction")
-        title: t("dialog.title.delete", {
-          what: t("terms.jobFunction").toLowerCase(),
+        title: t('dialog.title.delete', {
+          what: t('terms.jobFunction').toLowerCase(),
         }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
+        titleIconVariant: 'warning',
+        message: t('dialog.message.delete'),
         confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
+        confirmBtnLabel: t('actions.delete'),
+        cancelBtnLabel: t('actions.cancel'),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
           requestDeleteJobFunction(
@@ -187,9 +164,9 @@ export const JobFunctions: React.FC = () => {
 
     dispatch(
       alertActions.addSuccess(
-        t("toastr.success.added", {
+        t('toastr.success.added', {
           what: response.data.name,
-          type: "job function",
+          type: 'job function',
         })
       )
     );
@@ -237,17 +214,14 @@ export const JobFunctions: React.FC = () => {
           toolbarActions={
             <ToolbarGroup variant="button-group">
               <ToolbarItem>
-                <RBAC
-                  allowedPermissions={writeScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
+                <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
                   <Button
                     type="button"
                     aria-label="create-job-function"
                     variant={ButtonVariant.primary}
                     onClick={handleOnOpenCreateModal}
                   >
-                    {t("actions.createNew")}
+                    {t('actions.createNew')}
                   </Button>
                 </RBAC>
               </ToolbarItem>
@@ -256,14 +230,14 @@ export const JobFunctions: React.FC = () => {
           noDataState={
             <NoDataEmptyState
               // t('terms.jobFunctions')
-              title={t("composed.noDataStateTitle", {
-                what: t("terms.jobFunctions").toLowerCase(),
+              title={t('composed.noDataStateTitle', {
+                what: t('terms.jobFunctions').toLowerCase(),
               })}
               // t('terms.jobFunction')
               description={
-                t("composed.noDataStateBody", {
-                  what: t("terms.jobFunction").toLowerCase(),
-                }) + "."
+                t('composed.noDataStateBody', {
+                  what: t('terms.jobFunction').toLowerCase(),
+                }) + '.'
               }
             />
           }

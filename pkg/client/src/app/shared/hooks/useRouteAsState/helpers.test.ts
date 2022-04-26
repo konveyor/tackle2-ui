@@ -3,51 +3,51 @@ import {
   removeUndefined,
   objectToQueryParams,
   encodeValues,
-} from "./helpers";
+} from './helpers';
 
-describe("Helpers", () => {
-  it("getQueryParamsAsObject", () => {
-    const result = getQueryParamsAsObject("?a=1&b=2&b=3&c");
+describe('Helpers', () => {
+  it('getQueryParamsAsObject', () => {
+    const result = getQueryParamsAsObject('?a=1&b=2&b=3&c');
 
     expect(result).toMatchObject({
-      a: ["1"],
-      b: ["2", "3"],
+      a: ['1'],
+      b: ['2', '3'],
     });
   });
 
-  it("removeUndefined", () => {
+  it('removeUndefined', () => {
     const result = removeUndefined({
-      a: "1",
+      a: '1',
       b: 1,
       c: undefined,
       d: true,
     });
 
     expect(result).toMatchObject({
-      a: "1",
+      a: '1',
       b: 1,
       d: true,
     });
   });
 
-  it("objectToQueryParams", () => {
+  it('objectToQueryParams', () => {
     const result = objectToQueryParams({
-      a: "1",
-      b: ["x", "y"],
+      a: '1',
+      b: ['x', 'y'],
     });
 
-    expect(result).toBe("?a=1&b=x&b=y");
+    expect(result).toBe('?a=1&b=x&b=y');
   });
 
-  it("encodeValues", () => {
+  it('encodeValues', () => {
     const result = encodeValues({
-      a: ["red car", "big house"],
-      b: ["one", "two"],
+      a: ['red car', 'big house'],
+      b: ['one', 'two'],
     });
 
     expect(result).toMatchObject({
-      a: ["red%20car", "big%20house"],
-      b: ["one", "two"],
+      a: ['red%20car', 'big%20house'],
+      b: ['one', 'two'],
     });
   });
 });

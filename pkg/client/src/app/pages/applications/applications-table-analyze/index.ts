@@ -1,1 +1,1 @@
-export { ApplicationsTableAnalyze as default } from "./applications-table-analyze";
+export { ApplicationsTableAnalyze as default } from './applications-table-analyze';

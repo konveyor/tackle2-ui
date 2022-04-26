@@ -1,7 +1,7 @@
-import React from "react";
-import { useParams } from "react-router";
-import { useTranslation } from "react-i18next";
-import { saveAs } from "file-saver";
+import React from 'react';
+import { useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import { saveAs } from 'file-saver';
 
 import {
   Button,
@@ -9,37 +9,31 @@ import {
   PageSection,
   ToolbarGroup,
   ToolbarItem,
-} from "@patternfly/react-core";
-import { cellWidth, ICell, IRow, truncate } from "@patternfly/react-table";
+} from '@patternfly/react-core';
+import { cellWidth, ICell, IRow, truncate } from '@patternfly/react-table';
 
-import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
+import { useDispatch } from 'react-redux';
+import { alertActions } from '@app/store/alert';
 
 import {
   AppPlaceholder,
   AppTableWithControls,
   ConditionalRender,
   PageHeader,
-} from "@app/shared/components";
+} from '@app/shared/components';
 
-import { ImportSummaryRoute, Paths } from "@app/Paths";
-import { getApplicationSummaryCSV } from "@app/api/rest";
-import { ApplicationImport } from "@app/api/models";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import {
-  useFetchImports,
-  useFetchImportSummaryByID,
-} from "@app/queries/imports";
-import {
-  FilterCategory,
-  FilterType,
-} from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useSortState } from "@app/shared/hooks/useSortState";
-import { AxiosError } from "axios";
+import { ImportSummaryRoute, Paths } from '@app/Paths';
+import { getApplicationSummaryCSV } from '@app/api/rest';
+import { ApplicationImport } from '@app/api/models';
+import { getAxiosErrorMessage } from '@app/utils/utils';
+import { usePaginationState } from '@app/shared/hooks/usePaginationState';
+import { useFetchImports, useFetchImportSummaryByID } from '@app/queries/imports';
+import { FilterCategory, FilterType } from '@app/shared/components/FilterToolbar/FilterToolbar';
+import { useFilterState } from '@app/shared/hooks/useFilterState';
+import { useSortState } from '@app/shared/hooks/useSortState';
+import { AxiosError } from 'axios';
 
-const ENTITY_FIELD = "entity";
+const ENTITY_FIELD = 'entity';
 
 export const ManageImportsDetails: React.FC = () => {
   // i18
@@ -54,12 +48,12 @@ export const ManageImportsDetails: React.FC = () => {
   // Table
   const columns: ICell[] = [
     {
-      title: t("terms.application"),
+      title: t('terms.application'),
       transforms: [cellWidth(30)],
       cellTransforms: [truncate],
     },
     {
-      title: t("terms.message"),
+      title: t('terms.message'),
       transforms: [cellWidth(70)],
       cellTransforms: [truncate],
     },
@@ -68,7 +62,7 @@ export const ManageImportsDetails: React.FC = () => {
   const { imports, isFetching, fetchError } = useFetchImports();
 
   const onFetchImportSummaryByIDError = (err: AxiosError) => {
-    console.log("err", err);
+    console.log('err', err);
   };
 
   const {
@@ -83,7 +77,7 @@ export const ManageImportsDetails: React.FC = () => {
       [ENTITY_FIELD]: item,
       cells: [
         {
-          title: item["Application Name"],
+          title: item['Application Name'],
         },
         {
           title: item.errorMessage,
@@ -97,7 +91,7 @@ export const ManageImportsDetails: React.FC = () => {
   const exportCSV = () => {
     getApplicationSummaryCSV(importId)
       .then((response) => {
-        const fileName = importSummary?.filename || "file.csv";
+        const fileName = importSummary?.filename || 'file.csv';
         saveAs(new Blob([response.data]), fileName);
       })
       .catch((error) => {
@@ -107,12 +101,12 @@ export const ManageImportsDetails: React.FC = () => {
 
   const filterCategories: FilterCategory<ApplicationImport>[] = [
     {
-      key: "Application Name",
-      title: "Application Name",
+      key: 'Application Name',
+      title: 'Application Name',
       type: FilterType.search,
-      placeholderText: "Filter by application name...",
+      placeholderText: 'Filter by application name...',
       getItemValue: (item) => {
-        return item["Application Name"] || "";
+        return item['Application Name'] || '';
       },
     },
   ];
@@ -126,45 +120,38 @@ export const ManageImportsDetails: React.FC = () => {
   };
 
   const getSortValues = (item: ApplicationImport) => [
-    item?.["Application Name"] || "",
-    "", // Action column
+    item?.['Application Name'] || '',
+    '', // Action column
   ];
 
-  const { sortBy, onSort, sortedItems } = useSortState(
-    filteredItems,
-    getSortValues
-  );
+  const { sortBy, onSort, sortedItems } = useSortState(filteredItems, getSortValues);
 
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+  const { currentPageItems, setPageNumber, paginationProps } = usePaginationState(sortedItems, 10);
 
   return (
     <>
       <PageSection variant="light">
         <PageHeader
-          title={t("terms.errorReport")}
+          title={t('terms.errorReport')}
           breadcrumbs={[
             {
-              title: t("terms.applications"),
+              title: t('terms.applications'),
               path: Paths.applications,
             },
             {
-              title: t("terms.imports"),
+              title: t('terms.imports'),
               path: Paths.applicationsImports,
             },
             {
-              title: importSummary?.filename || "",
-              path: "",
+              title: importSummary?.filename || '',
+              path: '',
             },
           ]}
           menuActions={[]}
         />
       </PageSection>
       <PageSection>
-        <ConditionalRender
-          when={isFetching && !(imports || fetchError)}
-          then={<AppPlaceholder />}
-        >
+        <ConditionalRender when={isFetching && !(imports || fetchError)} then={<AppPlaceholder />}>
           <AppTableWithControls
             count={imports ? imports.length : 0}
             paginationProps={paginationProps}
@@ -186,7 +173,7 @@ export const ManageImportsDetails: React.FC = () => {
                       variant={ButtonVariant.primary}
                       onClick={exportCSV}
                     >
-                      {t("actions.export")}
+                      {t('actions.export')}
                     </Button>
                   </ToolbarItem>
                 </ToolbarGroup>

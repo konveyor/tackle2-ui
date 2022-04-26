@@ -1,44 +1,35 @@
-import { useState } from "react";
-import {
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "react-query";
+import { useState } from 'react';
+import { QueryClient, useMutation, useQuery, useQueryClient } from 'react-query';
 
-import { Application } from "@app/api/models";
+import { Application } from '@app/api/models';
 import {
   createApplication,
   deleteApplication,
   getApplicationsQuery,
   updateApplication,
-} from "@app/api/rest";
-import { AxiosError } from "axios";
-import { reviewsQueryKey } from "./reviews";
+} from '@app/api/rest';
+import { AxiosError } from 'axios';
+import { reviewsQueryKey } from './reviews';
 
 export interface IApplicationMutateState {
   mutate: any;
   isLoading: boolean;
   error: any;
 }
-export const ApplicationsQueryKey = "applications";
+export const ApplicationsQueryKey = 'applications';
 
 export const useFetchApplications = () => {
   const [applications, setApplications] = useState<Application[]>([]);
   const queryClient = useQueryClient();
-  const { isLoading, error, refetch } = useQuery(
-    ApplicationsQueryKey,
-    getApplicationsQuery,
-    {
-      onSuccess: (data: Application[]) => {
-        setApplications(data);
-        queryClient.invalidateQueries(reviewsQueryKey);
-      },
-      onError: (err: Error) => {
-        console.log(error);
-      },
-    }
-  );
+  const { isLoading, error, refetch } = useQuery(ApplicationsQueryKey, getApplicationsQuery, {
+    onSuccess: (data: Application[]) => {
+      setApplications(data);
+      queryClient.invalidateQueries(reviewsQueryKey);
+    },
+    onError: (err: Error) => {
+      console.log(error);
+    },
+  });
   return {
     applications,
     isFetching: isLoading,

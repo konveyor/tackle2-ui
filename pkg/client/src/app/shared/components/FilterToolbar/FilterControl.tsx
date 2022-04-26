@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 
 import {
   FilterCategory,
@@ -6,9 +6,9 @@ import {
   FilterType,
   ISelectFilterCategory,
   ISearchFilterCategory,
-} from "./FilterToolbar";
-import { SelectFilterControl } from "./SelectFilterControl";
-import { SearchFilterControl } from "./SearchFilterControl";
+} from './FilterToolbar';
+import { SelectFilterControl } from './SelectFilterControl';
+import { SearchFilterControl } from './SearchFilterControl';
 
 export interface IFilterControlProps<T> {
   category: FilterCategory<T>;
@@ -22,20 +22,10 @@ export const FilterControl = <T,>({
   ...props
 }: React.PropsWithChildren<IFilterControlProps<T>>): JSX.Element | null => {
   if (category.type === FilterType.select) {
-    return (
-      <SelectFilterControl
-        category={category as ISelectFilterCategory<T>}
-        {...props}
-      />
-    );
+    return <SelectFilterControl category={category as ISelectFilterCategory<T>} {...props} />;
   }
   if (category.type === FilterType.search) {
-    return (
-      <SearchFilterControl
-        category={category as ISearchFilterCategory<T>}
-        {...props}
-      />
-    );
+    return <SearchFilterControl category={category as ISearchFilterCategory<T>} {...props} />;
   }
   return null;
 };

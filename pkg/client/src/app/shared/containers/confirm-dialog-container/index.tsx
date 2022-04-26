@@ -1,1 +1,1 @@
-export { ConfirmDialogContainer } from "./confirm-dialog-container";
+export { ConfirmDialogContainer } from './confirm-dialog-container';

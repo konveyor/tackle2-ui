@@ -1,25 +1,25 @@
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
-import Measure from "react-measure";
-import { useTranslation } from "react-i18next";
+import React, { useCallback, useContext, useEffect, useMemo } from 'react';
+import Measure from 'react-measure';
+import { useTranslation } from 'react-i18next';
 
-import { Bullseye, Skeleton } from "@patternfly/react-core";
+import { Bullseye, Skeleton } from '@patternfly/react-core';
 import {
   Chart,
   ChartAxis,
   ChartBar,
   ChartGroup,
   ChartVoronoiContainer,
-} from "@patternfly/react-charts";
+} from '@patternfly/react-charts';
 
-import { useFetch } from "@app/shared/hooks";
-import { ConditionalRender, StateError } from "@app/shared/components";
+import { useFetch } from '@app/shared/hooks';
+import { ConditionalRender, StateError } from '@app/shared/components';
 
-import { PROPOSED_ACTION_LIST } from "@app/Constants";
-import { ApplicationAdoptionPlan } from "@app/api/models";
-import { getApplicationAdoptionPlan } from "@app/api/rest";
+import { PROPOSED_ACTION_LIST } from '@app/Constants';
+import { ApplicationAdoptionPlan } from '@app/api/models';
+import { getApplicationAdoptionPlan } from '@app/api/rest';
 
-import { ApplicationSelectionContext } from "../../application-selection-context";
-import { NoApplicationSelectedEmptyState } from "../no-application-selected-empty-state";
+import { ApplicationSelectionContext } from '../../application-selection-context';
+import { NoApplicationSelectedEmptyState } from '../no-application-selected-empty-state';
 
 interface IChartData {
   applicationId: number;
@@ -33,16 +33,12 @@ export const AdoptionPlan: React.FC = () => {
   const { t } = useTranslation();
 
   // Context
-  const { selectedItems: applications } = useContext(
-    ApplicationSelectionContext
-  );
+  const { selectedItems: applications } = useContext(ApplicationSelectionContext);
 
   // Data
   const fetchChartData = useCallback(() => {
     if (applications.length > 0) {
-      return getApplicationAdoptionPlan(applications.map((f) => f.id!)).then(
-        ({ data }) => data
-      );
+      return getApplicationAdoptionPlan(applications.map((f) => f.id!)).then(({ data }) => data);
     } else {
       return Promise.resolve([]);
     }
@@ -116,9 +112,7 @@ export const AdoptionPlan: React.FC = () => {
                   // themeColor={ChartThemeColor.multiOrdered}
                   containerComponent={
                     <ChartVoronoiContainer
-                      labels={({ datum }) =>
-                        `${t("terms.effort")}: ${datum.effort}`
-                      }
+                      labels={({ datum }) => `${t('terms.effort')}: ${datum.effort}`}
                       constrainToVisibleArea
                     />
                   }

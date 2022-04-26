@@ -1,16 +1,14 @@
-import React from "react";
-import { FieldHookConfig, useField } from "formik";
+import React from 'react';
+import { FieldHookConfig, useField } from 'formik';
 
 import {
   OptionWithValue,
   ISimpleSelectFetchProps,
   SimpleSelectFetch,
-} from "@app/shared/components";
-import { Stakeholder } from "@app/api/models";
+} from '@app/shared/components';
+import { Stakeholder } from '@app/api/models';
 
-const stakeholderToOption = (
-  value: Stakeholder
-): OptionWithValue<Stakeholder> => ({
+const stakeholderToOption = (value: Stakeholder): OptionWithValue<Stakeholder> => ({
   value,
   toString: () => value.name,
   props: {
@@ -20,10 +18,7 @@ const stakeholderToOption = (
 
 export interface IStakeholderSelectProps {
   fieldConfig: FieldHookConfig<number[]>;
-  selectConfig: Omit<
-    ISimpleSelectFetchProps,
-    "value" | "onChange" | "onClear" | "options"
-  >;
+  selectConfig: Omit<ISimpleSelectFetchProps, 'value' | 'onChange' | 'onClear' | 'options'>;
   stakeholders: Stakeholder[];
 }
 

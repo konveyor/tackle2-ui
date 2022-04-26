@@ -1,1 +1,1 @@
-export { useFetchPagination } from "./useFetchPagination";
+export { useFetchPagination } from './useFetchPagination';

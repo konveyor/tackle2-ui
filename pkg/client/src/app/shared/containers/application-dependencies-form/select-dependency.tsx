@@ -1,15 +1,12 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { AxiosError } from "axios";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { AxiosError } from 'axios';
 
-import { OptionWithValue, SimpleSelectFetch } from "@app/shared/components";
+import { OptionWithValue, SimpleSelectFetch } from '@app/shared/components';
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import {
-  createApplicationDependency,
-  deleteApplicationDependency,
-} from "@app/api/rest";
-import { ApplicationDependency } from "@app/api/models";
+import { DEFAULT_SELECT_MAX_HEIGHT } from '@app/Constants';
+import { createApplicationDependency, deleteApplicationDependency } from '@app/api/rest';
+import { ApplicationDependency } from '@app/api/models';
 
 const isEqual = (
   a: OptionWithValue<ApplicationDependency>,
@@ -68,8 +65,7 @@ export const SelectDependency: React.FC<SelectDependencyProps> = ({
       isDisabled={isSaving}
       value={value}
       onChange={(selection) => {
-        const selectionWithValue =
-          selection as OptionWithValue<ApplicationDependency>;
+        const selectionWithValue = selection as OptionWithValue<ApplicationDependency>;
         const elementExists = value.find((f) => {
           return isEqual(f, selectionWithValue);
         });
@@ -80,8 +76,7 @@ export const SelectDependency: React.FC<SelectDependencyProps> = ({
         if (elementExists) {
           deleteApplicationDependency(elementExists.value.id!)
             .then(() => {
-              let nextValue: OptionWithValue<ApplicationDependency>[];
-              nextValue = value.filter(
+              const nextValue: OptionWithValue<ApplicationDependency>[] = value.filter(
                 (f: OptionWithValue<ApplicationDependency>) => {
                   return !isEqual(f, elementExists);
                 }
@@ -99,8 +94,10 @@ export const SelectDependency: React.FC<SelectDependencyProps> = ({
         } else {
           createApplicationDependency(selectionWithValue.value)
             .then(({ data }) => {
-              let nextValue: OptionWithValue<ApplicationDependency>[];
-              nextValue = [...value, dependencyToOption(data, toStringFn)];
+              const nextValue: OptionWithValue<ApplicationDependency>[] = [
+                ...value,
+                dependencyToOption(data, toStringFn),
+              ];
 
               setValue(nextValue);
 
@@ -117,15 +114,15 @@ export const SelectDependency: React.FC<SelectDependencyProps> = ({
       aria-label={fieldId}
       aria-describedby={fieldId}
       // t("terms.applications")
-      placeholderText={t("composed.selectMany", {
-        what: t("terms.applications").toLowerCase(),
+      placeholderText={t('composed.selectMany', {
+        what: t('terms.applications').toLowerCase(),
       })}
       menuAppendTo={() => document.body}
       maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
       options={options}
       isFetching={isFetching}
       fetchError={fetchError}
-      noResultsFoundText={t("message.noResultsFoundTitle")}
+      noResultsFoundText={t('message.noResultsFoundTitle')}
     />
   );
 };

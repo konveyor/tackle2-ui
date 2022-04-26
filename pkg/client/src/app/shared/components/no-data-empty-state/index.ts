@@ -1,1 +1,1 @@
-export { NoDataEmptyState } from "./no-data-empty-state";
+export { NoDataEmptyState } from './no-data-empty-state';

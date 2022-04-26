@@ -1,12 +1,12 @@
-import React from "react";
-import { AxiosResponse } from "axios";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { AxiosResponse } from 'axios';
+import { useTranslation } from 'react-i18next';
 
-import { Modal, ModalVariant } from "@patternfly/react-core";
+import { Modal, ModalVariant } from '@patternfly/react-core';
 
-import { Stakeholder } from "@app/api/models";
+import { Stakeholder } from '@app/api/models';
 
-import { StakeholderForm } from "../stakeholder-form";
+import { StakeholderForm } from '../stakeholder-form';
 
 export interface UpdateStakeholderModalProps {
   stakeholder?: Stakeholder;
@@ -23,16 +23,12 @@ export const UpdateStakeholderModal: React.FC<UpdateStakeholderModalProps> = ({
 
   return (
     <Modal
-      title={t("dialog.title.updateStakeholder")}
+      title={t('dialog.title.updateStakeholder')}
       variant={ModalVariant.medium}
       isOpen={!!stakeholder}
       onClose={onCancel}
     >
-      <StakeholderForm
-        stakeholder={stakeholder}
-        onSaved={onSaved}
-        onCancel={onCancel}
-      />
+      <StakeholderForm stakeholder={stakeholder} onSaved={onSaved} onCancel={onCancel} />
     </Modal>
   );
 };

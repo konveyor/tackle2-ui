@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { Dropdown, DropdownItem, KebabToggle } from "@patternfly/react-core";
-import { HelpIcon } from "@patternfly/react-icons/dist/esm/icons/help-icon";
-import { AppAboutModal } from "../AppAboutModal";
+import React, { useState } from 'react';
+import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core';
+import { HelpIcon } from '@patternfly/react-icons/dist/esm/icons/help-icon';
+import { AppAboutModal } from '../AppAboutModal';
 
 export const MobileDropdown: React.FC = () => {
   const [isKebabDropdownOpen, setIsKebabDropdownOpen] = useState(false);

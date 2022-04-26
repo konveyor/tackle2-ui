@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { AxiosError } from "axios";
+import React, { useEffect, useState } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { AxiosError } from 'axios';
 
-import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
+import { useDispatch } from 'react-redux';
+import { alertActions } from '@app/store/alert';
 
 import {
   Bullseye,
@@ -17,33 +17,24 @@ import {
   PageSection,
   Text,
   TextContent,
-} from "@patternfly/react-core";
-import { BanIcon } from "@patternfly/react-icons/dist/esm/icons/ban-icon";
-import { InfoCircleIcon } from "@patternfly/react-icons/dist/esm/icons/info-circle-icon";
+} from '@patternfly/react-core';
+import { BanIcon } from '@patternfly/react-icons/dist/esm/icons/ban-icon';
+import { InfoCircleIcon } from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
-import {
-  AppPlaceholder,
-  ConditionalRender,
-  SimpleEmptyState,
-} from "@app/shared/components";
-import { useAssessApplication } from "@app/shared/hooks";
+import { AppPlaceholder, ConditionalRender, SimpleEmptyState } from '@app/shared/components';
+import { useAssessApplication } from '@app/shared/hooks';
 
-import { formatPath, Paths, ReviewRoute } from "@app/Paths";
+import { formatPath, Paths, ReviewRoute } from '@app/Paths';
 
-import {
-  getApplicationById,
-  getAssessmentById,
-  getAssessments,
-  getReviewId,
-} from "@app/api/rest";
-import { Application, Assessment, Review } from "@app/api/models";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { getApplicationById, getAssessmentById, getAssessments, getReviewId } from '@app/api/rest';
+import { Application, Assessment, Review } from '@app/api/models';
+import { getAxiosErrorMessage } from '@app/utils/utils';
 
-import { ApplicationReviewPage } from "./components/application-review-page";
-import { ApplicationDetails } from "./components/application-details";
-import { ReviewForm } from "./components/review-form";
-import { ApplicationAssessmentDonutChart } from "./components/application-assessment-donut-chart";
-import { ApplicationAssessmentSummaryTable } from "./components/application-assessment-summary-table";
+import { ApplicationReviewPage } from './components/application-review-page';
+import { ApplicationDetails } from './components/application-details';
+import { ReviewForm } from './components/review-form';
+import { ApplicationAssessmentDonutChart } from './components/application-assessment-donut-chart';
+import { ApplicationAssessmentSummaryTable } from './components/application-assessment-summary-table';
 
 export const ApplicationReview: React.FC = () => {
   const { t } = useTranslation();
@@ -53,8 +44,7 @@ export const ApplicationReview: React.FC = () => {
   const history = useHistory();
   const { applicationId } = useParams<ReviewRoute>();
 
-  const { assessApplication, inProgress: isApplicationAssessInProgress } =
-    useAssessApplication();
+  const { assessApplication, inProgress: isApplicationAssessInProgress } = useAssessApplication();
 
   // Application and review
 
@@ -111,7 +101,7 @@ export const ApplicationReview: React.FC = () => {
 
   const startApplicationAssessment = () => {
     if (!application) {
-      console.log("Can not assess without an application");
+      console.log('Can not assess without an application');
       return;
     }
 
@@ -136,25 +126,22 @@ export const ApplicationReview: React.FC = () => {
         <Bullseye>
           <SimpleEmptyState
             icon={BanIcon}
-            title={t("message.couldNotFetchTitle")}
-            description={t("message.couldNotFetchBody") + "."}
+            title={t('message.couldNotFetchTitle')}
+            description={t('message.couldNotFetchBody') + '.'}
           />
         </Bullseye>
       </ApplicationReviewPage>
     );
   }
 
-  if (
-    !isFetching &&
-    (!assessment || (assessment && assessment.status !== "COMPLETE"))
-  ) {
+  if (!isFetching && (!assessment || (assessment && assessment.status !== 'COMPLETE'))) {
     return (
       <ApplicationReviewPage>
         <Bullseye>
           <SimpleEmptyState
             icon={InfoCircleIcon}
-            title={t("message.appNotAssesedTitle")}
-            description={t("message.appNotAssessedBody") + "."}
+            title={t('message.appNotAssesedTitle')}
+            description={t('message.appNotAssessedBody') + '.'}
             primaryAction={
               <>
                 {application && (
@@ -164,7 +151,7 @@ export const ApplicationReview: React.FC = () => {
                     isLoading={isApplicationAssessInProgress}
                     onClick={startApplicationAssessment}
                   >
-                    {t("actions.assess")}
+                    {t('actions.assess')}
                   </Button>
                 )}
               </>
@@ -184,10 +171,7 @@ export const ApplicationReview: React.FC = () => {
               <GridItem md={5}>
                 <div className="pf-c-form">
                   <FormSection>
-                    <ApplicationDetails
-                      application={application}
-                      assessment={assessment}
-                    />
+                    <ApplicationDetails application={application} assessment={assessment} />
                   </FormSection>
                   <FormSection>
                     <ReviewForm
@@ -213,7 +197,7 @@ export const ApplicationReview: React.FC = () => {
           <Card>
             <CardHeader>
               <TextContent>
-                <Text component="h3">{t("terms.assessmentSummary")}</Text>
+                <Text component="h3">{t('terms.assessmentSummary')}</Text>
               </TextContent>
             </CardHeader>
             <ApplicationAssessmentSummaryTable assessment={assessment} />

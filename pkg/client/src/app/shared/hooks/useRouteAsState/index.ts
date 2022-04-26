@@ -1,1 +1,1 @@
-export { useQueryString } from "./useQueryString";
+export { useQueryString } from './useQueryString';

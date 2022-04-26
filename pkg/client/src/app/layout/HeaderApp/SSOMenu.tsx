@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useKeycloak } from "@react-keycloak/web";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useKeycloak } from '@react-keycloak/web';
 import {
   Dropdown,
   DropdownGroup,
   DropdownItem,
   DropdownToggle,
   PageHeaderToolsItem,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 
 export const SSOMenu: React.FC = () => {
   const { t } = useTranslation();
@@ -25,8 +25,8 @@ export const SSOMenu: React.FC = () => {
   return (
     <PageHeaderToolsItem
       visibility={{
-        default: "hidden",
-        md: "visible",
+        default: 'hidden',
+        md: 'visible',
       }} /** this user dropdown is hidden on mobile sizes */
     >
       {keycloak && (
@@ -37,7 +37,7 @@ export const SSOMenu: React.FC = () => {
           isOpen={isDropdownOpen}
           toggle={
             <DropdownToggle onToggle={onDropdownToggle}>
-              {(keycloak.idTokenParsed as any)["preferred_username"]}
+              {(keycloak.idTokenParsed as any)['preferred_username']}
             </DropdownToggle>
           }
           dropdownItems={[
@@ -47,7 +47,7 @@ export const SSOMenu: React.FC = () => {
                 component="button"
                 onClick={() => keycloak.accountManagement()}
               >
-                {t("actions.manageAccount")}
+                {t('actions.manageAccount')}
               </DropdownItem>
               <DropdownItem
                 key="sso_logout"
@@ -55,7 +55,7 @@ export const SSOMenu: React.FC = () => {
                   keycloak.logout();
                 }}
               >
-                {t("actions.logout")}
+                {t('actions.logout')}
               </DropdownItem>
             </DropdownGroup>,
           ]}

@@ -1,17 +1,15 @@
-import React, { useMemo } from "react";
-import { Field } from "formik";
-import { Radio, Stack, StackItem } from "@patternfly/react-core";
+import React, { useMemo } from 'react';
+import { Field } from 'formik';
+import { Radio, Stack, StackItem } from '@patternfly/react-core';
 
-import { Question } from "@app/api/models";
-import { getQuestionFieldName } from "../../../form-utils";
+import { Question } from '@app/api/models';
+import { getQuestionFieldName } from '../../../form-utils';
 
 export interface MultiInputSelectionProps {
   question: Question;
 }
 
-export const MultiInputSelection: React.FC<MultiInputSelectionProps> = ({
-  question,
-}) => {
+export const MultiInputSelection: React.FC<MultiInputSelectionProps> = ({ question }) => {
   const sortedOptions = useMemo(() => {
     return (question.options || []).sort((a, b) => a.order - b.order);
   }, [question]);

@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { FormikHelpers, FormikProvider, useFormik } from "formik";
-import { AxiosError } from "axios";
+import React, { useEffect, useMemo, useState } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { FormikHelpers, FormikProvider, useFormik } from 'formik';
+import { AxiosError } from 'axios';
 import {
   Alert,
   AlertActionCloseButton,
@@ -10,35 +10,22 @@ import {
   ButtonVariant,
   Wizard,
   WizardStep,
-} from "@patternfly/react-core";
-import { BanIcon } from "@patternfly/react-icons/dist/esm/icons/ban-icon";
+} from '@patternfly/react-core';
+import { BanIcon } from '@patternfly/react-icons/dist/esm/icons/ban-icon';
 
-import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
-import { confirmDialogActions } from "@app/store/confirmDialog";
-import {
-  ConditionalRender,
-  SimpleEmptyState,
-  AppPlaceholder,
-} from "@app/shared/components";
+import { useDispatch } from 'react-redux';
+import { alertActions } from '@app/store/alert';
+import { confirmDialogActions } from '@app/store/confirmDialog';
+import { ConditionalRender, SimpleEmptyState, AppPlaceholder } from '@app/shared/components';
 
-import { AssessmentRoute, formatPath, Paths } from "@app/Paths";
-import {
-  Assessment,
-  AssessmentStatus,
-  Question,
-  QuestionnaireCategory,
-} from "@app/api/models";
-import {
-  getApplicationById,
-  getAssessmentById,
-  patchAssessment,
-} from "@app/api/rest";
+import { AssessmentRoute, formatPath, Paths } from '@app/Paths';
+import { Assessment, AssessmentStatus, Question, QuestionnaireCategory } from '@app/api/models';
+import { getApplicationById, getAssessmentById, patchAssessment } from '@app/api/rest';
 
-import { CustomWizardFooter } from "./components/custom-wizard-footer";
+import { CustomWizardFooter } from './components/custom-wizard-footer';
 
-import { StakeholdersForm } from "./components/stakeholders-form";
-import { QuestionnaireForm } from "./components/questionnaire-form";
+import { StakeholdersForm } from './components/stakeholders-form';
+import { QuestionnaireForm } from './components/questionnaire-form';
 
 import {
   COMMENTS_KEY,
@@ -48,11 +35,11 @@ import {
   QUESTIONS_KEY,
   SAVE_ACTION_KEY,
   SAVE_ACTION_VALUE,
-} from "./form-utils";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+} from './form-utils';
+import { getAxiosErrorMessage } from '@app/utils/utils';
 
-import { ApplicationAssessmentPage } from "./components/application-assessment-page";
-import { WizardStepNavDescription } from "./components/wizard-step-nav-description";
+import { ApplicationAssessmentPage } from './components/application-assessment-page';
+import { WizardStepNavDescription } from './components/wizard-step-nav-description';
 
 export const ApplicationAssessment: React.FC = () => {
   const { t } = useTranslation();
@@ -70,8 +57,7 @@ export const ApplicationAssessment: React.FC = () => {
 
   const [assessment, setAssessment] = useState<Assessment>();
   const [isFetchingAssessment, setIsFetchingAssessment] = useState(true);
-  const [fetchAssessmentError, setFetchAssessmentError] =
-    useState<AxiosError>();
+  const [fetchAssessmentError, setFetchAssessmentError] = useState<AxiosError>();
 
   useEffect(() => {
     if (assessmentId) {
@@ -104,11 +90,11 @@ export const ApplicationAssessment: React.FC = () => {
   const confirmAndRedirectToApplications = () => {
     dispatch(
       confirmDialogActions.openDialog({
-        title: t("dialog.title.leavePage"),
-        message: t("dialog.message.leavePage"),
+        title: t('dialog.title.leavePage'),
+        message: t('dialog.message.leavePage'),
         confirmBtnVariant: ButtonVariant.primary,
-        confirmBtnLabel: t("actions.continue"),
-        cancelBtnLabel: t("actions.cancel"),
+        confirmBtnLabel: t('actions.continue'),
+        cancelBtnLabel: t('actions.cancel'),
         onConfirm: () => {
           dispatch(confirmDialogActions.closeDialog());
           redirectToApplications();
@@ -120,41 +106,39 @@ export const ApplicationAssessment: React.FC = () => {
   // Formik
 
   const initialComments = useMemo(() => {
-    let comments: { [key: string]: string } = {};
+    const comments: { [key: string]: string } = {};
     if (assessment) {
       assessment.questionnaire.categories.forEach((category) => {
-        comments[getCommentFieldName(category, false)] = category.comment || "";
+        comments[getCommentFieldName(category, false)] = category.comment || '';
       });
     }
     return comments;
   }, [assessment]);
 
   const initialQuestions = useMemo(() => {
-    let questions: { [key: string]: number | undefined } = {};
+    const questions: { [key: string]: number | undefined } = {};
     if (assessment) {
       assessment.questionnaire.categories
         .flatMap((f) => f.questions)
         .forEach((question) => {
-          questions[getQuestionFieldName(question, false)] =
-            question.options.find((f) => f.checked === true)?.id;
+          questions[getQuestionFieldName(question, false)] = question.options.find(
+            (f) => f.checked === true
+          )?.id;
         });
     }
     return questions;
   }, [assessment]);
 
-  const onSubmit = (
-    formValues: IFormValues,
-    formikHelpers: FormikHelpers<IFormValues>
-  ) => {
+  const onSubmit = (formValues: IFormValues, formikHelpers: FormikHelpers<IFormValues>) => {
     if (!assessment) {
-      console.log("An assessment must exist in order to save the form");
+      console.log('An assessment must exist in order to save the form');
       formikHelpers.setSubmitting(false);
       return;
     }
 
     const saveAction = formValues[SAVE_ACTION_KEY];
     const assessmentStatus: AssessmentStatus =
-      saveAction !== SAVE_ACTION_VALUE.SAVE_AS_DRAFT ? "COMPLETE" : "STARTED";
+      saveAction !== SAVE_ACTION_VALUE.SAVE_AS_DRAFT ? 'COMPLETE' : 'STARTED';
 
     const payload: Assessment = {
       ...assessment,
@@ -232,7 +216,7 @@ export const ApplicationAssessment: React.FC = () => {
       // Only validations for Fields that depends on others should go here.
       // Individual field's validation should be defined within each Field
       if (values.stakeholders.length + values.stakeholderGroups.length <= 0) {
-        const errorMsg = t("validation.minOneStakeholderOrGroupRequired");
+        const errorMsg = t('validation.minOneStakeholderOrGroupRequired');
         return {
           stakeholders: errorMsg,
           stakeholderGroups: errorMsg,
@@ -280,14 +264,12 @@ export const ApplicationAssessment: React.FC = () => {
     );
   };
 
-  const maxCategoryWithData = [...sortedCategories]
-    .reverse()
-    .find((category) => {
-      return (
-        category.questions.some((question) => questionHasValue(question)) ||
-        commentMinLenghtIs1(category)
-      );
-    });
+  const maxCategoryWithData = [...sortedCategories].reverse().find((category) => {
+    return (
+      category.questions.some((question) => questionHasValue(question)) ||
+      commentMinLenghtIs1(category)
+    );
+  });
   const canJumpTo = maxCategoryWithData
     ? sortedCategories.findIndex((f) => f.id === maxCategoryWithData.id) + 1
     : 0;
@@ -298,8 +280,8 @@ export const ApplicationAssessment: React.FC = () => {
     {
       id: 0,
       // t('terms.stakeholders')
-      name: t("composed.selectMany", {
-        what: t("terms.stakeholders").toLowerCase(),
+      name: t('composed.selectMany', {
+        what: t('terms.stakeholders').toLowerCase(),
       }),
       component: <StakeholdersForm />,
       canJumpTo: 0 === currentStep || !disableNavigation,
@@ -314,9 +296,7 @@ export const ApplicationAssessment: React.FC = () => {
           children: <WizardStepNavDescription category={category} />,
         },
         component: <QuestionnaireForm key={category.id} category={category} />,
-        canJumpTo:
-          stepIndex === currentStep ||
-          (stepIndex <= canJumpTo && !disableNavigation),
+        canJumpTo: stepIndex === currentStep || (stepIndex <= canJumpTo && !disableNavigation),
         enableNext: shouldNextBtnBeEnabled(category),
       } as WizardStep;
     }),
@@ -329,9 +309,7 @@ export const ApplicationAssessment: React.FC = () => {
       isDisabled={formik.isSubmitting || formik.isValidating}
       isFormInvalid={!formik.isValid}
       onSave={(review) => {
-        const saveActionValue = review
-          ? SAVE_ACTION_VALUE.SAVE_AND_REVIEW
-          : SAVE_ACTION_VALUE.SAVE;
+        const saveActionValue = review ? SAVE_ACTION_VALUE.SAVE_AND_REVIEW : SAVE_ACTION_VALUE.SAVE;
 
         formik.setFieldValue(SAVE_ACTION_KEY, saveActionValue);
         formik.submitForm();
@@ -349,8 +327,8 @@ export const ApplicationAssessment: React.FC = () => {
         <Bullseye>
           <SimpleEmptyState
             icon={BanIcon}
-            title={t("message.couldNotFetchTitle")}
-            description={t("message.couldNotFetchBody") + "."}
+            title={t('message.couldNotFetchTitle')}
+            description={t('message.couldNotFetchBody') + '.'}
           />
         </Bullseye>
       </ApplicationAssessmentPage>
@@ -364,9 +342,7 @@ export const ApplicationAssessment: React.FC = () => {
           variant="danger"
           isInline
           title={getAxiosErrorMessage(saveError)}
-          actionClose={
-            <AlertActionCloseButton onClose={() => setSaveError(undefined)} />
-          }
+          actionClose={<AlertActionCloseButton onClose={() => setSaveError(undefined)} />}
         />
       )}
       <ConditionalRender when={isFetchingAssessment} then={<AppPlaceholder />}>

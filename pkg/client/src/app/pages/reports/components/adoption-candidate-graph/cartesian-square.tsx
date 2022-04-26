@@ -1,7 +1,7 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { ChartAxis } from "@patternfly/react-charts";
-import { VictoryTheme, BlockProps } from "victory-core";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { ChartAxis } from '@patternfly/react-charts';
+import { VictoryTheme, BlockProps } from 'victory-core';
 
 interface ICartesianSquareProps {
   height: number;
@@ -9,11 +9,7 @@ interface ICartesianSquareProps {
   padding?: BlockProps;
 }
 
-export const CartesianSquare: React.FC<ICartesianSquareProps> = ({
-  height,
-  width,
-  padding,
-}) => {
+export const CartesianSquare: React.FC<ICartesianSquareProps> = ({ height, width, padding }) => {
   const { t } = useTranslation();
 
   // Quadrants
@@ -31,16 +27,16 @@ export const CartesianSquare: React.FC<ICartesianSquareProps> = ({
       <g>
         <g>
           <text x={leftX} y={topY}>
-            {t("terms.impactfulButNotAdvisableToMove")}
+            {t('terms.impactfulButNotAdvisableToMove')}
           </text>
           <text x={`${rightX - 180}`} y={topY}>
-            {t("terms.impactfulButMigratable")}
+            {t('terms.impactfulButMigratable')}
           </text>
           <text x={leftX} y={bottomY}>
-            {t("terms.inadvisable")}
+            {t('terms.inadvisable')}
           </text>
           <text x={`${rightX - 150}`} y={bottomY}>
-            {t("terms.trivialButMigratable")}
+            {t('terms.trivialButMigratable')}
           </text>
         </g>
       </g>

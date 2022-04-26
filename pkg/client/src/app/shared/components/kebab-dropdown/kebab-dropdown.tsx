@@ -1,14 +1,12 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import { Dropdown, KebabToggle } from "@patternfly/react-core";
+import { Dropdown, KebabToggle } from '@patternfly/react-core';
 
 export interface IKebabDropdownProps {
   dropdownItems?: any[];
 }
 
-export const KebabDropdown: React.FC<IKebabDropdownProps> = ({
-  dropdownItems,
-}) => {
+export const KebabDropdown: React.FC<IKebabDropdownProps> = ({ dropdownItems }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const onKebabToggle = (isOpen: boolean) => {

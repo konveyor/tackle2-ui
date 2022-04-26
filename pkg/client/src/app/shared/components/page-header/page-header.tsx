@@ -1,15 +1,8 @@
-import React from "react";
-import {
-  Stack,
-  StackItem,
-  Split,
-  SplitItem,
-  TextContent,
-  Text,
-} from "@patternfly/react-core";
-import { BreadCrumbPath } from "../breadcrumb-path";
-import { MenuActions } from "../menu-actions";
-import { HorizontalNav } from "../horizontal-nav/horizontal-nav";
+import React from 'react';
+import { Stack, StackItem, Split, SplitItem, TextContent, Text } from '@patternfly/react-core';
+import { BreadCrumbPath } from '../breadcrumb-path';
+import { MenuActions } from '../menu-actions';
+import { HorizontalNav } from '../horizontal-nav/horizontal-nav';
 
 export interface PageHeaderProps {
   title: string;

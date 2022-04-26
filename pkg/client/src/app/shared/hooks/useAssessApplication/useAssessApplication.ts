@@ -1,8 +1,8 @@
-import { useCallback, useState } from "react";
-import { AxiosError } from "axios";
+import { useCallback, useState } from 'react';
+import { AxiosError } from 'axios';
 
-import { createAssessment, getAssessments } from "@app/api/rest";
-import { Application, Assessment } from "@app/api/models";
+import { createAssessment, getAssessments } from '@app/api/rest';
+import { Application, Assessment } from '@app/api/models';
 
 export interface IState {
   inProgress: boolean;
@@ -35,9 +35,7 @@ export const useAssessApplication = (): IState => {
       setInProgress(true);
       getAssessments({ applicationId: application.id })
         .then(({ data }) => {
-          const currentAssessment: Assessment | undefined = data[0]
-            ? data[0]
-            : undefined;
+          const currentAssessment: Assessment | undefined = data[0] ? data[0] : undefined;
 
           setInProgress(false);
           onSuccess(currentAssessment);

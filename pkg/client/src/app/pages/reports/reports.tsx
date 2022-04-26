@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   Bullseye,
@@ -24,41 +24,32 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
-} from "@patternfly/react-core";
-import { HelpIcon } from "@patternfly/react-icons/dist/esm/icons/help-icon";
+} from '@patternfly/react-core';
+import { HelpIcon } from '@patternfly/react-icons/dist/esm/icons/help-icon';
 
-import {
-  AppPlaceholder,
-  ConditionalRender,
-  StateError,
-} from "@app/shared/components";
+import { AppPlaceholder, ConditionalRender, StateError } from '@app/shared/components';
 
-import { Application, ApplicationPage, Identity } from "@app/api/models";
+import { Application, ApplicationPage, Identity } from '@app/api/models';
 
-import { ApplicationSelectionContextProvider } from "./application-selection-context";
-import { Landscape } from "./components/landscape";
-import { AdoptionCandidateTable } from "./components/adoption-candidate-table";
-import { AdoptionPlan } from "./components/adoption-plan";
-import { IdentifiedRisksTable } from "./components/identified-risks-table";
-import { AdoptionCandidateGraph } from "./components/adoption-candidate-graph/adoption-candidate-graph";
-import { useFetchApplications } from "@app/queries/applications";
-import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import { useSortState } from "@app/shared/hooks/useSortState";
-import { useSelectionState } from "@konveyor/lib-ui";
+import { ApplicationSelectionContextProvider } from './application-selection-context';
+import { Landscape } from './components/landscape';
+import { AdoptionCandidateTable } from './components/adoption-candidate-table';
+import { AdoptionPlan } from './components/adoption-plan';
+import { IdentifiedRisksTable } from './components/identified-risks-table';
+import { AdoptionCandidateGraph } from './components/adoption-candidate-graph/adoption-candidate-graph';
+import { useFetchApplications } from '@app/queries/applications';
+import { FilterCategory, FilterToolbar, FilterType } from '@app/shared/components/FilterToolbar';
+import { useFilterState } from '@app/shared/hooks/useFilterState';
+import { usePaginationState } from '@app/shared/hooks/usePaginationState';
+import { useSortState } from '@app/shared/hooks/useSortState';
+import { useSelectionState } from '@konveyor/lib-ui';
 
 export const Reports: React.FC = () => {
   // i18
   const { t } = useTranslation();
 
   // Cards
-  const [isAdoptionCandidateTable, setIsAdoptionCandidateTable] =
-    useState(true);
+  const [isAdoptionCandidateTable, setIsAdoptionCandidateTable] = useState(true);
   const [isAdoptionPlanOpen, setAdoptionPlanOpen] = useState(false);
   const [isRiskCardOpen, setIsRiskCardOpen] = useState(false);
 
@@ -66,7 +57,7 @@ export const Reports: React.FC = () => {
   const pageHeaderSection = (
     <PageSection variant={PageSectionVariants.light}>
       <TextContent>
-        <Text component="h1">{t("terms.reports")}</Text>
+        <Text component="h1">{t('terms.reports')}</Text>
       </TextContent>
     </PageSection>
   );
@@ -87,15 +78,13 @@ export const Reports: React.FC = () => {
       {pageHeaderSection}
       <PageSection>
         <ConditionalRender when={isFetching} then={<AppPlaceholder />}>
-          <ApplicationSelectionContextProvider
-            applications={applications || []}
-          >
+          <ApplicationSelectionContextProvider applications={applications || []}>
             <Stack hasGutter>
               <StackItem>
                 <Card>
                   <CardHeader>
                     <TextContent>
-                      <Text component="h3">{t("terms.currentLandscape")}</Text>
+                      <Text component="h3">{t('terms.currentLandscape')}</Text>
                     </TextContent>
                   </CardHeader>
                   <CardBody>
@@ -112,7 +101,7 @@ export const Reports: React.FC = () => {
                       <ToggleGroup>
                         <ToggleGroupItem
                           key={0}
-                          text={t("terms.tableView")}
+                          text={t('terms.tableView')}
                           isSelected={isAdoptionCandidateTable}
                           onChange={() => {
                             setIsAdoptionCandidateTable(true);
@@ -120,7 +109,7 @@ export const Reports: React.FC = () => {
                         />
                         <ToggleGroupItem
                           key={1}
-                          text={t("terms.graphView")}
+                          text={t('terms.graphView')}
                           isSelected={!isAdoptionCandidateTable}
                           onChange={() => {
                             setIsAdoptionCandidateTable(false);
@@ -130,9 +119,7 @@ export const Reports: React.FC = () => {
                     </CardActions>
                     <CardTitle>
                       <TextContent>
-                        <Text component="h3">
-                          {t("terms.adoptionCandidateDistribution")}
-                        </Text>
+                        <Text component="h3">{t('terms.adoptionCandidateDistribution')}</Text>
                       </TextContent>
                     </CardTitle>
                   </CardHeader>
@@ -147,27 +134,19 @@ export const Reports: React.FC = () => {
               </StackItem>
               <StackItem>
                 <Card isExpanded={isAdoptionPlanOpen}>
-                  <CardHeader
-                    onExpand={() => setAdoptionPlanOpen((current) => !current)}
-                  >
+                  <CardHeader onExpand={() => setAdoptionPlanOpen((current) => !current)}>
                     <CardTitle>
                       <Split style={{ marginTop: -5 }}>
                         <SplitItem>
                           <Bullseye style={{ marginTop: -3 }}>
                             <TextContent>
-                              <Text component="h3">
-                                {t("terms.suggestedAdoptionPlan")}
-                              </Text>
+                              <Text component="h3">{t('terms.suggestedAdoptionPlan')}</Text>
                             </TextContent>
                           </Bullseye>
                         </SplitItem>
                         <SplitItem>
                           <Popover
-                            bodyContent={
-                              <div>
-                                {t("message.suggestedAdoptionPlanHelpText")}
-                              </div>
-                            }
+                            bodyContent={<div>{t('message.suggestedAdoptionPlanHelpText')}</div>}
                             position="right"
                           >
                             <button
@@ -184,7 +163,7 @@ export const Reports: React.FC = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardExpandableContent>
-                    <CardBody style={{ maxHeight: 700, overflowY: "auto" }}>
+                    <CardBody style={{ maxHeight: 700, overflowY: 'auto' }}>
                       {isAdoptionPlanOpen && <AdoptionPlan />}
                     </CardBody>
                   </CardExpandableContent>
@@ -192,17 +171,13 @@ export const Reports: React.FC = () => {
               </StackItem>
               <StackItem>
                 <Card isExpanded={isRiskCardOpen}>
-                  <CardHeader
-                    onExpand={() => setIsRiskCardOpen((current) => !current)}
-                  >
+                  <CardHeader onExpand={() => setIsRiskCardOpen((current) => !current)}>
                     <CardTitle>
                       <Split style={{ marginTop: -3 }}>
                         <SplitItem>
                           <Bullseye>
                             <TextContent>
-                              <Text component="h3">
-                                {t("terms.identifiedRisks")}
-                              </Text>
+                              <Text component="h3">{t('terms.identifiedRisks')}</Text>
                             </TextContent>
                           </Bullseye>
                         </SplitItem>
@@ -210,9 +185,7 @@ export const Reports: React.FC = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardExpandableContent>
-                    <CardBody>
-                      {isRiskCardOpen && <IdentifiedRisksTable />}
-                    </CardBody>
+                    <CardBody>{isRiskCardOpen && <IdentifiedRisksTable />}</CardBody>
                   </CardExpandableContent>
                 </Card>
               </StackItem>

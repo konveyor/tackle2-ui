@@ -1,1 +1,1 @@
-export { ApplicationToolbarToggleGroup } from "./application-toolbar-toggle-group";
+export { ApplicationToolbarToggleGroup } from './application-toolbar-toggle-group';

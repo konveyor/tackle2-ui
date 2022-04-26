@@ -1,1 +1,1 @@
-export { AppTableActionButtons } from "./app-table-action-buttons";
+export { AppTableActionButtons } from './app-table-action-buttons';
