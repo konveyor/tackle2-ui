@@ -4,8 +4,12 @@ import { deleteIdentity } from "@app/api/rest";
 import {
   Button,
   ButtonVariant,
+  PageSection,
+  PageSectionVariants,
+  TextContent,
   ToolbarGroup,
   ToolbarItem,
+  Text,
 } from "@patternfly/react-core";
 import {
   cellWidth,
@@ -240,66 +244,73 @@ export const Identities: React.FunctionComponent = () => {
 
   return (
     <>
-      <ConditionalRender
-        when={isFetching && !(identities || fetchErrorIdentities)}
-        then={<AppPlaceholder />}
-      >
-        <AppTableWithControls
-          count={identities ? identities.length : 0}
-          sortBy={sortBy}
-          onSort={onSort}
-          cells={columns}
-          rows={rows}
-          isLoading={isFetching}
-          loadingVariant="skeleton"
-          fetchError={fetchErrorIdentities}
-          toolbarClearAllFilters={handleOnClearAllFilters}
-          toolbarActions={
-            <ToolbarGroup variant="button-group">
-              <ToolbarItem>
-                <Button
-                  isSmall
-                  onClick={openCreateIdentityModal}
-                  variant="primary"
-                  id="create-credential-button"
-                >
-                  Create new
-                </Button>
-              </ToolbarItem>
-            </ToolbarGroup>
-          }
-          noDataState={
-            <NoDataEmptyState
-              title={t("composed.noDataStateTitle", {
-                what: "credentials",
-              })}
-              description={
-                t("composed.noDataStateBody", {
-                  what: "credential",
-                }) + "."
-              }
-            />
-          }
-          paginationProps={paginationProps}
-          toolbarToggle={
-            <FilterToolbar<Identity>
-              filterCategories={filterCategories}
-              filterValues={filterValues}
-              setFilterValues={setFilterValues}
-            />
-          }
+      <PageSection variant={PageSectionVariants.light}>
+        <TextContent>
+          <Text component="h1">{t("terms.credentials")}</Text>
+        </TextContent>
+      </PageSection>
+      <PageSection>
+        <ConditionalRender
+          when={isFetching && !(identities || fetchErrorIdentities)}
+          then={<AppPlaceholder />}
+        >
+          <AppTableWithControls
+            count={identities ? identities.length : 0}
+            sortBy={sortBy}
+            onSort={onSort}
+            cells={columns}
+            rows={rows}
+            isLoading={isFetching}
+            loadingVariant="skeleton"
+            fetchError={fetchErrorIdentities}
+            toolbarClearAllFilters={handleOnClearAllFilters}
+            toolbarActions={
+              <ToolbarGroup variant="button-group">
+                <ToolbarItem>
+                  <Button
+                    isSmall
+                    onClick={openCreateIdentityModal}
+                    variant="primary"
+                    id="create-credential-button"
+                  >
+                    Create new
+                  </Button>
+                </ToolbarItem>
+              </ToolbarGroup>
+            }
+            noDataState={
+              <NoDataEmptyState
+                title={t("composed.noDataStateTitle", {
+                  what: "credentials",
+                })}
+                description={
+                  t("composed.noDataStateBody", {
+                    what: "credential",
+                  }) + "."
+                }
+              />
+            }
+            paginationProps={paginationProps}
+            toolbarToggle={
+              <FilterToolbar<Identity>
+                filterCategories={filterCategories}
+                filterValues={filterValues}
+                setFilterValues={setFilterValues}
+              />
+            }
+          />
+        </ConditionalRender>
+        <NewIdentityModal
+          isOpen={isIdentityModalOpen}
+          onSaved={handleOnIdentityCreated}
+          onCancel={closeIdentityModal}
         />
-      </ConditionalRender>
-      <NewIdentityModal
-        isOpen={isIdentityModalOpen}
-        onSaved={handleOnIdentityCreated}
-        onCancel={closeIdentityModal}
-      />
-      <UpdateIdentityModal
-        identity={rowToUpdate}
-        onSaved={handleOnIdentityUpdated}
-        onCancel={handleOnCancelUpdateIdentity}
-      />
+        <UpdateIdentityModal
+          identity={rowToUpdate}
+          onSaved={handleOnIdentityUpdated}
+          onCancel={handleOnCancelUpdateIdentity}
+        />
+      </PageSection>
     </>
   );
 };
