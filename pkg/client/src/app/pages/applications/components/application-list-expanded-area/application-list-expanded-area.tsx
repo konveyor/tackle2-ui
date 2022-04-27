@@ -38,7 +38,7 @@ export const ApplicationListExpandedArea: React.FC<
       (review) => review.id === application?.review?.id
     );
     setAppReview(appReview);
-  }, []);
+  }, [reviews]);
 
   const reviewToShown = appReview
     ? {
