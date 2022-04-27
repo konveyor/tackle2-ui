@@ -78,6 +78,7 @@ import {
   getApplicationsFilterValues,
 } from "../applicationsFilter";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
+import { useFetchTags } from "@app/queries/tags";
 
 const ENTITY_FIELD = "entity";
 
@@ -130,6 +131,8 @@ export const ApplicationsTable: React.FC = () => {
   const { applications, isFetching, fetchError, refetch } =
     useFetchApplications();
 
+  const { tags } = useFetchTags();
+
   const {
     paginationProps,
     sortBy,
@@ -141,7 +144,8 @@ export const ApplicationsTable: React.FC = () => {
     currentPageItems,
   } = getApplicationsFilterValues(
     applications,
-    ApplicationTableType.Assessment
+    ApplicationTableType.Assessment,
+    tags
   );
 
   // Create and update modal
