@@ -82,7 +82,7 @@ export const ToolbarBulkSelector: React.FC<IToolbarBulkSelectorProps> = ({
       key="select-none"
       component="button"
     >
-      Select none (0)
+      {t("actions.selectNone")} (0 items)
     </DropdownItem>,
     <DropdownItem
       onClick={() => {
@@ -95,7 +95,7 @@ export const ToolbarBulkSelector: React.FC<IToolbarBulkSelectorProps> = ({
       key="select-page"
       component="button"
     >
-      Select page ({currentPageItems.length})
+      {t("actions.selectPage")} ({currentPageItems.length} items)
     </DropdownItem>,
     <DropdownItem
       onClick={() => {
@@ -105,7 +105,7 @@ export const ToolbarBulkSelector: React.FC<IToolbarBulkSelectorProps> = ({
       key="select-all"
       component="button"
     >
-      Select all ({paginationProps.itemCount})
+      {t("actions.selectAll")} ({paginationProps.itemCount})
     </DropdownItem>,
   ];
 
@@ -138,7 +138,13 @@ export const ToolbarBulkSelector: React.FC<IToolbarBulkSelectorProps> = ({
           }
           isOpen={bulkSelectOpen}
           dropdownItems={dropdownItems}
-        />
+        >
+          {selectedRows !== 0 && (
+            <>
+              {selectedRows} {t("terms.selected").toLowerCase()}
+            </>
+          )}
+        </Dropdown>
       </ToolbarItem>
     </>
   );
