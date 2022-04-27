@@ -174,7 +174,7 @@ export const SetOptions: React.FunctionComponent = () => {
           label="Excluded rules tags"
           fieldId="ruleTagToExclude"
           validated={getValidatedFromError(errors.ruleTagToExclude)}
-          helperTextInvalid={errors?.ruleTagToExclude?.message as string}
+          helperTextInvalid={errors?.ruleTagToExclude?.message}
         >
           <InputGroup>
             <TextInput
