@@ -9,19 +9,14 @@ export interface IReviewFetchState {
   reviews: Review[];
   isFetching: boolean;
   fetchError: any;
-}
-
-export interface IReviewMutateState {
-  mutate: any;
-  isLoading: boolean;
-  error: any;
+  refetch: any;
 }
 
 export const reviewsQueryKey = "reviews";
 
 export const useFetchReviews = (): IReviewFetchState => {
   const [reviews, setReviews] = React.useState<Review[]>([]);
-  const { isLoading, error } = useQuery(reviewsQueryKey, () =>
+  const { isLoading, error, refetch } = useQuery(reviewsQueryKey, () =>
     getReviews()
       .then(({ data }) => {
         setReviews(data);
@@ -36,5 +31,6 @@ export const useFetchReviews = (): IReviewFetchState => {
     reviews,
     isFetching: isLoading,
     fetchError: error,
+    refetch,
   };
 };

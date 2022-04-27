@@ -211,6 +211,7 @@ export const ApplicationsTable: React.FC = () => {
     isFetching: isFetchingReviews,
     fetchError: fetchErrorReviews,
   } = useFetchReviews();
+
   const [appReview, setAppReview] = useState<Review>();
   useEffect(() => {
     const appReview = reviews?.find(
@@ -382,7 +383,7 @@ export const ApplicationsTable: React.FC = () => {
       fullWidth: false,
       cells: [
         <div className="pf-c-table__expandable-row-content">
-          <ApplicationListExpandedArea application={item} />
+          <ApplicationListExpandedArea application={item} reviews={reviews} />
         </div>,
       ],
     });
@@ -459,7 +460,7 @@ export const ApplicationsTable: React.FC = () => {
             rowData: IRowData
           ) => {
             const row: Application = getRow(rowData);
-            const applicationsList = [];
+            const applicationsList: Application[] = [];
             applicationsList.push(row);
             openCredentialsModal(applicationsList);
           },

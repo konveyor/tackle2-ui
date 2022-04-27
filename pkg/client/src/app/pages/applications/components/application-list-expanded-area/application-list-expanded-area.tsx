@@ -20,28 +20,25 @@ import { useFetchReviews } from "@app/queries/reviews";
 
 export interface IApplicationListExpandedAreaProps {
   application: Application;
+  reviews: Review[];
 }
 
 export const ApplicationListExpandedArea: React.FC<
   IApplicationListExpandedAreaProps
-> = ({ application }) => {
+> = ({ application, reviews }) => {
   const { t } = useTranslation();
 
   const notYetReviewed = (
     <EmptyTextMessage message={t("terms.notYetReviewed")} />
   );
-  const {
-    reviews,
-    isFetching: isFetchingReviews,
-    fetchError: fetchErrorReviews,
-  } = useFetchReviews();
+
   const [appReview, setAppReview] = useState<Review>();
   useEffect(() => {
     const appReview = reviews?.find(
       (review) => review.id === application?.review?.id
     );
     setAppReview(appReview);
-  }, [application, reviews]);
+  }, []);
 
   const reviewToShown = appReview
     ? {
