@@ -44,6 +44,7 @@ import {
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { CartesianSquare } from "./cartesian-square";
 import { Arrow } from "./arrow";
+import { useFetchReviews } from "@app/queries/reviews";
 
 interface Line {
   from: LinePoint;
@@ -168,6 +169,12 @@ export const AdoptionCandidateGraph: React.FC = () => {
     fetchAllDependencies({});
   }, [fetchAllDependencies]);
 
+  const {
+    reviews,
+    isFetching: isFetchingReviews,
+    fetchError: fetchErrorReviews,
+  } = useFetchReviews();
+
   // Chart data
   const legendAndPoints: ProposedActionChartDataListType = useMemo(() => {
     if (!confidences) {
@@ -178,16 +185,19 @@ export const AdoptionCandidateGraph: React.FC = () => {
       const appConfidence = confidences.find(
         (elem) => elem.applicationId === current.id
       );
+      const appReview = reviews?.find(
+        (review) => review.id === current?.review?.id
+      );
 
-      if (appConfidence && current.review) {
-        const key = current.review.proposedAction;
-        const value = prev[current.review.proposedAction];
+      if (appConfidence && appReview) {
+        const key = appReview.proposedAction;
+        const value = prev[appReview.proposedAction];
 
         // Create new datapoint
-        const effortData = EFFORT_ESTIMATE_LIST[current.review.effortEstimate];
+        const effortData = EFFORT_ESTIMATE_LIST[appReview.effortEstimate];
         const datapoint: LinePoint = {
           x: appConfidence.confidence,
-          y: current.review.businessCriticality,
+          y: appReview.businessCriticality,
           size: effortData ? effortData.size : 0,
           application: { ...current },
         };

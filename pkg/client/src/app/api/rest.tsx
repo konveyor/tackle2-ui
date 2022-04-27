@@ -40,7 +40,7 @@ export const TAGS = HUB + "/tags";
 
 export const APPLICATIONS = HUB + "/applications";
 export const APPLICATION_DEPENDENCY = HUB + "/dependencies";
-export const REVIEW = HUB + "/reviews";
+export const REVIEWS = HUB + "/reviews";
 export const REPORT = HUB + "/reports";
 export const UPLOAD_FILE = HUB + "/importsummaries/upload";
 export const APP_IMPORT_SUMMARY = HUB + "/importsummaries";
@@ -281,20 +281,24 @@ export const deleteApplicationDependency = (id: number): AxiosPromise => {
 
 //
 
+export const getReviews = (): AxiosPromise<Review[]> => {
+  return APIClient.get(`${REVIEWS}`);
+};
+
 export const getReviewId = (id: number | string): AxiosPromise<Review> => {
-  return APIClient.get(`${REVIEW}/${id}`);
+  return APIClient.get(`${REVIEWS}/${id}`);
 };
 
 export const createReview = (obj: Review): AxiosPromise<Review> => {
-  return APIClient.post(`${REVIEW}`, obj);
+  return APIClient.post(`${REVIEWS}`, obj);
 };
 
 export const updateReview = (obj: Review): AxiosPromise<Review> => {
-  return APIClient.put(`${REVIEW}/${obj.id}`, obj);
+  return APIClient.put(`${REVIEWS}/${obj.id}`, obj);
 };
 
 export const deleteReview = (id: number): AxiosPromise => {
-  return APIClient.delete(`${REVIEW}/${id}`);
+  return APIClient.delete(`${REVIEWS}/${id}`);
 };
 
 export const getApplicationAdoptionPlan = (
@@ -336,11 +340,11 @@ export const getApplicationSummaryCSV = (id: string): AxiosPromise => {
 export const createBulkCopyReview = (
   bulk: BulkCopyReview
 ): AxiosPromise<BulkCopyReview> => {
-  return APIClient.post<BulkCopyReview>(`${REVIEW}/bulk`, bulk);
+  return APIClient.post<BulkCopyReview>(`${REVIEWS}/bulk`, bulk);
 };
 
 export const getBulkCopyReview = (id: number): AxiosPromise<BulkCopyReview> => {
-  return APIClient.get<BulkCopyReview>(`${REVIEW}/bulk/${id}`);
+  return APIClient.get<BulkCopyReview>(`${REVIEWS}/bulk/${id}`);
 };
 
 //

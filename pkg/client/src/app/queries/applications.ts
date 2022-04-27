@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
 
 import { Application } from "@app/api/models";
 import {
@@ -9,6 +14,7 @@ import {
   updateApplication,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
+import { reviewsQueryKey } from "./reviews";
 
 export interface IApplicationMutateState {
   mutate: any;
@@ -19,11 +25,15 @@ export const ApplicationsQueryKey = "applications";
 
 export const useFetchApplications = () => {
   const [applications, setApplications] = useState<Application[]>([]);
+  const queryClient = useQueryClient();
   const { isLoading, error, refetch } = useQuery(
     ApplicationsQueryKey,
     getApplicationsQuery,
     {
-      onSuccess: (data: Application[]) => setApplications(data),
+      onSuccess: (data: Application[]) => {
+        setApplications(data);
+        queryClient.invalidateQueries(reviewsQueryKey);
+      },
       onError: (err: Error) => {
         console.log(error);
       },

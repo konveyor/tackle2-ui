@@ -54,7 +54,7 @@ import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 
 import { formatPath, Paths } from "@app/Paths";
 
-import { Application, Assessment } from "@app/api/models";
+import { Application, Assessment, Review } from "@app/api/models";
 import { deleteAssessment, deleteReview, getAssessments } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
@@ -79,6 +79,7 @@ import {
 } from "../applicationsFilter";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
 import { useFetchTags } from "@app/queries/tags";
+import { useFetchReviews } from "@app/queries/reviews";
 
 const ENTITY_FIELD = "entity";
 
@@ -204,6 +205,21 @@ export const ApplicationsTable: React.FC = () => {
     update: openCopyAssessmentAndReviewModal,
     close: closeCopyAssessmentAndReviewModal,
   } = useEntityModal<Application>();
+
+  const {
+    reviews,
+    isFetching: isFetchingReviews,
+    fetchError: fetchErrorReviews,
+  } = useFetchReviews();
+
+  const [appReview, setAppReview] = useState<Review>();
+  useEffect(() => {
+    const appReview = reviews?.find(
+      (review) =>
+        review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
+    );
+    setAppReview(appReview);
+  }, [applicationToCopyAssessmentAndReviewFrom, reviews]);
 
   // Dependencies modal
   const {
@@ -367,7 +383,7 @@ export const ApplicationsTable: React.FC = () => {
       fullWidth: false,
       cells: [
         <div className="pf-c-table__expandable-row-content">
-          <ApplicationListExpandedArea application={item} />
+          <ApplicationListExpandedArea application={item} reviews={reviews} />
         </div>,
       ],
     });
@@ -444,7 +460,7 @@ export const ApplicationsTable: React.FC = () => {
             rowData: IRowData
           ) => {
             const row: Application = getRow(rowData);
-            const applicationsList = [];
+            const applicationsList: Application[] = [];
             applicationsList.push(row);
             openCredentialsModal(applicationsList);
           },
@@ -843,7 +859,7 @@ export const ApplicationsTable: React.FC = () => {
                 applicationToCopyAssessmentAndReviewFrom.id!
               )!
             }
-            review={applicationToCopyAssessmentAndReviewFrom.review}
+            review={appReview}
             onSaved={closeCopyAssessmentAndReviewModal}
           />
         )}
