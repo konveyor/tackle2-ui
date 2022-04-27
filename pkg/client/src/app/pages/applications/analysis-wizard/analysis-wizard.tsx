@@ -311,6 +311,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           id: stepId.Options,
           name: "Options",
           component: <SetOptions />,
+          enableNext: targets.length > 0,
           canJumpTo: stepIdReached >= stepId.Options,
         },
       ],
