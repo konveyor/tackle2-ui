@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const app = express(),
   bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 
 const setupProxy = require("./setupProxy");
 
@@ -9,6 +10,7 @@ const port = 8080;
 
 const helpers = require('./helpers');
 console.log('getEnv', helpers.getEnv())
+app.use(cookieParser());
 
 setupProxy(app);
 
