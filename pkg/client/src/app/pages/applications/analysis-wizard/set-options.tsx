@@ -8,14 +8,14 @@ import {
   SelectOption,
   SelectVariant,
   Text,
-  TextArea,
   TextContent,
+  TextInput,
   Title,
 } from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
+import { useForm, useFormContext } from "react-hook-form";
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { SimpleSelect } from "@app/shared/components";
+import { getValidatedFromError } from "@app/utils/utils";
 
 const defaultTargets = [
   "camel",
@@ -92,13 +92,18 @@ const defaultSources = [
 
 export const SetOptions: React.FunctionComponent = () => {
   const { getValues, setValue } = useFormContext();
+  const {
+    register,
+    formState: { errors },
+  } = useForm({ mode: "onBlur" });
+
   const targets: string[] = getValues("targets");
   const sources: string[] = getValues("sources");
   const excludedRulesTags: string[] = getValues("excludedRulesTags");
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
-  const [rulesToExclude, setRulesToExclude] = React.useState("");
+  const [ruleToExclude, setRuleToExclude] = React.useState("");
 
   return (
     <>
@@ -165,22 +170,40 @@ export const SetOptions: React.FunctionComponent = () => {
             ))}
           </Select>
         </FormGroup>
-        <FormGroup label="Excluded rules tags" fieldId="excluded-rules">
+        <FormGroup
+          label="Excluded rules tags"
+          fieldId="ruleTagToExclude"
+          validated={getValidatedFromError(errors.ruleTagToExclude)}
+          helperTextInvalid={errors?.ruleTagToExclude?.message}
+        >
           <InputGroup>
-            <TextArea
-              name="included-packages"
-              id="included-packages"
-              aria-label="Packages to include"
-              value={rulesToExclude}
-              onChange={(value) => setRulesToExclude(value)}
+            <TextInput
+              id="ruleTagToExclude"
+              aria-label="Rule tag to exclude"
+              {...register("ruleTagToExclude", {
+                minLength: {
+                  value: 2,
+                  message: "A rule tag must be at least 2 characters",
+                },
+                maxLength: {
+                  value: 60,
+                  message: "A rule tag cannot exceed 60 characters",
+                },
+              })}
+              onChange={(value) => setRuleToExclude(value)}
+              validated={getValidatedFromError(errors.ruleTagToExclude)}
+              value={ruleToExclude}
             />
             <Button
-              id="add-to-included-packages-list"
+              id="add-rule-tag"
               variant="control"
+              isDisabled={!!errors.ruleTagToExclude}
               onClick={() => {
-                const list = rulesToExclude.split(",");
-                setValue("excludedRulesTags", [...new Set(list)]);
-                setRulesToExclude("");
+                setValue("excludedRulesTags", [
+                  ...excludedRulesTags,
+                  ruleToExclude,
+                ]);
+                setRuleToExclude("");
               }}
             >
               Add
