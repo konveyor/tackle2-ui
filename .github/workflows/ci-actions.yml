@@ -28,7 +28,7 @@ jobs:
       - name: Test
         working-directory: pkg/client
         run: 
-          npm run test:unit --coverage --watchAll=false
+          npm run ci
       - uses: codecov/codecov-action@v1
         with:
           flags: unitests
