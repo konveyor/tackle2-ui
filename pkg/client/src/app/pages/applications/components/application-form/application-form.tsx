@@ -11,6 +11,7 @@ import {
   ExpandableSection,
   Form,
   FormGroup,
+  SelectOption,
   TextArea,
   TextInput,
 } from "@patternfly/react-core";
@@ -18,6 +19,8 @@ import {
 import {
   SingleSelectFetchOptionValueFormikField,
   MultiSelectFetchOptionValueFormikField,
+  SimpleSelect,
+  OptionWithValue,
 } from "@app/shared/components";
 import { useFetchBusinessServices, useFetchTagTypes } from "@app/shared/hooks";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
@@ -36,6 +39,7 @@ import {
   toIBusinessServiceDropdownOptionWithValue,
   toITagDropdown,
   toITagDropdownOptionWithValue,
+  toOptionLike,
 } from "@app/utils/model-utils";
 
 import "./application-form.css";
@@ -51,6 +55,7 @@ export interface FormValues {
   comments: string;
   businessService: IBusinessServiceDropdown | null;
   tags: ITagDropdown[];
+  kind: string;
   sourceRepository: string;
   branch: string;
   rootPath: string;
@@ -175,6 +180,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     comments: application?.comments || "",
     businessService: businessServiceInitialValue,
     tags: tagsInitialValue,
+    kind: application?.repository?.kind || "git",
     sourceRepository: application?.repository?.url || "",
     branch: application?.repository?.branch || "",
     rootPath: application?.repository?.path || "",
@@ -333,6 +339,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       ...(formValues.sourceRepository
         ? {
             repository: {
+              kind: formValues.kind.trim(),
               url: formValues.sourceRepository
                 ? formValues.sourceRepository.trim()
                 : undefined,
@@ -375,6 +382,17 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   const [isBasicExpanded, setBasicExpanded] = React.useState(true);
   const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(false);
   const [isBinaryExpanded, setBinaryExpanded] = React.useState(false);
+
+  const kindOptions = [
+    {
+      value: "git",
+      toString: () => `Git`,
+    },
+    {
+      value: "subversion",
+      toString: () => `Subversion`,
+    },
+  ];
 
   return (
     <FormikProvider value={formik}>
@@ -531,6 +549,28 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
           isExpanded={isSourceCodeExpanded}
         >
+          <FormGroup
+            label="Repository type"
+            fieldId="kind"
+            isRequired={true}
+            validated={getValidatedFromError(formik.errors.kind)}
+            helperTextInvalid={formik.errors.kind}
+          >
+            <SimpleSelect
+              aria-label={formik.values.kind}
+              value={
+                formik.values.kind
+                  ? toOptionLike(formik.values.kind, kindOptions)
+                  : undefined
+              }
+              options={kindOptions}
+              onChange={(selection) => {
+                const selectionValue = selection as OptionWithValue<any>;
+                formik.setFieldValue("kind", selectionValue.value);
+              }}
+            />
+          </FormGroup>
+
           <FormGroup
             label={t("terms.sourceRepo")}
             fieldId="sourceRepository"

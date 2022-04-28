@@ -88,6 +88,7 @@ export interface Application {
   review?: Ref;
   identities?: Ref[];
   repository?: {
+    kind?: string;
     branch?: string;
     path?: string;
     url?: string;
