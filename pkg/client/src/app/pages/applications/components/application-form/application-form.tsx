@@ -389,8 +389,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       toString: () => `Git`,
     },
     {
-      value: "svn",
-      toString: () => `SVN`,
+      value: "subversion",
+      toString: () => `Subversion`,
     },
   ];
 
