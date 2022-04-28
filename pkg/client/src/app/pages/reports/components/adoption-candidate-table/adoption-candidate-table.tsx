@@ -64,9 +64,20 @@ interface IAdoptionCandidateTable {
 
 export const AdoptionCandidateTable: React.FunctionComponent<
   IAdoptionCandidateTable
-> = ({ allApplications = [] }: IAdoptionCandidateTable) => {
+> = () => {
   // i18
   const { t } = useTranslation();
+
+  const {
+    allItems: allApplications,
+    selectedItems: selectedApplications,
+    areAllSelected: areAllApplicationsSelected,
+    isItemSelected: isApplicationSelected,
+    toggleItemSelected: toggleApplicationSelected,
+    selectAll: selectAllApplication,
+    setSelectedItems: setSelectedRows,
+    selectMultiple: selectMultipleApplications,
+  } = useContext(ApplicationSelectionContext);
 
   // Confidence
   const fetchChartData = useCallback(() => {
@@ -175,17 +186,6 @@ export const AdoptionCandidateTable: React.FunctionComponent<
     },
   ];
 
-  const {
-    isItemSelected: isRowSelected,
-    toggleItemSelected: toggleRowSelected,
-    selectAll,
-    selectMultiple,
-    areAllSelected,
-    selectedItems: selectedRows,
-  } = useSelectionState<TableRowData>({
-    items: allRows || [],
-    isEqual: (a, b) => a.application.id === b.application.id,
-  });
   const filterCategories: FilterCategory<TableRowData>[] = [
     {
       key: "name",
@@ -223,7 +223,7 @@ export const AdoptionCandidateTable: React.FunctionComponent<
 
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {
-    const isSelected = isRowSelected(item);
+    const isSelected = isApplicationSelected(item.application);
 
     rows.push({
       [ENTITY_FIELD]: item,
@@ -277,7 +277,7 @@ export const AdoptionCandidateTable: React.FunctionComponent<
     extraData: IExtraData
   ) => {
     const row = getRow(rowData);
-    toggleRowSelected(row);
+    toggleApplicationSelected(row.application);
   };
   const handleOnClearAllFilters = () => {
     setFilterValues({});
@@ -306,12 +306,12 @@ export const AdoptionCandidateTable: React.FunctionComponent<
       }
       toolbarBulkSelector={
         <ToolbarBulkSelector
-          onSelectAll={selectAll}
-          areAllSelected={areAllSelected}
-          selectedRows={selectedRows}
+          onSelectAll={selectAllApplication}
+          areAllSelected={areAllApplicationsSelected}
+          selectedRows={selectedApplications}
           paginationProps={paginationProps}
           currentPageItems={currentPageItems}
-          onSelectMultiple={selectMultiple}
+          onSelectMultiple={selectMultipleApplications}
         />
       }
     />
