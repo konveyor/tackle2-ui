@@ -278,11 +278,11 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         ? getUserCredentialsInitialValue({ ...identity })
         : "",
       name: identity?.name || "",
-      password: "",
+      password: identity?.password || "",
       settings: identity?.settings || "",
       settingsFilename: "",
       updateUser: identity?.updateUser || "",
-      user: "",
+      user: identity?.user || "",
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
@@ -503,6 +503,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                       aria-describedby="password"
                       isRequired={true}
                       onChange={onChange}
+                      onFocus={() => {
+                        onChange("");
+                      }}
                       onBlur={onBlur}
                       value={value}
                       validated={getValidatedFromErrorTouched(error, isTouched)}
