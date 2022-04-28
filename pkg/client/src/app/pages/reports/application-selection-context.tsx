@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelectionState, ISelectionState } from "@konveyor/lib-ui";
 import { Application } from "@app/api/models";
+import { AppContainer } from "react-hot-loader";
 
 interface IApplicationSelectionContext extends ISelectionState<Application> {
   allItems: Application[];
@@ -30,7 +31,11 @@ export interface IApplicationSelectionContextProviderProps {
 export const ApplicationSelectionContextProvider: React.FC<
   IApplicationSelectionContextProviderProps
 > = ({ applications, children }) => {
-  const [allItems] = useState(applications);
+  const [allItems, setAllItems] = useState<Application[]>([]);
+  useEffect(() => {
+    setAllItems([...applications]);
+  }, [applications]);
+
   const selectionState = useSelectionState<Application>({
     items: applications,
     initialSelected: applications,
