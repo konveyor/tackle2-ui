@@ -580,6 +580,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                       aria-describedby="Private Key Passphrase"
                       onChange={onChange}
                       onBlur={onBlur}
+                      onFocus={() => {
+                        onChange("");
+                      }}
                       value={value}
                     />
                   )}
@@ -692,6 +695,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   aria-describedby="password"
                   isRequired={true}
                   onChange={onChange}
+                  onFocus={() => {
+                    onChange("");
+                  }}
                   onBlur={onBlur}
                   value={value}
                   validated={getValidatedFromErrorTouched(error, isTouched)}
