@@ -351,9 +351,9 @@ export const ManageImports: React.FC = () => {
                     <KebabDropdown
                       dropdownItems={[
                         <DropdownItem
-                          key="download-csv-sample"
+                          key="download-csv-template"
                           component={
-                            <a href="/sample_application_import.csv" download>
+                            <a href="/hub/importsummaries/download" download>
                               {t("actions.downloadCsvTemplate")}
                             </a>
                           }
