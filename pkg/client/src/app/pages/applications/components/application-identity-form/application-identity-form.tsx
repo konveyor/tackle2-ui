@@ -34,7 +34,10 @@ import {
 } from "./field-names";
 import validationSchema from "./validation-schema";
 import { updateApplication } from "@app/api/rest";
-import { useUpdateApplicationMutation } from "@app/queries/applications";
+import {
+  useFetchApplications,
+  useUpdateApplicationMutation,
+} from "@app/queries/applications";
 
 export interface FormValues {
   applicationName: string;
@@ -59,6 +62,8 @@ export const ApplicationIdentityForm: React.FC<
   useEffect(() => {
     fetchIdentities();
   }, [fetchIdentities]);
+
+  const { refetch: refetchApplications } = useFetchApplications();
 
   // Actions
   const onCreateUpdateApplicationSuccess = (response: any) => {
@@ -111,8 +116,8 @@ export const ApplicationIdentityForm: React.FC<
       .then((response) => {
         formik.setSubmitting(false);
         //All promises resolved successfully
-        // onSaved(response[0]);
         onCreateUpdateApplicationSuccess(response[0]);
+        setTimeout(() => refetchApplications(), 500);
       })
       .catch((error) => {
         //One or many promises failed
