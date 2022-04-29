@@ -45,7 +45,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
     />,
   ];
 
-  if (isSingleApp && taskgroupID)
+  if (isSingleApp)
     options.push(
       <SelectOption
         key="binary-upload"
