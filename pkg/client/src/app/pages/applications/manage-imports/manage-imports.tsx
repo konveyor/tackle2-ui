@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
 import { StatusIcon } from "@konveyor/lib-ui";
@@ -12,7 +12,6 @@ import {
   Modal,
   PageSection,
   Popover,
-  ToolbarChip,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -353,7 +352,7 @@ export const ManageImports: React.FC = () => {
                         <DropdownItem
                           key="download-csv-template"
                           component={
-                            <a href="/hub/importsummaries/download" download>
+                            <a href="/template_application_import.csv" download>
                               {t("actions.downloadCsvTemplate")}
                             </a>
                           }
