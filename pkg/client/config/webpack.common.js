@@ -189,6 +189,16 @@ module.exports = (env) => {
             from: path.resolve(__dirname, "../public/manifest.json"),
             to: path.resolve(__dirname, "../dist/manifest.json"),
           },
+          {
+            from: path.resolve(
+              __dirname,
+              "../public/template_application_import.csv"
+            ),
+            to: path.resolve(
+              __dirname,
+              "../dist/template_application_import.csv"
+            ),
+          },
         ],
       }),
       new WatchIgnorePlugin({
