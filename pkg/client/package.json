@@ -82,7 +82,6 @@
     "copy-webpack-plugin": "^10.2.1",
     "css-loader": "^5.2.6",
     "css-minimizer-webpack-plugin": "^3.4.1",
-    "csv-loader": "^3.0.3",
     "cypress": "8.4.0",
     "cypress-file-upload": "^5.0.8",
     "cypress-keycloak-commands": "^1.2.0",
