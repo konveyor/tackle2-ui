@@ -404,10 +404,15 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (task?.id) deleteTask(task.id);
   };
 
+  const { refetch: refetchApplications } = useFetchApplications();
   const handleOnApplicationIdentityUpdated = (
     response: AxiosResponse<Application>
   ) => {
     closeCredentialsModal();
+    // if (response) {
+    console.log("refetchApps");
+    refetchApplications();
+    // }
   };
 
   const isAnalyzingAllowed = () => {

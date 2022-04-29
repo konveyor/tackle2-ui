@@ -11,6 +11,7 @@ import {
   createApplication,
   deleteApplication,
   getApplicationsQuery,
+  updateAllApplications,
   updateApplication,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
@@ -53,6 +54,27 @@ export const useUpdateApplicationMutation = (
 ): IApplicationMutateState => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation(updateApplication, {
+    onSuccess: (res) => {
+      onSuccess(res);
+      queryClient.invalidateQueries(ApplicationsQueryKey);
+    },
+    onError: (err: AxiosError) => {
+      onError(err);
+    },
+  });
+  return {
+    mutate,
+    isLoading,
+    error,
+  };
+};
+
+export const useUpdateAllApplicationsMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+): IApplicationMutateState => {
+  const queryClient = useQueryClient();
+  const { isLoading, mutate, error } = useMutation(updateAllApplications, {
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries(ApplicationsQueryKey);

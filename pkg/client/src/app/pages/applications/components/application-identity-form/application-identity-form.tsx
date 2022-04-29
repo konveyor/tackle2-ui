@@ -36,6 +36,7 @@ import validationSchema from "./validation-schema";
 import { updateApplication } from "@app/api/rest";
 import {
   useFetchApplications,
+  useUpdateAllApplicationsMutation,
   useUpdateApplicationMutation,
 } from "@app/queries/applications";
 
@@ -68,13 +69,18 @@ export const ApplicationIdentityForm: React.FC<
   // Actions
   const onCreateUpdateApplicationSuccess = (response: any) => {
     onSaved(response);
+    formik.setSubmitting(false);
+    //All promises resolved successfully
+    onCreateUpdateApplicationSuccess(response[0]);
   };
 
   const onCreateUpdateApplicationError = (error: AxiosError) => {
     setAxiosError(error);
+    formik.setSubmitting(false);
+    onCreateUpdateApplicationError(error);
   };
 
-  const { mutate: updateApplication } = useUpdateApplicationMutation(
+  const { mutate: updateAllApplications } = useUpdateAllApplicationsMutation(
     onCreateUpdateApplicationSuccess,
     onCreateUpdateApplicationError
   );
@@ -112,18 +118,7 @@ export const ApplicationIdentityForm: React.FC<
         updatePromises.push(promise);
       }
     });
-    Promise.all(updatePromises)
-      .then((response) => {
-        formik.setSubmitting(false);
-        //All promises resolved successfully
-        onCreateUpdateApplicationSuccess(response[0]);
-        setTimeout(() => refetchApplications(), 500);
-      })
-      .catch((error) => {
-        //One or many promises failed
-        formik.setSubmitting(false);
-        onCreateUpdateApplicationError(error);
-      });
+    updateAllApplications(updatePromises);
   };
   const emptyIdentity = { id: 0, name: "None", kind: "", createUser: "" };
 
