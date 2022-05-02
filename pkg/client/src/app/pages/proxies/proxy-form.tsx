@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useFormik, FormikProvider } from "formik";
 import {
   ActionGroup,
   Alert,
@@ -11,8 +10,7 @@ import {
   TextArea,
   TextInput,
 } from "@patternfly/react-core";
-import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import {
   getAxiosErrorMessage,
   getValidatedFromError,
@@ -27,28 +25,27 @@ import {
   HTTP_HOST,
   HTTP_IDENTITY,
   HTTP_PORT,
-  IS_HTTPS_CHECKED,
-  IS_HTTP_CHECKED,
 } from "./field-names";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
-import {
-  IdentityDropdown,
-  toIdentityDropdown,
-  toIdentityDropdownOptionWithValue,
-} from "@app/utils/model-utils";
 import { Proxy } from "@app/api/models";
 import { useUpdateProxyMutation } from "@app/queries/proxies";
+import {
+  Controller,
+  FieldValues,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useFetchIdentities } from "@app/queries/identities";
+import { triggerAsyncId } from "async_hooks";
 
 export interface ProxyFormValues {
   httpHost: string;
   httpsHost: string;
-  httpIdentity: IdentityDropdown;
-  httpsIdentity: IdentityDropdown;
-  httpPort: number;
-  httpsPort: number;
-  isHttpChecked: boolean;
-  isHttpsChecked: boolean;
+  httpIdentity: string | null;
+  httpsIdentity: string | null;
+  httpPort: any;
+  httpsPort: any;
   excluded: string;
 }
 
@@ -66,6 +63,76 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   const [isHttpsIdentityRequired, setIsHttpsIdentityRequired] = useState(false);
   const [isHttpProxy, setIsHttpProxy] = React.useState(false);
   const [isHttpsProxy, setIsHttpsProxy] = React.useState(false);
+  const {
+    identities,
+    isFetching: isFetchingIdentities,
+    fetchError: fetchErrorIdentities,
+  } = useFetchIdentities();
+
+  const identityOptions = identities.map((identity) => {
+    return {
+      value: identity?.name || "",
+      toString: () => identity?.name || "",
+    };
+  });
+  useEffect(() => {
+    if (httpProxy?.identity?.name) {
+      setIsHttpIdentityRequired(true);
+    }
+    if (httpsProxy?.identity?.name) {
+      setIsHttpsIdentityRequired(true);
+    }
+  }, [httpProxy, httpsProxy]);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValidating, isValid, isDirty },
+    getValues,
+    setValue,
+    setError,
+    control,
+    resetField,
+    watch,
+    reset,
+    trigger,
+  } = useForm<ProxyFormValues>({
+    defaultValues: useMemo(() => {
+      return {
+        [HTTP_HOST]: httpProxy?.host,
+        [HTTP_PORT]: httpProxy?.port || 8080,
+        [HTTP_IDENTITY]: httpProxy?.identity?.name || null,
+        [HTTPS_HOST]: httpsProxy?.host || "",
+        [HTTPS_PORT]: httpsProxy?.port || 8080,
+        [HTTPS_IDENTITY]: httpsProxy?.identity?.name || null,
+        [EXCLUDED]: httpProxy?.excluded.join(",") || "",
+      };
+    }, [httpProxy, httpsProxy]),
+    resolver: yupResolver(
+      validationSchema({
+        [HTTP_HOST]: isHttpProxy,
+        [HTTP_PORT]: isHttpProxy,
+        [HTTP_IDENTITY]: isHttpIdentityRequired,
+        [HTTPS_HOST]: isHttpsProxy,
+        [HTTPS_PORT]: isHttpsProxy,
+        [HTTPS_IDENTITY]: isHttpsIdentityRequired,
+      })
+    ),
+    mode: "onChange",
+  });
+  useEffect(() => {
+    reset({
+      [HTTP_HOST]: httpProxy?.host,
+      [HTTP_PORT]: httpProxy?.port || 8080,
+      [HTTP_IDENTITY]: httpProxy?.identity?.name || null,
+      [HTTPS_HOST]: httpsProxy?.host || "",
+      [HTTPS_PORT]: httpsProxy?.port || 8080,
+      [HTTPS_IDENTITY]: httpsProxy?.identity?.name || null,
+      [EXCLUDED]: httpProxy?.excluded.join(",") || "",
+    });
+  }, [httpProxy, httpsProxy]);
+
+  const values = getValues();
 
   useEffect(() => {
     if (httpProxy) {
@@ -77,7 +144,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   }, [httpProxy, httpsProxy]);
 
   const onProxySubmitComplete = () => {
-    formik.setSubmitting(false);
+    reset(values);
   };
 
   const onChangeProxyStatusComplete = (proxyType: string) => {
@@ -102,11 +169,11 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   );
 
   const onChangeIsHttpProxy = () => {
-    if (formik.values.isHttpChecked && httpProxy) {
+    if (httpProxy) {
       const httpPayload = {
-        host: formik.values.httpHost,
+        host: values.httpHost,
         kind: "http",
-        port: formik.values.httpPort,
+        port: values.httpPort || 8080,
         id: httpProxy?.id,
         enabled: !isHttpProxy,
         excluded: httpProxy.excluded,
@@ -119,14 +186,15 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         setIsHttpProxy(!isHttpProxy);
       }
     }
+    trigger();
   };
 
   const onChangeIsHttpsProxy = () => {
-    if (formik.values.isHttpsChecked && httpsProxy) {
+    if (httpsProxy) {
       const httpsPayload = {
-        host: formik.values.httpsHost,
+        host: values.httpsHost,
         kind: "https",
-        port: formik.values.httpsPort,
+        port: values.httpsPort || 8080,
         id: httpsProxy.id,
         enabled: !isHttpsProxy,
         excluded: httpsProxy.excluded,
@@ -139,36 +207,45 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         setIsHttpsProxy(!isHttpsProxy);
       }
     }
+    trigger();
+  };
+  const onChangeIsHttpsIdentityRequired = () => {
+    if (isHttpsIdentityRequired) {
+      let result = null;
+      setValue(HTTPS_IDENTITY, result, {
+        shouldDirty: true,
+      });
+    }
+    setIsHttpsIdentityRequired(!isHttpsIdentityRequired);
   };
 
-  const {
-    identities,
-    isFetching: isFetchingIdentities,
-    fetchError: fetchErrorIdentities,
-    fetchIdentities,
-  } = useFetchIdentities();
+  const onChangeIsHttpIdentityRequired = () => {
+    if (isHttpIdentityRequired) {
+      let result = null;
+      setValue(HTTP_IDENTITY, result, {
+        shouldDirty: true,
+      });
+    }
+    setIsHttpIdentityRequired(!isHttpIdentityRequired);
+  };
 
-  useEffect(() => {
-    fetchIdentities();
-  }, [fetchIdentities]);
-
-  const httpValuesHaveUpdate = (values: ProxyFormValues, httpProxy?: Proxy) => {
+  const httpValuesHaveUpdate = (values: FieldValues, httpProxy?: Proxy) => {
     if (httpProxy?.host === "" && isHttpProxy) {
       return true;
     } else {
       return (
         values.excluded !== httpProxy?.excluded.join() ||
         values.httpHost !== httpProxy?.host ||
-        (values.httpIdentity.id &&
+        (values.httpIdentity !== null &&
+          values.httpIdentity !== httpProxy?.identity?.name) ||
+        (values.httpIdentity === null &&
           values.httpIdentity !== httpProxy?.identity) ||
-        values.httpPort !== httpProxy?.port
+        parseInt(values.httpPort) !== httpProxy?.port
       );
     }
   };
-  const httpsValuesHaveUpdate = (
-    values: ProxyFormValues,
-    httpsProxy?: Proxy
-  ) => {
+
+  const httpsValuesHaveUpdate = (values: FieldValues, httpsProxy?: Proxy) => {
     if (httpsProxy?.host === "" && isHttpsProxy) {
       return true;
     }
@@ -176,25 +253,33 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     return (
       values.excluded !== httpsProxy?.excluded.join() ||
       values.httpsHost !== httpsProxy?.host ||
-      (values.httpsIdentity.id &&
+      (values.httpsIdentity !== null &&
+        values.httpsIdentity !== httpsProxy?.identity?.name) ||
+      (values.httpsIdentity === null &&
         values.httpsIdentity !== httpsProxy?.identity) ||
-      values.httpsPort !== httpsProxy?.port
+      parseInt(values.httpsPort) !== httpsProxy?.port
     );
   };
+  const onSubmit: SubmitHandler<ProxyFormValues> = (formValues) => {
+    const selectedHttpIdentity = identities.find(
+      (i) => i.name === formValues.httpIdentity
+    );
+    const selectedHttpsIdentity = identities.find(
+      (i) => i.name === formValues.httpsIdentity
+    );
 
-  const onSubmit = (formValues: ProxyFormValues) => {
     const httpsPayload: Proxy = {
       kind: "https",
       excluded: formValues.excluded.split(","),
       host: formValues.httpsHost,
-      port: formValues.httpsPort,
+      port: parseInt(formValues?.httpsPort as string),
       enabled: httpsProxy?.enabled || true,
       id: httpsProxy?.id,
-      ...(formValues.httpsIdentity?.id &&
-        formValues.httpsIdentity?.name && {
+      ...(formValues.httpsIdentity &&
+        selectedHttpsIdentity && {
           identity: {
-            id: formValues.httpsIdentity?.id,
-            name: formValues.httpsIdentity?.name,
+            id: selectedHttpsIdentity?.id || 0,
+            name: selectedHttpsIdentity?.name || "",
           },
         }),
     };
@@ -203,14 +288,14 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       kind: "http",
       excluded: formValues.excluded.split(","),
       host: formValues.httpHost,
-      port: formValues.httpPort,
+      port: parseInt(formValues?.httpPort as string),
       enabled: httpProxy?.enabled || true,
       id: httpProxy?.id,
-      ...(formValues.httpIdentity?.id &&
-        formValues.httpIdentity?.name && {
+      ...(formValues.httpIdentity &&
+        selectedHttpIdentity && {
           identity: {
-            id: formValues.httpIdentity.id,
-            name: formValues.httpIdentity.name,
+            id: selectedHttpIdentity?.id || 0,
+            name: selectedHttpIdentity?.name || "",
           },
         }),
     };
@@ -224,358 +309,276 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     }
   };
 
-  const httpIdentityInitialValue = useMemo(() => {
-    let result: IdentityDropdown = { id: 0, name: "" };
-    if (httpProxy && identities) {
-      const identityId = Number(httpProxy.identity?.id);
-      const identity = identities.find((i) => i.id === identityId);
-
-      if (identity) {
-        result = toIdentityDropdown({
-          id: identityId,
-          name: identity.name,
-        });
-      }
-    }
-    setIsHttpIdentityRequired(!!result.id);
-    return result;
-  }, [identities, httpProxy]);
-
-  const httpsIdentityInitialValue = useMemo(() => {
-    let result: IdentityDropdown = { id: 0, name: "" };
-    if (httpsProxy && identities) {
-      const identityId = Number(httpsProxy.identity?.id);
-      const identity = identities.find((i) => i.id === identityId);
-
-      if (identity) {
-        result = toIdentityDropdown({
-          id: identityId,
-          name: identity.name,
-        });
-      }
-    }
-    setIsHttpsIdentityRequired(!!result.id);
-    return result;
-  }, [identities, httpProxy]);
-
-  const initialValues: ProxyFormValues = {
-    [HTTP_HOST]: httpProxy?.host || "",
-    [HTTP_PORT]: httpProxy?.port || 8080,
-    [HTTP_IDENTITY]: httpIdentityInitialValue,
-    [IS_HTTP_CHECKED]: !!httpProxy || false,
-    [HTTPS_HOST]: httpsProxy?.host || "",
-    [HTTPS_PORT]: httpsProxy?.port || 8080,
-    [HTTPS_IDENTITY]: httpsIdentityInitialValue,
-    [IS_HTTPS_CHECKED]: !!httpsProxy || false,
-    [EXCLUDED]: httpProxy?.excluded.join(",") || "",
-  };
-
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: initialValues,
-    validationSchema: validationSchema({
-      [HTTP_HOST]: isHttpProxy,
-      [HTTP_PORT]: isHttpProxy,
-      [HTTP_IDENTITY]: isHttpIdentityRequired,
-      [HTTPS_HOST]: isHttpsProxy,
-      [HTTPS_PORT]: isHttpsProxy,
-      [HTTPS_IDENTITY]: isHttpIdentityRequired,
-    }),
-    onSubmit: onSubmit,
-  });
-
-  const onChangeIsHttpsIdentityRequired = () => {
-    if (isHttpsIdentityRequired) {
-      let result: IdentityDropdown = { id: 0, name: "" };
-      formik.setFieldValue(HTTPS_IDENTITY, result);
-    }
-    setIsHttpsIdentityRequired(!isHttpsIdentityRequired);
-  };
-
-  const onChangeIsHttpIdentityRequired = () => {
-    if (isHttpIdentityRequired) {
-      let result: IdentityDropdown = { id: 0, name: "" };
-      formik.setFieldValue(HTTP_IDENTITY, result);
-    }
-    setIsHttpIdentityRequired(!isHttpIdentityRequired);
-  };
-
-  const onChangeField = (value: string, event: React.FormEvent<any>) => {
-    formik.handleChange(event);
-  };
-
-  const [hasUpdate, setHasUpdate] = useState(false);
-  useEffect(() => {
-    if (
-      httpValuesHaveUpdate(formik.values, httpProxy) ||
-      httpsValuesHaveUpdate(formik.values, httpsProxy)
-    ) {
-      setHasUpdate(true);
-    } else {
-      setHasUpdate(false);
-    }
-  }, [formik.values, httpProxy, httpsProxy]);
-
   return (
-    <FormikProvider value={formik}>
-      <Form className={spacing.mMd} onSubmit={formik.handleSubmit}>
-        {error && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(error)}
-          />
-        )}
-        <Switch
-          id="httpProxy"
-          className="proxy"
-          label="HTTP proxy"
-          aria-label="HTTP Proxy"
-          isChecked={isHttpProxy}
-          onChange={onChangeIsHttpProxy}
-        />
+    <Form className={spacing.mMd} onSubmit={handleSubmit(onSubmit)}>
+      {error && (
+        <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />
+      )}
+      <Switch
+        id="httpProxy"
+        className="proxy"
+        label="HTTP proxy"
+        aria-label="HTTP Proxy"
+        isChecked={isHttpProxy}
+        onChange={onChangeIsHttpProxy}
+      />
 
-        {isHttpProxy && (
-          <div className={spacing.mlLg}>
-            <FormGroup
-              label="HTTP proxy host"
-              fieldId="httpHost"
-              isRequired={true}
-              className={spacing.mMd}
-              validated={getValidatedFromError(formik.errors.httpHost)}
-              helperTextInvalid={formik.errors.httpHost}
-            >
-              <TextInput
-                type="text"
-                name={HTTP_HOST}
-                aria-label="httphost"
-                aria-describedby="httphost"
-                isRequired={true}
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.httpHost}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.httpHost,
-                  formik.touched.httpHost
-                )}
-              />
-            </FormGroup>
-            <FormGroup
-              label="HTTP proxy port"
-              fieldId="port"
-              className={spacing.mMd}
-              isRequired={true}
-              validated={getValidatedFromError(formik.errors.httpPort)}
-              helperTextInvalid={formik.errors.httpPort}
-            >
-              <TextInput
-                type="number"
-                name={HTTP_PORT}
-                aria-label="httpport"
-                aria-describedby="httpport"
-                isRequired={true}
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.httpPort}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.httpPort,
-                  formik.touched.httpPort
-                )}
-              />
-            </FormGroup>
-            <Switch
-              id="http-identity-required"
-              className={spacing.mMd}
-              label="HTTP proxy credentials"
-              aria-label="http identity required"
-              isChecked={isHttpIdentityRequired}
-              onChange={onChangeIsHttpIdentityRequired}
-            />
-            {isHttpIdentityRequired && (
-              <FormGroup
-                label="HTTP proxy credentials"
-                className={spacing.mMd}
-                fieldId={HTTP_IDENTITY}
-                isRequired={isHttpIdentityRequired}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.httpIdentity,
-                  formik.touched?.httpIdentity
-                )}
-                helperTextInvalid={formik.errors.httpIdentity}
-              >
-                <SingleSelectFetchOptionValueFormikField
-                  fieldConfig={{ name: HTTP_IDENTITY }}
-                  selectConfig={{
-                    variant: "typeahead",
-                    "aria-label": "identity",
-                    "aria-describedby": "identity",
-                    typeAheadAriaLabel: "identity",
-                    toggleAriaLabel: "identity",
-                    clearSelectionsAriaLabel: "identity",
-                    removeSelectionAriaLabel: "identity",
-                    placeholderText: "Select identity type",
-                    menuAppendTo: () => document.body,
-                    maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-                    fetchError: fetchErrorIdentities,
-                    isFetching: isFetchingIdentities,
-                  }}
-                  options={(
-                    identities?.filter(
-                      (identity) => identity.kind === "proxy"
-                    ) || []
-                  ).map(toIdentityDropdown)}
-                  toOptionWithValue={toIdentityDropdownOptionWithValue}
-                />
-              </FormGroup>
-            )}
-          </div>
-        )}
-        <Switch
-          id="httpsProxy"
-          label="HTTPS proxy"
-          aria-label="HTTPS Proxy"
-          isChecked={isHttpsProxy}
-          onChange={onChangeIsHttpsProxy}
-        />
-
-        {isHttpsProxy && (
-          <>
-            <FormGroup
-              label="HTTPS proxy host"
-              className={spacing.mMd}
-              fieldId="httpsHost"
-              isRequired={true}
-              validated={getValidatedFromError(formik.errors.httpsHost)}
-              helperTextInvalid={formik.errors.httpsHost}
-            >
-              <TextInput
-                type="text"
-                name={HTTPS_HOST}
-                aria-label="httpshost"
-                aria-describedby="httpshost"
-                isRequired={true}
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.httpsHost}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.httpsHost,
-                  formik.touched.httpsHost
-                )}
-              />
-            </FormGroup>
-            <FormGroup
-              label="HTTPS proxy port"
-              className={spacing.mMd}
-              fieldId="port"
-              isRequired={true}
-              validated={getValidatedFromError(formik.errors.httpsPort)}
-              helperTextInvalid={formik.errors.httpsPort}
-            >
-              <TextInput
-                type="number"
-                name={HTTPS_PORT}
-                aria-label="httpsport"
-                aria-describedby="httpsport"
-                isRequired={true}
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.httpsPort}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.httpsPort,
-                  formik.touched.httpsPort
-                )}
-              />
-            </FormGroup>
-            <Switch
-              id="https-identity-required"
-              className={spacing.mMd}
-              label="HTTPS proxy credentials"
-              aria-label="httpS identity required"
-              isChecked={isHttpsIdentityRequired}
-              onChange={onChangeIsHttpsIdentityRequired}
-            />
-            {isHttpsIdentityRequired && (
-              <FormGroup
-                label="HTTPS proxy credentials"
-                className={spacing.mMd}
-                fieldId={HTTPS_IDENTITY}
-                isRequired={isHttpsIdentityRequired}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.httpsIdentity,
-                  formik.touched.httpsIdentity
-                )}
-                helperTextInvalid={formik.errors.httpsIdentity}
-              >
-                <SingleSelectFetchOptionValueFormikField
-                  fieldConfig={{ name: HTTPS_IDENTITY }}
-                  selectConfig={{
-                    variant: "typeahead",
-                    "aria-label": "identity",
-                    "aria-describedby": "identity",
-                    typeAheadAriaLabel: "identity",
-                    toggleAriaLabel: "identity",
-                    clearSelectionsAriaLabel: "identity",
-                    removeSelectionAriaLabel: "identity",
-                    placeholderText: "Select identity type",
-                    menuAppendTo: () => document.body,
-                    maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-                    fetchError: fetchErrorIdentities,
-                    isFetching: isFetchingIdentities,
-                  }}
-                  options={(
-                    identities?.filter(
-                      (identity) => identity.kind === "proxy"
-                    ) || []
-                  ).map(toIdentityDropdown)}
-                  toOptionWithValue={toIdentityDropdownOptionWithValue}
-                />
-              </FormGroup>
-            )}
-          </>
-        )}
-        {(isHttpProxy || isHttpsProxy) && (
+      {isHttpProxy && (
+        <div className={spacing.mlLg}>
           <FormGroup
-            label="Excluded"
-            fieldId="excluded"
-            isRequired={false}
-            validated={getValidatedFromError(formik.errors.excluded)}
-            helperTextInvalid={formik.errors.excluded}
+            label="HTTP proxy host"
+            fieldId={HTTP_HOST}
+            isRequired={true}
+            className={spacing.mMd}
+            validated={getValidatedFromError(errors.httpHost)}
+            helperTextInvalid={errors.httpHost?.message}
           >
-            <TextArea
-              type="text"
-              name="excluded"
-              aria-label="excluded"
-              aria-describedby="excluded"
-              isRequired={false}
-              onChange={onChangeField}
-              onBlur={formik.handleBlur}
-              value={formik.values.excluded}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.excluded,
-                formik.touched.excluded
+            <Controller
+              control={control}
+              name={HTTP_HOST}
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { isTouched, error },
+                formState,
+              }) => (
+                <TextInput
+                  type="text"
+                  name={HTTP_HOST}
+                  aria-label="httphost"
+                  aria-describedby="httphost"
+                  isRequired={true}
+                  onChange={onChange}
+                  value={value}
+                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                />
               )}
             />
           </FormGroup>
-        )}
-        <ActionGroup>
-          <Button
-            type="submit"
-            aria-label="submit"
-            variant={ButtonVariant.primary}
-            isDisabled={
-              !formik.isValid ||
-              formik.isSubmitting ||
-              formik.isValidating ||
-              !hasUpdate
-            }
+          <Controller
+            control={control}
+            name={HTTP_PORT}
+            render={({
+              field: { onChange, onBlur, value, name, ref },
+              fieldState: { isTouched, error },
+              formState,
+            }) => (
+              <FormGroup
+                label="HTTP proxy port"
+                type="number"
+                fieldId="port"
+                className={spacing.mMd}
+                isRequired={true}
+                validated={getValidatedFromError(error)}
+                helperTextInvalid={error?.message}
+              >
+                <TextInput
+                  type="number"
+                  name={HTTP_PORT}
+                  aria-label="httpport"
+                  aria-describedby="httpport"
+                  isRequired={true}
+                  onChange={(value, e) => {
+                    onChange((value && parseInt(value, 10)) || "");
+                  }}
+                  value={value}
+                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                />
+              </FormGroup>
+            )}
+          />
+          <Switch
+            id="http-identity-required"
+            className={spacing.mMd}
+            label="HTTP proxy credentials"
+            aria-label="http identity required"
+            isChecked={isHttpIdentityRequired}
+            onChange={onChangeIsHttpIdentityRequired}
+          />
+          {isHttpIdentityRequired && (
+            <Controller
+              control={control}
+              name={HTTP_IDENTITY}
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { isTouched, error },
+                formState,
+              }) => (
+                <FormGroup
+                  label="HTTP proxy credentials"
+                  className={spacing.mMd}
+                  fieldId={HTTP_IDENTITY}
+                  isRequired={isHttpIdentityRequired}
+                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                  helperTextInvalid={errors.httpIdentity?.message}
+                >
+                  <SimpleSelect
+                    aria-label={HTTP_IDENTITY}
+                    value={value ? value : undefined}
+                    options={identityOptions}
+                    onChange={(selection) => {
+                      const selectionValue = selection as OptionWithValue<any>;
+                      onChange(selectionValue.value);
+                    }}
+                  />
+                </FormGroup>
+              )}
+            />
+          )}
+        </div>
+      )}
+      <Switch
+        id="httpsProxy"
+        label="HTTPS proxy"
+        aria-label="HTTPS Proxy"
+        isChecked={isHttpsProxy}
+        onChange={onChangeIsHttpsProxy}
+      />
+
+      {isHttpsProxy && (
+        <>
+          <FormGroup
+            label="HTTPS proxy host"
+            className={spacing.mMd}
+            fieldId="httpsHost"
+            isRequired={true}
+            validated={getValidatedFromError(errors.httpsHost)}
+            helperTextInvalid={errors.httpsHost?.message}
           >
-            {httpValuesHaveUpdate(formik.values, httpProxy) ||
-            httpsValuesHaveUpdate(formik.values, httpsProxy)
-              ? "Save"
-              : "Update"}
-          </Button>
-        </ActionGroup>
-      </Form>
-    </FormikProvider>
+            <Controller
+              control={control}
+              name={HTTPS_HOST}
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { isTouched, error },
+                formState,
+              }) => (
+                <TextInput
+                  type="text"
+                  name={HTTPS_HOST}
+                  aria-label="httpshost"
+                  aria-describedby="httpshost"
+                  isRequired={true}
+                  onChange={onChange}
+                  value={value}
+                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                />
+              )}
+            />
+          </FormGroup>
+          <FormGroup
+            label="HTTPS proxy port"
+            className={spacing.mMd}
+            type="number"
+            fieldId="port"
+            isRequired={true}
+            validated={getValidatedFromError(errors.httpsPort)}
+            helperTextInvalid={errors.httpsPort?.message}
+          >
+            <Controller
+              control={control}
+              name={HTTPS_PORT}
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { isTouched, error },
+                formState,
+              }) => (
+                <TextInput
+                  type="number"
+                  name={HTTPS_PORT}
+                  aria-label="httpsport"
+                  aria-describedby="httpsport"
+                  isRequired={true}
+                  onChange={(value, e) => {
+                    onChange((value && parseInt(value, 10)) || "");
+                  }}
+                  value={value}
+                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                />
+              )}
+            />
+          </FormGroup>
+          <Switch
+            id="https-identity-required"
+            className={spacing.mMd}
+            label="HTTPS proxy credentials"
+            aria-label="httpS identity required"
+            isChecked={isHttpsIdentityRequired}
+            onChange={onChangeIsHttpsIdentityRequired}
+          />
+          {isHttpsIdentityRequired && (
+            <Controller
+              control={control}
+              name={HTTPS_IDENTITY}
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { isTouched, error },
+                formState,
+              }) => (
+                <FormGroup
+                  label="HTTPS proxy credentials"
+                  className={spacing.mMd}
+                  fieldId={HTTPS_IDENTITY}
+                  isRequired={isHttpsIdentityRequired}
+                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                  helperTextInvalid={errors.httpsIdentity?.message}
+                >
+                  <SimpleSelect
+                    aria-label={HTTPS_IDENTITY}
+                    value={value ? value : undefined}
+                    options={identityOptions}
+                    onChange={(selection) => {
+                      const selectionValue = selection as OptionWithValue<any>;
+                      onChange(selectionValue.value);
+                    }}
+                  />
+                </FormGroup>
+              )}
+            />
+          )}
+        </>
+      )}
+      {(isHttpProxy || isHttpsProxy) && (
+        <FormGroup
+          label="Excluded"
+          fieldId="excluded"
+          isRequired={false}
+          validated={getValidatedFromError(errors.excluded)}
+          helperTextInvalid={errors.excluded?.message}
+        >
+          <Controller
+            control={control}
+            name={EXCLUDED}
+            render={({
+              field: { onChange, onBlur, value, name, ref },
+              fieldState: { isTouched, error },
+              formState,
+            }) => (
+              <TextArea
+                type="text"
+                name="excluded"
+                aria-label="excluded"
+                aria-describedby="excluded"
+                isRequired={false}
+                onChange={onChange}
+                value={value}
+                validated={getValidatedFromErrorTouched(error, isTouched)}
+              />
+            )}
+          />
+        </FormGroup>
+      )}
+      <ActionGroup>
+        <Button
+          type="submit"
+          aria-label="submit"
+          variant={ButtonVariant.primary}
+          isDisabled={
+            !isValid || isSubmitting || isValidating || isLoading || !isDirty
+          }
+        >
+          {httpProxy || httpsProxy ? "Save" : "Update"}
+        </Button>
+      </ActionGroup>
+    </Form>
   );
 };
