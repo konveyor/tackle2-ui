@@ -312,24 +312,6 @@ export const getApplicationAdoptionPlan = (
   );
 };
 
-export const getApplicationImportSummary = (): AxiosPromise<any> => {
-  return APIClient.get(`${APP_IMPORT_SUMMARY}`);
-};
-
-export const getApplicationImportSummaryById = (
-  id: number | string
-): AxiosPromise<ApplicationImportSummary> => {
-  return APIClient.get(`${APP_IMPORT_SUMMARY}/${id}`);
-};
-
-export const deleteApplicationImportSummary = (id: number): AxiosPromise => {
-  return APIClient.delete(`${APP_IMPORT_SUMMARY}/${id}`);
-};
-
-export const getApplicationImports = (): AxiosPromise<ApplicationImport[]> => {
-  return APIClient.get(`${APP_IMPORT}`);
-};
-
 export const getApplicationSummaryCSV = (id: string): AxiosPromise => {
   return APIClient.get(`${APP_IMPORT_CSV}?importSummaryId=${id}`, {
     responseType: "arraybuffer",
@@ -469,6 +451,22 @@ export const deleteProxy = (id: number): AxiosPromise => {
 
 export const getApplicationsQuery = () =>
   axios.get<Application[]>(APPLICATIONS).then((response) => response.data);
+
+export const getApplicationsImportSummary = () =>
+  axios
+    .get<ApplicationImportSummary[]>(APP_IMPORT_SUMMARY)
+    .then((response) => response.data);
+
+export const getApplicationImportSummaryById = (id: number | string) =>
+  axios
+    .get<ApplicationImportSummary>(`${APP_IMPORT_SUMMARY}/${id}`)
+    .then((response) => response.data);
+
+export const deleteApplicationImportSummary = (id: number) =>
+  axios.delete<APIClient>(`${APP_IMPORT_SUMMARY}/${id}`);
+
+export const getApplicationImports = () =>
+  axios.get<ApplicationImport[]>(APP_IMPORT).then((response) => response.data);
 
 export const getTasks = () =>
   axios.get<Task[]>(TASKS).then((response) => response.data);
