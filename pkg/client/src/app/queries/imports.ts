@@ -15,10 +15,14 @@ export interface IImportMutateState {
   error: any;
 }
 
+export const ImportSummariesQueryKey = "importsummaries";
+export const ImportsQueryKey = "imports";
+export const ImportQueryKey = "import";
+
 export const useFetchImports = () => {
   const [imports, setImports] = useState<ApplicationImport[]>([]);
   const { isLoading, error, refetch } = useQuery(
-    "imports",
+    ImportsQueryKey,
     getApplicationImports,
     {
       onSuccess: (data: ApplicationImport[]) => setImports(data),
@@ -40,7 +44,7 @@ export const useFetchImportSummaries = () => {
     ApplicationImportSummary[]
   >([]);
   const { isLoading, error, refetch } = useQuery(
-    "importsummaries",
+    ImportSummariesQueryKey,
     getApplicationsImportSummary,
     {
       refetchInterval: 5000,
@@ -63,7 +67,7 @@ export const useFetchImportSummaryByID = (id: number | string) => {
     useState<ApplicationImportSummary>();
 
   const { isLoading, error, refetch } = useQuery(
-    ["import", id],
+    [ImportQueryKey, id],
     () => getApplicationImportSummaryById(id),
     {
       onSuccess: (data: ApplicationImportSummary) => setImportSummary(data),
