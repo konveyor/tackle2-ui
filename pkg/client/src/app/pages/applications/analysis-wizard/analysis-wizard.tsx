@@ -2,7 +2,11 @@ import * as React from "react";
 import { useIsMutating } from "react-query";
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { Wizard, WizardStepFunctionType } from "@patternfly/react-core";
+import {
+  Truncate,
+  Wizard,
+  WizardStepFunctionType,
+} from "@patternfly/react-core";
 
 import {
   Application,
@@ -340,7 +344,11 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           <Wizard
             isOpen={isOpen}
             title="Application analysis"
-            description={applications.map((app) => app.name).join(", ")}
+            description={
+              <Truncate
+                content={applications.map((app) => app.name).join(", ")}
+              />
+            }
             navAriaLabel={`${title} steps`}
             mainAriaLabel={`${title} content`}
             steps={steps}
