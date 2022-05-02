@@ -68,16 +68,15 @@ export const ApplicationIdentityForm: React.FC<
 
   // Actions
   const onCreateUpdateApplicationSuccess = (response: any) => {
-    onSaved(response);
+    if (response) {
+      onSaved(response);
+    }
     formik.setSubmitting(false);
-    //All promises resolved successfully
-    onCreateUpdateApplicationSuccess(response[0]);
   };
 
   const onCreateUpdateApplicationError = (error: AxiosError) => {
     setAxiosError(error);
     formik.setSubmitting(false);
-    onCreateUpdateApplicationError(error);
   };
 
   const { mutate: updateAllApplications } = useUpdateAllApplicationsMutation(
