@@ -22,6 +22,8 @@ const taskStateToAnalyze: Map<TaskState, AnalysisState> = new Map([
   ["Failed", "Failed"],
   ["Running", "InProgress"],
   ["No task", "NotStarted"],
+  ["Pending", "Scheduled"],
+  ["Postponed", "Scheduled"],
   ["Ready", "Scheduled"],
 ]);
 
