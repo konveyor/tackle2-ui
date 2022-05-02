@@ -321,7 +321,9 @@ export type TaskState =
   | "Failed"
   | "Running"
   | "No task"
-  | "Ready";
+  | "Ready"
+  | "Pending"
+  | "Postponed";
 
 export interface Task {
   id?: number;
