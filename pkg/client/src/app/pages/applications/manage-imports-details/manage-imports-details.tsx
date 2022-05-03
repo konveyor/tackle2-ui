@@ -37,7 +37,6 @@ import {
 } from "@app/shared/components/FilterToolbar/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
-import { AxiosError } from "axios";
 
 const ENTITY_FIELD = "entity";
 
@@ -67,15 +66,7 @@ export const ManageImportsDetails: React.FC = () => {
 
   const { imports, isFetching, fetchError } = useFetchImports();
 
-  const onFetchImportSummaryByIDError = (err: AxiosError) => {
-    console.log("err", err);
-  };
-
-  const {
-    importSummary,
-    isFetching: isFetchingImportSummary,
-    fetchError: importSummaryFetchError,
-  } = useFetchImportSummaryByID(onFetchImportSummaryByIDError);
+  const { importSummary } = useFetchImportSummaryByID(importId);
 
   const rows: IRow[] = [];
   imports?.forEach((item) => {

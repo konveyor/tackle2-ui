@@ -88,10 +88,11 @@ export const ManageImports: React.FC = () => {
     dispatch(confirmDialogActions.closeDialog());
   };
 
-  const onDeleteImportSummaryError = (error: AxiosError) => {
+  const onDeleteImportSummaryError = (error: Error | null) => {
     dispatch(confirmDialogActions.closeDialog());
-    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    if (error) dispatch(alertActions.addDanger(error.message));
   };
+
   const { mutate: deleteImportSummary } = useDeleteImportSummaryMutation(
     onDeleteImportSummarySuccess,
     onDeleteImportSummaryError
@@ -113,9 +114,6 @@ export const ManageImports: React.FC = () => {
     importSummaries || [],
     filterCategories
   );
-  const handleOnClearAllFilters = () => {
-    setFilterValues({});
-  };
 
   const getSortValues = (item: ApplicationImportSummary) => [
     "",
@@ -269,6 +267,7 @@ export const ManageImports: React.FC = () => {
   const deleteRow = (row: ApplicationImportSummary) => {
     dispatch(
       confirmDialogActions.openDialog({
+        // t("terms.tag(s)")
         title: t("dialog.title.delete", {
           what: t("terms.summaryImport").toLowerCase(),
         }),
