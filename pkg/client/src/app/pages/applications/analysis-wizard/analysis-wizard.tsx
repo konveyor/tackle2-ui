@@ -139,12 +139,15 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const { mutate: uploadFile } = useUploadFileMutation(() => {}, onUploadError);
 
+  const onDeleteTaskgroupSuccess = () => setInitTaskgroup(false);
+
   const onDeleteTaskgroupError = (error: Error | unknown) => {
     console.log("Taskgroup: delete failed: ", error);
     dispatch(alertActions.addDanger("Taskgroup: delete failed"));
   };
 
   const { mutate: deleteTaskgroup } = useDeleteTaskgroupMutation(
+    onDeleteTaskgroupSuccess,
     onDeleteTaskgroupError
   );
 
@@ -277,7 +280,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   }, [mode]);
 
   React.useEffect(() => {
-    if (createdTaskgroup && createdTaskgroup.id)
+    if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
       deleteTaskgroup(createdTaskgroup.id);
 
     if (analyzeableApplications.length > 0) {
