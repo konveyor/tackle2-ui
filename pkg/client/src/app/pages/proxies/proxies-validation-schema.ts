@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
   HTTP_HOST,
@@ -20,33 +21,17 @@ export default function validationSchema(
     [HTTPS_IDENTITY]: false,
   }
 ) {
-  const createHttpIdentitySchema = () => {
-    const identitySchema = yup
-      .object()
-      .shape({ id: yup.string(), name: yup.string() })
-      .nullable();
-
-    return mandatoryFields[HTTP_IDENTITY]
-      ? identitySchema.required(REQUIRED_MESSAGE)
-      : identitySchema;
-  };
-
-  const createHttpsIdentitySchema = () => {
-    const identitySchema = yup
-      .object()
-      .shape({ id: yup.string(), name: yup.string() })
-      .nullable();
-
-    return mandatoryFields[HTTPS_IDENTITY]
-      ? identitySchema.required(REQUIRED_MESSAGE)
-      : identitySchema;
-  };
+  const { t } = useTranslation();
 
   return yup.object().shape({
     //http
     [HTTP_HOST]: yup.lazy(() =>
       mandatoryFields[HTTP_HOST]
-        ? yup.string().required(REQUIRED_MESSAGE)
+        ? yup
+            .string()
+            .required(REQUIRED_MESSAGE)
+            .min(3, t("validation.minLength", { length: 3 }))
+            .max(120, t("validation.maxLength", { length: 120 }))
         : yup.string()
     ),
     [HTTP_PORT]: yup.lazy(() =>
@@ -54,13 +39,19 @@ export default function validationSchema(
         ? yup.string().required(REQUIRED_MESSAGE)
         : yup.string()
     ),
-    ...(mandatoryFields[HTTP_IDENTITY] && {
-      [HTTP_IDENTITY]: createHttpIdentitySchema(),
-    }),
+    [HTTP_IDENTITY]: yup.lazy(() =>
+      mandatoryFields[HTTP_IDENTITY]
+        ? yup.string().required(REQUIRED_MESSAGE).nullable()
+        : yup.string().nullable()
+    ),
     //https
     [HTTPS_HOST]: yup.lazy(() =>
       mandatoryFields[HTTPS_HOST]
-        ? yup.string().required(REQUIRED_MESSAGE)
+        ? yup
+            .string()
+            .required(REQUIRED_MESSAGE)
+            .min(3, t("validation.minLength", { length: 3 }))
+            .max(120, t("validation.maxLength", { length: 120 }))
         : yup.string()
     ),
     [HTTPS_PORT]: yup.lazy(() =>
@@ -68,8 +59,10 @@ export default function validationSchema(
         ? yup.string().required(REQUIRED_MESSAGE)
         : yup.string()
     ),
-    ...(mandatoryFields[HTTPS_IDENTITY] && {
-      [HTTPS_IDENTITY]: createHttpsIdentitySchema(),
-    }),
+    [HTTPS_IDENTITY]: yup.lazy(() =>
+      mandatoryFields[HTTPS_IDENTITY]
+        ? yup.string().required(REQUIRED_MESSAGE).nullable()
+        : yup.string().nullable()
+    ),
   });
 }
