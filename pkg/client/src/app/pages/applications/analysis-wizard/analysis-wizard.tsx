@@ -29,6 +29,12 @@ import {
 } from "@app/queries/taskgroups";
 
 import "./wizard.css";
+import {
+  isApplicationBinaryEnabled,
+  isApplicationSourceCodeDepsEnabled,
+  isApplicationSourceCodeEnabled,
+  isModeSupported,
+} from "./utils";
 
 interface IAnalysisWizard {
   applications: Application[];
@@ -72,6 +78,14 @@ const defaultTaskData: TaskData = {
   },
 };
 
+const initTask = (application: Application): TaskgroupTask => {
+  return {
+    name: `${application.name}.${application.id}.windup`,
+    data: {},
+    application: { id: application.id as number, name: application.name },
+  };
+};
+
 export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   applications,
   onClose,
@@ -82,7 +96,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const [isInitTaskgroup, setInitTaskgroup] = React.useState(false);
   const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
+  const [stepIdReached, setStepIdReached] = React.useState(1);
   const isMutating = useIsMutating();
+
+  const [analyzeableApplications, setAnalyzeableApplications] = React.useState<
+    Application[]
+  >([]);
 
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
     setInitTaskgroup(true);
@@ -144,47 +163,9 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
   });
 
-  const areApplicationsBinaryEnabled = (): boolean =>
-    applications.every(
-      (application) =>
-        application.binary !== "::" && application.binary?.match(/.+:.+:.+/)
-    );
-
-  const areApplicationsSourceCodeEnabled = (): boolean =>
-    applications.every(
-      (application) =>
-        application.repository && application.repository.url !== ""
-    );
-
-  const areApplicationsSourceCodeDepsEnabled = (): boolean =>
-    applications.every(
-      (application) =>
-        application.repository && application.repository.url !== ""
-    );
-
   const { handleSubmit, watch, reset } = methods;
   const watchAllFields = watch();
-
-  if (!isInitTaskgroup) {
-    const initTask = (application: Application): TaskgroupTask => {
-      return {
-        name: `${application.name}.${application.id}.windup`,
-        data: {},
-        application: { id: application.id as number, name: application.name },
-      };
-    };
-
-    const taskgroup: Taskgroup = {
-      name: `taskgroup.windup`,
-      addon: "windup",
-      data: {
-        ...defaultTaskData,
-      },
-      tasks: applications.map((app) => initTask(app)),
-    };
-
-    createTaskgroup(taskgroup);
-  }
+  const { mode, artifact, targets } = methods.getValues();
 
   const setTaskgroup = (taskgroup: Taskgroup, data: FieldValues): Taskgroup => {
     return {
@@ -215,17 +196,28 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     };
   };
 
-  const [stepIdReached, setStepIdReached] = React.useState(1);
+  const areApplicationsBinaryEnabled = (): boolean =>
+    applications.every((application) =>
+      isApplicationBinaryEnabled(application)
+    );
 
-  enum stepId {
-    AnalysisMode = 1,
-    UploadBinaryStep,
-    SetTargets,
-    Scope,
-    CustomRules,
-    Options,
-    Review,
-  }
+  const areApplicationsSourceCodeEnabled = (): boolean =>
+    applications.every((application) =>
+      isApplicationSourceCodeEnabled(application)
+    );
+
+  const areApplicationsSourceCodeDepsEnabled = (): boolean =>
+    applications.every((application) =>
+      isApplicationSourceCodeDepsEnabled(application)
+    );
+
+  const isModeValid = (): boolean => {
+    if (mode.includes("Upload")) return !isMutating && artifact !== "";
+    if (mode.includes("Binary")) return areApplicationsBinaryEnabled();
+    else if (mode.includes("dependencies"))
+      return areApplicationsSourceCodeDepsEnabled();
+    else return areApplicationsSourceCodeEnabled();
+  };
 
   const onSubmit = (data: FieldValues) => {
     if (data.targets.length < 1) {
@@ -259,15 +251,48 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     if (id && stepIdReached < id) setStepIdReached(id as number);
   };
 
-  const { mode, artifact, targets } = methods.getValues();
+  enum stepId {
+    AnalysisMode = 1,
+    UploadBinaryStep,
+    SetTargets,
+    Scope,
+    CustomRules,
+    Options,
+    Review,
+  }
 
-  const isModeValid = (): boolean => {
-    if (mode.includes("Upload")) return !isMutating && artifact !== "";
-    if (mode.includes("Binary")) return areApplicationsBinaryEnabled();
-    else if (mode.includes("dependencies"))
-      return areApplicationsSourceCodeDepsEnabled();
-    else return areApplicationsSourceCodeEnabled();
+  const handleClose = () => {
+    setStepIdReached(stepId.AnalysisMode);
+    reset();
+    if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
+      deleteTaskgroup(createdTaskgroup.id);
+    onClose();
   };
+
+  React.useEffect(() => {
+    const apps = applications.filter((application) =>
+      isModeSupported(application, mode)
+    );
+    setAnalyzeableApplications(apps);
+  }, [mode]);
+
+  React.useEffect(() => {
+    if (createdTaskgroup && createdTaskgroup.id)
+      deleteTaskgroup(createdTaskgroup.id);
+
+    if (analyzeableApplications.length > 0) {
+      const taskgroup: Taskgroup = {
+        name: `taskgroup.windup`,
+        addon: "windup",
+        data: {
+          ...defaultTaskData,
+        },
+        tasks: analyzeableApplications.map((app) => initTask(app)),
+      };
+
+      createTaskgroup(taskgroup);
+    }
+  }, [analyzeableApplications, createTaskgroup]);
 
   const steps = [
     {
@@ -284,7 +309,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             />
           ),
 
-          enableNext: !isMutating,
+          enableNext: !isMutating && analyzeableApplications.length > 0,
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
         },
         {
@@ -328,14 +353,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       canJumpTo: stepIdReached >= stepId.Review,
     },
   ];
-
-  const handleClose = () => {
-    setStepIdReached(stepId.AnalysisMode);
-    reset();
-    if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
-      deleteTaskgroup(createdTaskgroup.id);
-    onClose();
-  };
 
   return (
     <>
