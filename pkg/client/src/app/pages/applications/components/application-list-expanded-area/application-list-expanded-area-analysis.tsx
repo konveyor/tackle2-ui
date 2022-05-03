@@ -43,8 +43,10 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
   }, [task]);
 
   let matchingSourceCredsRef;
+  let matchingMavenCredsRef;
   if (identities) {
     matchingSourceCredsRef = getKindIDByRef(identities, application, "source");
+    matchingMavenCredsRef = getKindIDByRef(identities, application, "maven");
   }
 
   return (
@@ -64,7 +66,17 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.credentials")}</DescriptionListTerm>
         <DescriptionListDescription cy-data="credentials">
-          {matchingSourceCredsRef ? (
+          {matchingSourceCredsRef && matchingMavenCredsRef ? (
+            <>
+              <OkIcon color="green"></OkIcon>
+              <span className={spacing.mlSm}>(Source and Maven)</span>
+            </>
+          ) : matchingMavenCredsRef ? (
+            <>
+              <OkIcon color="green"></OkIcon>
+              <span className={spacing.mlSm}>(Maven)</span>
+            </>
+          ) : matchingSourceCredsRef ? (
             <>
               <OkIcon color="green"></OkIcon>
               <span className={spacing.mlSm}>(Source)</span>

@@ -34,7 +34,11 @@ import {
 } from "./field-names";
 import validationSchema from "./validation-schema";
 import { updateApplication } from "@app/api/rest";
-import { useUpdateApplicationMutation } from "@app/queries/applications";
+import {
+  useFetchApplications,
+  useUpdateAllApplicationsMutation,
+  useUpdateApplicationMutation,
+} from "@app/queries/applications";
 
 export interface FormValues {
   applicationName: string;
@@ -60,16 +64,22 @@ export const ApplicationIdentityForm: React.FC<
     fetchIdentities();
   }, [fetchIdentities]);
 
+  const { refetch: refetchApplications } = useFetchApplications();
+
   // Actions
   const onCreateUpdateApplicationSuccess = (response: any) => {
-    onSaved(response);
+    if (response) {
+      onSaved(response);
+    }
+    formik.setSubmitting(false);
   };
 
   const onCreateUpdateApplicationError = (error: AxiosError) => {
     setAxiosError(error);
+    formik.setSubmitting(false);
   };
 
-  const { mutate: updateApplication } = useUpdateApplicationMutation(
+  const { mutate: updateAllApplications } = useUpdateAllApplicationsMutation(
     onCreateUpdateApplicationSuccess,
     onCreateUpdateApplicationError
   );
@@ -107,18 +117,7 @@ export const ApplicationIdentityForm: React.FC<
         updatePromises.push(promise);
       }
     });
-    Promise.all(updatePromises)
-      .then((response) => {
-        formik.setSubmitting(false);
-        //All promises resolved successfully
-        // onSaved(response[0]);
-        onCreateUpdateApplicationSuccess(response[0]);
-      })
-      .catch((error) => {
-        //One or many promises failed
-        formik.setSubmitting(false);
-        onCreateUpdateApplicationError(error);
-      });
+    updateAllApplications(updatePromises);
   };
   const emptyIdentity = { id: 0, name: "None", kind: "", createUser: "" };
 

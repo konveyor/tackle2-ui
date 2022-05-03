@@ -404,9 +404,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (task?.id) deleteTask(task.id);
   };
 
-  const handleOnApplicationIdentityUpdated = (
-    response: AxiosResponse<Application>
-  ) => {
+  const handleOnApplicationIdentityUpdated = () => {
     closeCredentialsModal();
   };
 
