@@ -28,6 +28,12 @@ module.exports = function (app) {
         "^/hub": "",
       },
       logLevel: process.env.DEBUG ? "debug" : "info",
+      onProxyReq: (proxyReq, req, res) => {
+        if (req.get("Authorization")) {
+        } else if (req.cookies.proxyToken) {
+          proxyReq.setHeader('Authorization', `Bearer ${req.cookies.proxyToken}`)
+        }
+      },
     })
   );
 };

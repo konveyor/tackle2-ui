@@ -4,6 +4,7 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "express": "^4.17.2",
     "http-proxy-middleware": "^2.0.2"
   },
