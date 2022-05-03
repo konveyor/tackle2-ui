@@ -255,6 +255,18 @@ export const updateApplication = (
   return APIClient.put(`${APPLICATIONS}/${obj.id}`, obj);
 };
 
+export const updateAllApplications = (
+  updatePromises: AxiosPromise<Application>[]
+) => {
+  return Promise.all(updatePromises)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      return error;
+    });
+};
+
 export const getApplicationById = (
   id: number | string
 ): AxiosPromise<Application> => {
