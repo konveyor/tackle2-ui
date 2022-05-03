@@ -102,7 +102,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   const [analyzeableApplications, setAnalyzeableApplications] = React.useState<
     Application[]
   >([]);
-  const candidatesRef = React.useRef<Application[]>([]);
 
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
     setInitTaskgroup(true);
@@ -274,8 +273,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     const apps = applications.filter((application) =>
       isModeSupported(application, mode)
     );
-    candidatesRef.current = apps;
-    setAnalyzeableApplications(candidatesRef.current);
+    setAnalyzeableApplications(apps);
   }, [mode]);
 
   React.useEffect(() => {
