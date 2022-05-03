@@ -13,7 +13,7 @@ interface IKeycloakProviderProps {
 export const KeycloakProvider: React.FunctionComponent<
   IKeycloakProviderProps
 > = ({ children }) => {
-  const isAuthRequired = ENV.AUTH_REQUIRED === "true";
+  const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
   if (isAuthRequired) {
     return (
       <ReactKeycloakProvider

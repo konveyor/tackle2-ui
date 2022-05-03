@@ -11,7 +11,7 @@ export const RBAC = ({
   rbacType,
   children,
 }: IRBACProps) => {
-  const isAuthRequired = ENV.AUTH_REQUIRED === "true";
+  const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
   if (isAuthRequired) {
     const token = keycloak.tokenParsed || undefined;
     if (rbacType === RBAC_TYPE.Role) {

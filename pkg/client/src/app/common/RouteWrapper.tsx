@@ -18,7 +18,7 @@ export const RouteWrapper = ({
   let userRoles = token?.realm_access?.roles,
     access = userRoles && checkAccess(userRoles, roles);
 
-  const isAuthRequired = ENV.AUTH_REQUIRED === "true";
+  const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
 
   if (!token && isAuthRequired) {
     //TODO: Handle token expiry & auto logout
