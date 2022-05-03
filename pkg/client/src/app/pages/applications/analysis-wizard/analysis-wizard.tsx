@@ -309,7 +309,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             />
           ),
 
-          enableNext: !isMutating, //&& candidatesApplications.length > 0,
+          enableNext: !isMutating && analyzeableApplications.length > 0,
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
         },
         {
