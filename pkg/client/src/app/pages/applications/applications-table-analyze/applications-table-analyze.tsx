@@ -1,15 +1,12 @@
 import * as React from "react";
-import { useHistory } from "react-router-dom";
+import { Link, Redirect, useHistory } from "react-router-dom";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@konveyor/lib-ui";
 import {
   Button,
   ButtonVariant,
-  Dropdown,
   DropdownItem,
-  DropdownToggle,
-  DropdownToggleCheckbox,
   Modal,
   Pagination,
   ToolbarGroup,
@@ -30,6 +27,8 @@ import {
 import { TagIcon } from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import { PencilAltIcon } from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
 import { useDispatch } from "react-redux";
+import keycloak from "@app/keycloak";
+
 import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 import {
@@ -40,7 +39,7 @@ import {
   KebabDropdown,
   ToolbarBulkSelector,
 } from "@app/shared/components";
-import { useEntityModal, useDelete } from "@app/shared/hooks";
+import { useEntityModal } from "@app/shared/hooks";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 import { Paths } from "@app/Paths";
 import { Application, Task } from "@app/api/models";
@@ -50,18 +49,12 @@ import { ApplicationBusinessService } from "../components/application-business-s
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { ApplicationListExpandedAreaAnalysis } from "../components/application-list-expanded-area/application-list-expanded-area-analysis";
 import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
+import { FilterToolbar } from "@app/shared/components/FilterToolbar";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import { useDeleteTaskMutation, useFetchTasks } from "@app/queries/tasks";
 import { RBAC, RBAC_TYPE, taskWriteScopes, writeScopes } from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
-import keycloak from "@app/keycloak";
 import {
   useDeleteApplicationMutation,
   useFetchApplications,
@@ -223,6 +216,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (task && task.state) return task.state;
     return "No task";
   };
+
   // Expand, select rows
   const {
     isItemSelected: isRowExpanded,
@@ -351,6 +345,18 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         {
           title: t("actions.delete"),
           onClick: () => deleteRow(row),
+        },
+        {
+          title: t("actions.analysisDetails"),
+          isDisabled: !getTask(row),
+          onClick: () => {
+            const task = getTask(row);
+            if (task)
+              window.open(
+                `http://localhost:8080/hub/tasks/${task.id}`,
+                "_blank"
+              );
+          },
         }
       );
     }
