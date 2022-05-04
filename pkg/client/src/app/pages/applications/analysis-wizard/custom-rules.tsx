@@ -66,7 +66,6 @@ export const CustomRules: React.FunctionComponent = () => {
         if (metadata && metadata.length > 0) {
           const sources = metadata[0].getElementsByTagName("sourceTechnology");
           if (sources && sources.length > 0) source = sources[0].id;
-          if (sources && sources.length > 0) console.log("sources: ", sources);
 
           const targets = metadata[0].getElementsByTagName("targetTechnology");
           if (targets && targets.length > 0) target = targets[0].id;
