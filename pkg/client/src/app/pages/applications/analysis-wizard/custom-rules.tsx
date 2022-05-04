@@ -50,8 +50,8 @@ export const CustomRules: React.FunctionComponent = () => {
     const getRules = (file: IReadFile) => {
       if (!file.data) return [];
 
-      let source = "";
-      let target = "";
+      let source = null;
+      let target = null;
       let rulesCount = 0;
 
       const payload = atob(file.data.substring(21));
@@ -66,6 +66,7 @@ export const CustomRules: React.FunctionComponent = () => {
         if (metadata && metadata.length > 0) {
           const sources = metadata[0].getElementsByTagName("sourceTechnology");
           if (sources && sources.length > 0) source = sources[0].id;
+          if (sources && sources.length > 0) console.log("sources: ", sources);
 
           const targets = metadata[0].getElementsByTagName("targetTechnology");
           if (targets && targets.length > 0) target = targets[0].id;
@@ -85,7 +86,8 @@ export const CustomRules: React.FunctionComponent = () => {
         },
       ];
 
-      if (!sources.includes(source)) setValue("sources", [...sources, source]);
+      if (source && !sources.includes(source))
+        setValue("sources", [...sources, source]);
 
       return rules;
     };
