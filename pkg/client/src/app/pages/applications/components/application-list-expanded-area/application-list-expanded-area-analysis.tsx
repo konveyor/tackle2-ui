@@ -29,7 +29,6 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
   const { t } = useTranslation();
 
   const [isReport, setIsReport] = React.useState(false);
-  const [isFailedTask, setIsFailedTask] = React.useState(false);
 
   const { identities, fetchIdentities } = useFetchIdentities();
 
@@ -39,7 +38,6 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
 
   useEffect(() => {
     if (task?.state === "Succeeded") setIsReport(true);
-    else if (task?.state === "Failed") setIsFailedTask(true);
   }, [task]);
 
   let matchingSourceCredsRef;
@@ -97,14 +95,6 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
                   target="_blank"
                 >
                   Report
-                </Link>
-              </Button>
-            </Tooltip>
-          ) : isFailedTask ? (
-            <Tooltip content="Click to open task data details into another tab">
-              <Button variant="link" isInline>
-                <Link to={`/hub/tasks/${task?.id}`} target="_blank">
-                  Error
                 </Link>
               </Button>
             </Tooltip>

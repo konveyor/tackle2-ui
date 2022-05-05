@@ -6,6 +6,7 @@
         "introduction": "Tackle is a collection of tools that supports large-scale application modernization and migration projects to Kubernetes."
     },
     "actions": {
+        "analysisDetails": "Analysis details",
         "analyze": "Analyze",
         "assess": "Assess",
         "back": "Back",
