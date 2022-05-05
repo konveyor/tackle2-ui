@@ -380,8 +380,8 @@ interface TaskReport {
 
 export interface Rule {
   name: string;
-  source: string;
-  target: string;
+  source: string | null;
+  target: string | null;
   total: number;
 }
 
