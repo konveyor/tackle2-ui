@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
 import { useFormik, FormikProvider, FormikHelpers } from "formik";
 import { object, string, number } from "yup";
-
 import {
   ActionGroup,
   Alert,
@@ -16,7 +15,6 @@ import {
 } from "@patternfly/react-core";
 
 import { SingleSelectOptionValueFormikField } from "@app/shared/components";
-
 import {
   DEFAULT_SELECT_MAX_HEIGHT,
   DEFAULT_COLOR_PALETE as DEFAULT_COLOR_PALETTE,
@@ -24,11 +22,14 @@ import {
 import { createTagType, updateTagType } from "@app/api/rest";
 import { TagType } from "@app/api/models";
 import {
+  duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
 import { colorHexToOptionWithValue } from "@app/utils/model-utils";
+
+import { useFetchTagTypes } from "@app/shared/hooks";
 
 export interface FormValues {
   name: string;
@@ -51,6 +52,12 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
 
   const [error, setError] = useState<AxiosError>();
 
+  const { tagTypes, fetchTagTypes } = useFetchTagTypes(true);
+
+  React.useEffect(() => {
+    fetchTagTypes();
+  }, [fetchTagTypes]);
+
   const initialValues: FormValues = {
     name: tagType?.name || "",
     rank: tagType?.rank || 1,
@@ -62,7 +69,18 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
       .trim()
       .required(t("validation.required"))
       .min(3, t("validation.minLength", { length: 3 }))
-      .max(40, t("validation.maxLength", { length: 40 })),
+      .max(40, t("validation.maxLength", { length: 40 }))
+      .test(
+        "Duplicate name",
+        "A tag type with this name already exists. Please use a different name.",
+        (value) => {
+          return duplicateNameCheck(
+            tagTypes || [],
+            tagType || null,
+            value || ""
+          );
+        }
+      ),
     rank: number().min(1, t("validation.min", { value: 1 })),
     color: string()
       .trim()
