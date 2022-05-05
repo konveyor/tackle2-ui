@@ -338,6 +338,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           onClick: () => openCredentialsModal([row]),
         },
         {
+          title: t("actions.analysisDetails"),
+          isDisabled: !getTask(row),
+          onClick: () => {
+            const task = getTask(row);
+            if (task) window.open(`/hub/tasks/${task.id}`, "_blank");
+          },
+        },
+        {
           title: "Cancel analysis",
           isDisabled: !isTaskCancellable(row),
           onClick: () => cancelAnalysis(row),
@@ -345,18 +353,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         {
           title: t("actions.delete"),
           onClick: () => deleteRow(row),
-        },
-        {
-          title: t("actions.analysisDetails"),
-          isDisabled: !getTask(row),
-          onClick: () => {
-            const task = getTask(row);
-            if (task)
-              window.open(
-                `http://localhost:8080/hub/tasks/${task.id}`,
-                "_blank"
-              );
-          },
         }
       );
     }
