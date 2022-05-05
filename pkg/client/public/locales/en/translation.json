@@ -85,14 +85,14 @@
             "newBusinessService": "New business service",
             "newJobFunction": "New job function",
             "newStakeholder": "New stakeholder",
-            "newStakeholderGroup": "New stakeholders group",
+            "newStakeholderGroup": "New stakeholder group",
             "newTag": "New Tag",
             "newTagType": "New tag type",
             "updateApplication": "Update application",
             "updateBusinessService": "Update business service",
             "updateJobFunction": "Update job function",
             "updateStakeholder": "Update stakeholder",
-            "updateStakeholderGroup": "Update stakeholders group",
+            "updateStakeholderGroup": "Update stakeholder group",
             "updateTag": "Update tag",
             "updateTagType": "Update tag type"
         }
