@@ -78,7 +78,7 @@ export const Controls: React.FC = () => {
           <Tab eventKey={0} title={<TabTitleText>Stakeholders</TabTitleText>} />
           <Tab
             eventKey={1}
-            title={<TabTitleText>Stakeholders groups</TabTitleText>}
+            title={<TabTitleText>Stakeholder groups</TabTitleText>}
           />
           <Tab
             eventKey={2}
