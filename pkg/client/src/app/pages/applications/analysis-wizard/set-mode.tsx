@@ -3,56 +3,57 @@ import {
   FormGroup,
   TextContent,
   Title,
-  SelectOption,
   SelectVariant,
   Alert,
 } from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { SimpleSelect } from "@app/shared/components";
+import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { UploadBinary } from "./components/upload-binary";
+import { toOptionLike } from "@app/utils/model-utils";
 
 interface ISetMode {
+  mode: string;
   isSingleApp: boolean;
   taskgroupID: number | null;
   isModeValid: boolean;
+  setMode: (mode: string) => void;
 }
 
 export const SetMode: React.FunctionComponent<ISetMode> = ({
+  mode,
   isSingleApp,
   taskgroupID,
   isModeValid,
+  setMode,
 }) => {
-  const { getValues, setValue } = useFormContext();
-
-  const { mode } = getValues();
-  const [isOpen, setIsOpen] = React.useState(false);
   const [isUpload, setIsUpload] = React.useState(false);
 
+  React.useEffect(() => {
+    if (mode === "binary-upload") setIsUpload(true);
+    else setIsUpload(false);
+  }, [mode, isUpload, setIsUpload]);
+
   const options = [
-    <SelectOption
-      key="binary"
-      component="button"
-      value="Binary"
-      isPlaceholder
-    />,
-    <SelectOption key="source-code" component="button" value="Source code" />,
-    <SelectOption
-      key="source-code-deps"
-      component="button"
-      value="Source code + dependencies"
-    />,
+    {
+      value: "binary",
+      toString: () => `Binary`,
+    },
+    {
+      value: "source-code",
+      toString: () => `Source code`,
+    },
+    {
+      value: "source-code-deps",
+      toString: () => `Source code + dependencies`,
+    },
   ];
 
   if (isSingleApp)
-    options.push(
-      <SelectOption
-        key="binary-upload"
-        component="button"
-        value="Upload a local binary"
-      />
-    );
+    options.push({
+      value: "binary-upload",
+      toString: () => "Upload a local binary",
+    });
 
   return (
     <>
@@ -65,17 +66,15 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
         <SimpleSelect
           variant={SelectVariant.single}
           aria-label="Select user perspective"
-          value={mode}
+          value={toOptionLike(mode, options)}
           onChange={(selection) => {
-            setValue("mode", selection);
-            if (selection === "Upload a local binary") setIsUpload(true);
-            else setIsUpload(false);
-            setIsOpen(!isOpen);
+            const option = selection as OptionWithValue<string>;
+            setMode(option.value);
           }}
           options={options}
         />
       </FormGroup>
-      {!isModeValid && (
+      {!isSingleApp && !isModeValid && (
         <Alert
           variant="warning"
           isInline
@@ -88,7 +87,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
           </p>
         </Alert>
       )}
-      {isUpload && taskgroupID && <UploadBinary taskgroupID={taskgroupID} />}
+      {isUpload && taskgroupID && <UploadBinary taskgroupID={1} />}
     </>
   );
 };
