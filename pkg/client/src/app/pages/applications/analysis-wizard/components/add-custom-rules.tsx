@@ -2,21 +2,12 @@ import * as React from "react";
 import {
   Modal,
   MultipleFileUpload,
-  MultipleFileUploadButton,
-  MultipleFileUploadInfo,
   MultipleFileUploadMain,
   MultipleFileUploadStatus,
   MultipleFileUploadStatusItem,
-  MultipleFileUploadTitle,
-  MultipleFileUploadTitleIcon,
-  MultipleFileUploadTitleText,
-  MultipleFileUploadTitleTextSeparator,
 } from "@patternfly/react-core";
+import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import { useFormContext } from "react-hook-form";
-
-import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
-import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import { XMLValidator } from "fast-xml-parser";
 
 import XSDSchema from "./windup-jboss-ruleset.xsd";
@@ -37,6 +28,7 @@ export const AddCustomRules: React.FunctionComponent = () => {
 
   const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
   const [showStatus, setShowStatus] = React.useState(false);
+  const [statusIcon, setStatusIcon] = React.useState("inProgress");
   const [modalText, setModalText] = React.useState("");
 
   // only show the status component once a file has been uploaded, but keep the status list component itself even if all files are removed
@@ -45,17 +37,15 @@ export const AddCustomRules: React.FunctionComponent = () => {
   }
 
   // determine the icon that should be shown for the overall status list
-  const getStatusIcon = () => {
+  React.useEffect(() => {
     if (readFileData.length < currentFiles.length) {
-      return <InProgressIcon />;
+      setStatusIcon("inProgress");
+    } else if (readFileData.every((file) => file.loadResult === "success")) {
+      setStatusIcon("success");
+    } else {
+      setStatusIcon("danger");
     }
-
-    if (readFileData.every((file) => file.loadResult === "success")) {
-      return <CheckCircleIcon />;
-    }
-
-    return <TimesCircleIcon />;
-  };
+  }, [readFileData, currentFiles]);
 
   // remove files from both state arrays based on their name
   const removeFiles = (namesOfFilesToRemove: string[]) => {
@@ -172,25 +162,16 @@ export const AddCustomRules: React.FunctionComponent = () => {
         onDropRejected: handleDropRejected,
       }}
     >
-      <MultipleFileUploadMain>
-        <MultipleFileUploadTitle>
-          <MultipleFileUploadTitleIcon />
-          <MultipleFileUploadTitleText>
-            Drag and drop files here
-            <MultipleFileUploadTitleTextSeparator>
-              or
-            </MultipleFileUploadTitleTextSeparator>
-          </MultipleFileUploadTitleText>
-        </MultipleFileUploadTitle>
-        <MultipleFileUploadButton />
-        <MultipleFileUploadInfo>
-          Accepted files: XML with '.windup.xml' suffix.
-        </MultipleFileUploadInfo>
-      </MultipleFileUploadMain>
+      <MultipleFileUploadMain
+        titleIcon={<UploadIcon />}
+        titleText="Drag and drop files here"
+        titleTextSeparator="or"
+        infoText="Accepted file types: XML with '.windup.xml' suffix."
+      />
       {showStatus && (
         <MultipleFileUploadStatus
           statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
-          statusToggleIcon={getStatusIcon()}
+          statusToggleIcon={statusIcon}
         >
           {currentFiles.map((file) => (
             <MultipleFileUploadStatusItem
