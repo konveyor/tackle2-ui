@@ -1,3 +1,4 @@
+import { ENV } from "@app/Constants";
 import keycloak from "@app/keycloak";
 import React from "react";
 import { Redirect, Route } from "react-router-dom";
@@ -17,10 +18,12 @@ export const RouteWrapper = ({
   let userRoles = token?.realm_access?.roles,
     access = userRoles && checkAccess(userRoles, roles);
 
-  if (!token) {
+  const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
+
+  if (!token && isAuthRequired) {
     //TODO: Handle token expiry & auto logout
     return <Redirect to="/login" />;
-  } else if (token && !access) {
+  } else if (token && !access && isAuthRequired) {
     return <Redirect to="/" />;
   }
 

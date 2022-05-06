@@ -14,6 +14,13 @@ import {
   ProposedAction,
   Risk,
 } from "@app/api/models";
+export interface IEnvVars {
+  AUTH_REQUIRED: string;
+  KEYCLOAK_REALM: string;
+  KEYCLOAK_CLIENT_ID: string;
+  KEYCLOAK_SERVER_URL: string;
+}
+export const ENV: IEnvVars = window["_env"] || {};
 
 export const DEFAULT_PAGINATION: PageQuery = {
   page: 1,

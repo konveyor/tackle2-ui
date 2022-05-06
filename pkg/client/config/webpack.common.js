@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
-const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const { WatchIgnorePlugin } = require("webpack");
+
 
 const BG_IMAGES_DIRNAME = "images";
 
@@ -169,11 +168,6 @@ module.exports = (env) => {
       ],
     },
     plugins: [
-      new ForkTsCheckerWebpackPlugin({ typescript: { memoryLimit: 4096 } }),
-      new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, "../public/index.html"),
-        favicon: path.resolve(__dirname, "../public/favicon.ico"),
-      }),
       new Dotenv({
         systemvars: true,
         silent: true,

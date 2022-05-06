@@ -17,8 +17,10 @@ import { MobileDropdown } from "./MobileDropdown";
 
 import navBrandImage from "@app/images/tackle.png";
 import imgAvatar from "@app/images/avatar.svg";
+import { ENV } from "@app/Constants";
 
 export const HeaderApp: React.FC = () => {
+  const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
   const toolbar = (
     <PageHeaderTools>
       <PageHeaderToolsGroup
@@ -56,7 +58,7 @@ export const HeaderApp: React.FC = () => {
         >
           <MobileDropdown />
         </PageHeaderToolsItem>
-        <SSOMenu />
+        {isAuthRequired && <SSOMenu />}
       </PageHeaderToolsGroup>
       <Avatar src={imgAvatar} alt="Avatar image" />
     </PageHeaderTools>
