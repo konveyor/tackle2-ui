@@ -24,6 +24,7 @@ import {
 } from "@app/context/LocalStorageContext";
 
 import "./SidebarApp.css";
+import { isAuthRequired } from "@app/Constants";
 
 export const SidebarApp: React.FC = () => {
   const token = keycloak.tokenParsed || undefined;
@@ -50,7 +51,7 @@ export const SidebarApp: React.FC = () => {
       value="Developer"
       isPlaceholder
     />,
-    ...(adminAccess
+    ...(adminAccess || !isAuthRequired
       ? [
           <SelectOption
             key="admin"
