@@ -7,7 +7,7 @@ const Dotenv = require("dotenv-webpack");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const { WatchIgnorePlugin } = require("webpack");
 
-const helpers = require('../../server/helpers');
+const helpers = require("../../server/helpers");
 
 const BG_IMAGES_DIRNAME = "images";
 
@@ -171,23 +171,6 @@ module.exports = (env) => {
       ],
     },
     plugins: [
-      new HtmlWebpackPlugin({
-        ...(env !== 'production' 
-          ? {
-              // In dev mode, populate window._env at build time
-              filename: 'index.html',
-              template: path.resolve(__dirname, "../public/index.html.ejs"),
-              favicon: path.resolve(__dirname, "../public/favicon.ico"),
-              templateParameters: {
-                _env: helpers.getEncodedEnv(),
-              },
-            }
-          : {
-              // In real prod mode, populate window._env at run time with express
-              filename: 'index.html.ejs',
-              template: `!!raw-loader!${path.resolve(__dirname, '../public/index.html.ejs')}`,
-            }),
-      }),
       new Dotenv({
         systemvars: true,
         silent: true,
