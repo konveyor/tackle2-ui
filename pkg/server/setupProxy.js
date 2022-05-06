@@ -29,8 +29,7 @@ module.exports = function (app) {
       },
       logLevel: process.env.DEBUG ? "debug" : "info",
       onProxyReq: (proxyReq, req, res) => {
-        if (req.get("Authorization")) {
-        } else if (req.cookies.proxyToken) {
+        if (req.cookies.proxyToken) {
           proxyReq.setHeader('Authorization', `Bearer ${req.cookies.proxyToken}`)
         }
       },

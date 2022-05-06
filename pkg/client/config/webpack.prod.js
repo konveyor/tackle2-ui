@@ -22,6 +22,14 @@ module.exports = merge(common("production"), {
         preset: ["default", { mergeLonghand: false }],
       },
     }),
+    new HtmlWebpackPlugin({
+      // In real prod mode, populate window._env at run time with express
+      filename: "index.html.ejs",
+      template: `!!raw-loader!${path.resolve(
+        __dirname,
+        "../public/index.html.ejs"
+      )}`,
+    }),
   ],
   module: {
     rules: [
