@@ -9,7 +9,6 @@ const setupProxy = require("./setupProxy");
 const port = 8080;
 
 const helpers = require('./helpers');
-console.log('getEnv', helpers.getEnv())
 app.use(cookieParser());
 
 setupProxy(app);
