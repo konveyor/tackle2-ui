@@ -1,5 +1,5 @@
 import { initInterceptors } from "@app/axios-config";
-import { ENV, isAuthRequired } from "@app/Constants";
+import { isAuthRequired } from "@app/Constants";
 import i18n from "@app/i18n";
 import keycloak from "@app/keycloak";
 import { AppPlaceholder } from "@app/shared/components";
