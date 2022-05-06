@@ -35,13 +35,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
 
   const dispatch = useDispatch();
 
-  React.useEffect(() => {
-    return () => {
-      setFileUploadProgress(undefined);
-      setFileUploadStatus(undefined);
-    };
-  }, []);
-
   const completedUpload = () => {
     dispatch(
       alertActions.addInfo(`Task ${taskgroupID}`, "Uploading binary file.")
@@ -143,7 +136,10 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
         <MultipleFileUploadStatusItem
           file={currentFile}
           key={currentFile.name}
-          onClearClick={() => removeFiles(currentFile.name)}
+          onClearClick={() => {
+            removeFiles(currentFile.name);
+            setValue("artifact", "");
+          }}
           onReadSuccess={handleReadSuccess}
           onReadFail={handleReadFail}
           customFileHandler={(file) => {

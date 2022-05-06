@@ -97,6 +97,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   const [isInitTaskgroup, setInitTaskgroup] = React.useState(false);
   const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
   const [stepIdReached, setStepIdReached] = React.useState(1);
+  const [mode, setMode] = React.useState("binary");
   const isMutating = useIsMutating();
 
   const [analyzeableApplications, setAnalyzeableApplications] = React.useState<
@@ -168,7 +169,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const { handleSubmit, watch, reset } = methods;
   const watchAllFields = watch();
-  const { mode, artifact, targets } = methods.getValues();
+  const { artifact, targets } = methods.getValues();
 
   const setTaskgroup = (taskgroup: Taskgroup, data: FieldValues): Taskgroup => {
     return {
@@ -306,13 +307,19 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           name: "Analysis mode",
           component: (
             <SetMode
+              mode={mode}
               isSingleApp={applications.length === 1 ? true : false}
               taskgroupID={createdTaskgroup?.id || null}
               isModeValid={isModeValid()}
+              setMode={setMode}
             />
           ),
 
-          enableNext: !isMutating && analyzeableApplications.length > 0,
+          enableNext:
+            (analyzeableApplications.length === 1 &&
+              !isMutating &&
+              artifact !== "") ||
+            analyzeableApplications.length > 1,
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
         },
         {
