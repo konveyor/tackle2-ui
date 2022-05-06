@@ -41,6 +41,7 @@ exports[`SimpleSelect Renders without crashing 1`] = `
   position="left"
   removeSelectionAriaLabel="Remove"
   selections={Array []}
+  shouldResetOnSelect={true}
   toggleAriaLabel="Options menu"
   toggleIcon={null}
   toggleId={null}

@@ -25,7 +25,7 @@
     "@konveyor/lib-ui": "^4.0.4",
     "@patternfly/patternfly": "4.179.1",
     "@patternfly/react-charts": "6.51.5",
-    "@patternfly/react-core": "4.198.5",
+    "@patternfly/react-core": "^4.206.2",
     "@patternfly/react-table": "4.67.5",
     "@patternfly/react-tokens": "4.50.5",
     "@react-keycloak/web": "^3.4.0",

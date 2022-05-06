@@ -2,15 +2,10 @@ import * as React from "react";
 import {
   Modal,
   MultipleFileUpload,
-  MultipleFileUploadButton,
-  MultipleFileUploadInfo,
   MultipleFileUploadMain,
   MultipleFileUploadStatusItem,
-  MultipleFileUploadTitle,
-  MultipleFileUploadTitleIcon,
-  MultipleFileUploadTitleText,
-  MultipleFileUploadTitleTextSeparator,
 } from "@patternfly/react-core";
+import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import { useFormContext } from "react-hook-form";
 import { useDispatch } from "react-redux";
 
@@ -138,21 +133,12 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
         onDropRejected: handleDropRejected,
       }}
     >
-      <MultipleFileUploadMain>
-        <MultipleFileUploadTitle>
-          <MultipleFileUploadTitleIcon />
-          <MultipleFileUploadTitleText>
-            Drag and drop file here
-            <MultipleFileUploadTitleTextSeparator>
-              or
-            </MultipleFileUploadTitleTextSeparator>
-          </MultipleFileUploadTitleText>
-        </MultipleFileUploadTitle>
-        <MultipleFileUploadButton />
-        <MultipleFileUploadInfo>
-          Accepted file: war, ear, jar or zip.
-        </MultipleFileUploadInfo>
-      </MultipleFileUploadMain>
+      <MultipleFileUploadMain
+        titleIcon={<UploadIcon />}
+        titleText="Drag and drop files here"
+        titleTextSeparator="or"
+        infoText="Accepted file types: war, ear, jar or zip"
+      />
       {showStatus && currentFile && (
         <MultipleFileUploadStatusItem
           file={currentFile}
