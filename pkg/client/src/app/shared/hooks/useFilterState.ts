@@ -11,6 +11,8 @@ export const useFilterState = <T>(
   items: T[],
   filterCategories: FilterCategory<T>[]
 ): IFilterStateHook<T> => {
+  console.log("filterCategories,", filterCategories);
+  console.log("items,", items);
   const [filterValues, setFilterValues] = React.useState<IFilterValues>({});
 
   const filteredItems = items.filter((item) =>
@@ -32,5 +34,6 @@ export const useFilterState = <T>(
       });
     })
   );
+  console.log("filter values in hook", filterValues);
   return { filterValues, setFilterValues, filteredItems };
 };

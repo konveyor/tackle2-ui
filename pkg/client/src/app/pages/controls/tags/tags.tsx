@@ -97,11 +97,16 @@ export const Tags: React.FC = () => {
     {
       key: "name",
       title: "Name",
-      type: FilterType.search,
+      type: FilterType.multiselect,
       placeholderText: "Filter by name...",
       getItemValue: (item) => {
         return item?.name || "";
       },
+      selectOptions: tagTypes?.map((tagType) => {
+        return { key: tagType.name, value: tagType.name };
+      }),
+      // { key: "git", value: "Git" },
+      // { key: "svn", value: "SVN" },
     },
     {
       key: "rank",
@@ -127,6 +132,8 @@ export const Tags: React.FC = () => {
     tagTypes || [],
     filterCategories
   );
+  console.log("filterValues", filterValues);
+  console.log("tagTypes", tagTypes);
   const getSortValues = (item: TagType) => [
     "",
     item?.name || "",
