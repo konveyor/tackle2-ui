@@ -2,9 +2,10 @@ import { initInterceptors } from "@app/axios-config";
 import { ENV } from "@app/Constants";
 import i18n from "@app/i18n";
 import keycloak from "@app/keycloak";
+import { AppPlaceholder } from "@app/shared/components";
 import { Flex, FlexItem, Spinner } from "@patternfly/react-core";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
-import React, { useEffect } from "react";
+import React, { Suspense, useEffect } from "react";
 
 interface IKeycloakProviderProps {
   children: React.ReactNode;
@@ -120,6 +121,10 @@ export const KeycloakProvider: React.FunctionComponent<
       </>
     );
   } else {
-    return <>{children}</>;
+    return (
+      <>
+        <Suspense fallback={<AppPlaceholder />}>{children}</Suspense>
+      </>
+    );
   }
 };

@@ -12,11 +12,6 @@ import { NinjaErrorBoundary } from "@app/ninja-error-boundary";
 import { LocalStorageContextProvider } from "@app/context/LocalStorageContext";
 import { KeycloakProvider } from "@app/common/KeycloakProvider";
 
-i18n.init({
-  react: {
-    useSuspense: false,
-  },
-});
 const queryClient = new QueryClient();
 
 ReactDOM.render(
