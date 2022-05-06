@@ -54,11 +54,15 @@ export const useUploadFileTaskgroupMutation = (
 };
 
 export const useDeleteTaskgroupMutation = (
+  onSuccess: () => void,
   onError: (err: Error | unknown) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation(deleteTaskgroup, {
+    onSuccess: () => {
+      onSuccess();
+    },
     onError: (err) => {
       onError(err);
       queryClient.invalidateQueries("tasks");
