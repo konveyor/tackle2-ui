@@ -10,7 +10,6 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { Link } from "react-router-dom";
-import { stringify } from "yaml";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Application, Task } from "@app/api/models";
@@ -91,7 +90,7 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
             <Tooltip content="Click to view Analysis report">
               <Button variant="link" isInline>
                 <Link
-                  to={`/hub/applications/${application.id}/bucket${task?.data?.output}/`}
+                  to={`/hub/applications/${application.id}/bucket${task?.data?.output}`}
                   target="_blank"
                 >
                   Report

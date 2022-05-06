@@ -4,10 +4,16 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
+    "@types/ejs": "^3.1.0",
+    "ejs": "^3.1.7",
+    "cookie-parser": "^1.4.6",
     "express": "^4.17.2",
     "http-proxy-middleware": "^2.0.2"
   },
   "scripts": {
     "start": "node index.js"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13"
   }
 }
