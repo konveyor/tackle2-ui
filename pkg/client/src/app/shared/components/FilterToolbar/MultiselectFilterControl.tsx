@@ -7,10 +7,7 @@ import {
   SelectVariant,
 } from "@patternfly/react-core";
 import { IFilterControlProps } from "./FilterControl";
-import {
-  IMultiselectFilterCategory,
-  ISelectFilterCategory,
-} from "./FilterToolbar";
+import { IMultiselectFilterCategory } from "./FilterToolbar";
 
 export interface IMultiselectFilterControlProps<T>
   extends IFilterControlProps<T> {
@@ -50,10 +47,6 @@ export const MultiselectFilterControl = <T,>({
     console.log("filterValue n sel", filterValue);
     console.log("value n sel", value);
     const optionKey = getOptionKeyFromOptionValue(value);
-    // Currently this implements single-select, multiple-select is also a design option.
-    // If we need multi-select filters in the future we can add that support here.
-    // https://www.patternfly.org/v4/design-guidelines/usage-and-behavior/filters#attribute-value-textbox-filters
-    // setFilterValue(optionKey ? [optionKey] : null);
     if (optionKey && filterValue?.includes(optionKey)) {
       let updatedValues = filterValue.filter(
         (item: string) => item !== optionKey
@@ -63,14 +56,12 @@ export const MultiselectFilterControl = <T,>({
     } else {
       if (filterValue) {
         let updatedValues = [...filterValue, optionKey];
-        // setSelected((prevState: string[]) => [...prevState, value as string]);
         console.log("updatedValues", updatedValues);
         setFilterValue(updatedValues as string[]);
       } else {
         setFilterValue([optionKey || ""]);
       }
     }
-    // setIsFilterDropdownOpen(false);
   };
   const onFilterClear = (chip: string) => {
     const optionKey = getOptionKeyFromChip(chip);

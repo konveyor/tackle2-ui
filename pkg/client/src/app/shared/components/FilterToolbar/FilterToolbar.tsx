@@ -89,7 +89,7 @@ export const FilterToolbar = <T,>({
   const currentFilterCategory = filterCategories.find(
     (category) => category.key === currentCategoryKey
   );
-  console.log("fv in toolbar", filterValues);
+
   return (
     <>
       <ToolbarToggleGroup

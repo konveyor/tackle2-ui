@@ -32,7 +32,7 @@ import {
 } from "@app/shared/components";
 import { useFetchTagTypes, useDelete } from "@app/shared/hooks";
 
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
 import { deleteTag, deleteTagType } from "@app/api/rest";
 import { Tag, TagType } from "@app/api/models";
 
@@ -93,12 +93,6 @@ export const Tags: React.FC = () => {
     fetchTagTypes();
   }, [fetchTagTypes]);
 
-  const dedupeFunction = (arr) =>
-    arr?.filter(
-      (value, index, self) =>
-        index === self.findIndex((t) => t.value === value.value)
-    );
-
   const filterCategories: FilterCategory<TagType>[] = [
     {
       key: "tags",
@@ -140,8 +134,7 @@ export const Tags: React.FC = () => {
     tagTypes || [],
     filterCategories
   );
-  console.log("filterValues", filterValues);
-  console.log("tagTypes", tagTypes);
+
   const getSortValues = (item: TagType) => [
     "",
     item?.name || "",
