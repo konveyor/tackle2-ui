@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {
   FormGroup,
   TextContent,
@@ -37,15 +37,15 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
   const options = [
     {
       value: "binary",
-      toString: () => `Binary`,
+      toString: () => "Binary",
     },
     {
       value: "source-code",
-      toString: () => `Source code`,
+      toString: () => "Source code",
     },
     {
       value: "source-code-deps",
-      toString: () => `Source code + dependencies`,
+      toString: () => "Source code + dependencies",
     },
   ];
 
@@ -74,7 +74,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
           options={options}
         />
       </FormGroup>
-      {!isSingleApp && !isModeValid && (
+      {!isModeValid && (
         <Alert
           variant="warning"
           isInline

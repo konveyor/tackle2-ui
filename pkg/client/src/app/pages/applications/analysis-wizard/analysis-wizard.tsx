@@ -177,8 +177,8 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       data: {
         ...defaultTaskData,
         mode: {
-          binary: data.mode.includes("Binary") || data.mode.includes("binary"),
-          withDeps: data.mode.includes("dependencies"),
+          binary: data.mode.includes("binary"),
+          withDeps: data.mode === "source-code-deps",
           artifact: data.artifact ? `/binary/${data.artifact}` : "",
         },
         targets: data.targets,
@@ -216,9 +216,9 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     );
 
   const isModeValid = (): boolean => {
-    if (mode.includes("Upload")) return !isMutating && artifact !== "";
-    if (mode.includes("Binary")) return areApplicationsBinaryEnabled();
-    else if (mode.includes("dependencies"))
+    if (mode === "binary-upload") return !isMutating && artifact !== "";
+    if (mode === "binary") return areApplicationsBinaryEnabled();
+    else if (mode === "source-code-deps")
       return areApplicationsSourceCodeDepsEnabled();
     else return areApplicationsSourceCodeEnabled();
   };
@@ -319,7 +319,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             (analyzeableApplications.length === 1 &&
               !isMutating &&
               artifact !== "") ||
-            analyzeableApplications.length > 1,
+            analyzeableApplications.length > 0,
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
         },
         {
@@ -358,7 +358,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     {
       id: stepId.Review,
       name: "Review",
-      component: <Review applications={applications} />,
+      component: <Review applications={applications} mode={mode} />,
       nextButtonText: "Run",
       canJumpTo: stepIdReached >= stepId.Review,
     },
