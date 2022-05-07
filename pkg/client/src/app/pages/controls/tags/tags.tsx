@@ -93,20 +93,28 @@ export const Tags: React.FC = () => {
     fetchTagTypes();
   }, [fetchTagTypes]);
 
+  const dedupeFunction = (arr) =>
+    arr?.filter(
+      (value, index, self) =>
+        index === self.findIndex((t) => t.value === value.value)
+    );
+
   const filterCategories: FilterCategory<TagType>[] = [
     {
-      key: "name",
+      key: "tags",
       title: "Name",
       type: FilterType.multiselect,
       placeholderText: "Filter by name...",
-      getItemValue: (item) => {
-        return item?.name || "";
+      getItemValue: (item: TagType) => {
+        let tagNames = item?.tags?.map((tag) => tag.name).join("");
+        return tagNames || "";
       },
-      selectOptions: tagTypes?.map((tagType) => {
-        return { key: tagType.name, value: tagType.name };
-      }),
-      // { key: "git", value: "Git" },
-      // { key: "svn", value: "SVN" },
+      selectOptions: dedupeFunction(
+        tagTypes
+          ?.map((tagType) => tagType?.tags)
+          .flat()
+          .map((tag) => ({ key: tag?.name, value: tag?.name }))
+      ),
     },
     {
       key: "rank",
