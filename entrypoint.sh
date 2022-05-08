@@ -13,7 +13,7 @@ if [[ -z "$PATHFINDER_URL" ]]; then
 fi
 
 
-if [[ $AUTH_REQUIRED !== "false" ]]; then
+if [[ $AUTH_REQUIRED != "false" ]]; then
   if [[ -z "$KEYCLOAK_REALM" ]]; then
     echo "You must provide SSO_REALM environment variable" 1>&2
     exit 1
