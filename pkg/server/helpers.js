@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 const TACKLE_ENV = [
+  'NODE_ENV',
   'AUTH_REQUIRED',
   'KEYCLOAK_REALM',
   'KEYCLOAK_CLIENT_ID',
