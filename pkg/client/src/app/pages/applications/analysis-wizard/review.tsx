@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {
   DescriptionList,
   DescriptionListDescription,
@@ -17,7 +17,15 @@ import { IAnalysisWizardFormValues } from "./analysis-wizard";
 
 interface IReview {
   applications: Application[];
+  mode: string;
 }
+
+const defaultMode: Map<string, string> = new Map([
+  ["binary", "Binary"],
+  ["source-code", "Source code"],
+  ["source-code-deps", "Source code + dependencies"],
+  ["binary-upload", "Upload a local binary"],
+]);
 
 const defaultScopes: Map<string, string> = new Map([
   ["app", "Application and internal dependencies"],
@@ -25,10 +33,12 @@ const defaultScopes: Map<string, string> = new Map([
   ["select", "List of packages to be analyzed manually"],
 ]);
 
-export const Review: React.FunctionComponent<IReview> = ({ applications }) => {
+export const Review: React.FunctionComponent<IReview> = ({
+  applications,
+  mode,
+}) => {
   const { getValues } = useFormContext<IAnalysisWizardFormValues>();
   const {
-    mode,
     targets,
     sources,
     withKnown,
@@ -60,7 +70,7 @@ export const Review: React.FunctionComponent<IReview> = ({ applications }) => {
         <DescriptionListGroup>
           <DescriptionListTerm>Mode</DescriptionListTerm>
           <DescriptionListDescription id="mode">
-            {mode}
+            {defaultMode.get(mode)}
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
