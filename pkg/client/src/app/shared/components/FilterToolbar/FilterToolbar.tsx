@@ -16,6 +16,7 @@ import { FilterControl } from "./FilterControl";
 
 export enum FilterType {
   select = "select",
+  multiselect = "multiselect",
   search = "search",
 }
 
@@ -32,6 +33,10 @@ export interface IBasicFilterCategory<T> {
   title: string;
   type: FilterType; // If we want to support arbitrary filter types, this could be a React node that consumes context instead of an enum
   getItemValue?: (item: T) => string | boolean;
+}
+
+export interface IMultiselectFilterCategory<T> extends IBasicFilterCategory<T> {
+  selectOptions: OptionPropsWithKey[];
 }
 
 export interface ISelectFilterCategory<T> extends IBasicFilterCategory<T> {

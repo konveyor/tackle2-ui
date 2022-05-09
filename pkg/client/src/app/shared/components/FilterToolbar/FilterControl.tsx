@@ -6,9 +6,11 @@ import {
   FilterType,
   ISelectFilterCategory,
   ISearchFilterCategory,
+  IMultiselectFilterCategory,
 } from "./FilterToolbar";
 import { SelectFilterControl } from "./SelectFilterControl";
 import { SearchFilterControl } from "./SearchFilterControl";
+import { MultiselectFilterControl } from "./MultiselectFilterControl";
 
 export interface IFilterControlProps<T> {
   category: FilterCategory<T>;
@@ -33,6 +35,14 @@ export const FilterControl = <T,>({
     return (
       <SearchFilterControl
         category={category as ISearchFilterCategory<T>}
+        {...props}
+      />
+    );
+  }
+  if (category.type === FilterType.multiselect) {
+    return (
+      <MultiselectFilterControl
+        category={category as IMultiselectFilterCategory<T>}
         {...props}
       />
     );
