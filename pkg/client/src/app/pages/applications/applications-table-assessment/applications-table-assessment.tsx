@@ -770,6 +770,7 @@ export const ApplicationsTable: React.FC = () => {
                           {t("actions.import")}
                         </DropdownItem>,
                         <DropdownItem
+                          key="manage-import-applications"
                           onClick={() => {
                             history.push(Paths.applicationsImports);
                           }}
@@ -777,6 +778,7 @@ export const ApplicationsTable: React.FC = () => {
                           {t("actions.manageImports")}
                         </DropdownItem>,
                         <DropdownItem
+                          key="manage-applications-credentials"
                           isDisabled={selectedRows.length < 1}
                           onClick={() => {
                             openCredentialsModal(selectedRows);
