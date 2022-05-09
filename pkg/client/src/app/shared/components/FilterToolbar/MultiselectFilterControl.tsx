@@ -22,7 +22,6 @@ export const MultiselectFilterControl = <T,>({
 }: React.PropsWithChildren<
   IMultiselectFilterControlProps<T>
 >): JSX.Element | null => {
-  console.log("filterValue", filterValue);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
 
   const getOptionKeyFromOptionValue = (
@@ -44,19 +43,15 @@ export const MultiselectFilterControl = <T,>({
       ?.value;
 
   const onFilterSelect = (value: string | SelectOptionObject) => {
-    console.log("filterValue n sel", filterValue);
-    console.log("value n sel", value);
     const optionKey = getOptionKeyFromOptionValue(value);
     if (optionKey && filterValue?.includes(optionKey)) {
       let updatedValues = filterValue.filter(
         (item: string) => item !== optionKey
       );
-      console.log("updatedValues", updatedValues);
       setFilterValue(updatedValues);
     } else {
       if (filterValue) {
         let updatedValues = [...filterValue, optionKey];
-        console.log("updatedValues", updatedValues);
         setFilterValue(updatedValues as string[]);
       } else {
         setFilterValue([optionKey || ""]);
