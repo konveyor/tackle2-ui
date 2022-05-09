@@ -63,7 +63,6 @@ import {
   ApplicationTableType,
   getApplicationsFilterValues,
 } from "../applicationsFilter";
-import { useFetchTags } from "@app/queries/tags";
 
 const ENTITY_FIELD = "entity";
 
@@ -85,8 +84,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const history = useHistory();
 
   const { applications, isFetching, fetchError } = useFetchApplications();
-
-  const { tags } = useFetchTags();
 
   const {
     paginationProps,
