@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
 import { useFormik, FormikProvider, FormikHelpers } from "formik";
-import { object, string } from "yup";
+import { object, string, StringSchema } from "yup";
 import {
   ActionGroup,
   Alert,
@@ -190,6 +190,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     packaging: getBinaryInitialValue(application, "packaging"),
   };
   const queryClient = useQueryClient();
+
+  const customURLValidation = (schema: StringSchema) => {
+    const URL =
+      /^(([A-Za-z0-9]+@|http(|s)\:\/\/)|(http(|s)\:\/\/[A-Za-z0-9]+@))([A-Za-z0-9.]+(:\d+)?)(?::|\/)([\d\/\w.-]+?)(\.git){1}$/i;
+    return schema.matches(URL, "Please enter a valid URL");
+  };
+
   const validationSchema = object().shape(
     {
       name: string()
@@ -235,14 +242,18 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         .when("branch", {
           is: (branch: any) => branch?.length > 0,
           then: (schema) =>
-            schema.url().required("Please enter repository url"),
-          otherwise: (schema) => schema.url(),
+            customURLValidation(schema).required(
+              "Please enter repository url."
+            ),
+          otherwise: (schema) => customURLValidation(schema),
         })
         .when("rootPath", {
           is: (rootPath: any) => rootPath?.length > 0,
           then: (schema) =>
-            schema.url().required("Please enter repository url"),
-          otherwise: (schema) => schema.url(),
+            customURLValidation(schema).required(
+              "Please enter repository url."
+            ),
+          otherwise: (schema) => customURLValidation(schema),
         }),
       group: string()
         .when("artifact", {
