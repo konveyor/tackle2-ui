@@ -23,9 +23,9 @@ export const isApplicationSourceCodeDepsEnabled = (
 };
 
 export const isModeSupported = (application: Application, mode: string) => {
-  if (mode.includes("Upload")) return true;
-  if (mode.includes("Binary")) return isApplicationBinaryEnabled(application);
-  else if (mode.includes("dependencies"))
+  if (mode === "binary-upload") return true;
+  if (mode === "binary") return isApplicationBinaryEnabled(application);
+  else if (mode === "source-code-deps")
     return isApplicationSourceCodeDepsEnabled(application);
   else return isApplicationSourceCodeEnabled(application);
 };
