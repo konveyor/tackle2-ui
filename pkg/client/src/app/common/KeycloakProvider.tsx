@@ -33,6 +33,7 @@ export const KeycloakProvider: React.FunctionComponent<
   };
 
   const checkCookie = () => {
+    deleteCookie("proxyToken");
     let token = getCookie("proxyToken");
     if (token !== "" && token !== null) {
     } else {
@@ -46,12 +47,6 @@ export const KeycloakProvider: React.FunctionComponent<
   const deleteCookie = (name: string) => {
     document.cookie = `${name} =; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
   };
-  useEffect(() => {
-    deleteCookie("proxyToken");
-    return () => {
-      checkCookie();
-    };
-  }, [keycloak.token]);
   if (isAuthRequired) {
     return (
       <>
