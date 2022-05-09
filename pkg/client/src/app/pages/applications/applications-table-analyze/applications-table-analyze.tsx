@@ -97,11 +97,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     setFilterValues,
     handleOnClearAllFilters,
     currentPageItems,
-  } = getApplicationsFilterValues(
-    applications,
-    ApplicationTableType.Analysis,
-    tags
-  );
+  } = getApplicationsFilterValues(applications, ApplicationTableType.Analysis);
 
   const { tasks } = useFetchTasks();
 
