@@ -9,7 +9,9 @@ i18n
     lng: "en",
     fallbackLng: "en",
     debug: false,
-
+    react: {
+      useSuspense: false,
+    },
     interpolation: {
       escapeValue: false,
     },
