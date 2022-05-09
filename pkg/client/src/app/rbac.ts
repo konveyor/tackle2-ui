@@ -1,5 +1,5 @@
 import { checkAccess } from "./common/rbac-utils";
-import { ENV } from "./Constants";
+import { isAuthRequired } from "./Constants";
 import keycloak from "./keycloak";
 interface IRBACProps {
   allowedPermissions: string[];
@@ -11,7 +11,6 @@ export const RBAC = ({
   rbacType,
   children,
 }: IRBACProps) => {
-  const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
   if (isAuthRequired) {
     const token = keycloak.tokenParsed || undefined;
     if (rbacType === RBAC_TYPE.Role) {

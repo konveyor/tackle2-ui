@@ -21,6 +21,7 @@ export interface IEnvVars {
   KEYCLOAK_SERVER_URL: string;
 }
 export const ENV: IEnvVars = window["_env"] || {};
+export const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
 
 export const DEFAULT_PAGINATION: PageQuery = {
   page: 1,

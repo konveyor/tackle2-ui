@@ -1,5 +1,5 @@
 import { initInterceptors } from "@app/axios-config";
-import { ENV } from "@app/Constants";
+import { isAuthRequired } from "@app/Constants";
 import i18n from "@app/i18n";
 import keycloak from "@app/keycloak";
 import { AppPlaceholder } from "@app/shared/components";
@@ -14,12 +14,6 @@ interface IKeycloakProviderProps {
 export const KeycloakProvider: React.FunctionComponent<
   IKeycloakProviderProps
 > = ({ children }) => {
-  // const [isAuthRequired, setIsAuthRequired] = useLocalStorageContext(
-  //   LocalStorageKey.isAuthRequired
-  // );
-  // TODO: Implement a short circuit for overriding auth requirements
-  //   const overrideAuth = process.env["AUTH_REQUIRED"];
-
   const setCookie = (cName: string, cValue: string, expDays: number) => {
     let date = new Date();
     date.setTime(date.getTime() + expDays * 24 * 60 * 60 * 1000);
@@ -58,7 +52,6 @@ export const KeycloakProvider: React.FunctionComponent<
       checkCookie();
     };
   }, [keycloak.token]);
-  const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
   if (isAuthRequired) {
     return (
       <>
