@@ -40,7 +40,6 @@ export const FilterControl = <T,>({
     );
   }
   if (category.type === FilterType.multiselect) {
-    console.log("props", props);
     return (
       <MultiselectFilterControl
         category={category as IMultiselectFilterCategory<T>}
