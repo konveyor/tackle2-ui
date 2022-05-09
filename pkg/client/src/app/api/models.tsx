@@ -398,3 +398,10 @@ export interface Taskgroup {
   data: TaskData;
   tasks: TaskgroupTask[];
 }
+
+export interface Volume {
+  id?: number;
+  name: string;
+  capacity: string;
+  used: string;
+}

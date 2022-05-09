@@ -17,11 +17,16 @@ import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
 import { AxiosError, AxiosPromise } from "axios";
-import { Setting } from "@app/api/models";
+import { Setting, Volume } from "@app/api/models";
 import { getSettingById, updateSetting } from "@app/api/rest";
 import { useFetch } from "@app/shared/hooks/useFetch";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import {
+  useCleanRepositoryMutation,
+  useFetchVolumes,
+} from "@app/queries/volumes";
+import { v4 as uuidv4 } from "uuid";
 
 export const RepositoriesMvn: React.FunctionComponent = () => {
   const { t } = useTranslation();
@@ -102,6 +107,24 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
     refreshMvnForcedSetting();
   }, [refreshMvnForcedSetting]);
 
+  const { volumes } = useFetchVolumes();
+  const [storageValue, setStorageValue] = useState<string>();
+  let [currCleanId, setCurrVal] = useState<string>("");
+
+  useEffect(() => {
+    const thisVol = volumes.find((vol) => vol.name === "m2");
+    if (thisVol) {
+      setStorageValue(`${thisVol.used} of ${thisVol.capacity} `);
+    }
+    setCurrVal(uuidv4());
+  }, [volumes, currCleanId]);
+  const onHandleCleanSuccess = (res: any) => {};
+  const onHandleCleanError = (err: AxiosError) => {};
+  const {
+    mutate: cleanRepository,
+    isLoading,
+    error,
+  } = useCleanRepositoryMutation(onHandleCleanSuccess, onHandleCleanError);
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -115,7 +138,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
             <Form>
               <FormGroup label="Local artifact repository" fieldId="name">
                 <TextInput
-                  value={"value"}
+                  value={storageValue}
                   className="repo"
                   type="text"
                   aria-label="Maven Repository Size"
@@ -124,7 +147,14 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
                   width={10}
                 />
                 {"  "}
-                <Button variant="link" isInline>
+                <Button
+                  variant="link"
+                  isInline
+                  // isDisabled={isLoading || }
+                  onClick={() => {
+                    cleanRepository(currCleanId);
+                  }}
+                >
                   Clear repository
                 </Button>
                 {forcedSettingError && (

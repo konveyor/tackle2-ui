@@ -26,6 +26,7 @@ import {
   Proxy,
   Taskgroup,
   ApplicationImport,
+  Volume,
 } from "./models";
 
 // TACKLE_HUB
@@ -52,6 +53,8 @@ export const PROXIES = HUB + "/proxies";
 export const SETTINGS = HUB + "/settings";
 export const TASKS = HUB + "/tasks";
 export const TASKGROUPS = HUB + "/taskgroups";
+
+export const VOLUMES = HUB + "/volumes";
 
 // PATHFINDER
 export const PATHFINDER = "/pathfinder";
@@ -80,6 +83,16 @@ const buildQuery = (params: any) => {
   });
 
   return query;
+};
+
+//Volumes
+
+export const getVolumes = (): AxiosPromise<Volume[]> => {
+  return APIClient.get(`${VOLUMES}`, jsonHeaders);
+};
+
+export const cleanRepository = (id: string): AxiosPromise => {
+  return APIClient.post(`${VOLUMES}/${id}/clean`, jsonHeaders);
 };
 
 // Business services
