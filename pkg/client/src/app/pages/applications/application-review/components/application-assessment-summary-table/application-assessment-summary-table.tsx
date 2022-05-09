@@ -26,7 +26,6 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { dedupeFunction } from "@app/utils/utils";
 
 interface ITableItem {
   answerValue: string;
@@ -181,21 +180,6 @@ export const ApplicationAssessmentSummaryTable: React.FC<
           setFilterValues={setFilterValues}
         />
       }
-
-      // toolbarToggle={
-      //   <AppTableToolbarToggleGroup
-      //     categories={filters}
-      //     chips={filtersValue}
-      //     onChange={(key, value) => {
-      //       setFilter(key, value as ToolbarChip[]);
-      //     }}
-      //   >
-      //     <SelectRiskFilter
-      //       value={filtersValue.get(FilterKey.RISK)}
-      //       onChange={(values) => setFilter(FilterKey.RISK, values)}
-      //     />
-      //   </AppTableToolbarToggleGroup>
-      // }
     />
   );
 };
