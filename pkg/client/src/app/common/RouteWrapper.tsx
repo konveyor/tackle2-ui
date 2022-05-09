@@ -28,6 +28,11 @@ export const RouteWrapper = ({
     return <Redirect to="/" />;
   }
 
-  return <Route path={path} render={(props) => <Component {...props} />} />;
-  // return <Route {...rest} render={(props) => <Component {...props} />} />;
+  return (
+    <Route
+      path={path}
+      exact={exact}
+      render={(props) => <Component {...props} />}
+    />
+  );
 };
