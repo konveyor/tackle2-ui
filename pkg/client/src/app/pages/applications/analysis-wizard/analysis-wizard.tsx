@@ -359,7 +359,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
   ];
 
-  console.log("mode: ", mode);
   return (
     <>
       {isOpen && (
