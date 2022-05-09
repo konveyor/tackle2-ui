@@ -79,3 +79,9 @@ export const duplicateNameCheck = <T extends { name?: string }>(
   );
   return !hasDuplicate;
 };
+
+export const dedupeFunction = (arr) =>
+  arr?.filter(
+    (value, index, self) =>
+      index === self.findIndex((t) => t.value === value.value)
+  );
