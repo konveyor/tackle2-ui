@@ -25,7 +25,7 @@ const Proxies = lazy(() => import("./pages/proxies"));
 
 export interface IRoute {
   path: string;
-  component: React.ComponentType<any>;
+  comp: React.ComponentType<any>;
   exact?: boolean;
   routes?: undefined;
 }
@@ -33,63 +33,63 @@ export interface IRoute {
 export const devRoutes: IRoute[] = [
   {
     path: Paths.applicationsImportsDetails,
-    component: ImportDetails,
+    comp: ImportDetails,
     exact: false,
   },
   {
     path: Paths.applicationsImports,
-    component: ManageImports,
+    comp: ManageImports,
     exact: false,
   },
   {
     path: Paths.applicationsAssessment,
-    component: ApplicationAssessment,
+    comp: ApplicationAssessment,
     exact: false,
   },
   {
     path: Paths.applicationsReview,
-    component: Reviews,
+    comp: Reviews,
     exact: false,
   },
   {
     path: Paths.applications,
-    component: Applications,
+    comp: Applications,
     exact: false,
   },
   {
     path: Paths.controls,
-    component: Controls,
+    comp: Controls,
     exact: false,
   },
   {
     path: Paths.reports,
-    component: Reports,
+    comp: Reports,
     exact: false,
   },
 ];
 
 export const adminRoutes: IRoute[] = [
   {
-    component: Identities,
+    comp: Identities,
     path: Paths.identities,
     exact: false,
   },
   {
-    component: RepositoriesGit,
+    comp: RepositoriesGit,
     path: Paths.repositoriesGit,
     exact: false,
   },
   {
-    component: RepositoriesSvn,
+    comp: RepositoriesSvn,
     path: Paths.repositoriesSvn,
     exact: false,
   },
   {
-    component: RepositoriesMvn,
+    comp: RepositoriesMvn,
     path: Paths.repositoriesMvn,
     exact: false,
   },
-  { component: Proxies, path: "/proxies", exact: false },
+  { comp: Proxies, path: "/proxies", exact: false },
 ];
 export const AppRoutes = () => {
   return (
@@ -97,18 +97,20 @@ export const AppRoutes = () => {
       <Switch>
         {devRoutes.map(({ ...props }, index) => (
           <RouteWrapper
-            comp={props.component}
+            comp={props.comp}
             key={index}
             roles={devRoles}
-            {...props}
+            path={props.path}
+            exact={props.exact}
           />
         ))}
         {adminRoutes.map(({ ...props }, index) => (
           <RouteWrapper
-            comp={props.component}
+            comp={props.comp}
             key={index}
             roles={adminRoles}
-            {...props}
+            path={props.path}
+            exact={props.exact}
           />
         ))}
         <Redirect from="/" to="/applications" exact />

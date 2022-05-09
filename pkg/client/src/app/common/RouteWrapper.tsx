@@ -7,12 +7,15 @@ import { checkAccess } from "./rbac-utils";
 interface IRouteWrapperProps {
   comp: React.ComponentType<any>;
   roles: string[];
+  path: string;
+  exact?: boolean;
 }
 
 export const RouteWrapper = ({
   comp: Component,
   roles,
-  ...rest
+  path,
+  exact,
 }: IRouteWrapperProps) => {
   const token = keycloak.tokenParsed || undefined;
   let userRoles = token?.realm_access?.roles,
@@ -25,5 +28,11 @@ export const RouteWrapper = ({
     return <Redirect to="/" />;
   }
 
-  return <Route {...rest} render={(props) => <Component {...props} />} />;
+  return (
+    <Route
+      path={path}
+      exact={exact}
+      render={(props) => <Component {...props} />}
+    />
+  );
 };
