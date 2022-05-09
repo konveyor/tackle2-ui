@@ -48,8 +48,6 @@ export interface IReadFile {
   loadError?: DOMException;
 }
 export interface IAnalysisWizardFormValues {
-  mode: string;
-  output: string;
   artifact: string;
   targets: string[];
   sources: string[];
@@ -154,8 +152,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const methods = useForm<IAnalysisWizardFormValues>({
     defaultValues: {
-      mode: "Binary",
-      output: "",
       artifact: "",
       targets: [],
       sources: [],
@@ -177,8 +173,8 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       data: {
         ...defaultTaskData,
         mode: {
-          binary: data.mode.includes("binary"),
-          withDeps: data.mode === "source-code-deps",
+          binary: mode.includes("binary"),
+          withDeps: mode === "source-code-deps",
           artifact: data.artifact ? `/binary/${data.artifact}` : "",
         },
         targets: data.targets,
@@ -199,7 +195,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       },
     };
   };
-
   const areApplicationsBinaryEnabled = (): boolean =>
     applications.every((application) =>
       isApplicationBinaryEnabled(application)
