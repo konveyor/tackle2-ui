@@ -1,7 +1,5 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-
-import { ToolbarChip } from "@patternfly/react-core";
 import {
   cellWidth,
   ICell,
@@ -10,31 +8,24 @@ import {
   TableText,
 } from "@patternfly/react-table";
 
-import {
-  AppTableToolbarToggleGroup,
-  AppTableWithControls,
-  RiskLabel,
-} from "@app/shared/components";
-import {
-  useToolbarFilter,
-  useTableControls,
-  useTableFilter,
-} from "@app/shared/hooks";
-
+import { AppTableWithControls, RiskLabel } from "@app/shared/components";
 import { RISK_LIST } from "@app/Constants";
 import {
   Assessment,
+  ITypeOptions,
   Question,
   QuestionnaireCategory,
   Risk,
 } from "@app/api/models";
 
-import { SelectRiskFilter } from "./components/select-risk-filter";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-
-enum FilterKey {
-  RISK = "risk",
-}
+import { useSortState } from "@app/shared/hooks/useSortState";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar/FilterToolbar";
+import { useFilterState } from "@app/shared/hooks/useFilterState";
 
 interface ITableItem {
   answerValue: string;
@@ -51,24 +42,6 @@ export const ApplicationAssessmentSummaryTable: React.FC<
   IApplicationAssessmentSummaryTableProps
 > = ({ assessment }) => {
   const { t } = useTranslation();
-
-  // Filters
-
-  const filters = [
-    {
-      key: FilterKey.RISK,
-      name: t("terms.risk"),
-    },
-  ];
-
-  const {
-    filters: filtersValue,
-    isPresent: areFiltersPresent,
-    setFilter,
-    clearAllFilters,
-  } = useToolbarFilter<ToolbarChip>();
-
-  // Table
 
   const tableItems: ITableItem[] = useMemo(() => {
     return assessment.questionnaire.categories
@@ -97,56 +70,47 @@ export const ApplicationAssessmentSummaryTable: React.FC<
         }
       });
   }, [assessment]);
+  const typeOptions: Array<ITypeOptions> = [
+    { key: "GREEN", value: "Low" },
+    { key: "AMBER", value: "Medium" },
+    { key: "RED", value: "High" },
+    { key: "UNKNOWN", value: "Unknown" },
+  ];
 
-  const compareToByColumn = useCallback(
-    (a: ITableItem, b: ITableItem, columnIndex?: number) => {
-      switch (columnIndex) {
-        case 3: // Risk
-          return (
-            RISK_LIST[a.riskValue].sortFactor -
-            RISK_LIST[b.riskValue].sortFactor
-          );
-        default:
-          return 0;
-      }
+  const filterCategories: FilterCategory<ITableItem>[] = [
+    {
+      key: "riskValue",
+      title: "Risk",
+      type: FilterType.select,
+      placeholderText: "Filter by name...",
+      getItemValue: (item: ITableItem) => {
+        return item.riskValue || "";
+      },
+      selectOptions: typeOptions,
     },
-    []
+  ];
+
+  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+    tableItems || [],
+    filterCategories
   );
+  const getSortValues = (tableItem: ITableItem) => [
+    tableItem.category.title || "",
+    tableItem.question.question || "",
+    tableItem.answerValue || "",
+    RISK_LIST[tableItem.riskValue].sortFactor || "",
+  ];
 
-  const filterItem = useCallback(
-    (item: ITableItem) => {
-      let result: boolean = true;
-
-      const risks = filtersValue.get(FilterKey.RISK)?.map((f) => f.key);
-      if (risks && risks.length > 0) {
-        result = risks.some((f) => f === item.riskValue);
-      }
-
-      return result;
-    },
-    [filtersValue]
+  const { sortBy, onSort, sortedItems } = useSortState(
+    filteredItems,
+    getSortValues
   );
+  const handleOnClearAllFilters = () => {
+    setFilterValues({});
+  };
 
-  const {
-    paginationQuery: pagination,
-    sortByQuery: sortBy,
-    handlePaginationChange: onPaginationChange,
-    handleSortChange: onSort,
-  } = useTableControls({ paginationQuery: { page: 1, perPage: 50 } });
-
-  const { pageItems, filteredItems } = useTableFilter<ITableItem>({
-    items: tableItems,
-    sortBy,
-    compareToByColumn,
-    pagination,
-    filterItem,
-  });
-
-  useEffect(() => {
-    onPaginationChange({ page: 1 });
-  }, [filtersValue, onPaginationChange]);
-
-  // Table
+  const { currentPageItems, setPageNumber, paginationProps } =
+    usePaginationState(sortedItems, 10);
 
   const columns: ICell[] = [
     {
@@ -172,7 +136,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
   ];
 
   const rows: IRow[] = [];
-  pageItems.forEach((item) => {
+  currentPageItems.forEach((item) => {
     rows.push({
       cells: [
         {
@@ -199,35 +163,22 @@ export const ApplicationAssessmentSummaryTable: React.FC<
     });
   });
 
-  //Placeholder
-  const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState([], 10);
-  //
-
   return (
     <AppTableWithControls
       count={filteredItems.length}
-      paginationProps={paginationProps}
       sortBy={sortBy}
       onSort={onSort}
       cells={columns}
       rows={rows}
       isLoading={false}
-      filtersApplied={areFiltersPresent}
-      toolbarClearAllFilters={clearAllFilters}
+      paginationProps={paginationProps}
+      toolbarClearAllFilters={handleOnClearAllFilters}
       toolbarToggle={
-        <AppTableToolbarToggleGroup
-          categories={filters}
-          chips={filtersValue}
-          onChange={(key, value) => {
-            setFilter(key, value as ToolbarChip[]);
-          }}
-        >
-          <SelectRiskFilter
-            value={filtersValue.get(FilterKey.RISK)}
-            onChange={(values) => setFilter(FilterKey.RISK, values)}
-          />
-        </AppTableToolbarToggleGroup>
+        <FilterToolbar<ITableItem>
+          filterCategories={filterCategories}
+          filterValues={filterValues}
+          setFilterValues={setFilterValues}
+        />
       }
     />
   );
