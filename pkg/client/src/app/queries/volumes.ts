@@ -1,5 +1,5 @@
 import React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery } from "react-query";
 
 import { AxiosError } from "axios";
 import { cleanRepository, getVolumes } from "@app/api/rest";
@@ -23,11 +23,9 @@ export const useCleanRepositoryMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
 ): ICleanRepositoryMutateState => {
-  const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation(cleanRepository, {
     onSuccess: (res) => {
       onSuccess(res);
-      //   queryClient.invalidateQueries("identities");
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -39,27 +37,6 @@ export const useCleanRepositoryMutation = (
     error,
   };
 };
-
-// export const useCreateIdentityMutation = (
-//   onSuccess: (res: any) => void,
-//   onError: (err: AxiosError) => void
-// ): IIdentityMutateState => {
-//   const queryClient = useQueryClient();
-//   const { isLoading, mutate, error } = useMutation(createIdentity, {
-//     onSuccess: (res) => {
-//       onSuccess(res);
-//       queryClient.invalidateQueries("identities");
-//     },
-//     onError: (err: AxiosError) => {
-//       onError(err);
-//     },
-//   });
-//   return {
-//     mutate,
-//     isLoading,
-//     error,
-//   };
-// };
 
 export const useFetchVolumes = (): IVolumeFetchState => {
   const [volumes, setVolumes] = React.useState<Volume[]>([]);
@@ -80,26 +57,3 @@ export const useFetchVolumes = (): IVolumeFetchState => {
     fetchError: error,
   };
 };
-
-// export const useDeleteIdentityMutation = (
-//   onSuccess: (res: any) => void,
-//   onError: (err: AxiosError) => void
-// ): IIdentityMutateState => {
-//   const queryClient = useQueryClient();
-
-//   const { isLoading, mutate, error } = useMutation(deleteIdentity, {
-//     onSuccess: (res) => {
-//       onSuccess(res);
-//       queryClient.invalidateQueries("identities");
-//     },
-//     onError: (err: AxiosError) => {
-//       onError(err);
-//       queryClient.invalidateQueries("identities");
-//     },
-//   });
-//   return {
-//     mutate,
-//     isLoading,
-//     error,
-//   };
-// };
