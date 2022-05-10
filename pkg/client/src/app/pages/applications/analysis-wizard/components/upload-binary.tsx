@@ -143,6 +143,8 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
           onReadSuccess={handleReadSuccess}
           onReadFail={handleReadFail}
           customFileHandler={(file) => {
+            setFileUploadProgress(0);
+            setFileUploadStatus(undefined);
             const form = new FormData();
             form.append("file", file);
             uploadFile({
