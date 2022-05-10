@@ -2,7 +2,7 @@
   height: 3.5em;
   background-color: #212427;
   color: white;
-  border: 0;
+  border-bottom: 1px solid #4f5255;
 }
 
 .perspective .pf-c-select__toggle::before {
@@ -12,6 +12,7 @@
 }
 .perspective > ul {
   background-color: #212427;
+  border: 1px solid #4f5255;
 }
 .perspective > ul > li.button {
   color: white;
