@@ -314,7 +314,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             (analyzeableApplications.length === 1 &&
               !isMutating &&
               artifact !== "") ||
-            analyzeableApplications.length > 0,
+            (analyzeableApplications.length > 0 && !isMutating),
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
         },
         {
