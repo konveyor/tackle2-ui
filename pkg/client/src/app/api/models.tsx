@@ -405,3 +405,8 @@ export interface Volume {
   capacity: string;
   used: string;
 }
+
+export interface ITypeOptions {
+  key: string;
+  value: string;
+}

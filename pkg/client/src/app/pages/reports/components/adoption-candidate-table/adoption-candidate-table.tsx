@@ -210,7 +210,7 @@ export const AdoptionCandidateTable: React.FunctionComponent<
     item?.review?.workPriority || "",
     item?.confidence || "",
     item?.review?.effortEstimate || "",
-    item?.risk || "",
+    RISK_LIST[item.risk].sortFactor || "",
     "",
   ];
   const { sortBy, onSort, sortedItems } = useSortState(
