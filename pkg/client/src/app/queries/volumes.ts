@@ -9,6 +9,7 @@ export interface IVolumeFetchState {
   volumes: Volume[];
   isFetching: boolean;
   fetchError: any;
+  refetch: any;
 }
 
 export interface ICleanRepositoryMutateState {
@@ -40,7 +41,7 @@ export const useCleanRepositoryMutation = (
 
 export const useFetchVolumes = (): IVolumeFetchState => {
   const [volumes, setVolumes] = React.useState<Volume[]>([]);
-  const { isLoading, error } = useQuery(VolumesQueryKey, () =>
+  const { isLoading, error, refetch } = useQuery(VolumesQueryKey, () =>
     getVolumes()
       .then(({ data }) => {
         setVolumes(data);
@@ -55,5 +56,6 @@ export const useFetchVolumes = (): IVolumeFetchState => {
     volumes,
     isFetching: isLoading,
     fetchError: error,
+    refetch,
   };
 };
