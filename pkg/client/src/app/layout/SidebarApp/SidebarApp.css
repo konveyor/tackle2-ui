@@ -1,17 +1,26 @@
-.perspective {
-  --pf-global--Color--100: var(--pf-global--palette--white);
-  --pf-global--BorderColor--100: var(--pf-global--palette--black-600);
-  --pf-c-select__menu--BackgroundColor: var(--pf-global--palette--black-850);
-  --pf-c-select__menu-item--Color: var(--pf-global--palette--white);
-  --pf-c-select__menu-item--hover--BackgroundColor: var(
-    --pf-global--palette--black-600
-  );
-  --pf-c-select__toggle--BackgroundColor: var(--pf-global--palette--black-850);
-  --pf-c-select__toggle--active--before--BorderBottomColor: var(
-    --pf-global--palette--white
-  );
-  --pf-c-select__toggle--m-expanded--before--BorderBottomColor: var(
-    --pf-global--palette--black-600
-  );
-  border: 0.1em solid white;
+.perspective > button {
+  height: 3.5em;
+  background-color: #212427;
+  color: white;
+  border: 0;
+}
+
+.perspective .pf-c-select__toggle::before {
+  border: 0;
+  border-width: 0;
+  outline: 0;
+}
+.perspective > ul {
+  background-color: #212427;
+}
+.perspective > ul > li.button {
+  color: white;
+}
+.perspective .pf-c-select__menu-item {
+  color: white;
+}
+
+.perspective .pf-c-select__menu-item:hover {
+  background-color: #4f5255;
+  color: white;
 }
