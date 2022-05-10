@@ -132,8 +132,6 @@ export const ApplicationsTable: React.FC = () => {
   const { applications, isFetching, fetchError, refetch } =
     useFetchApplications();
 
-  const { tags } = useFetchTags();
-
   const {
     paginationProps,
     sortBy,
@@ -145,8 +143,7 @@ export const ApplicationsTable: React.FC = () => {
     currentPageItems,
   } = getApplicationsFilterValues(
     applications,
-    ApplicationTableType.Assessment,
-    tags
+    ApplicationTableType.Assessment
   );
 
   // Create and update modal
