@@ -26,7 +26,6 @@ import {
   useCleanRepositoryMutation,
   useFetchVolumes,
 } from "@app/queries/volumes";
-import { v4 as uuidv4 } from "uuid";
 
 export const RepositoriesMvn: React.FunctionComponent = () => {
   const { t } = useTranslation();
@@ -109,14 +108,15 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
 
   const { volumes } = useFetchVolumes();
   const [storageValue, setStorageValue] = useState<string>();
-  let [currCleanId, setCurrVal] = useState<string>("");
+  const [currCleanId, setCurrCleanId] = useState<number>(0);
+  const [isCleanDisabled, setIsCleanDisabled] = useState<boolean>(true);
 
   useEffect(() => {
     const thisVol = volumes.find((vol) => vol.name === "m2");
     if (thisVol) {
       setStorageValue(`${thisVol.used} of ${thisVol.capacity} `);
     }
-    setCurrVal(uuidv4());
+    setCurrCleanId(thisVol?.id || 0);
   }, [volumes, currCleanId]);
   const onHandleCleanSuccess = (res: any) => {};
   const onHandleCleanError = (err: AxiosError) => {};
@@ -125,6 +125,20 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
     isLoading,
     error,
   } = useCleanRepositoryMutation(onHandleCleanSuccess, onHandleCleanError);
+
+  const disableUntilRefocus = () => {
+    if (!isCleanDisabled) {
+      setIsCleanDisabled(true);
+    }
+  };
+  useEffect(() => {
+    setIsCleanDisabled(false);
+
+    return () => {
+      setIsCleanDisabled(false);
+    };
+  }, []);
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -150,9 +164,10 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
                 <Button
                   variant="link"
                   isInline
-                  // isDisabled={isLoading || }
+                  isDisabled={isCleanDisabled}
                   onClick={() => {
-                    cleanRepository(currCleanId);
+                    cleanRepository(currCleanId || 0);
+                    disableUntilRefocus();
                   }}
                 >
                   Clear repository
