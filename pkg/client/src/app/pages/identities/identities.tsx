@@ -27,7 +27,7 @@ import {
   ConditionalRender,
   NoDataEmptyState,
 } from "@app/shared/components";
-import { Identity } from "@app/api/models";
+import { Identity, ITypeOptions } from "@app/api/models";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
@@ -87,11 +87,6 @@ export const Identities: React.FunctionComponent = () => {
     isFetching,
     fetchError: fetchErrorIdentities,
   } = useFetchIdentities();
-
-  interface ITypeOptions {
-    key: string;
-    value: string;
-  }
 
   const typeOptions: Array<ITypeOptions> = [
     { key: "source", value: "Source Control" },
