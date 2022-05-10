@@ -1,5 +1,6 @@
-import { Application, Tag } from "@app/api/models";
+import { Application, Tag, TagType } from "@app/api/models";
 import { useFetchIdentities } from "@app/queries/identities";
+import { useFetchTags, useFetchTagTypes } from "@app/queries/tags";
 import {
   FilterCategory,
   FilterType,
@@ -7,20 +8,23 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
+import { dedupeFunction } from "@app/utils/utils";
 export enum ApplicationTableType {
   Assessment = "assessment",
   Analysis = "analysis",
 }
 export const getApplicationsFilterValues = (
   applications: Application[],
-  tableType: string,
-  tags: Tag[]
+  tableType: string
 ) => {
   const {
     identities,
     isFetching,
     fetchError: fetchErrorIdentities,
   } = useFetchIdentities();
+  const { tags } = useFetchTags();
+  const { tagTypes } = useFetchTagTypes();
+
   const filterCategories: FilterCategory<Application>[] = [
     {
       key: "name",
@@ -107,15 +111,18 @@ export const getApplicationsFilterValues = (
     {
       key: "tags",
       title: "Tags",
-      placeholderText: "Filter by Tag...",
-      type: FilterType.select,
-      selectOptions: tags.map((tag) => {
-        return { key: tag.name, value: tag.name };
-      }),
+      type: FilterType.multiselect,
+      placeholderText: "Filter by tag name...",
       getItemValue: (item) => {
-        const tag = item.tags?.map((tag) => tag.name);
-        return tag?.join(" ") || "";
+        let tagNames = item?.tags?.map((tag) => tag.name).join("");
+        return tagNames || "";
       },
+      selectOptions: dedupeFunction(
+        tagTypes
+          ?.map((tagType) => tagType?.tags)
+          .flat()
+          .map((tag) => ({ key: tag?.name, value: tag?.name }))
+      ),
     },
   ];
 
