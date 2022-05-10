@@ -106,7 +106,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
     refreshMvnForcedSetting();
   }, [refreshMvnForcedSetting]);
 
-  const { volumes } = useFetchVolumes();
+  const { volumes, refetch } = useFetchVolumes();
   const [storageValue, setStorageValue] = useState<string>();
   const [currCleanId, setCurrCleanId] = useState<number>(0);
   const [isCleanDisabled, setIsCleanDisabled] = useState<boolean>(true);
@@ -118,7 +118,10 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
     }
     setCurrCleanId(thisVol?.id || 0);
   }, [volumes, currCleanId]);
-  const onHandleCleanSuccess = (res: any) => {};
+  const onHandleCleanSuccess = (res: any) => {
+    setIsCleanDisabled(false);
+    refetch();
+  };
   const onHandleCleanError = (err: AxiosError) => {};
   const {
     mutate: cleanRepository,
@@ -126,11 +129,6 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
     error,
   } = useCleanRepositoryMutation(onHandleCleanSuccess, onHandleCleanError);
 
-  const disableUntilRefocus = () => {
-    if (!isCleanDisabled) {
-      setIsCleanDisabled(true);
-    }
-  };
   useEffect(() => {
     setIsCleanDisabled(false);
 
@@ -164,10 +162,10 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
                 <Button
                   variant="link"
                   isInline
-                  isDisabled={isCleanDisabled}
+                  isDisabled={isCleanDisabled || isLoading}
                   onClick={() => {
                     cleanRepository(currCleanId || 0);
-                    disableUntilRefocus();
+                    setIsCleanDisabled(true);
                   }}
                 >
                   Clear repository
