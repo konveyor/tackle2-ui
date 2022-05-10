@@ -71,33 +71,32 @@ export const SidebarApp: React.FC = () => {
 
   const Navigation = (
     <>
-      <Select
-        style={{ border: "0.1em solid white" }}
-        className="perspective"
-        toggleIcon={isDevIcon ? <DevIcon /> : <AdminIcon />}
-        variant={SelectVariant.single}
-        aria-label="Select user perspective"
-        selections={selectedPersona}
-        isOpen={isOpen}
-        onSelect={(_, selection) => {
-          setSelectedPersona(selection as string);
-          setIsOpen(!isOpen);
-          if (selection === "Administrator") {
-            setDevIcon(false);
-            history.push(Paths.identities);
-          } else {
-            setDevIcon(true);
-            history.push(Paths.applications);
-          }
-        }}
-        onToggle={() => {
-          setIsOpen(!isOpen);
-        }}
-      >
-        {options}
-      </Select>
-      {selectedPersona === "Developer" ? (
-        <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
+      <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
+        <Select
+          className="perspective"
+          toggleIcon={isDevIcon ? <DevIcon /> : <AdminIcon />}
+          variant={SelectVariant.single}
+          aria-label="Select user perspective"
+          selections={selectedPersona}
+          isOpen={isOpen}
+          onSelect={(_, selection) => {
+            setSelectedPersona(selection as string);
+            setIsOpen(!isOpen);
+            if (selection === "Administrator") {
+              setDevIcon(false);
+              history.push(Paths.identities);
+            } else {
+              setDevIcon(true);
+              history.push(Paths.applications);
+            }
+          }}
+          onToggle={() => {
+            setIsOpen(!isOpen);
+          }}
+        >
+          {options}
+        </Select>
+        {selectedPersona === "Developer" ? (
           <NavList title="Global">
             <NavItem>
               <NavLink
@@ -121,9 +120,7 @@ export const SidebarApp: React.FC = () => {
               </NavLink>
             </NavItem>
           </NavList>
-        </Nav>
-      ) : (
-        <Nav id="nav-admin" aria-label="NavAdmin" theme={LayoutTheme}>
+        ) : (
           <NavList title="Admin">
             <NavItem>
               <NavLink to={Paths.identities} activeClassName="pf-m-current">
@@ -167,8 +164,8 @@ export const SidebarApp: React.FC = () => {
               </NavLink>
             </NavItem>
           </NavList>
-        </Nav>
-      )}
+        )}
+      </Nav>
     </>
   );
 
