@@ -4,6 +4,8 @@ import {
   Button,
   Card,
   CardBody,
+  Form,
+  FormGroup,
   PageSection,
   PageSectionVariants,
   Switch,
@@ -15,11 +17,15 @@ import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
 import { AxiosError, AxiosPromise } from "axios";
-import { Setting } from "@app/api/models";
+import { Setting, Volume } from "@app/api/models";
 import { getSettingById, updateSetting } from "@app/api/rest";
 import { useFetch } from "@app/shared/hooks/useFetch";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import {
+  useCleanRepositoryMutation,
+  useFetchVolumes,
+} from "@app/queries/volumes";
 
 export const RepositoriesMvn: React.FunctionComponent = () => {
   const { t } = useTranslation();
@@ -100,6 +106,39 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
     refreshMvnForcedSetting();
   }, [refreshMvnForcedSetting]);
 
+  const { volumes } = useFetchVolumes();
+  const [storageValue, setStorageValue] = useState<string>();
+  const [currCleanId, setCurrCleanId] = useState<number>(0);
+  const [isCleanDisabled, setIsCleanDisabled] = useState<boolean>(true);
+
+  useEffect(() => {
+    const thisVol = volumes.find((vol) => vol.name === "m2");
+    if (thisVol) {
+      setStorageValue(`${thisVol.used} of ${thisVol.capacity} `);
+    }
+    setCurrCleanId(thisVol?.id || 0);
+  }, [volumes, currCleanId]);
+  const onHandleCleanSuccess = (res: any) => {};
+  const onHandleCleanError = (err: AxiosError) => {};
+  const {
+    mutate: cleanRepository,
+    isLoading,
+    error,
+  } = useCleanRepositoryMutation(onHandleCleanSuccess, onHandleCleanError);
+
+  const disableUntilRefocus = () => {
+    if (!isCleanDisabled) {
+      setIsCleanDisabled(true);
+    }
+  };
+  useEffect(() => {
+    setIsCleanDisabled(false);
+
+    return () => {
+      setIsCleanDisabled(false);
+    };
+  }, []);
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -109,54 +148,62 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
       </PageSection>
       <PageSection>
         <Card>
-          {/* 
-        TODO: implement repo size text input   (stretch goal)
           <CardBody>
-            <TextInput
-              value={"value"}
-              className="repo"
-              type="text"
-              aria-label="Maven Repository Size"
-              isReadOnly
-            />
-            {"  "}
-            <Button variant="link" isInline>
-              Clear repository
-            </Button>
-          </CardBody> */}
-          <CardBody>
-            {forcedSettingError && (
-              <Alert
-                variant="danger"
-                isInline
-                title={getAxiosErrorMessage(forcedSettingError)}
+            <Form>
+              <FormGroup label="Local artifact repository" fieldId="name">
+                <TextInput
+                  value={storageValue}
+                  className="repo"
+                  type="text"
+                  aria-label="Maven Repository Size"
+                  isReadOnly
+                  size={15}
+                  width={10}
+                />
+                {"  "}
+                <Button
+                  variant="link"
+                  isInline
+                  isDisabled={isCleanDisabled}
+                  onClick={() => {
+                    cleanRepository(currCleanId || 0);
+                    disableUntilRefocus();
+                  }}
+                >
+                  Clear repository
+                </Button>
+                {forcedSettingError && (
+                  <Alert
+                    variant="danger"
+                    isInline
+                    title={getAxiosErrorMessage(forcedSettingError)}
+                  />
+                )}
+              </FormGroup>
+              <Switch
+                id="maven-update"
+                className="repo"
+                label="Force update of dependencies"
+                aria-label="Force update of Maven repositories"
+                isChecked={mvnForcedSetting === true ? true : false}
+                onChange={onChangeForced}
               />
-            )}
-            <Switch
-              id="maven-update"
-              className="repo"
-              label="Force update of dependencies"
-              aria-label="Force update of Maven repositories"
-              isChecked={mvnForcedSetting === true ? true : false}
-              onChange={onChangeForced}
-            />
-          </CardBody>
-          <CardBody>
-            {insecureSettingError && (
-              <Alert
-                variant="danger"
-                isInline
-                title={getAxiosErrorMessage(insecureSettingError)}
+              {insecureSettingError && (
+                <Alert
+                  variant="danger"
+                  isInline
+                  title={getAxiosErrorMessage(insecureSettingError)}
+                />
+              )}
+              <Switch
+                id="maven-secure"
+                className="repo"
+                label="Consume insecure Maven repositories"
+                aria-label="Insecure Maven repositories"
+                isChecked={mvnInsecureSetting === true ? true : false}
+                onChange={onChangeInsecure}
               />
-            )}
-            <Switch
-              id="maven-secure"
-              className="repo"
-              label="Consume insecure Maven repositories"
-              aria-label="Insecure Maven repositories"
-              isChecked={mvnInsecureSetting === true ? true : false}
-              onChange={onChangeInsecure}
-            />
+            </Form>
           </CardBody>
         </Card>
       </PageSection>
