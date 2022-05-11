@@ -300,7 +300,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
                 bottom: 100,
                 left: 75,
                 right: 50,
-                top: 50,
+                top: 60,
               };
 
               return (

@@ -17,8 +17,8 @@ export const CartesianSquare: React.FC<ICartesianSquareProps> = ({
   const { t } = useTranslation();
 
   // Quadrants
-  const topY = ((padding?.top || 0) - 10).toString();
-  const bottomY = (height - (padding?.bottom || 0) + 20).toString();
+  const topY = ((padding?.top || 0) - 40).toString();
+  const bottomY = (height - (padding?.bottom || 0) + 50).toString();
   const leftX = (padding?.left || 0).toString();
   const rightX = width - (padding?.right || 0);
 
