@@ -63,6 +63,7 @@ import {
   ApplicationTableType,
   getApplicationsFilterValues,
 } from "../applicationsFilter";
+import { isAuthRequired } from "@app/Constants";
 
 const ENTITY_FIELD = "entity";
 
@@ -320,7 +321,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     const actions: (IAction | ISeparator)[] = [];
     const userScopes: string[] = token?.scope.split(" "),
       access = userScopes && checkAccess(userScopes, writeScopes);
-    if (access) {
+    if (access || !isAuthRequired) {
       actions.push(
         {
           title: t("actions.manageDependencies"),
