@@ -80,6 +80,7 @@ import {
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
 import { useFetchTags } from "@app/queries/tags";
 import { useFetchReviews } from "@app/queries/reviews";
+import { isAuthRequired } from "@app/Constants";
 
 const ENTITY_FIELD = "entity";
 
@@ -436,7 +437,7 @@ export const ApplicationsTable: React.FC = () => {
     }
     const userScopes: string[] = token?.scope.split(" "),
       access = userScopes && checkAccess(userScopes, writeScopes);
-    if (access) {
+    if (access || !isAuthRequired) {
       actions.push(
         {
           title: t("actions.manageDependencies"),
