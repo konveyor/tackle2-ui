@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { NavLink, useHistory, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -67,6 +67,14 @@ export const SidebarApp: React.FC = () => {
   const [selectedPersona, setSelectedPersona] = useLocalStorageContext(
     LocalStorageKey.selectedPersona
   );
+
+  useEffect(() => {
+    if (!selectedPersona) {
+      history.push("/");
+      setSelectedPersona("Developer");
+    }
+  }, []);
+
   const [isDevIcon, setDevIcon] = React.useState(true);
 
   const Navigation = (
