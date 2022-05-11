@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+  Alert,
   Modal,
   MultipleFileUpload,
   MultipleFileUploadMain,
@@ -12,6 +13,9 @@ import { useDispatch } from "react-redux";
 import { IReadFile } from "../analysis-wizard";
 import { alertActions } from "@app/store/alert";
 import { useUploadFileTaskgroupMutation } from "@app/queries/taskgroups";
+import { AxiosError } from "axios";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 interface IUploadBinary {
   taskgroupID: number;
@@ -24,6 +28,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
   const [currentFile, setCurrentFile] = React.useState<File>();
   const [showStatus, setShowStatus] = React.useState(false);
   const [modalText, setModalText] = React.useState("");
+  const [error, setError] = React.useState<AxiosError>();
   const [fileUploadProgress, setFileUploadProgress] = React.useState<
     number | undefined
   >(undefined);
@@ -43,7 +48,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     setFileUploadProgress(100);
   };
 
-  const failedUpload = (response: any) => {
+  const failedUpload = (error: AxiosError) => {
     dispatch(
       alertActions.addDanger(
         `Taskgroup ${taskgroupID}`,
@@ -52,6 +57,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     );
     setFileUploadStatus("danger");
     setFileUploadProgress(0);
+    setError(error);
   };
 
   const { mutate: uploadFile } = useUploadFileTaskgroupMutation(
@@ -119,55 +125,66 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
   };
 
   return (
-    <MultipleFileUpload
-      onFileDrop={handleFileDrop}
-      dropzoneProps={{
-        accept: ".war, .ear, .jar, .zip",
-        onDropRejected: handleDropRejected,
-      }}
-    >
-      <MultipleFileUploadMain
-        titleIcon={<UploadIcon />}
-        titleText="Drag and drop files here"
-        titleTextSeparator="or"
-        infoText="Accepted file types: war, ear, jar or zip"
-      />
-      {showStatus && currentFile && (
-        <MultipleFileUploadStatusItem
-          file={currentFile}
-          key={currentFile.name}
-          onClearClick={() => {
-            removeFiles(currentFile.name);
-            setValue("artifact", "");
-          }}
-          onReadSuccess={handleReadSuccess}
-          onReadFail={handleReadFail}
-          customFileHandler={(file) => {
-            setFileUploadProgress(0);
-            setFileUploadStatus(undefined);
-            const form = new FormData();
-            form.append("file", file);
-            uploadFile({
-              id: taskgroupID,
-              path: `binary/${file.name}`,
-              file: form,
-            });
-            setValue("artifact", file.name as string);
-          }}
-          progressValue={fileUploadProgress}
-          progressVariant={fileUploadStatus}
+    <>
+      {error && (
+        <Alert
+          className={`${spacing.mtMd} ${spacing.mbMd}`}
+          variant="danger"
+          isInline
+          title={getAxiosErrorMessage(error)}
         />
       )}
-      <Modal
-        isOpen={!!modalText}
-        title="Unsupported file"
-        titleIconVariant="warning"
-        showClose
-        aria-label="unsupported file upload attempted"
-        onClose={() => setModalText("")}
+      <MultipleFileUpload
+        onFileDrop={handleFileDrop}
+        dropzoneProps={{
+          accept: ".war, .ear, .jar, .zip",
+          onDropRejected: handleDropRejected,
+        }}
       >
-        {modalText}
-      </Modal>
-    </MultipleFileUpload>
+        <MultipleFileUploadMain
+          titleIcon={<UploadIcon />}
+          titleText="Drag and drop files here"
+          titleTextSeparator="or"
+          infoText="Accepted file types: war, ear, jar or zip"
+        />
+        {showStatus && currentFile && (
+          <MultipleFileUploadStatusItem
+            file={currentFile}
+            key={currentFile.name}
+            onClearClick={() => {
+              removeFiles(currentFile.name);
+              setValue("artifact", "");
+            }}
+            onReadSuccess={handleReadSuccess}
+            onReadFail={handleReadFail}
+            customFileHandler={(file) => {
+              setError(undefined);
+              setFileUploadProgress(0);
+              setFileUploadStatus(undefined);
+              const form = new FormData();
+              form.append("file", file);
+              uploadFile({
+                id: taskgroupID,
+                path: `binary/${file.name}`,
+                file: form,
+              });
+              setValue("artifact", file.name as string);
+            }}
+            progressValue={fileUploadProgress}
+            progressVariant={fileUploadStatus}
+          />
+        )}
+        <Modal
+          isOpen={!!modalText}
+          title="Unsupported file"
+          titleIconVariant="warning"
+          showClose
+          aria-label="unsupported file upload attempted"
+          onClose={() => setModalText("")}
+        >
+          {modalText}
+        </Modal>
+      </MultipleFileUpload>
+    </>
   );
 };

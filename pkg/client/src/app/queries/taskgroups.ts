@@ -7,6 +7,7 @@ import {
   uploadFileTaskgroup,
 } from "@app/api/rest";
 import { Taskgroup } from "@app/api/models";
+import { AxiosError } from "axios";
 
 export const useCreateTaskgroupMutation = (
   onSuccess: (res: any) => void,
@@ -41,13 +42,13 @@ export const useSubmitTaskgroupMutation = (
 
 export const useUploadFileTaskgroupMutation = (
   successCallback: (res: any) => void,
-  errorCallback: (err: Error | null) => void
+  errorCallback: (err: AxiosError) => void
 ) => {
   return useMutation(uploadFileTaskgroup, {
     onSuccess: (res) => {
       successCallback && successCallback(res);
     },
-    onError: (err: Error) => {
+    onError: (err: AxiosError) => {
       errorCallback && errorCallback(err);
     },
   });
