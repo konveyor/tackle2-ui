@@ -347,11 +347,11 @@ export const getApplicationSummaryCSV = (id: string): AxiosPromise => {
 export const createBulkCopyReview = (
   bulk: BulkCopyReview
 ): AxiosPromise<BulkCopyReview> => {
-  return APIClient.post<BulkCopyReview>(`${REVIEWS}/bulk`, bulk);
+  return APIClient.post<BulkCopyReview>(`${REVIEWS}/copy`, bulk);
 };
 
 export const getBulkCopyReview = (id: number): AxiosPromise<BulkCopyReview> => {
-  return APIClient.get<BulkCopyReview>(`${REVIEWS}/bulk/${id}`);
+  return APIClient.get<BulkCopyReview>(`${REVIEWS}/copy/${id}`);
 };
 
 //
