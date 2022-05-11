@@ -200,7 +200,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     const containsURL = (string) =>
       gitUrlRegex.test(string) || standardUrlRegex.test(string);
 
-    return schema.test("gitUrlTest", "Needs a valid url", (value) =>
+    return schema.test("gitUrlTest", "Must be a valid URL.", (value) =>
       containsURL(value)
     );
   };
