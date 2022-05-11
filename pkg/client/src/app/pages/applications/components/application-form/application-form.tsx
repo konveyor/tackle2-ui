@@ -192,9 +192,17 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   const queryClient = useQueryClient();
 
   const customURLValidation = (schema: StringSchema) => {
-    const URL =
-      /^(([A-Za-z0-9]+@|http(|s)\:\/\/)|(http(|s)\:\/\/[A-Za-z0-9]+@))([A-Za-z0-9.]+(:\d+)?)(?::|\/)([\d\/\w.-]+?)(\.git){1}$/i;
-    return schema.matches(URL, "Please enter a valid URL");
+    const gitUrlRegex =
+      /(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/;
+    let standardUrlRegex =
+      /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+    standardUrlRegex = new RegExp(standardUrlRegex);
+    const containsURL = (string) =>
+      gitUrlRegex.test(string) || standardUrlRegex.test(string);
+
+    return schema.test("gitUrlTest", "Must be a valid URL.", (value) =>
+      containsURL(value)
+    );
   };
 
   const validationSchema = object().shape(
