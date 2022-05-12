@@ -103,7 +103,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   >([]);
 
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
-    console.log("Data: ", data);
     setInitTaskgroup(true);
     setCreatedTaskgroup(data);
   };
