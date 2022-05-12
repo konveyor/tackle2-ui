@@ -27,7 +27,7 @@ import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createStakeholder, updateStakeholder } from "@app/api/rest";
 import { JobFunction, Stakeholder, StakeholderGroup } from "@app/api/models";
 import {
-  duplicateEmailCheck,
+  duplicateFieldCheck,
   duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
@@ -133,7 +133,8 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
         (value) => {
           const stakeholders: Stakeholder[] =
             queryClient.getQueryData(StakeholdersQueryKey) || [];
-          return duplicateEmailCheck(
+          return duplicateFieldCheck(
+            "email",
             stakeholders,
             stakeholder || null,
             value || ""
