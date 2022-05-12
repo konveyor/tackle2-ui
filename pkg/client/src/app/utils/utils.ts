@@ -62,23 +62,20 @@ export const formatDate = (value: Date, includeTime = true) => {
   return value.toLocaleDateString("en", options);
 };
 
+export const duplicateFieldCheck = <T>(
+  fieldKey: keyof T,
+  itemList: T[],
+  currentItem: T | null,
+  fieldValue: T[keyof T]
+) =>
+  (currentItem && currentItem[fieldKey] === fieldValue) ||
+  !itemList.some((item) => item[fieldKey] === fieldValue);
+
 export const duplicateNameCheck = <T extends { name?: string }>(
   itemList: T[],
   currentItem: T | null,
-  nameValue: string
-) => {
-  let duplicateList = [...itemList];
-  if (currentItem) {
-    const index = duplicateList.findIndex((id) => id.name === currentItem.name);
-    if (index > -1) {
-      duplicateList.splice(index, 1);
-    }
-  }
-  const hasDuplicate = duplicateList.some(
-    (application) => application.name === nameValue
-  );
-  return !hasDuplicate;
-};
+  nameValue: T["name"]
+) => duplicateFieldCheck("name", itemList, currentItem, nameValue);
 
 export const dedupeFunction = (arr) =>
   arr?.filter(
