@@ -103,6 +103,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   >([]);
 
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
+    console.log("Data: ", data);
     setInitTaskgroup(true);
     setCreatedTaskgroup(data);
   };
@@ -118,23 +119,19 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     onCreateTaskgroupError
   );
 
-  const onSubmitTaskgroupSuccess = (data: Taskgroup) => {
+  const onSubmitTaskgroupSuccess = (data: Taskgroup) =>
     dispatch(alertActions.addSuccess("Applications", "Submitted for analysis"));
-  };
 
-  const onSubmitTaskgroupError = (error: Error | unknown) => {
-    console.log("Taskgroup: submit failed: ", error);
+  const onSubmitTaskgroupError = (error: Error | unknown) =>
     dispatch(alertActions.addDanger("Taskgroup submit failed"));
-  };
 
   const { mutate: submitTaskgroup } = useSubmitTaskgroupMutation(
     onSubmitTaskgroupSuccess,
     onSubmitTaskgroupError
   );
 
-  const onUploadError = (error: Error | unknown) => {
+  const onUploadError = (error: Error | unknown) =>
     console.log("Taskgroup upload failed: ", error);
-  };
 
   const { mutate: uploadFile } = useUploadFileMutation(() => {}, onUploadError);
 
