@@ -28,7 +28,6 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
   setMode,
 }) => {
   const [isUpload, setIsUpload] = React.useState(false);
-
   React.useEffect(() => {
     if (mode === "binary-upload") setIsUpload(true);
     else setIsUpload(false);
@@ -87,7 +86,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
           </p>
         </Alert>
       )}
-      {isUpload && taskgroupID && <UploadBinary taskgroupID={1} />}
+      {isUpload && taskgroupID && <UploadBinary taskgroupID={taskgroupID} />}
     </>
   );
 };
