@@ -80,6 +80,26 @@ export const duplicateNameCheck = <T extends { name?: string }>(
   return !hasDuplicate;
 };
 
+export const duplicateEmailCheck = <T extends { email?: string }>(
+  itemList: T[],
+  currentItem: T | null,
+  emailValue: string
+) => {
+  let duplicateList = [...itemList];
+  if (currentItem) {
+    const index = duplicateList.findIndex(
+      (id) => id.email === currentItem.email
+    );
+    if (index > -1) {
+      duplicateList.splice(index, 1);
+    }
+  }
+  const hasDuplicate = duplicateList.some(
+    (application) => application.email === emailValue
+  );
+  return !hasDuplicate;
+};
+
 export const dedupeFunction = (arr) =>
   arr?.filter(
     (value, index, self) =>

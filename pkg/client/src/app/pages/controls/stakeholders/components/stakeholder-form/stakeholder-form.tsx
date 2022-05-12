@@ -27,6 +27,7 @@ import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createStakeholder, updateStakeholder } from "@app/api/rest";
 import { JobFunction, Stakeholder, StakeholderGroup } from "@app/api/models";
 import {
+  duplicateEmailCheck,
   duplicateNameCheck,
   getAxiosErrorMessage,
   getValidatedFromError,
@@ -125,7 +126,20 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
       .required(t("validation.required"))
       .min(3, t("validation.minLength", { length: 3 }))
       .max(120, t("validation.maxLength", { length: 120 }))
-      .email(t("validation.email")),
+      .email(t("validation.email"))
+      .test(
+        "Duplicate email",
+        "A stakeholder with this email address already exists. Please use a different email address.",
+        (value) => {
+          const stakeholders: Stakeholder[] =
+            queryClient.getQueryData(StakeholdersQueryKey) || [];
+          return duplicateEmailCheck(
+            stakeholders,
+            stakeholder || null,
+            value || ""
+          );
+        }
+      ),
     name: string()
       .trim()
       .required(t("validation.required"))
