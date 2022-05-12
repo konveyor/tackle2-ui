@@ -50,7 +50,6 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { DEFAULT_COLOR_LABELS } from "@app/Constants";
-import { RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
 
 const ENTITY_FIELD = "entity";
 
@@ -412,28 +411,26 @@ export const Tags: React.FC = () => {
           }
           toolbarActions={
             <ToolbarGroup variant="button-group">
-              <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
-                <ToolbarItem>
-                  <Button
-                    type="button"
-                    aria-label="create-tag"
-                    variant={ButtonVariant.primary}
-                    onClick={handleOnOpenCreateNewTagModal}
-                  >
-                    {t("actions.createTag")}
-                  </Button>
-                </ToolbarItem>
-                <ToolbarItem>
-                  <Button
-                    type="button"
-                    aria-label="create-tag-type"
-                    variant={ButtonVariant.secondary}
-                    onClick={handleOnOpenCreateNewTagTypeModal}
-                  >
-                    {t("actions.createTagType")}
-                  </Button>
-                </ToolbarItem>
-              </RBAC>
+              <ToolbarItem>
+                <Button
+                  type="button"
+                  aria-label="create-tag"
+                  variant={ButtonVariant.primary}
+                  onClick={handleOnOpenCreateNewTagModal}
+                >
+                  {t("actions.createTag")}
+                </Button>
+              </ToolbarItem>
+              <ToolbarItem>
+                <Button
+                  type="button"
+                  aria-label="create-tag-type"
+                  variant={ButtonVariant.secondary}
+                  onClick={handleOnOpenCreateNewTagTypeModal}
+                >
+                  {t("actions.createTagType")}
+                </Button>
+              </ToolbarItem>
             </ToolbarGroup>
           }
           noDataState={
