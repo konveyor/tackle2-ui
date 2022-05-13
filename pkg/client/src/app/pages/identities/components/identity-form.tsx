@@ -168,6 +168,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       then: string().test({
         name: "xml-validation",
         test: function (value) {
+          // If the field is unchanged, it must be valid (it's encrypted, so we can't parse it as XML)
+          if (value === identity?.settings) return true;
+
           if (value) {
             const validationObject = XMLValidator.validate(value, {
               allowBooleanAttributes: true,
@@ -622,8 +625,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   validated={isSettingsFileRejected ? "error" : "default"}
                   filenamePlaceholder="Drag and drop a file or upload one"
                   onClearClick={() => {
-                    resetField("settings");
-                    resetField("settingsFilename");
+                    onChange("");
+                    setValue("settingsFilename", "");
                   }}
                   onReadStarted={() => setIsLoading(true)}
                   onReadFinished={() => setIsLoading(false)}
