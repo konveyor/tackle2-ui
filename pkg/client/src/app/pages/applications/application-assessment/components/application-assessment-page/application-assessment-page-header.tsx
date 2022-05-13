@@ -14,6 +14,7 @@ import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 import { Paths } from "@app/Paths";
 import { Application, Assessment } from "@app/api/models";
 import { getApplicationById } from "@app/api/rest";
+import { RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
 
 export interface IApplicationAssessmentPageHeaderProps {
   assessment?: Assessment;
@@ -82,11 +83,13 @@ export const ApplicationAssessmentPageHeader: React.FC<
         ]}
         btnActions={
           <>
-            {application && (
-              <Button onClick={() => openDependenciesModal(application)}>
-                {t("actions.manageDependencies")}
-              </Button>
-            )}
+            <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
+              {application && (
+                <Button onClick={() => openDependenciesModal(application)}>
+                  {t("actions.manageDependencies")}
+                </Button>
+              )}
+            </RBAC>
           </>
         }
         menuActions={[]}
