@@ -9,6 +9,7 @@ import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { dedupeFunction } from "@app/utils/utils";
+import { useSelectionState } from "@konveyor/lib-ui";
 export enum ApplicationTableType {
   Assessment = "assessment",
   Analysis = "analysis",
@@ -152,6 +153,30 @@ export const getApplicationsFilterValues = (
     getSortValues
   );
 
+  // Expand, select rows
+  const {
+    isItemSelected: isRowExpanded,
+    toggleItemSelected: toggleRowExpanded,
+    selectAll: expandAll,
+    areAllSelected: areAllExpanded,
+  } = useSelectionState<Application>({
+    items: filteredItems || [],
+    isEqual: (a, b) => a.id === b.id,
+  });
+
+  //Bulk selection
+  const {
+    isItemSelected: isRowSelected,
+    toggleItemSelected: toggleRowSelected,
+    selectAll,
+    selectMultiple,
+    areAllSelected,
+    selectedItems: selectedRows,
+  } = useSelectionState<Application>({
+    items: filteredItems || [],
+    isEqual: (a, b) => a.id === b.id,
+  });
+
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState(sortedItems, 10);
 
@@ -164,5 +189,15 @@ export const getApplicationsFilterValues = (
     filterValues,
     setFilterValues,
     handleOnClearAllFilters,
+    isRowSelected,
+    toggleRowSelected,
+    selectAll,
+    selectMultiple,
+    areAllSelected,
+    selectedRows,
+    isRowExpanded,
+    toggleRowExpanded,
+    expandAll,
+    areAllExpanded,
   };
 };

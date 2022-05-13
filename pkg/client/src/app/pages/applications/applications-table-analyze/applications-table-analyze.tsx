@@ -95,6 +95,16 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     setFilterValues,
     handleOnClearAllFilters,
     currentPageItems,
+    isRowSelected,
+    toggleRowSelected,
+    selectAll,
+    selectMultiple,
+    areAllSelected,
+    selectedRows,
+    isRowExpanded,
+    toggleRowExpanded,
+    expandAll,
+    areAllExpanded,
   } = getApplicationsFilterValues(applications, ApplicationTableType.Analysis);
 
   const { tasks } = useFetchTasks();
@@ -210,30 +220,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (task && task.state) return task.state;
     return "No task";
   };
-
-  // Expand, select rows
-  const {
-    isItemSelected: isRowExpanded,
-    toggleItemSelected: toggleRowExpanded,
-    selectAll: expandAll,
-    areAllSelected: areAllExpanded,
-  } = useSelectionState<Application>({
-    items: applications || [],
-    isEqual: (a, b) => a.id === b.id,
-  });
-
-  //Bulk selection
-  const {
-    isItemSelected: isRowSelected,
-    toggleItemSelected: toggleRowSelected,
-    selectAll,
-    selectMultiple,
-    areAllSelected,
-    selectedItems: selectedRows,
-  } = useSelectionState<Application>({
-    items: applications || [],
-    isEqual: (a, b) => a.id === b.id,
-  });
 
   //
 
