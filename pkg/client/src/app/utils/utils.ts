@@ -82,3 +82,9 @@ export const dedupeFunction = (arr) =>
     (value, index, self) =>
       index === self.findIndex((t) => t.value === value.value)
   );
+
+export const numStr = (num: number | undefined): string => {
+  if (num === undefined) return "";
+  console.log("String(num)", String(num));
+  return String(num);
+};
