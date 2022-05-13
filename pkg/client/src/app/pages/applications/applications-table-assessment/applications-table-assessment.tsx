@@ -775,15 +775,21 @@ export const ApplicationsTable: React.FC = () => {
                         >
                           {t("actions.manageImports")}
                         </DropdownItem>,
-                        <DropdownItem
-                          key="manage-applications-credentials"
-                          isDisabled={selectedRows.length < 1}
-                          onClick={() => {
-                            openCredentialsModal(selectedRows);
-                          }}
+                        <RBAC
+                          allowedPermissions={writeScopes}
+                          rbacType={RBAC_TYPE.Scope}
                         >
-                          {t("actions.manageCredentials")}
-                        </DropdownItem>,
+                          <DropdownItem
+                            key="manage-applications-credentials"
+                            isDisabled={selectedRows.length < 1}
+                            onClick={() => {
+                              openCredentialsModal(selectedRows);
+                            }}
+                          >
+                            {t("actions.manageCredentials")}
+                          </DropdownItem>
+                          ,
+                        </RBAC>,
                       ]}
                     />
                   </ToolbarItem>
