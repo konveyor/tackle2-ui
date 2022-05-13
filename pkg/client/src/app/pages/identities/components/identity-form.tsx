@@ -168,6 +168,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       then: string().test({
         name: "xml-validation",
         test: function (value) {
+          // If the field is unchanged, it must be valid (it's encrypted, so we can't parse it as XML)
+          if (value === identity?.settings) return true;
+
           if (value) {
             const validationObject = XMLValidator.validate(value, {
               allowBooleanAttributes: true,
@@ -522,7 +525,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 label={
                   "Upload your [SCM Private Key] file or paste its contents below."
                 }
-                helperTextInvalid="You should select a private key file."
+                validated={getValidatedFromError(errors.key)}
+                helperTextInvalid={!isLoading && errors?.key?.message}
                 isRequired
                 //TODO: PKI crypto validation
                 // validated={isFileRejected ? "error" : "default"}
@@ -530,15 +534,15 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 <Controller
                   control={control}
                   name="key"
-                  render={({ field: { value, name } }) => (
+                  render={({ field: { onChange, value, name } }) => (
                     <FileUpload
                       id="file"
                       name={name}
                       type="text"
-                      value={value}
+                      value={value && "[Encrypted]"}
                       filename={values.keyFilename}
                       onChange={(value, filename) => {
-                        setValue("key", value as string);
+                        onChange(value);
                         setValue("keyFilename", filename);
                       }}
                       dropzoneProps={{
@@ -549,8 +553,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                       validated={isFileRejected ? "error" : "default"}
                       filenamePlaceholder="Drag and drop a file or upload one"
                       onClearClick={() => {
-                        resetField("key");
-                        resetField("keyFilename");
+                        onChange("");
+                        setValue("keyFilename", "");
                       }}
                       allowEditingUploadedText
                       browseButtonText="Upload"
@@ -622,8 +626,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   validated={isSettingsFileRejected ? "error" : "default"}
                   filenamePlaceholder="Drag and drop a file or upload one"
                   onClearClick={() => {
-                    resetField("settings");
-                    resetField("settingsFilename");
+                    onChange("");
+                    setValue("settingsFilename", "");
                   }}
                   onReadStarted={() => setIsLoading(true)}
                   onReadFinished={() => setIsLoading(false)}
