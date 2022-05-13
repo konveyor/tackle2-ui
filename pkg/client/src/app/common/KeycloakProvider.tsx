@@ -2,6 +2,7 @@ import { initInterceptors } from "@app/axios-config";
 import { isAuthRequired } from "@app/Constants";
 import i18n from "@app/i18n";
 import keycloak from "@app/keycloak";
+import { useFetchCookie } from "@app/queries/cookies";
 import { AppPlaceholder } from "@app/shared/components";
 import { Flex, FlexItem, Spinner } from "@patternfly/react-core";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
@@ -14,40 +15,9 @@ interface IKeycloakProviderProps {
 export const KeycloakProvider: React.FunctionComponent<
   IKeycloakProviderProps
 > = ({ children }) => {
-  const setCookie = (cName: string, cValue: string, expDays: number) => {
-    let date = new Date();
-    date.setTime(date.getTime() + expDays * 24 * 60 * 60 * 1000);
-    const expires = "expires=" + date.toUTCString();
-    document.cookie = `${cName} = ${cValue}; ${expires}; path=/`;
-  };
-
-  const getCookie = (token: string) => {
-    let cookieArr = document.cookie.split(";");
-    for (let i = 0; i < cookieArr.length; i++) {
-      let cookiePair = cookieArr[i].split("=");
-      if (token == cookiePair[0].trim()) {
-        return decodeURIComponent(cookiePair[1]);
-      }
-    }
-    return null;
-  };
-
-  const checkCookie = () => {
-    deleteCookie("proxyToken");
-    let token = getCookie("proxyToken");
-    if (token !== "" && token !== null) {
-    } else {
-      token = keycloak?.token || "";
-
-      if (token != "" && token != null) {
-        setCookie("proxyToken", token, 365);
-      }
-    }
-  };
-  const deleteCookie = (name: string) => {
-    document.cookie = `${name} =; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-  };
+  console.log("token here", keycloak.token);
   if (isAuthRequired) {
+    // refetch();
     return (
       <>
         <ReactKeycloakProvider
@@ -78,7 +48,7 @@ export const KeycloakProvider: React.FunctionComponent<
               initInterceptors(() => {
                 return new Promise<string>((resolve, reject) => {
                   if (keycloak.token) {
-                    checkCookie();
+                    // checkCookie();
                     keycloak
                       .updateToken(5)
                       .then(() => {

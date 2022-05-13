@@ -13,8 +13,12 @@ import "@redhat-cloud-services/frontend-components-notifications/index.css";
 
 import { ConfirmDialogContainer } from "./shared/containers/confirm-dialog-container";
 import { BulkCopyNotificationsContainer } from "./shared/containers/bulk-copy-notifications-container";
+import { useFetchCookie } from "./queries/cookies";
+import keycloak from "./keycloak";
 
 const App: React.FC = () => {
+  const { refetch } = useFetchCookie(keycloak.token);
+
   return (
     <BrowserRouter>
       <DefaultLayout>
