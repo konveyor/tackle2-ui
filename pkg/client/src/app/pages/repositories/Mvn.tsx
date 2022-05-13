@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   Alert,
   Button,
+  ButtonVariant,
   Card,
   CardBody,
   Form,
@@ -26,9 +27,15 @@ import {
   useCleanRepositoryMutation,
   useFetchVolumes,
 } from "@app/queries/volumes";
+import { useFetchTasks } from "@app/queries/tasks";
+import { useDispatch } from "react-redux";
+import { confirmDialogActions } from "@app/store/confirmDialog";
 
 export const RepositoriesMvn: React.FunctionComponent = () => {
   const { t } = useTranslation();
+  // Redux
+  const dispatch = useDispatch();
+
   const [forcedSettingError, setForcedSettingError] =
     React.useState<AxiosError>();
   const [insecureSettingError, setInsecureSettingError] =
@@ -107,9 +114,10 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
   }, [refreshMvnForcedSetting]);
 
   const { volumes, refetch } = useFetchVolumes();
+  const { tasks } = useFetchTasks();
   const [storageValue, setStorageValue] = useState<string>();
   const [currCleanId, setCurrCleanId] = useState<number>(0);
-  const [isCleanDisabled, setIsCleanDisabled] = useState<boolean>(true);
+  const [isCleanDisabled, setIsCleanDisabled] = useState<boolean>(false);
 
   useEffect(() => {
     const thisVol = volumes.find((vol) => vol.name === "m2");
@@ -118,24 +126,40 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
     }
     setCurrCleanId(thisVol?.id || 0);
   }, [volumes, currCleanId]);
-  const onHandleCleanSuccess = (res: any) => {
+  const onHandleCleanSuccess = (res) => {
     setIsCleanDisabled(false);
     refetch();
   };
-  const onHandleCleanError = (err: AxiosError) => {};
-  const {
-    mutate: cleanRepository,
-    isLoading,
-    error,
-  } = useCleanRepositoryMutation(onHandleCleanSuccess, onHandleCleanError);
-
-  useEffect(() => {
+  const onHandleCleanError = (err) => {
     setIsCleanDisabled(false);
+    refetch();
+  };
 
-    return () => {
-      setIsCleanDisabled(false);
-    };
-  }, []);
+  const { mutate: cleanRepository, isLoading } = useCleanRepositoryMutation({
+    onSuccess: onHandleCleanSuccess,
+    onError: onHandleCleanError,
+  });
+
+  const confirmClean = () => {
+    dispatch(
+      confirmDialogActions.openDialog({
+        title: "Clear repository",
+        message:
+          "This will clear the local Maven repository and considerably slow down builds until dependencies are collected again. Do you wish to continue?",
+        confirmBtnVariant: ButtonVariant.primary,
+        confirmBtnLabel: t("actions.continue"),
+        cancelBtnLabel: t("actions.cancel"),
+        onConfirm: () => {
+          dispatch(confirmDialogActions.closeDialog());
+          if (currCleanId) {
+            const cleanIdStr = currCleanId.toString();
+            cleanRepository(cleanIdStr);
+            setIsCleanDisabled(true);
+          }
+        },
+      })
+    );
+  };
 
   return (
     <>
@@ -164,8 +188,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
                   isInline
                   isDisabled={isCleanDisabled || isLoading}
                   onClick={() => {
-                    cleanRepository(currCleanId || 0);
-                    setIsCleanDisabled(true);
+                    confirmClean();
                   }}
                 >
                   Clear repository

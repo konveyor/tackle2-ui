@@ -86,7 +86,13 @@ const buildQuery = (params: any) => {
 };
 
 //Volumes
+// poll clean task
+export const getTaskById = ({ queryKey }): AxiosPromise<Task> => {
+  const [_, processId] = queryKey;
+  return axios.get<Task>(`${TASKS}/${processId}`);
+};
 
+//
 export const getVolumes = (): AxiosPromise<Volume[]> => {
   return APIClient.get(`${VOLUMES}`, jsonHeaders);
 };
