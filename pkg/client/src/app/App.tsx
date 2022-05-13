@@ -17,6 +17,7 @@ import { useFetchCookie } from "./queries/cookies";
 import keycloak from "./keycloak";
 
 const App: React.FC = () => {
+  // Automatically updates cookie
   const { refetch } = useFetchCookie(keycloak.token);
 
   return (

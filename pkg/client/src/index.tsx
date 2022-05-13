@@ -16,16 +16,16 @@ const queryClient = new QueryClient();
 
 ReactDOM.render(
   <LocalStorageContextProvider>
-    <QueryClientProvider client={queryClient}>
-      <KeycloakProvider>
-        <Provider store={configureStore()}>
-          <NinjaErrorBoundary>
+    <KeycloakProvider>
+      <Provider store={configureStore()}>
+        <NinjaErrorBoundary>
+          <QueryClientProvider client={queryClient}>
             <App />
             <ReactQueryDevtools initialIsOpen={false} />
-          </NinjaErrorBoundary>
-        </Provider>
-      </KeycloakProvider>
-    </QueryClientProvider>
+          </QueryClientProvider>
+        </NinjaErrorBoundary>
+      </Provider>
+    </KeycloakProvider>
   </LocalStorageContextProvider>,
   document.getElementById("root")
 );

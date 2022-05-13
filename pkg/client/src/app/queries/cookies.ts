@@ -3,7 +3,6 @@ import { useMutation, useQuery } from "react-query";
 import keycloak from "@app/keycloak";
 
 export interface ICookieFetchState {
-  //   token: string;
   isFetching: boolean;
   fetchError: any;
   refetch: any;
@@ -59,7 +58,6 @@ export const useFetchCookie = (token): ICookieFetchState => {
   return {
     isFetching: isLoading,
     fetchError: error,
-
     refetch,
   };
 };

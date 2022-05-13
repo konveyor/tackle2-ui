@@ -2,7 +2,6 @@ import { initInterceptors } from "@app/axios-config";
 import { isAuthRequired } from "@app/Constants";
 import i18n from "@app/i18n";
 import keycloak from "@app/keycloak";
-import { useFetchCookie } from "@app/queries/cookies";
 import { AppPlaceholder } from "@app/shared/components";
 import { Flex, FlexItem, Spinner } from "@patternfly/react-core";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
@@ -15,9 +14,7 @@ interface IKeycloakProviderProps {
 export const KeycloakProvider: React.FunctionComponent<
   IKeycloakProviderProps
 > = ({ children }) => {
-  console.log("token here", keycloak.token);
   if (isAuthRequired) {
-    // refetch();
     return (
       <>
         <ReactKeycloakProvider
@@ -48,7 +45,6 @@ export const KeycloakProvider: React.FunctionComponent<
               initInterceptors(() => {
                 return new Promise<string>((resolve, reject) => {
                   if (keycloak.token) {
-                    // checkCookie();
                     keycloak
                       .updateToken(5)
                       .then(() => {
