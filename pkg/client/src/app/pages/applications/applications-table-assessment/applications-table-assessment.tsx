@@ -142,6 +142,16 @@ export const ApplicationsTable: React.FC = () => {
     setFilterValues,
     handleOnClearAllFilters,
     currentPageItems,
+    isRowSelected,
+    toggleRowSelected,
+    selectAll,
+    selectMultiple,
+    areAllSelected,
+    selectedRows,
+    isRowExpanded,
+    toggleRowExpanded,
+    expandAll,
+    areAllExpanded,
   } = getApplicationsFilterValues(
     applications,
     ApplicationTableType.Assessment
@@ -259,30 +269,6 @@ export const ApplicationsTable: React.FC = () => {
   // Create assessment
   const { assessApplication, inProgress: isApplicationAssessInProgress } =
     useAssessApplication();
-
-  // Expand, select rows
-  const {
-    isItemSelected: isRowExpanded,
-    toggleItemSelected: toggleRowExpanded,
-    selectAll: expandAll,
-    areAllSelected: areAllExpanded,
-  } = useSelectionState<Application>({
-    items: applications || [],
-    isEqual: (a, b) => a.id === b.id,
-  });
-
-  //Bulk selection
-  const {
-    isItemSelected: isRowSelected,
-    toggleItemSelected: toggleRowSelected,
-    selectAll,
-    selectMultiple,
-    areAllSelected,
-    selectedItems: selectedRows,
-  } = useSelectionState<Application>({
-    items: applications || [],
-    isEqual: (a, b) => a.id === b.id,
-  });
 
   // Table
   const columns: ICell[] = [
