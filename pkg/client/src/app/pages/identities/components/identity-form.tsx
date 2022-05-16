@@ -328,6 +328,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     },
   ];
 
+  const isPasswordEncrypted = identity?.password === values.password;
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       {axiosError && (
@@ -482,13 +484,17 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               </FormGroup>
               <FormGroup
                 label="Password"
-                labelIcon={
-                  <KeyDisplayToggle
-                    keyName="password"
-                    isKeyHidden={isPasswordHidden}
-                    onClick={toggleHidePassword}
-                  />
-                }
+                {...(!isPasswordEncrypted
+                  ? {
+                      labelIcon: (
+                        <KeyDisplayToggle
+                          keyName="password"
+                          isKeyHidden={isPasswordHidden}
+                          onClick={toggleHidePassword}
+                        />
+                      ),
+                    }
+                  : {})}
                 fieldId="password"
                 isRequired={true}
                 validated={getValidatedFromError(errors.password)}
@@ -567,13 +573,17 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               <FormGroup
                 label="Private Key Passphrase"
                 fieldId="password"
-                labelIcon={
-                  <KeyDisplayToggle
-                    keyName="password"
-                    isKeyHidden={isPasswordHidden}
-                    onClick={toggleHidePassword}
-                  />
-                }
+                {...(!isPasswordEncrypted
+                  ? {
+                      labelIcon: (
+                        <KeyDisplayToggle
+                          keyName="password"
+                          isKeyHidden={isPasswordHidden}
+                          onClick={toggleHidePassword}
+                        />
+                      ),
+                    }
+                  : {})}
               >
                 <Controller
                   control={control}
@@ -675,13 +685,17 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           </FormGroup>
           <FormGroup
             label="Password"
-            labelIcon={
-              <KeyDisplayToggle
-                keyName="password"
-                isKeyHidden={isPasswordHidden}
-                onClick={toggleHidePassword}
-              />
-            }
+            {...(!isPasswordEncrypted
+              ? {
+                  labelIcon: (
+                    <KeyDisplayToggle
+                      keyName="password"
+                      isKeyHidden={isPasswordHidden}
+                      onClick={toggleHidePassword}
+                    />
+                  ),
+                }
+              : {})}
             fieldId="password"
             isRequired={true}
             validated={getValidatedFromError(errors.password)}
