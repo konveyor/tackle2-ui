@@ -118,7 +118,6 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
   const { tasks } = useFetchTasks();
   const [storageValue, setStorageValue] = useState<string>();
   const [currCleanId, setCurrCleanId] = useState<number>(0);
-  const [isCleanDisabled, setIsCleanDisabled] = useState<boolean>(false);
 
   useEffect(() => {
     const thisVol = volumes.find((vol) => vol.name === "m2");
@@ -127,16 +126,14 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
     }
     setCurrCleanId(thisVol?.id || 0);
   }, [volumes, currCleanId]);
-  const onHandleCleanSuccess = (res) => {
-    setIsCleanDisabled(false);
+  const onHandleCleanSuccess = () => {
     refetch();
   };
-  const onHandleCleanError = (err) => {
-    setIsCleanDisabled(false);
+  const onHandleCleanError = () => {
     refetch();
   };
 
-  const { mutate: cleanRepository, isLoading } = useCleanRepositoryMutation({
+  const { mutate: cleanRepository, isCleaning } = useCleanRepositoryMutation({
     onSuccess: onHandleCleanSuccess,
     onError: onHandleCleanError,
   });
@@ -155,7 +152,6 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
           if (currCleanId) {
             const cleanIdStr = currCleanId.toString();
             cleanRepository(cleanIdStr);
-            setIsCleanDisabled(true);
           }
         },
       })
@@ -187,7 +183,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
                 <Button
                   variant="link"
                   isInline
-                  isDisabled={isCleanDisabled || isLoading}
+                  isDisabled={isCleaning}
                   onClick={() => {
                     confirmClean();
                   }}
