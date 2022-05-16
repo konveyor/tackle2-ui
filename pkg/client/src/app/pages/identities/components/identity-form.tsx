@@ -414,6 +414,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               onChange={(selection) => {
                 const selectionValue = selection as OptionWithValue<any>;
                 setValue(name, selectionValue.value);
+                setValue("password", ""); // So we don't retain the value from the wrong type of credential
               }}
             />
           )}
@@ -445,6 +446,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   onChange={(selection) => {
                     const selectionValue = selection as OptionWithValue<any>;
                     setValue(name, selectionValue.value);
+                    setValue("password", ""); // So we don't retain the value from the wrong type of credential
                   }}
                 />
               )}
