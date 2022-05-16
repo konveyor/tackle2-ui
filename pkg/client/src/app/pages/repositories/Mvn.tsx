@@ -13,6 +13,7 @@ import {
   Text,
   TextContent,
   TextInput,
+  Tooltip,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 
@@ -201,29 +202,38 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
                   />
                 )}
               </FormGroup>
-              <Switch
-                id="maven-update"
-                className="repo"
-                label="Force update of dependencies"
-                aria-label="Force update of Maven repositories"
-                isChecked={mvnForcedSetting === true ? true : false}
-                onChange={onChangeForced}
-              />
-              {insecureSettingError && (
-                <Alert
-                  variant="danger"
-                  isInline
-                  title={getAxiosErrorMessage(insecureSettingError)}
-                />
-              )}
-              <Switch
-                id="maven-secure"
-                className="repo"
-                label="Consume insecure Maven repositories"
-                aria-label="Insecure Maven repositories"
-                isChecked={mvnInsecureSetting === true ? true : false}
-                onChange={onChangeInsecure}
-              />
+              <FormGroup fieldId="isForcedUpdate">
+                <Tooltip content="Enabling this option forces a download of remote dependencies to the local artifact repository at each build.">
+                  <Switch
+                    id="maven-update"
+                    label="Force update of dependencies"
+                    aria-label="Force update of Maven repositories"
+                    isChecked={mvnForcedSetting === true ? true : false}
+                    onChange={onChangeForced}
+                  />
+                </Tooltip>
+              </FormGroup>
+              <FormGroup fieldId="isInsecure">
+                {insecureSettingError && (
+                  <Alert
+                    variant="danger"
+                    isInline
+                    title={getAxiosErrorMessage(insecureSettingError)}
+                  />
+                )}
+                <Tooltip
+                  content={`Enabling this option allows repositories using the "http" protocol to be consumed. The default is to require https.`}
+                >
+                  <Switch
+                    id="maven-secure"
+                    className="repo"
+                    label="Consume insecure Maven repositories"
+                    aria-label="Insecure Maven repositories"
+                    isChecked={mvnInsecureSetting === true ? true : false}
+                    onChange={onChangeInsecure}
+                  />
+                </Tooltip>
+              </FormGroup>
             </Form>
           </CardBody>
         </Card>
