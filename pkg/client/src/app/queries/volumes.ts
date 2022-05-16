@@ -42,52 +42,47 @@ export const useFetchVolumes = (): IVolumeFetchState => {
 };
 
 export const useCleanRepositoryMutation = ({ onSuccess, onError }) => {
-  const [processId, setProcessId] = useState(null);
-  const [stop, setStop] = useState(false);
-
   // Mutation to kick off the clean task
-  const { mutate } = useMutation(cleanRepository, {
-    onMutate: () => {
-      setStop(false);
+  const {
+    data: mutationResult,
+    mutate,
+    isLoading: isProcessIdLoading,
+    reset,
+  } = useMutation(cleanRepository, {
+    onError: (error) => {
+      console.error(error);
+      onError();
+    },
+    onSuccess: (res) => {},
+  });
+
+  const processId = mutationResult?.data.id || null;
+
+  //Fetch until clean task is complete
+  const { data } = useQuery([CleanProgressQueryKey, processId], getTaskById, {
+    onSuccess: (res) => {
+      if (res?.data.state === "Succeeded") {
+        reset();
+        onSuccess();
+      } else if (res?.data.state === "Failed") {
+        reset();
+        onError();
+      }
     },
     onError: (error) => {
       console.error(error);
-      setStop(true);
+      reset();
       onError();
     },
-    onSuccess: (res) => {
-      setProcessId(res.data.id);
-    },
+    enabled: processId != null,
+    refetchInterval: isProcessIdLoading ? false : 5000,
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: false,
   });
 
-  //Fetch until clean task is complete
-  const { isLoading, data } = useQuery(
-    [CleanProgressQueryKey, processId],
-    getTaskById,
-    {
-      onSuccess: (res) => {
-        if (res?.data.state === "Succeeded") {
-          setStop(true);
-          setProcessId(null);
-          onSuccess();
-        } else if (res?.data.state === "Failed") {
-          setStop(true);
-          setProcessId(null);
-          onError();
-        }
-      },
-      onError: (error) => {
-        console.error(error);
-        setStop(true);
-        setProcessId(null);
-        onError();
-      },
-      enabled: processId != null,
-      refetchInterval: stop ? false : 5000,
-      refetchIntervalInBackground: true,
-      refetchOnWindowFocus: false,
-    }
-  );
-
-  return { mutate, data, isLoading };
+  return {
+    mutate,
+    data,
+    isCleaning: isProcessIdLoading || !!mutationResult?.data.id,
+  };
 };
