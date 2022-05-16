@@ -70,7 +70,7 @@ export const SidebarApp: React.FC = () => {
 
   useEffect(() => {
     if (!selectedPersona) {
-      history.push("/");
+      history.push("/applications");
       setSelectedPersona("Developer");
     }
   }, []);
