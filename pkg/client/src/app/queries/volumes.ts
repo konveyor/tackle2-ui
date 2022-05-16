@@ -83,6 +83,6 @@ export const useCleanRepositoryMutation = ({ onSuccess, onError }) => {
   return {
     mutate,
     data,
-    isCleaning: isProcessIdLoading || !!mutationResult?.data.id,
+    isCleaning: isProcessIdLoading || !!processId,
   };
 };
