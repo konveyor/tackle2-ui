@@ -23,6 +23,7 @@ export const getApplicationsFilterValues = (
     isFetching,
     fetchError: fetchErrorIdentities,
   } = useFetchIdentities();
+
   const { tags } = useFetchTags();
   const { tagTypes } = useFetchTagTypes();
 
@@ -83,12 +84,11 @@ export const getApplicationsFilterValues = (
       type: FilterType.select,
       selectOptions: [
         { key: "git", value: "Git" },
-        { key: "svn", value: "SVN" },
+        { key: "subversion", value: "Subversion" },
       ],
       getItemValue: (item) => {
-        const url = item?.repository?.url || "";
-        const fileExt = url.split(".").pop() || "";
-        return fileExt;
+        const kind = item?.repository?.kind || "";
+        return kind;
       },
     },
     {
