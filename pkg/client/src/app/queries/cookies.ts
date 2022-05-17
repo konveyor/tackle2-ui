@@ -1,16 +1,9 @@
-import React, { useState } from "react";
-import { useMutation, useQuery } from "react-query";
+import { useQuery } from "react-query";
 import keycloak from "@app/keycloak";
-
-export interface ICookieFetchState {
-  isFetching: boolean;
-  fetchError: any;
-  refetch: any;
-}
 
 export const CookieQueryKey = "cookies";
 
-export const useFetchCookie = (token): ICookieFetchState => {
+export const useFetchCookie = (token) => {
   const deleteCookie = (name: string) => {
     document.cookie = `${name} =; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
   };
@@ -32,7 +25,8 @@ export const useFetchCookie = (token): ICookieFetchState => {
     }
     return null;
   };
-  const { isLoading, error, refetch } = useQuery(
+
+  useQuery(
     [CookieQueryKey, token],
     () => {
       if (token) {
@@ -55,9 +49,4 @@ export const useFetchCookie = (token): ICookieFetchState => {
       refetchOnWindowFocus: false,
     }
   );
-  return {
-    isFetching: isLoading,
-    fetchError: error,
-    refetch,
-  };
 };
