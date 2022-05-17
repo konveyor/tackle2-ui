@@ -120,4 +120,13 @@ export const importsWriteScopes = [
   "imports:delete",
 ];
 
-export const taskWriteScopes = ["tasks:put", "tasks:post", "tasks:delete"];
+export const tasksReadScopes = ["tasks:get", "taskgroups:get"];
+
+export const tasksWriteScopes = [
+  "tasks:post",
+  "tasks:put",
+  "tasks:delete",
+  "taskgroups:post",
+  "taskgroups:put",
+  "taskgroups:delete",
+];
