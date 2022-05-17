@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import {
   ActionGroup,
   Alert,
+  AlertActionCloseButton,
   Button,
   FileUpload,
   Form,
@@ -70,7 +71,15 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
   };
   return (
     <Form>
-      {error && <Alert variant="danger" title={getAxiosErrorMessage(error)} />}
+      {error && (
+        <Alert
+          actionClose={
+            <AlertActionCloseButton onClose={() => setError(undefined)} />
+          }
+          variant="danger"
+          title={getAxiosErrorMessage(error)}
+        />
+      )}
 
       <FormGroup
         fieldId="file"
@@ -102,7 +111,7 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
         <Button
           variant="primary"
           onClick={onSubmit}
-          isDisabled={!file || isSubmitting}
+          isDisabled={!file || isSubmitting || !!error}
         >
           {t("actions.import")}
         </Button>
