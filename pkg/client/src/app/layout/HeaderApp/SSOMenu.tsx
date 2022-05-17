@@ -8,12 +8,20 @@ import {
   DropdownToggle,
   PageHeaderToolsItem,
 } from "@patternfly/react-core";
+import {
+  LocalStorageKey,
+  useLocalStorageContext,
+} from "@app/context/LocalStorageContext";
 
 export const SSOMenu: React.FC = () => {
   const { t } = useTranslation();
 
   const { keycloak } = useKeycloak();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const [selectedPersona, setSelectedPersona] = useLocalStorageContext(
+    LocalStorageKey.selectedPersona
+  );
 
   const onDropdownSelect = () => {
     setIsDropdownOpen((current) => !current);
@@ -52,6 +60,7 @@ export const SSOMenu: React.FC = () => {
               <DropdownItem
                 key="sso_logout"
                 onClick={() => {
+                  setSelectedPersona("");
                   keycloak.logout();
                 }}
               >
