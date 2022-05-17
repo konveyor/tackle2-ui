@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   Alert,
   Button,
+  ButtonVariant,
   Card,
   CardBody,
   Form,
@@ -12,6 +13,7 @@ import {
   Text,
   TextContent,
   TextInput,
+  Tooltip,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 
@@ -26,9 +28,15 @@ import {
   useCleanRepositoryMutation,
   useFetchVolumes,
 } from "@app/queries/volumes";
+import { useFetchTasks } from "@app/queries/tasks";
+import { useDispatch } from "react-redux";
+import { confirmDialogActions } from "@app/store/confirmDialog";
 
 export const RepositoriesMvn: React.FunctionComponent = () => {
   const { t } = useTranslation();
+  // Redux
+  const dispatch = useDispatch();
+
   const [forcedSettingError, setForcedSettingError] =
     React.useState<AxiosError>();
   const [insecureSettingError, setInsecureSettingError] =
@@ -107,9 +115,9 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
   }, [refreshMvnForcedSetting]);
 
   const { volumes, refetch } = useFetchVolumes();
+  const { tasks } = useFetchTasks();
   const [storageValue, setStorageValue] = useState<string>();
   const [currCleanId, setCurrCleanId] = useState<number>(0);
-  const [isCleanDisabled, setIsCleanDisabled] = useState<boolean>(true);
 
   useEffect(() => {
     const thisVol = volumes.find((vol) => vol.name === "m2");
@@ -118,24 +126,37 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
     }
     setCurrCleanId(thisVol?.id || 0);
   }, [volumes, currCleanId]);
-  const onHandleCleanSuccess = (res: any) => {
-    setIsCleanDisabled(false);
+  const onHandleCleanSuccess = () => {
     refetch();
   };
-  const onHandleCleanError = (err: AxiosError) => {};
-  const {
-    mutate: cleanRepository,
-    isLoading,
-    error,
-  } = useCleanRepositoryMutation(onHandleCleanSuccess, onHandleCleanError);
+  const onHandleCleanError = () => {
+    refetch();
+  };
 
-  useEffect(() => {
-    setIsCleanDisabled(false);
+  const { mutate: cleanRepository, isCleaning } = useCleanRepositoryMutation({
+    onSuccess: onHandleCleanSuccess,
+    onError: onHandleCleanError,
+  });
 
-    return () => {
-      setIsCleanDisabled(false);
-    };
-  }, []);
+  const confirmClean = () => {
+    dispatch(
+      confirmDialogActions.openDialog({
+        title: "Clear repository",
+        message:
+          "This will clear the local Maven repository and considerably slow down builds until dependencies are collected again. Do you wish to continue?",
+        confirmBtnVariant: ButtonVariant.primary,
+        confirmBtnLabel: t("actions.continue"),
+        cancelBtnLabel: t("actions.cancel"),
+        onConfirm: () => {
+          dispatch(confirmDialogActions.closeDialog());
+          if (currCleanId) {
+            const cleanIdStr = currCleanId.toString();
+            cleanRepository(cleanIdStr);
+          }
+        },
+      })
+    );
+  };
 
   return (
     <>
@@ -162,10 +183,9 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
                 <Button
                   variant="link"
                   isInline
-                  isDisabled={isCleanDisabled || isLoading}
+                  isDisabled={isCleaning}
                   onClick={() => {
-                    cleanRepository(currCleanId || 0);
-                    setIsCleanDisabled(true);
+                    confirmClean();
                   }}
                 >
                   Clear repository
@@ -178,29 +198,38 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
                   />
                 )}
               </FormGroup>
-              <Switch
-                id="maven-update"
-                className="repo"
-                label="Force update of dependencies"
-                aria-label="Force update of Maven repositories"
-                isChecked={mvnForcedSetting === true ? true : false}
-                onChange={onChangeForced}
-              />
-              {insecureSettingError && (
-                <Alert
-                  variant="danger"
-                  isInline
-                  title={getAxiosErrorMessage(insecureSettingError)}
-                />
-              )}
-              <Switch
-                id="maven-secure"
-                className="repo"
-                label="Consume insecure Maven repositories"
-                aria-label="Insecure Maven repositories"
-                isChecked={mvnInsecureSetting === true ? true : false}
-                onChange={onChangeInsecure}
-              />
+              <FormGroup fieldId="isForcedUpdate">
+                <Tooltip content="Enabling this option forces a download of remote dependencies to the local artifact repository at each build.">
+                  <Switch
+                    id="maven-update"
+                    label="Force update of dependencies"
+                    aria-label="Force update of Maven repositories"
+                    isChecked={mvnForcedSetting === true ? true : false}
+                    onChange={onChangeForced}
+                  />
+                </Tooltip>
+              </FormGroup>
+              <FormGroup fieldId="isInsecure">
+                {insecureSettingError && (
+                  <Alert
+                    variant="danger"
+                    isInline
+                    title={getAxiosErrorMessage(insecureSettingError)}
+                  />
+                )}
+                <Tooltip
+                  content={`Enabling this option allows repositories using the "http" protocol to be consumed. The default is to require https.`}
+                >
+                  <Switch
+                    id="maven-secure"
+                    className="repo"
+                    label="Consume insecure Maven repositories"
+                    aria-label="Insecure Maven repositories"
+                    isChecked={mvnInsecureSetting === true ? true : false}
+                    onChange={onChangeInsecure}
+                  />
+                </Tooltip>
+              </FormGroup>
             </Form>
           </CardBody>
         </Card>
