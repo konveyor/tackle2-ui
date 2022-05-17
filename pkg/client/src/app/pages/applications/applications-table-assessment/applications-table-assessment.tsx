@@ -429,20 +429,12 @@ export const ApplicationsTable: React.FC = () => {
       });
     }
     const userScopes: string[] = token?.scope.split(" "),
-      access = userScopes && checkAccess(userScopes, writeScopes);
-    if (access || !isAuthRequired) {
+      importWriteAccess =
+        userScopes && checkAccess(userScopes, importsWriteScopes),
+      applicationWriteAccess =
+        userScopes && checkAccess(userScopes, applicationsWriteScopes);
+    if (applicationWriteAccess || !isAuthRequired) {
       actions.push(
-        {
-          title: t("actions.manageDependencies"),
-          onClick: (
-            event: React.MouseEvent,
-            rowIndex: number,
-            rowData: IRowData
-          ) => {
-            const row: Application = getRow(rowData);
-            openDependenciesModal(row);
-          },
-        },
         {
           title: "Manage credentials",
           onClick: (
@@ -468,6 +460,19 @@ export const ApplicationsTable: React.FC = () => {
           },
         }
       );
+    }
+    if (applicationWriteAccess || !isAuthRequired) {
+      actions.push({
+        title: t("actions.manageDependencies"),
+        onClick: (
+          event: React.MouseEvent,
+          rowIndex: number,
+          rowData: IRowData
+        ) => {
+          const row: Application = getRow(rowData);
+          openDependenciesModal(row);
+        },
+      });
     }
 
     return actions;
