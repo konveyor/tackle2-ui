@@ -66,7 +66,14 @@ import { ApplicationListExpandedArea } from "../components/application-list-expa
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
-import { legacyPathfinderRoles, RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
+import {
+  applicationsWriteScopes,
+  importsWriteScopes,
+  legacyPathfinderRoles,
+  RBAC,
+  RBAC_TYPE,
+  writeScopes,
+} from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
 import {
@@ -638,6 +645,45 @@ export const ApplicationsTable: React.FC = () => {
     closeCredentialsModal();
     refetch();
   };
+  const userScopes: string[] = token?.scope.split(" "),
+    importWriteAccess =
+      userScopes && checkAccess(userScopes, importsWriteScopes),
+    applicationWriteAccess =
+      userScopes && checkAccess(userScopes, applicationsWriteScopes);
+
+  const importDropdownItems = importWriteAccess
+    ? [
+        <DropdownItem
+          key="import-applications"
+          component="button"
+          onClick={() => setIsApplicationImportModalOpen(true)}
+        >
+          {t("actions.import")}
+        </DropdownItem>,
+        <DropdownItem
+          key="manage-import-applications"
+          onClick={() => {
+            history.push(Paths.applicationsImports);
+          }}
+        >
+          {t("actions.manageImports")}
+        </DropdownItem>,
+      ]
+    : [];
+  const applicationDropdownItems = applicationWriteAccess
+    ? [
+        <DropdownItem
+          key="manage-applications-credentials"
+          isDisabled={selectedRows.length < 1}
+          onClick={() => {
+            openCredentialsModal(selectedRows);
+          }}
+        >
+          {t("actions.manageCredentials")}
+        </DropdownItem>,
+      ]
+    : [];
+  const dropdownItems = [...importDropdownItems, ...applicationDropdownItems];
 
   return (
     <>
@@ -738,42 +784,15 @@ export const ApplicationsTable: React.FC = () => {
                     </Button>
                   </ToolbarItem>
                 </RBAC>
-                <RBAC
-                  //TODO: update to granular scope validation once new pathfinder image is available
-                  rbacType={RBAC_TYPE.Role}
-                  allowedPermissions={legacyPathfinderRoles}
-                >
+                {dropdownItems.length ? (
                   <ToolbarItem>
                     <KebabDropdown
-                      dropdownItems={[
-                        <DropdownItem
-                          key="import-applications"
-                          component="button"
-                          onClick={() => setIsApplicationImportModalOpen(true)}
-                        >
-                          {t("actions.import")}
-                        </DropdownItem>,
-                        <DropdownItem
-                          key="manage-import-applications"
-                          onClick={() => {
-                            history.push(Paths.applicationsImports);
-                          }}
-                        >
-                          {t("actions.manageImports")}
-                        </DropdownItem>,
-                        <DropdownItem
-                          key="manage-applications-credentials"
-                          isDisabled={selectedRows.length < 1}
-                          onClick={() => {
-                            openCredentialsModal(selectedRows);
-                          }}
-                        >
-                          {t("actions.manageCredentials")}
-                        </DropdownItem>,
-                      ]}
-                    />
+                      dropdownItems={dropdownItems}
+                    ></KebabDropdown>
                   </ToolbarItem>
-                </RBAC>
+                ) : (
+                  <></>
+                )}
               </ToolbarGroup>
             </>
           }

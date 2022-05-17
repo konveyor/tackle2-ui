@@ -102,4 +102,16 @@ export const writeScopes = [
   "tagtypes:delete",
 ];
 
+export const applicationsWriteScopes = [
+  "applications:put",
+  "applications:post",
+  "applications:delete",
+];
+
+export const importsWriteScopes = [
+  "imports:put",
+  "imports:post",
+  "imports:delete",
+];
+
 export const taskWriteScopes = ["tasks:put", "tasks:post", "tasks:delete"];
