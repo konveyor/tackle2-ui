@@ -17,6 +17,7 @@ import { alertActions } from "@app/store/alert";
 
 import { UPLOAD_FILE } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import { useDeleteImportSummaryMutation } from "@app/queries/imports";
 
 export interface ImportApplicationsFormProps {
   onSaved: (response: AxiosResponse) => void;
@@ -32,6 +33,8 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<AxiosError>();
+
+  const { mutate: deleteImportSummary } = useDeleteImportSummaryMutation();
 
   // Redux
   const dispatch = useDispatch();
@@ -60,11 +63,14 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
         dispatch(
           alertActions.addSuccess(t("toastr.success.fileSavedToBeProcessed"))
         );
+        console.log("response", response);
 
         setIsSubmitting(false);
         onSaved(response);
       })
       .catch((error) => {
+        console.log("error", error.response);
+        // deleteImportSummary(1);
         setIsSubmitting(false);
         setError(error);
       });
