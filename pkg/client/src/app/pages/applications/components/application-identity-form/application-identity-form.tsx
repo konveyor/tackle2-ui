@@ -204,11 +204,7 @@ export const ApplicationIdentityForm: React.FC<
           aria-label="Manage credentials selected applications"
           isReadOnly
         />
-        <FormGroup
-          label="Source credentials"
-          isRequired
-          fieldId={SOURCE_CREDENTIALS}
-        >
+        <FormGroup label="Source credentials" fieldId={SOURCE_CREDENTIALS}>
           <SingleSelectFetchOptionValueFormikField
             fieldConfig={{ name: SOURCE_CREDENTIALS }}
             selectConfig={{
