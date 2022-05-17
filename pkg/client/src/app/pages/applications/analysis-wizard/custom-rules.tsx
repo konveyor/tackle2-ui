@@ -41,6 +41,7 @@ export const CustomRules: React.FunctionComponent = () => {
   const { getValues, setValue } = useFormContext();
 
   const sources: string[] = getValues("sources");
+  const targets: string[] = getValues("targets");
   const customRulesFiles: IReadFile[] = getValues("customRulesFiles");
 
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
@@ -50,8 +51,8 @@ export const CustomRules: React.FunctionComponent = () => {
     const getRules = (file: IReadFile) => {
       if (!file.data) return [];
 
-      let source = null;
-      let target = null;
+      let source: string | null = null;
+      let target: string | null = null;
       let rulesCount = 0;
 
       const payload = atob(file.data.substring(21));
@@ -87,6 +88,9 @@ export const CustomRules: React.FunctionComponent = () => {
 
       if (source && !sources.includes(source))
         setValue("sources", [...sources, source]);
+
+      if (target && !targets.includes(target))
+        setValue("targets", [...targets, target]);
 
       return rules;
     };
