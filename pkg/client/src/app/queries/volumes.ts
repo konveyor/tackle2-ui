@@ -74,7 +74,7 @@ export const useCleanRepositoryMutation = ({ onSuccess, onError }) => {
       reset();
       onError();
     },
-    enabled: processId != null,
+    enabled: processId !== null,
     refetchInterval: isProcessIdLoading ? false : 5000,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: false,
