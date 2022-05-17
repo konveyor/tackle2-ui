@@ -490,8 +490,15 @@ export const getApplicationImportSummaryById = (id: number | string) =>
 export const deleteApplicationImportSummary = (id: number) =>
   axios.delete<APIClient>(`${APP_IMPORT_SUMMARY}/${id}`);
 
-export const getApplicationImports = () =>
-  axios.get<ApplicationImport[]>(APP_IMPORT).then((response) => response.data);
+export const getApplicationImports = (
+  importSummaryID: number,
+  isValid: boolean | string
+) =>
+  axios
+    .get<ApplicationImport[]>(
+      `${APP_IMPORT}?importSummary.id=${importSummaryID}&isValid=${isValid}`
+    )
+    .then((response) => response.data);
 
 export const getTasks = () =>
   axios.get<Task[]>(TASKS).then((response) => response.data);

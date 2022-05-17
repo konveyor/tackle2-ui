@@ -64,7 +64,10 @@ export const ManageImportsDetails: React.FC = () => {
     },
   ];
 
-  const { imports, isFetching, fetchError } = useFetchImports();
+  const { imports, isFetching, fetchError } = useFetchImports(
+    parseInt(importId),
+    false
+  );
 
   const { importSummary } = useFetchImportSummaryByID(importId);
 

@@ -19,11 +19,14 @@ export const ImportSummariesQueryKey = "importsummaries";
 export const ImportsQueryKey = "imports";
 export const ImportQueryKey = "import";
 
-export const useFetchImports = () => {
+export const useFetchImports = (
+  importSummaryID: number,
+  isValid: boolean | string
+) => {
   const [imports, setImports] = useState<ApplicationImport[]>([]);
   const { isLoading, error, refetch } = useQuery(
-    ImportsQueryKey,
-    getApplicationImports,
+    [ImportsQueryKey, importSummaryID, isValid],
+    () => getApplicationImports(importSummaryID, isValid),
     {
       onSuccess: (data: ApplicationImport[]) => setImports(data),
       onError: (err: Error) => {
