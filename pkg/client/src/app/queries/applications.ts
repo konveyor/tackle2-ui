@@ -110,7 +110,7 @@ export const useCreateApplicationMutation = (
 export const useDeleteApplicationMutation = (
   onSuccess: () => void,
   onError: (err: AxiosError) => void,
-  getApplicationAssessment: (id: number) => Assessment | undefined
+  getApplicationAssessment?: (id: number) => Assessment | undefined
 ) => {
   const queryClient = useQueryClient();
   const { mutate: mutateAssessments } = useDeleteAssessmentMutation();
@@ -118,7 +118,8 @@ export const useDeleteApplicationMutation = (
     onSuccess: (_, { id }) => {
       onSuccess();
       queryClient.invalidateQueries(ApplicationsQueryKey);
-      const assessment = getApplicationAssessment(id);
+      const assessment =
+        getApplicationAssessment && getApplicationAssessment(id);
       if (assessment?.id) {
         mutateAssessments(assessment?.id);
       }

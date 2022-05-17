@@ -375,7 +375,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         confirmBtnLabel: t("actions.delete"),
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
-          deleteApplication(row?.id || 0);
+          if (row.id) {
+            deleteApplication({ id: row.id });
+          }
         },
       })
     );
