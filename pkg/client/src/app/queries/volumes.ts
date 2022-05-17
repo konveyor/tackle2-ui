@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 
-import { AxiosError } from "axios";
-import { cleanRepository, getVolumes } from "@app/api/rest";
+import { cleanRepository, getTaskById, getVolumes } from "@app/api/rest";
 import { Volume } from "@app/api/models";
 
 export interface IVolumeFetchState {
@@ -19,25 +18,7 @@ export interface ICleanRepositoryMutateState {
 }
 
 export const VolumesQueryKey = "volumes";
-
-export const useCleanRepositoryMutation = (
-  onSuccess: (res: any) => void,
-  onError: (err: AxiosError) => void
-): ICleanRepositoryMutateState => {
-  const { isLoading, mutate, error } = useMutation(cleanRepository, {
-    onSuccess: (res) => {
-      onSuccess(res);
-    },
-    onError: (err: AxiosError) => {
-      onError(err);
-    },
-  });
-  return {
-    mutate,
-    isLoading,
-    error,
-  };
-};
+export const CleanProgressQueryKey = "cleanProgress";
 
 export const useFetchVolumes = (): IVolumeFetchState => {
   const [volumes, setVolumes] = React.useState<Volume[]>([]);
@@ -57,5 +38,51 @@ export const useFetchVolumes = (): IVolumeFetchState => {
     isFetching: isLoading,
     fetchError: error,
     refetch,
+  };
+};
+
+export const useCleanRepositoryMutation = ({ onSuccess, onError }) => {
+  // Mutation to kick off the clean task
+  const {
+    data: mutationResult,
+    mutate,
+    isLoading: isProcessIdLoading,
+    reset,
+  } = useMutation(cleanRepository, {
+    onError: (error) => {
+      console.error(error);
+      onError();
+    },
+    onSuccess: (res) => {},
+  });
+
+  const processId = mutationResult?.data.id || null;
+
+  //Fetch until clean task is complete
+  const { data } = useQuery([CleanProgressQueryKey, processId], getTaskById, {
+    onSuccess: (res) => {
+      if (res?.data.state === "Succeeded") {
+        reset();
+        onSuccess();
+      } else if (res?.data.state === "Failed") {
+        reset();
+        onError();
+      }
+    },
+    onError: (error) => {
+      console.error(error);
+      reset();
+      onError();
+    },
+    enabled: processId !== null,
+    refetchInterval: isProcessIdLoading ? false : 5000,
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: false,
+  });
+
+  return {
+    mutate,
+    data,
+    isCleaning: isProcessIdLoading || !!processId,
   };
 };
