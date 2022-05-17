@@ -44,7 +44,7 @@ import {
   useDelete,
 } from "@app/shared/hooks";
 
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { getAxiosErrorMessage, numStr } from "@app/utils/utils";
 import { deleteStakeholderGroup } from "@app/api/rest";
 import { StakeholderGroup } from "@app/api/models";
 
@@ -99,10 +99,10 @@ export const StakeholderGroups: React.FC = () => {
       transforms: [sortable, cellWidth(30)],
       cellFormatters: [expandable],
     },
-    { title: t("terms.description"), transforms: [cellWidth(35)] },
+    { title: t("terms.description"), transforms: [sortable, cellWidth(35)] },
     {
       title: t("terms.memberCount"),
-      // transforms: [sortable],
+      transforms: [sortable],
     },
     {
       title: "",
@@ -149,18 +149,12 @@ export const StakeholderGroups: React.FC = () => {
     filterCategories
   );
   const getSortValues = (item: StakeholderGroup) => [
+    "",
     item?.name || "",
-    item.description || "",
-    getStakeholderNameList(item) || "",
+    item?.description || "",
+    numStr(item?.stakeholders?.length),
     "", // Action column
   ];
-
-  const getStakeholderNameList = (stakeholderGroup: StakeholderGroup) => {
-    const stakeholders = stakeholderGroup.stakeholders?.map(
-      (stakeholder) => stakeholder.name
-    );
-    return stakeholders?.join(" ; ") || "";
-  };
 
   const { sortBy, onSort, sortedItems } = useSortState(
     filteredItems,
