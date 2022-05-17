@@ -68,6 +68,7 @@ import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import {
   applicationsWriteScopes,
+  dependenciesWriteScopes,
   importsWriteScopes,
   legacyPathfinderRoles,
   RBAC,
@@ -429,8 +430,8 @@ export const ApplicationsTable: React.FC = () => {
       });
     }
     const userScopes: string[] = token?.scope.split(" "),
-      importWriteAccess =
-        userScopes && checkAccess(userScopes, importsWriteScopes),
+      dependenciesWriteAccess =
+        userScopes && checkAccess(userScopes, dependenciesWriteScopes),
       applicationWriteAccess =
         userScopes && checkAccess(userScopes, applicationsWriteScopes);
     if (applicationWriteAccess || !isAuthRequired) {
@@ -461,7 +462,8 @@ export const ApplicationsTable: React.FC = () => {
         }
       );
     }
-    if (applicationWriteAccess || !isAuthRequired) {
+
+    if (dependenciesWriteAccess || !isAuthRequired) {
       actions.push({
         title: t("actions.manageDependencies"),
         onClick: (
@@ -737,7 +739,7 @@ export const ApplicationsTable: React.FC = () => {
               <ToolbarGroup variant="button-group">
                 <ToolbarItem>
                   <RBAC
-                    allowedPermissions={writeScopes}
+                    allowedPermissions={applicationsWriteScopes}
                     rbacType={RBAC_TYPE.Scope}
                   >
                     <Button

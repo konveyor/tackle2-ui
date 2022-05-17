@@ -102,6 +102,12 @@ export const writeScopes = [
   "tagtypes:delete",
 ];
 
+export const dependenciesWriteScopes = [
+  "dependencies:put",
+  "dependencies:post",
+  "dependencies:delete",
+];
+
 export const applicationsWriteScopes = [
   "applications:put",
   "applications:post",
