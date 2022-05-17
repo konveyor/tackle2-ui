@@ -118,7 +118,7 @@ export const ManageImports: React.FC = () => {
   const getSortValues = (item: ApplicationImportSummary) => [
     "",
     "",
-    item?.filename || "",
+    item?.filename?.toLowerCase() || "",
     "",
     "", // Action column
   ];
