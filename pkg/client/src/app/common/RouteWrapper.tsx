@@ -25,7 +25,7 @@ export const RouteWrapper = ({
     //TODO: Handle token expiry & auto logout
     return <Redirect to="/login" />;
   } else if (token && !access && isAuthRequired) {
-    return <Redirect to="/" />;
+    return <Redirect to="/applications" />;
   }
 
   return (
