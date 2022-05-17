@@ -27,17 +27,11 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
 > = ({ application, task }) => {
   const { t } = useTranslation();
 
-  const [isReport, setIsReport] = React.useState(false);
-
   const { identities, fetchIdentities } = useFetchIdentities();
 
   useEffect(() => {
     fetchIdentities();
   }, [fetchIdentities]);
-
-  useEffect(() => {
-    if (task?.state === "Succeeded") setIsReport(true);
-  }, [task]);
 
   let matchingSourceCredsRef;
   let matchingMavenCredsRef;
@@ -86,7 +80,7 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.analysis")}</DescriptionListTerm>
         <DescriptionListDescription cy-data="analysis">
-          {isReport ? (
+          {task?.state === "Succeeded" ? (
             <Tooltip content="Click to view Analysis report">
               <Button variant="link" isInline>
                 <Link
