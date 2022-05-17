@@ -1,36 +1,35 @@
-import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 
 import { Task } from "@app/api/models";
 import { deleteTask, getTasks } from "@app/api/rest";
 
 export const useFetchTasks = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const { isLoading, error, refetch } = useQuery("tasks", getTasks, {
+  const { isLoading, error, refetch, data } = useQuery("tasks", getTasks, {
     refetchInterval: 5000,
-    onSuccess: (data) => {
+    select: (allTasks) => {
       let uniqLatestTasks: Task[] = [];
-      data.forEach((task) => {
+      allTasks.forEach((task) => {
         const aTask = uniqLatestTasks.find(
           (item) => task.application?.id === item.application?.id
         );
-        if (
+        if (!aTask) {
+          uniqLatestTasks.push(task);
+        } else if (
           aTask?.createTime &&
           task?.createTime &&
           task.createTime > aTask.createTime
         ) {
           const others = uniqLatestTasks.filter((t) => t.id !== aTask.id);
           uniqLatestTasks = [...others, task];
-        } else uniqLatestTasks.push(task);
+        }
       });
-      setTasks(uniqLatestTasks);
+      return uniqLatestTasks;
     },
-    onError: (err) => {
-      console.log(error);
-    },
+    onError: (err) => console.log(err),
   });
+
   return {
-    tasks,
+    tasks: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,
