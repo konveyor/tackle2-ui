@@ -30,11 +30,7 @@ import {
   AppTableToolbarToggleGroup,
   NoDataEmptyState,
 } from "@app/shared/components";
-import {
-  useTableControls,
-  useFetchBusinessServices,
-  useDelete,
-} from "@app/shared/hooks";
+import { useFetchBusinessServices, useDelete } from "@app/shared/hooks";
 
 import { BusinessService, Identity, SortByQuery } from "@app/api/models";
 import { deleteBusinessService } from "@app/api/rest";
@@ -48,10 +44,9 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import identities from "@app/pages/identities";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
-import { RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
+import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import { useFetchApplications } from "@app/queries/applications";
 
 const ENTITY_FIELD = "entity";
@@ -286,7 +281,7 @@ export const BusinessServices: React.FC = () => {
             <ToolbarGroup variant="button-group">
               <ToolbarItem>
                 <RBAC
-                  allowedPermissions={writeScopes}
+                  allowedPermissions={controlsWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
                 >
                   <Button

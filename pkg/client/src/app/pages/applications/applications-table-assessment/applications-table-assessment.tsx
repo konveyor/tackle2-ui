@@ -68,11 +68,11 @@ import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import {
   applicationsWriteScopes,
+  dependenciesWriteScopes,
   importsWriteScopes,
   legacyPathfinderRoles,
   RBAC,
   RBAC_TYPE,
-  writeScopes,
 } from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
@@ -356,7 +356,10 @@ export const ApplicationsTable: React.FC = () => {
         {
           title: (
             <div className="pf-c-inline-edit__action pf-m-enable-editable">
-              <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
+              <RBAC
+                allowedPermissions={applicationsWriteScopes}
+                rbacType={RBAC_TYPE.Scope}
+              >
                 <Button
                   type="button"
                   variant="plain"
@@ -431,20 +434,12 @@ export const ApplicationsTable: React.FC = () => {
       });
     }
     const userScopes: string[] = token?.scope.split(" "),
-      access = userScopes && checkAccess(userScopes, writeScopes);
-    if (access || !isAuthRequired) {
+      dependenciesWriteAccess =
+        userScopes && checkAccess(userScopes, dependenciesWriteScopes),
+      applicationWriteAccess =
+        userScopes && checkAccess(userScopes, applicationsWriteScopes);
+    if (applicationWriteAccess || !isAuthRequired) {
       actions.push(
-        {
-          title: t("actions.manageDependencies"),
-          onClick: (
-            event: React.MouseEvent,
-            rowIndex: number,
-            rowData: IRowData
-          ) => {
-            const row: Application = getRow(rowData);
-            openDependenciesModal(row);
-          },
-        },
         {
           title: "Manage credentials",
           onClick: (
@@ -470,6 +465,20 @@ export const ApplicationsTable: React.FC = () => {
           },
         }
       );
+    }
+
+    if (dependenciesWriteAccess || !isAuthRequired) {
+      actions.push({
+        title: t("actions.manageDependencies"),
+        onClick: (
+          event: React.MouseEvent,
+          rowIndex: number,
+          rowData: IRowData
+        ) => {
+          const row: Application = getRow(rowData);
+          openDependenciesModal(row);
+        },
+      });
     }
 
     return actions;
@@ -736,7 +745,7 @@ export const ApplicationsTable: React.FC = () => {
               <ToolbarGroup variant="button-group">
                 <ToolbarItem>
                   <RBAC
-                    allowedPermissions={writeScopes}
+                    allowedPermissions={applicationsWriteScopes}
                     rbacType={RBAC_TYPE.Scope}
                   >
                     <Button

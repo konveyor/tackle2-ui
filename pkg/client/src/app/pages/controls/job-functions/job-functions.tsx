@@ -54,7 +54,7 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import { RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
+import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 
 const ENTITY_FIELD = "entity";
 
@@ -238,7 +238,7 @@ export const JobFunctions: React.FC = () => {
             <ToolbarGroup variant="button-group">
               <ToolbarItem>
                 <RBAC
-                  allowedPermissions={writeScopes}
+                  allowedPermissions={controlsWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
                 >
                   <Button

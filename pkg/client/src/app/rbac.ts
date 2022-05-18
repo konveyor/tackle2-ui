@@ -57,34 +57,25 @@ export const readScopes = [
   "tasks:get",
 ];
 
-export const writeScopes = [
+export const adminWriteScopes = [
   "addons:post",
   "addons:put",
   "addons:delete",
-  "applications:put",
-  "applications:post",
-  "applications:delete",
-  "businessservices:put",
-  "businessservices:post",
-  "businessservices:delete",
-  "dependencies:put",
-  "dependencies:post",
-  "dependencies:delete",
   "identities:put",
   "identities:post",
   "identities:delete",
-  "imports:put",
-  "imports:post",
-  "imports:delete",
-  "jobfunctions:put",
-  "jobfunctions:post",
-  "jobFunctions:delete",
   "proxies:put",
   "proxies:post",
   "proxies:delete",
-  "reviews:put",
-  "reviews:post",
-  "reviews:delete",
+];
+
+export const controlsWriteScopes = [
+  "businessservices:put",
+  "businessservices:post",
+  "businessservices:delete",
+  "jobfunctions:put",
+  "jobfunctions:post",
+  "jobFunctions:delete",
   "settings:put",
   "settings:post",
   "settings:delete",
@@ -102,6 +93,12 @@ export const writeScopes = [
   "tagtypes:delete",
 ];
 
+export const dependenciesWriteScopes = [
+  "dependencies:put",
+  "dependencies:post",
+  "dependencies:delete",
+];
+
 export const applicationsWriteScopes = [
   "applications:put",
   "applications:post",
@@ -114,4 +111,13 @@ export const importsWriteScopes = [
   "imports:delete",
 ];
 
-export const taskWriteScopes = ["tasks:put", "tasks:post", "tasks:delete"];
+export const tasksReadScopes = ["tasks:get", "taskgroups:get"];
+
+export const tasksWriteScopes = [
+  "tasks:post",
+  "tasks:put",
+  "tasks:delete",
+  "taskgroups:post",
+  "taskgroups:put",
+  "taskgroups:delete",
+];
