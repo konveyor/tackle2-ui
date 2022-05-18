@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Button, Flex, FlexItem } from "@patternfly/react-core";
-import { RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
+import { applicationsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import { ConditionalTooltip } from "../ConditionalTooltip";
 
 export interface AppTableActionButtonsProps {
@@ -20,7 +20,10 @@ export const AppTableActionButtons: React.FC<AppTableActionButtonsProps> = ({
   const { t } = useTranslation();
 
   return (
-    <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
+    <RBAC
+      allowedPermissions={applicationsWriteScopes}
+      rbacType={RBAC_TYPE.Scope}
+    >
       <Flex>
         <FlexItem align={{ default: "alignRight" }}>
           <Button aria-label="edit" variant="secondary" onClick={onEdit}>

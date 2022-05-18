@@ -53,7 +53,15 @@ import { FilterToolbar } from "@app/shared/components/FilterToolbar";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import { useDeleteTaskMutation, useFetchTasks } from "@app/queries/tasks";
-import { RBAC, RBAC_TYPE, taskWriteScopes, writeScopes } from "@app/rbac";
+import {
+  applicationsWriteScopes,
+  dependenciesWriteScopes,
+  importsWriteScopes,
+  RBAC,
+  RBAC_TYPE,
+  tasksReadScopes,
+  tasksWriteScopes,
+} from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
 import {
   useDeleteApplicationMutation,
@@ -269,7 +277,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         {
           title: (
             <div className="pf-c-inline-edit__action pf-m-enable-editable">
-              <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
+              <RBAC
+                allowedPermissions={applicationsWriteScopes}
+                rbacType={RBAC_TYPE.Scope}
+              >
                 <Button
                   type="button"
                   variant="plain"
@@ -306,35 +317,50 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
     const actions: (IAction | ISeparator)[] = [];
     const userScopes: string[] = token?.scope.split(" "),
-      access = userScopes && checkAccess(userScopes, writeScopes);
-    if (access || !isAuthRequired) {
+      dependenciesWriteAccess =
+        userScopes && checkAccess(userScopes, dependenciesWriteScopes),
+      applicationWriteAccess =
+        userScopes && checkAccess(userScopes, applicationsWriteScopes),
+      tasksReadAccess = userScopes && checkAccess(userScopes, tasksReadScopes),
+      tasksWriteAccess =
+        userScopes && checkAccess(userScopes, tasksWriteScopes);
+    if (dependenciesWriteAccess || !isAuthRequired) {
+      actions.push({
+        title: t("actions.manageDependencies"),
+        onClick: () => openDependenciesModal(row),
+      });
+    }
+
+    if (applicationWriteAccess || !isAuthRequired) {
       actions.push(
-        {
-          title: t("actions.manageDependencies"),
-          onClick: () => openDependenciesModal(row),
-        },
         {
           title: "Manage credentials",
           onClick: () => openCredentialsModal([row]),
-        },
-        {
-          title: t("actions.analysisDetails"),
-          isDisabled: !getTask(row),
-          onClick: () => {
-            const task = getTask(row);
-            if (task) window.open(`/hub/tasks/${task.id}`, "_blank");
-          },
-        },
-        {
-          title: "Cancel analysis",
-          isDisabled: !isTaskCancellable(row),
-          onClick: () => cancelAnalysis(row),
         },
         {
           title: t("actions.delete"),
           onClick: () => deleteRow(row),
         }
       );
+    }
+
+    if (tasksReadAccess || !isAuthRequired) {
+      actions.push({
+        title: t("actions.analysisDetails"),
+        isDisabled: !getTask(row),
+        onClick: () => {
+          const task = getTask(row);
+          if (task) window.open(`/hub/tasks/${task.id}`, "_blank");
+        },
+      });
+    }
+
+    if (tasksWriteAccess || !isAuthRequired) {
+      actions.push({
+        title: "Cancel analysis",
+        isDisabled: !isTaskCancellable(row),
+        onClick: () => cancelAnalysis(row),
+      });
     }
 
     return actions;
@@ -391,6 +417,46 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const handleOnApplicationIdentityUpdated = () => {
     closeCredentialsModal();
   };
+
+  const userScopes: string[] = token?.scope.split(" "),
+    importWriteAccess =
+      userScopes && checkAccess(userScopes, importsWriteScopes),
+    applicationWriteAccess =
+      userScopes && checkAccess(userScopes, applicationsWriteScopes);
+
+  const importDropdownItems = importWriteAccess
+    ? [
+        <DropdownItem
+          key="import-applications"
+          component="button"
+          onClick={() => setIsApplicationImportModalOpen(true)}
+        >
+          {t("actions.import")}
+        </DropdownItem>,
+        <DropdownItem
+          key="manage-import-applications"
+          onClick={() => {
+            history.push(Paths.applicationsImports);
+          }}
+        >
+          {t("actions.manageImports")}
+        </DropdownItem>,
+      ]
+    : [];
+  const applicationDropdownItems = applicationWriteAccess
+    ? [
+        <DropdownItem
+          key="manage-applications-credentials"
+          isDisabled={selectedRows.length < 1}
+          onClick={() => {
+            openCredentialsModal(selectedRows);
+          }}
+        >
+          {t("actions.manageCredentials")}
+        </DropdownItem>,
+      ]
+    : [];
+  const dropdownItems = [...importDropdownItems, ...applicationDropdownItems];
 
   const isAnalyzingAllowed = () => {
     const candidateTasks = selectedRows.filter(
@@ -462,7 +528,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             <>
               <ToolbarGroup variant="button-group">
                 <RBAC
-                  allowedPermissions={writeScopes}
+                  allowedPermissions={applicationsWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
                 >
                   <ToolbarItem>
@@ -477,7 +543,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                   </ToolbarItem>
                 </RBAC>
                 <RBAC
-                  allowedPermissions={taskWriteScopes}
+                  allowedPermissions={tasksWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
                 >
                   <ToolbarItem>
@@ -496,40 +562,15 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                     </Button>
                   </ToolbarItem>
                 </RBAC>
-                <RBAC
-                  key="import-applications"
-                  allowedPermissions={writeScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
+                {dropdownItems.length ? (
                   <ToolbarItem>
                     <KebabDropdown
-                      dropdownItems={[
-                        <DropdownItem
-                          key="import"
-                          component="button"
-                          onClick={() => setIsApplicationImportModalOpen(true)}
-                        >
-                          {t("actions.import")}
-                        </DropdownItem>,
-                        <DropdownItem
-                          key="manage-imports"
-                          onClick={() => {
-                            history.push(Paths.applicationsImports);
-                          }}
-                        >
-                          {t("actions.manageImports")}
-                        </DropdownItem>,
-                        <DropdownItem
-                          key="manage-creds"
-                          isDisabled={selectedRows.length < 1}
-                          onClick={() => openCredentialsModal(selectedRows)}
-                        >
-                          {t("actions.manageCredentials")}
-                        </DropdownItem>,
-                      ]}
-                    />
+                      dropdownItems={dropdownItems}
+                    ></KebabDropdown>
                   </ToolbarItem>
-                </RBAC>
+                ) : (
+                  <></>
+                )}
               </ToolbarGroup>
             </>
           }
