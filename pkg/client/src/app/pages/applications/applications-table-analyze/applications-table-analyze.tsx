@@ -61,7 +61,6 @@ import {
   RBAC_TYPE,
   tasksReadScopes,
   tasksWriteScopes,
-  writeScopes,
 } from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
 import {
@@ -278,7 +277,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         {
           title: (
             <div className="pf-c-inline-edit__action pf-m-enable-editable">
-              <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
+              <RBAC
+                allowedPermissions={applicationsWriteScopes}
+                rbacType={RBAC_TYPE.Scope}
+              >
                 <Button
                   type="button"
                   variant="plain"

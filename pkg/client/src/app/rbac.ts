@@ -57,22 +57,25 @@ export const readScopes = [
   "tasks:get",
 ];
 
-export const writeScopes = [
+export const adminWriteScopes = [
   "addons:post",
   "addons:put",
   "addons:delete",
-  "businessservices:put",
-  "businessservices:post",
-  "businessservices:delete",
   "identities:put",
   "identities:post",
   "identities:delete",
-  "jobfunctions:put",
-  "jobfunctions:post",
-  "jobFunctions:delete",
   "proxies:put",
   "proxies:post",
   "proxies:delete",
+];
+
+export const controlsWriteScopes = [
+  "businessservices:put",
+  "businessservices:post",
+  "businessservices:delete",
+  "jobfunctions:put",
+  "jobfunctions:post",
+  "jobFunctions:delete",
   "settings:put",
   "settings:post",
   "settings:delete",

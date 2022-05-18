@@ -50,7 +50,7 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { DEFAULT_COLOR_LABELS } from "@app/Constants";
-import { RBAC, RBAC_TYPE, writeScopes } from "@app/rbac";
+import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 
 const ENTITY_FIELD = "entity";
 
@@ -412,7 +412,10 @@ export const Tags: React.FC = () => {
           }
           toolbarActions={
             <ToolbarGroup variant="button-group">
-              <RBAC allowedPermissions={writeScopes} rbacType={RBAC_TYPE.Scope}>
+              <RBAC
+                allowedPermissions={controlsWriteScopes}
+                rbacType={RBAC_TYPE.Scope}
+              >
                 <ToolbarItem>
                   <Button
                     type="button"
