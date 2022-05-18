@@ -412,6 +412,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                   helperTextInvalid={errors.httpIdentity?.message}
                 >
                   <SimpleSelect
+                    toggleId="http-proxy-credentials-select-toggle"
                     aria-label={HTTP_IDENTITY}
                     value={value ? value : undefined}
                     options={identityOptions}
@@ -523,6 +524,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                   helperTextInvalid={errors.httpsIdentity?.message}
                 >
                   <SimpleSelect
+                    toggleId="https-proxy-credentials-select-toggle"
                     aria-label={HTTPS_IDENTITY}
                     value={value ? value : undefined}
                     options={identityOptions}
