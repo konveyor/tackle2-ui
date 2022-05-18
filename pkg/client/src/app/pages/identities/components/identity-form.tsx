@@ -165,47 +165,49 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     kind: string().required(),
     settings: string().when("kind", {
       is: "maven",
-      then: string().test({
-        name: "xml-validation",
-        test: function (value) {
-          // If the field is unchanged, it must be valid (it's encrypted, so we can't parse it as XML)
-          if (value === identity?.settings) return true;
+      then: string()
+        .required()
+        .test({
+          name: "xml-validation",
+          test: function (value) {
+            // If the field is unchanged, it must be valid (it's encrypted, so we can't parse it as XML)
+            if (value === identity?.settings) return true;
 
-          if (value) {
-            const validationObject = XMLValidator.validate(value, {
-              allowBooleanAttributes: true,
-            });
-
-            //if xml is valid, check against schema
-            if (validationObject === true) {
-              const currentSchema = schema;
-
-              const validationResult = xmllint.xmllint.validateXML({
-                xml: value,
-                schema: currentSchema,
+            if (value) {
+              const validationObject = XMLValidator.validate(value, {
+                allowBooleanAttributes: true,
               });
 
-              if (!validationResult.errors) {
-                //valid against  schema
-                return true;
+              //if xml is valid, check against schema
+              if (validationObject === true) {
+                const currentSchema = schema;
+
+                const validationResult = xmllint.xmllint.validateXML({
+                  xml: value,
+                  schema: currentSchema,
+                });
+
+                if (!validationResult.errors) {
+                  //valid against  schema
+                  return true;
+                } else {
+                  //not valid against  schema
+                  return this.createError({
+                    message: validationResult?.errors?.toString(),
+                    path: "settings",
+                  });
+                }
               } else {
-                //not valid against  schema
                 return this.createError({
-                  message: validationResult?.errors?.toString(),
+                  message: validationObject?.err?.msg?.toString(),
                   path: "settings",
                 });
               }
             } else {
-              return this.createError({
-                message: validationObject?.err?.msg?.toString(),
-                path: "settings",
-              });
+              return false;
             }
-          } else {
-            return false;
-          }
-        },
-      }),
+          },
+        }),
     }),
     userCredentials: string().when("kind", {
       is: "source",
