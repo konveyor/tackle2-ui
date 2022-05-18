@@ -25,9 +25,15 @@ interface IUploadBinary {
 export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
   taskgroupID,
 }) => {
+  const { setValue, getValues } = useFormContext();
+  const { artifact } = getValues();
+  const initialCurrentFile = new File([""], artifact, { type: "text/html" });
+
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
-  const [currentFile, setCurrentFile] = React.useState<File>();
-  const [showStatus, setShowStatus] = React.useState(false);
+  const [currentFile, setCurrentFile] = React.useState<File | null>(
+    artifact ? initialCurrentFile : null
+  );
+  const [showStatus, setShowStatus] = React.useState(!!artifact);
   const [modalText, setModalText] = React.useState("");
   const [error, setError] = React.useState<AxiosError>();
   const [fileUploadProgress, setFileUploadProgress] = React.useState<
@@ -36,8 +42,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
   const [fileUploadStatus, setFileUploadStatus] = React.useState<
     "danger" | "success" | "warning" | undefined
   >(undefined);
-
-  const { setValue } = useFormContext();
 
   const dispatch = useDispatch();
 
@@ -72,7 +76,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
 
   const removeFiles = (nameOfFileToRemove: string) => {
     if (currentFile && currentFile.name === nameOfFileToRemove)
-      setCurrentFile(undefined);
+      setCurrentFile(null);
 
     const newReadFiles = readFileData.filter(
       (readFile) => readFile.fileName !== nameOfFileToRemove
