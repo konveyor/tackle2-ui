@@ -89,8 +89,8 @@ export const useFetchImportSummaryByID = (id: number | string) => {
 };
 
 export const useDeleteImportSummaryMutation = (
-  onSuccess?: () => void,
-  onError?: (err: Error | null) => void
+  onSuccess: () => void,
+  onError: (err: Error | null) => void
 ) => {
   return useMutation(deleteApplicationImportSummary, {
     onSuccess: () => {
