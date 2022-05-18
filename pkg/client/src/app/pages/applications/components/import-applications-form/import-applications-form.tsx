@@ -31,7 +31,6 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
   const [isFileRejected, setIsFileRejected] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<AxiosError>();
 
   // Redux
   const dispatch = useDispatch();
@@ -65,21 +64,16 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
       })
       .catch((error) => {
         setIsSubmitting(false);
-        setError(error);
+        if (typeof getAxiosErrorMessage(error) === "string") {
+          dispatch(
+            alertActions.addDanger(`Error: ${getAxiosErrorMessage(error)} `)
+          );
+        }
+        onSaved(error);
       });
   };
   return (
     <Form>
-      {error && (
-        <Alert
-          actionClose={
-            <AlertActionCloseButton onClose={() => setError(undefined)} />
-          }
-          variant="danger"
-          title={getAxiosErrorMessage(error)}
-        />
-      )}
-
       <FormGroup
         fieldId="file"
         label={t("terms.uploadApplicationFile")}
@@ -110,7 +104,7 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
         <Button
           variant="primary"
           onClick={onSubmit}
-          isDisabled={!file || isSubmitting || !!error}
+          isDisabled={!file || isSubmitting}
         >
           {t("actions.import")}
         </Button>
