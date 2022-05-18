@@ -524,7 +524,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             <>
               <ToolbarGroup variant="button-group">
                 <RBAC
-                  allowedPermissions={writeScopes}
+                  allowedPermissions={applicationsWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
                 >
                   <ToolbarItem>
