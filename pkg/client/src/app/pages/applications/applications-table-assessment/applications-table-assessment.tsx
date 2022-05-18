@@ -200,10 +200,6 @@ export const ApplicationsTable: React.FC = () => {
     dispatch(confirmDialogActions.closeDialog());
     dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
   };
-  const { mutate: deleteApplication } = useDeleteApplicationMutation(
-    onDeleteApplicationSuccess,
-    onDeleteApplicationError
-  );
 
   // Copy assessment modal
   const {
@@ -272,6 +268,12 @@ export const ApplicationsTable: React.FC = () => {
       fetchApplicationsAssessment(applications?.map((f) => f.id!));
     }
   }, [applications, fetchApplicationsAssessment]);
+
+  const { mutate: deleteApplication } = useDeleteApplicationMutation(
+    onDeleteApplicationSuccess,
+    onDeleteApplicationError,
+    getApplicationAssessment
+  );
 
   // Create assessment
   const { assessApplication, inProgress: isApplicationAssessInProgress } =
@@ -508,7 +510,9 @@ export const ApplicationsTable: React.FC = () => {
         confirmBtnLabel: t("actions.delete"),
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
-          deleteApplication(row?.id || 0);
+          if (row.id) {
+            deleteApplication({ id: row.id });
+          }
         },
       })
     );

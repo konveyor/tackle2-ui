@@ -1,12 +1,7 @@
 import { useState } from "react";
-import {
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
-import { Application } from "@app/api/models";
+import { Application, Assessment } from "@app/api/models";
 import {
   createApplication,
   deleteApplication,
@@ -16,6 +11,7 @@ import {
 } from "@app/api/rest";
 import { AxiosError } from "axios";
 import { reviewsQueryKey } from "./reviews";
+import { useDeleteAssessmentMutation } from "./assessments";
 
 export interface IApplicationMutateState {
   mutate: any;
@@ -113,13 +109,20 @@ export const useCreateApplicationMutation = (
 
 export const useDeleteApplicationMutation = (
   onSuccess: () => void,
-  onError: (err: AxiosError) => void
+  onError: (err: AxiosError) => void,
+  getApplicationAssessment?: (id: number) => Assessment | undefined
 ) => {
   const queryClient = useQueryClient();
-  return useMutation(deleteApplication, {
-    onSuccess: () => {
+  const { mutate: mutateAssessments } = useDeleteAssessmentMutation();
+  return useMutation(({ id }: { id: number }) => deleteApplication(id), {
+    onSuccess: (_, { id }) => {
       onSuccess();
       queryClient.invalidateQueries(ApplicationsQueryKey);
+      const assessment =
+        getApplicationAssessment && getApplicationAssessment(id);
+      if (assessment?.id) {
+        mutateAssessments(assessment?.id);
+      }
     },
     onError: (err: AxiosError) => {
       onError(err);
