@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "react-query";
 import {
   createTaskgroup,
   deleteTaskgroup,
+  removeFileTaskgroup,
   submitTaskgroup,
   uploadFileTaskgroup,
 } from "@app/api/rest";
@@ -40,6 +41,19 @@ export const useSubmitTaskgroupMutation = (
   });
 };
 
+export const useRemoveUploadedFileMutation = (
+  successCallback: (res: any) => void,
+  errorCallback: (err: AxiosError) => void
+) => {
+  return useMutation(removeFileTaskgroup, {
+    onSuccess: (res) => {
+      successCallback && successCallback(res);
+    },
+    onError: (err: AxiosError) => {
+      errorCallback && errorCallback(err);
+    },
+  });
+};
 export const useUploadFileTaskgroupMutation = (
   successCallback: (res: any) => void,
   errorCallback: (err: AxiosError) => void
