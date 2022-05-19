@@ -40,6 +40,9 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
     matchingMavenCredsRef = getKindIDByRef(identities, application, "maven");
   }
 
+  const openAnalysisDetails = () => {
+    if (task) window.open(`/hub/tasks/${task.id}`, "_blank");
+  };
   return (
     <DescriptionList isHorizontal>
       <DescriptionListGroup>
@@ -93,8 +96,25 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
             </Tooltip>
           ) : task?.state === "Failed" ? (
             <>
-              <ExclamationCircleIcon color="red"></ExclamationCircleIcon>
-              <span className={spacing.mlSm}>Failed</span>
+              {task ? (
+                <Button
+                  icon={
+                    <span className={spacing.mrXs}>
+                      <ExclamationCircleIcon color="#c9190b"></ExclamationCircleIcon>
+                    </span>
+                  }
+                  type="button"
+                  variant="link"
+                  onClick={openAnalysisDetails}
+                >
+                  Analysis details
+                </Button>
+              ) : (
+                <span className={spacing.mlSm}>
+                  <ExclamationCircleIcon color="#c9190b"></ExclamationCircleIcon>
+                  Failed
+                </span>
+              )}
             </>
           ) : (
             "Not available"
