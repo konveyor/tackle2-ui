@@ -289,6 +289,17 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     }
   }, [analyzeableApplications, createTaskgroup]);
 
+  const isSingleAppBinaryUploadModeNextEnabled =
+    analyzeableApplications.length === 1 &&
+    !isMutating &&
+    artifact !== "" &&
+    mode === "binary-upload";
+
+  const isModeNextEnabled =
+    analyzeableApplications.length > 0 &&
+    !isMutating &&
+    mode !== "binary-upload";
+
   const steps = [
     {
       name: "Configure analysis",
@@ -307,10 +318,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           ),
 
           enableNext:
-            (analyzeableApplications.length === 1 &&
-              !isMutating &&
-              artifact !== "") ||
-            (analyzeableApplications.length > 0 && !isMutating),
+            isModeNextEnabled || isSingleAppBinaryUploadModeNextEnabled,
           canJumpTo: stepIdReached >= stepId.AnalysisMode,
         },
         {
