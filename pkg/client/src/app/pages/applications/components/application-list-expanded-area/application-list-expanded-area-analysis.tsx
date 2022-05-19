@@ -106,6 +106,8 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
                   type="button"
                   variant="link"
                   onClick={openAnalysisDetails}
+                  className={spacing.ml_0}
+                  style={{ margin: "0", padding: "0" }}
                 >
                   Analysis details
                 </Button>
