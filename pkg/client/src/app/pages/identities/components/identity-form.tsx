@@ -120,7 +120,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       //source credentials with key
       ...(formValues.kind === "source" &&
         formValues.userCredentials === "source" && {
-          key: formValues.key.trim(),
+          key: formValues.key,
           password: formValues.password.trim(),
           settings: "",
           user: "",
