@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import {
   ActionGroup,
   Alert,
+  AlertActionCloseButton,
   Button,
   FileUpload,
   Form,
@@ -30,7 +31,6 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
   const [isFileRejected, setIsFileRejected] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<AxiosError>();
 
   // Redux
   const dispatch = useDispatch();
@@ -59,19 +59,21 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
         dispatch(
           alertActions.addSuccess(t("toastr.success.fileSavedToBeProcessed"))
         );
-
         setIsSubmitting(false);
         onSaved(response);
       })
       .catch((error) => {
         setIsSubmitting(false);
-        setError(error);
+        if (typeof getAxiosErrorMessage(error) === "string") {
+          dispatch(
+            alertActions.addDanger(`Error: ${getAxiosErrorMessage(error)} `)
+          );
+        }
+        onSaved(error);
       });
   };
   return (
     <Form>
-      {error && <Alert variant="danger" title={getAxiosErrorMessage(error)} />}
-
       <FormGroup
         fieldId="file"
         label={t("terms.uploadApplicationFile")}
