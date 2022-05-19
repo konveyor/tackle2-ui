@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { OkIcon } from "@patternfly/react-icons";
+import { OkIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 import {
   Button,
   DescriptionList,
@@ -91,6 +91,11 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
                 </Link>
               </Button>
             </Tooltip>
+          ) : task?.state === "Failed" ? (
+            <>
+              <ExclamationCircleIcon color="red"></ExclamationCircleIcon>
+              <span className={spacing.mlSm}>Failed</span>
+            </>
           ) : (
             "Not available"
           )}
