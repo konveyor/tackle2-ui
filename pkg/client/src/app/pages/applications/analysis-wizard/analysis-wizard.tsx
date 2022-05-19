@@ -35,17 +35,12 @@ import {
   isApplicationSourceCodeEnabled,
   isModeSupported,
 } from "./utils";
+import { IReadFile } from "./components/add-custom-rules";
 
 interface IAnalysisWizard {
   applications: Application[];
   onClose: () => void;
   isOpen: boolean;
-}
-export interface IReadFile {
-  fileName: string;
-  data?: string;
-  loadResult?: "danger" | "success";
-  loadError?: DOMException;
 }
 export interface IAnalysisWizardFormValues {
   artifact: string;

@@ -1,6 +1,5 @@
 import * as React from "react";
 import {
-  Modal,
   MultipleFileUpload,
   MultipleFileUploadMain,
   MultipleFileUploadStatus,
@@ -19,17 +18,46 @@ export interface IReadFile {
   data?: string;
   loadResult?: "danger" | "success";
   loadError?: DOMException;
-  file: File;
 }
+
+const isSchemaValid = (value: string) => {
+  const validationResult = xmllint.xmllint.validateXML({
+    xml: value,
+    schema: XSDSchema,
+  });
+
+  if (!validationResult.errors) return true;
+  return false;
+};
+
+const validateXMLFile = (data: string) => {
+  // Filter out "data:text/xml;base64," from data
+  const payload = atob(data.substring(21));
+
+  let isXML = false;
+  let isXSD = false;
+
+  const validationObject = XMLValidator.validate(payload, {
+    allowBooleanAttributes: true,
+  });
+
+  if (validationObject === true) {
+    isXML = true;
+    if (isSchemaValid(payload)) {
+      isXSD = true;
+    }
+  }
+};
 
 export const AddCustomRules: React.FunctionComponent = () => {
   const { getValues, setValue } = useFormContext();
-  const readFileData: IReadFile[] = getValues("customRulesFiles");
 
   const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
+  const [readFileData, setReadFileData] = React.useState<IReadFile[]>(
+    getValues("customRulesFiles")
+  );
   const [showStatus, setShowStatus] = React.useState(false);
   const [statusIcon, setStatusIcon] = React.useState("inProgress");
-  const [modalText, setModalText] = React.useState("");
 
   // only show the status component once a file has been uploaded, but keep the status list component itself even if all files are removed
   if (!showStatus && currentFiles.length > 0) {
@@ -47,6 +75,10 @@ export const AddCustomRules: React.FunctionComponent = () => {
     }
   }, [readFileData, currentFiles]);
 
+  React.useEffect(() => {
+    setValue("customRulesFiles", readFileData);
+  }, [readFileData, setValue]);
+
   // remove files from both state arrays based on their name
   const removeFiles = (namesOfFilesToRemove: string[]) => {
     const newCurrentFiles = currentFiles.filter(
@@ -61,139 +93,79 @@ export const AddCustomRules: React.FunctionComponent = () => {
         !namesOfFilesToRemove.some((fileName) => fileName === readFile.fileName)
     );
 
-    setValue("customRulesFiles", newReadFiles);
+    setReadFileData(newReadFiles);
   };
 
-  const isSchemaValid = (value: string) => {
-    const validationResult = xmllint.xmllint.validateXML({
-      xml: value,
-      schema: XSDSchema,
-    });
-
-    if (!validationResult.errors) return true;
-    return false;
-  };
-
-  const validateXMLFile = (data: string) => {
-    // Filter out "data:text/xml;base64," from data
-    const payload = atob(data.substring(21));
-
-    let isXML = false;
-    let isXSD = false;
-
-    const validationObject = XMLValidator.validate(payload, {
-      allowBooleanAttributes: true,
-    });
-
-    if (validationObject === true) {
-      isXML = true;
-      if (isSchemaValid(payload)) {
-        isXSD = true;
-      }
-    }
-  };
-
+  // callback that will be called by the react dropzone with the newly dropped file objects
   const handleFileDrop = (droppedFiles: File[]) => {
+    // identify what, if any, files are re-uploads of already uploaded files
     const currentFileNames = currentFiles.map((file) => file.name);
     const reUploads = droppedFiles.filter((droppedFile) =>
       currentFileNames.includes(droppedFile.name)
     );
 
+    /** this promise chain is needed because if the file removal is done at the same time as the file adding react
+     * won't realize that the status items for the re-uploaded files needs to be re-rendered */
     Promise.resolve()
       .then(() => removeFiles(reUploads.map((file) => file.name)))
       .then(() =>
-        setCurrentFiles((prevFiles: File[]) => [...prevFiles, ...droppedFiles])
+        setCurrentFiles((prevFiles) => [...prevFiles, ...droppedFiles])
       );
   };
 
+  // callback called by the status item when a file is successfully read with the built-in file reader
   const handleReadSuccess = (data: string, file: File) => {
     validateXMLFile(data);
-
-    const newReadFile: IReadFile = {
-      data,
-      fileName: file.name,
-      loadResult: "success",
-      file: file,
-    };
-    const fileList = [...readFileData, newReadFile];
-
-    setValue("customRulesFiles", fileList);
+    setReadFileData((prevReadFiles) => [
+      ...prevReadFiles,
+      { data, fileName: file.name, loadResult: "success" },
+    ]);
   };
 
   // callback called by the status item when a file encounters an error while being read with the built-in file reader
   const handleReadFail = (error: DOMException, file: File) => {
-    const fileList = [
-      ...readFileData,
-      {
-        loadError: error,
-        fileName: file.name,
-        loadResult: "danger",
-      } as IReadFile,
-    ];
-
-    setValue("customRulesFiles", fileList);
-  };
-
-  // dropzone prop that communicates to the user that files they've attempted to upload are not an appropriate type
-  const handleDropRejected = (
-    files: File[],
-    _event: React.DragEvent<HTMLElement>
-  ) => {
-    if (files.length === 1) {
-      setModalText(`${files[0].name} is not an accepted file type`);
-    } else {
-      const rejectedMessages = files.reduce(
-        (acc, file) => (acc += `${file.name}, `),
-        ""
-      );
-      setModalText(`${rejectedMessages}are not accepted file types`);
-    }
+    setReadFileData((prevReadFiles) => [
+      ...prevReadFiles,
+      { loadError: error, fileName: file.name, loadResult: "danger" },
+    ]);
   };
 
   const successfullyReadFileCount = readFileData.filter(
     (fileData) => fileData.loadResult === "success"
   ).length;
 
+  console.log("readFileData: ", readFileData);
   return (
-    <MultipleFileUpload
-      onFileDrop={handleFileDrop}
-      dropzoneProps={{
-        accept: ".windup.xml",
-        onDropRejected: handleDropRejected,
-      }}
-    >
-      <MultipleFileUploadMain
-        titleIcon={<UploadIcon />}
-        titleText="Drag and drop files here"
-        titleTextSeparator="or"
-        infoText="Accepted file types: XML with '.windup.xml' suffix."
-      />
-      {showStatus && (
-        <MultipleFileUploadStatus
-          statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
-          statusToggleIcon={statusIcon}
-        >
-          {currentFiles.map((file) => (
-            <MultipleFileUploadStatusItem
-              file={file}
-              key={file.name}
-              onClearClick={() => removeFiles([file.name])}
-              onReadSuccess={handleReadSuccess}
-              onReadFail={handleReadFail}
-            />
-          ))}
-        </MultipleFileUploadStatus>
-      )}
-      <Modal
-        isOpen={!!modalText}
-        title="Unsupported file"
-        titleIconVariant="warning"
-        showClose
-        aria-label="unsupported file upload attempted"
-        onClose={() => setModalText("")}
+    <>
+      <MultipleFileUpload
+        onFileDrop={handleFileDrop}
+        dropzoneProps={{
+          accept: ".windup.xml",
+        }}
       >
-        {modalText}
-      </Modal>
-    </MultipleFileUpload>
+        <MultipleFileUploadMain
+          titleIcon={<UploadIcon />}
+          titleText="Drag and drop files here"
+          titleTextSeparator="or"
+          infoText="Accepted file types: XML with '.windup.xml' suffix."
+        />
+        {showStatus && (
+          <MultipleFileUploadStatus
+            statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
+            statusToggleIcon={statusIcon}
+          >
+            {currentFiles.map((file) => (
+              <MultipleFileUploadStatusItem
+                file={file}
+                key={file.name}
+                onClearClick={() => removeFiles([file.name])}
+                onReadSuccess={handleReadSuccess}
+                onReadFail={handleReadFail}
+              />
+            ))}
+          </MultipleFileUploadStatus>
+        )}
+      </MultipleFileUpload>
+    </>
   );
 };

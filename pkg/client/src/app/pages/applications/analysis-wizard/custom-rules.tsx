@@ -35,7 +35,7 @@ import { Rule } from "@app/api/models";
 import { NoDataEmptyState } from "@app/shared/components";
 
 import "./wizard.css";
-import { IReadFile } from "./analysis-wizard";
+import { IReadFile } from "./components/add-custom-rules";
 
 export const CustomRules: React.FunctionComponent = () => {
   const { getValues, setValue } = useFormContext();
