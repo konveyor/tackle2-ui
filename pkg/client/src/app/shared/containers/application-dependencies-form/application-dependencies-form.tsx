@@ -156,6 +156,12 @@ export const ApplicationDependenciesForm: React.FC<
           setValue={setNorthboundDependencies}
           options={(applications || [])
             .filter((f) => f.id !== application.id)
+            .filter((app) => {
+              const idList = southboundDependencies.map(
+                (sbd) => sbd.value.to.id
+              );
+              return !idList?.includes(app.id);
+            })
             .map((f) =>
               dependencyToOption({ from: f, to: application }, northToStringFn)
             )}
@@ -187,6 +193,12 @@ export const ApplicationDependenciesForm: React.FC<
           setValue={setSouthboundDependencies}
           options={(applications || [])
             .filter((f) => f.id !== application.id)
+            .filter((app) => {
+              const idList = northboundDependencies.map(
+                (nbd) => nbd.value.from.id
+              );
+              return !idList?.includes(app.id);
+            })
             .map((f) =>
               dependencyToOption({ from: application, to: f }, southToStringFn)
             )}
