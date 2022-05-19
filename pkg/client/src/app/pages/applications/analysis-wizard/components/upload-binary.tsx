@@ -10,7 +10,6 @@ import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import { useFormContext } from "react-hook-form";
 import { useDispatch } from "react-redux";
 
-import { IReadFile } from "../analysis-wizard";
 import { alertActions } from "@app/store/alert";
 import { useUploadFileTaskgroupMutation } from "@app/queries/taskgroups";
 import { AxiosError } from "axios";
@@ -29,11 +28,10 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
   const { artifact } = getValues();
   const initialCurrentFile = new File([""], artifact, { type: "text/html" });
 
-  const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
   const [currentFile, setCurrentFile] = React.useState<File | null>(
     artifact ? initialCurrentFile : null
   );
-  const [showStatus, setShowStatus] = React.useState(!!artifact);
+
   const [modalText, setModalText] = React.useState("");
   const [error, setError] = React.useState<AxiosError>();
   const [fileUploadProgress, setFileUploadProgress] = React.useState<
@@ -70,48 +68,15 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     failedUpload
   );
 
-  if (!showStatus && readFileData) {
-    setShowStatus(true);
-  }
-
   const removeFiles = (nameOfFileToRemove: string) => {
     if (currentFile && currentFile.name === nameOfFileToRemove)
       setCurrentFile(null);
-
-    const newReadFiles = readFileData.filter(
-      (readFile) => readFile.fileName !== nameOfFileToRemove
-    );
-
-    setReadFileData(newReadFiles);
   };
 
   const handleFileDrop = (droppedFiles: File[]) => {
     Promise.resolve()
       .then(() => removeFiles(droppedFiles[0].name))
       .then(() => setCurrentFile(droppedFiles[0]));
-  };
-
-  const handleReadSuccess = (data: string, file: File) => {
-    const newReadFile: IReadFile = {
-      data,
-      fileName: file.name,
-      loadResult: "success",
-    };
-
-    setReadFileData([newReadFile]);
-  };
-
-  const handleReadFail = (error: DOMException, file: File) => {
-    const fileList = [
-      ...readFileData,
-      {
-        loadError: error,
-        fileName: file.name,
-        loadResult: "danger",
-      } as IReadFile,
-    ];
-
-    setReadFileData(fileList);
   };
 
   const handleDropRejected = (
@@ -161,7 +126,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
           titleTextSeparator="or"
           infoText="Accepted file types: war, ear, jar or zip"
         />
-        {showStatus && currentFile && (
+        {currentFile && (
           <MultipleFileUploadStatusItem
             file={currentFile}
             key={currentFile.name}
@@ -169,8 +134,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
               removeFiles(currentFile.name);
               setValue("artifact", "");
             }}
-            onReadSuccess={handleReadSuccess}
-            onReadFail={handleReadFail}
             customFileHandler={(file) => {
               setError(undefined);
               setFileUploadProgress(0);
