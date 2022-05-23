@@ -49,6 +49,7 @@ import {
   useDeleteIdentityMutation,
   useFetchIdentities,
 } from "@app/queries/identities";
+import { useFetchApplications } from "@app/queries/applications";
 
 const ENTITY_FIELD = "entity";
 
@@ -72,6 +73,7 @@ export const Identities: React.FunctionComponent = () => {
     onDeleteIdentitySuccess,
     onDeleteIdentityError
   );
+  const { applications } = useFetchApplications();
 
   // Create and update modal
   const {
@@ -160,11 +162,21 @@ export const Identities: React.FunctionComponent = () => {
   };
 
   const deleteRow = (row: Identity) => {
+    const dependentApplications = applications.filter((app) => {
+      const idList = app?.identities?.map((id) => id.id) || [];
+      return idList.includes(row.id);
+    });
+    let dependencyExistsText;
+    if (dependentApplications.length) {
+      dependencyExistsText = `The credentials are being used by ${dependentApplications.length} applications. Deleting these credentials will also remove them from the associated applications. This action cannot be undone.`;
+    }
     dispatch(
       confirmDialogActions.openDialog({
-        title: "Delete identity",
+        title: "Delete credential",
         titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
+        message: dependencyExistsText
+          ? dependencyExistsText
+          : "This cannot be undone.",
         confirmBtnVariant: ButtonVariant.danger,
         confirmBtnLabel: t("actions.delete"),
         cancelBtnLabel: t("actions.cancel"),
