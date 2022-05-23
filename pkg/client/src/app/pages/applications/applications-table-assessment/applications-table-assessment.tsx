@@ -218,14 +218,10 @@ export const ApplicationsTable: React.FC = () => {
     fetchError: fetchErrorReviews,
   } = useFetchReviews();
 
-  const [appReview, setAppReview] = useState<Review>();
-  useEffect(() => {
-    const appReview = reviews?.find(
-      (review) =>
-        review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
-    );
-    setAppReview(appReview);
-  }, [applicationToCopyAssessmentAndReviewFrom, reviews]);
+  const appReview = reviews?.find(
+    (review) =>
+      review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
+  );
 
   // Dependencies modal
   const {

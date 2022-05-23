@@ -13,6 +13,7 @@ import { getBulkCopyAssessment, getBulkCopyReview } from "@app/api/rest";
 import { useQueryClient } from "react-query";
 import { assessmentsQueryKey } from "@app/queries/assessments";
 import { reviewsQueryKey } from "@app/queries/reviews";
+import { ApplicationsQueryKey } from "@app/queries/applications";
 
 export const BulkCopyNotificationsContainer: React.FC = () => {
   // i18
@@ -84,6 +85,7 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
     if (reviewBulkCopy && reviewBulkCopy.completed === true) {
       dispatch(bulkCopyActions.reviewBulkCompleted({}));
       queryClient.invalidateQueries(reviewsQueryKey);
+      queryClient.invalidateQueries(ApplicationsQueryKey);
     }
   }, [reviewBulkCopy, dispatch, queryClient]);
 
@@ -103,6 +105,7 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
       );
       queryClient.invalidateQueries(assessmentsQueryKey);
       queryClient.invalidateQueries(reviewsQueryKey);
+      queryClient.invalidateQueries(ApplicationsQueryKey);
     }
   }, [
     isWatching,
