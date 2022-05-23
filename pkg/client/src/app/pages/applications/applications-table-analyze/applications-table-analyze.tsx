@@ -539,7 +539,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                     <Button
                       type="button"
                       aria-label="create-application"
-                      variant={ButtonVariant.secondary}
+                      variant={ButtonVariant.primary}
                       onClick={openCreateApplicationModal}
                     >
                       {t("actions.createNew")}
