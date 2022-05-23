@@ -60,8 +60,9 @@ export const SSOMenu: React.FC = () => {
               <DropdownItem
                 key="sso_logout"
                 onClick={() => {
-                  setSelectedPersona("");
-                  keycloak.logout();
+                  keycloak.logout().then(() => {
+                    setSelectedPersona("");
+                  });
                 }}
               >
                 {t("actions.logout")}
