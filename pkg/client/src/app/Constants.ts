@@ -19,9 +19,12 @@ export interface IEnvVars {
   KEYCLOAK_REALM: string;
   KEYCLOAK_CLIENT_ID: string;
   KEYCLOAK_SERVER_URL: string;
+  UI_INGRESS_PROXY_BODY_SIZE: string;
 }
 export const ENV: IEnvVars = window["_env"] || {};
 export const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
+console.log("ENV", ENV);
+console.log("fact", window["_env"]);
 
 export const DEFAULT_PAGINATION: PageQuery = {
   page: 1,

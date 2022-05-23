@@ -21,6 +21,7 @@ app.use(express.static(path.join(__dirname, "../client/dist")));
 
 app.get('*', (_, res) => {
   if (process.env['NODE_ENV'] == 'development' ) {
+    
     // In dev mode, window._env was populated at build time
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   } else {
