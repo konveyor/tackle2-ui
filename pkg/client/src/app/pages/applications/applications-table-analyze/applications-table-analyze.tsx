@@ -3,6 +3,7 @@ import { Link, Redirect, useHistory } from "react-router-dom";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@konveyor/lib-ui";
+import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 import {
   Button,
   ButtonVariant,
@@ -11,6 +12,7 @@ import {
   Pagination,
   ToolbarGroup,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import {
   cellWidth,
@@ -471,7 +473,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (candidateTasks.length === selectedRows.length) return true;
     return false;
   };
-
+  const hasExistingAnalysis = selectedRows.some((app) =>
+    tasks.some((task) => task.application?.id === app.id)
+  );
   return (
     <>
       <ConditionalRender
@@ -547,19 +551,30 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                   rbacType={RBAC_TYPE.Scope}
                 >
                   <ToolbarItem>
-                    <Button
-                      type="button"
-                      aria-label="analyze-application"
-                      variant={ButtonVariant.primary}
-                      onClick={() => {
-                        setAnalyzeModalOpen(true);
-                      }}
-                      isDisabled={
-                        selectedRows.length < 1 || !isAnalyzingAllowed()
+                    <Tooltip
+                      content={
+                        hasExistingAnalysis
+                          ? "An analysis for one or more of the selected applications exists. This operation will overwrite pre-existing analysis data."
+                          : ""
                       }
                     >
-                      {t("actions.analyze")}
-                    </Button>
+                      <Button
+                        icon={
+                          hasExistingAnalysis ? <WarningTriangleIcon /> : null
+                        }
+                        type="button"
+                        aria-label="analyze-application"
+                        variant={ButtonVariant.primary}
+                        onClick={() => {
+                          setAnalyzeModalOpen(true);
+                        }}
+                        isDisabled={
+                          selectedRows.length < 1 || !isAnalyzingAllowed()
+                        }
+                      >
+                        {t("actions.analyze")}
+                      </Button>
+                    </Tooltip>
                   </ToolbarItem>
                 </RBAC>
                 {dropdownItems.length ? (
