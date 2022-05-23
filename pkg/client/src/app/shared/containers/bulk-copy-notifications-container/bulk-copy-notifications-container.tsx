@@ -12,6 +12,7 @@ import { BulkCopyAssessment, BulkCopyReview } from "@app/api/models";
 import { getBulkCopyAssessment, getBulkCopyReview } from "@app/api/rest";
 import { useQueryClient } from "react-query";
 import { assessmentsQueryKey } from "@app/queries/assessments";
+import { reviewsQueryKey } from "@app/queries/reviews";
 
 export const BulkCopyNotificationsContainer: React.FC = () => {
   // i18
@@ -77,13 +78,14 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
       dispatch(bulkCopyActions.assessmentBulkCompleted({}));
       queryClient.invalidateQueries(assessmentsQueryKey);
     }
-  }, [assessmentBulkCopy, dispatch]);
+  }, [assessmentBulkCopy, dispatch, queryClient]);
 
   useEffect(() => {
     if (reviewBulkCopy && reviewBulkCopy.completed === true) {
       dispatch(bulkCopyActions.reviewBulkCompleted({}));
+      queryClient.invalidateQueries(reviewsQueryKey);
     }
-  }, [reviewBulkCopy, dispatch]);
+  }, [reviewBulkCopy, dispatch, queryClient]);
 
   // Notification
   useEffect(() => {
@@ -99,6 +101,8 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
             : t("toastr.success.assessmentCopied")
         )
       );
+      queryClient.invalidateQueries(assessmentsQueryKey);
+      queryClient.invalidateQueries(reviewsQueryKey);
     }
   }, [
     isWatching,
@@ -107,6 +111,7 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
     reviewBulkCopyId,
     dispatch,
     t,
+    queryClient,
   ]);
 
   return <></>;

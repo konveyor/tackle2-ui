@@ -81,7 +81,7 @@ import {
   getApplicationsFilterValues,
 } from "../applicationsFilter";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useFetchReviews } from "@app/queries/reviews";
+import { reviewsQueryKey, useFetchReviews } from "@app/queries/reviews";
 import { isAuthRequired } from "@app/Constants";
 import {
   assessmentsQueryKey,
@@ -530,6 +530,7 @@ export const ApplicationsTable: React.FC = () => {
               );
               refetch();
               queryClient.invalidateQueries(assessmentsQueryKey);
+              queryClient.invalidateQueries(reviewsQueryKey);
             })
             .catch((error) => {
               dispatch(confirmDialogActions.closeDialog());
