@@ -240,14 +240,6 @@ export const ApplicationsTable: React.FC = () => {
     close: closeDependenciesModal,
   } = useEntityModal<Application>();
 
-  // Credentials modal
-  const {
-    isOpen: isCredentialsModalOpen,
-    data: applicationToManageCredentials,
-    update: openCredentialsModal,
-    close: closeCredentialsModal,
-  } = useEntityModal<Application[]>();
-
   // Application import modal
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     useState(false);
@@ -439,32 +431,17 @@ export const ApplicationsTable: React.FC = () => {
       applicationWriteAccess =
         userScopes && checkAccess(userScopes, applicationsWriteScopes);
     if (applicationWriteAccess || !isAuthRequired) {
-      actions.push(
-        {
-          title: "Manage credentials",
-          onClick: (
-            event: React.MouseEvent,
-            rowIndex: number,
-            rowData: IRowData
-          ) => {
-            const row: Application = getRow(rowData);
-            const applicationsList: Application[] = [];
-            applicationsList.push(row);
-            openCredentialsModal(applicationsList);
-          },
+      actions.push({
+        title: t("actions.delete"),
+        onClick: (
+          event: React.MouseEvent,
+          rowIndex: number,
+          rowData: IRowData
+        ) => {
+          const row: Application = getRow(rowData);
+          deleteRow(row);
         },
-        {
-          title: t("actions.delete"),
-          onClick: (
-            event: React.MouseEvent,
-            rowIndex: number,
-            rowData: IRowData
-          ) => {
-            const row: Application = getRow(rowData);
-            deleteRow(row);
-          },
-        }
-      );
+      });
     }
 
     if (dependenciesWriteAccess || !isAuthRequired) {
@@ -652,12 +629,6 @@ export const ApplicationsTable: React.FC = () => {
     return assessment === undefined || assessment.status !== "COMPLETE";
   };
 
-  const handleOnApplicationIdentityUpdated = (
-    response: AxiosResponse<Application>
-  ) => {
-    closeCredentialsModal();
-    refetch();
-  };
   const userScopes: string[] = token?.scope.split(" "),
     importWriteAccess =
       userScopes && checkAccess(userScopes, importsWriteScopes),
@@ -683,20 +654,7 @@ export const ApplicationsTable: React.FC = () => {
         </DropdownItem>,
       ]
     : [];
-  const applicationDropdownItems = applicationWriteAccess
-    ? [
-        <DropdownItem
-          key="manage-applications-credentials"
-          isDisabled={selectedRows.length < 1}
-          onClick={() => {
-            openCredentialsModal(selectedRows);
-          }}
-        >
-          {t("actions.manageCredentials")}
-        </DropdownItem>,
-      ]
-    : [];
-  const dropdownItems = [...importDropdownItems, ...applicationDropdownItems];
+  const dropdownItems = [...importDropdownItems];
 
   return (
     <>
@@ -911,21 +869,6 @@ export const ApplicationsTable: React.FC = () => {
             refetch();
           }}
         />
-      </Modal>
-
-      <Modal
-        isOpen={isCredentialsModalOpen}
-        variant="medium"
-        title="Manage credentials"
-        onClose={closeCredentialsModal}
-      >
-        {applicationToManageCredentials && (
-          <ApplicationIdentityForm
-            applications={applicationToManageCredentials}
-            onSaved={handleOnApplicationIdentityUpdated}
-            onCancel={closeCredentialsModal}
-          />
-        )}
       </Modal>
     </>
   );
