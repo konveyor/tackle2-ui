@@ -291,6 +291,10 @@ export const ManageImports: React.FC = () => {
     );
   };
 
+  const handleOnClearAllFilters = () => {
+    setFilterValues({});
+  };
+
   return (
     <>
       <PageSection variant="light">
@@ -325,6 +329,7 @@ export const ManageImports: React.FC = () => {
             isLoading={isFetching}
             loadingVariant="skeleton"
             fetchError={fetchError}
+            toolbarClearAllFilters={handleOnClearAllFilters}
             toolbarToggle={
               <FilterToolbar<ApplicationImportSummary>
                 filterCategories={filterCategories}
