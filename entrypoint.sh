@@ -29,4 +29,4 @@ if [[ $AUTH_REQUIRED != "false" ]]; then
   fi
 fi
 cd pkg/server
-exec node --inspect index.js
+exec node index.js

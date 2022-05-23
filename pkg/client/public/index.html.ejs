@@ -13,7 +13,6 @@
     <link rel="manifest" href="/manifest.json" />
     <base href="/">
     <script>
-      console.log('window._env', window._env)
       window._env = JSON.parse(atob('<%= _env %>'));
     </script>
   </head>

@@ -132,7 +132,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
   };
   const uploadLimitConverted =
     parseInt(uploadLimit.slice(0, -1)) * Math.pow(1024, 2);
-  console.log("upload limit converted", uploadLimitConverted);
+
   return (
     <>
       {error && (
