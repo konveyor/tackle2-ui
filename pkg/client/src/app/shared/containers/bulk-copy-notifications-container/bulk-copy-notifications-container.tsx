@@ -10,6 +10,8 @@ import { useFetch } from "@app/shared/hooks";
 
 import { BulkCopyAssessment, BulkCopyReview } from "@app/api/models";
 import { getBulkCopyAssessment, getBulkCopyReview } from "@app/api/rest";
+import { useQueryClient } from "react-query";
+import { assessmentsQueryKey } from "@app/queries/assessments";
 
 export const BulkCopyNotificationsContainer: React.FC = () => {
   // i18
@@ -17,6 +19,8 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
 
   // Redux
   const dispatch = useDispatch();
+
+  const queryClient = useQueryClient();
 
   const isWatching = useSelector((state: RootState) =>
     bulkCopySelectors.isWatching(state)
@@ -71,6 +75,7 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
   useEffect(() => {
     if (assessmentBulkCopy && assessmentBulkCopy.completed === true) {
       dispatch(bulkCopyActions.assessmentBulkCompleted({}));
+      queryClient.invalidateQueries(assessmentsQueryKey);
     }
   }, [assessmentBulkCopy, dispatch]);
 
