@@ -23,8 +23,7 @@ export interface IEnvVars {
 }
 export const ENV: IEnvVars = window["_env"] || {};
 export const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
-console.log("ENV", ENV);
-console.log("fact", window["_env"]);
+export const uploadLimit = ENV.UI_INGRESS_PROXY_BODY_SIZE || "500m";
 
 export const DEFAULT_PAGINATION: PageQuery = {
   page: 1,
