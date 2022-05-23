@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { OkIcon } from "@patternfly/react-icons";
+import { OkIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 import {
   Button,
   DescriptionList,
@@ -40,6 +40,9 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
     matchingMavenCredsRef = getKindIDByRef(identities, application, "maven");
   }
 
+  const openAnalysisDetails = () => {
+    if (task) window.open(`/hub/tasks/${task.id}`, "_blank");
+  };
   return (
     <DescriptionList isHorizontal>
       <DescriptionListGroup>
@@ -91,6 +94,30 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
                 </Link>
               </Button>
             </Tooltip>
+          ) : task?.state === "Failed" ? (
+            <>
+              {task ? (
+                <Button
+                  icon={
+                    <span className={spacing.mrXs}>
+                      <ExclamationCircleIcon color="#c9190b"></ExclamationCircleIcon>
+                    </span>
+                  }
+                  type="button"
+                  variant="link"
+                  onClick={openAnalysisDetails}
+                  className={spacing.ml_0}
+                  style={{ margin: "0", padding: "0" }}
+                >
+                  Analysis details
+                </Button>
+              ) : (
+                <span className={spacing.mlSm}>
+                  <ExclamationCircleIcon color="#c9190b"></ExclamationCircleIcon>
+                  Failed
+                </span>
+              )}
+            </>
           ) : (
             "Not available"
           )}

@@ -3,6 +3,7 @@ import { Link, Redirect, useHistory } from "react-router-dom";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@konveyor/lib-ui";
+import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 import {
   Button,
   ButtonVariant,
@@ -11,6 +12,7 @@ import {
   Pagination,
   ToolbarGroup,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import {
   cellWidth,
@@ -40,7 +42,6 @@ import {
   ToolbarBulkSelector,
 } from "@app/shared/components";
 import { useEntityModal } from "@app/shared/hooks";
-import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 import { Paths } from "@app/Paths";
 import { Application, Task } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -55,7 +56,6 @@ import { ApplicationIdentityForm } from "../components/application-identity-form
 import { useDeleteTaskMutation, useFetchTasks } from "@app/queries/tasks";
 import {
   applicationsWriteScopes,
-  dependenciesWriteScopes,
   importsWriteScopes,
   RBAC,
   RBAC_TYPE,
@@ -180,14 +180,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   );
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
-
-  // Dependencies modal
-  const {
-    isOpen: isDependenciesModalOpen,
-    data: applicationToManageDependencies,
-    update: openDependenciesModal,
-    close: closeDependenciesModal,
-  } = useEntityModal<Application>();
 
   // Credentials modal
   const {
@@ -317,19 +309,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
     const actions: (IAction | ISeparator)[] = [];
     const userScopes: string[] = token?.scope.split(" "),
-      dependenciesWriteAccess =
-        userScopes && checkAccess(userScopes, dependenciesWriteScopes),
       applicationWriteAccess =
         userScopes && checkAccess(userScopes, applicationsWriteScopes),
       tasksReadAccess = userScopes && checkAccess(userScopes, tasksReadScopes),
       tasksWriteAccess =
         userScopes && checkAccess(userScopes, tasksWriteScopes);
-    if (dependenciesWriteAccess || !isAuthRequired) {
-      actions.push({
-        title: t("actions.manageDependencies"),
-        onClick: () => openDependenciesModal(row),
-      });
-    }
 
     if (applicationWriteAccess || !isAuthRequired) {
       actions.push(
@@ -471,7 +455,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (candidateTasks.length === selectedRows.length) return true;
     return false;
   };
-
+  const hasExistingAnalysis = selectedRows.some((app) =>
+    tasks.some((task) => task.application?.id === app.id)
+  );
   return (
     <>
       <ConditionalRender
@@ -547,19 +533,30 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                   rbacType={RBAC_TYPE.Scope}
                 >
                   <ToolbarItem>
-                    <Button
-                      type="button"
-                      aria-label="analyze-application"
-                      variant={ButtonVariant.primary}
-                      onClick={() => {
-                        setAnalyzeModalOpen(true);
-                      }}
-                      isDisabled={
-                        selectedRows.length < 1 || !isAnalyzingAllowed()
+                    <Tooltip
+                      content={
+                        hasExistingAnalysis
+                          ? "An analysis for one or more of the selected applications exists. This operation will overwrite pre-existing analysis data."
+                          : ""
                       }
                     >
-                      {t("actions.analyze")}
-                    </Button>
+                      <Button
+                        icon={
+                          hasExistingAnalysis ? <WarningTriangleIcon /> : null
+                        }
+                        type="button"
+                        aria-label="analyze-application"
+                        variant={ButtonVariant.primary}
+                        onClick={() => {
+                          setAnalyzeModalOpen(true);
+                        }}
+                        isDisabled={
+                          selectedRows.length < 1 || !isAnalyzingAllowed()
+                        }
+                      >
+                        {t("actions.analyze")}
+                      </Button>
+                    </Tooltip>
                   </ToolbarItem>
                 </RBAC>
                 {dropdownItems.length ? (
@@ -613,22 +610,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           }}
         />
       )}
-
-      <Modal
-        isOpen={isDependenciesModalOpen}
-        variant="medium"
-        title={t("composed.manageDependenciesFor", {
-          what: applicationToManageDependencies?.name,
-        })}
-        onClose={closeDependenciesModal}
-      >
-        {applicationToManageDependencies && (
-          <ApplicationDependenciesFormContainer
-            application={applicationToManageDependencies}
-            onCancel={closeDependenciesModal}
-          />
-        )}
-      </Modal>
 
       <Modal
         isOpen={isApplicationImportModalOpen}
