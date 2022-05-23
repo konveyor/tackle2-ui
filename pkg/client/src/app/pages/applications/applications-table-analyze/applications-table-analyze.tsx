@@ -42,7 +42,6 @@ import {
   ToolbarBulkSelector,
 } from "@app/shared/components";
 import { useEntityModal } from "@app/shared/hooks";
-import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 import { Paths } from "@app/Paths";
 import { Application, Task } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -57,7 +56,6 @@ import { ApplicationIdentityForm } from "../components/application-identity-form
 import { useDeleteTaskMutation, useFetchTasks } from "@app/queries/tasks";
 import {
   applicationsWriteScopes,
-  dependenciesWriteScopes,
   importsWriteScopes,
   RBAC,
   RBAC_TYPE,
@@ -182,14 +180,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   );
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
-
-  // Dependencies modal
-  const {
-    isOpen: isDependenciesModalOpen,
-    data: applicationToManageDependencies,
-    update: openDependenciesModal,
-    close: closeDependenciesModal,
-  } = useEntityModal<Application>();
 
   // Credentials modal
   const {
@@ -319,19 +309,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
     const actions: (IAction | ISeparator)[] = [];
     const userScopes: string[] = token?.scope.split(" "),
-      dependenciesWriteAccess =
-        userScopes && checkAccess(userScopes, dependenciesWriteScopes),
       applicationWriteAccess =
         userScopes && checkAccess(userScopes, applicationsWriteScopes),
       tasksReadAccess = userScopes && checkAccess(userScopes, tasksReadScopes),
       tasksWriteAccess =
         userScopes && checkAccess(userScopes, tasksWriteScopes);
-    if (dependenciesWriteAccess || !isAuthRequired) {
-      actions.push({
-        title: t("actions.manageDependencies"),
-        onClick: () => openDependenciesModal(row),
-      });
-    }
 
     if (applicationWriteAccess || !isAuthRequired) {
       actions.push(
@@ -628,22 +610,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           }}
         />
       )}
-
-      <Modal
-        isOpen={isDependenciesModalOpen}
-        variant="medium"
-        title={t("composed.manageDependenciesFor", {
-          what: applicationToManageDependencies?.name,
-        })}
-        onClose={closeDependenciesModal}
-      >
-        {applicationToManageDependencies && (
-          <ApplicationDependenciesFormContainer
-            application={applicationToManageDependencies}
-            onCancel={closeDependenciesModal}
-          />
-        )}
-      </Modal>
 
       <Modal
         isOpen={isApplicationImportModalOpen}
