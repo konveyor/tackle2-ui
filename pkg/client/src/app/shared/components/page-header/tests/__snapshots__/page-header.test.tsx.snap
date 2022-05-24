@@ -5,7 +5,7 @@ exports[`PageHeader Renders without crashing 1`] = `
   hasGutter={true}
 >
   <StackItem>
-    <Component
+    <BreadCrumbPath
       breadcrumbs={
         Array [
           Object {
@@ -39,7 +39,7 @@ exports[`PageHeader Renders without crashing 1`] = `
         </Button>
       </SplitItem>
       <SplitItem>
-        <Component
+        <MenuActions
           actions={
             Array [
               Object {
@@ -57,7 +57,7 @@ exports[`PageHeader Renders without crashing 1`] = `
     </Split>
   </StackItem>
   <StackItem>
-    <Component
+    <HorizontalNav
       navItems={
         Array [
           Object {
