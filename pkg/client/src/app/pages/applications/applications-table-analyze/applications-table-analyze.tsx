@@ -72,6 +72,7 @@ import {
   getApplicationsFilterValues,
 } from "../applicationsFilter";
 import { isAuthRequired } from "@app/Constants";
+import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 
 const ENTITY_FIELD = "entity";
 
@@ -533,11 +534,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                   rbacType={RBAC_TYPE.Scope}
                 >
                   <ToolbarItem>
-                    <Tooltip
+                    <ConditionalTooltip
+                      isTooltipEnabled={hasExistingAnalysis}
                       content={
-                        hasExistingAnalysis
-                          ? "An analysis for one or more of the selected applications exists. This operation will overwrite pre-existing analysis data."
-                          : ""
+                        "An analysis for one or more of the selected applications exists. This operation will overwrite pre-existing analysis data."
                       }
                     >
                       <Button
@@ -556,7 +556,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                       >
                         {t("actions.analyze")}
                       </Button>
-                    </Tooltip>
+                    </ConditionalTooltip>
                   </ToolbarItem>
                 </RBAC>
                 {dropdownItems.length ? (
