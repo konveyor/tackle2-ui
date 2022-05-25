@@ -1,4 +1,3 @@
-import React from "react";
 import { useQuery } from "react-query";
 
 import { getTags, getTagTypes } from "@app/api/rest";
@@ -22,20 +21,16 @@ export const TagsQueryKey = "tags";
 export const TagTypesQueryKey = "tagtypes";
 
 export const useFetchTags = (): ITagFetchState => {
-  const [tags, setTags] = React.useState<Tag[]>([]);
-  const { isLoading, error, refetch } = useQuery(TagsQueryKey, () =>
-    getTags()
-      .then(({ data }) => {
-        setTags(data);
-        return data;
-      })
-      .catch((error) => {
-        console.log("error, ", error);
-        return error;
-      })
-  );
+  const {
+    data: response,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery(TagsQueryKey, getTags, {
+    onError: (error) => console.log("error, ", error),
+  });
   return {
-    tags,
+    tags: response?.data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,
@@ -43,20 +38,16 @@ export const useFetchTags = (): ITagFetchState => {
 };
 
 export const useFetchTagTypes = (): ITagTypeFetchState => {
-  const [tagTypes, setTagTypes] = React.useState<TagType[]>([]);
-  const { isLoading, error, refetch } = useQuery(TagTypesQueryKey, () =>
-    getTagTypes()
-      .then(({ data }) => {
-        setTagTypes(data);
-        return data;
-      })
-      .catch((error) => {
-        console.log("error, ", error);
-        return error;
-      })
-  );
+  const {
+    data: response,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery(TagTypesQueryKey, getTagTypes, {
+    onError: (error) => console.log("error, ", error),
+  });
   return {
-    tagTypes,
+    tagTypes: response?.data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,

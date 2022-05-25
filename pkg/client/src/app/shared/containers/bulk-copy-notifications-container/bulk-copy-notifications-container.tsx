@@ -10,6 +10,10 @@ import { useFetch } from "@app/shared/hooks";
 
 import { BulkCopyAssessment, BulkCopyReview } from "@app/api/models";
 import { getBulkCopyAssessment, getBulkCopyReview } from "@app/api/rest";
+import { useQueryClient } from "react-query";
+import { assessmentsQueryKey } from "@app/queries/assessments";
+import { reviewsQueryKey } from "@app/queries/reviews";
+import { ApplicationsQueryKey } from "@app/queries/applications";
 
 export const BulkCopyNotificationsContainer: React.FC = () => {
   // i18
@@ -17,6 +21,8 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
 
   // Redux
   const dispatch = useDispatch();
+
+  const queryClient = useQueryClient();
 
   const isWatching = useSelector((state: RootState) =>
     bulkCopySelectors.isWatching(state)
@@ -71,14 +77,17 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
   useEffect(() => {
     if (assessmentBulkCopy && assessmentBulkCopy.completed === true) {
       dispatch(bulkCopyActions.assessmentBulkCompleted({}));
+      queryClient.invalidateQueries(assessmentsQueryKey);
     }
-  }, [assessmentBulkCopy, dispatch]);
+  }, [assessmentBulkCopy, dispatch, queryClient]);
 
   useEffect(() => {
     if (reviewBulkCopy && reviewBulkCopy.completed === true) {
       dispatch(bulkCopyActions.reviewBulkCompleted({}));
+      queryClient.invalidateQueries(reviewsQueryKey);
+      queryClient.invalidateQueries(ApplicationsQueryKey);
     }
-  }, [reviewBulkCopy, dispatch]);
+  }, [reviewBulkCopy, dispatch, queryClient]);
 
   // Notification
   useEffect(() => {
@@ -94,6 +103,9 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
             : t("toastr.success.assessmentCopied")
         )
       );
+      queryClient.invalidateQueries(assessmentsQueryKey);
+      queryClient.invalidateQueries(reviewsQueryKey);
+      queryClient.invalidateQueries(ApplicationsQueryKey);
     }
   }, [
     isWatching,
@@ -102,6 +114,7 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
     reviewBulkCopyId,
     dispatch,
     t,
+    queryClient,
   ]);
 
   return <></>;

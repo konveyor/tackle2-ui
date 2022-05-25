@@ -18,8 +18,6 @@ import {
   CardBody,
   Checkbox,
   FormGroup,
-  ToolbarChip,
-  ToolbarItem,
 } from "@patternfly/react-core";
 import { ExclamationTriangleIcon } from "@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon";
 import { global_palette_gold_400 as gold } from "@patternfly/react-tokens";
@@ -28,61 +26,34 @@ import { useDispatch } from "react-redux";
 import { alertActions } from "@app/store/alert";
 import { bulkCopyActions } from "@app/store/bulkCopy";
 
-import {
-  ApplicationToolbarToggleGroup,
-  AppTableWithControls,
-  StatusIcon,
-  ToolbarBulkSelector,
-} from "@app/shared/components";
-import {
-  useFetch,
-  useMultipleFetch,
-  useTableControls,
-  useToolbarFilter,
-  useSelectionFromPageState,
-  useFetchPagination,
-} from "@app/shared/hooks";
+import { AppTableWithControls, StatusIcon } from "@app/shared/components";
+import { useFetch } from "@app/shared/hooks";
 
-import {
-  Application,
-  ApplicationPage,
-  Assessment,
-  Review,
-  SortByQuery,
-} from "@app/api/models";
+import { Application, Assessment, Review } from "@app/api/models";
 
 import {
   createBulkCopyAssessment,
   createBulkCopyReview,
   getApplications,
-  getAssessments,
 } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationBusinessService } from "../application-business-service";
 import { ApplicationAssessment } from "../application-assessment";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import identities from "@app/pages/identities";
 import {
   FilterCategory,
-  FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { useSelectionState } from "@konveyor/lib-ui";
+import { useFetchApplicationAssessments } from "@app/queries/assessments";
 
 const ENTITY_FIELD = "entity";
 
 const getRow = (rowData: IRowData): Application => {
   return rowData[ENTITY_FIELD];
-};
-
-const searchAppAssessment = (id: number) => {
-  const result = getAssessments({ applicationId: id }).then(({ data }) =>
-    data[0] ? data[0] : undefined
-  );
-  return result;
 };
 
 interface BulkCopyAssessmentReviewFormProps {
@@ -160,20 +131,10 @@ export const BulkCopyAssessmentReviewForm: React.FC<
 
   // Table's assessments
   const {
-    getData: getApplicationAssessment,
-    isFetching: isFetchingApplicationAssessment,
-    fetchError: fetchErrorApplicationAssessment,
-    fetchCount: fetchCountApplicationAssessment,
-    triggerFetch: fetchApplicationsAssessment,
-  } = useMultipleFetch<number, Assessment | undefined>({
-    onFetchPromise: searchAppAssessment,
-  });
-
-  useEffect(() => {
-    if (applications) {
-      fetchApplicationsAssessment(applications.map((f) => f.id!));
-    }
-  }, [applications, fetchApplicationsAssessment]);
+    getApplicationAssessment,
+    isLoadingApplicationAssessment,
+    fetchErrorApplicationAssessment,
+  } = useFetchApplicationAssessments(applications);
 
   // Select rows
   const {
@@ -241,9 +202,8 @@ export const BulkCopyAssessmentReviewForm: React.FC<
           title: (
             <ApplicationAssessment
               assessment={getApplicationAssessment(item.id!)}
-              isFetching={isFetchingApplicationAssessment(item.id!)}
+              isLoading={isLoadingApplicationAssessment(item.id!)}
               fetchError={fetchErrorApplicationAssessment(item.id!)}
-              fetchCount={fetchCountApplicationAssessment(item.id!)}
             />
           ),
         },

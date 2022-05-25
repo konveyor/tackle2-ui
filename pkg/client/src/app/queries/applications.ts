@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { Application, Assessment } from "@app/api/models";
@@ -21,23 +20,19 @@ export interface IApplicationMutateState {
 export const ApplicationsQueryKey = "applications";
 
 export const useFetchApplications = () => {
-  const [applications, setApplications] = useState<Application[]>([]);
   const queryClient = useQueryClient();
-  const { isLoading, error, refetch } = useQuery(
+  const { data, isLoading, error, refetch } = useQuery(
     ApplicationsQueryKey,
     getApplicationsQuery,
     {
       onSuccess: (data: Application[]) => {
-        setApplications(data);
         queryClient.invalidateQueries(reviewsQueryKey);
       },
-      onError: (err: Error) => {
-        console.log(error);
-      },
+      onError: (err: Error) => console.log(error),
     }
   );
   return {
-    applications,
+    applications: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,

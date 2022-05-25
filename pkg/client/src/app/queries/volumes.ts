@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 
 import { cleanRepository, getTaskById, getVolumes } from "@app/api/rest";
@@ -21,20 +20,16 @@ export const VolumesQueryKey = "volumes";
 export const CleanProgressQueryKey = "cleanProgress";
 
 export const useFetchVolumes = (): IVolumeFetchState => {
-  const [volumes, setVolumes] = React.useState<Volume[]>([]);
-  const { isLoading, error, refetch } = useQuery(VolumesQueryKey, () =>
-    getVolumes()
-      .then(({ data }) => {
-        setVolumes(data);
-        return data;
-      })
-      .catch((error) => {
-        console.log("error, ", error);
-        return error;
-      })
-  );
+  const {
+    data: response,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery(VolumesQueryKey, getVolumes, {
+    onError: (error) => console.log("error, ", error),
+  });
   return {
-    volumes,
+    volumes: response?.data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,

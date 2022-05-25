@@ -1,4 +1,3 @@
-import React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import {
@@ -67,20 +66,15 @@ export const useCreateIdentityMutation = (
 };
 
 export const useFetchIdentities = (): IIdentityFetchState => {
-  const [identities, setIdentities] = React.useState<Identity[]>([]);
-  const { isLoading, error } = useQuery(IdentitiesQueryKey, () =>
-    getIdentities()
-      .then(({ data }) => {
-        setIdentities(data);
-        return data;
-      })
-      .catch((error) => {
-        console.log("error, ", error);
-        return error;
-      })
-  );
+  const {
+    data: response,
+    isLoading,
+    error,
+  } = useQuery(IdentitiesQueryKey, getIdentities, {
+    onError: (error) => console.log("error, ", error),
+  });
   return {
-    identities,
+    identities: response?.data || [],
     isFetching: isLoading,
     fetchError: error,
   };
