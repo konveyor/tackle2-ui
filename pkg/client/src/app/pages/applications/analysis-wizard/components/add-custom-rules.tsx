@@ -9,7 +9,6 @@ import {
   MultipleFileUploadStatusItem,
 } from "@patternfly/react-core";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
-import { useFormContext } from "react-hook-form";
 import { XMLValidator } from "fast-xml-parser";
 
 import XSDSchema from "./windup-jboss-ruleset.xsd";
@@ -26,7 +25,6 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRulesProps> = ({
   currentFiles,
   setCurrentFiles,
 }) => {
-  const { getValues, setValue } = useFormContext();
   const [modalText, setModalText] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState("");
@@ -71,14 +69,14 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRulesProps> = ({
     currentFiles.some((file) => file.fileName === name);
 
   const handleFileDrop = async function (droppedFiles: File[]) {
-    console.log("handle file drop", droppedFiles);
-
     let currFiles: IReadFile[] = [];
     for (const file of droppedFiles) {
       //TODO: validate files
-      const text = await file.text();
-      const isXMLFileValid = validateXMLFile(text);
-      // const isXMLFileValid = true;
+      // const text = await file.text();
+      // const isXMLFileValid = validateXMLFile(text);
+      const isXMLFileValid = true;
+      //
+
       const isUniqueFile = !hasDuplicateFile(file.name);
       if (!isXMLFileValid) {
         return;
@@ -144,7 +142,7 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRulesProps> = ({
           titleTextSeparator="or"
           infoText="Accepted file types: XML with '.windup.xml' suffix."
         />
-        {currentFiles.length && (
+        {!!currentFiles.length && (
           <MultipleFileUploadStatus
             statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
             statusToggleIcon={getStatusIcon()}
@@ -165,6 +163,7 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRulesProps> = ({
           title="Unsupported file"
           titleIconVariant="warning"
           showClose
+          variant="medium"
           aria-label="unsupported file upload attempted"
           onClose={() => setModalText("")}
         >

@@ -52,61 +52,65 @@ export const CustomRules: React.FunctionComponent = () => {
 
   useEffect(() => {
     let rules: Rule[] = [];
-    for (const file of customRulesFiles) {
-      if (file.file) {
-        const getRules = async function (file: IReadFile) {
-          if (!file.file) return [];
+    if (customRulesFiles.length) {
+      for (const file of customRulesFiles) {
+        if (file.file) {
+          const getRules = async function (file: IReadFile) {
+            if (!file.file) return [];
 
-          let source: string | null = null;
-          let target: string | null = null;
-          let rulesCount = 0;
-          const text = await file.file.text();
+            let source: string | null = null;
+            let target: string | null = null;
+            let rulesCount = 0;
+            const text = await file.file.text();
 
-          const parser = new DOMParser();
-          const xml = parser.parseFromString(text, "text/xml");
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(text, "text/xml");
 
-          const ruleSets = xml.getElementsByTagName("ruleset");
+            const ruleSets = xml.getElementsByTagName("ruleset");
 
-          if (ruleSets && ruleSets.length > 0) {
-            const metadata = ruleSets[0].getElementsByTagName("metadata");
+            if (ruleSets && ruleSets.length > 0) {
+              const metadata = ruleSets[0].getElementsByTagName("metadata");
 
-            if (metadata && metadata.length > 0) {
-              const sources =
-                metadata[0].getElementsByTagName("sourceTechnology");
-              if (sources && sources.length > 0) source = sources[0].id;
+              if (metadata && metadata.length > 0) {
+                const sources =
+                  metadata[0].getElementsByTagName("sourceTechnology");
+                if (sources && sources.length > 0) source = sources[0].id;
 
-              const targets =
-                metadata[0].getElementsByTagName("targetTechnology");
-              if (targets && targets.length > 0) target = targets[0].id;
+                const targets =
+                  metadata[0].getElementsByTagName("targetTechnology");
+                if (targets && targets.length > 0) target = targets[0].id;
+              }
+
+              const rulesGroup = ruleSets[0].getElementsByTagName("rules");
+              if (rulesGroup && rulesGroup.length > 0)
+                rulesCount = rulesGroup[0].getElementsByTagName("rule").length;
             }
 
-            const rulesGroup = ruleSets[0].getElementsByTagName("rules");
-            if (rulesGroup && rulesGroup.length > 0)
-              rulesCount = rulesGroup[0].getElementsByTagName("rule").length;
-          }
+            const rules: Rule[] = [
+              {
+                name: file.fileName,
+                source: source,
+                target: target,
+                total: rulesCount,
+              },
+            ];
 
-          const rules: Rule[] = [
-            {
-              name: file.fileName,
-              source: source,
-              target: target,
-              total: rulesCount,
-            },
-          ];
+            if (source && !sources.includes(source))
+              setValue("sources", [...sources, source]);
 
-          if (source && !sources.includes(source))
-            setValue("sources", [...sources, source]);
+            if (target && !targets.includes(target))
+              setValue("targets", [...targets, target]);
 
-          if (target && !targets.includes(target))
-            setValue("targets", [...targets, target]);
-
-          return rules;
-        };
-        getRules(file).then((res) => {
-          rules = [...rules, ...res];
-          setRules(rules);
-        });
+            return rules;
+          };
+          getRules(file).then((res) => {
+            rules = [...rules, ...res];
+            setRules(rules);
+          });
+        }
       }
+    } else {
+      setRules([]);
     }
   }, [customRulesFiles, sources]);
 
