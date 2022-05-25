@@ -188,6 +188,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
           isOpen={!!modalText}
           title="Unsupported file"
           titleIconVariant="warning"
+          variant="medium"
           showClose
           aria-label="unsupported file upload attempted"
           onClose={() => setModalText("")}
