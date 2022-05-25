@@ -269,7 +269,7 @@ export const ManageImports: React.FC = () => {
       confirmDialogActions.openDialog({
         // t("terms.tag(s)")
         title: t("dialog.title.delete", {
-          what: t("terms.summaryImport").toLowerCase(),
+          what: "import summary",
         }),
         titleIconVariant: "warning",
         message: t("dialog.message.delete"),
