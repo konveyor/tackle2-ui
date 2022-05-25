@@ -20,16 +20,15 @@ export const VolumesQueryKey = "volumes";
 export const CleanProgressQueryKey = "cleanProgress";
 
 export const useFetchVolumes = (): IVolumeFetchState => {
-  const {
-    data: response,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery(VolumesQueryKey, getVolumes, {
-    onError: (error) => console.log("error, ", error),
-  });
+  const { data, isLoading, error, refetch } = useQuery(
+    VolumesQueryKey,
+    async () => (await getVolumes()).data,
+    {
+      onError: (error) => console.log("error, ", error),
+    }
+  );
   return {
-    volumes: response?.data || [],
+    volumes: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,

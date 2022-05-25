@@ -33,6 +33,7 @@ import { useQueryClient } from "react-query";
 import {
   IdentitiesQueryKey,
   useCreateIdentityMutation,
+  useFetchIdentities,
   useUpdateIdentityMutation,
 } from "@app/queries/identities";
 import { useDispatch } from "react-redux";
@@ -144,6 +145,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     }
   };
 
+  const { identities } = useFetchIdentities();
+
   const validationSchema = object().shape({
     name: string()
       .trim()
@@ -153,11 +156,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       .test(
         "Duplicate name",
         "An identity with this name already exists. Please use a different name.",
-        (value) => {
-          const identities: Identity[] =
-            queryClient.getQueryData(IdentitiesQueryKey) || [];
-          return duplicateNameCheck(identities, identity || null, value || "");
-        }
+        (value) => duplicateNameCheck(identities, identity || null, value || "")
       ),
     description: string()
       .trim()
