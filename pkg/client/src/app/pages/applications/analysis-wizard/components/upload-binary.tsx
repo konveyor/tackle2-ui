@@ -16,6 +16,7 @@ import { useUploadFileTaskgroupMutation } from "@app/queries/taskgroups";
 import { AxiosError } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { uploadLimit } from "@app/Constants";
 
 interface IUploadBinary {
   taskgroupID: number;
@@ -114,7 +115,13 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     _event: React.DragEvent<HTMLElement>
   ) => {
     if (files.length === 1) {
-      setModalText(`${files[0].name} is not an accepted file type`);
+      if (files[0].size > uploadLimitConverted) {
+        setModalText(
+          `${files[0].name} exceeds the file size limit of ${uploadLimit}.`
+        );
+      } else {
+        setModalText(`${files[0].name} is not an accepted file type`);
+      }
     } else {
       const rejectedMessages = files.reduce(
         (acc, file) => (acc += `${file.name}, `),
@@ -123,6 +130,8 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
       setModalText(`${rejectedMessages}are not accepted file types`);
     }
   };
+  const uploadLimitConverted =
+    parseInt(uploadLimit.slice(0, -1)) * Math.pow(1024, 2);
 
   return (
     <>
@@ -139,6 +148,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
         dropzoneProps={{
           accept: ".war, .ear, .jar, .zip",
           onDropRejected: handleDropRejected,
+          maxSize: uploadLimitConverted,
         }}
       >
         <MultipleFileUploadMain
@@ -178,6 +188,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
           isOpen={!!modalText}
           title="Unsupported file"
           titleIconVariant="warning"
+          variant="medium"
           showClose
           aria-label="unsupported file upload attempted"
           onClose={() => setModalText("")}

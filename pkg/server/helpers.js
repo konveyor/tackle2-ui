@@ -6,6 +6,7 @@ const TACKLE_ENV = [
   'KEYCLOAK_REALM',
   'KEYCLOAK_CLIENT_ID',
   'KEYCLOAK_SERVER_URL',
+  'UI_INGRESS_PROXY_BODY_SIZE'
 ];
 
 const getEnv = (vars = TACKLE_ENV) =>
