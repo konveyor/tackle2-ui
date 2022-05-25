@@ -85,9 +85,20 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
   );
 
   const handleFileDrop = (droppedFiles: File[]) => {
-    Promise.resolve()
-      .then(() => setCurrentFile(null))
-      .then(() => setCurrentFile(droppedFiles[0]));
+    if (droppedFiles[0]) {
+      setError(undefined);
+      setFileUploadProgress(0);
+      setFileUploadStatus(undefined);
+      const form = new FormData();
+      form.append("file", droppedFiles[0]);
+      uploadFile({
+        id: taskgroupID,
+        path: `binary/${droppedFiles[0].name}`,
+        file: form,
+      });
+      setValue("artifact", droppedFiles[0].name as string);
+      setCurrentFile(droppedFiles[0]);
+    }
   };
 
   const handleDropRejected = (
@@ -148,19 +159,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
               });
               setCurrentFile(null);
               setValue("artifact", "");
-            }}
-            customFileHandler={(file) => {
-              setError(undefined);
-              setFileUploadProgress(0);
-              setFileUploadStatus(undefined);
-              const form = new FormData();
-              form.append("file", file);
-              uploadFile({
-                id: taskgroupID,
-                path: `binary/${file.name}`,
-                file: form,
-              });
-              setValue("artifact", file.name as string);
             }}
             progressValue={fileUploadProgress}
             progressVariant={fileUploadStatus}
