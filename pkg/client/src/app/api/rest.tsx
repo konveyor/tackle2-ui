@@ -537,3 +537,16 @@ export const uploadFileTaskgroup = ({
     formHeaders
   );
 };
+
+export const removeFileTaskgroup = ({
+  id,
+  path,
+}: {
+  id: number;
+  path: string;
+}) => {
+  return axios.delete<Taskgroup>(
+    `${TASKGROUPS}/${id}/bucket/${path}`
+    // formHeaders
+  );
+};

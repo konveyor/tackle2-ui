@@ -10,9 +10,11 @@ import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import { useFormContext } from "react-hook-form";
 import { useDispatch } from "react-redux";
 
-import { IReadFile } from "../analysis-wizard";
 import { alertActions } from "@app/store/alert";
-import { useUploadFileTaskgroupMutation } from "@app/queries/taskgroups";
+import {
+  useRemoveUploadedFileMutation,
+  useUploadFileTaskgroupMutation,
+} from "@app/queries/taskgroups";
 import { AxiosError } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -25,37 +27,48 @@ interface IUploadBinary {
 export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
   taskgroupID,
 }) => {
-  const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
-  const [currentFile, setCurrentFile] = React.useState<File>();
-  const [showStatus, setShowStatus] = React.useState(false);
+  const { setValue, getValues } = useFormContext();
+  const { artifact } = getValues();
+  const initialCurrentFile = new File([""], artifact, { type: "text/html" });
+
+  const [currentFile, setCurrentFile] = React.useState<File | null>(
+    artifact ? initialCurrentFile : null
+  );
+
   const [modalText, setModalText] = React.useState("");
   const [error, setError] = React.useState<AxiosError>();
+
   const [fileUploadProgress, setFileUploadProgress] = React.useState<
     number | undefined
   >(undefined);
+
   const [fileUploadStatus, setFileUploadStatus] = React.useState<
     "danger" | "success" | "warning" | undefined
   >(undefined);
 
-  const { setValue } = useFormContext();
-
   const dispatch = useDispatch();
 
   const completedUpload = () => {
-    dispatch(
-      alertActions.addInfo(`Task ${taskgroupID}`, "Uploading binary file.")
-    );
+    dispatch(alertActions.addInfo(`Success`, "Uploaded binary file."));
     setFileUploadStatus("success");
     setFileUploadProgress(100);
   };
 
   const failedUpload = (error: AxiosError) => {
-    dispatch(
-      alertActions.addDanger(
-        `Taskgroup ${taskgroupID}`,
-        "Binary file upload failed."
-      )
-    );
+    dispatch(alertActions.addDanger(`Failed`, "Binary file upload failed."));
+    setFileUploadStatus("danger");
+    setFileUploadProgress(0);
+    setError(error);
+  };
+
+  const completedRemove = () => {
+    dispatch(alertActions.addInfo(`Success`, "Removed binary file."));
+    setFileUploadStatus("success");
+    setFileUploadProgress(100);
+  };
+
+  const failedRemove = (error: AxiosError) => {
+    dispatch(alertActions.addDanger(`Failed`, "Binary file removal failed."));
     setFileUploadStatus("danger");
     setFileUploadProgress(0);
     setError(error);
@@ -66,48 +79,26 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     failedUpload
   );
 
-  if (!showStatus && readFileData) {
-    setShowStatus(true);
-  }
-
-  const removeFiles = (nameOfFileToRemove: string) => {
-    if (currentFile && currentFile.name === nameOfFileToRemove)
-      setCurrentFile(undefined);
-
-    const newReadFiles = readFileData.filter(
-      (readFile) => readFile.fileName !== nameOfFileToRemove
-    );
-
-    setReadFileData(newReadFiles);
-  };
+  const { mutate: removeFile } = useRemoveUploadedFileMutation(
+    completedRemove,
+    failedRemove
+  );
 
   const handleFileDrop = (droppedFiles: File[]) => {
-    Promise.resolve()
-      .then(() => removeFiles(droppedFiles[0].name))
-      .then(() => setCurrentFile(droppedFiles[0]));
-  };
-
-  const handleReadSuccess = (data: string, file: File) => {
-    const newReadFile: IReadFile = {
-      data,
-      fileName: file.name,
-      loadResult: "success",
-    };
-
-    setReadFileData([newReadFile]);
-  };
-
-  const handleReadFail = (error: DOMException, file: File) => {
-    const fileList = [
-      ...readFileData,
-      {
-        loadError: error,
-        fileName: file.name,
-        loadResult: "danger",
-      } as IReadFile,
-    ];
-
-    setReadFileData(fileList);
+    if (droppedFiles[0]) {
+      setError(undefined);
+      setFileUploadProgress(0);
+      setFileUploadStatus(undefined);
+      const form = new FormData();
+      form.append("file", droppedFiles[0]);
+      uploadFile({
+        id: taskgroupID,
+        path: `binary/${droppedFiles[0].name}`,
+        file: form,
+      });
+      setValue("artifact", droppedFiles[0].name as string);
+      setCurrentFile(droppedFiles[0]);
+    }
   };
 
   const handleDropRejected = (
@@ -157,28 +148,17 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
           titleTextSeparator="or"
           infoText="Accepted file types: war, ear, jar or zip"
         />
-        {showStatus && currentFile && (
+        {currentFile && (
           <MultipleFileUploadStatusItem
             file={currentFile}
             key={currentFile.name}
             onClearClick={() => {
-              removeFiles(currentFile.name);
-              setValue("artifact", "");
-            }}
-            onReadSuccess={handleReadSuccess}
-            onReadFail={handleReadFail}
-            customFileHandler={(file) => {
-              setError(undefined);
-              setFileUploadProgress(0);
-              setFileUploadStatus(undefined);
-              const form = new FormData();
-              form.append("file", file);
-              uploadFile({
+              removeFile({
                 id: taskgroupID,
-                path: `binary/${file.name}`,
-                file: form,
+                path: `binary/${artifact}`,
               });
-              setValue("artifact", file.name as string);
+              setCurrentFile(null);
+              setValue("artifact", "");
             }}
             progressValue={fileUploadProgress}
             progressVariant={fileUploadStatus}
