@@ -13,16 +13,15 @@ export interface IReviewFetchState {
 export const reviewsQueryKey = "reviews";
 
 export const useFetchReviews = (): IReviewFetchState => {
-  const {
-    data: response,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery(reviewsQueryKey, getReviews, {
-    onError: (error) => console.log("error, ", error),
-  });
+  const { data, isLoading, error, refetch } = useQuery(
+    reviewsQueryKey,
+    async () => (await getReviews()).data,
+    {
+      onError: (error) => console.log("error, ", error),
+    }
+  );
   return {
-    reviews: response?.data || [],
+    reviews: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,

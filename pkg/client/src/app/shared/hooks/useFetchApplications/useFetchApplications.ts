@@ -75,6 +75,7 @@ export interface IState {
   fetchApplications: () => void;
 }
 
+// TODO: this has the same name as useFetchApplications in src/app/queries/applications, we should probably eliminate this one
 export const useFetchApplications = (
   defaultIsFetching: boolean = false
 ): IState => {

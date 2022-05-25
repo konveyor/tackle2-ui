@@ -21,16 +21,15 @@ export const TagsQueryKey = "tags";
 export const TagTypesQueryKey = "tagtypes";
 
 export const useFetchTags = (): ITagFetchState => {
-  const {
-    data: response,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery(TagsQueryKey, getTags, {
-    onError: (error) => console.log("error, ", error),
-  });
+  const { data, isLoading, error, refetch } = useQuery(
+    TagsQueryKey,
+    async () => (await getTags()).data,
+    {
+      onError: (error) => console.log("error, ", error),
+    }
+  );
   return {
-    tags: response?.data || [],
+    tags: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,
@@ -38,16 +37,15 @@ export const useFetchTags = (): ITagFetchState => {
 };
 
 export const useFetchTagTypes = (): ITagTypeFetchState => {
-  const {
-    data: response,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery(TagTypesQueryKey, getTagTypes, {
-    onError: (error) => console.log("error, ", error),
-  });
+  const { data, isLoading, error, refetch } = useQuery(
+    TagTypesQueryKey,
+    async () => (await getTagTypes()).data,
+    {
+      onError: (error) => console.log("error, ", error),
+    }
+  );
   return {
-    tagTypes: response?.data || [],
+    tagTypes: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,

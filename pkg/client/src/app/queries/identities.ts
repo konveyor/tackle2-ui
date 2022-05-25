@@ -66,15 +66,15 @@ export const useCreateIdentityMutation = (
 };
 
 export const useFetchIdentities = (): IIdentityFetchState => {
-  const {
-    data: response,
-    isLoading,
-    error,
-  } = useQuery(IdentitiesQueryKey, getIdentities, {
-    onError: (error) => console.log("error, ", error),
-  });
+  const { data, isLoading, error } = useQuery(
+    IdentitiesQueryKey,
+    async () => (await getIdentities()).data,
+    {
+      onError: (error) => console.log("error, ", error),
+    }
+  );
   return {
-    identities: response?.data || [],
+    identities: data || [],
     isFetching: isLoading,
     fetchError: error,
   };
