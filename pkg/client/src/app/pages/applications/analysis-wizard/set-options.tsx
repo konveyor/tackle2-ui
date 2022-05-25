@@ -34,8 +34,9 @@ const defaultTargets = [
   "jbpm",
   "linux",
   "openjdk",
+  "openjdk11",
+  "openliberty",
   "quarkus",
-  "quarkus1",
   "resteasy",
   "rhr",
 ];
