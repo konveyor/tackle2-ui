@@ -257,7 +257,10 @@ export const CustomRules: React.FunctionComponent = () => {
               variant="primary"
               onClick={(event) => {
                 setCustomRulesModalOpen(false);
-                setValue("customRulesFiles", currentFiles);
+                setValue("customRulesFiles", [
+                  ...customRulesFiles,
+                  ...currentFiles,
+                ]);
                 setCurrentFiles([]);
               }}
             >

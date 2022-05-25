@@ -14,6 +14,7 @@ import { XMLValidator } from "fast-xml-parser";
 import XSDSchema from "./windup-jboss-ruleset.xsd";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IReadFile } from "../analysis-wizard";
+import { useFormContext } from "react-hook-form";
 
 const xmllint = require("xmllint");
 interface IAddCustomRulesProps {
@@ -25,6 +26,8 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRulesProps> = ({
   currentFiles,
   setCurrentFiles,
 }) => {
+  const { getValues, setValue } = useFormContext();
+  const customRulesFiles: IReadFile[] = getValues("customRulesFiles");
   const [modalText, setModalText] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState("");
@@ -66,7 +69,8 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRulesProps> = ({
     }
   };
   const hasDuplicateFile = (name: string) =>
-    currentFiles.some((file) => file.fileName === name);
+    currentFiles.some((file) => file.fileName === name) ||
+    customRulesFiles.some((file) => file.fileName === name);
 
   const handleFileDrop = async function (droppedFiles: File[]) {
     let currFiles: IReadFile[] = [];
