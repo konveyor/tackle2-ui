@@ -37,8 +37,6 @@ export const devRoles = ["tackle-admin", "tackle-architect", "tackle-migrator"];
 
 export const adminRoles = ["tackle-admin"];
 
-export const legacyPathfinderRoles = ["admin", "user"];
-
 export const readScopes = [
   "addons:get",
   "applications:get",
@@ -103,6 +101,12 @@ export const applicationsWriteScopes = [
   "applications:put",
   "applications:post",
   "applications:delete",
+];
+
+export const pathfinderWriteScopes = [
+  "assessments:put",
+  "assessments:post",
+  "assessments:delete",
 ];
 
 export const importsWriteScopes = [
