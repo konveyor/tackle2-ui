@@ -66,7 +66,7 @@ import {
   applicationsWriteScopes,
   dependenciesWriteScopes,
   importsWriteScopes,
-  legacyPathfinderRoles,
+  pathfinderWriteScopes,
   RBAC,
   RBAC_TYPE,
 } from "@app/rbac";
@@ -699,8 +699,8 @@ export const ApplicationsTable: React.FC = () => {
                   </RBAC>
                 </ToolbarItem>
                 <RBAC
-                  allowedPermissions={legacyPathfinderRoles}
-                  rbacType={RBAC_TYPE.Role}
+                  allowedPermissions={pathfinderWriteScopes}
+                  rbacType={RBAC_TYPE.Scope}
                 >
                   <ToolbarItem>
                     <Button
@@ -719,8 +719,8 @@ export const ApplicationsTable: React.FC = () => {
                   </ToolbarItem>
                 </RBAC>
                 <RBAC
-                  allowedPermissions={legacyPathfinderRoles}
-                  rbacType={RBAC_TYPE.Role}
+                  allowedPermissions={pathfinderWriteScopes}
+                  rbacType={RBAC_TYPE.Scope}
                 >
                   <ToolbarItem>
                     <Button
