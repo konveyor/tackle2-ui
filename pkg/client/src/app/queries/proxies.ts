@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { AxiosError } from "axios";
-import { createAsyncAction } from "typesafe-actions";
-import { getProxies, updateProxy } from "@app/api/rest";
+import { createAsyncAction, getType } from "typesafe-actions";
+import { getProxies, PROXIES, updateProxy } from "@app/api/rest";
+import { Proxy } from "@app/api/models";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 export const {
@@ -23,13 +24,19 @@ export interface IFetchState {
 export const useFetchProxies = (
   defaultIsFetching: boolean = false
 ): IFetchState => {
-  const { isLoading, refetch, isError, data, error } = useQuery(
-    "proxies",
-    getProxies,
-    { onError: () => console.log("error, ", error) }
+  const [proxies, setProxies] = useState<Array<Proxy>>([]);
+  const { isLoading, refetch, isError, data, error } = useQuery("proxies", () =>
+    getProxies()
+      .then((res) => res)
+      .then(({ data }) => {
+        setProxies(data);
+      })
+      .catch((error) => {
+        console.log("error, ", error);
+      })
   );
   return {
-    proxies: data || [],
+    proxies: proxies,
     isFetching: isLoading,
     fetchError: error,
   };

@@ -8,12 +8,12 @@ import {
   StatusIconType,
 } from "@app/shared/components";
 import { Assessment } from "@app/api/models";
-import { Spinner } from "@patternfly/react-core";
 
 export interface ApplicationAssessmentProps {
   assessment?: Assessment;
-  isLoading: boolean;
+  isFetching: boolean;
   fetchError?: AxiosError;
+  fetchCount: number;
 }
 
 const getStatusIconFrom = (assessment: Assessment): StatusIconType => {
@@ -31,16 +31,17 @@ const getStatusIconFrom = (assessment: Assessment): StatusIconType => {
 
 export const ApplicationAssessment: React.FC<ApplicationAssessmentProps> = ({
   assessment,
-  isLoading,
+  isFetching,
   fetchError,
+  fetchCount,
 }) => {
   const { t } = useTranslation();
 
   if (fetchError) {
     return <EmptyTextMessage message={t("terms.notAvailable")} />;
   }
-  if (isLoading) {
-    return <Spinner size="md" />;
+  if (isFetching || fetchCount === 0) {
+    return <></>;
   }
 
   return assessment ? (

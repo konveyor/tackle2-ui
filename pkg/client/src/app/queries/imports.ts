@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 
 import {
@@ -6,6 +7,7 @@ import {
   getApplicationImportSummaryById,
   getApplicationsImportSummary,
 } from "@app/api/rest";
+import { ApplicationImportSummary, ApplicationImport } from "@app/api/models";
 
 export interface IImportMutateState {
   mutate: any;
@@ -21,13 +23,19 @@ export const useFetchImports = (
   importSummaryID: number,
   isValid: boolean | string
 ) => {
-  const { data, isLoading, error, refetch } = useQuery(
+  const [imports, setImports] = useState<ApplicationImport[]>([]);
+  const { isLoading, error, refetch } = useQuery(
     [ImportsQueryKey, importSummaryID, isValid],
     () => getApplicationImports(importSummaryID, isValid),
-    { onError: (err: Error) => console.log(error) }
+    {
+      onSuccess: (data: ApplicationImport[]) => setImports(data),
+      onError: (err: Error) => {
+        console.log(error);
+      },
+    }
   );
   return {
-    imports: data || [],
+    imports,
     isFetching: isLoading,
     fetchError: error,
     refetch,
@@ -35,16 +43,22 @@ export const useFetchImports = (
 };
 
 export const useFetchImportSummaries = () => {
-  const { data, isLoading, error, refetch } = useQuery(
+  const [importSummaries, setImportSummaries] = useState<
+    ApplicationImportSummary[]
+  >([]);
+  const { isLoading, error, refetch } = useQuery(
     ImportSummariesQueryKey,
     getApplicationsImportSummary,
     {
       refetchInterval: 5000,
-      onError: (err: Error) => console.log(error),
+      onSuccess: (data: ApplicationImportSummary[]) => setImportSummaries(data),
+      onError: (err: Error) => {
+        console.log(error);
+      },
     }
   );
   return {
-    importSummaries: data || [],
+    importSummaries,
     isFetching: isLoading,
     fetchError: error,
     refetch,
@@ -52,14 +66,22 @@ export const useFetchImportSummaries = () => {
 };
 
 export const useFetchImportSummaryByID = (id: number | string) => {
-  const { data, isLoading, error, refetch } = useQuery(
+  const [importSummary, setImportSummary] =
+    useState<ApplicationImportSummary>();
+
+  const { isLoading, error, refetch } = useQuery(
     [ImportQueryKey, id],
     () => getApplicationImportSummaryById(id),
-    { onError: (err: Error) => console.log(error) }
+    {
+      onSuccess: (data: ApplicationImportSummary) => setImportSummary(data),
+      onError: (err: Error) => {
+        console.log(error);
+      },
+    }
   );
 
   return {
-    importSummary: data,
+    importSummary,
     isFetching: isLoading,
     fetchError: error,
     refetch,
