@@ -1,8 +1,6 @@
-import React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 
 import { getReviews } from "@app/api/rest";
-import { AxiosError } from "axios";
 import { Review } from "@app/api/models";
 
 export interface IReviewFetchState {
@@ -15,20 +13,16 @@ export interface IReviewFetchState {
 export const reviewsQueryKey = "reviews";
 
 export const useFetchReviews = (): IReviewFetchState => {
-  const [reviews, setReviews] = React.useState<Review[]>([]);
-  const { isLoading, error, refetch } = useQuery(reviewsQueryKey, () =>
-    getReviews()
-      .then(({ data }) => {
-        setReviews(data);
-        return data;
-      })
-      .catch((error) => {
-        console.log("error, ", error);
-        return error;
-      })
-  );
+  const {
+    data: response,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery(reviewsQueryKey, getReviews, {
+    onError: (error) => console.log("error, ", error),
+  });
   return {
-    reviews,
+    reviews: response?.data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,

@@ -1,15 +1,13 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation, Trans } from "react-i18next";
-import { useSelectionState } from "@konveyor/lib-ui";
 
 import {
   Button,
   ButtonVariant,
   DropdownItem,
   Modal,
-  ToolbarChip,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -46,7 +44,6 @@ import {
 import {
   useTableControls,
   useAssessApplication,
-  useMultipleFetch,
   useEntityModal,
   useApplicationToolbarFilter,
 } from "@app/shared/hooks";
@@ -65,7 +62,6 @@ import { ApplicationBusinessService } from "../components/application-business-s
 import { ApplicationListExpandedArea } from "../components/application-list-expanded-area";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
-import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import {
   applicationsWriteScopes,
   dependenciesWriteScopes,
@@ -85,21 +81,18 @@ import {
   getApplicationsFilterValues,
 } from "../applicationsFilter";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useFetchTags } from "@app/queries/tags";
-import { useFetchReviews } from "@app/queries/reviews";
+import { reviewsQueryKey, useFetchReviews } from "@app/queries/reviews";
 import { isAuthRequired } from "@app/Constants";
+import {
+  assessmentsQueryKey,
+  useFetchApplicationAssessments,
+} from "@app/queries/assessments";
+import { useQueryClient } from "react-query";
 
 const ENTITY_FIELD = "entity";
 
 const getRow = (rowData: IRowData): Application => {
   return rowData[ENTITY_FIELD];
-};
-
-const searchAppAssessment = (id: number) => {
-  const result = getAssessments({ applicationId: id }).then(({ data }) =>
-    data[0] ? data[0] : undefined
-  );
-  return result;
 };
 
 export const ApplicationsTable: React.FC = () => {
@@ -139,6 +132,8 @@ export const ApplicationsTable: React.FC = () => {
 
   const { applications, isFetching, fetchError, refetch } =
     useFetchApplications();
+
+  const queryClient = useQueryClient();
 
   const {
     paginationProps,
@@ -223,14 +218,10 @@ export const ApplicationsTable: React.FC = () => {
     fetchError: fetchErrorReviews,
   } = useFetchReviews();
 
-  const [appReview, setAppReview] = useState<Review>();
-  useEffect(() => {
-    const appReview = reviews?.find(
-      (review) =>
-        review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
-    );
-    setAppReview(appReview);
-  }, [applicationToCopyAssessmentAndReviewFrom, reviews]);
+  const appReview = reviews?.find(
+    (review) =>
+      review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
+  );
 
   // Dependencies modal
   const {
@@ -246,20 +237,10 @@ export const ApplicationsTable: React.FC = () => {
 
   // Table's assessments
   const {
-    getData: getApplicationAssessment,
-    isFetching: isFetchingApplicationAssessment,
-    fetchError: fetchErrorApplicationAssessment,
-    fetchCount: fetchCountApplicationAssessment,
-    triggerFetch: fetchApplicationsAssessment,
-  } = useMultipleFetch<number, Assessment | undefined>({
-    onFetchPromise: searchAppAssessment,
-  });
-
-  useEffect(() => {
-    if (applications) {
-      fetchApplicationsAssessment(applications?.map((f) => f.id!));
-    }
-  }, [applications, fetchApplicationsAssessment]);
+    getApplicationAssessment,
+    isLoadingApplicationAssessment,
+    fetchErrorApplicationAssessment,
+  } = useFetchApplicationAssessments(applications);
 
   const { mutate: deleteApplication } = useDeleteApplicationMutation(
     onDeleteApplicationSuccess,
@@ -325,9 +306,8 @@ export const ApplicationsTable: React.FC = () => {
           title: (
             <ApplicationAssessment
               assessment={getApplicationAssessment(item.id!)}
-              isFetching={isFetchingApplicationAssessment(item.id!)}
+              isLoading={isLoadingApplicationAssessment(item.id!)}
               fetchError={fetchErrorApplicationAssessment(item.id!)}
-              fetchCount={fetchCountApplicationAssessment(item.id!)}
             />
           ),
         },
@@ -545,6 +525,8 @@ export const ApplicationsTable: React.FC = () => {
                 )
               );
               refetch();
+              queryClient.invalidateQueries(assessmentsQueryKey);
+              queryClient.invalidateQueries(reviewsQueryKey);
             })
             .catch((error) => {
               dispatch(confirmDialogActions.closeDialog());
