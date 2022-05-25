@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AxiosError } from "axios";
 import { createAsyncAction } from "typesafe-actions";
 import { getProxies, updateProxy } from "@app/api/rest";
+import { Proxy } from "@app/api/models";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 export const {
@@ -14,24 +15,24 @@ export const {
   "useFetchProxies/fetch/failure"
 )<void, any, AxiosError>();
 
-export interface IFetchState {
-  proxies: any;
+export interface IProxyFetchState {
+  proxies: Proxy[];
   isFetching: boolean;
-  fetchError: any;
+  fetchError: AxiosError;
 }
 
 export const useFetchProxies = (
   defaultIsFetching: boolean = false
-): IFetchState => {
-  const { isLoading, refetch, isError, data, error } = useQuery(
+): IProxyFetchState => {
+  const { isLoading, data, error } = useQuery(
     "proxies",
-    getProxies,
+    async () => (await getProxies()).data,
     { onError: () => console.log("error, ", error) }
   );
   return {
     proxies: data || [],
     isFetching: isLoading,
-    fetchError: error,
+    fetchError: error as AxiosError,
   };
 };
 

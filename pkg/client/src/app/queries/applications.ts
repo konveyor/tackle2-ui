@@ -19,6 +19,7 @@ export interface IApplicationMutateState {
 }
 export const ApplicationsQueryKey = "applications";
 
+// TODO: this has the same name as useFetchApplications in src/app/shared/hooks, we should probably eliminate that one in favor of this one
 export const useFetchApplications = () => {
   const queryClient = useQueryClient();
   const { data, isLoading, error, refetch } = useQuery(

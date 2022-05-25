@@ -430,7 +430,7 @@ export const getBulkCopyAssessment = (
   return APIClient.get<BulkCopyAssessment>(`${ASSESSMENTS}/bulk/${id}`);
 };
 
-export const getIdentities = (): AxiosPromise<Array<any>> => {
+export const getIdentities = (): AxiosPromise<Array<Identity>> => {
   return APIClient.get(`${IDENTITIES}`, jsonHeaders);
 };
 
@@ -462,7 +462,7 @@ export const createSetting = (obj: Setting): AxiosPromise<Setting> => {
   return APIClient.post(`${SETTINGS}`, obj);
 };
 
-export const getProxies = (): AxiosPromise<Array<any>> => {
+export const getProxies = (): AxiosPromise<Array<Proxy>> => {
   return APIClient.get(`${PROXIES}`, jsonHeaders);
 };
 

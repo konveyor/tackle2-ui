@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useFormik, FormikProvider, FormikHelpers } from "formik";
 import { object, string, StringSchema } from "yup";
 import {
@@ -11,7 +11,6 @@ import {
   ExpandableSection,
   Form,
   FormGroup,
-  SelectOption,
   TextArea,
   TextInput,
 } from "@patternfly/react-core";
@@ -24,7 +23,7 @@ import {
 } from "@app/shared/components";
 import { useFetchBusinessServices, useFetchTagTypes } from "@app/shared/hooks";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { Application, Ref, Tag } from "@app/api/models";
+import { Application, Ref } from "@app/api/models";
 import {
   duplicateNameCheck,
   getAxiosErrorMessage,
@@ -44,11 +43,10 @@ import {
 
 import "./application-form.css";
 import {
-  ApplicationsQueryKey,
   useCreateApplicationMutation,
+  useFetchApplications,
   useUpdateApplicationMutation,
 } from "@app/queries/applications";
-import { useQueryClient } from "react-query";
 export interface FormValues {
   name: string;
   description: string;
@@ -189,7 +187,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     version: getBinaryInitialValue(application, "version"),
     packaging: getBinaryInitialValue(application, "packaging"),
   };
-  const queryClient = useQueryClient();
 
   const customURLValidation = (schema: StringSchema) => {
     const gitUrlRegex =
@@ -209,6 +206,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     });
   };
 
+  const { applications } = useFetchApplications();
+
   const validationSchema = object().shape(
     {
       name: string()
@@ -219,15 +218,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         .test(
           "Duplicate name",
           "An application with this name already exists. Please use a different name.",
-          (value) => {
-            const applications: Application[] =
-              queryClient.getQueryData(ApplicationsQueryKey) || [];
-            return duplicateNameCheck(
-              applications,
-              application || null,
-              value || ""
-            );
-          }
+          (value) =>
+            duplicateNameCheck(applications, application || null, value || "")
         ),
       description: string()
         .trim()

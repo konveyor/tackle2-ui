@@ -12,15 +12,15 @@ export interface IStakeholderFetchState {
 export const StakeholdersQueryKey = "stakeholders";
 
 export const useFetchStakeholders = (): IStakeholderFetchState => {
-  const {
-    data: response,
-    isLoading,
-    error,
-  } = useQuery(StakeholdersQueryKey, getStakeholders, {
-    onError: (error) => console.log("error, ", error),
-  });
+  const { data, isLoading, error } = useQuery(
+    StakeholdersQueryKey,
+    async () => (await getStakeholders()).data,
+    {
+      onError: (error) => console.log("error, ", error),
+    }
+  );
   return {
-    stakeholders: response?.data || [],
+    stakeholders: data || [],
     isFetching: isLoading,
     fetchError: error,
   };

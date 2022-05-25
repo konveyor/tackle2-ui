@@ -49,12 +49,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
   const { t } = useTranslation();
   const [error, setError] = useState<AxiosError>();
 
-  const {
-    tags,
-    isFetching: isFetchingTags,
-    fetchError: fetchErrorTags,
-    refetch,
-  } = useFetchTags();
+  const { tags } = useFetchTags();
 
   const {
     tagTypes,
@@ -76,8 +71,6 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
     tagType: tagTypeInitialValue,
   };
 
-  const queryClient = useQueryClient();
-
   const validationSchema = object().shape({
     name: string()
       .trim()
@@ -87,10 +80,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
       .test(
         "Duplicate name",
         "An tag with this name already exists. Please use a different name.",
-        (value) => {
-          const tags: Tag[] = queryClient.getQueryData(TagsQueryKey) || [];
-          return duplicateNameCheck(tags, tag || null, value || "");
-        }
+        (value) => duplicateNameCheck(tags, tag || null, value || "")
       ),
     tagType: mixed().required(t("validation.required")),
   });
