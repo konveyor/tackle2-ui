@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { object, string } from "yup";
 import {
   ActionGroup,
@@ -25,21 +25,17 @@ import {
 } from "@app/utils/utils";
 import schema from "./schema.xsd";
 import { toOptionLike } from "@app/utils/model-utils";
-const xmllint = require("xmllint");
-const { XMLValidator } = require("fast-xml-parser");
 
 import "./identity-form.css";
-import { useQueryClient } from "react-query";
 import {
-  IdentitiesQueryKey,
   useCreateIdentityMutation,
   useFetchIdentities,
   useUpdateIdentityMutation,
 } from "@app/queries/identities";
-import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
 import KeyDisplayToggle from "@app/common/KeyDisplayToggle";
 
+const xmllint = require("xmllint");
+const { XMLValidator } = require("fast-xml-parser");
 export interface IdentityFormProps {
   identity?: Identity;
   onSaved: (response: AxiosResponse<Identity>) => void;
@@ -62,7 +58,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     e.stopPropagation();
     setIsPasswordHidden(!isPasswordHidden);
   };
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     setIdentity(initialIdentity);
