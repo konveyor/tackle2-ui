@@ -43,9 +43,9 @@ interface IAnalysisWizard {
 }
 export interface IReadFile {
   fileName: string;
-  data?: string;
   loadResult?: "danger" | "success";
   loadError?: DOMException;
+  file?: File;
 }
 export interface IAnalysisWizardFormValues {
   artifact: string;

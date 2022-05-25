@@ -1,6 +1,7 @@
 import * as React from "react";
 import {
   Alert,
+  AlertActionCloseButton,
   Modal,
   MultipleFileUpload,
   MultipleFileUploadMain,
@@ -13,48 +14,31 @@ import { XMLValidator } from "fast-xml-parser";
 
 import XSDSchema from "./windup-jboss-ruleset.xsd";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { IReadFile } from "../analysis-wizard";
 
 const xmllint = require("xmllint");
-
-export interface IReadFile {
-  fileName: string;
-  data?: string;
-  loadResult?: "danger" | "success";
-  loadError?: DOMException;
-  file: File;
+interface IAddCustomRulesProps {
+  currentFiles: IReadFile[];
+  setCurrentFiles: (files: IReadFile[]) => void;
 }
 
-export const AddCustomRules: React.FunctionComponent = () => {
+export const AddCustomRules: React.FunctionComponent<IAddCustomRulesProps> = ({
+  currentFiles,
+  setCurrentFiles,
+}) => {
   const { getValues, setValue } = useFormContext();
-  const { customRulesFiles } = getValues();
   const [modalText, setModalText] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState("");
 
-  const statusIcon = () => {
+  const getStatusIcon = () => {
     if (isLoading) {
       return "inProgress";
-    } else if (
-      customRulesFiles.every((file) => file.loadResult === "success")
-    ) {
+    } else if (currentFiles.every((file) => file.loadResult === "success")) {
       return "success";
     } else {
       return "danger";
     }
-  };
-
-  // remove files from both state arrays based on their name
-  const removeFiles = (namesOfFilesToRemove: string[]) => {
-    // const newCurrentFiles = currentFiles.filter(
-    //   (currentFile) =>
-    //     !namesOfFilesToRemove.some((fileName) => fileName === currentFile.name)
-    // );
-    // setCurrentFiles(newCurrentFiles);
-    const newReadFiles = customRulesFiles.filter(
-      (readFile) =>
-        !namesOfFilesToRemove.some((fileName) => fileName === readFile.fileName)
-    );
-    setValue("customRulesFiles", newReadFiles);
   };
 
   const validateXMLFile = (data: string) => {
@@ -84,22 +68,20 @@ export const AddCustomRules: React.FunctionComponent = () => {
     }
   };
   const hasDuplicateFile = (name: string) =>
-    customRulesFiles.some((file) => file.name === name);
+    currentFiles.some((file) => file.fileName === name);
 
-  // const readText = async (file: File) => {
-  //   return await file.text();
-  // };
   const handleFileDrop = async function (droppedFiles: File[]) {
-    const reader = new FileReader();
+    console.log("handle file drop", droppedFiles);
+
     let currFiles: IReadFile[] = [];
     for (const file of droppedFiles) {
-      // const value = reader.readAsText(file);
+      //TODO: validate files
       const text = await file.text();
       const isXMLFileValid = validateXMLFile(text);
+      // const isXMLFileValid = true;
       const isUniqueFile = !hasDuplicateFile(file.name);
       if (!isXMLFileValid) {
         return;
-        // throw "error";
       } else if (!isUniqueFile) {
         setError(
           "A custom rule file with that name has already been uploaded."
@@ -113,52 +95,10 @@ export const AddCustomRules: React.FunctionComponent = () => {
         currFiles.push(newReadFile);
       }
     }
-    // const fileList: IReadFile[] = [...customRulesFiles, newReadFile];
 
-    // setValue("customRulesFiles", fileList);
-    setValue("customRulesFiles", currFiles);
-    // const currentFileNames = currentFiles.map((file) => file.name);
-    // const reUploads = droppedFiles.filter((droppedFile) =>
-    //   currentFileNames.includes(droppedFile.name)
-    // );
-    // Promise.resolve()
-    //   .then(() => removeFiles(reUploads.map((file) => file.name)))
-    //   .then(() =>
-    //     setCurrentFiles((prevFiles: File[]) => [...prevFiles, ...droppedFiles])
-    //   );
-  };
+    const fileList: IReadFile[] = [...currentFiles, ...currFiles];
 
-  const handleReadSuccess = (data: string, file: File) => {
-    // const isXMLFileValid = validateXMLFile(data);
-    // const isUniqueFile = !hasDuplicateFile(file.name);
-    // if (!isXMLFileValid) {
-    //   return;
-    //   // throw "error";
-    // } else if (!isUniqueFile) {
-    //   setError("A custom rule file with that name has already been uploaded.");
-    // } else {
-    //   const newReadFile: IReadFile = {
-    //     data,
-    //     fileName: file.name,
-    //     loadResult: "success",
-    //     file: file,
-    //   };
-    //   const fileList: IReadFile[] = [...customRulesFiles, newReadFile];
-    //   setValue("customRulesFiles", fileList);
-    // }
-  };
-
-  const handleReadFail = (error: DOMException, file: File) => {
-    const fileList = [
-      ...customRulesFiles,
-      {
-        loadError: error,
-        fileName: file.name,
-        loadResult: "danger",
-      } as IReadFile,
-    ];
-
-    setValue("customRulesFiles", fileList);
+    setCurrentFiles(fileList);
   };
 
   const handleDropRejected = (
@@ -176,7 +116,7 @@ export const AddCustomRules: React.FunctionComponent = () => {
     }
   };
 
-  const successfullyReadFileCount = customRulesFiles.filter(
+  const successfullyReadFileCount = currentFiles.filter(
     (fileData) => fileData.loadResult === "success"
   ).length;
 
@@ -188,6 +128,7 @@ export const AddCustomRules: React.FunctionComponent = () => {
           variant="danger"
           isInline
           title={error}
+          actionClose={<AlertActionCloseButton onClose={() => setError("")} />}
         />
       )}
       <MultipleFileUpload
@@ -195,8 +136,6 @@ export const AddCustomRules: React.FunctionComponent = () => {
         dropzoneProps={{
           accept: ".windup.xml",
           onDropRejected: handleDropRejected,
-
-          // onDrop:
         }}
       >
         <MultipleFileUploadMain
@@ -205,18 +144,16 @@ export const AddCustomRules: React.FunctionComponent = () => {
           titleTextSeparator="or"
           infoText="Accepted file types: XML with '.windup.xml' suffix."
         />
-        {customRulesFiles.length && (
+        {currentFiles.length && (
           <MultipleFileUploadStatus
-            statusToggleText={`${successfullyReadFileCount} of ${customRulesFiles.length} files uploaded`}
-            statusToggleIcon={statusIcon}
+            statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
+            statusToggleIcon={getStatusIcon()}
           >
-            {customRulesFiles.map((file) => (
+            {currentFiles.map((file, i) => (
               <MultipleFileUploadStatusItem
-                file={file}
-                key={file.name}
-                onClearClick={() => removeFiles([file.name])}
-                onReadSuccess={handleReadSuccess}
-                onReadFail={handleReadFail}
+                file={file.file}
+                key={file.fileName}
+                onClearClick={() => setCurrentFiles(currentFiles.splice(i, 1))}
                 onReadStarted={() => setIsLoading(true)}
                 onReadFinished={() => setIsLoading(false)}
               />
