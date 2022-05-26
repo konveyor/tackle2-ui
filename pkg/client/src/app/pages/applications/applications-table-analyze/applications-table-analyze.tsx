@@ -487,14 +487,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
               endToolbarItems={
                 <ToolbarItem>{`${selectedRows.length} selected`}</ToolbarItem>
               }
-              beginToolbarItems={<></>}
-              pagination={
-                <Pagination
-                  isCompact
-                  {...paginationProps}
-                  widgetId="vms-table-pagination-top"
-                />
-              }
             />
           }
           toolbarBulkSelector={
