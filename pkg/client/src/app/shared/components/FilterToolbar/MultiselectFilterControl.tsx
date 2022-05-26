@@ -81,13 +81,15 @@ export const MultiselectFilterControl = <T,>({
       <SelectOption {...optionProps} key={optionProps.key} />
     ));
 
-  const onOptionsFilter: SelectProps["onFilter"] = (_event, textInput) => {
-    return renderSelectOptions(
-      category.selectOptions.filter((optionProps) =>
-        optionProps.key.toLowerCase().includes(textInput.toLowerCase())
-      )
+  const onOptionsFilter: SelectProps["onFilter"] = (_event, textInput) =>
+    renderSelectOptions(
+      category.selectOptions.filter((optionProps) => {
+        // Note: This is filtering on the `key`, not the `value`, since the `value` isn't necessarily a string.
+        // So that assumes your key is an actual string representation of what's shown on screen (usually matching the value)
+        // which could become a problem maybe?
+        return optionProps.key.toLowerCase().includes(textInput.toLowerCase());
+      })
     );
-  };
 
   return (
     <ToolbarFilter
