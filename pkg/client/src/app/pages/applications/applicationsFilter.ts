@@ -50,7 +50,11 @@ export const useApplicationsFilterValues = (
       key: "businessService",
       title: "Business service",
       type: FilterType.multiselect,
-      selectOptions: [], // TODO
+      selectOptions: dedupeFunction(
+        applications
+          .map((app) => app.businessService?.name)
+          .map((name) => ({ key: name, value: name }))
+      ),
       placeholderText: "Filter by business service...",
       getItemValue: (item) => {
         return item.businessService?.name || "";
@@ -60,7 +64,7 @@ export const useApplicationsFilterValues = (
       key: "identities",
       title: "Credential type",
       placeholderText: "Filter by credential type...",
-      type: FilterType.select,
+      type: FilterType.multiselect,
       selectOptions: [
         { key: "source", value: "Source" },
         { key: "maven", value: "Maven" },
