@@ -14,7 +14,7 @@ export enum ApplicationTableType {
   Assessment = "assessment",
   Analysis = "analysis",
 }
-export const getApplicationsFilterValues = (
+export const useApplicationsFilterValues = (
   applications: Application[],
   tableType: string
 ) => {
@@ -49,7 +49,8 @@ export const getApplicationsFilterValues = (
     {
       key: "businessService",
       title: "Business service",
-      type: FilterType.search,
+      type: FilterType.multiselect,
+      selectOptions: [], // TODO
       placeholderText: "Filter by business service...",
       getItemValue: (item) => {
         return item.businessService?.name || "";
