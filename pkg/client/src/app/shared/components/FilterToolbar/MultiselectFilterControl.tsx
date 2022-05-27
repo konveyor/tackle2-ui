@@ -5,9 +5,13 @@ import {
   SelectOption,
   SelectOptionObject,
   SelectVariant,
+  SelectProps,
 } from "@patternfly/react-core";
 import { IFilterControlProps } from "./FilterControl";
-import { IMultiselectFilterCategory } from "./FilterToolbar";
+import {
+  IMultiselectFilterCategory,
+  OptionPropsWithKey,
+} from "./FilterToolbar";
 
 export interface IMultiselectFilterControlProps<T>
   extends IFilterControlProps<T> {
@@ -72,6 +76,21 @@ export const MultiselectFilterControl = <T,>({
     : null;
   const chips = selections ? selections.map(getChipFromOptionValue) : [];
 
+  const renderSelectOptions = (options: OptionPropsWithKey[]) =>
+    options.map((optionProps) => (
+      <SelectOption {...optionProps} key={optionProps.key} />
+    ));
+
+  const onOptionsFilter: SelectProps["onFilter"] = (_event, textInput) =>
+    renderSelectOptions(
+      category.selectOptions.filter((optionProps) => {
+        // Note: This is filtering on the `key`, not the `value`, since the `value` isn't necessarily a string.
+        // So that assumes your key is an actual string representation of what's shown on screen (usually matching the value)
+        // which could become a problem maybe?
+        return optionProps.key.toLowerCase().includes(textInput.toLowerCase());
+      })
+    );
+
   return (
     <ToolbarFilter
       chips={chips}
@@ -80,22 +99,19 @@ export const MultiselectFilterControl = <T,>({
       showToolbarItem={showToolbarItem}
     >
       <Select
-        chipGroupProps={{
-          numChips: 1,
-          expandedText: "Hide",
-          collapsedText: "Show ${remaining}",
-        }}
-        variant={SelectVariant.typeaheadMulti}
+        variant={SelectVariant.checkbox}
         aria-label={category.title}
         onToggle={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
         selections={selections || []}
         onSelect={(_, value) => onFilterSelect(value)}
         isOpen={isFilterDropdownOpen}
-        placeholderText="Any"
+        placeholderText={`Filter by ${category.title
+          .charAt(0)
+          .toLowerCase()}${category.title.slice(1)}`}
+        hasInlineFilter
+        onFilter={onOptionsFilter}
       >
-        {category.selectOptions.map((optionProps) => (
-          <SelectOption {...optionProps} key={optionProps.key} />
-        ))}
+        {renderSelectOptions(category.selectOptions)}
       </Select>
     </ToolbarFilter>
   );

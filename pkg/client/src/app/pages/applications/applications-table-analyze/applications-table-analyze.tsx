@@ -69,7 +69,7 @@ import {
 } from "@app/queries/applications";
 import {
   ApplicationTableType,
-  getApplicationsFilterValues,
+  useApplicationsFilterValues,
 } from "../applicationsFilter";
 import { isAuthRequired } from "@app/Constants";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
@@ -114,7 +114,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     toggleRowExpanded,
     expandAll,
     areAllExpanded,
-  } = getApplicationsFilterValues(applications, ApplicationTableType.Analysis);
+  } = useApplicationsFilterValues(applications, ApplicationTableType.Analysis);
 
   const { tasks } = useFetchTasks();
 
@@ -486,14 +486,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
               setFilterValues={setFilterValues}
               endToolbarItems={
                 <ToolbarItem>{`${selectedRows.length} selected`}</ToolbarItem>
-              }
-              beginToolbarItems={<></>}
-              pagination={
-                <Pagination
-                  isCompact
-                  {...paginationProps}
-                  widgetId="vms-table-pagination-top"
-                />
               }
             />
           }
