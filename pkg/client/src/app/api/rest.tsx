@@ -57,7 +57,7 @@ export const TASKGROUPS = HUB + "/taskgroups";
 export const VOLUMES = HUB + "/volumes";
 
 // PATHFINDER
-export const PATHFINDER = "/pathfinder";
+export const PATHFINDER = "/hub/pathfinder";
 export const ASSESSMENTS = PATHFINDER + "/assessments";
 
 const jsonHeaders = { headers: { Accept: "application/json" } };
