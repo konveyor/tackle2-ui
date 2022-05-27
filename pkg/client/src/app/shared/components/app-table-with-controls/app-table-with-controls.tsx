@@ -49,11 +49,7 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
       >
         <ToolbarContent>
           {toolbarBulkSelector}
-          {toolbarToggle && (
-            <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
-              {toolbarToggle}
-            </ToolbarToggleGroup>
-          )}
+          {toolbarToggle ? toolbarToggle : null}
           {toolbarActions}
           {!withoutTopPagination && (
             <ToolbarItem

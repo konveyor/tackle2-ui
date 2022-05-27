@@ -78,7 +78,7 @@ import {
 } from "@app/queries/applications";
 import {
   ApplicationTableType,
-  getApplicationsFilterValues,
+  useApplicationsFilterValues,
 } from "../applicationsFilter";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
 import { reviewsQueryKey, useFetchReviews } from "@app/queries/reviews";
@@ -154,7 +154,7 @@ export const ApplicationsTable: React.FC = () => {
     toggleRowExpanded,
     expandAll,
     areAllExpanded,
-  } = getApplicationsFilterValues(
+  } = useApplicationsFilterValues(
     applications,
     ApplicationTableType.Assessment
   );

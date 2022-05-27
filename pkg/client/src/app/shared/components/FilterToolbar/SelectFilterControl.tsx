@@ -41,9 +41,6 @@ export const SelectFilterControl = <T,>({
 
   const onFilterSelect = (value: string | SelectOptionObject) => {
     const optionKey = getOptionKeyFromOptionValue(value);
-    // Currently this implements single-select, multiple-select is also a design option.
-    // If we need multi-select filters in the future we can add that support here.
-    // https://www.patternfly.org/v4/design-guidelines/usage-and-behavior/filters#attribute-value-textbox-filters
     setFilterValue(optionKey ? [optionKey] : null);
     setIsFilterDropdownOpen(false);
   };

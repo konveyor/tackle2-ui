@@ -14,7 +14,7 @@ export enum ApplicationTableType {
   Assessment = "assessment",
   Analysis = "analysis",
 }
-export const getApplicationsFilterValues = (
+export const useApplicationsFilterValues = (
   applications: Application[],
   tableType: string
 ) => {
@@ -49,7 +49,12 @@ export const getApplicationsFilterValues = (
     {
       key: "businessService",
       title: "Business service",
-      type: FilterType.search,
+      type: FilterType.multiselect,
+      selectOptions: dedupeFunction(
+        applications
+          .map((app) => app.businessService?.name)
+          .map((name) => ({ key: name, value: name }))
+      ),
       placeholderText: "Filter by business service...",
       getItemValue: (item) => {
         return item.businessService?.name || "";
@@ -59,7 +64,7 @@ export const getApplicationsFilterValues = (
       key: "identities",
       title: "Credential type",
       placeholderText: "Filter by credential type...",
-      type: FilterType.select,
+      type: FilterType.multiselect,
       selectOptions: [
         { key: "source", value: "Source" },
         { key: "maven", value: "Maven" },

@@ -130,7 +130,9 @@ export const FilterToolbar = <T,>({
           />
         ))}
       </ToolbarToggleGroup>
-      <ToolbarItem variant="pagination">{pagination}</ToolbarItem>
+      {pagination ? (
+        <ToolbarItem variant="pagination">{pagination}</ToolbarItem>
+      ) : null}
     </>
   );
 };
