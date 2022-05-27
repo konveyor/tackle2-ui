@@ -207,7 +207,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     );
 
   const isModeValid = (): boolean => {
-    if (mode === "binary-upload") return !isMutating && artifact !== "";
+    if (mode === "binary-upload") return true;
     if (mode === "binary") return areApplicationsBinaryEnabled();
     else if (mode === "source-code-deps")
       return areApplicationsSourceCodeDepsEnabled();
