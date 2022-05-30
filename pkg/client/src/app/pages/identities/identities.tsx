@@ -235,7 +235,9 @@ export const Identities: React.FunctionComponent = () => {
           ),
         },
         {
-          title: <TableText wrapModifier="truncate">John Doe</TableText>,
+          title: (
+            <TableText wrapModifier="truncate">{item.createUser}</TableText>
+          ),
         },
         {
           title: (
