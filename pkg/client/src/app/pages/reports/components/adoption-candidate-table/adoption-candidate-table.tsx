@@ -286,6 +286,7 @@ export const AdoptionCandidateTable: React.FunctionComponent<
   return (
     <AppTableWithControls
       paginationProps={paginationProps}
+      paginationIdPrefix="adoption-candidate"
       variant={TableVariant.compact}
       count={allApplications.length}
       sortBy={sortBy}

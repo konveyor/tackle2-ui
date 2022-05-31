@@ -319,6 +319,7 @@ export const Stakeholders: React.FC = () => {
       >
         <AppTableWithControls
           paginationProps={paginationProps}
+          paginationIdPrefix="stakeholders"
           count={stakeholders ? stakeholders.length : 0}
           sortBy={sortBy}
           onSort={onSort}
