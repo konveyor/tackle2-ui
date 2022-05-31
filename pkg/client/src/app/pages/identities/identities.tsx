@@ -115,6 +115,15 @@ export const Identities: React.FunctionComponent = () => {
         return item.kind || "";
       },
     },
+    {
+      key: "createdBy",
+      title: "Created By",
+      type: FilterType.search,
+      placeholderText: "Filter by created by User...",
+      getItemValue: (item) => {
+        return item.createUser || "";
+      },
+    },
   ];
 
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
@@ -235,7 +244,9 @@ export const Identities: React.FunctionComponent = () => {
           ),
         },
         {
-          title: <TableText wrapModifier="truncate">John Doe</TableText>,
+          title: (
+            <TableText wrapModifier="truncate">{item.createUser}</TableText>
+          ),
         },
         {
           title: (
