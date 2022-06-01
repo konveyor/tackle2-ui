@@ -88,17 +88,12 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   }, [httpProxy, httpsProxy]);
 
   const {
-    register,
     handleSubmit,
     formState: { errors, isSubmitting, isValidating, isValid, isDirty },
     getValues,
     setValue,
-    setError,
     control,
-    resetField,
-    watch,
     reset,
-    trigger,
   } = useForm<ProxyFormValues>({
     defaultValues: useMemo(() => {
       return {
@@ -418,7 +413,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
               if (httpProxy) {
                 onChange(!isTrueSet(values[IS_HTTPS_CHECKED]));
                 setIsHttpsProxy(!isHttpsProxy);
-                trigger();
               }
             }}
           />
