@@ -311,6 +311,7 @@ export const StakeholderGroups: React.FC = () => {
         <AppTableWithControls
           count={stakeholderGroups ? stakeholderGroups.length : 0}
           paginationProps={paginationProps}
+          paginationIdPrefix="stakeholder-groups"
           sortBy={sortBy}
           onSort={onSort}
           onCollapse={collapseRow}

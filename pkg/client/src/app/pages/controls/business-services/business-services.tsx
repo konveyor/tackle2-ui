@@ -262,6 +262,7 @@ export const BusinessServices: React.FC = () => {
         <AppTableWithControls
           count={businessServices ? businessServices.length : 0}
           paginationProps={paginationProps}
+          paginationIdPrefix="business-services"
           sortBy={sortBy}
           onSort={onSort}
           cells={columns}
