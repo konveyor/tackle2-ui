@@ -302,6 +302,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             withoutBottomPagination
             count={applications ? applications.length : 0}
             paginationProps={paginationProps}
+            paginationIdPrefix="bulk-copy-assessment-review"
             sortBy={sortBy}
             onSort={onSort}
             onSelect={selectRow}

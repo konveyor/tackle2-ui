@@ -208,6 +208,7 @@ export const IdentifiedRisksTable: React.FC<
   return (
     <AppTableWithControls
       paginationProps={paginationProps}
+      paginationIdPrefix="identified-risks"
       variant={TableVariant.compact}
       count={filteredItems.length}
       cells={columns}

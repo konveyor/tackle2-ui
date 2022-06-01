@@ -227,6 +227,7 @@ export const JobFunctions: React.FC = () => {
           fetchError={fetchError}
           toolbarClearAllFilters={handleOnClearAllFilters}
           paginationProps={paginationProps}
+          paginationIdPrefix="job-functions"
           toolbarToggle={
             <FilterToolbar<JobFunction>
               filterCategories={filterCategories}

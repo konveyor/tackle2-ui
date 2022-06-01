@@ -393,6 +393,7 @@ export const Tags: React.FC = () => {
       >
         <AppTableWithControls
           paginationProps={paginationProps}
+          paginationIdPrefix="tags"
           count={tagTypes ? tagTypes.length : 0}
           sortBy={sortBy}
           onSort={onSort}

@@ -6,10 +6,7 @@ import {
   ToolbarContent,
   ToolbarItem,
   ToolbarItemVariant,
-  ToolbarToggleGroup,
 } from "@patternfly/react-core";
-
-import { FilterIcon } from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 
 import { AppTable, IAppTableProps } from "../app-table/app-table";
 import { PaginationStateProps } from "@app/shared/hooks/usePaginationState";
@@ -24,6 +21,7 @@ export interface IAppTableWithControlsProps extends IAppTableProps {
   toolbarActions?: any;
   toolbarClearAllFilters?: () => void;
   paginationProps: PaginationStateProps;
+  paginationIdPrefix?: string;
 }
 
 export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
@@ -35,6 +33,7 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
   toolbarActions,
   toolbarClearAllFilters,
   paginationProps,
+  paginationIdPrefix,
   ...rest
 }) => {
   const { t } = useTranslation();
@@ -57,6 +56,7 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
               alignment={{ default: "alignRight" }}
             >
               <SimplePagination
+                idPrefix={paginationIdPrefix}
                 isTop={true}
                 paginationProps={paginationProps}
               />
@@ -66,7 +66,11 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
       </Toolbar>
       <AppTable {...rest} />
       {!withoutBottomPagination && (
-        <SimplePagination isTop={false} paginationProps={paginationProps} />
+        <SimplePagination
+          idPrefix={paginationIdPrefix}
+          isTop={false}
+          paginationProps={paginationProps}
+        />
       )}
     </div>
   );

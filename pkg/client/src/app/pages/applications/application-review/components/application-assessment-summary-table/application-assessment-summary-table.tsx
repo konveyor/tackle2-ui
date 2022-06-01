@@ -172,6 +172,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
       rows={rows}
       isLoading={false}
       paginationProps={paginationProps}
+      paginationIdPrefix="app-assessment-summary"
       toolbarClearAllFilters={handleOnClearAllFilters}
       toolbarToggle={
         <FilterToolbar<ITableItem>

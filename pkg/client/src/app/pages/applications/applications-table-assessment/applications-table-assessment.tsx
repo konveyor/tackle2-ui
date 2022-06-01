@@ -646,6 +646,7 @@ export const ApplicationsTable: React.FC = () => {
       >
         <AppTableWithControls
           paginationProps={paginationProps}
+          paginationIdPrefix="app-assessment"
           count={applications ? applications.length : 0}
           sortBy={sortBy}
           onSort={onSort}

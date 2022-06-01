@@ -404,6 +404,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           name="kind"
           render={({ field: { value, name } }) => (
             <SimpleSelect
+              toggleId="type-select-toggle"
               aria-label={name}
               value={value ? toOptionLike(value, kindOptions) : undefined}
               options={kindOptions}
@@ -434,6 +435,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               name="userCredentials"
               render={({ field: { value, name } }) => (
                 <SimpleSelect
+                  toggleId="user-credentials-select-toggle"
                   aria-label={name}
                   value={
                     value

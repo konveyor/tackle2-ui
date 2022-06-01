@@ -309,6 +309,7 @@ export const Identities: React.FunctionComponent = () => {
               />
             }
             paginationProps={paginationProps}
+            paginationIdPrefix="identities"
             toolbarToggle={
               <FilterToolbar<Identity>
                 filterCategories={filterCategories}

@@ -468,6 +468,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         <AppTableWithControls
           count={applications ? applications.length : 0}
           paginationProps={paginationProps}
+          paginationIdPrefix="app-analysis"
           sortBy={sortBy}
           onSort={onSort}
           onCollapse={collapseRow}
