@@ -321,6 +321,7 @@ export const ManageImports: React.FC = () => {
           <AppTableWithControls
             count={importSummaries ? importSummaries.length : 0}
             paginationProps={paginationProps}
+            paginationIdPrefix="manage-imports"
             sortBy={sortBy}
             onSort={onSort}
             cells={columns}
