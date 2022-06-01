@@ -74,7 +74,7 @@ const options: TransformationTargets[] = [
     label: "Jakarta EE 9",
     description:
       "A collection of rules to support migrating applications from Java EE 8 to Jakarta EE 9. The rules cover project dependencies, package renaming, updating XML Schema namespaces, the renaming of application configuration properties and bootstraping files.",
-    options: new Map([["jakartaee", "jakartaee"]]),
+    options: new Map([["jakarta-ee", "jakarta-ee"]]),
     iconSrc: migrationIcon,
   },
   {
