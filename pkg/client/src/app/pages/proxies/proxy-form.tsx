@@ -157,16 +157,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     reset(values);
   };
 
-  const onChangeProxyStatusComplete = (proxyType: string) => {
-    // if (proxyType === "http") {
-    //   setIsHttpProxy(!isHttpProxy);
-    // }
-
-    if (proxyType === "https") {
-      setIsHttpsProxy(!isHttpsProxy);
-    }
-  };
-
   const {
     mutate: submitProxy,
     putResult,
@@ -294,7 +284,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             className="proxy"
             label="HTTP proxy"
             aria-label="HTTP Proxy"
-            // isChecked={isTrueSet(values[IS_HTTP_CHECKED])}
             isChecked={isHttpProxy}
             onChange={() => {
               if (httpProxy) {
@@ -410,13 +399,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           )}
         </div>
       )}
-      {/* <Switch
-        id="httpsProxy"
-        label="HTTPS proxy"
-        aria-label="HTTPS Proxy"
-        isChecked={isHttpsProxy}
-        onChange={onChangeIsHttpsProxy}
-      /> */}
       <Controller
         control={control}
         name={IS_HTTPS_CHECKED}
