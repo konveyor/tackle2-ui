@@ -7,6 +7,8 @@ import {
   HTTPS_HOST,
   HTTPS_IDENTITY,
   HTTPS_PORT,
+  IS_HTTP_CHECKED,
+  IS_HTTPS_CHECKED,
 } from "./field-names";
 
 const REQUIRED_MESSAGE = "This field is required";
@@ -64,5 +66,7 @@ export default function validationSchema(
         ? yup.string().required(REQUIRED_MESSAGE).nullable()
         : yup.string().nullable()
     ),
+    [IS_HTTP_CHECKED]: yup.lazy(() => yup.string().required(REQUIRED_MESSAGE)),
+    [IS_HTTPS_CHECKED]: yup.lazy(() => yup.string().required(REQUIRED_MESSAGE)),
   });
 }
