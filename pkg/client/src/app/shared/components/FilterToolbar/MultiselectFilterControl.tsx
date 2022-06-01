@@ -87,7 +87,7 @@ export const MultiselectFilterControl = <T,>({
         // Note: This is filtering on the `key`, not the `value`, since the `value` isn't necessarily a string.
         // So that assumes your key is an actual string representation of what's shown on screen (usually matching the value)
         // which could become a problem maybe?
-        return optionProps.key.toLowerCase().includes(textInput.toLowerCase());
+        return optionProps?.key.toLowerCase().includes(textInput.toLowerCase());
       })
     );
 

@@ -127,6 +127,7 @@ export const useApplicationsFilterValues = (
         tagTypes
           ?.map((tagType) => tagType?.tags)
           .flat()
+          .filter((tag) => tag && tag.name)
           .map((tag) => ({ key: tag?.name, value: tag?.name }))
       ),
     },
