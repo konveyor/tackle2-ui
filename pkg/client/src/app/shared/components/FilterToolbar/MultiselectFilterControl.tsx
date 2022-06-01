@@ -101,6 +101,7 @@ export const MultiselectFilterControl = <T,>({
       <Select
         variant={SelectVariant.checkbox}
         aria-label={category.title}
+        toggleId={`${category.key}-filter-value-select`}
         onToggle={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
         selections={selections || []}
         onSelect={(_, value) => onFilterSelect(value)}

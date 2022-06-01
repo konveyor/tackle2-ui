@@ -67,6 +67,7 @@ export const SelectFilterControl = <T,>({
     >
       <Select
         aria-label={category.title}
+        toggleId={`${category.key}-filter-value-select`}
         onToggle={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
         selections={selections || []}
         onSelect={(_, value) => onFilterSelect(value)}
