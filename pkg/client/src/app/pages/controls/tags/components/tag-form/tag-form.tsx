@@ -15,7 +15,6 @@ import {
 } from "@patternfly/react-core";
 
 import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
-import { useFetchTagTypes } from "@app/shared/hooks";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createTag, updateTag } from "@app/api/rest";
@@ -31,8 +30,7 @@ import {
   toITagTypeDropdown,
   toITagTypeDropdownOptionWithValue,
 } from "@app/utils/model-utils";
-import { TagsQueryKey, useFetchTags } from "@app/queries/tags";
-import { useQueryClient } from "react-query";
+import { useFetchTags, useFetchTagTypes } from "@app/queries/tags";
 
 export interface FormValues {
   name: string;
@@ -55,16 +53,17 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
     tagTypes,
     isFetching: isFetchingTagTypes,
     fetchError: fetchErrorTagTypes,
-    fetchTagTypes,
   } = useFetchTagTypes();
 
-  useEffect(() => {
-    fetchTagTypes();
-  }, [fetchTagTypes]);
-
   const tagTypeInitialValue: ITagTypeDropdown | null = useMemo(() => {
-    return tag && tag.tagType ? toITagTypeDropdown(tag.tagType) : null;
-  }, [tag]);
+    const matchingTagType = tagTypes
+      .filter((tagType) => tagType.tags)
+      .find((tagType) => {
+        const tagValues = Object.values(tagType.tags || []);
+        return tagValues.some((tagVal) => tagVal.name === tag?.name);
+      });
+    return matchingTagType ? toITagTypeDropdown(matchingTagType) : null;
+  }, [tag, tagTypes]);
 
   const initialValues: FormValues = {
     name: tag?.name || "",
