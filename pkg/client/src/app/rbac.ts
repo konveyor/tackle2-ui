@@ -103,9 +103,9 @@ export const applicationsWriteScopes = [
   "applications:delete",
 ];
 
-export const pathfinderWriteScopes = [
+export const modifiedPathfinderWriteScopes = [
   "assessments:put",
-  "assessments:post",
+  "assessments:patch",
   "assessments:delete",
 ];
 

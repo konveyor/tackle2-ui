@@ -66,7 +66,7 @@ import {
   applicationsWriteScopes,
   dependenciesWriteScopes,
   importsWriteScopes,
-  pathfinderWriteScopes,
+  modifiedPathfinderWriteScopes,
   RBAC,
   RBAC_TYPE,
 } from "@app/rbac";
@@ -700,7 +700,7 @@ export const ApplicationsTable: React.FC = () => {
                   </RBAC>
                 </ToolbarItem>
                 <RBAC
-                  allowedPermissions={pathfinderWriteScopes}
+                  allowedPermissions={modifiedPathfinderWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
                 >
                   <ToolbarItem>
@@ -720,7 +720,7 @@ export const ApplicationsTable: React.FC = () => {
                   </ToolbarItem>
                 </RBAC>
                 <RBAC
-                  allowedPermissions={pathfinderWriteScopes}
+                  allowedPermissions={modifiedPathfinderWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
                 >
                   <ToolbarItem>
