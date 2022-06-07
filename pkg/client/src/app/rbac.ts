@@ -14,12 +14,12 @@ export const RBAC = ({
   if (isAuthRequired) {
     const token = keycloak.tokenParsed || undefined;
     if (rbacType === RBAC_TYPE.Role) {
-      let userRoles = token?.realm_access?.roles,
-        access = userRoles && checkAccess(userRoles, allowedPermissions);
+      let userRoles = token?.realm_access?.roles || [],
+        access = checkAccess(userRoles, allowedPermissions);
       return access && children;
     } else if (rbacType === RBAC_TYPE.Scope) {
-      const userScopes: string[] = token?.scope.split(" ");
-      const access = userScopes && checkAccess(userScopes, allowedPermissions);
+      const userScopes: string[] = token?.scope.split(" ") || [];
+      const access = checkAccess(userScopes, allowedPermissions);
 
       return access && children;
     }
