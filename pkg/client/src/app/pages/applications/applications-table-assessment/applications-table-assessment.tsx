@@ -611,11 +611,9 @@ export const ApplicationsTable: React.FC = () => {
     return assessment === undefined || assessment.status !== "COMPLETE";
   };
 
-  const userScopes: string[] = token?.scope.split(" "),
-    importWriteAccess =
-      userScopes && checkAccess(userScopes, importsWriteScopes),
-    applicationWriteAccess =
-      userScopes && checkAccess(userScopes, applicationsWriteScopes);
+  const userScopes: string[] = token?.scope.split(" ") || [],
+    importWriteAccess = checkAccess(userScopes, importsWriteScopes),
+    applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes);
 
   const importDropdownItems = importWriteAccess
     ? [
