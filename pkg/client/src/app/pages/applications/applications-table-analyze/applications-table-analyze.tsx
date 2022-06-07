@@ -71,7 +71,6 @@ import {
   ApplicationTableType,
   useApplicationsFilterValues,
 } from "../applicationsFilter";
-import { isAuthRequired } from "@app/Constants";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 
 const ENTITY_FIELD = "entity";
@@ -309,14 +308,12 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     }
 
     const actions: (IAction | ISeparator)[] = [];
-    const userScopes: string[] = token?.scope.split(" "),
-      applicationWriteAccess =
-        userScopes && checkAccess(userScopes, applicationsWriteScopes),
-      tasksReadAccess = userScopes && checkAccess(userScopes, tasksReadScopes),
-      tasksWriteAccess =
-        userScopes && checkAccess(userScopes, tasksWriteScopes);
+    const userScopes: string[] = token?.scope.split(" ") || [],
+      applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes),
+      tasksReadAccess = checkAccess(userScopes, tasksReadScopes),
+      tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes);
 
-    if (applicationWriteAccess || !isAuthRequired) {
+    if (applicationWriteAccess) {
       actions.push(
         {
           title: "Manage credentials",
@@ -329,7 +326,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       );
     }
 
-    if (tasksReadAccess || !isAuthRequired) {
+    if (tasksReadAccess) {
       actions.push({
         title: t("actions.analysisDetails"),
         isDisabled: !getTask(row),
@@ -340,7 +337,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       });
     }
 
-    if (tasksWriteAccess || !isAuthRequired) {
+    if (tasksWriteAccess) {
       actions.push({
         title: "Cancel analysis",
         isDisabled: !isTaskCancellable(row),
@@ -403,11 +400,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     closeCredentialsModal();
   };
 
-  const userScopes: string[] = token?.scope.split(" "),
-    importWriteAccess =
-      userScopes && checkAccess(userScopes, importsWriteScopes),
-    applicationWriteAccess =
-      userScopes && checkAccess(userScopes, applicationsWriteScopes);
+  const userScopes: string[] = token?.scope.split(" ") || [],
+    importWriteAccess = checkAccess(userScopes, importsWriteScopes),
+    applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes);
 
   const importDropdownItems = importWriteAccess
     ? [

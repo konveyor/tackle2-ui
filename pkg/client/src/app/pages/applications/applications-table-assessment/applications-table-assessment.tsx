@@ -82,7 +82,6 @@ import {
 } from "../applicationsFilter";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
 import { reviewsQueryKey, useFetchReviews } from "@app/queries/reviews";
-import { isAuthRequired } from "@app/Constants";
 import {
   assessmentsQueryKey,
   useFetchApplicationAssessments,
@@ -405,12 +404,13 @@ export const ApplicationsTable: React.FC = () => {
         },
       });
     }
-    const userScopes: string[] = token?.scope.split(" "),
-      dependenciesWriteAccess =
-        userScopes && checkAccess(userScopes, dependenciesWriteScopes),
-      applicationWriteAccess =
-        userScopes && checkAccess(userScopes, applicationsWriteScopes);
-    if (applicationWriteAccess || !isAuthRequired) {
+    const userScopes: string[] = token?.scope.split(" ") || [],
+      dependenciesWriteAccess = checkAccess(
+        userScopes,
+        dependenciesWriteScopes
+      ),
+      applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes);
+    if (applicationWriteAccess) {
       actions.push({
         title: t("actions.delete"),
         onClick: (
@@ -424,7 +424,7 @@ export const ApplicationsTable: React.FC = () => {
       });
     }
 
-    if (dependenciesWriteAccess || !isAuthRequired) {
+    if (dependenciesWriteAccess) {
       actions.push({
         title: t("actions.manageDependencies"),
         onClick: (

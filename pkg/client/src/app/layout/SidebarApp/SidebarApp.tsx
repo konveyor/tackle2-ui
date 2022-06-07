@@ -24,12 +24,11 @@ import {
 } from "@app/context/LocalStorageContext";
 
 import "./SidebarApp.css";
-import { isAuthRequired } from "@app/Constants";
 
 export const SidebarApp: React.FC = () => {
   const token = keycloak.tokenParsed || undefined;
-  const userRoles = token?.realm_access?.roles,
-    adminAccess = userRoles && checkAccess(userRoles, ["tackle-admin"]);
+  const userRoles = token?.realm_access?.roles || [],
+    adminAccess = checkAccess(userRoles, ["tackle-admin"]);
 
   const { t } = useTranslation();
   const { search } = useLocation();
@@ -51,7 +50,7 @@ export const SidebarApp: React.FC = () => {
       value="Developer"
       isPlaceholder
     />,
-    ...(adminAccess || !isAuthRequired
+    ...(adminAccess
       ? [
           <SelectOption
             key="admin"

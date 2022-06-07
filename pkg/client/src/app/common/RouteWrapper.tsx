@@ -18,13 +18,13 @@ export const RouteWrapper = ({
   exact,
 }: IRouteWrapperProps) => {
   const token = keycloak.tokenParsed || undefined;
-  let userRoles = token?.realm_access?.roles,
-    access = userRoles && checkAccess(userRoles, roles);
+  let userRoles = token?.realm_access?.roles || [],
+    access = checkAccess(userRoles, roles);
 
   if (!token && isAuthRequired) {
     //TODO: Handle token expiry & auto logout
     return <Redirect to="/login" />;
-  } else if (token && !access && isAuthRequired) {
+  } else if (token && !access) {
     return <Redirect to="/applications" />;
   }
 
