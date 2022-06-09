@@ -362,10 +362,20 @@ export const ApplicationsTable: React.FC = () => {
       return [];
     }
 
-    const actions: (IAction | ISeparator)[] = [];
-
     const applicationAssessment = getApplicationAssessment(row.id!);
-    if (applicationAssessment?.status === "COMPLETE") {
+
+    const userScopes: string[] = token?.scope.split(" ") || [],
+      dependenciesWriteAccess = checkAccess(
+        userScopes,
+        dependenciesWriteScopes
+      ),
+      applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes);
+
+    const actions: (IAction | ISeparator)[] = [];
+    if (
+      applicationAssessment?.status === "COMPLETE" &&
+      checkAccess(userScopes, ["assessments:patch"])
+    ) {
       actions.push({
         title: t("actions.copyAssessment"),
         onClick: (
@@ -378,7 +388,10 @@ export const ApplicationsTable: React.FC = () => {
         },
       });
     }
-    if (row.review) {
+    if (
+      row.review &&
+      checkAccess(userScopes, ["assessments:patch", "reviews:post"])
+    ) {
       actions.push({
         title: t("actions.copyAssessmentAndReview"),
         onClick: (
@@ -391,7 +404,10 @@ export const ApplicationsTable: React.FC = () => {
         },
       });
     }
-    if (applicationAssessment) {
+    if (
+      applicationAssessment &&
+      checkAccess(userScopes, ["assessments:delete"])
+    ) {
       actions.push({
         title: t("actions.discardAssessment"),
         onClick: (
@@ -404,12 +420,6 @@ export const ApplicationsTable: React.FC = () => {
         },
       });
     }
-    const userScopes: string[] = token?.scope.split(" ") || [],
-      dependenciesWriteAccess = checkAccess(
-        userScopes,
-        dependenciesWriteScopes
-      ),
-      applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes);
     if (applicationWriteAccess) {
       actions.push({
         title: t("actions.delete"),
