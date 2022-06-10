@@ -27,6 +27,7 @@
         "downloadCsvTemplate": "Descargar plantilla CSV",
         "edit": "Editar",
         "export": "Exportar",
+        "filterBy": "Filtrar por {{what}}",
         "import": "Importar",
         "logout": "Cerrar sesión",
         "manageAccount": "Administrar cuenta",
