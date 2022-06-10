@@ -189,9 +189,12 @@ export const AdoptionCandidateTable: React.FunctionComponent<
   const filterCategories: FilterCategory<TableRowData>[] = [
     {
       key: "name",
-      title: "Name",
+      title: t("terms.name"),
       type: FilterType.search,
-      placeholderText: "Filter by name...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.name").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item?.application.name || "";
       },
