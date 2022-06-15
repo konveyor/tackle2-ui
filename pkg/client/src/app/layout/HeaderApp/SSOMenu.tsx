@@ -8,20 +8,13 @@ import {
   DropdownToggle,
   PageHeaderToolsItem,
 } from "@patternfly/react-core";
-import {
-  LocalStorageKey,
-  useLocalStorageContext,
-} from "@app/context/LocalStorageContext";
+import { LocalStorageKey } from "@app/context/LocalStorageContext";
 
 export const SSOMenu: React.FC = () => {
   const { t } = useTranslation();
 
   const { keycloak } = useKeycloak();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const [selectedPersona, setSelectedPersona] = useLocalStorageContext(
-    LocalStorageKey.selectedPersona
-  );
 
   const onDropdownSelect = () => {
     setIsDropdownOpen((current) => !current);
@@ -60,9 +53,12 @@ export const SSOMenu: React.FC = () => {
               <DropdownItem
                 key="sso_logout"
                 onClick={() => {
-                  keycloak.logout().then(() => {
-                    setSelectedPersona("");
-                  });
+                  // Clears selected persona from storage without updating it in React state so we don't re-render the persona selector while logging out.
+                  // We have to clear it before logout because the redirect can happen before the logout promise resolves.
+                  window.localStorage.removeItem(
+                    LocalStorageKey.selectedPersona
+                  );
+                  keycloak.logout();
                 }}
               >
                 {t("actions.logout")}

@@ -66,7 +66,7 @@ import {
   applicationsWriteScopes,
   dependenciesWriteScopes,
   importsWriteScopes,
-  pathfinderWriteScopes,
+  modifiedPathfinderWriteScopes,
   RBAC,
   RBAC_TYPE,
 } from "@app/rbac";
@@ -82,7 +82,6 @@ import {
 } from "../applicationsFilter";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
 import { reviewsQueryKey, useFetchReviews } from "@app/queries/reviews";
-import { isAuthRequired } from "@app/Constants";
 import {
   assessmentsQueryKey,
   useFetchApplicationAssessments,
@@ -363,10 +362,20 @@ export const ApplicationsTable: React.FC = () => {
       return [];
     }
 
-    const actions: (IAction | ISeparator)[] = [];
-
     const applicationAssessment = getApplicationAssessment(row.id!);
-    if (applicationAssessment?.status === "COMPLETE") {
+
+    const userScopes: string[] = token?.scope.split(" ") || [],
+      dependenciesWriteAccess = checkAccess(
+        userScopes,
+        dependenciesWriteScopes
+      ),
+      applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes);
+
+    const actions: (IAction | ISeparator)[] = [];
+    if (
+      applicationAssessment?.status === "COMPLETE" &&
+      checkAccess(userScopes, ["assessments:patch"])
+    ) {
       actions.push({
         title: t("actions.copyAssessment"),
         onClick: (
@@ -379,7 +388,10 @@ export const ApplicationsTable: React.FC = () => {
         },
       });
     }
-    if (row.review) {
+    if (
+      row.review &&
+      checkAccess(userScopes, ["assessments:patch", "reviews:post"])
+    ) {
       actions.push({
         title: t("actions.copyAssessmentAndReview"),
         onClick: (
@@ -392,7 +404,10 @@ export const ApplicationsTable: React.FC = () => {
         },
       });
     }
-    if (applicationAssessment) {
+    if (
+      applicationAssessment &&
+      checkAccess(userScopes, ["assessments:delete"])
+    ) {
       actions.push({
         title: t("actions.discardAssessment"),
         onClick: (
@@ -405,12 +420,7 @@ export const ApplicationsTable: React.FC = () => {
         },
       });
     }
-    const userScopes: string[] = token?.scope.split(" "),
-      dependenciesWriteAccess =
-        userScopes && checkAccess(userScopes, dependenciesWriteScopes),
-      applicationWriteAccess =
-        userScopes && checkAccess(userScopes, applicationsWriteScopes);
-    if (applicationWriteAccess || !isAuthRequired) {
+    if (applicationWriteAccess) {
       actions.push({
         title: t("actions.delete"),
         onClick: (
@@ -424,7 +434,7 @@ export const ApplicationsTable: React.FC = () => {
       });
     }
 
-    if (dependenciesWriteAccess || !isAuthRequired) {
+    if (dependenciesWriteAccess) {
       actions.push({
         title: t("actions.manageDependencies"),
         onClick: (
@@ -611,11 +621,9 @@ export const ApplicationsTable: React.FC = () => {
     return assessment === undefined || assessment.status !== "COMPLETE";
   };
 
-  const userScopes: string[] = token?.scope.split(" "),
-    importWriteAccess =
-      userScopes && checkAccess(userScopes, importsWriteScopes),
-    applicationWriteAccess =
-      userScopes && checkAccess(userScopes, applicationsWriteScopes);
+  const userScopes: string[] = token?.scope.split(" ") || [],
+    importWriteAccess = checkAccess(userScopes, importsWriteScopes),
+    applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes);
 
   const importDropdownItems = importWriteAccess
     ? [
@@ -700,7 +708,7 @@ export const ApplicationsTable: React.FC = () => {
                   </RBAC>
                 </ToolbarItem>
                 <RBAC
-                  allowedPermissions={pathfinderWriteScopes}
+                  allowedPermissions={modifiedPathfinderWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
                 >
                   <ToolbarItem>
@@ -720,7 +728,7 @@ export const ApplicationsTable: React.FC = () => {
                   </ToolbarItem>
                 </RBAC>
                 <RBAC
-                  allowedPermissions={pathfinderWriteScopes}
+                  allowedPermissions={modifiedPathfinderWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
                 >
                   <ToolbarItem>
