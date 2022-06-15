@@ -25,6 +25,8 @@ import {
   HTTP_HOST,
   HTTP_IDENTITY,
   HTTP_PORT,
+  IS_HTTPS_CHECKED,
+  IS_HTTP_CHECKED,
 } from "./field-names";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Proxy } from "@app/api/models";
@@ -37,16 +39,17 @@ import {
 } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useFetchIdentities } from "@app/queries/identities";
-import { triggerAsyncId } from "async_hooks";
 
 export interface ProxyFormValues {
-  httpHost: string;
-  httpsHost: string;
-  httpIdentity: string | null;
-  httpsIdentity: string | null;
-  httpPort: any;
-  httpsPort: any;
-  excluded: string;
+  [IS_HTTP_CHECKED]: string;
+  [IS_HTTPS_CHECKED]: string;
+  [HTTP_HOST]: string;
+  [HTTPS_HOST]: string;
+  [HTTP_IDENTITY]: string | null;
+  [HTTPS_IDENTITY]: string | null;
+  [HTTP_PORT]: any;
+  [HTTPS_PORT]: any;
+  [EXCLUDED]: string;
 }
 
 export interface ProxyFormProps {
@@ -85,20 +88,17 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   }, [httpProxy, httpsProxy]);
 
   const {
-    register,
     handleSubmit,
     formState: { errors, isSubmitting, isValidating, isValid, isDirty },
     getValues,
     setValue,
-    setError,
     control,
-    resetField,
-    watch,
     reset,
-    trigger,
   } = useForm<ProxyFormValues>({
     defaultValues: useMemo(() => {
       return {
+        [IS_HTTP_CHECKED]: httpProxy?.enabled === true ? "true" : "false",
+        [IS_HTTPS_CHECKED]: httpsProxy?.enabled === true ? "true" : "false",
         [HTTP_HOST]: httpProxy?.host,
         [HTTP_PORT]: httpProxy?.port || 8080,
         [HTTP_IDENTITY]: httpProxy?.identity?.name || null,
@@ -120,9 +120,12 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     ),
     mode: "onChange",
   });
+
   useEffect(() => {
     reset({
-      [HTTP_HOST]: httpProxy?.host,
+      [IS_HTTP_CHECKED]: httpProxy?.enabled === true ? "true" : "false",
+      [IS_HTTPS_CHECKED]: httpsProxy?.enabled === true ? "true" : "false",
+      [HTTP_HOST]: httpProxy?.host || "",
       [HTTP_PORT]: httpProxy?.port || 8080,
       [HTTP_IDENTITY]: httpProxy?.identity?.name || null,
       [HTTPS_HOST]: httpsProxy?.host || "",
@@ -133,6 +136,8 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   }, [httpProxy, httpsProxy]);
 
   const values = getValues();
+
+  const isTrueSet = (value: string) => value === "true";
 
   useEffect(() => {
     if (httpProxy) {
@@ -147,68 +152,12 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     reset(values);
   };
 
-  const onChangeProxyStatusComplete = (proxyType: string) => {
-    if (proxyType === "http") {
-      setIsHttpProxy(!isHttpProxy);
-    }
-
-    if (proxyType === "https") {
-      setIsHttpsProxy(!isHttpsProxy);
-    }
-  };
-
   const {
     mutate: submitProxy,
     putResult,
     isLoading,
     error,
   } = useUpdateProxyMutation(onProxySubmitComplete);
-
-  const { mutate: changeProxyStatus } = useUpdateProxyMutation(
-    onChangeProxyStatusComplete
-  );
-
-  const onChangeIsHttpProxy = () => {
-    if (httpProxy) {
-      const httpPayload = {
-        host: values.httpHost,
-        kind: "http",
-        port: values.httpPort || 8080,
-        id: httpProxy?.id,
-        enabled: !isHttpProxy,
-        excluded: httpProxy.excluded,
-      };
-
-      if (httpProxy) {
-        changeProxyStatus({
-          ...httpPayload,
-        });
-        setIsHttpProxy(!isHttpProxy);
-      }
-    }
-    trigger();
-  };
-
-  const onChangeIsHttpsProxy = () => {
-    if (httpsProxy) {
-      const httpsPayload = {
-        host: values.httpsHost,
-        kind: "https",
-        port: values.httpsPort || 8080,
-        id: httpsProxy.id,
-        enabled: !isHttpsProxy,
-        excluded: httpsProxy.excluded,
-      };
-
-      if (httpsProxy) {
-        changeProxyStatus({
-          ...httpsPayload,
-        });
-        setIsHttpsProxy(!isHttpsProxy);
-      }
-    }
-    trigger();
-  };
   const onChangeIsHttpsIdentityRequired = () => {
     if (isHttpsIdentityRequired) {
       let result = null;
@@ -229,11 +178,12 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     setIsHttpIdentityRequired(!isHttpIdentityRequired);
   };
 
-  const httpValuesHaveUpdate = (values: FieldValues, httpProxy?: Proxy) => {
+  const httpValuesHaveUpdate = (values: ProxyFormValues, httpProxy?: Proxy) => {
     if (httpProxy?.host === "" && isHttpProxy) {
       return true;
     } else {
       return (
+        isTrueSet(values[IS_HTTP_CHECKED]) !== httpProxy?.enabled ||
         values.excluded !== httpProxy?.excluded.join() ||
         values.httpHost !== httpProxy?.host ||
         (values.httpIdentity !== null &&
@@ -251,6 +201,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     }
 
     return (
+      isTrueSet(values[IS_HTTPS_CHECKED]) !== httpsProxy?.enabled ||
       values.excluded !== httpsProxy?.excluded.join() ||
       values.httpsHost !== httpsProxy?.host ||
       (values.httpsIdentity !== null &&
@@ -273,7 +224,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       excluded: formValues.excluded.split(","),
       host: formValues.httpsHost,
       port: parseInt(formValues?.httpsPort as string),
-      enabled: httpsProxy?.enabled || true,
+      enabled: isTrueSet(formValues[IS_HTTPS_CHECKED]),
       id: httpsProxy?.id,
       ...(formValues.httpsIdentity &&
         selectedHttpsIdentity && {
@@ -289,7 +240,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       excluded: formValues.excluded.split(","),
       host: formValues.httpHost,
       port: parseInt(formValues?.httpPort as string),
-      enabled: httpProxy?.enabled || true,
+      enabled: isTrueSet(formValues[IS_HTTP_CHECKED]),
       id: httpProxy?.id,
       ...(formValues.httpIdentity &&
         selectedHttpIdentity && {
@@ -314,13 +265,29 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       {error && (
         <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />
       )}
-      <Switch
-        id="httpProxy"
-        className="proxy"
-        label="HTTP proxy"
-        aria-label="HTTP Proxy"
-        isChecked={isHttpProxy}
-        onChange={onChangeIsHttpProxy}
+      <Controller
+        control={control}
+        name={IS_HTTP_CHECKED}
+        render={({
+          field: { onChange, onBlur, value, name, ref },
+          fieldState: { isTouched, error },
+          formState,
+        }) => (
+          <Switch
+            id="httpProxy"
+            name={IS_HTTP_CHECKED}
+            className="proxy"
+            label="HTTP proxy"
+            aria-label="HTTP Proxy"
+            isChecked={isHttpProxy}
+            onChange={() => {
+              if (httpProxy) {
+                onChange(!isTrueSet(values[IS_HTTP_CHECKED]));
+                setIsHttpProxy(!isHttpProxy);
+              }
+            }}
+          />
+        )}
       />
 
       {isHttpProxy && (
@@ -427,12 +394,29 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           )}
         </div>
       )}
-      <Switch
-        id="httpsProxy"
-        label="HTTPS proxy"
-        aria-label="HTTPS Proxy"
-        isChecked={isHttpsProxy}
-        onChange={onChangeIsHttpsProxy}
+      <Controller
+        control={control}
+        name={IS_HTTPS_CHECKED}
+        render={({
+          field: { onChange, onBlur, value, name, ref },
+          fieldState: { isTouched, error },
+          formState,
+        }) => (
+          <Switch
+            id="httpsProxy"
+            name={IS_HTTPS_CHECKED}
+            className="proxy"
+            label="HTTPS proxy"
+            aria-label="HTTPS Proxy"
+            isChecked={isHttpsProxy}
+            onChange={() => {
+              if (httpProxy) {
+                onChange(!isTrueSet(values[IS_HTTPS_CHECKED]));
+                setIsHttpsProxy(!isHttpsProxy);
+              }
+            }}
+          />
+        )}
       />
 
       {isHttpsProxy && (
