@@ -26,7 +26,11 @@ import { useDispatch } from "react-redux";
 import { alertActions } from "@app/store/alert";
 import { bulkCopyActions } from "@app/store/bulkCopy";
 
-import { AppTableWithControls, StatusIcon } from "@app/shared/components";
+import {
+  AppTableWithControls,
+  StatusIcon,
+  ToolbarBulkSelector,
+} from "@app/shared/components";
 import { useFetch } from "@app/shared/hooks";
 
 import { Application, Assessment, Review } from "@app/api/models";
@@ -36,19 +40,21 @@ import {
   createBulkCopyReview,
   getApplications,
 } from "@app/api/rest";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationBusinessService } from "../application-business-service";
 import { ApplicationAssessment } from "../application-assessment";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import {
   FilterCategory,
+  FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { useSelectionState } from "@konveyor/lib-ui";
 import { useFetchApplicationAssessments } from "@app/queries/assessments";
+import { useFetchApplications } from "@app/queries/applications";
 
 const ENTITY_FIELD = "entity";
 
@@ -78,27 +84,8 @@ export const BulkCopyAssessmentReviewForm: React.FC<
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchApplications = useCallback(() => {
-    return getApplications();
-  }, []);
-
-  const {
-    data: page,
-    isFetching,
-    fetchError,
-    requestFetch: refreshTable,
-  } = useFetch<Array<Application>>({
-    defaultIsFetching: true,
-    onFetch: fetchApplications,
-  });
-
-  const applications = useMemo(() => {
-    return page ? page : undefined;
-  }, [page]);
-
-  useEffect(() => {
-    refreshTable();
-  }, [refreshTable]);
+  const { applications, isFetching, fetchError, refetch } =
+    useFetchApplications();
 
   const filterCategories: FilterCategory<Application>[] = [
     {
@@ -110,15 +97,31 @@ export const BulkCopyAssessmentReviewForm: React.FC<
         return item?.name || "";
       },
     },
+    {
+      key: "businessService",
+      title: "Business service",
+      type: FilterType.multiselect,
+      selectOptions: dedupeFunction(
+        applications
+          .map((app) => app.businessService?.name)
+          .map((name) => ({ key: name, value: name }))
+      ),
+      placeholderText: "Filter by business service...",
+      getItemValue: (item) => {
+        return item.businessService?.name || "";
+      },
+    },
   ];
 
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
     applications || [],
     filterCategories
   );
-  const getSortValues = (identity: Application) => [
-    identity?.name || "",
-    "", // Action column
+
+  const getSortValues = (item: Application) => [
+    "",
+    item?.name || "",
+    item.businessService?.name || "",
   ];
 
   const { sortBy, onSort, sortedItems } = useSortState(
@@ -129,14 +132,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState(sortedItems, 10);
 
-  // Table's assessments
-  const {
-    getApplicationAssessment,
-    isLoadingApplicationAssessment,
-    fetchErrorApplicationAssessment,
-  } = useFetchApplicationAssessments(applications);
-
-  // Select rows
+  //Bulk selection
   const {
     isItemSelected: isRowSelected,
     toggleItemSelected: toggleRowSelected,
@@ -145,13 +141,16 @@ export const BulkCopyAssessmentReviewForm: React.FC<
     areAllSelected,
     selectedItems: selectedRows,
   } = useSelectionState<Application>({
-    items: applications || [],
+    items: filteredItems || [],
     isEqual: (a, b) => a.id === b.id,
   });
 
-  const filterInvalidRows = (rows?: Application[]) => {
-    return (rows ? rows : []).filter((f) => f.id !== application.id);
-  };
+  // Table's assessments
+  const {
+    getApplicationAssessment,
+    isLoadingApplicationAssessment,
+    fetchErrorApplicationAssessment,
+  } = useFetchApplicationAssessments(applications);
 
   // Table
   const columns: ICell[] = [
@@ -313,6 +312,24 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             loadingVariant="skeleton"
             fetchError={fetchError}
             toolbarClearAllFilters={handleOnClearAllFilters}
+            toolbarToggle={
+              <FilterToolbar<Application>
+                filterCategories={filterCategories}
+                filterValues={filterValues}
+                setFilterValues={setFilterValues}
+              />
+            }
+            toolbarBulkSelector={
+              <ToolbarBulkSelector
+                isExpandable={false}
+                onSelectAll={selectAll}
+                areAllSelected={areAllSelected}
+                selectedRows={selectedRows}
+                paginationProps={paginationProps}
+                currentPageItems={currentPageItems}
+                onSelectMultiple={selectMultiple}
+              />
+            }
           />
         </CardBody>
       </Card>
