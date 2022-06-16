@@ -13,13 +13,19 @@ import { XMLValidator } from "fast-xml-parser";
 import XSDSchema from "./windup-jboss-ruleset.xsd";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IReadFile } from "../analysis-wizard";
-import { useFormContext } from "react-hook-form";
 
 const xmllint = require("xmllint");
+interface IAddCustomRules {
+  customRulesFiles: IReadFile[];
+  readFileData: IReadFile[];
+  setReadFileData: (setReadFile: React.SetStateAction<IReadFile[]>) => void;
+}
 
-export const AddCustomRules: React.FunctionComponent = () => {
-  const { getValues, setValue } = useFormContext();
-  const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
+export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
+  customRulesFiles,
+  readFileData,
+  setReadFileData,
+}: IAddCustomRules) => {
   const [error, setError] = React.useState("");
   const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
   const [showStatus, setShowStatus] = React.useState(false);
@@ -40,11 +46,6 @@ export const AddCustomRules: React.FunctionComponent = () => {
       setStatusIcon("danger");
     }
   }, [readFileData, currentFiles]);
-
-  React.useEffect(() => {
-    const customRulesFiles: IReadFile[] = getValues("customRulesFiles");
-    setValue("customRulesFiles", [...readFileData, ...customRulesFiles]);
-  }, [readFileData, getValues, setValue]);
 
   const validateXMLFile = (data: string) => {
     // Filter out "data:text/xml;base64," from data
@@ -70,12 +71,6 @@ export const AddCustomRules: React.FunctionComponent = () => {
     } else {
       return false;
     }
-  };
-
-  const isFileIncluded = (name: string) => {
-    // currentFiles.some((file) => file.name === name) ||
-    const customRulesFiles: IReadFile[] = getValues("customRulesFiles");
-    return customRulesFiles.some((file) => file.fileName === name);
   };
 
   // callback that will be called by the react dropzone with the newly dropped file objects
@@ -108,6 +103,9 @@ export const AddCustomRules: React.FunctionComponent = () => {
       reader.readAsDataURL(file);
     });
   }
+
+  const isFileIncluded = (name: string) =>
+    customRulesFiles.some((file) => file.fileName === name);
 
   const handleFile = (file: File) => {
     readFile(file)
@@ -150,10 +148,13 @@ export const AddCustomRules: React.FunctionComponent = () => {
   };
 
   const handleReadSuccess = (data: string, file: File) => {
-    setReadFileData((prevReadFiles) => [
-      ...prevReadFiles,
-      { data, fileName: file.name, loadResult: "success", loadPercentage: 100 },
-    ]);
+    const newFile: IReadFile = {
+      data,
+      fileName: file.name,
+      loadResult: "success",
+      loadPercentage: 100,
+    };
+    setReadFileData((prevReadFiles) => [...prevReadFiles, newFile]);
   };
 
   const handleReadFail = (error: DOMException, percentage, file: File) => {

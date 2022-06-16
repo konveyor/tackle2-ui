@@ -33,9 +33,9 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { Rule } from "@app/api/models";
 import { NoDataEmptyState } from "@app/shared/components";
+import { IReadFile } from "./analysis-wizard";
 
 import "./wizard.css";
-import { IReadFile } from "./analysis-wizard";
 
 export const CustomRules: React.FunctionComponent = () => {
   const { getValues, setValue } = useFormContext();
@@ -43,8 +43,8 @@ export const CustomRules: React.FunctionComponent = () => {
   const sources: string[] = getValues("sources");
   const targets: string[] = getValues("targets");
   const customRulesFiles: IReadFile[] = getValues("customRulesFiles");
-  const [currentFiles, setCurrentFiles] = React.useState<IReadFile[]>([]);
 
+  const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
 
@@ -181,6 +181,9 @@ export const CustomRules: React.FunctionComponent = () => {
     });
   });
 
+  console.log("customRulesFiles", customRulesFiles);
+  console.log("readFileData", readFileData);
+
   return (
     <>
       <TextContent>
@@ -245,13 +248,19 @@ export const CustomRules: React.FunctionComponent = () => {
             <Button
               key="add"
               variant="primary"
+              isDisabled={
+                !readFileData.find((file) => file.loadResult === "success")
+              }
               onClick={(event) => {
                 setCustomRulesModalOpen(false);
+                const validFiles = readFileData.filter(
+                  (file) => file.loadResult === "success"
+                );
                 setValue("customRulesFiles", [
                   ...customRulesFiles,
-                  ...currentFiles,
+                  ...validFiles,
                 ]);
-                setCurrentFiles([]);
+                setReadFileData([]);
               }}
             >
               Add
@@ -266,8 +275,9 @@ export const CustomRules: React.FunctionComponent = () => {
           ]}
         >
           <AddCustomRules
-            currentFiles={currentFiles}
-            setCurrentFiles={setCurrentFiles}
+            customRulesFiles={customRulesFiles}
+            readFileData={readFileData}
+            setReadFileData={setReadFileData}
           />
         </Modal>
       )}
