@@ -1,18 +1,15 @@
 import * as React from "react";
-import { Link, Redirect, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
-import { useSelectionState } from "@konveyor/lib-ui";
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 import {
   Button,
   ButtonVariant,
   DropdownItem,
   Modal,
-  Pagination,
   ToolbarGroup,
   ToolbarItem,
-  Tooltip,
 } from "@patternfly/react-core";
 import {
   cellWidth,
@@ -187,6 +184,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     data: applicationToManageCredentials,
     update: openCredentialsModal,
     close: closeCredentialsModal,
+  } = useEntityModal<Application[]>();
+
+  // Bulk Delete modal
+  const {
+    isOpen: isBulkDeleteModalOpen,
+    data: applicationToBulkDelete,
+    update: openBulkDeleteModal,
+    close: closeBulkDeleteModal,
   } = useEntityModal<Application[]>();
 
   // Application import modal
@@ -436,7 +441,24 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         </DropdownItem>,
       ]
     : [];
-  const dropdownItems = [...importDropdownItems, ...applicationDropdownItems];
+  const applicationDeleteDropdown = applicationWriteAccess
+    ? [
+        <DropdownItem
+          key="manage-applications-bulk-delete"
+          isDisabled={selectedRows.length < 1}
+          onClick={() => {
+            openBulkDeleteModal(selectedRows);
+          }}
+        >
+          {t("actions.delete")}
+        </DropdownItem>,
+      ]
+    : [];
+  const dropdownItems = [
+    ...importDropdownItems,
+    ...applicationDropdownItems,
+    ...applicationDeleteDropdown,
+  ];
 
   const isAnalyzingAllowed = () => {
     const candidateTasks = selectedRows.filter(
@@ -625,6 +647,45 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             onCancel={closeCredentialsModal}
           />
         )}
+      </Modal>
+
+      <Modal
+        isOpen={isBulkDeleteModalOpen}
+        variant="small"
+        title={t("dialog.title.delete", {
+          what: t("terms.application(s)").toLowerCase(),
+        })}
+        titleIconVariant="warning"
+        aria-label="Applications bulk delete"
+        aria-describedby="applications-bulk-delete"
+        onClose={() => closeBulkDeleteModal()}
+        showClose={true}
+        actions={[
+          <Button
+            key="delete"
+            variant="danger"
+            onClick={() => {
+              // TODO replace once /hub/applications API bulk delete is available
+              applicationToBulkDelete?.forEach((application) => {
+                if (application.id) deleteApplication({ id: application.id });
+              });
+              closeBulkDeleteModal();
+            }}
+          >
+            {t("actions.delete")}
+          </Button>,
+          <Button
+            key="cancel"
+            variant="link"
+            onClick={() => closeBulkDeleteModal()}
+          >
+            {t("actions.cancel")}
+          </Button>,
+        ]}
+      >
+        {`${t("dialog.message.applicationsBulkDelete")} ${t(
+          "dialog.message.delete"
+        )}`}
       </Modal>
     </>
   );
