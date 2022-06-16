@@ -64,12 +64,12 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
       });
 
       if (validationResult.errors) {
-        return false;
+        return validationResult?.errors?.toString();
       } else {
-        return true;
+        return "";
       }
     } else {
-      return false;
+      return validationObject?.err?.msg?.toString();
     }
   };
 
@@ -116,11 +116,11 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
           );
           handleReadFail(error, 100, file);
         } else {
-          if (validateXMLFile(data as string))
-            handleReadSuccess(data as string, file);
+          const validatedXML = validateXMLFile(data as string);
+          if (validatedXML === "") handleReadSuccess(data as string, file);
           else {
             const error = new DOMException(
-              `File ${file.name} is not a valid XML`
+              `File ${file.name} is not a valid XML: ${validatedXML}`
             );
             handleReadFail(error, 100, file);
           }
