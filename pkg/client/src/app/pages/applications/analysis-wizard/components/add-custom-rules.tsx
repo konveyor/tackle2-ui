@@ -119,8 +119,9 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
           if (validateXMLFile(data as string))
             handleReadSuccess(data as string, file);
           else {
-            // TODO propagate xml validation error
-            const error = new DOMException("Not a valid XML");
+            const error = new DOMException(
+              `File ${file.name} is not a valid XML`
+            );
             handleReadFail(error, 100, file);
           }
         }
