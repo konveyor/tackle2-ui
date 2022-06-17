@@ -20,6 +20,10 @@ interface IAddCustomRules {
   readFileData: IReadFile[];
   setReadFileData: (setReadFile: React.SetStateAction<IReadFile[]>) => void;
 }
+interface IParseXMLFileStatus {
+  state: "valid" | "error";
+  message?: string;
+}
 
 export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
   customRulesFiles,
@@ -47,7 +51,7 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
     }
   }, [readFileData, currentFiles]);
 
-  const validateXMLFile = (data: string) => {
+  const validateXMLFile = (data: string): IParseXMLFileStatus => {
     // Filter out "data:text/xml;base64," from data
     const payload = atob(data.substring(21));
     const validationObject = XMLValidator.validate(payload, {
@@ -63,14 +67,17 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
         schema: currentSchema,
       });
 
-      if (validationResult.errors) {
-        return validationResult?.errors?.toString();
-      } else {
-        return "";
-      }
-    } else {
-      return validationObject?.err?.msg?.toString();
-    }
+      if (validationResult.errors)
+        return {
+          state: "error",
+          message: validationResult?.errors?.toString(),
+        };
+      else return { state: "valid" };
+    } else
+      return {
+        state: "error",
+        message: validationObject?.err?.msg?.toString(),
+      };
   };
 
   // callback that will be called by the react dropzone with the newly dropped file objects
@@ -112,15 +119,16 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
       .then((data) => {
         if (isFileIncluded(file.name)) {
           const error = new DOMException(
-            `File ${file.name} is already uploaded`
+            `File "${file.name}" is already uploaded`
           );
           handleReadFail(error, 100, file);
         } else {
-          const validatedXML = validateXMLFile(data as string);
-          if (validatedXML === "") handleReadSuccess(data as string, file);
+          const validatedXMLResult = validateXMLFile(data as string);
+          if (validatedXMLResult.state === "valid")
+            handleReadSuccess(data as string, file);
           else {
             const error = new DOMException(
-              `File ${file.name} is not a valid XML: ${validatedXML}`
+              `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
             );
             handleReadFail(error, 100, file);
           }
