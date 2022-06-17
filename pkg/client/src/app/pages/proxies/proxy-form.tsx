@@ -548,6 +548,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 onChange={onChange}
                 value={value}
                 validated={getValidatedFromErrorTouched(error, isTouched)}
+                placeholder="*.example.com, *.example2.com"
               />
             )}
           />
