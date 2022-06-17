@@ -13,6 +13,7 @@ import {
   FormGroup,
   TextArea,
   TextInput,
+  Tooltip,
 } from "@patternfly/react-core";
 
 import {
@@ -156,16 +157,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     switch (fieldName) {
       case "group":
         return fieldList[0] || "";
-        break;
       case "artifact":
         return fieldList[1] || "";
-        break;
       case "version":
         return fieldList[2] || "";
-        break;
       case "packaging":
         return fieldList[3] || "";
-        break;
       default:
         return "";
     }
@@ -716,19 +713,21 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             validated={getValidatedFromError(formik.errors.packaging)}
             helperTextInvalid={formik.errors.packaging}
           >
-            <TextInput
-              type="text"
-              name="packaging"
-              aria-label="Binary Packaging"
-              aria-describedby="Binary Packaging"
-              onChange={onChangeField}
-              onBlur={formik.handleBlur}
-              value={formik.values.packaging}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.packaging,
-                formik.touched.packaging
-              )}
-            />
+            <Tooltip content={t("message.binaryPackaging")} position="left">
+              <TextInput
+                type="text"
+                name="packaging"
+                aria-label="Binary Packaging"
+                aria-describedby="Binary Packaging"
+                onChange={onChangeField}
+                onBlur={formik.handleBlur}
+                value={formik.values.packaging}
+                validated={getValidatedFromErrorTouched(
+                  formik.errors.packaging,
+                  formik.touched.packaging
+                )}
+              />
+            </Tooltip>
           </FormGroup>
         </ExpandableSection>
         <ActionGroup>
