@@ -97,9 +97,12 @@ export const Tags: React.FC = () => {
   const filterCategories: FilterCategory<TagType>[] = [
     {
       key: "tags",
-      title: "Name",
+      title: t("terms.name"),
       type: FilterType.multiselect,
-      placeholderText: "Filter by name...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.name").toLowerCase(),
+        }) + "...",
       getItemValue: (item: TagType) => {
         let tagNames = item?.tags?.map((tag) => tag.name).join("");
         return tagNames || "";
@@ -114,18 +117,24 @@ export const Tags: React.FC = () => {
     },
     {
       key: "rank",
-      title: "Rank",
+      title: t("terms.rank"),
       type: FilterType.search,
-      placeholderText: "Filter by rank...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.rank").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item.rank?.toString() || "";
       },
     },
     {
       key: "color",
-      title: "Color",
+      title: t("terms.color"),
       type: FilterType.search,
-      placeholderText: "Filter by color...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.color").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         const colorLabel = DEFAULT_COLOR_LABELS.get(item?.colour || "");
         return colorLabel || "";
