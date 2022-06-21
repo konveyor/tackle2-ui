@@ -10,9 +10,8 @@ import {
   SelectOption,
   SelectVariant,
   NavExpandable,
+  NavItemSeparator,
 } from "@patternfly/react-core";
-import AdminIcon from "@patternfly/react-icons/dist/esm/icons/cogs-icon";
-import DevIcon from "@patternfly/react-icons/dist/esm/icons/code-icon";
 
 import { Paths } from "@app/Paths";
 import { LayoutTheme } from "../LayoutUtils";
@@ -74,14 +73,10 @@ export const SidebarApp: React.FC = () => {
     }
   }, []);
 
-  const [isDevIcon, setDevIcon] = React.useState(true);
-
   const Navigation = (
-    <>
-      <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
+    <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
+      <div className="perspective">
         <Select
-          className="perspective"
-          toggleIcon={isDevIcon ? <DevIcon /> : <AdminIcon />}
           variant={SelectVariant.single}
           aria-label="Select user perspective"
           selections={selectedPersona}
@@ -90,10 +85,8 @@ export const SidebarApp: React.FC = () => {
             setSelectedPersona(selection as string);
             setIsOpen(!isOpen);
             if (selection === "Administrator") {
-              setDevIcon(false);
               history.push(Paths.identities);
             } else {
-              setDevIcon(true);
               history.push(Paths.applications);
             }
           }}
@@ -103,77 +96,74 @@ export const SidebarApp: React.FC = () => {
         >
           {options}
         </Select>
-        {selectedPersona === "Developer" ? (
-          <NavList title="Global">
-            <NavItem>
-              <NavLink
-                to={Paths.applications + search}
-                activeClassName="pf-m-current"
-              >
-                {t("sidebar.applicationInventory")}
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink
-                to={Paths.reports + search}
-                activeClassName="pf-m-current"
-              >
-                {t("sidebar.reports")}
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink to={Paths.controls} activeClassName="pf-m-current">
-                {t("sidebar.controls")}
-              </NavLink>
-            </NavItem>
-          </NavList>
-        ) : (
-          <NavList title="Admin">
-            <NavItem>
-              <NavLink to={Paths.identities} activeClassName="pf-m-current">
-                {t("terms.credentials")}
-              </NavLink>
-            </NavItem>
-            <NavExpandable
-              title="Repositories"
-              srText="SR Link"
-              groupId="admin-repos"
-              isExpanded
+      </div>
+      {selectedPersona === "Developer" ? (
+        <NavList title="Global">
+          <NavItem>
+            <NavLink
+              to={Paths.applications + search}
+              activeClassName="pf-m-current"
             >
-              <NavItem>
-                <NavLink
-                  to={Paths.repositoriesGit}
-                  activeClassName="pf-m-current"
-                >
-                  Git
-                </NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink
-                  to={Paths.repositoriesSvn}
-                  activeClassName="pf-m-current"
-                >
-                  Subversion
-                </NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink
-                  to={Paths.repositoriesMvn}
-                  activeClassName="pf-m-current"
-                >
-                  Maven
-                </NavLink>
-              </NavItem>
-            </NavExpandable>
+              {t("sidebar.applicationInventory")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={Paths.reports + search} activeClassName="pf-m-current">
+              {t("sidebar.reports")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={Paths.controls} activeClassName="pf-m-current">
+              {t("sidebar.controls")}
+            </NavLink>
+          </NavItem>
+        </NavList>
+      ) : (
+        <NavList title="Admin">
+          <NavItem>
+            <NavLink to={Paths.identities} activeClassName="pf-m-current">
+              {t("terms.credentials")}
+            </NavLink>
+          </NavItem>
+          <NavExpandable
+            title="Repositories"
+            srText="SR Link"
+            groupId="admin-repos"
+            isExpanded
+          >
             <NavItem>
-              <NavLink to={Paths.proxies} activeClassName="pf-m-current">
-                Proxy
+              <NavLink
+                to={Paths.repositoriesGit}
+                activeClassName="pf-m-current"
+              >
+                Git
               </NavLink>
             </NavItem>
-          </NavList>
-        )}
-      </Nav>
-    </>
+            <NavItem>
+              <NavLink
+                to={Paths.repositoriesSvn}
+                activeClassName="pf-m-current"
+              >
+                Subversion
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                to={Paths.repositoriesMvn}
+                activeClassName="pf-m-current"
+              >
+                Maven
+              </NavLink>
+            </NavItem>
+          </NavExpandable>
+          <NavItem>
+            <NavLink to={Paths.proxies} activeClassName="pf-m-current">
+              Proxy
+            </NavLink>
+          </NavItem>
+        </NavList>
+      )}
+    </Nav>
   );
 
   return <PageSidebar nav={Navigation} theme={LayoutTheme} />;
