@@ -73,6 +73,7 @@ import {
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
 import {
+  useBulkDeleteApplicationMutation,
   useDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
@@ -253,6 +254,11 @@ export const ApplicationsTable: React.FC = () => {
     onDeleteApplicationSuccess,
     onDeleteApplicationError,
     getApplicationAssessment
+  );
+
+  const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
+    onDeleteApplicationSuccess,
+    onDeleteApplicationError
   );
 
   // Create assessment
@@ -898,10 +904,16 @@ export const ApplicationsTable: React.FC = () => {
             key="delete"
             variant="danger"
             onClick={() => {
-              // TODO replace once /hub/applications API bulk delete is available
-              applicationToBulkDelete?.forEach((application) => {
-                if (application.id) deleteApplication({ id: application.id });
-              });
+              let ids: number[] = [];
+              if (applicationToBulkDelete) {
+                applicationToBulkDelete?.forEach((application) => {
+                  if (application.id) ids.push(application.id);
+                });
+                if (ids)
+                  bulkDeleteApplication({
+                    ids: ids,
+                  });
+              }
               closeBulkDeleteModal();
             }}
           >

@@ -63,6 +63,7 @@ import { checkAccess } from "@app/common/rbac-utils";
 import {
   useDeleteApplicationMutation,
   useFetchApplications,
+  useBulkDeleteApplicationMutation,
 } from "@app/queries/applications";
 import {
   ApplicationTableType,
@@ -171,7 +172,13 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     dispatch(confirmDialogActions.closeDialog());
     dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
   };
+
   const { mutate: deleteApplication } = useDeleteApplicationMutation(
+    onDeleteApplicationSuccess,
+    onDeleteApplicationError
+  );
+
+  const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
     onDeleteApplicationSuccess,
     onDeleteApplicationError
   );
@@ -665,10 +672,16 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             key="delete"
             variant="danger"
             onClick={() => {
-              // TODO replace once /hub/applications API bulk delete is available
-              applicationToBulkDelete?.forEach((application) => {
-                if (application.id) deleteApplication({ id: application.id });
-              });
+              let ids: number[] = [];
+              if (applicationToBulkDelete) {
+                applicationToBulkDelete?.forEach((application) => {
+                  if (application.id) ids.push(application.id);
+                });
+                if (ids)
+                  bulkDeleteApplication({
+                    ids: ids,
+                  });
+              }
               closeBulkDeleteModal();
             }}
           >
