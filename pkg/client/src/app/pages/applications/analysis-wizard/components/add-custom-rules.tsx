@@ -33,7 +33,6 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
   const [error, setError] = React.useState("");
   const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
   const [showStatus, setShowStatus] = React.useState(false);
-  const [statusIcon, setStatusIcon] = React.useState("inProgress");
 
   // only show the status component once a file has been uploaded, but keep the status list component itself even if all files are removed
   if (!showStatus && currentFiles.length > 0) {
@@ -41,15 +40,15 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
   }
 
   // determine the icon that should be shown for the overall status list
-  React.useEffect(() => {
+  const setStatus = () => {
     if (readFileData.length < currentFiles.length) {
-      setStatusIcon("inProgress");
+      return "inProgress";
     } else if (readFileData.every((file) => file.loadResult === "success")) {
-      setStatusIcon("success");
+      return "success";
     } else {
-      setStatusIcon("danger");
+      return "danger";
     }
-  }, [readFileData, currentFiles]);
+  };
 
   const validateXMLFile = (data: string): IParseXMLFileStatus => {
     // Filter out "data:text/xml;base64," from data
@@ -223,7 +222,7 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
         {showStatus && (
           <MultipleFileUploadStatus
             statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
-            statusToggleIcon={statusIcon}
+            statusToggleIcon={setStatus()}
           >
             {currentFiles.map((file) => (
               <MultipleFileUploadStatusItem
