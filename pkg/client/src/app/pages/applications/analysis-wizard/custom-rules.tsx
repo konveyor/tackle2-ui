@@ -181,9 +181,6 @@ export const CustomRules: React.FunctionComponent = () => {
     });
   });
 
-  console.log("customRulesFiles", customRulesFiles);
-  console.log("readFileData", readFileData);
-
   return (
     <>
       <TextContent>
