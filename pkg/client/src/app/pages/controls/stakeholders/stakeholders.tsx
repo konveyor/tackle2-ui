@@ -92,36 +92,48 @@ export const Stakeholders: React.FC = () => {
   const filterCategories: FilterCategory<Stakeholder>[] = [
     {
       key: "email",
-      title: "Email",
+      title: t("terms.email"),
       type: FilterType.search,
-      placeholderText: "Filter by email...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.email").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item?.email || "";
       },
     },
     {
       key: "name",
-      title: "Name",
+      title: t("terms.name"),
       type: FilterType.search,
-      placeholderText: "Filter by name...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.name").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item?.name || "";
       },
     },
     {
       key: "jobFunction",
-      title: "Job function",
+      title: t("terms.jobFunction"),
       type: FilterType.search,
-      placeholderText: "Filter by job function...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.jobFunction").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item.jobFunction?.name || "";
       },
     },
     {
       key: "stakeholderGroups",
-      title: "Stakeholder groups",
+      title: t("terms.stakeholderGroups"),
       type: FilterType.search,
-      placeholderText: "Filter by stakeholder groups...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.stakeholderGroups").toLowerCase(),
+        }) + "...",
       getItemValue: (stakeholder) => {
         const stakeholderGroups = stakeholder.stakeholderGroups?.map(
           (stakeholderGroup) => stakeholderGroup.name

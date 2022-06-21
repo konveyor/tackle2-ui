@@ -115,27 +115,36 @@ export const StakeholderGroups: React.FC = () => {
   const filterCategories: FilterCategory<StakeholderGroup>[] = [
     {
       key: "name",
-      title: "Name",
+      title: t("terms.name"),
       type: FilterType.search,
-      placeholderText: "Filter by name...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.name").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item?.name || "";
       },
     },
     {
       key: "description",
-      title: "Description",
+      title: t("terms.description"),
       type: FilterType.search,
-      placeholderText: "Filter by description...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.description").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item?.description || "";
       },
     },
     {
       key: "stakeholders",
-      title: "Stakeholders",
+      title: t("terms.stakeholders"),
       type: FilterType.search,
-      placeholderText: "Filter by stakeholders...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.stakeholders").toLowerCase(),
+        }) + "...",
       getItemValue: (stakeholderGroup) => {
         const stakeholders = stakeholderGroup.stakeholders?.map(
           (stakeholder) => stakeholder.name
