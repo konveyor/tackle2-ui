@@ -20,7 +20,7 @@ interface IAddCustomRules {
   readFileData: IReadFile[];
   setReadFileData: (setReadFile: React.SetStateAction<IReadFile[]>) => void;
 }
-interface IParseXMLFileStatus {
+interface IParsedXMLFileStatus {
   state: "valid" | "error";
   message?: string;
 }
@@ -50,7 +50,7 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
     }
   };
 
-  const validateXMLFile = (data: string): IParseXMLFileStatus => {
+  const validateXMLFile = (data: string): IParsedXMLFileStatus => {
     // Filter out "data:text/xml;base64," from data
     const payload = atob(data.substring(21));
     const validationObject = XMLValidator.validate(payload, {
