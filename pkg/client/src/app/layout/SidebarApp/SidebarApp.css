@@ -1,27 +1,28 @@
-.perspective > button {
-  height: 3.5em;
-  background-color: #212427;
-  color: white;
-  border-bottom: 1px solid #4f5255;
+.perspective {
+  padding: var(--pf-c-nav__link--PaddingTop) var(--pf-c-nav__link--PaddingRight)
+    var(--pf-global--spacer--lg) var(--pf-c-nav__link--PaddingLeft);
+  border-bottom: 1px solid var(--pf-c-nav__link--before--BorderColor);
 }
 
-.perspective .pf-c-select__toggle::before {
-  border: 0;
-  border-width: 0;
-  outline: 0;
-}
-.perspective > ul {
-  background-color: #212427;
-  border: 1px solid #4f5255;
-}
-.perspective > ul > li.button {
-  color: white;
-}
-.perspective .pf-c-select__menu-item {
-  color: white;
+.perspective .pf-c-select .pf-c-select__toggle {
+  color: var(--pf-global--BackgroundColor--100);
+  background-color: var(--pf-global--Color--100);
 }
 
-.perspective .pf-c-select__menu-item:hover {
-  background-color: #4f5255;
-  color: white;
+.perspective .pf-c-select .pf-c-select__toggle::before {
+  border-color: var(--pf-global--BackgroundColor--dark-400)
+    var(--pf-global--BackgroundColor--dark-400)
+    var(--pf-c-select__toggle--before--BorderBottomColor)
+    var(--pf-global--BackgroundColor--dark-400);
+}
+
+.perspective .pf-c-select .pf-c-select__toggle:focus::before,
+.perspective .pf-c-select .pf-c-select__toggle:hover::before {
+  border-bottom-color: var(--pf-c-select__toggle--before--BorderBottomColor);
+}
+
+.perspective .pf-c-select .pf-c-select__toggle:focus::before {
+  border-bottom-width: var(
+    --pf-c-select__toggle--m-expanded--before--BorderBottomWidth
+  );
 }
