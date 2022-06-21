@@ -97,10 +97,10 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
       );
   };
 
-  function readFile(file: File) {
-    return new Promise((resolve, reject) => {
+  const readFile = (file: File) => {
+    return new Promise<string | null>((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
+      reader.onload = () => resolve(reader.result as string);
       reader.onerror = () => reject(reader.error);
       reader.onprogress = (data) => {
         if (data.lengthComputable) {
@@ -109,7 +109,7 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
       };
       reader.readAsDataURL(file);
     });
-  }
+  };
 
   const isFileIncluded = (name: string) =>
     customRulesFiles.some((file) => file.fileName === name);
@@ -123,14 +123,16 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
           );
           handleReadFail(error, 100, file);
         } else {
-          const validatedXMLResult = validateXMLFile(data as string);
-          if (validatedXMLResult.state === "valid")
-            handleReadSuccess(data as string, file);
-          else {
-            const error = new DOMException(
-              `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
-            );
-            handleReadFail(error, 100, file);
+          if (data) {
+            const validatedXMLResult = validateXMLFile(data);
+            if (validatedXMLResult.state === "valid")
+              handleReadSuccess(data, file);
+            else {
+              const error = new DOMException(
+                `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
+              );
+              handleReadFail(error, 100, file);
+            }
           }
         }
       })
