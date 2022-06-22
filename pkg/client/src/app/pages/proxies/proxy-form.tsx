@@ -275,6 +275,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         }) => (
           <Switch
             id="httpProxy"
+            data-testid="http-proxy-switch"
             name={IS_HTTP_CHECKED}
             className="proxy"
             label="HTTP proxy"
@@ -404,6 +405,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         }) => (
           <Switch
             id="httpsProxy"
+            data-testid="https-proxy-switch"
             name={IS_HTTPS_CHECKED}
             className="proxy"
             label="HTTPS proxy"
