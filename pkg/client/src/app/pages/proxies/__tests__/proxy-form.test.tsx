@@ -5,11 +5,10 @@ import { render, waitFor, screen } from "@app/test-config/test-utils";
 import { Proxies } from "../proxies";
 import MockAdapter from "axios-mock-adapter";
 import { IDENTITIES } from "@app/api/rest";
-
 import axios from "axios";
 
+jest.mock("react-i18next");
 const responseData = [{ id: 0, name: "cred1" }];
-
 new MockAdapter(axios).onGet(`${IDENTITIES}`).reply(200, responseData);
 
 describe("Component: proxy-form", () => {
