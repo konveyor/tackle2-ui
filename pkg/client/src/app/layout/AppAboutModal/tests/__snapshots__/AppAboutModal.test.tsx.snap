@@ -29,7 +29,7 @@ exports[`AppAboutModal 1`] = `
     <Text
       component="p"
     >
-      <Trans
+      <Component
         i18nKey="about.bottom1"
       >
         Tackle is a project within the
@@ -42,12 +42,12 @@ exports[`AppAboutModal 1`] = `
           Konveyor community
         </Text>
         .
-      </Trans>
+      </Component>
     </Text>
     <Text
       component="p"
     >
-      <Trans
+      <Component
         i18nKey="about.bottom2"
       >
         For more information please refer to
@@ -60,7 +60,7 @@ exports[`AppAboutModal 1`] = `
           Tackle documentation
         </Text>
         .
-      </Trans>
+      </Component>
     </Text>
   </TextContent>
   <TextContent
