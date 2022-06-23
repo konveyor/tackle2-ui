@@ -142,8 +142,10 @@
         "unknown": "Unknown"
     },
     "sidebar": {
+        "administrator": "Administrator",
         "applicationInventory": "Application inventory",
         "controls": "Controls",
+        "developer": "Developer",
         "reports": "Reports"
     },
     "terms": {
