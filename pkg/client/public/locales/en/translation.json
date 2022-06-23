@@ -27,6 +27,7 @@
         "downloadCsvTemplate": "Download CSV template",
         "edit": "Edit",
         "export": "Export",
+        "filterBy": "Filter by {{what}}",
         "import": "Import",
         "logout": "Logout",
         "manageAccount": "User management",
@@ -141,8 +142,10 @@
         "unknown": "Unknown"
     },
     "sidebar": {
+        "administrator": "Administrator",
         "applicationInventory": "Application inventory",
         "controls": "Controls",
+        "developer": "Developer",
         "reports": "Reports"
     },
     "terms": {
@@ -175,6 +178,7 @@
         "completed": "Completed",
         "confidence": "Confidence",
         "controls": "Controls",
+        "createdBy": "Created By",
         "credentials": "Credentials",
         "criticality": "Criticality",
         "currentLandscape": "Current landscape",
