@@ -33,30 +33,15 @@ export const SidebarApp: React.FC = () => {
   const { search } = useLocation();
   const history = useHistory();
 
-  const onAdminClick = () => {
-    console.log("Admin Selected");
-  };
-
-  const onDevClick = () => {
-    console.log("Dev Selected");
-  };
-
   const options = [
-    <SelectOption
-      key="dev"
-      component="button"
-      onClick={onDevClick}
-      value="Developer"
-      isPlaceholder
-    />,
+    <SelectOption key="dev" component="button" value="Developer" isPlaceholder>
+      {t("sidebar.developer")}
+    </SelectOption>,
     ...(adminAccess
       ? [
-          <SelectOption
-            key="admin"
-            component="button"
-            onClick={onAdminClick}
-            value="Administrator"
-          />,
+          <SelectOption key="admin" component="button" value="Administrator">
+            {t("sidebar.administrator")}
+          </SelectOption>,
         ]
       : []),
   ];
