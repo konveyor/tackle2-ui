@@ -75,20 +75,26 @@ export const Controls: React.FC = () => {
             history.push(Paths[tabs[tabIndex as number] as keyof typeof Paths]);
           }}
         >
-          <Tab eventKey={0} title={<TabTitleText>Stakeholders</TabTitleText>} />
+          <Tab
+            eventKey={0}
+            title={<TabTitleText>{t("terms.stakeholders")}</TabTitleText>}
+          />
           <Tab
             eventKey={1}
-            title={<TabTitleText>Stakeholder groups</TabTitleText>}
+            title={<TabTitleText>{t("terms.stakeholderGroups")}</TabTitleText>}
           />
           <Tab
             eventKey={2}
-            title={<TabTitleText>Job functions</TabTitleText>}
+            title={<TabTitleText>{t("terms.jobFunctions")}</TabTitleText>}
           />
           <Tab
             eventKey={3}
-            title={<TabTitleText>Business services</TabTitleText>}
+            title={<TabTitleText>{t("terms.businessServices")}</TabTitleText>}
           />
-          <Tab eventKey={4} title={<TabTitleText>Tags</TabTitleText>} />
+          <Tab
+            eventKey={4}
+            title={<TabTitleText>{t("terms.tags")}</TabTitleText>}
+          />
         </Tabs>
       </PageSection>
       <PageSection>
