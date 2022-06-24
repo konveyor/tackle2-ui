@@ -74,7 +74,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   } = useFetchIdentities();
 
   const identityOptions = identities
-    // .filter((i) => i.kind === "proxy")
+    .filter((i) => i.kind === "proxy")
     .map((identity) => {
       return {
         value: identity?.name || "",
@@ -493,6 +493,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           </FormGroup>
           <Switch
             id="https-identity-required"
+            data-testid="https-proxy-identity-switch"
             className={spacing.mMd}
             label="HTTPS proxy credentials"
             aria-label="httpS identity required"
