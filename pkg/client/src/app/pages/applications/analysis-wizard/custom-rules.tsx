@@ -240,7 +240,10 @@ export const CustomRules: React.FunctionComponent = () => {
           isOpen={isAddCustomRulesModalOpen}
           variant="medium"
           title="Add rules"
-          onClose={() => setCustomRulesModalOpen(false)}
+          onClose={() => {
+            setCustomRulesModalOpen(false);
+            setReadFileData([]);
+          }}
           actions={[
             <Button
               key="add"
