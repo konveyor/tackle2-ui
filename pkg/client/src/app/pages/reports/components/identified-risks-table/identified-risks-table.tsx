@@ -136,36 +136,48 @@ export const IdentifiedRisksTable: React.FC<
   const filterCategories: FilterCategory<ITableRowData>[] = [
     {
       key: "category",
-      title: "Category",
+      title: t("terms.category"),
       type: FilterType.search,
-      placeholderText: "Filter by category...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.category").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item?.category || "";
       },
     },
     {
       key: "question",
-      title: "Question",
+      title: t("terms.question"),
       type: FilterType.search,
-      placeholderText: "Filter by question...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.question").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item?.question || "";
       },
     },
     {
       key: "answer",
-      title: "Answer",
+      title: t("terms.answer"),
       type: FilterType.search,
-      placeholderText: "Filter by answer...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.answer").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item?.answer || "";
       },
     },
     {
       key: "applications",
-      title: "Name",
+      title: t("terms.name"),
       type: FilterType.search,
-      placeholderText: "Filter by name...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.name").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         const applicationNames = item?.applications.map((app) => app.name);
         return applicationNames?.join("") || "";

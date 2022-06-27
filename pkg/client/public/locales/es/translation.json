@@ -27,6 +27,7 @@
         "downloadCsvTemplate": "Descargar plantilla CSV",
         "edit": "Editar",
         "export": "Exportar",
+        "filterBy": "Filtrar por {{what}}",
         "import": "Importar",
         "logout": "Cerrar sesión",
         "manageAccount": "Administrar cuenta",
@@ -142,15 +143,17 @@
         "unknown": "Desconocido"
     },
     "sidebar": {
+        "administrator": "Administrador",
         "applicationInventory": "Inventario de aplicaciones",
         "controls": "Controles",
+        "developer": "Desarrollador",
         "reports": "Reportes"
     },
     "terms": {
         "accepted": "Aceptado",
         "additionalNotesOrComments": "Notas adicionales o comentarios",
         "adoptionCandidateDistribution": "Distribución de candidatos a la adopción",
-        "analysis": "",
+        "analysis": "Análisis",
         "answer": "Respuesta",
         "application": "Applicación",
         "application(s)": "Aplicación(es)",
@@ -176,6 +179,7 @@
         "completed": "Completado",
         "confidence": "Confianza",
         "controls": "Controles",
+        "createdBy": "Creado Por",
         "credentials": "Credenciales",
         "criticality": "Criticidad",
         "currentLandscape": "Actual visión general",
