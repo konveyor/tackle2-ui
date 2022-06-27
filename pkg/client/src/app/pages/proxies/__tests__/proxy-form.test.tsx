@@ -13,13 +13,15 @@ import MockAdapter from "axios-mock-adapter";
 import { IDENTITIES, PROXIES } from "@app/api/rest";
 import axios from "axios";
 import { Proxy, Identity } from "@app/api/models";
+import userEvent from "@testing-library/user-event";
+import { ProxyForm } from "../proxy-form";
+import mock from "@app/test-config/mockInstance";
 
 jest.mock("react-i18next");
-const identitiesData: Identity[] = [{ id: 0, name: "cred1" }];
-new MockAdapter(axios).onGet(`${IDENTITIES}`).reply(200, identitiesData);
+const identitiesData: Identity[] = [];
+mock.onGet(`${IDENTITIES}`).reply(200, identitiesData);
 
 const proxiesData = [
-  // const proxiesData: Proxy[] = [
   {
     host: "",
     kind: "http",
@@ -39,7 +41,7 @@ const proxiesData = [
     enabled: false,
   },
 ];
-new MockAdapter(axios).onGet(`${PROXIES}`).reply(200, proxiesData);
+mock.onGet(`${PROXIES}`).reply(200, proxiesData);
 
 describe("Component: proxy-form", () => {
   it("Display switch statements on initial load", async () => {
@@ -81,5 +83,67 @@ describe("Component: proxy-form", () => {
     await waitFor(() =>
       expect(screen.queryByTestId("http-host-input")).not.toBeInTheDocument()
     );
+  });
+
+  it("Select http proxy identity", async () => {
+    const identitiesData: Identity[] = [
+      { id: 0, name: "proxy-cred", kind: "proxy" },
+      { id: 1, name: "maven-cred", kind: "maven" },
+      { id: 2, name: "source-cred", kind: "source" },
+    ];
+
+    mock.onGet(`${IDENTITIES}`).reply(200, identitiesData);
+
+    render(<Proxies />);
+    await waitFor(() => screen.getByTestId("http-proxy-switch"), {
+      timeout: 3000,
+    });
+
+    fireEvent.click(screen.getByTestId("http-proxy-switch"));
+    fireEvent.click(screen.getByTestId("http-proxy-identity-switch"));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /Options menu/i,
+      })
+    );
+
+    await userEvent.selectOptions(screen.getByRole("listbox"), ["proxy-cred"]);
+    const proxyCred = screen.getByText("proxy-cred");
+    expect(proxyCred).toBeInTheDocument();
+    const mavenCred = screen.queryByText("maven-cred");
+    const sourceCred = screen.queryByText("source-cred");
+    expect(mavenCred).toBeNull(); // it doesn't exist
+    expect(sourceCred).toBeNull(); // it doesn't exist
+  });
+
+  it("Select https proxy identity", async () => {
+    const identitiesData: Identity[] = [
+      { id: 0, name: "proxy-cred", kind: "proxy" },
+      { id: 1, name: "maven-cred", kind: "maven" },
+      { id: 2, name: "source-cred", kind: "source" },
+    ];
+
+    mock.onGet(`${IDENTITIES}`).reply(200, identitiesData);
+
+    render(<Proxies />);
+    await waitFor(() => screen.getByTestId("https-proxy-switch"), {
+      timeout: 3000,
+    });
+
+    fireEvent.click(screen.getByTestId("https-proxy-switch"));
+    fireEvent.click(screen.getByTestId("https-proxy-identity-switch"));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /Options menu/i,
+      })
+    );
+
+    await userEvent.selectOptions(screen.getByRole("listbox"), ["proxy-cred"]);
+    const proxyCred = screen.getByText("proxy-cred");
+    expect(proxyCred).toBeInTheDocument();
+    const mavenCred = screen.queryByText("maven-cred");
+    const sourceCred = screen.queryByText("source-cred");
+    expect(mavenCred).toBeNull(); // it doesn't exist
+    expect(sourceCred).toBeNull(); // it doesn't exist
   });
 });

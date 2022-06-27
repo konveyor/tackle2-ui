@@ -39,6 +39,7 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
   return (
     <Select
       placeholderText={placeholderText}
+      data-testid="select"
       isOpen={isOpen}
       onToggle={setIsOpen}
       onSelect={(_, selection) => {
