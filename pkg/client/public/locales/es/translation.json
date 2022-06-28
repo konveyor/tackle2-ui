@@ -151,6 +151,7 @@
     },
     "terms": {
         "accepted": "Aceptado",
+        "add": "Agregar",
         "additionalNotesOrComments": "Notas adicionales o comentarios",
         "adoptionCandidateDistribution": "Distribución de candidatos a la adopción",
         "analysis": "Análisis",
@@ -295,9 +296,14 @@
         "configureAnalysis": "Configurar análisis",
         "customRules": "Reglas personalizadas",
         "label": {
-            "analysisSource": "",
-            "notAllAnalyzable": "",
-            "notAllAnalyzableDetails": ""
+            "analysisSource": "Fuente para el análisis",
+            "excludePackages": "Excluir paquetes",
+            "notAllAnalyzable": "Algunas aplicaciones no se pueden analizar",
+            "notAllAnalyzableDetails": "Algunas de las aplicaciones seleccionadas no se pueden analizar con la fuente seleccionada porque esos valores no se han definido. Si continúa, estas aplicaciones no se incluirán en el análisis.",
+            "scopeAllDeps": "Aplicación y todas las dependencias, incluidas las bibliotecas de código abierto conocidas",
+            "scopeInternalDeps": "Aplicación y dependencias internas solamente",
+            "scopeSelectDeps": "Seleccionar la lista de paquetes a analizar manualmente",
+            "setTargets": "Seleccione una o más opciones de destino en foco para el análisis."
         },
         "options": "Opciones",
         "review": "Revisar",

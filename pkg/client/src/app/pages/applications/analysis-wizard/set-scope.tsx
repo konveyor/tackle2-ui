@@ -14,11 +14,15 @@ import { useFormContext } from "react-hook-form";
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+
 import { getValidatedFromError } from "@app/utils/utils";
 
 import "./wizard.css";
 
 export const SetScope: React.FunctionComponent = () => {
+  const { t } = useTranslation();
+
   const { getValues, setValue } = useFormContext();
   const {
     register,
@@ -56,7 +60,7 @@ export const SetScope: React.FunctionComponent = () => {
         onChange={() => {
           setValue("withKnown", "app");
         }}
-        label="Application and internal dependencies only"
+        label={t("wizard.label.scopeInternalDeps")}
         className={spacing.mbXs}
       />
       <Radio
@@ -66,7 +70,7 @@ export const SetScope: React.FunctionComponent = () => {
         onChange={() => {
           setValue("withKnown", "app,oss");
         }}
-        label="Application and all dependencies, including known Open Source libraries"
+        label={t("wizard.label.scopeAllDeps")}
         className={spacing.mbXs}
       />
       <Radio
@@ -76,7 +80,7 @@ export const SetScope: React.FunctionComponent = () => {
         onChange={() => {
           setValue("withKnown", "app,oss,select");
         }}
-        label="Select the list of packages to be analyzed manually"
+        label={t("wizard.label.scopeSelectDeps")}
         className={spacing.mbXs}
       />
       {withKnown.includes("select") && (
@@ -115,7 +119,7 @@ export const SetScope: React.FunctionComponent = () => {
                   setPackageToInclude("");
                 }}
               >
-                Add
+                {t("terms.add")}
               </Button>
             </InputGroup>
           </FormGroup>
@@ -148,7 +152,7 @@ export const SetScope: React.FunctionComponent = () => {
       <>
         <Switch
           id="simple-switch"
-          label="Exclude packages"
+          label={t("wizard.label.excludePackages")}
           isChecked={excludedSwitch}
           onChange={() => setExcludedSwitch(!excludedSwitch)}
         />
@@ -187,7 +191,7 @@ export const SetScope: React.FunctionComponent = () => {
                   setPackageToExclude("");
                 }}
               >
-                Add
+                {t("terms.add")}
               </Button>
             </InputGroup>
           </FormGroup>

@@ -151,6 +151,7 @@
     },
     "terms": {
         "accepted": "Accepted",
+        "add": "Add",
         "additionalNotesOrComments": "Additional notes or comments",
         "adoptionCandidateDistribution": "Adoption candidate distribution",
         "analysis": "Analysis",
@@ -296,8 +297,13 @@
         "customRules": "Custom rules",
         "label": {
             "analysisSource": "Source for analysis",
+            "excludePackages": "Exclude packages",
             "notAllAnalyzable": "Some applications cannot be analyzed",
-            "notAllAnalyzableDetails": "Some of the selected applications cannot be analyzed with the selected source because those values have not been defined. By continuing, these applications won't be included in the analysis."
+            "notAllAnalyzableDetails": "Some of the selected applications cannot be analyzed with the selected source because those values have not been defined. By continuing, these applications won't be included in the analysis.",
+            "scopeAllDeps": "Application and all dependencies, including known Open Source libraries",
+            "scopeInternalDeps": "Application and internal dependencies only",
+            "scopeSelectDeps": "Select the list of packages to be analyzed manually",
+            "setTargets": "Select one or more target options in focus for the analysis."
         },
         "options": "Options",
         "review": "Review",
