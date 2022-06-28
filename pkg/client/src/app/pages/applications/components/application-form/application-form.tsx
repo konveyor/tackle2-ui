@@ -11,10 +11,12 @@ import {
   ExpandableSection,
   Form,
   FormGroup,
+  Popover,
+  PopoverPosition,
   TextArea,
   TextInput,
-  Tooltip,
 } from "@patternfly/react-core";
+import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
 import {
   SingleSelectFetchOptionValueFormikField,
@@ -709,25 +711,32 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           </FormGroup>
           <FormGroup
             label={t("terms.binaryPackaging")}
+            labelIcon={
+              <Popover
+                position={PopoverPosition.top}
+                aria-label="binary-packaging-details"
+                bodyContent={t("message.binaryPackaging")}
+              >
+                <HelpIcon noVerticalAlign />
+              </Popover>
+            }
             fieldId="packaging"
             validated={getValidatedFromError(formik.errors.packaging)}
             helperTextInvalid={formik.errors.packaging}
           >
-            <Tooltip content={t("message.binaryPackaging")}>
-              <TextInput
-                type="text"
-                name="packaging"
-                aria-label="Binary Packaging"
-                aria-describedby="Binary Packaging"
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.packaging}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.packaging,
-                  formik.touched.packaging
-                )}
-              />
-            </Tooltip>
+            <TextInput
+              type="text"
+              name="packaging"
+              aria-label="Binary Packaging"
+              aria-describedby="Binary Packaging"
+              onChange={onChangeField}
+              onBlur={formik.handleBlur}
+              value={formik.values.packaging}
+              validated={getValidatedFromErrorTouched(
+                formik.errors.packaging,
+                formik.touched.packaging
+              )}
+            />
           </FormGroup>
         </ExpandableSection>
         <ActionGroup>
