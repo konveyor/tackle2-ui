@@ -147,8 +147,11 @@ export const CustomRules: React.FunctionComponent = () => {
       title: t("terms.name"),
       transforms: [cellWidth(20)],
     },
-    { title: "Source / Target", transforms: [cellWidth(20)] },
-    { title: "Number of rules", transforms: [cellWidth(10)] },
+    {
+      title: `${t("wizard.terms.source")} /  ${t("wizard.terms.target")}`,
+      transforms: [cellWidth(20)],
+    },
+    { title: t("wizard.terms.numberOfRules"), transforms: [cellWidth(10)] },
     {
       title: "",
       props: {
@@ -201,7 +204,7 @@ export const CustomRules: React.FunctionComponent = () => {
     <>
       <TextContent>
         <Title headingLevel="h3" size="xl">
-          {t("wizard.customRules")}
+          {t("wizard.terms.customRules")}
         </Title>
         <Text> {t("wizard.label.customRules")}</Text>
       </TextContent>
@@ -228,7 +231,12 @@ export const CustomRules: React.FunctionComponent = () => {
                   variant="primary"
                   onClick={() => setCustomRulesModalOpen(true)}
                 >
-                  {t("composed.add", { what: t("terms.rules").toLowerCase() })}
+                  {
+                    // t("wizard.terms.rules")
+                    t("composed.add", {
+                      what: t("wizard.terms.rules").toLowerCase(),
+                    })
+                  }
                 </Button>
               </ToolbarItem>
             </ToolbarGroup>

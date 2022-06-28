@@ -176,7 +176,9 @@ export const SetOptions: React.FunctionComponent = () => {
           </Select>
         </FormGroup>
         <FormGroup
-          label={t("wizard.terms.excludedRulesTags")}
+          label={t("wizard.composed.excluded", {
+            what: t("wizard.terms.rulesTags"),
+          })}
           fieldId="ruleTagToExclude"
           validated={getValidatedFromError(errors.ruleTagToExclude)}
           helperTextInvalid={errors?.ruleTagToExclude?.message}

@@ -305,11 +305,11 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const steps = [
     {
-      name: t("wizard.configureAnalysis"),
+      name: t("wizard.terms.configureAnalysis"),
       steps: [
         {
           id: stepId.AnalysisMode,
-          name: t("wizard.analysisMode"),
+          name: t("wizard.terms.analysisMode"),
           component: (
             <SetMode
               mode={mode}
@@ -326,31 +326,31 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         },
         {
           id: stepId.SetTargets,
-          name: t("wizard.setTargets"),
+          name: t("wizard.terms.setTargets"),
           component: <SetTargets />,
           enableNext: targets.length > 0,
           canJumpTo: stepIdReached >= stepId.SetTargets,
         },
         {
           id: stepId.Scope,
-          name: t("wizard.scope"),
+          name: t("wizard.terms.scope"),
           component: <SetScope />,
           canJumpTo: stepIdReached >= stepId.Scope,
         },
       ],
     },
     {
-      name: t("wizard.advanced"),
+      name: t("wizard.terms.advanced"),
       steps: [
         {
           id: stepId.CustomRules,
-          name: t("wizard.customRules"),
+          name: t("wizard.terms.customRules"),
           component: <CustomRules />,
           canJumpTo: stepIdReached >= stepId.CustomRules,
         },
         {
           id: stepId.Options,
-          name: t("wizard.options"),
+          name: t("wizard.terms.options"),
           component: <SetOptions />,
           enableNext: targets.length > 0,
           canJumpTo: stepIdReached >= stepId.Options,
@@ -359,7 +359,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
     {
       id: stepId.Review,
-      name: t("wizard.review"),
+      name: t("wizard.terms.review"),
       component: <Review applications={applications} mode={mode} />,
       nextButtonText: "Run",
       canJumpTo: stepIdReached >= stepId.Review,

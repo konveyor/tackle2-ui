@@ -61,7 +61,7 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
     <>
       <TextContent className={spacing.mbMd}>
         <Title headingLevel="h3" size="xl">
-          {t("wizard.analysisMode")}
+          {t("wizard.terms.analysisMode")}
         </Title>
       </TextContent>
       <FormGroup label={t("wizard.label.analysisSource")} fieldId="sourceType">

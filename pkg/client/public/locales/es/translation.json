@@ -291,10 +291,10 @@
         "required": "Este campo es requerido."
     },
     "wizard": {
-        "advanced": "Avanzada",
-        "analysisMode": "Modo de análisis",
-        "configureAnalysis": "Configurar análisis",
-        "customRules": "Reglas personalizadas",
+        "composed": {
+            "excluded": "Excluido {{what}}",
+            "included": "Incluido {{what}}"
+        },
         "label": {
             "advancedOptions": "Especifique opciones adicionales aquí.",
             "analysisSource": "Fuente para el análisis",
@@ -303,22 +303,34 @@
             "noCustomRules": "No custom rules personalizadas disponibles",
             "notAllAnalyzable": "Algunas aplicaciones no se pueden analizar",
             "notAllAnalyzableDetails": "Algunas de las aplicaciones seleccionadas no se pueden analizar con la fuente seleccionada porque esos valores no se han definido. Si continúa, estas aplicaciones no se incluirán en el análisis.",
+            "reviewDetails": "Revise la información a continuación, luego ejecute el análisis.",
             "scopeAllDeps": "Aplicación y todas las dependencias, incluidas las bibliotecas de código abierto conocidas",
             "scopeInternalDeps": "Aplicación y dependencias internas solamente",
             "scopeSelectDeps": "Seleccionar la lista de paquetes a analizar manualmente",
             "setTargets": "Seleccione una o más opciones de destino en foco para el análisis."
         },
-        "options": "Opciones",
-        "review": "Revisar",
-        "scope": "Alcance",
-        "setTargets": "Establecer objetivos",
         "terms": {
-            "excludedRulesTags": "Reglas excluidas tags",
+            "advanced": "Avanzado",
+            "analysisMode": "Modo de análisis",
+            "configureAnalysis": "Configurar análisis",
+            "customRules": "Reglas personalizadas",
+            "mode": "Modo",
+            "numberOfRules": "Número de reglas",
+            "options": "Opciones",
+            "packages": "Paquetes",
+            "review": "Revisar",
+            "rules": "Reglas",
+            "rulesTags": "Etiquetas de reglas",
+            "scope": "Alcance",
+            "setTargets": "Establecer objetivos",
+            "source": "Fuente",
             "sources": "Fuentes",
+            "target": "Objetivo",
             "targets": "Objetivos"
         },
         "title": {
-            "advancedOptions": "Opciones avanzadas"
+            "advancedOptions": "Opciones avanzadas",
+            "review": "Revisar detalles del análisis"
         }
     }
 }

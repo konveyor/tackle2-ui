@@ -125,7 +125,7 @@ export const SetTargets: React.FunctionComponent = () => {
     <>
       <TextContent>
         <Title headingLevel="h3" size="xl">
-          {t("wizard.setTargets")}
+          {t("wizard.terms.setTargets")}
         </Title>
         <Text>{t("wizard.label.setTargets")}</Text>
       </TextContent>
