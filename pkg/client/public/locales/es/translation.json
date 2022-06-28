@@ -294,6 +294,11 @@
         "analysisMode": "Modo de análisis",
         "configureAnalysis": "Configurar análisis",
         "customRules": "Reglas personalizadas",
+        "label": {
+            "analysisSource": "",
+            "notAllAnalyzable": "",
+            "notAllAnalyzableDetails": ""
+        },
         "options": "Opciones",
         "review": "Revisar",
         "scope": "Alcance",
