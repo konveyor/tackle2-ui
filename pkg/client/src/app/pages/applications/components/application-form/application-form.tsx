@@ -713,7 +713,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             validated={getValidatedFromError(formik.errors.packaging)}
             helperTextInvalid={formik.errors.packaging}
           >
-            <Tooltip content={t("message.binaryPackaging")} position="left">
+            <Tooltip content={t("message.binaryPackaging")}>
               <TextInput
                 type="text"
                 name="packaging"
