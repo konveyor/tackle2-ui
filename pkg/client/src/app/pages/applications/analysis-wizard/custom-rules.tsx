@@ -48,6 +48,11 @@ export const CustomRules: React.FunctionComponent = () => {
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
 
+  const onCloseCustomRuleModal = () => {
+    setCustomRulesModalOpen(false);
+    setReadFileData([]);
+  };
+
   const rules = React.useMemo(() => {
     const getRules = (file: IReadFile) => {
       if (!file.data) return [];
@@ -240,10 +245,7 @@ export const CustomRules: React.FunctionComponent = () => {
           isOpen={isAddCustomRulesModalOpen}
           variant="medium"
           title="Add rules"
-          onClose={() => {
-            setCustomRulesModalOpen(false);
-            setReadFileData([]);
-          }}
+          onClose={onCloseCustomRuleModal}
           actions={[
             <Button
               key="add"
@@ -268,10 +270,7 @@ export const CustomRules: React.FunctionComponent = () => {
             <Button
               key="cancel"
               variant="link"
-              onClick={() => {
-                setCustomRulesModalOpen(false);
-                setReadFileData([]);
-              }}
+              onClick={onCloseCustomRuleModal}
             >
               Cancel
             </Button>,
