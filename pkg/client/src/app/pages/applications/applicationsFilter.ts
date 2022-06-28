@@ -49,7 +49,7 @@ export const useApplicationsFilterValues = (
     {
       key: "businessService",
       title: "Business service",
-      type: FilterType.multiselect,
+      type: FilterType.select,
       selectOptions: dedupeFunction(
         applications
           .map((app) => app.businessService?.name)
