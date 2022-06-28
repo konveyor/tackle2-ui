@@ -297,7 +297,9 @@
         "customRules": "Reglas personalizadas",
         "label": {
             "analysisSource": "Fuente para el análisis",
+            "customRules": "Cargue las custom rules que desea incluir en el análisis.",
             "excludePackages": "Excluir paquetes",
+            "noCustomRules": "No custom rules personalizadas disponibles",
             "notAllAnalyzable": "Algunas aplicaciones no se pueden analizar",
             "notAllAnalyzableDetails": "Algunas de las aplicaciones seleccionadas no se pueden analizar con la fuente seleccionada porque esos valores no se han definido. Si continúa, estas aplicaciones no se incluirán en el análisis.",
             "scopeAllDeps": "Aplicación y todas las dependencias, incluidas las bibliotecas de código abierto conocidas",
