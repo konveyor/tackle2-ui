@@ -55,7 +55,7 @@
     },
     "composed": {
         "add": "Add {{what}}",
-        "applicationAssessment": "Applications assessment",
+        "applicationAssessment": "Application assessment",
         "applicationInventory": "Application inventory",
         "businessCriticality": "Business criticality (1=low, 10=high)",
         "editQuestion": "Edit {{what}}?",
