@@ -296,6 +296,7 @@
         "configureAnalysis": "Configure analysis",
         "customRules": "Custom rules",
         "label": {
+            "advancedOptions": "Specify additional options here.",
             "analysisSource": "Source for analysis",
             "customRules": "Upload the rules you want to include in the analysis.",
             "excludePackages": "Exclude packages",
@@ -310,6 +311,14 @@
         "options": "Options",
         "review": "Review",
         "scope": "Scope",
-        "setTargets": "Set targets"
+        "setTargets": "Set targets",
+        "terms": {
+            "excludedRulesTags": "Excluded rules tags",
+            "sources": "Sources",
+            "targets": "Targets"
+        },
+        "title": {
+            "advancedOptions": "Advanced options"
+        }
     }
 }

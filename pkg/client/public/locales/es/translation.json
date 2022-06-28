@@ -296,6 +296,7 @@
         "configureAnalysis": "Configurar análisis",
         "customRules": "Reglas personalizadas",
         "label": {
+            "advancedOptions": "Especifique opciones adicionales aquí.",
             "analysisSource": "Fuente para el análisis",
             "customRules": "Cargue las custom rules que desea incluir en el análisis.",
             "excludePackages": "Excluir paquetes",
@@ -310,6 +311,14 @@
         "options": "Opciones",
         "review": "Revisar",
         "scope": "Alcance",
-        "setTargets": "Establecer objetivos"
+        "setTargets": "Establecer objetivos",
+        "terms": {
+            "excludedRulesTags": "Reglas excluidas tags",
+            "sources": "Fuentes",
+            "targets": "Objetivos"
+        },
+        "title": {
+            "advancedOptions": "Opciones avanzadas"
+        }
     }
 }
