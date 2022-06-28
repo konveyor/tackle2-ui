@@ -55,7 +55,7 @@
     },
     "composed": {
         "add": "Add {{what}}",
-        "applicationAssessment": "Application assessment",
+        "applicationAssessment": "Applications assessment",
         "applicationInventory": "Application inventory",
         "businessCriticality": "Business criticality (1=low, 10=high)",
         "editQuestion": "Edit {{what}}?",
@@ -76,6 +76,7 @@
             "leavePage": "Are you sure you want to leave this page? Be sure to save your changes, or they will be lost."
         },
         "title": {
+            "applicationAnalysis": "Application analysis",
             "copyApplicationAssessmentAndReviewFrom": "Copy {{what}} assessment and review",
             "copyApplicationAssessmentFrom": "Copy {{what}} assessment",
             "delete": "Delete {{what}}?",
@@ -287,5 +288,15 @@
         "minLength": "This field must contain at least {{length}} characters.",
         "minOneStakeholderOrGroupRequired": "At least one stakeholder or stakeholder groups is required.",
         "required": "This field is required."
+    },
+    "wizard": {
+        "advanced": "Advanced",
+        "analysisMode": "Analysis mode",
+        "configureAnalysis": "Configure analysis",
+        "customRules": "Custom rules",
+        "options": "Options",
+        "review": "Review",
+        "scope": "Scope",
+        "setTargets": "Set targets"
     }
 }

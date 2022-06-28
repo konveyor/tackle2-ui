@@ -76,6 +76,7 @@
             "leavePage": "¿Estás seguro de querer salir de esta página? Asegúrate de guardar tus cambios o estos se perderán."
         },
         "title": {
+            "applicationAnalysis": "Análisis de aplicaciones",
             "copyApplicationAssessmentAndReviewFrom": "Copiar evaluación y revisión de {{what}}",
             "copyApplicationAssessmentFrom": "Copiar evaluación {{what}}",
             "delete": "¿Eliminar {{what}}?",
@@ -287,5 +288,15 @@
         "minLength": "Este campo debe de tener al menos {{length}} caracteres.",
         "minOneStakeholderOrGroupRequired": "Al menos un interesado o grupo interesado es requerido.",
         "required": "Este campo es requerido."
+    },
+    "wizard": {
+        "advanced": "Avanzada",
+        "analysisMode": "Modo de análisis",
+        "configureAnalysis": "Configurar análisis",
+        "customRules": "Reglas personalizadas",
+        "options": "Opciones",
+        "review": "Revisar",
+        "scope": "Alcance",
+        "setTargets": "Establecer objetivos"
     }
 }
