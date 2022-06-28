@@ -41,12 +41,15 @@ interface IAnalysisWizard {
   onClose: () => void;
   isOpen: boolean;
 }
+
 export interface IReadFile {
   fileName: string;
-  loadResult?: "danger" | "success";
   loadError?: DOMException;
-  file?: File;
+  loadPercentage?: number;
+  loadResult?: "danger" | "success";
+  data?: string;
 }
+
 export interface IAnalysisWizardFormValues {
   artifact: string;
   targets: string[];
