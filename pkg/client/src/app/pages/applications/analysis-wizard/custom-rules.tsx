@@ -268,7 +268,10 @@ export const CustomRules: React.FunctionComponent = () => {
             <Button
               key="cancel"
               variant="link"
-              onClick={() => setCustomRulesModalOpen(false)}
+              onClick={() => {
+                setCustomRulesModalOpen(false);
+                setReadFileData([]);
+              }}
             >
               Cancel
             </Button>,
