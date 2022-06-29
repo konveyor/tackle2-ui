@@ -139,13 +139,11 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
   };
 
   const handleFile = (file: File) => {
-    readFile(file)
-      .then((data) => {})
-      .catch((error: DOMException) => {
-        setCurrentFile(null);
-        setFileUploadProgress(0);
-        setFileUploadStatus("danger");
-      });
+    readFile(file).catch((error: DOMException) => {
+      setCurrentFile(null);
+      setFileUploadProgress(0);
+      setFileUploadStatus("danger");
+    });
   };
 
   return (
