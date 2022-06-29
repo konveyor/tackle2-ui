@@ -198,17 +198,6 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
                   />
                 )}
               </FormGroup>
-              <FormGroup fieldId="isForcedUpdate">
-                <Tooltip content="Enabling this option forces a download of remote dependencies to the local artifact repository at each build.">
-                  <Switch
-                    id="maven-update"
-                    label="Force update of dependencies"
-                    aria-label="Force update of Maven repositories"
-                    isChecked={mvnForcedSetting === true ? true : false}
-                    onChange={onChangeForced}
-                  />
-                </Tooltip>
-              </FormGroup>
               <FormGroup fieldId="isInsecure">
                 {insecureSettingError && (
                   <Alert
