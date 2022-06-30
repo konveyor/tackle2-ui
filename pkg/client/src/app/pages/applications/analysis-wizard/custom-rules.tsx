@@ -21,6 +21,7 @@ import {
   TableText,
 } from "@patternfly/react-table";
 import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { FilterIcon } from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import { TrashIcon } from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 
@@ -38,6 +39,8 @@ import { IReadFile } from "./analysis-wizard";
 import "./wizard.css";
 
 export const CustomRules: React.FunctionComponent = () => {
+  const { t } = useTranslation();
+
   const { getValues, setValue } = useFormContext();
 
   const sources: string[] = getValues("sources");
@@ -112,9 +115,12 @@ export const CustomRules: React.FunctionComponent = () => {
   const filterCategories: FilterCategory<Rule>[] = [
     {
       key: "name",
-      title: "Name",
+      title: t("terms.name"),
       type: FilterType.search,
-      placeholderText: "Filter by name...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.name").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item?.name || "";
       },
@@ -133,11 +139,14 @@ export const CustomRules: React.FunctionComponent = () => {
   // Table
   const columns: ICell[] = [
     {
-      title: "name",
+      title: t("terms.name"),
       transforms: [cellWidth(20)],
     },
-    { title: "Source / Target", transforms: [cellWidth(20)] },
-    { title: "Number of rules", transforms: [cellWidth(10)] },
+    {
+      title: `${t("wizard.terms.source")} /  ${t("wizard.terms.target")}`,
+      transforms: [cellWidth(20)],
+    },
+    { title: t("wizard.terms.numberOfRules"), transforms: [cellWidth(10)] },
     {
       title: "",
       props: {
@@ -190,9 +199,9 @@ export const CustomRules: React.FunctionComponent = () => {
     <>
       <TextContent>
         <Title headingLevel="h3" size="xl">
-          Custom rules
+          {t("wizard.terms.customRules")}
         </Title>
-        <Text>Upload the rules you want to include in the analysis.</Text>
+        <Text> {t("wizard.label.customRules")}</Text>
       </TextContent>
       <div className="line">
         <Toolbar
@@ -217,7 +226,12 @@ export const CustomRules: React.FunctionComponent = () => {
                   variant="primary"
                   onClick={() => setCustomRulesModalOpen(true)}
                 >
-                  Add rules
+                  {
+                    // t("wizard.terms.rules")
+                    t("composed.add", {
+                      what: t("wizard.terms.rules").toLowerCase(),
+                    })
+                  }
                 </Button>
               </ToolbarItem>
             </ToolbarGroup>
@@ -236,8 +250,10 @@ export const CustomRules: React.FunctionComponent = () => {
         </Table>
       ) : (
         <NoDataEmptyState
-          title="No custom rules available"
-          description={"Add rules"}
+          title={t("wizard.label.noCustomRules")}
+          description={t("composed.add", {
+            what: t("terms.rules").toLowerCase(),
+          })}
         />
       )}
       {isAddCustomRulesModalOpen && (

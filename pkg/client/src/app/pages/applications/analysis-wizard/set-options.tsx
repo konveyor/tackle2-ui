@@ -13,8 +13,10 @@ import {
   Title,
 } from "@patternfly/react-core";
 import { useForm, useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
 import { getValidatedFromError } from "@app/utils/utils";
 
 const defaultTargets = [
@@ -92,6 +94,8 @@ const defaultSources = [
 ];
 
 export const SetOptions: React.FunctionComponent = () => {
+  const { t } = useTranslation();
+
   const { getValues, setValue } = useFormContext();
   const {
     register,
@@ -110,12 +114,12 @@ export const SetOptions: React.FunctionComponent = () => {
     <>
       <TextContent>
         <Title headingLevel="h3" size="xl">
-          Advanced options
+          {t("wizard.title.advancedOptions")}
         </Title>
-        <Text>Specify additional options here.</Text>
+        <Text>{t("wizard.label.advancedOptions")}</Text>
       </TextContent>
       <Form isHorizontal>
-        <FormGroup label="Targets" fieldId="targets">
+        <FormGroup label={t("wizard.terms.targets")} fieldId="targets">
           <Select
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select targets"
@@ -143,7 +147,7 @@ export const SetOptions: React.FunctionComponent = () => {
             ))}
           </Select>
         </FormGroup>
-        <FormGroup label="Sources" fieldId="sources">
+        <FormGroup label={t("wizard.terms.sources")} fieldId="sources">
           <Select
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select sources"
@@ -172,7 +176,9 @@ export const SetOptions: React.FunctionComponent = () => {
           </Select>
         </FormGroup>
         <FormGroup
-          label="Excluded rules tags"
+          label={t("wizard.composed.excluded", {
+            what: t("wizard.terms.rulesTags"),
+          })}
           fieldId="ruleTagToExclude"
           validated={getValidatedFromError(errors.ruleTagToExclude)}
           helperTextInvalid={errors?.ruleTagToExclude?.message}
@@ -207,7 +213,7 @@ export const SetOptions: React.FunctionComponent = () => {
                 setRuleToExclude("");
               }}
             >
-              Add
+              {t("terms.add")}
             </Button>
           </InputGroup>
           <div className={spacing.ptMd}>

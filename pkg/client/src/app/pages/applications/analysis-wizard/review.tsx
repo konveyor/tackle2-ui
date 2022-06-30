@@ -11,6 +11,7 @@ import {
   Title,
 } from "@patternfly/react-core";
 import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 import { Application } from "@app/api/models";
 import { IAnalysisWizardFormValues } from "./analysis-wizard";
@@ -37,6 +38,8 @@ export const Review: React.FunctionComponent<IReview> = ({
   applications,
   mode,
 }) => {
+  const { t } = useTranslation();
+
   const { getValues } = useFormContext<IAnalysisWizardFormValues>();
   const {
     targets,
@@ -52,13 +55,13 @@ export const Review: React.FunctionComponent<IReview> = ({
     <>
       <TextContent>
         <Title headingLevel="h3" size="xl">
-          Review analysis details
+          {t("wizard.title.review")}
         </Title>
-        <Text>Review the information below, then run the analysis.</Text>
+        <Text>{t("wizard.label.reviewDetails")}</Text>
       </TextContent>
       <DescriptionList isHorizontal>
         <DescriptionListGroup>
-          <DescriptionListTerm>Applications</DescriptionListTerm>
+          <DescriptionListTerm>{t("terms.applications")}</DescriptionListTerm>
           <DescriptionListDescription id="applications">
             <List isPlain>
               {applications.map((app) => (
@@ -68,14 +71,16 @@ export const Review: React.FunctionComponent<IReview> = ({
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>Mode</DescriptionListTerm>
+          <DescriptionListTerm>{t("wizard.terms.mode")}</DescriptionListTerm>
           <DescriptionListDescription id="mode">
             {defaultMode.get(mode)}
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {targets.length > 1 ? "Targets" : "Target"}
+            {targets.length > 1
+              ? t("wizard.terms.targets")
+              : t("wizard.terms.target")}
           </DescriptionListTerm>
           <DescriptionListDescription id="targets">
             <List isPlain>
@@ -87,7 +92,9 @@ export const Review: React.FunctionComponent<IReview> = ({
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {targets.length > 1 ? "Sources" : "Source"}
+            {targets.length > 1
+              ? t("wizard.terms.sources")
+              : t("wizard.terms.source")}
           </DescriptionListTerm>
           <DescriptionListDescription id="sources">
             <List isPlain>
@@ -98,7 +105,7 @@ export const Review: React.FunctionComponent<IReview> = ({
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>Scope</DescriptionListTerm>
+          <DescriptionListTerm>{t("wizard.terms.scope")}</DescriptionListTerm>
           <DescriptionListDescription id="scope">
             <List isPlain>
               {withKnown.split(",").map((scope, index) => (
@@ -108,7 +115,14 @@ export const Review: React.FunctionComponent<IReview> = ({
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>Included packages</DescriptionListTerm>
+          <DescriptionListTerm>
+            {
+              // t("wizard.terms.packages")
+              t("wizard.composed.included", {
+                what: t("wizard.terms.packages").toLowerCase(),
+              })
+            }
+          </DescriptionListTerm>
           <DescriptionListDescription id="included-packages">
             <List isPlain>
               {includedPackages.map((pkg, index) => (
@@ -118,7 +132,14 @@ export const Review: React.FunctionComponent<IReview> = ({
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>Excluded packages</DescriptionListTerm>
+          <DescriptionListTerm>
+            {
+              // t("wizard.terms.packages")
+              t("wizard.composed.excluded", {
+                what: t("wizard.terms.packages").toLowerCase(),
+              })
+            }
+          </DescriptionListTerm>
           <DescriptionListDescription id="excluded-packages">
             <List isPlain>
               {excludedPackages.map((pkg, index) => (
@@ -128,7 +149,9 @@ export const Review: React.FunctionComponent<IReview> = ({
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>Custom rules</DescriptionListTerm>
+          <DescriptionListTerm>
+            {t("wizard.terms.customRules")}
+          </DescriptionListTerm>
           <DescriptionListDescription id="rules">
             <List isPlain>
               {customRulesFiles.map((rule, index) => (
@@ -136,9 +159,16 @@ export const Review: React.FunctionComponent<IReview> = ({
               ))}
             </List>
           </DescriptionListDescription>
-        </DescriptionListGroup>{" "}
+        </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>Excluded rules tags</DescriptionListTerm>
+          <DescriptionListTerm>
+            {
+              // t("wizard.terms.rulesTags")
+              t("wizard.composed.excluded", {
+                what: t("wizard.terms.rulesTags").toLowerCase(),
+              })
+            }
+          </DescriptionListTerm>
           <DescriptionListDescription id="excluded-rules-tags">
             <List isPlain>
               {excludedRulesTags.map((tag, index) => (
