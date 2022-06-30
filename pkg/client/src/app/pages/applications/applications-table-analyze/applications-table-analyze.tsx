@@ -53,7 +53,11 @@ import { ApplicationAnalysisStatus } from "../components/application-analysis-st
 import { FilterToolbar } from "@app/shared/components/FilterToolbar";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
-import { useDeleteTaskMutation, useFetchTasks } from "@app/queries/tasks";
+import {
+  useDeleteTaskMutation,
+  useCancelTaskMutation,
+  useFetchTasks,
+} from "@app/queries/tasks";
 import {
   applicationsWriteScopes,
   importsWriteScopes,
@@ -117,17 +121,17 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const { tasks } = useFetchTasks();
 
-  const completedDeleteTask = () => {
-    dispatch(alertActions.addInfo("Task", "Deleted"));
+  const completedCancelTask = () => {
+    dispatch(alertActions.addInfo("Task", "Canceled"));
   };
 
-  const failedDeleteTask = () => {
-    dispatch(alertActions.addDanger("Task", "Deletion failed."));
+  const failedCancelTask = () => {
+    dispatch(alertActions.addDanger("Task", "Cancelation failed."));
   };
 
-  const { mutate: deleteTask } = useDeleteTaskMutation(
-    completedDeleteTask,
-    failedDeleteTask
+  const { mutate: cancelTask } = useCancelTaskMutation(
+    completedCancelTask,
+    failedCancelTask
   );
 
   const getTask = (application: Application) =>
@@ -393,7 +397,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const cancelAnalysis = (row: Application) => {
     const task = tasks.find((task) => task.application?.id === row.id);
-    if (task?.id) deleteTask(task.id);
+    if (task?.id) cancelTask(task.id);
   };
 
   const handleOnApplicationIdentityUpdated = () => {
