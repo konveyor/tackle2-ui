@@ -17,6 +17,7 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import {
   SingleSelectFetchOptionValueFormikField,
@@ -717,7 +718,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 aria-label="binary-packaging-details"
                 bodyContent={t("message.binaryPackaging")}
               >
-                <HelpIcon noVerticalAlign />
+                <HelpIcon className={spacing.mlXs} noVerticalAlign />
               </Popover>
             }
             fieldId="packaging"
