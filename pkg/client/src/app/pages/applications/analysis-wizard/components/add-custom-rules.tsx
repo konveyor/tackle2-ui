@@ -2,7 +2,6 @@ import * as React from "react";
 import {
   Alert,
   AlertActionCloseButton,
-  Modal,
   MultipleFileUpload,
   MultipleFileUploadMain,
   MultipleFileUploadStatus,
@@ -14,117 +13,192 @@ import { XMLValidator } from "fast-xml-parser";
 import XSDSchema from "./windup-jboss-ruleset.xsd";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IReadFile } from "../analysis-wizard";
-import { useFormContext } from "react-hook-form";
 
 const xmllint = require("xmllint");
-interface IAddCustomRulesProps {
-  currentFiles: IReadFile[];
-  setCurrentFiles: (files: IReadFile[]) => void;
+interface IAddCustomRules {
+  customRulesFiles: IReadFile[];
+  readFileData: IReadFile[];
+  setReadFileData: (setReadFile: React.SetStateAction<IReadFile[]>) => void;
+}
+interface IParsedXMLFileStatus {
+  state: "valid" | "error";
+  message?: string;
 }
 
-export const AddCustomRules: React.FunctionComponent<IAddCustomRulesProps> = ({
-  currentFiles,
-  setCurrentFiles,
-}) => {
-  const { getValues, setValue } = useFormContext();
-  const customRulesFiles: IReadFile[] = getValues("customRulesFiles");
-  const [modalText, setModalText] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
+export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
+  customRulesFiles,
+  readFileData,
+  setReadFileData,
+}: IAddCustomRules) => {
   const [error, setError] = React.useState("");
+  const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
+  const [showStatus, setShowStatus] = React.useState(false);
 
-  const getStatusIcon = () => {
-    if (isLoading) {
+  // only show the status component once a file has been uploaded, but keep the status list component itself even if all files are removed
+  if (!showStatus && currentFiles.length > 0) {
+    setShowStatus(true);
+  }
+
+  // determine the icon that should be shown for the overall status list
+  const setStatus = () => {
+    if (readFileData.length < currentFiles.length) {
       return "inProgress";
-    } else if (currentFiles.every((file) => file.loadResult === "success")) {
+    } else if (readFileData.every((file) => file.loadResult === "success")) {
       return "success";
     } else {
       return "danger";
     }
   };
 
-  const validateXMLFile = (data: string) => {
-    const validationObject = XMLValidator.validate(data, {
+  const validateXMLFile = (data: string): IParsedXMLFileStatus => {
+    // Filter out "data:text/xml;base64," from data
+    const payload = atob(data.substring(21));
+    const validationObject = XMLValidator.validate(payload, {
       allowBooleanAttributes: true,
     });
-    //if xml is valid, check against schema
+
+    // If xml is valid, check against schema
     if (validationObject === true) {
       const currentSchema = XSDSchema;
 
       const validationResult = xmllint.xmllint.validateXML({
-        xml: data,
+        xml: payload,
         schema: currentSchema,
       });
 
-      if (!validationResult.errors) {
-        //valid against  schema
-        return true;
-      } else {
-        //not valid against  schema
-        setError(validationResult?.errors?.toString());
-        return false;
-      }
-    } else {
-      setError(validationObject?.err?.msg?.toString());
-      return false;
-    }
+      if (validationResult.errors)
+        return {
+          state: "error",
+          message: validationResult?.errors?.toString(),
+        };
+      else return { state: "valid" };
+    } else
+      return {
+        state: "error",
+        message: validationObject?.err?.msg?.toString(),
+      };
   };
-  const hasDuplicateFile = (name: string) =>
-    currentFiles.some((file) => file.fileName === name) ||
+
+  // callback that will be called by the react dropzone with the newly dropped file objects
+  const handleFileDrop = (droppedFiles: File[]) => {
+    // identify what, if any, files are re-uploads of already uploaded files
+    const currentFileNames = currentFiles.map((file) => file.name);
+    const reUploads = droppedFiles.filter((droppedFile) =>
+      currentFileNames.includes(droppedFile.name)
+    );
+
+    /** this promise chain is needed because if the file removal is done at the same time as the file adding react
+     * won't realize that the status items for the re-uploaded files needs to be re-rendered */
+    Promise.resolve()
+      .then(() => removeFiles(reUploads.map((file) => file.name)))
+      .then(() =>
+        setCurrentFiles((prevFiles) => [...prevFiles, ...droppedFiles])
+      );
+  };
+
+  const readFile = (file: File) => {
+    return new Promise<string | null>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.onprogress = (data) => {
+        if (data.lengthComputable) {
+          // setLoadPercentage((data.loaded / data.total) * 100);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const isFileIncluded = (name: string) =>
     customRulesFiles.some((file) => file.fileName === name);
 
-  const handleFileDrop = async function (droppedFiles: File[]) {
-    let currFiles: IReadFile[] = [];
-    for (const file of droppedFiles) {
-      //TODO: validate files
-      // const text = await file.text();
-      // const isXMLFileValid = validateXMLFile(text);
-      const isXMLFileValid = true;
-      //
-
-      const isUniqueFile = !hasDuplicateFile(file.name);
-      if (!isXMLFileValid) {
-        return;
-      } else if (!isUniqueFile) {
-        setError(
-          "A custom rule file with that name has already been uploaded."
-        );
-      } else {
-        const newReadFile: IReadFile = {
-          fileName: file.name,
-          loadResult: "success",
-          file: file,
-        };
-        currFiles.push(newReadFile);
-      }
-    }
-
-    const fileList: IReadFile[] = [...currentFiles, ...currFiles];
-
-    setCurrentFiles(fileList);
+  const handleFile = (file: File) => {
+    readFile(file)
+      .then((data) => {
+        if (isFileIncluded(file.name)) {
+          const error = new DOMException(
+            `File "${file.name}" is already uploaded`
+          );
+          handleReadFail(error, 100, file);
+        } else {
+          if (data) {
+            const validatedXMLResult = validateXMLFile(data);
+            if (validatedXMLResult.state === "valid")
+              handleReadSuccess(data, file);
+            else {
+              const error = new DOMException(
+                `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
+              );
+              handleReadFail(error, 100, file);
+            }
+          }
+        }
+      })
+      .catch((error: DOMException) => {
+        handleReadFail(error, 0, file);
+      });
   };
 
-  const handleDropRejected = (
-    files: File[],
-    _event: React.DragEvent<HTMLElement>
-  ) => {
-    if (files.length === 1) {
-      setModalText(`${files[0].name} is not an accepted file type`);
-    } else {
-      const rejectedMessages = files.reduce(
-        (acc, file) => (acc += `${file.name}, `),
-        ""
-      );
-      setModalText(`${rejectedMessages}are not accepted file types`);
-    }
+  // remove files from both state arrays based on their name
+  const removeFiles = (namesOfFilesToRemove: string[]) => {
+    const newCurrentFiles = currentFiles.filter(
+      (currentFile) =>
+        !namesOfFilesToRemove.some((fileName) => fileName === currentFile.name)
+    );
+
+    setCurrentFiles(newCurrentFiles);
+
+    const newReadFiles = readFileData.filter(
+      (readFile) =>
+        !namesOfFilesToRemove.some((fileName) => fileName === readFile.fileName)
+    );
+
+    setReadFileData(newReadFiles);
   };
 
-  const successfullyReadFileCount = currentFiles.filter(
+  const handleReadSuccess = (data: string, file: File) => {
+    const newFile: IReadFile = {
+      data,
+      fileName: file.name,
+      loadResult: "success",
+      loadPercentage: 100,
+    };
+    setReadFileData((prevReadFiles) => [...prevReadFiles, newFile]);
+  };
+
+  const handleReadFail = (error: DOMException, percentage, file: File) => {
+    setError(error.toString());
+    setReadFileData((prevReadFiles) => [
+      ...prevReadFiles,
+      {
+        loadError: error,
+        fileName: file.name,
+        loadResult: "danger",
+        loadPercentage: percentage,
+      },
+    ]);
+  };
+
+  const successfullyReadFileCount = readFileData.filter(
     (fileData) => fileData.loadResult === "success"
   ).length;
 
+  const getloadPercentage = (filename) => {
+    const readFile = readFileData.find((file) => file.fileName === filename);
+    if (readFile) return readFile.loadPercentage;
+    return 0;
+  };
+
+  const getloadResult = (filename) => {
+    const readFile = readFileData.find((file) => file.fileName === filename);
+    if (readFile) return readFile.loadResult;
+    return undefined;
+  };
+
   return (
     <>
-      {error && (
+      {error !== "" && (
         <Alert
           className={`${spacing.mtMd} ${spacing.mbMd}`}
           variant="danger"
@@ -137,7 +211,6 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRulesProps> = ({
         onFileDrop={handleFileDrop}
         dropzoneProps={{
           accept: ".windup.xml",
-          onDropRejected: handleDropRejected,
         }}
       >
         <MultipleFileUploadMain
@@ -146,33 +219,23 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRulesProps> = ({
           titleTextSeparator="or"
           infoText="Accepted file types: XML with '.windup.xml' suffix."
         />
-        {!!currentFiles.length && (
+        {showStatus && (
           <MultipleFileUploadStatus
             statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
-            statusToggleIcon={getStatusIcon()}
+            statusToggleIcon={setStatus()}
           >
-            {currentFiles.map((file, i) => (
+            {currentFiles.map((file) => (
               <MultipleFileUploadStatusItem
-                file={file.file}
-                key={file.fileName}
-                onClearClick={() => setCurrentFiles(currentFiles.splice(i, 1))}
-                onReadStarted={() => setIsLoading(true)}
-                onReadFinished={() => setIsLoading(false)}
+                file={file}
+                key={file.name}
+                customFileHandler={handleFile}
+                onClearClick={() => removeFiles([file.name])}
+                progressValue={getloadPercentage(file.name)}
+                progressVariant={getloadResult(file.name)}
               />
             ))}
           </MultipleFileUploadStatus>
         )}
-        <Modal
-          isOpen={!!modalText}
-          title="Unsupported file"
-          titleIconVariant="warning"
-          showClose
-          variant="medium"
-          aria-label="unsupported file upload attempted"
-          onClose={() => setModalText("")}
-        >
-          {modalText}
-        </Modal>
       </MultipleFileUpload>
     </>
   );
