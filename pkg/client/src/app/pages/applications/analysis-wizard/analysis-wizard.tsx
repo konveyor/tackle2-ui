@@ -7,6 +7,7 @@ import {
   Wizard,
   WizardStepFunctionType,
 } from "@patternfly/react-core";
+import { useTranslation } from "react-i18next";
 
 import {
   Application,
@@ -92,7 +93,9 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   onClose,
   isOpen,
 }: IAnalysisWizard) => {
-  const title = "Application analysis";
+  const { t } = useTranslation();
+
+  const title = t("dialog.title.applicationAnalysis");
   const dispatch = useDispatch();
 
   const [isInitTaskgroup, setInitTaskgroup] = React.useState(false);
@@ -305,11 +308,11 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const steps = [
     {
-      name: "Configure analysis",
+      name: t("wizard.terms.configureAnalysis"),
       steps: [
         {
           id: stepId.AnalysisMode,
-          name: "Analysis mode",
+          name: t("wizard.terms.analysisMode"),
           component: (
             <SetMode
               mode={mode}
@@ -326,31 +329,31 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         },
         {
           id: stepId.SetTargets,
-          name: "Set targets",
+          name: t("wizard.terms.setTargets"),
           component: <SetTargets />,
           enableNext: targets.length > 0,
           canJumpTo: stepIdReached >= stepId.SetTargets,
         },
         {
           id: stepId.Scope,
-          name: "Scope",
+          name: t("wizard.terms.scope"),
           component: <SetScope />,
           canJumpTo: stepIdReached >= stepId.Scope,
         },
       ],
     },
     {
-      name: "Advanced",
+      name: t("wizard.terms.advanced"),
       steps: [
         {
           id: stepId.CustomRules,
-          name: "Custom rules",
+          name: t("wizard.terms.customRules"),
           component: <CustomRules />,
           canJumpTo: stepIdReached >= stepId.CustomRules,
         },
         {
           id: stepId.Options,
-          name: "Options",
+          name: t("wizard.terms.options"),
           component: <SetOptions />,
           enableNext: targets.length > 0,
           canJumpTo: stepIdReached >= stepId.Options,
@@ -359,7 +362,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     },
     {
       id: stepId.Review,
-      name: "Review",
+      name: t("wizard.terms.review"),
       component: <Review applications={applications} mode={mode} />,
       nextButtonText: "Run",
       canJumpTo: stepIdReached >= stepId.Review,

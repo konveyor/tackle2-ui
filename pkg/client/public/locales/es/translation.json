@@ -76,6 +76,7 @@
             "leavePage": "¿Estás seguro de querer salir de esta página? Asegúrate de guardar tus cambios o estos se perderán."
         },
         "title": {
+            "applicationAnalysis": "Análisis de aplicaciones",
             "copyApplicationAssessmentAndReviewFrom": "Copiar evaluación y revisión de {{what}}",
             "copyApplicationAssessmentFrom": "Copiar evaluación {{what}}",
             "delete": "¿Eliminar {{what}}?",
@@ -150,6 +151,7 @@
     },
     "terms": {
         "accepted": "Aceptado",
+        "add": "Agregar",
         "additionalNotesOrComments": "Notas adicionales o comentarios",
         "adoptionCandidateDistribution": "Distribución de candidatos a la adopción",
         "analysis": "Análisis",
@@ -287,5 +289,48 @@
         "minLength": "Este campo debe de tener al menos {{length}} caracteres.",
         "minOneStakeholderOrGroupRequired": "Al menos un interesado o grupo interesado es requerido.",
         "required": "Este campo es requerido."
+    },
+    "wizard": {
+        "composed": {
+            "excluded": "Excluido {{what}}",
+            "included": "Incluido {{what}}"
+        },
+        "label": {
+            "advancedOptions": "Especifique opciones adicionales aquí.",
+            "analysisSource": "Fuente para el análisis",
+            "customRules": "Cargue las custom rules que desea incluir en el análisis.",
+            "excludePackages": "Excluir paquetes",
+            "noCustomRules": "No custom rules personalizadas disponibles",
+            "notAllAnalyzable": "Algunas aplicaciones no se pueden analizar",
+            "notAllAnalyzableDetails": "Algunas de las aplicaciones seleccionadas no se pueden analizar con la fuente seleccionada porque esos valores no se han definido. Si continúa, estas aplicaciones no se incluirán en el análisis.",
+            "reviewDetails": "Revise la información a continuación, luego ejecute el análisis.",
+            "scopeAllDeps": "Aplicación y todas las dependencias, incluidas las bibliotecas de código abierto conocidas",
+            "scopeInternalDeps": "Aplicación y dependencias internas solamente",
+            "scopeSelectDeps": "Seleccionar la lista de paquetes a analizar manualmente",
+            "setTargets": "Seleccione una o más opciones de destino en foco para el análisis."
+        },
+        "terms": {
+            "advanced": "Avanzado",
+            "analysisMode": "Modo de análisis",
+            "configureAnalysis": "Configurar análisis",
+            "customRules": "Reglas personalizadas",
+            "mode": "Modo",
+            "numberOfRules": "Número de reglas",
+            "options": "Opciones",
+            "packages": "Paquetes",
+            "review": "Revisar",
+            "rules": "Reglas",
+            "rulesTags": "Etiquetas de reglas",
+            "scope": "Alcance",
+            "setTargets": "Establecer objetivos",
+            "source": "Fuente",
+            "sources": "Fuentes",
+            "target": "Objetivo",
+            "targets": "Objetivos"
+        },
+        "title": {
+            "advancedOptions": "Opciones avanzadas",
+            "review": "Revisar detalles del análisis"
+        }
     }
 }

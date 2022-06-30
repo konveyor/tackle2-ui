@@ -76,6 +76,7 @@
             "leavePage": "Are you sure you want to leave this page? Be sure to save your changes, or they will be lost."
         },
         "title": {
+            "applicationAnalysis": "Application analysis",
             "copyApplicationAssessmentAndReviewFrom": "Copy {{what}} assessment and review",
             "copyApplicationAssessmentFrom": "Copy {{what}} assessment",
             "delete": "Delete {{what}}?",
@@ -150,6 +151,7 @@
     },
     "terms": {
         "accepted": "Accepted",
+        "add": "Add",
         "additionalNotesOrComments": "Additional notes or comments",
         "adoptionCandidateDistribution": "Adoption candidate distribution",
         "analysis": "Analysis",
@@ -287,5 +289,48 @@
         "minLength": "This field must contain at least {{length}} characters.",
         "minOneStakeholderOrGroupRequired": "At least one stakeholder or stakeholder groups is required.",
         "required": "This field is required."
+    },
+    "wizard": {
+        "composed": {
+            "excluded": "Excluded {{what}}",
+            "included": "Included {{what}}"
+        },
+        "label": {
+            "advancedOptions": "Specify additional options here.",
+            "analysisSource": "Source for analysis",
+            "customRules": "Upload the rules you want to include in the analysis.",
+            "excludePackages": "Exclude packages",
+            "noCustomRules": "No custom rules available",
+            "notAllAnalyzable": "Some applications cannot be analyzed",
+            "notAllAnalyzableDetails": "Some of the selected applications cannot be analyzed with the selected source because those values have not been defined. By continuing, these applications won't be included in the analysis.",
+            "reviewDetails": "Review the information below, then run the analysis.",
+            "scopeAllDeps": "Application and all dependencies, including known Open Source libraries",
+            "scopeInternalDeps": "Application and internal dependencies only",
+            "scopeSelectDeps": "Select the list of packages to be analyzed manually",
+            "setTargets": "Select one or more target options in focus for the analysis."
+        },
+        "terms": {
+            "advanced": "Advanced",
+            "analysisMode": "Analysis mode",
+            "configureAnalysis": "Configure analysis",
+            "customRules": "Custom rules",
+            "mode": "Mode",
+            "numberOfRules": "Number of rules",
+            "options": "Options",
+            "packages": "Packages",
+            "review": "Review",
+            "rules": "Rules",
+            "rulesTags": "rules tags",
+            "scope": "Scope",
+            "setTargets": "Set targets",
+            "source": "Source",
+            "sources": "Sources",
+            "target": "Target",
+            "targets": "Targets"
+        },
+        "title": {
+            "advancedOptions": "Advanced options",
+            "review": "Review analysis details"
+        }
     }
 }
