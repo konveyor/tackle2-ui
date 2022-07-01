@@ -549,7 +549,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                       id="file"
                       name={name}
                       type="text"
-                      value={value && "[Encrypted]"}
+                      value={
+                        value
+                          ? value !== identity?.key
+                            ? value
+                            : "[Encrypted]"
+                          : ""
+                      }
                       filename={values.keyFilename}
                       onChange={(value, filename) => {
                         onChange(value);
@@ -627,7 +633,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   id="file"
                   name={name}
                   type="text"
-                  value={value && "[Encrypted]"}
+                  value={
+                    value
+                      ? value !== identity?.settings
+                        ? value
+                        : "[Encrypted]"
+                      : ""
+                  }
                   filename={values.settingsFilename}
                   onChange={(fileContents, fileName, event) => {
                     onChange(fileContents);
