@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { AxiosResponse } from "axios";
+import React, { useState } from "react";
+import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@konveyor/lib-ui";
 
@@ -10,7 +10,6 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  ToolbarChip,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -34,18 +33,10 @@ import {
   AppTableActionButtons,
   AppTableWithControls,
   ConditionalRender,
-  SearchFilter,
-  AppTableToolbarToggleGroup,
   NoDataEmptyState,
 } from "@app/shared/components";
-import {
-  useTableControls,
-  useFetchStakeholderGroups,
-  useDelete,
-} from "@app/shared/hooks";
 
 import { getAxiosErrorMessage, numStr } from "@app/utils/utils";
-import { deleteStakeholderGroup } from "@app/api/rest";
 import { StakeholderGroup } from "@app/api/models";
 
 import { NewStakeholderGroupModal } from "./components/new-stakeholder-group-modal";
@@ -59,6 +50,10 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
+import {
+  useDeleteStakeholderGroupMutation,
+  useFetchStakeholderGroups,
+} from "@app/queries/stakeholdergoups";
 
 const ENTITY_FIELD = "entity";
 
@@ -73,13 +68,22 @@ export const StakeholderGroups: React.FC = () => {
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<StakeholderGroup>();
 
-  const { requestDelete: requestDeleteStakeholderGroup } =
-    useDelete<StakeholderGroup>({
-      onDelete: (t: StakeholderGroup) => deleteStakeholderGroup(t.id!),
-    });
+  const onDeleteStakeholderGroupSuccess = (response: any) => {
+    dispatch(confirmDialogActions.closeDialog());
+  };
 
-  const { stakeholderGroups, isFetching, fetchError, fetchStakeholderGroups } =
-    useFetchStakeholderGroups(true);
+  const onDeleteStakeholderGroupError = (error: AxiosError) => {
+    dispatch(confirmDialogActions.closeDialog());
+    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+  };
+
+  const { mutate: deleteStakeholderGroup } = useDeleteStakeholderGroupMutation(
+    onDeleteStakeholderGroupSuccess,
+    onDeleteStakeholderGroupError
+  );
+
+  const { stakeholderGroups, isFetching, fetchError, refetch } =
+    useFetchStakeholderGroups();
 
   const {
     isItemSelected: isItemExpanded,
@@ -88,10 +92,6 @@ export const StakeholderGroups: React.FC = () => {
     items: stakeholderGroups || [],
     isEqual: (a, b) => a.id === b.id,
   });
-
-  useEffect(() => {
-    fetchStakeholderGroups();
-  }, [fetchStakeholderGroups]);
 
   const columns: ICell[] = [
     {
@@ -254,17 +254,8 @@ export const StakeholderGroups: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          requestDeleteStakeholderGroup(
-            row,
-            () => {
-              dispatch(confirmDialogActions.closeDialog());
-              fetchStakeholderGroups();
-            },
-            (error) => {
-              dispatch(confirmDialogActions.closeDialog());
-              dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-            }
-          );
+          deleteStakeholderGroup(row.id);
+          setPageNumber(1);
         },
       })
     );
@@ -284,7 +275,7 @@ export const StakeholderGroups: React.FC = () => {
 
   const handleOnCreatedNew = (response: AxiosResponse<StakeholderGroup>) => {
     setIsNewModalOpen(false);
-    fetchStakeholderGroups();
+    refetch();
 
     dispatch(
       alertActions.addSuccess(
@@ -304,7 +295,7 @@ export const StakeholderGroups: React.FC = () => {
 
   const handleOnUpdated = () => {
     setRowToUpdate(undefined);
-    fetchStakeholderGroups();
+    refetch();
   };
 
   const handleOnUpdatedCancel = () => {
