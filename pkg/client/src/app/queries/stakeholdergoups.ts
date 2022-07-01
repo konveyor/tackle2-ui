@@ -1,10 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { Stakeholder, StakeholderGroup } from "@app/api/models";
-import {
-  deleteStakeholder,
-  deleteStakeholderGroup,
-  getStakeholderGroups,
-} from "@app/api/rest";
+import { StakeholderGroup } from "@app/api/models";
+import { deleteStakeholderGroup, getStakeholderGroups } from "@app/api/rest";
 import { AxiosError } from "axios";
 
 export interface IStakeholderGroupFetchState {

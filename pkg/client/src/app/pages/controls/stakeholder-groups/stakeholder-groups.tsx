@@ -54,8 +54,6 @@ import {
   useDeleteStakeholderGroupMutation,
   useFetchStakeholderGroups,
 } from "@app/queries/stakeholdergoups";
-import { deleteStakeholderGroup } from "@app/api/rest";
-import { useDeleteStakeholderMutation } from "@app/queries/stakeholders";
 
 const ENTITY_FIELD = "entity";
 

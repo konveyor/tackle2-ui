@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@konveyor/lib-ui";
@@ -35,7 +35,6 @@ import {
   ConditionalRender,
   NoDataEmptyState,
 } from "@app/shared/components";
-import { useDelete } from "@app/shared/hooks";
 
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Stakeholder } from "@app/api/models";
