@@ -42,8 +42,8 @@ export const useSubmitTaskgroupMutation = (
 };
 
 export const useRemoveUploadedFileMutation = (
-  successCallback: (res: any) => void,
-  errorCallback: (err: AxiosError) => void
+  successCallback?: (res: any) => void,
+  errorCallback?: (err: AxiosError) => void
 ) => {
   return useMutation(removeFileTaskgroup, {
     onSuccess: (res) => {
@@ -55,10 +55,11 @@ export const useRemoveUploadedFileMutation = (
   });
 };
 export const useUploadFileTaskgroupMutation = (
-  successCallback: (res: any) => void,
-  errorCallback: (err: AxiosError) => void
+  successCallback?: (res: any) => void,
+  errorCallback?: (err: AxiosError) => void
 ) => {
   return useMutation(uploadFileTaskgroup, {
+    mutationKey: "upload",
     onSuccess: (res) => {
       successCallback && successCallback(res);
     },
