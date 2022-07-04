@@ -70,6 +70,7 @@ import {
   useApplicationsFilterValues,
 } from "../applicationsFilter";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
+import { useFetchApplicationAssessments } from "@app/queries/assessments";
 
 const ENTITY_FIELD = "entity";
 
@@ -161,6 +162,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     closeApplicationModal();
   };
 
+  const { getApplicationAssessment } =
+    useFetchApplicationAssessments(applications);
+
   // Delete
 
   const onDeleteApplicationSuccess = () => {
@@ -175,12 +179,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const { mutate: deleteApplication } = useDeleteApplicationMutation(
     onDeleteApplicationSuccess,
-    onDeleteApplicationError
+    onDeleteApplicationError,
+    getApplicationAssessment
   );
 
   const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
     onDeleteApplicationSuccess,
-    onDeleteApplicationError
+    onDeleteApplicationError,
+    getApplicationAssessment
   );
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
