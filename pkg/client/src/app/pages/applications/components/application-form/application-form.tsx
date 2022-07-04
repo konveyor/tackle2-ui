@@ -44,13 +44,12 @@ import {
   toITagDropdownOptionWithValue,
   toOptionLike,
 } from "@app/utils/model-utils";
-
-import "./application-form.css";
 import {
   useCreateApplicationMutation,
   useFetchApplications,
   useUpdateApplicationMutation,
 } from "@app/queries/applications";
+import "./application-form.css";
 export interface FormValues {
   name: string;
   description: string;
@@ -717,6 +716,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 position={PopoverPosition.top}
                 aria-label="binary-packaging-details"
                 bodyContent={t("message.binaryPackaging")}
+                className="popover"
               >
                 <HelpIcon className={spacing.mlXs} noVerticalAlign />
               </Popover>
