@@ -33,7 +33,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { Rule } from "@app/api/models";
-import { NoDataEmptyState } from "@app/shared/components";
+import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
 import { IReadFile } from "./analysis-wizard";
 
 import "./wizard.css";
