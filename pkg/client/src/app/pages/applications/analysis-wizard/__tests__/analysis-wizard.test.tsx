@@ -157,39 +157,14 @@ describe("<AnalysisWizard />", () => {
     expect(nextButton).toHaveAttribute("disabled", "");
   });
 
-  it.skip("can upload a binary file", async () => {
-    applicationsData = [applicationData1];
-    mock.onGet(`${APPLICATIONS}`).reply(200, [applicationsData]);
-    mock.onPost(`${TASKGROUPS}`).reply(200, taskgroupData);
-    render(
-      <AnalysisWizard
-        applications={applicationsData}
-        isOpen={isAnalyzeModalOpen}
-        onClose={() => {
-          setAnalyzeModalOpen(false);
-        }}
-      />
-    );
-    const user = userEvent.setup();
-
-    const mode = screen.getByText(/binary/i);
-    await user.click(mode);
-
-    const uploadBinary = await screen.findByRole("option", {
-      name: /upload a local binary/i,
-    });
-    await waitFor(() => user.click(uploadBinary), {
-      timeout: 3000,
-    });
-    // await user.click(uploadButton);
-    screen.debug();
-    screen.logTestingPlaygroundURL();
-  });
-
-  it("has next button enabled when applications mode have binary source defined", async () => {
+  it("can run analysis on applications with a binary definition using defaults", async () => {
     const applicationsData = [
       {
         ...applicationData1,
+        binary: "io.konveyor.demo:customers-tomcat:0.0.1-SNAPSHOT:war",
+      },
+      {
+        ...applicationData2,
         binary: "io.konveyor.demo:customers-tomcat:0.0.1-SNAPSHOT:war",
       },
     ];
@@ -208,12 +183,14 @@ describe("<AnalysisWizard />", () => {
     );
 
     const user = userEvent.setup();
+
+    // set default mode "Binary"
     const warning = screen.queryByLabelText(/warning alert/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
     expect(warning).not.toBeInTheDocument();
     expect(nextButton).toBeEnabled();
 
-    // set target
+    // set a target
     await user.click(nextButton);
     const target = await screen.findByRole("heading", {
       name: /containerization/i,
@@ -227,7 +204,16 @@ describe("<AnalysisWizard />", () => {
     });
     await user.click(scope);
     await user.click(screen.getByRole("button", { name: /next/i }));
-    screen.debug();
-    screen.logTestingPlaygroundURL();
+
+    // no custom rules
+    await user.click(screen.getByRole("button", { name: /next/i }));
+
+    // no advanced options
+    await user.click(screen.getByRole("button", { name: /next/i }));
+
+    // review
+
+    const runButton = screen.getByRole("button", { name: /run/i });
+    expect(runButton).toBeEnabled();
   });
 });
