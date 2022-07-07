@@ -1,9 +1,9 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "@app/test-config/test-utils";
+import { render, screen } from "@app/test-config/test-utils";
 import userEvent from "@testing-library/user-event";
 import { AnalysisWizard } from "../analysis-wizard";
-import { APPLICATIONS, TASKGROUPS, TASKS } from "@app/api/rest";
+import { TASKGROUPS } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
 import { Application } from "@app/api/models";
 
@@ -60,12 +60,9 @@ describe("<AnalysisWizard />", () => {
     (isAnalyzeModalOpen = toggle);
 
   it("allows to cancel an analysis wizard", async () => {
-    applicationsData = [applicationData1, applicationData2];
-    mock.onGet(`${APPLICATIONS}`).reply(200, applicationsData);
-
     render(
       <AnalysisWizard
-        applications={applicationsData}
+        applications={[applicationData1, applicationData2]}
         isOpen={isAnalyzeModalOpen}
         onClose={() => {
           setAnalyzeModalOpen(false);
@@ -78,11 +75,9 @@ describe("<AnalysisWizard />", () => {
   });
 
   it("has next button disabled when applications mode have no binary source defined", async () => {
-    applicationsData = [applicationData1, applicationData2];
-    mock.onGet(`${APPLICATIONS}`).reply(200, applicationsData);
     render(
       <AnalysisWizard
-        applications={applicationsData}
+        applications={[applicationData1, applicationData2]}
         isOpen={isAnalyzeModalOpen}
         onClose={() => {
           setAnalyzeModalOpen(false);
@@ -97,11 +92,9 @@ describe("<AnalysisWizard />", () => {
   });
 
   it("has next button disabled when applications mode have no source code defined", async () => {
-    applicationsData = [applicationData1, applicationData2];
-    mock.onGet(`${APPLICATIONS}`).reply(200, applicationsData);
     render(
       <AnalysisWizard
-        applications={applicationsData}
+        applications={[applicationData1, applicationData2]}
         isOpen={isAnalyzeModalOpen}
         onClose={() => {
           setAnalyzeModalOpen(false);
@@ -128,11 +121,9 @@ describe("<AnalysisWizard />", () => {
   });
 
   it("has next button disabled when applications mode have no source code + dependencies defined", async () => {
-    applicationsData = [applicationData1, applicationData2];
-    mock.onGet(`${APPLICATIONS}`).reply(200, applicationsData);
     render(
       <AnalysisWizard
-        applications={applicationsData}
+        applications={[applicationData1, applicationData2]}
         isOpen={isAnalyzeModalOpen}
         onClose={() => {
           setAnalyzeModalOpen(false);
@@ -169,7 +160,6 @@ describe("<AnalysisWizard />", () => {
       },
     ];
 
-    mock.onGet(`${APPLICATIONS}`).reply(200, applicationsData);
     mock.onPost(`${TASKGROUPS}`).reply(200, taskgroupData);
 
     render(
@@ -215,5 +205,60 @@ describe("<AnalysisWizard />", () => {
 
     const runButton = screen.getByRole("button", { name: /run/i });
     expect(runButton).toBeEnabled();
+  });
+
+  it("cannot upload a binary file when analyzing multiple applications", async () => {
+    render(
+      <AnalysisWizard
+        applications={[applicationData1, applicationData2]}
+        isOpen={isAnalyzeModalOpen}
+        onClose={() => {
+          setAnalyzeModalOpen(false);
+        }}
+      />
+    );
+    const user = userEvent.setup();
+
+    const mode = screen.getByText(/binary/i);
+    await user.click(mode);
+
+    const uploadBinary = screen.queryByRole("option", {
+      name: "Upload a local binary",
+      hidden: true,
+    });
+
+    expect(uploadBinary).not.toBeInTheDocument();
+  });
+
+  it.skip("can upload a binary file when analyzing one application", async () => {
+    render(
+      <AnalysisWizard
+        applications={[applicationData1]}
+        isOpen={isAnalyzeModalOpen}
+        onClose={() => {
+          setAnalyzeModalOpen(false);
+        }}
+      />
+    );
+    const user = userEvent.setup();
+
+    const mode = screen.getByText(/binary/i);
+    await user.click(mode);
+
+    const uploadBinary = await screen.findByRole("option", {
+      name: "Upload a local binary",
+      hidden: true,
+    });
+
+    await user.click(uploadBinary);
+
+    const warning = screen.queryByLabelText(/warning alert/i);
+    const nextButton = screen.getByRole("button", { name: /next/i });
+    expect(warning).not.toBeInTheDocument();
+    // TODO Fix Upload binary file
+    // Upload button is not available
+
+    // TODO - Once uploaded, nextButton should be enabled
+    expect(nextButton).toBeEnabled();
   });
 });
