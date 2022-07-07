@@ -1,20 +1,11 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import {
-  render,
-  waitFor,
-  screen,
-  fireEvent,
-  queryByTestId,
-} from "@app/test-config/test-utils";
+import { render, screen, fireEvent } from "@app/test-config/test-utils";
 
 import { Proxies } from "../proxies";
-import MockAdapter from "axios-mock-adapter";
 import { IDENTITIES, PROXIES } from "@app/api/rest";
-import axios from "axios";
-import { Proxy, Identity } from "@app/api/models";
+import { Identity } from "@app/api/models";
 import userEvent from "@testing-library/user-event";
-import { ProxyForm } from "../proxy-form";
 import mock from "@app/test-config/mockInstance";
 
 jest.mock("react-i18next");
@@ -43,46 +34,30 @@ const proxiesData = [
 ];
 mock.onGet(`${PROXIES}`).reply(200, proxiesData);
 
-describe("Component: proxy-form", () => {
+describe("<Proxies />", () => {
   it("Display switch statements on initial load", async () => {
     render(<Proxies />);
-    await waitFor(() => screen.getByTestId("http-proxy-switch"), {
-      timeout: 3000,
-    });
-
-    await waitFor(() => screen.getByTestId("https-proxy-switch"), {
-      timeout: 3000,
-    });
+    await screen.findByTestId("http-proxy-switch");
+    await screen.findByTestId("https-proxy-switch");
   });
 
   it("Show HTTP proxy form when switch button clicked", async () => {
     render(<Proxies />);
-    await waitFor(() => screen.getByTestId("http-proxy-switch"), {
-      timeout: 3000,
-    });
+    const httpProxySwitch = await screen.findByTestId("http-proxy-switch");
 
-    fireEvent.click(screen.getByTestId("http-proxy-switch"));
-    await waitFor(() =>
-      expect(screen.queryByTestId("http-host-input")).toBeInTheDocument()
-    );
-    await waitFor(() =>
-      expect(screen.queryByTestId("https-host-input")).not.toBeInTheDocument()
-    );
+    fireEvent.click(httpProxySwitch);
+    expect(screen.getByTestId("http-host-input")).toBeInTheDocument();
+    expect(screen.queryByTestId("https-host-input")).not.toBeInTheDocument();
   });
 
   it("Show HTTPS proxy form when switch button clicked", async () => {
     render(<Proxies />);
-    await waitFor(() => screen.getByTestId("https-proxy-switch"), {
-      timeout: 3000,
-    });
+
+    await screen.findByTestId("http-proxy-switch");
 
     fireEvent.click(screen.getByTestId("https-proxy-switch"));
-    await waitFor(() =>
-      expect(screen.queryByTestId("https-host-input")).toBeInTheDocument()
-    );
-    await waitFor(() =>
-      expect(screen.queryByTestId("http-host-input")).not.toBeInTheDocument()
-    );
+    expect(screen.getByTestId("https-host-input")).toBeInTheDocument();
+    expect(screen.queryByTestId("http-host-input")).not.toBeInTheDocument();
   });
 
   it("Select http proxy identity", async () => {
@@ -95,9 +70,8 @@ describe("Component: proxy-form", () => {
     mock.onGet(`${IDENTITIES}`).reply(200, identitiesData);
 
     render(<Proxies />);
-    await waitFor(() => screen.getByTestId("http-proxy-switch"), {
-      timeout: 3000,
-    });
+
+    await screen.findByTestId("http-proxy-switch");
 
     fireEvent.click(screen.getByTestId("http-proxy-switch"));
     fireEvent.click(screen.getByTestId("http-proxy-identity-switch"));
@@ -126,9 +100,8 @@ describe("Component: proxy-form", () => {
     mock.onGet(`${IDENTITIES}`).reply(200, identitiesData);
 
     render(<Proxies />);
-    await waitFor(() => screen.getByTestId("https-proxy-switch"), {
-      timeout: 3000,
-    });
+
+    await screen.findByTestId("http-proxy-switch");
 
     fireEvent.click(screen.getByTestId("https-proxy-switch"));
     fireEvent.click(screen.getByTestId("https-proxy-identity-switch"));
