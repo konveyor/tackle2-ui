@@ -6,7 +6,7 @@ import {
   Title,
   EmptyStateBody,
 } from "@patternfly/react-core";
-import { ExclamationCircleIcon } from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 import { global_danger_color_200 as globalDangerColor200 } from "@patternfly/react-tokens";
 
 export const StateError: React.FC = () => {

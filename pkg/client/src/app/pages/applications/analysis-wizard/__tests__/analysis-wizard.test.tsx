@@ -1,29 +1,58 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen } from "@app/test-config/test-utils";
+import { render, screen, waitFor } from "@app/test-config/test-utils";
 import userEvent from "@testing-library/user-event";
 import { AnalysisWizard } from "../analysis-wizard";
-import { APPLICATIONS, TASKGROUPS } from "@app/api/rest";
+import { APPLICATIONS, TASKGROUPS, TASKS } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
 import { Application } from "@app/api/models";
 
 jest.mock("react-i18next");
 jest.mock("react-redux");
 
-let applicationsDataDefault: Application[];
+let applicationsData: Application[];
 
-beforeAll(() => {
-  applicationsDataDefault = [
-    {
-      id: 1,
-      name: "App1",
+const applicationData1 = {
+  id: 1,
+  name: "App1",
+};
+
+const applicationData2 = {
+  id: 2,
+  name: "App2",
+};
+
+const taskgroupData = {
+  addon: "windup",
+  data: {
+    mode: {
+      artifact: "",
+      binary: false,
+      withDeps: false,
     },
-    {
-      id: 2,
-      name: "App2",
+    output: "/windup/report",
+    scope: {
+      packages: {
+        excluded: [],
+        included: [],
+      },
+      withKnown: false,
     },
-  ];
-});
+    sources: [],
+    targets: [],
+  },
+  name: "taskgroup.windup",
+  tasks: [
+    {
+      application: {
+        id: 1,
+        name: "App1",
+      },
+      data: {},
+      name: "App1.1.windup",
+    },
+  ],
+};
 
 describe("<AnalysisWizard />", () => {
   let isAnalyzeModalOpen = true;
@@ -31,11 +60,12 @@ describe("<AnalysisWizard />", () => {
     (isAnalyzeModalOpen = toggle);
 
   it("allows to cancel an analysis wizard", async () => {
-    mock.onGet(`${APPLICATIONS}`).reply(200, applicationsDataDefault);
+    applicationsData = [applicationData1, applicationData2];
+    mock.onGet(`${APPLICATIONS}`).reply(200, applicationsData);
 
     render(
       <AnalysisWizard
-        applications={applicationsDataDefault}
+        applications={applicationsData}
         isOpen={isAnalyzeModalOpen}
         onClose={() => {
           setAnalyzeModalOpen(false);
@@ -48,10 +78,11 @@ describe("<AnalysisWizard />", () => {
   });
 
   it("has next button disabled when applications mode have no binary source defined", async () => {
-    mock.onGet(`${APPLICATIONS}`).reply(200, applicationsDataDefault);
+    applicationsData = [applicationData1, applicationData2];
+    mock.onGet(`${APPLICATIONS}`).reply(200, applicationsData);
     render(
       <AnalysisWizard
-        applications={applicationsDataDefault}
+        applications={applicationsData}
         isOpen={isAnalyzeModalOpen}
         onClose={() => {
           setAnalyzeModalOpen(false);
@@ -66,10 +97,11 @@ describe("<AnalysisWizard />", () => {
   });
 
   it("has next button disabled when applications mode have no source code defined", async () => {
-    mock.onGet(`${APPLICATIONS}`).reply(200, applicationsDataDefault);
+    applicationsData = [applicationData1, applicationData2];
+    mock.onGet(`${APPLICATIONS}`).reply(200, applicationsData);
     render(
       <AnalysisWizard
-        applications={applicationsDataDefault}
+        applications={applicationsData}
         isOpen={isAnalyzeModalOpen}
         onClose={() => {
           setAnalyzeModalOpen(false);
@@ -96,10 +128,11 @@ describe("<AnalysisWizard />", () => {
   });
 
   it("has next button disabled when applications mode have no source code + dependencies defined", async () => {
-    mock.onGet(`${APPLICATIONS}`).reply(200, applicationsDataDefault);
+    applicationsData = [applicationData1, applicationData2];
+    mock.onGet(`${APPLICATIONS}`).reply(200, applicationsData);
     render(
       <AnalysisWizard
-        applications={applicationsDataDefault}
+        applications={applicationsData}
         isOpen={isAnalyzeModalOpen}
         onClose={() => {
           setAnalyzeModalOpen(false);
@@ -124,45 +157,42 @@ describe("<AnalysisWizard />", () => {
     expect(nextButton).toHaveAttribute("disabled", "");
   });
 
+  it.skip("can upload a binary file", async () => {
+    applicationsData = [applicationData1];
+    mock.onGet(`${APPLICATIONS}`).reply(200, [applicationsData]);
+    mock.onPost(`${TASKGROUPS}`).reply(200, taskgroupData);
+    render(
+      <AnalysisWizard
+        applications={applicationsData}
+        isOpen={isAnalyzeModalOpen}
+        onClose={() => {
+          setAnalyzeModalOpen(false);
+        }}
+      />
+    );
+    const user = userEvent.setup();
+
+    const mode = screen.getByText(/binary/i);
+    await user.click(mode);
+
+    const uploadBinary = await screen.findByRole("option", {
+      name: /upload a local binary/i,
+    });
+    await waitFor(() => user.click(uploadBinary), {
+      timeout: 3000,
+    });
+    // await user.click(uploadButton);
+    screen.debug();
+    screen.logTestingPlaygroundURL();
+  });
+
   it("has next button enabled when applications mode have binary source defined", async () => {
     const applicationsData = [
       {
-        ...applicationsDataDefault[0],
+        ...applicationData1,
         binary: "io.konveyor.demo:customers-tomcat:0.0.1-SNAPSHOT:war",
       },
     ];
-
-    const taskgroupData = {
-      addon: "windup",
-      data: {
-        mode: {
-          artifact: "",
-          binary: false,
-          withDeps: false,
-        },
-        output: "/windup/report",
-        scope: {
-          packages: {
-            excluded: [],
-            included: [],
-          },
-          withKnown: false,
-        },
-        sources: [],
-        targets: [],
-      },
-      name: "taskgroup.windup",
-      tasks: [
-        {
-          application: {
-            id: 1,
-            name: "App1",
-          },
-          data: {},
-          name: "App1.1.windup",
-        },
-      ],
-    };
 
     mock.onGet(`${APPLICATIONS}`).reply(200, applicationsData);
     mock.onPost(`${TASKGROUPS}`).reply(200, taskgroupData);
@@ -196,6 +226,8 @@ describe("<AnalysisWizard />", () => {
       name: /wizard\.label\.scopealldeps/i,
     });
     await user.click(scope);
-    // await user.click(screen.getByRole("button", { name: /next/i }));
+    await user.click(screen.getByRole("button", { name: /next/i }));
+    screen.debug();
+    screen.logTestingPlaygroundURL();
   });
 });

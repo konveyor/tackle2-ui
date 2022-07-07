@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Dropdown, DropdownItem, DropdownToggle } from "@patternfly/react-core";
-import { CaretDownIcon } from "@patternfly/react-icons/dist/esm/icons/caret-down-icon";
+import CaretDownIcon from "@patternfly/react-icons/dist/esm/icons/caret-down-icon";
 
 export interface MenuActionsProps {
   actions: { label: string; callback: () => void }[];

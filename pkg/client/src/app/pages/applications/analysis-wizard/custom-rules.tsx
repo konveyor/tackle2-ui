@@ -22,8 +22,8 @@ import {
 } from "@patternfly/react-table";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { FilterIcon } from "@patternfly/react-icons/dist/esm/icons/filter-icon";
-import { TrashIcon } from "@patternfly/react-icons/dist/esm/icons/trash-icon";
+import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
+import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 
 import { AddCustomRules } from "./components/add-custom-rules";
 import {
