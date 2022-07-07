@@ -202,6 +202,14 @@ describe("<AnalysisWizard />", () => {
     await user.click(screen.getByRole("button", { name: /next/i }));
 
     // review
+    expect(screen.getByText("App1")).toBeInTheDocument();
+    expect(screen.getByText("App2")).toBeInTheDocument();
+    expect(screen.getByText("Binary")).toBeInTheDocument();
+    expect(screen.getByText("cloud-readiness")).toBeInTheDocument();
+    expect(
+      screen.getByText("Application and internal dependencies")
+    ).toBeInTheDocument();
+    expect(screen.getByText("Known Open Source libraries")).toBeInTheDocument();
 
     const runButton = screen.getByRole("button", { name: /run/i });
     expect(runButton).toBeEnabled();
