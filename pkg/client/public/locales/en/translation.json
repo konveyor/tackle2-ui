@@ -71,6 +71,7 @@
     },
     "dialog": {
         "message": {
+            "applicationsBulkDelete": "The selected application(s) will be deleted.",
             "delete": "This action cannot be undone.",
             "discardAssessment": "The assessment for <1>{{applicationName}}</1> will be discarded, as well as the review result. Do you wish to continue?",
             "leavePage": "Are you sure you want to leave this page? Be sure to save your changes, or they will be lost."

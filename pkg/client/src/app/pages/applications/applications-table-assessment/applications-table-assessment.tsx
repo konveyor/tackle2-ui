@@ -73,6 +73,7 @@ import {
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
 import {
+  useBulkDeleteApplicationMutation,
   useDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
@@ -234,6 +235,14 @@ export const ApplicationsTable: React.FC = () => {
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     useState(false);
 
+  // Bulk Delete modal
+  const {
+    isOpen: isBulkDeleteModalOpen,
+    data: applicationToBulkDelete,
+    update: openBulkDeleteModal,
+    close: closeBulkDeleteModal,
+  } = useEntityModal<Application[]>();
+
   // Table's assessments
   const {
     getApplicationAssessment,
@@ -242,6 +251,12 @@ export const ApplicationsTable: React.FC = () => {
   } = useFetchApplicationAssessments(applications);
 
   const { mutate: deleteApplication } = useDeleteApplicationMutation(
+    onDeleteApplicationSuccess,
+    onDeleteApplicationError,
+    getApplicationAssessment
+  );
+
+  const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
     onDeleteApplicationSuccess,
     onDeleteApplicationError,
     getApplicationAssessment
@@ -644,7 +659,20 @@ export const ApplicationsTable: React.FC = () => {
         </DropdownItem>,
       ]
     : [];
-  const dropdownItems = [...importDropdownItems];
+  const applicationDeleteDropdown = applicationWriteAccess
+    ? [
+        <DropdownItem
+          key="manage-applications-bulk-delete"
+          isDisabled={selectedRows.length < 1}
+          onClick={() => {
+            openBulkDeleteModal(selectedRows);
+          }}
+        >
+          {t("actions.delete")}
+        </DropdownItem>,
+      ]
+    : [];
+  const dropdownItems = [...importDropdownItems, ...applicationDeleteDropdown];
 
   return (
     <>
@@ -860,6 +888,50 @@ export const ApplicationsTable: React.FC = () => {
             refetch();
           }}
         />
+      </Modal>
+      <Modal
+        isOpen={isBulkDeleteModalOpen}
+        variant="small"
+        title={t("dialog.title.delete", {
+          what: t("terms.application(s)").toLowerCase(),
+        })}
+        titleIconVariant="warning"
+        aria-label="Applications bulk delete"
+        aria-describedby="applications-bulk-delete"
+        onClose={() => closeBulkDeleteModal()}
+        showClose={true}
+        actions={[
+          <Button
+            key="delete"
+            variant="danger"
+            onClick={() => {
+              let ids: number[] = [];
+              if (applicationToBulkDelete) {
+                applicationToBulkDelete?.forEach((application) => {
+                  if (application.id) ids.push(application.id);
+                });
+                if (ids)
+                  bulkDeleteApplication({
+                    ids: ids,
+                  });
+              }
+              closeBulkDeleteModal();
+            }}
+          >
+            {t("actions.delete")}
+          </Button>,
+          <Button
+            key="cancel"
+            variant="link"
+            onClick={() => closeBulkDeleteModal()}
+          >
+            {t("actions.cancel")}
+          </Button>,
+        ]}
+      >
+        {`${t("dialog.message.applicationsBulkDelete")} ${t(
+          "dialog.message.delete"
+        )}`}
       </Modal>
     </>
   );
