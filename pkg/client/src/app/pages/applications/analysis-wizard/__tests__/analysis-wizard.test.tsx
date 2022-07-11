@@ -5,12 +5,9 @@ import userEvent from "@testing-library/user-event";
 import { AnalysisWizard } from "../analysis-wizard";
 import { TASKGROUPS } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
-import { Application } from "@app/api/models";
 
 jest.mock("react-i18next");
 jest.mock("react-redux");
-
-let applicationsData: Application[];
 
 const applicationData1 = {
   id: 1,

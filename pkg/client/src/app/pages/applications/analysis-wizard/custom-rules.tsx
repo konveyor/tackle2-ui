@@ -47,6 +47,7 @@ export const CustomRules: React.FunctionComponent = () => {
   const targets: string[] = getValues("targets");
   const customRulesFiles: IReadFile[] = getValues("customRulesFiles");
 
+  const [rules, setRules] = React.useState<Rule[]>([]);
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
@@ -56,7 +57,7 @@ export const CustomRules: React.FunctionComponent = () => {
     setReadFileData([]);
   };
 
-  const rules = React.useMemo(() => {
+  React.useEffect(() => {
     const getRules = (file: IReadFile) => {
       if (!file.data) return [];
 
@@ -109,7 +110,7 @@ export const CustomRules: React.FunctionComponent = () => {
       if (file.data) rules = [...rules, ...getRules(file)];
     });
 
-    return rules.flat();
+    setRules(rules.flat());
   }, [customRulesFiles, sources, targets, setValue]);
 
   const filterCategories: FilterCategory<Rule>[] = [
