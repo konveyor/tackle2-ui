@@ -124,6 +124,28 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
   const uploadLimitConverted =
     parseInt(uploadLimit.slice(0, -1)) * Math.pow(1024, 2);
 
+  const readFile = (file: File) => {
+    return new Promise<string | null>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.onprogress = (data) => {
+        if (data.lengthComputable) {
+          setFileUploadProgress((data.loaded / data.total) * 100);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFile = (file: File) => {
+    readFile(file).catch((error: DOMException) => {
+      setCurrentFile(null);
+      setFileUploadProgress(0);
+      setFileUploadStatus("danger");
+    });
+  };
+
   return (
     <>
       {error && (
@@ -160,6 +182,7 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
               setCurrentFile(null);
               setValue("artifact", "");
             }}
+            customFileHandler={handleFile}
             progressValue={fileUploadProgress}
             progressVariant={fileUploadStatus}
           />
