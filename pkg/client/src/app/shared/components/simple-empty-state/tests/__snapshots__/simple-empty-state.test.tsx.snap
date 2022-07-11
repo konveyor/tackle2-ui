@@ -20,6 +20,9 @@ exports[`SimpleEmptyState Renders with icon 1`] = `
 <EmptyState
   variant="small"
 >
+  <EmptyStateIcon
+    icon="test-file-stub"
+  />
   <Title
     headingLevel="h2"
     size="lg"

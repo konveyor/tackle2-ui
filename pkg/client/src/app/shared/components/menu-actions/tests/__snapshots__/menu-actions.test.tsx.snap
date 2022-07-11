@@ -23,6 +23,7 @@ exports[`MenuActions Renders without crashing 1`] = `
   toggle={
     <DropdownToggle
       onToggle={[Function]}
+      toggleIndicator="test-file-stub"
     >
       Actions
     </DropdownToggle>

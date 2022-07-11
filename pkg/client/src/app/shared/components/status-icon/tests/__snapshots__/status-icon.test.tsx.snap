@@ -25,7 +25,7 @@ exports[`StatusIcon Renders without crashing 1`] = `
   }
 >
   <FlexItem>
-    <Component
+    <test-file-stub
       className=""
       color="#6a6e73"
     />
