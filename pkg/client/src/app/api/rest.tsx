@@ -483,6 +483,9 @@ export const deleteProxy = (id: number): AxiosPromise => {
 export const getApplicationsQuery = () =>
   axios.get<Application[]>(APPLICATIONS).then((response) => response.data);
 
+export const deleteBulkApplicationsQuery = (ids: number[]) =>
+  axios.delete(APPLICATIONS, { data: ids });
+
 export const getApplicationsImportSummary = () =>
   axios
     .get<ApplicationImportSummary[]>(APP_IMPORT_SUMMARY)

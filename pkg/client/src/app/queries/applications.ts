@@ -4,6 +4,7 @@ import { Application, Assessment } from "@app/api/models";
 import {
   createApplication,
   deleteApplication,
+  deleteBulkApplicationsQuery,
   getApplicationsQuery,
   updateAllApplications,
   updateApplication,
@@ -124,4 +125,32 @@ export const useDeleteApplicationMutation = (
       onError(err);
     },
   });
+};
+
+export const useBulkDeleteApplicationMutation = (
+  onSuccess: () => void,
+  onError: (err: AxiosError) => void,
+  getApplicationAssessment?: (id: number) => Assessment | undefined
+) => {
+  const queryClient = useQueryClient();
+  const { mutate: mutateAssessments } = useDeleteAssessmentMutation();
+  return useMutation(
+    ({ ids }: { ids: number[] }) => deleteBulkApplicationsQuery(ids),
+    {
+      onSuccess: (_, { ids }) => {
+        onSuccess();
+        queryClient.invalidateQueries(ApplicationsQueryKey);
+        ids.forEach((id) => {
+          const assessment =
+            getApplicationAssessment && getApplicationAssessment(id);
+          if (assessment?.id) {
+            mutateAssessments(assessment?.id);
+          }
+        });
+      },
+      onError: (err: AxiosError) => {
+        onError(err);
+      },
+    }
+  );
 };

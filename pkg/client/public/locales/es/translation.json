@@ -71,6 +71,7 @@
     },
     "dialog": {
         "message": {
+            "applicationsBulkDelete": "Se eliminarán las aplicacione(s) seleccionadas.",
             "delete": "Esta acción no puede ser revertida.",
             "discardAssessment": "La evaluación para <1>{{applicationName}}</1> será descartada, también los resultados de la revisión. ¿Deseas continuar?",
             "leavePage": "¿Estás seguro de querer salir de esta página? Asegúrate de guardar tus cambios o estos se perderán."
