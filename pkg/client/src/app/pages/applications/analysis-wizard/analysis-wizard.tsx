@@ -60,6 +60,7 @@ export interface IAnalysisWizardFormValues {
   excludedPackages: string[];
   customRulesFiles: IReadFile[];
   excludedRulesTags: string[];
+  diva: boolean;
 }
 
 const defaultTaskData: TaskData = {
@@ -68,6 +69,7 @@ const defaultTaskData: TaskData = {
     binary: false,
     withDeps: false,
     artifact: "",
+    diva: false,
   },
   targets: [],
   sources: [],
@@ -162,6 +164,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       excludedPackages: [],
       customRulesFiles: [],
       excludedRulesTags: [],
+      diva: false,
     },
   });
 
@@ -178,6 +181,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           binary: mode.includes("binary"),
           withDeps: mode === "source-code-deps",
           artifact: data.artifact ? `/binary/${data.artifact}` : "",
+          diva: data.diva,
         },
         targets: data.targets,
         sources: data.sources,
