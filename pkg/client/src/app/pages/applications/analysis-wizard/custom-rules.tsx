@@ -21,6 +21,7 @@ import {
   TableText,
 } from "@patternfly/react-table";
 import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { FilterIcon } from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import { TrashIcon } from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 
@@ -33,93 +34,93 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { Rule } from "@app/api/models";
 import { NoDataEmptyState } from "@app/shared/components";
+import { IReadFile } from "./analysis-wizard";
 
 import "./wizard.css";
-import { IReadFile } from "./analysis-wizard";
-import { useEffect } from "react";
 
 export const CustomRules: React.FunctionComponent = () => {
+  const { t } = useTranslation();
+
   const { getValues, setValue } = useFormContext();
 
   const sources: string[] = getValues("sources");
   const targets: string[] = getValues("targets");
   const customRulesFiles: IReadFile[] = getValues("customRulesFiles");
-  const [currentFiles, setCurrentFiles] = React.useState<IReadFile[]>([]);
-  const [rules, setRules] = React.useState<Rule[]>([]);
 
+  const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
 
-  useEffect(() => {
-    let rules: Rule[] = [];
-    if (customRulesFiles.length) {
-      for (const file of customRulesFiles) {
-        if (file.file) {
-          const getRules = async function (file: IReadFile) {
-            if (!file.file) return [];
+  const onCloseCustomRuleModal = () => {
+    setCustomRulesModalOpen(false);
+    setReadFileData([]);
+  };
 
-            let source: string | null = null;
-            let target: string | null = null;
-            let rulesCount = 0;
-            const text = await file.file.text();
+  const rules = React.useMemo(() => {
+    const getRules = (file: IReadFile) => {
+      if (!file.data) return [];
 
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(text, "text/xml");
+      let source: string | null = null;
+      let target: string | null = null;
+      let rulesCount = 0;
 
-            const ruleSets = xml.getElementsByTagName("ruleset");
+      const payload = atob(file.data.substring(21));
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(payload, "text/xml");
 
-            if (ruleSets && ruleSets.length > 0) {
-              const metadata = ruleSets[0].getElementsByTagName("metadata");
+      const ruleSets = xml.getElementsByTagName("ruleset");
 
-              if (metadata && metadata.length > 0) {
-                const sources =
-                  metadata[0].getElementsByTagName("sourceTechnology");
-                if (sources && sources.length > 0) source = sources[0].id;
+      if (ruleSets && ruleSets.length > 0) {
+        const metadata = ruleSets[0].getElementsByTagName("metadata");
 
-                const targets =
-                  metadata[0].getElementsByTagName("targetTechnology");
-                if (targets && targets.length > 0) target = targets[0].id;
-              }
+        if (metadata && metadata.length > 0) {
+          const sources = metadata[0].getElementsByTagName("sourceTechnology");
+          if (sources && sources.length > 0) source = sources[0].id;
 
-              const rulesGroup = ruleSets[0].getElementsByTagName("rules");
-              if (rulesGroup && rulesGroup.length > 0)
-                rulesCount = rulesGroup[0].getElementsByTagName("rule").length;
-            }
-
-            const rules: Rule[] = [
-              {
-                name: file.fileName,
-                source: source,
-                target: target,
-                total: rulesCount,
-              },
-            ];
-
-            if (source && !sources.includes(source))
-              setValue("sources", [...sources, source]);
-
-            if (target && !targets.includes(target))
-              setValue("targets", [...targets, target]);
-
-            return rules;
-          };
-          getRules(file).then((res) => {
-            rules = [...rules, ...res];
-            setRules(rules);
-          });
+          const targets = metadata[0].getElementsByTagName("targetTechnology");
+          if (targets && targets.length > 0) target = targets[0].id;
         }
+
+        const rulesGroup = ruleSets[0].getElementsByTagName("rules");
+        if (rulesGroup && rulesGroup.length > 0)
+          rulesCount = rulesGroup[0].getElementsByTagName("rule").length;
       }
-    } else {
-      setRules([]);
-    }
-  }, [customRulesFiles, sources]);
+
+      const rules: Rule[] = [
+        {
+          name: file.fileName,
+          source: source,
+          target: target,
+          total: rulesCount,
+        },
+      ];
+
+      if (source && !sources.includes(source))
+        setValue("sources", [...sources, source]);
+
+      if (target && !targets.includes(target))
+        setValue("targets", [...targets, target]);
+
+      return rules;
+    };
+
+    let rules: Rule[] = [];
+    customRulesFiles.forEach((file) => {
+      if (file.data) rules = [...rules, ...getRules(file)];
+    });
+
+    return rules.flat();
+  }, [customRulesFiles, sources, targets, setValue]);
 
   const filterCategories: FilterCategory<Rule>[] = [
     {
       key: "name",
-      title: "Name",
+      title: t("terms.name"),
       type: FilterType.search,
-      placeholderText: "Filter by name...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.name").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item?.name || "";
       },
@@ -138,11 +139,14 @@ export const CustomRules: React.FunctionComponent = () => {
   // Table
   const columns: ICell[] = [
     {
-      title: "name",
+      title: t("terms.name"),
       transforms: [cellWidth(20)],
     },
-    { title: "Source / Target", transforms: [cellWidth(20)] },
-    { title: "Number of rules", transforms: [cellWidth(10)] },
+    {
+      title: `${t("wizard.terms.source")} /  ${t("wizard.terms.target")}`,
+      transforms: [cellWidth(20)],
+    },
+    { title: t("wizard.terms.numberOfRules"), transforms: [cellWidth(10)] },
     {
       title: "",
       props: {
@@ -195,9 +199,9 @@ export const CustomRules: React.FunctionComponent = () => {
     <>
       <TextContent>
         <Title headingLevel="h3" size="xl">
-          Custom rules
+          {t("wizard.terms.customRules")}
         </Title>
-        <Text>Upload the rules you want to include in the analysis.</Text>
+        <Text> {t("wizard.label.customRules")}</Text>
       </TextContent>
       <div className="line">
         <Toolbar
@@ -222,7 +226,12 @@ export const CustomRules: React.FunctionComponent = () => {
                   variant="primary"
                   onClick={() => setCustomRulesModalOpen(true)}
                 >
-                  Add rules
+                  {
+                    // t("wizard.terms.rules")
+                    t("composed.add", {
+                      what: t("wizard.terms.rules").toLowerCase(),
+                    })
+                  }
                 </Button>
               </ToolbarItem>
             </ToolbarGroup>
@@ -241,8 +250,10 @@ export const CustomRules: React.FunctionComponent = () => {
         </Table>
       ) : (
         <NoDataEmptyState
-          title="No custom rules available"
-          description={"Add rules"}
+          title={t("wizard.label.noCustomRules")}
+          description={t("composed.add", {
+            what: t("terms.rules").toLowerCase(),
+          })}
         />
       )}
       {isAddCustomRulesModalOpen && (
@@ -250,18 +261,24 @@ export const CustomRules: React.FunctionComponent = () => {
           isOpen={isAddCustomRulesModalOpen}
           variant="medium"
           title="Add rules"
-          onClose={() => setCustomRulesModalOpen(false)}
+          onClose={onCloseCustomRuleModal}
           actions={[
             <Button
               key="add"
               variant="primary"
+              isDisabled={
+                !readFileData.find((file) => file.loadResult === "success")
+              }
               onClick={(event) => {
                 setCustomRulesModalOpen(false);
+                const validFiles = readFileData.filter(
+                  (file) => file.loadResult === "success"
+                );
                 setValue("customRulesFiles", [
                   ...customRulesFiles,
-                  ...currentFiles,
+                  ...validFiles,
                 ]);
-                setCurrentFiles([]);
+                setReadFileData([]);
               }}
             >
               Add
@@ -269,15 +286,16 @@ export const CustomRules: React.FunctionComponent = () => {
             <Button
               key="cancel"
               variant="link"
-              onClick={() => setCustomRulesModalOpen(false)}
+              onClick={onCloseCustomRuleModal}
             >
               Cancel
             </Button>,
           ]}
         >
           <AddCustomRules
-            currentFiles={currentFiles}
-            setCurrentFiles={setCurrentFiles}
+            customRulesFiles={customRulesFiles}
+            readFileData={readFileData}
+            setReadFileData={setReadFileData}
           />
         </Modal>
       )}

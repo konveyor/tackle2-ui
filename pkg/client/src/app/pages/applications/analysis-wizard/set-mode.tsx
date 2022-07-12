@@ -6,6 +6,7 @@ import {
   SelectVariant,
   Alert,
 } from "@patternfly/react-core";
+import { useTranslation } from "react-i18next";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
@@ -27,6 +28,8 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
   isModeValid,
   setMode,
 }) => {
+  const { t } = useTranslation();
+
   const [isUpload, setIsUpload] = React.useState(false);
   React.useEffect(() => {
     if (mode === "binary-upload") setIsUpload(true);
@@ -58,10 +61,10 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
     <>
       <TextContent className={spacing.mbMd}>
         <Title headingLevel="h3" size="xl">
-          Analysis mode
+          {t("wizard.terms.analysisMode")}
         </Title>
       </TextContent>
-      <FormGroup label="Source for analysis" fieldId="sourceType">
+      <FormGroup label={t("wizard.label.analysisSource")} fieldId="sourceType">
         <SimpleSelect
           variant={SelectVariant.single}
           aria-label="Select user perspective"
@@ -77,13 +80,9 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
         <Alert
           variant="warning"
           isInline
-          title="Some applications cannot be analyzed"
+          title={t("wizard.label.notAllAnalyzable")}
         >
-          <p>
-            Some of the selected applications cannot be analyzed with the
-            selected source because those values have not been defined. By
-            continuing, these applications won't be included in the analysis.
-          </p>
+          <p>{t("wizard.label.notAllAnalyzableDetails")}</p>
         </Alert>
       )}
       {isUpload && taskgroupID && <UploadBinary taskgroupID={taskgroupID} />}

@@ -6,6 +6,12 @@ interface IRBACProps {
   children: any;
   rbacType: RBAC_TYPE;
 }
+
+export enum RBAC_TYPE {
+  Role = 1,
+  Scope,
+}
+
 export const RBAC = ({
   allowedPermissions,
   rbacType,
@@ -27,11 +33,6 @@ export const RBAC = ({
     return children;
   }
 };
-
-export enum RBAC_TYPE {
-  Role = 1,
-  Scope,
-}
 
 export const devRoles = ["tackle-admin", "tackle-architect", "tackle-migrator"];
 

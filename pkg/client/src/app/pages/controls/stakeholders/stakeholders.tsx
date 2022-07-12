@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { AxiosResponse } from "axios";
+import React, { useState } from "react";
+import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@konveyor/lib-ui";
 
@@ -35,10 +35,8 @@ import {
   ConditionalRender,
   NoDataEmptyState,
 } from "@app/shared/components";
-import { useFetchStakeholders, useDelete } from "@app/shared/hooks";
 
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { deleteStakeholder } from "@app/api/rest";
 import { Stakeholder } from "@app/api/models";
 
 import { NewStakeholderModal } from "./components/new-stakeholder-modal";
@@ -52,6 +50,10 @@ import {
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
+import {
+  useDeleteStakeholderMutation,
+  useFetchStakeholders,
+} from "@app/queries/stakeholders";
 
 const ENTITY_FIELD = "entity";
 
@@ -65,13 +67,22 @@ export const Stakeholders: React.FC = () => {
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<Stakeholder>();
+  const onDeleteStakeholderSuccess = (response: any) => {
+    dispatch(confirmDialogActions.closeDialog());
+  };
 
-  const { requestDelete: requestDeleteStakeholder } = useDelete<Stakeholder>({
-    onDelete: (t: Stakeholder) => deleteStakeholder(t.id!),
-  });
+  const onDeleteStakeholderError = (error: AxiosError) => {
+    dispatch(confirmDialogActions.closeDialog());
+    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+  };
 
-  const { stakeholders, isFetching, fetchError, fetchStakeholders } =
-    useFetchStakeholders(true);
+  const { mutate: deleteStakeholder } = useDeleteStakeholderMutation(
+    onDeleteStakeholderSuccess,
+    onDeleteStakeholderError
+  );
+
+  const { stakeholders, isFetching, fetchError, refetch } =
+    useFetchStakeholders();
 
   const {
     isItemSelected: isItemExpanded,
@@ -81,47 +92,51 @@ export const Stakeholders: React.FC = () => {
     isEqual: (a, b) => a.id === b.id,
   });
 
-  const refreshTable = useCallback(() => {
-    fetchStakeholders();
-  }, [fetchStakeholders]);
-
-  useEffect(() => {
-    fetchStakeholders();
-  }, [fetchStakeholders]);
-
   const filterCategories: FilterCategory<Stakeholder>[] = [
     {
       key: "email",
-      title: "Email",
+      title: t("terms.email"),
       type: FilterType.search,
-      placeholderText: "Filter by email...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.email").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item?.email || "";
       },
     },
     {
       key: "name",
-      title: "Name",
+      title: t("terms.name"),
       type: FilterType.search,
-      placeholderText: "Filter by name...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.name").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item?.name || "";
       },
     },
     {
       key: "jobFunction",
-      title: "Job function",
+      title: t("terms.jobFunction"),
       type: FilterType.search,
-      placeholderText: "Filter by job function...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.jobFunction").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item.jobFunction?.name || "";
       },
     },
     {
       key: "stakeholderGroups",
-      title: "Stakeholder groups",
+      title: t("terms.stakeholderGroups"),
       type: FilterType.search,
-      placeholderText: "Filter by stakeholder groups...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.stakeholderGroups").toLowerCase(),
+        }) + "...",
       getItemValue: (stakeholder) => {
         const stakeholderGroups = stakeholder.stakeholderGroups?.map(
           (stakeholderGroup) => stakeholderGroup.name
@@ -256,17 +271,8 @@ export const Stakeholders: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          requestDeleteStakeholder(
-            row,
-            () => {
-              dispatch(confirmDialogActions.closeDialog());
-              refreshTable();
-            },
-            (error) => {
-              dispatch(confirmDialogActions.closeDialog());
-              dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-            }
-          );
+          deleteStakeholder(row.id);
+          setPageNumber(1);
         },
       })
     );
@@ -284,7 +290,7 @@ export const Stakeholders: React.FC = () => {
 
   const handleOnCreatedNew = (response: AxiosResponse<Stakeholder>) => {
     setIsNewModalOpen(false);
-    refreshTable();
+    refetch();
 
     dispatch(
       alertActions.addSuccess(
@@ -304,7 +310,7 @@ export const Stakeholders: React.FC = () => {
 
   const handleOnUpdated = () => {
     setRowToUpdate(undefined);
-    refreshTable();
+    refetch();
   };
 
   const handleOnUpdatedCancel = () => {
@@ -326,7 +332,6 @@ export const Stakeholders: React.FC = () => {
           onCollapse={collapseRow}
           cells={columns}
           rows={rows}
-          // actions={actions}
           isLoading={isFetching}
           loadingVariant="skeleton"
           fetchError={fetchError}

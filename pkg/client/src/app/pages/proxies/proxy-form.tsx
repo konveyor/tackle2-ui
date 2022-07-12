@@ -39,6 +39,7 @@ import {
 } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useFetchIdentities } from "@app/queries/identities";
+import { isUndefined } from "util";
 
 export interface ProxyFormValues {
   [IS_HTTP_CHECKED]: string;
@@ -72,12 +73,14 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     fetchError: fetchErrorIdentities,
   } = useFetchIdentities();
 
-  const identityOptions = identities.map((identity) => {
-    return {
-      value: identity?.name || "",
-      toString: () => identity?.name || "",
-    };
-  });
+  const identityOptions = identities
+    .filter((i) => i.kind === "proxy")
+    .map((identity) => {
+      return {
+        value: identity?.name || "",
+        toString: () => identity?.name || "",
+      };
+    });
   useEffect(() => {
     if (httpProxy?.identity?.name) {
       setIsHttpIdentityRequired(true);
@@ -275,6 +278,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         }) => (
           <Switch
             id="httpProxy"
+            data-testid="http-proxy-switch"
             name={IS_HTTP_CHECKED}
             className="proxy"
             label="HTTP proxy"
@@ -313,6 +317,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                   name={HTTP_HOST}
                   aria-label="httphost"
                   aria-describedby="httphost"
+                  data-testid="http-host-input"
                   isRequired={true}
                   onChange={onChange}
                   value={value}
@@ -355,6 +360,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           />
           <Switch
             id="http-identity-required"
+            data-testid="http-proxy-identity-switch"
             className={spacing.mMd}
             label="HTTP proxy credentials"
             aria-label="http identity required"
@@ -380,6 +386,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 >
                   <SimpleSelect
                     toggleId="http-proxy-credentials-select-toggle"
+                    data-testid="http-proxy-credentials-select-toggle"
                     aria-label={HTTP_IDENTITY}
                     value={value ? value : undefined}
                     options={identityOptions}
@@ -404,6 +411,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         }) => (
           <Switch
             id="httpsProxy"
+            data-testid="https-proxy-switch"
             name={IS_HTTPS_CHECKED}
             className="proxy"
             label="HTTPS proxy"
@@ -442,6 +450,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                   name={HTTPS_HOST}
                   aria-label="httpshost"
                   aria-describedby="httpshost"
+                  data-testid="https-host-input"
                   isRequired={true}
                   onChange={onChange}
                   value={value}
@@ -484,6 +493,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           </FormGroup>
           <Switch
             id="https-identity-required"
+            data-testid="https-proxy-identity-switch"
             className={spacing.mMd}
             label="HTTPS proxy credentials"
             aria-label="httpS identity required"

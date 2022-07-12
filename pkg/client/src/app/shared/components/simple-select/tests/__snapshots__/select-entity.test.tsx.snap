@@ -12,6 +12,7 @@ exports[`SimpleSelect Renders without crashing 1`] = `
   createText="Create"
   customBadgeText={null}
   customContent={null}
+  data-testid="select"
   direction="down"
   favorites={Array []}
   favoritesLabel="Favorites"
