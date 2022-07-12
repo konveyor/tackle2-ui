@@ -16,7 +16,7 @@ import {
   TextArea,
   TextInput,
 } from "@patternfly/react-core";
-import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
+import QuestionCircleIcon from "@patternfly/react-icons/dist/esm/icons/question-circle-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import {
@@ -718,7 +718,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 bodyContent={t("message.binaryPackaging")}
                 className="popover"
               >
-                <HelpIcon className={spacing.mlXs} noVerticalAlign />
+                <span className="pf-c-icon pf-m-info">
+                  <QuestionCircleIcon
+                    className={spacing.mlXs}
+                    noVerticalAlign
+                  />
+                </span>
               </Popover>
             }
             fieldId="packaging"
