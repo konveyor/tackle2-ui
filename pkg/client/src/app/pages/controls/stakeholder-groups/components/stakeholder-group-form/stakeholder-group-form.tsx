@@ -16,10 +16,6 @@ import {
 } from "@patternfly/react-core";
 
 import { MultiSelectFetchOptionValueFormikField } from "@app/shared/components";
-import {
-  useFetchStakeholderGroups,
-  useFetchStakeholders,
-} from "@app/shared/hooks";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createStakeholderGroup, updateStakeholderGroup } from "@app/api/rest";
@@ -36,6 +32,8 @@ import {
   toIStakeholderDropdownOptionWithValue,
   toIStakeholderDropdown,
 } from "@app/utils/model-utils";
+import { useFetchStakeholders } from "@app/queries/stakeholders";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 
 export interface FormValues {
   name: string;
@@ -62,23 +60,13 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
     stakeholders,
     isFetching: isFetchingStakeholders,
     fetchError: fetchErrorStakeholders,
-    fetchStakeholders,
   } = useFetchStakeholders();
 
   const {
     stakeholderGroups,
     isFetching: isFetchingStakeholderGroups,
     fetchError: fetchErrorStakeholderGroups,
-    fetchStakeholderGroups,
   } = useFetchStakeholderGroups();
-
-  useEffect(() => {
-    fetchStakeholderGroups();
-  }, [fetchStakeholderGroups]);
-
-  useEffect(() => {
-    fetchStakeholders();
-  }, [fetchStakeholders]);
 
   const stakeholdersInitialValue: IStakeholderDropdown[] = useMemo(() => {
     return stakeholderGroup &&

@@ -30,7 +30,7 @@ import {
   global_palette_white as white,
 } from "@patternfly/react-tokens";
 
-import { useFetch, useFetchApplicationDependencies } from "@app/shared/hooks";
+import { useFetch } from "@app/shared/hooks";
 import { ConditionalRender, StateError } from "@app/shared/components";
 
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
@@ -45,6 +45,7 @@ import { ApplicationSelectionContext } from "../../application-selection-context
 import { CartesianSquare } from "./cartesian-square";
 import { Arrow } from "./arrow";
 import { useFetchReviews } from "@app/queries/reviews";
+import { useFetchApplicationDependencies } from "@app/queries/applications";
 
 interface Line {
   from: LinePoint;
@@ -160,14 +161,8 @@ export const AdoptionCandidateGraph: React.FC = () => {
   }, [applications, refreshChart]);
 
   // Dependencies
-  const {
-    applicationDependencies: dependencies,
-    fetchAllApplicationDependencies: fetchAllDependencies,
-  } = useFetchApplicationDependencies();
-
-  useEffect(() => {
-    fetchAllDependencies({});
-  }, [fetchAllDependencies]);
+  const { applicationDependencies: dependencies } =
+    useFetchApplicationDependencies();
 
   const {
     reviews,

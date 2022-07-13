@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -30,7 +30,6 @@ import {
   AppTableToolbarToggleGroup,
   NoDataEmptyState,
 } from "@app/shared/components";
-import { useFetchBusinessServices, useDelete } from "@app/shared/hooks";
 
 import { BusinessService, Identity, SortByQuery } from "@app/api/models";
 import { deleteBusinessService } from "@app/api/rest";
@@ -48,6 +47,10 @@ import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import { useFetchApplications } from "@app/queries/applications";
+import {
+  useDeleteBusinessServiceMutation,
+  useFetchBusinessServices,
+} from "@app/queries/businessservices";
 
 const ENTITY_FIELD = "entity";
 
@@ -62,21 +65,22 @@ export const BusinessServices: React.FC = () => {
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<BusinessService>();
 
-  const { requestDelete: requestDeleteBusinessService } =
-    useDelete<BusinessService>({
-      onDelete: (t: BusinessService) => deleteBusinessService(t.id!),
-    });
+  const onDeleteBusinessServiceSuccess = (response: any) => {
+    dispatch(confirmDialogActions.closeDialog());
+  };
 
-  const { businessServices, isFetching, fetchError, fetchBusinessServices } =
-    useFetchBusinessServices(true);
+  const onDeleteBusinessServiceError = (error: AxiosError) => {
+    dispatch(confirmDialogActions.closeDialog());
+    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+  };
 
-  const refreshTable = useCallback(() => {
-    fetchBusinessServices();
-  }, [fetchBusinessServices]);
+  const { mutate: deleteBusinessService } = useDeleteBusinessServiceMutation(
+    onDeleteBusinessServiceSuccess,
+    onDeleteBusinessServiceError
+  );
 
-  useEffect(() => {
-    fetchBusinessServices();
-  }, [fetchBusinessServices]);
+  const { businessServices, isFetching, fetchError, refetch } =
+    useFetchBusinessServices();
 
   const { applications } = useFetchApplications();
 
@@ -203,17 +207,7 @@ export const BusinessServices: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          requestDeleteBusinessService(
-            row,
-            () => {
-              dispatch(confirmDialogActions.closeDialog());
-              refreshTable();
-            },
-            (error) => {
-              dispatch(confirmDialogActions.closeDialog());
-              dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-            }
-          );
+          deleteBusinessService(row.id);
         },
       })
     );
@@ -235,7 +229,7 @@ export const BusinessServices: React.FC = () => {
     response: AxiosResponse<BusinessService>
   ) => {
     setIsNewModalOpen(false);
-    refreshTable();
+    refetch();
 
     dispatch(
       alertActions.addSuccess(
@@ -255,7 +249,7 @@ export const BusinessServices: React.FC = () => {
 
   const handleOnBusinessServiceUpdated = () => {
     setRowToUpdate(undefined);
-    refreshTable();
+    refetch();
   };
 
   const handleOnCancelUpdateBusinessService = () => {

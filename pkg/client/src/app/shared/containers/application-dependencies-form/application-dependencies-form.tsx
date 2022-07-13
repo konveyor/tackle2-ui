@@ -19,8 +19,10 @@ import { Application, ApplicationDependency } from "@app/api/models";
 import { FormContext } from "./form-context";
 import { SelectDependency } from "./select-dependency";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { useFetchApplicationDependencies } from "@app/shared/hooks";
-import { useFetchApplications } from "@app/queries/applications";
+import {
+  useFetchApplicationDependencies,
+  useFetchApplications,
+} from "@app/queries/applications";
 
 const northToStringFn = (value: ApplicationDependency) => value.from.name;
 const southToStringFn = (value: ApplicationDependency) => value.to.name;
@@ -67,14 +69,14 @@ export const ApplicationDependenciesForm: React.FC<
     applicationDependencies: northDependencies,
     isFetching: isFetchingNorthDependencies,
     fetchError: fetchErrorNorthDependencies,
-    fetchAllApplicationDependencies: fetchAllNorthDependencies,
+    refetch: fetchAllNorthDependencies,
   } = useFetchApplicationDependencies();
 
   const {
     applicationDependencies: southDependencies,
     isFetching: isFetchingSouthDependencies,
     fetchError: fetchErrorSouthDependencies,
-    fetchAllApplicationDependencies: fetchAllSouthDependencies,
+    refetch: fetchAllSouthDependencies,
   } = useFetchApplicationDependencies();
 
   useEffect(() => {

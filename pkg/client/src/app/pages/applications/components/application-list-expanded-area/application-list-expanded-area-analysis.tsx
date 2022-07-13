@@ -14,8 +14,8 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Application, Task } from "@app/api/models";
 import { ApplicationTags } from "../application-tags";
-import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
 import { getKindIDByRef } from "@app/utils/model-utils";
+import { useFetchIdentities } from "@app/queries/identities";
 
 export interface IApplicationListExpandedAreaProps {
   application: Application;
@@ -27,11 +27,7 @@ export const ApplicationListExpandedAreaAnalysis: React.FC<
 > = ({ application, task }) => {
   const { t } = useTranslation();
 
-  const { identities, fetchIdentities } = useFetchIdentities();
-
-  useEffect(() => {
-    fetchIdentities();
-  }, [fetchIdentities]);
+  const { identities } = useFetchIdentities();
 
   let matchingSourceCredsRef;
   let matchingMavenCredsRef;
