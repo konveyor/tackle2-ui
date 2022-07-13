@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen } from "@app/test-config/test-utils";
+import { fireEvent, render, screen } from "@app/test-config/test-utils";
 import userEvent from "@testing-library/user-event";
 import { AnalysisWizard } from "../analysis-wizard";
 import { TASKGROUPS } from "@app/api/rest";
@@ -20,6 +20,11 @@ const applicationData2 = {
 };
 
 const taskgroupData = {
+  id: 1,
+  createUser: "admin",
+  updateUser: "",
+  createTime: "2022-07-13T13:20:49.838456782Z",
+  name: "taskgroup.windup",
   addon: "windup",
   data: {
     mode: {
@@ -38,15 +43,21 @@ const taskgroupData = {
     sources: [],
     targets: [],
   },
-  name: "taskgroup.windup",
+  bucket: "/buckets/cad7c340-e7c9-4935-8d7b-161d36667621",
+  state: "Created",
   tasks: [
     {
+      id: 0,
+      createUser: "",
+      updateUser: "",
+      createTime: "0001-01-01T00:00:00Z",
+      name: "App1.1.windup",
+      data: {},
       application: {
         id: 1,
         name: "App1",
       },
-      data: {},
-      name: "App1.1.windup",
+      state: "",
     },
   ],
 };
@@ -157,7 +168,7 @@ describe("<AnalysisWizard />", () => {
       },
     ];
 
-    mock.onPost(`${TASKGROUPS}`).reply(200, taskgroupData);
+    mock.onPost(TASKGROUPS).reply(201, taskgroupData);
 
     render(
       <AnalysisWizard
@@ -233,5 +244,53 @@ describe("<AnalysisWizard />", () => {
     });
 
     expect(uploadBinary).not.toBeInTheDocument();
+  });
+
+  it("allows uploading a binary file when analyzing one application", async () => {
+    // http://localhost:8080/hub/taskgroups/7/bucket/binary/acmeair-webapp-1.0-SNAPSHOT.war
+
+    mock.onPost(TASKGROUPS).reply(201, taskgroupData);
+    mock.onPost(`${TASKGROUPS}/1/bucket/binary/example.jar`).reply(204);
+
+    render(
+      <AnalysisWizard
+        applications={[applicationData1]}
+        isOpen={isAnalyzeModalOpen}
+        onClose={() => {
+          setAnalyzeModalOpen(false);
+        }}
+      />
+    );
+    const user = userEvent.setup();
+
+    const mode = screen.getByText(/binary/i);
+    await user.click(mode);
+
+    const uploadBinary = await screen.findByRole("option", {
+      name: "Upload a local binary",
+      hidden: true,
+    });
+
+    await user.click(uploadBinary);
+
+    const warning = screen.queryByLabelText(/warning alert/i);
+    expect(warning).not.toBeInTheDocument();
+
+    const uploadButton = screen.getByRole("button", {
+      name: /upload/i,
+      hidden: true,
+    });
+    expect(uploadButton).toBeEnabled();
+
+    const file = new File(["testing jar file"], "example.jar", {
+      type: "application/java-archive",
+    });
+
+    fireEvent.change(uploadButton, {
+      target: { files: [file] },
+    });
+
+    const nextButton = screen.getByRole("button", { name: /next/i });
+    expect(nextButton).toBeEnabled();
   });
 });
