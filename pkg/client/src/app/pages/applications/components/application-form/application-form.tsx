@@ -11,9 +11,14 @@ import {
   ExpandableSection,
   Form,
   FormGroup,
+  Popover,
+  PopoverPosition,
   TextArea,
   TextInput,
 } from "@patternfly/react-core";
+import QuestionCircleIcon from "@patternfly/react-icons/dist/js/icons/question-circle-icon";
+
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import {
   SingleSelectFetchOptionValueFormikField,
@@ -40,13 +45,12 @@ import {
   toITagDropdownOptionWithValue,
   toOptionLike,
 } from "@app/utils/model-utils";
-
-import "./application-form.css";
 import {
   useCreateApplicationMutation,
   useFetchApplications,
   useUpdateApplicationMutation,
 } from "@app/queries/applications";
+import "./application-form.css";
 export interface FormValues {
   name: string;
   description: string;
@@ -156,16 +160,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     switch (fieldName) {
       case "group":
         return fieldList[0] || "";
-        break;
       case "artifact":
         return fieldList[1] || "";
-        break;
       case "version":
         return fieldList[2] || "";
-        break;
       case "packaging":
         return fieldList[3] || "";
-        break;
       default:
         return "";
     }
@@ -425,138 +425,142 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           onToggle={() => setBasicExpanded(!isBasicExpanded)}
           isExpanded={isBasicExpanded}
         >
-          <FormGroup
-            label={t("terms.name")}
-            fieldId="name"
-            isRequired={true}
-            validated={getValidatedFromError(formik.errors.name)}
-            helperTextInvalid={formik.errors.name}
-          >
-            <TextInput
-              type="text"
-              name="name"
-              aria-label="name"
-              aria-describedby="name"
+          <Form>
+            <FormGroup
+              label={t("terms.name")}
+              fieldId="name"
               isRequired={true}
-              onChange={onChangeField}
-              onBlur={formik.handleBlur}
-              value={formik.values.name}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.name,
-                formik.touched.name
-              )}
-            />
-          </FormGroup>
-          <FormGroup
-            label={t("terms.description")}
-            fieldId="description"
-            isRequired={false}
-            validated={getValidatedFromError(formik.errors.description)}
-            helperTextInvalid={formik.errors.description}
-          >
-            <TextInput
-              type="text"
-              name="description"
-              aria-label="description"
-              aria-describedby="description"
-              isRequired={true}
-              onChange={onChangeField}
-              onBlur={formik.handleBlur}
-              value={formik.values.description}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.description,
-                formik.touched.description
-              )}
-            />
-          </FormGroup>
-          <FormGroup
-            label={t("terms.businessService")}
-            fieldId="businessService"
-            isRequired={true}
-            validated={getValidatedFromError(formik.errors.businessService)}
-            helperTextInvalid={
-              formik.errors.businessService && "This field is required"
-            }
-          >
-            <SingleSelectFetchOptionValueFormikField<IBusinessServiceDropdown>
-              fieldConfig={{
-                name: "businessService",
-              }}
-              selectConfig={{
-                variant: "typeahead",
-                "aria-label": "business-service",
-                "aria-describedby": "business-service",
-                typeAheadAriaLabel: "business-service",
-                toggleAriaLabel: "business-service",
-                clearSelectionsAriaLabel: "business-service",
-                removeSelectionAriaLabel: "business-service",
-                placeholderText: t("composed.selectOne", {
-                  what: t("terms.businessService").toLowerCase(),
-                }),
-                menuAppendTo: () => document.body,
-                maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-                isFetching: isFetchingBusinessServices,
-                fetchError: fetchErrorBusinessServices,
-              }}
-              options={(businessServices || []).map(toIBusinessServiceDropdown)}
-              toOptionWithValue={toIBusinessServiceDropdownOptionWithValue}
-            />
-          </FormGroup>
-          <FormGroup
-            label={t("terms.tags")}
-            fieldId="tags"
-            isRequired={false}
-            validated={getValidatedFromError(formik.errors.tags)}
-            helperTextInvalid={formik.errors.tags}
-          >
-            <MultiSelectFetchOptionValueFormikField<ITagDropdown>
-              fieldConfig={{
-                name: "tags",
-              }}
-              selectConfig={{
-                variant: "typeaheadmulti",
-                "aria-label": "tags",
-                "aria-describedby": "tags",
-                typeAheadAriaLabel: "tags",
-                toggleAriaLabel: "tags",
-                clearSelectionsAriaLabel: "tags",
-                removeSelectionAriaLabel: "tags",
-                // t("terms.tag(s)")
-                placeholderText: t("composed.selectOne", {
-                  what: t("terms.tag(s)").toLowerCase(),
-                }),
-                menuAppendTo: () => document.body,
-                maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-                isFetching: isFetchingTagTypes,
-                fetchError: fetchErrorTagTypes,
-              }}
-              options={(tags || []).map(toITagDropdown)}
-              toOptionWithValue={toITagDropdownOptionWithValue}
-              isEqual={isIModelEqual}
-            />
-          </FormGroup>
-          <FormGroup
-            label={t("terms.comments")}
-            fieldId="comments"
-            isRequired={false}
-            validated={getValidatedFromError(formik.errors.comments)}
-            helperTextInvalid={formik.errors.comments}
-          >
-            <TextArea
-              type="text"
-              name="comments"
-              aria-label="comments"
-              aria-describedby="comments"
+              validated={getValidatedFromError(formik.errors.name)}
+              helperTextInvalid={formik.errors.name}
+            >
+              <TextInput
+                type="text"
+                name="name"
+                aria-label="name"
+                aria-describedby="name"
+                isRequired={true}
+                onChange={onChangeField}
+                onBlur={formik.handleBlur}
+                value={formik.values.name}
+                validated={getValidatedFromErrorTouched(
+                  formik.errors.name,
+                  formik.touched.name
+                )}
+              />
+            </FormGroup>
+            <FormGroup
+              label={t("terms.description")}
+              fieldId="description"
               isRequired={false}
-              onChange={onChangeField}
-              onBlur={formik.handleBlur}
-              value={formik.values.comments}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.comments,
-                formik.touched.comments
-              )}
-            />
-          </FormGroup>
+              validated={getValidatedFromError(formik.errors.description)}
+              helperTextInvalid={formik.errors.description}
+            >
+              <TextInput
+                type="text"
+                name="description"
+                aria-label="description"
+                aria-describedby="description"
+                isRequired={true}
+                onChange={onChangeField}
+                onBlur={formik.handleBlur}
+                value={formik.values.description}
+                validated={getValidatedFromErrorTouched(
+                  formik.errors.description,
+                  formik.touched.description
+                )}
+              />
+            </FormGroup>
+            <FormGroup
+              label={t("terms.businessService")}
+              fieldId="businessService"
+              isRequired={true}
+              validated={getValidatedFromError(formik.errors.businessService)}
+              helperTextInvalid={
+                formik.errors.businessService && "This field is required"
+              }
+            >
+              <SingleSelectFetchOptionValueFormikField<IBusinessServiceDropdown>
+                fieldConfig={{
+                  name: "businessService",
+                }}
+                selectConfig={{
+                  variant: "typeahead",
+                  "aria-label": "business-service",
+                  "aria-describedby": "business-service",
+                  typeAheadAriaLabel: "business-service",
+                  toggleAriaLabel: "business-service",
+                  clearSelectionsAriaLabel: "business-service",
+                  removeSelectionAriaLabel: "business-service",
+                  placeholderText: t("composed.selectOne", {
+                    what: t("terms.businessService").toLowerCase(),
+                  }),
+                  menuAppendTo: () => document.body,
+                  maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
+                  isFetching: isFetchingBusinessServices,
+                  fetchError: fetchErrorBusinessServices,
+                }}
+                options={(businessServices || []).map(
+                  toIBusinessServiceDropdown
+                )}
+                toOptionWithValue={toIBusinessServiceDropdownOptionWithValue}
+              />
+            </FormGroup>
+            <FormGroup
+              label={t("terms.tags")}
+              fieldId="tags"
+              isRequired={false}
+              validated={getValidatedFromError(formik.errors.tags)}
+              helperTextInvalid={formik.errors.tags}
+            >
+              <MultiSelectFetchOptionValueFormikField<ITagDropdown>
+                fieldConfig={{
+                  name: "tags",
+                }}
+                selectConfig={{
+                  variant: "typeaheadmulti",
+                  "aria-label": "tags",
+                  "aria-describedby": "tags",
+                  typeAheadAriaLabel: "tags",
+                  toggleAriaLabel: "tags",
+                  clearSelectionsAriaLabel: "tags",
+                  removeSelectionAriaLabel: "tags",
+                  // t("terms.tag(s)")
+                  placeholderText: t("composed.selectOne", {
+                    what: t("terms.tag(s)").toLowerCase(),
+                  }),
+                  menuAppendTo: () => document.body,
+                  maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
+                  isFetching: isFetchingTagTypes,
+                  fetchError: fetchErrorTagTypes,
+                }}
+                options={(tags || []).map(toITagDropdown)}
+                toOptionWithValue={toITagDropdownOptionWithValue}
+                isEqual={isIModelEqual}
+              />
+            </FormGroup>
+            <FormGroup
+              label={t("terms.comments")}
+              fieldId="comments"
+              isRequired={false}
+              validated={getValidatedFromError(formik.errors.comments)}
+              helperTextInvalid={formik.errors.comments}
+            >
+              <TextArea
+                type="text"
+                name="comments"
+                aria-label="comments"
+                aria-describedby="comments"
+                isRequired={false}
+                onChange={onChangeField}
+                onBlur={formik.handleBlur}
+                value={formik.values.comments}
+                validated={getValidatedFromErrorTouched(
+                  formik.errors.comments,
+                  formik.touched.comments
+                )}
+              />
+            </FormGroup>
+          </Form>
         </ExpandableSection>
         <ExpandableSection
           toggleText={t("terms.sourceCode")}
@@ -564,85 +568,87 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
           isExpanded={isSourceCodeExpanded}
         >
-          <FormGroup
-            label="Repository type"
-            fieldId="kind"
-            isRequired={true}
-            validated={getValidatedFromError(formik.errors.kind)}
-            helperTextInvalid={formik.errors.kind}
-          >
-            <SimpleSelect
-              aria-label={formik.values.kind}
-              value={
-                formik.values.kind
-                  ? toOptionLike(formik.values.kind, kindOptions)
-                  : undefined
-              }
-              options={kindOptions}
-              onChange={(selection) => {
-                const selectionValue = selection as OptionWithValue<any>;
-                formik.setFieldValue("kind", selectionValue.value);
-              }}
-            />
-          </FormGroup>
-
-          <FormGroup
-            label={t("terms.sourceRepo")}
-            fieldId="sourceRepository"
-            validated={getValidatedFromError(formik.errors.sourceRepository)}
-            helperTextInvalid={"Must be a valid URL."}
-          >
-            <TextInput
-              type="text"
-              name="sourceRepository"
-              aria-label="Source Repository"
-              aria-describedby="Source Repository URL"
+          <Form>
+            <FormGroup
+              label="Repository type"
+              fieldId="kind"
               isRequired={true}
-              onChange={onChangeField}
-              onBlur={formik.handleBlur}
-              value={formik.values.sourceRepository}
-            />
-          </FormGroup>
-          <FormGroup
-            label={t("terms.sourceBranch")}
-            fieldId="branch"
-            validated={getValidatedFromError(formik.errors.branch)}
-            helperTextInvalid={formik.errors.branch}
-          >
-            <TextInput
-              type="text"
-              name="branch"
-              aria-label="Source Repository Branch"
-              aria-describedby="Source Repository Branch"
-              onChange={onChangeField}
-              onBlur={formik.handleBlur}
-              value={formik.values.branch}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.branch,
-                formik.touched.branch
-              )}
-            />
-          </FormGroup>
-          <FormGroup
-            label={t("terms.sourceRootPath")}
-            fieldId="rootPath"
-            validated={getValidatedFromError(formik.errors.rootPath)}
-            helperTextInvalid={formik.errors.rootPath}
-          >
-            <TextInput
-              type="text"
-              name="rootPath"
-              aria-label="Source Repository Root Path"
-              aria-describedby="Source Repository Root Path"
-              onChange={onChangeField}
-              onBlur={formik.handleBlur}
-              value={formik.values.rootPath}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.rootPath,
-                formik.touched.rootPath
-              )}
-            />
-          </FormGroup>
+              validated={getValidatedFromError(formik.errors.kind)}
+              helperTextInvalid={formik.errors.kind}
+            >
+              <SimpleSelect
+                aria-label={formik.values.kind}
+                value={
+                  formik.values.kind
+                    ? toOptionLike(formik.values.kind, kindOptions)
+                    : undefined
+                }
+                options={kindOptions}
+                onChange={(selection) => {
+                  const selectionValue = selection as OptionWithValue<any>;
+                  formik.setFieldValue("kind", selectionValue.value);
+                }}
+              />
+            </FormGroup>
+
+            <FormGroup
+              label={t("terms.sourceRepo")}
+              fieldId="sourceRepository"
+              validated={getValidatedFromError(formik.errors.sourceRepository)}
+              helperTextInvalid={"Must be a valid URL."}
+            >
+              <TextInput
+                type="text"
+                name="sourceRepository"
+                aria-label="Source Repository"
+                aria-describedby="Source Repository URL"
+                isRequired={true}
+                onChange={onChangeField}
+                onBlur={formik.handleBlur}
+                value={formik.values.sourceRepository}
+              />
+            </FormGroup>
+            <FormGroup
+              label={t("terms.sourceBranch")}
+              fieldId="branch"
+              validated={getValidatedFromError(formik.errors.branch)}
+              helperTextInvalid={formik.errors.branch}
+            >
+              <TextInput
+                type="text"
+                name="branch"
+                aria-label="Source Repository Branch"
+                aria-describedby="Source Repository Branch"
+                onChange={onChangeField}
+                onBlur={formik.handleBlur}
+                value={formik.values.branch}
+                validated={getValidatedFromErrorTouched(
+                  formik.errors.branch,
+                  formik.touched.branch
+                )}
+              />
+            </FormGroup>
+            <FormGroup
+              label={t("terms.sourceRootPath")}
+              fieldId="rootPath"
+              validated={getValidatedFromError(formik.errors.rootPath)}
+              helperTextInvalid={formik.errors.rootPath}
+            >
+              <TextInput
+                type="text"
+                name="rootPath"
+                aria-label="Source Repository Root Path"
+                aria-describedby="Source Repository Root Path"
+                onChange={onChangeField}
+                onBlur={formik.handleBlur}
+                value={formik.values.rootPath}
+                validated={getValidatedFromErrorTouched(
+                  formik.errors.rootPath,
+                  formik.touched.rootPath
+                )}
+              />
+            </FormGroup>
+          </Form>
         </ExpandableSection>
         <ExpandableSection
           toggleText={t("terms.binary")}
@@ -650,86 +656,100 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
           isExpanded={isBinaryExpanded}
         >
-          <FormGroup
-            label={t("terms.binaryGroup")}
-            fieldId="group"
-            validated={getValidatedFromError(formik.errors.group)}
-            helperTextInvalid={formik.errors.group}
-          >
-            <TextInput
-              type="text"
-              name="group"
-              aria-label="Binary Group"
-              aria-describedby="Binary Group"
-              onChange={onChangeField}
-              onBlur={formik.handleBlur}
-              value={formik.values.group}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.group,
-                formik.touched.group
-              )}
-            />
-          </FormGroup>
-          <FormGroup
-            label={t("terms.binaryArtifact")}
-            fieldId="artifact"
-            validated={getValidatedFromError(formik.errors.artifact)}
-            helperTextInvalid={formik.errors.artifact}
-          >
-            <TextInput
-              type="text"
-              name="artifact"
-              aria-label="Binary Artifact"
-              aria-describedby="Binary Artifact"
-              onChange={onChangeField}
-              onBlur={formik.handleBlur}
-              value={formik.values.artifact}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.artifact,
-                formik.touched.artifact
-              )}
-            />
-          </FormGroup>
-          <FormGroup
-            label={t("terms.binaryVersion")}
-            fieldId="version"
-            validated={getValidatedFromError(formik.errors.version)}
-            helperTextInvalid={formik.errors.version}
-          >
-            <TextInput
-              type="text"
-              name="version"
-              aria-label="Binary version"
-              aria-describedby="Binary version"
-              onChange={onChangeField}
-              onBlur={formik.handleBlur}
-              value={formik.values.version}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.version,
-                formik.touched.version
-              )}
-            />
-          </FormGroup>
-          <FormGroup
-            label={t("terms.binaryPackaging")}
-            fieldId="packaging"
-            validated={getValidatedFromError(formik.errors.packaging)}
-            helperTextInvalid={formik.errors.packaging}
-          >
-            <TextInput
-              type="text"
-              name="packaging"
-              aria-label="Binary Packaging"
-              aria-describedby="Binary Packaging"
-              onChange={onChangeField}
-              onBlur={formik.handleBlur}
-              value={formik.values.packaging}
-              validated={getValidatedFromErrorTouched(
-                formik.errors.packaging,
-                formik.touched.packaging
-              )}
-            />
-          </FormGroup>
+          <Form>
+            <FormGroup
+              label={t("terms.binaryGroup")}
+              fieldId="group"
+              validated={getValidatedFromError(formik.errors.group)}
+              helperTextInvalid={formik.errors.group}
+            >
+              <TextInput
+                type="text"
+                name="group"
+                aria-label="Binary Group"
+                aria-describedby="Binary Group"
+                onChange={onChangeField}
+                onBlur={formik.handleBlur}
+                value={formik.values.group}
+                validated={getValidatedFromErrorTouched(
+                  formik.errors.group,
+                  formik.touched.group
+                )}
+              />
+            </FormGroup>
+            <FormGroup
+              label={t("terms.binaryArtifact")}
+              fieldId="artifact"
+              validated={getValidatedFromError(formik.errors.artifact)}
+              helperTextInvalid={formik.errors.artifact}
+            >
+              <TextInput
+                type="text"
+                name="artifact"
+                aria-label="Binary Artifact"
+                aria-describedby="Binary Artifact"
+                onChange={onChangeField}
+                onBlur={formik.handleBlur}
+                value={formik.values.artifact}
+                validated={getValidatedFromErrorTouched(
+                  formik.errors.artifact,
+                  formik.touched.artifact
+                )}
+              />
+            </FormGroup>
+            <FormGroup
+              label={t("terms.binaryVersion")}
+              fieldId="version"
+              validated={getValidatedFromError(formik.errors.version)}
+              helperTextInvalid={formik.errors.version}
+            >
+              <TextInput
+                type="text"
+                name="version"
+                aria-label="Binary version"
+                aria-describedby="Binary version"
+                onChange={onChangeField}
+                onBlur={formik.handleBlur}
+                value={formik.values.version}
+                validated={getValidatedFromErrorTouched(
+                  formik.errors.version,
+                  formik.touched.version
+                )}
+              />
+            </FormGroup>
+            <FormGroup
+              label={t("terms.binaryPackaging")}
+              labelIcon={
+                <Popover
+                  position={PopoverPosition.top}
+                  aria-label="binary-packaging-details"
+                  bodyContent={t("message.binaryPackaging")}
+                  className="popover"
+                >
+                  <span className="pf-c-icon pf-m-info">
+                    <QuestionCircleIcon />
+                  </span>
+                </Popover>
+              }
+              fieldId="packaging"
+              validated={getValidatedFromError(formik.errors.packaging)}
+              helperTextInvalid={formik.errors.packaging}
+            >
+              <TextInput
+                type="text"
+                name="packaging"
+                aria-label="Binary Packaging"
+                aria-describedby="Binary Packaging"
+                onChange={onChangeField}
+                onBlur={formik.handleBlur}
+                value={formik.values.packaging}
+                validated={getValidatedFromErrorTouched(
+                  formik.errors.packaging,
+                  formik.touched.packaging
+                )}
+              />
+            </FormGroup>
+          </Form>
         </ExpandableSection>
         <ActionGroup>
           <Button

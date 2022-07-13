@@ -15,6 +15,7 @@ import { ConfirmDialogContainer } from "./shared/containers/confirm-dialog-conta
 import { BulkCopyNotificationsContainer } from "./shared/containers/bulk-copy-notifications-container";
 import { useFetchCookie } from "./queries/cookies";
 import keycloak from "./keycloak";
+import "./app.css";
 
 const App: React.FC = () => {
   // Automatically updates cookie

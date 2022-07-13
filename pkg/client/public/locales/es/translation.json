@@ -110,6 +110,7 @@
         "appNotAssesedTitle": "La evaluación no se ha completado",
         "appNotAssessedBody": "Para revisar una aplicación, esta debe de ser evaluada primero. Por favor evalúe la aplicación",
         "assessmentStakeholderHeader": "Seleccione a los interesados o grupo de interesados asociados a esta evaluación.",
+        "binaryPackaging": "El valor de packaging será JAR for defecto si se dejase vacío.",
         "continueConfirmation": "Si, continuar",
         "copyAssessmentAndReviewBody": "Algunas de las aplicaciones de destino seleccionadas tienen una evaluación/revisión en curso o completa. Al continuar, las evaluaciones/revisiones existentes serán reemplazadas por la evaluación/revisión copiada. ¿Desea continuar?",
         "copyAssessmentAndReviewQuestion": "¿Copiar evaluación y revisión?",
