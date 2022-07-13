@@ -12,7 +12,7 @@ import {
   TextArea,
   TextContent,
 } from "@patternfly/react-core";
-import { HelpIcon } from "@patternfly/react-icons/dist/esm/icons/help-icon";
+import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
 import { QuestionnaireCategory } from "@app/api/models";
 import { getValidatedFromError } from "@app/utils/utils";

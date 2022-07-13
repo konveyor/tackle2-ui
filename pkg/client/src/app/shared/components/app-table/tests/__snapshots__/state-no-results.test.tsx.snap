@@ -4,7 +4,9 @@ exports[`StateNoResults Renders without crashing 1`] = `
 <EmptyState
   variant="small"
 >
-  <EmptyStateIcon />
+  <EmptyStateIcon
+    icon="test-file-stub"
+  />
   <Title
     headingLevel="h2"
     size="lg"

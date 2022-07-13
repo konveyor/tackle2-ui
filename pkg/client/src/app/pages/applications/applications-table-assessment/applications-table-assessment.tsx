@@ -23,8 +23,8 @@ import {
   sortable,
   TableText,
 } from "@patternfly/react-table";
-import { TagIcon } from "@patternfly/react-icons/dist/esm/icons/tag-icon";
-import { PencilAltIcon } from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
+import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
+import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
 
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@app/store/rootReducer";

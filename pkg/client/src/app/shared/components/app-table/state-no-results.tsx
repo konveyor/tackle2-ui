@@ -8,7 +8,7 @@ import {
   EmptyStateVariant,
   Title,
 } from "@patternfly/react-core";
-import { SearchIcon } from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 
 export const StateNoResults: React.FC = () => {
   const { t } = useTranslation();

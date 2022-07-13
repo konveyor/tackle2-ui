@@ -22,6 +22,7 @@ module.exports = {
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
       "<rootDir>/__mocks__/fileMock.js",
     "@app/(.*)": "<rootDir>/src/app/$1",
+    "\\.(xsd)$": "<rootDir>/__mocks__/styleMock.js",
   },
 
   // An array of file extensions your modules use. If you require modules without specifying a file extension,

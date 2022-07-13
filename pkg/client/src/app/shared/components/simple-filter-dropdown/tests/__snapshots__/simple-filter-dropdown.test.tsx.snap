@@ -31,7 +31,7 @@ exports[`SimpleFilterDropdown Renders without crashing 1`] = `
     <DropdownToggle
       onToggle={[Function]}
     >
-      <UNDEFINED />
+      <test-file-stub />
        
       My label
     </DropdownToggle>
