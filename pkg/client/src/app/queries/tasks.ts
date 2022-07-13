@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "react-query";
 
 import { Task } from "@app/api/models";
-import { deleteTask, getTasks } from "@app/api/rest";
+import { cancelTask, deleteTask, getTasks } from "@app/api/rest";
 
 export const useFetchTasks = () => {
   const { isLoading, error, refetch, data } = useQuery("tasks", getTasks, {
@@ -41,6 +41,20 @@ export const useDeleteTaskMutation = (
   onError: (err: Error | null) => void
 ) => {
   return useMutation(deleteTask, {
+    onSuccess: () => {
+      onSuccess && onSuccess();
+    },
+    onError: (err: Error) => {
+      onError && onError(err);
+    },
+  });
+};
+
+export const useCancelTaskMutation = (
+  onSuccess: () => void,
+  onError: (err: Error | null) => void
+) => {
+  return useMutation(cancelTask, {
     onSuccess: () => {
       onSuccess && onSuccess();
     },

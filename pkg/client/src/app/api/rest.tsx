@@ -514,6 +514,9 @@ export const getTasks = () =>
 
 export const deleteTask = (id: number) => axios.delete<Task>(`${TASKS}/${id}`);
 
+export const cancelTask = (id: number) =>
+  axios.put<Task>(`${TASKS}/${id}/cancel`);
+
 export const createTaskgroup = (obj: Taskgroup) =>
   axios.post<Taskgroup>(TASKGROUPS, obj).then((response) => response.data);
 
