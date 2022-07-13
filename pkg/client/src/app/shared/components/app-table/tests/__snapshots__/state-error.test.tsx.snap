@@ -6,6 +6,7 @@ exports[`StateError Renders without crashing 1`] = `
 >
   <EmptyStateIcon
     color="#a30000"
+    icon="test-file-stub"
   />
   <Title
     headingLevel="h2"

@@ -11,7 +11,7 @@ import {
   Wizard,
   WizardStep,
 } from "@patternfly/react-core";
-import { BanIcon } from "@patternfly/react-icons/dist/esm/icons/ban-icon";
+import BanIcon from "@patternfly/react-icons/dist/esm/icons/ban-icon";
 
 import { useDispatch } from "react-redux";
 import { alertActions } from "@app/store/alert";

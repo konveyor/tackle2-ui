@@ -15,7 +15,7 @@ exports[`InputTextFilter Renders without crashing 1`] = `
     onClick={[Function]}
     variant="control"
   >
-    <Component />
+    <test-file-stub />
   </Button>
 </InputGroup>
 `;

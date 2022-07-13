@@ -1,12 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Flex, FlexItem, SpinnerProps } from "@patternfly/react-core";
-import { CheckCircleIcon } from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import { TimesCircleIcon } from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import { InProgressIcon } from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
+import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
+import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
+import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
 import { SVGIconProps } from "@patternfly/react-icons/dist/js/createIcon";
-import { ExclamationCircleIcon } from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
-import { UnknownIcon } from "@patternfly/react-icons/dist/esm/icons/unknown-icon";
+import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+import UnknownIcon from "@patternfly/react-icons/dist/esm/icons/unknown-icon";
 import {
   global_disabled_color_200 as disabledColor,
   global_success_color_100 as successColor,

@@ -13,7 +13,7 @@ import {
   TextInput,
   Text,
 } from "@patternfly/react-core";
-import { WarningTriangleIcon } from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
+import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Application, Identity, Ref } from "@app/api/models";
 import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";

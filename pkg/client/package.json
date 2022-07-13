@@ -16,7 +16,7 @@
     "server": "NODE_ENV=development node ../server/index.js",
     "start": "node ../server/index.js -r @cypress/instrument-cra",
     "start:dev": "concurrently -n proxy,server,client -c \"green.bold.inverse,blue.bold.inverse,yellow.bold.inverse\" \"npm:proxy\" \"npm:server\" \"npm:build:dev\"",
-    "test:unit": "$(npm bin)/jest --rootDir=. --config=config/jest.config.js",
+    "test": "$(npm bin)/jest --rootDir=. --config=config/jest.config.js",
     "tsc": "$(npm bin)/tsc -p ./tsconfig.json"
   },
   "dependencies": {

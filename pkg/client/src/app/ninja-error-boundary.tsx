@@ -7,7 +7,7 @@ import {
   EmptyStateVariant,
   Title,
 } from "@patternfly/react-core";
-import { UserNinjaIcon } from "@patternfly/react-icons/dist/esm/icons/user-ninja-icon";
+import UserNinjaIcon from "@patternfly/react-icons/dist/esm/icons/user-ninja-icon";
 
 interface NinjaErrorBoundaryProps {}
 interface NinjaErrorBoundaryState {

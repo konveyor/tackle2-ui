@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button, InputGroup, TextInput } from "@patternfly/react-core";
-import { SearchIcon } from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 
 export interface InputTextFilterProps {
   onApplyFilter: (filterText: string) => void;
