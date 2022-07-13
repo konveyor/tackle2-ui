@@ -234,36 +234,4 @@ describe("<AnalysisWizard />", () => {
 
     expect(uploadBinary).not.toBeInTheDocument();
   });
-
-  it.skip("can upload a binary file when analyzing one application", async () => {
-    render(
-      <AnalysisWizard
-        applications={[applicationData1]}
-        isOpen={isAnalyzeModalOpen}
-        onClose={() => {
-          setAnalyzeModalOpen(false);
-        }}
-      />
-    );
-    const user = userEvent.setup();
-
-    const mode = screen.getByText(/binary/i);
-    await user.click(mode);
-
-    const uploadBinary = await screen.findByRole("option", {
-      name: "Upload a local binary",
-      hidden: true,
-    });
-
-    await user.click(uploadBinary);
-
-    const warning = screen.queryByLabelText(/warning alert/i);
-    const nextButton = screen.getByRole("button", { name: /next/i });
-    expect(warning).not.toBeInTheDocument();
-    // TODO Fix Upload binary file
-    // Upload button is not available
-
-    // TODO - Once uploaded, nextButton should be enabled
-    expect(nextButton).toBeEnabled();
-  });
 });
