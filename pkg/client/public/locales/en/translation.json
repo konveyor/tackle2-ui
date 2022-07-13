@@ -110,6 +110,7 @@
         "appNotAssesedTitle": "Assessment has not been completed",
         "appNotAssessedBody": "In order to review an application it must be assessed first. Please assess the application",
         "assessmentStakeholderHeader": "Select the stakeholder(s) or stakeholder group(s) associated with this assessment.",
+        "binaryPackaging": "Packaging will default to JAR if left empty.",
         "continueConfirmation": "Yes, continue",
         "copyAssessmentAndReviewBody": "Some of the selected target applications have an in-progress or complete assessment/review. By continuing, the existing assessment(s)/review(s) will be replaced by the copied assessment/review. Do you wish to continue?",
         "copyAssessmentAndReviewQuestion": "Copy assessment and review?",
