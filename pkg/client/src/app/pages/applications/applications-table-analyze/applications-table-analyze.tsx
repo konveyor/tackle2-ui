@@ -483,7 +483,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         !tasks.some(
           (task) =>
             task.application?.id === app.id &&
-            task.state?.match(/(Created|Running|Ready)/)
+            task.state?.match(/(Created|Running|Ready|Pending)/)
         )
     );
 
