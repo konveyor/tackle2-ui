@@ -425,7 +425,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           onToggle={() => setBasicExpanded(!isBasicExpanded)}
           isExpanded={isBasicExpanded}
         >
-          <Form>
+          <div className="pf-c-form">
             <FormGroup
               label={t("terms.name")}
               fieldId="name"
@@ -560,7 +560,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 )}
               />
             </FormGroup>
-          </Form>
+          </div>
         </ExpandableSection>
         <ExpandableSection
           toggleText={t("terms.sourceCode")}
@@ -568,7 +568,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
           isExpanded={isSourceCodeExpanded}
         >
-          <Form>
+          <div className="pf-c-form">
             <FormGroup
               label="Repository type"
               fieldId="kind"
@@ -648,7 +648,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 )}
               />
             </FormGroup>
-          </Form>
+          </div>
         </ExpandableSection>
         <ExpandableSection
           toggleText={t("terms.binary")}
@@ -656,7 +656,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
           isExpanded={isBinaryExpanded}
         >
-          <Form>
+          <div className="pf-c-form">
             <FormGroup
               label={t("terms.binaryGroup")}
               fieldId="group"
@@ -749,7 +749,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 )}
               />
             </FormGroup>
-          </Form>
+          </div>
         </ExpandableSection>
         <ActionGroup>
           <Button
