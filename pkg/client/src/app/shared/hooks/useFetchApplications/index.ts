@@ -1,1 +1,0 @@
-export { useFetchApplications } from "./useFetchApplications";

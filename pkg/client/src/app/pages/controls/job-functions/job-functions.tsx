@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -30,11 +30,6 @@ import {
   NoDataEmptyState,
   SearchFilter,
 } from "@app/shared/components";
-import {
-  useTableControls,
-  useDelete,
-  useFetchJobFunctions,
-} from "@app/shared/hooks";
 
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import {
@@ -55,6 +50,10 @@ import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
+import {
+  useDeleteJobFunctionMutation,
+  useFetchJobFunctions,
+} from "@app/queries/jobfunctions";
 
 const ENTITY_FIELD = "entity";
 
@@ -62,8 +61,8 @@ export const JobFunctions: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const { jobFunctions, isFetching, fetchError, fetchJobFunctions } =
-    useFetchJobFunctions(true);
+  const { jobFunctions, isFetching, fetchError, refetch } =
+    useFetchJobFunctions();
 
   const filterCategories: FilterCategory<JobFunction>[] = [
     {
@@ -100,13 +99,19 @@ export const JobFunctions: React.FC = () => {
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<JobFunction>();
 
-  const { requestDelete: requestDeleteJobFunction } = useDelete<JobFunction>({
-    onDelete: (t: JobFunction) => deleteJobFunction(t.id!),
-  });
+  const onDeleteJobFunctionSuccess = (response: any) => {
+    dispatch(confirmDialogActions.closeDialog());
+  };
 
-  useEffect(() => {
-    fetchJobFunctions();
-  }, [fetchJobFunctions]);
+  const onDeleteJobFunctionError = (error: AxiosError) => {
+    dispatch(confirmDialogActions.closeDialog());
+    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+  };
+
+  const { mutate: deleteJobFunction } = useDeleteJobFunctionMutation(
+    onDeleteJobFunctionSuccess,
+    onDeleteJobFunctionError
+  );
 
   const columns: ICell[] = [
     {
@@ -158,17 +163,7 @@ export const JobFunctions: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          requestDeleteJobFunction(
-            row,
-            () => {
-              dispatch(confirmDialogActions.closeDialog());
-              fetchJobFunctions();
-            },
-            (error) => {
-              dispatch(confirmDialogActions.closeDialog());
-              dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-            }
-          );
+          deleteJobFunction(row.id);
         },
       })
     );
@@ -186,7 +181,7 @@ export const JobFunctions: React.FC = () => {
 
   const handleOnCreatedNew = (response: AxiosResponse<JobFunction>) => {
     setIsNewModalOpen(false);
-    fetchJobFunctions();
+    refetch();
 
     dispatch(
       alertActions.addSuccess(
@@ -206,7 +201,7 @@ export const JobFunctions: React.FC = () => {
 
   const handleOnJobFunctionUpdated = () => {
     setRowToUpdate(undefined);
-    fetchJobFunctions();
+    refetch();
   };
 
   const handleOnUpdatedCancel = () => {
