@@ -235,7 +235,7 @@ describe("<AnalysisWizard />", () => {
     expect(uploadBinary).not.toBeInTheDocument();
   });
 
-  it("can upload a binary file when analyzing one application", async () => {
+  it.skip("can upload a binary file when analyzing one application", async () => {
     render(
       <AnalysisWizard
         applications={[applicationData1]}
