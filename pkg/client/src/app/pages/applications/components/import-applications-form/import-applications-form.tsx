@@ -7,6 +7,7 @@ import {
   Alert,
   AlertActionCloseButton,
   Button,
+  Checkbox,
   FileUpload,
   Form,
   FormGroup,
@@ -98,6 +99,20 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
             onDropRejected: handleFileRejected,
           }}
           validated={isFileRejected ? "error" : "default"}
+        />
+      </FormGroup>
+      <FormGroup
+        fieldId="create-entities"
+        // label={t("terms.uploadApplicationFile")}
+        // helperTextInvalid="You should select a CSV file."
+        // validated={isFileRejected ? "error" : "default"}
+      >
+        <Checkbox
+          label="Enable automatic creation of missing entities"
+          isChecked={false}
+          // onChange={handleChange}
+          id="create-entities-checkbox"
+          name="createEntities"
         />
       </FormGroup>
       <ActionGroup>
