@@ -1,10 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
-import { Application, Assessment } from "@app/api/models";
+import {
+  Application,
+  ApplicationDependency,
+  Assessment,
+} from "@app/api/models";
 import {
   createApplication,
   deleteApplication,
   deleteBulkApplicationsQuery,
+  getApplicationDependencies,
   getApplicationsQuery,
   updateAllApplications,
   updateApplication,
@@ -13,6 +18,13 @@ import { AxiosError } from "axios";
 import { reviewsQueryKey } from "./reviews";
 import { useDeleteAssessmentMutation } from "./assessments";
 
+export interface IApplicationDependencyFetchState {
+  applicationDependencies: ApplicationDependency[];
+  isFetching: boolean;
+  fetchError: any;
+  refetch: any;
+}
+export const ApplicationDependencyQueryKey = "applicationdependencies";
 export interface IApplicationMutateState {
   mutate: any;
   isLoading: boolean;
@@ -40,6 +52,23 @@ export const useFetchApplications = () => {
     refetch,
   };
 };
+
+export const useFetchApplicationDependencies =
+  (): IApplicationDependencyFetchState => {
+    const { data, isLoading, error, refetch } = useQuery(
+      ApplicationDependencyQueryKey,
+      async () => (await getApplicationDependencies()).data,
+      {
+        onError: (error) => console.log("error, ", error),
+      }
+    );
+    return {
+      applicationDependencies: data || [],
+      isFetching: isLoading,
+      fetchError: error,
+      refetch,
+    };
+  };
 
 export const useUpdateApplicationMutation = (
   onSuccess: (res: any) => void,

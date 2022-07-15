@@ -22,8 +22,7 @@ import {
   getValidatedFromError,
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
-import { useQueryClient } from "react-query";
-import { useFetchJobFunctions } from "@app/shared/hooks";
+import { useFetchJobFunctions } from "@app/queries/jobfunctions";
 
 export interface FormValues {
   name: string;
@@ -42,12 +41,8 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const [error, setError] = useState<AxiosError>();
-  const { jobFunctions, isFetching, fetchError, fetchJobFunctions } =
-    useFetchJobFunctions(true);
-
-  useEffect(() => {
-    fetchJobFunctions();
-  }, [fetchJobFunctions]);
+  const { jobFunctions, isFetching, fetchError, refetch } =
+    useFetchJobFunctions();
 
   const initialValues: FormValues = {
     name: jobFunction?.name || "",

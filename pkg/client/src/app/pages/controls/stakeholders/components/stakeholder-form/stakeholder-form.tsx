@@ -18,10 +18,6 @@ import {
   SingleSelectFetchOptionValueFormikField,
   MultiSelectFetchOptionValueFormikField,
 } from "@app/shared/components";
-import {
-  useFetchStakeholderGroups,
-  useFetchJobFunctions,
-} from "@app/shared/hooks";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createStakeholder, updateStakeholder } from "@app/api/rest";
@@ -43,6 +39,8 @@ import {
   isIModelEqual,
 } from "@app/utils/model-utils";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
+import { useFetchJobFunctions } from "@app/queries/jobfunctions";
 
 export interface FormValues {
   email: string;
@@ -72,23 +70,13 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
     jobFunctions,
     isFetching: isFetchingJobFunctions,
     fetchError: fetchErrorJobFunctions,
-    fetchAllJobFunctions,
   } = useFetchJobFunctions();
-
-  useEffect(() => {
-    fetchAllJobFunctions();
-  }, [fetchAllJobFunctions]);
 
   const {
     stakeholderGroups,
     isFetching: isFetchingGroups,
     fetchError: fetchErrorGroups,
-    fetchStakeholderGroups,
   } = useFetchStakeholderGroups();
-
-  useEffect(() => {
-    fetchStakeholderGroups();
-  }, [fetchStakeholderGroups]);
 
   const jobFunctionInitialValue: IJobFunctionDropdown | null = useMemo(() => {
     return stakeholder && stakeholder.jobFunction
