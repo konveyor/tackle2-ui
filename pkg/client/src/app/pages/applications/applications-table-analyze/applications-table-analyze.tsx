@@ -138,7 +138,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const isTaskCancellable = (application: Application) => {
     const task = getTask(application);
-    if (task?.state && task.state.match(/(Created|Running|Ready)/)) return true;
+    if (task?.state && task.state.match(/(Created|Running|Ready|Pending)/))
+      return true;
     return false;
   };
 
