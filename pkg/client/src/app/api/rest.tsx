@@ -297,7 +297,7 @@ export const getApplicationById = (
 export const getApplicationDependencies = (): AxiosPromise<
   ApplicationDependency[]
 > => {
-  return APIClient.get(`${APPLICATION_DEPENDENCY}`);
+  return APIClient.get(`${APPLICATION_DEPENDENCY}`, jsonHeaders);
 };
 
 export const createApplicationDependency = (
