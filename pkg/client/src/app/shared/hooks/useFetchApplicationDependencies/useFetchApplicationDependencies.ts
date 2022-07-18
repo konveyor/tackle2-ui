@@ -19,14 +19,12 @@ type State = Readonly<{
   isFetching: boolean;
   applicationDependencies?: ApplicationDependency[];
   fetchError?: AxiosError;
-  fetchCount: number;
 }>;
 
 const defaultState: State = {
   isFetching: false,
   applicationDependencies: undefined,
   fetchError: undefined,
-  fetchCount: 0,
 };
 
 type Action = ActionType<
@@ -53,14 +51,12 @@ const reducer = (state: State, action: Action): State => {
         isFetching: false,
         fetchError: undefined,
         applicationDependencies: action.payload,
-        fetchCount: state.fetchCount + 1,
       };
     case getType(fetchFailure):
       return {
         ...state,
         isFetching: false,
         fetchError: action.payload,
-        fetchCount: state.fetchCount + 1,
       };
     default:
       return state;
@@ -71,7 +67,6 @@ export interface IState {
   applicationDependencies?: ApplicationDependency[];
   isFetching: boolean;
   fetchError?: AxiosError;
-  fetchCount: number;
   fetchAllApplicationDependencies: (filters: {
     from?: string[];
     to?: string[];
@@ -83,26 +78,22 @@ export const useFetchApplicationDependencies = (
 ): IState => {
   const [state, dispatch] = useReducer(reducer, defaultIsFetching, initReducer);
 
-  const fetchAllApplicationDependencies = useCallback(
-    (filters: { from?: string[]; to?: string[] }) => {
-      dispatch(fetchRequest());
+  const fetchAllApplicationDependencies = useCallback(() => {
+    dispatch(fetchRequest());
 
-      getApplicationDependencies()
-        .then(({ data }) => {
-          dispatch(fetchSuccess(data));
-        })
-        .catch((error: AxiosError) => {
-          dispatch(fetchFailure(error));
-        });
-    },
-    []
-  );
+    getApplicationDependencies()
+      .then(({ data }) => {
+        dispatch(fetchSuccess(data));
+      })
+      .catch((error: AxiosError) => {
+        dispatch(fetchFailure(error));
+      });
+  }, []);
 
   return {
     applicationDependencies: state.applicationDependencies,
     isFetching: state.isFetching,
     fetchError: state.fetchError,
-    fetchCount: state.fetchCount,
     fetchAllApplicationDependencies,
   };
 };
