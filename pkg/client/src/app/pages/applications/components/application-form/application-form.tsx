@@ -436,6 +436,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               <TextInput
                 type="text"
                 name="name"
+                data-testid="application-name"
                 aria-label="name"
                 aria-describedby="name"
                 isRequired={true}
@@ -458,6 +459,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               <TextInput
                 type="text"
                 name="description"
+                data-testid="description"
                 aria-label="description"
                 aria-describedby="description"
                 isRequired={true}
@@ -483,10 +485,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 fieldConfig={{
                   name: "businessService",
                 }}
+                data-testid="business-service-select"
                 selectConfig={{
                   variant: "typeahead",
-                  "aria-label": "business-service",
-                  "aria-describedby": "business-service",
+                  "aria-label": "business-service-select-input",
+                  "aria-describedby": "business-service-select-input",
                   typeAheadAriaLabel: "business-service",
                   toggleAriaLabel: "business-service",
                   clearSelectionsAriaLabel: "business-service",
