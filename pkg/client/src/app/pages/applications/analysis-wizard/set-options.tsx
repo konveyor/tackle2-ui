@@ -1,6 +1,7 @@
 import * as React from "react";
 import {
   Button,
+  Checkbox,
   Form,
   FormGroup,
   InputGroup,
@@ -104,6 +105,7 @@ export const SetOptions: React.FunctionComponent = () => {
 
   const targets: string[] = getValues("targets");
   const sources: string[] = getValues("sources");
+  const diva: boolean = getValues("diva");
   const excludedRulesTags: string[] = getValues("excludedRulesTags");
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
@@ -239,6 +241,13 @@ export const SetOptions: React.FunctionComponent = () => {
           </div>
         </FormGroup>
       </Form>
+      <Checkbox
+        label="Enable Transaction Report"
+        isChecked={diva}
+        onChange={() => setValue("diva", !diva)}
+        id="controlled-check-4"
+        name="enableTransactionReport"
+      />
     </>
   );
 };

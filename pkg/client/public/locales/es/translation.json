@@ -316,6 +316,8 @@
             "analysisMode": "Modo de análisis",
             "configureAnalysis": "Configurar análisis",
             "customRules": "Reglas personalizadas",
+            "disabled": "Desactivado",
+            "enabled": "Activado",
             "mode": "Modo",
             "numberOfRules": "Número de reglas",
             "options": "Opciones",
@@ -328,7 +330,8 @@
             "source": "Fuente",
             "sources": "Fuentes",
             "target": "Objetivo",
-            "targets": "Objetivos"
+            "targets": "Objetivos",
+            "transactionReport": "Reporte de transacción"
         },
         "title": {
             "advancedOptions": "Opciones avanzadas",

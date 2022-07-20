@@ -49,6 +49,7 @@ export const Review: React.FunctionComponent<IReview> = ({
     excludedPackages,
     customRulesFiles,
     excludedRulesTags,
+    diva,
   } = getValues();
 
   return (
@@ -175,6 +176,14 @@ export const Review: React.FunctionComponent<IReview> = ({
                 <ListItem key={index}>{tag}</ListItem>
               ))}
             </List>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>
+            {t("wizard.terms.transactionReport")}
+          </DescriptionListTerm>
+          <DescriptionListDescription id="diva">
+            {diva ? t("wizard.terms.enabled") : t("wizard.terms.disabled")}
           </DescriptionListDescription>
         </DescriptionListGroup>
       </DescriptionList>

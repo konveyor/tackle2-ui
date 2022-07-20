@@ -347,6 +347,7 @@ export interface TaskData {
     binary: boolean;
     withDeps: boolean;
     artifact: string;
+    diva: boolean;
   };
   targets: string[];
   sources: string[];
