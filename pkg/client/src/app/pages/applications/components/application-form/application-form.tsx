@@ -490,7 +490,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   variant: "typeahead",
                   "aria-label": "business-service-select-input",
                   "aria-describedby": "business-service-select-input",
-                  typeAheadAriaLabel: "business-service",
+                  typeAheadAriaLabel: "business-service-dropdown",
                   toggleAriaLabel: "business-service",
                   clearSelectionsAriaLabel: "business-service",
                   removeSelectionAriaLabel: "business-service",
@@ -566,6 +566,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           </div>
         </ExpandableSection>
         <ExpandableSection
+          data-testid="source-code-toggle"
           toggleText={t("terms.sourceCode")}
           className="toggle"
           onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
@@ -573,6 +574,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         >
           <div className="pf-c-form">
             <FormGroup
+              data-testid="repository-type"
               label="Repository type"
               fieldId="kind"
               isRequired={true}
@@ -595,6 +597,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             </FormGroup>
 
             <FormGroup
+              data-testid="repository-url"
               label={t("terms.sourceRepo")}
               fieldId="sourceRepository"
               validated={getValidatedFromError(formik.errors.sourceRepository)}
@@ -612,6 +615,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               />
             </FormGroup>
             <FormGroup
+              data-testid="repository-branch"
               label={t("terms.sourceBranch")}
               fieldId="branch"
               validated={getValidatedFromError(formik.errors.branch)}
@@ -632,6 +636,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               />
             </FormGroup>
             <FormGroup
+              data-testid="repository-root"
               label={t("terms.sourceRootPath")}
               fieldId="rootPath"
               validated={getValidatedFromError(formik.errors.rootPath)}
@@ -654,6 +659,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           </div>
         </ExpandableSection>
         <ExpandableSection
+          data-testid="binary-toggle"
           toggleText={t("terms.binary")}
           className="toggle"
           onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
@@ -661,6 +667,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         >
           <div className="pf-c-form">
             <FormGroup
+              data-testid="binary-group"
               label={t("terms.binaryGroup")}
               fieldId="group"
               validated={getValidatedFromError(formik.errors.group)}
@@ -681,6 +688,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               />
             </FormGroup>
             <FormGroup
+              data-testid="binary-artifact"
               label={t("terms.binaryArtifact")}
               fieldId="artifact"
               validated={getValidatedFromError(formik.errors.artifact)}
@@ -701,6 +709,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               />
             </FormGroup>
             <FormGroup
+              data-testid="binary-version"
               label={t("terms.binaryVersion")}
               fieldId="version"
               validated={getValidatedFromError(formik.errors.version)}
@@ -721,6 +730,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               />
             </FormGroup>
             <FormGroup
+              data-testid="binary-packaging"
               label={t("terms.binaryPackaging")}
               labelIcon={
                 <Popover
