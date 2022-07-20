@@ -135,20 +135,13 @@ export const useCreateApplicationMutation = (
 
 export const useDeleteApplicationMutation = (
   onSuccess: () => void,
-  onError: (err: AxiosError) => void,
-  getApplicationAssessment?: (id: number) => Assessment | undefined
+  onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { mutate: mutateAssessments } = useDeleteAssessmentMutation();
   return useMutation(({ id }: { id: number }) => deleteApplication(id), {
-    onSuccess: (_, { id }) => {
+    onSuccess: () => {
       onSuccess();
       queryClient.invalidateQueries(ApplicationsQueryKey);
-      const assessment =
-        getApplicationAssessment && getApplicationAssessment(id);
-      if (assessment?.id) {
-        mutateAssessments(assessment?.id);
-      }
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -158,24 +151,15 @@ export const useDeleteApplicationMutation = (
 
 export const useBulkDeleteApplicationMutation = (
   onSuccess: () => void,
-  onError: (err: AxiosError) => void,
-  getApplicationAssessment?: (id: number) => Assessment | undefined
+  onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { mutate: mutateAssessments } = useDeleteAssessmentMutation();
   return useMutation(
     ({ ids }: { ids: number[] }) => deleteBulkApplicationsQuery(ids),
     {
-      onSuccess: (_, { ids }) => {
+      onSuccess: () => {
         onSuccess();
         queryClient.invalidateQueries(ApplicationsQueryKey);
-        ids.forEach((id) => {
-          const assessment =
-            getApplicationAssessment && getApplicationAssessment(id);
-          if (assessment?.id) {
-            mutateAssessments(assessment?.id);
-          }
-        });
       },
       onError: (err: AxiosError) => {
         onError(err);
