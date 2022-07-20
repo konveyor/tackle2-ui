@@ -667,13 +667,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         >
           <div className="pf-c-form">
             <FormGroup
-              data-testid="binary-group"
               label={t("terms.binaryGroup")}
               fieldId="group"
               validated={getValidatedFromError(formik.errors.group)}
               helperTextInvalid={formik.errors.group}
             >
               <TextInput
+                data-testid="binary-group"
                 type="text"
                 name="group"
                 aria-label="Binary Group"
@@ -688,13 +688,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               />
             </FormGroup>
             <FormGroup
-              data-testid="binary-artifact"
               label={t("terms.binaryArtifact")}
               fieldId="artifact"
               validated={getValidatedFromError(formik.errors.artifact)}
               helperTextInvalid={formik.errors.artifact}
             >
               <TextInput
+                data-testid="binary-artifact"
                 type="text"
                 name="artifact"
                 aria-label="Binary Artifact"
@@ -709,13 +709,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               />
             </FormGroup>
             <FormGroup
-              data-testid="binary-version"
               label={t("terms.binaryVersion")}
               fieldId="version"
               validated={getValidatedFromError(formik.errors.version)}
               helperTextInvalid={formik.errors.version}
             >
               <TextInput
+                data-testid="binary-version"
                 type="text"
                 name="version"
                 aria-label="Binary version"

@@ -170,7 +170,7 @@ describe("Component: application-form", () => {
     expect(createButton).toBeEnabled();
   });
 
-  it("Required URL if branch exists", async () => {
+  it("Validation tests", async () => {
     const businessServices: BusinessService[] = [{ id: 1, name: "service" }];
 
     mock.onGet(`${BUSINESS_SERVICES}`).reply(200, businessServices);
@@ -210,6 +210,7 @@ describe("Component: application-form", () => {
     );
 
     const createButton = screen.getByRole("button", { name: /submit/i });
+
     expect(createButton).not.toBeEnabled();
 
     await waitFor(
@@ -230,6 +231,45 @@ describe("Component: application-form", () => {
       () => {
         fireEvent.change(screen.getByTestId("repository-url"), {
           target: { value: testURL },
+        });
+      },
+      {
+        timeout: 3000,
+      }
+    );
+
+    expect(createButton).toBeEnabled();
+
+    await waitFor(
+      () => {
+        fireEvent.change(screen.getByTestId("binary-group"), {
+          target: { value: "group-test" },
+        });
+      },
+      {
+        timeout: 3000,
+      }
+    );
+
+    expect(createButton).not.toBeEnabled();
+
+    await waitFor(
+      () => {
+        fireEvent.change(screen.getByTestId("binary-artifact"), {
+          target: { value: "artifact-test" },
+        });
+      },
+      {
+        timeout: 3000,
+      }
+    );
+
+    expect(createButton).not.toBeEnabled();
+
+    await waitFor(
+      () => {
+        fireEvent.change(screen.getByTestId("binary-version"), {
+          target: { value: "version-test" },
         });
       },
       {
