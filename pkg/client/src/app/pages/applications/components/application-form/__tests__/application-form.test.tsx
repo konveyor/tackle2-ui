@@ -9,7 +9,12 @@ import {
 } from "@app/test-config/test-utils";
 // import "@testing-library/jest-dom/extend-expect";
 
-import { BUSINESS_SERVICES, TAG_TYPES } from "@app/api/rest";
+import {
+  APPLICATIONS,
+  BUSINESS_SERVICES,
+  REVIEWS,
+  TAG_TYPES,
+} from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
 import { ApplicationForm } from "../application-form";
 import userEvent from "@testing-library/user-event";
@@ -22,6 +27,8 @@ jest.mock("react-i18next");
 const data = [];
 mock.onGet(`${BUSINESS_SERVICES}`).reply(200, data);
 mock.onGet(`${TAG_TYPES}`).reply(200, data);
+mock.onGet(`${APPLICATIONS}`).reply(200, data);
+mock.onGet(`${REVIEWS}`).reply(200, data);
 
 describe("Component: application-form", () => {
   const mockChangeValue = jest.fn();
@@ -159,6 +166,76 @@ describe("Component: application-form", () => {
     await userEvent.selectOptions(screen.getByRole("listbox"), ["service"]);
 
     const createButton = screen.getByRole("button", { name: /submit/i });
+
+    expect(createButton).toBeEnabled();
+  });
+
+  it("Required URL if branch exists", async () => {
+    const businessServices: BusinessService[] = [{ id: 1, name: "service" }];
+
+    mock.onGet(`${BUSINESS_SERVICES}`).reply(200, businessServices);
+
+    render(
+      <ApplicationForm onCancel={mockChangeValue} onSaved={mockChangeValue} />
+    );
+
+    fireEvent.change(screen.getByTestId("application-name"), {
+      target: { value: "app-name" },
+    });
+
+    await waitFor(
+      () => {
+        fireEvent.click(
+          screen.getByRole("button", {
+            name: /business-service/i,
+          })
+        );
+      },
+      {
+        timeout: 3000,
+      }
+    );
+
+    await userEvent.selectOptions(screen.getByRole("listbox"), ["service"]);
+
+    await waitFor(
+      () => {
+        fireEvent.change(screen.getByTestId("repository-branch"), {
+          target: { value: "branch-test" },
+        });
+      },
+      {
+        timeout: 3000,
+      }
+    );
+
+    const createButton = screen.getByRole("button", { name: /submit/i });
+    expect(createButton).not.toBeEnabled();
+
+    await waitFor(
+      () => {
+        fireEvent.change(screen.getByTestId("repository-root"), {
+          target: { value: "path-test" },
+        });
+      },
+      {
+        timeout: 3000,
+      }
+    );
+
+    expect(createButton).not.toBeEnabled();
+    const testURL = "https://github.com/username/tackle-testapp.git";
+
+    await waitFor(
+      () => {
+        fireEvent.change(screen.getByTestId("repository-url"), {
+          target: { value: testURL },
+        });
+      },
+      {
+        timeout: 3000,
+      }
+    );
 
     expect(createButton).toBeEnabled();
   });

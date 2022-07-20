@@ -597,13 +597,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             </FormGroup>
 
             <FormGroup
-              data-testid="repository-url"
               label={t("terms.sourceRepo")}
               fieldId="sourceRepository"
               validated={getValidatedFromError(formik.errors.sourceRepository)}
               helperTextInvalid={"Must be a valid URL."}
             >
               <TextInput
+                data-testid="repository-url"
                 type="text"
                 name="sourceRepository"
                 aria-label="Source Repository"
@@ -615,13 +615,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               />
             </FormGroup>
             <FormGroup
-              data-testid="repository-branch"
               label={t("terms.sourceBranch")}
               fieldId="branch"
               validated={getValidatedFromError(formik.errors.branch)}
               helperTextInvalid={formik.errors.branch}
             >
               <TextInput
+                data-testid="repository-branch"
                 type="text"
                 name="branch"
                 aria-label="Source Repository Branch"
@@ -636,7 +636,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               />
             </FormGroup>
             <FormGroup
-              data-testid="repository-root"
               label={t("terms.sourceRootPath")}
               fieldId="rootPath"
               validated={getValidatedFromError(formik.errors.rootPath)}
@@ -645,6 +644,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               <TextInput
                 type="text"
                 name="rootPath"
+                data-testid="repository-root"
                 aria-label="Source Repository Root Path"
                 aria-describedby="Source Repository Root Path"
                 onChange={onChangeField}
