@@ -390,6 +390,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     aria-label={HTTP_IDENTITY}
                     value={value ? value : undefined}
                     options={identityOptions}
+                    isDisabled={!!!identityOptions.length}
                     onChange={(selection) => {
                       const selectionValue = selection as OptionWithValue<any>;
                       onChange(selectionValue.value);
@@ -522,6 +523,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     aria-label={HTTPS_IDENTITY}
                     value={value ? value : undefined}
                     options={identityOptions}
+                    isDisabled={!!!identityOptions.length}
                     onChange={(selection) => {
                       const selectionValue = selection as OptionWithValue<any>;
                       onChange(selectionValue.value);
