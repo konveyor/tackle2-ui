@@ -316,6 +316,8 @@
             "analysisMode": "Analysis mode",
             "configureAnalysis": "Configure analysis",
             "customRules": "Custom rules",
+            "disabled": "Disabled",
+            "enabled": "Enabled",
             "mode": "Mode",
             "numberOfRules": "Number of rules",
             "options": "Options",
@@ -328,7 +330,8 @@
             "source": "Source",
             "sources": "Sources",
             "target": "Target",
-            "targets": "Targets"
+            "targets": "Targets",
+            "transactionReport": "Transaction Report"
         },
         "title": {
             "advancedOptions": "Advanced options",
