@@ -13,16 +13,14 @@ import {
 } from "@patternfly/react-core";
 
 import { OptionWithValue } from "@app/shared/components";
-import {
-  useFetchApplicationDependencies,
-  useFetchApplications,
-} from "@app/shared/hooks";
 
 import { Application, ApplicationDependency } from "@app/api/models";
 
 import { FormContext } from "./form-context";
 import { SelectDependency } from "./select-dependency";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import { useFetchApplicationDependencies } from "@app/shared/hooks";
+import { useFetchApplications } from "@app/queries/applications";
 
 const northToStringFn = (value: ApplicationDependency) => value.from.name;
 const southToStringFn = (value: ApplicationDependency) => value.to.name;
@@ -97,12 +95,7 @@ export const ApplicationDependenciesForm: React.FC<
     applications,
     isFetching: isFetchingApplications,
     fetchError: fetchErrorApplications,
-    fetchApplications,
   } = useFetchApplications();
-
-  useEffect(() => {
-    fetchApplications();
-  }, [fetchApplications]);
 
   // Initial value
 
@@ -129,6 +122,9 @@ export const ApplicationDependenciesForm: React.FC<
       <Spinner isSVG size="sm" /> {`${t("message.savingSelection")}...`}
     </div>
   );
+  const existingDependencyMappings = southboundDependencies
+    .map((sbd) => sbd.value.to.id)
+    .concat(northboundDependencies.map((nbd) => nbd.value.from.id));
 
   return (
     <Form>
@@ -157,10 +153,7 @@ export const ApplicationDependenciesForm: React.FC<
           options={(applications || [])
             .filter((f) => f.id !== application.id)
             .filter((app) => {
-              const idList = southboundDependencies.map(
-                (sbd) => sbd.value.to.id
-              );
-              return !idList?.includes(app.id);
+              return !existingDependencyMappings?.includes(app.id);
             })
             .map((f) =>
               dependencyToOption({ from: f, to: application }, northToStringFn)
@@ -194,10 +187,7 @@ export const ApplicationDependenciesForm: React.FC<
           options={(applications || [])
             .filter((f) => f.id !== application.id)
             .filter((app) => {
-              const idList = northboundDependencies.map(
-                (nbd) => nbd.value.from.id
-              );
-              return !idList?.includes(app.id);
+              return !existingDependencyMappings?.includes(app.id);
             })
             .map((f) =>
               dependencyToOption({ from: application, to: f }, southToStringFn)
