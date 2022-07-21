@@ -7,6 +7,7 @@ import {
   Alert,
   AlertActionCloseButton,
   Button,
+  Checkbox,
   FileUpload,
   Form,
   FormGroup,
@@ -28,6 +29,8 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
   const { t } = useTranslation();
 
   const [file, setFile] = useState<File>();
+  const [isCreateEntitiesChecked, setIsCreateEntitiesChecked] =
+    useState<boolean>(true);
   const [isFileRejected, setIsFileRejected] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +39,7 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
   const dispatch = useDispatch();
 
   // Actions
+
   const handleFileRejected = () => {
     setIsFileRejected(true);
   };
@@ -47,6 +51,10 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
     const formData = new FormData();
     formData.set("file", file);
     formData.set("fileName", file.name);
+    formData.set(
+      "createEntities",
+      isCreateEntitiesChecked === true ? "true" : "false"
+    );
     const config = {
       headers: {
         "X-Requested-With": "XMLHttpRequest",
@@ -98,6 +106,15 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
             onDropRejected: handleFileRejected,
           }}
           validated={isFileRejected ? "error" : "default"}
+        />
+      </FormGroup>
+      <FormGroup fieldId="create-entities">
+        <Checkbox
+          label="Enable automatic creation of missing entities"
+          isChecked={isCreateEntitiesChecked}
+          onChange={(checked, _) => setIsCreateEntitiesChecked(checked)}
+          id="create-entities-checkbox"
+          name="createEntities"
         />
       </FormGroup>
       <ActionGroup>
