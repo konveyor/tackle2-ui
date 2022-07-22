@@ -252,14 +252,12 @@ export const ApplicationsTable: React.FC = () => {
 
   const { mutate: deleteApplication } = useDeleteApplicationMutation(
     onDeleteApplicationSuccess,
-    onDeleteApplicationError,
-    getApplicationAssessment
+    onDeleteApplicationError
   );
 
   const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
     onDeleteApplicationSuccess,
-    onDeleteApplicationError,
-    getApplicationAssessment
+    onDeleteApplicationError
   );
 
   // Create assessment
