@@ -436,6 +436,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               <TextInput
                 type="text"
                 name="name"
+                data-testid="application-name"
                 aria-label="name"
                 aria-describedby="name"
                 isRequired={true}
@@ -458,6 +459,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               <TextInput
                 type="text"
                 name="description"
+                data-testid="description"
                 aria-label="description"
                 aria-describedby="description"
                 isRequired={true}
@@ -483,11 +485,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 fieldConfig={{
                   name: "businessService",
                 }}
+                data-testid="business-service-select"
                 selectConfig={{
                   variant: "typeahead",
-                  "aria-label": "business-service",
-                  "aria-describedby": "business-service",
-                  typeAheadAriaLabel: "business-service",
+                  "aria-label": "business-service-select-input",
+                  "aria-describedby": "business-service-select-input",
+                  typeAheadAriaLabel: "business-service-dropdown",
                   toggleAriaLabel: "business-service",
                   clearSelectionsAriaLabel: "business-service",
                   removeSelectionAriaLabel: "business-service",
@@ -563,6 +566,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           </div>
         </ExpandableSection>
         <ExpandableSection
+          data-testid="source-code-toggle"
           toggleText={t("terms.sourceCode")}
           className="toggle"
           onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
@@ -570,6 +574,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         >
           <div className="pf-c-form">
             <FormGroup
+              data-testid="repository-type"
               label="Repository type"
               fieldId="kind"
               isRequired={true}
@@ -598,6 +603,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               helperTextInvalid={"Must be a valid URL."}
             >
               <TextInput
+                data-testid="repository-url"
                 type="text"
                 name="sourceRepository"
                 aria-label="Source Repository"
@@ -615,6 +621,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               helperTextInvalid={formik.errors.branch}
             >
               <TextInput
+                data-testid="repository-branch"
                 type="text"
                 name="branch"
                 aria-label="Source Repository Branch"
@@ -637,6 +644,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               <TextInput
                 type="text"
                 name="rootPath"
+                data-testid="repository-root"
                 aria-label="Source Repository Root Path"
                 aria-describedby="Source Repository Root Path"
                 onChange={onChangeField}
@@ -651,6 +659,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           </div>
         </ExpandableSection>
         <ExpandableSection
+          data-testid="binary-toggle"
           toggleText={t("terms.binary")}
           className="toggle"
           onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
@@ -664,6 +673,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               helperTextInvalid={formik.errors.group}
             >
               <TextInput
+                data-testid="binary-group"
                 type="text"
                 name="group"
                 aria-label="Binary Group"
@@ -684,6 +694,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               helperTextInvalid={formik.errors.artifact}
             >
               <TextInput
+                data-testid="binary-artifact"
                 type="text"
                 name="artifact"
                 aria-label="Binary Artifact"
@@ -704,6 +715,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               helperTextInvalid={formik.errors.version}
             >
               <TextInput
+                data-testid="binary-version"
                 type="text"
                 name="version"
                 aria-label="Binary version"
@@ -718,6 +730,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               />
             </FormGroup>
             <FormGroup
+              data-testid="binary-packaging"
               label={t("terms.binaryPackaging")}
               labelIcon={
                 <Popover
