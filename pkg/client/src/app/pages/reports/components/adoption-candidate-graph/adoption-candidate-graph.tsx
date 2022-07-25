@@ -45,7 +45,6 @@ import { ApplicationSelectionContext } from "../../application-selection-context
 import { CartesianSquare } from "./cartesian-square";
 import { Arrow } from "./arrow";
 import { useFetchReviews } from "@app/queries/reviews";
-import { useFetchApplicationDependencies } from "@app/queries/applications";
 
 interface Line {
   from: LinePoint;
