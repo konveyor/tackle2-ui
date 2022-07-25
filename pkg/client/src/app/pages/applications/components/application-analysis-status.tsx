@@ -17,6 +17,7 @@ export type AnalysisState =
 
 const taskStateToAnalyze: Map<TaskState, AnalysisState> = new Map([
   ["not supported", "Canceled"],
+  ["Canceled", "Canceled"],
   ["Created", "Scheduled"],
   ["Succeeded", "Completed"],
   ["Failed", "Failed"],
