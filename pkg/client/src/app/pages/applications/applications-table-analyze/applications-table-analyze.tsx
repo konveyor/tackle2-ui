@@ -184,14 +184,12 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const { mutate: deleteApplication } = useDeleteApplicationMutation(
     onDeleteApplicationSuccess,
-    onDeleteApplicationError,
-    getApplicationAssessment
+    onDeleteApplicationError
   );
 
   const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
     onDeleteApplicationSuccess,
-    onDeleteApplicationError,
-    getApplicationAssessment
+    onDeleteApplicationError
   );
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
