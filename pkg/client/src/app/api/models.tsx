@@ -316,6 +316,7 @@ export interface Setting {
 
 export type TaskState =
   | "not supported"
+  | "Canceled"
   | "Created"
   | "Succeeded"
   | "Failed"
