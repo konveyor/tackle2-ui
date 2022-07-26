@@ -18,7 +18,6 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Application, Identity, Ref } from "@app/api/models";
 import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { useFetchIdentities } from "@app/shared/hooks/useFetchIdentities";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import {
   getKindIDByRef,
@@ -39,6 +38,7 @@ import {
   useUpdateAllApplicationsMutation,
   useUpdateApplicationMutation,
 } from "@app/queries/applications";
+import { useFetchIdentities } from "@app/queries/identities";
 
 export interface FormValues {
   applicationName: string;
@@ -58,11 +58,7 @@ export const ApplicationIdentityForm: React.FC<
   const { t } = useTranslation();
   const [error, setAxiosError] = useState<AxiosError>();
 
-  const { identities, fetchIdentities } = useFetchIdentities();
-
-  useEffect(() => {
-    fetchIdentities();
-  }, [fetchIdentities]);
+  const { identities } = useFetchIdentities();
 
   const { refetch: refetchApplications } = useFetchApplications();
 

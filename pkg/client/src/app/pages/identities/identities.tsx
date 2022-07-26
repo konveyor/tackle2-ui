@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { deleteIdentity } from "@app/api/rest";
 import {
   Button,
   ButtonVariant,
@@ -35,7 +34,6 @@ import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { AxiosError, AxiosResponse } from "axios";
 import { useDispatch } from "react-redux";
 import { alertActions } from "@app/store/alert";
-import { useDelete, useTableControls } from "@app/shared/hooks";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 import { NewIdentityModal } from "./components/new-identity-modal";
 import { UpdateIdentityModal } from "./components/update-identity-modal";

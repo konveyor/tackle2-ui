@@ -16,10 +16,6 @@ import {
 } from "@patternfly/react-core";
 
 import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
-import {
-  useFetchBusinessServices,
-  useFetchStakeholders,
-} from "@app/shared/hooks";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createBusinessService, updateBusinessService } from "@app/api/rest";
@@ -35,6 +31,8 @@ import {
   toIStakeholderDropdownOptionWithValue,
   toIStakeholderDropdown,
 } from "@app/utils/model-utils";
+import { useFetchStakeholders } from "@app/queries/stakeholders";
+import { useFetchBusinessServices } from "@app/queries/businessservices";
 
 export interface FormValues {
   name: string;
@@ -61,23 +59,13 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
     businessServices,
     isFetching: isFetchingBusinessServices,
     fetchError: fetchErrorBusinessServices,
-    fetchBusinessServices,
   } = useFetchBusinessServices();
-
-  useEffect(() => {
-    fetchBusinessServices();
-  }, [fetchBusinessServices]);
 
   const {
     stakeholders,
     isFetching: isFetchingStakeholders,
     fetchError: fetchErrorStakeholders,
-    fetchStakeholders,
   } = useFetchStakeholders();
-
-  useEffect(() => {
-    fetchStakeholders();
-  }, [fetchStakeholders]);
 
   const ownerInitialValue: IStakeholderDropdown | null = useMemo(() => {
     return businessService && businessService.owner

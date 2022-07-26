@@ -1,1 +1,0 @@
-export { useFetchStakeholderGroups } from "./useFetchStakeholderGroups";

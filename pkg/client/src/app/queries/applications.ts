@@ -53,23 +53,6 @@ export const useFetchApplications = () => {
   };
 };
 
-export const useFetchApplicationDependencies =
-  (): IApplicationDependencyFetchState => {
-    const { data, isLoading, error, refetch } = useQuery(
-      ApplicationDependencyQueryKey,
-      async () => (await getApplicationDependencies()).data,
-      {
-        onError: (error: AxiosError) => error,
-      }
-    );
-    return {
-      applicationDependencies: data || [],
-      isFetching: isLoading,
-      fetchError: error,
-      refetch,
-    };
-  };
-
 export const useUpdateApplicationMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void

@@ -26,7 +26,6 @@ import {
   SimpleSelect,
   OptionWithValue,
 } from "@app/shared/components";
-import { useFetchBusinessServices, useFetchTagTypes } from "@app/shared/hooks";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { Application, Ref } from "@app/api/models";
 import {
@@ -51,6 +50,8 @@ import {
   useUpdateApplicationMutation,
 } from "@app/queries/applications";
 import "./application-form.css";
+import { useFetchBusinessServices } from "@app/queries/businessservices";
+import { useFetchTagTypes } from "@app/queries/tags";
 export interface FormValues {
   name: string;
   description: string;
@@ -89,7 +90,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     businessServices,
     isFetching: isFetchingBusinessServices,
     fetchError: fetchErrorBusinessServices,
-    fetchBusinessServices,
+    refetch: fetchBusinessServices,
   } = useFetchBusinessServices();
 
   useEffect(() => {
@@ -102,7 +103,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     tagTypes,
     isFetching: isFetchingTagTypes,
     fetchError: fetchErrorTagTypes,
-    fetchTagTypes,
+    refetch: fetchTagTypes,
   } = useFetchTagTypes();
 
   useEffect(() => {

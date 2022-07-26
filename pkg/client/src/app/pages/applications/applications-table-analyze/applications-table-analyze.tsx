@@ -38,7 +38,6 @@ import {
   KebabDropdown,
   ToolbarBulkSelector,
 } from "@app/shared/components";
-import { useEntityModal } from "@app/shared/hooks";
 import { Paths } from "@app/Paths";
 import { Application, Task } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -75,6 +74,7 @@ import {
 } from "../applicationsFilter";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 import { useFetchApplicationAssessments } from "@app/queries/assessments";
+import { useEntityModal } from "@app/shared/hooks";
 
 const ENTITY_FIELD = "entity";
 
