@@ -11,11 +11,6 @@ import {
   TextContent,
 } from "@patternfly/react-core";
 
-import {
-  useFetchStakeholderGroups,
-  useFetchStakeholders,
-} from "@app/shared/hooks";
-
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { getValidatedFromError } from "@app/utils/utils";
 
@@ -23,6 +18,8 @@ import { IFormValues } from "../../form-utils";
 
 import { StakeholderSelect } from "./stakeholder-select";
 import { StakeholderGroupSelect } from "./stakeholder-group-select";
+import { useFetchStakeholders } from "@app/queries/stakeholders";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 
 export interface StakeholdersFormProps {}
 
@@ -34,23 +31,13 @@ export const StakeholdersForm: React.FC<StakeholdersFormProps> = () => {
     stakeholders,
     isFetching: isFetchingStakeholders,
     fetchError: fetchErrorStakeholders,
-    fetchStakeholders,
   } = useFetchStakeholders();
-
-  useEffect(() => {
-    fetchStakeholders();
-  }, [fetchStakeholders]);
 
   const {
     stakeholderGroups,
     isFetching: isFetchingStakeholderGroups,
     fetchError: fetchErrorStakeholderGroups,
-    fetchStakeholderGroups,
   } = useFetchStakeholderGroups();
-
-  useEffect(() => {
-    fetchStakeholderGroups();
-  }, [fetchStakeholderGroups]);
 
   return (
     <div className="pf-c-form">

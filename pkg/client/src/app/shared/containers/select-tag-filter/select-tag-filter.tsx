@@ -4,10 +4,10 @@ import { useTranslation } from "react-i18next";
 import { SelectVariant, ToolbarChip } from "@patternfly/react-core";
 
 import { SimpleSelectFetch, OptionWithValue } from "@app/shared/components";
-import { useFetchTagTypes } from "@app/shared/hooks";
 
 import { Tag } from "@app/api/models";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import { useFetchTagTypes } from "@app/queries/tags";
 
 const tagToToolbarChip = (value: Tag): ToolbarChip => ({
   key: `${value.id}`,
@@ -52,12 +52,12 @@ export const SelectTagFilter: React.FC<SelectTagFilterProps> = ({
     tagTypes,
     isFetching: isFetchingTagTypes,
     fetchError: fetchErrorTagTypes,
-    fetchTagTypes,
+    refetch,
   } = useFetchTagTypes();
 
   useEffect(() => {
-    fetchTagTypes();
-  }, [fetchTagTypes]);
+    refetch();
+  }, [refetch]);
 
   // Tags
 

@@ -41,12 +41,6 @@ import {
   KebabDropdown,
   ToolbarBulkSelector,
 } from "@app/shared/components";
-import {
-  useTableControls,
-  useAssessApplication,
-  useEntityModal,
-  useApplicationToolbarFilter,
-} from "@app/shared/hooks";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 
 import { formatPath, Paths } from "@app/Paths";
@@ -88,6 +82,8 @@ import {
   useFetchApplicationAssessments,
 } from "@app/queries/assessments";
 import { useQueryClient } from "react-query";
+import { useEntityModal } from "@app/shared/hooks/useEntityModal";
+import { useAssessApplication } from "@app/shared/hooks/useAssessApplication";
 
 const ENTITY_FIELD = "entity";
 
@@ -111,24 +107,7 @@ export const ApplicationsTable: React.FC = () => {
   // Router
   const history = useHistory();
 
-  // Toolbar filters
-  const {
-    filters: filtersValue,
-    isPresent: areFiltersPresent,
-    addFilter,
-    setFilter,
-    clearAllFilters,
-  } = useApplicationToolbarFilter();
-
   // Table data
-  const {
-    paginationQuery,
-    sortByQuery,
-    handlePaginationChange,
-    handleSortChange,
-  } = useTableControls({
-    sortByQuery: { direction: "asc", index: 2 },
-  });
 
   const { applications, isFetching, fetchError, refetch } =
     useFetchApplications();
@@ -693,7 +672,6 @@ export const ApplicationsTable: React.FC = () => {
           isLoading={isFetching}
           loadingVariant="skeleton"
           fetchError={fetchError}
-          filtersApplied={areFiltersPresent}
           toolbarToggle={
             <FilterToolbar<Application>
               filterCategories={filterCategories}

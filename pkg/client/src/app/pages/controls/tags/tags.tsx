@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@konveyor/lib-ui";
 
@@ -30,7 +30,6 @@ import {
   NoDataEmptyState,
   Color,
 } from "@app/shared/components";
-import { useFetchTagTypes, useDelete } from "@app/shared/hooks";
 
 import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
 import { deleteTag, deleteTagType } from "@app/api/rest";
@@ -51,6 +50,11 @@ import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { DEFAULT_COLOR_LABELS } from "@app/Constants";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
+import {
+  useDeleteTagMutation,
+  useDeleteTagTypeMutation,
+  useFetchTagTypes,
+} from "@app/queries/tags";
 
 const ENTITY_FIELD = "entity";
 
@@ -68,15 +72,47 @@ export const Tags: React.FC = () => {
   const [isNewTagModalOpen, setIsNewTagModalOpen] = useState(false);
   const [tagToUpdate, setTagToUpdate] = useState<Tag>();
 
-  const { requestDelete: requestDeleteTagType } = useDelete<TagType>({
-    onDelete: (t: TagType) => deleteTagType(t.id!),
-  });
-  const { requestDelete: requestDeleteTag } = useDelete<Tag>({
-    onDelete: (t: Tag) => deleteTag(t.id!),
-  });
+  const onDeleteTagSuccess = (response: any) => {
+    dispatch(confirmDialogActions.closeDialog());
+    refetch();
+  };
 
-  const { tagTypes, isFetching, fetchError, fetchTagTypes } =
-    useFetchTagTypes(true);
+  const onDeleteTagError = (error: AxiosError) => {
+    dispatch(confirmDialogActions.closeDialog());
+    if (
+      error.response?.status === 500 &&
+      error.response?.data.error === "FOREIGN KEY constraint failed"
+    )
+      dispatch(alertActions.addDanger("Cannot delete a used tag"));
+    else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+  };
+
+  const { mutate: deleteTag } = useDeleteTagMutation(
+    onDeleteTagSuccess,
+    onDeleteTagError
+  );
+
+  const onDeleteTagTypeSuccess = (response: any) => {
+    dispatch(confirmDialogActions.closeDialog());
+    refetch();
+  };
+
+  const onDeleteTagTypeError = (error: AxiosError) => {
+    dispatch(confirmDialogActions.closeDialog());
+    if (
+      error.response?.status === 500 &&
+      error.response?.data.error === "FOREIGN KEY constraint failed"
+    )
+      dispatch(alertActions.addDanger("Cannot delete a used tag"));
+    else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+  };
+
+  const { mutate: deleteTagType } = useDeleteTagTypeMutation(
+    onDeleteTagTypeSuccess,
+    onDeleteTagTypeError
+  );
+
+  const { tagTypes, isFetching, fetchError, refetch } = useFetchTagTypes();
 
   const {
     isItemSelected: isItemExpanded,
@@ -85,14 +121,6 @@ export const Tags: React.FC = () => {
     items: tagTypes || [],
     isEqual: (a, b) => a.id === b.id,
   });
-
-  const refreshTable = useCallback(() => {
-    fetchTagTypes();
-  }, [fetchTagTypes]);
-
-  useEffect(() => {
-    fetchTagTypes();
-  }, [fetchTagTypes]);
 
   const filterCategories: FilterCategory<TagType>[] = [
     {
@@ -177,29 +205,11 @@ export const Tags: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          requestDeleteTag(
-            row,
-            () => {
-              dispatch(confirmDialogActions.closeDialog());
-              refreshTable();
-            },
-            (error) => {
-              dispatch(confirmDialogActions.closeDialog());
-              if (
-                error.response?.status === 500 &&
-                error.response?.data.error === "FOREIGN KEY constraint failed"
-              )
-                dispatch(alertActions.addDanger("Cannot delete a used tag"));
-              else
-                dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-            }
-          );
+          deleteTag(row.id);
         },
       })
     );
   };
-
-  //
 
   const columns: ICell[] = [
     {
@@ -305,25 +315,17 @@ export const Tags: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          requestDeleteTagType(
-            row,
-            () => {
-              dispatch(confirmDialogActions.closeDialog());
-              refreshTable();
-            },
-            (error) => {
-              dispatch(confirmDialogActions.closeDialog());
-              if (
-                error.response?.status === 500 &&
-                error.response?.data.error === "FOREIGN KEY constraint failed"
-              )
-                dispatch(
-                  alertActions.addDanger("Cannot delete a non empty tag type")
-                );
-              else
-                dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-            }
-          );
+          deleteTagType((error) => {
+            dispatch(confirmDialogActions.closeDialog());
+            if (
+              error.response?.status === 500 &&
+              error.response?.data.error === "FOREIGN KEY constraint failed"
+            )
+              dispatch(
+                alertActions.addDanger("Cannot delete a non empty tag type")
+              );
+            else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+          });
         },
       })
     );
@@ -347,8 +349,7 @@ export const Tags: React.FC = () => {
 
   const handleOnCreatedNewTagType = (response: AxiosResponse<TagType>) => {
     setIsNewTagTypeModalOpen(false);
-    refreshTable();
-
+    refetch();
     dispatch(
       alertActions.addSuccess(
         t("toastr.success.added", {
@@ -361,7 +362,7 @@ export const Tags: React.FC = () => {
 
   const handleOnCreatedNewTag = (response: AxiosResponse<Tag>) => {
     setIsNewTagModalOpen(false);
-    refreshTable();
+    refetch();
 
     dispatch(
       alertActions.addSuccess(
@@ -382,12 +383,12 @@ export const Tags: React.FC = () => {
 
   const handleOnTagTypeUpdated = () => {
     setRowToUpdate(undefined);
-    refreshTable();
+    refetch();
   };
 
   const handleOnTagUpdated = () => {
     setTagToUpdate(undefined);
-    refreshTable();
+    refetch();
   };
 
   const handleOnUpdatedCancel = () => {

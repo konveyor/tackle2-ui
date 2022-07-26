@@ -28,8 +28,7 @@ import {
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
 import { colorHexToOptionWithValue } from "@app/utils/model-utils";
-
-import { useFetchTagTypes } from "@app/shared/hooks";
+import { useFetchTagTypes } from "@app/queries/tags";
 
 export interface FormValues {
   name: string;
@@ -52,11 +51,7 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
 
   const [error, setError] = useState<AxiosError>();
 
-  const { tagTypes, fetchTagTypes } = useFetchTagTypes(true);
-
-  React.useEffect(() => {
-    fetchTagTypes();
-  }, [fetchTagTypes]);
+  const { tagTypes } = useFetchTagTypes();
 
   const initialValues: FormValues = {
     name: tagType?.name || "",

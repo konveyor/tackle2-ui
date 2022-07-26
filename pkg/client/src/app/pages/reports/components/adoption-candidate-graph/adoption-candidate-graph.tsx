@@ -30,7 +30,7 @@ import {
   global_palette_white as white,
 } from "@patternfly/react-tokens";
 
-import { useFetch, useFetchApplicationDependencies } from "@app/shared/hooks";
+import { useFetch } from "@app/shared/hooks";
 import { ConditionalRender, StateError } from "@app/shared/components";
 
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
@@ -160,14 +160,8 @@ export const AdoptionCandidateGraph: React.FC = () => {
   }, [applications, refreshChart]);
 
   // Dependencies
-  const {
-    applicationDependencies: dependencies,
-    fetchAllApplicationDependencies: fetchAllDependencies,
-  } = useFetchApplicationDependencies();
-
-  useEffect(() => {
-    fetchAllDependencies({});
-  }, [fetchAllDependencies]);
+  const { applicationDependencies: dependencies } =
+    useFetchApplicationDependencies();
 
   const {
     reviews,
