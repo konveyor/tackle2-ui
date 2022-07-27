@@ -205,7 +205,6 @@ export const Tags: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          deleteTag(row.id);
         },
       })
     );
@@ -326,6 +325,11 @@ export const Tags: React.FC = () => {
               );
             else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
           });
+          if (currentPageItems.length === 1 && paginationProps.page) {
+            setPageNumber(paginationProps.page - 1);
+          } else {
+            setPageNumber(1);
+          }
         },
       })
     );
