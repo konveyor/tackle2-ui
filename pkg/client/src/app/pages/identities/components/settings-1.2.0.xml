@@ -9,8 +9,8 @@
   <servers>
     <server>
        <id>tackle-testapp</id>
-       <username>ENTER_USER</username>
-       <password>ENTER_PASSWORD</password>
+       <username>name</username>
+       <password>pass</password>
      </server>
   </servers>
   <mirrors>
