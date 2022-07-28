@@ -23,7 +23,9 @@ import {
   getValidatedFromError,
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
-import schema from "./schema.xsd";
+import schema0 from "./schema-1.0.0.xsd";
+import schema1 from "./schema-1.1.0.xsd";
+import schema2 from "./schema-1.2.0.xsd";
 import { toOptionLike } from "@app/utils/model-utils";
 
 import "./identity-form.css";
@@ -174,7 +176,33 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
               //if xml is valid, check against schema
               if (validationObject === true) {
-                const currentSchema = schema;
+                let currentSchemaName = "";
+                let currentSchema = "";
+                const supportedSchemaNames = ["1.2.0", "1.1.0", "1.0.0"];
+                if (window.DOMParser) {
+                  const parser = new DOMParser();
+                  const xmlDoc = parser.parseFromString(value, "text/xml");
+                  const settingsElement =
+                    xmlDoc.getElementsByTagName("settings")[0].innerHTML;
+                  supportedSchemaNames.forEach((schemaName) => {
+                    if (settingsElement.includes(schemaName)) {
+                      currentSchemaName = schemaName;
+                    }
+                  });
+                  switch (currentSchemaName) {
+                    case "1.0.0":
+                      currentSchema = schema0;
+                      break;
+                    case "1.1.0":
+                      currentSchema = schema1;
+                      break;
+                    case "1.2.0":
+                      currentSchema = schema2;
+                      break;
+                    default:
+                      break;
+                  }
+                }
 
                 const validationResult = xmllint.xmllint.validateXML({
                   xml: value,
