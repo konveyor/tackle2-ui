@@ -4,10 +4,7 @@ import {
   waitFor,
   screen,
   fireEvent,
-  getByLabelText,
-  act,
 } from "@app/test-config/test-utils";
-// import "@testing-library/jest-dom/extend-expect";
 
 import {
   APPLICATIONS,
@@ -100,6 +97,7 @@ describe("Component: application-form", () => {
     );
     expect(rootInput).toBeInTheDocument();
   });
+
   it("Render Binary section", async () => {
     render(
       <ApplicationForm onCancel={mockChangeValue} onSaved={mockChangeValue} />
@@ -150,6 +148,7 @@ describe("Component: application-form", () => {
     fireEvent.change(screen.getByTestId("application-name"), {
       target: { value: "app-name" },
     });
+
     await waitFor(
       () => {
         fireEvent.click(
@@ -159,11 +158,16 @@ describe("Component: application-form", () => {
         );
       },
       {
-        timeout: 3000,
+        timeout: 5000,
       }
     );
 
-    await userEvent.selectOptions(screen.getByRole("listbox"), ["service"]);
+    await waitFor(
+      () => {
+        userEvent.selectOptions(screen.getByRole("listbox"), ["service"]);
+      },
+      { timeout: 3000 }
+    );
 
     const createButton = screen.getByRole("button", { name: /submit/i });
 
