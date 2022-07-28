@@ -145,9 +145,16 @@ describe("Component: application-form", () => {
       <ApplicationForm onCancel={mockChangeValue} onSaved={mockChangeValue} />
     );
 
-    fireEvent.change(screen.getByTestId("application-name"), {
-      target: { value: "app-name" },
-    });
+    await waitFor(
+      () => {
+        fireEvent.change(screen.getByTestId("application-name"), {
+          target: { value: "app-name" },
+        });
+      },
+      {
+        timeout: 2000,
+      }
+    );
 
     await waitFor(
       () => {
