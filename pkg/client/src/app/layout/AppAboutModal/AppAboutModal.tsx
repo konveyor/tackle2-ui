@@ -11,6 +11,7 @@ import {
 } from "@patternfly/react-core";
 
 import brandImage from "@app/images/tackle.png";
+import { Link } from "react-router-dom";
 
 export interface AppAboutModalProps {
   isOpen: boolean;
@@ -59,6 +60,34 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
               Tackle documentation
             </Text>
             .
+          </Trans>
+        </Text>
+        <Text component={TextVariants.p}>
+          <Trans i18nKey="about.iconLibrary">
+            The Icon Library used in this project is a derivative of the{" "}
+            <Text
+              component={TextVariants.a}
+              href="https://www.redhat.com/en/about/brand/standards/icons/standard-icons"
+              target="_blank"
+            >
+              Standard Icons library
+            </Text>
+            by{" "}
+            <Text
+              component={TextVariants.a}
+              href="https://www.redhat.com"
+              target="_blank"
+            >
+              Red Hat
+            </Text>
+            , used under{" "}
+            <Text
+              component={TextVariants.a}
+              href="https://creativecommons.org/licenses/by/4.0/"
+              target="_blank"
+            >
+              CC BY 4.0
+            </Text>
           </Trans>
         </Text>
       </TextContent>

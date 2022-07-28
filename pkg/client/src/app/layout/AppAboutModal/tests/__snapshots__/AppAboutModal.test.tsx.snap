@@ -62,6 +62,41 @@ exports[`AppAboutModal 1`] = `
         .
       </Component>
     </Text>
+    <Text
+      component="p"
+    >
+      <Component
+        i18nKey="about.iconLibrary"
+      >
+        The Icon Library used in this project is a derivative of the
+         
+        <Text
+          component="a"
+          href="https://www.redhat.com/en/about/brand/standards/icons/standard-icons"
+          target="_blank"
+        >
+          Standard Icons library
+        </Text>
+        by
+         
+        <Text
+          component="a"
+          href="https://www.redhat.com"
+          target="_blank"
+        >
+          Red Hat
+        </Text>
+        , used under
+         
+        <Text
+          component="a"
+          href="https://creativecommons.org/licenses/by/4.0/"
+          target="_blank"
+        >
+          CC BY 4.0
+        </Text>
+      </Component>
+    </Text>
   </TextContent>
   <TextContent
     className="pf-u-py-xl"
