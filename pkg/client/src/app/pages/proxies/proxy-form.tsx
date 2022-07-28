@@ -280,7 +280,9 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             id="httpProxy"
             data-testid="http-proxy-switch"
             name={IS_HTTP_CHECKED}
-            className="proxy"
+            className={
+              isHttpProxy ? "http-proxy-checked" : "http-proxy-unchecked"
+            }
             label="HTTP proxy"
             aria-label="HTTP Proxy"
             isChecked={isHttpProxy}
@@ -361,7 +363,11 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           <Switch
             id="http-identity-required"
             data-testid="http-proxy-identity-switch"
-            className={spacing.mMd}
+            className={`${spacing.mMd} ${
+              isHttpIdentityRequired
+                ? "http-identity-checked"
+                : "http-identity-unchecked"
+            }`}
             label="HTTP proxy credentials"
             aria-label="http identity required"
             isChecked={isHttpIdentityRequired}
@@ -414,7 +420,9 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             id="httpsProxy"
             data-testid="https-proxy-switch"
             name={IS_HTTPS_CHECKED}
-            className="proxy"
+            className={
+              isHttpsProxy ? "https-proxy-checked" : "https-proxy-unchecked"
+            }
             label="HTTPS proxy"
             aria-label="HTTPS Proxy"
             isChecked={isHttpsProxy}
@@ -495,7 +503,11 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           <Switch
             id="https-identity-required"
             data-testid="https-proxy-identity-switch"
-            className={spacing.mMd}
+            className={`${spacing.mMd} ${
+              isHttpsIdentityRequired
+                ? "https-identity-checked"
+                : "https-identity-unchecked"
+            }`}
             label="HTTPS proxy credentials"
             aria-label="httpS identity required"
             isChecked={isHttpsIdentityRequired}
