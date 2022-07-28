@@ -1,10 +1,10 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "@app/test-config/test-utils";
-import userEvent from "@testing-library/user-event";
 import { AnalysisWizard } from "../analysis-wizard";
 import { TASKGROUPS } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
+import userEvent from "@testing-library/user-event";
 
 jest.mock("react-i18next");
 jest.mock("react-redux");
@@ -99,17 +99,15 @@ describe("<AnalysisWizard />", () => {
       />
     );
 
-    const user = userEvent.setup();
-
     const mode = screen.getByText(/binary/i);
-    await user.click(mode);
+    await userEvent.click(mode);
 
     const sourceCode = await screen.findByRole("option", {
       name: "Source code",
       hidden: true,
     });
 
-    await user.click(sourceCode);
+    await userEvent.click(sourceCode);
 
     const alert = screen.getByText(/warning alert:/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
@@ -127,17 +125,16 @@ describe("<AnalysisWizard />", () => {
         }}
       />
     );
-    const user = userEvent.setup();
 
     const mode = screen.getByText(/binary/i);
-    await user.click(mode);
+    await userEvent.click(mode);
 
     const sourceCodePlusDependencies = await screen.findByRole("option", {
       name: "Source code + dependencies",
       hidden: true,
     });
 
-    await user.click(sourceCodePlusDependencies);
+    await userEvent.click(sourceCodePlusDependencies);
 
     const alert = screen.getByText(/warning alert:/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
@@ -169,8 +166,6 @@ describe("<AnalysisWizard />", () => {
       />
     );
 
-    const user = userEvent.setup();
-
     // set default mode "Binary"
     const warning = screen.queryByLabelText(/warning alert/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
@@ -178,25 +173,25 @@ describe("<AnalysisWizard />", () => {
     expect(nextButton).toBeEnabled();
 
     // set a target
-    await user.click(nextButton);
+    await userEvent.click(nextButton);
     const target = await screen.findByRole("heading", {
       name: /containerization/i,
     });
-    await user.click(target);
-    await user.click(nextButton);
+    await userEvent.click(target);
+    await userEvent.click(nextButton);
 
     // set scope
     const scope = screen.getByRole("radio", {
       name: /wizard\.label\.scopealldeps/i,
     });
-    await user.click(scope);
-    await user.click(screen.getByRole("button", { name: /next/i }));
+    await userEvent.click(scope);
+    await userEvent.click(screen.getByRole("button", { name: /next/i }));
 
     // no custom rules
-    await user.click(screen.getByRole("button", { name: /next/i }));
+    await userEvent.click(screen.getByRole("button", { name: /next/i }));
 
     // no advanced options
-    await user.click(screen.getByRole("button", { name: /next/i }));
+    await userEvent.click(screen.getByRole("button", { name: /next/i }));
 
     // review
     expect(screen.getByText("App1")).toBeInTheDocument();
@@ -222,10 +217,9 @@ describe("<AnalysisWizard />", () => {
         }}
       />
     );
-    const user = userEvent.setup();
 
     const mode = screen.getByText(/binary/i);
-    await user.click(mode);
+    await userEvent.click(mode);
 
     const uploadBinary = screen.queryByRole("option", {
       name: "Upload a local binary",

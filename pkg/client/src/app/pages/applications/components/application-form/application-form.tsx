@@ -118,7 +118,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     if (tagTypes) {
       setTags(tagTypes.flatMap((f) => f.tags || []));
     }
-  }, [tagTypes]);
+  }, []);
 
   // Formik
 
