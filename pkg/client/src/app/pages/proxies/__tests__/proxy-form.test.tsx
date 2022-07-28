@@ -107,7 +107,13 @@ describe("Component: proxy-form", () => {
       })
     );
 
-    await userEvent.selectOptions(screen.getByRole("listbox"), ["proxy-cred"]);
+    await waitFor(
+      () =>
+        userEvent.selectOptions(screen.getByRole("listbox"), ["proxy-cred"]),
+      {
+        timeout: 3000,
+      }
+    );
     const proxyCred = screen.getByText("proxy-cred");
     expect(proxyCred).toBeInTheDocument();
     const mavenCred = screen.queryByText("maven-cred");
@@ -138,7 +144,13 @@ describe("Component: proxy-form", () => {
       })
     );
 
-    await userEvent.selectOptions(screen.getByRole("listbox"), ["proxy-cred"]);
+    await waitFor(
+      () =>
+        userEvent.selectOptions(screen.getByRole("listbox"), ["proxy-cred"]),
+      {
+        timeout: 3000,
+      }
+    );
     const proxyCred = screen.getByText("proxy-cred");
     expect(proxyCred).toBeInTheDocument();
     const mavenCred = screen.queryByText("maven-cred");
