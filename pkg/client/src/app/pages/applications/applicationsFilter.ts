@@ -205,5 +205,6 @@ export const useApplicationsFilterValues = (
     toggleRowExpanded,
     expandAll,
     areAllExpanded,
+    setPageNumber,
   };
 };

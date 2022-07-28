@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 
 import {
   Button,
   ButtonVariant,
-  ToolbarChip,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -26,18 +25,11 @@ import {
   AppTableActionButtons,
   AppTableWithControls,
   ConditionalRender,
-  AppTableToolbarToggleGroup,
   NoDataEmptyState,
-  SearchFilter,
 } from "@app/shared/components";
 
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import {
-  deleteJobFunction,
-  JobFunctionSortBy,
-  JobFunctionSortByQuery,
-} from "@app/api/rest";
-import { SortByQuery, JobFunction } from "@app/api/models";
+import { JobFunction } from "@app/api/models";
 
 import { NewJobFunctionModal } from "./components/new-job-function-modal";
 import { UpdateJobFunctionModal } from "./components/update-job-function-modal";
@@ -164,6 +156,11 @@ export const JobFunctions: React.FC = () => {
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
           deleteJobFunction(row.id);
+          if (currentPageItems.length === 1 && paginationProps.page) {
+            setPageNumber(paginationProps.page - 1);
+          } else {
+            setPageNumber(1);
+          }
         },
       })
     );

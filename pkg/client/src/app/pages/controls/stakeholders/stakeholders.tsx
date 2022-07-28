@@ -272,7 +272,11 @@ export const Stakeholders: React.FC = () => {
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
           deleteStakeholder(row.id);
-          setPageNumber(1);
+          if (currentPageItems.length === 1 && paginationProps.page) {
+            setPageNumber(paginationProps.page - 1);
+          } else {
+            setPageNumber(1);
+          }
         },
       })
     );
