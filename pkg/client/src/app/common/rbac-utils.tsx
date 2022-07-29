@@ -10,3 +10,14 @@ export const checkAccess = (
   );
   return access;
 };
+
+export const checkAccessAll = (
+  userPermissions: string[],
+  allowedPermissions: string[]
+) => {
+  if (!isAuthRequired) return true;
+  const access = userPermissions.every((userPermission) =>
+    allowedPermissions.includes(userPermission)
+  );
+  return access;
+};
