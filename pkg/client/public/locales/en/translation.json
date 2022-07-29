@@ -165,6 +165,8 @@
         "applicationName": "Application name",
         "applications": "Applications",
         "artifact": "Artifact",
+        "artifactAssociated": "Associated artifact",
+        "artifactNotAssociated": "Not associated artifact",
         "assessment": "Assessment",
         "assessmentNotes": "Assessment notes",
         "assessmentSummary": "Assessment summary",

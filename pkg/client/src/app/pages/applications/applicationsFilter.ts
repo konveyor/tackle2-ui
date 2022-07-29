@@ -54,16 +54,16 @@ export const useApplicationsFilterValues = (
     {
       key: "businessService",
       title: t("terms.businessService"),
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.businessService").toLowerCase(),
+        }) + "...",
       type: FilterType.select,
       selectOptions: dedupeFunction(
         applications
           .map((app) => app.businessService?.name)
           .map((name) => ({ key: name, value: name }))
       ),
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.businessService").toLowerCase(),
-        }) + "...",
     },
     {
       key: "identities",
@@ -116,8 +116,8 @@ export const useApplicationsFilterValues = (
         }) + "...",
       type: FilterType.select,
       selectOptions: [
-        { key: "binary", value: "Associated artifact" },
-        { key: "none", value: "No associated artifact" },
+        { key: "binary", value: t("terms.artifactAssociated") },
+        { key: "none", value: t("terms.artifactNotAssociated") },
       ],
       getItemValue: (item) => {
         const hasBinary =
