@@ -49,6 +49,7 @@ export interface IReadFile {
   loadPercentage?: number;
   loadResult?: "danger" | "success";
   data?: string;
+  fullFile: File;
 }
 
 export interface IAnalysisWizardFormValues {
@@ -233,13 +234,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     if (createdTaskgroup) {
       const taskgroup = setTaskgroup(createdTaskgroup, data);
 
-      data.customRulesFiles.forEach((file: any) => {
+      data.customRulesFiles.forEach((file: IReadFile) => {
         const formFile = new FormData();
-        formFile.append("file", file.file);
-
+        formFile.append("file", file.fullFile);
         uploadFile({
           id: taskgroup.id as number,
-          path: `/rules/${file.fileName}`,
+          path: `rules/${file.fileName}`,
           file: formFile,
         });
       });
