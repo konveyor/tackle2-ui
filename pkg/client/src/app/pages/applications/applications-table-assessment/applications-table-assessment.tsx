@@ -64,7 +64,7 @@ import {
   RBAC,
   RBAC_TYPE,
 } from "@app/rbac";
-import { checkAccess } from "@app/common/rbac-utils";
+import { checkAccess, checkAccessAll } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
 import {
   useBulkDeleteApplicationMutation,
@@ -383,7 +383,7 @@ export const ApplicationsTable: React.FC = () => {
     }
     if (
       row.review &&
-      checkAccess(userScopes, ["assessments:patch", "reviews:post"])
+      checkAccessAll(userScopes, ["assessments:patch", "reviews:post"])
     ) {
       actions.push({
         title: t("actions.copyAssessmentAndReview"),
