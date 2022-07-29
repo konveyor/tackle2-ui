@@ -163,6 +163,7 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
       fileName: file.name,
       loadResult: "success",
       loadPercentage: 100,
+      fullFile: file,
     };
     setReadFileData((prevReadFiles) => [...prevReadFiles, newFile]);
   };
@@ -176,6 +177,7 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
         fileName: file.name,
         loadResult: "danger",
         loadPercentage: percentage,
+        fullFile: file,
       },
     ]);
   };
