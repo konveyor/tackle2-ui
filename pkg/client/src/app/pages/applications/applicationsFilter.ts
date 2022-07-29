@@ -1,6 +1,8 @@
-import { Application, Tag, TagType } from "@app/api/models";
+import { useTranslation } from "react-i18next";
+
+import { Application } from "@app/api/models";
 import { useFetchIdentities } from "@app/queries/identities";
-import { useFetchTags, useFetchTagTypes } from "@app/queries/tags";
+import { useFetchTagTypes } from "@app/queries/tags";
 import {
   FilterCategory,
   FilterType,
@@ -18,52 +20,58 @@ export const useApplicationsFilterValues = (
   applications: Application[],
   tableType: string
 ) => {
-  const {
-    identities,
-    isFetching,
-    fetchError: fetchErrorIdentities,
-  } = useFetchIdentities();
+  const { identities } = useFetchIdentities();
 
-  const { tags } = useFetchTags();
+  const { t } = useTranslation();
+
   const { tagTypes } = useFetchTagTypes();
 
   const filterCategories: FilterCategory<Application>[] = [
     {
       key: "name",
-      title: "Name",
+      title: t("terms.name"),
       type: FilterType.search,
-      placeholderText: "Filter by name...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.name").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item?.name || "";
       },
     },
     {
       key: "description",
-      title: "Description",
+      title: t("terms.description"),
       type: FilterType.search,
-      placeholderText: "Filter by description...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.description").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item.description || "";
       },
     },
     {
       key: "businessService",
-      title: "Business service",
+      title: t("terms.businessService"),
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.businessService").toLowerCase(),
+        }) + "...",
       type: FilterType.select,
       selectOptions: dedupeFunction(
         applications
           .map((app) => app.businessService?.name)
           .map((name) => ({ key: name, value: name }))
       ),
-      placeholderText: "Filter by business service...",
-      getItemValue: (item) => {
-        return item.businessService?.name || "";
-      },
     },
     {
       key: "identities",
-      title: "Credential type",
-      placeholderText: "Filter by credential type...",
+      title: t("terms.credentialType"),
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.credentialType").toLowerCase(),
+        }) + "...",
       type: FilterType.multiselect,
       selectOptions: [
         { key: "source", value: "Source" },
@@ -84,8 +92,11 @@ export const useApplicationsFilterValues = (
     },
     {
       key: "repository",
-      title: "Repository type",
-      placeholderText: "Filter by repository type...",
+      title: t("terms.repositoryType"),
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.repositoryType").toLowerCase(),
+        }) + "...",
       type: FilterType.select,
       selectOptions: [
         { key: "git", value: "Git" },
@@ -98,12 +109,15 @@ export const useApplicationsFilterValues = (
     },
     {
       key: "binary",
-      title: "Artifact",
-      placeholderText: "Filter by Artifact...",
+      title: t("terms.artifact"),
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.artifact").toLowerCase(),
+        }) + "...",
       type: FilterType.select,
       selectOptions: [
-        { key: "binary", value: "Associated artifact" },
-        { key: "none", value: "No associated artifact" },
+        { key: "binary", value: t("terms.artifactAssociated") },
+        { key: "none", value: t("terms.artifactNotAssociated") },
       ],
       getItemValue: (item) => {
         const hasBinary =
@@ -116,9 +130,12 @@ export const useApplicationsFilterValues = (
     },
     {
       key: "tags",
-      title: "Tags",
+      title: t("terms.tags"),
       type: FilterType.multiselect,
-      placeholderText: "Filter by tag name...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.tagName").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         let tagNames = item?.tags?.map((tag) => tag.name).join("");
         return tagNames || "";
