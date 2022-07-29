@@ -235,7 +235,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
       data.customRulesFiles.forEach((file: any) => {
         const formFile = new FormData();
-        formFile.append("file", file.file);
+        formFile.append("file", file.data);
 
         uploadFile({
           id: taskgroup.id as number,
