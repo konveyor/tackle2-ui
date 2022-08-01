@@ -11,7 +11,8 @@ import {
 } from "@patternfly/react-core";
 
 import brandImage from "@app/images/tackle.png";
-import { Link } from "react-router-dom";
+
+const VERSION = "2.1";
 
 export interface AppAboutModalProps {
   isOpen: boolean;
@@ -95,7 +96,7 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
         <TextContent>
           <TextList component="dl">
             <TextListItem component="dt">{t("terms.version")}</TextListItem>
-            <TextListItem component="dd">2.0</TextListItem>
+            <TextListItem component="dd">{VERSION}</TextListItem>
           </TextList>
         </TextContent>
       </TextContent>
