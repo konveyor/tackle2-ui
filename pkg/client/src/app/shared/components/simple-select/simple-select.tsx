@@ -31,7 +31,7 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
   options,
   value,
   placeholderText = "Select...",
-
+  toggleAriaLabel,
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,7 +39,7 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
   return (
     <Select
       placeholderText={placeholderText}
-      data-testid="select"
+      toggleAriaLabel={toggleAriaLabel}
       isOpen={isOpen}
       onToggle={setIsOpen}
       onSelect={(_, selection) => {

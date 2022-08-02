@@ -146,6 +146,7 @@ export const ApplicationDependenciesForm: React.FC<
         helperText={isNorthBeingSaved ? savingMsg : ""}
       >
         <SelectDependency
+          toggleAriaLabel="northbound-dependencies-toggle"
           fieldId="northbound-dependencies"
           toStringFn={northToStringFn}
           value={northboundDependencies}
@@ -180,6 +181,7 @@ export const ApplicationDependenciesForm: React.FC<
         helperText={isSouthBeingSaved ? savingMsg : ""}
       >
         <SelectDependency
+          toggleAriaLabel="southbound-dependencies-toggle"
           fieldId="southbound-dependencies"
           toStringFn={southToStringFn}
           value={southboundDependencies}
