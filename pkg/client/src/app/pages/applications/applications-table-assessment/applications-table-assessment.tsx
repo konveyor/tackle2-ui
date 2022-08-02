@@ -166,9 +166,16 @@ export const ApplicationsTable: React.FC = () => {
   };
 
   // Delete
-  const onDeleteApplicationSuccess = () => {
+  const onDeleteApplicationSuccess = (appIDCount: number) => {
     dispatch(confirmDialogActions.processing());
     dispatch(confirmDialogActions.closeDialog());
+    dispatch(
+      alertActions.addSuccess(
+        "Applications",
+        `${appIDCount} application(s) successfully deleted`
+      )
+    );
+    refetch();
   };
 
   const onDeleteApplicationError = (error: AxiosError) => {
