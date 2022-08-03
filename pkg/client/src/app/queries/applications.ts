@@ -117,13 +117,13 @@ export const useCreateApplicationMutation = (
 };
 
 export const useDeleteApplicationMutation = (
-  onSuccess: () => void,
+  onSuccess: (numberOfApps: number) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation(({ id }: { id: number }) => deleteApplication(id), {
-    onSuccess: () => {
-      onSuccess();
+    onSuccess: (res) => {
+      onSuccess(1);
       queryClient.invalidateQueries(ApplicationsQueryKey);
     },
     onError: (err: AxiosError) => {
@@ -133,15 +133,15 @@ export const useDeleteApplicationMutation = (
 };
 
 export const useBulkDeleteApplicationMutation = (
-  onSuccess: () => void,
+  onSuccess: (numberOfApps: number) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation(
     ({ ids }: { ids: number[] }) => deleteBulkApplicationsQuery(ids),
     {
-      onSuccess: () => {
-        onSuccess();
+      onSuccess: (res, vars) => {
+        onSuccess(vars.ids.length);
         queryClient.invalidateQueries(ApplicationsQueryKey);
       },
       onError: (err: AxiosError) => {

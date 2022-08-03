@@ -95,7 +95,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   // Router
   const history = useHistory();
 
-  const { applications, isFetching, fetchError } = useFetchApplications();
+  const { applications, isFetching, fetchError, refetch } =
+    useFetchApplications();
 
   const {
     paginationProps,
@@ -166,6 +167,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     }
 
     closeApplicationModal();
+    refetch();
   };
 
   const { getApplicationAssessment } =
@@ -173,14 +175,23 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   // Delete
 
-  const onDeleteApplicationSuccess = () => {
+  const onDeleteApplicationSuccess = (appIDCount: number) => {
     dispatch(confirmDialogActions.processing());
     dispatch(confirmDialogActions.closeDialog());
+    dispatch(
+      alertActions.addSuccess(
+        t("toastr.success.applicationDeleted", {
+          appIDCount: appIDCount,
+        })
+      )
+    );
+    refetch();
   };
 
   const onDeleteApplicationError = (error: AxiosError) => {
     dispatch(confirmDialogActions.closeDialog());
     dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    refetch();
   };
 
   const { mutate: deleteApplication } = useDeleteApplicationMutation(
