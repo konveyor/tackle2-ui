@@ -171,8 +171,9 @@ export const ApplicationsTable: React.FC = () => {
     dispatch(confirmDialogActions.closeDialog());
     dispatch(
       alertActions.addSuccess(
-        "Applications",
-        `${appIDCount} application(s) successfully deleted`
+        t("toastr.success.applicationDeleted", {
+          appIDCount: appIDCount,
+        })
       )
     );
     refetch();
