@@ -1,6 +1,6 @@
 const path = require("path");
 const { merge } = require("webpack-merge");
-const webpack = require('webpack');
+const webpack = require("webpack");
 const common = require("./webpack.common.js");
 const { stylePaths } = require("./stylePaths");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -33,9 +33,10 @@ module.exports = merge(common("production"), {
         __dirname,
         "../public/index.html.ejs"
       )}`,
+      favicon: path.resolve(__dirname, "../public/favicon.ico"),
     }),
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production',
+      NODE_ENV: "production",
     }),
   ],
   module: {
