@@ -41,7 +41,7 @@ export interface IdentityFormProps {
   identity?: Identity;
   onSaved: (response: AxiosResponse<Identity>) => void;
   onCancel: () => void;
-  xmlValidationFn?: (value, currentSchema) => any;
+  xmlValidationFn?: (value: string, currentSchema: string) => any;
 }
 
 export const IdentityForm: React.FC<IdentityFormProps> = ({
