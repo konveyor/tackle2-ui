@@ -41,14 +41,14 @@ export interface IdentityFormProps {
   identity?: Identity;
   onSaved: (response: AxiosResponse<Identity>) => void;
   onCancel: () => void;
-  xmlValidationFn?: (value: string, currentSchema: string) => any;
+  xmlValidator?: (value: string, currentSchema: string) => any;
 }
 
 export const IdentityForm: React.FC<IdentityFormProps> = ({
   identity: initialIdentity,
   onSaved,
   onCancel,
-  xmlValidationFn,
+  xmlValidator,
 }) => {
   const { t } = useTranslation();
 
@@ -206,7 +206,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   }
                 }
                 const validationResult =
-                  xmlValidationFn && xmlValidationFn(value, currentSchema);
+                  xmlValidator && xmlValidator(value, currentSchema);
 
                 if (!validationResult?.errors) {
                   //valid against  schema

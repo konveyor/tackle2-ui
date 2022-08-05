@@ -285,7 +285,7 @@ describe("Component: identity-form", () => {
       <IdentityForm
         onCancel={mockChangeValue}
         onSaved={mockChangeValue}
-        xmlValidationFn={jest.fn()}
+        xmlValidator={jest.fn()}
       />
     );
 
@@ -342,7 +342,7 @@ describe("Component: identity-form", () => {
       <IdentityForm
         onCancel={mockChangeValue}
         onSaved={mockChangeValue}
-        xmlValidationFn={jest.fn()}
+        xmlValidator={jest.fn()}
       />
     );
 

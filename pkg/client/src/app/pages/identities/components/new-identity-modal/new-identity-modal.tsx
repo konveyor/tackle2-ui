@@ -27,7 +27,7 @@ export const NewIdentityModal: React.FC<NewIdentityModalProps> = ({
       <IdentityForm
         onSaved={onSaved}
         onCancel={onCancel}
-        xmlValidationFn={validateXML}
+        xmlValidator={validateXML}
       />
     </Modal>
   );
