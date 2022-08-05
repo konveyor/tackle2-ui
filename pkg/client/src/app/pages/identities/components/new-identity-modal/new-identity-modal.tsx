@@ -4,6 +4,7 @@ import { AxiosResponse } from "axios";
 import { Modal, ModalVariant } from "@patternfly/react-core";
 import { IdentityForm } from "../identity-form";
 import { Identity } from "@app/api/models";
+import { validateXML } from "../identity-form/validateXML";
 
 export interface NewIdentityModalProps {
   isOpen: boolean;
@@ -23,7 +24,11 @@ export const NewIdentityModal: React.FC<NewIdentityModalProps> = ({
       isOpen={isOpen}
       onClose={onCancel}
     >
-      <IdentityForm onSaved={onSaved} onCancel={onCancel} />
+      <IdentityForm
+        onSaved={onSaved}
+        onCancel={onCancel}
+        xmlValidator={validateXML}
+      />
     </Modal>
   );
 };
