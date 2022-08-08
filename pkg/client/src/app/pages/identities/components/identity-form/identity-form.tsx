@@ -36,18 +36,19 @@ import {
 } from "@app/queries/identities";
 import KeyDisplayToggle from "@app/common/KeyDisplayToggle";
 
-const xmllint = require("xmllint");
 const { XMLValidator } = require("fast-xml-parser");
 export interface IdentityFormProps {
   identity?: Identity;
   onSaved: (response: AxiosResponse<Identity>) => void;
   onCancel: () => void;
+  xmlValidator?: (value: string, currentSchema: string) => any;
 }
 
 export const IdentityForm: React.FC<IdentityFormProps> = ({
   identity: initialIdentity,
   onSaved,
   onCancel,
+  xmlValidator,
 }) => {
   const { t } = useTranslation();
 
@@ -183,7 +184,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   const parser = new DOMParser();
                   const xmlDoc = parser.parseFromString(value, "text/xml");
                   const settingsElement =
-                    xmlDoc.getElementsByTagName("settings")[0].innerHTML;
+                    xmlDoc.getElementsByTagName("settings")[0]?.innerHTML || "";
+
                   supportedSchemaNames.forEach((schemaName) => {
                     if (settingsElement.includes(schemaName)) {
                       currentSchemaName = schemaName;
@@ -203,13 +205,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                       break;
                   }
                 }
+                const validationResult =
+                  xmlValidator && xmlValidator(value, currentSchema);
 
-                const validationResult = xmllint.xmllint.validateXML({
-                  xml: value,
-                  schema: currentSchema,
-                });
-
-                if (!validationResult.errors) {
+                if (!validationResult?.errors) {
                   //valid against  schema
                   return true;
                 } else {
@@ -432,6 +431,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           name="kind"
           render={({ field: { value, name } }) => (
             <SimpleSelect
+              toggleAriaLabel="credential-type-dropdown"
               toggleId="type-select-toggle"
               aria-label={name}
               value={value ? toOptionLike(value, kindOptions) : undefined}
@@ -463,6 +463,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               name="userCredentials"
               render={({ field: { value, name } }) => (
                 <SimpleSelect
+                  toggleAriaLabel="user-credentials-dropdown"
                   toggleId="user-credentials-select-toggle"
                   aria-label={name}
                   value={
@@ -574,9 +575,11 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   name="key"
                   render={({ field: { onChange, value, name } }) => (
                     <FileUpload
+                      data-testid="drop-input"
                       id="file"
                       name={name}
                       type="text"
+                      aria-label="source-key-upload"
                       value={
                         value
                           ? value !== identity?.key
@@ -628,8 +631,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     <TextInput
                       type={isPasswordHidden ? "password" : "text"}
                       name={name}
-                      aria-label="Private Key Passphrase"
-                      aria-describedby="Private Key Passphrase"
+                      aria-label="private-key-passphrase"
+                      aria-describedby="private-key-passphrase"
                       onChange={onChange}
                       onBlur={onBlur}
                       onFocus={() => {
@@ -658,6 +661,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               name="settings"
               render={({ field: { onChange, value, name } }) => (
                 <FileUpload
+                  aria-label="maven-settings-upload"
                   id="file"
                   name={name}
                   type="text"
@@ -714,7 +718,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 <TextInput
                   type="text"
                   name="user"
-                  aria-label="user"
+                  aria-label="proxy-user"
                   aria-describedby="user"
                   isRequired={true}
                   onChange={onChange}
@@ -753,7 +757,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 <TextInput
                   type={isPasswordHidden ? "password" : "text"}
                   name={name}
-                  aria-label="password"
+                  aria-label="proxy-password"
                   aria-describedby="password"
                   isRequired={true}
                   onChange={onChange}
