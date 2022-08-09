@@ -583,6 +583,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               helperTextInvalid={formik.errors.kind}
             >
               <SimpleSelect
+                toggleAriaLabel="repo-type-toggle"
                 aria-label={formik.values.kind}
                 value={
                   formik.values.kind
