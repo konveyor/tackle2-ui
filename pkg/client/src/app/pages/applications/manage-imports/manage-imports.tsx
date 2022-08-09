@@ -148,8 +148,14 @@ export const ManageImports: React.FC = () => {
       cellTransforms: [truncate],
     },
     { title: t("terms.status"), transforms: [cellWidth(10)] },
-    { title: t("terms.accepted"), transforms: [cellWidth(10)] },
-    { title: t("terms.rejected"), transforms: [cellWidth(10)] },
+    {
+      title: t("terms.accepted"),
+      header: { info: { tooltip: t("terms.acceptedAppsAndDeps") } },
+    },
+    {
+      title: t("terms.rejected"),
+      header: { info: { tooltip: t("terms.rejectedAppsAndDeps") } },
+    },
   ];
 
   const rows: IRow[] = [];
