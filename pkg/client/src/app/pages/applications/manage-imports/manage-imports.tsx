@@ -57,6 +57,7 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar/FilterToolbar";
 import { useSortState } from "@app/shared/hooks/useSortState";
+import TooltipTitle from "@app/common/TooltipTitle";
 
 const ENTITY_FIELD = "entity";
 
@@ -147,14 +148,28 @@ export const ManageImports: React.FC = () => {
       transforms: [sortable, cellWidth(30)],
       cellTransforms: [truncate],
     },
-    { title: t("terms.status"), transforms: [cellWidth(10)] },
     {
-      title: t("terms.accepted"),
-      header: { info: { tooltip: t("terms.acceptedAppsAndDeps") } },
+      title: t("terms.status"),
+      transforms: [cellWidth(10)],
+      cellTransforms: [truncate],
     },
     {
-      title: t("terms.rejected"),
-      header: { info: { tooltip: t("terms.rejectedAppsAndDeps") } },
+      title: (
+        <TooltipTitle
+          titleText={t("terms.accepted")}
+          tooltipText={t("terms.acceptedAppsAndDeps")}
+        ></TooltipTitle>
+      ),
+      transforms: [cellWidth(10)],
+    },
+    {
+      title: (
+        <TooltipTitle
+          titleText={t("terms.rejected")}
+          tooltipText={t("terms.rejectedAppsAndDeps")}
+        ></TooltipTitle>
+      ),
+      transforms: [cellWidth(10)],
     },
   ];
 
