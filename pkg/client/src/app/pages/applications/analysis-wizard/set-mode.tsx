@@ -66,8 +66,9 @@ export const SetMode: React.FunctionComponent<ISetMode> = ({
       </TextContent>
       <FormGroup label={t("wizard.label.analysisSource")} fieldId="sourceType">
         <SimpleSelect
+          toggleAriaLabel="analysis-mode-toggle"
           variant={SelectVariant.single}
-          aria-label="Select user perspective"
+          aria-label="analysis-mode-select"
           value={toOptionLike(mode, options)}
           onChange={(selection) => {
             const option = selection as OptionWithValue<string>;
