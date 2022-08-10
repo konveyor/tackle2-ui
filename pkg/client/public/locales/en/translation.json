@@ -242,7 +242,7 @@
         "question": "Question",
         "rank": "Rank",
         "rejected": "Rejected",
-        "rejectedAppsAndDeps": "Rejected applications and dependencies",
+        "rejectedAppsAndDeps": "Rejected applications and dependencies or unknown records",
         "reports": "Reports",
         "repositoryType": "Repository type",
         "review": "Review",
