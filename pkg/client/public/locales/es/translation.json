@@ -154,6 +154,7 @@
     },
     "terms": {
         "accepted": "Aceptado",
+        "acceptedAppsAndDeps": "Aplicaciónes y dependencias adoptadas",
         "add": "Agregar",
         "additionalNotesOrComments": "Notas adicionales o comentarios",
         "adoptionCandidateDistribution": "Distribución de candidatos a la adopción",
@@ -241,6 +242,7 @@
         "question": "Pregunta",
         "rank": "Rango",
         "rejected": "Rechazado",
+        "rejectedAppsAndDeps": "Aplicaciónes y dependencias en desuso",
         "reports": "Reportes",
         "repositoryType": "Tipo de repositorio",
         "review": "Revisión",
