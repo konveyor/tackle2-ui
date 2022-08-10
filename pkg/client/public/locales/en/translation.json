@@ -154,6 +154,7 @@
     },
     "terms": {
         "accepted": "Accepted",
+        "acceptedAppsAndDeps": "Accepted applications and dependencies",
         "add": "Add",
         "additionalNotesOrComments": "Additional notes or comments",
         "adoptionCandidateDistribution": "Adoption candidate distribution",
@@ -241,6 +242,7 @@
         "question": "Question",
         "rank": "Rank",
         "rejected": "Rejected",
+        "rejectedAppsAndDeps": "Rejected applications and dependencies",
         "reports": "Reports",
         "repositoryType": "Repository type",
         "review": "Review",
