@@ -157,7 +157,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
 
   const {
     mutate: submitProxy,
-    putResult,
     isLoading,
     error,
   } = useUpdateProxyMutation(onProxySubmitComplete);
