@@ -30,8 +30,6 @@ export const useSortState = <T>(
 
   let sortedItems = items;
   if (sortBy.index !== undefined && sortBy.direction !== undefined) {
-    // names.sort((nameA, nameB) => nameA.localeCompare(nameB, 'fi') > 0);
-    //
     sortedItems = [...items].sort((a: T, b: T) => {
       const { index, direction } = sortBy;
       const aValue = getSortValues(a)[index || 0];
