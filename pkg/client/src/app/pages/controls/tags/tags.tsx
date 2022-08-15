@@ -389,7 +389,6 @@ export const Tags: React.FC = () => {
     setRowToUpdate(undefined);
     setTagToUpdate(undefined);
   };
-
   return (
     <>
       <ConditionalRender
