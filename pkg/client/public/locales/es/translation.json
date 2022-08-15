@@ -242,7 +242,7 @@
         "question": "Pregunta",
         "rank": "Rango",
         "rejected": "Rechazado",
-        "rejectedAppsAndDeps": "Aplicaciónes y dependencias en desuso",
+        "rejectedAppsAndDeps": "Aplicaciónes y dependencias en desuso o registros desconocidos",
         "reports": "Reportes",
         "repositoryType": "Tipo de repositorio",
         "review": "Revisión",
