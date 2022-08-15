@@ -32,7 +32,6 @@ import {
 } from "@app/shared/components";
 
 import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
-import { deleteTag, deleteTagType } from "@app/api/rest";
 import { Tag, TagType } from "@app/api/models";
 
 import { NewTagTypeModal } from "./components/new-tag-type-modal";
@@ -205,6 +204,7 @@ export const Tags: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
+          deleteTag(row.id);
         },
       })
     );
@@ -314,17 +314,7 @@ export const Tags: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          deleteTagType((error) => {
-            dispatch(confirmDialogActions.closeDialog());
-            if (
-              error.response?.status === 500 &&
-              error.response?.data.error === "FOREIGN KEY constraint failed"
-            )
-              dispatch(
-                alertActions.addDanger("Cannot delete a non empty tag type")
-              );
-            else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-          });
+          deleteTagType(row.id);
           if (currentPageItems.length === 1 && paginationProps.page) {
             setPageNumber(paginationProps.page - 1);
           } else {
