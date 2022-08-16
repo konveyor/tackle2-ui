@@ -123,8 +123,26 @@ export const Tags: React.FC = () => {
 
   const filterCategories: FilterCategory<TagType>[] = [
     {
+      key: "name",
+      title: t("terms.tagTypeName"),
+      type: FilterType.multiselect,
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.name").toLowerCase(),
+        }) + "...",
+      getItemValue: (item) => {
+        return item.name?.toString() || "";
+      },
+      selectOptions: dedupeFunction(
+        tagTypes?.map((tagType) => ({
+          key: tagType?.name,
+          value: tagType?.name,
+        }))
+      ),
+    },
+    {
       key: "tags",
-      title: t("terms.name"),
+      title: t("terms.tagName"),
       type: FilterType.multiselect,
       placeholderText:
         t("actions.filterBy", {
