@@ -271,7 +271,6 @@
         "tagName": "Tag name",
         "tags": "Tags",
         "tagType": "Tag type",
-        "tagTypeName": "Tag type name",
         "tagTypes": "Tag types",
         "teamMember": "team member",
         "trivialButMigratable": "Trivial but migratable",
