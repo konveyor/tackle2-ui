@@ -123,33 +123,20 @@ export const Tags: React.FC = () => {
 
   const filterCategories: FilterCategory<TagType>[] = [
     {
-      key: "name",
-      title: t("terms.tagTypeName"),
-      type: FilterType.multiselect,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.name").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item.name?.toString() || "";
-      },
-      selectOptions: dedupeFunction(
-        tagTypes?.map((tagType) => ({
-          key: tagType?.name,
-          value: tagType?.name,
-        }))
-      ),
-    },
-    {
       key: "tags",
-      title: t("terms.tagName"),
+      title: t("terms.name"),
       type: FilterType.multiselect,
       placeholderText:
         t("actions.filterBy", {
           what: t("terms.name").toLowerCase(),
         }) + "...",
       getItemValue: (item: TagType) => {
-        let tagNames = item?.tags?.map((tag) => tag.name).join("");
+        let tagTypeNames = item.name?.toString() || "";
+        let tagNames = item?.tags
+          ?.map((tag) => tag.name)
+          .concat(tagTypeNames)
+          .join("");
+
         return tagNames || "";
       },
       selectOptions: dedupeFunction(
@@ -158,6 +145,16 @@ export const Tags: React.FC = () => {
           .flat()
           .filter((tag) => tag && tag.name)
           .map((tag) => ({ key: tag?.name, value: tag?.name }))
+          .concat(
+            tagTypes?.map((tagType) => ({
+              key: tagType?.name,
+              value: tagType?.name,
+            }))
+          )
+          .sort((a, b) => {
+            if (a.value && b.value) return a?.value.localeCompare(b?.value);
+            else return 0;
+          })
       ),
     },
     {
