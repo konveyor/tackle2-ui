@@ -40,6 +40,7 @@ import {
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useFetchIdentities } from "@app/queries/identities";
 import { isUndefined } from "util";
+import { AxiosError } from "axios";
 
 export interface ProxyFormValues {
   [IS_HTTP_CHECKED]: string;
@@ -265,7 +266,11 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   return (
     <Form className={spacing.mMd} onSubmit={handleSubmit(onSubmit)}>
       {error && (
-        <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />
+        <Alert
+          variant="danger"
+          isInline
+          title={getAxiosErrorMessage(error as AxiosError)}
+        />
       )}
       <Controller
         control={control}
