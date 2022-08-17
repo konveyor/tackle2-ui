@@ -25,11 +25,6 @@ export interface IApplicationDependencyFetchState {
   refetch: any;
 }
 export const ApplicationDependencyQueryKey = "applicationdependencies";
-export interface IApplicationMutateState {
-  mutate: any;
-  isLoading: boolean;
-  error: any;
-}
 export const ApplicationsQueryKey = "applications";
 
 // TODO: this has the same name as useFetchApplications in src/app/shared/hooks, we should probably eliminate that one in favor of this one
@@ -56,7 +51,7 @@ export const useFetchApplications = () => {
 export const useUpdateApplicationMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
-): IApplicationMutateState => {
+) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation(updateApplication, {
     onSuccess: (res) => {
@@ -77,7 +72,7 @@ export const useUpdateApplicationMutation = (
 export const useUpdateAllApplicationsMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
-): IApplicationMutateState => {
+) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation(updateAllApplications, {
     onSuccess: (res) => {
@@ -98,7 +93,7 @@ export const useUpdateAllApplicationsMutation = (
 export const useCreateApplicationMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
-): IApplicationMutateState => {
+) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation(createApplication, {
     onSuccess: (res) => {

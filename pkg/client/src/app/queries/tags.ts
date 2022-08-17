@@ -18,17 +18,6 @@ export interface ITagTypeFetchState {
   refetch: any;
 }
 
-export interface ITagMutateState {
-  mutate: any;
-  isLoading: boolean;
-  error: any;
-}
-export interface ITagTypeMutateState {
-  mutate: any;
-  isLoading: boolean;
-  error: any;
-}
-
 export const TagsQueryKey = "tags";
 export const TagTypesQueryKey = "tagtypes";
 
@@ -67,7 +56,7 @@ export const useFetchTagTypes = (): ITagTypeFetchState => {
 export const useDeleteTagMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
-): ITagMutateState => {
+) => {
   const queryClient = useQueryClient();
 
   const { isLoading, mutate, error } = useMutation(deleteTag, {
@@ -89,7 +78,7 @@ export const useDeleteTagMutation = (
 export const useDeleteTagTypeMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
-): ITagTypeMutateState => {
+) => {
   const queryClient = useQueryClient();
 
   const { isLoading, mutate, error } = useMutation(deleteTagType, {

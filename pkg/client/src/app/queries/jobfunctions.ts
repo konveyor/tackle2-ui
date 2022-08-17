@@ -9,12 +9,6 @@ export interface IJobFunctionFetchState {
   fetchError: any;
   refetch: any;
 }
-export interface IJobFunctionMutateState {
-  mutate: any;
-  isLoading: boolean;
-  error: any;
-}
-
 export const JobFunctionsQueryKey = "jobfunctions";
 
 export const useFetchJobFunctions = (): IJobFunctionFetchState => {
@@ -36,7 +30,7 @@ export const useFetchJobFunctions = (): IJobFunctionFetchState => {
 export const useDeleteJobFunctionMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
-): IJobFunctionMutateState => {
+) => {
   const queryClient = useQueryClient();
 
   const { isLoading, mutate, error } = useMutation(deleteJobFunction, {

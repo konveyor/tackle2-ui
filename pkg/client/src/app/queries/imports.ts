@@ -7,12 +7,6 @@ import {
   getApplicationsImportSummary,
 } from "@app/api/rest";
 
-export interface IImportMutateState {
-  mutate: any;
-  isLoading: boolean;
-  error: any;
-}
-
 export const ImportSummariesQueryKey = "importsummaries";
 export const ImportsQueryKey = "imports";
 export const ImportQueryKey = "import";

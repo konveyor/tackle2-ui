@@ -15,18 +15,12 @@ export interface IIdentityFetchState {
   fetchError: any;
 }
 
-export interface IIdentityMutateState {
-  mutate: any;
-  isLoading: boolean;
-  error: any;
-}
-
 export const IdentitiesQueryKey = "identities";
 
 export const useUpdateIdentityMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
-): IIdentityMutateState => {
+) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation(updateIdentity, {
     onSuccess: (res) => {
@@ -47,7 +41,7 @@ export const useUpdateIdentityMutation = (
 export const useCreateIdentityMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
-): IIdentityMutateState => {
+) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation(createIdentity, {
     onSuccess: (res) => {
@@ -83,7 +77,7 @@ export const useFetchIdentities = (): IIdentityFetchState => {
 export const useDeleteIdentityMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
-): IIdentityMutateState => {
+) => {
   const queryClient = useQueryClient();
 
   const { isLoading, mutate, error } = useMutation(deleteIdentity, {

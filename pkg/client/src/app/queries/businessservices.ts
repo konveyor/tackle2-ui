@@ -10,11 +10,6 @@ export interface IBusinessServiceFetchState {
   fetchError: any;
   refetch: any;
 }
-export interface IBusinessServiceMutateState {
-  mutate: any;
-  isLoading: boolean;
-  error: any;
-}
 
 export const BusinessServicesQueryKey = "businessservices";
 
@@ -37,7 +32,7 @@ export const useFetchBusinessServices = (): IBusinessServiceFetchState => {
 export const useDeleteBusinessServiceMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
-): IBusinessServiceMutateState => {
+) => {
   const queryClient = useQueryClient();
 
   const { isLoading, mutate, error } = useMutation(deleteBusinessService, {
