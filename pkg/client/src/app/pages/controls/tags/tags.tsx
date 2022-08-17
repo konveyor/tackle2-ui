@@ -226,7 +226,7 @@ export const Tags: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          deleteTag(row.id);
+          row.id && deleteTag(row.id);
         },
       })
     );
@@ -325,7 +325,6 @@ export const Tags: React.FC = () => {
   const deleteRow = (row: TagType) => {
     dispatch(
       confirmDialogActions.openDialog({
-        // t("terms.tagType")
         title: t("dialog.title.delete", {
           what: t("terms.tagType").toLowerCase(),
         }),
@@ -336,7 +335,7 @@ export const Tags: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          deleteTagType(row.id);
+          row.id && deleteTagType(row.id);
           if (currentPageItems.length === 1 && paginationProps.page) {
             setPageNumber(paginationProps.page - 1);
           } else {
