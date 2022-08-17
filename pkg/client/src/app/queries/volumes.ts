@@ -10,12 +10,6 @@ export interface IVolumeFetchState {
   refetch: any;
 }
 
-export interface ICleanRepositoryMutateState {
-  mutate: any;
-  isLoading: boolean;
-  error: any;
-}
-
 export const VolumesQueryKey = "volumes";
 export const CleanProgressQueryKey = "cleanProgress";
 
