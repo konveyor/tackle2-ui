@@ -32,7 +32,6 @@ import {
 } from "@app/shared/components";
 
 import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
-import { deleteTag, deleteTagType } from "@app/api/rest";
 import { Tag, TagType } from "@app/api/models";
 
 import { NewTagTypeModal } from "./components/new-tag-type-modal";
@@ -82,9 +81,11 @@ export const Tags: React.FC = () => {
     if (
       error.response?.status === 500 &&
       error.response?.data.error === "FOREIGN KEY constraint failed"
-    )
+    ) {
       dispatch(alertActions.addDanger("Cannot delete a used tag"));
-    else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    } else {
+      dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    }
   };
 
   const { mutate: deleteTag } = useDeleteTagMutation(
@@ -102,9 +103,11 @@ export const Tags: React.FC = () => {
     if (
       error.response?.status === 500 &&
       error.response?.data.error === "FOREIGN KEY constraint failed"
-    )
+    ) {
       dispatch(alertActions.addDanger("Cannot delete a used tag"));
-    else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    } else {
+      dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    }
   };
 
   const { mutate: deleteTagType } = useDeleteTagTypeMutation(
@@ -132,7 +135,12 @@ export const Tags: React.FC = () => {
           what: t("terms.name").toLowerCase(),
         }) + "...",
       getItemValue: (item: TagType) => {
-        let tagNames = item?.tags?.map((tag) => tag.name).join("");
+        let tagTypeNames = item.name?.toString() || "";
+        let tagNames = item?.tags
+          ?.map((tag) => tag.name)
+          .concat(tagTypeNames)
+          .join("");
+
         return tagNames || "";
       },
       selectOptions: dedupeFunction(
@@ -141,6 +149,19 @@ export const Tags: React.FC = () => {
           .flat()
           .filter((tag) => tag && tag.name)
           .map((tag) => ({ key: tag?.name, value: tag?.name }))
+          .concat(
+            tagTypes?.map((tagType) => ({
+              key: tagType?.name,
+              value: tagType?.name,
+            }))
+          )
+          .sort((a, b) => {
+            if (a.value && b.value) {
+              return a?.value.localeCompare(b?.value);
+            } else {
+              return 0;
+            }
+          })
       ),
     },
     {
@@ -205,6 +226,7 @@ export const Tags: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
+          deleteTag(row.id);
         },
       })
     );
@@ -314,17 +336,7 @@ export const Tags: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          deleteTagType((error) => {
-            dispatch(confirmDialogActions.closeDialog());
-            if (
-              error.response?.status === 500 &&
-              error.response?.data.error === "FOREIGN KEY constraint failed"
-            )
-              dispatch(
-                alertActions.addDanger("Cannot delete a non empty tag type")
-              );
-            else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-          });
+          deleteTagType(row.id);
           if (currentPageItems.length === 1 && paginationProps.page) {
             setPageNumber(paginationProps.page - 1);
           } else {
@@ -399,7 +411,6 @@ export const Tags: React.FC = () => {
     setRowToUpdate(undefined);
     setTagToUpdate(undefined);
   };
-
   return (
     <>
       <ConditionalRender

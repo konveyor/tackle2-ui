@@ -154,6 +154,7 @@
     },
     "terms": {
         "accepted": "Accepted",
+        "acceptedAppsAndDeps": "Accepted applications and dependencies",
         "add": "Add",
         "additionalNotesOrComments": "Additional notes or comments",
         "adoptionCandidateDistribution": "Adoption candidate distribution",
@@ -187,6 +188,7 @@
         "confidence": "Confidence",
         "controls": "Controls",
         "createdBy": "Created By",
+        "credential": "Credential",
         "credentials": "Credentials",
         "credentialType": "Credential type",
         "criticality": "Criticality",
@@ -241,6 +243,7 @@
         "question": "Question",
         "rank": "Rank",
         "rejected": "Rejected",
+        "rejectedAppsAndDeps": "Rejected applications and dependencies or unknown records",
         "reports": "Reports",
         "repositoryType": "Repository type",
         "review": "Review",

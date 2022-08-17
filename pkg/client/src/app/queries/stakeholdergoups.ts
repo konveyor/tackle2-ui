@@ -9,11 +9,6 @@ export interface IStakeholderGroupFetchState {
   fetchError: any;
   refetch: any;
 }
-export interface IStakeholderGroupMutateState {
-  mutate: any;
-  isLoading: boolean;
-  error: any;
-}
 
 export const StakeholderGroupsQueryKey = "stakeholderGroups";
 
@@ -36,7 +31,7 @@ export const useFetchStakeholderGroups = (): IStakeholderGroupFetchState => {
 export const useDeleteStakeholderGroupMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
-): IStakeholderGroupMutateState => {
+) => {
   const queryClient = useQueryClient();
 
   const { isLoading, mutate, error } = useMutation(deleteStakeholderGroup, {
