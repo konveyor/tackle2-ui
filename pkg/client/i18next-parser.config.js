@@ -3,7 +3,7 @@ module.exports = {
 
   indentation: 4, // Indentation of the catalog files
 
-  keepRemoved: false, // Keep keys from the catalog that are no longer in code
+  keepRemoved: true, // Keep keys from the catalog that are no longer in code
 
   lexers: {
     js: ["JsxLexer"],

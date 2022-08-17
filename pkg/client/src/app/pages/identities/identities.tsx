@@ -206,7 +206,7 @@ export const Identities: React.FunctionComponent = () => {
         alertActions.addSuccess(
           t("toastr.success.added", {
             what: response.data.name,
-            type: t("terms.identity").toLowerCase(),
+            type: t("terms.credential").toLowerCase(),
           })
         )
       );
