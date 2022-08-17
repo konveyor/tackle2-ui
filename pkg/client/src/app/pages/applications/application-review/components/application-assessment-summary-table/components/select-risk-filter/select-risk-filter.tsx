@@ -56,6 +56,8 @@ export const SelectRiskFilter: React.FC<ISelectRiskFilterProps> = ({
 
   return (
     <SimpleSelect
+      toggleAriaLabel="risk-toggle"
+      toggleId="risk-toggle"
       toggleIcon={<FilterIcon />}
       width={220}
       variant={SelectVariant.checkbox}
