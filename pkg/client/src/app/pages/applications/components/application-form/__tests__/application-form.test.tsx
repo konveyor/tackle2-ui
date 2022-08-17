@@ -136,51 +136,6 @@ describe("Component: application-form", () => {
     expect(packagingInput).toBeInTheDocument();
   });
 
-  // it("Basic binary upload app form", async () => {
-  //   const businessServices: BusinessService[] = [{ id: 1, name: "service" }];
-
-  //   mock.onGet(`${BUSINESS_SERVICES}`).reply(200, businessServices);
-
-  //   render(
-  //     <ApplicationForm onCancel={mockChangeValue} onSaved={mockChangeValue} />
-  //   );
-
-  //   await waitFor(
-  //     () => {
-  //       fireEvent.change(screen.getByTestId("application-name"), {
-  //         target: { value: "app-name" },
-  //       });
-  //     },
-  //     {
-  //       timeout: 2000,
-  //     }
-  //   );
-
-  //   await waitFor(
-  //     () => {
-  //       fireEvent.click(
-  //         screen.getByRole("button", {
-  //           name: /business-service/i,
-  //         })
-  //       );
-  //     },
-  //     {
-  //       timeout: 2000,
-  //     }
-  //   );
-
-  //   await waitFor(
-  //     () => {
-  //       userEvent.selectOptions(screen.getByRole("listbox"), ["service"]);
-  //     },
-  //     { timeout: 3000 }
-  //   );
-
-  //   const createButton = screen.getByRole("button", { name: /submit/i });
-
-  //   expect(createButton).toBeEnabled();
-  // });
-
   it("Validation tests", async () => {
     const businessServices: BusinessService[] = [{ id: 1, name: "service" }];
 
