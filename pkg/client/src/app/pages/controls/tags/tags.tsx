@@ -81,9 +81,11 @@ export const Tags: React.FC = () => {
     if (
       error.response?.status === 500 &&
       error.response?.data.error === "FOREIGN KEY constraint failed"
-    )
+    ) {
       dispatch(alertActions.addDanger("Cannot delete a used tag"));
-    else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    } else {
+      dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    }
   };
 
   const { mutate: deleteTag } = useDeleteTagMutation(
@@ -101,9 +103,11 @@ export const Tags: React.FC = () => {
     if (
       error.response?.status === 500 &&
       error.response?.data.error === "FOREIGN KEY constraint failed"
-    )
+    ) {
       dispatch(alertActions.addDanger("Cannot delete a used tag"));
-    else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    } else {
+      dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    }
   };
 
   const { mutate: deleteTagType } = useDeleteTagTypeMutation(
@@ -131,7 +135,12 @@ export const Tags: React.FC = () => {
           what: t("terms.name").toLowerCase(),
         }) + "...",
       getItemValue: (item: TagType) => {
-        let tagNames = item?.tags?.map((tag) => tag.name).join("");
+        let tagTypeNames = item.name?.toString() || "";
+        let tagNames = item?.tags
+          ?.map((tag) => tag.name)
+          .concat(tagTypeNames)
+          .join("");
+
         return tagNames || "";
       },
       selectOptions: dedupeFunction(
@@ -140,6 +149,19 @@ export const Tags: React.FC = () => {
           .flat()
           .filter((tag) => tag && tag.name)
           .map((tag) => ({ key: tag?.name, value: tag?.name }))
+          .concat(
+            tagTypes?.map((tagType) => ({
+              key: tagType?.name,
+              value: tagType?.name,
+            }))
+          )
+          .sort((a, b) => {
+            if (a.value && b.value) {
+              return a?.value.localeCompare(b?.value);
+            } else {
+              return 0;
+            }
+          })
       ),
     },
     {
