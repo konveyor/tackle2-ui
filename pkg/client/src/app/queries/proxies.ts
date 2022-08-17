@@ -36,14 +36,7 @@ export const useFetchProxies = (
   };
 };
 
-export interface IMutateState {
-  mutate: any;
-  putResult: any;
-  isLoading: boolean;
-  error: any;
-}
-
-export const useUpdateProxyMutation = (onSuccess: any): IMutateState => {
+export const useUpdateProxyMutation = (onSuccess: any) => {
   const [putResult, setPutResult] = useState<any>(null);
   const queryClient = useQueryClient();
 
