@@ -81,9 +81,11 @@ export const Tags: React.FC = () => {
     if (
       error.response?.status === 500 &&
       error.response?.data.error === "FOREIGN KEY constraint failed"
-    )
+    ) {
       dispatch(alertActions.addDanger("Cannot delete a used tag"));
-    else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    } else {
+      dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    }
   };
 
   const { mutate: deleteTag } = useDeleteTagMutation(
@@ -101,9 +103,11 @@ export const Tags: React.FC = () => {
     if (
       error.response?.status === 500 &&
       error.response?.data.error === "FOREIGN KEY constraint failed"
-    )
+    ) {
       dispatch(alertActions.addDanger("Cannot delete a used tag"));
-    else dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    } else {
+      dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    }
   };
 
   const { mutate: deleteTagType } = useDeleteTagTypeMutation(
@@ -152,8 +156,11 @@ export const Tags: React.FC = () => {
             }))
           )
           .sort((a, b) => {
-            if (a.value && b.value) return a?.value.localeCompare(b?.value);
-            else return 0;
+            if (a.value && b.value) {
+              return a?.value.localeCompare(b?.value);
+            } else {
+              return 0;
+            }
           })
       ),
     },
