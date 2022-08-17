@@ -32,7 +32,10 @@ export const usePaginationState = <T>(
     perPage: itemsPerPage,
     page: pageNumber,
     onSetPage: (event, pageNumber) => setPageNumber(pageNumber),
-    onPerPageSelect: (event, perPage) => setItemsPerPage(perPage),
+    onPerPageSelect: (event, perPage) => {
+      setPageNumber(1);
+      setItemsPerPage(perPage);
+    },
   };
 
   return { currentPageItems, setPageNumber, paginationProps };
