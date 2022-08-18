@@ -305,6 +305,7 @@
     "wizard": {
         "composed": {
             "excluded": "Excluded {{what}}",
+            "enable": "Enable {{what}}",
             "included": "Included {{what}}"
         },
         "label": {

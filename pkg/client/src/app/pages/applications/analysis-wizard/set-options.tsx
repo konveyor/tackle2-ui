@@ -242,7 +242,9 @@ export const SetOptions: React.FunctionComponent = () => {
         </FormGroup>
       </Form>
       <Checkbox
-        label="Enable Transaction Report"
+        label={t("wizard.composed.enable", {
+          what: t("wizard.terms.transactionReport").toLowerCase(),
+        })}
         isChecked={diva}
         onChange={() => setValue("diva", !diva)}
         id="controlled-check-4"
