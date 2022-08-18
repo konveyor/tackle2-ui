@@ -305,7 +305,8 @@
     "wizard": {
         "composed": {
             "excluded": "Excluido {{what}}",
-            "included": "Incluido {{what}}"
+            "included": "Incluido {{what}}",
+            "enable": "Habilitar {{what}}"
         },
         "label": {
             "advancedOptions": "Especifique opciones adicionales aquí.",
