@@ -188,7 +188,6 @@
         "confidence": "Confidence",
         "controls": "Controls",
         "createdBy": "Created By",
-        "credential": "Credential",
         "credentials": "Credentials",
         "credentialType": "Credential type",
         "criticality": "Criticality",
@@ -281,7 +280,8 @@
         "uploadApplicationFile": "Upload your application file",
         "user": "User",
         "version": "Version",
-        "workPriority": "Work priority"
+        "workPriority": "Work priority",
+        "credential": "Credential"
     },
     "toastr": {
         "success": {
@@ -304,8 +304,8 @@
     },
     "wizard": {
         "composed": {
-            "excluded": "Excluded {{what}}",
             "enable": "Enable {{what}}",
+            "excluded": "Excluded {{what}}",
             "included": "Included {{what}}"
         },
         "label": {

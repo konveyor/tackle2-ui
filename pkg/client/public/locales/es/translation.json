@@ -188,7 +188,6 @@
         "confidence": "Confianza",
         "controls": "Controles",
         "createdBy": "Creado Por",
-        "credential": "Credencial",
         "credentials": "Credenciales",
         "credentialType": "Tipo de credenciale",
         "criticality": "Criticidad",
@@ -281,7 +280,8 @@
         "uploadApplicationFile": "Carga tu archivo con aplicaciones",
         "user": "Usuario",
         "version": "Versión",
-        "workPriority": "Prioridad de trabajo"
+        "workPriority": "Prioridad de trabajo",
+        "credential": "Credencial"
     },
     "toastr": {
         "success": {
@@ -304,9 +304,9 @@
     },
     "wizard": {
         "composed": {
+            "enable": "Habilitar {{what}}",
             "excluded": "Excluido {{what}}",
-            "included": "Incluido {{what}}",
-            "enable": "Habilitar {{what}}"
+            "included": "Incluido {{what}}"
         },
         "label": {
             "advancedOptions": "Especifique opciones adicionales aquí.",
