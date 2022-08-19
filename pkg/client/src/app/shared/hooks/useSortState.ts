@@ -32,15 +32,13 @@ export const useSortState = <T>(
   if (sortBy.index !== undefined && sortBy.direction !== undefined) {
     sortedItems = [...items].sort((a: T, b: T) => {
       const { index, direction } = sortBy;
-      const aValue = getSortValues(a)[index || 0];
-      const bValue = getSortValues(b)[index || 0];
+      let aValue = getSortValues(a)[index || 0];
+      let bValue = getSortValues(b)[index || 0];
       if (typeof aValue === "string" && typeof bValue === "string") {
-        const aSortResult = aValue.localeCompare(bValue, i18n.language, {
-          sensitivity: "base",
-        });
-        const bSortResult = bValue.localeCompare(aValue, i18n.language, {
-          sensitivity: "base",
-        });
+        aValue = aValue.replace(/ +/g, "");
+        bValue = bValue.replace(/ +/g, "");
+        const aSortResult = aValue.localeCompare(bValue, i18n.language);
+        const bSortResult = bValue.localeCompare(aValue, i18n.language);
         if (direction === "asc") {
           return aSortResult;
         } else {
