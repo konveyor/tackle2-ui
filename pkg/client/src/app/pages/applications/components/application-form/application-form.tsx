@@ -225,15 +225,16 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       description: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
-      businessService: object().shape({
-        id: string()
-          .trim()
-          .required()
-          .max(250, t("validation.maxLength", { length: 250 })),
-        value: string()
-          .trim()
-          .max(250, t("validation.maxLength", { length: 250 })),
-      }),
+      businessService: object()
+        .shape({
+          id: string()
+            .trim()
+            .max(250, t("validation.maxLength", { length: 250 })),
+          value: string()
+            .trim()
+            .max(250, t("validation.maxLength", { length: 250 })),
+        })
+        .nullable(),
       comments: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
@@ -342,7 +343,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       comments: formValues.comments.trim(),
-      businessService: formValues.businessService
+      businessService: formValues?.businessService
         ? {
             id: formValues.businessService.id,
             name: formValues.businessService.name,
@@ -476,11 +477,9 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             <FormGroup
               label={t("terms.businessService")}
               fieldId="businessService"
-              isRequired={true}
+              isRequired={false}
               validated={getValidatedFromError(formik.errors.businessService)}
-              helperTextInvalid={
-                formik.errors.businessService && "This field is required"
-              }
+              helperTextInvalid={formik.errors.businessService}
             >
               <SingleSelectFetchOptionValueFormikField<IBusinessServiceDropdown>
                 fieldConfig={{
