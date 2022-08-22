@@ -60,6 +60,7 @@ export const SelectFilterControl = <T,>({
 
   return (
     <ToolbarFilter
+      aria-label={`filter-control-${category.key}`}
       chips={chips}
       deleteChip={(_, chip) => onFilterClear(chip as string)}
       categoryName={category.title}
