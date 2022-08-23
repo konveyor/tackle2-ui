@@ -88,6 +88,9 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
         .catch(() => {
           setIsFetching(false);
         });
+    } else {
+      setTagTypes(new Map());
+      setTags(new Map());
     }
   }, [application]);
 
