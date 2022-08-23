@@ -506,6 +506,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   toIBusinessServiceDropdown
                 )}
                 toOptionWithValue={toIBusinessServiceDropdownOptionWithValue}
+                isClearable={true}
               />
             </FormGroup>
             <FormGroup
