@@ -101,6 +101,7 @@ export const FilterToolbar = <T,>({
           <Dropdown
             toggle={
               <DropdownToggle
+                id="filtered-by"
                 onToggle={() =>
                   setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
                 }
@@ -111,6 +112,7 @@ export const FilterToolbar = <T,>({
             isOpen={isCategoryDropdownOpen}
             dropdownItems={filterCategories.map((category) => (
               <DropdownItem
+                id={`filter-category-${category.key}`}
                 key={category.key}
                 onClick={() => onCategorySelect(category)}
               >
