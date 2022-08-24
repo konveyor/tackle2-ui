@@ -1,8 +1,6 @@
 import * as React from "react";
 import { ISortBy, SortByDirection } from "@patternfly/react-table";
-import keycloak from "@app/keycloak";
 import i18n from "@app/i18n";
-import { isValidDateValue } from "@testing-library/user-event/dist/utils";
 
 export interface ISortStateHook<T> {
   sortBy: ISortBy;
