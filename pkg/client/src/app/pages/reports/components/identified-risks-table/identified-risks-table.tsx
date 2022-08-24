@@ -10,12 +10,7 @@ import {
   TableVariant,
 } from "@patternfly/react-table";
 
-import {
-  useApplicationToolbarFilter,
-  useFetch,
-  useTableControls,
-  useTableFilter,
-} from "@app/shared/hooks";
+import { useFetch } from "@app/shared/hooks";
 import {
   AppTableToolbarToggleGroup,
   AppTableWithControls,
