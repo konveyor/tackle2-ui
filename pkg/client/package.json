@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "analyze": "source-map-explorer 'dist/static/js/*.js'",
+    "prebuild": "npm run tsc",
     "build:dev": "GENERATE_SOURCEMAP=true $(npm bin)/webpack --config config/webpack.dev.js",
     "build:instrumentation": "CYPRESS_INSTRUMENT_PRODUCTION=true react-scripts -r @cypress/instrument-cra build",
     "build": "NODE_ENV=production $(npm bin)/webpack --config ./config/webpack.prod.js",
