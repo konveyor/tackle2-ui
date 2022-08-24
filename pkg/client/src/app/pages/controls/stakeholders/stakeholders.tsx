@@ -271,7 +271,7 @@ export const Stakeholders: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          deleteStakeholder(row.id);
+          row.id && deleteStakeholder(row.id);
           if (currentPageItems.length === 1 && paginationProps.page) {
             setPageNumber(paginationProps.page - 1);
           } else {
