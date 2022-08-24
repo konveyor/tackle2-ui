@@ -13,7 +13,7 @@ import {
 } from "@patternfly/react-table";
 import { Label, ToolbarItem } from "@patternfly/react-core";
 
-import { useFetch, useTableControls, useTableFilter } from "@app/shared/hooks";
+import { useFetch } from "@app/shared/hooks";
 import {
   AppTableWithControls,
   ProposedActionLabel,

@@ -207,7 +207,7 @@ export const BusinessServices: React.FC = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          deleteBusinessService(row.id);
+          row.id && deleteBusinessService(row.id);
           if (currentPageItems.length === 1 && paginationProps.page) {
             setPageNumber(paginationProps.page - 1);
           } else {

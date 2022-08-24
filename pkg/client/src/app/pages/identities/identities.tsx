@@ -189,7 +189,7 @@ export const Identities: React.FunctionComponent = () => {
         cancelBtnLabel: t("actions.cancel"),
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
-          deleteIdentity(row.id);
+          row.id && deleteIdentity(row.id);
           if (currentPageItems.length === 1 && paginationProps.page) {
             setPageNumber(paginationProps.page - 1);
           } else {

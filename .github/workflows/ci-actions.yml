@@ -20,15 +20,15 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Install
+        working-directory: pkg/client
+        run: npm install
       - name: Build
         working-directory: pkg/client
-        run:
-          npm install
-          npm run build
+        run: npm run build
       - name: Test
         working-directory: pkg/client
-        run: 
-          npm run test --coverage --watchAll=false
+        run: npm run test --coverage --watchAll=false
       - uses: codecov/codecov-action@v1
         with:
           flags: unitests
