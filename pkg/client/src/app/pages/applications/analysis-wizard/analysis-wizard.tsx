@@ -1,7 +1,8 @@
 import * as React from "react";
 import { useIsMutating } from "react-query";
-import { FieldValues, FormProvider, useForm } from "react-hook-form"; // TODO replace with Formik -- note that FieldValues has `any` as every value currently, there will be type errors
 import { useDispatch } from "react-redux";
+import { FormikProvider, useFormik } from "formik";
+import { object } from "yup";
 import {
   Truncate,
   Wizard,
@@ -155,8 +156,33 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     onDeleteTaskgroupError
   );
 
-  const methods = useForm<IAnalysisWizardFormValues>({
-    defaultValues: {
+  const onSubmit = (values: IAnalysisWizardFormValues) => {
+    if (values.targets.length < 1) {
+      console.log("Invalid form");
+      return;
+    }
+
+    if (createdTaskgroup) {
+      const taskgroup = updateTaskgroupFromFormValues(createdTaskgroup, values);
+
+      values.customRulesFiles.forEach((file: IReadFile) => {
+        const formFile = new FormData();
+        formFile.append("file", file.fullFile);
+        uploadFile({
+          id: taskgroup.id as number,
+          path: `rules/${file.fileName}`,
+          file: formFile,
+        });
+      });
+
+      submitTaskgroup(taskgroup);
+    }
+    onClose();
+  };
+
+  const formik = useFormik<IAnalysisWizardFormValues>({
+    enableReinitialize: true,
+    initialValues: {
       artifact: "",
       targets: [],
       sources: [],
@@ -167,13 +193,14 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       excludedRulesTags: [],
       diva: false,
     },
+    validationSchema: object(), // TODO create a real validation schema here!
+    onSubmit,
   });
 
-  const { handleSubmit, watch, reset } = methods;
-  const watchAllFields = watch();
-  const { artifact, targets } = methods.getValues();
-
-  const setTaskgroup = (taskgroup: Taskgroup, data: FieldValues): Taskgroup => {
+  const updateTaskgroupFromFormValues = (
+    taskgroup: Taskgroup,
+    values: IAnalysisWizardFormValues
+  ): Taskgroup => {
     return {
       ...taskgroup,
       data: {
@@ -181,22 +208,22 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
         mode: {
           binary: mode.includes("binary"),
           withDeps: mode === "source-code-deps",
-          artifact: data.artifact ? `/binary/${data.artifact}` : "",
-          diva: data.diva,
+          artifact: values.artifact ? `/binary/${values.artifact}` : "",
+          diva: values.diva,
         },
-        targets: data.targets,
-        sources: data.sources,
+        targets: values.targets,
+        sources: values.sources,
         scope: {
-          withKnown: data.withKnown.includes("oss") ? true : false,
+          withKnown: values.withKnown.includes("oss") ? true : false,
           packages: {
-            included: data.includedPackages,
-            excluded: data.excludedPackages,
+            included: values.includedPackages,
+            excluded: values.excludedPackages,
           },
         },
         rules: {
-          path: data.customRulesFiles.length > 0 ? "/rules" : "",
+          path: values.customRulesFiles.length > 0 ? "/rules" : "",
           tags: {
-            excluded: data.excludedRulesTags,
+            excluded: values.excludedRulesTags,
           },
         },
       },
@@ -225,30 +252,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     else return areApplicationsSourceCodeEnabled();
   };
 
-  const onSubmit = (data: FieldValues) => {
-    if (data.targets.length < 1) {
-      console.log("Invalid form");
-      return;
-    }
-
-    if (createdTaskgroup) {
-      const taskgroup = setTaskgroup(createdTaskgroup, data);
-
-      data.customRulesFiles.forEach((file: IReadFile) => {
-        const formFile = new FormData();
-        formFile.append("file", file.fullFile);
-        uploadFile({
-          id: taskgroup.id as number,
-          path: `rules/${file.fileName}`,
-          file: formFile,
-        });
-      });
-
-      submitTaskgroup(taskgroup);
-    }
-    onClose();
-  };
-
   const onMove: WizardStepFunctionType = (
     { id, name },
     { prevId, prevName }
@@ -268,7 +271,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const handleClose = () => {
     setStepIdReached(stepId.AnalysisMode);
-    reset();
+    formik.resetForm();
     if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
       deleteTaskgroup(createdTaskgroup.id);
     onClose();
@@ -279,7 +282,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       isModeSupported(application, mode)
     );
     setAnalyzeableApplications(apps);
-  }, [mode]);
+  }, [mode]); // TODO deal with warning here? and should we put mode in the form values?
 
   React.useEffect(() => {
     if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
@@ -297,12 +300,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
       createTaskgroup(taskgroup);
     }
-  }, [analyzeableApplications, createTaskgroup]);
+  }, [analyzeableApplications, createTaskgroup]); // TODO fix these deps, see if we need this useEffect at all?
 
   const isSingleAppBinaryUploadModeNextEnabled =
     analyzeableApplications.length === 1 &&
     !isMutating &&
-    artifact !== "" &&
+    formik.values.artifact !== "" &&
     mode === "binary-upload";
 
   const isModeNextEnabled =
@@ -335,7 +338,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           id: stepId.SetTargets,
           name: t("wizard.terms.setTargets"),
           component: <SetTargets />,
-          enableNext: targets.length > 0,
+          enableNext: formik.values.targets.length > 0,
           canJumpTo: stepIdReached >= stepId.SetTargets,
         },
         {
@@ -359,7 +362,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
           id: stepId.Options,
           name: t("wizard.terms.options"),
           component: <SetOptions />,
-          enableNext: targets.length > 0,
+          enableNext: formik.values.targets.length > 0,
           canJumpTo: stepIdReached >= stepId.Options,
         },
       ],
@@ -376,7 +379,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   return (
     <>
       {isOpen && (
-        <FormProvider {...methods}>
+        <FormikProvider value={formik}>
           <Wizard
             isOpen={isOpen}
             title="Application analysis"
@@ -390,12 +393,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
             steps={steps}
             onNext={onMove}
             onBack={onMove}
-            onSave={handleSubmit(onSubmit)}
+            onSave={formik.handleSubmit}
             onClose={() => {
               handleClose();
             }}
           />
-        </FormProvider>
+        </FormikProvider>
       )}
     </>
   );
