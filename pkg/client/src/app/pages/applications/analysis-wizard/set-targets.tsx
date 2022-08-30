@@ -17,7 +17,8 @@ import mugIcon from "@app/images/Icon-Red_Hat-Mug-A-Black-RGB.svg";
 import multiplyIcon from "@app/images/Icon-Red_Hat-Multiply-A-Black-RGB.svg";
 
 import { SelectCard } from "./components/select-card";
-import { useFormContext } from "react-hook-form";
+import { useFormikContext } from "formik";
+import { IAnalysisWizardFormValues } from "./analysis-wizard";
 
 export interface TransformationTargets {
   label: string;
@@ -105,20 +106,22 @@ export const SetTargets: React.FunctionComponent = () => {
     },
   ];
 
-  const { getValues, setValue } = useFormContext();
-  const targets: string[] = getValues("targets");
+  const formik = useFormikContext<IAnalysisWizardFormValues>();
 
   const handleOnCardChange = (
     isNewCard: boolean,
     selectionValue: string,
     card: TransformationTargets
   ) => {
-    const selectedTargets = targets.filter(
+    const selectedTargets = formik.values.targets.filter(
       (target) => !card.options.has(target)
     );
-
-    if (isNewCard) setValue("targets", [...selectedTargets, selectionValue]);
-    else setValue("targets", selectedTargets);
+    formik.setValues((prevValues) => ({
+      ...prevValues,
+      targets: isNewCard
+        ? [...selectedTargets, selectionValue]
+        : selectedTargets,
+    }));
   };
 
   return (
@@ -137,7 +140,7 @@ export const SetTargets: React.FunctionComponent = () => {
                 <SelectCard
                   item={elem}
                   cardSelected={[...elem.options.keys()].some((key) =>
-                    targets.includes(key)
+                    formik.values.targets.includes(key)
                   )}
                   onChange={(isNewCard: boolean, selectionValue: string) => {
                     handleOnCardChange(isNewCard, selectionValue, elem);
