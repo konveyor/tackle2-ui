@@ -1,0 +1,13 @@
+{
+  "name": "tackle2-ui",
+  "version": "2.1.0",
+  "license": "Apache-2.0",
+  "private": true,
+  "engines": {
+    "npm": "8.5.0",
+    "node": "16.14.2"
+  },
+  "workspaces": [
+    "./pkg/*"
+  ]
+  }
