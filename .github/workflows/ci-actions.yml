@@ -22,7 +22,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Client Install
         # working-directory: pkg/client
-        run: npm install -w pkg/client
+        run: npm install
+      # - name: Client Install
+      #   # working-directory: pkg/client
+      #   run: npm install -w pkg/client
       - name: Client Build
         # working-directory: pkg/client
         run: npm run build -w pkg/client
