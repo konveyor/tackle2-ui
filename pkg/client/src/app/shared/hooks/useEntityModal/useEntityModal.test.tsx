@@ -1,4 +1,4 @@
-import { renderHook, act } from "@testing-library/react-hooks";
+import { renderHook, act } from "@testing-library/react-hooks/dom";
 import { useEntityModal } from "./useEntityModal";
 
 describe("useEntityModal", () => {
