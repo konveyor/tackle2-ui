@@ -9,4 +9,4 @@
   "workspaces": [
     "./pkg/*"
   ]
-  }
+}
