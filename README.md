@@ -131,3 +131,6 @@ EOF
 Wait few minutes to make sure tackle is fully deployed: 
 
 `kubectl wait deployment tackle-keycloak-sso -n konveyor-tackle --for condition=Available --timeout=5m` 
+
+## Code of Conduct
+Refer to Konveyor's [Code of Conduct page](https://github.com/konveyor/community/blob/main/CODE_OF_CONDUCT.md) 
