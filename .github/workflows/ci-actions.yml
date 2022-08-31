@@ -21,13 +21,13 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Client Install
-        working-directory: pkg/client
+        # working-directory: pkg/client
         run: npm install -w pkg/client
       - name: Client Build
-        working-directory: pkg/client
+        # working-directory: pkg/client
         run: npm run build -w pkg/client
       - name: Test
-        working-directory: pkg/client
+        # working-directory: pkg/client
         run: npm run test -w pkg/client --coverage --watchAll=false
       - uses: codecov/codecov-action@v1
         with:
