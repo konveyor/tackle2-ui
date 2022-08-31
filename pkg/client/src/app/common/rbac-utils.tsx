@@ -16,8 +16,8 @@ export const checkAccessAll = (
   allowedPermissions: string[]
 ) => {
   if (!isAuthRequired) return true;
-  const access = userPermissions.every((userPermission) =>
-    allowedPermissions.includes(userPermission)
-  );
+  const access = allowedPermissions.every((allowedPermission) => {
+    return userPermissions.includes(allowedPermission);
+  });
   return access;
 };
