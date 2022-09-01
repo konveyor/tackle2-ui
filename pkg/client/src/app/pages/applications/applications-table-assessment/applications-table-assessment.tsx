@@ -824,7 +824,10 @@ export const ApplicationsTable: React.FC = () => {
             assessment={
               getApplicationAssessment(applicationToCopyAssessmentFrom.id!)!
             }
-            onSaved={closeCopyAssessmentModal}
+            onSaved={() => {
+              closeCopyAssessmentModal();
+              refetch();
+            }}
           />
         )}
       </Modal>
@@ -845,7 +848,10 @@ export const ApplicationsTable: React.FC = () => {
               )!
             }
             review={appReview}
-            onSaved={closeCopyAssessmentAndReviewModal}
+            onSaved={() => {
+              closeCopyAssessmentAndReviewModal();
+              refetch();
+            }}
           />
         )}
       </Modal>
