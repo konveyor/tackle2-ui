@@ -4,6 +4,7 @@ exports[`Test snapshot 1`] = `
 <Page
   defaultManagedSidebarIsOpen={true}
   getBreakpoint={[Function]}
+  getVerticalBreakpoint={[Function]}
   header={<HeaderApp />}
   isBreadcrumbWidthLimited={false}
   isManagedSidebar={true}
