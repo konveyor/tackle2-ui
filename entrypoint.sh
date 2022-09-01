@@ -24,5 +24,5 @@ if [[ $AUTH_REQUIRED != "false" ]]; then
     exit 1
   fi
 fi
-cd pkg/server
+cd pkg-server
 exec node index.js

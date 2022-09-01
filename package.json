@@ -4,9 +4,9 @@
   "license": "Apache-2.0",
   "private": true,
   "workspaces": [
-    "pkg/client",
-    "pkg/server",
-    "pkg/qa-tests"
+    "pkg-client",
+    "pkg-server",
+    "pkg-qa-tests"
   ],
   "devDependencies": {
     "concurrently": "^7.0.0",
@@ -15,15 +15,15 @@
     "typescript": "^4.5.5"
   },
   "scripts": {
-    "dist": "rm -rf ./dist && mkdir -p ./dist/client && cp -r pkg/server dist/ && npm run build -w pkg/client && cp -r pkg/client/dist ./dist/client/",
+    "dist": "rm -rf ./dist && mkdir -p ./dist/client && cp -r pkg-server dist/ && npm run build -w pkg-client && cp -r pkg-client/dist ./dist/client/",
     "proxy:hub": "kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080",
     "proxy:keycloak": "kubectl port-forward svc/tackle-keycloak-sso -n konveyor-tackle 9001:8080",
     "proxy:pathfinder": "kubectl port-forward svc/tackle-pathfinder -n konveyor-tackle 9003:8080",
     "proxy": "concurrently -n keycloak,hub,pathfinder \"npm:proxy:keycloak\" \"npm:proxy:hub\" \"npm:proxy:pathfinder\"",
-    "server": "NODE_ENV=development node ./pkg/server/index.js",
-    "start": "node ./pkg/server/index.js -r @cypress/instrument-cra",
+    "server": "NODE_ENV=development node ./pkg-server/index.js",
+    "start": "node ./pkg-server/index.js -r @cypress/instrument-cra",
     "start:dev": "concurrently -n proxy,server,client -c \"green.bold.inverse,blue.bold.inverse,yellow.bold.inverse\" \"npm:proxy\" \"npm:server\" \"npm:build:dev\"",
-    "build:dev": "GENERATE_SOURCEMAP=true webpack --config ./pkg/client/config/webpack.dev.js"
+    "build:dev": "GENERATE_SOURCEMAP=true webpack --config ./pkg-client/config/webpack.dev.js"
   },
   "browserslist": {
     "production": [
@@ -40,7 +40,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "post-commit": "npm run extract -w pkg/client"
+      "post-commit": "npm run extract -w pkg-client"
     }
   },
   "lint-staged": {

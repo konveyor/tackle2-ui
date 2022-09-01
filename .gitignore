@@ -2,8 +2,8 @@
 # dependencies
 /node_modules
 /dist
-/pkg/**/node_modules
-/pkg/client/public/locales/**/translation_old.json
+/**/node_modules
+/pkg-client/public/locales/**/translation_old.json
 /.pnp
 .pnp.js
 
@@ -11,8 +11,8 @@
 /coverage
 
 # production
-/pkg/client/dist
-/pkg/qa-tests/build
+/pkg-client/dist
+/pkg-qa-tests/build
 
 # misc
 .DS_Store
@@ -26,8 +26,8 @@ npm-debug.log*
 .eslintcache
 
 # cypress
-/pkg/cypress/videos
-/pkg/cypress/screenshots
+/pkg-cypress/videos
+/pkg-cypress/screenshots
 .nyc_output
 
 # VSCode
