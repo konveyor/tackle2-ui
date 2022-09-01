@@ -12,7 +12,7 @@ import {
   FormGroup,
   TextInput,
 } from "@patternfly/react-core";
-import { FieldValues, useForm, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
@@ -37,6 +37,26 @@ import {
 import KeyDisplayToggle from "@app/common/KeyDisplayToggle";
 
 const { XMLValidator } = require("fast-xml-parser");
+
+interface IdentityFormValues {
+  application: number;
+  createTime: string;
+  createUser: string;
+  description: string;
+  encrypted: string;
+  id: number;
+  key: string;
+  kind: string;
+  name: string;
+  password: string;
+  settings: string;
+  updateUser: string;
+  user: string;
+  userCredentials: string;
+  keyFilename: string;
+  settingsFilename: string;
+}
+
 export interface IdentityFormProps {
   identity?: Identity;
   onSaved: (response: AxiosResponse<Identity>) => void;
@@ -96,7 +116,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     onCreateUpdateIdentityError
   );
 
-  const onSubmit = (formValues: FieldValues) => {
+  const onSubmit = (formValues: IdentityFormValues) => {
     const payload: Identity = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
@@ -289,7 +309,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     control,
     resetField,
     watch,
-  } = useForm({
+  } = useForm<IdentityFormValues>({
     defaultValues: {
       application: 0,
       createTime: "",
@@ -297,7 +317,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       description: identity?.description || "",
       encrypted: identity?.encrypted || "",
       id: identity?.id || 0,
-      key: identity?.key || "",
+      key: (identity?.key as string) || "", // TODO can we avoid `as string` here? Why is File one of the possible types?
       keyFilename: "",
       kind: identity?.kind || "",
       userCredentials: identity?.kind
@@ -305,7 +325,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         : "",
       name: identity?.name || "",
       password: identity?.password || "",
-      settings: identity?.settings || "",
+      settings: (identity?.settings as string) || "", // TODO can we avoid `as string` here? Why is File one of the possible types?
       settingsFilename: "",
       updateUser: identity?.updateUser || "",
       user: identity?.user || "",
