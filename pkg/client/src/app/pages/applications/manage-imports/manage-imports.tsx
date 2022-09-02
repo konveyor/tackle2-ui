@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
-import { StatusIcon } from "@konveyor/lib-ui";
+import { StatusIcon } from "@migtools/lib-ui";
 
 import {
   Button,

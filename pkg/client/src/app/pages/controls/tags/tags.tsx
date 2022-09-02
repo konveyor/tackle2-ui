@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
-import { useSelectionState } from "@konveyor/lib-ui";
+import { useSelectionState } from "@migtools/lib-ui";
 
 import {
   Button,

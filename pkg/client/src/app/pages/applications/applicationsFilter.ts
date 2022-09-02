@@ -11,7 +11,7 @@ import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { dedupeFunction } from "@app/utils/utils";
-import { useSelectionState } from "@konveyor/lib-ui";
+import { useSelectionState } from "@migtools/lib-ui";
 export enum ApplicationTableType {
   Assessment = "assessment",
   Analysis = "analysis",
