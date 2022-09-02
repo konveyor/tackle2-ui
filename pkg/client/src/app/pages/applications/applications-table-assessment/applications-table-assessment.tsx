@@ -391,6 +391,7 @@ export const ApplicationsTable: React.FC = () => {
     }
     if (
       row.review &&
+      applicationAssessment?.status === "COMPLETE" &&
       checkAccessAll(userScopes, ["assessments:patch", "reviews:post"])
     ) {
       actions.push({

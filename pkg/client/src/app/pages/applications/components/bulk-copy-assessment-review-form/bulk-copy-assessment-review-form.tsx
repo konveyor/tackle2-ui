@@ -256,37 +256,43 @@ export const BulkCopyAssessmentReviewForm: React.FC<
     }
 
     setIsSubmitting(true);
-
-    createBulkCopyAssessment({
-      fromAssessmentId: assessment.id!,
-      applications: selectedRows.map((f) => ({ applicationId: f.id! })),
-    })
-      .then((bulkAssessment) => {
-        const bulkReview = review
-          ? createBulkCopyReview({
-              sourceReview: review!.id!,
-              targetApplications: selectedRows.map((f) => f.id!),
+    if (assessment?.id) {
+      const selectedApps = selectedRows.filter(
+        (app) => app?.id !== application?.id
+      );
+      createBulkCopyAssessment({
+        fromAssessmentId: assessment.id!,
+        applications: selectedApps.map((f) => ({ applicationId: f.id! })),
+      })
+        .then((bulkAssessment) => {
+          const bulkReview = review
+            ? createBulkCopyReview({
+                sourceReview: review!.id!,
+                targetApplications: selectedApps.map((f) => f.id!),
+              })
+            : undefined;
+          return Promise.all([bulkAssessment, bulkReview]);
+        })
+        .then(([assessmentBulk, reviewBulk]) => {
+          setIsSubmitting(false);
+          dispatch(
+            bulkCopyActions.scheduleWatchBulk({
+              assessmentBulk: assessmentBulk.data.bulkId!,
+              reviewBulk: reviewBulk ? reviewBulk.data.id! : undefined,
             })
-          : undefined;
-        return Promise.all([bulkAssessment, bulkReview]);
-      })
-      .then(([assessmentBulk, reviewBulk]) => {
-        setIsSubmitting(false);
+          );
+          onSaved();
+        })
+        .catch((error) => {
+          setIsSubmitting(false);
 
-        dispatch(
-          bulkCopyActions.scheduleWatchBulk({
-            assessmentBulk: assessmentBulk.data.bulkId!,
-            reviewBulk: reviewBulk ? reviewBulk.data.id! : undefined,
-          })
-        );
-        onSaved();
-      })
-      .catch((error) => {
-        setIsSubmitting(false);
-
-        dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
-        onSaved();
-      });
+          dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+          onSaved();
+        });
+    } else {
+      dispatch(alertActions.addDanger("Failed", "Copy assessment failed."));
+      onSaved();
+    }
   };
   const handleOnClearAllFilters = () => {
     setFilterValues({});
