@@ -34,7 +34,7 @@ import { getAssessmentConfidence, getAssessmentLandscape } from "@app/api/rest";
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
-import { useSelectionState } from "@konveyor/lib-ui";
+import { useSelectionState } from "@migtools/lib-ui";
 import {
   FilterCategory,
   FilterToolbar,

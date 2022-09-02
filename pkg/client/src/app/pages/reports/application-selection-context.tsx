@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelectionState, ISelectionState } from "@konveyor/lib-ui";
+import { useSelectionState, ISelectionState } from "@migtools/lib-ui";
 import { Application } from "@app/api/models";
 import { AppContainer } from "react-hot-loader";
 

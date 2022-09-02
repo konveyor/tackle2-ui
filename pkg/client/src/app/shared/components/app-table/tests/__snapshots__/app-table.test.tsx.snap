@@ -4,7 +4,7 @@ exports[`AppTable Renders without crashing 1`] = `
 <Table
   aria-label="main-table"
   borders={true}
-  canCollapseAll={true}
+  canCollapseAll={false}
   canSelectAll={true}
   canSortFavorites={true}
   cells={
