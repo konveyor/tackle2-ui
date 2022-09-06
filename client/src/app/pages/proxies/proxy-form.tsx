@@ -49,8 +49,8 @@ export interface ProxyFormValues {
   [HTTPS_HOST]: string;
   [HTTP_IDENTITY]: string | null;
   [HTTPS_IDENTITY]: string | null;
-  [HTTP_PORT]: any;
-  [HTTPS_PORT]: any;
+  [HTTP_PORT]: number | string;
+  [HTTPS_PORT]: number | string;
   [EXCLUDED]: string;
 }
 
@@ -193,7 +193,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           values.httpIdentity !== httpProxy?.identity?.name) ||
         (values.httpIdentity === null &&
           values.httpIdentity !== httpProxy?.identity) ||
-        parseInt(values.httpPort) !== httpProxy?.port
+        parseInt(values.httpPort as string) !== httpProxy?.port
       );
     }
   };
@@ -402,7 +402,8 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     options={identityOptions}
                     isDisabled={!!!identityOptions.length}
                     onChange={(selection) => {
-                      const selectionValue = selection as OptionWithValue<any>;
+                      const selectionValue =
+                        selection as OptionWithValue<string>;
                       onChange(selectionValue.value);
                     }}
                   />
@@ -541,7 +542,8 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     options={identityOptions}
                     isDisabled={!!!identityOptions.length}
                     onChange={(selection) => {
-                      const selectionValue = selection as OptionWithValue<any>;
+                      const selectionValue =
+                        selection as OptionWithValue<string>;
                       onChange(selectionValue.value);
                     }}
                   />

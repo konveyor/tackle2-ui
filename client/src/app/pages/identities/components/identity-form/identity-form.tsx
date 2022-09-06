@@ -36,7 +36,8 @@ import {
 } from "@app/queries/identities";
 import KeyDisplayToggle from "@app/common/KeyDisplayToggle";
 
-const { XMLValidator } = require("fast-xml-parser");
+import { XMLValidator } from "fast-xml-parser";
+import { XMLLintValidationResult } from "./validateXML";
 
 interface IdentityFormValues {
   application: number;
@@ -61,7 +62,10 @@ export interface IdentityFormProps {
   identity?: Identity;
   onSaved: (response: AxiosResponse<Identity>) => void;
   onCancel: () => void;
-  xmlValidator?: (value: string, currentSchema: string) => any;
+  xmlValidator?: (
+    value: string,
+    currentSchema: string
+  ) => XMLLintValidationResult;
 }
 
 export const IdentityForm: React.FC<IdentityFormProps> = ({
@@ -98,7 +102,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       return "";
     }
   };
-  const onCreateUpdateIdentitySuccess = (response: any) => {
+  const onCreateUpdateIdentitySuccess = (response: AxiosResponse<Identity>) => {
     onSaved(response);
   };
 
@@ -457,7 +461,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               value={value ? toOptionLike(value, kindOptions) : undefined}
               options={kindOptions}
               onChange={(selection) => {
-                const selectionValue = selection as OptionWithValue<any>;
+                const selectionValue = selection as OptionWithValue<string>;
                 setValue(name, selectionValue.value);
                 // So we don't retain the values from the wrong type of credential
                 setValue("user", "");
@@ -493,7 +497,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   }
                   options={userCredentialsOptions}
                   onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<any>;
+                    const selectionValue = selection as OptionWithValue<string>;
                     setValue(name, selectionValue.value);
                     // So we don't retain the values from the wrong type of credential
                     setValue("user", "");
