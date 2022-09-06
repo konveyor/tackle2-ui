@@ -12,33 +12,28 @@ import {
 import { EmptyTextMessage } from "@app/shared/components";
 
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
-import { Application, Review } from "@app/api/models";
+import { Application, Assessment, Review } from "@app/api/models";
 
 import { ApplicationTags } from "../application-tags";
 import { ApplicationRisk } from "./application-risk";
-import { useFetchReviews } from "@app/queries/reviews";
 
 export interface IApplicationListExpandedAreaProps {
   application: Application;
   reviews: Review[];
+  assessment?: Assessment;
 }
 
 export const ApplicationListExpandedArea: React.FC<
   IApplicationListExpandedAreaProps
-> = ({ application, reviews }) => {
+> = ({ application, reviews, assessment }) => {
   const { t } = useTranslation();
-
   const notYetReviewed = (
     <EmptyTextMessage message={t("terms.notYetReviewed")} />
   );
 
-  const [appReview, setAppReview] = useState<Review>();
-  useEffect(() => {
-    const appReview = reviews?.find(
-      (review) => review.id === application?.review?.id
-    );
-    setAppReview(appReview);
-  }, [reviews]);
+  const appReview = reviews?.find(
+    (review) => review.id === application?.review?.id
+  );
 
   const reviewToShown = appReview
     ? {
@@ -108,7 +103,7 @@ export const ApplicationListExpandedArea: React.FC<
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.risk")}</DescriptionListTerm>
         <DescriptionListDescription cy-data="risk">
-          <ApplicationRisk application={application} />
+          <ApplicationRisk application={application} assessment={assessment} />
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
