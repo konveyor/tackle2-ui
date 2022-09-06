@@ -100,10 +100,6 @@ export const ApplicationsTable: React.FC = () => {
   // Redux
   const dispatch = useDispatch();
 
-  const isWatchingBulkCopy = useSelector((state: RootState) =>
-    bulkCopySelectors.isWatching(state)
-  );
-
   // Router
   const history = useHistory();
 
@@ -351,7 +347,11 @@ export const ApplicationsTable: React.FC = () => {
       fullWidth: false,
       cells: [
         <div className="pf-c-table__expandable-row-content">
-          <ApplicationListExpandedArea application={item} reviews={reviews} />
+          <ApplicationListExpandedArea
+            application={item}
+            reviews={reviews}
+            assessment={getApplicationAssessment(item.id!)}
+          />
         </div>,
       ],
     });
@@ -419,6 +419,7 @@ export const ApplicationsTable: React.FC = () => {
         ) => {
           const row: Application = getRow(rowData);
           discardAssessmentRow(row);
+          refetch();
         },
       });
     }
@@ -541,9 +542,9 @@ export const ApplicationsTable: React.FC = () => {
                   })
                 )
               );
-              refetch();
               queryClient.invalidateQueries(assessmentsQueryKey);
               queryClient.invalidateQueries(reviewsQueryKey);
+              refetch();
             })
             .catch((error) => {
               dispatch(confirmDialogActions.closeDialog());
@@ -817,7 +818,10 @@ export const ApplicationsTable: React.FC = () => {
         title={t("dialog.title.copyApplicationAssessmentFrom", {
           what: applicationToCopyAssessmentFrom?.name,
         })}
-        onClose={closeCopyAssessmentModal}
+        onClose={() => {
+          closeCopyAssessmentModal();
+          refetch();
+        }}
       >
         {applicationToCopyAssessmentFrom && (
           <BulkCopyAssessmentReviewForm
@@ -838,7 +842,10 @@ export const ApplicationsTable: React.FC = () => {
         title={t("dialog.title.copyApplicationAssessmentAndReviewFrom", {
           what: applicationToCopyAssessmentAndReviewFrom?.name,
         })}
-        onClose={closeCopyAssessmentAndReviewModal}
+        onClose={() => {
+          closeCopyAssessmentAndReviewModal();
+          refetch();
+        }}
       >
         {applicationToCopyAssessmentAndReviewFrom && (
           <BulkCopyAssessmentReviewForm
