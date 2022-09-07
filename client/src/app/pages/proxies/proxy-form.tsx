@@ -265,14 +265,13 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     }
   };
 
-  const httphoststate = getFieldState("httpHost");
-  console.log({ httphoststate, values });
-
   const httpHostAttributes = register(HTTP_HOST);
 
   // TODO factor out a <RHFTextField> and maybe a <RHFSwitchField>?
   // TODO use generics on remaining Controllers?
-  // TODO evaluate whether we still need the field name constants?
+  // TODO remove the field name constants, make sure TS checks all usages of field names
+  // TODO make the boolean fields use true booleans in form state instead of "true" and "false" strings?
+  // TODO do we need isHttpProxy / isHttpsProxy in state or can we just use the form state?
   // TODO see if we can prevent the whole form rendering on each keystroke? (memoization? avoiding calling getValues on each render? probably can't...)
 
   return (
@@ -307,7 +306,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           />
         )}
       />
-
       {isHttpProxy && (
         <div className={spacing.mlLg}>
           <FormGroup
