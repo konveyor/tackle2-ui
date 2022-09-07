@@ -9,24 +9,21 @@ import reportWebVitals from "@app/reportWebVitals";
 import configureStore from "@app/store";
 import i18n from "@app/i18n";
 import { NinjaErrorBoundary } from "@app/ninja-error-boundary";
-import { LocalStorageContextProvider } from "@app/context/LocalStorageContext";
 import { KeycloakProvider } from "@app/common/KeycloakProvider";
 
 const queryClient = new QueryClient();
 
 ReactDOM.render(
-  <LocalStorageContextProvider>
-    <KeycloakProvider>
-      <Provider store={configureStore()}>
-        <NinjaErrorBoundary>
-          <QueryClientProvider client={queryClient}>
-            <App />
-            <ReactQueryDevtools initialIsOpen={false} />
-          </QueryClientProvider>
-        </NinjaErrorBoundary>
-      </Provider>
-    </KeycloakProvider>
-  </LocalStorageContextProvider>,
+  <KeycloakProvider>
+    <Provider store={configureStore()}>
+      <NinjaErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <App />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </NinjaErrorBoundary>
+    </Provider>
+  </KeycloakProvider>,
   document.getElementById("root")
 );
 

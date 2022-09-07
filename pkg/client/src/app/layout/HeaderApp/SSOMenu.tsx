@@ -8,7 +8,7 @@ import {
   DropdownToggle,
   PageHeaderToolsItem,
 } from "@patternfly/react-core";
-import { LocalStorageKey } from "@app/context/LocalStorageContext";
+import { LocalStorageKey } from "@app/Constants";
 
 export const SSOMenu: React.FC = () => {
   const { t } = useTranslation();
