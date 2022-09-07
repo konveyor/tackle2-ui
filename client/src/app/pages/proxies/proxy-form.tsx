@@ -92,11 +92,9 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   }, [httpProxy, httpsProxy]);
 
   const {
-    register,
     handleSubmit,
     formState: { errors, isSubmitting, isValidating, isValid, isDirty },
     getValues,
-    getFieldState,
     setValue,
     control,
     reset,
@@ -265,8 +263,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     }
   };
 
-  const httpHostAttributes = register(HTTP_HOST);
-
   // TODO factor out a <RHFTextField> and maybe a <RHFSwitchField>?
   // TODO use generics on remaining Controllers?
   // TODO remove the field name constants, make sure TS checks all usages of field names
@@ -283,10 +279,14 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           title={getAxiosErrorMessage(error as AxiosError)}
         />
       )}
-      <Controller<ProxyFormValues, "isHttpChecked">
+      <Controller // TODO remove all these controllers??? see RHF examples
         control={control}
         name={IS_HTTP_CHECKED}
-        render={({ field: { onChange } }) => (
+        render={({
+          field: { onChange, onBlur, value, name, ref },
+          fieldState: { isTouched, error },
+          formState,
+        }) => (
           <Switch
             id="httpProxy"
             data-testid="http-proxy-switch"
@@ -313,23 +313,28 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             fieldId={HTTP_HOST}
             isRequired={true}
             className={spacing.mMd}
-            validated={getValidatedFromErrorTouched(
-              errors.httpHost,
-              getFieldState(HTTP_HOST).isTouched
-            )}
+            validated={getValidatedFromError(errors.httpHost)}
             helperTextInvalid={errors.httpHost?.message}
           >
-            <TextInput
-              type="text"
-              aria-label="httphost"
-              aria-describedby="httphost"
-              data-testid="http-host-input"
-              isRequired={true}
-              {...httpHostAttributes}
-              onChange={(_, event) => httpHostAttributes.onChange(event)}
-              validated={getValidatedFromErrorTouched(
-                error,
-                getFieldState(HTTP_HOST).isTouched
+            <Controller
+              control={control}
+              name={HTTP_HOST}
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { isTouched, error },
+                formState,
+              }) => (
+                <TextInput
+                  type="text"
+                  name={HTTP_HOST}
+                  aria-label="httphost"
+                  aria-describedby="httphost"
+                  data-testid="http-host-input"
+                  isRequired={true}
+                  onChange={onChange}
+                  value={value}
+                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                />
               )}
             />
           </FormGroup>
