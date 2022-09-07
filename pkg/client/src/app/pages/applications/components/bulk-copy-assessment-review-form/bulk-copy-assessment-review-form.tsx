@@ -58,7 +58,7 @@ import { useFetchApplications } from "@app/queries/applications";
 
 const ENTITY_FIELD = "entity";
 
-const getRow = (rowData: IRowData): Application => {
+const getAppFromRow = (rowData: IRowData): Application => {
   return rowData[ENTITY_FIELD];
 };
 
@@ -134,15 +134,18 @@ export const BulkCopyAssessmentReviewForm: React.FC<
 
   //Bulk selection
   const {
-    isItemSelected: isRowSelected,
-    toggleItemSelected: toggleRowSelected,
+    isItemSelected: isAppSelected,
+    isItemSelectable: isAppSelectable,
+    toggleItemSelected: toggleAppSelected,
     selectAll,
     selectMultiple,
     areAllSelected,
-    selectedItems: selectedRows,
+    selectedItems: selectedApps,
   } = useSelectionState<Application>({
     items: filteredItems || [],
     isEqual: (a, b) => a.id === b.id,
+    // Don't allow selecting source application as a copy target
+    isItemSelectable: (a) => a.id !== application.id,
   });
 
   // Table's assessments
@@ -177,22 +180,20 @@ export const BulkCopyAssessmentReviewForm: React.FC<
   ];
 
   const rows: IRow[] = [];
-  currentPageItems?.forEach((item) => {
-    const isSelected = isRowSelected(item);
-
+  currentPageItems?.forEach((app) => {
     rows.push({
-      [ENTITY_FIELD]: item,
-      selected: isSelected,
-      disableSelection: item.id === application.id,
+      [ENTITY_FIELD]: app,
+      selected: isAppSelected(app),
+      disableSelection: !isAppSelectable(app),
       cells: [
         {
-          title: item.name,
+          title: app.name,
         },
         {
           title: (
             <>
-              {item.businessService && (
-                <ApplicationBusinessService id={item.businessService.id} />
+              {app.businessService && (
+                <ApplicationBusinessService id={app.businessService.id} />
               )}
             </>
           ),
@@ -200,14 +201,14 @@ export const BulkCopyAssessmentReviewForm: React.FC<
         {
           title: (
             <ApplicationAssessment
-              assessment={getApplicationAssessment(item.id!)}
-              isLoading={isLoadingApplicationAssessment(item.id!)}
-              fetchError={fetchErrorApplicationAssessment(item.id!)}
+              assessment={getApplicationAssessment(app.id!)}
+              isLoading={isLoadingApplicationAssessment(app.id!)}
+              fetchError={fetchErrorApplicationAssessment(app.id!)}
             />
           ),
         },
         {
-          title: item.review ? (
+          title: app.review ? (
             <StatusIcon status="Completed" />
           ) : (
             <StatusIcon status="NotStarted" />
@@ -225,24 +226,24 @@ export const BulkCopyAssessmentReviewForm: React.FC<
     rowData: IRowData,
     extraData: IExtraData
   ) => {
-    const row = getRow(rowData);
-    toggleRowSelected(row);
+    const app = getAppFromRow(rowData);
+    toggleAppSelected(app);
   };
 
   // Confirmation checbox
   useEffect(() => {
-    let selectedAnyAppWithAssessment = selectedRows.some((f) =>
+    let selectedAnyAppWithAssessment = selectedApps.some((f) =>
       getApplicationAssessment(f.id!)
     );
 
     if (review) {
-      const selectedAnyAppWithReview = selectedRows.some((f) => f.review);
+      const selectedAnyAppWithReview = selectedApps.some((f) => f.review);
       selectedAnyAppWithAssessment =
         selectedAnyAppWithAssessment || selectedAnyAppWithReview;
     }
 
     setRequestConfirmation(selectedAnyAppWithAssessment);
-  }, [review, selectedRows, getApplicationAssessment]);
+  }, [review, selectedApps, getApplicationAssessment]);
 
   useEffect(() => {
     setConfirmationAccepted(false);
@@ -257,9 +258,6 @@ export const BulkCopyAssessmentReviewForm: React.FC<
 
     setIsSubmitting(true);
     if (assessment?.id) {
-      const selectedApps = selectedRows.filter(
-        (app) => app?.id !== application?.id
-      );
       createBulkCopyAssessment({
         fromAssessmentId: assessment.id!,
         applications: selectedApps.map((f) => ({ applicationId: f.id! })),
@@ -330,7 +328,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
                 isExpandable={false}
                 onSelectAll={selectAll}
                 areAllSelected={areAllSelected}
-                selectedRows={selectedRows}
+                selectedRows={selectedApps}
                 paginationProps={paginationProps}
                 currentPageItems={currentPageItems}
                 onSelectMultiple={selectMultiple}
@@ -375,7 +373,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
           variant={ButtonVariant.primary}
           onClick={onSubmit}
           isDisabled={
-            selectedRows.length === 0 ||
+            selectedApps.length === 0 ||
             (requestConfirmation && !confirmationAccepted) ||
             isSubmitting
           }
