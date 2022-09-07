@@ -16,7 +16,7 @@ import {
   getValidatedFromError,
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
-import validationSchema from "./proxies-validation-schema";
+import { useProxyFormValidationSchema } from "./proxies-validation-schema";
 import {
   EXCLUDED,
   HTTPS_HOST,
@@ -113,7 +113,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       };
     }, [httpProxy, httpsProxy]),
     resolver: yupResolver(
-      validationSchema({
+      useProxyFormValidationSchema({
         [HTTP_HOST]: isHttpProxy,
         [HTTP_PORT]: isHttpProxy,
         [HTTP_IDENTITY]: isHttpIdentityRequired,
@@ -272,7 +272,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           title={getAxiosErrorMessage(error as AxiosError)}
         />
       )}
-      <Controller
+      <Controller // TODO remove all these controllers??? see RHF examples
         control={control}
         name={IS_HTTP_CHECKED}
         render={({
@@ -540,7 +540,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     aria-label={HTTPS_IDENTITY}
                     value={value ? value : undefined}
                     options={identityOptions}
-                    isDisabled={!!!identityOptions.length}
+                    isDisabled={!identityOptions.length}
                     onChange={(selection) => {
                       const selectionValue =
                         selection as OptionWithValue<string>;

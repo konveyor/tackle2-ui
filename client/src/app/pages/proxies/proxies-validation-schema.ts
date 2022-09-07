@@ -13,7 +13,7 @@ import {
 
 const REQUIRED_MESSAGE = "This field is required";
 
-export default function validationSchema(
+export const useProxyFormValidationSchema = (
   mandatoryFields = {
     [HTTP_HOST]: false,
     [HTTP_PORT]: false,
@@ -22,7 +22,7 @@ export default function validationSchema(
     [HTTPS_PORT]: false,
     [HTTPS_IDENTITY]: false,
   }
-) {
+) => {
   const { t } = useTranslation();
 
   return yup.object().shape({
@@ -69,4 +69,4 @@ export default function validationSchema(
     [IS_HTTP_CHECKED]: yup.lazy(() => yup.string().required(REQUIRED_MESSAGE)),
     [IS_HTTPS_CHECKED]: yup.lazy(() => yup.string().required(REQUIRED_MESSAGE)),
   });
-}
+};
