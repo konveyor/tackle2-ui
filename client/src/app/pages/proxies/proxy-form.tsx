@@ -91,14 +91,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     }
   }, [httpProxy, httpsProxy]);
 
-  const {
-    handleSubmit,
-    formState: { errors, isSubmitting, isValidating, isValid, isDirty },
-    getValues,
-    setValue,
-    control,
-    reset,
-  } = useForm<ProxyFormValues>({
+  const form = useForm<ProxyFormValues>({
     defaultValues: useMemo(() => {
       return {
         [IS_HTTP_CHECKED]: httpProxy?.enabled === true ? "true" : "false",
@@ -124,6 +117,14 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     ),
     mode: "onChange",
   });
+  const {
+    handleSubmit,
+    formState: { errors, isSubmitting, isValidating, isValid, isDirty },
+    getValues,
+    setValue,
+    control,
+    reset,
+  } = form;
 
   useEffect(() => {
     reset({
@@ -268,7 +269,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   // TODO remove the field name constants, make sure TS checks all usages of field names
   // TODO make the boolean fields use true booleans in form state instead of "true" and "false" strings?
   // TODO do we need isHttpProxy / isHttpsProxy in state or can we just use the form state?
-  // TODO see if we can prevent the whole form rendering on each keystroke? (memoization? avoiding calling getValues on each render? probably can't...)
 
   return (
     <Form className={spacing.mMd} onSubmit={handleSubmit(onSubmit)}>
@@ -279,7 +279,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           title={getAxiosErrorMessage(error as AxiosError)}
         />
       )}
-      <Controller // TODO remove all these controllers??? see RHF examples
+      <Controller
         control={control}
         name={IS_HTTP_CHECKED}
         render={({
