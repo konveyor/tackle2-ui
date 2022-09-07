@@ -92,9 +92,11 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   }, [httpProxy, httpsProxy]);
 
   const {
+    register,
     handleSubmit,
     formState: { errors, isSubmitting, isValidating, isValid, isDirty },
     getValues,
+    getFieldState,
     setValue,
     control,
     reset,
@@ -263,6 +265,16 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     }
   };
 
+  const httphoststate = getFieldState("httpHost");
+  console.log({ httphoststate, values });
+
+  const httpHostAttributes = register(HTTP_HOST);
+
+  // TODO factor out a <RHFTextField> and maybe a <RHFSwitchField>?
+  // TODO use generics on remaining Controllers?
+  // TODO evaluate whether we still need the field name constants?
+  // TODO see if we can prevent the whole form rendering on each keystroke? (memoization? avoiding calling getValues on each render? probably can't...)
+
   return (
     <Form className={spacing.mMd} onSubmit={handleSubmit(onSubmit)}>
       {error && (
@@ -272,14 +284,10 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           title={getAxiosErrorMessage(error as AxiosError)}
         />
       )}
-      <Controller // TODO remove all these controllers??? see RHF examples
+      <Controller<ProxyFormValues, "isHttpChecked">
         control={control}
         name={IS_HTTP_CHECKED}
-        render={({
-          field: { onChange, onBlur, value, name, ref },
-          fieldState: { isTouched, error },
-          formState,
-        }) => (
+        render={({ field: { onChange } }) => (
           <Switch
             id="httpProxy"
             data-testid="http-proxy-switch"
@@ -307,28 +315,23 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             fieldId={HTTP_HOST}
             isRequired={true}
             className={spacing.mMd}
-            validated={getValidatedFromError(errors.httpHost)}
+            validated={getValidatedFromErrorTouched(
+              errors.httpHost,
+              getFieldState(HTTP_HOST).isTouched
+            )}
             helperTextInvalid={errors.httpHost?.message}
           >
-            <Controller
-              control={control}
-              name={HTTP_HOST}
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { isTouched, error },
-                formState,
-              }) => (
-                <TextInput
-                  type="text"
-                  name={HTTP_HOST}
-                  aria-label="httphost"
-                  aria-describedby="httphost"
-                  data-testid="http-host-input"
-                  isRequired={true}
-                  onChange={onChange}
-                  value={value}
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
-                />
+            <TextInput
+              type="text"
+              aria-label="httphost"
+              aria-describedby="httphost"
+              data-testid="http-host-input"
+              isRequired={true}
+              {...httpHostAttributes}
+              onChange={(_, event) => httpHostAttributes.onChange(event)}
+              validated={getValidatedFromErrorTouched(
+                error,
+                getFieldState(HTTP_HOST).isTouched
               )}
             />
           </FormGroup>
