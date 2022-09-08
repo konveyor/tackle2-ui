@@ -30,7 +30,7 @@
     "@patternfly/react-table": "^4.100.8",
     "@patternfly/react-tokens": "^4.83.8",
     "@react-keycloak/web": "^3.4.0",
-    "@redhat-cloud-services/frontend-components-notifications": "^3.2.2",
+    "@redhat-cloud-services/frontend-components-notifications": "^3.2.10",
     "@types/ejs": "^3.1.0",
     "axios": "^0.21.2",
     "ejs": "^3.1.7",
