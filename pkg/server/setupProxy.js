@@ -1,6 +1,7 @@
 const { createProxyMiddleware } = require("http-proxy-middleware");
 function relayRequestHeaders(proxyReq, req) {
-  if (req.cookies.keycloak_cookie) {
+  if (req.cookies.keycloak_cookie && proxyReq.headers) {
+    console.log("set auth header");
     proxyReq.setHeader(
       "Authorization",
       `Bearer ${req.cookies.keycloak_cookie}`
@@ -26,7 +27,23 @@ module.exports = function (app) {
         "^/hub": "",
       },
       logLevel: process.env.DEBUG ? "debug" : "info",
-      onProxyReq: relayRequestHeaders,
+      onProxyReq: (proxyReq, req, res) => {
+        if (req.cookies.keycloak_cookie && !req.headers["authorization"]) {
+          proxyReq.setHeader(
+            "Authorization",
+            `Bearer ${req.cookies.keycloak_cookie}`
+          );
+        }
+      },
+      onProxyRes: (proxyRes, req, res) => {
+        if (
+          proxyRes.statusCode === 401 ||
+          proxyRes.statusMessage === "Unauthorized"
+        ) {
+          //TODO fix redirect to /login broken currently. Renders an empty page.
+          res.redirect("/applications");
+        }
+      },
     })
   );
 };
