@@ -59,7 +59,7 @@ export const KeycloakProvider: React.FunctionComponent<
                   if (keycloak.token) {
                     keycloak
                       //TODO lengthen refresh time
-                      .updateToken(1)
+                      .updateToken(60)
                       .then((refreshed) => {
                         if (refreshed) {
                           deleteCookie("keycloak_cookie");
