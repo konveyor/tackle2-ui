@@ -1,0 +1,14 @@
+{
+    "name": "tackle2-ui",
+    "version": "2.1.0",
+    "license": "Apache-2.0",
+    "private": true,
+    "devDependencies": {
+        "concurrently": "^7.0.0"
+    },
+    "workspaces": [
+        "client",
+        "server",
+        "qa"
+    ]
+}
