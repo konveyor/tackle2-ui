@@ -218,3 +218,7 @@ export enum IdentityFilterKey {
   KIND = "kind",
   CREATEUSER = "createuser",
 }
+
+export enum LocalStorageKey {
+  selectedPersona = "selectedPersona",
+}

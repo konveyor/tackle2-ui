@@ -17,12 +17,10 @@ import { Paths } from "@app/Paths";
 import { LayoutTheme } from "../LayoutUtils";
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
-import {
-  LocalStorageKey,
-  useLocalStorageContext,
-} from "@app/context/LocalStorageContext";
 
 import "./SidebarApp.css";
+import { useLocalStorage } from "@migtools/lib-ui";
+import { LocalStorageKey } from "@app/Constants";
 
 export const SidebarApp: React.FC = () => {
   const token = keycloak.tokenParsed || undefined;
@@ -47,8 +45,9 @@ export const SidebarApp: React.FC = () => {
   ];
 
   const [isOpen, setIsOpen] = React.useState(false);
-  const [selectedPersona, setSelectedPersona] = useLocalStorageContext(
-    LocalStorageKey.selectedPersona
+  const [selectedPersona, setSelectedPersona] = useLocalStorage<string | null>(
+    LocalStorageKey.selectedPersona,
+    null
   );
 
   useEffect(() => {
@@ -64,7 +63,7 @@ export const SidebarApp: React.FC = () => {
         <Select
           variant={SelectVariant.single}
           aria-label="Select user perspective"
-          selections={selectedPersona}
+          selections={selectedPersona || undefined}
           isOpen={isOpen}
           onSelect={(_, selection) => {
             setSelectedPersona(selection as string);
