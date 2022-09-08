@@ -2,6 +2,7 @@ import { initInterceptors } from "@app/axios-config";
 import { isAuthRequired } from "@app/Constants";
 import i18n from "@app/i18n";
 import keycloak from "@app/keycloak";
+import { deleteCookie, getCookie, setCookie } from "@app/queries/cookies";
 import { AppPlaceholder } from "@app/shared/components";
 import { Flex, FlexItem, Spinner } from "@patternfly/react-core";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
@@ -14,6 +15,17 @@ interface IKeycloakProviderProps {
 export const KeycloakProvider: React.FunctionComponent<
   IKeycloakProviderProps
 > = ({ children }) => {
+  const checkAuthCookie = () => {
+    let currentCookie = getCookie("keycloak_cookie");
+    if (currentCookie !== "" && currentCookie !== null) {
+    } else {
+      currentCookie = keycloak?.token || "";
+
+      if (currentCookie != "" && currentCookie != null) {
+        setCookie("keycloak_cookie", currentCookie, 365);
+      }
+    }
+  };
   if (isAuthRequired) {
     return (
       <>
@@ -46,9 +58,17 @@ export const KeycloakProvider: React.FunctionComponent<
                 return new Promise<string>((resolve, reject) => {
                   if (keycloak.token) {
                     keycloak
-                      .updateToken(5)
-                      .then(() => {
-                        return resolve(keycloak.token!);
+                      //TODO lengthen refresh time
+                      .updateToken(1)
+                      .then((refreshed) => {
+                        if (refreshed) {
+                          deleteCookie("keycloak_cookie");
+                          checkAuthCookie();
+                          return resolve(keycloak.token!);
+                        } else {
+                          checkAuthCookie();
+                          return resolve(keycloak.token!);
+                        }
                       })
                       .catch((err) => {
                         console.log("err", err);

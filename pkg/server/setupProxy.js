@@ -1,4 +1,12 @@
 const { createProxyMiddleware } = require("http-proxy-middleware");
+function relayRequestHeaders(proxyReq, req) {
+  if (req.cookies.keycloak_cookie) {
+    proxyReq.setHeader(
+      "Authorization",
+      `Bearer ${req.cookies.keycloak_cookie}`
+    );
+  }
+}
 
 module.exports = function (app) {
   app.use(
@@ -9,7 +17,6 @@ module.exports = function (app) {
       logLevel: process.env.DEBUG ? "debug" : "info",
     })
   );
-
   app.use(
     "/hub",
     createProxyMiddleware({
@@ -19,11 +26,7 @@ module.exports = function (app) {
         "^/hub": "",
       },
       logLevel: process.env.DEBUG ? "debug" : "info",
-      onProxyReq: (proxyReq, req, res) => {
-        if (req.cookies.proxyToken) {
-          proxyReq.setHeader('Authorization', `Bearer ${req.cookies.proxyToken}`)
-        }
-      },
+      onProxyReq: relayRequestHeaders,
     })
   );
 };
