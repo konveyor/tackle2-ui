@@ -41,6 +41,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useFetchIdentities } from "@app/queries/identities";
 import { isUndefined } from "util";
 import { AxiosError } from "axios";
+import { HookFormTextField } from "@app/shared/components/hook-form-text-field";
 
 export interface ProxyFormValues {
   [IS_HTTP_CHECKED]: string;
@@ -91,7 +92,14 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     }
   }, [httpProxy, httpsProxy]);
 
-  const form = useForm<ProxyFormValues>({
+  const {
+    handleSubmit,
+    formState: { errors, isSubmitting, isValidating, isValid, isDirty },
+    getValues,
+    setValue,
+    control,
+    reset,
+  } = useForm<ProxyFormValues>({
     defaultValues: useMemo(() => {
       return {
         [IS_HTTP_CHECKED]: httpProxy?.enabled === true ? "true" : "false",
@@ -117,14 +125,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     ),
     mode: "onChange",
   });
-  const {
-    handleSubmit,
-    formState: { errors, isSubmitting, isValidating, isValid, isDirty },
-    getValues,
-    setValue,
-    control,
-    reset,
-  } = form;
 
   useEffect(() => {
     reset({
@@ -449,68 +449,25 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
 
       {isHttpsProxy && (
         <>
-          <FormGroup
+          <HookFormTextField
+            control={control}
             label="HTTPS proxy host"
+            id="httpsHost"
+            name={HTTPS_HOST}
+            isRequired
             className={spacing.mMd}
-            fieldId="httpsHost"
-            isRequired={true}
-            validated={getValidatedFromError(errors.httpsHost)}
-            helperTextInvalid={errors.httpsHost?.message}
-          >
-            <Controller
-              control={control}
-              name={HTTPS_HOST}
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { isTouched, error },
-                formState,
-              }) => (
-                <TextInput
-                  type="text"
-                  name={HTTPS_HOST}
-                  aria-label="httpshost"
-                  aria-describedby="httpshost"
-                  data-testid="https-host-input"
-                  isRequired={true}
-                  onChange={onChange}
-                  value={value}
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
-                />
-              )}
-            />
-          </FormGroup>
-          <FormGroup
+            data-testid="https-host-input"
+          />
+          <HookFormTextField
+            control={control}
             label="HTTPS proxy port"
-            className={spacing.mMd}
+            id="port"
+            name={HTTPS_PORT}
             type="number"
-            fieldId="port"
-            isRequired={true}
-            validated={getValidatedFromError(errors.httpsPort)}
-            helperTextInvalid={errors.httpsPort?.message}
-          >
-            <Controller
-              control={control}
-              name={HTTPS_PORT}
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { isTouched, error },
-                formState,
-              }) => (
-                <TextInput
-                  type="number"
-                  name={HTTPS_PORT}
-                  aria-label="httpsport"
-                  aria-describedby="httpsport"
-                  isRequired={true}
-                  onChange={(value, e) => {
-                    onChange((value && parseInt(value, 10)) || "");
-                  }}
-                  value={value}
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
-                />
-              )}
-            />
-          </FormGroup>
+            isRequired
+            className={spacing.mMd}
+            data-testid="https-port-input"
+          />
           <Switch
             id="https-identity-required"
             data-testid="https-proxy-identity-switch"
