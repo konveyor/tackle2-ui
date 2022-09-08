@@ -58,7 +58,6 @@ export const KeycloakProvider: React.FunctionComponent<
                 return new Promise<string>((resolve, reject) => {
                   if (keycloak.token) {
                     keycloak
-                      //TODO lengthen refresh time
                       .updateToken(60)
                       .then((refreshed) => {
                         if (refreshed) {

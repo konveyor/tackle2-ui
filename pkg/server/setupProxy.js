@@ -1,13 +1,4 @@
 const { createProxyMiddleware } = require("http-proxy-middleware");
-function relayRequestHeaders(proxyReq, req) {
-  if (req.cookies.keycloak_cookie && proxyReq.headers) {
-    console.log("set auth header");
-    proxyReq.setHeader(
-      "Authorization",
-      `Bearer ${req.cookies.keycloak_cookie}`
-    );
-  }
-}
 
 module.exports = function (app) {
   app.use(
