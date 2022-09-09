@@ -2,10 +2,8 @@
 FROM registry.access.redhat.com/ubi8/nodejs-16 as builder
 USER 0
 COPY . .
-WORKDIR "/opt/app-root/src/client" 
+WORKDIR "/opt/app-root/src" 
 RUN npm install && npm run build
-WORKDIR "/opt/app-root/src/server" 
-RUN npm install
 
 # Runner image
 FROM registry.access.redhat.com/ubi8/nodejs-16-minimal
