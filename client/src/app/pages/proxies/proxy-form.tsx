@@ -41,7 +41,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useFetchIdentities } from "@app/queries/identities";
 import { isUndefined } from "util";
 import { AxiosError } from "axios";
-import { HookFormTextField } from "@app/shared/components/hook-form-text-field";
+import { HookFormPFTextInput } from "@app/shared/components/hook-form-pf-fields";
 
 export interface ProxyFormValues {
   [IS_HTTP_CHECKED]: string;
@@ -449,22 +449,22 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
 
       {isHttpsProxy && (
         <>
-          <HookFormTextField
+          <HookFormPFTextInput
             control={control}
             label="HTTPS proxy host"
-            id="httpsHost"
+            fieldId="httpsHost"
             name={HTTPS_HOST}
             isRequired
             className={spacing.mMd}
             data-testid="https-host-input"
           />
-          <HookFormTextField
+          <HookFormPFTextInput
             control={control}
             label="HTTPS proxy port"
-            id="port"
+            fieldId="port"
             name={HTTPS_PORT}
-            type="number"
             isRequired
+            inputProps={{ type: "number" }}
             className={spacing.mMd}
             data-testid="https-port-input"
           />
