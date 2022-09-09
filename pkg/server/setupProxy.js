@@ -31,8 +31,7 @@ module.exports = function (app) {
           proxyRes.statusCode === 401 ||
           proxyRes.statusMessage === "Unauthorized"
         ) {
-          //TODO fix redirect to /login broken currently. Renders an empty page.
-          res.redirect("/applications");
+          res.redirect("/");
         }
       },
     })
