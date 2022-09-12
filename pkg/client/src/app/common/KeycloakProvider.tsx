@@ -16,14 +16,8 @@ export const KeycloakProvider: React.FunctionComponent<
   IKeycloakProviderProps
 > = ({ children }) => {
   const checkAuthCookie = () => {
-    let currentCookie = getCookie("keycloak_cookie");
-    if (currentCookie !== "" && currentCookie !== null) {
-    } else {
-      currentCookie = keycloak?.token || "";
-
-      if (currentCookie != "" && currentCookie != null) {
-        setCookie("keycloak_cookie", currentCookie, 365);
-      }
+    if (!getCookie("keycloak_cookie") && keycloak?.token) {
+      setCookie("keycloak_cookie", keycloak.token, 365);
     }
   };
   if (isAuthRequired) {
