@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useSessionStorage } from "@migtools/lib-ui";
 import { IFilterValues, FilterCategory } from "../components/FilterToolbar";
 
 export interface IFilterStateHook<T> {
@@ -9,9 +10,12 @@ export interface IFilterStateHook<T> {
 
 export const useFilterState = <T>(
   items: T[],
-  filterCategories: FilterCategory<T>[]
+  filterCategories: FilterCategory<T>[],
+  storageKey?: string
 ): IFilterStateHook<T> => {
-  const [filterValues, setFilterValues] = React.useState<IFilterValues>({});
+  const state = React.useState<IFilterValues>({});
+  const storage = useSessionStorage<IFilterValues>(storageKey || "", {});
+  const [filterValues, setFilterValues] = storageKey ? storage : state;
 
   const filteredItems = items.filter((item) =>
     Object.keys(filterValues).every((categoryKey) => {

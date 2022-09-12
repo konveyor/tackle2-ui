@@ -152,7 +152,8 @@ export const useApplicationsFilterValues = (
 
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
     applications || [],
-    filterCategories
+    filterCategories,
+    "applicationsFilter"
   );
 
   const handleOnClearAllFilters = () => {
