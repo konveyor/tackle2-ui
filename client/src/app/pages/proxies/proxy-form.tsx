@@ -41,7 +41,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useFetchIdentities } from "@app/queries/identities";
 import { isUndefined } from "util";
 import { AxiosError } from "axios";
-import { HookFormPFTextInput } from "@app/shared/components/hook-form-pf-fields";
+import {
+  HookFormPFGroupController,
+  HookFormPFTextArea,
+  HookFormPFTextInput,
+} from "@app/shared/components/hook-form-pf-fields";
 
 export interface ProxyFormValues {
   [IS_HTTP_CHECKED]: string;
@@ -482,70 +486,46 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             onChange={onChangeIsHttpsIdentityRequired}
           />
           {isHttpsIdentityRequired && (
-            <Controller
+            <HookFormPFGroupController
               control={control}
               name={HTTPS_IDENTITY}
-              render={({
-                field: { onChange, onBlur, value, name, ref },
+              label="HTTPS proxy credentials"
+              fieldId={HTTPS_IDENTITY}
+              isRequired={isHttpsIdentityRequired}
+              className={spacing.mMd}
+              renderInput={({
+                field: { onChange, value },
                 fieldState: { isTouched, error },
                 formState,
               }) => (
-                <FormGroup
-                  label="HTTPS proxy credentials"
-                  className={spacing.mMd}
-                  fieldId={HTTPS_IDENTITY}
-                  isRequired={isHttpsIdentityRequired}
+                <SimpleSelect
+                  toggleId="https-proxy-credentials-select-toggle"
+                  aria-label={HTTPS_IDENTITY}
+                  value={value ? value : undefined}
+                  options={identityOptions}
+                  isDisabled={!identityOptions.length}
+                  onChange={(selection) => {
+                    const selectionValue = selection as OptionWithValue<string>;
+                    onChange(selectionValue.value);
+                  }}
                   validated={getValidatedFromErrorTouched(error, isTouched)}
-                  helperTextInvalid={errors.httpsIdentity?.message}
-                >
-                  <SimpleSelect
-                    toggleId="https-proxy-credentials-select-toggle"
-                    aria-label={HTTPS_IDENTITY}
-                    value={value ? value : undefined}
-                    options={identityOptions}
-                    isDisabled={!identityOptions.length}
-                    onChange={(selection) => {
-                      const selectionValue =
-                        selection as OptionWithValue<string>;
-                      onChange(selectionValue.value);
-                    }}
-                  />
-                </FormGroup>
+                />
               )}
             />
           )}
         </>
       )}
       {(isHttpProxy || isHttpsProxy) && (
-        <FormGroup
+        <HookFormPFTextArea
+          control={control}
+          name={EXCLUDED}
           label="Excluded"
           fieldId="excluded"
           isRequired={false}
-          validated={getValidatedFromError(errors.excluded)}
-          helperTextInvalid={errors.excluded?.message}
-        >
-          <Controller
-            control={control}
-            name={EXCLUDED}
-            render={({
-              field: { onChange, onBlur, value, name, ref },
-              fieldState: { isTouched, error },
-              formState,
-            }) => (
-              <TextArea
-                type="text"
-                name="excluded"
-                aria-label="excluded"
-                aria-describedby="excluded"
-                isRequired={false}
-                onChange={onChange}
-                value={value}
-                validated={getValidatedFromErrorTouched(error, isTouched)}
-                placeholder="*.example.com, *.example2.com"
-              />
-            )}
-          />
-        </FormGroup>
+          textAreaProps={{
+            placeholder: "*.example.com, *.example2.com",
+          }}
+        />
       )}
       <ActionGroup>
         <Button

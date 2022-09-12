@@ -25,7 +25,7 @@ export const getValidatedFromError = (
 
 export const getValidatedFromErrorTouched = (
   error: unknown | undefined,
-  touched: boolean
+  touched: boolean | undefined
 ): FormGroupProps["validated"] => {
   return error && touched ? "error" : "default";
 };
