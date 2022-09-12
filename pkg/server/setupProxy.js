@@ -9,7 +9,6 @@ module.exports = function (app) {
       logLevel: process.env.DEBUG ? "debug" : "info",
     })
   );
-
   app.use(
     "/hub",
     createProxyMiddleware({
@@ -20,8 +19,19 @@ module.exports = function (app) {
       },
       logLevel: process.env.DEBUG ? "debug" : "info",
       onProxyReq: (proxyReq, req, res) => {
-        if (req.cookies.proxyToken) {
-          proxyReq.setHeader('Authorization', `Bearer ${req.cookies.proxyToken}`)
+        if (req.cookies.keycloak_cookie && !req.headers["authorization"]) {
+          proxyReq.setHeader(
+            "Authorization",
+            `Bearer ${req.cookies.keycloak_cookie}`
+          );
+        }
+      },
+      onProxyRes: (proxyRes, req, res) => {
+        if (
+          proxyRes.statusCode === 401 ||
+          proxyRes.statusMessage === "Unauthorized"
+        ) {
+          res.redirect("/");
         }
       },
     })
