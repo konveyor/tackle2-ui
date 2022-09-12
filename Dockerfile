@@ -4,6 +4,8 @@ USER 0
 COPY . .
 WORKDIR "/opt/app-root/src" 
 RUN npm install && npm run build -w client
+WORKDIR "/opt/app-root/src/server" 
+RUN npm install
 
 # Runner image
 FROM registry.access.redhat.com/ubi8/nodejs-16-minimal
