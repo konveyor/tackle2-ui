@@ -113,7 +113,7 @@ export const AppRoutes = () => {
             exact={props.exact}
           />
         ))}
-        <Redirect from="/" to="/applications" exact />
+        <Redirect from="*" to="/applications" />
       </Switch>
     </Suspense>
   );
