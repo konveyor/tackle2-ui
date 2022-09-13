@@ -7,7 +7,6 @@ import {
   Form,
   FormGroup,
   Switch,
-  TextArea,
   TextInput,
 } from "@patternfly/react-core";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
@@ -268,11 +267,12 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     }
   };
 
-  // TODO factor out a <RHFTextField> and maybe a <RHFSwitchField>?
-  // TODO use generics on remaining Controllers?
+  // TODO should we use id instead of fieldId? should the HookFormPF components inherit the input component props?
+  // TODO double-check data-testid is getting put on the same elements as before
   // TODO remove the field name constants, make sure TS checks all usages of field names
   // TODO make the boolean fields use true booleans in form state instead of "true" and "false" strings?
   // TODO do we need isHttpProxy / isHttpsProxy in state or can we just use the form state?
+  // TODO use HookFormPFSwitch
 
   return (
     <Form className={spacing.mMd} onSubmit={handleSubmit(onSubmit)}>
@@ -312,67 +312,23 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       />
       {isHttpProxy && (
         <div className={spacing.mlLg}>
-          <FormGroup
+          <HookFormPFTextInput
+            control={control}
+            name={HTTP_HOST}
             label="HTTP proxy host"
             fieldId={HTTP_HOST}
-            isRequired={true}
+            isRequired
             className={spacing.mMd}
-            validated={getValidatedFromError(errors.httpHost)}
-            helperTextInvalid={errors.httpHost?.message}
-          >
-            <Controller
-              control={control}
-              name={HTTP_HOST}
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { isTouched, error },
-                formState,
-              }) => (
-                <TextInput
-                  type="text"
-                  name={HTTP_HOST}
-                  aria-label="httphost"
-                  aria-describedby="httphost"
-                  data-testid="http-host-input"
-                  isRequired={true}
-                  onChange={onChange}
-                  value={value}
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
-                />
-              )}
-            />
-          </FormGroup>
-          <Controller
+            data-testid="http-host-input" // TODO this needs to make it all the way to the <input>
+          />
+          <HookFormPFTextInput
             control={control}
             name={HTTP_PORT}
-            render={({
-              field: { onChange, onBlur, value, name, ref },
-              fieldState: { isTouched, error },
-              formState,
-            }) => (
-              <FormGroup
-                label="HTTP proxy port"
-                type="number"
-                fieldId="port"
-                className={spacing.mMd}
-                isRequired={true}
-                validated={getValidatedFromError(error)}
-                helperTextInvalid={error?.message}
-              >
-                <TextInput
-                  type="number"
-                  name={HTTP_PORT}
-                  aria-label="httpport"
-                  aria-describedby="httpport"
-                  isRequired={true}
-                  onChange={(value, e) => {
-                    onChange((value && parseInt(value, 10)) || "");
-                  }}
-                  value={value}
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
-                />
-              </FormGroup>
-            )}
+            label="HTTP proxy port"
+            fieldId="port"
+            isRequired
+            inputProps={{ type: "number" }}
+            className={spacing.mMd}
           />
           <Switch
             id="http-identity-required"
@@ -388,36 +344,27 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             onChange={onChangeIsHttpIdentityRequired}
           />
           {isHttpIdentityRequired && (
-            <Controller
+            <HookFormPFGroupController
               control={control}
               name={HTTP_IDENTITY}
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { isTouched, error },
-                formState,
-              }) => (
-                <FormGroup
-                  label="HTTP proxy credentials"
-                  className={spacing.mMd}
-                  fieldId={HTTP_IDENTITY}
-                  isRequired={isHttpIdentityRequired}
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
-                  helperTextInvalid={errors.httpIdentity?.message}
-                >
-                  <SimpleSelect
-                    toggleId="http-proxy-credentials-select-toggle"
-                    data-testid="http-proxy-credentials-select-toggle"
-                    aria-label={HTTP_IDENTITY}
-                    value={value ? value : undefined}
-                    options={identityOptions}
-                    isDisabled={!!!identityOptions.length}
-                    onChange={(selection) => {
-                      const selectionValue =
-                        selection as OptionWithValue<string>;
-                      onChange(selectionValue.value);
-                    }}
-                  />
-                </FormGroup>
+              label="HTTP proxy credentials"
+              className={spacing.mMd}
+              fieldId={HTTP_IDENTITY}
+              isRequired
+              renderInput={({ field: { onChange, value } }) => (
+                <SimpleSelect
+                  id={HTTP_IDENTITY}
+                  toggleId="http-proxy-credentials-select-toggle"
+                  data-testid="http-proxy-credentials-select-toggle"
+                  aria-label={HTTP_IDENTITY}
+                  value={value || undefined}
+                  options={identityOptions}
+                  isDisabled={!!!identityOptions.length}
+                  onChange={(selection) => {
+                    const selectionValue = selection as OptionWithValue<string>;
+                    onChange(selectionValue.value);
+                  }}
+                />
               )}
             />
           )}
@@ -460,7 +407,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             name={HTTPS_HOST}
             isRequired
             className={spacing.mMd}
-            data-testid="https-host-input"
+            data-testid="https-host-input" // TODO this needs to make it all the way to the <input>
           />
           <HookFormPFTextInput
             control={control}
