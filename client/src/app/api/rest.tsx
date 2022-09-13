@@ -87,7 +87,11 @@ const buildQuery = (params: any) => {
 
 //Volumes
 // poll clean task
-export const getTaskById = ({ queryKey }): AxiosPromise<Task> => {
+export const getTaskById = ({
+  queryKey,
+}: {
+  queryKey: any;
+}): AxiosPromise<Task> => {
   const [_, processId] = queryKey;
   return axios.get<Task>(`${TASKS}/${processId}`);
 };

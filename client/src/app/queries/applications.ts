@@ -37,7 +37,7 @@ export const useFetchApplications = () => {
       onSuccess: (data: Application[]) => {
         queryClient.invalidateQueries(reviewsQueryKey);
       },
-      onError: (err: AxiosError) => console.log(error),
+      onError: (error: AxiosError) => console.log(error),
     }
   );
   return {
