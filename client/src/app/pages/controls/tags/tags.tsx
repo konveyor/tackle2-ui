@@ -19,7 +19,6 @@ import {
 } from "@patternfly/react-table";
 
 import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 
 import {
@@ -54,6 +53,7 @@ import {
   useDeleteTagTypeMutation,
   useFetchTagTypes,
 } from "@app/queries/tags";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
@@ -64,6 +64,7 @@ const getRow = (rowData: IRowData): TagType => {
 export const Tags: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [isNewTagTypeModalOpen, setIsNewTagTypeModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<TagType>();
@@ -82,9 +83,17 @@ export const Tags: React.FC = () => {
       error.response?.status === 500 &&
       error.response?.data.error === "FOREIGN KEY constraint failed"
     ) {
-      dispatch(alertActions.addDanger("Cannot delete a used tag"));
+      pushNotification({
+        title: "Cannot delete a used tag",
+        variant: "danger",
+        actionClose: true,
+      });
     } else {
-      dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+      pushNotification({
+        title: getAxiosErrorMessage(error),
+        variant: "danger",
+        actionClose: true,
+      });
     }
   };
 
@@ -104,9 +113,17 @@ export const Tags: React.FC = () => {
       error.response?.status === 500 &&
       error.response?.data.error === "FOREIGN KEY constraint failed"
     ) {
-      dispatch(alertActions.addDanger("Cannot delete a used tag"));
+      pushNotification({
+        title: "Cannot delete a used tag",
+        variant: "danger",
+        actionClose: true,
+      });
     } else {
-      dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+      pushNotification({
+        title: getAxiosErrorMessage(error),
+        variant: "danger",
+        actionClose: true,
+      });
     }
   };
 
@@ -360,28 +377,27 @@ export const Tags: React.FC = () => {
   const handleOnCreatedNewTagType = (response: AxiosResponse<TagType>) => {
     setIsNewTagTypeModalOpen(false);
     refetch();
-    dispatch(
-      alertActions.addSuccess(
-        t("toastr.success.added", {
-          what: response.data.name,
-          type: "tag type",
-        })
-      )
-    );
+    pushNotification({
+      title: t("toastr.success.added", {
+        what: response.data.name,
+        type: "tag type",
+      }),
+      variant: "success",
+      actionClose: true,
+    });
   };
 
   const handleOnCreatedNewTag = (response: AxiosResponse<Tag>) => {
     setIsNewTagModalOpen(false);
     refetch();
-
-    dispatch(
-      alertActions.addSuccess(
-        t("toastr.success.added", {
-          what: response.data.name,
-          type: "tag",
-        })
-      )
-    );
+    pushNotification({
+      title: t("toastr.success.added", {
+        what: response.data.name,
+        type: "tag",
+      }),
+      variant: "success",
+      actionClose: true,
+    });
   };
 
   const handleOnCreateNewCancel = () => {

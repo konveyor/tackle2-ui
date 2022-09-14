@@ -14,6 +14,7 @@ import { useQueryClient } from "react-query";
 import { assessmentsQueryKey } from "@app/queries/assessments";
 import { reviewsQueryKey } from "@app/queries/reviews";
 import { ApplicationsQueryKey } from "@app/queries/applications";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export const BulkCopyNotificationsContainer: React.FC = () => {
   // i18
@@ -21,6 +22,8 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
 
   // Redux
   const dispatch = useDispatch();
+
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const queryClient = useQueryClient();
 
@@ -96,13 +99,14 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
       assessmentBulkCopy?.completed === true &&
       (reviewBulkCopyId ? reviewBulkCopy?.completed === true : true)
     ) {
-      dispatch(
-        alertActions.addSuccess(
-          reviewBulkCopyId
-            ? t("toastr.success.assessmentAndReviewCopied")
-            : t("toastr.success.assessmentCopied")
-        )
-      );
+      pushNotification({
+        title: reviewBulkCopyId
+          ? t("toastr.success.assessmentAndReviewCopied")
+          : t("toastr.success.assessmentCopied"),
+        variant: "success",
+        actionClose: true,
+      });
+
       queryClient.invalidateQueries(assessmentsQueryKey);
       queryClient.invalidateQueries(reviewsQueryKey);
       queryClient.invalidateQueries(ApplicationsQueryKey);

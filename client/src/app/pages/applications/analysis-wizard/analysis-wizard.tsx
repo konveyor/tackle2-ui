@@ -15,7 +15,6 @@ import {
   Taskgroup,
   TaskgroupTask,
 } from "@app/api/models";
-import { alertActions } from "@app/store/alert";
 import { CustomRules } from "./custom-rules";
 import { Review } from "./review";
 import { SetMode } from "./set-mode";
@@ -36,6 +35,7 @@ import {
   isApplicationSourceCodeEnabled,
   isModeSupported,
 } from "./utils";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 interface IAnalysisWizard {
   applications: Application[];
@@ -101,6 +101,8 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   const title = t("dialog.title.applicationAnalysis");
   const dispatch = useDispatch();
 
+  const { pushNotification } = React.useContext(NotificationsContext);
+
   const [isInitTaskgroup, setInitTaskgroup] = React.useState(false);
   const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
   const [stepIdReached, setStepIdReached] = React.useState(1);
@@ -118,7 +120,11 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const onCreateTaskgroupError = (error: Error | unknown) => {
     console.log("Taskgroup creation failed: ", error);
-    dispatch(alertActions.addDanger("Taskgroup creation failed"));
+    pushNotification({
+      title: "Taskgroup creation failed",
+      variant: "danger",
+      actionClose: true,
+    });
     onClose();
   };
 
@@ -128,10 +134,19 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   );
 
   const onSubmitTaskgroupSuccess = (data: Taskgroup) =>
-    dispatch(alertActions.addSuccess("Applications", "Submitted for analysis"));
+    pushNotification({
+      title: "Applications",
+      message: "Submitted for analysis",
+      variant: "danger",
+      actionClose: true,
+    });
 
   const onSubmitTaskgroupError = (error: Error | unknown) =>
-    dispatch(alertActions.addDanger("Taskgroup submit failed"));
+    pushNotification({
+      title: "Taskgroup submit failed",
+      variant: "danger",
+      actionClose: true,
+    });
 
   const { mutate: submitTaskgroup } = useSubmitTaskgroupMutation(
     onSubmitTaskgroupSuccess,
@@ -147,7 +162,11 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
 
   const onDeleteTaskgroupError = (error: Error | unknown) => {
     console.log("Taskgroup: delete failed: ", error);
-    dispatch(alertActions.addDanger("Taskgroup: delete failed"));
+    pushNotification({
+      title: "Taskgroup: delete failed",
+      variant: "danger",
+      actionClose: true,
+    });
   };
 
   const { mutate: deleteTaskgroup } = useDeleteTaskgroupMutation(

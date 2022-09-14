@@ -1,7 +1,9 @@
 import React from "react";
 import { Page, SkipToContent } from "@patternfly/react-core";
+
 import { HeaderApp } from "../HeaderApp";
 import { SidebarApp } from "../SidebarApp";
+import { Notifications } from "@app/shared/components/Notifications";
 
 export interface DefaultLayoutProps {}
 
@@ -20,6 +22,7 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
       mainContainerId={pageId}
     >
       {children}
+      <Notifications />
     </Page>
   );
 };

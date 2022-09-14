@@ -28,7 +28,6 @@ import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-ico
 
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@app/store/rootReducer";
-import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 import { bulkCopySelectors } from "@app/store/bulkCopy";
 
@@ -84,6 +83,7 @@ import {
 import { useQueryClient } from "react-query";
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { useAssessApplication } from "@app/shared/hooks/useAssessApplication";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
@@ -99,6 +99,7 @@ export const ApplicationsTable: React.FC = () => {
 
   // Redux
   const dispatch = useDispatch();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   // Router
   const history = useHistory();
@@ -146,15 +147,14 @@ export const ApplicationsTable: React.FC = () => {
 
   const onApplicationModalSaved = (response: AxiosResponse<Application>) => {
     if (!applicationToUpdate) {
-      dispatch(
-        alertActions.addSuccess(
-          // t('terms.application')
-          t("toastr.success.added", {
-            what: response.data.name,
-            type: t("terms.application").toLowerCase(),
-          })
-        )
-      );
+      pushNotification({
+        title: t("toastr.success.added", {
+          what: response.data.name,
+          type: t("terms.application").toLowerCase(),
+        }),
+        variant: "success",
+        actionClose: true,
+      });
     }
 
     closeApplicationModal();
@@ -165,19 +165,23 @@ export const ApplicationsTable: React.FC = () => {
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     dispatch(confirmDialogActions.processing());
     dispatch(confirmDialogActions.closeDialog());
-    dispatch(
-      alertActions.addSuccess(
-        t("toastr.success.applicationDeleted", {
-          appIDCount: appIDCount,
-        })
-      )
-    );
+    pushNotification({
+      title: t("toastr.success.applicationDeleted", {
+        appIDCount: appIDCount,
+      }),
+      variant: "success",
+      actionClose: true,
+    });
     refetch();
   };
 
   const onDeleteApplicationError = (error: AxiosError) => {
     dispatch(confirmDialogActions.closeDialog());
-    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+      actionClose: true,
+    });
   };
 
   // Copy assessment modal
@@ -530,20 +534,25 @@ export const ApplicationsTable: React.FC = () => {
             })
             .then(() => {
               dispatch(confirmDialogActions.closeDialog());
-              dispatch(
-                alertActions.addSuccess(
-                  t("toastr.success.assessmentDiscarded", {
-                    application: row.name,
-                  })
-                )
-              );
+              pushNotification({
+                title: t("toastr.success.assessmentDiscarded", {
+                  application: row.name,
+                }),
+                variant: "success",
+                actionClose: true,
+              });
+
               queryClient.invalidateQueries(assessmentsQueryKey);
               queryClient.invalidateQueries(reviewsQueryKey);
               refetch();
             })
             .catch((error) => {
               dispatch(confirmDialogActions.closeDialog());
-              dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+              pushNotification({
+                title: getAxiosErrorMessage(error),
+                variant: "danger",
+                actionClose: true,
+              });
             });
         },
       })
@@ -554,7 +563,11 @@ export const ApplicationsTable: React.FC = () => {
   const assessSelectedRows = () => {
     if (selectedRows.length !== 1) {
       const msg = "The number of applications to be assess must be 1";
-      dispatch(alertActions.addDanger(msg));
+      pushNotification({
+        title: msg,
+        variant: "danger",
+        actionClose: true,
+      });
       return;
     }
 
@@ -592,7 +605,11 @@ export const ApplicationsTable: React.FC = () => {
         }
       },
       (error) => {
-        dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+        pushNotification({
+          title: getAxiosErrorMessage(error),
+          variant: "danger",
+          actionClose: true,
+        });
       }
     );
   };
@@ -600,7 +617,11 @@ export const ApplicationsTable: React.FC = () => {
   const reviewSelectedRows = () => {
     if (selectedRows.length !== 1) {
       const msg = "The number of applications to be reviewed must be 1";
-      dispatch(alertActions.addDanger(msg));
+      pushNotification({
+        title: msg,
+        variant: "danger",
+        actionClose: true,
+      });
       return;
     }
 
