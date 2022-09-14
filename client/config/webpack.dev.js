@@ -10,7 +10,7 @@ module.exports = merge(common("development"), {
   devtool: "eval-source-map",
   watch: true,
   watchOptions: {
-    ignored: ["**/node_modules"],
+    ignored: ["../node_modules"],
   },
   plugins: [
     new HtmlWebpackPlugin({

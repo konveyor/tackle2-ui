@@ -14,13 +14,13 @@ To install a Tackle2 cluster environment please refer to [Tackle documentation](
 ```
 git clone https://github.com/konveyor/tackle2-ui
 cd tackle2-ui
-npm install -ws && npm install
+npm install
 ```
 
 With a Tackle2 environment available (with kubectl authentication validated)  
-then one can start a tackle-ui instance locallly serving the pages from the current source code: 
+then one can start a tackle2-ui instance locallly serving the pages from the current source code: 
 
-`npm run start:dev:local`
+`npm run start:dev`
 
 If you're using minikube please read on.
 
