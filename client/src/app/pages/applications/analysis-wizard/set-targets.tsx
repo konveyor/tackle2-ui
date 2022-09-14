@@ -15,6 +15,7 @@ import cloudIcon from "@app/images/Icon-Red_Hat-Cloud-A-Black-RGB.svg";
 import serverIcon from "@app/images/Icon-Red_Hat-Server-A-Black-RGB.svg";
 import mugIcon from "@app/images/Icon-Red_Hat-Mug-A-Black-RGB.svg";
 import multiplyIcon from "@app/images/Icon-Red_Hat-Multiply-A-Black-RGB.svg";
+import virtualServerStackIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 
 import { SelectCard } from "./components/select-card";
 import { useFormContext } from "react-hook-form";
@@ -105,6 +106,16 @@ export const SetTargets: React.FunctionComponent = () => {
         "A comprehensive set of rules for migration from Apache Camel 2 to Apache Camel 3.",
       options: new Map([["camel", "camel"]]),
       iconSrc: multiplyIcon,
+    },
+    {
+      label: "Azure",
+      description:
+        "Upgrade your Java application so it can be deployed in different flavors of Azure.",
+      options: new Map([
+        ["azure-appservice", "Azure App Service"],
+        ["azure-aks", "Azure Kubernetes Service"],
+      ]),
+      iconSrc: virtualServerStackIcon,
     },
   ];
 

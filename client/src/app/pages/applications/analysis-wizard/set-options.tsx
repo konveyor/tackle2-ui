@@ -43,6 +43,8 @@ const defaultTargets = [
   "quarkus",
   "resteasy",
   "rhr",
+  "azure-appservice",
+  "azure-aks",
 ];
 
 const defaultSources = [
