@@ -3,31 +3,32 @@ import { FieldValues, Path } from "react-hook-form";
 import { TextInput, TextInputProps } from "@patternfly/react-core";
 import { getValidatedFromErrorTouched } from "@app/utils/utils";
 import {
+  extractGroupControllerProps,
   HookFormPFGroupController,
-  HookFormPFGroupControllerProps,
+  BaseHookFormPFGroupControllerProps,
 } from "./hook-form-pf-group-controller";
 
-export interface HookFormPFTextInputProps<
+export type HookFormPFTextInputProps<
   TFieldValues extends FieldValues,
   TName extends Path<TFieldValues>
-> extends Omit<
-    HookFormPFGroupControllerProps<TFieldValues, TName>,
-    "renderInput"
-  > {
-  inputProps?: TextInputProps;
-}
+> = TextInputProps & BaseHookFormPFGroupControllerProps<TFieldValues, TName>;
 
 export const HookFormPFTextInput = <
   TFieldValues extends FieldValues = FieldValues,
   TName extends Path<TFieldValues> = Path<TFieldValues>
->({
-  inputProps = { type: "text" },
-  ...controlledGroupProps
-}: HookFormPFTextInputProps<TFieldValues, TName>) => {
-  const { fieldId, helperText, isRequired } = controlledGroupProps;
+>(
+  props: HookFormPFTextInputProps<TFieldValues, TName>
+) => {
+  const { extractedProps, remainingProps } = extractGroupControllerProps<
+    TFieldValues,
+    TName,
+    HookFormPFTextInputProps<TFieldValues, TName>
+  >(props);
+  const { fieldId, helperText, isRequired } = extractedProps;
+  const { type } = remainingProps;
   return (
     <HookFormPFGroupController<TFieldValues, TName>
-      {...controlledGroupProps}
+      {...extractedProps}
       renderInput={({
         field: { onChange, onBlur, value, name, ref },
         fieldState: { isTouched, error },
@@ -39,7 +40,7 @@ export const HookFormPFTextInput = <
           aria-describedby={helperText ? `${fieldId}-helper` : undefined}
           isRequired={isRequired}
           onChange={(value) => {
-            if (inputProps.type === "number") {
+            if (type === "number") {
               onChange((value && parseInt(value, 10)) || "");
             } else {
               onChange(value);
@@ -48,7 +49,7 @@ export const HookFormPFTextInput = <
           onBlur={onBlur}
           value={value}
           validated={getValidatedFromErrorTouched(error, isTouched)}
-          {...inputProps}
+          {...remainingProps}
         />
       )}
     />

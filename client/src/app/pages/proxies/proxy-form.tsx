@@ -5,14 +5,11 @@ import {
   Button,
   ButtonVariant,
   Form,
-  FormGroup,
   Switch,
-  TextInput,
 } from "@patternfly/react-core";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import {
   getAxiosErrorMessage,
-  getValidatedFromError,
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
 import { useProxyFormValidationSchema } from "./proxies-validation-schema";
@@ -38,7 +35,6 @@ import {
 } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useFetchIdentities } from "@app/queries/identities";
-import { isUndefined } from "util";
 import { AxiosError } from "axios";
 import {
   HookFormPFGroupController,
@@ -267,8 +263,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     }
   };
 
-  // TODO should we use id instead of fieldId? should the HookFormPF components inherit the input component props?
-  // TODO double-check data-testid is getting put on the same elements as before
+  // TODO also use new components on identity-form
   // TODO remove the field name constants, make sure TS checks all usages of field names
   // TODO make the boolean fields use true booleans in form state instead of "true" and "false" strings?
   // TODO do we need isHttpProxy / isHttpsProxy in state or can we just use the form state?
@@ -319,7 +314,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             fieldId={HTTP_HOST}
             isRequired
             className={spacing.mMd}
-            data-testid="http-host-input" // TODO this needs to make it all the way to the <input>
+            data-testid="http-host-input"
           />
           <HookFormPFTextInput
             control={control}
@@ -327,7 +322,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             label="HTTP proxy port"
             fieldId="port"
             isRequired
-            inputProps={{ type: "number" }}
+            type="number"
             className={spacing.mMd}
           />
           <Switch
@@ -407,7 +402,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             name={HTTPS_HOST}
             isRequired
             className={spacing.mMd}
-            data-testid="https-host-input" // TODO this needs to make it all the way to the <input>
+            data-testid="https-host-input"
           />
           <HookFormPFTextInput
             control={control}
@@ -415,7 +410,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             fieldId="port"
             name={HTTPS_PORT}
             isRequired
-            inputProps={{ type: "number" }}
+            type="number"
             className={spacing.mMd}
             data-testid="https-port-input"
           />
@@ -468,10 +463,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           name={EXCLUDED}
           label="Excluded"
           fieldId="excluded"
-          isRequired={false}
-          textAreaProps={{
-            placeholder: "*.example.com, *.example2.com",
-          }}
+          placeholder="*.example.com, *.example2.com"
         />
       )}
       <ActionGroup>

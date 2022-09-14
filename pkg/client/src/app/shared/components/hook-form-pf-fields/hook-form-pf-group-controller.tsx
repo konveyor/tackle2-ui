@@ -9,8 +9,9 @@ import {
 } from "react-hook-form";
 import { getValidatedFromErrorTouched } from "@app/utils/utils";
 
-// Generic type params here are the same as the ones used by react-hook-form's <Controller>
-export interface HookFormPFGroupControllerProps<
+// We have separate interfaces for these props with and without `renderInput` for convenience.
+// Generic type params here are the same as the ones used by react-hook-form's <Controller>.
+export interface BaseHookFormPFGroupControllerProps<
   TFieldValues extends FieldValues,
   TName extends Path<TFieldValues>
 > {
@@ -22,6 +23,12 @@ export interface HookFormPFGroupControllerProps<
   helperText?: React.ReactNode;
   className?: string;
   formGroupProps?: FormGroupProps;
+}
+
+export interface HookFormPFGroupControllerProps<
+  TFieldValues extends FieldValues,
+  TName extends Path<TFieldValues>
+> extends BaseHookFormPFGroupControllerProps<TFieldValues, TName> {
   renderInput: ControllerProps<TFieldValues, TName>["render"];
 }
 
@@ -61,3 +68,43 @@ export const HookFormPFGroupController = <
     }}
   />
 );
+
+// Utility for pulling props needed by this component and passing the rest to a rendered input
+export const extractGroupControllerProps = <
+  TFieldValues extends FieldValues,
+  TName extends Path<TFieldValues>,
+  TProps extends BaseHookFormPFGroupControllerProps<TFieldValues, TName>
+>(
+  props: TProps
+): {
+  extractedProps: BaseHookFormPFGroupControllerProps<TFieldValues, TName>;
+  remainingProps: Omit<
+    TProps,
+    keyof BaseHookFormPFGroupControllerProps<TFieldValues, TName>
+  >;
+} => {
+  const {
+    control,
+    label,
+    name,
+    fieldId,
+    isRequired,
+    helperText,
+    className,
+    formGroupProps,
+    ...remainingProps
+  } = props;
+  return {
+    extractedProps: {
+      control,
+      label,
+      name,
+      fieldId,
+      isRequired,
+      helperText,
+      className,
+      formGroupProps,
+    },
+    remainingProps,
+  };
+};

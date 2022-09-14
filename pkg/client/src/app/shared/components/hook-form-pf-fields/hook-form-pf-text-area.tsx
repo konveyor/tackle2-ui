@@ -4,30 +4,30 @@ import { TextArea, TextAreaProps } from "@patternfly/react-core";
 import { getValidatedFromErrorTouched } from "@app/utils/utils";
 import {
   HookFormPFGroupController,
-  HookFormPFGroupControllerProps,
+  BaseHookFormPFGroupControllerProps,
+  extractGroupControllerProps,
 } from "./hook-form-pf-group-controller";
 
-export interface HookFormPFTextAreaProps<
+export type HookFormPFTextAreaProps<
   TFieldValues extends FieldValues,
   TName extends Path<TFieldValues>
-> extends Omit<
-    HookFormPFGroupControllerProps<TFieldValues, TName>,
-    "renderInput"
-  > {
-  textAreaProps?: TextAreaProps;
-}
+> = TextAreaProps & BaseHookFormPFGroupControllerProps<TFieldValues, TName>;
 
 export const HookFormPFTextArea = <
   TFieldValues extends FieldValues = FieldValues,
   TName extends Path<TFieldValues> = Path<TFieldValues>
->({
-  textAreaProps = {},
-  ...controlledGroupProps
-}: HookFormPFTextAreaProps<TFieldValues, TName>) => {
-  const { fieldId, helperText, isRequired } = controlledGroupProps;
+>(
+  props: HookFormPFTextAreaProps<TFieldValues, TName>
+) => {
+  const { extractedProps, remainingProps } = extractGroupControllerProps<
+    TFieldValues,
+    TName,
+    HookFormPFTextAreaProps<TFieldValues, TName>
+  >(props);
+  const { fieldId, helperText, isRequired } = extractedProps;
   return (
     <HookFormPFGroupController<TFieldValues, TName>
-      {...controlledGroupProps}
+      {...extractedProps}
       renderInput={({
         field: { onChange, onBlur, value, name, ref },
         fieldState: { isTouched, error },
@@ -42,7 +42,7 @@ export const HookFormPFTextArea = <
           onBlur={onBlur}
           value={value}
           validated={getValidatedFromErrorTouched(error, isTouched)}
-          {...textAreaProps}
+          {...remainingProps}
         />
       )}
     />
