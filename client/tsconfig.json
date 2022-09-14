@@ -26,7 +26,7 @@
     "baseUrl": ".",
     "paths": {
       "@app/*": ["src/app/*"],
-      "@assets/*": ["node_modules/@patternfly/react-core/dist/styles/assets/*"]
+      "@assets/*": ["../node_modules/@patternfly/react-core/dist/styles/assets/*"]
     },
     "skipLibCheck": true,
     "strict": true, // Includes alwaysStrict and noImplicitAny
