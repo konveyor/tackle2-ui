@@ -3,9 +3,7 @@ FROM registry.access.redhat.com/ubi8/nodejs-16 as builder
 USER 0
 COPY . .
 WORKDIR "/opt/app-root/src" 
-RUN npm install && npm run build -w client
-WORKDIR "/opt/app-root/src/server" 
-RUN npm install
+RUN npm install -w client && npm run build -w client && rm -rf node_modules && npm install -w server
 
 # Runner image
 FROM registry.access.redhat.com/ubi8/nodejs-16-minimal
@@ -36,6 +34,7 @@ LABEL name="konveyor/tackle2-ui" \
 COPY --from=builder /opt/app-root/src/client/dist /opt/app-root/src/client/dist
 COPY --from=builder /opt/app-root/src/client/dist/index.html.ejs /opt/app-root/src/server/views/index.html.ejs
 COPY --from=builder /opt/app-root/src/server /opt/app-root/src/server
+COPY --from=builder /opt/app-root/src/node_modules /opt/app-root/src/node_modules
 COPY --from=builder /opt/app-root/src/entrypoint.sh /usr/bin/entrypoint.sh
 
 ENV DEBUG=1
