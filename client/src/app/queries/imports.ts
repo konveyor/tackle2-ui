@@ -18,7 +18,7 @@ export const useFetchImports = (
   const { data, isLoading, error, refetch } = useQuery(
     [ImportsQueryKey, importSummaryID, isValid],
     () => getApplicationImports(importSummaryID, isValid),
-    { onError: (err: Error) => console.log(error) }
+    { onError: (error) => console.log(error) }
   );
   return {
     imports: data || [],
@@ -34,7 +34,7 @@ export const useFetchImportSummaries = () => {
     getApplicationsImportSummary,
     {
       refetchInterval: 5000,
-      onError: (err: Error) => console.log(error),
+      onError: (error) => console.log(error),
     }
   );
   return {
@@ -49,7 +49,7 @@ export const useFetchImportSummaryByID = (id: number | string) => {
   const { data, isLoading, error, refetch } = useQuery(
     [ImportQueryKey, id],
     () => getApplicationImportSummaryById(id),
-    { onError: (err: Error) => console.log(error) }
+    { onError: (error) => console.log(error) }
   );
 
   return {

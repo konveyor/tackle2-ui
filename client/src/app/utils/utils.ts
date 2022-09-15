@@ -77,7 +77,7 @@ export const duplicateNameCheck = <T extends { name?: string }>(
   nameValue: T["name"]
 ) => duplicateFieldCheck("name", itemList, currentItem, nameValue);
 
-export const dedupeFunction = (arr) =>
+export const dedupeFunction = (arr: any[]) =>
   arr?.filter(
     (value, index, self) =>
       index === self.findIndex((t) => t.value === value.value)

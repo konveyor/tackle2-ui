@@ -195,7 +195,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     let standardUrlRegex =
       /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
     standardUrlRegex = new RegExp(standardUrlRegex);
-    const containsURL = (string) =>
+    const containsURL = (string: string) =>
       gitUrlRegex.test(string) || standardUrlRegex.test(string);
 
     return schema.test("gitUrlTest", "Must be a valid URL.", (value) => {

@@ -17,7 +17,7 @@ import "@testing-library/jest-dom";
 
 jest.mock("react-i18next");
 
-const data = [];
+const data: any[] = [];
 
 mock.onGet(`${IDENTITIES}`).reply(200, data);
 
