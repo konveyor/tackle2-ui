@@ -12,6 +12,7 @@
 # production
 /client/dist
 /qa/build
+/dist
 
 # misc
 .DS_Store

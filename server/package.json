@@ -4,6 +4,7 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
+    "@types/express": "^4.17.13",
     "@types/ejs": "^3.1.0",
     "ejs": "^3.1.7",
     "cookie-parser": "^1.4.6",
@@ -12,8 +13,5 @@
   },
   "scripts": {
     "start": "node index.js"
-  },
-  "devDependencies": {
-    "@types/express": "^4.17.13"
   }
 }
