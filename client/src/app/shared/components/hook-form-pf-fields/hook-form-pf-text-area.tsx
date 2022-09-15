@@ -24,7 +24,7 @@ export const HookFormPFTextArea = <
     TName,
     HookFormPFTextAreaProps<TFieldValues, TName>
   >(props);
-  const { fieldId, helperText, isRequired } = extractedProps;
+  const { fieldId, helperText, isRequired, errorsSuppressed } = extractedProps;
   return (
     <HookFormPFGroupController<TFieldValues, TName>
       {...extractedProps}
@@ -41,7 +41,11 @@ export const HookFormPFTextArea = <
           onChange={onChange}
           onBlur={onBlur}
           value={value}
-          validated={getValidatedFromErrorTouched(error, isTouched)}
+          validated={
+            errorsSuppressed
+              ? "default"
+              : getValidatedFromErrorTouched(error, isTouched)
+          }
           {...remainingProps}
         />
       )}

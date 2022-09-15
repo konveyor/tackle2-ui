@@ -38,6 +38,10 @@ import KeyDisplayToggle from "@app/common/KeyDisplayToggle";
 
 import { XMLValidator } from "fast-xml-parser";
 import { XMLLintValidationResult } from "./validateXML";
+import {
+  HookFormPFGroupController,
+  HookFormPFTextInput,
+} from "@app/shared/components/hook-form-pf-fields";
 
 interface IdentityFormValues {
   application: number;
@@ -386,415 +390,242 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           title={getAxiosErrorMessage(axiosError)}
         />
       )}
-      <FormGroup
+      <HookFormPFTextInput
+        control={control}
+        name="name"
         label="Name"
         fieldId="name"
-        isRequired={true}
-        validated={getValidatedFromError(errors.name)}
-        helperTextInvalid={errors?.name?.message}
-      >
-        <Controller
-          control={control}
-          name="name"
-          render={({
-            field: { onChange, onBlur, value, name, ref },
-            fieldState: { isTouched, error },
-            formState,
-          }) => (
-            <TextInput
-              onChange={onChange}
-              type="text"
-              name={name}
-              aria-label="name"
-              aria-describedby="name"
-              isRequired={true}
-              value={value}
-              validated={getValidatedFromErrorTouched(error, isTouched)}
-            />
-          )}
-        />
-      </FormGroup>
-      <FormGroup
+        isRequired
+      />
+      <HookFormPFTextInput
+        control={control}
+        name="description"
         label="Description"
         fieldId="description"
-        isRequired={false}
-        validated={getValidatedFromError(errors.description)}
-        helperTextInvalid={errors?.description?.message}
-      >
-        <Controller
-          control={control}
-          name="description"
-          render={({
-            field: { onChange, onBlur, value, name, ref },
-            fieldState: { invalid, isTouched, isDirty, error },
-            formState,
-          }) => (
-            <TextInput
-              type="text"
-              name={name}
-              aria-label="description"
-              aria-describedby="description"
-              isRequired={true}
-              onChange={onChange}
-              onBlur={onBlur}
-              value={value}
-              validated={getValidatedFromErrorTouched(error, isTouched)}
-            />
-          )}
-        />
-      </FormGroup>
-      <FormGroup
+        isRequired
+      />
+
+      <HookFormPFGroupController
+        control={control}
+        name="kind"
         label="Type"
         fieldId="kind"
-        isRequired={true}
-        validated={errors.kind && "error"}
-        helperTextInvalid={errors?.kind && "This field is required"}
-      >
-        <Controller
-          control={control}
-          name="kind"
-          render={({ field: { value, name } }) => (
-            <SimpleSelect
-              toggleAriaLabel="credential-type-dropdown"
-              toggleId="type-select-toggle"
-              aria-label={name}
-              value={value ? toOptionLike(value, kindOptions) : undefined}
-              options={kindOptions}
-              onChange={(selection) => {
-                const selectionValue = selection as OptionWithValue<string>;
-                setValue(name, selectionValue.value);
-                // So we don't retain the values from the wrong type of credential
-                setValue("user", "");
-                setValue("password", "");
-              }}
-            />
-          )}
-        />
-      </FormGroup>
+        isRequired
+        renderInput={({ field: { value, name } }) => (
+          <SimpleSelect
+            toggleAriaLabel="credential-type-dropdown"
+            toggleId="type-select-toggle"
+            aria-label={name}
+            value={value ? toOptionLike(value, kindOptions) : undefined}
+            options={kindOptions}
+            onChange={(selection) => {
+              const selectionValue = selection as OptionWithValue<string>;
+              setValue(name, selectionValue.value);
+              // So we don't retain the values from the wrong type of credential
+              setValue("user", "");
+              setValue("password", "");
+            }}
+          />
+        )}
+      />
+
       {values?.kind === "source" && (
         <>
-          <FormGroup
+          <HookFormPFGroupController
+            control={control}
+            name="userCredentials"
             label="User credentials"
             isRequired
             fieldId="userCredentials"
-            validated={errors.userCredentials && "error"}
-            helperTextInvalid={
-              errors?.userCredentials && "This field is required"
-            }
-          >
-            <Controller
-              control={control}
-              name="userCredentials"
-              render={({ field: { value, name } }) => (
-                <SimpleSelect
-                  toggleAriaLabel="user-credentials-dropdown"
-                  toggleId="user-credentials-select-toggle"
-                  aria-label={name}
-                  value={
-                    value
-                      ? toOptionLike(value, userCredentialsOptions)
-                      : undefined
-                  }
-                  options={userCredentialsOptions}
-                  onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<string>;
-                    setValue(name, selectionValue.value);
-                    // So we don't retain the values from the wrong type of credential
-                    setValue("user", "");
-                    setValue("password", "");
-                  }}
-                />
-              )}
-            />
-          </FormGroup>
+            renderInput={({ field: { value, name } }) => (
+              <SimpleSelect
+                toggleAriaLabel="user-credentials-dropdown"
+                toggleId="user-credentials-select-toggle"
+                aria-label={name}
+                value={
+                  value
+                    ? toOptionLike(value, userCredentialsOptions)
+                    : undefined
+                }
+                options={userCredentialsOptions}
+                onChange={(selection) => {
+                  const selectionValue = selection as OptionWithValue<string>;
+                  setValue(name, selectionValue.value);
+                  // So we don't retain the values from the wrong type of credential
+                  setValue("user", "");
+                  setValue("password", "");
+                }}
+              />
+            )}
+          />
           {values?.userCredentials === "userpass" && (
             <>
-              <FormGroup
+              <HookFormPFTextInput
+                control={control}
+                name="user"
                 label="Username"
                 fieldId="user"
-                isRequired={true}
-                validated={getValidatedFromError(errors.user)}
-                helperTextInvalid={errors?.user?.message}
-              >
-                <Controller
-                  control={control}
-                  name="user"
-                  render={({
-                    field: { onChange, onBlur, value, name, ref },
-                    fieldState: { isTouched, error },
-                  }) => (
-                    <TextInput
-                      type="text"
-                      name={name}
-                      aria-label="user"
-                      aria-describedby="user"
-                      isRequired={true}
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      value={value}
-                      validated={getValidatedFromErrorTouched(error, isTouched)}
-                    />
-                  )}
-                />
-              </FormGroup>
-              <FormGroup
-                label="Password"
-                {...(!isPasswordEncrypted
-                  ? {
-                      labelIcon: (
-                        <KeyDisplayToggle
-                          keyName="password"
-                          isKeyHidden={isPasswordHidden}
-                          onClick={toggleHidePassword}
-                        />
-                      ),
-                    }
-                  : {})}
-                fieldId="password"
-                isRequired={true}
-                validated={getValidatedFromError(errors.password)}
-                helperTextInvalid={errors?.password?.message}
-              >
-                <Controller
-                  control={control}
-                  name="password"
-                  render={({
-                    field: { onChange, onBlur, value, name, ref },
-                    fieldState: { isTouched, error },
-                  }) => (
-                    <TextInput
-                      type={isPasswordHidden ? "password" : "text"}
-                      name={name}
-                      aria-label="password"
-                      aria-describedby="password"
-                      isRequired={true}
-                      onChange={onChange}
-                      onFocus={() => {
-                        onChange("");
-                      }}
-                      onBlur={onBlur}
-                      value={value}
-                      validated={getValidatedFromErrorTouched(error, isTouched)}
-                    />
-                  )}
-                />
-              </FormGroup>
-            </>
-          )}
-          {values?.userCredentials === "source" && (
-            <>
-              <FormGroup
-                fieldId="key"
-                label={
-                  "Upload your [SCM Private Key] file or paste its contents below."
-                }
-                validated={getValidatedFromError(errors.key)}
-                helperTextInvalid={!isLoading && errors?.key?.message}
                 isRequired
-                //TODO: PKI crypto validation
-                // validated={isFileRejected ? "error" : "default"}
-              >
-                <Controller
-                  control={control}
-                  name="key"
-                  render={({ field: { onChange, value, name } }) => (
-                    <FileUpload
-                      data-testid="drop-input"
-                      id="file"
-                      name={name}
-                      type="text"
-                      aria-label="source-key-upload"
-                      value={
-                        value
-                          ? value !== identity?.key
-                            ? value
-                            : "[Encrypted]"
-                          : ""
-                      }
-                      filename={values.keyFilename}
-                      onChange={(value, filename) => {
-                        onChange(value);
-                        setValue("keyFilename", filename);
-                      }}
-                      dropzoneProps={{
-                        // accept: ".csv",
-                        //TODO: key file extention types
-                        onDropRejected: handleFileRejected,
-                      }}
-                      validated={isFileRejected ? "error" : "default"}
-                      filenamePlaceholder="Drag and drop a file or upload one"
-                      onClearClick={() => {
-                        onChange("");
-                        setValue("keyFilename", "");
-                      }}
-                      allowEditingUploadedText
-                      browseButtonText="Upload"
-                    />
-                  )}
-                />
-              </FormGroup>
-              <FormGroup
-                label="Private Key Passphrase"
+              />
+              <HookFormPFTextInput
+                control={control}
+                name="password"
+                label="Password"
                 fieldId="password"
-                {...(!isPasswordEncrypted
-                  ? {
-                      labelIcon: (
-                        <KeyDisplayToggle
-                          keyName="password"
-                          isKeyHidden={isPasswordHidden}
-                          onClick={toggleHidePassword}
-                        />
-                      ),
-                    }
-                  : {})}
-              >
-                <Controller
-                  control={control}
-                  name="password"
-                  render={({ field: { onChange, onBlur, value, name } }) => (
-                    <TextInput
-                      type={isPasswordHidden ? "password" : "text"}
-                      name={name}
-                      aria-label="private-key-passphrase"
-                      aria-describedby="private-key-passphrase"
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      onFocus={() => {
-                        onChange("");
-                      }}
-                      value={value}
-                    />
-                  )}
-                />
-              </FormGroup>
-            </>
-          )}
-        </>
-      )}
-      {values?.kind === "maven" && (
-        <>
-          <FormGroup
-            fieldId="settings"
-            label={"Upload your Settings file or paste its contents below."}
-            isRequired={values.kind === "maven"}
-            validated={getValidatedFromError(errors.settings)}
-            helperTextInvalid={!isLoading && errors?.settings?.message}
-          >
-            <Controller
-              control={control}
-              name="settings"
-              render={({ field: { onChange, value, name } }) => (
-                <FileUpload
-                  aria-label="maven-settings-upload"
-                  id="file"
-                  name={name}
-                  type="text"
-                  value={
-                    value
-                      ? value !== identity?.settings
-                        ? value
-                        : "[Encrypted]"
-                      : ""
-                  }
-                  filename={values.settingsFilename}
-                  onChange={(fileContents, fileName, event) => {
-                    onChange(fileContents);
-                    setValue("settingsFilename", fileName);
-                  }}
-                  dropzoneProps={{
-                    accept: ".xml",
-                    onDropRejected: handleFileRejected,
-                  }}
-                  validated={isSettingsFileRejected ? "error" : "default"}
-                  filenamePlaceholder="Drag and drop a file or upload one"
-                  onClearClick={() => {
-                    onChange("");
-                    setValue("settingsFilename", "");
-                  }}
-                  onReadStarted={() => setIsLoading(true)}
-                  onReadFinished={() => setIsLoading(false)}
-                  isLoading={isLoading}
-                  allowEditingUploadedText
-                  browseButtonText="Upload"
-                />
-              )}
-            />
-          </FormGroup>
-        </>
-      )}
-
-      {values?.kind === "proxy" && (
-        <>
-          <FormGroup
-            label="Username"
-            fieldId="user"
-            isRequired={true}
-            validated={getValidatedFromError(errors.user)}
-            helperTextInvalid={errors?.user?.message}
-          >
-            <Controller
-              control={control}
-              name="user"
-              render={({
-                field: { onChange, onBlur, value },
-                fieldState: { isTouched, error },
-              }) => (
-                <TextInput
-                  type="text"
-                  name="user"
-                  aria-label="proxy-user"
-                  aria-describedby="user"
-                  isRequired={true}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                  value={value}
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
-                />
-              )}
-            />
-          </FormGroup>
-          <FormGroup
-            label="Password"
-            {...(!isPasswordEncrypted
-              ? {
-                  labelIcon: (
+                isRequired
+                formGroupProps={{
+                  labelIcon: !isPasswordEncrypted ? (
                     <KeyDisplayToggle
                       keyName="password"
                       isKeyHidden={isPasswordHidden}
                       onClick={toggleHidePassword}
                     />
-                  ),
-                }
-              : {})}
-            fieldId="password"
-            isRequired={true}
-            validated={getValidatedFromError(errors.password)}
-            helperTextInvalid={errors?.password?.message}
-          >
-            <Controller
-              control={control}
-              name="password"
-              render={({
-                field: { onChange, onBlur, value, name, ref },
-                fieldState: { isTouched, error },
-              }) => (
-                <TextInput
-                  type={isPasswordHidden ? "password" : "text"}
-                  name={name}
-                  aria-label="proxy-password"
-                  aria-describedby="password"
-                  isRequired={true}
-                  onChange={onChange}
-                  onFocus={() => {
-                    onChange("");
-                  }}
-                  onBlur={onBlur}
-                  value={value}
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
-                />
-              )}
+                  ) : undefined,
+                }}
+                type={isPasswordHidden ? "password" : "text"}
+                onFocus={() => setValue("password", "")}
+              />
+            </>
+          )}
+          {values?.userCredentials === "source" && (
+            <>
+              <HookFormPFGroupController
+                control={control}
+                name="key"
+                fieldId="key"
+                label="Upload your [SCM Private Key] file or paste its contents below."
+                errorsSuppressed={isLoading}
+                isRequired
+                // TODO: PKI crypto validation
+                // formGroupProps={isFileRejected ? { validated: "error" } : {}}
+                renderInput={({ field: { onChange, value, name } }) => (
+                  <FileUpload
+                    data-testid="drop-input"
+                    id="file"
+                    name={name}
+                    type="text"
+                    aria-label="source-key-upload"
+                    value={
+                      value
+                        ? value !== identity?.key
+                          ? value
+                          : "[Encrypted]"
+                        : ""
+                    }
+                    filename={values.keyFilename}
+                    onChange={(value, filename) => {
+                      onChange(value);
+                      setValue("keyFilename", filename);
+                    }}
+                    dropzoneProps={{
+                      // accept: ".csv",
+                      //TODO: key file extention types
+                      onDropRejected: handleFileRejected,
+                    }}
+                    validated={isFileRejected ? "error" : "default"}
+                    filenamePlaceholder="Drag and drop a file or upload one"
+                    onClearClick={() => {
+                      onChange("");
+                      setValue("keyFilename", "");
+                    }}
+                    allowEditingUploadedText
+                    browseButtonText="Upload"
+                  />
+                )}
+              />
+              <HookFormPFTextInput
+                control={control}
+                name="password"
+                label="Private Key Passphrase"
+                fieldId="password"
+                type={isPasswordHidden ? "password" : "text"}
+                formGroupProps={{
+                  labelIcon: !isPasswordEncrypted ? (
+                    <KeyDisplayToggle
+                      keyName="password"
+                      isKeyHidden={isPasswordHidden}
+                      onClick={toggleHidePassword}
+                    />
+                  ) : undefined,
+                }}
+                onFocus={() => setValue("password", "")}
+              />
+            </>
+          )}
+        </>
+      )}
+      {values?.kind === "maven" && (
+        <HookFormPFGroupController
+          control={control}
+          name="settings"
+          fieldId="settings"
+          label="Upload your Settings file or paste its contents below."
+          isRequired={values.kind === "maven"}
+          errorsSuppressed={isLoading}
+          renderInput={({ field: { onChange, value, name } }) => (
+            <FileUpload
+              aria-label="maven-settings-upload"
+              id="file"
+              name={name}
+              type="text"
+              value={
+                value
+                  ? value !== identity?.settings
+                    ? value
+                    : "[Encrypted]"
+                  : ""
+              }
+              filename={values.settingsFilename}
+              onChange={(fileContents, fileName, event) => {
+                onChange(fileContents);
+                setValue("settingsFilename", fileName);
+              }}
+              dropzoneProps={{
+                accept: ".xml",
+                onDropRejected: handleFileRejected,
+              }}
+              validated={isSettingsFileRejected ? "error" : "default"}
+              filenamePlaceholder="Drag and drop a file or upload one"
+              onClearClick={() => {
+                onChange("");
+                setValue("settingsFilename", "");
+              }}
+              onReadStarted={() => setIsLoading(true)}
+              onReadFinished={() => setIsLoading(false)}
+              isLoading={isLoading}
+              allowEditingUploadedText
+              browseButtonText="Upload"
             />
-          </FormGroup>
+          )}
+        />
+      )}
+
+      {values?.kind === "proxy" && (
+        <>
+          <HookFormPFTextInput
+            control={control}
+            name="user"
+            label="Username"
+            fieldId="user"
+            isRequired
+          />
+          <HookFormPFTextInput
+            control={control}
+            name="password"
+            label="Password"
+            fieldId="password"
+            type={isPasswordHidden ? "password" : "text"}
+            formGroupProps={{
+              labelIcon: !isPasswordEncrypted ? (
+                <KeyDisplayToggle
+                  keyName="password"
+                  isKeyHidden={isPasswordHidden}
+                  onClick={toggleHidePassword}
+                />
+              ) : undefined,
+            }}
+            onFocus={() => setValue("password", "")}
+          />
         </>
       )}
 

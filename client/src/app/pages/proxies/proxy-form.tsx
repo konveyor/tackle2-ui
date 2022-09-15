@@ -263,7 +263,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     }
   };
 
-  // TODO also use new components on identity-form
   // TODO remove the field name constants, make sure TS checks all usages of field names
   // TODO make the boolean fields use true booleans in form state instead of "true" and "false" strings?
   // TODO do we need isHttpProxy / isHttpsProxy in state or can we just use the form state?

@@ -24,7 +24,7 @@ export const HookFormPFTextInput = <
     TName,
     HookFormPFTextInputProps<TFieldValues, TName>
   >(props);
-  const { fieldId, helperText, isRequired } = extractedProps;
+  const { fieldId, helperText, isRequired, errorsSuppressed } = extractedProps;
   const { type } = remainingProps;
   return (
     <HookFormPFGroupController<TFieldValues, TName>
@@ -48,7 +48,11 @@ export const HookFormPFTextInput = <
           }}
           onBlur={onBlur}
           value={value}
-          validated={getValidatedFromErrorTouched(error, isTouched)}
+          validated={
+            errorsSuppressed
+              ? "default"
+              : getValidatedFromErrorTouched(error, isTouched)
+          }
           {...remainingProps}
         />
       )}

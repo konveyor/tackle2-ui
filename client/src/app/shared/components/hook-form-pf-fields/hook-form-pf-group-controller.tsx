@@ -20,6 +20,7 @@ export interface BaseHookFormPFGroupControllerProps<
   name: TName;
   fieldId: string;
   isRequired?: boolean;
+  errorsSuppressed?: boolean;
   helperText?: React.ReactNode;
   className?: string;
   formGroupProps?: FormGroupProps;
@@ -41,6 +42,7 @@ export const HookFormPFGroupController = <
   name,
   fieldId,
   isRequired = false,
+  errorsSuppressed = false,
   helperText,
   className,
   formGroupProps = {},
@@ -57,9 +59,13 @@ export const HookFormPFGroupController = <
           fieldId={fieldId}
           className={className}
           isRequired={isRequired}
-          validated={getValidatedFromErrorTouched(error, isTouched)}
+          validated={
+            errorsSuppressed
+              ? "default"
+              : getValidatedFromErrorTouched(error, isTouched)
+          }
           helperText={helperText}
-          helperTextInvalid={error?.message}
+          helperTextInvalid={errorsSuppressed ? null : error?.message}
           {...formGroupProps}
         >
           {renderInput({ field, fieldState, formState })}
@@ -89,6 +95,7 @@ export const extractGroupControllerProps = <
     name,
     fieldId,
     isRequired,
+    errorsSuppressed,
     helperText,
     className,
     formGroupProps,
@@ -101,6 +108,7 @@ export const extractGroupControllerProps = <
       name,
       fieldId,
       isRequired,
+      errorsSuppressed,
       helperText,
       className,
       formGroupProps,
