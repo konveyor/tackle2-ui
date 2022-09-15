@@ -21,7 +21,7 @@ import "@testing-library/jest-dom";
 import { BusinessService } from "@app/api/models";
 
 jest.mock("react-i18next");
-const data = [];
+const data: any[] = [];
 mock.onGet(`${BUSINESS_SERVICES}`).reply(200, data);
 mock.onGet(`${TAG_TYPES}`).reply(200, data);
 mock.onGet(`${APPLICATIONS}`).reply(200, data);

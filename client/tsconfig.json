@@ -2,12 +2,8 @@
   "include": ["src/**/*"],
   "compilerOptions": {
     "outDir": "dist",
-    "target": "es5",  
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "sourceMap": true,
     "allowJs": true,
     "checkJs": true,
@@ -21,7 +17,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
@@ -36,6 +32,6 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
-    "noEmit": true 
-  },
+    "noEmit": true
+  }
 }

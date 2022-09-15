@@ -29,7 +29,13 @@ export const useFetchVolumes = (): IVolumeFetchState => {
   };
 };
 
-export const useCleanRepositoryMutation = ({ onSuccess, onError }) => {
+export const useCleanRepositoryMutation = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess: any;
+  onError: any;
+}) => {
   // Mutation to kick off the clean task
   const {
     data: mutationResult,

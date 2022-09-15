@@ -27,7 +27,7 @@ export const useFetchProxies = (
   const { isLoading, data, error } = useQuery(
     "proxies",
     async () => (await getProxies()).data,
-    { onError: () => console.log("error, ", error) }
+    { onError: (error) => console.log("error, ", error) }
   );
   return {
     proxies: data || [],

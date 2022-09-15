@@ -168,7 +168,11 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
     setReadFileData((prevReadFiles) => [...prevReadFiles, newFile]);
   };
 
-  const handleReadFail = (error: DOMException, percentage, file: File) => {
+  const handleReadFail = (
+    error: DOMException,
+    percentage: number,
+    file: File
+  ) => {
     setError(error.toString());
     setReadFileData((prevReadFiles) => [
       ...prevReadFiles,
@@ -186,13 +190,13 @@ export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
     (fileData) => fileData.loadResult === "success"
   ).length;
 
-  const getloadPercentage = (filename) => {
+  const getloadPercentage = (filename: string) => {
     const readFile = readFileData.find((file) => file.fileName === filename);
     if (readFile) return readFile.loadPercentage;
     return 0;
   };
 
-  const getloadResult = (filename) => {
+  const getloadResult = (filename: string) => {
     const readFile = readFileData.find((file) => file.fileName === filename);
     if (readFile) return readFile.loadResult;
     return undefined;

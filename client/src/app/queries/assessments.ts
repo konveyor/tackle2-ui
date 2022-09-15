@@ -33,7 +33,7 @@ export const useFetchApplicationAssessments = (
         const allAssessmentsForApp = response.data;
         return allAssessmentsForApp[0];
       },
-      onError: (error) => console.log("error, ", error),
+      onError: (error: any) => console.log("error, ", error),
     }))
   );
   const queryResultsByAppId: Record<number, UseQueryResult<Assessment>> = {};
