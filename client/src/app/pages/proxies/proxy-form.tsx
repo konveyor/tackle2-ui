@@ -129,7 +129,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         values.httpIdentity !== httpProxy?.identity?.name) ||
       (values.httpIdentity === null &&
         values.httpIdentity !== httpProxy?.identity) ||
-      parseInt(values.httpPort as string) !== httpProxy?.port // TODO do we need parseInt here? values.httpPort should be a number
+      parseInt(values.httpPort as string, 10) !== httpProxy?.port
     );
   };
 
@@ -145,7 +145,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         values.httpsIdentity !== httpsProxy?.identity?.name) ||
       (values.httpsIdentity === null &&
         values.httpsIdentity !== httpsProxy?.identity) ||
-      parseInt(values.httpsPort) !== httpsProxy?.port // TODO do we need parseInt here? values.httpsPort should be a number
+      parseInt(values.httpsPort, 10) !== httpsProxy?.port
     );
   };
 
@@ -161,7 +161,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       kind: "https",
       excluded: formValues.excluded.split(","),
       host: formValues.httpsHost,
-      port: parseInt(formValues?.httpsPort as string), // TODO do we need parseInt here? values.httpsPort should be a number
+      port: parseInt(formValues?.httpsPort as string, 10),
       enabled: formValues.isHttpsProxyEnabled,
       id: httpsProxy?.id,
       ...(formValues.httpsIdentity &&
@@ -177,7 +177,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       kind: "http",
       excluded: formValues.excluded.split(","),
       host: formValues.httpHost,
-      port: parseInt(formValues?.httpPort as string), // TODO do we need parseInt here? values.httpPort should be a number
+      port: parseInt(formValues?.httpPort as string, 10),
       enabled: formValues.isHttpProxyEnabled,
       id: httpProxy?.id,
       ...(formValues.httpIdentity &&
