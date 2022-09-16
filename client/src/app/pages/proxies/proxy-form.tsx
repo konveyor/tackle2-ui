@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   ActionGroup,
   Alert,
@@ -69,25 +69,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       };
     });
 
-  const defaultValues = useMemo<ProxyFormValues>(
-    () => ({
-      // http
-      isHttpProxyEnabled: httpProxy?.enabled === true,
-      httpHost: httpProxy?.host || "",
-      httpPort: httpProxy?.port || 8080,
-      isHttpIdentityRequired: !!httpProxy?.identity?.name,
-      httpIdentity: httpProxy?.identity?.name || null,
-      // https
-      isHttpsProxyEnabled: httpsProxy?.enabled === true,
-      httpsHost: httpsProxy?.host || "",
-      httpsPort: httpsProxy?.port || 8080,
-      isHttpsIdentityRequired: !!httpsProxy?.identity?.name,
-      httpsIdentity: httpsProxy?.identity?.name || null,
-      excluded: httpProxy?.excluded.join(",") || "",
-    }),
-    [httpProxy, httpsProxy]
-  );
-
   const {
     handleSubmit,
     formState: { errors, isSubmitting, isValidating, isValid, isDirty },
@@ -96,14 +77,27 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
     control,
     reset,
   } = useForm<ProxyFormValues>({
-    defaultValues,
+    defaultValues: useMemo<ProxyFormValues>(
+      () => ({
+        // http
+        isHttpProxyEnabled: httpProxy?.enabled === true,
+        httpHost: httpProxy?.host || "",
+        httpPort: httpProxy?.port || 8080,
+        isHttpIdentityRequired: !!httpProxy?.identity?.name,
+        httpIdentity: httpProxy?.identity?.name || null,
+        // https
+        isHttpsProxyEnabled: httpsProxy?.enabled === true,
+        httpsHost: httpsProxy?.host || "",
+        httpsPort: httpsProxy?.port || 8080,
+        isHttpsIdentityRequired: !!httpsProxy?.identity?.name,
+        httpsIdentity: httpsProxy?.identity?.name || null,
+        excluded: httpProxy?.excluded.join(",") || "",
+      }),
+      [httpProxy, httpsProxy]
+    ),
     resolver: yupResolver(useProxyFormValidationSchema()),
     mode: "onChange",
   });
-
-  useEffect(() => {
-    reset(defaultValues);
-  }, [defaultValues]);
 
   const values = getValues();
 
