@@ -48,7 +48,6 @@ export interface ProxyFormValues {
 export interface ProxyFormProps {
   httpProxy?: Proxy;
   httpsProxy?: Proxy;
-  isSecure?: boolean;
 }
 
 export const ProxyForm: React.FC<ProxyFormProps> = ({
@@ -315,9 +314,8 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           />
         )}
       />
-
       {values.isHttpsProxyEnabled && (
-        <>
+        <div className={spacing.mlLg}>
           <HookFormPFTextInput
             control={control}
             label="HTTPS proxy host"
@@ -387,7 +385,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
               )}
             />
           )}
-        </>
+        </div>
       )}
       {(values.isHttpProxyEnabled || values.isHttpsProxyEnabled) && (
         <HookFormPFTextArea
