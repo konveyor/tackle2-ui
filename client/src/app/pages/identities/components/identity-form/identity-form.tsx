@@ -9,20 +9,13 @@ import {
   ButtonVariant,
   FileUpload,
   Form,
-  FormGroup,
-  TextInput,
 } from "@patternfly/react-core";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { Identity } from "@app/api/models";
-import {
-  duplicateNameCheck,
-  getAxiosErrorMessage,
-  getValidatedFromError,
-  getValidatedFromErrorTouched,
-} from "@app/utils/utils";
+import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import schema0 from "./schema-1.0.0.xsd";
 import schema1 from "./schema-1.1.0.xsd";
 import schema2 from "./schema-1.2.0.xsd";
@@ -173,6 +166,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
   const { identities } = useFetchIdentities();
 
+  // TODO strong types here?
   const validationSchema = object().shape({
     name: string()
       .trim()
