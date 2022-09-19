@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosResponse } from "axios";
-import { object, string } from "yup";
+import * as yup from "yup";
 import {
   ActionGroup,
   Alert,
@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import { Identity } from "@app/api/models";
+import { Identity, IdentityKind } from "@app/api/models";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import schema0 from "./schema-1.0.0.xsd";
 import schema1 from "./schema-1.1.0.xsd";
@@ -36,23 +36,20 @@ import {
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 
+type UserCredentials = "userpass" | "source";
+
 interface IdentityFormValues {
-  application: number;
-  createTime: string;
-  createUser: string;
-  description: string;
-  encrypted: string;
   id: number;
-  key: string;
-  kind: string;
   name: string;
-  password: string;
+  description: string;
+  kind?: IdentityKind;
   settings: string;
-  updateUser: string;
-  user: string;
-  userCredentials: string;
-  keyFilename: string;
   settingsFilename: string;
+  userCredentials?: UserCredentials;
+  user: string;
+  password: string;
+  key: string;
+  keyFilename: string;
 }
 
 export interface IdentityFormProps {
@@ -90,13 +87,15 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     };
   }, []);
 
-  const getUserCredentialsInitialValue = (identity?: Identity) => {
+  const getUserCredentialsInitialValue = (
+    identity?: Identity
+  ): UserCredentials | undefined => {
     if (identity?.kind === "source" && identity?.user && identity?.password) {
       return "userpass";
     } else if (identity?.kind === "source") {
       return "source";
     } else {
-      return "";
+      return undefined;
     }
   };
   const onCreateUpdateIdentitySuccess = (response: AxiosResponse<Identity>) => {
@@ -122,7 +121,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       id: formValues.id,
-      kind: formValues.kind.trim(),
+      kind: formValues.kind,
       //proxy cred
       ...(formValues.kind === "proxy" && {
         password: formValues.password.trim(),
@@ -166,140 +165,162 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
   const { identities } = useFetchIdentities();
 
-  // TODO strong types here?
-  const validationSchema = object().shape({
-    name: string()
-      .trim()
-      .required(t("validation.required"))
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 }))
-      .test(
-        "Duplicate name",
-        "An identity with this name already exists. Please use a different name.",
-        (value) => duplicateNameCheck(identities, identity || null, value || "")
-      ),
-    description: string()
-      .trim()
-      .max(250, t("validation.maxLength", { length: 250 })),
-    kind: string().required(),
-    settings: string().when("kind", {
-      is: "maven",
-      then: string()
-        .required()
-        .test({
-          name: "xml-validation",
-          test: function (value) {
-            // If the field is unchanged, it must be valid (it's encrypted, so we can't parse it as XML)
-            if (value === identity?.settings) return true;
+  const validationSchema: yup.SchemaOf<IdentityFormValues> = yup
+    .object()
+    .shape({
+      id: yup.number().defined(),
+      name: yup
+        .string()
+        .trim()
+        .required(t("validation.required"))
+        .min(3, t("validation.minLength", { length: 3 }))
+        .max(120, t("validation.maxLength", { length: 120 }))
+        .test(
+          "Duplicate name",
+          "An identity with this name already exists. Please use a different name.",
+          (value) =>
+            duplicateNameCheck(identities, identity || null, value || "")
+        ),
+      description: yup
+        .string()
+        .defined()
+        .trim()
+        .max(250, t("validation.maxLength", { length: 250 })),
+      kind: yup.mixed<IdentityKind>().required(),
+      settings: yup
+        .string()
+        .defined()
+        .when("kind", {
+          is: "maven",
+          then: yup
+            .string()
+            .required()
+            .test({
+              name: "xml-validation",
+              test: function (value) {
+                // If the field is unchanged, it must be valid (it's encrypted, so we can't parse it as XML)
+                if (value === identity?.settings) return true;
 
-            if (value) {
-              const validationObject = XMLValidator.validate(value, {
-                allowBooleanAttributes: true,
-              });
+                if (value) {
+                  const validationObject = XMLValidator.validate(value, {
+                    allowBooleanAttributes: true,
+                  });
 
-              //if xml is valid, check against schema
-              if (validationObject === true) {
-                let currentSchemaName = "";
-                let currentSchema = "";
-                const supportedSchemaNames = ["1.2.0", "1.1.0", "1.0.0"];
-                if (window.DOMParser) {
-                  const parser = new DOMParser();
-                  const xmlDoc = parser.parseFromString(value, "text/xml");
-                  const settingsElement =
-                    xmlDoc.getElementsByTagName("settings")[0]?.innerHTML || "";
+                  //if xml is valid, check against schema
+                  if (validationObject === true) {
+                    let currentSchemaName = "";
+                    let currentSchema = "";
+                    const supportedSchemaNames = ["1.2.0", "1.1.0", "1.0.0"];
+                    if (window.DOMParser) {
+                      const parser = new DOMParser();
+                      const xmlDoc = parser.parseFromString(value, "text/xml");
+                      const settingsElement =
+                        xmlDoc.getElementsByTagName("settings")[0]?.innerHTML ||
+                        "";
 
-                  supportedSchemaNames.forEach((schemaName) => {
-                    if (settingsElement.includes(schemaName)) {
-                      currentSchemaName = schemaName;
+                      supportedSchemaNames.forEach((schemaName) => {
+                        if (settingsElement.includes(schemaName)) {
+                          currentSchemaName = schemaName;
+                        }
+                      });
+                      switch (currentSchemaName) {
+                        case "1.0.0":
+                          currentSchema = schema0;
+                          break;
+                        case "1.1.0":
+                          currentSchema = schema1;
+                          break;
+                        case "1.2.0":
+                          currentSchema = schema2;
+                          break;
+                        default:
+                          break;
+                      }
                     }
-                  });
-                  switch (currentSchemaName) {
-                    case "1.0.0":
-                      currentSchema = schema0;
-                      break;
-                    case "1.1.0":
-                      currentSchema = schema1;
-                      break;
-                    case "1.2.0":
-                      currentSchema = schema2;
-                      break;
-                    default:
-                      break;
+                    const validationResult =
+                      xmlValidator && xmlValidator(value, currentSchema);
+
+                    if (!validationResult?.errors) {
+                      //valid against  schema
+                      return true;
+                    } else {
+                      //not valid against  schema
+                      return this.createError({
+                        message: validationResult?.errors?.toString(),
+                        path: "settings",
+                      });
+                    }
+                  } else {
+                    return this.createError({
+                      message: validationObject?.err?.msg?.toString(),
+                      path: "settings",
+                    });
                   }
-                }
-                const validationResult =
-                  xmlValidator && xmlValidator(value, currentSchema);
-
-                if (!validationResult?.errors) {
-                  //valid against  schema
-                  return true;
                 } else {
-                  //not valid against  schema
-                  return this.createError({
-                    message: validationResult?.errors?.toString(),
-                    path: "settings",
-                  });
+                  return false;
                 }
-              } else {
-                return this.createError({
-                  message: validationObject?.err?.msg?.toString(),
-                  path: "settings",
-                });
-              }
-            } else {
-              return false;
-            }
-          },
+              },
+            }),
         }),
-    }),
-    userCredentials: string().when("kind", {
-      is: "source",
-      then: string().required(),
-    }),
-    user: string()
-      .when("kind", {
-        is: "proxy",
-        then: string()
-          .required("This value is required")
-          .min(3, t("validation.minLength", { length: 3 }))
-          .max(120, t("validation.maxLength", { length: 120 })),
+      settingsFilename: yup.string().defined(),
+      userCredentials: yup.mixed<UserCredentials>().when("kind", {
+        is: "source",
+        then: yup.mixed<UserCredentials>().required(),
+      }),
+      user: yup
+        .string()
+        .defined()
+        .when("kind", {
+          is: "proxy",
+          then: yup
+            .string()
+            .required("This value is required")
+            .min(3, t("validation.minLength", { length: 3 }))
+            .max(120, t("validation.maxLength", { length: 120 })),
 
-        otherwise: (schema) => schema.trim(),
-      })
-      .when(["kind", "userCredentials"], {
-        is: (kind: string, userCredentials: string) =>
-          kind === "source" && userCredentials === "userpass",
-        then: (schema) =>
-          schema
-            .required("This field is required.")
+          otherwise: (schema) => schema.trim(),
+        })
+        .when(["kind", "userCredentials"], {
+          is: (kind: string, userCredentials: string) =>
+            kind === "source" && userCredentials === "userpass",
+          then: (schema) =>
+            schema
+              .required("This field is required.")
+              .min(3, t("validation.minLength", { length: 3 }))
+              .max(120, t("validation.maxLength", { length: 120 })),
+        }),
+      password: yup
+        .string()
+        .defined()
+        .when("kind", {
+          is: "proxy",
+          then: yup
+            .string()
+            .required("This value is required")
             .min(3, t("validation.minLength", { length: 3 }))
             .max(120, t("validation.maxLength", { length: 120 })),
-      }),
-    password: string()
-      .when("kind", {
-        is: "proxy",
-        then: string()
-          .required("This value is required")
-          .min(3, t("validation.minLength", { length: 3 }))
-          .max(120, t("validation.maxLength", { length: 120 })),
-        otherwise: (schema) => schema.trim(),
-      })
-      .when(["kind", "userCredentials"], {
-        is: (kind: string, userCredentials: string) =>
-          kind === "source" && userCredentials === "userpass",
-        then: (schema) =>
-          schema
-            .required("This field is required.")
-            .min(3, t("validation.minLength", { length: 3 }))
-            .max(120, t("validation.maxLength", { length: 120 })),
-      }),
-    key: string().when(["kind", "userCredentials"], {
-      is: (kind: string, userCredentials: string) =>
-        kind === "source" && userCredentials === "source",
-      then: (schema) => schema.required("This field is required."),
-      otherwise: (schema) => schema.trim(),
-    }),
-  });
+          otherwise: (schema) => schema.trim(),
+        })
+        .when(["kind", "userCredentials"], {
+          is: (kind: string, userCredentials: string) =>
+            kind === "source" && userCredentials === "userpass",
+          then: (schema) =>
+            schema
+              .required("This field is required.")
+              .min(3, t("validation.minLength", { length: 3 }))
+              .max(120, t("validation.maxLength", { length: 120 })),
+        }),
+      key: yup
+        .string()
+        .defined()
+        .when(["kind", "userCredentials"], {
+          is: (kind: string, userCredentials: string) =>
+            kind === "source" && userCredentials === "source",
+          then: (schema) => schema.required("This field is required."),
+          otherwise: (schema) => schema.trim(),
+        }),
+      keyFilename: yup.string().defined(),
+    });
 
   const {
     register,
@@ -313,23 +334,18 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     watch,
   } = useForm<IdentityFormValues>({
     defaultValues: {
-      application: 0,
-      createTime: "",
-      createUser: identity?.createUser || "",
       description: identity?.description || "",
-      encrypted: identity?.encrypted || "",
       id: identity?.id || 0,
       key: (identity?.key as string) || "", // TODO can we avoid `as string` here? Why is File one of the possible types?
       keyFilename: "",
-      kind: identity?.kind || "",
+      kind: identity?.kind,
       userCredentials: identity?.kind
         ? getUserCredentialsInitialValue({ ...identity })
-        : "",
+        : undefined,
       name: identity?.name || "",
       password: identity?.password || "",
       settings: (identity?.settings as string) || "", // TODO can we avoid `as string` here? Why is File one of the possible types?
       settingsFilename: "",
-      updateUser: identity?.updateUser || "",
       user: identity?.user || "",
     },
     resolver: yupResolver(validationSchema),
@@ -347,7 +363,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
   const watchAllFields = watch();
 
-  const userCredentialsOptions = [
+  const userCredentialsOptions: OptionWithValue<UserCredentials>[] = [
     {
       value: "userpass",
       toString: () => `Username/Password`,
@@ -358,7 +374,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     },
   ];
 
-  const kindOptions = [
+  const kindOptions: OptionWithValue<IdentityKind>[] = [
     {
       value: "source",
       toString: () => `Source Control`,
@@ -413,7 +429,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             value={value ? toOptionLike(value, kindOptions) : undefined}
             options={kindOptions}
             onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<string>;
+              const selectionValue = selection as OptionWithValue<IdentityKind>;
               setValue(name, selectionValue.value);
               // So we don't retain the values from the wrong type of credential
               setValue("user", "");
@@ -443,7 +459,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 }
                 options={userCredentialsOptions}
                 onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
+                  const selectionValue =
+                    selection as OptionWithValue<UserCredentials>;
                   setValue(name, selectionValue.value);
                   // So we don't retain the values from the wrong type of credential
                   setValue("user", "");

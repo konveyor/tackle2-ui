@@ -144,11 +144,14 @@ export interface BulkCopyReview {
   targetApplications: number[];
   completed?: boolean;
 }
+
+export type IdentityKind = "source" | "maven" | "proxy";
+
 export interface Identity {
   id?: number;
   name?: string;
   description?: string;
-  kind?: string;
+  kind?: IdentityKind;
   createUser?: string;
   encrypted?: string;
   key?: string | File;
@@ -162,7 +165,7 @@ export interface Identity {
 
 export interface Proxy {
   host: string;
-  kind: string;
+  kind: string; // TODO should this be a ProxyKind union as well?
   port: number;
   excluded: Array<string>;
   identity?: Ref;
