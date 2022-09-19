@@ -354,12 +354,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
   const values = getValues();
 
-  const [isFileRejected, setIsFileRejected] = useState(false);
+  const [isKeyFileRejected, setIsKeyFileRejected] = useState(false);
   const [isSettingsFileRejected, setIsSettingsFileRejected] = useState(false);
-
-  const handleFileRejected = () => {
-    setIsFileRejected(true);
-  };
 
   const watchAllFields = watch();
 
@@ -527,17 +523,19 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     onChange={(value, filename) => {
                       onChange(value);
                       setValue("keyFilename", filename);
+                      setIsKeyFileRejected(false);
                     }}
                     dropzoneProps={{
                       // accept: ".csv",
                       //TODO: key file extention types
-                      onDropRejected: handleFileRejected,
+                      onDropRejected: () => setIsKeyFileRejected(true),
                     }}
-                    validated={isFileRejected ? "error" : "default"}
+                    validated={isKeyFileRejected ? "error" : "default"}
                     filenamePlaceholder="Drag and drop a file or upload one"
                     onClearClick={() => {
                       onChange("");
                       setValue("keyFilename", "");
+                      setIsKeyFileRejected(false);
                     }}
                     allowEditingUploadedText
                     browseButtonText="Upload"
@@ -590,16 +588,18 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               onChange={(fileContents, fileName, event) => {
                 onChange(fileContents);
                 setValue("settingsFilename", fileName);
+                setIsSettingsFileRejected(false);
               }}
               dropzoneProps={{
                 accept: ".xml",
-                onDropRejected: handleFileRejected,
+                onDropRejected: () => setIsSettingsFileRejected(true),
               }}
               validated={isSettingsFileRejected ? "error" : "default"}
               filenamePlaceholder="Drag and drop a file or upload one"
               onClearClick={() => {
                 onChange("");
                 setValue("settingsFilename", "");
+                setIsSettingsFileRejected(false);
               }}
               onReadStarted={() => setIsLoading(true)}
               onReadFinished={() => setIsLoading(false)}
