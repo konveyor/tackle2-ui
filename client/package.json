@@ -27,7 +27,7 @@
     "@patternfly/patternfly": "^4.206.3",
     "@patternfly/react-charts": "^6.84.8",
     "@patternfly/react-core": "^4.231.8",
-    "@patternfly/react-table": "^4.100.8",
+    "@patternfly/react-table": "^4.108.0",
     "@patternfly/react-tokens": "^4.83.8",
     "@react-keycloak/web": "^3.4.0",
     "@redhat-cloud-services/frontend-components-notifications": "^3.2.10",
