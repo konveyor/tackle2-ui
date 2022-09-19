@@ -54,11 +54,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   httpProxy,
   httpsProxy,
 }) => {
-  const {
-    identities,
-    isFetching: isFetchingIdentities,
-    fetchError: fetchErrorIdentities,
-  } = useFetchIdentities();
+  const { identities } = useFetchIdentities();
 
   const identityOptions: OptionWithValue<string>[] = identities
     .filter((i) => i.kind === "proxy")
@@ -71,7 +67,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
 
   const {
     handleSubmit,
-    formState: { errors, isSubmitting, isValidating, isValid, isDirty },
+    formState: { isSubmitting, isValidating, isValid, isDirty },
     getValues,
     setValue,
     control,
