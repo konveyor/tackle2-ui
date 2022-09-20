@@ -203,11 +203,9 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         render={({ field: { onChange, value, name, ref } }) => (
           <Switch
             id="httpProxy"
-            data-testid="http-proxy-switch"
             name={name}
             className={value ? "http-proxy-checked" : "http-proxy-unchecked"}
             label="HTTP proxy"
-            aria-label="HTTP Proxy"
             isChecked={value}
             onChange={onChange}
             ref={ref}
@@ -223,7 +221,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             fieldId="httpHost"
             isRequired
             className={spacing.mMd}
-            data-testid="http-host-input"
           />
           <HookFormPFTextInput
             control={control}
@@ -240,7 +237,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             render={({ field: { onChange, value, name, ref } }) => (
               <Switch
                 id="http-identity-required"
-                data-testid="http-proxy-identity-switch"
                 name={name}
                 className={`${spacing.mMd} ${
                   value ? "http-identity-checked" : "http-identity-unchecked"
@@ -272,7 +268,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 <SimpleSelect
                   id="httpIdentity"
                   toggleId="http-proxy-credentials-select-toggle"
-                  data-testid="http-proxy-credentials-select-toggle"
                   aria-label="HTTP proxy credentials"
                   value={value || undefined}
                   options={identityOptions}
@@ -294,7 +289,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
         render={({ field: { onChange, value, name, ref } }) => (
           <Switch
             id="httpsProxy"
-            data-testid="https-proxy-switch"
             name={name}
             className={value ? "https-proxy-checked" : "https-proxy-unchecked"}
             label="HTTPS proxy"
@@ -313,7 +307,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             name="httpsHost"
             isRequired
             className={spacing.mMd}
-            data-testid="https-host-input"
           />
           <HookFormPFTextInput
             control={control}
@@ -323,7 +316,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             isRequired
             type="number"
             className={spacing.mMd}
-            data-testid="https-port-input"
           />
           <Controller
             control={control}
@@ -331,7 +323,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             render={({ field: { onChange, value, name, ref } }) => (
               <Switch
                 id="https-identity-required"
-                data-testid="https-proxy-identity-switch"
                 name={name}
                 className={`${spacing.mMd} ${
                   value ? "https-identity-checked" : "https-identity-unchecked"
