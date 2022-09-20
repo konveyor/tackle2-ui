@@ -323,20 +323,17 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     });
 
   const {
-    register,
     handleSubmit,
-    formState: { errors, isSubmitting, isValidating, isValid, isDirty },
+    formState: { isSubmitting, isValidating, isValid, isDirty },
     getValues,
     setValue,
-    setError,
     control,
-    resetField,
     watch,
   } = useForm<IdentityFormValues>({
     defaultValues: {
       description: identity?.description || "",
       id: identity?.id || 0,
-      key: (identity?.key as string) || "", // TODO can we avoid `as string` here? Why is File one of the possible types?
+      key: identity?.key || "",
       keyFilename: "",
       kind: identity?.kind,
       userCredentials: identity?.kind
@@ -344,7 +341,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         : undefined,
       name: identity?.name || "",
       password: identity?.password || "",
-      settings: (identity?.settings as string) || "", // TODO can we avoid `as string` here? Why is File one of the possible types?
+      settings: identity?.settings || "",
       settingsFilename: "",
       user: identity?.user || "",
     },

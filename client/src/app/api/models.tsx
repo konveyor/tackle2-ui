@@ -154,12 +154,12 @@ export interface Identity {
   kind?: IdentityKind;
   createUser?: string;
   encrypted?: string;
-  key?: string | File;
+  key?: string;
   keyFilename?: string;
   password?: string;
   user?: string;
   updateUser?: string;
-  settings?: string | File;
+  settings?: string;
   settingsFilename?: string;
 }
 
