@@ -165,7 +165,7 @@ export interface Identity {
 
 export interface Proxy {
   host: string;
-  kind: string; // TODO should this be a ProxyKind union as well?
+  kind: "http" | "https";
   port: number;
   excluded: Array<string>;
   identity?: Ref;
