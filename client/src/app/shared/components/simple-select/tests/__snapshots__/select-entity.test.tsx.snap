@@ -40,6 +40,7 @@ exports[`SimpleSelect Renders without crashing 1`] = `
   ouiaSafe={true}
   placeholderText="Select..."
   position="left"
+  removeFindDomNode={false}
   removeSelectionAriaLabel="Remove"
   selections={Array []}
   shouldResetOnSelect={true}
