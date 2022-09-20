@@ -15,85 +15,11 @@ import {
 } from "@patternfly/react-core";
 import { useForm, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { getValidatedFromError } from "@app/utils/utils";
-
-const defaultTargets = [
-  "camel",
-  "cloud-readiness",
-  "drools",
-  "eap",
-  "eap6",
-  "eap7",
-  "eapxp",
-  "fsw",
-  "fuse",
-  "hibernate",
-  "hibernate-search",
-  "jakarta-ee",
-  "java-ee",
-  "jbpm",
-  "linux",
-  "openjdk",
-  "openjdk11",
-  "openjdk17",
-  "openliberty",
-  "quarkus",
-  "resteasy",
-  "rhr",
-];
-
-const defaultSources = [
-  "agroal",
-  "amazon",
-  "artemis",
-  "avro",
-  "camel",
-  "config",
-  "drools",
-  "eap",
-  "eap6",
-  "eap7",
-  "eapxp",
-  "elytron",
-  "glassfish",
-  "hibernate",
-  "hibernate-search",
-  "java",
-  "java-ee",
-  "javaee",
-  "jbpm",
-  "jdbc",
-  "jonas",
-  "jrun",
-  "jsonb",
-  "jsonp",
-  "kafka",
-  "keycloak",
-  "kubernetes",
-  "log4j",
-  "logging",
-  "narayana",
-  "openshift",
-  "oraclejdk",
-  "orion",
-  "quarkus1",
-  "resin",
-  "resteasy",
-  "rmi",
-  "rpc",
-  "seam",
-  "soa",
-  "soa-p",
-  "sonic",
-  "sonicesb",
-  "springboot",
-  "thorntail",
-  "weblogic",
-  "websphere",
-];
+import { defaultSources, defaultTargets } from "./targets";
+import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 export const SetOptions: React.FunctionComponent = () => {
   const { t } = useTranslation();
