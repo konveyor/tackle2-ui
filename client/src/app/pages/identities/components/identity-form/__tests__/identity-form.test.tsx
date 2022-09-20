@@ -28,18 +28,14 @@ describe("Component: identity-form", () => {
     render(
       <IdentityForm onCancel={mockChangeValue} onSaved={mockChangeValue} />
     );
-    const identityNameInput = await waitFor(() =>
-      screen.getByLabelText("Name *")
-    );
+    const identityNameInput = await screen.findByLabelText("Name *");
     expect(identityNameInput).toBeInTheDocument();
 
-    const descriptionInput = await waitFor(() =>
-      screen.getByLabelText("Description *")
-    );
+    const descriptionInput = await screen.findByLabelText("Description *");
     expect(descriptionInput).toBeInTheDocument();
 
-    const typeSelector = await waitFor(() =>
-      screen.getByLabelText("Type select dropdown toggle")
+    const typeSelector = await screen.findByLabelText(
+      "Type select dropdown toggle"
     );
     expect(typeSelector).toBeInTheDocument();
   });
@@ -48,100 +44,72 @@ describe("Component: identity-form", () => {
     render(
       <IdentityForm onCancel={mockChangeValue} onSaved={mockChangeValue} />
     );
-    const typeSelector = await waitFor(() =>
-      screen.getByLabelText("Type select dropdown toggle")
+    const typeSelector = await screen.findByLabelText(
+      "Type select dropdown toggle"
     );
 
     fireEvent.click(typeSelector);
 
-    const sourceControlOption = await waitFor(() =>
-      screen.getByText("Source Control")
-    );
+    const sourceControlOption = await screen.findByText("Source Control");
 
     fireEvent.click(sourceControlOption);
 
-    const userCredentialsSelector = await waitFor(() =>
-      screen.getByLabelText("User credentials select dropdown toggle")
+    const userCredentialsSelector = await screen.findByLabelText(
+      "User credentials select dropdown toggle"
     );
     expect(userCredentialsSelector).toBeInTheDocument();
 
     fireEvent.click(userCredentialsSelector);
 
-    const userPassOption = await waitFor(() =>
-      screen.getByText("Username/Password")
-    );
+    const userPassOption = await screen.findByText("Username/Password");
 
     fireEvent.click(userPassOption);
 
-    const userInput = await waitFor(() => screen.getByLabelText("Username *"), {
-      timeout: 3000,
-    });
+    const userInput = await screen.findByLabelText("Username *");
     expect(userInput).toBeInTheDocument();
 
-    const passwordInput = await waitFor(
-      () => screen.getByLabelText("Password *"),
-      {
-        timeout: 3000,
-      }
-    );
+    const passwordInput = await screen.findByLabelText("Password *");
     expect(passwordInput).toBeInTheDocument();
 
     fireEvent.click(userCredentialsSelector);
 
-    const sourceOption = await waitFor(() =>
-      screen.getByText("Source Private Key/Passphrase")
+    const sourceOption = await screen.findByText(
+      "Source Private Key/Passphrase"
     );
 
     fireEvent.click(sourceOption);
 
-    const credentialKeyFileUpload = await waitFor(
-      () =>
-        screen.getByLabelText(
-          "Upload your [SCM Private Key] file or paste its contents below. *"
-        ),
-      {
-        timeout: 3000,
-      }
+    const credentialKeyFileUpload = await screen.findByLabelText(
+      "Upload your [SCM Private Key] file or paste its contents below. *"
     );
     expect(credentialKeyFileUpload).toBeInTheDocument();
 
-    const credentialKeyPassphrase = await waitFor(
-      () => screen.getByLabelText("Private Key Passphrase"),
-      {
-        timeout: 3000,
-      }
+    const credentialKeyPassphrase = await screen.findByLabelText(
+      "Private Key Passphrase"
     );
     expect(credentialKeyPassphrase).toBeInTheDocument();
 
     fireEvent.click(typeSelector);
 
-    const mavenSettingsOption = await waitFor(() =>
-      screen.getByText("Maven Settings File")
-    );
+    const mavenSettingsOption = await screen.findByText("Maven Settings File");
 
     fireEvent.click(mavenSettingsOption);
 
-    const mavenSettingsUpload = await waitFor(() =>
-      screen.getByLabelText(
-        "Upload your Settings file or paste its contents below. *"
-      )
+    const mavenSettingsUpload = await screen.findByLabelText(
+      "Upload your Settings file or paste its contents below. *"
     );
     expect(mavenSettingsUpload).toBeInTheDocument();
 
     fireEvent.click(typeSelector);
 
-    const proxyOption = await waitFor(() => screen.getByText("Proxy"));
+    const proxyOption = await screen.findByText("Proxy");
 
     fireEvent.click(proxyOption);
 
-    const proxyUserInput = await waitFor(() =>
-      screen.getByLabelText("Username *")
-    );
+    const proxyUserInput = await screen.findByLabelText("Username *");
     expect(proxyUserInput).toBeInTheDocument();
 
-    const proxyPasswordInput = await waitFor(() =>
-      screen.getByLabelText("Password")
-    );
+    const proxyPasswordInput = await screen.findByLabelText("Password");
     expect(proxyPasswordInput).toBeInTheDocument();
   });
 
@@ -150,41 +118,33 @@ describe("Component: identity-form", () => {
       <IdentityForm onCancel={mockChangeValue} onSaved={mockChangeValue} />
     );
 
-    const identityNameInput = await waitFor(() =>
-      screen.getByLabelText("Name *")
-    );
+    const identityNameInput = await screen.findByLabelText("Name *");
 
     fireEvent.change(identityNameInput, {
       target: { value: "identity-name" },
     });
 
-    const typeSelector = await waitFor(() =>
-      screen.getByLabelText("Type select dropdown toggle")
+    const typeSelector = await screen.findByLabelText(
+      "Type select dropdown toggle"
     );
 
     fireEvent.click(typeSelector);
 
-    const sourceControlOption = await waitFor(() =>
-      screen.getByText("Source Control")
-    );
+    const sourceControlOption = await screen.findByText("Source Control");
 
     fireEvent.click(sourceControlOption);
 
-    const userCredentialsSelector = await waitFor(() =>
-      screen.getByLabelText("User credentials select dropdown toggle")
+    const userCredentialsSelector = await screen.findByLabelText(
+      "User credentials select dropdown toggle"
     );
 
     fireEvent.click(userCredentialsSelector);
 
-    const userPassOption = await waitFor(() =>
-      screen.getByText("Username/Password")
-    );
+    const userPassOption = await screen.findByText("Username/Password");
 
     fireEvent.click(userPassOption);
 
-    const userInput = await waitFor(() => screen.getByLabelText("Username *"), {
-      timeout: 3000,
-    });
+    const userInput = await screen.findByLabelText("Username *");
 
     await waitFor(
       () => {
@@ -197,12 +157,7 @@ describe("Component: identity-form", () => {
       }
     );
 
-    const passwordInput = await waitFor(
-      () => screen.getByLabelText("Password *"),
-      {
-        timeout: 3000,
-      }
-    );
+    const passwordInput = await screen.findByLabelText("Password *");
 
     const createButton = screen.getByRole("button", { name: /submit/i });
 
@@ -227,42 +182,34 @@ describe("Component: identity-form", () => {
       <IdentityForm onCancel={mockChangeValue} onSaved={mockChangeValue} />
     );
 
-    const identityNameInput = await waitFor(() =>
-      screen.getByLabelText("Name *")
-    );
+    const identityNameInput = await screen.findByLabelText("Name *");
 
     fireEvent.change(identityNameInput, {
       target: { value: "identity-name" },
     });
 
-    const typeSelector = await waitFor(() =>
-      screen.getByLabelText("Type select dropdown toggle")
+    const typeSelector = await screen.findByLabelText(
+      "Type select dropdown toggle"
     );
 
     fireEvent.click(typeSelector);
 
-    const sourceControlOption = await waitFor(() =>
-      screen.getByText("Source Control")
-    );
+    const sourceControlOption = await screen.findByText("Source Control");
 
     fireEvent.click(sourceControlOption);
 
-    const userCredentialsSelector = await waitFor(() =>
-      screen.getByLabelText("User credentials select dropdown toggle")
+    const userCredentialsSelector = await screen.findByLabelText(
+      "User credentials select dropdown toggle"
     );
 
     fireEvent.click(userCredentialsSelector);
 
-    const keyOption = await waitFor(() =>
-      screen.getByText("Source Private Key/Passphrase")
-    );
+    const keyOption = await screen.findByText("Source Private Key/Passphrase");
 
     fireEvent.click(keyOption);
 
-    const keyUpload = await waitFor(() =>
-      screen.getByLabelText(
-        "Upload your [SCM Private Key] file or paste its contents below. *"
-      )
+    const keyUpload = await screen.findByLabelText(
+      "Upload your [SCM Private Key] file or paste its contents below. *"
     );
 
     //TODO:
@@ -296,30 +243,24 @@ describe("Component: identity-form", () => {
       />
     );
 
-    const identityNameInput = await waitFor(() =>
-      screen.getByLabelText("Name *")
-    );
+    const identityNameInput = await screen.findByLabelText("Name *");
 
     fireEvent.change(identityNameInput, {
       target: { value: "identity-name" },
     });
 
-    const typeSelector = await waitFor(() =>
-      screen.getByLabelText("Type select dropdown toggle")
+    const typeSelector = await screen.findByLabelText(
+      "Type select dropdown toggle"
     );
 
     fireEvent.click(typeSelector);
 
-    const mavenOption = await waitFor(() =>
-      screen.getByText("Maven Settings File")
-    );
+    const mavenOption = await screen.findByText("Maven Settings File");
 
     fireEvent.click(mavenOption);
 
-    const mavenUpload = await waitFor(() =>
-      screen.getByLabelText(
-        "Upload your Settings file or paste its contents below. *"
-      )
+    const mavenUpload = await screen.findByLabelText(
+      "Upload your Settings file or paste its contents below. *"
     );
 
     //TODO:
@@ -355,27 +296,23 @@ describe("Component: identity-form", () => {
       />
     );
 
-    const identityNameInput = await waitFor(() =>
-      screen.getByLabelText("Name *")
-    );
+    const identityNameInput = await screen.findByLabelText("Name *");
 
     fireEvent.change(identityNameInput, {
       target: { value: "identity-name" },
     });
 
-    const typeSelector = await waitFor(() =>
-      screen.getByLabelText("Type select dropdown toggle")
+    const typeSelector = await screen.findByLabelText(
+      "Type select dropdown toggle"
     );
 
     fireEvent.click(typeSelector);
 
-    const proxyOption = await waitFor(() => screen.getByText("Proxy"));
+    const proxyOption = await screen.findByText("Proxy");
 
     fireEvent.click(proxyOption);
 
-    const proxyUserInput = await waitFor(() =>
-      screen.getByLabelText("Username *")
-    );
+    const proxyUserInput = await screen.findByLabelText("Username *");
     await waitFor(
       () => {
         fireEvent.change(proxyUserInput, {
@@ -387,9 +324,7 @@ describe("Component: identity-form", () => {
       }
     );
 
-    const proxyPasswordInput = await waitFor(() =>
-      screen.getByLabelText("Password")
-    );
+    const proxyPasswordInput = await screen.findByLabelText("Password");
 
     await waitFor(
       () => {
