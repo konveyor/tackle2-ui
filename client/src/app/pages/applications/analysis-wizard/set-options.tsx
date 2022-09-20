@@ -38,6 +38,7 @@ const defaultTargets = [
   "linux",
   "openjdk",
   "openjdk11",
+  "openjdk17",
   "openliberty",
   "quarkus",
   "resteasy",
