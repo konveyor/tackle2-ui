@@ -412,12 +412,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         control={control}
         name="kind"
         label="Type"
-        fieldId="kind"
+        fieldId="type-select"
         isRequired
         renderInput={({ field: { value, name } }) => (
           <SimpleSelect
-            toggleAriaLabel="credential-type-dropdown"
+            id="type-select"
             toggleId="type-select-toggle"
+            toggleAriaLabel="Type select dropdown toggle"
             aria-label={name}
             value={value ? toOptionLike(value, kindOptions) : undefined}
             options={kindOptions}
@@ -439,11 +440,12 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             name="userCredentials"
             label="User credentials"
             isRequired
-            fieldId="userCredentials"
+            fieldId="user-credentials-select"
             renderInput={({ field: { value, name } }) => (
               <SimpleSelect
-                toggleAriaLabel="user-credentials-dropdown"
+                id="user-credentials-select"
                 toggleId="user-credentials-select-toggle"
+                toggleAriaLabel="User credentials select dropdown toggle"
                 aria-label={name}
                 value={
                   value
@@ -504,11 +506,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 // formGroupProps={isFileRejected ? { validated: "error" } : {}}
                 renderInput={({ field: { onChange, value, name } }) => (
                   <FileUpload
-                    data-testid="drop-input"
-                    id="file"
+                    data-testid="source-key-upload"
+                    id="key"
                     name={name}
                     type="text"
-                    aria-label="source-key-upload"
                     value={
                       value
                         ? value !== identity?.key
@@ -570,8 +571,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           errorsSuppressed={isLoading}
           renderInput={({ field: { onChange, value, name } }) => (
             <FileUpload
-              aria-label="maven-settings-upload"
-              id="file"
+              data-testid="maven-settings-upload"
+              id="settings"
               name={name}
               type="text"
               value={
