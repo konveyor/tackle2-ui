@@ -20,13 +20,13 @@ export interface IEnvVars {
   KEYCLOAK_CLIENT_ID: string;
   KEYCLOAK_SERVER_URL: string;
   UI_INGRESS_PROXY_BODY_SIZE: string;
-  PRODUCT: string;
+  PROFILE: string;
 }
 export const ENV: IEnvVars = (window as { [key: string]: any })["_env"] || {};
 export const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
 export const uploadLimit = ENV.UI_INGRESS_PROXY_BODY_SIZE || "500m";
 export const isPropietaryAllowed =
-  ENV.PRODUCT === "tackle" || ENV.PRODUCT === "" ? true : true;
+  ENV.PROFILE === "konveyor" || ENV.PROFILE === "" ? true : false;
 
 export const DEFAULT_PAGINATION: PageQuery = {
   page: 1,
