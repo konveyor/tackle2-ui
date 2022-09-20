@@ -14,13 +14,25 @@ import {
   ProposedAction,
   Risk,
 } from "@app/api/models";
+export interface IEnvVars {
+  AUTH_REQUIRED: string;
+  KEYCLOAK_REALM: string;
+  KEYCLOAK_CLIENT_ID: string;
+  KEYCLOAK_SERVER_URL: string;
+  UI_INGRESS_PROXY_BODY_SIZE: string;
+  PROFILE: string;
+}
 
-import { ENV } from "./env";
+export enum BrandType {
+  Konveyor = "Konveyor",
+  MTA = "RedHat",
+}
 
+export const ENV: IEnvVars = (window as { [key: string]: any })["_env"] || {};
 export const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
 export const uploadLimit = ENV.UI_INGRESS_PROXY_BODY_SIZE || "500m";
-export const isPropietaryAllowed =
-  ENV.PROFILE === "konveyor" || ENV.PROFILE === "";
+export const APP_BRAND: BrandType =
+  (process.env.PROFILE as BrandType) || BrandType.Konveyor;
 
 export const DEFAULT_PAGINATION: PageQuery = {
   page: 1,

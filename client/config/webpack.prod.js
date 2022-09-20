@@ -32,7 +32,6 @@ module.exports = merge(common("production"), {
         __dirname,
         "../public/index.html.ejs"
       )}`,
-      favicon: path.resolve(__dirname, "../public/favicon.ico"),
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "production",

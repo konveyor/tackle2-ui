@@ -186,6 +186,14 @@ module.exports = (env) => {
             to: path.resolve(__dirname, "../dist/manifest.json"),
           },
           {
+            from: path.resolve(__dirname, "../public/konveyor-favicon.ico"),
+            to: path.resolve(__dirname, "../dist/konveyor-favicon.ico"),
+          },
+          {
+            from: path.resolve(__dirname, "../public/mta-favicon.ico"),
+            to: path.resolve(__dirname, "../dist/mta-favicon.ico"),
+          },
+          {
             from: path.resolve(
               __dirname,
               "../public/template_application_import.csv"
