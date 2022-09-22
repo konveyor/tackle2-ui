@@ -9,27 +9,15 @@ import {
   GalleryItem,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import migrationIcon from "@app/images/Icon-Red_Hat-Migration-A-Black-RGB.svg";
-import appOnServerIcon from "@app/images/Icon-Red_Hat-App_on_server-A-Black-RGB.svg";
-import cloudIcon from "@app/images/Icon-Red_Hat-Cloud-A-Black-RGB.svg";
-import serverIcon from "@app/images/Icon-Red_Hat-Server-A-Black-RGB.svg";
-import mugIcon from "@app/images/Icon-Red_Hat-Mug-A-Black-RGB.svg";
-import multiplyIcon from "@app/images/Icon-Red_Hat-Multiply-A-Black-RGB.svg";
-
-import { SelectCard } from "./components/select-card";
 import { useFormContext } from "react-hook-form";
 
-export interface TransformationTargets {
-  label: string;
-  description?: string;
-  options: Map<string, string>;
-  icon?: React.ComponentType<any>;
-  iconSrc?: string;
-}
+import { SelectCard } from "./components/select-card";
+import { ITransformationTargets, transformationTargets } from "./targets";
 
 export const SetTargets: React.FunctionComponent = () => {
   const { t } = useTranslation();
 
+<<<<<<< HEAD:pkg/client/src/app/pages/applications/analysis-wizard/set-targets.tsx
   const options: TransformationTargets[] = [
     {
       label: "Application server migration to",
@@ -56,16 +44,19 @@ export const SetTargets: React.FunctionComponent = () => {
       iconSrc: migrationIcon,
     },
     {
-      label: "OpenJDK",
+      label: "OracleJDK to OpenJDK",
       description: "Rules to support the migration to OpenJDK from OracleJDK.",
       options: new Map([["openjdk", "openjdk"]]),
       iconSrc: mugIcon,
     },
     {
-      label: "OpenJDK 11",
+      label: "OpenJDK",
       description:
-        "Rules to support the migration to OpenJDK 11 from OpenJDK 8",
-      options: new Map([["openjdk11", "openjdk11"]]),
+        "Rules to support upgrading the version of OpenJDK. Migrate to OpenJDK 11 or OpenJDK 17.",
+      options: new Map([
+        ["openjdk11", "openJDK 11"],
+        ["openjdk17", "openJDK 17"],
+      ]),
       iconSrc: mugIcon,
     },
     {
@@ -105,16 +96,18 @@ export const SetTargets: React.FunctionComponent = () => {
     },
   ];
 
+=======
+>>>>>>> 81e8c36 (Add Azure target with 3rd party filtering (#406)):client/src/app/pages/applications/analysis-wizard/set-targets.tsx
   const { getValues, setValue } = useFormContext();
   const targets: string[] = getValues("targets");
 
   const handleOnCardChange = (
     isNewCard: boolean,
     selectionValue: string,
-    card: TransformationTargets
+    card: ITransformationTargets
   ) => {
     const selectedTargets = targets.filter(
-      (target) => !card.options.has(target)
+      (target) => !card.options.includes(target)
     );
 
     if (isNewCard) setValue("targets", [...selectedTargets, selectionValue]);
@@ -132,11 +125,11 @@ export const SetTargets: React.FunctionComponent = () => {
       <Stack>
         <StackItem>
           <Gallery hasGutter>
-            {options.map((elem, index) => (
+            {transformationTargets.map((elem, index) => (
               <GalleryItem key={index}>
                 <SelectCard
                   item={elem}
-                  cardSelected={[...elem.options.keys()].some((key) =>
+                  cardSelected={[...elem.options].some((key) =>
                     targets.includes(key)
                   )}
                   onChange={(isNewCard: boolean, selectionValue: string) => {

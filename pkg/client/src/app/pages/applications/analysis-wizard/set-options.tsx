@@ -15,10 +15,9 @@ import {
 } from "@patternfly/react-core";
 import { useForm, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { getValidatedFromError } from "@app/utils/utils";
+<<<<<<< HEAD:pkg/client/src/app/pages/applications/analysis-wizard/set-options.tsx
 
 const defaultTargets = [
   "camel",
@@ -38,6 +37,7 @@ const defaultTargets = [
   "linux",
   "openjdk",
   "openjdk11",
+  "openjdk17",
   "openliberty",
   "quarkus",
   "resteasy",
@@ -93,6 +93,11 @@ const defaultSources = [
   "weblogic",
   "websphere",
 ];
+=======
+import { defaultSources, defaultTargets } from "./targets";
+import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+>>>>>>> 81e8c36 (Add Azure target with 3rd party filtering (#406)):client/src/app/pages/applications/analysis-wizard/set-options.tsx
 
 export const SetOptions: React.FunctionComponent = () => {
   const { t } = useTranslation();
