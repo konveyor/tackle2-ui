@@ -74,6 +74,7 @@ export const SelectFilterControl = <T,>({
         onSelect={(_, value) => onFilterSelect(value)}
         isOpen={isFilterDropdownOpen}
         placeholderText="Any"
+        isDisabled={category.selectOptions.length === 0}
       >
         {category.selectOptions.map((optionProps) => (
           <SelectOption {...optionProps} key={optionProps.key} />
