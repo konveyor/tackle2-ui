@@ -61,6 +61,7 @@ export const useApplicationsFilterValues = (
       type: FilterType.select,
       selectOptions: dedupeFunction(
         applications
+          .filter((app) => !!app.businessService?.name)
           .map((app) => app.businessService?.name)
           .map((name) => ({ key: name, value: name }))
       ),

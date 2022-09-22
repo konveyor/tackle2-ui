@@ -113,6 +113,7 @@ export const MultiselectFilterControl = <T,>({
           .toLowerCase()}${category.title.slice(1)}`}
         hasInlineFilter
         onFilter={onOptionsFilter}
+        isDisabled={category.selectOptions.length === 0}
       >
         {renderSelectOptions(category.selectOptions)}
       </Select>
