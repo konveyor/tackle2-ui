@@ -15,12 +15,12 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { ITransformationTargets, targetsLabels } from "../targets";
+import { TransformationTargets } from "../set-targets";
 
 import "./select-card.css";
 
 export interface SelectCardProps {
-  item: ITransformationTargets;
+  item: TransformationTargets;
   cardSelected: boolean;
   onChange: (isNewCard: boolean, value: string) => void;
 }
@@ -33,7 +33,7 @@ export const SelectCard: React.FC<SelectCardProps> = ({
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
   const [isSelectOpen, setSelectOpen] = React.useState(false);
   const [selectedRelease, setSelectedRelease] = React.useState(
-    [...item.options][0]
+    [...item.options.keys()][0]
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
@@ -56,7 +56,9 @@ export const SelectCard: React.FC<SelectCardProps> = ({
 
   const getImage = (): React.ComponentType<any> => {
     let result: React.ComponentType<any> = CubesIcon;
-    if (item.iconSrc) {
+    if (item.icon) {
+      result = item.icon;
+    } else if (item.iconSrc) {
       result = () => (
         <img src={item.iconSrc} alt="Card logo" style={{ height: 80 }} />
       );
@@ -81,7 +83,7 @@ export const SelectCard: React.FC<SelectCardProps> = ({
           <Title headingLevel="h4" size="md">
             {item.label}
           </Title>
-          {item.forceSelect === true || item.options.length > 1 ? (
+          {item.options.size > 1 && (
             <Select
               variant={SelectVariant.single}
               aria-label="Select Input"
@@ -90,13 +92,13 @@ export const SelectCard: React.FC<SelectCardProps> = ({
               selections={selectedRelease}
               isOpen={isSelectOpen}
             >
-              {[...item.options].map((element) => (
-                <SelectOption key={element} value={element}>
-                  {targetsLabels.get(element)}
+              {[...item.options].map((el: any, index: number) => (
+                <SelectOption key={index} value={el[0]}>
+                  {el[1]}
                 </SelectOption>
               ))}
             </Select>
-          ) : null}
+          )}
           <Text className={`${spacing.pMd} pf-u-text-align-left`}>
             {item.description}
           </Text>
