@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-import { ToolbarChip } from "@patternfly/react-core";
+import { FormGroupProps, ToolbarChip } from "@patternfly/react-core";
 
 // Axios error
 
@@ -18,15 +18,15 @@ export const getAxiosErrorMessage = (axiosError: AxiosError) => {
 // Formik
 
 export const getValidatedFromError = (
-  error: any
-): "success" | "warning" | "error" | "default" => {
+  error: unknown | undefined
+): FormGroupProps["validated"] => {
   return error ? "error" : "default";
 };
 
 export const getValidatedFromErrorTouched = (
-  error: any,
-  touched: any
-): "success" | "warning" | "error" | "default" => {
+  error: unknown | undefined,
+  touched: boolean | undefined
+): FormGroupProps["validated"] => {
   return error && touched ? "error" : "default";
 };
 

@@ -77,7 +77,6 @@
     "@types/react-router-dom": "^5.1.7",
     "@types/redux-logger": "^3.0.8",
     "@types/testing-library__jest-dom": "^5.14.5",
-    "@types/yup": "^0.29.11",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.6",
     "axios-mock-adapter": "^1.19.0",
     "browserslist": "^4.19.1",

@@ -1,9 +1,14 @@
 const { xmllint } = require("xmllint");
 
-export const validateXML = (value: string, currentSchema: string) => {
-  const validationResult = xmllint.validateXML({
+export interface XMLLintValidationResult {
+  errors: null | string[];
+}
+
+export const validateXML = (
+  value: string,
+  currentSchema: string
+): XMLLintValidationResult =>
+  xmllint.validateXML({
     xml: value,
     schema: currentSchema,
   });
-  return validationResult;
-};
