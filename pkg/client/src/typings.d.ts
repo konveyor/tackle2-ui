@@ -10,7 +10,6 @@ declare namespace NodeJS {
     readonly KEYCLOAK_CLIENT_ID: string;
     readonly KEYCLOAK_SERVER_URL: string;
     readonly AUTH_REQUIRED: string;
-    readonly PROFILE: string;
   }
 }
 
