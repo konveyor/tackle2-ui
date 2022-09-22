@@ -16,10 +16,11 @@ setupProxy(app);
 app.engine("ejs", require("ejs").renderFile);
 
 app.use(bodyParser.json());
+app.set("views", path.join(__dirname, "../client/dist"));
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
 app.get("*", (_, res) => {
-  if (process.env["NODE_ENV"] == "development") {
+  if (process.env.NODE_ENV === "development") {
     res.send(`
       <style>pre { margin-left: 20px; }</style>
       You're running in development mode! The UI is served by webpack-dev-server on port 9000: <a href="http://localhost:9000">http://localhost:9000</a><br /><br />
