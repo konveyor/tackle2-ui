@@ -56,19 +56,16 @@ export const SetTargets: React.FunctionComponent = () => {
       iconSrc: migrationIcon,
     },
     {
-      label: "OracleJDK to OpenJDK",
+      label: "OpenJDK",
       description: "Rules to support the migration to OpenJDK from OracleJDK.",
       options: new Map([["openjdk", "openjdk"]]),
       iconSrc: mugIcon,
     },
     {
-      label: "OpenJDK",
+      label: "OpenJDK 11",
       description:
-        "Rules to support upgrading the version of OpenJDK. Migrate to OpenJDK 11 or OpenJDK 17.",
-      options: new Map([
-        ["openjdk11", "openJDK 11"],
-        ["openjdk17", "openJDK 17"],
-      ]),
+        "Rules to support the migration to OpenJDK 11 from OpenJDK 8",
+      options: new Map([["openjdk11", "openjdk11"]]),
       iconSrc: mugIcon,
     },
     {
