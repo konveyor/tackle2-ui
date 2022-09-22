@@ -115,7 +115,7 @@ export const ApplicationIdentityForm: React.FC<
     });
     updateAllApplications(updatePromises);
   };
-  const emptyIdentity = { id: 0, name: "None", kind: "", createUser: "" };
+  const emptyIdentity: Identity = { id: 0, name: "None", createUser: "" };
 
   let mavenIdentityOptions: Identity[] =
     identities?.filter((i) => i.kind === "maven") || [];

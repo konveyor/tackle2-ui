@@ -4,6 +4,7 @@ import {
   Application,
   BusinessService,
   Identity,
+  IdentityKind,
   JobFunction,
   Ref,
   Stakeholder,
@@ -181,7 +182,7 @@ export function toISimpleOptionDropdownWithValue<T>(
 export const getKindIDByRef = (
   identities: Identity[],
   application: Application,
-  kind: string
+  kind: IdentityKind
 ) => {
   const matchingIdentity = identities.find((i) => {
     let matchingID;

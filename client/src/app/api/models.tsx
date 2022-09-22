@@ -144,25 +144,28 @@ export interface BulkCopyReview {
   targetApplications: number[];
   completed?: boolean;
 }
+
+export type IdentityKind = "source" | "maven" | "proxy";
+
 export interface Identity {
   id?: number;
   name?: string;
   description?: string;
-  kind?: string;
+  kind?: IdentityKind;
   createUser?: string;
   encrypted?: string;
-  key?: string | File;
+  key?: string;
   keyFilename?: string;
   password?: string;
   user?: string;
   updateUser?: string;
-  settings?: string | File;
+  settings?: string;
   settingsFilename?: string;
 }
 
 export interface Proxy {
   host: string;
-  kind: string;
+  kind: "http" | "https";
   port: number;
   excluded: Array<string>;
   identity?: Ref;
