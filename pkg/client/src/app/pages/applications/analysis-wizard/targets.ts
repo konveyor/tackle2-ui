@@ -33,6 +33,7 @@ const openTargets: string[] = [
   "linux",
   "openjdk",
   "openjdk11",
+  "openjdk17",
   "openliberty",
   "quarkus",
   "resteasy",
@@ -102,6 +103,8 @@ export const defaultSources = [
 export const targetsLabels = new Map([
   ["eap7", "JBoss EAP 7"],
   ["eap6", "JBoss EAP 6"],
+  ["openjdk11", "OpenJDK 11"],
+  ["openjdk17", "OpenJDK 17"],
   ["azure-appservice", "Azure App Service"],
   ["azure-aks", "Azure Kubernetes Service"],
 ]);
@@ -132,16 +135,17 @@ export const transformationTargets: ITransformationTargets[] = [
     forceSelect: false,
   },
   {
-    label: "OpenJDK",
+    label: "OracleJDK to OpenJDK",
     description: "Rules to support the migration to OpenJDK from OracleJDK.",
     options: ["openjdk"],
     iconSrc: mugIcon,
     forceSelect: false,
   },
   {
-    label: "OpenJDK 11",
-    description: "Rules to support the migration to OpenJDK 11 from OpenJDK 8",
-    options: ["openjdk11"],
+    label: "OpenJDK",
+    description:
+      "Rules to support upgrading the version of OpenJDK. Migrate to OpenJDK 11 or OpenJDK 17.",
+    options: ["openjdk11", "openjdk17"],
     iconSrc: mugIcon,
     forceSelect: false,
   },
