@@ -1,22 +1,15 @@
-const ENV_VAR_KEYS = [
-  "AUTH_REQUIRED",
-  "KEYCLOAK_REALM",
-  "KEYCLOAK_CLIENT_ID",
-  "KEYCLOAK_SERVER_URL",
-  "UI_INGRESS_PROXY_BODY_SIZE",
-  "PROFILE",
-] as const;
-
-export type EnvVars = Record<typeof ENV_VAR_KEYS[number], string>;
-
-const ENV_DEFAULTS: EnvVars = {
+const ENV_VAR_DEFAULTS = {
   AUTH_REQUIRED: "true",
   KEYCLOAK_REALM: "tackle",
   KEYCLOAK_CLIENT_ID: "tackle-ui",
   KEYCLOAK_SERVER_URL: "",
   UI_INGRESS_PROXY_BODY_SIZE: "",
   PROFILE: "konveyor",
-};
+} as const;
+
+type EnvVarKey = keyof typeof ENV_VAR_DEFAULTS;
+const ENV_VAR_KEYS = Object.keys(ENV_VAR_DEFAULTS) as EnvVarKey[];
+export type EnvVars = Record<EnvVarKey, string>;
 
 declare global {
   interface Window {
@@ -26,5 +19,5 @@ declare global {
 export const ENV: EnvVars = window._env || {};
 
 ENV_VAR_KEYS.forEach((key) => {
-  if (!ENV[key]) ENV[key] = ENV_DEFAULTS[key];
+  if (!ENV[key]) ENV[key] = ENV_VAR_DEFAULTS[key];
 });
