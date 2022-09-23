@@ -39,7 +39,7 @@ The UI is composed of web pages (React) served by an http server with proxy capa
 - In development mode, webpack-dev-server plays the role of UI server and Express plays the role of proxy server only. This allows webpack-dev-server to provide development features such as auto-reload.
   webpack-dev-server serves the UI on port 9000 and forwards the `/auth` and `/hub` routes to port 8080 for Express to handle.
 
-The Express server (pkg/server/setupProxy.js) uses by default the environment variables TACKLE_HUB_URL and SSO_SERVER_URL to determine the backend endpoints.
+The Express server (server/setupProxy.js) uses by default the environment variables TACKLE_HUB_URL and SSO_SERVER_URL to determine the backend endpoints.
 If no env. variables are defined, the server then listens on ports 9001 (SSO), 9002 (Application inventory and controls).
 
 In which case the port forwarding must be activated to route Tackle Keycloack (SSO), Tackle Hub requests.
