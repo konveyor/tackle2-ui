@@ -11,8 +11,8 @@ export type EnvVars = Record<typeof ENV_VAR_KEYS[number], string>;
 
 const ENV_DEFAULTS: EnvVars = {
   AUTH_REQUIRED: "true",
-  KEYCLOAK_REALM: "",
-  KEYCLOAK_CLIENT_ID: "",
+  KEYCLOAK_REALM: "tackle",
+  KEYCLOAK_CLIENT_ID: "tackle-ui",
   KEYCLOAK_SERVER_URL: "",
   UI_INGRESS_PROXY_BODY_SIZE: "",
   PROFILE: "konveyor",
