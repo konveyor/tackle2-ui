@@ -16,7 +16,7 @@ declare global {
     _env: EnvVars;
   }
 }
-export const ENV: EnvVars = window._env || {};
+export const ENV: EnvVars = { ...window._env } || {};
 
 ENV_VAR_KEYS.forEach((key) => {
   if (!ENV[key]) ENV[key] = ENV_VAR_DEFAULTS[key];
