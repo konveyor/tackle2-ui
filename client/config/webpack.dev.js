@@ -15,6 +15,7 @@ module.exports = merge(common("development"), {
       "/auth": "http://localhost:8080",
       "/hub": "http://localhost:8080",
     },
+    historyApiFallback: true,
   },
   optimization: {
     runtimeChunk: "single",
