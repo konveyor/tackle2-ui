@@ -32,7 +32,6 @@ LABEL name="konveyor/tackle2-ui" \
       io.openshift.min-memory="350Mi"
 
 COPY --from=builder /opt/app-root/src/client/dist /opt/app-root/src/client/dist
-COPY --from=builder /opt/app-root/src/client/dist/index.html.ejs /opt/app-root/src/server/views/index.html.ejs
 COPY --from=builder /opt/app-root/src/server /opt/app-root/src/server
 COPY --from=builder /opt/app-root/src/node_modules /opt/app-root/src/node_modules
 COPY --from=builder /opt/app-root/src/entrypoint.sh /usr/bin/entrypoint.sh

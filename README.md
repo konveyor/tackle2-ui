@@ -5,11 +5,14 @@
 Tackle (2nd generation) UI component.
 
 To install a Tackle2 cluster environment please refer to [Tackle documentation](https://github.com/konveyor/tackle).
+
 # Development
+
 ## Prerequisites
 
 - [NodeJS](https://nodejs.org/en/) >= 16.x
-## Getting Started 
+
+## Getting Started
 
 ```
 git clone https://github.com/konveyor/tackle2-ui
@@ -18,7 +21,7 @@ npm install
 ```
 
 With a Tackle2 environment available (with kubectl authentication validated)  
-then one can start a tackle2-ui instance locallly serving the pages from the current source code: 
+then one can start a tackle2-ui instance locally serving the pages from the current source code:
 
 `npm run start:dev`
 
@@ -27,21 +30,28 @@ If you're using minikube please read on.
 ## Understanding the local development environment
 
 Tackle2 runs in a Kubernetes compatible environment (Openshift, Kubernetes or minikube) and is usually deployed with Tackle2 Operator (OLM).
-Alhtough the UI pod has access to tackle2 APIs from within the cluster, the UI can also be executed outside the cluster and access Tackle APIs endpoints by proxy.
+Although the UI pod has access to tackle2 APIs from within the cluster, the UI can also be executed outside the cluster and access Tackle APIs endpoints by proxy.
 
-The UI is composed of web pages (React) served by an http server (Express) with proxy capabilities (http-middleware-prox).
-So we when we run Express locally it forwards all API requests to the backend and at same time we keep watching any source changes to be immediatly reloaded.
-It's the equivalent of running webpack dev-server with proxy configuration.
+The UI is composed of web pages (React) served by an http server with proxy capabilities.
 
-The Express server (pkg/server/setupProxy.js) uses by default the environment variables TACKLE_HUB_URL and SSO_SERVER_URL to determine the backend endpoints. 
+- In production mode, Express (Node.js) plays the role of both UI server and proxy server (using http-proxy-middleware).
+  Everything is served on port 8080: the `/auth` and `/hub` routes are proxied to their services, and all other routes serve the UI bundle where they are handled by react-router.
+- In development mode, webpack-dev-server plays the role of UI server and Express plays the role of proxy server only. This allows webpack-dev-server to provide development features such as auto-reload.
+  webpack-dev-server serves the UI on port 9000 and forwards the `/auth` and `/hub` routes to port 8080 for Express to handle.
+
+The Express server (server/setupProxy.js) uses by default the environment variables TACKLE_HUB_URL and SSO_SERVER_URL to determine the backend endpoints.
 If no env. variables are defined, the server then listens on ports 9001 (SSO), 9002 (Application inventory and controls).
 
-In which case the port forwarding must activated to route Tackle Keycloack (SSO), Tackle Hub requests.
-To set-up kubectl port forwarding Tackle2 services to localhost, open a terminal and run each following command separatly: 
-`$ kubectl port-forward svc/tackle-keycloak-sso -n konveyor-tackle 9001:8080`
-`$ kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080`
+In which case the port forwarding must be activated to route Tackle Keycloack (SSO), Tackle Hub requests.
+To set-up kubectl port forwarding Tackle2 services to localhost, open a terminal and run each following command separately:
 
-That's exactly what `start:dev:local` does by port forwarding all tackles2 services for us.
+```
+$ kubectl port-forward svc/tackle-keycloak-sso -n konveyor-tackle 9001:8080
+$ kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080
+$ kubectl port-forward svc/tackle-pathfinder -n konveyor-tackle 9003:8080
+```
+
+That's exactly what `start:dev` does by port forwarding all tackle2 services for us.
 
 ## How to configure Minikube for Tackle2
 
@@ -73,7 +83,6 @@ We need to enable the dashboard, ingress and olm addons. The dashboard addon ins
 `$ minikube addons enable ingress`
 `$ minikube addons enable olm`
 
-
 The following command gives us the IP address assigned to the virtual machine created by Minikube.
 It's used when interacting with tackle UI image installed on the minikube cluster.
 
@@ -83,6 +92,7 @@ $ minikube ip
 ```
 
 ### Configuring kubectl (optional)
+
 Minikube allows us to use the kubectl command with `minikube kubectl. To make the experience more Kubernetes-like, we can set a shell alias to simply use kubectl.
 The following example shows how to do it for Bash on Fedora 35.
 
@@ -95,6 +105,7 @@ $ source ~/.bashrc
 ```
 
 ### Accessing the Kubernetes dashboard
+
 We may need to access the dashboard, either simply to see what's happening under the hood, or to troubleshoot an issue. We have already enabled the dashboard addon in a previous command.
 
 We can use the kubectl proxy command to enable that. The following command sets up the proxy to listen on any network interface (useful for remote access), on the 18080/tcp port (easy to remember), with requests filtering disabled (less secure, but necessary).
@@ -102,16 +113,15 @@ We can use the kubectl proxy command to enable that. The following command sets 
 `$ kubectl proxy --address=0.0.0.0 --port 18080 --disable-filter=true`
 
 We can now access the minikube dashboard through the proxy.
-In the following URL, replace the IP address with your workstation IP address. 
+In the following URL, replace the IP address with your workstation IP address.
 
 http://192.168.0.1:18080/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/#/
-
 
 ### Installing Tackle on Minikube or Kubernetes
 
 For installation on Kubernetes refer to Tackle2 documentation [https://github.com/konveyor/tackle2-operator/blob/main/docs/k8s.md](k8s.md)
 
-Once minikube is installed with OLM installed, as seen above, then deploy Tackle by running this command : 
+Once minikube is installed with OLM installed, as seen above, then deploy Tackle by running this command :
 `kubectl apply -f https://raw.githubusercontent.com/konveyor/tackle2-operator/main/tackle-k8s.yaml`
 
 Then launch Tackle by applying the following CR:
@@ -127,9 +137,10 @@ spec:
 EOF
 ```
 
-Wait few minutes to make sure tackle is fully deployed: 
+Wait few minutes to make sure tackle is fully deployed:
 
-`kubectl wait deployment tackle-keycloak-sso -n konveyor-tackle --for condition=Available --timeout=5m` 
+`kubectl wait deployment tackle-keycloak-sso -n konveyor-tackle --for condition=Available --timeout=5m`
 
 ## Code of Conduct
-Refer to Konveyor's [Code of Conduct page](https://github.com/konveyor/community/blob/main/CODE_OF_CONDUCT.md) 
+
+Refer to Konveyor's [Code of Conduct page](https://github.com/konveyor/community/blob/main/CODE_OF_CONDUCT.md)
