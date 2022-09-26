@@ -14,19 +14,13 @@ import {
   ProposedAction,
   Risk,
 } from "@app/api/models";
-export interface IEnvVars {
-  AUTH_REQUIRED: string;
-  KEYCLOAK_REALM: string;
-  KEYCLOAK_CLIENT_ID: string;
-  KEYCLOAK_SERVER_URL: string;
-  UI_INGRESS_PROXY_BODY_SIZE: string;
-  PROFILE: string;
-}
-export const ENV: IEnvVars = (window as { [key: string]: any })["_env"] || {};
+
+import { ENV } from "./env";
+
 export const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
 export const uploadLimit = ENV.UI_INGRESS_PROXY_BODY_SIZE || "500m";
 export const isPropietaryAllowed =
-  ENV.PROFILE === "konveyor" || ENV.PROFILE === "" ? true : false;
+  ENV.PROFILE === "konveyor" || ENV.PROFILE === "";
 
 export const DEFAULT_PAGINATION: PageQuery = {
   page: 1,
