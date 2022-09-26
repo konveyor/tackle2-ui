@@ -1,5 +1,5 @@
 import Keycloak, { KeycloakConfig } from "keycloak-js";
-import { ENV } from "./Constants";
+import { ENV } from "./env";
 
 // Setup Keycloak instance as needed
 // Pass initialization options as required or leave blank to load from 'keycloak.json'
