@@ -8,9 +8,17 @@ const helpers = require("../../server/helpers");
 module.exports = merge(common("development"), {
   mode: "development",
   devtool: "eval-source-map",
-  watch: true,
-  watchOptions: {
-    ignored: ["../node_modules"],
+  devServer: {
+    port: 9000,
+    proxy: {
+      // NOTE: Any future non-UI paths handled by ../../server/index.js should be added here.
+      "/auth": "http://localhost:8080",
+      "/hub": "http://localhost:8080",
+    },
+    historyApiFallback: true,
+  },
+  optimization: {
+    runtimeChunk: "single",
   },
   plugins: [
     new HtmlWebpackPlugin({

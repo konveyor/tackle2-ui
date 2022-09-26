@@ -1,21 +1,19 @@
 {
-    "name": "tackle2-ui",
-    "version": "2.1.0",
-    "license": "Apache-2.0",
-    "private": true,
-    "scripts": {
-        "dist": "rm -rf ./dist && mkdir -p ./dist/client && cp -r server dist/ && npm run build -w client && cp -r client/dist ./dist/client/",
-        "build:dev": "npm run build:dev -w client",
-        "build": "npm run build -w client",
-        "start:dev": "npm run start:dev -w client",
-        "start": "npm run start -w client"
-    },
-    "devDependencies": {
-        "concurrently": "^7.0.0"
-    },
-    "workspaces": [
-        "client",
-        "server",
-        "qa"
-    ]
+  "name": "tackle2-ui",
+  "version": "2.1.0",
+  "license": "Apache-2.0",
+  "private": true,
+  "scripts": {
+    "dist": "rm -rf ./dist && mkdir -p ./dist/client && cp -r server dist/ && npm run build -w client && cp -r client/dist ./dist/client/",
+    "build:dev": "npm run build:dev -w client",
+    "build": "npm run build -w client",
+    "start:dev": "npm run start:dev -w client",
+    "start": "npm run start -w client",
+    "port-forward": "npm run port-forward -w client"
+  },
+  "workspaces": [
+    "client",
+    "server",
+    "qa"
+  ]
 }
