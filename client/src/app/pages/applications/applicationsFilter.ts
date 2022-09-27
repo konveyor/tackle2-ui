@@ -65,6 +65,9 @@ export const useApplicationsFilterValues = (
           .map((app) => app.businessService?.name)
           .map((name) => ({ key: name, value: name }))
       ),
+      getItemValue: (item) => {
+        return item.businessService?.name || "";
+      },
     },
     {
       key: "identities",
