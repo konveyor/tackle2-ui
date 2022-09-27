@@ -50,18 +50,15 @@ export const KeycloakProvider: React.FunctionComponent<
             if (keycloak.authenticated) {
               initInterceptors(() => {
                 return new Promise<string>((resolve, reject) => {
+                  console.log("cookie", getCookie("keycloak_cookie"));
+                  console.log("keycloak.token", keycloak.token);
                   if (keycloak.token) {
                     keycloak
                       .updateToken(60)
-                      .then((refreshed) => {
-                        if (refreshed) {
-                          deleteCookie("keycloak_cookie");
-                          checkAuthCookie();
-                          return resolve(keycloak.token!);
-                        } else {
-                          checkAuthCookie();
-                          return resolve(keycloak.token!);
-                        }
+                      .then(() => {
+                        deleteCookie("keycloak_cookie");
+                        checkAuthCookie();
+                        return resolve(keycloak.token!);
                       })
                       .catch((err) => {
                         console.log("err", err);
