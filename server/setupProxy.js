@@ -27,9 +27,11 @@ module.exports = function (app) {
         }
       },
       onProxyRes: (proxyRes, req, res) => {
+        const includesJsonHeaders =
+          req.headers.accept.includes("application/json");
         if (
-          proxyRes.statusCode === 401 ||
-          proxyRes.statusMessage === "Unauthorized"
+          (!includesJsonHeaders && proxyRes.statusCode === 401) ||
+          (!includesJsonHeaders && proxyRes.statusMessage === "Unauthorized")
         ) {
           res.redirect("/");
         }
