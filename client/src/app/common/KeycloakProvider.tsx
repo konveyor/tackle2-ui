@@ -53,15 +53,10 @@ export const KeycloakProvider: React.FunctionComponent<
                   if (keycloak.token) {
                     keycloak
                       .updateToken(60)
-                      .then((refreshed) => {
-                        if (refreshed) {
-                          deleteCookie("keycloak_cookie");
-                          checkAuthCookie();
-                          return resolve(keycloak.token!);
-                        } else {
-                          checkAuthCookie();
-                          return resolve(keycloak.token!);
-                        }
+                      .then(() => {
+                        deleteCookie("keycloak_cookie");
+                        checkAuthCookie();
+                        return resolve(keycloak.token!);
                       })
                       .catch((err) => {
                         console.log("err", err);
