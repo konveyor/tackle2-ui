@@ -21,7 +21,6 @@ import { SelectDependency } from "./select-dependency";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useFetchApplications } from "@app/queries/applications";
 import useFetchApplicationDependencies from "@app/shared/hooks/useFetchApplicationDependencies/useFetchApplicationDependencies";
-import identities from "@app/pages/identities";
 
 const northToStringFn = (value: ApplicationDependency) => value.from.name;
 const southToStringFn = (value: ApplicationDependency) => value.to.name;
@@ -127,6 +126,48 @@ export const ApplicationDependenciesForm: React.FC<
     .map((sbd) => sbd.value.to.id)
     .concat(northboundDependencies.map((nbd) => nbd.value.from.id));
 
+  const filteredDependencyOptions = (
+    applications: Application[],
+    dependencies: ApplicationDependency[],
+    circularDependencyCheckDirection: "north" | "south"
+  ) =>
+    (applications || [])
+      .filter((app) => {
+        let blacklistedCircularDeps: (number | undefined)[] = [];
+        if (dependencies && circularDependencyCheckDirection === "north") {
+          const matchingDep = dependencies.find(
+            (dep) => dep.to.id === application.id
+          );
+          blacklistedCircularDeps = [
+            ...blacklistedCircularDeps,
+            ...dependencies
+              .filter((dep) => dep.to.id === matchingDep?.from.id)
+              .map((dep) => dep.from.id),
+          ];
+        } else if (
+          dependencies &&
+          circularDependencyCheckDirection === "south"
+        ) {
+          const matchingDep = dependencies.find(
+            (dep) => dep.from.id === application.id
+          );
+          blacklistedCircularDeps = [
+            ...blacklistedCircularDeps,
+            ...dependencies
+              .filter((dep) => dep.from.id === matchingDep?.to.id)
+              .map((dep) => dep.to.id),
+          ];
+        }
+        return !blacklistedCircularDeps.includes(app?.id);
+      })
+      .filter((f) => f.id !== application.id)
+      .filter((app) => {
+        return !existingDependencyMappings?.includes(app.id);
+      })
+      .map((f) =>
+        dependencyToOption({ from: application, to: f }, southToStringFn)
+      );
+
   return (
     <Form>
       <TextContent>
@@ -152,28 +193,11 @@ export const ApplicationDependenciesForm: React.FC<
           toStringFn={northToStringFn}
           value={northboundDependencies}
           setValue={setNorthboundDependencies}
-          options={(applications || [])
-            .filter((app) => {
-              let blacklistedCircularDeps: (number | undefined)[] = [];
-              if (southDependencies) {
-                southDependencies?.forEach((dep) => {
-                  if (dep.from.id === application.id) {
-                    let sbd = dep;
-                    blacklistedCircularDeps = southDependencies
-                      .filter((dep) => dep.from.id === sbd.to.id)
-                      .map((dep) => dep.to.id);
-                  }
-                });
-              }
-              return !blacklistedCircularDeps.includes(app?.id);
-            })
-            .filter((f) => f.id !== application.id)
-            .filter((app) => {
-              return !existingDependencyMappings?.includes(app.id);
-            })
-            .map((f) =>
-              dependencyToOption({ from: f, to: application }, northToStringFn)
-            )}
+          options={filteredDependencyOptions(
+            applications,
+            northDependencies || [],
+            "south"
+          )}
           isFetching={isFetchingApplications || isFetchingNorthDependencies}
           fetchError={fetchErrorApplications || fetchErrorNorthDependencies}
           isSaving={isNorthBeingSaved}
@@ -201,28 +225,11 @@ export const ApplicationDependenciesForm: React.FC<
           toStringFn={southToStringFn}
           value={southboundDependencies}
           setValue={setSouthboundDependencies}
-          options={(applications || [])
-            .filter((app) => {
-              let blacklistedCircularDeps: (number | undefined)[] = [];
-              if (northDependencies) {
-                northDependencies?.forEach((dep) => {
-                  if (dep.to.id === application.id) {
-                    let nbd = dep;
-                    blacklistedCircularDeps = northDependencies
-                      .filter((dep) => dep.to.id === nbd.from.id)
-                      .map((dep) => dep.from.id);
-                  }
-                });
-              }
-              return !blacklistedCircularDeps.includes(app?.id);
-            })
-            .filter((f) => f.id !== application.id)
-            .filter((app) => {
-              return !existingDependencyMappings?.includes(app.id);
-            })
-            .map((f) =>
-              dependencyToOption({ from: application, to: f }, southToStringFn)
-            )}
+          options={filteredDependencyOptions(
+            applications,
+            southDependencies || [],
+            "north"
+          )}
           isFetching={isFetchingApplications || isFetchingSouthDependencies}
           fetchError={fetchErrorApplications || fetchErrorSouthDependencies}
           isSaving={isSouthBeingSaved}
