@@ -21,6 +21,7 @@ import { SelectDependency } from "./select-dependency";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useFetchApplications } from "@app/queries/applications";
 import useFetchApplicationDependencies from "@app/shared/hooks/useFetchApplicationDependencies/useFetchApplicationDependencies";
+import identities from "@app/pages/identities";
 
 const northToStringFn = (value: ApplicationDependency) => value.from.name;
 const southToStringFn = (value: ApplicationDependency) => value.to.name;
@@ -152,6 +153,22 @@ export const ApplicationDependenciesForm: React.FC<
           value={northboundDependencies}
           setValue={setNorthboundDependencies}
           options={(applications || [])
+            .filter((app) => {
+              let blacklistedCircularDeps: (number | undefined)[] = [];
+              if (southDependencies) {
+                southDependencies?.forEach((dep) => {
+                  if (dep.from.id === application.id) {
+                    let sbd = dep;
+                    const matchingCircularRef = southDependencies.find(
+                      (dep) => dep.from.id === sbd.to.id
+                    );
+                    matchingCircularRef &&
+                      blacklistedCircularDeps?.push(matchingCircularRef?.to.id);
+                  }
+                });
+              }
+              return !blacklistedCircularDeps.includes(app?.id);
+            })
             .filter((f) => f.id !== application.id)
             .filter((app) => {
               return !existingDependencyMappings?.includes(app.id);
@@ -187,6 +204,24 @@ export const ApplicationDependenciesForm: React.FC<
           value={southboundDependencies}
           setValue={setSouthboundDependencies}
           options={(applications || [])
+            .filter((app) => {
+              let blacklistedCircularDeps: (number | undefined)[] = [];
+              if (northDependencies) {
+                northDependencies?.forEach((dep) => {
+                  if (dep.to.id === application.id) {
+                    let nbd = dep;
+                    const matchingCircularRef = northDependencies.find(
+                      (dep) => dep.to.id === nbd.from.id
+                    );
+                    matchingCircularRef &&
+                      blacklistedCircularDeps?.push(
+                        matchingCircularRef?.from.id
+                      );
+                  }
+                });
+              }
+              return !blacklistedCircularDeps.includes(app?.id);
+            })
             .filter((f) => f.id !== application.id)
             .filter((app) => {
               return !existingDependencyMappings?.includes(app.id);
