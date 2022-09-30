@@ -159,11 +159,9 @@ export const ApplicationDependenciesForm: React.FC<
                 southDependencies?.forEach((dep) => {
                   if (dep.from.id === application.id) {
                     let sbd = dep;
-                    const matchingCircularRef = southDependencies.find(
-                      (dep) => dep.from.id === sbd.to.id
-                    );
-                    matchingCircularRef &&
-                      blacklistedCircularDeps?.push(matchingCircularRef?.to.id);
+                    blacklistedCircularDeps = southDependencies
+                      .filter((dep) => dep.from.id === sbd.to.id)
+                      .map((dep) => dep.to.id);
                   }
                 });
               }
@@ -210,13 +208,9 @@ export const ApplicationDependenciesForm: React.FC<
                 northDependencies?.forEach((dep) => {
                   if (dep.to.id === application.id) {
                     let nbd = dep;
-                    const matchingCircularRef = northDependencies.find(
-                      (dep) => dep.to.id === nbd.from.id
-                    );
-                    matchingCircularRef &&
-                      blacklistedCircularDeps?.push(
-                        matchingCircularRef?.from.id
-                      );
+                    blacklistedCircularDeps = northDependencies
+                      .filter((dep) => dep.to.id === nbd.from.id)
+                      .map((dep) => dep.from.id);
                   }
                 });
               }
