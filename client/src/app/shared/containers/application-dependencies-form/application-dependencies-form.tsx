@@ -138,12 +138,9 @@ export const ApplicationDependenciesForm: React.FC<
           const matchingDep = dependencies.find(
             (dep) => dep.to.id === application.id
           );
-          blacklistedCircularDeps = [
-            ...blacklistedCircularDeps,
-            ...dependencies
-              .filter((dep) => dep.to.id === matchingDep?.from.id)
-              .map((dep) => dep.from.id),
-          ];
+          blacklistedCircularDeps = dependencies
+            .filter((dep) => dep.to.id === matchingDep?.from.id)
+            .map((dep) => dep.from.id);
         } else if (
           dependencies &&
           circularDependencyCheckDirection === "south"
@@ -151,12 +148,9 @@ export const ApplicationDependenciesForm: React.FC<
           const matchingDep = dependencies.find(
             (dep) => dep.from.id === application.id
           );
-          blacklistedCircularDeps = [
-            ...blacklistedCircularDeps,
-            ...dependencies
-              .filter((dep) => dep.from.id === matchingDep?.to.id)
-              .map((dep) => dep.to.id),
-          ];
+          blacklistedCircularDeps = dependencies
+            .filter((dep) => dep.from.id === matchingDep?.to.id)
+            .map((dep) => dep.to.id);
         }
         return !blacklistedCircularDeps.includes(app?.id);
       })
