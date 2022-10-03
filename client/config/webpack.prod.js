@@ -6,7 +6,6 @@ const { stylePaths } = require("./stylePaths");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const TerserJSPlugin = require("terser-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = merge(common("production"), {
   mode: "production",
@@ -24,14 +23,6 @@ module.exports = merge(common("production"), {
       minimizerOptions: {
         preset: ["default", { mergeLonghand: false }],
       },
-    }),
-    new HtmlWebpackPlugin({
-      // In real prod mode, populate window._env at run time with express
-      filename: "index.html.ejs",
-      template: `!!raw-loader!${path.resolve(
-        __dirname,
-        "../public/index.html.ejs"
-      )}`,
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "production",
