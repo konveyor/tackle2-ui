@@ -19,6 +19,7 @@ import { MobileDropdown } from "./MobileDropdown";
 import navBrandImage from "@app/images/tackle.png";
 import imgAvatar from "@app/images/avatar.svg";
 import { APP_BRAND, BrandType, isAuthRequired } from "@app/Constants";
+import logoRedHat from "@app/images/logoRedHat.svg";
 import "./header.css";
 
 export const HeaderApp: React.FC = () => {
@@ -61,7 +62,13 @@ export const HeaderApp: React.FC = () => {
         </PageHeaderToolsItem>
         {isAuthRequired && <SSOMenu />}
       </PageHeaderToolsGroup>
-      <Avatar src={imgAvatar} alt="Avatar image" />
+      {APP_BRAND === BrandType.MTA && (
+        <PageHeaderToolsGroup>
+          <PageHeaderToolsItem>
+            <img src={logoRedHat} alt="Logo" className="redhat-logo-style" />
+          </PageHeaderToolsItem>
+        </PageHeaderToolsGroup>
+      )}
     </PageHeaderTools>
   );
 

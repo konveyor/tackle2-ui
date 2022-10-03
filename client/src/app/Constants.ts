@@ -24,8 +24,8 @@ export interface IEnvVars {
 }
 
 export enum BrandType {
-  Konveyor = "Konveyor",
-  MTA = "RedHat",
+  Konveyor = "konveyor",
+  MTA = "mta",
 }
 
 export const ENV: IEnvVars = (window as { [key: string]: any })["_env"] || {};

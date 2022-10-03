@@ -4,3 +4,7 @@
 .pf-c-page__header-brand-link {
     all: unset !important
 }
+.redhat-logo-style {
+    height: 30px;
+    vertical-align: middle;
+  }

@@ -4,7 +4,7 @@ const common = require("./webpack.common.js");
 const { stylePaths } = require("./stylePaths");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const helpers = require("../../server/helpers");
-const brandType = process.env["BRAND_TYPE"];
+const brandType = process.env["PROFILE"];
 
 module.exports = merge(common("development"), {
   mode: "development",
