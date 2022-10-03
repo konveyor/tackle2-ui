@@ -22,6 +22,13 @@ export const usePaginationState = <T>(
   const setPageNumber = (num: number) => baseSetPageNumber(num >= 1 ? num : 1);
   const [itemsPerPage, setItemsPerPage] = React.useState(initialItemsPerPage);
 
+  const lastPageNumber = Math.max(Math.ceil(items.length / itemsPerPage), 1);
+  React.useEffect(() => {
+    if (pageNumber > lastPageNumber) {
+      setPageNumber(lastPageNumber);
+    }
+  });
+
   const pageStartIndex = (pageNumber - 1) * itemsPerPage;
   const currentPageItems = items.slice(
     pageStartIndex,

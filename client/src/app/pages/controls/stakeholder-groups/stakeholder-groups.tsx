@@ -255,9 +255,6 @@ export const StakeholderGroups: React.FC = () => {
         onConfirm: () => {
           dispatch(confirmDialogActions.processing());
           row.id && deleteStakeholderGroup(row.id);
-          if (currentPageItems.length === 1 && paginationProps.page) {
-            setPageNumber(paginationProps.page - 1);
-          }
         },
       })
     );
