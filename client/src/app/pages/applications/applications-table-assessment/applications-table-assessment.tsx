@@ -491,11 +491,6 @@ export const ApplicationsTable: React.FC = () => {
         onConfirm: () => {
           if (row.id) {
             deleteApplication({ id: row.id });
-            if (currentPageItems.length === 1 && paginationProps.page) {
-              setPageNumber(paginationProps.page - 1);
-            } else {
-              setPageNumber(1);
-            }
           }
         },
       })

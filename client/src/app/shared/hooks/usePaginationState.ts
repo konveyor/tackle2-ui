@@ -18,8 +18,17 @@ export const usePaginationState = <T>(
   items: T[],
   initialItemsPerPage: number
 ): IPaginationStateHook<T> => {
-  const [pageNumber, setPageNumber] = React.useState(1);
+  const [pageNumber, baseSetPageNumber] = React.useState(1);
+  const setPageNumber = (num: number) => baseSetPageNumber(num >= 1 ? num : 1);
   const [itemsPerPage, setItemsPerPage] = React.useState(initialItemsPerPage);
+
+  // When items are removed, make sure the current page still exists
+  const lastPageNumber = Math.max(Math.ceil(items.length / itemsPerPage), 1);
+  React.useEffect(() => {
+    if (pageNumber > lastPageNumber) {
+      setPageNumber(lastPageNumber);
+    }
+  });
 
   const pageStartIndex = (pageNumber - 1) * itemsPerPage;
   const currentPageItems = items.slice(
@@ -38,5 +47,9 @@ export const usePaginationState = <T>(
     },
   };
 
-  return { currentPageItems, setPageNumber, paginationProps };
+  return {
+    currentPageItems,
+    setPageNumber,
+    paginationProps,
+  };
 };
