@@ -117,10 +117,10 @@ export const ManageImports: React.FC = () => {
   );
 
   const getSortValues = (item: ApplicationImportSummary) => [
-    "",
-    "",
+    item?.importTime,
+    item?.createUser.toLowerCase(),
     item?.filename?.toLowerCase() || "",
-    "",
+    item?.importStatus,
     "", // Action column
   ];
 
@@ -136,11 +136,11 @@ export const ManageImports: React.FC = () => {
   const columns: ICell[] = [
     {
       title: t("terms.date"),
-      transforms: [cellWidth(25)],
+      transforms: [sortable, cellWidth(25)],
     },
     {
       title: t("terms.user"),
-      transforms: [cellWidth(15)],
+      transforms: [sortable, cellWidth(15)],
       cellTransforms: [truncate],
     },
     {
@@ -150,7 +150,7 @@ export const ManageImports: React.FC = () => {
     },
     {
       title: t("terms.status"),
-      transforms: [cellWidth(10)],
+      transforms: [sortable, cellWidth(10)],
       cellTransforms: [truncate],
     },
     {
