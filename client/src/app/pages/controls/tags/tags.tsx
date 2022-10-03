@@ -338,8 +338,6 @@ export const Tags: React.FC = () => {
           row.id && deleteTagType(row.id);
           if (currentPageItems.length === 1 && paginationProps.page) {
             setPageNumber(paginationProps.page - 1);
-          } else {
-            setPageNumber(1);
           }
         },
       })
