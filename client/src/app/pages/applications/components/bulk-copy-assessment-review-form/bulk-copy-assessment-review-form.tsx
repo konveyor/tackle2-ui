@@ -55,6 +55,7 @@ import { useSortState } from "@app/shared/hooks/useSortState";
 import { useSelectionState } from "@migtools/lib-ui";
 import { useFetchApplicationAssessments } from "@app/queries/assessments";
 import { useFetchApplications } from "@app/queries/applications";
+import { useFetchTagTypes } from "@app/queries/tags";
 
 const ENTITY_FIELD = "entity";
 
@@ -87,6 +88,8 @@ export const BulkCopyAssessmentReviewForm: React.FC<
   const { applications, isFetching, fetchError, refetch } =
     useFetchApplications();
 
+  const { tagTypes } = useFetchTagTypes();
+
   const filterCategories: FilterCategory<Application>[] = [
     {
       key: "name",
@@ -110,6 +113,26 @@ export const BulkCopyAssessmentReviewForm: React.FC<
       getItemValue: (item) => {
         return item.businessService?.name || "";
       },
+    },
+    {
+      key: "tags",
+      title: t("terms.tags"),
+      type: FilterType.multiselect,
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.tagName").toLowerCase(),
+        }) + "...",
+      getItemValue: (item) => {
+        let tagNames = item?.tags?.map((tag) => tag.name).join("");
+        return tagNames || "";
+      },
+      selectOptions: dedupeFunction(
+        tagTypes
+          ?.map((tagType) => tagType?.tags)
+          .flat()
+          .filter((tag) => tag && tag.name)
+          .map((tag) => ({ key: tag?.name, value: tag?.name }))
+      ),
     },
   ];
 
