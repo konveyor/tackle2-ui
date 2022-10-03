@@ -18,7 +18,8 @@ export const usePaginationState = <T>(
   items: T[],
   initialItemsPerPage: number
 ): IPaginationStateHook<T> => {
-  const [pageNumber, setPageNumber] = React.useState(1);
+  const [pageNumber, baseSetPageNumber] = React.useState(1);
+  const setPageNumber = (num: number) => baseSetPageNumber(num >= 1 ? num : 1);
   const [itemsPerPage, setItemsPerPage] = React.useState(initialItemsPerPage);
 
   const pageStartIndex = (pageNumber - 1) * itemsPerPage;
@@ -38,5 +39,9 @@ export const usePaginationState = <T>(
     },
   };
 
-  return { currentPageItems, setPageNumber, paginationProps };
+  return {
+    currentPageItems,
+    setPageNumber,
+    paginationProps,
+  };
 };
