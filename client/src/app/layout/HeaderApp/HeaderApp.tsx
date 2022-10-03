@@ -8,6 +8,7 @@ import {
   PageHeaderToolsItem,
   Button,
   ButtonVariant,
+  Title,
 } from "@patternfly/react-core";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
@@ -17,7 +18,8 @@ import { MobileDropdown } from "./MobileDropdown";
 
 import navBrandImage from "@app/images/tackle.png";
 import imgAvatar from "@app/images/avatar.svg";
-import { isAuthRequired } from "@app/Constants";
+import { APP_BRAND, BrandType, isAuthRequired } from "@app/Constants";
+import "./header.css";
 
 export const HeaderApp: React.FC = () => {
   const toolbar = (
@@ -63,11 +65,14 @@ export const HeaderApp: React.FC = () => {
     </PageHeaderTools>
   );
 
-  return (
-    <PageHeader
-      logo={<Brand src={navBrandImage} alt="brand" />}
-      headerTools={toolbar}
-      showNavToggle
-    />
-  );
+  const headerLogo =
+    APP_BRAND === BrandType.Konveyor ? (
+      <Brand src={navBrandImage} alt="brand" />
+    ) : (
+      <Title className="logo-pointer" headingLevel="h1" size="2xl">
+        Migration Toolkit for Applications
+      </Title>
+    );
+
+  return <PageHeader logo={headerLogo} headerTools={toolbar} showNavToggle />;
 };

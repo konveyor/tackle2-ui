@@ -1,0 +1,6 @@
+.logo-pointer{
+    cursor: default !important
+}
+.pf-c-page__header-brand-link {
+    all: unset !important
+}
