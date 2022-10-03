@@ -22,6 +22,7 @@ export const usePaginationState = <T>(
   const setPageNumber = (num: number) => baseSetPageNumber(num >= 1 ? num : 1);
   const [itemsPerPage, setItemsPerPage] = React.useState(initialItemsPerPage);
 
+  // When items are removed, make sure the current page still exists
   const lastPageNumber = Math.max(Math.ceil(items.length / itemsPerPage), 1);
   React.useEffect(() => {
     if (pageNumber > lastPageNumber) {
