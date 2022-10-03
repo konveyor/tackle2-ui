@@ -4,11 +4,6 @@ const CopyPlugin = require("copy-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const { WatchIgnorePlugin } = require("webpack");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-
-const helpers = require("../../server/helpers");
-const brandType = process.env["PROFILE"];
-const nodeEnv = process.env.NODE_ENV === "development";
 
 const BG_IMAGES_DIRNAME = "images";
 
@@ -179,24 +174,6 @@ module.exports = (env) => {
         systemvars: true,
         silent: true,
       }),
-      new HtmlWebpackPlugin({
-        filename: nodeEnv !== "production" ? "index.html" : "index.html.ejs",
-        template:
-          nodeEnv !== "production"
-            ? path.resolve(__dirname, "../public/index.html.ejs")
-            : `!!raw-loader!${path.resolve(
-                __dirname,
-                "../public/index.html.ejs"
-              )}`,
-        templateParameters: {
-          _env: helpers.getEncodedEnv(),
-          brandType,
-        },
-        favicon: path.resolve(
-          __dirname,
-          `../public/${brandType || "konveyor"}-favicon.ico`
-        ),
-      }),
       new CopyPlugin({
         patterns: [
           {
@@ -207,14 +184,6 @@ module.exports = (env) => {
           {
             from: path.resolve(__dirname, "../public/manifest.json"),
             to: path.resolve(__dirname, "../dist/manifest.json"),
-          },
-          {
-            from: path.resolve(__dirname, "../public/konveyor-favicon.ico"),
-            to: path.resolve(__dirname, "../dist/konveyor-favicon.ico"),
-          },
-          {
-            from: path.resolve(__dirname, "../public/mta-favicon.ico"),
-            to: path.resolve(__dirname, "../dist/mta-favicon.ico"),
           },
           {
             from: path.resolve(
