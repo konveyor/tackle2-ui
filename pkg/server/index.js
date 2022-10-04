@@ -17,6 +17,7 @@ app.engine('ejs', require('ejs').renderFile);
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "../client/dist")));
+const brandType = process.env["PROFILE"] || "konveyor";
 
 
 app.get('*', (_, res) => {
@@ -26,6 +27,7 @@ app.get('*', (_, res) => {
   } else {
     res.render('index.html.ejs', {
       _env: helpers.getEncodedEnv(),
+      brandType,
     });
   }
 });
