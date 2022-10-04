@@ -12,15 +12,12 @@ import {
 } from "@patternfly/react-core";
 import { cellWidth, ICell, IRow, truncate } from "@patternfly/react-table";
 
-import { useDispatch } from "react-redux";
-
 import {
   AppPlaceholder,
   AppTableWithControls,
   ConditionalRender,
   PageHeader,
 } from "@app/shared/components";
-
 import { ImportSummaryRoute, Paths } from "@app/Paths";
 import { getApplicationSummaryCSV } from "@app/api/rest";
 import { ApplicationImport } from "@app/api/models";
@@ -46,9 +43,6 @@ export const ManageImportsDetails: React.FC = () => {
 
   // Router
   const { importId } = useParams<ImportSummaryRoute>();
-
-  // Redux
-  const dispatch = useDispatch();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
