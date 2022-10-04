@@ -7,6 +7,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const TerserJSPlugin = require("terser-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const brandType = process.env["PROFILE"] || "konveyor";
 
 module.exports = merge(common("production"), {
   mode: "production",
@@ -32,7 +33,7 @@ module.exports = merge(common("production"), {
         __dirname,
         "../public/index.html.ejs"
       )}`,
-      favicon: path.resolve(__dirname, "../public/favicon.ico"),
+      favicon: path.resolve(__dirname, `../public/${brandType}-favicon.ico`),
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "production",

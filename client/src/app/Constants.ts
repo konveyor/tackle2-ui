@@ -14,13 +14,16 @@ import {
   ProposedAction,
   Risk,
 } from "@app/api/models";
-
 import { ENV } from "./env";
+
+export enum BrandType {
+  Konveyor = "konveyor",
+  MTA = "mta",
+}
 
 export const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
 export const uploadLimit = ENV.UI_INGRESS_PROXY_BODY_SIZE || "500m";
-export const isPropietaryAllowed =
-  ENV.PROFILE === "konveyor" || ENV.PROFILE === "";
+export const APP_BRAND = ENV.PROFILE as BrandType;
 
 export const DEFAULT_PAGINATION: PageQuery = {
   page: 1,
