@@ -1,4 +1,3 @@
-import { isPropietaryAllowed } from "@app/Constants";
 import migrationIcon from "@app/images/Icon-Red_Hat-Migration-A-Black-RGB.svg";
 import appOnServerIcon from "@app/images/Icon-Red_Hat-App_on_server-A-Black-RGB.svg";
 import cloudIcon from "@app/images/Icon-Red_Hat-Cloud-A-Black-RGB.svg";
@@ -6,6 +5,7 @@ import serverIcon from "@app/images/Icon-Red_Hat-Server-A-Black-RGB.svg";
 import mugIcon from "@app/images/Icon-Red_Hat-Mug-A-Black-RGB.svg";
 import multiplyIcon from "@app/images/Icon-Red_Hat-Multiply-A-Black-RGB.svg";
 import virtualServerStackIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
+import { APP_BRAND, BrandType } from "@app/Constants";
 
 export interface ITransformationTargets {
   label: string;
@@ -44,7 +44,8 @@ const openTargets: string[] = [
 const proprietaryTargets = ["azure-aks"];
 
 const setDefaultTargets = () => {
-  if (isPropietaryAllowed) return [...openTargets, ...proprietaryTargets];
+  if (APP_BRAND === BrandType.Konveyor)
+    return [...openTargets, ...proprietaryTargets];
   return openTargets;
 };
 
@@ -193,9 +194,10 @@ export const transformationTargets: ITransformationTargets[] = [
     label: "Azure",
     description:
       "Upgrade your Java application so it can be deployed in different flavors of Azure.",
-    options: isPropietaryAllowed
-      ? ["azure-appservice", "azure-aks"]
-      : ["azure-appservice"],
+    options:
+      APP_BRAND === BrandType.Konveyor
+        ? ["azure-appservice", "azure-aks"]
+        : ["azure-appservice"],
     iconSrc: virtualServerStackIcon,
     forceSelect: true,
   },
