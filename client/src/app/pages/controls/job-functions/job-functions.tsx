@@ -98,7 +98,6 @@ export const JobFunctions: React.FC = () => {
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
-      actionClose: true,
     });
   };
 
@@ -183,7 +182,6 @@ export const JobFunctions: React.FC = () => {
         type: "job function",
       }),
       variant: "success",
-      actionClose: true,
     });
   };
 

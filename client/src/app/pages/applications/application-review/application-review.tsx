@@ -125,7 +125,6 @@ export const ApplicationReview: React.FC = () => {
         pushNotification({
           title: getAxiosErrorMessage(error),
           variant: "danger",
-          actionClose: true,
         });
       }
     );

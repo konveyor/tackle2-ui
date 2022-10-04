@@ -153,7 +153,6 @@ export const ApplicationsTable: React.FC = () => {
           type: t("terms.application").toLowerCase(),
         }),
         variant: "success",
-        actionClose: true,
       });
     }
 
@@ -170,7 +169,6 @@ export const ApplicationsTable: React.FC = () => {
         appIDCount: appIDCount,
       }),
       variant: "success",
-      actionClose: true,
     });
     refetch();
   };
@@ -180,7 +178,6 @@ export const ApplicationsTable: React.FC = () => {
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
-      actionClose: true,
     });
   };
 
@@ -539,7 +536,6 @@ export const ApplicationsTable: React.FC = () => {
                   application: row.name,
                 }),
                 variant: "success",
-                actionClose: true,
               });
 
               queryClient.invalidateQueries(assessmentsQueryKey);
@@ -551,7 +547,6 @@ export const ApplicationsTable: React.FC = () => {
               pushNotification({
                 title: getAxiosErrorMessage(error),
                 variant: "danger",
-                actionClose: true,
               });
             });
         },
@@ -566,7 +561,6 @@ export const ApplicationsTable: React.FC = () => {
       pushNotification({
         title: msg,
         variant: "danger",
-        actionClose: true,
       });
       return;
     }
@@ -608,7 +602,6 @@ export const ApplicationsTable: React.FC = () => {
         pushNotification({
           title: getAxiosErrorMessage(error),
           variant: "danger",
-          actionClose: true,
         });
       }
     );
@@ -620,7 +613,6 @@ export const ApplicationsTable: React.FC = () => {
       pushNotification({
         title: msg,
         variant: "danger",
-        actionClose: true,
       });
       return;
     }

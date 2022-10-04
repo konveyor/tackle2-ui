@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useIsMutating } from "react-query";
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
 import {
   Truncate,
   Wizard,
@@ -97,9 +96,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
   isOpen,
 }: IAnalysisWizard) => {
   const { t } = useTranslation();
-
   const title = t("dialog.title.applicationAnalysis");
-  const dispatch = useDispatch();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -123,7 +120,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     pushNotification({
       title: "Taskgroup creation failed",
       variant: "danger",
-      actionClose: true,
     });
     onClose();
   };
@@ -138,14 +134,12 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       title: "Applications",
       message: "Submitted for analysis",
       variant: "danger",
-      actionClose: true,
     });
 
   const onSubmitTaskgroupError = (error: Error | unknown) =>
     pushNotification({
       title: "Taskgroup submit failed",
       variant: "danger",
-      actionClose: true,
     });
 
   const { mutate: submitTaskgroup } = useSubmitTaskgroupMutation(
@@ -165,7 +159,6 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     pushNotification({
       title: "Taskgroup: delete failed",
       variant: "danger",
-      actionClose: true,
     });
   };
 

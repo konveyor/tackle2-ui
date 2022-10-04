@@ -62,7 +62,6 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
         pushNotification({
           title: t("toastr.success.fileSavedToBeProcessed"),
           variant: "success",
-          actionClose: true,
         });
 
         setIsSubmitting(false);
@@ -74,7 +73,6 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
           pushNotification({
             title: getAxiosErrorMessage(error),
             variant: "danger",
-            actionClose: true,
           });
         }
         onSaved(error);

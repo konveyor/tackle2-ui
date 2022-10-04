@@ -66,7 +66,6 @@ export const Identities: React.FunctionComponent = () => {
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
-      actionClose: true,
     });
   };
 
@@ -206,7 +205,6 @@ export const Identities: React.FunctionComponent = () => {
           type: t("terms.credential").toLowerCase(),
         }),
         variant: "success",
-        actionClose: true,
       });
     }
 

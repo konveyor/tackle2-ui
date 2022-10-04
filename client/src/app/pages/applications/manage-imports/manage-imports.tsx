@@ -97,7 +97,6 @@ export const ManageImports: React.FC = () => {
       pushNotification({
         title: error.message,
         variant: "danger",
-        actionClose: true,
       });
     }
   };

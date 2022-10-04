@@ -311,7 +311,6 @@ export const BulkCopyAssessmentReviewForm: React.FC<
           pushNotification({
             title: getAxiosErrorMessage(error),
             variant: "danger",
-            actionClose: true,
           });
           onSaved();
         });
@@ -320,7 +319,6 @@ export const BulkCopyAssessmentReviewForm: React.FC<
         title: "Failed",
         message: "Copy assessment failed.",
         variant: "danger",
-        actionClose: true,
       });
       onSaved();
     }

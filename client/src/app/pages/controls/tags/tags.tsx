@@ -86,13 +86,11 @@ export const Tags: React.FC = () => {
       pushNotification({
         title: "Cannot delete a used tag",
         variant: "danger",
-        actionClose: true,
       });
     } else {
       pushNotification({
         title: getAxiosErrorMessage(error),
         variant: "danger",
-        actionClose: true,
       });
     }
   };
@@ -116,13 +114,11 @@ export const Tags: React.FC = () => {
       pushNotification({
         title: "Cannot delete a used tag",
         variant: "danger",
-        actionClose: true,
       });
     } else {
       pushNotification({
         title: getAxiosErrorMessage(error),
         variant: "danger",
-        actionClose: true,
       });
     }
   };
@@ -383,7 +379,6 @@ export const Tags: React.FC = () => {
         type: "tag type",
       }),
       variant: "success",
-      actionClose: true,
     });
   };
 
@@ -396,7 +391,6 @@ export const Tags: React.FC = () => {
         type: "tag",
       }),
       variant: "success",
-      actionClose: true,
     });
   };
 

@@ -74,7 +74,6 @@ export const Stakeholders: React.FC = () => {
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
-      actionClose: true,
     });
   };
 
@@ -299,7 +298,6 @@ export const Stakeholders: React.FC = () => {
         type: "stakeholder",
       }),
       variant: "success",
-      actionClose: true,
     });
   };
 

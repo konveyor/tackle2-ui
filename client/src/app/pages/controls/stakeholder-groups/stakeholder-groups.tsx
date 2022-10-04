@@ -78,7 +78,6 @@ export const StakeholderGroups: React.FC = () => {
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
-      actionClose: true,
     });
   };
 
@@ -286,7 +285,6 @@ export const StakeholderGroups: React.FC = () => {
         type: "stakeholder group",
       }),
       variant: "success",
-      actionClose: true,
     });
   };
 

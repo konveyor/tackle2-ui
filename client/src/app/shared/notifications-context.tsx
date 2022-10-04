@@ -1,5 +1,21 @@
 import * as React from "react";
-import { INotification } from "@app/shared/components/Notifications";
+
+export type notificationType =
+  | "success"
+  | "info"
+  | "warning"
+  | "danger"
+  | "default";
+
+export type INotification = {
+  title: string;
+  variant: notificationType;
+  key?: string;
+  message?: React.ReactNode;
+  hideCloseButton?: boolean;
+  actionClose?: React.ReactNode;
+  timeout?: number | boolean;
+};
 
 interface INotificationsProvider {
   children: React.ReactNode;
@@ -13,6 +29,10 @@ interface INotificationsContext {
 
 const appContextDefaultValue = {} as INotificationsContext;
 
+const notificationDefault: Pick<INotification, "hideCloseButton"> = {
+  hideCloseButton: false,
+};
+
 export const NotificationsContext = React.createContext<INotificationsContext>(
   appContextDefaultValue
 );
@@ -23,7 +43,10 @@ export const NotificationsProvider: React.FunctionComponent<
   const [notifications, setNotifications] = React.useState<INotification[]>([]);
 
   const pushNotification = (notification: INotification) => {
-    setNotifications([...notifications, notification]);
+    setNotifications([
+      ...notifications,
+      { ...notificationDefault, ...notification },
+    ]);
   };
 
   const dismissNotification = (key: string) => {

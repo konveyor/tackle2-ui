@@ -51,7 +51,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     pushNotification({
       title: "Uploaded binary file.",
       variant: "success",
-      actionClose: true,
     });
     setFileUploadStatus("success");
     setFileUploadProgress(100);
@@ -62,7 +61,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
       title: "Failed",
       message: "Binary file upload failed.",
       variant: "danger",
-      actionClose: true,
     });
     setFileUploadStatus("danger");
     setFileUploadProgress(0);
@@ -73,7 +71,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     pushNotification({
       title: "Removed binary file.",
       variant: "success",
-      actionClose: true,
     });
     setFileUploadStatus("success");
     setFileUploadProgress(100);
@@ -84,7 +81,6 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
       title: "Failed",
       message: "Binary file removal failed.",
       variant: "danger",
-      actionClose: true,
     });
     setFileUploadStatus("danger");
     setFileUploadProgress(0);

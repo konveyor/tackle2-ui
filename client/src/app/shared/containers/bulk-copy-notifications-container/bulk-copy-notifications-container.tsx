@@ -103,7 +103,6 @@ export const BulkCopyNotificationsContainer: React.FC = () => {
           ? t("toastr.success.assessmentAndReviewCopied")
           : t("toastr.success.assessmentCopied"),
         variant: "success",
-        actionClose: true,
       });
 
       queryClient.invalidateQueries(assessmentsQueryKey);

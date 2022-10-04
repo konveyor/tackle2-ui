@@ -100,7 +100,6 @@ export const ManageImportsDetails: React.FC = () => {
         pushNotification({
           title: getAxiosErrorMessage(error),
           variant: "danger",
-          actionClose: true,
         });
       });
   };

@@ -124,7 +124,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       title: "Task",
       message: "Canceled",
       variant: "info",
-      actionClose: true,
     });
   };
 
@@ -133,7 +132,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       title: "Task",
       message: "Cancelation failed.",
       variant: "danger",
-      actionClose: true,
     });
   };
 
@@ -169,7 +167,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           type: t("terms.application").toLowerCase(),
         }),
         variant: "success",
-        actionClose: true,
       });
     }
 
@@ -190,7 +187,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         appIDCount: appIDCount,
       }),
       variant: "success",
-      actionClose: true,
     });
     refetch();
   };
@@ -200,7 +196,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
-      actionClose: true,
     });
     refetch();
   };

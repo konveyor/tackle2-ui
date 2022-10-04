@@ -210,7 +210,6 @@ export const ApplicationAssessment: React.FC = () => {
                 pushNotification({
                   title: getAxiosErrorMessage(error),
                   variant: "danger",
-                  actionClose: true,
                 });
                 formikHelpers.setSubmitting(false);
               });

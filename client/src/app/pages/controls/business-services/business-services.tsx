@@ -75,7 +75,6 @@ export const BusinessServices: React.FC = () => {
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
-      actionClose: true,
     });
   };
 
@@ -241,7 +240,6 @@ export const BusinessServices: React.FC = () => {
         type: "business service",
       }),
       variant: "success",
-      actionClose: true,
     });
   };
 
