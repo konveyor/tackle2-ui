@@ -1,15 +1,9 @@
 import * as React from "react";
-
-export type notificationType =
-  | "success"
-  | "info"
-  | "warning"
-  | "danger"
-  | "default";
+import { AlertProps } from "@patternfly/react-core";
 
 export type INotification = {
   title: string;
-  variant: notificationType;
+  variant: AlertProps["variant"];
   key?: string;
   message?: React.ReactNode;
   hideCloseButton?: boolean;
