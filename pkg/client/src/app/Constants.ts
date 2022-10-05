@@ -30,7 +30,7 @@ export enum BrandType {
 export const ENV: IEnvVars = window["_env"] || {};
 export const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
 export const uploadLimit = ENV.UI_INGRESS_PROXY_BODY_SIZE || "500m";
-export const APP_BRAND = ENV.PROFILE as BrandType;
+export const APP_BRAND = (ENV.PROFILE || BrandType.Konveyor) as BrandType;
 
 export const DEFAULT_PAGINATION: PageQuery = {
   page: 1,
