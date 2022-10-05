@@ -7,7 +7,6 @@ export type INotification = {
   key?: string;
   message?: React.ReactNode;
   hideCloseButton?: boolean;
-  actionClose?: React.ReactNode;
   timeout?: number | boolean;
 };
 
