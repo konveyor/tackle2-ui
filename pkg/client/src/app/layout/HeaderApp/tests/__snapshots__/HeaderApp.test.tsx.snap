@@ -34,17 +34,16 @@ exports[`Test snapshot 1`] = `
         </PageHeaderToolsItem>
         <SSOMenu />
       </PageHeaderToolsGroup>
-      <Avatar
-        alt="Avatar image"
-        src="test-file-stub"
-      />
     </PageHeaderTools>
   }
   logo={
-    <Brand
-      alt="brand"
-      src="test-file-stub"
-    />
+    <Title
+      className="logo-pointer"
+      headingLevel="h1"
+      size="2xl"
+    >
+      Migration Toolkit for Applications
+    </Title>
   }
   showNavToggle={true}
 />
