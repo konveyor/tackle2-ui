@@ -19,7 +19,7 @@ import { useCallback, useEffect } from "react";
 import { useFetch } from "@app/shared/hooks";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
-export const RepositoriesSvn: React.FunctionComponent = () => {
+export const RepositoriesSvn: React.FC = () => {
   const { t } = useTranslation();
   const [error, setError] = React.useState<AxiosError>();
 

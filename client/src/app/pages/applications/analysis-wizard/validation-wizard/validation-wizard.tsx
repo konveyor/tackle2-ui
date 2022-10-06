@@ -12,7 +12,7 @@ import {
 import SampleForm from "./sampleform";
 import { Link } from "react-router-dom";
 
-export const ValidationWizard: React.FunctionComponent = () => {
+export const ValidationWizard: React.FC = () => {
   const [isFormValid, setFormValid] = React.useState(false);
   const [formValue, setFormValue] = React.useState("Thirty");
   const [allStepsValid, setallStepsValid] = React.useState(false);

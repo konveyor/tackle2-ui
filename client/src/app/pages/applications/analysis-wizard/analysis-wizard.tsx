@@ -91,7 +91,7 @@ const initTask = (application: Application): TaskgroupTask => {
   };
 };
 
-export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
+export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   applications,
   onClose,
   isOpen,
