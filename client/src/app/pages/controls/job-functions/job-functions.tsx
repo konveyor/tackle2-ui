@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
-
 import {
   Button,
   ButtonVariant,
@@ -15,11 +14,9 @@ import {
   sortable,
   TableText,
 } from "@patternfly/react-table";
-
 import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
-import { confirmDialogActions } from "@app/store/confirmDialog";
 
+import { confirmDialogActions } from "@app/store/confirmDialog";
 import {
   AppPlaceholder,
   AppTableActionButtons,
@@ -27,7 +24,6 @@ import {
   ConditionalRender,
   NoDataEmptyState,
 } from "@app/shared/components";
-
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { JobFunction } from "@app/api/models";
 
@@ -46,12 +42,14 @@ import {
   useDeleteJobFunctionMutation,
   useFetchJobFunctions,
 } from "@app/queries/jobfunctions";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
 export const JobFunctions: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const { jobFunctions, isFetching, fetchError, refetch } =
     useFetchJobFunctions();
@@ -97,7 +95,10 @@ export const JobFunctions: React.FC = () => {
 
   const onDeleteJobFunctionError = (error: AxiosError) => {
     dispatch(confirmDialogActions.closeDialog());
-    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
   };
 
   const { mutate: deleteJobFunction } = useDeleteJobFunctionMutation(
@@ -175,14 +176,13 @@ export const JobFunctions: React.FC = () => {
     setIsNewModalOpen(false);
     refetch();
 
-    dispatch(
-      alertActions.addSuccess(
-        t("toastr.success.added", {
-          what: response.data.name,
-          type: "job function",
-        })
-      )
-    );
+    pushNotification({
+      title: t("toastr.success.added", {
+        what: response.data.name,
+        type: "job function",
+      }),
+      variant: "success",
+    });
   };
 
   const handleOnCreateNewCancel = () => {

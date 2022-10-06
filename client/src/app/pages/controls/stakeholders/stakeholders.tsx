@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import * as React from "react";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@migtools/lib-ui";
-
 import {
   Button,
   ButtonVariant,
@@ -23,11 +22,9 @@ import {
   sortable,
   TableText,
 } from "@patternfly/react-table";
-
 import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
-import { confirmDialogActions } from "@app/store/confirmDialog";
 
+import { confirmDialogActions } from "@app/store/confirmDialog";
 import {
   AppPlaceholder,
   AppTableActionButtons,
@@ -35,10 +32,8 @@ import {
   ConditionalRender,
   NoDataEmptyState,
 } from "@app/shared/components";
-
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Stakeholder } from "@app/api/models";
-
 import { NewStakeholderModal } from "./components/new-stakeholder-modal";
 import { UpdateStakeholderModal } from "./components/update-stakeholder-modal";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
@@ -54,6 +49,7 @@ import {
   useDeleteStakeholderMutation,
   useFetchStakeholders,
 } from "@app/queries/stakeholders";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
@@ -65,15 +61,20 @@ export const Stakeholders: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const [isNewModalOpen, setIsNewModalOpen] = useState(false);
-  const [rowToUpdate, setRowToUpdate] = useState<Stakeholder>();
+  const [isNewModalOpen, setIsNewModalOpen] = React.useState(false);
+  const [rowToUpdate, setRowToUpdate] = React.useState<Stakeholder>();
+  const { pushNotification } = React.useContext(NotificationsContext);
+
   const onDeleteStakeholderSuccess = (response: any) => {
     dispatch(confirmDialogActions.closeDialog());
   };
 
   const onDeleteStakeholderError = (error: AxiosError) => {
     dispatch(confirmDialogActions.closeDialog());
-    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
   };
 
   const { mutate: deleteStakeholder } = useDeleteStakeholderMutation(
@@ -291,14 +292,13 @@ export const Stakeholders: React.FC = () => {
     setIsNewModalOpen(false);
     refetch();
 
-    dispatch(
-      alertActions.addSuccess(
-        t("toastr.success.added", {
-          what: response.data.name,
-          type: "stakeholder",
-        })
-      )
-    );
+    pushNotification({
+      title: t("toastr.success.added", {
+        what: response.data.name,
+        type: "stakeholder",
+      }),
+      variant: "success",
+    });
   };
 
   const handleOnCreateNewCancel = () => {

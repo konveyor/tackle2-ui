@@ -23,7 +23,6 @@ import ExclamationTriangleIcon from "@patternfly/react-icons/dist/esm/icons/excl
 import { global_palette_gold_400 as gold } from "@patternfly/react-tokens";
 
 import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
 import { bulkCopyActions } from "@app/store/bulkCopy";
 
 import {
@@ -56,6 +55,7 @@ import { useSelectionState } from "@migtools/lib-ui";
 import { useFetchApplicationAssessments } from "@app/queries/assessments";
 import { useFetchApplications } from "@app/queries/applications";
 import { useFetchTagTypes } from "@app/queries/tags";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
@@ -78,6 +78,8 @@ export const BulkCopyAssessmentReviewForm: React.FC<
 
   // Redux
   const dispatch = useDispatch();
+
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   // Local state
   const [requestConfirmation, setRequestConfirmation] = useState(false);
@@ -306,12 +308,18 @@ export const BulkCopyAssessmentReviewForm: React.FC<
         })
         .catch((error) => {
           setIsSubmitting(false);
-
-          dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+          pushNotification({
+            title: getAxiosErrorMessage(error),
+            variant: "danger",
+          });
           onSaved();
         });
     } else {
-      dispatch(alertActions.addDanger("Failed", "Copy assessment failed."));
+      pushNotification({
+        title: "Failed",
+        message: "Copy assessment failed.",
+        variant: "danger",
+      });
       onSaved();
     }
   };

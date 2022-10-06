@@ -14,7 +14,6 @@ import {
 import BanIcon from "@patternfly/react-icons/dist/esm/icons/ban-icon";
 
 import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 import {
   ConditionalRender,
@@ -53,11 +52,13 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationAssessmentPage } from "./components/application-assessment-page";
 import { WizardStepNavDescription } from "./components/wizard-step-nav-description";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export const ApplicationAssessment: React.FC = () => {
   const { t } = useTranslation();
 
   const dispatch = useDispatch();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const history = useHistory();
   const { assessmentId } = useParams<AssessmentRoute>();
@@ -206,7 +207,10 @@ export const ApplicationAssessment: React.FC = () => {
                 );
               })
               .catch((error) => {
-                dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+                pushNotification({
+                  title: getAxiosErrorMessage(error),
+                  variant: "danger",
+                });
                 formikHelpers.setSubmitting(false);
               });
             break;

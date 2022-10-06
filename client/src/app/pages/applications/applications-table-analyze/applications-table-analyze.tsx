@@ -26,9 +26,8 @@ import {
 import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
 import { useDispatch } from "react-redux";
-import keycloak from "@app/keycloak";
 
-import { alertActions } from "@app/store/alert";
+import keycloak from "@app/keycloak";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 import {
   AppPlaceholder,
@@ -49,11 +48,7 @@ import { ApplicationAnalysisStatus } from "../components/application-analysis-st
 import { FilterToolbar } from "@app/shared/components/FilterToolbar";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
-import {
-  useDeleteTaskMutation,
-  useCancelTaskMutation,
-  useFetchTasks,
-} from "@app/queries/tasks";
+import { useCancelTaskMutation, useFetchTasks } from "@app/queries/tasks";
 import {
   applicationsWriteScopes,
   importsWriteScopes,
@@ -75,6 +70,7 @@ import {
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 import { useFetchApplicationAssessments } from "@app/queries/assessments";
 import { useEntityModal } from "@app/shared/hooks";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
@@ -91,6 +87,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   // Redux
   const dispatch = useDispatch();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   // Router
   const history = useHistory();
@@ -123,11 +120,19 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const { tasks } = useFetchTasks();
 
   const completedCancelTask = () => {
-    dispatch(alertActions.addInfo("Task", "Canceled"));
+    pushNotification({
+      title: "Task",
+      message: "Canceled",
+      variant: "info",
+    });
   };
 
   const failedCancelTask = () => {
-    dispatch(alertActions.addDanger("Task", "Cancelation failed."));
+    pushNotification({
+      title: "Task",
+      message: "Cancelation failed.",
+      variant: "danger",
+    });
   };
 
   const { mutate: cancelTask } = useCancelTaskMutation(
@@ -156,14 +161,13 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const onApplicationModalSaved = (response: AxiosResponse<Application>) => {
     if (!applicationToUpdate) {
-      dispatch(
-        alertActions.addSuccess(
-          t("toastr.success.added", {
-            what: response.data.name,
-            type: t("terms.application").toLowerCase(),
-          })
-        )
-      );
+      pushNotification({
+        title: t("toastr.success.added", {
+          what: response.data.name,
+          type: t("terms.application").toLowerCase(),
+        }),
+        variant: "success",
+      });
     }
 
     closeApplicationModal();
@@ -178,19 +182,21 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     dispatch(confirmDialogActions.processing());
     dispatch(confirmDialogActions.closeDialog());
-    dispatch(
-      alertActions.addSuccess(
-        t("toastr.success.applicationDeleted", {
-          appIDCount: appIDCount,
-        })
-      )
-    );
+    pushNotification({
+      title: t("toastr.success.applicationDeleted", {
+        appIDCount: appIDCount,
+      }),
+      variant: "success",
+    });
     refetch();
   };
 
   const onDeleteApplicationError = (error: AxiosError) => {
     dispatch(confirmDialogActions.closeDialog());
-    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
     refetch();
   };
 

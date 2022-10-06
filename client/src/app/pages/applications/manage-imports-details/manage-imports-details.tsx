@@ -12,16 +12,12 @@ import {
 } from "@patternfly/react-core";
 import { cellWidth, ICell, IRow, truncate } from "@patternfly/react-table";
 
-import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
-
 import {
   AppPlaceholder,
   AppTableWithControls,
   ConditionalRender,
   PageHeader,
 } from "@app/shared/components";
-
 import { ImportSummaryRoute, Paths } from "@app/Paths";
 import { getApplicationSummaryCSV } from "@app/api/rest";
 import { ApplicationImport } from "@app/api/models";
@@ -37,6 +33,7 @@ import {
 } from "@app/shared/components/FilterToolbar/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
@@ -47,8 +44,7 @@ export const ManageImportsDetails: React.FC = () => {
   // Router
   const { importId } = useParams<ImportSummaryRoute>();
 
-  // Redux
-  const dispatch = useDispatch();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   // Table
   const columns: ICell[] = [
@@ -95,7 +91,10 @@ export const ManageImportsDetails: React.FC = () => {
         saveAs(new Blob([response.data]), fileName);
       })
       .catch((error) => {
-        dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+        pushNotification({
+          title: getAxiosErrorMessage(error),
+          variant: "danger",
+        });
       });
   };
 

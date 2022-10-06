@@ -22,5 +22,7 @@ exports[`Test snapshot 1`] = `
       Skip to content
     </SkipToContent>
   }
-/>
+>
+  <Notifications />
+</Page>
 `;

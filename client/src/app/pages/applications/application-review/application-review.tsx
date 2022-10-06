@@ -2,10 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
-
-import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
-
 import {
   Bullseye,
   Button,
@@ -44,11 +40,12 @@ import { ApplicationDetails } from "./components/application-details";
 import { ReviewForm } from "./components/review-form";
 import { ApplicationAssessmentDonutChart } from "./components/application-assessment-donut-chart";
 import { ApplicationAssessmentSummaryTable } from "./components/application-assessment-summary-table";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export const ApplicationReview: React.FC = () => {
   const { t } = useTranslation();
 
-  const dispatch = useDispatch();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const history = useHistory();
   const { applicationId } = useParams<ReviewRoute>();
@@ -125,7 +122,10 @@ export const ApplicationReview: React.FC = () => {
         );
       },
       (error) => {
-        dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+        pushNotification({
+          title: getAxiosErrorMessage(error),
+          variant: "danger",
+        });
       }
     );
   };

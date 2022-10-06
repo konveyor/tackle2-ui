@@ -25,7 +25,6 @@ import {
 } from "@patternfly/react-table";
 
 import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 
 import {
@@ -54,6 +53,7 @@ import {
   useDeleteStakeholderGroupMutation,
   useFetchStakeholderGroups,
 } from "@app/queries/stakeholdergoups";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
@@ -64,6 +64,7 @@ const getRow = (rowData: IRowData): StakeholderGroup => {
 export const StakeholderGroups: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<StakeholderGroup>();
@@ -74,7 +75,10 @@ export const StakeholderGroups: React.FC = () => {
 
   const onDeleteStakeholderGroupError = (error: AxiosError) => {
     dispatch(confirmDialogActions.closeDialog());
-    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
   };
 
   const { mutate: deleteStakeholderGroup } = useDeleteStakeholderGroupMutation(
@@ -275,15 +279,13 @@ export const StakeholderGroups: React.FC = () => {
   const handleOnCreatedNew = (response: AxiosResponse<StakeholderGroup>) => {
     setIsNewModalOpen(false);
     refetch();
-
-    dispatch(
-      alertActions.addSuccess(
-        t("toastr.success.added", {
-          what: response.data.name,
-          type: "stakeholder group",
-        })
-      )
-    );
+    pushNotification({
+      title: t("toastr.success.added", {
+        what: response.data.name,
+        type: "stakeholder group",
+      }),
+      variant: "success",
+    });
   };
 
   const handleOnCreateNewCancel = () => {
