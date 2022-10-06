@@ -33,7 +33,6 @@ import { useSortState } from "@app/shared/hooks/useSortState";
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { AxiosError, AxiosResponse } from "axios";
 import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 import { NewIdentityModal } from "./components/new-identity-modal";
 import { UpdateIdentityModal } from "./components/update-identity-modal";
@@ -48,14 +47,14 @@ import {
   useFetchIdentities,
 } from "@app/queries/identities";
 import { useFetchApplications } from "@app/queries/applications";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
 export const Identities: React.FunctionComponent = () => {
   const { t } = useTranslation();
-
-  // Redux
   const dispatch = useDispatch();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [rowToUpdate, setRowToUpdate] = useState<Identity>();
   const onDeleteIdentitySuccess = (response: any) => {
@@ -64,7 +63,10 @@ export const Identities: React.FunctionComponent = () => {
 
   const onDeleteIdentityError = (error: AxiosError) => {
     dispatch(confirmDialogActions.closeDialog());
-    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
   };
 
   const { mutate: deleteIdentity } = useDeleteIdentityMutation(
@@ -197,14 +199,13 @@ export const Identities: React.FunctionComponent = () => {
 
   const handleOnIdentityCreated = (response: AxiosResponse<Identity>) => {
     if (!identityToUpdate) {
-      dispatch(
-        alertActions.addSuccess(
-          t("toastr.success.added", {
-            what: response.data.name,
-            type: t("terms.credential").toLowerCase(),
-          })
-        )
-      );
+      pushNotification({
+        title: t("toastr.success.added", {
+          what: response.data.name,
+          type: t("terms.credential").toLowerCase(),
+        }),
+        variant: "success",
+      });
     }
 
     closeIdentityModal();

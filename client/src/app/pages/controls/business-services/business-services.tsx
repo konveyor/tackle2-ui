@@ -18,7 +18,6 @@ import {
 } from "@patternfly/react-table";
 
 import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 
 import {
@@ -51,6 +50,7 @@ import {
   useDeleteBusinessServiceMutation,
   useFetchBusinessServices,
 } from "@app/queries/businessservices";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
@@ -61,6 +61,7 @@ const ENTITY_FIELD = "entity";
 export const BusinessServices: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<BusinessService>();
@@ -71,7 +72,10 @@ export const BusinessServices: React.FC = () => {
 
   const onDeleteBusinessServiceError = (error: AxiosError) => {
     dispatch(confirmDialogActions.closeDialog());
-    dispatch(alertActions.addDanger(getAxiosErrorMessage(error)));
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
   };
 
   const { mutate: deleteBusinessService } = useDeleteBusinessServiceMutation(
@@ -230,15 +234,13 @@ export const BusinessServices: React.FC = () => {
   ) => {
     setIsNewModalOpen(false);
     refetch();
-
-    dispatch(
-      alertActions.addSuccess(
-        t("toastr.success.added", {
-          what: response.data.name,
-          type: "business service",
-        })
-      )
-    );
+    pushNotification({
+      title: t("toastr.success.added", {
+        what: response.data.name,
+        type: "business service",
+      }),
+      variant: "success",
+    });
   };
 
   const handleOnCancelCreateBusinessService = () => {

@@ -28,7 +28,6 @@ import {
 import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
 
 import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
 import { confirmDialogActions } from "@app/store/confirmDialog";
 
 import {
@@ -58,6 +57,7 @@ import {
 } from "@app/shared/components/FilterToolbar/FilterToolbar";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import TooltipTitle from "@app/common/TooltipTitle";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
@@ -71,6 +71,8 @@ export const ManageImports: React.FC = () => {
 
   // Redux
   const dispatch = useDispatch();
+
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   // Router
   const history = useHistory();
@@ -91,7 +93,12 @@ export const ManageImports: React.FC = () => {
 
   const onDeleteImportSummaryError = (error: Error | null) => {
     dispatch(confirmDialogActions.closeDialog());
-    if (error) dispatch(alertActions.addDanger(error.message));
+    if (error) {
+      pushNotification({
+        title: error.message,
+        variant: "danger",
+      });
+    }
   };
 
   const { mutate: deleteImportSummary } = useDeleteImportSummaryMutation(

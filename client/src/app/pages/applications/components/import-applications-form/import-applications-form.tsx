@@ -12,12 +12,11 @@ import {
   Form,
   FormGroup,
 } from "@patternfly/react-core";
-
 import { useDispatch } from "react-redux";
-import { alertActions } from "@app/store/alert";
 
 import { UPLOAD_FILE } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export interface ImportApplicationsFormProps {
   onSaved: (response: AxiosResponse) => void;
@@ -27,6 +26,7 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
   onSaved,
 }) => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [file, setFile] = useState<File>();
   const [isCreateEntitiesChecked, setIsCreateEntitiesChecked] =
@@ -34,11 +34,6 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
   const [isFileRejected, setIsFileRejected] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Redux
-  const dispatch = useDispatch();
-
-  // Actions
 
   const handleFileRejected = () => {
     setIsFileRejected(true);
@@ -64,18 +59,21 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
     axios
       .post(UPLOAD_FILE, formData, config)
       .then((response) => {
-        dispatch(
-          alertActions.addSuccess(t("toastr.success.fileSavedToBeProcessed"))
-        );
+        pushNotification({
+          title: t("toastr.success.fileSavedToBeProcessed"),
+          variant: "success",
+        });
+
         setIsSubmitting(false);
         onSaved(response);
       })
       .catch((error) => {
         setIsSubmitting(false);
         if (typeof getAxiosErrorMessage(error) === "string") {
-          dispatch(
-            alertActions.addDanger(`Error: ${getAxiosErrorMessage(error)} `)
-          );
+          pushNotification({
+            title: getAxiosErrorMessage(error),
+            variant: "danger",
+          });
         }
         onSaved(error);
       });

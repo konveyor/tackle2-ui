@@ -8,9 +8,7 @@ import {
 } from "@patternfly/react-core";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import { useFormContext } from "react-hook-form";
-import { useDispatch } from "react-redux";
 
-import { alertActions } from "@app/store/alert";
 import {
   useRemoveUploadedFileMutation,
   useUploadFileTaskgroupMutation,
@@ -19,6 +17,7 @@ import { AxiosError } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { uploadLimit } from "@app/Constants";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 interface IUploadBinary {
   taskgroupID: number;
@@ -46,29 +45,43 @@ export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
     "danger" | "success" | "warning" | undefined
   >(undefined);
 
-  const dispatch = useDispatch();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const completedUpload = () => {
-    dispatch(alertActions.addInfo(`Success`, "Uploaded binary file."));
+    pushNotification({
+      title: "Uploaded binary file.",
+      variant: "success",
+    });
     setFileUploadStatus("success");
     setFileUploadProgress(100);
   };
 
   const failedUpload = (error: AxiosError) => {
-    dispatch(alertActions.addDanger(`Failed`, "Binary file upload failed."));
+    pushNotification({
+      title: "Failed",
+      message: "Binary file upload failed.",
+      variant: "danger",
+    });
     setFileUploadStatus("danger");
     setFileUploadProgress(0);
     setError(error);
   };
 
   const completedRemove = () => {
-    dispatch(alertActions.addInfo(`Success`, "Removed binary file."));
+    pushNotification({
+      title: "Removed binary file.",
+      variant: "success",
+    });
     setFileUploadStatus("success");
     setFileUploadProgress(100);
   };
 
   const failedRemove = (error: AxiosError) => {
-    dispatch(alertActions.addDanger(`Failed`, "Binary file removal failed."));
+    pushNotification({
+      title: "Failed",
+      message: "Binary file removal failed.",
+      variant: "danger",
+    });
     setFileUploadStatus("danger");
     setFileUploadProgress(0);
     setError(error);
