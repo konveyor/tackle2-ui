@@ -27,15 +27,13 @@ import {
 } from "@patternfly/react-table";
 import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
 
-import { useDispatch } from "react-redux";
-import { confirmDialogActions } from "@app/store/confirmDialog";
-
 import {
   AppPlaceholder,
   AppTableWithControls,
   ConditionalRender,
   PageHeader,
   KebabDropdown,
+  ConfirmDialog,
 } from "@app/shared/components";
 
 import { formatPath, Paths } from "@app/Paths";
@@ -69,8 +67,11 @@ export const ManageImports: React.FC = () => {
   // i18
   const { t } = useTranslation();
 
-  // Redux
-  const dispatch = useDispatch();
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
+    React.useState<Boolean>(false);
+
+  const [importSummaryIdToDelete, setImportSummaryIdToDelete] =
+    React.useState<number>();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -87,18 +88,18 @@ export const ManageImports: React.FC = () => {
   // Delete
 
   const onDeleteImportSummarySuccess = () => {
-    dispatch(confirmDialogActions.processing());
-    dispatch(confirmDialogActions.closeDialog());
+    pushNotification({
+      title: t("terms.importSummaryDeleted"),
+      variant: "success",
+    });
   };
 
   const onDeleteImportSummaryError = (error: Error | null) => {
-    dispatch(confirmDialogActions.closeDialog());
-    if (error) {
+    if (error)
       pushNotification({
         title: error.message,
         variant: "danger",
       });
-    }
   };
 
   const { mutate: deleteImportSummary } = useDeleteImportSummaryMutation(
@@ -293,22 +294,8 @@ export const ManageImports: React.FC = () => {
 
   // Row actions
   const deleteRow = (row: ApplicationImportSummary) => {
-    dispatch(
-      confirmDialogActions.openDialog({
-        // t("terms.tag(s)")
-        title: t("dialog.title.delete", {
-          what: "import summary",
-        }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
-        confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
-        onConfirm: () => {
-          deleteImportSummary(row.id);
-        },
-      })
-    );
+    setImportSummaryIdToDelete(row.id);
+    setIsConfirmDialogOpen(true);
   };
 
   const viewRowDetails = (row: ApplicationImportSummary) => {
@@ -413,6 +400,28 @@ export const ManageImports: React.FC = () => {
           }}
         />
       </Modal>
+      {isConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("dialog.title.delete", {
+            what: "import summary",
+          })}
+          titleIconVariant={"warning"}
+          message={t("dialog.message.delete")}
+          isOpen={true}
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsConfirmDialogOpen(false)}
+          onClose={() => setIsConfirmDialogOpen(false)}
+          onConfirm={() => {
+            if (importSummaryIdToDelete) {
+              deleteImportSummary(importSummaryIdToDelete);
+              setImportSummaryIdToDelete(undefined);
+            }
+            setIsConfirmDialogOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };

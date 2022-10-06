@@ -4,15 +4,12 @@ import { useTranslation } from "react-i18next";
 
 import {
   ActionGroup,
-  Alert,
-  AlertActionCloseButton,
   Button,
   Checkbox,
   FileUpload,
   Form,
   FormGroup,
 } from "@patternfly/react-core";
-import { useDispatch } from "react-redux";
 
 import { UPLOAD_FILE } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";

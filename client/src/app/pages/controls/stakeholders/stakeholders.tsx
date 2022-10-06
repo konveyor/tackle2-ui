@@ -22,14 +22,13 @@ import {
   sortable,
   TableText,
 } from "@patternfly/react-table";
-import { useDispatch } from "react-redux";
 
-import { confirmDialogActions } from "@app/store/confirmDialog";
 import {
   AppPlaceholder,
   AppTableActionButtons,
   AppTableWithControls,
   ConditionalRender,
+  ConfirmDialog,
   NoDataEmptyState,
 } from "@app/shared/components";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -59,18 +58,25 @@ const getRow = (rowData: IRowData): Stakeholder => {
 
 export const Stakeholders: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
+    React.useState<Boolean>(false);
+
+  const [stakeholderIdToDelete, setStakeholderIdToDelete] =
+    React.useState<number>();
 
   const [isNewModalOpen, setIsNewModalOpen] = React.useState(false);
   const [rowToUpdate, setRowToUpdate] = React.useState<Stakeholder>();
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const onDeleteStakeholderSuccess = (response: any) => {
-    dispatch(confirmDialogActions.closeDialog());
+    pushNotification({
+      title: t("terms.stakeholderDeleted"),
+      variant: "success",
+    });
   };
 
   const onDeleteStakeholderError = (error: AxiosError) => {
-    dispatch(confirmDialogActions.closeDialog());
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
@@ -259,23 +265,8 @@ export const Stakeholders: React.FC = () => {
   };
 
   const deleteRow = (row: Stakeholder) => {
-    dispatch(
-      confirmDialogActions.openDialog({
-        // t("terms.stakeholder")
-        title: t("dialog.title.delete", {
-          what: t("terms.stakeholder").toLowerCase(),
-        }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
-        confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
-        onConfirm: () => {
-          dispatch(confirmDialogActions.processing());
-          row.id && deleteStakeholder(row.id);
-        },
-      })
-    );
+    setStakeholderIdToDelete(row.id);
+    setIsConfirmDialogOpen(true);
   };
 
   // Advanced filters
@@ -388,6 +379,28 @@ export const Stakeholders: React.FC = () => {
         onSaved={handleOnUpdated}
         onCancel={handleOnUpdatedCancel}
       />
+      {isConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("dialog.title.delete", {
+            what: t("terms.stakeholder").toLowerCase(),
+          })}
+          isOpen={true}
+          titleIconVariant={"warning"}
+          message={t("dialog.message.delete")}
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsConfirmDialogOpen(false)}
+          onClose={() => setIsConfirmDialogOpen(false)}
+          onConfirm={() => {
+            if (stakeholderIdToDelete) {
+              deleteStakeholder(stakeholderIdToDelete);
+              setStakeholderIdToDelete(undefined);
+            }
+            setIsConfirmDialogOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };

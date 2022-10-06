@@ -24,14 +24,12 @@ import {
   TableText,
 } from "@patternfly/react-table";
 
-import { useDispatch } from "react-redux";
-import { confirmDialogActions } from "@app/store/confirmDialog";
-
 import {
   AppPlaceholder,
   AppTableActionButtons,
   AppTableWithControls,
   ConditionalRender,
+  ConfirmDialog,
   NoDataEmptyState,
 } from "@app/shared/components";
 
@@ -63,18 +61,26 @@ const getRow = (rowData: IRowData): StakeholderGroup => {
 
 export const StakeholderGroups: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
+    React.useState<Boolean>(false);
+
+  const [stakeholderGroupIdToDelete, setStakeholderGroupIdToDelete] =
+    React.useState<number>();
+
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<StakeholderGroup>();
 
   const onDeleteStakeholderGroupSuccess = (response: any) => {
-    dispatch(confirmDialogActions.closeDialog());
+    pushNotification({
+      title: t("terms.stakeholderGroupDeleted"),
+      variant: "success",
+    });
   };
 
   const onDeleteStakeholderGroupError = (error: AxiosError) => {
-    dispatch(confirmDialogActions.closeDialog());
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
@@ -245,23 +251,8 @@ export const StakeholderGroups: React.FC = () => {
   };
 
   const deleteRow = (row: StakeholderGroup) => {
-    dispatch(
-      confirmDialogActions.openDialog({
-        // t("terms.stakeholderGroup")
-        title: t("dialog.title.delete", {
-          what: t("terms.stakeholderGroup").toLowerCase(),
-        }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
-        confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
-        onConfirm: () => {
-          dispatch(confirmDialogActions.processing());
-          row.id && deleteStakeholderGroup(row.id);
-        },
-      })
-    );
+    setStakeholderGroupIdToDelete(row.id);
+    setIsConfirmDialogOpen(true);
   };
 
   // Advanced filters
@@ -303,6 +294,7 @@ export const StakeholderGroups: React.FC = () => {
     setRowToUpdate(undefined);
   };
 
+  // t("terms.stakeholderGroup")
   return (
     <>
       <ConditionalRender
@@ -375,6 +367,28 @@ export const StakeholderGroups: React.FC = () => {
         onSaved={handleOnUpdated}
         onCancel={handleOnUpdatedCancel}
       />
+      {isConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("dialog.title.delete", {
+            what: t("terms.stakeholderGroup").toLowerCase(),
+          })}
+          isOpen={true}
+          titleIconVariant={"warning"}
+          message={t("dialog.message.delete")}
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsConfirmDialogOpen(false)}
+          onClose={() => setIsConfirmDialogOpen(false)}
+          onConfirm={() => {
+            if (stakeholderGroupIdToDelete) {
+              deleteStakeholderGroup(stakeholderGroupIdToDelete);
+              setStakeholderGroupIdToDelete(undefined);
+            }
+            setIsConfirmDialogOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };

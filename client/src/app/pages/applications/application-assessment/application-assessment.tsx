@@ -13,14 +13,12 @@ import {
 } from "@patternfly/react-core";
 import BanIcon from "@patternfly/react-icons/dist/esm/icons/ban-icon";
 
-import { useDispatch } from "react-redux";
-import { confirmDialogActions } from "@app/store/confirmDialog";
 import {
   ConditionalRender,
   SimpleEmptyState,
   AppPlaceholder,
+  ConfirmDialog,
 } from "@app/shared/components";
-
 import { AssessmentRoute, formatPath, Paths } from "@app/Paths";
 import {
   Assessment,
@@ -57,7 +55,9 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 export const ApplicationAssessment: React.FC = () => {
   const { t } = useTranslation();
 
-  const dispatch = useDispatch();
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
+    React.useState<Boolean>(false);
+
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const history = useHistory();
@@ -96,26 +96,8 @@ export const ApplicationAssessment: React.FC = () => {
     );
   }, [assessment]);
 
-  //
-
   const redirectToApplications = () => {
     history.push(Paths.applications);
-  };
-
-  const confirmAndRedirectToApplications = () => {
-    dispatch(
-      confirmDialogActions.openDialog({
-        title: t("dialog.title.leavePage"),
-        message: t("dialog.message.leavePage"),
-        confirmBtnVariant: ButtonVariant.primary,
-        confirmBtnLabel: t("actions.continue"),
-        cancelBtnLabel: t("actions.cancel"),
-        onConfirm: () => {
-          dispatch(confirmDialogActions.closeDialog());
-          redirectToApplications();
-        },
-      })
-    );
   };
 
   // Formik
@@ -362,37 +344,52 @@ export const ApplicationAssessment: React.FC = () => {
   }
 
   return (
-    <ApplicationAssessmentPage assessment={assessment}>
-      {saveError && (
-        <Alert
-          variant="danger"
-          isInline
-          title={getAxiosErrorMessage(saveError)}
-          actionClose={
-            <AlertActionCloseButton onClose={() => setSaveError(undefined)} />
-          }
+    <>
+      <ApplicationAssessmentPage assessment={assessment}>
+        {saveError && (
+          <Alert
+            variant="danger"
+            isInline
+            title={getAxiosErrorMessage(saveError)}
+            actionClose={
+              <AlertActionCloseButton onClose={() => setSaveError(undefined)} />
+            }
+          />
+        )}
+        <ConditionalRender
+          when={isFetchingAssessment}
+          then={<AppPlaceholder />}
+        >
+          <FormikProvider value={formik}>
+            <Wizard
+              navAriaLabel="assessment-wizard"
+              mainAriaLabel="assesment-wizard"
+              steps={wizardSteps}
+              footer={wizardFooter}
+              onNext={() => setCurrentStep((current) => current + 1)}
+              onBack={() => setCurrentStep((current) => current - 1)}
+              onClose={() => setIsConfirmDialogOpen(true)}
+              onGoToStep={(step) => setCurrentStep(step.id as number)}
+            />
+          </FormikProvider>
+        </ConditionalRender>
+      </ApplicationAssessmentPage>{" "}
+      {isConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("dialog.title.leavePage")}
+          isOpen={true}
+          message={t("dialog.message.leavePage")}
+          confirmBtnVariant={ButtonVariant.primary}
+          confirmBtnLabel={t("actions.continue")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsConfirmDialogOpen(false)}
+          onClose={() => setIsConfirmDialogOpen(false)}
+          onConfirm={() => {
+            setIsConfirmDialogOpen(false);
+            redirectToApplications();
+          }}
         />
       )}
-      <ConditionalRender when={isFetchingAssessment} then={<AppPlaceholder />}>
-        <FormikProvider value={formik}>
-          <Wizard
-            navAriaLabel="assessment-wizard"
-            mainAriaLabel="assesment-wizard"
-            steps={wizardSteps}
-            footer={wizardFooter}
-            onNext={() => {
-              setCurrentStep((current) => current + 1);
-            }}
-            onBack={() => {
-              setCurrentStep((current) => current - 1);
-            }}
-            onClose={confirmAndRedirectToApplications}
-            onGoToStep={(step) => {
-              setCurrentStep(step.id as number);
-            }}
-          />
-        </FormikProvider>
-      </ConditionalRender>
-    </ApplicationAssessmentPage>
+    </>
   );
 };
