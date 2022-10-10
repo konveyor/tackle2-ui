@@ -10,6 +10,11 @@ export const getAxiosErrorMessage = (axiosError: AxiosError) => {
     axiosError.response.data.errorMessage
   ) {
     return axiosError.response.data.errorMessage;
+  } else if (
+    axiosError.response?.data?.error &&
+    typeof axiosError?.response?.data?.error === "string"
+  ) {
+    return axiosError?.response?.data?.error;
   } else {
     return axiosError.message;
   }
