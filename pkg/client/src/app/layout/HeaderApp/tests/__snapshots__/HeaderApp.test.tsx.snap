@@ -37,13 +37,10 @@ exports[`Test snapshot 1`] = `
     </PageHeaderTools>
   }
   logo={
-    <Title
-      className="logo-pointer"
-      headingLevel="h1"
-      size="2xl"
-    >
-      Migration Toolkit for Applications
-    </Title>
+    <Brand
+      alt="brand"
+      src="test-file-stub"
+    />
   }
   showNavToggle={true}
 />
