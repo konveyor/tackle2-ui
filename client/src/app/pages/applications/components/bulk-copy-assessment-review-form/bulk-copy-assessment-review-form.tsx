@@ -117,6 +117,18 @@ export const BulkCopyAssessmentReviewForm: React.FC<
       },
     },
     {
+      key: "description",
+      title: t("terms.description"),
+      type: FilterType.search,
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.description").toLowerCase(),
+        }) + "...",
+      getItemValue: (item) => {
+        return item.description || "";
+      },
+    },
+    {
       key: "tags",
       title: t("terms.tags"),
       type: FilterType.multiselect,
