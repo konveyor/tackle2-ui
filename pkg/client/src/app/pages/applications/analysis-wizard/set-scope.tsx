@@ -29,11 +29,11 @@ export const SetScope: React.FunctionComponent = () => {
     formState: { errors },
   } = useForm({ mode: "onBlur" });
 
+  const hasExcludedPackages: boolean = getValues("hasExcludedPackages");
   const withKnown: string = getValues("withKnown");
   const includedPackages: string[] = getValues("includedPackages");
   const excludedPackages: string[] = getValues("excludedPackages");
 
-  const [excludedSwitch, setExcludedSwitch] = React.useState(false);
   const [packageToInclude, setPackageToInclude] = React.useState("");
   const [packageToExclude, setPackageToExclude] = React.useState("");
 
@@ -151,12 +151,12 @@ export const SetScope: React.FunctionComponent = () => {
       )}
       <>
         <Switch
-          id="simple-switch"
+          id="excludedPackages"
           label={t("wizard.label.excludePackages")}
-          isChecked={excludedSwitch}
-          onChange={() => setExcludedSwitch(!excludedSwitch)}
+          isChecked={hasExcludedPackages}
+          onChange={() => setValue("hasExcludedPackages", !hasExcludedPackages)}
         />
-        {excludedSwitch && (
+        {hasExcludedPackages && (
           <FormGroup
             fieldId="packageToExclude"
             className={`${spacing.mtMd} ${spacing.plLg}`}

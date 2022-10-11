@@ -62,6 +62,7 @@ export interface IAnalysisWizardFormValues {
   customRulesFiles: IReadFile[];
   excludedRulesTags: string[];
   diva: boolean;
+  hasExcludedPackages: boolean;
 }
 
 const defaultTaskData: TaskData = {
@@ -166,6 +167,7 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       customRulesFiles: [],
       excludedRulesTags: [],
       diva: false,
+      hasExcludedPackages: false,
     },
   });
 
