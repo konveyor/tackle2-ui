@@ -34,10 +34,7 @@ const defaultScopes: Map<string, string> = new Map([
   ["select", "List of packages to be analyzed manually"],
 ]);
 
-export const Review: React.FunctionComponent<IReview> = ({
-  applications,
-  mode,
-}) => {
+export const Review: React.FC<IReview> = ({ applications, mode }) => {
   const { t } = useTranslation();
 
   const { getValues } = useFormContext<IAnalysisWizardFormValues>();

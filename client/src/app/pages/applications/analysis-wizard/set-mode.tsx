@@ -21,7 +21,7 @@ interface ISetMode {
   setMode: (mode: string) => void;
 }
 
-export const SetMode: React.FunctionComponent<ISetMode> = ({
+export const SetMode: React.FC<ISetMode> = ({
   mode,
   isSingleApp,
   taskgroupID,

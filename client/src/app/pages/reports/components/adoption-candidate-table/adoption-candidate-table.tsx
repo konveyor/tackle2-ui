@@ -62,9 +62,7 @@ interface IAdoptionCandidateTable {
   allApplications?: Application[];
 }
 
-export const AdoptionCandidateTable: React.FunctionComponent<
-  IAdoptionCandidateTable
-> = () => {
+export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
   // i18
   const { t } = useTranslation();
 

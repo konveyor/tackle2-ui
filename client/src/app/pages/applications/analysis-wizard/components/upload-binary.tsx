@@ -23,9 +23,7 @@ interface IUploadBinary {
   taskgroupID: number;
 }
 
-export const UploadBinary: React.FunctionComponent<IUploadBinary> = ({
-  taskgroupID,
-}) => {
+export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
   const { setValue, getValues } = useFormContext();
   const { artifact } = getValues();
   const initialCurrentFile = new File([""], artifact, { type: "text/html" });

@@ -13,9 +13,10 @@ export interface NoDataEmptyStateProps {
   description?: string;
 }
 
-export const NoDataEmptyState: React.FunctionComponent<
-  NoDataEmptyStateProps
-> = ({ title, description }) => {
+export const NoDataEmptyState: React.FC<NoDataEmptyStateProps> = ({
+  title,
+  description,
+}) => {
   return (
     <EmptyState variant={EmptyStateVariant.small}>
       <EmptyStateIcon icon={CubesIcon} />

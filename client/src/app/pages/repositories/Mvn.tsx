@@ -31,7 +31,7 @@ import {
 import { useFetchTasks } from "@app/queries/tasks";
 import { ConfirmDialog } from "@app/shared/components";
 
-export const RepositoriesMvn: React.FunctionComponent = () => {
+export const RepositoriesMvn: React.FC = () => {
   const { t } = useTranslation();
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =

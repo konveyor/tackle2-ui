@@ -27,9 +27,7 @@ export type StatusIconType =
 
 type IconListType = {
   [key in StatusIconType]: {
-    Icon:
-      | React.ComponentClass<SVGIconProps>
-      | React.FunctionComponent<SpinnerProps>;
+    Icon: React.ComponentClass<SVGIconProps> | React.FC<SpinnerProps>;
     color: { name: string; value: string; var: string };
   };
 };
@@ -70,7 +68,7 @@ export interface IStatusIconProps {
   className?: string;
 }
 
-export const StatusIcon: React.FunctionComponent<IStatusIconProps> = ({
+export const StatusIcon: React.FC<IStatusIconProps> = ({
   status,
   isDisabled = false,
   className = "",

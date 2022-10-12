@@ -14,7 +14,7 @@ import { useFormContext } from "react-hook-form";
 import { SelectCard } from "./components/select-card";
 import { ITransformationTargets, transformationTargets } from "./targets";
 
-export const SetTargets: React.FunctionComponent = () => {
+export const SetTargets: React.FC = () => {
   const { t } = useTranslation();
 
   const { getValues, setValue } = useFormContext();

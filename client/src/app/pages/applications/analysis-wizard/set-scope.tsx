@@ -20,7 +20,7 @@ import { getValidatedFromError } from "@app/utils/utils";
 
 import "./wizard.css";
 
-export const SetScope: React.FunctionComponent = () => {
+export const SetScope: React.FC = () => {
   const { t } = useTranslation();
 
   const { getValues, setValue } = useFormContext();

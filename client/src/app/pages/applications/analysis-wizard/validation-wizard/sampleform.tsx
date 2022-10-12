@@ -7,7 +7,7 @@ interface ISampleForm {
   onChange: (isvalid: boolean, value: any) => void;
 }
 
-export const SampleForm: React.FunctionComponent<ISampleForm> = ({
+export const SampleForm: React.FC<ISampleForm> = ({
   formValue = "",
   isFormValid = false,
   onChange,
