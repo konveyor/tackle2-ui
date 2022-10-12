@@ -28,6 +28,8 @@ import {
   useSubmitTaskgroupMutation,
   useUploadFileMutation,
 } from "@app/queries/taskgroups";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 import "./wizard.css";
 import {
@@ -63,6 +65,7 @@ export interface IAnalysisWizardFormValues {
   excludedRulesTags: string[];
   diva: boolean;
   hasExcludedPackages: boolean;
+  ruleTagToExclude: string;
 }
 
 const defaultTaskData: TaskData = {
@@ -156,6 +159,15 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
     onDeleteTaskgroupError
   );
 
+  const useWizardValidationSchema = () => {
+    return yup.object().shape({
+      ruleTagToExclude: yup
+        .string()
+        .min(2, t("validation.minLength", { length: 2 }))
+        .max(60, t("validation.maxLength", { length: 60 })),
+    });
+  };
+
   const methods = useForm<IAnalysisWizardFormValues>({
     defaultValues: {
       artifact: "",
@@ -166,9 +178,11 @@ export const AnalysisWizard: React.FunctionComponent<IAnalysisWizard> = ({
       excludedPackages: [],
       customRulesFiles: [],
       excludedRulesTags: [],
+      ruleTagToExclude: "",
       diva: false,
       hasExcludedPackages: false,
     },
+    resolver: yupResolver(useWizardValidationSchema()),
   });
 
   const { handleSubmit, watch, reset } = methods;
