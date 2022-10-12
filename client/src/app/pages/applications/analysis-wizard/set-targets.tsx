@@ -7,6 +7,7 @@ import {
   Text,
   Gallery,
   GalleryItem,
+  Form,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
@@ -34,32 +35,28 @@ export const SetTargets: React.FC = () => {
   };
 
   return (
-    <>
+    <Form>
       <TextContent>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.setTargets")}
         </Title>
         <Text>{t("wizard.label.setTargets")}</Text>
       </TextContent>
-      <Stack>
-        <StackItem>
-          <Gallery hasGutter>
-            {transformationTargets.map((elem, index) => (
-              <GalleryItem key={index}>
-                <SelectCard
-                  item={elem}
-                  cardSelected={[...elem.options].some((key) =>
-                    targets.includes(key)
-                  )}
-                  onChange={(isNewCard: boolean, selectionValue: string) => {
-                    handleOnCardChange(isNewCard, selectionValue, elem);
-                  }}
-                />
-              </GalleryItem>
-            ))}
-          </Gallery>
-        </StackItem>
-      </Stack>{" "}
-    </>
+      <Gallery hasGutter>
+        {transformationTargets.map((elem, index) => (
+          <GalleryItem key={index}>
+            <SelectCard
+              item={elem}
+              cardSelected={[...elem.options].some((key) =>
+                targets.includes(key)
+              )}
+              onChange={(isNewCard: boolean, selectionValue: string) => {
+                handleOnCardChange(isNewCard, selectionValue, elem);
+              }}
+            />
+          </GalleryItem>
+        ))}
+      </Gallery>
+    </Form>
   );
 };
