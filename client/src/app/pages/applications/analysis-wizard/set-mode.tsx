@@ -5,9 +5,9 @@ import {
   Title,
   SelectVariant,
   Alert,
+  Form,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { UploadBinary } from "./components/upload-binary";
@@ -58,8 +58,8 @@ export const SetMode: React.FC<ISetMode> = ({
     });
 
   return (
-    <>
-      <TextContent className={spacing.mbMd}>
+    <Form>
+      <TextContent>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.analysisMode")}
         </Title>
@@ -88,6 +88,6 @@ export const SetMode: React.FC<ISetMode> = ({
         </Alert>
       )}
       {isUpload && taskgroupID && <UploadBinary taskgroupID={taskgroupID} />}
-    </>
+    </Form>
   );
 };
