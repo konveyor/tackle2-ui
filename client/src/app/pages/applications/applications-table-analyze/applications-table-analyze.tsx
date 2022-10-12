@@ -25,10 +25,8 @@ import {
 } from "@patternfly/react-table";
 import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
-import { useDispatch } from "react-redux";
 
 import keycloak from "@app/keycloak";
-import { confirmDialogActions } from "@app/store/confirmDialog";
 import {
   AppPlaceholder,
   AppTableWithControls,
@@ -71,6 +69,7 @@ import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 import { useFetchApplicationAssessments } from "@app/queries/assessments";
 import { useEntityModal } from "@app/shared/hooks";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import { ConfirmDialog } from "@app/shared/components/confirm-dialog/confirm-dialog";
 
 const ENTITY_FIELD = "entity";
 
@@ -82,12 +81,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   //RBAC
   const token = keycloak.tokenParsed || undefined;
 
-  // i18
   const { t } = useTranslation();
-
-  // Redux
-  const dispatch = useDispatch();
   const { pushNotification } = React.useContext(NotificationsContext);
+
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
+    React.useState<Boolean>(false);
+
+  const [applicationToDeleteId, setApplicationToDeleteId] =
+    React.useState<number>();
 
   // Router
   const history = useHistory();
@@ -180,8 +181,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   // Delete
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
-    dispatch(confirmDialogActions.processing());
-    dispatch(confirmDialogActions.closeDialog());
     pushNotification({
       title: t("toastr.success.applicationDeleted", {
         appIDCount: appIDCount,
@@ -192,7 +191,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   };
 
   const onDeleteApplicationError = (error: AxiosError) => {
-    dispatch(confirmDialogActions.closeDialog());
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
@@ -411,23 +409,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   };
 
   const deleteRow = (row: Application) => {
-    dispatch(
-      confirmDialogActions.openDialog({
-        title: t("dialog.title.delete", {
-          what: t("terms.application").toLowerCase(),
-        }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
-        confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
-        onConfirm: () => {
-          if (row.id) {
-            deleteApplication({ id: row.id });
-          }
-        },
-      })
-    );
+    setApplicationToDeleteId(row.id);
+    setIsConfirmDialogOpen(true);
   };
 
   const cancelAnalysis = (row: Application) => {
@@ -727,6 +710,28 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           "dialog.message.delete"
         )}`}
       </Modal>
+      {isConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("dialog.title.delete", {
+            what: t("terms.application").toLowerCase(),
+          })}
+          isOpen={true}
+          titleIconVariant={"warning"}
+          message={t("dialog.message.delete")}
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsConfirmDialogOpen(false)}
+          onClose={() => setIsConfirmDialogOpen(false)}
+          onConfirm={() => {
+            if (applicationToDeleteId) {
+              deleteApplication({ id: applicationToDeleteId });
+              setApplicationToDeleteId(undefined);
+            }
+            setIsConfirmDialogOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };

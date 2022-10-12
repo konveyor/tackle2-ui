@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@migtools/lib-ui";
@@ -18,9 +18,6 @@ import {
   sortable,
 } from "@patternfly/react-table";
 
-import { useDispatch } from "react-redux";
-import { confirmDialogActions } from "@app/store/confirmDialog";
-
 import {
   AppPlaceholder,
   AppTableActionButtons,
@@ -28,8 +25,8 @@ import {
   ConditionalRender,
   NoDataEmptyState,
   Color,
+  ConfirmDialog,
 } from "@app/shared/components";
-
 import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
 import { Tag, TagType } from "@app/api/models";
 
@@ -63,7 +60,18 @@ const getRow = (rowData: IRowData): TagType => {
 
 export const Tags: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+
+  const [isTagToDeleteConfirmDialogOpen, setIsTagToDeleteConfirmDialogOpen] =
+    React.useState<Boolean>(false);
+
+  const [
+    isTagTypeToDeleteConfirmDialogOpen,
+    setIsTagTypeToDeleteConfirmDialogOpen,
+  ] = React.useState<Boolean>(false);
+
+  const [tagIdToDelete, setTagIdToDelete] = React.useState<number>();
+  const [tagTypeIdToDelete, setTagTypeIdToDelete] = React.useState<number>();
+
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const [isNewTagTypeModalOpen, setIsNewTagTypeModalOpen] = useState(false);
@@ -73,12 +81,14 @@ export const Tags: React.FC = () => {
   const [tagToUpdate, setTagToUpdate] = useState<Tag>();
 
   const onDeleteTagSuccess = (response: any) => {
-    dispatch(confirmDialogActions.closeDialog());
+    pushNotification({
+      title: t("terms.tagDeleted"),
+      variant: "success",
+    });
     refetch();
   };
 
   const onDeleteTagError = (error: AxiosError) => {
-    dispatch(confirmDialogActions.closeDialog());
     if (
       error.response?.status === 500 &&
       error.response?.data.error === "FOREIGN KEY constraint failed"
@@ -101,12 +111,14 @@ export const Tags: React.FC = () => {
   );
 
   const onDeleteTagTypeSuccess = (response: any) => {
-    dispatch(confirmDialogActions.closeDialog());
+    pushNotification({
+      title: t("terms.tagTypeDeleted"),
+      variant: "success",
+    });
     refetch();
   };
 
   const onDeleteTagTypeError = (error: AxiosError) => {
-    dispatch(confirmDialogActions.closeDialog());
     if (
       error.response?.status === 500 &&
       error.response?.data.error === "FOREIGN KEY constraint failed"
@@ -225,24 +237,9 @@ export const Tags: React.FC = () => {
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState(sortedItems, 10);
 
-  //
-
   const deleteTagFromTable = (row: Tag) => {
-    dispatch(
-      confirmDialogActions.openDialog({
-        // t("terms.tag")
-        title: t("dialog.title.delete", { what: t("terms.tag").toLowerCase() }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
-        confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
-        onConfirm: () => {
-          dispatch(confirmDialogActions.processing());
-          row.id && deleteTag(row.id);
-        },
-      })
-    );
+    setTagIdToDelete(row.id);
+    setIsTagToDeleteConfirmDialogOpen(true);
   };
 
   const columns: ICell[] = [
@@ -336,22 +333,8 @@ export const Tags: React.FC = () => {
   };
 
   const deleteRow = (row: TagType) => {
-    dispatch(
-      confirmDialogActions.openDialog({
-        title: t("dialog.title.delete", {
-          what: t("terms.tagType").toLowerCase(),
-        }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
-        confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
-        onConfirm: () => {
-          dispatch(confirmDialogActions.processing());
-          row.id && deleteTagType(row.id);
-        },
-      })
-    );
+    setTagTypeIdToDelete(row.id);
+    setIsTagTypeToDeleteConfirmDialogOpen(true);
   };
 
   // Advanced filters
@@ -508,6 +491,50 @@ export const Tags: React.FC = () => {
         onSaved={handleOnTagUpdated}
         onCancel={handleOnUpdatedCancel}
       />
+      {isTagToDeleteConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("dialog.title.delete", {
+            what: t("terms.tag").toLowerCase(),
+          })}
+          titleIconVariant={"warning"}
+          message={t("dialog.message.delete")}
+          isOpen={true}
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsTagToDeleteConfirmDialogOpen(false)}
+          onClose={() => setIsTagToDeleteConfirmDialogOpen(false)}
+          onConfirm={() => {
+            if (tagIdToDelete) {
+              deleteTag(tagIdToDelete);
+              setTagIdToDelete(undefined);
+            }
+            setIsTagToDeleteConfirmDialogOpen(false);
+          }}
+        />
+      )}
+      {isTagTypeToDeleteConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("dialog.title.delete", {
+            what: t("terms.tagType").toLowerCase(),
+          })}
+          titleIconVariant={"warning"}
+          message={t("dialog.message.delete")}
+          isOpen={true}
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsTagTypeToDeleteConfirmDialogOpen(false)}
+          onClose={() => setIsTagTypeToDeleteConfirmDialogOpen(false)}
+          onConfirm={() => {
+            if (tagTypeIdToDelete) {
+              deleteTagType(tagTypeIdToDelete);
+              setTagTypeIdToDelete(undefined);
+            }
+            setIsTagTypeToDeleteConfirmDialogOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };

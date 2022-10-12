@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation, Trans } from "react-i18next";
@@ -26,11 +26,6 @@ import {
 import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
 
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@app/store/rootReducer";
-import { confirmDialogActions } from "@app/store/confirmDialog";
-import { bulkCopySelectors } from "@app/store/bulkCopy";
-
 import {
   AppPlaceholder,
   AppTableWithControls,
@@ -39,6 +34,7 @@ import {
   StatusIcon,
   KebabDropdown,
   ToolbarBulkSelector,
+  ConfirmDialog,
 } from "@app/shared/components";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 
@@ -97,15 +93,35 @@ export const ApplicationsTable: React.FC = () => {
   // i18
   const { t } = useTranslation();
 
-  // Redux
-  const dispatch = useDispatch();
+  const [
+    isApplicationDeleteConfirmDialogOpen,
+    setIsApplicationDeleteConfirmDialogOpen,
+  ] = React.useState<Boolean>(false);
+
+  const [
+    isDiscardAssessmentConfirmDialogOpen,
+    setIsDiscardAssessmentConfirmDialogOpen,
+  ] = React.useState<Boolean>(false);
+
+  const [
+    isEditAssessmentConfirmDialogOpen,
+    setIsEditAssessmentConfirmDialogOpen,
+  ] = React.useState<Boolean>(false);
+
+  const [applicationToDelete, setApplicationToDelete] =
+    React.useState<number>();
+
+  const [applicationAssessmentToDiscard, setApplicationAssessmentToDiscard] =
+    React.useState<Application>();
+
+  const [assessmentToEdit, setAssessmentToEdit] = React.useState<Assessment>();
+
   const { pushNotification } = React.useContext(NotificationsContext);
 
   // Router
   const history = useHistory();
 
   // Table data
-
   const { applications, isFetching, fetchError, refetch } =
     useFetchApplications();
 
@@ -162,8 +178,6 @@ export const ApplicationsTable: React.FC = () => {
 
   // Delete
   const onDeleteApplicationSuccess = (appIDCount: number) => {
-    dispatch(confirmDialogActions.processing());
-    dispatch(confirmDialogActions.closeDialog());
     pushNotification({
       title: t("toastr.success.applicationDeleted", {
         appIDCount: appIDCount,
@@ -174,7 +188,6 @@ export const ApplicationsTable: React.FC = () => {
   };
 
   const onDeleteApplicationError = (error: AxiosError) => {
-    dispatch(confirmDialogActions.closeDialog());
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
@@ -479,85 +492,49 @@ export const ApplicationsTable: React.FC = () => {
   };
 
   const deleteRow = (row: Application) => {
-    dispatch(
-      confirmDialogActions.openDialog({
-        title: t("dialog.title.delete", {
-          what: t("terms.application").toLowerCase(),
-        }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
-        confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
-        onConfirm: () => {
-          if (row.id) {
-            deleteApplication({ id: row.id });
-          }
-        },
-      })
-    );
+    setApplicationToDelete(row.id);
+    setIsApplicationDeleteConfirmDialogOpen(true);
   };
 
   const discardAssessmentRow = (row: Application) => {
-    dispatch(
-      confirmDialogActions.openDialog({
-        title: t("dialog.title.discard", {
-          what: t("terms.assessment").toLowerCase(),
-        }),
-        titleIconVariant: "warning",
-        message: (
-          <span>
-            <Trans
-              i18nKey="dialog.message.discardAssessment"
-              values={{ applicationName: row.name }}
-            >
-              The assessment for <strong>applicationName</strong> will be
-              discarded, as well as the review result. Do you wish to continue?
-            </Trans>
-          </span>
-        ),
-        confirmBtnVariant: ButtonVariant.primary,
-        confirmBtnLabel: t("actions.continue"),
-        cancelBtnLabel: t("actions.cancel"),
-        onConfirm: () => {
-          dispatch(confirmDialogActions.processing());
+    setApplicationAssessmentToDiscard(row);
+    setIsDiscardAssessmentConfirmDialogOpen(true);
+  };
 
-          Promise.all([row.review ? deleteReview(row.review.id!) : undefined])
-            .then(() => {
-              const assessment = getApplicationAssessment(row.id!);
-              return Promise.all([
-                assessment ? deleteAssessment(assessment.id!) : undefined,
-              ]);
-            })
-            .then(() => {
-              dispatch(confirmDialogActions.closeDialog());
-              pushNotification({
-                title: t("toastr.success.assessmentDiscarded", {
-                  application: row.name,
-                }),
-                variant: "success",
-              });
-
-              queryClient.invalidateQueries(assessmentsQueryKey);
-              queryClient.invalidateQueries(reviewsQueryKey);
-              refetch();
-            })
-            .catch((error) => {
-              dispatch(confirmDialogActions.closeDialog());
-              pushNotification({
-                title: getAxiosErrorMessage(error),
-                variant: "danger",
-              });
-            });
-        },
+  const discardAssessment = (application: Application) => {
+    Promise.all([
+      application.review ? deleteReview(application.review.id!) : undefined,
+    ])
+      .then(() => {
+        const assessment = getApplicationAssessment(application.id!);
+        return Promise.all([
+          assessment ? deleteAssessment(assessment.id!) : undefined,
+        ]);
       })
-    );
+      .then(() => {
+        pushNotification({
+          title: t("toastr.success.assessmentDiscarded", {
+            application: application.name,
+          }),
+          variant: "success",
+        });
+
+        queryClient.invalidateQueries(assessmentsQueryKey);
+        queryClient.invalidateQueries(reviewsQueryKey);
+        refetch();
+      })
+      .catch((error) => {
+        pushNotification({
+          title: getAxiosErrorMessage(error),
+          variant: "danger",
+        });
+      });
   };
 
   // Toolbar actions
   const assessSelectedRows = () => {
     if (selectedRows.length !== 1) {
-      const msg = "The number of applications to be assess must be 1";
+      const msg = "The number of applications to be assessed must be 1";
       pushNotification({
         title: msg,
         variant: "danger",
@@ -569,33 +546,15 @@ export const ApplicationsTable: React.FC = () => {
     assessApplication(
       row,
       (assessment: Assessment) => {
-        const redirectToAssessment = () => {
+        if (assessment.status === "COMPLETE") {
+          setAssessmentToEdit(assessment);
+          setIsEditAssessmentConfirmDialogOpen(true);
+        } else {
           history.push(
             formatPath(Paths.applicationsAssessment, {
               assessmentId: assessment.id,
             })
           );
-        };
-
-        if (assessment.status === "COMPLETE") {
-          dispatch(
-            confirmDialogActions.openDialog({
-              title: t("composed.editQuestion", {
-                what: t("terms.assessment").toLowerCase(),
-              }),
-              titleIconVariant: "warning",
-              message: t("message.overrideAssessmentConfirmation"),
-              confirmBtnVariant: ButtonVariant.primary,
-              confirmBtnLabel: t("actions.continue"),
-              cancelBtnLabel: t("actions.cancel"),
-              onConfirm: () => {
-                dispatch(confirmDialogActions.closeDialog());
-                redirectToAssessment();
-              },
-            })
-          );
-        } else {
-          redirectToAssessment();
         }
       },
       (error) => {
@@ -802,7 +761,6 @@ export const ApplicationsTable: React.FC = () => {
           }
         />
       </ConditionalRender>
-
       <Modal
         title={
           applicationToUpdate
@@ -819,7 +777,6 @@ export const ApplicationsTable: React.FC = () => {
           onCancel={closeApplicationModal}
         />
       </Modal>
-
       <Modal
         isOpen={isCopyAssessmentModalOpen}
         variant="large"
@@ -871,7 +828,6 @@ export const ApplicationsTable: React.FC = () => {
           />
         )}
       </Modal>
-
       <Modal
         isOpen={isDependenciesModalOpen}
         variant="medium"
@@ -887,7 +843,6 @@ export const ApplicationsTable: React.FC = () => {
           />
         )}
       </Modal>
-
       <Modal
         isOpen={isApplicationImportModalOpen}
         variant="medium"
@@ -945,6 +900,87 @@ export const ApplicationsTable: React.FC = () => {
           "dialog.message.delete"
         )}`}
       </Modal>
+      {isApplicationDeleteConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("dialog.title.delete", {
+            what: t("terms.application").toLowerCase(),
+          })}
+          titleIconVariant={"warning"}
+          isOpen={true}
+          message={t("dialog.message.delete")}
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsApplicationDeleteConfirmDialogOpen(false)}
+          onClose={() => setIsApplicationDeleteConfirmDialogOpen(false)}
+          onConfirm={() => {
+            if (applicationToDelete) {
+              deleteApplication({ id: applicationToDelete });
+              setApplicationToDelete(undefined);
+            }
+            setIsApplicationDeleteConfirmDialogOpen(false);
+          }}
+        />
+      )}
+      {isDiscardAssessmentConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("dialog.title.discard", {
+            what: t("terms.assessment").toLowerCase(),
+          })}
+          titleIconVariant={"warning"}
+          isOpen={true}
+          message={
+            <span>
+              <Trans
+                i18nKey="dialog.message.discardAssessment"
+                values={{
+                  applicationName: applicationAssessmentToDiscard?.name,
+                }}
+              >
+                The assessment for <strong>applicationName</strong> will be
+                discarded, as well as the review result. Do you wish to
+                continue?
+              </Trans>
+            </span>
+          }
+          confirmBtnVariant={ButtonVariant.primary}
+          confirmBtnLabel={t("actions.continue")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsDiscardAssessmentConfirmDialogOpen(false)}
+          onClose={() => setIsDiscardAssessmentConfirmDialogOpen(false)}
+          onConfirm={() => {
+            if (applicationAssessmentToDiscard) {
+              discardAssessment(applicationAssessmentToDiscard);
+              setApplicationAssessmentToDiscard(undefined);
+            }
+            setIsDiscardAssessmentConfirmDialogOpen(false);
+          }}
+        />
+      )}
+      {isEditAssessmentConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("composed.editQuestion", {
+            what: t("terms.assessment").toLowerCase(),
+          })}
+          titleIconVariant={"warning"}
+          isOpen={true}
+          message={t("message.overrideAssessmentConfirmation")}
+          confirmBtnVariant={ButtonVariant.primary}
+          confirmBtnLabel={t("actions.continue")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsEditAssessmentConfirmDialogOpen(false)}
+          onClose={() => setIsEditAssessmentConfirmDialogOpen(false)}
+          onConfirm={() => {
+            history.push(
+              formatPath(Paths.applicationsAssessment, {
+                assessmentId: assessmentToEdit?.id,
+              })
+            );
+            setAssessmentToEdit(undefined);
+            setIsEditAssessmentConfirmDialogOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };

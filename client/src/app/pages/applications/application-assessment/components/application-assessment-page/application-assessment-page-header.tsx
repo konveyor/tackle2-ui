@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
-
 import { Button, ButtonVariant, Modal, Text } from "@patternfly/react-core";
 
-import { useDispatch } from "react-redux";
-import { confirmDialogActions } from "@app/store/confirmDialog";
-
-import { PageHeader } from "@app/shared/components";
+import { ConfirmDialog, PageHeader } from "@app/shared/components";
 import { useEntityModal } from "@app/shared/hooks";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
-
 import { Paths } from "@app/Paths";
 import { Application, Assessment } from "@app/api/models";
 import { getApplicationById } from "@app/api/rest";
@@ -24,7 +19,9 @@ export const ApplicationAssessmentPageHeader: React.FC<
 > = ({ assessment }) => {
   const { t } = useTranslation();
   const history = useHistory();
-  const dispatch = useDispatch();
+
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
+    React.useState<Boolean>(false);
 
   const [application, setApplication] = useState<Application>();
 
@@ -60,19 +57,7 @@ export const ApplicationAssessmentPageHeader: React.FC<
           {
             title: t("terms.applications"),
             path: () => {
-              dispatch(
-                confirmDialogActions.openDialog({
-                  title: t("dialog.title.leavePage"),
-                  message: t("dialog.message.leavePage"),
-                  confirmBtnVariant: ButtonVariant.primary,
-                  confirmBtnLabel: t("actions.continue"),
-                  cancelBtnLabel: t("actions.cancel"),
-                  onConfirm: () => {
-                    dispatch(confirmDialogActions.closeDialog());
-                    history.push(Paths.applications);
-                  },
-                })
-              );
+              setIsConfirmDialogOpen(true);
             },
           },
           {
@@ -107,6 +92,19 @@ export const ApplicationAssessmentPageHeader: React.FC<
           />
         )}
       </Modal>
+      {isConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("dialog.title.leavePage")}
+          isOpen={true}
+          message={t("dialog.message.leavePage")}
+          confirmBtnVariant={ButtonVariant.primary}
+          confirmBtnLabel={t("actions.continue")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsConfirmDialogOpen(false)}
+          onClose={() => setIsConfirmDialogOpen(false)}
+          onConfirm={() => history.push(Paths.applications)}
+        />
+      )}
     </>
   );
 };

@@ -14,14 +14,13 @@ import {
   sortable,
   TableText,
 } from "@patternfly/react-table";
-import { useDispatch } from "react-redux";
 
-import { confirmDialogActions } from "@app/store/confirmDialog";
 import {
   AppPlaceholder,
   AppTableActionButtons,
   AppTableWithControls,
   ConditionalRender,
+  ConfirmDialog,
   NoDataEmptyState,
 } from "@app/shared/components";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -48,7 +47,15 @@ const ENTITY_FIELD = "entity";
 
 export const JobFunctions: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
+    React.useState<Boolean>(false);
+
+  const [
+    jobFunctionstakeholderIdToDelete,
+    setJobFunctionStakeholderIdToDelete,
+  ] = React.useState<number>();
+
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const { jobFunctions, isFetching, fetchError, refetch } =
@@ -90,11 +97,13 @@ export const JobFunctions: React.FC = () => {
   const [rowToUpdate, setRowToUpdate] = useState<JobFunction>();
 
   const onDeleteJobFunctionSuccess = (response: any) => {
-    dispatch(confirmDialogActions.closeDialog());
+    pushNotification({
+      title: t("terms.jobFunctionDeleted"),
+      variant: "success",
+    });
   };
 
   const onDeleteJobFunctionError = (error: AxiosError) => {
-    dispatch(confirmDialogActions.closeDialog());
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
@@ -143,23 +152,8 @@ export const JobFunctions: React.FC = () => {
   // Rows
 
   const deleteRow = (row: JobFunction) => {
-    dispatch(
-      confirmDialogActions.openDialog({
-        // t("terms.jobFunction")
-        title: t("dialog.title.delete", {
-          what: t("terms.jobFunction").toLowerCase(),
-        }),
-        titleIconVariant: "warning",
-        message: t("dialog.message.delete"),
-        confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
-        onConfirm: () => {
-          dispatch(confirmDialogActions.processing());
-          row.id && deleteJobFunction(row.id);
-        },
-      })
-    );
+    setJobFunctionStakeholderIdToDelete(row.id);
+    setIsConfirmDialogOpen(true);
   };
 
   // Advanced filters
@@ -271,6 +265,28 @@ export const JobFunctions: React.FC = () => {
         onSaved={handleOnJobFunctionUpdated}
         onCancel={handleOnUpdatedCancel}
       />
+      {isConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("dialog.title.delete", {
+            what: t("terms.jobFunction").toLowerCase(),
+          })}
+          isOpen={true}
+          titleIconVariant={"warning"}
+          message={t("dialog.message.delete")}
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsConfirmDialogOpen(false)}
+          onClose={() => setIsConfirmDialogOpen(false)}
+          onConfirm={() => {
+            if (jobFunctionstakeholderIdToDelete) {
+              deleteJobFunction(jobFunctionstakeholderIdToDelete);
+              setJobFunctionStakeholderIdToDelete(undefined);
+            }
+            setIsConfirmDialogOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };
