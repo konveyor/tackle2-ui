@@ -24,6 +24,7 @@ import {
   AppTableActionButtons,
   AppTableWithControls,
   ConditionalRender,
+  ConfirmDialog,
   NoDataEmptyState,
 } from "@app/shared/components";
 import { Identity, ITypeOptions } from "@app/api/models";
@@ -32,8 +33,6 @@ import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { AxiosError, AxiosResponse } from "axios";
-import { useDispatch } from "react-redux";
-import { confirmDialogActions } from "@app/store/confirmDialog";
 import { NewIdentityModal } from "./components/new-identity-modal";
 import { UpdateIdentityModal } from "./components/update-identity-modal";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -53,16 +52,24 @@ const ENTITY_FIELD = "entity";
 
 export const Identities: React.FunctionComponent = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
+    React.useState<Boolean>(false);
+
+  const [identityIdToDelete, setIdentityIdToDelete] = React.useState<number>();
+
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const [rowToUpdate, setRowToUpdate] = useState<Identity>();
+
   const onDeleteIdentitySuccess = (response: any) => {
-    dispatch(confirmDialogActions.closeDialog());
+    pushNotification({
+      title: t("terms.credentialsDeleted"),
+      variant: "success",
+    });
   };
 
   const onDeleteIdentityError = (error: AxiosError) => {
-    dispatch(confirmDialogActions.closeDialog());
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
@@ -171,30 +178,8 @@ export const Identities: React.FunctionComponent = () => {
   };
 
   const deleteRow = (row: Identity) => {
-    const dependentApplications = applications.filter((app) => {
-      const idList = app?.identities?.map((id) => id.id) || [];
-      return idList.includes(row.id);
-    });
-    let dependencyExistsText;
-    if (dependentApplications.length) {
-      dependencyExistsText = `The credentials are being used by ${dependentApplications.length} applications. Deleting these credentials will also remove them from the associated applications. This action cannot be undone.`;
-    }
-    dispatch(
-      confirmDialogActions.openDialog({
-        title: "Delete credential",
-        titleIconVariant: "warning",
-        message: dependencyExistsText
-          ? dependencyExistsText
-          : "This cannot be undone.",
-        confirmBtnVariant: ButtonVariant.danger,
-        confirmBtnLabel: t("actions.delete"),
-        cancelBtnLabel: t("actions.cancel"),
-        onConfirm: () => {
-          dispatch(confirmDialogActions.processing());
-          row.id && deleteIdentity(row.id);
-        },
-      })
-    );
+    setIdentityIdToDelete(row.id);
+    setIsConfirmDialogOpen(true);
   };
 
   const handleOnIdentityCreated = (response: AxiosResponse<Identity>) => {
@@ -258,6 +243,13 @@ export const Identities: React.FunctionComponent = () => {
       ],
     });
   });
+
+  const dependentApplications = React.useMemo(() => {
+    const res = applications.filter((app) =>
+      app?.identities?.map((id) => id.id).includes(identityIdToDelete)
+    );
+    return res;
+  }, [applications, identityIdToDelete]);
 
   return (
     <>
@@ -329,6 +321,32 @@ export const Identities: React.FunctionComponent = () => {
           onCancel={handleOnCancelUpdateIdentity}
         />
       </PageSection>
+      {isConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("dialog.title.delete", {
+            what: t("terms.credential").toLowerCase(),
+          })}
+          titleIconVariant={"warning"}
+          message={`${
+            dependentApplications.length
+              ? `The credentials are being used by ${dependentApplications.length} application(s). Deleting these credentials will also remove them from the associated applications.`
+              : null
+          } ${t("dialog.message.delete")}`}
+          isOpen={true}
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsConfirmDialogOpen(false)}
+          onClose={() => setIsConfirmDialogOpen(false)}
+          onConfirm={() => {
+            if (identityIdToDelete) {
+              deleteIdentity(identityIdToDelete);
+              setIdentityIdToDelete(undefined);
+            }
+            setIsConfirmDialogOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };

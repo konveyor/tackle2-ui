@@ -4,7 +4,6 @@ import { BrowserRouter } from "react-router-dom";
 import { AppRoutes } from "./Routes";
 import { DefaultLayout } from "./layout";
 import { NotificationsProvider } from "./shared/notifications-context";
-import { ConfirmDialogContainer } from "./shared/containers/confirm-dialog-container";
 import { BulkCopyNotificationsContainer } from "./shared/containers/bulk-copy-notifications-container";
 
 import "@patternfly/patternfly/patternfly.css";
@@ -20,7 +19,6 @@ const App: React.FC = () => {
           <AppRoutes />
         </DefaultLayout>
       </NotificationsProvider>
-      <ConfirmDialogContainer />
       <BulkCopyNotificationsContainer />
     </BrowserRouter>
   );
