@@ -29,13 +29,13 @@ import {
   useFetchVolumes,
 } from "@app/queries/volumes";
 import { useFetchTasks } from "@app/queries/tasks";
-import { useDispatch } from "react-redux";
-import { confirmDialogActions } from "@app/store/confirmDialog";
+import { ConfirmDialog } from "@app/shared/components";
 
 export const RepositoriesMvn: React.FunctionComponent = () => {
   const { t } = useTranslation();
-  // Redux
-  const dispatch = useDispatch();
+
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
+    React.useState<Boolean>(false);
 
   const [forcedSettingError, setForcedSettingError] =
     React.useState<AxiosError>();
@@ -138,26 +138,6 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
     onError: onHandleCleanError,
   });
 
-  const confirmClean = () => {
-    dispatch(
-      confirmDialogActions.openDialog({
-        title: "Clear repository",
-        message:
-          "This will clear the local Maven repository and considerably slow down builds until dependencies are collected again. Do you wish to continue?",
-        confirmBtnVariant: ButtonVariant.primary,
-        confirmBtnLabel: t("actions.continue"),
-        cancelBtnLabel: t("actions.cancel"),
-        onConfirm: () => {
-          dispatch(confirmDialogActions.closeDialog());
-          if (currCleanId) {
-            const cleanIdStr = currCleanId.toString();
-            cleanRepository(cleanIdStr);
-          }
-        },
-      })
-    );
-  };
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -184,9 +164,7 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
                   variant="link"
                   isInline
                   isDisabled={isCleaning}
-                  onClick={() => {
-                    confirmClean();
-                  }}
+                  onClick={() => setIsConfirmDialogOpen(true)}
                 >
                   Clear repository
                 </Button>
@@ -223,6 +201,26 @@ export const RepositoriesMvn: React.FunctionComponent = () => {
           </CardBody>
         </Card>
       </PageSection>
+      {isConfirmDialogOpen && (
+        <ConfirmDialog
+          title={"Clear repository"}
+          titleIconVariant={"warning"}
+          message="This will clear the local Maven repository and considerably slow down builds until dependencies are collected again. Do you wish to continue?"
+          isOpen={true}
+          confirmBtnVariant={ButtonVariant.primary}
+          confirmBtnLabel={t("actions.continue")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsConfirmDialogOpen(false)}
+          onClose={() => setIsConfirmDialogOpen(false)}
+          onConfirm={() => {
+            if (currCleanId) {
+              const cleanIdStr = currCleanId.toString();
+              cleanRepository(cleanIdStr);
+            }
+            setIsConfirmDialogOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };
