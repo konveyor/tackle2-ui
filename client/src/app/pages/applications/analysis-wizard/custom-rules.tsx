@@ -253,7 +253,7 @@ export const CustomRules: React.FC = () => {
         <NoDataEmptyState
           title={t("wizard.label.noCustomRules")}
           description={t("composed.add", {
-            what: t("terms.rules").toLowerCase(),
+            what: t("wizard.terms.rules").toLowerCase(),
           })}
         />
       )}
