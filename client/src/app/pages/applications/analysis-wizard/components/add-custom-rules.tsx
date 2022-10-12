@@ -25,7 +25,7 @@ interface IParsedXMLFileStatus {
   message?: string;
 }
 
-export const AddCustomRules: React.FunctionComponent<IAddCustomRules> = ({
+export const AddCustomRules: React.FC<IAddCustomRules> = ({
   customRulesFiles,
   readFileData,
   setReadFileData,

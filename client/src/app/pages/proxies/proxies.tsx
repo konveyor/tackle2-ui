@@ -17,7 +17,7 @@ import { ProxyForm } from "./proxy-form";
 import { useFetchProxies } from "@app/queries/proxies";
 import "./proxies.css";
 
-export const Proxies: React.FunctionComponent = () => {
+export const Proxies: React.FC = () => {
   const { t } = useTranslation();
 
   const { proxies, isFetching } = useFetchProxies();

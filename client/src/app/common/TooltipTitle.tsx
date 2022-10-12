@@ -8,10 +8,7 @@ interface IProps {
   tooltipText: string;
 }
 
-const TooltipTitle: React.FunctionComponent<IProps> = ({
-  titleText,
-  tooltipText,
-}) => {
+const TooltipTitle: React.FC<IProps> = ({ titleText, tooltipText }) => {
   return (
     <Flex>
       <FlexItem>{titleText}</FlexItem>

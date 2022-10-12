@@ -38,7 +38,7 @@ import { IReadFile } from "./analysis-wizard";
 
 import "./wizard.css";
 
-export const CustomRules: React.FunctionComponent = () => {
+export const CustomRules: React.FC = () => {
   const { t } = useTranslation();
 
   const { getValues, setValue } = useFormContext();

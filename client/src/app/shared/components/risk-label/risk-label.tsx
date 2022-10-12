@@ -10,7 +10,7 @@ export interface IRiskLabelProps {
   risk: Risk;
 }
 
-export const RiskLabel: React.FunctionComponent<IRiskLabelProps> = ({
+export const RiskLabel: React.FC<IRiskLabelProps> = ({
   risk,
 }: IRiskLabelProps) => {
   const { t } = useTranslation();

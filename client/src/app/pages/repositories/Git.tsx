@@ -19,7 +19,7 @@ import { Setting } from "@app/api/models";
 import { AxiosError, AxiosPromise } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
-export const RepositoriesGit: React.FunctionComponent = () => {
+export const RepositoriesGit: React.FC = () => {
   const { t } = useTranslation();
   const [error, setError] = React.useState<AxiosError>();
 
