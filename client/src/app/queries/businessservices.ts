@@ -1,20 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
-import { deleteBusinessService, getBusinessServices } from "@app/api/rest";
+import {
+  deleteBusinessService,
+  getBusinessServiceById,
+  getBusinessServices,
+} from "@app/api/rest";
 import { BusinessService } from "@app/api/models";
 import { AxiosError } from "axios";
 
-export interface IBusinessServiceFetchState {
-  businessServices: BusinessService[];
-  isFetching: boolean;
-  fetchError: any;
-  refetch: any;
-}
-
 export const BusinessServicesQueryKey = "businessservices";
+export const BusinessServiceQueryKey = "businessservice";
 
-export const useFetchBusinessServices = (): IBusinessServiceFetchState => {
-  const { data, isLoading, error, refetch } = useQuery(
+export const useFetchBusinessServices = () => {
+  const { data, isLoading, error, refetch } = useQuery<BusinessService[]>(
     BusinessServicesQueryKey,
     async () => (await getBusinessServices()).data,
     {
@@ -24,8 +22,21 @@ export const useFetchBusinessServices = (): IBusinessServiceFetchState => {
   return {
     businessServices: data || [],
     isFetching: isLoading,
-    fetchError: error,
+    fetchError: error as AxiosError,
     refetch,
+  };
+};
+export const useFetchBusinessServiceByID = (id: number | string) => {
+  const { data, isLoading, error } = useQuery<BusinessService>(
+    [BusinessServicesQueryKey, id],
+    async () => (await getBusinessServiceById(id)).data,
+    { onError: (error) => console.log(error) }
+  );
+
+  return {
+    businessService: data,
+    isFetching: isLoading,
+    fetchError: error as AxiosError,
   };
 };
 
