@@ -1,9 +1,6 @@
-import React, { useCallback, useEffect } from "react";
+import React from "react";
 
-import { useFetch } from "@app/shared/hooks";
-
-import { BusinessService } from "@app/api/models";
-import { getBusinessServiceById } from "@app/api/rest";
+import { useFetchBusinessServiceByID } from "@app/queries/businessservices";
 
 export interface ApplicationBusinessServiceProps {
   id: number | string | undefined;
@@ -12,22 +9,7 @@ export interface ApplicationBusinessServiceProps {
 export const ApplicationBusinessService: React.FC<
   ApplicationBusinessServiceProps
 > = ({ id }) => {
-  const onFetchBusinessService = useCallback(() => {
-    return getBusinessServiceById(id || "");
-  }, [id]);
-
-  const {
-    data: businessService,
-    fetchError,
-    requestFetch: refreshBusinessService,
-  } = useFetch<BusinessService>({
-    defaultIsFetching: true,
-    onFetch: onFetchBusinessService,
-  });
-
-  useEffect(() => {
-    refreshBusinessService();
-  }, [refreshBusinessService]);
+  const { businessService, fetchError } = useFetchBusinessServiceByID(id || "");
 
   if (fetchError) {
     return <></>;
