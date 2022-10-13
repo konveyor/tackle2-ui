@@ -24,6 +24,7 @@ export const SetScope: React.FC = () => {
   const { t } = useTranslation();
 
   const { getValues, setValue } = useFormContext();
+  // TODO this is just for the temporary inputs on packages to include/exclude. schema?
   const {
     register,
     formState: { errors },
@@ -96,6 +97,7 @@ export const SetScope: React.FC = () => {
                 aria-label="Packages to include"
                 {...register("packageToInclude", {
                   pattern: {
+                    // TODO check if this validation is working?
                     value: /^[a-z]+(.[a-z0-9]+)*$/,
                     message:
                       "The package name should be a valid Java package name",
@@ -127,7 +129,7 @@ export const SetScope: React.FC = () => {
             <div className={spacing.plLg}>
               {includedPackages.map(
                 (pkg, index) =>
-                  pkg && (
+                  pkg && ( // TODO switch to InputGroupText here?
                     <InputGroup key={index}>
                       <Text className="package">{pkg}</Text>
                       <Button
