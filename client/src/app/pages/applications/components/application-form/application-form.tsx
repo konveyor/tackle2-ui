@@ -90,12 +90,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     businessServices,
     isFetching: isFetchingBusinessServices,
     fetchError: fetchErrorBusinessServices,
-    refetch: fetchBusinessServices,
   } = useFetchBusinessServices();
-
-  useEffect(() => {
-    fetchBusinessServices();
-  }, [fetchBusinessServices]);
 
   // TagTypes
 
