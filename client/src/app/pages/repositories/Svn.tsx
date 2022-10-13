@@ -15,13 +15,28 @@ import "./Repositories.css";
 import { Setting } from "@app/api/models";
 import { getSettingById, updateSetting } from "@app/api/rest";
 import { AxiosError, AxiosPromise } from "axios";
-import { useCallback, useEffect } from "react";
-import { useFetch } from "@app/shared/hooks";
+import { useEffect } from "react";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import { useQuery } from "react-query";
 
 export const RepositoriesSvn: React.FC = () => {
   const { t } = useTranslation();
   const [error, setError] = React.useState<AxiosError>();
+
+  const { data: svnInsecureSetting, refetch: refreshSvnInsecureSetting } =
+    useQuery<boolean>(
+      ["svnsetting"],
+      async () => {
+        return (await getSettingById("svn.insecure.enabled")).data;
+      },
+      {
+        onError: (error) => console.log("error, ", error),
+      }
+    );
+
+  useEffect(() => {
+    refreshSvnInsecureSetting();
+  }, [refreshSvnInsecureSetting]);
 
   const onChange = () => {
     const setting: Setting = {
@@ -44,20 +59,6 @@ export const RepositoriesSvn: React.FC = () => {
         setError(error);
       });
   };
-
-  const fetchSvnInsecureSetting = useCallback(() => {
-    return getSettingById("svn.insecure.enabled");
-  }, []);
-
-  const { data: svnInsecureSetting, requestFetch: refreshSvnInsecureSetting } =
-    useFetch<boolean>({
-      defaultIsFetching: true,
-      onFetch: fetchSvnInsecureSetting,
-    });
-
-  useEffect(() => {
-    refreshSvnInsecureSetting();
-  }, [refreshSvnInsecureSetting]);
 
   return (
     <>

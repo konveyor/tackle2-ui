@@ -1,7 +1,5 @@
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-
-import { ToolbarChip } from "@patternfly/react-core";
 import {
   breakWord,
   cellWidth,
@@ -10,35 +8,20 @@ import {
   TableVariant,
 } from "@patternfly/react-table";
 
-import { useFetch } from "@app/shared/hooks";
-import {
-  AppTableToolbarToggleGroup,
-  AppTableWithControls,
-  InputTextFilter,
-  ToolbarSearchFilter,
-} from "@app/shared/components";
+import { AppTableWithControls } from "@app/shared/components";
 
 import { Application, AssessmentQuestionRisk } from "@app/api/models";
 import { getAssessmentIdentifiedRisks } from "@app/api/rest";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import { RISK_LIST } from "@app/Constants";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useSortState } from "@app/shared/hooks/useSortState";
-import { TableRowData } from "../adoption-candidate-table/adoption-candidate-table";
-
-export enum FilterKey {
-  APPLICATION_NAME = "application_name",
-  CATEGORY = "category",
-  QUESTION = "question",
-  ANSWER = "answer",
-}
+import { useQuery } from "react-query";
 
 export interface ITableRowData {
   category: string;
@@ -55,37 +38,25 @@ export const IdentifiedRisksTable: React.FC<
   // i18
   const { t } = useTranslation();
 
-  const {
-    allItems: allApplications,
-    selectedItems: selectedApplications,
-    areAllSelected: areAllApplicationsSelected,
-    isItemSelected: isApplicationSelected,
-    toggleItemSelected: toggleApplicationSelected,
-    selectAll: selectAllApplication,
-    setSelectedItems: setSelectedRows,
-    selectMultiple: selectMultipleApplications,
-  } = useContext(ApplicationSelectionContext);
-
-  // Table data
-  const fetchTableData = useCallback(() => {
-    if (allApplications.length > 0) {
-      return getAssessmentIdentifiedRisks(
-        allApplications.map((f) => f.id!)
-      ).then(({ data }) => data);
-    } else {
-      return Promise.resolve([]);
-    }
-  }, [allApplications]);
+  const { allItems: allApplications } = useContext(ApplicationSelectionContext);
 
   const {
     data: assessmentQuestionRisks,
+    refetch: refreshTable,
+    error: fetchError,
     isFetching,
-    fetchError,
-    requestFetch: refreshTable,
-  } = useFetch<AssessmentQuestionRisk[]>({
-    defaultIsFetching: true,
-    onFetchPromise: fetchTableData,
-  });
+  } = useQuery<AssessmentQuestionRisk[]>(
+    "assessmentquestionrisks",
+    async () =>
+      (
+        await getAssessmentIdentifiedRisks(
+          allApplications.length > 0 ? allApplications.map((f) => f.id!) : []
+        )
+      ).data,
+    {
+      onError: (error) => console.log("error, ", error),
+    }
+  );
 
   const tableData: ITableRowData[] = useMemo(() => {
     return (assessmentQuestionRisks || []).map((risk) => ({
