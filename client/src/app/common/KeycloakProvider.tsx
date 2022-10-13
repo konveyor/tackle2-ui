@@ -12,9 +12,9 @@ interface IKeycloakProviderProps {
   children: React.ReactNode;
 }
 
-export const KeycloakProvider: React.FunctionComponent<
-  IKeycloakProviderProps
-> = ({ children }) => {
+export const KeycloakProvider: React.FC<IKeycloakProviderProps> = ({
+  children,
+}) => {
   const checkAuthCookie = () => {
     if (!getCookie("keycloak_cookie") && keycloak?.token) {
       setCookie("keycloak_cookie", keycloak.token, 365);

@@ -24,7 +24,7 @@ import { defaultSources, defaultTargets } from "./targets";
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-export const SetOptions: React.FunctionComponent = () => {
+export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
 
   const { getValues, setValue, setError, control, trigger, resetField } =

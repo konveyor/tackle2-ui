@@ -9,9 +9,9 @@ export interface IProposedActionLabelProps {
   action: ProposedAction;
 }
 
-export const ProposedActionLabel: React.FunctionComponent<
-  IProposedActionLabelProps
-> = ({ action }: IProposedActionLabelProps) => {
+export const ProposedActionLabel: React.FC<IProposedActionLabelProps> = ({
+  action,
+}: IProposedActionLabelProps) => {
   const { t } = useTranslation();
 
   const data = PROPOSED_ACTION_LIST[action];

@@ -50,7 +50,7 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
-export const Identities: React.FunctionComponent = () => {
+export const Identities: React.FC = () => {
   const { t } = useTranslation();
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
