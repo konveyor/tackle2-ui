@@ -175,7 +175,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     return yup.object().shape({
       ruleTagToExclude: yup
         .string()
-        .min(2, t("validation.minLength", { length: 2 }))
+        .matches(/^(|.{2,})$/, t("validation.minLength", { length: 2 })) // Either 0 or 2+ characters
         .max(60, t("validation.maxLength", { length: 60 })),
     });
   };
@@ -195,6 +195,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       hasExcludedPackages: false,
     },
     resolver: yupResolver(useWizardValidationSchema()),
+    mode: "onChange",
   });
 
   const { handleSubmit, watch, reset } = methods;

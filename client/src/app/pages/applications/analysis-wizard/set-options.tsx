@@ -115,7 +115,10 @@ export const SetOptions: React.FC = () => {
                   what: t("wizard.terms.rulesTags"),
                 })}
                 fieldId="ruleTagToExclude"
-                validated={getValidatedFromError(error?.message)}
+                validated={getValidatedFromErrorTouched(
+                  error?.message,
+                  isTouched
+                )}
                 helperTextInvalid={error?.message}
               >
                 <InputGroup>
@@ -123,11 +126,11 @@ export const SetOptions: React.FC = () => {
                     name={name}
                     id={name}
                     aria-label="Rule tag to exclude"
-                    onChange={(val, e) => {
-                      trigger(name);
-                      onChange(val, e);
-                    }}
-                    validated={getValidatedFromError(error?.message)}
+                    onChange={onChange}
+                    validated={getValidatedFromErrorTouched(
+                      error?.message,
+                      isTouched
+                    )}
                     value={value}
                     onBlur={onBlur}
                     ref={ref}
@@ -135,7 +138,7 @@ export const SetOptions: React.FC = () => {
                   <Button
                     id="add-rule-tag"
                     variant="control"
-                    isDisabled={!!error || !isDirty}
+                    isDisabled={!!error || !isDirty || value.length === 0}
                     onClick={() => {
                       setValue("excludedRulesTags", [
                         ...excludedRulesTags,
