@@ -24,6 +24,8 @@ import { defaultSources, defaultTargets } from "./targets";
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
+// TODO reapply style changes from 7c1274077ba7dab9979d381dff89727233ce86d5 that were reverted to avoid conflicts
+
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
 
