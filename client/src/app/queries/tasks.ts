@@ -3,12 +3,21 @@ import { useMutation, useQuery } from "react-query";
 import { Task } from "@app/api/models";
 import { cancelTask, deleteTask, getTasks } from "@app/api/rest";
 
-export const useFetchTasks = () => {
+interface FetchTasksFilters {
+  addon?: string;
+}
+
+export const useFetchTasks = (filters: FetchTasksFilters = {}) => {
   const { isLoading, error, refetch, data } = useQuery("tasks", getTasks, {
     refetchInterval: 5000,
     select: (allTasks) => {
+      const filteredTasks = filters
+        ? allTasks.filter((task) => {
+            return !filters.addon || task.addon === filters.addon;
+          })
+        : allTasks;
       let uniqLatestTasks: Task[] = [];
-      allTasks.forEach((task) => {
+      filteredTasks.forEach((task) => {
         const aTask = uniqLatestTasks.find(
           (item) => task.application?.id === item.application?.id
         );

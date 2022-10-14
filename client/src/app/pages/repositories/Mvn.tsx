@@ -115,7 +115,6 @@ export const RepositoriesMvn: React.FC = () => {
   }, [refreshMvnForcedSetting]);
 
   const { volumes, refetch } = useFetchVolumes();
-  const { tasks } = useFetchTasks();
   const [storageValue, setStorageValue] = useState<string>();
   const [currCleanId, setCurrCleanId] = useState<number>(0);
 
