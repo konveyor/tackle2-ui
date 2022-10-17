@@ -4,6 +4,7 @@ import {
   Form,
   FormGroup,
   InputGroup,
+  InputGroupText,
   Radio,
   Switch,
   Text,
@@ -129,9 +130,9 @@ export const SetScope: React.FC = () => {
             <div className={spacing.plLg}>
               {includedPackages.map(
                 (pkg, index) =>
-                  pkg && ( // TODO switch to InputGroupText here?
+                  pkg && (
                     <InputGroup key={index}>
-                      <Text className="package">{pkg}</Text>
+                      <InputGroupText className="package">{pkg}</InputGroupText>
                       <Button
                         isInline
                         id="remove-from-packages-included"
@@ -205,7 +206,7 @@ export const SetScope: React.FC = () => {
                 pkg && (
                   <div key={index}>
                     <InputGroup key={index}>
-                      <Text className="package">{pkg}</Text>
+                      <InputGroupText className="package">{pkg}</InputGroupText>
                       <Button
                         isInline
                         id="remove-from-packages-excluded"
