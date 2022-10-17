@@ -127,6 +127,7 @@ export const SetScope: React.FC = () => {
             </InputGroup>
           </FormGroup>
           {includedPackages && (
+            // TODO are these selections sticking around in the submission even if the user deselects the radio button after adding some?
             <div className={spacing.plLg}>
               {includedPackages.map(
                 (pkg, index) =>
@@ -200,6 +201,8 @@ export const SetScope: React.FC = () => {
           </FormGroup>
         )}
         {excludedPackages && (
+          // TODO are these selections sticking around in the submission even if the user deselects the radio button after adding some?
+          // TODO these do remain visible if you toggle the switch off, certainly that's a bug
           <div className={spacing.plLg}>
             {excludedPackages.map(
               (pkg, index) =>
