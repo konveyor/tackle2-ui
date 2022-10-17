@@ -36,6 +36,7 @@ export const SetScope: React.FC = () => {
   const includedPackages: string[] = getValues("includedPackages");
   const excludedPackages: string[] = getValues("excludedPackages");
 
+  // TODO these are redundant with the above (local) useForm call
   const [packageToInclude, setPackageToInclude] = React.useState("");
   const [packageToExclude, setPackageToExclude] = React.useState("");
 

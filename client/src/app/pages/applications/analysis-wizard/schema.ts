@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as yup from "yup";
+import { IReadFile } from "./analysis-wizard";
 
 export type AnalysisMode =
   | "binary"
@@ -7,21 +8,7 @@ export type AnalysisMode =
   | "source-code-deps"
   | "binary-upload";
 
-/*
-export interface IAnalysisWizardFormValues {
-  artifact: string;
-  targets: string[];
-  sources: string[];
-  withKnown: string;
-  includedPackages: string[];
-  excludedPackages: string[];
-  customRulesFiles: IReadFile[];
-  excludedRulesTags: string[];
-  diva: boolean;
-  hasExcludedPackages: boolean;
-  ruleTagToExclude: string;
-}
-*/
+// TODO there was originally an "artifact" string field, it appears unused?
 
 export interface ModeFormValues {
   mode: AnalysisMode;
@@ -38,19 +25,23 @@ export interface ScopeFormValues {
   excludedPackages: string[];
 }
 
-export interface CustomRulesFormValues {}
+export interface CustomRulesFormValues {
+  sources: string[];
+  customRulesFiles: IReadFile[]; // TODO what's with this type?
+}
 
-export interface OptionsFormValues {}
+export interface OptionsFormValues {
+  diva: boolean; // TODO is there a better name for this?
+  excludedRulesTags: string[];
+}
 
-// Only to be called once, at the top of the wizard.
-// To consume these forms in each wizard step, use `React.useContext(AnalysisWizardFormContext)`
+// Only to be called once at the top of the wizard.
+// To consume these forms in each wizard step, use `useFormContext` from react-hook-form.
 export const useAnalysisWizardFormState = () => {};
 
-export type AnalysisWizardForms = ReturnType<typeof useAnalysisWizardFormState>;
-
-/*
-export const AnalysisWizardFormContext =
-  React.createContext<AnalysisWizardForms>({} as AnalysisWizardForms);
-*/
+// TODO do we need this?
+export type AnalysisWizardFormState = ReturnType<
+  typeof useAnalysisWizardFormState
+>;
 
 // TODO see slack -- use the new hook, keep one useForm with multiple compound schemas
