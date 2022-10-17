@@ -10,4 +10,5 @@
   width: 100%;
   padding-left: 1em;
   border-bottom: 0.1em solid rgb(90, 90, 90);
+  color: var(--pf-global--Color--100);
 }
