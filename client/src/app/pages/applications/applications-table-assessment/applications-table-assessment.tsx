@@ -80,6 +80,7 @@ import { useQueryClient } from "react-query";
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { useAssessApplication } from "@app/shared/hooks/useAssessApplication";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
 
 const ENTITY_FIELD = "entity";
 
@@ -117,6 +118,7 @@ export const ApplicationsTable: React.FC = () => {
   const [assessmentToEdit, setAssessmentToEdit] = React.useState<Assessment>();
 
   const { pushNotification } = React.useContext(NotificationsContext);
+  const [isSubmittingBulkCopy, setIsSubmittingBulkCopy] = useState(false);
 
   // Router
   const history = useHistory();
@@ -257,6 +259,27 @@ export const ApplicationsTable: React.FC = () => {
     onDeleteApplicationSuccess,
     onDeleteApplicationError
   );
+  const onHandleCopySuccess = (hasSuccessfulReviewCopy: boolean) => {
+    setIsSubmittingBulkCopy(false);
+    pushNotification({
+      title: hasSuccessfulReviewCopy
+        ? t("toastr.success.assessmentAndReviewCopied")
+        : t("toastr.success.assessmentCopied"),
+      variant: "success",
+    });
+  };
+  const onHandleCopyError = (error: AxiosError) => {
+    setIsSubmittingBulkCopy(false);
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: createCopy, isCopying } = useCreateBulkCopyMutation({
+    onSuccess: onHandleCopySuccess,
+    onError: onHandleCopyError,
+  });
 
   // Create assessment
   const { assessApplication, inProgress: isApplicationAssessInProgress } =
@@ -794,6 +817,10 @@ export const ApplicationsTable: React.FC = () => {
             assessment={
               getApplicationAssessment(applicationToCopyAssessmentFrom.id!)!
             }
+            isSubmittingBulkCopy={isSubmittingBulkCopy}
+            setIsSubmittingBulkCopy={setIsSubmittingBulkCopy}
+            isCopying={isCopying}
+            createCopy={createCopy}
             onSaved={() => {
               closeCopyAssessmentModal();
               refetch();
@@ -821,6 +848,10 @@ export const ApplicationsTable: React.FC = () => {
               )!
             }
             review={appReview}
+            isSubmittingBulkCopy={isSubmittingBulkCopy}
+            setIsSubmittingBulkCopy={setIsSubmittingBulkCopy}
+            isCopying={isCopying}
+            createCopy={createCopy}
             onSaved={() => {
               closeCopyAssessmentAndReviewModal();
               refetch();
