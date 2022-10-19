@@ -13,6 +13,9 @@ export type AnalysisScope = "app" | "app,oss" | "app,oss,select"; // TODO can we
 
 // TODO there was originally an "artifact" string field, it appears unused?
 
+// TODO maybe it is too cumbersome to concat each step's schema based on the previous step?
+// TODO can we couple the interfaces and schemas one after the other? separate hooks?
+
 export interface ModeFormValues {
   mode: AnalysisMode;
 }
