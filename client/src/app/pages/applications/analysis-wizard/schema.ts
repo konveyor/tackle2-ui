@@ -62,18 +62,36 @@ export const useAnalysisWizardFormValidationSchema = () => {
     ModeFormValues & TargetsFormValues & ScopeFormValues
   > = targetsFormSchema.concat(
     yup.object({
-      withKnown: yup.string().required(),
+      withKnown: yup.mixed<AnalysisScope>().required(t("validation.required")),
       includedPackages: yup.array().of(yup.string().defined()),
       hasExcludedPackages: yup.bool().defined(),
       excludedPackages: yup.array().of(yup.string().defined()),
     })
   );
 
-  // const allFieldsSchema: yup.SchemaOf<AnalysisWizardFormValues> =
+  const customRulesFormSchema: yup.SchemaOf<
+    ModeFormValues & TargetsFormValues & ScopeFormValues & CustomRulesFormValues
+  > = scopeFormSchema.concat(
+    yup.object({
+      sources: yup.array().of(yup.string().defined()),
+      customRulesFiles: yup.array().of(yup.object() as yup.SchemaOf<IReadFile>), // TODO is there something better here?
+    })
+  );
+
+  const optionsFormSchema: yup.SchemaOf<AnalysisWizardFormValues> =
+    customRulesFormSchema.concat(
+      yup.object({
+        diva: yup.bool().defined(),
+        excludedRulesTags: yup.array().of(yup.string().defined()),
+      })
+    );
 
   return {
     modeFormSchema,
     targetsFormSchema,
-    allFieldsSchema,
+    scopeFormSchema,
+    customRulesFormSchema,
+    optionsFormSchema,
+    allFieldsSchema: optionsFormSchema,
   };
 };
