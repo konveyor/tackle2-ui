@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import { IReadFile } from "./analysis-wizard";
 
@@ -7,6 +8,8 @@ export type AnalysisMode =
   | "source-code"
   | "source-code-deps"
   | "binary-upload";
+
+export type AnalysisScope = "app" | "app,oss" | "app,oss,select"; // TODO can we make this an array? how does that affect api/models.tsx?
 
 // TODO there was originally an "artifact" string field, it appears unused?
 
@@ -19,7 +22,7 @@ export interface TargetsFormValues {
 }
 
 export interface ScopeFormValues {
-  withKnown: "app" | "app,oss" | "app,oss,select"; // TODO can we make this an array? how does that affect api/models.tsx?
+  withKnown: AnalysisScope; // TODO should this have another name?
   includedPackages: string[];
   hasExcludedPackages: boolean;
   excludedPackages: string[];
@@ -35,13 +38,42 @@ export interface OptionsFormValues {
   excludedRulesTags: string[];
 }
 
-// Only to be called once at the top of the wizard.
-// To consume these forms in each wizard step, use `useFormContext` from react-hook-form.
-export const useAnalysisWizardFormState = () => {};
+export type AnalysisWizardFormValues = ModeFormValues &
+  TargetsFormValues &
+  ScopeFormValues &
+  CustomRulesFormValues &
+  OptionsFormValues;
 
-// TODO do we need this?
-export type AnalysisWizardFormState = ReturnType<
-  typeof useAnalysisWizardFormState
->;
+export const useAnalysisWizardFormValidationSchema = () => {
+  const { t } = useTranslation();
 
-// TODO see slack -- use the new hook, keep one useForm with multiple compound schemas
+  const modeFormSchema: yup.SchemaOf<ModeFormValues> = yup.object({
+    mode: yup.mixed<AnalysisMode>().required(t("validation.required")),
+  });
+
+  const targetsFormSchema: yup.SchemaOf<ModeFormValues & TargetsFormValues> =
+    modeFormSchema.concat(
+      yup.object({
+        targets: yup.array().of(yup.string().defined()).min(1),
+      })
+    );
+
+  const scopeFormSchema: yup.SchemaOf<
+    ModeFormValues & TargetsFormValues & ScopeFormValues
+  > = targetsFormSchema.concat(
+    yup.object({
+      withKnown: yup.string().required(),
+      includedPackages: yup.array().of(yup.string().defined()),
+      hasExcludedPackages: yup.bool().defined(),
+      excludedPackages: yup.array().of(yup.string().defined()),
+    })
+  );
+
+  // const allFieldsSchema: yup.SchemaOf<AnalysisWizardFormValues> =
+
+  return {
+    modeFormSchema,
+    targetsFormSchema,
+    allFieldsSchema,
+  };
+};
