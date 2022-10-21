@@ -7,8 +7,6 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import App from "@app/App";
 import reportWebVitals from "@app/reportWebVitals";
 import configureStore from "@app/store";
-import i18n from "@app/i18n";
-import { NinjaErrorBoundary } from "@app/ninja-error-boundary";
 import { KeycloakProvider } from "@app/common/KeycloakProvider";
 
 const queryClient = new QueryClient();
@@ -16,12 +14,10 @@ const queryClient = new QueryClient();
 ReactDOM.render(
   <KeycloakProvider>
     <Provider store={configureStore()}>
-      <NinjaErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <App />
-          <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
-      </NinjaErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <App />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
     </Provider>
   </KeycloakProvider>,
   document.getElementById("root")
