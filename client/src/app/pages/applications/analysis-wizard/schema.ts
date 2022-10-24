@@ -13,36 +13,36 @@ export type AnalysisScope = "app" | "app,oss" | "app,oss,select"; // TODO can we
 
 // TODO there was originally an "artifact" string field, it appears unused?
 
-export interface ModeFormValues {
+export interface ModeStepValues {
   mode: AnalysisMode;
 }
 
-const useModeFormSchema = (): yup.SchemaOf<ModeFormValues> => {
+const useModeStepSchema = (): yup.SchemaOf<ModeStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     mode: yup.mixed<AnalysisMode>().required(t("validation.required")),
   });
 };
 
-export interface TargetsFormValues {
+export interface TargetsStepValues {
   targets: string[];
 }
 
-const useTargetsFormSchema = (): yup.SchemaOf<TargetsFormValues> => {
+const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     targets: yup.array().of(yup.string().defined()).min(1),
   });
 };
 
-export interface ScopeFormValues {
+export interface ScopeStepValues {
   withKnown: AnalysisScope; // TODO should this have another name?
   includedPackages: string[];
   hasExcludedPackages: boolean;
   excludedPackages: string[];
 }
 
-const useScopeFormSchema = (): yup.SchemaOf<ScopeFormValues> => {
+const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     withKnown: yup.mixed<AnalysisScope>().required(t("validation.required")),
@@ -52,12 +52,12 @@ const useScopeFormSchema = (): yup.SchemaOf<ScopeFormValues> => {
   });
 };
 
-export interface CustomRulesFormValues {
+export interface CustomRulesStepValues {
   sources: string[];
   customRulesFiles: IReadFile[]; // TODO what's with this type?
 }
 
-const useCustomRulesFormSchema = (): yup.SchemaOf<CustomRulesFormValues> => {
+const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     sources: yup.array().of(yup.string().defined()),
@@ -65,12 +65,12 @@ const useCustomRulesFormSchema = (): yup.SchemaOf<CustomRulesFormValues> => {
   });
 };
 
-export interface OptionsFormValues {
+export interface OptionsStepValues {
   diva: boolean; // TODO is there a better name for this?
   excludedRulesTags: string[];
 }
 
-const useOptionsFormSchema = (): yup.SchemaOf<OptionsFormValues> => {
+const useOptionsStepSchema = (): yup.SchemaOf<OptionsStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     diva: yup.bool().defined(),
@@ -78,26 +78,26 @@ const useOptionsFormSchema = (): yup.SchemaOf<OptionsFormValues> => {
   });
 };
 
-export type AnalysisWizardFormValues = ModeFormValues &
-  TargetsFormValues &
-  ScopeFormValues &
-  CustomRulesFormValues &
-  OptionsFormValues;
+export type AnalysisWizardFormValues = ModeStepValues &
+  TargetsStepValues &
+  ScopeStepValues &
+  CustomRulesStepValues &
+  OptionsStepValues;
 
 export const useAnalysisWizardFormValidationSchema = () => {
   const schemas = {
-    modeForm: useModeFormSchema(),
-    targetsForm: useTargetsFormSchema(),
-    scopeForm: useScopeFormSchema(),
-    customRulesForm: useCustomRulesFormSchema(),
-    optionsForm: useOptionsFormSchema(),
+    modeStep: useModeStepSchema(),
+    targetsStep: useTargetsStepSchema(),
+    scopeStep: useScopeStepSchema(),
+    customRulesStep: useCustomRulesStepSchema(),
+    optionsStep: useOptionsStepSchema(),
   };
   const allFieldsSchema: yup.SchemaOf<AnalysisWizardFormValues> =
-    schemas.modeForm
-      .concat(schemas.targetsForm)
-      .concat(schemas.scopeForm)
-      .concat(schemas.customRulesForm)
-      .concat(schemas.optionsForm);
+    schemas.modeStep
+      .concat(schemas.targetsStep)
+      .concat(schemas.scopeStep)
+      .concat(schemas.customRulesStep)
+      .concat(schemas.optionsStep);
   return {
     schemas,
     allFieldsSchema,
