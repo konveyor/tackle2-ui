@@ -1,12 +1,15 @@
-const path = require("path");
-const { merge } = require("webpack-merge");
-const common = require("./webpack.common.js");
-const { stylePaths } = require("./stylePaths");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const helpers = require("../../server/helpers");
+import path from "path";
+import merge from "webpack-merge";
+import commonWebpackConfiguration from "./webpack.common";
+import { stylePaths } from "./stylePaths";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import helpers from "../../server/helpers";
+import { Configuration } from "webpack";
+import "webpack-dev-server";
+
 const brandType = process.env["PROFILE"] || "konveyor";
 
-module.exports = merge(common("development"), {
+const config = merge<Configuration>(commonWebpackConfiguration, {
   mode: "development",
   devtool: "eval-source-map",
   devServer: {
@@ -44,3 +47,4 @@ module.exports = merge(common("development"), {
     ],
   },
 });
+export default config;
