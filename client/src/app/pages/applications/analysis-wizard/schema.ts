@@ -13,16 +13,27 @@ export type AnalysisScope = "app" | "app,oss" | "app,oss,select"; // TODO can we
 
 // TODO there was originally an "artifact" string field, it appears unused?
 
-// TODO maybe it is too cumbersome to concat each step's schema based on the previous step?
-// TODO can we couple the interfaces and schemas one after the other? separate hooks?
-
 export interface ModeFormValues {
   mode: AnalysisMode;
 }
 
+const useModeFormSchema = (): yup.SchemaOf<ModeFormValues> => {
+  const { t } = useTranslation();
+  return yup.object({
+    mode: yup.mixed<AnalysisMode>().required(t("validation.required")),
+  });
+};
+
 export interface TargetsFormValues {
   targets: string[];
 }
+
+const useTargetsFormSchema = (): yup.SchemaOf<TargetsFormValues> => {
+  const { t } = useTranslation();
+  return yup.object({
+    targets: yup.array().of(yup.string().defined()).min(1),
+  });
+};
 
 export interface ScopeFormValues {
   withKnown: AnalysisScope; // TODO should this have another name?
@@ -31,15 +42,41 @@ export interface ScopeFormValues {
   excludedPackages: string[];
 }
 
+const useScopeFormSchema = (): yup.SchemaOf<ScopeFormValues> => {
+  const { t } = useTranslation();
+  return yup.object({
+    withKnown: yup.mixed<AnalysisScope>().required(t("validation.required")),
+    includedPackages: yup.array().of(yup.string().defined()),
+    hasExcludedPackages: yup.bool().defined(),
+    excludedPackages: yup.array().of(yup.string().defined()),
+  });
+};
+
 export interface CustomRulesFormValues {
   sources: string[];
   customRulesFiles: IReadFile[]; // TODO what's with this type?
 }
 
+const useCustomRulesFormSchema = (): yup.SchemaOf<CustomRulesFormValues> => {
+  const { t } = useTranslation();
+  return yup.object({
+    sources: yup.array().of(yup.string().defined()),
+    customRulesFiles: yup.array().of(yup.object() as yup.SchemaOf<IReadFile>), // TODO is there something better here?
+  });
+};
+
 export interface OptionsFormValues {
   diva: boolean; // TODO is there a better name for this?
   excludedRulesTags: string[];
 }
+
+const useOptionsFormSchema = (): yup.SchemaOf<OptionsFormValues> => {
+  const { t } = useTranslation();
+  return yup.object({
+    diva: yup.bool().defined(),
+    excludedRulesTags: yup.array().of(yup.string().defined()),
+  });
+};
 
 export type AnalysisWizardFormValues = ModeFormValues &
   TargetsFormValues &
@@ -48,53 +85,21 @@ export type AnalysisWizardFormValues = ModeFormValues &
   OptionsFormValues;
 
 export const useAnalysisWizardFormValidationSchema = () => {
-  const { t } = useTranslation();
-
-  const modeFormSchema: yup.SchemaOf<ModeFormValues> = yup.object({
-    mode: yup.mixed<AnalysisMode>().required(t("validation.required")),
-  });
-
-  const targetsFormSchema: yup.SchemaOf<ModeFormValues & TargetsFormValues> =
-    modeFormSchema.concat(
-      yup.object({
-        targets: yup.array().of(yup.string().defined()).min(1),
-      })
-    );
-
-  const scopeFormSchema: yup.SchemaOf<
-    ModeFormValues & TargetsFormValues & ScopeFormValues
-  > = targetsFormSchema.concat(
-    yup.object({
-      withKnown: yup.mixed<AnalysisScope>().required(t("validation.required")),
-      includedPackages: yup.array().of(yup.string().defined()),
-      hasExcludedPackages: yup.bool().defined(),
-      excludedPackages: yup.array().of(yup.string().defined()),
-    })
-  );
-
-  const customRulesFormSchema: yup.SchemaOf<
-    ModeFormValues & TargetsFormValues & ScopeFormValues & CustomRulesFormValues
-  > = scopeFormSchema.concat(
-    yup.object({
-      sources: yup.array().of(yup.string().defined()),
-      customRulesFiles: yup.array().of(yup.object() as yup.SchemaOf<IReadFile>), // TODO is there something better here?
-    })
-  );
-
-  const optionsFormSchema: yup.SchemaOf<AnalysisWizardFormValues> =
-    customRulesFormSchema.concat(
-      yup.object({
-        diva: yup.bool().defined(),
-        excludedRulesTags: yup.array().of(yup.string().defined()),
-      })
-    );
-
+  const schemas = {
+    modeForm: useModeFormSchema(),
+    targetsForm: useTargetsFormSchema(),
+    scopeForm: useScopeFormSchema(),
+    customRulesForm: useCustomRulesFormSchema(),
+    optionsForm: useOptionsFormSchema(),
+  };
+  const allFieldsSchema: yup.SchemaOf<AnalysisWizardFormValues> =
+    schemas.modeForm
+      .concat(schemas.targetsForm)
+      .concat(schemas.scopeForm)
+      .concat(schemas.customRulesForm)
+      .concat(schemas.optionsForm);
   return {
-    modeFormSchema,
-    targetsFormSchema,
-    scopeFormSchema,
-    customRulesFormSchema,
-    optionsFormSchema,
-    allFieldsSchema: optionsFormSchema,
+    schemas,
+    allFieldsSchema,
   };
 };
