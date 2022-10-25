@@ -29,38 +29,31 @@ exports[`AppAboutModal 1`] = `
     <Text
       component="p"
     >
-      <Component
-        i18nKey="about.bottom1"
+      about.bottom1
+       
+      <Text
+        component="a"
+        href="https://www.konveyor.io/"
+        target="_blank"
       >
-        Tackle is a project within the
-         
-        <Text
-          component="a"
-          href="https://www.konveyor.io/"
-          target="_blank"
-        >
-          Konveyor community
-        </Text>
-        .
-      </Component>
+        Konveyor community
+      </Text>
+      .
     </Text>
     <Text
       component="p"
     >
-      <Component
-        i18nKey="about.bottom2"
+      about.bottom2
+       
+      <Text
+        component="a"
+        href="https://tackle-docs.konveyor.io/"
+        target="_blank"
       >
-        For more information please refer to
-         
-        <Text
-          component="a"
-          href="https://tackle-docs.konveyor.io/"
-          target="_blank"
-        >
-          Tackle documentation
-        </Text>
-        .
-      </Component>
+        Tackle
+         documentation
+      </Text>
+      .
     </Text>
     <Text
       component="p"
@@ -113,7 +106,7 @@ exports[`AppAboutModal 1`] = `
         <TextListItem
           component="dd"
         >
-          2.1
+          99.0.0
         </TextListItem>
       </TextList>
     </TextContent>

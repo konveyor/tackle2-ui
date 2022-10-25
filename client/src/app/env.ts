@@ -5,6 +5,7 @@ const ENV_VAR_DEFAULTS = {
   KEYCLOAK_SERVER_URL: "",
   UI_INGRESS_PROXY_BODY_SIZE: "",
   PROFILE: "konveyor",
+  VERSION: "99.0.0",
 } as const;
 
 type EnvVarKey = keyof typeof ENV_VAR_DEFAULTS;

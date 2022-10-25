@@ -10,9 +10,10 @@ import {
   TextListItem,
 } from "@patternfly/react-core";
 
-import brandImage from "@app/images/tackle.png";
-
-const VERSION = "2.1";
+import tackleBrandImage from "@app/images/tackle.png";
+import mtaBrandImage from "@app/images/logoRedHat.svg";
+import { APP_BRAND, BrandType } from "@app/Constants";
+import { ENV } from "@app/env";
 
 export interface AppAboutModalProps {
   isOpen: boolean;
@@ -24,44 +25,50 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-
+  const brandName = APP_BRAND === BrandType.Konveyor ? "Tackle" : "MTA";
   return (
     <AboutModal
       isOpen={isOpen}
       onClose={onClose}
       trademark="COPYRIGHT © 2022."
-      brandImageSrc={brandImage}
+      brandImageSrc={
+        APP_BRAND === BrandType.Konveyor ? tackleBrandImage : mtaBrandImage
+      }
       brandImageAlt="Logo"
-      productName="Tackle"
+      productName={brandName}
     >
       <TextContent className="pf-u-py-xl">
-        <Text component={TextVariants.p}>{t("about.introduction")}</Text>
-        <Text component={TextVariants.p}>{t("about.description")}</Text>
         <Text component={TextVariants.p}>
-          <Trans i18nKey="about.bottom1">
-            Tackle is a project within the{" "}
-            <Text
-              component={TextVariants.a}
-              href="https://www.konveyor.io/"
-              target="_blank"
-            >
-              Konveyor community
-            </Text>
-            .
-          </Trans>
+          {t("about.introduction", { brandType: brandName })}
         </Text>
         <Text component={TextVariants.p}>
-          <Trans i18nKey="about.bottom2">
-            For more information please refer to{" "}
-            <Text
-              component={TextVariants.a}
-              href="https://tackle-docs.konveyor.io/"
-              target="_blank"
-            >
-              Tackle documentation
-            </Text>
-            .
-          </Trans>
+          {t("about.description", { brandType: brandName })}
+        </Text>
+        <Text component={TextVariants.p}>
+          {t("about.bottom1", { brandType: brandName })}{" "}
+          <Text
+            component={TextVariants.a}
+            href="https://www.konveyor.io/"
+            target="_blank"
+          >
+            Konveyor community
+          </Text>
+          .
+        </Text>
+        <Text component={TextVariants.p}>
+          {t("about.bottom2")}{" "}
+          <Text
+            component={TextVariants.a}
+            href={
+              APP_BRAND === BrandType.Konveyor
+                ? "https://tackle-docs.konveyor.io/"
+                : "https://access.redhat.com/documentation/en-us/migration_toolkit_for_applications"
+            }
+            target="_blank"
+          >
+            {brandName} documentation
+          </Text>
+          .
         </Text>
         <Text component={TextVariants.p}>
           <Trans i18nKey="about.iconLibrary">
@@ -96,7 +103,7 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
         <TextContent>
           <TextList component="dl">
             <TextListItem component="dt">{t("terms.version")}</TextListItem>
-            <TextListItem component="dd">{VERSION}</TextListItem>
+            <TextListItem component="dd">{ENV.VERSION}</TextListItem>
           </TextList>
         </TextContent>
       </TextContent>
