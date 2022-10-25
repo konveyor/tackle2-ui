@@ -105,9 +105,7 @@ exports[`AppAboutModal 1`] = `
         </TextListItem>
         <TextListItem
           component="dd"
-        >
-          99.0.0
-        </TextListItem>
+        />
       </TextList>
     </TextContent>
   </TextContent>

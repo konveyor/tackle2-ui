@@ -12,8 +12,7 @@ import {
 
 import tackleBrandImage from "@app/images/tackle.png";
 import mtaBrandImage from "@app/images/logoRedHat.svg";
-import { APP_BRAND, BrandType } from "@app/Constants";
-import { ENV } from "@app/env";
+import { APP_BRAND, BrandType, ENV } from "@app/Constants";
 
 export interface AppAboutModalProps {
   isOpen: boolean;
