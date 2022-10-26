@@ -21,6 +21,7 @@ export interface IEnvVars {
   KEYCLOAK_SERVER_URL: string;
   UI_INGRESS_PROXY_BODY_SIZE: string;
   PROFILE: string;
+  VERSION: string;
 }
 
 export enum BrandType {
