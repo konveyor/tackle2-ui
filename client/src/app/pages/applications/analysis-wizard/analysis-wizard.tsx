@@ -37,6 +37,12 @@ import {
   isModeSupported,
 } from "./utils";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import {
+  AnalysisWizardFormValues,
+  ModeStepValues,
+  useAnalysisWizardFormValidationSchema,
+} from "./schema";
+import { useAsyncYupValidation } from "@app/shared/hooks/useAsyncYupValidation";
 
 interface IAnalysisWizard {
   applications: Application[];
@@ -51,20 +57,6 @@ export interface IReadFile {
   loadResult?: "danger" | "success";
   data?: string;
   fullFile: File;
-}
-
-export interface IAnalysisWizardFormValues {
-  artifact: string;
-  targets: string[];
-  sources: string[];
-  withKnown: string;
-  includedPackages: string[];
-  excludedPackages: string[];
-  customRulesFiles: IReadFile[];
-  excludedRulesTags: string[];
-  diva: boolean;
-  hasExcludedPackages: boolean;
-  ruleTagToExclude: string;
 }
 
 const defaultTaskData: TaskData = {
@@ -173,9 +165,12 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     onDeleteTaskgroupError
   );
 
-  const methods = useForm<IAnalysisWizardFormValues>({
+  const { schemas, allFieldsSchema } = useAnalysisWizardFormValidationSchema();
+
+  const methods = useForm<AnalysisWizardFormValues>({
     defaultValues: {
       artifact: "",
+      mode: "binary", // TODO this field is new, needs plumbing
       targets: [],
       sources: [],
       withKnown: "app",
@@ -186,12 +181,23 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       diva: false,
       hasExcludedPackages: false,
     },
+    resolver: yupResolver(allFieldsSchema),
     mode: "onChange",
   });
 
   const { handleSubmit, watch, reset } = methods;
-  const watchAllFields = watch();
-  const { artifact, targets } = methods.getValues();
+  const values = watch();
+
+  // TODO use these below for enableNext and canJumpTo stuff per step
+  const isStepValid = {
+    mode: useAsyncYupValidation(values, schemas.modeStep),
+    targets: useAsyncYupValidation(values, schemas.targetsStep),
+    scope: useAsyncYupValidation(values, schemas.scopeStep),
+    customRules: useAsyncYupValidation(values, schemas.customRulesStep),
+    options: useAsyncYupValidation(values, schemas.optionsStep),
+  };
+
+  const { artifact, targets } = values;
 
   const setTaskgroup = (taskgroup: Taskgroup, data: FieldValues): Taskgroup => {
     return {

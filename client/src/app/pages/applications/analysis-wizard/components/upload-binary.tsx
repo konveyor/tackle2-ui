@@ -24,6 +24,7 @@ interface IUploadBinary {
 }
 
 export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
+  // TODO add the values type param to useFormContext everywhere it is called within the wizard
   const { setValue, getValues } = useFormContext();
   const { artifact } = getValues();
   const initialCurrentFile = new File([""], artifact, { type: "text/html" });

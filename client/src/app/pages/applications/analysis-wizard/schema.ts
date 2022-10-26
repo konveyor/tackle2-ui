@@ -10,16 +10,16 @@ export type AnalysisMode =
 
 export type AnalysisScope = "app" | "app,oss" | "app,oss,select"; // TODO can we make this an array? how does that affect api/models.tsx?
 
-// TODO there was originally an "artifact" string field, it appears unused?
-
 export interface ModeStepValues {
   mode: AnalysisMode;
+  artifact: string;
 }
 
 const useModeStepSchema = (): yup.SchemaOf<ModeStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     mode: yup.mixed<AnalysisMode>().required(t("validation.required")),
+    artifact: yup.string().defined(),
   });
 };
 
