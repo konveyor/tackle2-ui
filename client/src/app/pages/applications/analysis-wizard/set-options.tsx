@@ -14,16 +14,15 @@ import {
   TextInput,
   Title,
 } from "@patternfly/react-core";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, useForm, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 
-import {
-  getValidatedFromError,
-  getValidatedFromErrorTouched,
-} from "@app/utils/utils";
+import { getValidatedFromErrorTouched } from "@app/utils/utils";
 import { defaultSources, defaultTargets } from "./targets";
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
@@ -36,8 +35,24 @@ export const SetOptions: React.FC = () => {
   const diva: boolean = getValues("diva");
   const excludedRulesTags: string[] = getValues("excludedRulesTags");
 
+  const excludeRuleForm = useForm({
+    defaultValues: {
+      ruleTagToExclude: "",
+    },
+    resolver: yupResolver(
+      yup.object({
+        ruleTagToExclude: yup
+          .string()
+          .matches(/^(|.{2,})$/, t("validation.minLength", { length: 2 })) // Either 0 or 2+ characters
+          .max(60, t("validation.maxLength", { length: 60 })),
+      })
+    ),
+    mode: "onChange",
+  });
+
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
+
   return (
     <Form isHorizontal>
       <TextContent>
@@ -103,7 +118,7 @@ export const SetOptions: React.FC = () => {
         </Select>
       </FormGroup>
       <Controller
-        control={control}
+        control={excludeRuleForm.control}
         name="ruleTagToExclude"
         render={({
           field: { onBlur, onChange, value, name, ref },

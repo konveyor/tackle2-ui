@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import { IReadFile } from "./analysis-wizard";

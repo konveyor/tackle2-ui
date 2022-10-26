@@ -173,15 +173,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     onDeleteTaskgroupError
   );
 
-  const useWizardValidationSchema = () => {
-    return yup.object().shape({
-      ruleTagToExclude: yup
-        .string()
-        .matches(/^(|.{2,})$/, t("validation.minLength", { length: 2 })) // Either 0 or 2+ characters
-        .max(60, t("validation.maxLength", { length: 60 })),
-    });
-  };
-
   const methods = useForm<IAnalysisWizardFormValues>({
     defaultValues: {
       artifact: "",
@@ -192,11 +183,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       excludedPackages: [],
       customRulesFiles: [],
       excludedRulesTags: [],
-      ruleTagToExclude: "",
       diva: false,
       hasExcludedPackages: false,
     },
-    resolver: yupResolver(useWizardValidationSchema()),
     mode: "onChange",
   });
 
