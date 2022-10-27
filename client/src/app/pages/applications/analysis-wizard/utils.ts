@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Application } from "@app/api/models";
-import { AnalysisMode } from "./schema";
+import { AnalysisMode, ANALYSIS_MODES } from "./schema";
 
 export const isApplicationBinaryEnabled = (
   application: Application
@@ -24,6 +24,7 @@ export const isApplicationSourceCodeDepsEnabled = (
   return false;
 };
 
+// TODO this is totally redundant with isModeValid in analysis-wizard???
 export const isModeSupported = (application: Application, mode: string) => {
   if (mode === "binary-upload") return true;
   if (mode === "binary") return isApplicationBinaryEnabled(application);
@@ -32,7 +33,31 @@ export const isModeSupported = (application: Application, mode: string) => {
   else return isApplicationSourceCodeEnabled(application);
 };
 
-export const filterAnalyzableApplications = (
+const filterAnalyzableApplications = (
   applications: Application[],
   mode: AnalysisMode
 ) => applications.filter((application) => isModeSupported(application, mode));
+
+export const useAnalyzableApplications = (
+  applications: Application[],
+  mode: AnalysisMode
+) =>
+  React.useMemo(
+    () => filterAnalyzableApplications(applications, mode),
+    [applications, mode]
+  );
+
+export const useAnalyzableApplicationsByMode = (
+  applications: Application[]
+): Record<AnalysisMode, Application[]> =>
+  React.useMemo(
+    () =>
+      ANALYSIS_MODES.reduce(
+        (record, mode) => ({
+          ...record,
+          [mode]: filterAnalyzableApplications(applications, mode),
+        }),
+        {} as Record<AnalysisMode, Application[]>
+      ),
+    [applications]
+  );

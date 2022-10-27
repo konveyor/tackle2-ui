@@ -30,14 +30,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 import "./wizard.css";
 import {
-  filterAnalyzableApplications,
+  useAnalyzableApplications,
   isApplicationBinaryEnabled,
   isApplicationSourceCodeDepsEnabled,
   isApplicationSourceCodeEnabled,
 } from "./utils";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import {
-  AnalysisMode,
   AnalysisWizardFormValues,
   useAnalysisWizardFormValidationSchema,
 } from "./schema";
@@ -241,6 +240,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       isApplicationSourceCodeDepsEnabled(application)
     );
 
+  // TODO this is totally redundant with isModeSupported in utils???
   const isModeValid = (): boolean => {
     if (mode === "binary-upload") return true;
     if (mode === "binary") return areApplicationsBinaryEnabled();
@@ -298,10 +298,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     onClose();
   };
 
-  const analyzableApplications = React.useMemo(
-    () => filterAnalyzableApplications(applications, mode),
-    [applications, mode]
-  );
+  const analyzableApplications = useAnalyzableApplications(applications, mode);
 
   // TODO what's the deal here? can we prevent creating the taskgroup until later / even on submission? is it used as part of form rendering?
   React.useEffect(() => {

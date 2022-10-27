@@ -1,14 +1,16 @@
+import * as yup from "yup";
 import { Application } from "@app/api/models";
 import { useTranslation } from "react-i18next";
-import * as yup from "yup";
 import { IReadFile } from "./analysis-wizard";
-import { filterAnalyzableApplications } from "./utils";
+import { useAnalyzableApplicationsByMode } from "./utils";
 
-export type AnalysisMode =
-  | "binary"
-  | "source-code"
-  | "source-code-deps"
-  | "binary-upload";
+export const ANALYSIS_MODES = [
+  "binary",
+  "source-code",
+  "source-code-deps",
+  "binary-upload",
+] as const;
+export type AnalysisMode = typeof ANALYSIS_MODES[number];
 
 export type AnalysisScope = "app" | "app,oss" | "app,oss,select"; // TODO can we make this an array? how does that affect api/models.tsx?
 
@@ -23,6 +25,7 @@ const useModeStepSchema = ({
   applications: Application[];
 }): yup.SchemaOf<ModeStepValues> => {
   const { t } = useTranslation();
+  const analyzableAppsByMode = useAnalyzableApplicationsByMode(applications);
   return yup.object({
     mode: yup
       .mixed<AnalysisMode>()
@@ -31,9 +34,7 @@ const useModeStepSchema = ({
         "isModeCompatible",
         "Selected mode not supported for selected applications", // Message not exposed to the user
         (mode) => {
-          const analyzableApplications = mode
-            ? filterAnalyzableApplications(applications, mode)
-            : [];
+          const analyzableApplications = mode ? analyzableAppsByMode[mode] : [];
           if (mode === "binary-upload") {
             return analyzableApplications.length === 1;
           }
