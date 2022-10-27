@@ -298,9 +298,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     onClose();
   };
 
-  const analyzableApplications = filterAnalyzableApplications(
-    applications,
-    mode
+  const analyzableApplications = React.useMemo(
+    () => filterAnalyzableApplications(applications, mode),
+    [applications, mode]
   );
 
   // TODO what's the deal here? can we prevent creating the taskgroup until later / even on submission? is it used as part of form rendering?
