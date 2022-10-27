@@ -100,7 +100,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const [isInitTaskgroup, setInitTaskgroup] = React.useState(false);
   const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
   const [stepIdReached, setStepIdReached] = React.useState(1);
-  const [mode, setMode] = React.useState<AnalysisMode>("binary"); // TODO move into form state
   const isMutating = useIsMutating();
 
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
@@ -167,7 +166,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const methods = useForm<AnalysisWizardFormValues>({
     defaultValues: {
       artifact: "",
-      mode: "binary", // TODO this field is new, needs plumbing
+      mode: "binary",
       targets: [],
       sources: [],
       withKnown: "app",
@@ -196,7 +195,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   console.log({ isStepValid });
 
-  const { artifact, targets } = values;
+  const { mode, targets } = values;
 
   const setTaskgroup = (taskgroup: Taskgroup, data: FieldValues): Taskgroup => {
     return {
@@ -332,11 +331,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           name: t("wizard.terms.analysisMode"),
           component: (
             <SetMode
-              mode={mode}
               isSingleApp={applications.length === 1 ? true : false}
               taskgroupID={createdTaskgroup?.id || null}
-              isModeValid={isModeValid()}
-              setMode={setMode}
+              isModeValid={isModeValid()} // TODO ???
             />
           ),
 

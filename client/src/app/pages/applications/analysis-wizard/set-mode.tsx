@@ -12,30 +12,26 @@ import { useTranslation } from "react-i18next";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { UploadBinary } from "./components/upload-binary";
 import { toOptionLike } from "@app/utils/model-utils";
-import { AnalysisMode } from "./schema";
+import { AnalysisMode, AnalysisWizardFormValues } from "./schema";
+import { useFormContext } from "react-hook-form";
+import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 
 interface ISetMode {
-  mode: string;
   isSingleApp: boolean;
   taskgroupID: number | null;
   isModeValid: boolean;
-  setMode: (mode: AnalysisMode) => void;
 }
 
 export const SetMode: React.FC<ISetMode> = ({
-  mode,
   isSingleApp,
   taskgroupID,
   isModeValid,
-  setMode,
 }) => {
   const { t } = useTranslation();
 
-  const [isUpload, setIsUpload] = React.useState(false);
-  React.useEffect(() => {
-    if (mode === "binary-upload") setIsUpload(true);
-    else setIsUpload(false);
-  }, [mode, isUpload, setIsUpload]);
+  const { watch, control, setValue } =
+    useFormContext<AnalysisWizardFormValues>();
+  const mode = watch("mode");
 
   const options: OptionWithValue<AnalysisMode>[] = [
     {
@@ -65,20 +61,28 @@ export const SetMode: React.FC<ISetMode> = ({
           {t("wizard.terms.analysisMode")}
         </Title>
       </TextContent>
-      <FormGroup label={t("wizard.label.analysisSource")} fieldId="sourceType">
-        <SimpleSelect
-          toggleAriaLabel="analysis-mode-toggle"
-          toggleId="analysis-mode-toggle"
-          variant={SelectVariant.single}
-          aria-label="Select user perspective"
-          value={toOptionLike(mode, options)}
-          onChange={(selection) => {
-            const option = selection as OptionWithValue<AnalysisMode>;
-            setMode(option.value);
-          }}
-          options={options}
-        />
-      </FormGroup>
+      <HookFormPFGroupController
+        control={control}
+        name="mode"
+        label={t("wizard.label.analysisSource")}
+        fieldId="analysis-mode"
+        isRequired
+        renderInput={({ field: { value, name } }) => (
+          <SimpleSelect
+            id="analysis-mode"
+            toggleId="analysis-mode-toggle"
+            toggleAriaLabel="Analysis mode dropdown toggle"
+            aria-label={name}
+            variant="single"
+            value={toOptionLike(value, options)}
+            onChange={(selection) => {
+              const option = selection as OptionWithValue<AnalysisMode>;
+              setValue(name, option.value);
+            }}
+            options={options}
+          />
+        )}
+      />
       {!isModeValid && (
         <Alert
           variant="warning"
@@ -88,7 +92,9 @@ export const SetMode: React.FC<ISetMode> = ({
           <p>{t("wizard.label.notAllAnalyzableDetails")}</p>
         </Alert>
       )}
-      {isUpload && taskgroupID && <UploadBinary taskgroupID={taskgroupID} />}
+      {mode === "binary-upload" && taskgroupID && (
+        <UploadBinary taskgroupID={taskgroupID} />
+      )}
     </Form>
   );
 };
