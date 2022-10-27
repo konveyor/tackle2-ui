@@ -1,10 +1,10 @@
 {
     "about": {
-        "bottom1": "Tackle es un proyecto dentro de <2>Konveyor community</2>.",
-        "bottom2": "Para mayor información por favor diríjase a <2>Tackle documentation</2>.",
-        "description": "Tackle permite a los usuarios mantener su cartera de aplicaciones con un conjunto completo de metadatos y evaluar su idoneidad para la modernización aprovechando un enfoque basado en cuestionarios.",
+        "bottom1": "{{brandType}} es un proyecto dentro de ",
+        "bottom2": "Para mayor información por favor diríjase a ",
+        "description": "{{brandType}} permite a los usuarios mantener su cartera de aplicaciones con un conjunto completo de metadatos y evaluar su idoneidad para la modernización aprovechando un enfoque basado en cuestionarios.",
         "iconLibrary": "La biblioteca de iconos utilizada en este proyecto es un derivado de <2>la Biblioteca de iconos estándar</2> de <5>Red Hat</5>, utilizada bajo <8>CC BY 4.0</8>",
-        "introduction": "Tackle es una colección de herramientas que ayudan en la migración y modernización de aplicaciones a gran escala a Kubernetes."
+        "introduction": "{{brandType}} es una colección de herramientas que ayudan en la migración y modernización de aplicaciones a gran escala a Kubernetes."
     },
     "actions": {
         "analysisDetails": "Detalles del análisis",
