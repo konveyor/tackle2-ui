@@ -26,20 +26,19 @@ import {
   useSubmitTaskgroupMutation,
   useUploadFileMutation,
 } from "@app/queries/taskgroups";
-import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import "./wizard.css";
 import {
+  filterAnalyzableApplications,
   isApplicationBinaryEnabled,
   isApplicationSourceCodeDepsEnabled,
   isApplicationSourceCodeEnabled,
-  isModeSupported,
 } from "./utils";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import {
+  AnalysisMode,
   AnalysisWizardFormValues,
-  ModeStepValues,
   useAnalysisWizardFormValidationSchema,
 } from "./schema";
 import { useAsyncYupValidation } from "@app/shared/hooks/useAsyncYupValidation";
@@ -101,12 +100,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const [isInitTaskgroup, setInitTaskgroup] = React.useState(false);
   const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
   const [stepIdReached, setStepIdReached] = React.useState(1);
-  const [mode, setMode] = React.useState("binary");
+  const [mode, setMode] = React.useState<AnalysisMode>("binary"); // TODO move into form state
   const isMutating = useIsMutating();
-
-  const [analyzeableApplications, setAnalyzeableApplications] = React.useState<
-    Application[]
-  >([]);
 
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
     setInitTaskgroup(true);
@@ -165,7 +160,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     onDeleteTaskgroupError
   );
 
-  const { schemas, allFieldsSchema } = useAnalysisWizardFormValidationSchema();
+  const { schemas, allFieldsSchema } = useAnalysisWizardFormValidationSchema({
+    applications,
+  });
 
   const methods = useForm<AnalysisWizardFormValues>({
     defaultValues: {
@@ -196,6 +193,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     customRules: useAsyncYupValidation(values, schemas.customRulesStep),
     options: useAsyncYupValidation(values, schemas.optionsStep),
   };
+
+  console.log({ isStepValid });
 
   const { artifact, targets } = values;
 
@@ -300,41 +299,29 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     onClose();
   };
 
-  React.useEffect(() => {
-    const apps = applications.filter((application) =>
-      isModeSupported(application, mode)
-    );
-    setAnalyzeableApplications(apps);
-  }, [mode]);
+  const analyzableApplications = filterAnalyzableApplications(
+    applications,
+    mode
+  );
 
+  // TODO what's the deal here? can we prevent creating the taskgroup until later / even on submission? is it used as part of form rendering?
   React.useEffect(() => {
     if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
       deleteTaskgroup(createdTaskgroup.id);
 
-    if (analyzeableApplications.length > 0) {
+    if (analyzableApplications.length > 0) {
       const taskgroup: Taskgroup = {
         name: `taskgroup.windup`,
         addon: "windup",
         data: {
           ...defaultTaskData,
         },
-        tasks: analyzeableApplications.map((app) => initTask(app)),
+        tasks: analyzableApplications.map((app) => initTask(app)),
       };
 
       createTaskgroup(taskgroup);
     }
-  }, [analyzeableApplications, createTaskgroup]);
-
-  const isSingleAppBinaryUploadModeNextEnabled =
-    analyzeableApplications.length === 1 &&
-    !isMutating &&
-    artifact !== "" &&
-    mode === "binary-upload";
-
-  const isModeNextEnabled =
-    analyzeableApplications.length > 0 &&
-    !isMutating &&
-    mode !== "binary-upload";
+  }, [analyzableApplications, createTaskgroup]);
 
   const steps = [
     {
@@ -353,9 +340,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             />
           ),
 
-          enableNext:
-            isModeNextEnabled || isSingleAppBinaryUploadModeNextEnabled,
-          canJumpTo: stepIdReached >= stepId.AnalysisMode,
+          enableNext: isStepValid.mode && !isMutating,
+          canJumpTo: stepIdReached >= stepId.AnalysisMode && !isMutating,
         },
         {
           id: stepId.SetTargets,

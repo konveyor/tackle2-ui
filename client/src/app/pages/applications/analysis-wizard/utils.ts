@@ -1,4 +1,6 @@
+import * as React from "react";
 import { Application } from "@app/api/models";
+import { AnalysisMode } from "./schema";
 
 export const isApplicationBinaryEnabled = (
   application: Application
@@ -29,3 +31,8 @@ export const isModeSupported = (application: Application, mode: string) => {
     return isApplicationSourceCodeDepsEnabled(application);
   else return isApplicationSourceCodeEnabled(application);
 };
+
+export const filterAnalyzableApplications = (
+  applications: Application[],
+  mode: AnalysisMode
+) => applications.filter((application) => isModeSupported(application, mode));

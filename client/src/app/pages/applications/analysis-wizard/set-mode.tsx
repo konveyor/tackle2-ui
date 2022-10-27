@@ -12,13 +12,14 @@ import { useTranslation } from "react-i18next";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { UploadBinary } from "./components/upload-binary";
 import { toOptionLike } from "@app/utils/model-utils";
+import { AnalysisMode } from "./schema";
 
 interface ISetMode {
   mode: string;
   isSingleApp: boolean;
   taskgroupID: number | null;
   isModeValid: boolean;
-  setMode: (mode: string) => void;
+  setMode: (mode: AnalysisMode) => void;
 }
 
 export const SetMode: React.FC<ISetMode> = ({
@@ -36,7 +37,7 @@ export const SetMode: React.FC<ISetMode> = ({
     else setIsUpload(false);
   }, [mode, isUpload, setIsUpload]);
 
-  const options = [
+  const options: OptionWithValue<AnalysisMode>[] = [
     {
       value: "binary",
       toString: () => "Binary",
@@ -72,7 +73,7 @@ export const SetMode: React.FC<ISetMode> = ({
           aria-label="Select user perspective"
           value={toOptionLike(mode, options)}
           onChange={(selection) => {
-            const option = selection as OptionWithValue<string>;
+            const option = selection as OptionWithValue<AnalysisMode>;
             setMode(option.value);
           }}
           options={options}

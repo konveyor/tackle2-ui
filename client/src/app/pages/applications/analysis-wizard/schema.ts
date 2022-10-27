@@ -1,6 +1,8 @@
+import { Application } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import { IReadFile } from "./analysis-wizard";
+import { filterAnalyzableApplications } from "./utils";
 
 export type AnalysisMode =
   | "binary"
@@ -15,11 +17,36 @@ export interface ModeStepValues {
   artifact: string;
 }
 
-const useModeStepSchema = (): yup.SchemaOf<ModeStepValues> => {
+const useModeStepSchema = ({
+  applications,
+}: {
+  applications: Application[];
+}): yup.SchemaOf<ModeStepValues> => {
   const { t } = useTranslation();
   return yup.object({
-    mode: yup.mixed<AnalysisMode>().required(t("validation.required")),
-    artifact: yup.string().defined(),
+    mode: yup
+      .mixed<AnalysisMode>()
+      .required(t("validation.required"))
+      .test(
+        "isModeCompatible",
+        "Selected mode not supported for selected applications", // Message not exposed to the user
+        (mode) => {
+          const analyzableApplications = mode
+            ? filterAnalyzableApplications(applications, mode)
+            : [];
+          if (mode === "binary-upload") {
+            return analyzableApplications.length === 1;
+          }
+          return analyzableApplications.length > 0;
+        }
+      ),
+    artifact: yup
+      .string()
+      .defined()
+      .when("mode", {
+        is: "binary-upload",
+        then: (schema) => schema.required(),
+      }),
   });
 };
 
@@ -83,9 +110,13 @@ export type AnalysisWizardFormValues = ModeStepValues &
   CustomRulesStepValues &
   OptionsStepValues;
 
-export const useAnalysisWizardFormValidationSchema = () => {
+export const useAnalysisWizardFormValidationSchema = ({
+  applications,
+}: {
+  applications: Application[];
+}) => {
   const schemas = {
-    modeStep: useModeStepSchema(),
+    modeStep: useModeStepSchema({ applications }),
     targetsStep: useTargetsStepSchema(),
     scopeStep: useScopeStepSchema(),
     customRulesStep: useCustomRulesStepSchema(),
