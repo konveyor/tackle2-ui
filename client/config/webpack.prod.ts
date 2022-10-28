@@ -1,15 +1,16 @@
-const path = require("path");
-const { merge } = require("webpack-merge");
-const webpack = require("webpack");
-const common = require("./webpack.common.js");
-const { stylePaths } = require("./stylePaths");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
-const TerserJSPlugin = require("terser-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+import path from "path";
+import merge from "webpack-merge";
+import webpack, { Configuration } from "webpack";
+import commonWebpackConfiguration from "./webpack.common";
+import { stylePaths } from "./stylePaths";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
+import TerserJSPlugin from "terser-webpack-plugin";
+
 const brandType = process.env["PROFILE"] || "konveyor";
 
-module.exports = merge(common("production"), {
+const config = merge<Configuration>(commonWebpackConfiguration, {
   mode: "production",
   devtool: "nosources-source-map",
   optimization: {
@@ -49,3 +50,5 @@ module.exports = merge(common("production"), {
     ],
   },
 });
+
+export default config;
