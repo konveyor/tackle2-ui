@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+// NOTE: If you define another ENV_VAR here, you must also update the
+// ENV_VAR_DEFAULTS array in 'env.ts'
 const TACKLE_ENV = [
   "NODE_ENV",
   "AUTH_REQUIRED",
@@ -8,6 +10,7 @@ const TACKLE_ENV = [
   "KEYCLOAK_SERVER_URL",
   "UI_INGRESS_PROXY_BODY_SIZE",
   "PROFILE",
+  "VERSION",
 ];
 
 const getEnv = (vars = TACKLE_ENV) =>
