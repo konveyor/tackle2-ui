@@ -137,7 +137,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     pushNotification({
       title: "Applications",
       message: "Submitted for analysis",
-      variant: "danger",
+      variant: "info",
     });
 
   const onSubmitTaskgroupError = (error: Error | unknown) =>
