@@ -4,7 +4,6 @@ import { AlertProps } from "@patternfly/react-core";
 export type INotification = {
   title: string;
   variant: AlertProps["variant"];
-  key?: string;
   message?: React.ReactNode;
   hideCloseButton?: boolean;
   timeout?: number | boolean;
@@ -36,14 +35,19 @@ export const NotificationsProvider: React.FunctionComponent<
   const [notifications, setNotifications] = React.useState<INotification[]>([]);
 
   const pushNotification = (notification: INotification) => {
-    setNotifications([
-      ...notifications,
-      { ...notificationDefault, ...notification },
-    ]);
+    const hasDupe = notifications.find((n) => n.title === notification.title);
+    if (!hasDupe) {
+      setNotifications([
+        ...notifications,
+        { ...notificationDefault, ...notification },
+      ]);
+    }
   };
 
-  const dismissNotification = (key: string) => {
-    const remainingNotifications = notifications.filter((n) => n.key !== key);
+  const dismissNotification = (title: string) => {
+    const remainingNotifications = notifications.filter(
+      (n) => n.title !== title
+    );
     setNotifications(remainingNotifications);
   };
 
