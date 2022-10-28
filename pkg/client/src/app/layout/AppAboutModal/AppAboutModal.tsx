@@ -12,7 +12,7 @@ import {
 
 import tackleBrandImage from "@app/images/tackle.png";
 import mtaBrandImage from "@app/images/logoRedHat.svg";
-import { APP_BRAND, BrandType, ENV } from "@app/Constants";
+import { APP_BRAND, APP_VERSION, BrandType } from "@app/Constants";
 
 export interface AppAboutModalProps {
   isOpen: boolean;
@@ -102,7 +102,7 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
         <TextContent>
           <TextList component="dl">
             <TextListItem component="dt">{t("terms.version")}</TextListItem>
-            <TextListItem component="dd">{ENV.VERSION}</TextListItem>
+            <TextListItem component="dd">{APP_VERSION}</TextListItem>
           </TextList>
         </TextContent>
       </TextContent>
