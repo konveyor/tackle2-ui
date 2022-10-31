@@ -7,7 +7,6 @@ import mock from "@app/test-config/mockInstance";
 import userEvent from "@testing-library/user-event";
 
 jest.mock("react-i18next");
-jest.mock("react-redux");
 
 const applicationData1 = {
   id: 1,

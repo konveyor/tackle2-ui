@@ -28,6 +28,7 @@ import {
   ApplicationImport,
   Volume,
 } from "./models";
+import { QueryKey } from "react-query";
 
 // TACKLE_HUB
 export const HUB = "/hub";
@@ -90,7 +91,7 @@ const buildQuery = (params: any) => {
 export const getTaskById = ({
   queryKey,
 }: {
-  queryKey: any;
+  queryKey: QueryKey;
 }): AxiosPromise<Task> => {
   const [_, processId] = queryKey;
   return axios.get<Task>(`${TASKS}/${processId}`);
@@ -354,16 +355,6 @@ export const getApplicationSummaryCSV = (id: string): AxiosPromise => {
   });
 };
 
-export const createBulkCopyReview = (
-  bulk: BulkCopyReview
-): AxiosPromise<BulkCopyReview> => {
-  return APIClient.post<BulkCopyReview>(`${REVIEWS}/copy`, bulk);
-};
-
-export const getBulkCopyReview = (id: number): AxiosPromise<BulkCopyReview> => {
-  return APIClient.get<BulkCopyReview>(`${REVIEWS}/copy/${id}`);
-};
-
 //
 
 export const getAssessments = (filters: {
@@ -428,10 +419,19 @@ export const createBulkCopyAssessment = (
   return APIClient.post<BulkCopyAssessment>(`${ASSESSMENTS}/bulk`, bulk);
 };
 
-export const getBulkCopyAssessment = (
-  id: number
-): AxiosPromise<BulkCopyAssessment> => {
+export const getBulkCopyAssessment = ({
+  queryKey,
+}: {
+  queryKey: QueryKey;
+}): AxiosPromise<BulkCopyAssessment> => {
+  const [_, id] = queryKey;
   return APIClient.get<BulkCopyAssessment>(`${ASSESSMENTS}/bulk/${id}`);
+};
+
+export const createBulkCopyReview = (
+  bulk: BulkCopyReview
+): AxiosPromise<BulkCopyReview> => {
+  return APIClient.post<BulkCopyReview>(`${REVIEWS}/copy`, bulk);
 };
 
 export const getIdentities = (): AxiosPromise<Array<Identity>> => {

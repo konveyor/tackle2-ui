@@ -43,7 +43,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
   if (isLoading && loadingVariant !== "none") {
     let rows: IRow[] = [];
     if (loadingVariant === "skeleton") {
-      rows = [...Array(10)].map(() => {
+      rows = [...Array(3)].map(() => {
         return {
           cells: [...Array(cells.length)].map(() => ({
             title: <Skeleton />,
