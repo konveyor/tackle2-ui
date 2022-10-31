@@ -12,16 +12,27 @@ import {
 import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { getSettingById, updateSetting } from "@app/api/rest";
-import { useFetch } from "@app/shared/hooks";
 import { Setting } from "@app/api/models";
 import { AxiosError, AxiosPromise } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import { useQuery } from "react-query";
 
 export const RepositoriesGit: React.FC = () => {
   const { t } = useTranslation();
   const [error, setError] = React.useState<AxiosError>();
+
+  const { data: gitInsecureSetting, refetch: refreshGitInsecureSetting } =
+    useQuery<boolean>(
+      ["setting"],
+      async () => {
+        return (await getSettingById("git.insecure.enabled")).data;
+      },
+      {
+        onError: (error) => console.log("error, ", error),
+      }
+    );
 
   const onChange = () => {
     const setting: Setting = {
@@ -44,16 +55,6 @@ export const RepositoriesGit: React.FC = () => {
         setError(error);
       });
   };
-
-  const fetchGitInsecureSetting = useCallback(() => {
-    return getSettingById("git.insecure.enabled");
-  }, []);
-
-  const { data: gitInsecureSetting, requestFetch: refreshGitInsecureSetting } =
-    useFetch<boolean>({
-      defaultIsFetching: true,
-      onFetch: fetchGitInsecureSetting,
-    });
 
   useEffect(() => {
     refreshGitInsecureSetting();
