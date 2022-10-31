@@ -271,7 +271,6 @@
         "suggestedAdoptionPlan": "Suggested adoption plan",
         "svnConfig": "Subversion configuration",
         "tableView": "Table view",
-        "tag": "Tag",
         "tag(s)": "Tag(s)",
         "tagCount": "Tag count",
         "tagDeleted": "",
@@ -289,6 +288,7 @@
         "user": "User",
         "version": "Version",
         "workPriority": "Work priority",
+        "tag": "Tag",
         "tagDelete": "Tag deleted",
         "tagTypeDelete": "Tag type deleted",
         "credential": "Credential"
