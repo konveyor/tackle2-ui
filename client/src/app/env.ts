@@ -1,3 +1,6 @@
+
+// NOTE: If you define another ENV_VAR here, you must also update the 
+// TACKLE_ENV array in 'server/helpers.js'
 const ENV_VAR_DEFAULTS = {
   AUTH_REQUIRED: "true",
   KEYCLOAK_REALM: "tackle",
@@ -5,6 +8,7 @@ const ENV_VAR_DEFAULTS = {
   KEYCLOAK_SERVER_URL: "",
   UI_INGRESS_PROXY_BODY_SIZE: "",
   PROFILE: "konveyor",
+  VERSION: "99.0.0",
 } as const;
 
 type EnvVarKey = keyof typeof ENV_VAR_DEFAULTS;

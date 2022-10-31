@@ -11,19 +11,16 @@ export const Notifications: React.FunctionComponent = () => {
   return (
     <AlertGroup isToast aria-live="polite">
       {appContext.notifications.map((notification) => {
-        const key = notification.key
-          ? notification.key
-          : `${notification.title}`;
         return (
           <Alert
             title={notification.title}
             variant={notification.variant}
-            key={key}
+            key={notification.title}
             {...(!notification.hideCloseButton && {
               actionClose: (
                 <AlertActionCloseButton
                   onClose={() => {
-                    appContext.dismissNotification(key);
+                    appContext.dismissNotification(notification.title);
                   }}
                 />
               ),
