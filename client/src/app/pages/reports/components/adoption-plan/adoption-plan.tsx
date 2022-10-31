@@ -11,7 +11,6 @@ import {
   ChartVoronoiContainer,
 } from "@patternfly/react-charts";
 
-import { useFetch } from "@app/shared/hooks";
 import { ConditionalRender, StateError } from "@app/shared/components";
 
 import { PROPOSED_ACTION_LIST } from "@app/Constants";
@@ -20,6 +19,7 @@ import { getApplicationAdoptionPlan } from "@app/api/rest";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { NoApplicationSelectedEmptyState } from "../no-application-selected-empty-state";
+import { useQuery } from "react-query";
 
 interface IChartData {
   applicationId: number;
@@ -37,26 +37,23 @@ export const AdoptionPlan: React.FC = () => {
     ApplicationSelectionContext
   );
 
-  // Data
-  const fetchChartData = useCallback(() => {
-    if (applications.length > 0) {
-      return getApplicationAdoptionPlan(applications.map((f) => f.id!)).then(
-        ({ data }) => data
-      );
-    } else {
-      return Promise.resolve([]);
-    }
-  }, [applications]);
-
   const {
     data: adoptionPlan,
+    refetch: refreshChart,
+    error: fetchError,
     isFetching,
-    fetchError,
-    requestFetch: refreshChart,
-  } = useFetch<ApplicationAdoptionPlan[]>({
-    defaultIsFetching: true,
-    onFetchPromise: fetchChartData,
-  });
+  } = useQuery<ApplicationAdoptionPlan[]>(
+    "adoptionplan",
+    async () =>
+      (
+        await getApplicationAdoptionPlan(
+          applications.length > 0 ? applications.map((f) => f.id!) : []
+        )
+      ).data,
+    {
+      onError: (error) => console.log("error, ", error),
+    }
+  );
 
   useEffect(() => {
     refreshChart();
