@@ -271,7 +271,6 @@
         "suggestedAdoptionPlan": "Plan de adopción sugerido",
         "svnConfig": "configuiración de Subversion",
         "tableView": "Vista de tabla",
-        "tag": "Etiqueta",
         "tag(s)": "Etiqueta(s)",
         "tagCount": "Número de etiquetas",
         "tagDeleted": "Etiqueta descheda",
@@ -289,6 +288,7 @@
         "user": "Usuario",
         "version": "Versión",
         "workPriority": "Prioridad de trabajo",
+        "tag": "Etiqueta",
         "credential": "Credencial"
     },
     "toastr": {
