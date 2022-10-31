@@ -56,6 +56,7 @@ export const useCreateBulkCopyMutation = ({
           return {
             assessmentBulk,
             reviewBulk,
+            hasReview: !!review,
           };
         }),
     {
@@ -69,6 +70,8 @@ export const useCreateBulkCopyMutation = ({
   const assessmentBulkResult = mutationResult?.assessmentBulk.data || null;
 
   const reviewBulkResult = mutationResult?.reviewBulk || null;
+
+  const hasReview = mutationResult?.hasReview;
 
   //Fetch until assessment bulk copy is complete
   const { data: assessmentData, isLoading: isBulkCopyAssessmentLoading } =
@@ -84,7 +87,10 @@ export const useCreateBulkCopyMutation = ({
           // are successful. Bubbles a success event if so.
 
           const hasSuccessfulReviewCopy = reviewBulkResult?.status === 204;
-          if (res?.data.completed && hasSuccessfulReviewCopy) {
+          if (
+            res?.data.completed &&
+            (hasReview ? hasSuccessfulReviewCopy : true)
+          ) {
             reset();
             onSuccess(hasSuccessfulReviewCopy);
           }
