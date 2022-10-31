@@ -1,19 +1,8 @@
 import { useState } from "react";
 import { AxiosError } from "axios";
-import { createAsyncAction } from "typesafe-actions";
 import { getProxies, updateProxy } from "@app/api/rest";
 import { Proxy } from "@app/api/models";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-
-export const {
-  request: fetchRequest,
-  success: fetchSuccess,
-  failure: fetchFailure,
-} = createAsyncAction(
-  "useFetchProxies/fetch/request",
-  "useFetchProxies/fetch/success",
-  "useFetchProxies/fetch/failure"
-)<void, any, AxiosError>();
 
 export interface IProxyFetchState {
   proxies: Proxy[];

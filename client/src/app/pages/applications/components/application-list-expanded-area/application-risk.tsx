@@ -1,10 +1,7 @@
-import React, { useCallback, useEffect } from "react";
-
+import React, { useEffect } from "react";
 import { RiskLabel } from "@app/shared/components";
-import { useFetch } from "@app/shared/hooks";
-
-import { Application, Assessment, AssessmentRisk } from "@app/api/models";
-import { getAssessmentLandscape } from "@app/api/rest";
+import { Application, Assessment } from "@app/api/models";
+import { useFetchRisks } from "@app/queries/risks";
 
 export interface IApplicationRiskProps {
   application: Application;
@@ -15,24 +12,17 @@ export const ApplicationRisk: React.FC<IApplicationRiskProps> = ({
   application,
   assessment,
 }) => {
-  // Risk
-  const fetchRiskData = useCallback(() => {
-    return getAssessmentLandscape([application.id!]).then(
-      ({ data }) => data[0]
-    );
-  }, [application]);
-
-  const { data: applicationRisk, requestFetch: fetchRisk } =
-    useFetch<AssessmentRisk>({
-      defaultIsFetching: true,
-      onFetchPromise: fetchRiskData,
-    });
+  const { risks: assessmentRisks, refetch: fetchRisk } = useFetchRisks([
+    application.id!,
+  ]);
 
   useEffect(() => {
     fetchRisk();
   }, [fetchRisk, application, assessment]);
 
   return (
-    <RiskLabel risk={applicationRisk ? applicationRisk.risk : "UNKNOWN"} />
+    <RiskLabel
+      risk={assessmentRisks?.length ? assessmentRisks[0].risk : "UNKNOWN"}
+    />
   );
 };

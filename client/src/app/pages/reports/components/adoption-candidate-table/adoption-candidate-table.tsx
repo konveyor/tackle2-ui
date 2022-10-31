@@ -13,7 +13,6 @@ import {
 } from "@patternfly/react-table";
 import { Label, ToolbarItem } from "@patternfly/react-core";
 
-import { useFetch } from "@app/shared/hooks";
 import {
   AppTableWithControls,
   ProposedActionLabel,
@@ -29,7 +28,7 @@ import {
   Review,
   Risk,
 } from "@app/api/models";
-import { getAssessmentConfidence, getAssessmentLandscape } from "@app/api/rest";
+import { getAssessmentConfidence } from "@app/api/rest";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
@@ -42,6 +41,8 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useFetchReviews } from "@app/queries/reviews";
+import { useQuery } from "react-query";
+import { useFetchRisks } from "@app/queries/risks";
 
 export interface TableRowData {
   application: Application;
@@ -77,19 +78,23 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
     selectMultiple: selectMultipleApplications,
   } = useContext(ApplicationSelectionContext);
 
-  // Confidence
-  const fetchChartData = useCallback(() => {
-    return getAssessmentConfidence(allApplications.map((app) => app.id!)).then(
-      ({ data }) => data
-    );
-  }, [allApplications]);
-
-  const { data: confidence, requestFetch: refreshConfidence } = useFetch<
-    AssessmentConfidence[]
-  >({
-    defaultIsFetching: true,
-    onFetchPromise: fetchChartData,
-  });
+  const {
+    data: confidence,
+    refetch: refreshConfidence,
+    isFetching,
+    error: fetchError,
+  } = useQuery<AssessmentConfidence[]>(
+    "assessmentconfidence",
+    async () =>
+      (
+        await getAssessmentConfidence(
+          allApplications.length > 0 ? allApplications.map((f) => f.id!) : []
+        )
+      ).data,
+    {
+      onError: (error) => console.log("error, ", error),
+    }
+  );
 
   const {
     reviews,
@@ -98,30 +103,17 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
   } = useFetchReviews();
 
   // Risk
-  const fetchRiskData = useCallback(() => {
-    if (allApplications.length > 0) {
-      return getAssessmentLandscape(allApplications.map((f) => f.id!)).then(
-        ({ data }) => data
-      );
-    } else {
-      return Promise.resolve([]);
-    }
-  }, [allApplications]);
-
-  const { data: risks, requestFetch: refreshRisks } = useFetch<
-    AssessmentRisk[]
-  >({
-    defaultIsFetching: true,
-    onFetchPromise: fetchRiskData,
-  });
+  const { risks: assessmentRisks, refetch: fetchRisks } = useFetchRisks(
+    allApplications.map((app) => app.id!)
+  );
 
   // Start fetch
   useEffect(() => {
     if (allApplications.length > 0) {
       refreshConfidence();
-      refreshRisks();
+      fetchRisks();
     }
-  }, [allApplications, refreshConfidence, refreshRisks]);
+  }, [allApplications, refreshConfidence, fetchRisks]);
 
   // Table data
   const allRows = useMemo(() => {
@@ -133,7 +125,7 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
       const reviewData = reviews?.find(
         (review) => review.id === app.review?.id
       );
-      const riskData = risks?.find((e) => e.applicationId === app.id);
+      const riskData = assessmentRisks?.find((e) => e.applicationId === app.id);
 
       const result: TableRowData = {
         application: app,
@@ -143,7 +135,7 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
       };
       return result;
     });
-  }, [allApplications, confidence, risks]);
+  }, [allApplications, confidence, assessmentRisks]);
 
   // Table
   const columns: ICell[] = [
@@ -211,7 +203,7 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
     item?.review?.workPriority || "",
     item?.confidence || "",
     item?.review?.effortEstimate || "",
-    RISK_LIST[item.risk].sortFactor || "",
+    RISK_LIST[item?.risk].sortFactor || "",
     "",
   ];
   const { sortBy, onSort, sortedItems } = useSortState(

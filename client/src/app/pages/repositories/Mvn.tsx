@@ -19,17 +19,16 @@ import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
 import { AxiosError, AxiosPromise } from "axios";
-import { Setting, Volume } from "@app/api/models";
+import { Setting } from "@app/api/models";
 import { getSettingById, updateSetting } from "@app/api/rest";
-import { useFetch } from "@app/shared/hooks/useFetch";
 import { useEffect, useState } from "react";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import {
   useCleanRepositoryMutation,
   useFetchVolumes,
 } from "@app/queries/volumes";
-import { useFetchTasks } from "@app/queries/tasks";
 import { ConfirmDialog } from "@app/shared/components";
+import { useQuery } from "react-query";
 
 export const RepositoriesMvn: React.FC = () => {
   const { t } = useTranslation();
@@ -37,10 +36,23 @@ export const RepositoriesMvn: React.FC = () => {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
     React.useState<Boolean>(false);
 
-  const [forcedSettingError, setForcedSettingError] =
-    React.useState<AxiosError>();
   const [insecureSettingError, setInsecureSettingError] =
     React.useState<AxiosError>();
+
+  const { data: mvnInsecureSetting, refetch: refreshMvnInsecureSetting } =
+    useQuery<boolean>(
+      ["mvninsecuresetting"],
+      async () => {
+        return (await getSettingById("mvn.insecure.enabled")).data;
+      },
+      {
+        onError: (error) => console.log("error, ", error),
+      }
+    );
+
+  useEffect(() => {
+    refreshMvnInsecureSetting();
+  }, [refreshMvnInsecureSetting]);
 
   const onChangeInsecure = () => {
     const setting: Setting = {
@@ -63,56 +75,47 @@ export const RepositoriesMvn: React.FC = () => {
         setInsecureSettingError(error);
       });
   };
+  //TODO: Implement mvn forced setting
 
-  const onChangeForced = () => {
-    const setting: Setting = {
-      key: "mvn.dependencies.update.forced",
-      value: !mvnForcedSetting,
-    };
+  // const [forcedSettingError, setForcedSettingError] =
+  //   React.useState<AxiosError>();
 
-    let promise: AxiosPromise<Setting>;
-    if (mvnInsecureSetting !== undefined) {
-      promise = updateSetting(setting);
-    } else {
-      promise = updateSetting(setting);
-    }
+  // const { data: mvnForcedSetting, refetch: refreshMvnForcedSetting } =
+  //   useQuery<boolean>(
+  //     ["mvnforcedsetting"],
+  //     async () => {
+  //       return (await getSettingById("mvn.dependencies.update.forced")).data;
+  //     },
+  //     {
+  //       onError: (error) => console.log("error, ", error),
+  //     }
+  //   );
 
-    promise
-      .then((response) => {
-        refreshMvnForcedSetting();
-      })
-      .catch((error) => {
-        setForcedSettingError(error);
-      });
-  };
+  // useEffect(() => {
+  //   refreshMvnForcedSetting();
+  // }, [refreshMvnForcedSetting]);
 
-  const fetchMvnForcedSetting = React.useCallback(() => {
-    return getSettingById("mvn.dependencies.update.forced");
-  }, []);
+  // const onChangeForced = () => {
+  //   const setting: Setting = {
+  //     key: "mvn.dependencies.update.forced",
+  //     value: !mvnForcedSetting,
+  //   };
 
-  const fetchMvnInsecureSetting = React.useCallback(() => {
-    return getSettingById("mvn.insecure.enabled");
-  }, []);
+  //   let promise: AxiosPromise<Setting>;
+  //   if (mvnInsecureSetting !== undefined) {
+  //     promise = updateSetting(setting);
+  //   } else {
+  //     promise = updateSetting(setting);
+  //   }
 
-  const { data: mvnInsecureSetting, requestFetch: refreshMvnInsecureSetting } =
-    useFetch<boolean>({
-      defaultIsFetching: true,
-      onFetch: fetchMvnInsecureSetting,
-    });
-
-  const { data: mvnForcedSetting, requestFetch: refreshMvnForcedSetting } =
-    useFetch<boolean>({
-      defaultIsFetching: true,
-      onFetch: fetchMvnForcedSetting,
-    });
-
-  useEffect(() => {
-    refreshMvnInsecureSetting();
-  }, [refreshMvnInsecureSetting]);
-
-  useEffect(() => {
-    refreshMvnForcedSetting();
-  }, [refreshMvnForcedSetting]);
+  //   promise
+  //     .then((response) => {
+  //       refreshMvnForcedSetting();
+  //     })
+  //     .catch((error) => {
+  //       setForcedSettingError(error);
+  //     });
+  // };
 
   const { volumes, refetch } = useFetchVolumes();
   const [storageValue, setStorageValue] = useState<string>();
@@ -167,13 +170,13 @@ export const RepositoriesMvn: React.FC = () => {
                 >
                   Clear repository
                 </Button>
-                {forcedSettingError && (
+                {/* {forcedSettingError && (
                   <Alert
                     variant="danger"
                     isInline
                     title={getAxiosErrorMessage(forcedSettingError)}
                   />
-                )}
+                )} */}
               </FormGroup>
               <FormGroup fieldId="isInsecure">
                 {insecureSettingError && (

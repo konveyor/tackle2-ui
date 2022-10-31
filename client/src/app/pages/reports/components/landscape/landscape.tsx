@@ -1,18 +1,17 @@
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Skeleton, Split, SplitItem } from "@patternfly/react-core";
 
 import { ConditionalRender, StateError } from "@app/shared/components";
-import { useFetch } from "@app/shared/hooks";
 
 import { RISK_LIST } from "@app/Constants";
 import { AssessmentRisk } from "@app/api/models";
-import { getAssessmentLandscape } from "@app/api/rest";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { NoApplicationSelectedEmptyState } from "../no-application-selected-empty-state";
 import { Donut } from "./donut";
+import { useFetchRisks } from "@app/queries/risks";
 
 interface ILandscapeData {
   low: number;
@@ -48,38 +47,17 @@ const extractLandscapeData = (
   return { low, medium, high, unassesed };
 };
 
-export interface ILandscapeProps {}
-
-export const Landscape: React.FC<ILandscapeProps> = () => {
+export const Landscape: React.FC = () => {
   const { t } = useTranslation();
 
   // Context
   const { allItems: applications } = useContext(ApplicationSelectionContext);
 
-  // Data
-  const fetchLandscapeData = useCallback(() => {
-    if (applications.length > 0) {
-      return getAssessmentLandscape(applications.map((f) => f.id!)).then(
-        ({ data }) => data
-      );
-    } else {
-      return Promise.resolve([]);
-    }
-  }, [applications]);
-
   const {
-    data: assessmentRisks,
+    risks: assessmentRisks,
     isFetching,
-    fetchError,
-    requestFetch: refreshChart,
-  } = useFetch<AssessmentRisk[]>({
-    defaultIsFetching: true,
-    onFetchPromise: fetchLandscapeData,
-  });
-
-  useEffect(() => {
-    refreshChart();
-  }, [applications, refreshChart]);
+    error: fetchError,
+  } = useFetchRisks(applications.map((app) => app.id!));
 
   const landscapeData = useMemo(() => {
     if (applications.length > 0 && assessmentRisks) {

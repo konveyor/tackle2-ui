@@ -83,8 +83,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
   const [requestConfirmation, setRequestConfirmation] = useState(false);
   const [confirmationAccepted, setConfirmationAccepted] = useState(false);
 
-  const { applications, isFetching, fetchError, refetch } =
-    useFetchApplications();
+  const { applications, isFetching, fetchError } = useFetchApplications();
 
   const { tagTypes } = useFetchTagTypes();
 
