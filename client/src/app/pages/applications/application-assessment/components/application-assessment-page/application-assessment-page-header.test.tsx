@@ -1,7 +1,7 @@
 import React from "react";
 import { ApplicationAssessmentPageHeader } from "./application-assessment-page-header";
 import { Assessment } from "@app/api/models";
-import { mountWithRedux } from "@app/store/reducerUtils";
+import { mount } from "enzyme";
 
 describe("ApplicationAssessmentPageHeader", () => {
   const assessment: Assessment = {
@@ -13,7 +13,7 @@ describe("ApplicationAssessmentPageHeader", () => {
   };
 
   it("Renders without crashing", () => {
-    const wrapper = mountWithRedux(
+    const wrapper = mount(
       <ApplicationAssessmentPageHeader assessment={assessment}>
         Body of page
       </ApplicationAssessmentPageHeader>
