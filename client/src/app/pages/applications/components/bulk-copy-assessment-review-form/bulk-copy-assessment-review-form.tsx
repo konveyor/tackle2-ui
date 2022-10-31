@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -22,23 +22,14 @@ import {
 import ExclamationTriangleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon";
 import { global_palette_gold_400 as gold } from "@patternfly/react-tokens";
 
-import { useDispatch } from "react-redux";
-import { bulkCopyActions } from "@app/store/bulkCopy";
-
 import {
   AppTableWithControls,
   StatusIcon,
   ToolbarBulkSelector,
 } from "@app/shared/components";
-import { useFetch } from "@app/shared/hooks";
 
 import { Application, Assessment, Review } from "@app/api/models";
 
-import {
-  createBulkCopyAssessment,
-  createBulkCopyReview,
-  getApplications,
-} from "@app/api/rest";
 import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationBusinessService } from "../application-business-service";
@@ -55,7 +46,6 @@ import { useSelectionState } from "@migtools/lib-ui";
 import { useFetchApplicationAssessments } from "@app/queries/assessments";
 import { useFetchApplications } from "@app/queries/applications";
 import { useFetchTagTypes } from "@app/queries/tags";
-import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
@@ -67,25 +57,31 @@ interface BulkCopyAssessmentReviewFormProps {
   application: Application;
   assessment: Assessment;
   review?: Review;
+  isSubmittingBulkCopy: boolean;
+  setIsSubmittingBulkCopy: (val: boolean) => void;
+  isCopying: boolean;
+  createCopy: (copyParam: any) => void;
   onSaved: () => void;
 }
 
 export const BulkCopyAssessmentReviewForm: React.FC<
   BulkCopyAssessmentReviewFormProps
-> = ({ application, assessment, review, onSaved }) => {
+> = ({
+  application,
+  assessment,
+  review,
+  isCopying,
+  isSubmittingBulkCopy,
+  setIsSubmittingBulkCopy,
+  createCopy,
+  onSaved,
+}) => {
   // i18
   const { t } = useTranslation();
-
-  // Redux
-  const dispatch = useDispatch();
-
-  const { pushNotification } = React.useContext(NotificationsContext);
 
   // Local state
   const [requestConfirmation, setRequestConfirmation] = useState(false);
   const [confirmationAccepted, setConfirmationAccepted] = useState(false);
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { applications, isFetching, fetchError, refetch } =
     useFetchApplications();
@@ -292,48 +288,9 @@ export const BulkCopyAssessmentReviewForm: React.FC<
       console.log("Accept confirmation to continue");
       return;
     }
-
-    setIsSubmitting(true);
-    if (assessment?.id) {
-      createBulkCopyAssessment({
-        fromAssessmentId: assessment.id!,
-        applications: selectedApps.map((f) => ({ applicationId: f.id! })),
-      })
-        .then((bulkAssessment) => {
-          const bulkReview = review
-            ? createBulkCopyReview({
-                sourceReview: review!.id!,
-                targetApplications: selectedApps.map((f) => f.id!),
-              })
-            : undefined;
-          return Promise.all([bulkAssessment, bulkReview]);
-        })
-        .then(([assessmentBulk, reviewBulk]) => {
-          setIsSubmitting(false);
-          dispatch(
-            bulkCopyActions.scheduleWatchBulk({
-              assessmentBulk: assessmentBulk.data.bulkId!,
-              reviewBulk: reviewBulk ? reviewBulk.data.id! : undefined,
-            })
-          );
-          onSaved();
-        })
-        .catch((error) => {
-          setIsSubmitting(false);
-          pushNotification({
-            title: getAxiosErrorMessage(error),
-            variant: "danger",
-          });
-          onSaved();
-        });
-    } else {
-      pushNotification({
-        title: "Failed",
-        message: "Copy assessment failed.",
-        variant: "danger",
-      });
-      onSaved();
-    }
+    setIsSubmittingBulkCopy(true);
+    onSaved();
+    createCopy({ assessment, selectedApps, review });
   };
   const handleOnClearAllFilters = () => {
     setFilterValues({});
@@ -355,8 +312,8 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             canSelectAll={false}
             cells={columns}
             rows={rows}
-            isLoading={isFetching}
-            loadingVariant="skeleton"
+            isLoading={isFetching || isCopying}
+            loadingVariant="spinner"
             fetchError={fetchError}
             toolbarClearAllFilters={handleOnClearAllFilters}
             toolbarToggle={
@@ -404,6 +361,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             name="confirm"
             label={t("message.continueConfirmation")}
             aria-label="Confirm"
+            isDisabled={isCopying}
             isChecked={confirmationAccepted}
             onChange={(isChecked) => setConfirmationAccepted(isChecked)}
           />
@@ -418,7 +376,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
           isDisabled={
             selectedApps.length === 0 ||
             (requestConfirmation && !confirmationAccepted) ||
-            isSubmitting
+            isSubmittingBulkCopy
           }
         >
           {t("actions.copy")}
