@@ -124,8 +124,12 @@ export const ApplicationsTable: React.FC = () => {
   const history = useHistory();
 
   // Table data
-  const { applications, isFetching, fetchError, refetch } =
-    useFetchApplications();
+  const {
+    applications,
+    isFetching,
+    fetchError,
+    refetch: fetchApplications,
+  } = useFetchApplications();
 
   const queryClient = useQueryClient();
 
@@ -175,7 +179,7 @@ export const ApplicationsTable: React.FC = () => {
     }
 
     closeApplicationModal();
-    refetch();
+    fetchApplications();
   };
 
   // Delete
@@ -186,7 +190,7 @@ export const ApplicationsTable: React.FC = () => {
       }),
       variant: "success",
     });
-    refetch();
+    fetchApplications();
   };
 
   const onDeleteApplicationError = (error: AxiosError) => {
@@ -267,6 +271,7 @@ export const ApplicationsTable: React.FC = () => {
         : t("toastr.success.assessmentCopied"),
       variant: "success",
     });
+    fetchApplications();
   };
   const onHandleCopyError = (error: AxiosError) => {
     setIsSubmittingBulkCopy(false);
@@ -274,6 +279,7 @@ export const ApplicationsTable: React.FC = () => {
       title: getAxiosErrorMessage(error),
       variant: "danger",
     });
+    fetchApplications();
   };
 
   const { mutate: createCopy, isCopying } = useCreateBulkCopyMutation({
@@ -456,7 +462,7 @@ export const ApplicationsTable: React.FC = () => {
         ) => {
           const row: Application = getRow(rowData);
           discardAssessmentRow(row);
-          refetch();
+          fetchApplications();
         },
       });
     }
@@ -544,7 +550,8 @@ export const ApplicationsTable: React.FC = () => {
 
         queryClient.invalidateQueries(assessmentsQueryKey);
         queryClient.invalidateQueries(reviewsQueryKey);
-        refetch();
+
+        fetchApplications();
       })
       .catch((error) => {
         pushNotification({
@@ -808,7 +815,7 @@ export const ApplicationsTable: React.FC = () => {
         })}
         onClose={() => {
           closeCopyAssessmentModal();
-          refetch();
+          fetchApplications();
         }}
       >
         {applicationToCopyAssessmentFrom && (
@@ -823,7 +830,7 @@ export const ApplicationsTable: React.FC = () => {
             createCopy={createCopy}
             onSaved={() => {
               closeCopyAssessmentModal();
-              refetch();
+              fetchApplications();
             }}
           />
         )}
@@ -836,7 +843,7 @@ export const ApplicationsTable: React.FC = () => {
         })}
         onClose={() => {
           closeCopyAssessmentAndReviewModal();
-          refetch();
+          fetchApplications();
         }}
       >
         {applicationToCopyAssessmentAndReviewFrom && (
@@ -854,7 +861,7 @@ export const ApplicationsTable: React.FC = () => {
             createCopy={createCopy}
             onSaved={() => {
               closeCopyAssessmentAndReviewModal();
-              refetch();
+              fetchApplications();
             }}
           />
         )}
@@ -883,7 +890,7 @@ export const ApplicationsTable: React.FC = () => {
         <ImportApplicationsForm
           onSaved={() => {
             setIsApplicationImportModalOpen(false);
-            refetch();
+            fetchApplications();
           }}
         />
       </Modal>
