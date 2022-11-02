@@ -24,7 +24,6 @@ export const isApplicationSourceCodeDepsEnabled = (
   return false;
 };
 
-// TODO this is totally redundant with isModeValid in analysis-wizard???
 export const isModeSupported = (application: Application, mode: string) => {
   if (mode === "binary-upload") return true;
   if (mode === "binary") return isApplicationBinaryEnabled(application);

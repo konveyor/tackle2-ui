@@ -29,12 +29,7 @@ import {
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import "./wizard.css";
-import {
-  useAnalyzableApplications,
-  isApplicationBinaryEnabled,
-  isApplicationSourceCodeDepsEnabled,
-  isApplicationSourceCodeEnabled,
-} from "./utils";
+import { useAnalyzableApplications, isModeSupported } from "./utils";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import {
   AnalysisWizardFormValues,
@@ -225,29 +220,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       },
     };
   };
-  const areApplicationsBinaryEnabled = (): boolean =>
-    applications.every((application) =>
-      isApplicationBinaryEnabled(application)
-    );
 
-  const areApplicationsSourceCodeEnabled = (): boolean =>
-    applications.every((application) =>
-      isApplicationSourceCodeEnabled(application)
-    );
-
-  const areApplicationsSourceCodeDepsEnabled = (): boolean =>
-    applications.every((application) =>
-      isApplicationSourceCodeDepsEnabled(application)
-    );
-
-  // TODO this is totally redundant with isModeSupported in utils???
-  const isModeValid = (): boolean => {
-    if (mode === "binary-upload") return true;
-    if (mode === "binary") return areApplicationsBinaryEnabled();
-    else if (mode === "source-code-deps")
-      return areApplicationsSourceCodeDepsEnabled();
-    else return areApplicationsSourceCodeEnabled();
-  };
+  const isModeValid = applications.every((app) => isModeSupported(app, mode));
 
   const onSubmit = (data: FieldValues) => {
     if (data.targets.length < 1) {
