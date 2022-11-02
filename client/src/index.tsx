@@ -1,24 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Provider } from "react-redux";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 
 import App from "@app/App";
 import reportWebVitals from "@app/reportWebVitals";
-import configureStore from "@app/store";
 import { KeycloakProvider } from "@app/common/KeycloakProvider";
 
 const queryClient = new QueryClient();
 
 ReactDOM.render(
   <KeycloakProvider>
-    <Provider store={configureStore()}>
       <QueryClientProvider client={queryClient}>
         <App />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
-    </Provider>
   </KeycloakProvider>,
   document.getElementById("root")
 );

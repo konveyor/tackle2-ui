@@ -30,7 +30,6 @@ import {
   global_palette_white as white,
 } from "@patternfly/react-tokens";
 
-import { useFetch } from "@app/shared/hooks";
 import { ConditionalRender, StateError } from "@app/shared/components";
 
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
@@ -46,6 +45,7 @@ import { CartesianSquare } from "./cartesian-square";
 import { Arrow } from "./arrow";
 import { useFetchReviews } from "@app/queries/reviews";
 import useFetchApplicationDependencies from "@app/shared/hooks/useFetchApplicationDependencies/useFetchApplicationDependencies";
+import { useQuery } from "react-query";
 
 interface Line {
   from: LinePoint;
@@ -136,25 +136,23 @@ export const AdoptionCandidateGraph: React.FC = () => {
   const [showDependencies, setShowDependencies] = useState(true);
 
   // Confidence
-  const fetchChartData = useCallback(() => {
-    if (applications.length > 0) {
-      return getAssessmentConfidence(applications.map((f) => f.id!)).then(
-        ({ data }) => data
-      );
-    } else {
-      return Promise.resolve([]);
-    }
-  }, [applications]);
-
   const {
     data: confidences,
+    refetch: refreshChart,
     isFetching,
-    fetchError,
-    requestFetch: refreshChart,
-  } = useFetch<AssessmentConfidence[]>({
-    defaultIsFetching: true,
-    onFetchPromise: fetchChartData,
-  });
+    error: fetchError,
+  } = useQuery<AssessmentConfidence[]>(
+    "assessmentconfidence",
+    async () =>
+      (
+        await getAssessmentConfidence(
+          applications.length > 0 ? applications.map((f) => f.id!) : []
+        )
+      ).data,
+    {
+      onError: (error) => console.log("error, ", error),
+    }
+  );
 
   useEffect(() => {
     refreshChart();
