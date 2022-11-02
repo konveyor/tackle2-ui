@@ -493,6 +493,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const hasExistingAnalysis = selectedRows.some((app) =>
     tasks.some((task) => task.application?.id === app.id)
   );
+
   return (
     <>
       <ConditionalRender

@@ -41,13 +41,6 @@ export const ApplicationAssessmentPageHeader: React.FC<
     close: closeDependenciesModal,
   } = useEntityModal<Application>();
 
-  const {
-    isOpen: isCredentialsModalOpen,
-    data: applicationToManageCredentials,
-    update: openCredentialsModal,
-    close: closecredentialsModal,
-  } = useEntityModal<Application>();
-
   return (
     <>
       <PageHeader
