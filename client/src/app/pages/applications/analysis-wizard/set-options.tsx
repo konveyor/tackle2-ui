@@ -54,7 +54,12 @@ export const SetOptions: React.FC = () => {
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
 
   return (
-    <Form isHorizontal>
+    <Form
+      isHorizontal
+      onSubmit={(event) => {
+        event.preventDefault();
+      }}
+    >
       <TextContent>
         <Title headingLevel="h3" size="xl">
           {t("wizard.title.advancedOptions")}

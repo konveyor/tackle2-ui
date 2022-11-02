@@ -1,8 +1,8 @@
 import * as React from "react";
+import * as yup from "yup";
 import {
   Button,
   Form,
-  FormGroup,
   InputGroup,
   InputGroupText,
   Radio,
@@ -15,41 +15,45 @@ import { useFormContext } from "react-hook-form";
 import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useTranslation } from "react-i18next";
 
-import { getValidatedFromError } from "@app/utils/utils";
+import { getValidatedFromErrorTouched } from "@app/utils/utils";
 
 import "./wizard.css";
+import { AnalysisWizardFormValues } from "./schema";
+import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 
 export const SetScope: React.FC = () => {
   const { t } = useTranslation();
 
-  const { getValues, setValue } = useFormContext();
-  // TODO this is just for the temporary inputs on packages to include/exclude. schema?
-  const {
-    register,
-    formState: { errors },
-  } = useForm({ mode: "onBlur" });
+  const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
 
-  const hasExcludedPackages: boolean = getValues("hasExcludedPackages");
-  const withKnown: string = getValues("withKnown");
-  const includedPackages: string[] = getValues("includedPackages");
-  const excludedPackages: string[] = getValues("excludedPackages");
+  // For transient fields next to "Add" buttons
+  const packageNameSchema = yup.string().matches(/^[a-z]+(.[a-z0-9]+)*$/, {
+    excludeEmptyString: true,
+    message: "Must be a valid Java package name", // TODO translation here
+  });
+  const includeExcludePackageForm = useForm({
+    defaultValues: { packageToInclude: "", packageToExclude: "" },
+    resolver: yupResolver(
+      yup.object({
+        packageToInclude: packageNameSchema,
+        packageToExclude: packageNameSchema,
+      })
+    ),
+    mode: "onChange",
+  });
 
-  // TODO these are redundant with the above (local) useForm call
-  const [packageToInclude, setPackageToInclude] = React.useState("");
-  const [packageToExclude, setPackageToExclude] = React.useState("");
-
-  const onChangePackageToInclude = (value: string) => {
-    setPackageToInclude(value);
-  };
-
-  const onChangePackageToExclude = (value: string) => {
-    setPackageToExclude(value);
-  };
+  const { hasExcludedPackages, withKnown, includedPackages, excludedPackages } =
+    watch();
 
   return (
-    <Form>
+    <Form
+      onSubmit={(event) => {
+        event.preventDefault();
+      }}
+    >
       <Title headingLevel="h3" size="xl">
         Scope
       </Title>
@@ -82,53 +86,47 @@ export const SetScope: React.FC = () => {
         isChecked={withKnown === "app,oss,select"}
         onChange={() => {
           setValue("withKnown", "app,oss,select");
+          setValue("includedPackages", []); // TODO is this okay? maybe instead ignore them on submit
         }}
         label={t("wizard.label.scopeSelectDeps")}
         className={spacing.mbXs}
       />
       {withKnown.includes("select") && (
         <>
-          <FormGroup
+          <HookFormPFGroupController
+            control={includeExcludePackageForm.control}
+            name="packageToInclude"
             fieldId="packageToInclude"
             className={`${spacing.mtMd} ${spacing.plLg}`}
-            validated={getValidatedFromError(errors.packageToInclude)}
-            helperTextInvalid={errors?.packageToInclude?.message as string}
-          >
-            <InputGroup>
-              <TextInput
-                aria-label="Packages to include"
-                {...register("packageToInclude", {
-                  pattern: {
-                    // TODO check if this validation is working?
-                    value: /^[a-z]+(.[a-z0-9]+)*$/,
-                    message:
-                      "The package name should be a valid Java package name",
-                  },
-                })}
-                onChange={onChangePackageToInclude}
-                validated={getValidatedFromError(errors.packageToInclude)}
-                value={packageToInclude}
-              />
-              <Button
-                id="add-package"
-                variant="control"
-                isDisabled={
-                  getValidatedFromError(errors.packageToInclude) === "error"
-                }
-                onClick={() => {
-                  setValue("includedPackages", [
-                    ...includedPackages,
-                    packageToInclude,
-                  ]);
-                  setPackageToInclude("");
-                }}
-              >
-                {t("terms.add")}
-              </Button>
-            </InputGroup>
-          </FormGroup>
-          {includedPackages && (
-            // TODO are these selections sticking around in the submission even if the user deselects the radio button after adding some?
+            renderInput={({
+              field: { onChange, onBlur, value, ref },
+              fieldState: { isTouched, error },
+            }) => (
+              <InputGroup>
+                <TextInput
+                  ref={ref}
+                  id="packageToInclude"
+                  aria-label="Add a package to include" // TODO translation here
+                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                />
+                <Button
+                  id="add-package-to-include"
+                  variant="control"
+                  isDisabled={!value || !!error}
+                  onClick={() => {
+                    setValue("includedPackages", [...includedPackages, value]);
+                    onChange("");
+                  }}
+                >
+                  {t("terms.add")}
+                </Button>
+              </InputGroup>
+            )}
+          />
+          {includedPackages.length > 0 && (
             <div className={spacing.plLg}>
               {includedPackages.map(
                 (pkg, index) =>
@@ -137,7 +135,7 @@ export const SetScope: React.FC = () => {
                       <InputGroupText className="package">{pkg}</InputGroupText>
                       <Button
                         isInline
-                        id="remove-from-packages-included"
+                        id={`remove-${pkg}-from-packages-included`}
                         variant="control"
                         icon={<DelIcon />}
                         onClick={() =>
@@ -159,51 +157,49 @@ export const SetScope: React.FC = () => {
           id="excludedPackages"
           label={t("wizard.label.excludePackages")}
           isChecked={hasExcludedPackages}
-          onChange={() => setValue("hasExcludedPackages", !hasExcludedPackages)}
+          onChange={(checked) => {
+            setValue("hasExcludedPackages", checked);
+            if (!checked) {
+              setValue("excludedPackages", []); // TODO is this okay? maybe instead ignore them on submit
+            }
+          }}
         />
         {hasExcludedPackages && (
-          <FormGroup
+          <HookFormPFGroupController
+            control={includeExcludePackageForm.control}
+            name="packageToExclude"
             fieldId="packageToExclude"
             className={`${spacing.mtMd} ${spacing.plLg}`}
-            validated={getValidatedFromError(errors.packageToExclude)}
-            helperTextInvalid={errors?.packageToExclude?.message as string}
-          >
-            <InputGroup>
-              <TextInput
-                aria-label="Packages to exclude"
-                {...register("packageToExclude", {
-                  pattern: {
-                    value: /^[a-z]+(.[a-z0-9]+)*$/,
-                    message:
-                      "The package name should be a valid Java package name",
-                  },
-                })}
-                onChange={onChangePackageToExclude}
-                validated={getValidatedFromError(errors.packageToExclude)}
-                value={packageToExclude}
-              />
-              <Button
-                id="add-to-excluded-packages-list"
-                variant="control"
-                isDisabled={
-                  getValidatedFromError(errors.packageToExclude) === "error"
-                }
-                onClick={() => {
-                  setValue("excludedPackages", [
-                    ...excludedPackages,
-                    packageToExclude,
-                  ]);
-                  setPackageToExclude("");
-                }}
-              >
-                {t("terms.add")}
-              </Button>
-            </InputGroup>
-          </FormGroup>
+            renderInput={({
+              field: { onChange, onBlur, value, ref },
+              fieldState: { isTouched, error },
+            }) => (
+              <InputGroup>
+                <TextInput
+                  ref={ref}
+                  id="packageToExclude"
+                  aria-label="Add a package to exclude" // TODO translation here
+                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                />
+                <Button
+                  id="add-package-to-exclude"
+                  variant="control"
+                  isDisabled={!value || !!error}
+                  onClick={() => {
+                    setValue("excludedPackages", [...excludedPackages, value]);
+                    onChange("");
+                  }}
+                >
+                  {t("terms.add")}
+                </Button>
+              </InputGroup>
+            )}
+          />
         )}
-        {excludedPackages && (
-          // TODO are these selections sticking around in the submission even if the user deselects the radio button after adding some?
-          // TODO these do remain visible if you toggle the switch off, certainly that's a bug
+        {excludedPackages.length > 0 && (
           <div className={spacing.plLg}>
             {excludedPackages.map(
               (pkg, index) =>

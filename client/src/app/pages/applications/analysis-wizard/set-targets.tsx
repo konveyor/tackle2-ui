@@ -1,8 +1,6 @@
 import React from "react";
 import {
   Title,
-  Stack,
-  StackItem,
   TextContent,
   Text,
   Gallery,
@@ -35,7 +33,11 @@ export const SetTargets: React.FC = () => {
   };
 
   return (
-    <Form>
+    <Form
+      onSubmit={(event) => {
+        event.preventDefault();
+      }}
+    >
       <TextContent>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.setTargets")}

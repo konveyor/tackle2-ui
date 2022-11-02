@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  FormGroup,
-  TextContent,
-  Title,
-  SelectVariant,
-  Alert,
-  Form,
-} from "@patternfly/react-core";
+import { TextContent, Title, Alert, Form } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
@@ -55,7 +48,11 @@ export const SetMode: React.FC<ISetMode> = ({
     });
 
   return (
-    <Form>
+    <Form
+      onSubmit={(event) => {
+        event.preventDefault();
+      }}
+    >
       <TextContent>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.analysisMode")}

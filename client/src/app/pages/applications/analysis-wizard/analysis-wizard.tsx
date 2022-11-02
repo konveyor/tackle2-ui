@@ -79,8 +79,6 @@ const initTask = (application: Application): TaskgroupTask => {
   };
 };
 
-// TODO double check that when we press Enter in a text field it doesn't try to do an HTML submit (reload the page)
-
 export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   applications,
   onClose,
