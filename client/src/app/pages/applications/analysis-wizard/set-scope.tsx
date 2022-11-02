@@ -92,6 +92,9 @@ export const SetScope: React.FC = () => {
         className={spacing.mbXs}
       />
       {withKnown.includes("select") && (
+        // Probably can factor this whole group, list after it, and useForm into some kind of StringListField component
+        // and use that both here and on the Options step for the excludedRulesTags field.
+        // would need to pass in props for schema, field name, listValue/setListValue, ids/labels
         <>
           <HookFormPFGroupController
             control={includeExcludePackageForm.control}
