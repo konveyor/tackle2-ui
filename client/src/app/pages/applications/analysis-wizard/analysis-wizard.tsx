@@ -178,16 +178,31 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const { handleSubmit, watch, reset } = methods;
   const values = watch();
 
-  // TODO use these below for enableNext and canJumpTo stuff per step
-  const isStepValid = {
-    mode: useAsyncYupValidation(values, schemas.modeStep),
-    targets: useAsyncYupValidation(values, schemas.targetsStep),
-    scope: useAsyncYupValidation(values, schemas.scopeStep),
-    customRules: useAsyncYupValidation(values, schemas.customRulesStep),
-    options: useAsyncYupValidation(values, schemas.optionsStep),
+  enum StepId {
+    AnalysisMode = 1,
+    SetTargets,
+    Scope,
+    CustomRules,
+    Options,
+    Review,
+  }
+
+  const isStepValid: Record<StepId, boolean> = {
+    [StepId.AnalysisMode]: useAsyncYupValidation(values, schemas.modeStep),
+    [StepId.SetTargets]: useAsyncYupValidation(values, schemas.targetsStep),
+    [StepId.Scope]: useAsyncYupValidation(values, schemas.scopeStep),
+    [StepId.CustomRules]: useAsyncYupValidation(
+      values,
+      schemas.customRulesStep
+    ),
+    [StepId.Options]: useAsyncYupValidation(values, schemas.optionsStep),
+    [StepId.Review]: true,
   };
 
-  console.log({ isStepValid });
+  const firstInvalidStep =
+    (Object.values(StepId).filter((val) => !isNaN(+val)) as StepId[]).find(
+      (stepId) => !isStepValid[stepId]
+    ) || StepId.Review;
 
   const { mode, targets } = values;
 
@@ -254,18 +269,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     if (id && stepIdReached < id) setStepIdReached(id as number);
   };
 
-  enum stepId {
-    AnalysisMode = 1,
-    UploadBinaryStep,
-    SetTargets,
-    Scope,
-    CustomRules,
-    Options,
-    Review,
-  }
-
   const handleClose = () => {
-    setStepIdReached(stepId.AnalysisMode);
     reset();
     if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
       deleteTaskgroup(createdTaskgroup.id);
@@ -293,36 +297,40 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     }
   }, [analyzableApplications, createTaskgroup]);
 
+  const getStepNavProps = (stepId: StepId, forceBlock = false) => ({
+    enableNext:
+      !forceBlock && stepIdReached >= stepId && firstInvalidStep >= stepId + 1,
+    canJumpTo:
+      !forceBlock && stepIdReached >= stepId && firstInvalidStep >= stepId,
+  });
+
   const steps = [
     {
       name: t("wizard.terms.configureAnalysis"),
       steps: [
         {
-          id: stepId.AnalysisMode,
+          id: StepId.AnalysisMode,
           name: t("wizard.terms.analysisMode"),
           component: (
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
               taskgroupID={createdTaskgroup?.id || null}
-              isModeValid={isModeValid()} // TODO ???
+              isModeValid={isModeValid}
             />
           ),
-
-          enableNext: isStepValid.mode && !isMutating,
-          canJumpTo: stepIdReached >= stepId.AnalysisMode && !isMutating,
+          ...getStepNavProps(StepId.AnalysisMode, !!isMutating),
         },
         {
-          id: stepId.SetTargets,
+          id: StepId.SetTargets,
           name: t("wizard.terms.setTargets"),
           component: <SetTargets />,
-          enableNext: targets.length > 0,
-          canJumpTo: stepIdReached >= stepId.SetTargets,
+          ...getStepNavProps(StepId.SetTargets),
         },
         {
-          id: stepId.Scope,
+          id: StepId.Scope,
           name: t("wizard.terms.scope"),
           component: <SetScope />,
-          canJumpTo: stepIdReached >= stepId.Scope,
+          ...getStepNavProps(StepId.Scope),
         },
       ],
     },
@@ -330,26 +338,25 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       name: t("wizard.terms.advanced"),
       steps: [
         {
-          id: stepId.CustomRules,
+          id: StepId.CustomRules,
           name: t("wizard.terms.customRules"),
           component: <CustomRules />,
-          canJumpTo: stepIdReached >= stepId.CustomRules,
+          ...getStepNavProps(StepId.CustomRules),
         },
         {
-          id: stepId.Options,
+          id: StepId.Options,
           name: t("wizard.terms.options"),
           component: <SetOptions />,
-          enableNext: targets.length > 0,
-          canJumpTo: stepIdReached >= stepId.Options,
+          ...getStepNavProps(StepId.Options),
         },
       ],
     },
     {
-      id: stepId.Review,
+      id: StepId.Review,
       name: t("wizard.terms.review"),
       component: <Review applications={applications} mode={mode} />,
       nextButtonText: "Run",
-      canJumpTo: stepIdReached >= stepId.Review,
+      ...getStepNavProps(StepId.Review),
     },
   ];
 
