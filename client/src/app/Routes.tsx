@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from "react";
-import { Route, Switch, Redirect } from "react-router-dom";
+import { Switch, Redirect, useLocation } from "react-router-dom";
 
 import { AppPlaceholder } from "@app/shared/components";
 
@@ -10,6 +10,8 @@ import { Paths } from "@app/Paths";
 import { ApplicationAssessment } from "./pages/applications/application-assessment/application-assessment";
 import { RouteWrapper } from "./common/RouteWrapper";
 import { adminRoles, devRoles } from "./rbac";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "@app/common/ErrorFallback";
 
 const Applications = lazy(() => import("./pages/applications"));
 const ManageImports = lazy(() => import("./pages/applications/manage-imports"));
@@ -92,29 +94,33 @@ export const adminRoutes: IRoute[] = [
   { comp: Proxies, path: "/proxies", exact: false },
 ];
 export const AppRoutes = () => {
+  const location = useLocation();
+
   return (
     <Suspense fallback={<AppPlaceholder />}>
-      <Switch>
-        {devRoutes.map(({ ...props }, index) => (
-          <RouteWrapper
-            comp={props.comp}
-            key={index}
-            roles={devRoles}
-            path={props.path}
-            exact={props.exact}
-          />
-        ))}
-        {adminRoutes.map(({ ...props }, index) => (
-          <RouteWrapper
-            comp={props.comp}
-            key={index}
-            roles={adminRoles}
-            path={props.path}
-            exact={props.exact}
-          />
-        ))}
-        <Redirect from="*" to="/applications" />
-      </Switch>
+      <ErrorBoundary FallbackComponent={ErrorFallback} key={location.pathname}>
+        <Switch>
+          {devRoutes.map(({ ...props }, index) => (
+            <RouteWrapper
+              comp={props.comp}
+              key={index}
+              roles={devRoles}
+              path={props.path}
+              exact={props.exact}
+            />
+          ))}
+          {adminRoutes.map(({ ...props }, index) => (
+            <RouteWrapper
+              comp={props.comp}
+              key={index}
+              roles={adminRoles}
+              path={props.path}
+              exact={props.exact}
+            />
+          ))}
+          <Redirect from="*" to="/applications" />
+        </Switch>
+      </ErrorBoundary>
     </Suspense>
   );
 };
