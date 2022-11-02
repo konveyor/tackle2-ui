@@ -25,7 +25,7 @@
     "@hot-loader/react-dom": "^17.0.2",
     "@migtools/lib-ui": "^8.6.0",
     "@patternfly/patternfly": "^4.215.1",
-    "@patternfly/react-charts": "^6.92.0",
+    "@patternfly/react-charts": "^6.94.11",
     "@patternfly/react-core": "^4.239.0",
     "@patternfly/react-table": "^4.108.0",
     "@patternfly/react-tokens": "^4.91.0",
