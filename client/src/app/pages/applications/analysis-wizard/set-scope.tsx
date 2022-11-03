@@ -86,7 +86,6 @@ export const SetScope: React.FC = () => {
         isChecked={withKnown === "app,oss,select"}
         onChange={() => {
           setValue("withKnown", "app,oss,select");
-          setValue("includedPackages", []); // TODO is this okay? maybe instead ignore them on submit
         }}
         label={t("wizard.label.scopeSelectDeps")}
         className={spacing.mbXs}
@@ -162,9 +161,6 @@ export const SetScope: React.FC = () => {
           isChecked={hasExcludedPackages}
           onChange={(checked) => {
             setValue("hasExcludedPackages", checked);
-            if (!checked) {
-              setValue("excludedPackages", []); // TODO is this okay? maybe instead ignore them on submit
-            }
           }}
         />
         {hasExcludedPackages && (
@@ -202,7 +198,7 @@ export const SetScope: React.FC = () => {
             )}
           />
         )}
-        {excludedPackages.length > 0 && (
+        {hasExcludedPackages && excludedPackages.length > 0 && (
           <div className={spacing.plLg}>
             {excludedPackages.map(
               (pkg, index) =>

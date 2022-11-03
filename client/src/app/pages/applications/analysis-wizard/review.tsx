@@ -45,11 +45,14 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
     sources,
     withKnown,
     includedPackages,
+    hasExcludedPackages,
     excludedPackages,
     customRulesFiles,
     excludedRulesTags,
     diva,
   } = watch();
+
+  const hasIncludedPackages = withKnown.includes("select");
 
   return (
     <>
@@ -125,9 +128,11 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           </DescriptionListTerm>
           <DescriptionListDescription id="included-packages">
             <List isPlain>
-              {includedPackages.map((pkg, index) => (
-                <ListItem key={index}>{pkg}</ListItem>
-              ))}
+              {hasIncludedPackages
+                ? includedPackages.map((pkg, index) => (
+                    <ListItem key={index}>{pkg}</ListItem>
+                  ))
+                : null}
             </List>
           </DescriptionListDescription>
         </DescriptionListGroup>
@@ -142,9 +147,11 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           </DescriptionListTerm>
           <DescriptionListDescription id="excluded-packages">
             <List isPlain>
-              {excludedPackages.map((pkg, index) => (
-                <ListItem key={index}>{pkg}</ListItem>
-              ))}
+              {hasExcludedPackages
+                ? excludedPackages.map((pkg, index) => (
+                    <ListItem key={index}>{pkg}</ListItem>
+                  ))
+                : null}
             </List>
           </DescriptionListDescription>
         </DescriptionListGroup>

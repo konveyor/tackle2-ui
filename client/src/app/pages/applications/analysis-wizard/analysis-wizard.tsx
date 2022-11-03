@@ -202,7 +202,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       (stepId) => !isStepValid[stepId]
     ) || StepId.Review;
 
-  const { mode, targets } = values;
+  const { mode, withKnown, hasExcludedPackages } = values;
+  const hasIncludedPackages = withKnown.includes("select");
 
   const setTaskgroup = (taskgroup: Taskgroup, data: FieldValues): Taskgroup => {
     return {
@@ -220,8 +221,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
         scope: {
           withKnown: data.withKnown.includes("oss") ? true : false,
           packages: {
-            included: data.includedPackages,
-            excluded: data.excludedPackages,
+            included: hasIncludedPackages ? data.includedPackages : [],
+            excluded: hasExcludedPackages ? data.excludedPackages : [],
           },
         },
         rules: {
