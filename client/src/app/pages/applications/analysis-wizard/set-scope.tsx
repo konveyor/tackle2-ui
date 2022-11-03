@@ -102,7 +102,7 @@ export const SetScope: React.FC = () => {
             fieldId="packageToInclude"
             className={`${spacing.mtMd} ${spacing.plLg}`}
             renderInput={({
-              field: { onChange, onBlur, value, ref },
+              field: { name, onChange, onBlur, value, ref },
               fieldState: { isTouched, error },
             }) => (
               <InputGroup>
@@ -121,7 +121,7 @@ export const SetScope: React.FC = () => {
                   isDisabled={!value || !!error}
                   onClick={() => {
                     setValue("includedPackages", [...includedPackages, value]);
-                    onChange("");
+                    includeExcludePackageForm.resetField(name);
                   }}
                 >
                   {t("terms.add")}
@@ -174,7 +174,7 @@ export const SetScope: React.FC = () => {
             fieldId="packageToExclude"
             className={`${spacing.mtMd} ${spacing.plLg}`}
             renderInput={({
-              field: { onChange, onBlur, value, ref },
+              field: { name, onChange, onBlur, value, ref },
               fieldState: { isTouched, error },
             }) => (
               <InputGroup>
@@ -193,7 +193,7 @@ export const SetScope: React.FC = () => {
                   isDisabled={!value || !!error}
                   onClick={() => {
                     setValue("excludedPackages", [...excludedPackages, value]);
-                    onChange("");
+                    includeExcludePackageForm.resetField(name);
                   }}
                 >
                   {t("terms.add")}

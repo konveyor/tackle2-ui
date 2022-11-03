@@ -58,7 +58,10 @@ export interface TargetsStepValues {
 const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
   const { t } = useTranslation();
   return yup.object({
-    targets: yup.array().of(yup.string().defined()).min(1),
+    targets: yup
+      .array()
+      .of(yup.string().defined())
+      .min(1, "At least 1 target is required"), // TODO translation here
   });
 };
 
