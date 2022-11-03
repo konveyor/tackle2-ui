@@ -73,9 +73,19 @@ const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     withKnown: yup.mixed<AnalysisScope>().required(t("validation.required")),
-    includedPackages: yup.array().of(yup.string().defined()),
+    includedPackages: yup
+      .array()
+      .of(yup.string().defined())
+      .when("withKnown", (withKnown, schema) =>
+        withKnown.includes("select") ? schema.min(1) : schema
+      ),
     hasExcludedPackages: yup.bool().defined(),
-    excludedPackages: yup.array().of(yup.string().defined()),
+    excludedPackages: yup
+      .array()
+      .of(yup.string().defined())
+      .when("hasExcludedPackages", (hasExcludedPackages, schema) =>
+        hasExcludedPackages ? schema.min(1) : schema
+      ),
   });
 };
 
