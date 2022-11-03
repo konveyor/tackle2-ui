@@ -12,7 +12,7 @@ export const ANALYSIS_MODES = [
 ] as const;
 export type AnalysisMode = typeof ANALYSIS_MODES[number];
 
-export type AnalysisScope = "app" | "app,oss" | "app,oss,select"; // TODO can we make this an array? how does that affect api/models.tsx?
+export type AnalysisScope = "app" | "app,oss" | "app,oss,select";
 
 export interface ModeStepValues {
   mode: AnalysisMode;
@@ -66,7 +66,7 @@ const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
 };
 
 export interface ScopeStepValues {
-  withKnown: AnalysisScope; // TODO should this have another name?
+  withKnown: AnalysisScope;
   includedPackages: string[];
   hasExcludedPackages: boolean;
   excludedPackages: string[];
@@ -94,14 +94,14 @@ const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
 
 export interface CustomRulesStepValues {
   sources: string[];
-  customRulesFiles: IReadFile[]; // TODO what's with this type?
+  customRulesFiles: IReadFile[];
 }
 
 const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     sources: yup.array().of(yup.string().defined()),
-    customRulesFiles: yup.array().of(yup.object() as yup.SchemaOf<IReadFile>), // TODO is there something better here?
+    customRulesFiles: yup.array().of(yup.object() as yup.SchemaOf<IReadFile>),
   });
 };
 

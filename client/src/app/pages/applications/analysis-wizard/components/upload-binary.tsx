@@ -18,15 +18,15 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { uploadLimit } from "@app/Constants";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import { AnalysisWizardFormValues } from "../schema";
 
 interface IUploadBinary {
   taskgroupID: number;
 }
 
 export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
-  // TODO add the values type param to useFormContext everywhere it is called within the wizard
-  const { setValue, getValues } = useFormContext();
-  const { artifact } = getValues();
+  const { setValue, watch } = useFormContext<AnalysisWizardFormValues>();
+  const artifact = watch("artifact");
   const initialCurrentFile = new File([""], artifact, { type: "text/html" });
 
   const [currentFile, setCurrentFile] = React.useState<File | null>(

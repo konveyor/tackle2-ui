@@ -12,12 +12,13 @@ import { useFormContext } from "react-hook-form";
 
 import { SelectCard } from "./components/select-card";
 import { ITransformationTargets, transformationTargets } from "./targets";
+import { AnalysisWizardFormValues } from "./schema";
 
 export const SetTargets: React.FC = () => {
   const { t } = useTranslation();
 
-  const { getValues, setValue } = useFormContext();
-  const targets: string[] = getValues("targets");
+  const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
+  const targets = watch("targets");
 
   const handleOnCardChange = (
     isNewCard: boolean,
