@@ -103,30 +103,40 @@ export const SetScope: React.FC = () => {
             renderInput={({
               field: { name, onChange, onBlur, value, ref },
               fieldState: { isTouched, error },
-            }) => (
-              <InputGroup>
-                <TextInput
-                  ref={ref}
-                  id="packageToInclude"
-                  aria-label="Add a package to include" // TODO translation here
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
-                  value={value}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                />
-                <Button
-                  id="add-package-to-include"
-                  variant="control"
-                  isDisabled={!value || !!error}
-                  onClick={() => {
-                    setValue("includedPackages", [...includedPackages, value]);
-                    includeExcludePackageForm.resetField(name);
-                  }}
-                >
-                  {t("terms.add")}
-                </Button>
-              </InputGroup>
-            )}
+            }) => {
+              const isValid = !!value && !error;
+              const onAdd = () => {
+                setValue("includedPackages", [...includedPackages, value]);
+                includeExcludePackageForm.resetField(name);
+              };
+              return (
+                <InputGroup>
+                  <TextInput
+                    ref={ref}
+                    id="packageToInclude"
+                    aria-label="Add a package to include" // TODO translation here
+                    validated={getValidatedFromErrorTouched(error, isTouched)}
+                    value={value}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    onKeyUp={(event) => {
+                      if (event.key === "Enter") {
+                        onBlur();
+                        if (isValid) onAdd();
+                      }
+                    }}
+                  />
+                  <Button
+                    id="add-package-to-include"
+                    variant="control"
+                    isDisabled={!isValid}
+                    onClick={onAdd}
+                  >
+                    {t("terms.add")}
+                  </Button>
+                </InputGroup>
+              );
+            }}
           />
           {includedPackages.length > 0 && (
             <div className={spacing.plLg}>
@@ -172,30 +182,40 @@ export const SetScope: React.FC = () => {
             renderInput={({
               field: { name, onChange, onBlur, value, ref },
               fieldState: { isTouched, error },
-            }) => (
-              <InputGroup>
-                <TextInput
-                  ref={ref}
-                  id="packageToExclude"
-                  aria-label="Add a package to exclude" // TODO translation here
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
-                  value={value}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                />
-                <Button
-                  id="add-package-to-exclude"
-                  variant="control"
-                  isDisabled={!value || !!error}
-                  onClick={() => {
-                    setValue("excludedPackages", [...excludedPackages, value]);
-                    includeExcludePackageForm.resetField(name);
-                  }}
-                >
-                  {t("terms.add")}
-                </Button>
-              </InputGroup>
-            )}
+            }) => {
+              const isValid = !!value && !error;
+              const onAdd = () => {
+                setValue("excludedPackages", [...excludedPackages, value]);
+                includeExcludePackageForm.resetField(name);
+              };
+              return (
+                <InputGroup>
+                  <TextInput
+                    ref={ref}
+                    id="packageToExclude"
+                    aria-label="Add a package to exclude" // TODO translation here
+                    validated={getValidatedFromErrorTouched(error, isTouched)}
+                    value={value}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    onKeyUp={(event) => {
+                      if (event.key === "Enter") {
+                        onBlur();
+                        if (isValid) onAdd();
+                      }
+                    }}
+                  />
+                  <Button
+                    id="add-package-to-exclude"
+                    variant="control"
+                    isDisabled={!isValid}
+                    onClick={onAdd}
+                  >
+                    {t("terms.add")}
+                  </Button>
+                </InputGroup>
+              );
+            }}
           />
         )}
         {hasExcludedPackages && excludedPackages.length > 0 && (

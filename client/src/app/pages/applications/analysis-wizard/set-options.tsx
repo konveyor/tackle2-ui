@@ -148,30 +148,40 @@ export const SetOptions: React.FC = () => {
         renderInput={({
           field: { name, onChange, onBlur, value, ref },
           fieldState: { isTouched, error },
-        }) => (
-          <InputGroup>
-            <TextInput
-              ref={ref}
-              id="ruleTagToExclude"
-              aria-label="Rule tag to exclude" // TODO translation here
-              validated={getValidatedFromErrorTouched(error, isTouched)}
-              value={value}
-              onChange={onChange}
-              onBlur={onBlur}
-            />
-            <Button
-              id="add-rule-tag-to-exclude"
-              variant="control"
-              isDisabled={!value || !!error}
-              onClick={() => {
-                setValue("excludedRulesTags", [...excludedRulesTags, value]);
-                excludeRuleForm.resetField(name);
-              }}
-            >
-              {t("terms.add")}
-            </Button>
-          </InputGroup>
-        )}
+        }) => {
+          const isValid = !!value && !error;
+          const onAdd = () => {
+            setValue("excludedRulesTags", [...excludedRulesTags, value]);
+            excludeRuleForm.resetField(name);
+          };
+          return (
+            <InputGroup>
+              <TextInput
+                ref={ref}
+                id="ruleTagToExclude"
+                aria-label="Rule tag to exclude" // TODO translation here
+                validated={getValidatedFromErrorTouched(error, isTouched)}
+                value={value}
+                onChange={onChange}
+                onBlur={onBlur}
+                onKeyUp={(event) => {
+                  if (event.key === "Enter") {
+                    onBlur();
+                    if (isValid) onAdd();
+                  }
+                }}
+              />
+              <Button
+                id="add-rule-tag-to-exclude"
+                variant="control"
+                isDisabled={!isValid}
+                onClick={onAdd}
+              >
+                {t("terms.add")}
+              </Button>
+            </InputGroup>
+          );
+        }}
       />
       {excludedRulesTags.length > 0 && (
         <div className={spacing.plLg}>
