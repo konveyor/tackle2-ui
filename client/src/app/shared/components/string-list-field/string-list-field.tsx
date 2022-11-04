@@ -3,18 +3,13 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import {
-  InputGroup,
-  TextInput,
-  Button,
-  InputGroupText,
-} from "@patternfly/react-core";
+import { InputGroup, TextInput, Button } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
+import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import { getValidatedFromErrorTouched } from "@app/utils/utils";
 import { HookFormPFGroupController } from "../hook-form-pf-fields";
 
-import "./string-list-field.css";
+import { TableComposable, Tbody, Td, Tr } from "@patternfly/react-table";
 
 export interface StringListFieldProps {
   listItems: string[];
@@ -104,25 +99,30 @@ export const StringListField: React.FC<StringListFieldProps> = ({
         }}
       />
       {listItems.length > 0 && (
-        <div className={`${spacing.mtMd} ${spacing.mlLg}`}>
-          {listItems.map((item) =>
-            item ? (
-              <InputGroup key={item}>
-                <InputGroupText className="string-list-field-item">
-                  {item}
-                </InputGroupText>
-                <Button
-                  isInline
-                  id={removeItemButtonId(item)}
-                  variant="control"
-                  icon={<DelIcon />}
-                  onClick={() => {
-                    setListItems(listItems.filter((i) => i !== item));
-                  }}
-                />
-              </InputGroup>
-            ) : null
-          )}
+        <div className={spacing.mtMd}>
+          <TableComposable variant="compact">
+            <Tbody>
+              {listItems.map((item) =>
+                item ? (
+                  <Tr key={item}>
+                    <Td>{item}</Td>
+                    <Td modifier="fitContent">
+                      <Button
+                        isInline
+                        variant="plain"
+                        id={removeItemButtonId(item)}
+                        icon={<TimesCircleIcon />}
+                        onClick={() => {
+                          setListItems(listItems.filter((i) => i !== item));
+                        }}
+                        className={spacing.py_0}
+                      />
+                    </Td>
+                  </Tr>
+                ) : null
+              )}
+            </Tbody>
+          </TableComposable>
         </div>
       )}
     </div>
