@@ -1,29 +1,24 @@
 import * as React from "react";
 import {
-  Button,
   Checkbox,
   Form,
-  InputGroup,
-  InputGroupText,
   Select,
   SelectOption,
   SelectVariant,
   Text,
   TextContent,
-  TextInput,
   Title,
 } from "@patternfly/react-core";
-import { useForm, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 
 import { getValidatedFromErrorTouched } from "@app/utils/utils";
 import { defaultSources, defaultTargets } from "./targets";
-import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { AnalysisWizardFormValues } from "./schema";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
+import { StringListField } from "@app/shared/components/string-list-field/string-list-field";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
@@ -32,19 +27,6 @@ export const SetOptions: React.FC = () => {
     useFormContext<AnalysisWizardFormValues>();
 
   const { sources, diva, excludedRulesTags } = watch();
-
-  const excludeRuleForm = useForm({
-    defaultValues: { ruleTagToExclude: "" },
-    resolver: yupResolver(
-      yup.object({
-        ruleTagToExclude: yup
-          .string()
-          .matches(/^(|.{2,})$/, t("validation.minLength", { length: 2 })) // Either 0 or 2+ characters
-          .max(60, t("validation.maxLength", { length: 60 })),
-      })
-    ),
-    mode: "onChange",
-  });
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
@@ -139,96 +121,22 @@ export const SetOptions: React.FC = () => {
           </Select>
         )}
       />
-
-      <HookFormPFGroupController
-        control={excludeRuleForm.control}
-        name="ruleTagToExclude"
-        fieldId="ruleTagToExclude"
-        className={`${spacing.mtMd} ${spacing.plLg}`}
-        renderInput={({
-          field: { name, onChange, onBlur, value, ref },
-          fieldState: { isTouched, error },
-        }) => {
-          const isValid = !!value && !error;
-          const onAdd = () => {
-            setValue("excludedRulesTags", [...excludedRulesTags, value]);
-            excludeRuleForm.resetField(name);
-          };
-          return (
-            <InputGroup>
-              <TextInput
-                ref={ref}
-                id="ruleTagToExclude"
-                aria-label="Rule tag to exclude" // TODO translation here
-                validated={getValidatedFromErrorTouched(error, isTouched)}
-                value={value}
-                onChange={onChange}
-                onBlur={onBlur}
-                onKeyUp={(event) => {
-                  if (event.key === "Enter") {
-                    onBlur();
-                    if (isValid) onAdd();
-                  }
-                }}
-              />
-              <Button
-                id="add-rule-tag-to-exclude"
-                variant="control"
-                isDisabled={!isValid}
-                onClick={onAdd}
-              >
-                {t("terms.add")}
-              </Button>
-            </InputGroup>
-          );
-        }}
+      <StringListField
+        listItems={excludedRulesTags}
+        setListItems={(items) => setValue("excludedRulesTags", items)}
+        itemToAddSchema={yup
+          .string()
+          .min(2, t("validation.minLength", { length: 2 }))
+          .max(60, t("validation.maxLength", { length: 60 }))}
+        itemToAddFieldId="ruleTagToExclude"
+        itemToAddLabel={t("wizard.composed.excluded", {
+          what: t("wizard.terms.rulesTags"),
+        })}
+        itemToAddAriaLabel="Add a rule tag to exclude" // TODO translation here
+        itemNotUniqueMessage="This rule tag is already excluded" // TODO translation here
+        removeItemButtonId={(tag) => `remove-${tag}-from-excluded-rules-tags`}
+        className={spacing.mtMd}
       />
-      {excludedRulesTags.length > 0 && (
-        <div className={spacing.plLg}>
-          {excludedRulesTags.map(
-            (tag, index) =>
-              tag && (
-                <InputGroup key={index}>
-                  <InputGroupText className="package">{tag}</InputGroupText>
-                  <Button
-                    isInline
-                    id={`remove-${tag}-from-excluded-tags`}
-                    variant="control"
-                    icon={<DelIcon />}
-                    onClick={() =>
-                      setValue(
-                        "excludedRulesTags",
-                        excludedRulesTags.filter((t) => t !== tag)
-                      )
-                    }
-                  />
-                </InputGroup>
-              )
-          )}
-        </div>
-      )}
-
-      <div className={spacing.pMd}>
-        {excludedRulesTags.map((pkg, index) => (
-          <div key={index}>
-            <InputGroup key={index}>
-              <InputGroupText className="package">{pkg}</InputGroupText>
-              <Button
-                isInline
-                id="remove-from-excluded-rules-tags"
-                variant="control"
-                icon={<DelIcon />}
-                onClick={() =>
-                  setValue(
-                    "excludedRulesTags",
-                    excludedRulesTags.filter((p) => p !== pkg)
-                  )
-                }
-              />
-            </InputGroup>
-          </div>
-        ))}
-      </div>
       <Checkbox
         className={spacing.mtMd}
         label={t("wizard.composed.enable", {
@@ -236,7 +144,7 @@ export const SetOptions: React.FC = () => {
         })}
         isChecked={diva}
         onChange={() => setValue("diva", !diva)}
-        id="controlled-check-4"
+        id="enable-transaction-report-checkbox"
         name="enableTransactionReport"
       />
     </Form>
