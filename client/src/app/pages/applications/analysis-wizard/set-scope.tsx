@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 import "./wizard.css";
 import { AnalysisWizardFormValues } from "./schema";
-import { StringListField } from "@app/shared/components/string-list-field/string-list-field";
+import { StringListField } from "@app/shared/components/string-list-field";
 
 export const SetScope: React.FC = () => {
   const { t } = useTranslation();

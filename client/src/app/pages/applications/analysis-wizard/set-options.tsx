@@ -18,7 +18,7 @@ import { defaultSources, defaultTargets } from "./targets";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisWizardFormValues } from "./schema";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
-import { StringListField } from "@app/shared/components/string-list-field/string-list-field";
+import { StringListField } from "@app/shared/components/string-list-field";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
