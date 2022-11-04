@@ -106,7 +106,7 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
 };
 
 export interface OptionsStepValues {
-  diva: boolean; // TODO is there a better name for this?
+  diva: boolean;
   excludedRulesTags: string[];
 }
 
