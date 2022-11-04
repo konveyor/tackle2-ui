@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen } from "@app/test-config/test-utils";
+import { render, screen, waitFor } from "@app/test-config/test-utils";
 import { AnalysisWizard } from "../analysis-wizard";
 import { TASKGROUPS } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
@@ -169,7 +169,7 @@ describe("<AnalysisWizard />", () => {
     const warning = screen.queryByLabelText(/warning alert/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
     expect(warning).not.toBeInTheDocument();
-    expect(nextButton).toBeEnabled();
+    await waitFor(() => expect(nextButton).toBeEnabled());
 
     // set a target
     await userEvent.click(nextButton);
@@ -203,7 +203,7 @@ describe("<AnalysisWizard />", () => {
     expect(screen.getByText("Known Open Source libraries")).toBeInTheDocument();
 
     const runButton = screen.getByRole("button", { name: /run/i });
-    expect(runButton).toBeEnabled();
+    await waitFor(() => expect(runButton).toBeEnabled());
   });
 
   it("cannot upload a binary file when analyzing multiple applications", async () => {
