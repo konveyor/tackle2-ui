@@ -151,11 +151,16 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
       >
         <MultipleFileUploadMain
           titleIcon={<UploadIcon />}
-          titleText="Drag and drop files here"
+          titleText="Drag and drop file here"
           titleTextSeparator="or"
-          infoText={`Accepted file types: war, ear, jar or zip; Upload size limit: ${
-            uploadLimitInBytes / 1000
-          } Kilobyte`}
+          infoText={
+            <>
+              <div>Accepted file types: war, ear, jar or zip</div>
+              <div>
+                Upload size limit: {Math.round(uploadLimitInBytes / 1000000)} MB
+              </div>
+            </>
+          }
         />
         {artifact && (
           <MultipleFileUploadStatusItem
