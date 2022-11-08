@@ -83,8 +83,9 @@ describe("<AnalysisWizard />", () => {
 
     const alert = screen.getByText(/warning alert:/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
-    expect(alert).toBeEnabled();
-    expect(nextButton).toHaveAttribute("disabled", "");
+
+    await waitFor(() => expect(alert).toBeEnabled());
+    await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
   });
 
   it("has next button disabled when applications mode have no source code defined", async () => {
@@ -110,8 +111,8 @@ describe("<AnalysisWizard />", () => {
 
     const alert = screen.getByText(/warning alert:/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
-    expect(alert).toBeEnabled();
-    expect(nextButton).toHaveAttribute("disabled", "");
+    await waitFor(() => expect(alert).toBeEnabled());
+    await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
   });
 
   it("has next button disabled when applications mode have no source code + dependencies defined", async () => {
@@ -137,8 +138,8 @@ describe("<AnalysisWizard />", () => {
 
     const alert = screen.getByText(/warning alert:/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
-    expect(alert).toBeEnabled();
-    expect(nextButton).toHaveAttribute("disabled", "");
+    await waitFor(() => expect(alert).toBeEnabled());
+    await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
   });
 
   it("can run analysis on applications with a binary definition using defaults", async () => {
@@ -168,7 +169,7 @@ describe("<AnalysisWizard />", () => {
     // set default mode "Binary"
     const warning = screen.queryByLabelText(/warning alert/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
-    expect(warning).not.toBeInTheDocument();
+    await waitFor(() => expect(warning).not.toBeInTheDocument());
     await waitFor(() => expect(nextButton).toBeEnabled());
 
     // set a target
@@ -202,8 +203,8 @@ describe("<AnalysisWizard />", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Known Open Source libraries")).toBeInTheDocument();
 
-    const runButton = screen.getByRole("button", { name: /run/i });
-    await waitFor(() => expect(runButton).toBeEnabled());
+    const runButton = await screen.findByRole("button", { name: /run/i });
+    expect(runButton).toBeEnabled();
   });
 
   it("cannot upload a binary file when analyzing multiple applications", async () => {
