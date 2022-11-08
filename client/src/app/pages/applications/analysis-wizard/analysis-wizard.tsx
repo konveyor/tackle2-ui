@@ -198,9 +198,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   };
 
   const firstInvalidStep =
-    (Object.values(StepId).filter((val) => !isNaN(+val)) as StepId[]).find(
-      (stepId) => !isStepValid[stepId]
-    ) || StepId.Review;
+    (
+      Object.values(StepId).filter((val) => typeof val === "number") as StepId[]
+    ).find((stepId) => !isStepValid[stepId]) || StepId.Review + 1;
 
   const { mode, withKnown, hasExcludedPackages } = values;
   const hasIncludedPackages = withKnown.includes("select");
@@ -355,9 +355,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       name: t("wizard.terms.review"),
       component: <Review applications={applications} mode={mode} />,
       nextButtonText: "Run",
-      // Restore when firstInvalidSteps is fixed
-      // ...getStepNavProps(StepId.Review, !isModeValid),
-      canJumpTo: stepIdReached >= StepId.Review,
+      ...getStepNavProps(StepId.Review),
     },
   ];
 
