@@ -197,10 +197,10 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     [StepId.Review]: true,
   };
 
-  const firstInvalidStep =
+  const firstInvalidStep: StepId | null =
     (
       Object.values(StepId).filter((val) => typeof val === "number") as StepId[]
-    ).find((stepId) => !isStepValid[stepId]) || StepId.Review + 1;
+    ).find((stepId) => !isStepValid[stepId]) || null;
 
   const { mode, withKnown, hasExcludedPackages } = values;
   const hasIncludedPackages = withKnown.includes("select");
@@ -298,9 +298,13 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const getStepNavProps = (stepId: StepId, forceBlock = false) => ({
     enableNext:
-      !forceBlock && stepIdReached >= stepId && firstInvalidStep >= stepId + 1,
+      !forceBlock &&
+      stepIdReached >= stepId &&
+      (firstInvalidStep === null || firstInvalidStep >= stepId + 1),
     canJumpTo:
-      !forceBlock && stepIdReached >= stepId && firstInvalidStep >= stepId,
+      !forceBlock &&
+      stepIdReached >= stepId &&
+      (firstInvalidStep === null || firstInvalidStep >= stepId),
   });
 
   const steps = [
