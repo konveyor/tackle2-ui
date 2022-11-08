@@ -355,7 +355,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       name: t("wizard.terms.review"),
       component: <Review applications={applications} mode={mode} />,
       nextButtonText: "Run",
-      ...getStepNavProps(StepId.Review),
+      // Restore when firstInvalidSteps is fixed
+      // ...getStepNavProps(StepId.Review, !isModeValid),
+      canJumpTo: stepIdReached >= StepId.Review,
     },
   ];
 
