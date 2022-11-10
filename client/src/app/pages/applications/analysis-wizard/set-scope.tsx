@@ -1,52 +1,33 @@
 import * as React from "react";
-import {
-  Button,
-  Form,
-  FormGroup,
-  InputGroup,
-  Radio,
-  Switch,
-  Text,
-  TextInput,
-  Title,
-} from "@patternfly/react-core";
+import * as yup from "yup";
+import { Form, Radio, Switch, Text, Title } from "@patternfly/react-core";
 import { useFormContext } from "react-hook-form";
-import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-import { getValidatedFromError } from "@app/utils/utils";
-
 import "./wizard.css";
+import { AnalysisWizardFormValues } from "./schema";
+import { StringListField } from "@app/shared/components/string-list-field";
 
 export const SetScope: React.FC = () => {
   const { t } = useTranslation();
 
-  const { getValues, setValue } = useFormContext();
-  const {
-    register,
-    formState: { errors },
-  } = useForm({ mode: "onBlur" });
+  const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
 
-  const hasExcludedPackages: boolean = getValues("hasExcludedPackages");
-  const withKnown: string = getValues("withKnown");
-  const includedPackages: string[] = getValues("includedPackages");
-  const excludedPackages: string[] = getValues("excludedPackages");
+  // For transient fields next to "Add" buttons
+  const packageNameSchema = yup.string().matches(/^[a-z]+(.[a-z0-9]+)*$/, {
+    message: "Must be a valid Java package name", // TODO translation here
+  });
 
-  const [packageToInclude, setPackageToInclude] = React.useState("");
-  const [packageToExclude, setPackageToExclude] = React.useState("");
-
-  const onChangePackageToInclude = (value: string) => {
-    setPackageToInclude(value);
-  };
-
-  const onChangePackageToExclude = (value: string) => {
-    setPackageToExclude(value);
-  };
+  const { hasExcludedPackages, withKnown, includedPackages, excludedPackages } =
+    watch();
 
   return (
-    <Form>
+    <Form
+      onSubmit={(event) => {
+        event.preventDefault();
+      }}
+    >
       <Title headingLevel="h3" size="xl">
         Scope
       </Title>
@@ -81,148 +62,45 @@ export const SetScope: React.FC = () => {
           setValue("withKnown", "app,oss,select");
         }}
         label={t("wizard.label.scopeSelectDeps")}
-        className={spacing.mbXs}
+        className="scope-select-radio-button"
+        body={
+          withKnown.includes("select") ? (
+            <StringListField
+              listItems={includedPackages}
+              setListItems={(items) => setValue("includedPackages", items)}
+              itemToAddSchema={packageNameSchema}
+              itemToAddFieldId="packageToInclude"
+              itemToAddAriaLabel="Add a package to include" // TODO translation here
+              itemNotUniqueMessage="This package is already included" // TODO translation here
+              removeItemButtonId={(pkg) =>
+                `remove-${pkg}-from-included-packages`
+              }
+              className={spacing.mtMd}
+            />
+          ) : null
+        }
       />
-      {withKnown.includes("select") && (
-        <>
-          <FormGroup
-            fieldId="packageToInclude"
-            className={`${spacing.mtMd} ${spacing.plLg}`}
-            validated={getValidatedFromError(errors.packageToInclude)}
-            helperTextInvalid={errors?.packageToInclude?.message as string}
-          >
-            <InputGroup>
-              <TextInput
-                aria-label="Packages to include"
-                {...register("packageToInclude", {
-                  pattern: {
-                    value: /^[a-z]+(.[a-z0-9]+)*$/,
-                    message:
-                      "The package name should be a valid Java package name",
-                  },
-                })}
-                onChange={onChangePackageToInclude}
-                validated={getValidatedFromError(errors.packageToInclude)}
-                value={packageToInclude}
-              />
-              <Button
-                id="add-package"
-                variant="control"
-                isDisabled={
-                  getValidatedFromError(errors.packageToInclude) === "error"
-                }
-                onClick={() => {
-                  setValue("includedPackages", [
-                    ...includedPackages,
-                    packageToInclude,
-                  ]);
-                  setPackageToInclude("");
-                }}
-              >
-                {t("terms.add")}
-              </Button>
-            </InputGroup>
-          </FormGroup>
-          {includedPackages && (
-            <div className={spacing.plLg}>
-              {includedPackages.map(
-                (pkg, index) =>
-                  pkg && (
-                    <InputGroup key={index}>
-                      <Text className="package">{pkg}</Text>
-                      <Button
-                        isInline
-                        id="remove-from-packages-included"
-                        variant="control"
-                        icon={<DelIcon />}
-                        onClick={() =>
-                          setValue(
-                            "includedPackages",
-                            includedPackages.filter((p) => p !== pkg)
-                          )
-                        }
-                      />
-                    </InputGroup>
-                  )
-              )}
-            </div>
-          )}
-        </>
-      )}
-      <>
-        <Switch
-          id="excludedPackages"
-          label={t("wizard.label.excludePackages")}
-          isChecked={hasExcludedPackages}
-          onChange={() => setValue("hasExcludedPackages", !hasExcludedPackages)}
+      <Switch
+        id="excludedPackages"
+        label={t("wizard.label.excludePackages")}
+        isChecked={hasExcludedPackages}
+        onChange={(checked) => {
+          setValue("hasExcludedPackages", checked);
+        }}
+        className={spacing.mtMd}
+      />
+      {hasExcludedPackages ? (
+        <StringListField
+          listItems={excludedPackages}
+          setListItems={(items) => setValue("excludedPackages", items)}
+          itemToAddSchema={packageNameSchema}
+          itemToAddFieldId="packageToExclude"
+          itemToAddAriaLabel="Add a package to exclude" // TODO translation here
+          itemNotUniqueMessage="This package is already excluded" // TODO translation here
+          removeItemButtonId={(pkg) => `remove-${pkg}-from-excluded-packages`}
+          className={`${spacing.mtSm} ${spacing.mlLg}`}
         />
-        {hasExcludedPackages && (
-          <FormGroup
-            fieldId="packageToExclude"
-            className={`${spacing.mtMd} ${spacing.plLg}`}
-            validated={getValidatedFromError(errors.packageToExclude)}
-            helperTextInvalid={errors?.packageToExclude?.message as string}
-          >
-            <InputGroup>
-              <TextInput
-                aria-label="Packages to exclude"
-                {...register("packageToExclude", {
-                  pattern: {
-                    value: /^[a-z]+(.[a-z0-9]+)*$/,
-                    message:
-                      "The package name should be a valid Java package name",
-                  },
-                })}
-                onChange={onChangePackageToExclude}
-                validated={getValidatedFromError(errors.packageToExclude)}
-                value={packageToExclude}
-              />
-              <Button
-                id="add-to-excluded-packages-list"
-                variant="control"
-                isDisabled={
-                  getValidatedFromError(errors.packageToExclude) === "error"
-                }
-                onClick={() => {
-                  setValue("excludedPackages", [
-                    ...excludedPackages,
-                    packageToExclude,
-                  ]);
-                  setPackageToExclude("");
-                }}
-              >
-                {t("terms.add")}
-              </Button>
-            </InputGroup>
-          </FormGroup>
-        )}
-        {excludedPackages && (
-          <div className={spacing.plLg}>
-            {excludedPackages.map(
-              (pkg, index) =>
-                pkg && (
-                  <div key={index}>
-                    <InputGroup key={index}>
-                      <Text className="package">{pkg}</Text>
-                      <Button
-                        isInline
-                        id="remove-from-packages-excluded"
-                        variant="control"
-                        icon={<DelIcon />}
-                        onClick={() =>
-                          setValue(
-                            "excludedPackages",
-                            excludedPackages.filter((p) => p !== pkg)
-                          )
-                        }
-                      />
-                    </InputGroup>
-                  </div>
-                )
-            )}
-          </div>
-        )}
-      </>
+      ) : null}
     </Form>
   );
 };

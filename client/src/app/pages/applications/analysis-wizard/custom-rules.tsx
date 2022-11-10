@@ -37,15 +37,14 @@ import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
 import { IReadFile } from "./analysis-wizard";
 
 import "./wizard.css";
+import { AnalysisWizardFormValues } from "./schema";
 
 export const CustomRules: React.FC = () => {
   const { t } = useTranslation();
 
-  const { getValues, setValue } = useFormContext();
+  const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
 
-  const sources: string[] = getValues("sources");
-  const targets: string[] = getValues("targets");
-  const customRulesFiles: IReadFile[] = getValues("customRulesFiles");
+  const { sources, targets, customRulesFiles } = watch();
 
   const [rules, setRules] = React.useState<Rule[]>([]);
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);

@@ -2,8 +2,6 @@ import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import { ProxyFormValues } from "./proxy-form";
 
-const REQUIRED_MESSAGE = "This field is required";
-
 export const useProxyFormValidationSchema =
   (): yup.SchemaOf<ProxyFormValues> => {
     const { t } = useTranslation();
@@ -16,7 +14,7 @@ export const useProxyFormValidationSchema =
         .when("isHttpProxyEnabled", (isHttpProxyEnabled, schema) =>
           isHttpProxyEnabled
             ? schema
-                .required(REQUIRED_MESSAGE)
+                .required(t("validation.required"))
                 .min(3, t("validation.minLength", { length: 3 }))
                 .max(120, t("validation.maxLength", { length: 120 }))
             : schema
@@ -25,7 +23,9 @@ export const useProxyFormValidationSchema =
         .string()
         .defined()
         .when("isHttpProxyEnabled", (isHttpProxyEnabled, schema) =>
-          isHttpProxyEnabled ? schema.required(REQUIRED_MESSAGE) : schema
+          isHttpProxyEnabled
+            ? schema.required(t("validation.required"))
+            : schema
         ),
       isHttpIdentityRequired: yup.boolean().defined(),
       httpIdentity: yup
@@ -33,7 +33,9 @@ export const useProxyFormValidationSchema =
         .defined()
         .nullable()
         .when("isHttpIdentityRequired", (isHttpIdentityRequired, schema) =>
-          isHttpIdentityRequired ? schema.required(REQUIRED_MESSAGE) : schema
+          isHttpIdentityRequired
+            ? schema.required(t("validation.required"))
+            : schema
         ),
       // https
       isHttpsProxyEnabled: yup.boolean().defined(),
@@ -43,7 +45,7 @@ export const useProxyFormValidationSchema =
         .when("isHttpsProxyEnabled", (isHttpsProxyEnabled, schema) =>
           isHttpsProxyEnabled
             ? schema
-                .required(REQUIRED_MESSAGE)
+                .required(t("validation.required"))
                 .min(3, t("validation.minLength", { length: 3 }))
                 .max(120, t("validation.maxLength", { length: 120 }))
             : schema
@@ -52,7 +54,9 @@ export const useProxyFormValidationSchema =
         .string()
         .defined()
         .when("isHttpsProxyEnabled", (isHttpsProxyEnabled, schema) =>
-          isHttpsProxyEnabled ? schema.required(REQUIRED_MESSAGE) : schema
+          isHttpsProxyEnabled
+            ? schema.required(t("validation.required"))
+            : schema
         ),
       isHttpsIdentityRequired: yup.boolean().defined(),
       httpsIdentity: yup
@@ -60,7 +64,9 @@ export const useProxyFormValidationSchema =
         .defined()
         .nullable()
         .when("isHttpsIdentityRequired", (isHttpsIdentityRequired, schema) =>
-          isHttpsIdentityRequired ? schema.required(REQUIRED_MESSAGE) : schema
+          isHttpsIdentityRequired
+            ? schema.required(t("validation.required"))
+            : schema
         ),
       excluded: yup.string().defined(),
     });

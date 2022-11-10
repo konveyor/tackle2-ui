@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen } from "@app/test-config/test-utils";
+import { render, screen, waitFor } from "@app/test-config/test-utils";
 import { AnalysisWizard } from "../analysis-wizard";
 import { TASKGROUPS } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
@@ -83,8 +83,9 @@ describe("<AnalysisWizard />", () => {
 
     const alert = screen.getByText(/warning alert:/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
-    expect(alert).toBeEnabled();
-    expect(nextButton).toHaveAttribute("disabled", "");
+
+    await waitFor(() => expect(alert).toBeEnabled());
+    await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
   });
 
   it("has next button disabled when applications mode have no source code defined", async () => {
@@ -110,8 +111,8 @@ describe("<AnalysisWizard />", () => {
 
     const alert = screen.getByText(/warning alert:/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
-    expect(alert).toBeEnabled();
-    expect(nextButton).toHaveAttribute("disabled", "");
+    await waitFor(() => expect(alert).toBeEnabled());
+    await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
   });
 
   it("has next button disabled when applications mode have no source code + dependencies defined", async () => {
@@ -137,8 +138,8 @@ describe("<AnalysisWizard />", () => {
 
     const alert = screen.getByText(/warning alert:/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
-    expect(alert).toBeEnabled();
-    expect(nextButton).toHaveAttribute("disabled", "");
+    await waitFor(() => expect(alert).toBeEnabled());
+    await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
   });
 
   it("can run analysis on applications with a binary definition using defaults", async () => {
@@ -168,8 +169,8 @@ describe("<AnalysisWizard />", () => {
     // set default mode "Binary"
     const warning = screen.queryByLabelText(/warning alert/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
-    expect(warning).not.toBeInTheDocument();
-    expect(nextButton).toBeEnabled();
+    await waitFor(() => expect(warning).not.toBeInTheDocument());
+    await waitFor(() => expect(nextButton).toBeEnabled());
 
     // set a target
     await userEvent.click(nextButton);
@@ -202,7 +203,7 @@ describe("<AnalysisWizard />", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Known Open Source libraries")).toBeInTheDocument();
 
-    const runButton = screen.getByRole("button", { name: /run/i });
+    const runButton = await screen.findByRole("button", { name: /run/i });
     expect(runButton).toBeEnabled();
   });
 
