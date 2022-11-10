@@ -14,12 +14,14 @@ import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import { Application } from "@app/api/models";
-import { IAnalysisWizardFormValues } from "./analysis-wizard";
+import { AnalysisWizardFormValues } from "./schema";
 
 interface IReview {
   applications: Application[];
   mode: string;
 }
+
+// TODO translations for strings in defaultMode and defaultScopes
 
 const defaultMode: Map<string, string> = new Map([
   ["binary", "Binary"],
@@ -37,17 +39,20 @@ const defaultScopes: Map<string, string> = new Map([
 export const Review: React.FC<IReview> = ({ applications, mode }) => {
   const { t } = useTranslation();
 
-  const { getValues } = useFormContext<IAnalysisWizardFormValues>();
+  const { watch } = useFormContext<AnalysisWizardFormValues>();
   const {
     targets,
     sources,
     withKnown,
     includedPackages,
+    hasExcludedPackages,
     excludedPackages,
     customRulesFiles,
     excludedRulesTags,
     diva,
-  } = getValues();
+  } = watch();
+
+  const hasIncludedPackages = withKnown.includes("select");
 
   return (
     <>
@@ -123,9 +128,11 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           </DescriptionListTerm>
           <DescriptionListDescription id="included-packages">
             <List isPlain>
-              {includedPackages.map((pkg, index) => (
-                <ListItem key={index}>{pkg}</ListItem>
-              ))}
+              {hasIncludedPackages
+                ? includedPackages.map((pkg, index) => (
+                    <ListItem key={index}>{pkg}</ListItem>
+                  ))
+                : null}
             </List>
           </DescriptionListDescription>
         </DescriptionListGroup>
@@ -140,9 +147,11 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           </DescriptionListTerm>
           <DescriptionListDescription id="excluded-packages">
             <List isPlain>
-              {excludedPackages.map((pkg, index) => (
-                <ListItem key={index}>{pkg}</ListItem>
-              ))}
+              {hasExcludedPackages
+                ? excludedPackages.map((pkg, index) => (
+                    <ListItem key={index}>{pkg}</ListItem>
+                  ))
+                : null}
             </List>
           </DescriptionListDescription>
         </DescriptionListGroup>

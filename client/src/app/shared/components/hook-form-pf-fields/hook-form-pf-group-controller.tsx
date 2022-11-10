@@ -16,7 +16,7 @@ export interface BaseHookFormPFGroupControllerProps<
   TName extends Path<TFieldValues>
 > {
   control: Control<TFieldValues>;
-  label: string;
+  label?: React.ReactNode;
   name: TName;
   fieldId: string;
   isRequired?: boolean;

@@ -26,6 +26,8 @@ export interface ISimpleSelectProps
   value?: OptionLike | OptionLike[];
 }
 
+// TODO we can probably add a type param here so we can render e.g. <SimpleSelect<AnalysisMode> ... /> and infer OptionWithValue<AnalysisMode>
+
 export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
   onChange,
   options,
