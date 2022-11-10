@@ -26,17 +26,16 @@ import {
   useSubmitTaskgroupMutation,
   useUploadFileMutation,
 } from "@app/queries/taskgroups";
-import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import "./wizard.css";
-import {
-  isApplicationBinaryEnabled,
-  isApplicationSourceCodeDepsEnabled,
-  isApplicationSourceCodeEnabled,
-  isModeSupported,
-} from "./utils";
+import { useAnalyzableApplications, isModeSupported } from "./utils";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import {
+  AnalysisWizardFormValues,
+  useAnalysisWizardFormValidationSchema,
+} from "./schema";
+import { useAsyncYupValidation } from "@app/shared/hooks/useAsyncYupValidation";
 
 interface IAnalysisWizard {
   applications: Application[];
@@ -51,20 +50,6 @@ export interface IReadFile {
   loadResult?: "danger" | "success";
   data?: string;
   fullFile: File;
-}
-
-export interface IAnalysisWizardFormValues {
-  artifact: string;
-  targets: string[];
-  sources: string[];
-  withKnown: string;
-  includedPackages: string[];
-  excludedPackages: string[];
-  customRulesFiles: IReadFile[];
-  excludedRulesTags: string[];
-  diva: boolean;
-  hasExcludedPackages: boolean;
-  ruleTagToExclude: string;
 }
 
 const defaultTaskData: TaskData = {
@@ -107,12 +92,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const [isInitTaskgroup, setInitTaskgroup] = React.useState(false);
   const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
   const [stepIdReached, setStepIdReached] = React.useState(1);
-  const [mode, setMode] = React.useState("binary");
   const isMutating = useIsMutating();
-
-  const [analyzeableApplications, setAnalyzeableApplications] = React.useState<
-    Application[]
-  >([]);
 
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
     setInitTaskgroup(true);
@@ -171,18 +151,14 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     onDeleteTaskgroupError
   );
 
-  const useWizardValidationSchema = () => {
-    return yup.object().shape({
-      ruleTagToExclude: yup
-        .string()
-        .matches(/^(|.{2,})$/, t("validation.minLength", { length: 2 })) // Either 0 or 2+ characters
-        .max(60, t("validation.maxLength", { length: 60 })),
-    });
-  };
+  const { schemas, allFieldsSchema } = useAnalysisWizardFormValidationSchema({
+    applications,
+  });
 
-  const methods = useForm<IAnalysisWizardFormValues>({
+  const methods = useForm<AnalysisWizardFormValues>({
     defaultValues: {
       artifact: "",
+      mode: "binary",
       targets: [],
       sources: [],
       withKnown: "app",
@@ -190,17 +166,44 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       excludedPackages: [],
       customRulesFiles: [],
       excludedRulesTags: [],
-      ruleTagToExclude: "",
       diva: false,
       hasExcludedPackages: false,
     },
-    resolver: yupResolver(useWizardValidationSchema()),
+    resolver: yupResolver(allFieldsSchema),
     mode: "onChange",
   });
 
   const { handleSubmit, watch, reset } = methods;
-  const watchAllFields = watch();
-  const { artifact, targets } = methods.getValues();
+  const values = watch();
+
+  enum StepId {
+    AnalysisMode = 1,
+    SetTargets,
+    Scope,
+    CustomRules,
+    Options,
+    Review,
+  }
+
+  const isStepValid: Record<StepId, boolean> = {
+    [StepId.AnalysisMode]: useAsyncYupValidation(values, schemas.modeStep),
+    [StepId.SetTargets]: useAsyncYupValidation(values, schemas.targetsStep),
+    [StepId.Scope]: useAsyncYupValidation(values, schemas.scopeStep),
+    [StepId.CustomRules]: useAsyncYupValidation(
+      values,
+      schemas.customRulesStep
+    ),
+    [StepId.Options]: useAsyncYupValidation(values, schemas.optionsStep),
+    [StepId.Review]: true,
+  };
+
+  const firstInvalidStep: StepId | null =
+    (
+      Object.values(StepId).filter((val) => typeof val === "number") as StepId[]
+    ).find((stepId) => !isStepValid[stepId]) || null;
+
+  const { mode, withKnown, hasExcludedPackages } = values;
+  const hasIncludedPackages = withKnown.includes("select");
 
   const setTaskgroup = (taskgroup: Taskgroup, data: FieldValues): Taskgroup => {
     return {
@@ -218,8 +221,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
         scope: {
           withKnown: data.withKnown.includes("oss") ? true : false,
           packages: {
-            included: data.includedPackages,
-            excluded: data.excludedPackages,
+            included: hasIncludedPackages ? data.includedPackages : [],
+            excluded: hasExcludedPackages ? data.excludedPackages : [],
           },
         },
         rules: {
@@ -231,28 +234,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       },
     };
   };
-  const areApplicationsBinaryEnabled = (): boolean =>
-    applications.every((application) =>
-      isApplicationBinaryEnabled(application)
-    );
 
-  const areApplicationsSourceCodeEnabled = (): boolean =>
-    applications.every((application) =>
-      isApplicationSourceCodeEnabled(application)
-    );
-
-  const areApplicationsSourceCodeDepsEnabled = (): boolean =>
-    applications.every((application) =>
-      isApplicationSourceCodeDepsEnabled(application)
-    );
-
-  const isModeValid = (): boolean => {
-    if (mode === "binary-upload") return true;
-    if (mode === "binary") return areApplicationsBinaryEnabled();
-    else if (mode === "source-code-deps")
-      return areApplicationsSourceCodeDepsEnabled();
-    else return areApplicationsSourceCodeEnabled();
-  };
+  const isModeValid = applications.every((app) => isModeSupported(app, mode));
 
   const onSubmit = (data: FieldValues) => {
     if (data.targets.length < 1) {
@@ -285,93 +268,72 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     if (id && stepIdReached < id) setStepIdReached(id as number);
   };
 
-  enum stepId {
-    AnalysisMode = 1,
-    UploadBinaryStep,
-    SetTargets,
-    Scope,
-    CustomRules,
-    Options,
-    Review,
-  }
-
   const handleClose = () => {
-    setStepIdReached(stepId.AnalysisMode);
     reset();
     if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
       deleteTaskgroup(createdTaskgroup.id);
     onClose();
   };
 
-  React.useEffect(() => {
-    const apps = applications.filter((application) =>
-      isModeSupported(application, mode)
-    );
-    setAnalyzeableApplications(apps);
-  }, [mode]);
+  const analyzableApplications = useAnalyzableApplications(applications, mode);
 
+  // TODO what's the deal here? can we prevent creating the taskgroup until later / even on submission? is it used as part of form rendering?
   React.useEffect(() => {
     if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
       deleteTaskgroup(createdTaskgroup.id);
 
-    if (analyzeableApplications.length > 0) {
+    if (analyzableApplications.length > 0) {
       const taskgroup: Taskgroup = {
         name: `taskgroup.windup`,
         addon: "windup",
         data: {
           ...defaultTaskData,
         },
-        tasks: analyzeableApplications.map((app) => initTask(app)),
+        tasks: analyzableApplications.map((app) => initTask(app)),
       };
 
       createTaskgroup(taskgroup);
     }
-  }, [analyzeableApplications, createTaskgroup]);
+  }, [analyzableApplications, createTaskgroup]);
 
-  const isSingleAppBinaryUploadModeNextEnabled =
-    analyzeableApplications.length === 1 &&
-    !isMutating &&
-    artifact !== "" &&
-    mode === "binary-upload";
-
-  const isModeNextEnabled =
-    analyzeableApplications.length > 0 &&
-    !isMutating &&
-    mode !== "binary-upload";
+  const getStepNavProps = (stepId: StepId, forceBlock = false) => ({
+    enableNext:
+      !forceBlock &&
+      stepIdReached >= stepId &&
+      (firstInvalidStep === null || firstInvalidStep >= stepId + 1),
+    canJumpTo:
+      !forceBlock &&
+      stepIdReached >= stepId &&
+      (firstInvalidStep === null || firstInvalidStep >= stepId),
+  });
 
   const steps = [
     {
       name: t("wizard.terms.configureAnalysis"),
       steps: [
         {
-          id: stepId.AnalysisMode,
+          id: StepId.AnalysisMode,
           name: t("wizard.terms.analysisMode"),
           component: (
             <SetMode
-              mode={mode}
               isSingleApp={applications.length === 1 ? true : false}
               taskgroupID={createdTaskgroup?.id || null}
-              isModeValid={isModeValid()}
-              setMode={setMode}
+              isModeValid={isModeValid}
             />
           ),
-
-          enableNext:
-            isModeNextEnabled || isSingleAppBinaryUploadModeNextEnabled,
-          canJumpTo: stepIdReached >= stepId.AnalysisMode,
+          ...getStepNavProps(StepId.AnalysisMode, !!isMutating),
         },
         {
-          id: stepId.SetTargets,
+          id: StepId.SetTargets,
           name: t("wizard.terms.setTargets"),
           component: <SetTargets />,
-          enableNext: targets.length > 0,
-          canJumpTo: stepIdReached >= stepId.SetTargets,
+          ...getStepNavProps(StepId.SetTargets),
         },
         {
-          id: stepId.Scope,
+          id: StepId.Scope,
           name: t("wizard.terms.scope"),
           component: <SetScope />,
-          canJumpTo: stepIdReached >= stepId.Scope,
+          ...getStepNavProps(StepId.Scope),
         },
       ],
     },
@@ -379,26 +341,25 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       name: t("wizard.terms.advanced"),
       steps: [
         {
-          id: stepId.CustomRules,
+          id: StepId.CustomRules,
           name: t("wizard.terms.customRules"),
           component: <CustomRules />,
-          canJumpTo: stepIdReached >= stepId.CustomRules,
+          ...getStepNavProps(StepId.CustomRules),
         },
         {
-          id: stepId.Options,
+          id: StepId.Options,
           name: t("wizard.terms.options"),
           component: <SetOptions />,
-          enableNext: targets.length > 0,
-          canJumpTo: stepIdReached >= stepId.Options,
+          ...getStepNavProps(StepId.Options),
         },
       ],
     },
     {
-      id: stepId.Review,
+      id: StepId.Review,
       name: t("wizard.terms.review"),
       component: <Review applications={applications} mode={mode} />,
       nextButtonText: "Run",
-      canJumpTo: stepIdReached >= stepId.Review,
+      ...getStepNavProps(StepId.Review),
     },
   ];
 
