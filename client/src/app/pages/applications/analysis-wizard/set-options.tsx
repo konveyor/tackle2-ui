@@ -1,182 +1,142 @@
 import * as React from "react";
 import {
-  Button,
   Checkbox,
   Form,
-  FormGroup,
-  InputGroup,
   Select,
   SelectOption,
   SelectVariant,
   Text,
   TextContent,
-  TextInput,
   Title,
 } from "@patternfly/react-core";
-import { Controller, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 
-import {
-  getValidatedFromError,
-  getValidatedFromErrorTouched,
-} from "@app/utils/utils";
+import { getValidatedFromErrorTouched } from "@app/utils/utils";
 import { defaultSources, defaultTargets } from "./targets";
-import DelIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { AnalysisWizardFormValues } from "./schema";
+import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
+import { StringListField } from "@app/shared/components/string-list-field";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
 
-  const { getValues, setValue, setError, control, trigger, resetField } =
-    useFormContext();
+  const { watch, control, setValue } =
+    useFormContext<AnalysisWizardFormValues>();
 
-  const targets: string[] = getValues("targets");
-  const sources: string[] = getValues("sources");
-  const diva: boolean = getValues("diva");
-  const excludedRulesTags: string[] = getValues("excludedRulesTags");
+  const { sources, diva, excludedRulesTags } = watch();
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
+
   return (
-    <>
+    <Form
+      isHorizontal
+      onSubmit={(event) => {
+        event.preventDefault();
+      }}
+    >
       <TextContent>
         <Title headingLevel="h3" size="xl">
           {t("wizard.title.advancedOptions")}
         </Title>
         <Text>{t("wizard.label.advancedOptions")}</Text>
       </TextContent>
-      <Form isHorizontal>
-        <FormGroup label={t("wizard.terms.targets")} fieldId="targets">
+      <HookFormPFGroupController
+        control={control}
+        name="targets"
+        label={t("wizard.terms.targets")}
+        fieldId="targets"
+        isRequired
+        renderInput={({
+          field: { onChange, onBlur, value },
+          fieldState: { isTouched, error },
+        }) => (
           <Select
+            id="targets"
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select targets"
-            selections={targets}
+            selections={value}
             isOpen={isSelectTargetsOpen}
             onSelect={(_, selection) => {
-              if (!targets.includes(selection as string))
-                setValue("targets", [...targets, selection] as string[]);
-              else
-                setValue(
-                  "targets",
-                  targets.filter((target) => target !== selection)
-                );
+              if (!value.includes(selection as string)) {
+                onChange([...value, selection] as string[]);
+              } else {
+                onChange(value.filter((target) => target !== selection));
+              }
+              onBlur();
               setSelectTargetsOpen(!isSelectTargetsOpen);
             }}
             onToggle={() => {
               setSelectTargetsOpen(!isSelectTargetsOpen);
             }}
             onClear={() => {
-              setValue("targets", []);
+              onChange([]);
             }}
+            validated={getValidatedFromErrorTouched(error, isTouched)}
           >
             {defaultTargets.map((target, index) => (
               <SelectOption key={index} component="button" value={target} />
             ))}
           </Select>
-        </FormGroup>
-        <FormGroup label={t("wizard.terms.sources")} fieldId="sources">
+        )}
+      />
+      <HookFormPFGroupController
+        control={control}
+        name="sources"
+        label={t("wizard.terms.sources")}
+        fieldId="sources"
+        renderInput={({
+          field: { onChange, onBlur, value },
+          fieldState: { isTouched, error },
+        }) => (
           <Select
+            id="sources"
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select sources"
-            selections={sources}
+            selections={value}
             isOpen={isSelectSourcesOpen}
             onSelect={(_, selection) => {
-              if (!sources.includes(selection as string))
-                setValue("sources", [...sources, selection] as string[]);
-              else
-                setValue(
-                  "sources",
-                  sources.filter((source) => source !== selection)
-                );
+              if (!value.includes(selection as string)) {
+                onChange([...sources, selection] as string[]);
+              } else {
+                onChange(sources.filter((source) => source !== selection));
+              }
+              onBlur();
               setSelectSourcesOpen(!isSelectSourcesOpen);
             }}
             onToggle={() => {
               setSelectSourcesOpen(!isSelectSourcesOpen);
             }}
             onClear={() => {
-              setValue("sources", []);
+              onChange([]);
             }}
+            validated={getValidatedFromErrorTouched(error, isTouched)}
           >
             {defaultSources.map((source, index) => (
               <SelectOption key={index} component="button" value={source} />
             ))}
           </Select>
-        </FormGroup>
-        <Controller
-          control={control}
-          name="ruleTagToExclude"
-          render={({
-            field: { onBlur, onChange, value, name, ref },
-            fieldState: { isTouched, error, isDirty },
-          }) => {
-            return (
-              <FormGroup
-                label={t("wizard.composed.excluded", {
-                  what: t("wizard.terms.rulesTags"),
-                })}
-                fieldId="ruleTagToExclude"
-                validated={getValidatedFromErrorTouched(
-                  error?.message,
-                  isTouched
-                )}
-                helperTextInvalid={error?.message}
-              >
-                <InputGroup>
-                  <TextInput
-                    name={name}
-                    id={name}
-                    aria-label="Rule tag to exclude"
-                    onChange={onChange}
-                    validated={getValidatedFromErrorTouched(
-                      error?.message,
-                      isTouched
-                    )}
-                    value={value}
-                    onBlur={onBlur}
-                    ref={ref}
-                  />
-                  <Button
-                    id="add-rule-tag"
-                    variant="control"
-                    isDisabled={!!error || !isDirty || value.length === 0}
-                    onClick={() => {
-                      setValue("excludedRulesTags", [
-                        ...excludedRulesTags,
-                        value,
-                      ]);
-                      resetField(name);
-                    }}
-                  >
-                    {t("terms.add")}
-                  </Button>
-                </InputGroup>
-              </FormGroup>
-            );
-          }}
-        />
-
-        <div className={spacing.pMd}>
-          {excludedRulesTags.map((pkg, index) => (
-            <div key={index}>
-              <InputGroup key={index}>
-                <Text className="package">{pkg}</Text>
-                <Button
-                  isInline
-                  id="remove-from-excluded-rules-tags"
-                  variant="control"
-                  icon={<DelIcon />}
-                  onClick={() =>
-                    setValue(
-                      "excludedRulesTags",
-                      excludedRulesTags.filter((p) => p !== pkg)
-                    )
-                  }
-                />
-              </InputGroup>
-            </div>
-          ))}
-        </div>
-      </Form>
+        )}
+      />
+      <StringListField
+        listItems={excludedRulesTags}
+        setListItems={(items) => setValue("excludedRulesTags", items)}
+        itemToAddSchema={yup
+          .string()
+          .min(2, t("validation.minLength", { length: 2 }))
+          .max(60, t("validation.maxLength", { length: 60 }))}
+        itemToAddFieldId="ruleTagToExclude"
+        itemToAddLabel={t("wizard.composed.excluded", {
+          what: t("wizard.terms.rulesTags"),
+        })}
+        itemToAddAriaLabel="Add a rule tag to exclude" // TODO translation here
+        itemNotUniqueMessage="This rule tag is already excluded" // TODO translation here
+        removeItemButtonId={(tag) => `remove-${tag}-from-excluded-rules-tags`}
+        className={spacing.mtMd}
+      />
       <Checkbox
         className={spacing.mtMd}
         label={t("wizard.composed.enable", {
@@ -184,9 +144,9 @@ export const SetOptions: React.FC = () => {
         })}
         isChecked={diva}
         onChange={() => setValue("diva", !diva)}
-        id="controlled-check-4"
+        id="enable-transaction-report-checkbox"
         name="enableTransactionReport"
       />
-    </>
+    </Form>
   );
 };
