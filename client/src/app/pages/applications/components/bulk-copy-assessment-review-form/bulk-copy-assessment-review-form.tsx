@@ -104,7 +104,10 @@ export const BulkCopyAssessmentReviewForm: React.FC<
       selectOptions: dedupeFunction(
         applications
           .map((app) => app.businessService?.name)
-          .map((name) => ({ key: name, value: name }))
+          .map((name) => ({
+            key: `BulkCopyAssessmentReviewForm-${name}`,
+            value: name,
+          }))
       ),
       placeholderText: "Filter by business service...",
       getItemValue: (item) => {
