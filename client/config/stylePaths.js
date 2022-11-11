@@ -26,17 +26,5 @@ module.exports = {
       __dirname,
       "../../node_modules/@patternfly/react-inline-edit-extension/node_modules/@patternfly/react-styles/css"
     ),
-    path.resolve(
-      __dirname,
-      "../../node_modules/@redhat-cloud-services/frontend-components-notifications/index.css"
-    ),
-    path.resolve(
-      __dirname,
-      "../../node_modules/@redhat-cloud-services/frontend-components-notifications/esm/Portal/portal.css"
-    ),
-    path.resolve(
-      __dirname,
-      "../../node_modules/@redhat-cloud-services/frontend-components-notifications/esm/Notification/notification.css"
-    ),
   ],
 };
