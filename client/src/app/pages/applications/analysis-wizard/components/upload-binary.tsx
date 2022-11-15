@@ -66,7 +66,7 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
     });
     setFileUploadStatus(undefined);
     setFileUploadProgress(undefined);
-    setValue("artifact", undefined);
+    setValue("artifact", null);
   };
 
   const failedRemove = (error: AxiosError) => {
@@ -172,7 +172,7 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
                 id: taskgroupID,
                 path: `binary/${artifact}`,
               });
-              setValue("artifact", undefined);
+              setValue("artifact", null);
             }}
             progressAriaLabel={"text"}
             progressValue={fileUploadProgress}

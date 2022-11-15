@@ -16,7 +16,7 @@ export type AnalysisScope = "app" | "app,oss" | "app,oss,select";
 
 export interface ModeStepValues {
   mode: AnalysisMode;
-  artifact: File | undefined;
+  artifact: File | undefined | null;
 }
 
 const useModeStepSchema = ({
