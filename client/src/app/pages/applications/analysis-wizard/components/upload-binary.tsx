@@ -24,8 +24,8 @@ interface IUploadBinary {
 }
 
 export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
-  const { setValue, getValues } = useFormContext<AnalysisWizardFormValues>();
-  const { artifact } = getValues();
+  const { setValue, watch } = useFormContext<AnalysisWizardFormValues>();
+  const artifact = watch("artifact");
 
   const [error, setError] = React.useState<AxiosError>();
 
