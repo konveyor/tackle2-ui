@@ -16,7 +16,7 @@ export type AnalysisScope = "app" | "app,oss" | "app,oss,select";
 
 export interface ModeStepValues {
   mode: AnalysisMode;
-  artifact: File;
+  artifact: File | undefined;
 }
 
 const useModeStepSchema = ({
@@ -41,7 +41,10 @@ const useModeStepSchema = ({
           return analyzableApplications.length > 0;
         }
       ),
-    artifact: yup.object() as yup.SchemaOf<File>,
+    artifact: yup.mixed<File>().when("mode", {
+      is: "binary-upload",
+      then: (schema) => schema.required(),
+    }),
   });
 };
 

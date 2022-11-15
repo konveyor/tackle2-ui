@@ -31,7 +31,7 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
 
   const [fileUploadProgress, setFileUploadProgress] = React.useState<
     number | undefined
-  >(artifact.size > 0 ? 100 : undefined);
+  >(artifact ? (artifact.size > 0 ? 100 : undefined) : undefined);
 
   const [fileUploadStatus, setFileUploadStatus] = React.useState<
     "danger" | "success" | "warning" | undefined
@@ -66,7 +66,7 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
     });
     setFileUploadStatus(undefined);
     setFileUploadProgress(undefined);
-    setValue("artifact", "");
+    setValue("artifact", undefined);
   };
 
   const failedRemove = (error: AxiosError) => {
@@ -126,7 +126,7 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
   const handleFile = (file: File) => {
     if (!artifact)
       readFile(file).catch((error: DOMException) => {
-        setValue("artifact", "");
+        setValue("artifact", undefined);
         setFileUploadProgress(0);
         setFileUploadStatus("danger");
       });
@@ -172,7 +172,7 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
                 id: taskgroupID,
                 path: `binary/${artifact}`,
               });
-              setValue("artifact", "");
+              setValue("artifact", undefined);
             }}
             progressAriaLabel={"text"}
             progressValue={fileUploadProgress}
