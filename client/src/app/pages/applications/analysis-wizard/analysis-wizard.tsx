@@ -157,7 +157,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const methods = useForm<AnalysisWizardFormValues>({
     defaultValues: {
-      artifact: "",
+      artifact: null,
       mode: "binary",
       targets: [],
       sources: [],
