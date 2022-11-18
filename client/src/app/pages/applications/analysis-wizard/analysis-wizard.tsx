@@ -71,14 +71,6 @@ const defaultTaskData: TaskData = {
   },
 };
 
-const initTask = (application: Application): TaskgroupTask => {
-  return {
-    name: `${application.name}.${application.id}.windup`,
-    data: {},
-    application: { id: application.id as number, name: application.name },
-  };
-};
-
 export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   applications,
   onClose,
@@ -89,13 +81,11 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [isInitTaskgroup, setInitTaskgroup] = React.useState(false);
   const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
   const [stepIdReached, setStepIdReached] = React.useState(1);
   const isMutating = useIsMutating();
 
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
-    setInitTaskgroup(true);
     setCreatedTaskgroup(data);
   };
 
@@ -136,7 +126,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { mutate: uploadFile } = useUploadFileMutation(() => {}, onUploadError);
 
-  const onDeleteTaskgroupSuccess = () => setInitTaskgroup(false);
+  const onDeleteTaskgroupSuccess = () => {};
 
   const onDeleteTaskgroupError = (error: Error | unknown) => {
     console.log("Taskgroup: delete failed: ", error);
@@ -270,7 +260,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const handleClose = () => {
     reset();
-    if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
+    if (createdTaskgroup && createdTaskgroup.id)
       deleteTaskgroup(createdTaskgroup.id);
     onClose();
   };
@@ -279,10 +269,22 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   // TODO what's the deal here? can we prevent creating the taskgroup until later / even on submission? is it used as part of form rendering?
   React.useEffect(() => {
-    if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
+    if (createdTaskgroup && createdTaskgroup.id) {
       deleteTaskgroup(createdTaskgroup.id);
+    }
 
     if (analyzableApplications.length > 0) {
+      const initTask = (application: Application): TaskgroupTask => {
+        return {
+          name: `${application.name}.${application.id}.windup`,
+          data: {},
+          application: {
+            id: application.id as number,
+            name: application.name,
+          },
+        };
+      };
+
       const taskgroup: Taskgroup = {
         name: `taskgroup.windup`,
         addon: "windup",
@@ -294,7 +296,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
       createTaskgroup(taskgroup);
     }
-  }, [analyzableApplications, createTaskgroup]);
+  }, [mode]);
 
   const getStepNavProps = (stepId: StepId, forceBlock = false) => ({
     enableNext:
