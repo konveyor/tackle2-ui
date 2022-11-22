@@ -4,7 +4,37 @@
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom";
 
-import "jest-enzyme";
-import { configure } from "enzyme";
-import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
-configure({ adapter: new Adapter() });
+// jest.mock("keycloak", () => ({
+//   useKeycloak: () => {
+//     return {};
+//   },
+// }));
+let mockInitialized = false;
+
+jest.mock("@react-keycloak/web", () => {
+  const originalModule = jest.requireActual("@react-keycloak/web");
+  return {
+    ...originalModule,
+    useKeycloak: () => [
+      // mockKeycloakStub,
+      mockInitialized,
+    ],
+  };
+});
+
+jest.mock("react-i18next", () => ({
+  Trans: ({ children }: { children: any }) => {
+    return children;
+  },
+  useTranslation: () => {
+    return {
+      t: (str: any) => str,
+      i18n: {
+        changeLanguage: () => new Promise(() => {}),
+      },
+    };
+  },
+}));
+
+// We should migrate from enzyme to RTL rather than using both in tandem
+// https://testing-library.com/docs/react-testing-library/migrate-from-enzyme/

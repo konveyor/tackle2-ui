@@ -1,40 +1,161 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ConfirmDialog Renders without crashing 1`] = `
-<Modal
-  actions={
-    Array [
-      <Button
-        aria-label="confirm"
-        onClick={[Function]}
-        variant="danger"
+Object {
+  "asFragment": [Function],
+  "baseElement": <body
+    class="pf-c-backdrop__open"
+  >
+    <div
+      aria-hidden="true"
+    />
+    <div>
+      <div
+        class="pf-c-backdrop"
       >
-        Yes
-      </Button>,
-      <Button
-        aria-label="cancel"
-        onClick={[Function]}
-        variant="link"
-      >
-        Cancel
-      </Button>,
-    ]
-  }
-  appendTo={[Function]}
-  aria-describedby=""
-  aria-label="confirm-dialog"
-  aria-labelledby=""
-  className=""
-  hasNoBodyWrapper={false}
-  isOpen={true}
-  onClose={[Function]}
-  ouiaSafe={true}
-  showClose={true}
-  title="My title"
-  titleIconVariant={null}
-  titleLabel=""
-  variant="small"
->
-  Are you sure you want to do this?
-</Modal>
+        <div
+          class="pf-l-bullseye"
+        >
+          <div
+            aria-describedby="pf-modal-part-2"
+            aria-label="confirm-dialog"
+            aria-labelledby="pf-modal-part-0 pf-modal-part-1"
+            aria-modal="true"
+            class="pf-c-modal-box pf-m-sm"
+            data-ouia-component-id="OUIA-Generated-Modal-small-1"
+            data-ouia-component-type="PF4/ModalContent"
+            data-ouia-safe="true"
+            id="pf-modal-part-0"
+            role="dialog"
+          >
+            <button
+              aria-disabled="false"
+              aria-label="Close"
+              class="pf-c-button pf-m-plain"
+              data-ouia-component-id="OUIA-Generated-Modal-small-1-ModalBoxCloseButton"
+              data-ouia-component-type="PF4/Button"
+              data-ouia-safe="true"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style="vertical-align: -0.125em;"
+                viewBox="0 0 352 512"
+                width="1em"
+              >
+                <path
+                  d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+                />
+              </svg>
+            </button>
+            <header
+              class="pf-c-modal-box__header"
+            >
+              <h1
+                class="pf-c-modal-box__title"
+                id="pf-modal-part-1"
+              >
+                
+                <span
+                  class="pf-c-modal-box__title-text"
+                >
+                  My title
+                </span>
+              </h1>
+            </header>
+            <div
+              class="pf-c-modal-box__body"
+              id="pf-modal-part-2"
+            >
+              Are you sure you want to do this?
+            </div>
+            <footer
+              class="pf-c-modal-box__footer"
+            >
+              <button
+                aria-disabled="false"
+                aria-label="confirm"
+                class="pf-c-button pf-m-danger"
+                data-ouia-component-id="OUIA-Generated-Button-danger-1"
+                data-ouia-component-type="PF4/Button"
+                data-ouia-safe="true"
+                type="button"
+              >
+                Yes
+              </button>
+              <button
+                aria-disabled="false"
+                aria-label="cancel"
+                class="pf-c-button pf-m-link"
+                data-ouia-component-id="OUIA-Generated-Button-link-1"
+                data-ouia-component-type="PF4/Button"
+                data-ouia-safe="true"
+                type="button"
+              >
+                Cancel
+              </button>
+            </footer>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>,
+  "container": <div
+    aria-hidden="true"
+  />,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
 `;

@@ -25,7 +25,7 @@ export const Color: React.FC<ColorProps> = ({ hex }) => {
         ></div>
       </SplitItem>
       <SplitItem isFilled>
-        <span cy-data="color-label">
+        <span cy-data="color-label" id="color-id">
           {colorName ? t(`colors.${colorName}`) : hex}
         </span>
       </SplitItem>

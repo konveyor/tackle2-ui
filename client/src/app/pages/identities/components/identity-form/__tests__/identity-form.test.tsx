@@ -15,8 +15,6 @@ import { IdentityForm } from "..";
 import "@testing-library/jest-dom/extend-expect";
 import "@testing-library/jest-dom";
 
-jest.mock("react-i18next");
-
 const data: any[] = [];
 
 mock.onGet(`${IDENTITIES}`).reply(200, data);

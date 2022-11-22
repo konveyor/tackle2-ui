@@ -1,5 +1,4 @@
 import React from "react";
-import { shallow } from "enzyme";
 
 import {
   ChartData,
@@ -7,6 +6,7 @@ import {
   getChartDataFromCategories,
 } from "../application-assessment-donut-chart";
 import { Assessment } from "@app/api/models";
+import { render } from "@app/test-config/test-utils";
 
 describe("AppTable", () => {
   const assessment: Assessment = {
@@ -231,7 +231,7 @@ describe("AppTable", () => {
   });
 
   it("Renders without crashing", () => {
-    const wrapper = shallow(
+    const wrapper = render(
       <ApplicationAssessmentDonutChart assessment={assessment} />
     );
     expect(wrapper).toMatchSnapshot();

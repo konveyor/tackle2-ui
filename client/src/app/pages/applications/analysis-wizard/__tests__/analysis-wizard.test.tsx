@@ -6,8 +6,6 @@ import { TASKGROUPS } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
 import userEvent from "@testing-library/user-event";
 
-jest.mock("react-i18next");
-
 const applicationData1 = {
   id: 1,
   name: "App1",

@@ -1,10 +1,10 @@
+import { fireEvent, render, screen } from "@app/test-config/test-utils";
 import React from "react";
-import { mount } from "enzyme";
 import { CustomWizardFooter } from "../custom-wizard-footer";
 
 describe("AppPlaceholder", () => {
   it("First step: should use 'next' label and 'back' be disabled", () => {
-    const wrapper = mount(
+    render(
       <CustomWizardFooter
         isFirstStep={true}
         isLastStep={false}
@@ -15,12 +15,12 @@ describe("AppPlaceholder", () => {
       />
     );
 
-    expect(wrapper.find("button[cy-data='next']").text()).toBe("actions.next");
-    expect(wrapper.find("button[cy-data='back']")).toBeDisabled();
+    expect(screen.getByRole("button", { name: /next/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /back/i })).toBeDisabled();
   });
 
   it("Last step: should use 'save' label", () => {
-    const wrapper = mount(
+    render(
       <CustomWizardFooter
         isFirstStep={false}
         isLastStep={true}
@@ -31,11 +31,13 @@ describe("AppPlaceholder", () => {
       />
     );
 
-    expect(wrapper.find("button[cy-data='next']").text()).toBe("actions.save");
+    expect(
+      screen.getByRole("button", { name: /^actions.save\b/i })
+    ).toBeInTheDocument();
   });
 
   it("Last step: should have 'saveAndReview' button", () => {
-    const wrapper = mount(
+    render(
       <CustomWizardFooter
         isFirstStep={false}
         isLastStep={true}
@@ -46,13 +48,13 @@ describe("AppPlaceholder", () => {
       />
     );
 
-    expect(wrapper.find("button[cy-data='save-and-review']").text()).toBe(
-      "actions.saveAndReview"
-    );
+    expect(
+      screen.getByRole("button", { name: /^actions.saveAndReview\b/i })
+    ).toBeInTheDocument();
   });
 
   it("Disable all using 'isDisabled=true'", () => {
-    const wrapper = mount(
+    render(
       <CustomWizardFooter
         isFirstStep={false}
         isLastStep={false}
@@ -63,14 +65,14 @@ describe("AppPlaceholder", () => {
       />
     );
 
-    expect(wrapper.find("button[cy-data='next']")).toBeDisabled();
-    expect(wrapper.find("button[cy-data='back']")).toBeDisabled();
-    expect(wrapper.find("button[cy-data='cancel']")).toBeDisabled();
-    expect(wrapper.find("button[cy-data='save-as-draft']")).toBeDisabled();
+    expect(screen.getByRole("button", { name: /next/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /back/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /cancel/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /saveAsDraft/i })).toBeDisabled();
   });
 
   it("Disable actions using 'isFormInvalid=true'", () => {
-    const wrapper = mount(
+    render(
       <CustomWizardFooter
         isFirstStep={false}
         isLastStep={false}
@@ -80,17 +82,16 @@ describe("AppPlaceholder", () => {
         onSaveAsDraft={jest.fn()}
       />
     );
-
-    expect(wrapper.find("button[cy-data='next']")).toBeDisabled();
-    expect(wrapper.find("button[cy-data='back']")).toBeDisabled();
-    expect(wrapper.find("button[cy-data='cancel']")).not.toBeDisabled();
-    expect(wrapper.find("button[cy-data='save-as-draft']")).toBeDisabled();
+    expect(screen.getByRole("button", { name: /next/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /back/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /cancel/i })).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: /saveAsDraft/i })).toBeDisabled();
   });
 
   it("Last step: should call 'onSave' callback", () => {
     const onSaveSpy = jest.fn();
 
-    const wrapper = mount(
+    render(
       <CustomWizardFooter
         isFirstStep={false}
         isLastStep={true}
@@ -100,15 +101,17 @@ describe("AppPlaceholder", () => {
         onSaveAsDraft={jest.fn()}
       />
     );
+    const nextButton = screen.getByRole("button", { name: /^actions.save\b/i });
 
-    wrapper.find("button[cy-data='next']").simulate("click");
+    fireEvent.click(nextButton);
+
     expect(onSaveSpy).toHaveBeenCalledTimes(1);
   });
 
   it("On step: should call 'saveAsDraft' callback", () => {
     const onSaveAsDraftSpy = jest.fn();
 
-    const wrapper = mount(
+    render(
       <CustomWizardFooter
         isFirstStep={false}
         isLastStep={false}
@@ -119,7 +122,12 @@ describe("AppPlaceholder", () => {
       />
     );
 
-    wrapper.find("button[cy-data='save-as-draft']").simulate("click");
+    const saveAsDraftButton = screen.getByRole("button", {
+      name: /^actions.saveAsDraft\b/i,
+    });
+
+    fireEvent.click(saveAsDraftButton);
+
     expect(onSaveAsDraftSpy).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,23 +1,23 @@
 import React from "react";
-import { mount } from "enzyme";
 import { ConditionalRender } from "../conditional-render";
+import { render, screen } from "@app/test-config/test-utils";
 
 describe("ConditionalRender", () => {
   it("Renders WHEN=true", () => {
-    const wrapper = mount(
+    render(
       <ConditionalRender when={true} then={"Hello world"}>
         I'm the content
       </ConditionalRender>
     );
-    wrapper.text().match("Hello world");
+    screen.findByRole("heading", { name: /Hello world/i });
   });
 
   it("Renders WHEN=false", () => {
-    const wrapper = mount(
+    render(
       <ConditionalRender when={false} then={"Hello world"}>
         I'm the content
       </ConditionalRender>
     );
-    wrapper.text().match("I'm the content");
+    screen.findByRole("heading", { name: /I'm the content/i });
   });
 });

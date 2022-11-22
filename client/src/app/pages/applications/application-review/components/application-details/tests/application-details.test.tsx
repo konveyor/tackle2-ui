@@ -1,8 +1,8 @@
 import React from "react";
-import { shallow } from "enzyme";
 
 import { ApplicationDetails } from "../application-details";
 import { Application, Assessment } from "@app/api/models";
+import { render } from "@app/test-config/test-utils";
 
 describe("AppTable", () => {
   it("Renders without crashing", () => {
@@ -40,7 +40,7 @@ describe("AppTable", () => {
         ],
       },
     };
-    const wrapper = shallow(
+    const wrapper = render(
       <ApplicationDetails application={application} assessment={assessment} />
     );
     expect(wrapper).toMatchSnapshot();
