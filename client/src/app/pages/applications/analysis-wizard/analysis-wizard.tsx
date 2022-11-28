@@ -29,7 +29,11 @@ import {
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import "./wizard.css";
-import { useAnalyzableApplications, isModeSupported } from "./utils";
+import {
+  useAnalyzableApplications,
+  isModeSupported,
+  filterAnalyzableApplications,
+} from "./utils";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import {
   AnalysisWizardFormValues,
@@ -81,12 +85,30 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
+  // const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
+  function clone(o: any) {
+    return JSON.parse(JSON.stringify(o));
+  }
+
+  enum TaskgroupActionKind {
+    DELETE = "DELETE",
+    CREATE = "CREATE",
+    CREATED = "CREATED",
+  }
+  interface MyAction {
+    type: TaskgroupActionKind;
+    payload: Taskgroup;
+  }
+
+  interface MyState {
+    taskgroup: Taskgroup;
+  }
+
   const [stepIdReached, setStepIdReached] = React.useState(1);
   const isMutating = useIsMutating();
 
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
-    setCreatedTaskgroup(data);
+    dispatch({ type: TaskgroupActionKind.CREATED, payload: data });
   };
 
   const onCreateTaskgroupError = (error: Error | unknown) => {
@@ -140,7 +162,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     onDeleteTaskgroupSuccess,
     onDeleteTaskgroupError
   );
-
   const { schemas, allFieldsSchema } = useAnalysisWizardFormValidationSchema({
     applications,
   });
@@ -225,6 +246,59 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     };
   };
 
+  const myReducer = (state: MyState, action: MyAction) => {
+    const { type, payload } = action;
+
+    switch (type) {
+      case TaskgroupActionKind.DELETE:
+        console.log("DELETE taskgroup id: ", payload.id);
+        if (payload?.id) deleteTaskgroup(payload.id);
+        return {
+          ...state,
+          taskgroup: {
+            id: 0,
+            name: "",
+            addon: "",
+            data: defaultTaskData,
+            tasks: [],
+          },
+        };
+      case TaskgroupActionKind.CREATE:
+        console.log("CREATE taskgroup");
+        console.log("Payload: ", {
+          ...state,
+          taskgroup: payload,
+        });
+        createTaskgroup(payload);
+        return {
+          ...state,
+          taskgroup: payload,
+        };
+      case TaskgroupActionKind.CREATED:
+        console.log("CREATED taskgroup");
+        console.log("Payload: ", {
+          ...state,
+          taskgroup: payload,
+        });
+        return {
+          ...state,
+          taskgroup: payload,
+        };
+      default:
+        return state;
+    }
+  };
+
+  const [state, dispatch] = React.useReducer(myReducer, {
+    taskgroup: {
+      id: 0,
+      name: "",
+      addon: "",
+      data: defaultTaskData,
+      tasks: [],
+    },
+  });
+
   const isModeValid = applications.every((app) => isModeSupported(app, mode));
 
   const onSubmit = (data: FieldValues) => {
@@ -233,14 +307,14 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       return;
     }
 
-    if (createdTaskgroup) {
-      const taskgroup = setTaskgroup(createdTaskgroup, data);
+    if (state.taskgroup) {
+      const taskgroup = setTaskgroup(state.taskgroup, data);
 
       data.customRulesFiles.forEach((file: IReadFile) => {
         const formFile = new FormData();
         formFile.append("file", file.fullFile);
         uploadFile({
-          id: taskgroup.id as number,
+          id: state.taskgroup.id as number,
           path: `rules/${file.fileName}`,
           file: formFile,
         });
@@ -260,43 +334,21 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const handleClose = () => {
     reset();
-    if (createdTaskgroup && createdTaskgroup.id)
-      deleteTaskgroup(createdTaskgroup.id);
+    if (state.taskgroup && state.taskgroup.id)
+      deleteTaskgroup(state.taskgroup.id);
     onClose();
   };
 
-  const analyzableApplications = useAnalyzableApplications(applications, mode);
-
-  // TODO what's the deal here? can we prevent creating the taskgroup until later / even on submission? is it used as part of form rendering?
-  React.useEffect(() => {
-    if (createdTaskgroup && createdTaskgroup.id) {
-      deleteTaskgroup(createdTaskgroup.id);
-    }
-
-    if (analyzableApplications.length > 0) {
-      const initTask = (application: Application): TaskgroupTask => {
-        return {
-          name: `${application.name}.${application.id}.windup`,
-          data: {},
-          application: {
-            id: application.id as number,
-            name: application.name,
-          },
-        };
-      };
-
-      const taskgroup: Taskgroup = {
-        name: `taskgroup.windup`,
-        addon: "windup",
-        data: {
-          ...defaultTaskData,
-        },
-        tasks: analyzableApplications.map((app) => initTask(app)),
-      };
-
-      createTaskgroup(taskgroup);
-    }
-  }, [mode]);
+  const initTask = (application: Application): TaskgroupTask => {
+    return {
+      name: `${application.name}.${application.id}.windup`,
+      data: {},
+      application: {
+        id: application.id as number,
+        name: application.name,
+      },
+    };
+  };
 
   const getStepNavProps = (stepId: StepId, forceBlock = false) => ({
     enableNext:
@@ -309,6 +361,32 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       (firstInvalidStep === null || firstInvalidStep >= stepId),
   });
 
+  React.useEffect(() => {
+    if (state.taskgroup && state.taskgroup.id && state.taskgroup.id > 0)
+      dispatch({ type: TaskgroupActionKind.DELETE, payload: state.taskgroup });
+  }, [mode]);
+
+  React.useEffect(() => {
+    const analyzableApplications = filterAnalyzableApplications(
+      applications,
+      mode
+    );
+
+    if (analyzableApplications.length > 0) {
+      dispatch({
+        type: TaskgroupActionKind.CREATE,
+        payload: {
+          name: `taskgroup.windup`,
+          addon: "windup",
+          data: {
+            ...defaultTaskData,
+          },
+          tasks: analyzableApplications.map((app) => initTask(app)),
+        },
+      });
+    }
+  }, [mode]);
+
   const steps = [
     {
       name: t("wizard.terms.configureAnalysis"),
@@ -319,7 +397,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           component: (
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
-              taskgroupID={createdTaskgroup?.id || null}
+              taskgroupID={state.taskgroup?.id || null}
               isModeValid={isModeValid}
             />
           ),

@@ -32,7 +32,7 @@ export const isModeSupported = (application: Application, mode: string) => {
   else return isApplicationSourceCodeEnabled(application);
 };
 
-const filterAnalyzableApplications = (
+export const filterAnalyzableApplications = (
   applications: Application[],
   mode: AnalysisMode
 ) => applications.filter((application) => isModeSupported(application, mode));
