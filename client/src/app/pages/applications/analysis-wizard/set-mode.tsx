@@ -6,7 +6,7 @@ import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { UploadBinary } from "./components/upload-binary";
 import { toOptionLike } from "@app/utils/model-utils";
 import { AnalysisMode, AnalysisWizardFormValues } from "./schema";
-import { Mode, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 
 interface ISetMode {
