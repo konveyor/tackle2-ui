@@ -290,12 +290,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const analyzableApplications = useAnalyzableApplications(applications, mode);
 
   const onModeChange = (mode: AnalysisMode) => {
-    if (
-      values.mode !== mode &&
-      createdTaskgroup &&
-      createdTaskgroup?.id &&
-      createdTaskgroup.id > 0
-    ) {
+    if (values.mode !== mode && createdTaskgroup && createdTaskgroup?.id) {
       deleteTaskgroup(createdTaskgroup.id);
       createTaskgroup(setupTaskgroup(defaultTaskgroup, values));
     }
