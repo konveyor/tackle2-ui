@@ -72,6 +72,13 @@ const defaultTaskData: TaskData = {
   },
 };
 
+const defaultTaskgroup: Taskgroup = {
+  name: "",
+  addon: "",
+  data: defaultTaskData,
+  tasks: [],
+};
+
 const initTask = (application: Application): TaskgroupTask => {
   return {
     name: `${application.name}.${application.id}.windup`,
@@ -205,12 +212,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { mode, withKnown, hasExcludedPackages } = values;
   const hasIncludedPackages = withKnown.includes("select");
-  const defaultTaskgroup = {
-    name: "",
-    addon: "",
-    data: defaultTaskData,
-    tasks: [],
-  };
 
   const setupTaskgroup = (
     taskgroup: Taskgroup,
