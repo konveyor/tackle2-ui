@@ -6,19 +6,21 @@ import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { UploadBinary } from "./components/upload-binary";
 import { toOptionLike } from "@app/utils/model-utils";
 import { AnalysisMode, AnalysisWizardFormValues } from "./schema";
-import { useFormContext } from "react-hook-form";
+import { Mode, useFormContext } from "react-hook-form";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 
 interface ISetMode {
   isSingleApp: boolean;
   taskgroupID: number | null;
   isModeValid: boolean;
+  onModeChange: (value: AnalysisMode) => void;
 }
 
 export const SetMode: React.FC<ISetMode> = ({
   isSingleApp,
   taskgroupID,
   isModeValid,
+  onModeChange,
 }) => {
   const { t } = useTranslation();
 
@@ -75,6 +77,7 @@ export const SetMode: React.FC<ISetMode> = ({
             onChange={(selection) => {
               const option = selection as OptionWithValue<AnalysisMode>;
               setValue(name, option.value);
+              onModeChange(option.value);
             }}
             options={options}
           />
