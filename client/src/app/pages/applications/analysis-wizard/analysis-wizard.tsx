@@ -104,8 +104,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       title: "Taskgroup creation failed",
       variant: "danger",
     });
-    // TODO
-    //onClose();
+    onClose();
   };
 
   const { mutate: createTaskgroup } = useCreateTaskgroupMutation(
