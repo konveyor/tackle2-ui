@@ -118,7 +118,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     setPageNumber,
   } = useApplicationsFilterValues(applications, ApplicationTableType.Analysis);
 
-  const { tasks } = useFetchTasks({ addon: "windup" });
+  const { tasks } = useFetchTasks();
 
   const completedCancelTask = () => {
     pushNotification({
