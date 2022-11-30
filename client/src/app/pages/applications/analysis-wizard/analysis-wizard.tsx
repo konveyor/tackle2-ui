@@ -32,6 +32,7 @@ import "./wizard.css";
 import { useAnalyzableApplications, isModeSupported } from "./utils";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import {
+  AnalysisMode,
   AnalysisWizardFormValues,
   useAnalysisWizardFormValidationSchema,
 } from "./schema";
@@ -71,6 +72,13 @@ const defaultTaskData: TaskData = {
   },
 };
 
+const defaultTaskgroup: Taskgroup = {
+  name: "",
+  addon: "",
+  data: defaultTaskData,
+  tasks: [],
+};
+
 const initTask = (application: Application): TaskgroupTask => {
   return {
     name: `${application.name}.${application.id}.windup`,
@@ -89,13 +97,11 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [isInitTaskgroup, setInitTaskgroup] = React.useState(false);
   const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
   const [stepIdReached, setStepIdReached] = React.useState(1);
   const isMutating = useIsMutating();
 
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
-    setInitTaskgroup(true);
     setCreatedTaskgroup(data);
   };
 
@@ -136,7 +142,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { mutate: uploadFile } = useUploadFileMutation(() => {}, onUploadError);
 
-  const onDeleteTaskgroupSuccess = () => setInitTaskgroup(false);
+  const onDeleteTaskgroupSuccess = () => {
+    setCreatedTaskgroup(undefined);
+  };
 
   const onDeleteTaskgroupError = (error: Error | unknown) => {
     console.log("Taskgroup: delete failed: ", error);
@@ -205,9 +213,13 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const { mode, withKnown, hasExcludedPackages } = values;
   const hasIncludedPackages = withKnown.includes("select");
 
-  const setTaskgroup = (taskgroup: Taskgroup, data: FieldValues): Taskgroup => {
+  const setupTaskgroup = (
+    taskgroup: Taskgroup,
+    data: FieldValues
+  ): Taskgroup => {
     return {
       ...taskgroup,
+      tasks: analyzableApplications.map((app: Application) => initTask(app)),
       data: {
         ...defaultTaskData,
         mode: {
@@ -244,7 +256,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     }
 
     if (createdTaskgroup) {
-      const taskgroup = setTaskgroup(createdTaskgroup, data);
+      const taskgroup = setupTaskgroup(createdTaskgroup, data);
 
       data.customRulesFiles.forEach((file: IReadFile) => {
         const formFile = new FormData();
@@ -256,7 +268,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
         });
       });
 
-      submitTaskgroup(taskgroup);
+      submitTaskgroup(createdTaskgroup);
     }
     onClose();
   };
@@ -270,31 +282,25 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const handleClose = () => {
     reset();
-    if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
+    if (createdTaskgroup && createdTaskgroup.id)
       deleteTaskgroup(createdTaskgroup.id);
     onClose();
   };
 
   const analyzableApplications = useAnalyzableApplications(applications, mode);
 
-  // TODO what's the deal here? can we prevent creating the taskgroup until later / even on submission? is it used as part of form rendering?
-  React.useEffect(() => {
-    if (isInitTaskgroup && createdTaskgroup && createdTaskgroup.id)
+  const onModeChange = (mode: AnalysisMode) => {
+    if (values.mode !== mode && createdTaskgroup && createdTaskgroup?.id) {
       deleteTaskgroup(createdTaskgroup.id);
-
-    if (analyzableApplications.length > 0) {
-      const taskgroup: Taskgroup = {
-        name: `taskgroup.windup`,
-        addon: "windup",
-        data: {
-          ...defaultTaskData,
-        },
-        tasks: analyzableApplications.map((app) => initTask(app)),
-      };
-
-      createTaskgroup(taskgroup);
+      createTaskgroup(setupTaskgroup(defaultTaskgroup, values));
     }
-  }, [analyzableApplications, createTaskgroup]);
+  };
+
+  React.useEffect(() => {
+    if (!createdTaskgroup) {
+      createTaskgroup(setupTaskgroup(defaultTaskgroup, values));
+    }
+  }, []);
 
   const getStepNavProps = (stepId: StepId, forceBlock = false) => ({
     enableNext:
@@ -317,8 +323,13 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           component: (
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
-              taskgroupID={createdTaskgroup?.id || null}
+              taskgroupID={
+                createdTaskgroup && createdTaskgroup?.id
+                  ? createdTaskgroup.id
+                  : null
+              }
               isModeValid={isModeValid}
+              onModeChange={onModeChange}
             />
           ),
           ...getStepNavProps(StepId.AnalysisMode, !!isMutating),
