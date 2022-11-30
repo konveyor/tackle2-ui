@@ -15,12 +15,8 @@ export const useCreateTaskgroupMutation = (
   onError: (err: Error | unknown) => void
 ) =>
   useMutation(createTaskgroup, {
-    onSuccess: (data) => {
-      onSuccess(data);
-    },
-    onError: (err) => {
-      onError(err);
-    },
+    onSuccess,
+    onError,
   });
 
 export const useSubmitTaskgroupMutation = (
@@ -76,9 +72,7 @@ export const useDeleteTaskgroupMutation = (
   const queryClient = useQueryClient();
 
   return useMutation(deleteTaskgroup, {
-    onSuccess: () => {
-      onSuccess();
-    },
+    onSuccess,
     onError: (err) => {
       onError(err);
       queryClient.invalidateQueries("tasks");
