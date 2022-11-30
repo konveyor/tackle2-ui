@@ -72,9 +72,11 @@ const defaultTaskData: TaskData = {
 };
 
 const defaultTaskgroup: Taskgroup = {
-  name: "",
-  addon: "",
-  data: defaultTaskData,
+  name: `taskgroup.windup`,
+  addon: "windup",
+  data: {
+    ...defaultTaskData,
+  },
   tasks: [],
 };
 
