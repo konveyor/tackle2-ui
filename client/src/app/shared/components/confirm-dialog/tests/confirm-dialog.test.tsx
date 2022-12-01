@@ -1,11 +1,11 @@
 import React from "react";
-import { mount, shallow } from "enzyme";
 import { ConfirmDialog } from "../confirm-dialog";
 import { ButtonVariant } from "@patternfly/react-core";
+import { fireEvent, render, screen } from "@app/test-config/test-utils";
 
 describe("ConfirmDialog", () => {
   it("Renders without crashing", () => {
-    const wrapper = shallow(
+    const wrapper = render(
       <ConfirmDialog
         isOpen={true}
         title="My title"
@@ -23,7 +23,7 @@ describe("ConfirmDialog", () => {
 
   it("Check onClose callback", () => {
     const onCloseSpy = jest.fn();
-    const wrapper = mount(
+    render(
       <ConfirmDialog
         isOpen={true}
         title="My title"
@@ -36,14 +36,17 @@ describe("ConfirmDialog", () => {
         onCancel={jest.fn}
       />
     );
+    const closeButton = screen.getByRole("button", {
+      name: /^Close\b/i,
+    });
+    fireEvent.click(closeButton);
 
-    wrapper.find("button[aria-label='Close']").simulate("click");
     expect(onCloseSpy).toHaveBeenCalledTimes(1);
   });
 
   it("Check onConfirm callback", () => {
     const onConfirmSpy = jest.fn();
-    const wrapper = mount(
+    render(
       <ConfirmDialog
         isOpen={true}
         title="My title"
@@ -57,13 +60,16 @@ describe("ConfirmDialog", () => {
       />
     );
 
-    wrapper.find("button[aria-label='confirm']").simulate("click");
+    const confirmButton = screen.getByRole("button", {
+      name: /^Confirm\b/i,
+    });
+    fireEvent.click(confirmButton);
     expect(onConfirmSpy).toHaveBeenCalledTimes(1);
   });
 
   it("Check onCancel callback", () => {
     const onCancelSpy = jest.fn();
-    const wrapper = mount(
+    render(
       <ConfirmDialog
         isOpen={true}
         title="My title"
@@ -77,12 +83,15 @@ describe("ConfirmDialog", () => {
       />
     );
 
-    wrapper.find("button[aria-label='cancel']").simulate("click");
+    const cancelButton = screen.getByRole("button", {
+      name: /^Cancel\b/i,
+    });
+    fireEvent.click(cancelButton);
     expect(onCancelSpy).toHaveBeenCalledTimes(1);
   });
 
   it("Check inProgress disables buttons", () => {
-    const wrapper = mount(
+    render(
       <ConfirmDialog
         isOpen={true}
         title="My title"
@@ -97,15 +106,14 @@ describe("ConfirmDialog", () => {
       />
     );
 
-    expect(wrapper.find("button[aria-label='confirm']")).toHaveClassName(
-      "pf-m-disabled"
-    );
-    expect(wrapper.find("button[aria-label='cancel']")).toHaveClassName(
-      "pf-m-disabled"
-    );
+    const cancelButton = screen.getByRole("button", {
+      name: /^Cancel\b/i,
+    });
+    expect(cancelButton).toBeDisabled();
 
-    expect(wrapper.find("button[aria-label='close']")).not.toHaveClassName(
-      "pf-m-disabled"
-    );
+    const closeButton = screen.getByRole("button", {
+      name: /^Close\b/i,
+    });
+    expect(closeButton).not.toBeDisabled();
   });
 });

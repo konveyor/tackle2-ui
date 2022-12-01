@@ -1,86 +1,430 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`AppTable Renders without crashing 1`] = `
-<div
-  style={
-    Object {
-      "height": "250px",
-      "width": "380px",
-    }
-  }
->
-  <ChartDonut
-    ariaDesc="risk-donut-chart"
-    colorScale={
-      Array [
-        "#68b240",
-        "#f0ab0b",
-        "#cb440d",
-        "#b8bbbe",
-      ]
-    }
-    constrainToVisibleArea={true}
-    data={
-      Array [
-        Object {
-          "x": "risks.low",
-          "y": 1,
-        },
-        Object {
-          "x": "risks.medium",
-          "y": 1,
-        },
-        Object {
-          "x": "risks.high",
-          "y": 1,
-        },
-        Object {
-          "x": "risks.unknown",
-          "y": 2,
-        },
-      ]
-    }
-    innerRadius={50}
-    labels={[Function]}
-    legendComponent={
-      <ChartLegend
-        colorScale={
-          Array [
-            "#68b240",
-            "#f0ab0b",
-            "#cb440d",
-            "#b8bbbe",
-          ]
-        }
-        data={
-          Array [
-            Object {
-              "name": "risks.low: 1",
-            },
-            Object {
-              "name": "risks.medium: 1",
-            },
-            Object {
-              "name": "risks.high: 1",
-            },
-            Object {
-              "name": "risks.unknown: 2",
-            },
-          ]
-        }
-      />
-    }
-    legendOrientation="vertical"
-    legendPosition="right"
-    padding={
-      Object {
-        "bottom": 20,
-        "left": 20,
-        "right": 140,
-        "top": 20,
-      }
-    }
-    width={380}
-  />
-</div>
+Object {
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div>
+      <div
+        style="height: 250px; width: 380px;"
+      >
+        <div
+          class="pf-c-chart"
+          style="pointer-events: none; position: relative; width: 100%; height: 100%;"
+        >
+          <svg
+            aria-describedby="victory-container-1-desc"
+            height="230"
+            role="img"
+            style="pointer-events: all; width: 100%; height: 100%;"
+            viewBox="0 0 380 230"
+            width="380"
+          >
+            <desc
+              id="victory-container-1-desc"
+            >
+              risk-donut-chart
+            </desc>
+            <g>
+              <path
+                d="M0.9368333156413089,-94.99538064210651A95,95,0,0,1,90.0564783621841,-30.246168435050876L47.25498065575035,-16.339118801962986A50,50,0,0,0,0.9368333156413149,-49.99122266297059Z"
+                role="presentation"
+                shape-rendering="auto"
+                style="fill: #68b240; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+                transform="translate(130, 115)"
+              />
+              <path
+                d="M90.63547319304368,-28.464205576004755A95,95,0,0,1,56.59479785059054,76.30222051979085L30.142017498613814,39.893091897135A50,50,0,0,0,47.83397548660994,-14.55715594291687Z"
+                role="presentation"
+                shape-rendering="auto"
+                style="fill: #f0ab0b; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+                transform="translate(130, 115)"
+              />
+              <path
+                d="M55.078969704089644,77.4035341333713A95,95,0,0,1,-55.07896970408963,77.4035341333713L-28.626189352112924,40.994405510715445A50,50,0,0,0,28.626189352112924,40.994405510715445Z"
+                role="presentation"
+                shape-rendering="auto"
+                style="fill: #cb440d; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+                transform="translate(130, 115)"
+              />
+              <path
+                d="M-56.59479785059055,76.30222051979085A95,95,0,0,1,-0.9368333156413414,-94.99538064210651L-0.9368333156413101,-49.99122266297059A50,50,0,0,0,-30.14201749861381,39.89309189713501Z"
+                role="presentation"
+                shape-rendering="auto"
+                style="fill: #b8bbbe; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+                transform="translate(130, 115)"
+              />
+            </g>
+            <g>
+              <rect
+                height="123.61999999999999"
+                role="presentation"
+                shape-rendering="auto"
+                style="fill: none;"
+                vector-effect="non-scaling-stroke"
+                width="140.05"
+                x="233"
+                y="55.190000000000005"
+              />
+              <path
+                d="M 242.128, 74.062
+      h9.744000000000028
+      v-9.744000000000028
+      h-9.744000000000028
+      z"
+                role="presentation"
+                shape-rendering="auto"
+                style="fill: #68b240;"
+              />
+              <path
+                d="M 242.128, 104.967
+      h9.744000000000028
+      v-9.744000000000028
+      h-9.744000000000028
+      z"
+                role="presentation"
+                shape-rendering="auto"
+                style="fill: #f0ab0b;"
+              />
+              <path
+                d="M 242.128, 135.872
+      h9.744000000000028
+      v-9.744000000000028
+      h-9.744000000000028
+      z"
+                role="presentation"
+                shape-rendering="auto"
+                style="fill: #cb440d;"
+              />
+              <path
+                d="M 242.128, 166.777
+      h9.744000000000028
+      v-9.744000000000028
+      h-9.744000000000028
+      z"
+                role="presentation"
+                shape-rendering="auto"
+                style="fill: #b8bbbe;"
+              />
+              <text
+                direction="inherit"
+                dx="0"
+                id="legend-labels-0"
+                x="263.8"
+                y="74.16"
+              >
+                <tspan
+                  dx="0"
+                  dy="0"
+                  style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                  text-anchor="start"
+                  x="263.8"
+                >
+                  risks.low: 1
+                </tspan>
+              </text>
+              <text
+                direction="inherit"
+                dx="0"
+                id="legend-labels-1"
+                x="263.8"
+                y="105.065"
+              >
+                <tspan
+                  dx="0"
+                  dy="0"
+                  style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                  text-anchor="start"
+                  x="263.8"
+                >
+                  risks.medium: 1
+                </tspan>
+              </text>
+              <text
+                direction="inherit"
+                dx="0"
+                id="legend-labels-2"
+                x="263.8"
+                y="135.97"
+              >
+                <tspan
+                  dx="0"
+                  dy="0"
+                  style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                  text-anchor="start"
+                  x="263.8"
+                >
+                  risks.high: 1
+                </tspan>
+              </text>
+              <text
+                direction="inherit"
+                dx="0"
+                id="legend-labels-3"
+                x="263.8"
+                y="166.87499999999997"
+              >
+                <tspan
+                  dx="0"
+                  dy="0"
+                  style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                  text-anchor="start"
+                  x="263.8"
+                >
+                  risks.unknown: 2
+                </tspan>
+              </text>
+            </g>
+          </svg>
+          <div
+            style="z-index: 99; position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"
+          >
+            <svg
+              height="230"
+              style="overflow: visible; width: 100%; height: 100%;"
+              viewBox="0 0 380 230"
+              width="380"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>,
+  "container": <div>
+    <div
+      style="height: 250px; width: 380px;"
+    >
+      <div
+        class="pf-c-chart"
+        style="pointer-events: none; position: relative; width: 100%; height: 100%;"
+      >
+        <svg
+          aria-describedby="victory-container-1-desc"
+          height="230"
+          role="img"
+          style="pointer-events: all; width: 100%; height: 100%;"
+          viewBox="0 0 380 230"
+          width="380"
+        >
+          <desc
+            id="victory-container-1-desc"
+          >
+            risk-donut-chart
+          </desc>
+          <g>
+            <path
+              d="M0.9368333156413089,-94.99538064210651A95,95,0,0,1,90.0564783621841,-30.246168435050876L47.25498065575035,-16.339118801962986A50,50,0,0,0,0.9368333156413149,-49.99122266297059Z"
+              role="presentation"
+              shape-rendering="auto"
+              style="fill: #68b240; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+              transform="translate(130, 115)"
+            />
+            <path
+              d="M90.63547319304368,-28.464205576004755A95,95,0,0,1,56.59479785059054,76.30222051979085L30.142017498613814,39.893091897135A50,50,0,0,0,47.83397548660994,-14.55715594291687Z"
+              role="presentation"
+              shape-rendering="auto"
+              style="fill: #f0ab0b; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+              transform="translate(130, 115)"
+            />
+            <path
+              d="M55.078969704089644,77.4035341333713A95,95,0,0,1,-55.07896970408963,77.4035341333713L-28.626189352112924,40.994405510715445A50,50,0,0,0,28.626189352112924,40.994405510715445Z"
+              role="presentation"
+              shape-rendering="auto"
+              style="fill: #cb440d; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+              transform="translate(130, 115)"
+            />
+            <path
+              d="M-56.59479785059055,76.30222051979085A95,95,0,0,1,-0.9368333156413414,-94.99538064210651L-0.9368333156413101,-49.99122266297059A50,50,0,0,0,-30.14201749861381,39.89309189713501Z"
+              role="presentation"
+              shape-rendering="auto"
+              style="fill: #b8bbbe; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+              transform="translate(130, 115)"
+            />
+          </g>
+          <g>
+            <rect
+              height="123.61999999999999"
+              role="presentation"
+              shape-rendering="auto"
+              style="fill: none;"
+              vector-effect="non-scaling-stroke"
+              width="140.05"
+              x="233"
+              y="55.190000000000005"
+            />
+            <path
+              d="M 242.128, 74.062
+      h9.744000000000028
+      v-9.744000000000028
+      h-9.744000000000028
+      z"
+              role="presentation"
+              shape-rendering="auto"
+              style="fill: #68b240;"
+            />
+            <path
+              d="M 242.128, 104.967
+      h9.744000000000028
+      v-9.744000000000028
+      h-9.744000000000028
+      z"
+              role="presentation"
+              shape-rendering="auto"
+              style="fill: #f0ab0b;"
+            />
+            <path
+              d="M 242.128, 135.872
+      h9.744000000000028
+      v-9.744000000000028
+      h-9.744000000000028
+      z"
+              role="presentation"
+              shape-rendering="auto"
+              style="fill: #cb440d;"
+            />
+            <path
+              d="M 242.128, 166.777
+      h9.744000000000028
+      v-9.744000000000028
+      h-9.744000000000028
+      z"
+              role="presentation"
+              shape-rendering="auto"
+              style="fill: #b8bbbe;"
+            />
+            <text
+              direction="inherit"
+              dx="0"
+              id="legend-labels-0"
+              x="263.8"
+              y="74.16"
+            >
+              <tspan
+                dx="0"
+                dy="0"
+                style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                text-anchor="start"
+                x="263.8"
+              >
+                risks.low: 1
+              </tspan>
+            </text>
+            <text
+              direction="inherit"
+              dx="0"
+              id="legend-labels-1"
+              x="263.8"
+              y="105.065"
+            >
+              <tspan
+                dx="0"
+                dy="0"
+                style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                text-anchor="start"
+                x="263.8"
+              >
+                risks.medium: 1
+              </tspan>
+            </text>
+            <text
+              direction="inherit"
+              dx="0"
+              id="legend-labels-2"
+              x="263.8"
+              y="135.97"
+            >
+              <tspan
+                dx="0"
+                dy="0"
+                style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                text-anchor="start"
+                x="263.8"
+              >
+                risks.high: 1
+              </tspan>
+            </text>
+            <text
+              direction="inherit"
+              dx="0"
+              id="legend-labels-3"
+              x="263.8"
+              y="166.87499999999997"
+            >
+              <tspan
+                dx="0"
+                dy="0"
+                style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                text-anchor="start"
+                x="263.8"
+              >
+                risks.unknown: 2
+              </tspan>
+            </text>
+          </g>
+        </svg>
+        <div
+          style="z-index: 99; position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"
+        >
+          <svg
+            height="230"
+            style="overflow: visible; width: 100%; height: 100%;"
+            viewBox="0 0 380 230"
+            width="380"
+          />
+        </div>
+      </div>
+    </div>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
 `;

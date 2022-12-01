@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`AppTableToolbarToggleGroup Renders without crashing 1`] = `
-<GenerateId
-  prefix="pf-random-id-"
->
-  <Component />
-</GenerateId>
-`;

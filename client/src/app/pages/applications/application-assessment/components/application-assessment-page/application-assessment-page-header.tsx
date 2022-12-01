@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router";
+import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button, ButtonVariant, Modal, Text } from "@patternfly/react-core";
 

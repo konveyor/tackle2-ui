@@ -1,47 +1,286 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Test snapshot 1`] = `
-<PageHeader
-  headerTools={
-    <PageHeaderTools>
-      <PageHeaderToolsGroup
-        visibility={
-          Object {
-            "2xl": "visible",
-            "default": "hidden",
-            "lg": "visible",
-            "md": "hidden",
-            "sm": "hidden",
-            "xl": "visible",
-          }
-        }
+Object {
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div>
+      <header
+        class="pf-c-page__header"
       >
-        <PageHeaderToolsItem>
-          <AppAboutModalState>
-            [Function]
-          </AppAboutModalState>
-        </PageHeaderToolsItem>
-      </PageHeaderToolsGroup>
-      <PageHeaderToolsGroup>
-        <PageHeaderToolsItem
-          visibility={
-            Object {
-              "lg": "hidden",
-            }
-          }
+        <div
+          class="pf-c-page__header-brand"
         >
-          <MobileDropdown />
-        </PageHeaderToolsItem>
-        <SSOMenu />
-      </PageHeaderToolsGroup>
-    </PageHeaderTools>
-  }
-  logo={
-    <Brand
-      alt="brand"
-      src="test-file-stub"
-    />
-  }
-  showNavToggle={true}
-/>
+          <div
+            class="pf-c-page__header-brand-toggle"
+          >
+            <button
+              aria-disabled="false"
+              aria-expanded="true"
+              aria-label="Global navigation"
+              class="pf-c-button pf-m-plain"
+              data-ouia-component-id="OUIA-Generated-Button-plain-1"
+              data-ouia-component-type="PF4/Button"
+              data-ouia-safe="true"
+              id="nav-toggle"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style="vertical-align: -0.125em;"
+                viewBox="0 0 448 512"
+                width="1em"
+              >
+                <path
+                  d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"
+                />
+              </svg>
+            </button>
+          </div>
+          <a
+            class="pf-c-page__header-brand-link"
+          >
+            <img
+              alt="brand"
+              class="pf-c-brand"
+              src="test-file-stub"
+            />
+          </a>
+        </div>
+        <div
+          class="pf-c-page__header-tools"
+        >
+          <div
+            class="pf-c-page__header-tools-group pf-m-hidden pf-m-visible-on-2xl pf-m-visible-on-xl pf-m-visible-on-lg pf-m-hidden-on-md pf-m-hidden-on-sm"
+          >
+            <div
+              class="pf-c-page__header-tools-item"
+            >
+              <button
+                aria-disabled="false"
+                aria-label="about-button"
+                class="pf-c-button pf-m-plain"
+                data-ouia-component-id="OUIA-Generated-Button-plain-2"
+                data-ouia-component-type="PF4/Button"
+                data-ouia-safe="true"
+                id="aboutButton"
+                type="button"
+              >
+                <test-file-stub />
+              </button>
+            </div>
+          </div>
+          <div
+            class="pf-c-page__header-tools-group"
+          >
+            <div
+              class="pf-c-page__header-tools-item pf-m-hidden-on-lg"
+            >
+              <div
+                class="pf-c-dropdown pf-m-align-right"
+                data-ouia-component-id="OUIA-Generated-Dropdown-1"
+                data-ouia-component-type="PF4/Dropdown"
+                data-ouia-safe="true"
+              >
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  aria-label="Actions"
+                  class="pf-c-dropdown__toggle pf-m-plain"
+                  id="pf-dropdown-toggle-id-0"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    style="vertical-align: -0.125em;"
+                    viewBox="0 0 192 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div
+              class="pf-c-page__header-tools-item pf-m-hidden pf-m-visible-on-md"
+            />
+          </div>
+        </div>
+      </header>
+    </div>
+    <div />
+    <div />
+  </body>,
+  "container": <div>
+    <header
+      class="pf-c-page__header"
+    >
+      <div
+        class="pf-c-page__header-brand"
+      >
+        <div
+          class="pf-c-page__header-brand-toggle"
+        >
+          <button
+            aria-disabled="false"
+            aria-expanded="true"
+            aria-label="Global navigation"
+            class="pf-c-button pf-m-plain"
+            data-ouia-component-id="OUIA-Generated-Button-plain-1"
+            data-ouia-component-type="PF4/Button"
+            data-ouia-safe="true"
+            id="nav-toggle"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              role="img"
+              style="vertical-align: -0.125em;"
+              viewBox="0 0 448 512"
+              width="1em"
+            >
+              <path
+                d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"
+              />
+            </svg>
+          </button>
+        </div>
+        <a
+          class="pf-c-page__header-brand-link"
+        >
+          <img
+            alt="brand"
+            class="pf-c-brand"
+            src="test-file-stub"
+          />
+        </a>
+      </div>
+      <div
+        class="pf-c-page__header-tools"
+      >
+        <div
+          class="pf-c-page__header-tools-group pf-m-hidden pf-m-visible-on-2xl pf-m-visible-on-xl pf-m-visible-on-lg pf-m-hidden-on-md pf-m-hidden-on-sm"
+        >
+          <div
+            class="pf-c-page__header-tools-item"
+          >
+            <button
+              aria-disabled="false"
+              aria-label="about-button"
+              class="pf-c-button pf-m-plain"
+              data-ouia-component-id="OUIA-Generated-Button-plain-2"
+              data-ouia-component-type="PF4/Button"
+              data-ouia-safe="true"
+              id="aboutButton"
+              type="button"
+            >
+              <test-file-stub />
+            </button>
+          </div>
+        </div>
+        <div
+          class="pf-c-page__header-tools-group"
+        >
+          <div
+            class="pf-c-page__header-tools-item pf-m-hidden-on-lg"
+          >
+            <div
+              class="pf-c-dropdown pf-m-align-right"
+              data-ouia-component-id="OUIA-Generated-Dropdown-1"
+              data-ouia-component-type="PF4/Dropdown"
+              data-ouia-safe="true"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-label="Actions"
+                class="pf-c-dropdown__toggle pf-m-plain"
+                id="pf-dropdown-toggle-id-0"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  style="vertical-align: -0.125em;"
+                  viewBox="0 0 192 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div
+            class="pf-c-page__header-tools-item pf-m-hidden pf-m-visible-on-md"
+          />
+        </div>
+      </div>
+    </header>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
 `;

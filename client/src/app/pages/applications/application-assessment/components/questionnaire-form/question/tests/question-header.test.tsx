@@ -1,10 +1,10 @@
+import { render } from "@app/test-config/test-utils";
 import React from "react";
-import { shallow } from "enzyme";
 import { QuestionHeader } from "../question-header";
 
 describe("QuestionHeader", () => {
   it("Renders without crashing", () => {
-    const wrapper = shallow(<QuestionHeader>content</QuestionHeader>);
+    const wrapper = render(<QuestionHeader>content</QuestionHeader>);
     expect(wrapper).toMatchSnapshot();
   });
 });

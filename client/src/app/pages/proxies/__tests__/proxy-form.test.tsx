@@ -16,7 +16,6 @@ import userEvent from "@testing-library/user-event";
 import { ProxyForm } from "../proxy-form";
 import mock from "@app/test-config/mockInstance";
 
-jest.mock("react-i18next");
 const identitiesData: Identity[] = [];
 mock.onGet(`${IDENTITIES}`).reply(200, identitiesData);
 

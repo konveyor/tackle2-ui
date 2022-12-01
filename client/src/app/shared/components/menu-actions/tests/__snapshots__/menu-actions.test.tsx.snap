@@ -1,32 +1,120 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`MenuActions Renders without crashing 1`] = `
-<Dropdown
-  dropdownItems={
-    Array [
-      <DropdownItem
-        component="button"
-        onClick={[MockFunction]}
+Object {
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div>
+      <div
+        class="pf-c-dropdown"
+        data-ouia-component-id="OUIA-Generated-Dropdown-1"
+        data-ouia-component-type="PF4/Dropdown"
+        data-ouia-safe="true"
       >
-        Action1
-      </DropdownItem>,
-      <DropdownItem
-        component="button"
-        onClick={[MockFunction]}
-      >
-        Action2
-      </DropdownItem>,
-    ]
-  }
-  isOpen={false}
-  onSelect={[Function]}
-  toggle={
-    <DropdownToggle
-      onToggle={[Function]}
-      toggleIndicator="test-file-stub"
+        <button
+          aria-expanded="false"
+          aria-haspopup="true"
+          class="pf-c-dropdown__toggle"
+          data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
+          data-ouia-component-type="PF4/DropdownToggle"
+          data-ouia-safe="true"
+          id="pf-dropdown-toggle-id-0"
+          type="button"
+        >
+          <span
+            class="pf-c-dropdown__toggle-text"
+          >
+            Actions
+          </span>
+          <span
+            class="pf-c-dropdown__toggle-icon"
+          >
+            <test-file-stub />
+          </span>
+        </button>
+      </div>
+    </div>
+  </body>,
+  "container": <div>
+    <div
+      class="pf-c-dropdown"
+      data-ouia-component-id="OUIA-Generated-Dropdown-1"
+      data-ouia-component-type="PF4/Dropdown"
+      data-ouia-safe="true"
     >
-      Actions
-    </DropdownToggle>
-  }
-/>
+      <button
+        aria-expanded="false"
+        aria-haspopup="true"
+        class="pf-c-dropdown__toggle"
+        data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
+        data-ouia-component-type="PF4/DropdownToggle"
+        data-ouia-safe="true"
+        id="pf-dropdown-toggle-id-0"
+        type="button"
+      >
+        <span
+          class="pf-c-dropdown__toggle-text"
+        >
+          Actions
+        </span>
+        <span
+          class="pf-c-dropdown__toggle-icon"
+        >
+          <test-file-stub />
+        </span>
+      </button>
+    </div>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
 `;

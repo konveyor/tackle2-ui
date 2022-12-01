@@ -1,11 +1,10 @@
 import React from "react";
-import { shallow } from "enzyme";
-
 import { SimpleSelect } from "../simple-select";
+import { render } from "@app/test-config/test-utils";
 
 describe("SimpleSelect", () => {
   it("Renders without crashing", () => {
-    const wrapper = shallow(
+    const wrapper = render(
       <SimpleSelect
         aria-label="my-selection"
         onChange={jest.fn()}

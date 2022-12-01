@@ -1,7 +1,7 @@
 import React from "react";
-import { shallow } from "enzyme";
 import { ApplicationAssessmentPage } from "./application-assessment-page";
 import { Assessment } from "@app/api/models";
+import { render } from "@app/test-config/test-utils";
 
 describe("ApplicationAssessmentPage", () => {
   const assessment: Assessment = {
@@ -13,7 +13,7 @@ describe("ApplicationAssessmentPage", () => {
   };
 
   it("Renders without crashing", () => {
-    const wrapper = shallow(
+    const wrapper = render(
       <ApplicationAssessmentPage assessment={assessment}>
         Body of page
       </ApplicationAssessmentPage>
