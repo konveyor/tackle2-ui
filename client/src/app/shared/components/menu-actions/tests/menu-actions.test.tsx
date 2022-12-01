@@ -1,6 +1,6 @@
 import React from "react";
 import { MenuActions } from "../menu-actions";
-import { render } from "@app/test-config/test-utils";
+import { render, screen, fireEvent } from "@app/test-config/test-utils";
 
 describe("MenuActions", () => {
   it("Renders without crashing", () => {
@@ -28,23 +28,18 @@ describe("MenuActions", () => {
       />
     );
 
-    // Select dropdown btn
-    // const dropdownBtn = wrapper.find("button").at(0);
-    // expect(dropdownBtn.text()).toEqual("Actions");
+    const actionsButton = screen.getByText(/Actions/i);
+    fireEvent.click(actionsButton);
 
-    // // Verify callbacks are executed
+    const action1Button = screen.getByText(/Action1/i);
+    fireEvent.click(action1Button);
 
-    // dropdownBtn.simulate("click"); // Opens dropdown
+    expect(callback1Mock).toHaveBeenCalledTimes(1);
 
-    // const action1Btn = wrapper.find(".pf-c-dropdown__menu-item").at(0);
-    // expect(action1Btn.text()).toEqual("Action1");
-    // action1Btn.simulate("click");
-    // expect(callback1Mock).toHaveBeenCalledTimes(1);
+    fireEvent.click(actionsButton);
+    const action2Button = screen.getByText(/Action2/i);
+    fireEvent.click(action2Button);
 
-    // dropdownBtn.simulate("click"); // Opens dropdown
-    // const action2Btn = wrapper.find(".pf-c-dropdown__menu-item").at(1);
-    // expect(action2Btn.text()).toEqual("Action2");
-    // action2Btn.simulate("click");
-    // expect(callback2Mock).toHaveBeenCalledTimes(1);
+    expect(callback2Mock).toHaveBeenCalledTimes(1);
   });
 });
