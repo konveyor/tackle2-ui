@@ -32,7 +32,6 @@ import "./wizard.css";
 import { useAnalyzableApplications, isModeSupported } from "./utils";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import {
-  AnalysisMode,
   AnalysisWizardFormValues,
   useAnalysisWizardFormValidationSchema,
 } from "./schema";
@@ -73,9 +72,11 @@ const defaultTaskData: TaskData = {
 };
 
 const defaultTaskgroup: Taskgroup = {
-  name: "",
-  addon: "",
-  data: defaultTaskData,
+  name: `taskgroup.windup`,
+  addon: "windup",
+  data: {
+    ...defaultTaskData,
+  },
   tasks: [],
 };
 
@@ -97,12 +98,20 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [createdTaskgroup, setCreatedTaskgroup] = React.useState<Taskgroup>();
+  const [currentTaskgroup, setCurrentTaskgroup] =
+    React.useState<Taskgroup | null>();
+
   const [stepIdReached, setStepIdReached] = React.useState(1);
   const isMutating = useIsMutating();
 
+  React.useEffect(() => {
+    if (!currentTaskgroup) {
+      createTaskgroup(defaultTaskgroup);
+    }
+  }, []);
+
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
-    setCreatedTaskgroup(data);
+    setCurrentTaskgroup(data);
   };
 
   const onCreateTaskgroupError = (error: Error | unknown) => {
@@ -143,7 +152,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const { mutate: uploadFile } = useUploadFileMutation(() => {}, onUploadError);
 
   const onDeleteTaskgroupSuccess = () => {
-    setCreatedTaskgroup(undefined);
+    setCurrentTaskgroup(null);
   };
 
   const onDeleteTaskgroupError = (error: Error | unknown) => {
@@ -214,33 +223,35 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const hasIncludedPackages = withKnown.includes("select");
 
   const setupTaskgroup = (
-    taskgroup: Taskgroup,
-    data: FieldValues
+    currentTaskgroup: Taskgroup,
+    fieldValues: FieldValues
   ): Taskgroup => {
     return {
-      ...taskgroup,
+      ...currentTaskgroup,
       tasks: analyzableApplications.map((app: Application) => initTask(app)),
       data: {
         ...defaultTaskData,
         mode: {
           binary: mode.includes("binary"),
           withDeps: mode === "source-code-deps",
-          artifact: data.artifact ? `/binary/${data.artifact}` : "",
-          diva: data.diva,
+          artifact: fieldValues.artifact
+            ? `/binary/${fieldValues.artifact}`
+            : "",
+          diva: fieldValues.diva,
         },
-        targets: data.targets,
-        sources: data.sources,
+        targets: fieldValues.targets,
+        sources: fieldValues.sources,
         scope: {
-          withKnown: data.withKnown.includes("oss") ? true : false,
+          withKnown: fieldValues.withKnown.includes("oss") ? true : false,
           packages: {
-            included: hasIncludedPackages ? data.includedPackages : [],
-            excluded: hasExcludedPackages ? data.excludedPackages : [],
+            included: hasIncludedPackages ? fieldValues.includedPackages : [],
+            excluded: hasExcludedPackages ? fieldValues.excludedPackages : [],
           },
         },
         rules: {
-          path: data.customRulesFiles.length > 0 ? "/rules" : "",
+          path: fieldValues.customRulesFiles.length > 0 ? "/rules" : "",
           tags: {
-            excluded: data.excludedRulesTags,
+            excluded: fieldValues.excludedRulesTags,
           },
         },
       },
@@ -249,16 +260,16 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const isModeValid = applications.every((app) => isModeSupported(app, mode));
 
-  const onSubmit = (data: FieldValues) => {
-    if (data.targets.length < 1) {
+  const onSubmit = (fieldValues: FieldValues) => {
+    if (fieldValues.targets.length < 1) {
       console.log("Invalid form");
       return;
     }
 
-    if (createdTaskgroup) {
-      const taskgroup = setupTaskgroup(createdTaskgroup, data);
+    if (currentTaskgroup) {
+      const taskgroup = setupTaskgroup(currentTaskgroup, fieldValues);
 
-      data.customRulesFiles.forEach((file: IReadFile) => {
+      fieldValues.customRulesFiles.forEach((file: IReadFile) => {
         const formFile = new FormData();
         formFile.append("file", file.fullFile);
         uploadFile({
@@ -268,7 +279,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
         });
       });
 
-      submitTaskgroup(createdTaskgroup);
+      submitTaskgroup(taskgroup);
     }
     onClose();
   };
@@ -282,25 +293,12 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const handleClose = () => {
     reset();
-    if (createdTaskgroup && createdTaskgroup.id)
-      deleteTaskgroup(createdTaskgroup.id);
+    if (currentTaskgroup && currentTaskgroup.id)
+      deleteTaskgroup(currentTaskgroup.id);
     onClose();
   };
 
   const analyzableApplications = useAnalyzableApplications(applications, mode);
-
-  const onModeChange = (mode: AnalysisMode) => {
-    if (values.mode !== mode && createdTaskgroup && createdTaskgroup?.id) {
-      deleteTaskgroup(createdTaskgroup.id);
-      createTaskgroup(setupTaskgroup(defaultTaskgroup, values));
-    }
-  };
-
-  React.useEffect(() => {
-    if (!createdTaskgroup) {
-      createTaskgroup(setupTaskgroup(defaultTaskgroup, values));
-    }
-  }, []);
 
   const getStepNavProps = (stepId: StepId, forceBlock = false) => ({
     enableNext:
@@ -324,12 +322,11 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
               taskgroupID={
-                createdTaskgroup && createdTaskgroup?.id
-                  ? createdTaskgroup.id
+                currentTaskgroup && currentTaskgroup?.id
+                  ? currentTaskgroup.id
                   : null
               }
               isModeValid={isModeValid}
-              onModeChange={onModeChange}
             />
           ),
           ...getStepNavProps(StepId.AnalysisMode, !!isMutating),
