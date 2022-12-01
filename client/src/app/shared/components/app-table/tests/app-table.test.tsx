@@ -1,5 +1,4 @@
 import React from "react";
-import { mount, shallow } from "enzyme";
 import { Label, Skeleton, Spinner } from "@patternfly/react-core";
 import {
   ICell,
@@ -10,9 +9,7 @@ import {
 } from "@patternfly/react-table";
 
 import { AppTable } from "../app-table";
-import { StateNoData } from "../state-no-data";
-import { StateNoResults } from "../state-no-results";
-import { StateError } from "../state-error";
+import { render, screen } from "@app/test-config/test-utils";
 
 describe("AppTable", () => {
   const columns: ICell[] = [
@@ -39,7 +36,7 @@ describe("AppTable", () => {
   ];
 
   it("Renders without crashing", () => {
-    const wrapper = shallow(
+    const wrapper = render(
       <AppTable
         cells={columns}
         rows={rows}
@@ -51,7 +48,7 @@ describe("AppTable", () => {
   });
 
   it.skip("Renders error", () => {
-    const wrapper = mount(
+    render(
       <AppTable
         cells={columns}
         rows={rows}
@@ -60,24 +57,13 @@ describe("AppTable", () => {
         filtersApplied={false}
       />
     );
-    expect(wrapper.find(StateError).length).toEqual(1);
-  });
-
-  it("Renders loading with skeleton", () => {
-    const wrapper = mount(
-      <AppTable
-        cells={columns}
-        rows={rows}
-        isLoading={true}
-        loadingVariant="skeleton"
-        filtersApplied={false}
-      />
-    );
-    expect(wrapper.find(Skeleton).length).toBeGreaterThan(1);
+    expect(
+      screen.getByRole("heading", { name: /Unable to connect/i })
+    ).toBeInTheDocument();
   });
 
   it("Renders loading with spinner", () => {
-    const wrapper = mount(
+    render(
       <AppTable
         cells={columns}
         rows={rows}
@@ -86,11 +72,11 @@ describe("AppTable", () => {
         filtersApplied={false}
       />
     );
-    expect(wrapper.find(Spinner).length).toBe(1);
+    expect(screen.getByRole("cell", { name: /Loading/i })).toBeInTheDocument();
   });
 
   it.skip("Renders empty table without aplying filters", () => {
-    const wrapper = mount(
+    render(
       <AppTable
         cells={columns}
         rows={[]}
@@ -98,11 +84,13 @@ describe("AppTable", () => {
         filtersApplied={false}
       />
     );
-    expect(wrapper.find(StateNoData).length).toEqual(1);
+    expect(
+      screen.getByRole("heading", { name: /noDataAvailable/i })
+    ).toBeInTheDocument();
   });
 
   it.skip("Renders empty table after applying filters", () => {
-    const wrapper = mount(
+    const wrapper = render(
       <AppTable
         cells={columns}
         rows={[]}
@@ -110,36 +98,8 @@ describe("AppTable", () => {
         filtersApplied={true}
       />
     );
-    expect(wrapper.find(StateNoResults).length).toEqual(1);
-  });
-
-  it("Render rows with static actions", () => {
-    const wrapper = mount(
-      <AppTable
-        cells={columns}
-        rows={rows}
-        actions={actions}
-        isLoading={false}
-        filtersApplied={false}
-      />
-    );
-    expect(wrapper.find(Label).length).toEqual(45); // 3 columns * 15 rows
-  });
-
-  it("Renders on sort", () => {
-    const onSortMock = jest.fn();
-
-    const wrapper = mount(
-      <AppTable
-        cells={columns}
-        rows={rows}
-        isLoading={false}
-        onSort={onSortMock}
-        filtersApplied={false}
-      />
-    );
-    //TODO: Fix table tests with updated pf table lib
-    // wrapper.find(SortColumn).simulate("click");
-    // expect(onSortMock.mock.calls.length).toEqual(1);
+    expect(
+      screen.getByRole("heading", { name: /noResultsFound/i })
+    ).toBeInTheDocument();
   });
 });

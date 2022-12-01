@@ -1,255 +1,247 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ApplicationAssessmentPageHeader Renders without crashing 1`] = `
-<ApplicationAssessmentPageHeader
-  assessment={
-    Object {
-      "applicationId": 1,
-      "questionnaire": Object {
-        "categories": Array [],
-      },
-      "status": "STARTED",
-    }
-  }
->
-  <PageHeader
-    breadcrumbs={
-      Array [
-        Object {
-          "path": [Function],
-          "title": "terms.applications",
-        },
-        Object {
-          "path": "/applications/assessment/:assessmentId",
-          "title": "terms.assessment",
-        },
-      ]
-    }
-    btnActions={<React.Fragment />}
-    description={
-      <Text
-        component="p"
-      />
-    }
-    menuActions={Array []}
-    title="composed.applicationAssessment"
-  >
-    <Stack
-      hasGutter={true}
+Object {
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div>
+      <div
+        class="pf-l-stack pf-m-gutter"
+      >
+        <div
+          class="pf-l-stack__item"
+        >
+          <nav
+            aria-label="Breadcrumb"
+            class="pf-c-breadcrumb"
+            data-ouia-component-id="OUIA-Generated-Breadcrumb-1"
+            data-ouia-component-type="PF4/Breadcrumb"
+            data-ouia-safe="true"
+          >
+            <ol
+              class="pf-c-breadcrumb__list"
+            >
+              <li
+                class="pf-c-breadcrumb__item"
+              >
+                <button
+                  aria-disabled="false"
+                  class="pf-c-button pf-m-link pf-m-inline"
+                  data-ouia-component-id="OUIA-Generated-Button-link-1"
+                  data-ouia-component-type="PF4/Button"
+                  data-ouia-safe="true"
+                  type="button"
+                >
+                  terms.applications
+                </button>
+              </li>
+              <li
+                class="pf-c-breadcrumb__item"
+              >
+                <span
+                  class="pf-c-breadcrumb__item-divider"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    style="vertical-align: -0.125em;"
+                    viewBox="0 0 256 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                    />
+                  </svg>
+                </span>
+                terms.assessment
+              </li>
+            </ol>
+          </nav>
+        </div>
+        <div
+          class="pf-l-stack__item"
+        >
+          <div
+            class="pf-l-split"
+          >
+            <div
+              class="pf-l-split__item pf-m-fill"
+            >
+              <div
+                class="pf-c-content"
+              >
+                <h1
+                  class=""
+                  data-ouia-component-id="OUIA-Generated-Text-1"
+                  data-ouia-component-type="PF4/Text"
+                  data-ouia-safe="true"
+                  data-pf-content="true"
+                >
+                  composed.applicationAssessment
+                </h1>
+                <p
+                  class=""
+                  data-ouia-component-id="OUIA-Generated-Text-2"
+                  data-ouia-component-type="PF4/Text"
+                  data-ouia-safe="true"
+                  data-pf-content="true"
+                />
+              </div>
+            </div>
+            <div
+              class="pf-l-split__item"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </body>,
+  "container": <div>
+    <div
+      class="pf-l-stack pf-m-gutter"
     >
       <div
-        className="pf-l-stack pf-m-gutter"
+        class="pf-l-stack__item"
       >
-        <StackItem>
-          <div
-            className="pf-l-stack__item"
+        <nav
+          aria-label="Breadcrumb"
+          class="pf-c-breadcrumb"
+          data-ouia-component-id="OUIA-Generated-Breadcrumb-1"
+          data-ouia-component-type="PF4/Breadcrumb"
+          data-ouia-safe="true"
+        >
+          <ol
+            class="pf-c-breadcrumb__list"
           >
-            <BreadCrumbPath
-              breadcrumbs={
-                Array [
-                  Object {
-                    "path": [Function],
-                    "title": "terms.applications",
-                  },
-                  Object {
-                    "path": "/applications/assessment/:assessmentId",
-                    "title": "terms.assessment",
-                  },
-                ]
-              }
+            <li
+              class="pf-c-breadcrumb__item"
             >
-              <Breadcrumb>
-                <nav
-                  aria-label="Breadcrumb"
-                  className="pf-c-breadcrumb"
-                  data-ouia-component-id="OUIA-Generated-Breadcrumb-1"
-                  data-ouia-component-type="PF4/Breadcrumb"
-                  data-ouia-safe={true}
-                >
-                  <ol
-                    className="pf-c-breadcrumb__list"
-                  >
-                    <BreadcrumbItem
-                      isActive={false}
-                      key=".$0"
-                      showDivider={false}
-                    >
-                      <li
-                        className="pf-c-breadcrumb__item"
-                      >
-                        <Button
-                          isInline={true}
-                          onClick={[Function]}
-                          variant="link"
-                        >
-                          <ButtonBase
-                            innerRef={null}
-                            isInline={true}
-                            onClick={[Function]}
-                            variant="link"
-                          >
-                            <button
-                              aria-disabled={false}
-                              aria-label={null}
-                              className="pf-c-button pf-m-link pf-m-inline"
-                              data-ouia-component-id="OUIA-Generated-Button-link-1"
-                              data-ouia-component-type="PF4/Button"
-                              data-ouia-safe={true}
-                              disabled={false}
-                              onClick={[Function]}
-                              role={null}
-                              type="button"
-                            >
-                              terms.applications
-                            </button>
-                          </ButtonBase>
-                        </Button>
-                      </li>
-                    </BreadcrumbItem>
-                    <BreadcrumbItem
-                      isActive={true}
-                      key=".$1"
-                      showDivider={true}
-                    >
-                      <li
-                        className="pf-c-breadcrumb__item"
-                      >
-                        <span
-                          className="pf-c-breadcrumb__item-divider"
-                        >
-                          <AngleRightIcon
-                            color="currentColor"
-                            noVerticalAlign={false}
-                            size="sm"
-                          >
-                            <svg
-                              aria-hidden={true}
-                              aria-labelledby={null}
-                              fill="currentColor"
-                              height="1em"
-                              role="img"
-                              style={
-                                Object {
-                                  "verticalAlign": "-0.125em",
-                                }
-                              }
-                              viewBox="0 0 256 512"
-                              width="1em"
-                            >
-                              <path
-                                d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
-                              />
-                            </svg>
-                          </AngleRightIcon>
-                        </span>
-                        terms.assessment
-                      </li>
-                    </BreadcrumbItem>
-                  </ol>
-                </nav>
-              </Breadcrumb>
-            </BreadCrumbPath>
-          </div>
-        </StackItem>
-        <StackItem>
-          <div
-            className="pf-l-stack__item"
-          >
-            <Split>
-              <div
-                className="pf-l-split"
+              <button
+                aria-disabled="false"
+                class="pf-c-button pf-m-link pf-m-inline"
+                data-ouia-component-id="OUIA-Generated-Button-link-1"
+                data-ouia-component-type="PF4/Button"
+                data-ouia-safe="true"
+                type="button"
               >
-                <SplitItem
-                  isFilled={true}
+                terms.applications
+              </button>
+            </li>
+            <li
+              class="pf-c-breadcrumb__item"
+            >
+              <span
+                class="pf-c-breadcrumb__item-divider"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  style="vertical-align: -0.125em;"
+                  viewBox="0 0 256 512"
+                  width="1em"
                 >
-                  <div
-                    className="pf-l-split__item pf-m-fill"
-                  >
-                    <TextContent>
-                      <div
-                        className="pf-c-content"
-                      >
-                        <Text
-                          component="h1"
-                        >
-                          <h1
-                            className=""
-                            data-ouia-component-id="OUIA-Generated-Text-1"
-                            data-ouia-component-type="PF4/Text"
-                            data-ouia-safe={true}
-                            data-pf-content={true}
-                          >
-                            composed.applicationAssessment
-                          </h1>
-                        </Text>
-                        <Text
-                          component="p"
-                        >
-                          <p
-                            className=""
-                            data-ouia-component-id="OUIA-Generated-Text-2"
-                            data-ouia-component-type="PF4/Text"
-                            data-ouia-safe={true}
-                            data-pf-content={true}
-                          />
-                        </Text>
-                      </div>
-                    </TextContent>
-                  </div>
-                </SplitItem>
-                <SplitItem>
-                  <div
-                    className="pf-l-split__item"
+                  <path
+                    d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
                   />
-                </SplitItem>
-              </div>
-            </Split>
-          </div>
-        </StackItem>
+                </svg>
+              </span>
+              terms.assessment
+            </li>
+          </ol>
+        </nav>
       </div>
-    </Stack>
-  </PageHeader>
-  <Modal
-    actions={Array []}
-    appendTo={[Function]}
-    aria-describedby=""
-    aria-label=""
-    aria-labelledby=""
-    className=""
-    hasNoBodyWrapper={false}
-    isOpen={false}
-    onClose={[Function]}
-    ouiaSafe={true}
-    showClose={true}
-    title="composed.manageDependenciesFor"
-    titleIconVariant={null}
-    titleLabel=""
-    variant="medium"
-  >
-    <Portal
-      containerInfo={<div />}
-    >
-      <ModalContent
-        actions={Array []}
-        aria-describedby=""
-        aria-label=""
-        aria-labelledby=""
-        boxId="pf-modal-part-0"
-        className=""
-        descriptorId="pf-modal-part-2"
-        hasNoBodyWrapper={false}
-        isOpen={false}
-        labelId="pf-modal-part-1"
-        onClose={[Function]}
-        ouiaId="OUIA-Generated-Modal-medium-1"
-        ouiaSafe={true}
-        showClose={true}
-        title="composed.manageDependenciesFor"
-        titleIconVariant={null}
-        titleLabel=""
-        variant="medium"
-      />
-    </Portal>
-  </Modal>
-</ApplicationAssessmentPageHeader>
+      <div
+        class="pf-l-stack__item"
+      >
+        <div
+          class="pf-l-split"
+        >
+          <div
+            class="pf-l-split__item pf-m-fill"
+          >
+            <div
+              class="pf-c-content"
+            >
+              <h1
+                class=""
+                data-ouia-component-id="OUIA-Generated-Text-1"
+                data-ouia-component-type="PF4/Text"
+                data-ouia-safe="true"
+                data-pf-content="true"
+              >
+                composed.applicationAssessment
+              </h1>
+              <p
+                class=""
+                data-ouia-component-id="OUIA-Generated-Text-2"
+                data-ouia-component-type="PF4/Text"
+                data-ouia-safe="true"
+                data-pf-content="true"
+              />
+            </div>
+          </div>
+          <div
+            class="pf-l-split__item"
+          />
+        </div>
+      </div>
+    </div>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
 `;

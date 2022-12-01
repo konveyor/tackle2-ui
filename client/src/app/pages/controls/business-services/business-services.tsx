@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 
 import {
   Button,
   ButtonVariant,
-  ToolbarChip,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -21,15 +20,12 @@ import {
   AppPlaceholder,
   ConditionalRender,
   AppTableWithControls,
-  SearchFilter,
   AppTableActionButtons,
-  AppTableToolbarToggleGroup,
   NoDataEmptyState,
   ConfirmDialog,
 } from "@app/shared/components";
 
-import { BusinessService, Identity, SortByQuery } from "@app/api/models";
-import { deleteBusinessService } from "@app/api/rest";
+import { BusinessService } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { NewBusinessServiceModal } from "./components/new-business-service-modal";
@@ -51,10 +47,6 @@ import {
 import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
-
-// const getRow = (rowData: IRowData): BusinessService => {
-//   return rowData[ENTITY_FIELD];
-// };
 
 export const BusinessServices: React.FC = () => {
   const { t } = useTranslation();

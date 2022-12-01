@@ -1,27 +1,29 @@
+import { fireEvent, render, screen } from "@app/test-config/test-utils";
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import { mount, shallow } from "enzyme";
 import { BreadCrumbPath } from "../breadcrumb-path";
 
 describe("BreadCrumbPath", () => {
   it("Renders without crashing", () => {
-    const wrapper = shallow(
-      <BreadCrumbPath
-        breadcrumbs={[
-          {
-            title: "first",
-            path: "/first",
-          },
-          {
-            title: "second",
-            path: "/second",
-          },
-          {
-            title: "thrid",
-            path: "/thrid",
-          },
-        ]}
-      />
+    const wrapper = render(
+      <Router>
+        <BreadCrumbPath
+          breadcrumbs={[
+            {
+              title: "first",
+              path: "/first",
+            },
+            {
+              title: "second",
+              path: "/second",
+            },
+            {
+              title: "thrid",
+              path: "/thrid",
+            },
+          ]}
+        />
+      </Router>
     );
     expect(wrapper).toMatchSnapshot();
   });
@@ -29,7 +31,7 @@ describe("BreadCrumbPath", () => {
   it("Given a function path, should callback", () => {
     const secondBreadcrumbSpy = jest.fn();
 
-    const wrapper = mount(
+    render(
       <Router>
         <BreadCrumbPath
           breadcrumbs={[
@@ -42,15 +44,17 @@ describe("BreadCrumbPath", () => {
               path: secondBreadcrumbSpy,
             },
             {
-              title: "thrid",
-              path: "/thrid",
+              title: "third",
+              path: "/third",
             },
           ]}
         />
       </Router>
     );
 
-    wrapper.find("button").simulate("click");
+    const button = screen.getByRole("button");
+
+    fireEvent.click(button);
     expect(secondBreadcrumbSpy).toHaveBeenCalledTimes(1);
   });
 });

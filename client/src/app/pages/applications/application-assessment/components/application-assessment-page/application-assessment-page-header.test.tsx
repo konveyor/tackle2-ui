@@ -1,7 +1,7 @@
 import React from "react";
 import { ApplicationAssessmentPageHeader } from "./application-assessment-page-header";
 import { Assessment } from "@app/api/models";
-import { mount } from "enzyme";
+import { render } from "@app/test-config/test-utils";
 
 describe("ApplicationAssessmentPageHeader", () => {
   const assessment: Assessment = {
@@ -13,7 +13,7 @@ describe("ApplicationAssessmentPageHeader", () => {
   };
 
   it("Renders without crashing", () => {
-    const wrapper = mount(
+    const wrapper = render(
       <ApplicationAssessmentPageHeader assessment={assessment}>
         Body of page
       </ApplicationAssessmentPageHeader>

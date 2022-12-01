@@ -1,7 +1,7 @@
 import React from "react";
-import { shallow } from "enzyme";
 import { QuestionnaireCategory } from "@app/api/models";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
+import { render } from "@app/test-config/test-utils";
 
 describe("WizardStepNavDescription", () => {
   const category: QuestionnaireCategory = {
@@ -11,7 +11,7 @@ describe("WizardStepNavDescription", () => {
   };
 
   it("Renders without crashing", () => {
-    const wrapper = shallow(<WizardStepNavDescription category={category} />);
+    const wrapper = render(<WizardStepNavDescription category={category} />);
     expect(wrapper).toMatchSnapshot();
   });
 });
