@@ -13,14 +13,12 @@ interface ISetMode {
   isSingleApp: boolean;
   taskgroupID: number | null;
   isModeValid: boolean;
-  onModeChange: (value: AnalysisMode) => void;
 }
 
 export const SetMode: React.FC<ISetMode> = ({
   isSingleApp,
   taskgroupID,
   isModeValid,
-  onModeChange,
 }) => {
   const { t } = useTranslation();
 
@@ -77,7 +75,6 @@ export const SetMode: React.FC<ISetMode> = ({
             onChange={(selection) => {
               const option = selection as OptionWithValue<AnalysisMode>;
               setValue(name, option.value);
-              onModeChange(option.value);
             }}
             options={options}
           />
