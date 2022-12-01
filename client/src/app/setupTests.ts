@@ -1,24 +1,12 @@
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
-// allows you to do things like:
-// expect(element).toHaveTextContent(/react/i)
-// learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom";
 
-// jest.mock("keycloak", () => ({
-//   useKeycloak: () => {
-//     return {};
-//   },
-// }));
 let mockInitialized = false;
 
 jest.mock("@react-keycloak/web", () => {
   const originalModule = jest.requireActual("@react-keycloak/web");
   return {
     ...originalModule,
-    useKeycloak: () => [
-      // mockKeycloakStub,
-      mockInitialized,
-    ],
+    useKeycloak: () => [mockInitialized],
   };
 });
 
@@ -36,5 +24,9 @@ jest.mock("react-i18next", () => ({
   },
 }));
 
-// We should migrate from enzyme to RTL rather than using both in tandem
-// https://testing-library.com/docs/react-testing-library/migrate-from-enzyme/
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useLocation: () => ({
+    pathname: "localhost:3000/example/path",
+  }),
+}));

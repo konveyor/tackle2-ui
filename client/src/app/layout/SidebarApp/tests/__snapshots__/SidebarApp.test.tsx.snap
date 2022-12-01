@@ -79,8 +79,8 @@ Object {
                 data-ouia-safe="true"
               >
                 <a
-                  class="pf-c-nav__link pf-m-current"
-                  href="/applications"
+                  class="pf-c-nav__link"
+                  href="/applicationsundefined"
                 >
                   sidebar.applicationInventory
                 </a>
@@ -93,7 +93,7 @@ Object {
               >
                 <a
                   class="pf-c-nav__link"
-                  href="/reports"
+                  href="/reportsundefined"
                 >
                   sidebar.reports
                 </a>
@@ -192,8 +192,8 @@ Object {
               data-ouia-safe="true"
             >
               <a
-                class="pf-c-nav__link pf-m-current"
-                href="/applications"
+                class="pf-c-nav__link"
+                href="/applicationsundefined"
               >
                 sidebar.applicationInventory
               </a>
@@ -206,7 +206,7 @@ Object {
             >
               <a
                 class="pf-c-nav__link"
-                href="/reports"
+                href="/reportsundefined"
               >
                 sidebar.reports
               </a>

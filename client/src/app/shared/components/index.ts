@@ -8,7 +8,6 @@ export { ConfirmDialog } from "./confirm-dialog";
 export { EmptyTextMessage } from "./empty-text-message";
 export { KebabDropdown } from "./kebab-dropdown";
 export { NoDataEmptyState } from "./no-data-empty-state";
-export { NodeFetch } from "./node-fetch";
 export { PageHeader } from "./page-header";
 export { ProposedActionLabel } from "./proposed-action-label";
 export { RiskLabel } from "./risk-label";

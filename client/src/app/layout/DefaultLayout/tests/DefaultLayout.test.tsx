@@ -1,9 +1,16 @@
 import { render } from "@app/test-config/test-utils";
 import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 import { DefaultLayout } from "../DefaultLayout";
+import { NotificationsProvider } from "../../../../app/shared/notifications-context";
 
 it("Test snapshot", () => {
-  //TODO how to mock keycloak
-  // const wrapper = render(<DefaultLayout />);
-  // expect(wrapper).toMatchSnapshot();
+  const wrapper = render(
+    <Router>
+      <NotificationsProvider>
+        <DefaultLayout />
+      </NotificationsProvider>
+    </Router>
+  );
+  expect(wrapper).toMatchSnapshot();
 });
