@@ -11,6 +11,7 @@ const TACKLE_ENV = [
   "UI_INGRESS_PROXY_BODY_SIZE",
   "PROFILE",
   "VERSION",
+  "KEYCLOAK_REFRESH_ENABLED",
 ];
 
 const getEnv = (vars = TACKLE_ENV) =>
