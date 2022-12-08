@@ -1,5 +1,5 @@
 import { initInterceptors } from "@app/axios-config";
-import { isAuthRequired } from "@app/Constants";
+import { isAuthRequired, refreshEnabled } from "@app/Constants";
 import i18n from "@app/i18n";
 import keycloak from "@app/keycloak";
 import { deleteCookie, getCookie, setCookie } from "@app/queries/cookies";
@@ -51,17 +51,23 @@ export const KeycloakProvider: React.FC<IKeycloakProviderProps> = ({
               initInterceptors(() => {
                 return new Promise<string>((resolve, reject) => {
                   if (keycloak.token) {
-                    keycloak
-                      .updateToken(60)
-                      .then(() => {
-                        deleteCookie("keycloak_cookie");
-                        checkAuthCookie();
-                        return resolve(keycloak.token!);
-                      })
-                      .catch((err) => {
-                        console.log("err", err);
-                        return reject("Failed to refresh token");
-                      });
+                    if (refreshEnabled) {
+                      keycloak
+                        .updateToken(60)
+                        .then(() => {
+                          deleteCookie("keycloak_cookie");
+                          checkAuthCookie();
+                          return resolve(keycloak.token!);
+                        })
+                        .catch((err) => {
+                          console.log("err", err);
+                          return reject("Failed to refresh token");
+                        });
+                    } else {
+                      deleteCookie("keycloak_cookie");
+                      checkAuthCookie();
+                      return resolve(keycloak.token!);
+                    }
                   } else {
                     keycloak.login();
                     reject("Not logged in");

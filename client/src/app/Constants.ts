@@ -22,6 +22,7 @@ export enum BrandType {
 }
 
 export const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
+export const refreshEnabled = ENV.KEYCLOAK_REFRESH_ENABLED !== "false";
 export const uploadLimit = ENV.UI_INGRESS_PROXY_BODY_SIZE || "500m";
 export const APP_BRAND = ENV.PROFILE as BrandType;
 
