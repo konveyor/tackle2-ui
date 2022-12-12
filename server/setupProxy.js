@@ -28,7 +28,7 @@ module.exports = function (app) {
       },
       onProxyRes: (proxyRes, req, res) => {
         const includesJsonHeaders =
-          req.headers.accept.includes("application/json");
+          req.headers.accept?.includes("application/json");
         if (
           (!includesJsonHeaders && proxyRes.statusCode === 401) ||
           (!includesJsonHeaders && proxyRes.statusMessage === "Unauthorized")
