@@ -15,6 +15,7 @@ import { useSelectionState } from "@migtools/lib-ui";
 export enum ApplicationTableType {
   Assessment = "assessment",
   Analysis = "analysis",
+  Addons = "addons",
 }
 export const useApplicationsFilterValues = (
   applications: Application[],

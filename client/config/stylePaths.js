@@ -10,6 +10,7 @@ module.exports = {
       __dirname,
       "../../node_modules/@patternfly/react-core/dist/styles/base.css"
     ),
+    path.resolve(__dirname, "../../node_modules/monaco-editor"),
     path.resolve(
       __dirname,
       "../../node_modules/@patternfly/react-core/dist/esm/@patternfly/patternfly"

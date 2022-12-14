@@ -1,6 +1,7 @@
 import React from "react";
 
 import {
+  Addon,
   Application,
   BusinessService,
   Identity,
@@ -52,6 +53,24 @@ export const toIdentityDropdownOptionWithValue = (
 ): OptionWithValue<IdentityDropdown> => ({
   value,
   toString: () => value?.name || "",
+});
+
+// Addon dropdown
+
+export interface AddonDropdown
+  extends Pick<Addon, "name"> {}
+
+export const toAddonDropdown = (
+  value: Addon | undefined
+): AddonDropdown => ({
+  name: value?.name || "",
+});
+
+export const toAddonDropdownOptionWithValue = (
+  value: AddonDropdown
+): OptionWithValue<AddonDropdown> => ({
+  value,
+  toString: () => value.name,
 });
 
 // Stakeholder dropdown
