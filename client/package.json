@@ -28,7 +28,7 @@
     "@patternfly/react-charts": "^6.94.7",
     "@patternfly/react-core": "^4.250.1",
     "@patternfly/react-table": "^4.111.4",
-    "@patternfly/react-tokens": "^4.93.6",
+    "@patternfly/react-tokens": "^4.94.3",
     "@react-keycloak/web": "^3.4.0",
     "@types/ejs": "^3.1.0",
     "axios": "^0.21.2",
