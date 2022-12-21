@@ -14,7 +14,7 @@
     "@cypress/code-coverage": "^3.9.11",
     "@cypress/instrument-cra": "^1.4.0",
     "concurrently": "^7.0.0",
-    "cypress": "8.4.0",
+    "cypress": "12.2.0",
     "cypress-file-upload": "^5.0.8",
     "cypress-keycloak-commands": "^1.2.0",
     "typescript": "^4.5.5"
