@@ -61,6 +61,7 @@ export const SidebarApp: React.FC = () => {
     <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
       <div className="perspective">
         <Select
+          toggleId="sidebar-perspective-toggle"
           variant={SelectVariant.single}
           aria-label="Select user perspective"
           selections={selectedPersona || undefined}
