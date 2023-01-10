@@ -99,7 +99,7 @@ export const TagTable: React.FC<TabTableProps> = ({
     <Table
       borders={false}
       variant="compact"
-      aria-label="tag-table"
+      aria-label="Tag table"
       cells={columns}
       rows={rows}
       actions={actions}

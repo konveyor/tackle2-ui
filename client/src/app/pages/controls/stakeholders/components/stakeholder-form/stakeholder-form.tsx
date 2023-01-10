@@ -192,6 +192,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
           <TextInput
             type="text"
             name="email"
+            id="email"
             aria-label="email"
             aria-describedby="email"
             isRequired={true}
@@ -214,6 +215,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
           <TextInput
             type="text"
             name="name"
+            id="name"
             aria-label="name"
             aria-describedby="name"
             isRequired={true}
@@ -236,8 +238,9 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
           <SingleSelectFetchOptionValueFormikField<JobFunction>
             fieldConfig={{ name: "jobFunction" }}
             selectConfig={{
+              toggleId: "job-function-toggle",
               variant: "typeahead",
-              "aria-label": "job-function",
+              "aria-label": "Job function",
               "aria-describedby": "job-function",
               typeAheadAriaLabel: "job-function",
               toggleAriaLabel: "job-function",
@@ -266,7 +269,8 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
             fieldConfig={{ name: "stakeholderGroups" }}
             selectConfig={{
               variant: "typeaheadmulti",
-              "aria-label": "stakeholder-groups",
+              toggleId: "stakeholder-groups-toggle",
+              "aria-label": "Stakeholder groups",
               "aria-describedby": "stakeholder-groups",
               typeAheadAriaLabel: "stakeholder-groups",
               toggleAriaLabel: "stakeholder-groups",

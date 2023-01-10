@@ -433,7 +433,8 @@ export const Tags: React.FC = () => {
                 <ToolbarItem>
                   <Button
                     type="button"
-                    aria-label="create-tag"
+                    id="create-tag"
+                    aria-label="Create tag"
                     variant={ButtonVariant.primary}
                     onClick={handleOnOpenCreateNewTagModal}
                   >
@@ -443,7 +444,8 @@ export const Tags: React.FC = () => {
                 <ToolbarItem>
                   <Button
                     type="button"
-                    aria-label="create-tag-type"
+                    id="create-tag-type"
+                    aria-label="Create tag type"
                     variant={ButtonVariant.secondary}
                     onClick={handleOnOpenCreateNewTagTypeModal}
                   >

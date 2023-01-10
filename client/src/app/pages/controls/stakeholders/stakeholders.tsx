@@ -342,7 +342,8 @@ export const Stakeholders: React.FC = () => {
                 >
                   <Button
                     type="button"
-                    aria-label="create-stakeholder"
+                    id="create-stakeholder"
+                    aria-label="Create stakeholder"
                     variant={ButtonVariant.primary}
                     onClick={handleOnOpenCreateNewModal}
                   >

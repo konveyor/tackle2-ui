@@ -228,7 +228,8 @@ export const JobFunctions: React.FC = () => {
                 >
                   <Button
                     type="button"
-                    aria-label="create-job-function"
+                    id="create-job-function"
+                    aria-label="Create job function"
                     variant={ButtonVariant.primary}
                     onClick={handleOnOpenCreateModal}
                   >

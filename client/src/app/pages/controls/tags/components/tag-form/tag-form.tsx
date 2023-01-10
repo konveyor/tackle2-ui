@@ -169,7 +169,8 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
             fieldConfig={{ name: "tagType" }}
             selectConfig={{
               variant: "single",
-              "aria-label": "tag-type",
+              toggleId: "tag-type-toggle",
+              "aria-label": "Tag type",
               "aria-describedby": "tag-type",
               typeAheadAriaLabel: "tag-type",
               toggleAriaLabel: "Options menu",

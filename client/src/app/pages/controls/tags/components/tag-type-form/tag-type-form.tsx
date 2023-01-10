@@ -146,6 +146,7 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
           <TextInput
             type="text"
             name="name"
+            id="name"
             aria-label="name"
             aria-describedby="name"
             isRequired={true}
@@ -191,6 +192,7 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
           <SingleSelectOptionValueFormikField<string>
             fieldConfig={{ name: "color" }}
             selectConfig={{
+              toggleId: "color-toggle",
               variant: "single",
               "aria-label": "color",
               "aria-describedby": "color",
