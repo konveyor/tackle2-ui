@@ -327,11 +327,12 @@ export const Identities: React.FC = () => {
             what: t("terms.credential").toLowerCase(),
           })}
           titleIconVariant={"warning"}
-          message={`${
+          message={
             dependentApplications.length
-              ? `The credentials are being used by ${dependentApplications.length} application(s). Deleting these credentials will also remove them from the associated applications.`
-              : null
-          } ${t("dialog.message.delete")}`}
+              ? `${`The credentials are being used by ${dependentApplications.length} application(s). Deleting these credentials will also remove them from the associated applications.`} 
+          ${t("dialog.message.delete")}`
+              : `${t("dialog.message.delete")}`
+          }
           isOpen={true}
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
