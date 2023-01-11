@@ -29,6 +29,7 @@ import {
 } from "@app/queries/volumes";
 import { ConfirmDialog } from "@app/shared/components";
 import { useQuery } from "react-query";
+import { RWXSupported } from "@app/Constants";
 
 export const RepositoriesMvn: React.FC = () => {
   const { t } = useTranslation();
@@ -165,7 +166,7 @@ export const RepositoriesMvn: React.FC = () => {
                 <Button
                   variant="link"
                   isInline
-                  isDisabled={isCleaning}
+                  isDisabled={RWXSupported || isCleaning}
                   onClick={() => setIsConfirmDialogOpen(true)}
                 >
                   Clear repository
