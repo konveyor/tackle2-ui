@@ -275,7 +275,8 @@ export const BusinessServices: React.FC = () => {
                 >
                   <Button
                     type="button"
-                    aria-label="create-business-service"
+                    id="create-business-service"
+                    aria-label="Create business service"
                     variant={ButtonVariant.primary}
                     onClick={handleOnOpenCreateNewBusinessServiceModal}
                   >

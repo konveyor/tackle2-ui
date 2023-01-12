@@ -18,7 +18,7 @@ Object {
         >
           <div
             aria-describedby="pf-modal-part-2"
-            aria-label="confirm-dialog"
+            aria-label="Confirm dialog"
             aria-labelledby="pf-modal-part-0 pf-modal-part-1"
             aria-modal="true"
             class="pf-c-modal-box pf-m-sm"

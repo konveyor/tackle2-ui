@@ -56,6 +56,7 @@ export const SetOptions: React.FC = () => {
         }) => (
           <Select
             id="targets"
+            toggleId="targets-toggle"
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select targets"
             selections={value}
@@ -94,6 +95,7 @@ export const SetOptions: React.FC = () => {
         }) => (
           <Select
             id="sources"
+            toggleId="sources-toggle"
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select sources"
             selections={value}

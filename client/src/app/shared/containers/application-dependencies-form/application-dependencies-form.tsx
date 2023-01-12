@@ -147,6 +147,7 @@ export const ApplicationDependenciesForm: React.FC<
       >
         <SelectDependency
           toggleAriaLabel="northbound-dependencies-toggle"
+          toggleId="northbound-dependencies-toggle"
           fieldId="northbound-dependencies"
           toStringFn={northToStringFn}
           value={northboundDependencies}
@@ -183,6 +184,7 @@ export const ApplicationDependenciesForm: React.FC<
         <SelectDependency
           toggleAriaLabel="southbound-dependencies-toggle"
           fieldId="southbound-dependencies"
+          toggleId="southbound-dependencies-toggle"
           toStringFn={southToStringFn}
           value={southboundDependencies}
           setValue={setSouthboundDependencies}

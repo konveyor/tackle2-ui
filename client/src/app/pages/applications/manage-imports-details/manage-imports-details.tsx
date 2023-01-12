@@ -176,7 +176,8 @@ export const ManageImportsDetails: React.FC = () => {
                   <ToolbarItem>
                     <Button
                       type="button"
-                      aria-label="export-csv"
+                      id="export-csv"
+                      aria-label="Export csv"
                       variant={ButtonVariant.primary}
                       onClick={exportCSV}
                     >
