@@ -45,6 +45,7 @@ export interface SelectDependencyProps {
   saveError?: AxiosError;
   setSaveError: (value?: AxiosError) => void;
   toggleAriaLabel?: string;
+  toggleId?: string;
 }
 
 export const SelectDependency: React.FC<SelectDependencyProps> = ({
@@ -62,6 +63,7 @@ export const SelectDependency: React.FC<SelectDependencyProps> = ({
   setIsSaving,
   setSaveError,
   toggleAriaLabel,
+  toggleId,
 }) => {
   const { t } = useTranslation();
 
@@ -129,6 +131,7 @@ export const SelectDependency: React.FC<SelectDependencyProps> = ({
       fetchError={fetchError}
       noResultsFoundText={t("message.noResultsFoundTitle")}
       toggleAriaLabel={toggleAriaLabel}
+      toggleId={toggleId}
     />
   );
 };

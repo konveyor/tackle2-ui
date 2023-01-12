@@ -74,7 +74,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       titleIconVariant={titleIconVariant}
       isOpen={isOpen}
       onClose={onClose}
-      aria-label="confirm-dialog"
+      aria-label="Confirm dialog"
       actions={onCancel ? [confirmBtn, cancelBtn] : [confirmBtn]}
     >
       {message}

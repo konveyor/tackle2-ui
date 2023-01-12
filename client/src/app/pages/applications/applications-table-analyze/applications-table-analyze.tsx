@@ -549,7 +549,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                   <ToolbarItem>
                     <Button
                       type="button"
-                      aria-label="create-application"
+                      id="create-application"
+                      aria-label="Create Application"
                       variant={ButtonVariant.primary}
                       onClick={openCreateApplicationModal}
                     >
@@ -573,7 +574,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                           hasExistingAnalysis ? <WarningTriangleIcon /> : null
                         }
                         type="button"
-                        aria-label="analyze-application"
+                        id="analyze-application"
+                        aria-label="Analyze Application"
                         variant={ButtonVariant.primary}
                         onClick={() => {
                           setAnalyzeModalOpen(true);

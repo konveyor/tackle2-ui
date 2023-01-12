@@ -716,7 +716,8 @@ export const ApplicationsTable: React.FC = () => {
                   >
                     <Button
                       type="button"
-                      aria-label="create-application"
+                      id="create-application"
+                      aria-label="Create Application"
                       variant={ButtonVariant.primary}
                       onClick={openCreateApplicationModal}
                     >
@@ -731,7 +732,8 @@ export const ApplicationsTable: React.FC = () => {
                   <ToolbarItem>
                     <Button
                       type="button"
-                      aria-label="assess-application"
+                      id="assess-application"
+                      aria-label="Assess Application"
                       variant={ButtonVariant.primary}
                       onClick={assessSelectedRows}
                       isDisabled={
@@ -751,7 +753,8 @@ export const ApplicationsTable: React.FC = () => {
                   <ToolbarItem>
                     <Button
                       type="button"
-                      aria-label="review-application"
+                      id="review-application"
+                      aria-label="Review Application"
                       variant={ButtonVariant.primary}
                       onClick={reviewSelectedRows}
                       isDisabled={

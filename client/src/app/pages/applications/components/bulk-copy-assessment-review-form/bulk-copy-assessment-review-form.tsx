@@ -344,7 +344,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
           fieldId="confirm"
           label={
             <>
-              <span aria-label="warning-icon">
+              <span id="warning-icon">
                 <ExclamationTriangleIcon noVerticalAlign color={gold.value} />
               </span>
               &nbsp;&nbsp;
@@ -372,7 +372,8 @@ export const BulkCopyAssessmentReviewForm: React.FC<
       <ActionGroup>
         <Button
           type="button"
-          aria-label="copy"
+          id="copy"
+          aria-label="Copy"
           variant={ButtonVariant.primary}
           onClick={onSubmit}
           isDisabled={

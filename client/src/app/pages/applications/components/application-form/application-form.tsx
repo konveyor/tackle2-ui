@@ -483,7 +483,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 data-testid="business-service-select"
                 selectConfig={{
                   variant: "typeahead",
-                  "aria-label": "business-service-select-input",
+                  "aria-label": "Select business service",
                   "aria-describedby": "business-service-select-input",
                   typeAheadAriaLabel: "business-service-dropdown",
                   toggleAriaLabel: "business-service",
@@ -733,7 +733,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
               labelIcon={
                 <Popover
                   position={PopoverPosition.top}
-                  aria-label="binary-packaging-details"
+                  aria-label="binary packaging details"
                   bodyContent={t("message.binaryPackaging")}
                   className="popover"
                 >

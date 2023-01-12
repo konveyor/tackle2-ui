@@ -359,7 +359,8 @@ export const ManageImports: React.FC = () => {
                   <ToolbarItem>
                     <Button
                       type="button"
-                      aria-label="import-applications"
+                      id="import-applications"
+                      aria-label="Import Applications"
                       variant={ButtonVariant.primary}
                       onClick={() => setIsApplicationImportModalOpen(true)}
                     >

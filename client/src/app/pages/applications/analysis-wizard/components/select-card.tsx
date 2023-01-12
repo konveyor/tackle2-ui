@@ -83,6 +83,7 @@ export const SelectCard: React.FC<SelectCardProps> = ({
           </Title>
           {item.forceSelect === true || item.options.length > 1 ? (
             <Select
+              toggleId={`${item.label}-toggle`}
               variant={SelectVariant.single}
               aria-label="Select Input"
               onToggle={(isExpanded) => setSelectOpen(isExpanded)}
