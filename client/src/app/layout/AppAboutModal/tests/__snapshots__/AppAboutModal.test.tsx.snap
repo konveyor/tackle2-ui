@@ -204,17 +204,14 @@ Object {
                     >
                       <dl
                         class=""
-                        data-pf-content="true"
                       >
                         <dt
                           class=""
-                          data-pf-content="true"
                         >
                           terms.version
                         </dt>
                         <dd
                           class=""
-                          data-pf-content="true"
                         >
                           99.0.0
                         </dd>
