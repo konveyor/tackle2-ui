@@ -404,11 +404,11 @@ export interface Taskgroup {
   tasks: TaskgroupTask[];
 }
 
-export interface Volume {
-  id?: number;
-  name: string;
+export interface Cache {
+  path: string;
   capacity: string;
   used: string;
+  exists: boolean;
 }
 
 export interface ITypeOptions {
