@@ -29,6 +29,8 @@ import {
 } from "@app/queries/volumes";
 import { ConfirmDialog } from "@app/shared/components";
 import { useQuery } from "react-query";
+import { isRWXSupported } from "@app/Constants";
+import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 
 export const RepositoriesMvn: React.FC = () => {
   const { t } = useTranslation();
@@ -157,26 +159,24 @@ export const RepositoriesMvn: React.FC = () => {
                   className="repo"
                   type="text"
                   aria-label="Maven Repository Size"
-                  isReadOnly
+                  aria-disabled={!isRWXSupported || isCleaning}
+                  readOnlyVariant="default"
                   size={15}
                   width={10}
                 />
                 {"  "}
-                <Button
-                  variant="link"
-                  isInline
-                  isDisabled={isCleaning}
-                  onClick={() => setIsConfirmDialogOpen(true)}
+                <ConditionalTooltip
+                  isTooltipEnabled={!isRWXSupported}
+                  content={t("actions.clearRepositoryNotSupported")}
                 >
-                  Clear repository
-                </Button>
-                {/* {forcedSettingError && (
-                  <Alert
-                    variant="danger"
+                  <Button
                     isInline
-                    title={getAxiosErrorMessage(forcedSettingError)}
-                  />
-                )} */}
+                    isAriaDisabled={!isRWXSupported || isCleaning}
+                    onClick={() => setIsConfirmDialogOpen(true)}
+                  >
+                    Clear repository
+                  </Button>
+                </ConditionalTooltip>
               </FormGroup>
               <FormGroup fieldId="isInsecure">
                 {insecureSettingError && (

@@ -11,6 +11,7 @@ const TACKLE_ENV = [
   "UI_INGRESS_PROXY_BODY_SIZE",
   "PROFILE",
   "VERSION",
+  "RWX_SUPPORTED",
 ];
 
 const getEnv = (vars = TACKLE_ENV) =>
