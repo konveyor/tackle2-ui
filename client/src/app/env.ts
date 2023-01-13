@@ -1,5 +1,4 @@
-
-// NOTE: If you define another ENV_VAR here, you must also update the 
+// NOTE: If you define another ENV_VAR here, you must also update the
 // TACKLE_ENV array in 'server/helpers.js'
 const ENV_VAR_DEFAULTS = {
   AUTH_REQUIRED: "true",
@@ -9,6 +8,7 @@ const ENV_VAR_DEFAULTS = {
   UI_INGRESS_PROXY_BODY_SIZE: "",
   PROFILE: "konveyor",
   VERSION: "99.0.0",
+  RWX_SUPPORTED: "true",
 } as const;
 
 type EnvVarKey = keyof typeof ENV_VAR_DEFAULTS;

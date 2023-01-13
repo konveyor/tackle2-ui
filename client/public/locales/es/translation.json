@@ -14,6 +14,7 @@
         "cancel": "Cancelar",
         "checkDocumentation": "Verificar documentación",
         "clearAllFilters": "Limpiar todos los filtros",
+        "clearRepositoryNotSupported": "Esta acción se deshabilita cuando la opción RWX no es compatible",
         "close": "Cerrar",
         "continue": "Continuar",
         "copy": "Copiar",

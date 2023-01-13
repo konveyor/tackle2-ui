@@ -11,6 +11,7 @@ declare namespace NodeJS {
     readonly KEYCLOAK_SERVER_URL: string;
     readonly AUTH_REQUIRED: string;
     readonly PROFILE: string;
+    readonly RWX_SUPPORTED: string;
   }
 }
 
