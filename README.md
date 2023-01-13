@@ -119,7 +119,7 @@ http://192.168.0.1:18080/api/v1/namespaces/kubernetes-dashboard/services/http:ku
 
 ### Installing Tackle on Minikube or Kubernetes
 
-For installation on Kubernetes refer to Tackle2 documentation [https://github.com/konveyor/tackle2-operator/blob/main/docs/k8s.md](k8s.md)
+For installation on Kubernetes refer to [https://github.com/konveyor/tackle2-operator#readme](Tackle2 operator readme) file.
 
 Once minikube is installed with OLM installed, as seen above, then deploy Tackle by running this command :
 `kubectl apply -f https://raw.githubusercontent.com/konveyor/tackle2-operator/main/tackle-k8s.yaml`
