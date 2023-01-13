@@ -14,7 +14,7 @@
         "cancel": "Cancel",
         "checkDocumentation": "Check documentation",
         "clearAllFilters": "Clear all filters",
-        "clearRepositoryNotSupported": "This action is disabled when RWX option is not supported",
+        "clearRepositoryNotSupported": "This action is disabled when RWX volumes are not available",
         "close": "Close",
         "continue": "Continue",
         "copy": "Copy",
