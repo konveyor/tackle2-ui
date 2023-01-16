@@ -238,8 +238,8 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
           <SingleSelectFetchOptionValueFormikField<JobFunction>
             fieldConfig={{ name: "jobFunction" }}
             selectConfig={{
-              toggleId: "job-function-toggle",
               variant: "typeahead",
+              toggleId: "job-function-toggle",
               "aria-label": "Job function",
               "aria-describedby": "job-function",
               typeAheadAriaLabel: "job-function",

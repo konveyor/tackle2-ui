@@ -197,6 +197,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
             fieldConfig={{ name: "action" }}
             selectConfig={{
               variant: "typeahead",
+              toggleId: "action-toggle",
               "aria-label": "action",
               "aria-describedby": "action",
               placeholderText: t("terms.select"),
@@ -219,6 +220,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
             fieldConfig={{ name: "effort" }}
             selectConfig={{
               variant: "typeahead",
+              toggleId: "effort-toggle",
               "aria-label": "effort",
               "aria-describedby": "effort",
               placeholderText: t("terms.select"),
