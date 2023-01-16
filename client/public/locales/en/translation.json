@@ -122,6 +122,7 @@
         "copyAssessmentQuestion": "Copy assessment?",
         "couldNotFetchBody": "Resource doesn't exists or you don't have access to it",
         "couldNotFetchTitle": "Not available",
+        "duplicateTag": "A tag with this name already exists. Use a different name.",
         "importErrorCheckDocumentation": "For status Error imports please check the documentation to ensure your file is structured correctly.",
         "manageDependenciesInstructions": "Add northbound and southbound dependencies for the selected application here. Note that any selections made will be saved automatically. To undo any changes, you must manually delete the applications from the dropdowns.",
         "noDataAvailableBody": "No data available to be shown here.",
