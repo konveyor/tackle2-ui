@@ -69,6 +69,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   return (
     <Modal
+      id="confirm-dialog"
       variant={ModalVariant.small}
       title={title}
       titleIconVariant={titleIconVariant}

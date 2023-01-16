@@ -71,6 +71,7 @@ export const StakeholdersForm: React.FC<StakeholdersFormProps> = () => {
                 }}
                 selectConfig={{
                   variant: "typeaheadmulti",
+                  toggleId: "stakeholders-toggle",
                   "aria-label": "stakeholders",
                   "aria-describedby": "stakeholders",
                   typeAheadAriaLabel: "stakeholders",
@@ -101,6 +102,7 @@ export const StakeholdersForm: React.FC<StakeholdersFormProps> = () => {
                 }}
                 selectConfig={{
                   variant: "typeaheadmulti",
+                  toggleId: "stakeholder-groups-toggle",
                   "aria-label": "stakeholder groups",
                   "aria-describedby": "stakeholder-groups",
                   typeAheadAriaLabel: "stakeholder-groups",
