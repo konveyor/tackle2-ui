@@ -483,6 +483,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 data-testid="business-service-select"
                 selectConfig={{
                   variant: "typeahead",
+                  toggleId: "business-service-toggle",
                   "aria-label": "Select business service",
                   "aria-describedby": "business-service-select-input",
                   typeAheadAriaLabel: "business-service-dropdown",
@@ -517,6 +518,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 }}
                 selectConfig={{
                   variant: "typeaheadmulti",
+                  toggleId: "tags",
                   "aria-label": "tags",
                   "aria-describedby": "tags",
                   typeAheadAriaLabel: "tags",

@@ -209,6 +209,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
             fieldConfig={{ name: "owner" }}
             selectConfig={{
               variant: "typeahead",
+              toggleId: "owner-toggle",
               "aria-label": "owner",
               "aria-describedby": "owner",
               typeAheadAriaLabel: "owner",
