@@ -205,6 +205,7 @@ export const ApplicationIdentityForm: React.FC<
             fieldConfig={{ name: SOURCE_CREDENTIALS }}
             selectConfig={{
               variant: "typeahead",
+              toggleId: "source-credentials-toggle",
               "aria-label": "source credentials",
               "aria-describedby": "sourceCredentials",
               typeAheadAriaLabel: "sourceCredentials",
@@ -226,6 +227,7 @@ export const ApplicationIdentityForm: React.FC<
             fieldConfig={{ name: MAVEN_SETTINGS }}
             selectConfig={{
               variant: "typeahead",
+              toggleId: "maven-settings-toggle",
               "aria-label": "maven settings",
               "aria-describedby": "mavenSettings",
               typeAheadAriaLabel: "mavenSettings",
