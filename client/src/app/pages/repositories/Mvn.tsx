@@ -32,6 +32,8 @@ import { useQuery } from "react-query";
 import { isRWXSupported } from "@app/Constants";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
 export const RepositoriesMvn: React.FC = () => {
   const { t } = useTranslation();
 
@@ -172,6 +174,7 @@ export const RepositoriesMvn: React.FC = () => {
                   <Button
                     isInline
                     isAriaDisabled={!isRWXSupported || isCleaning}
+                    className={spacing.mMd}
                     onClick={() => setIsConfirmDialogOpen(true)}
                   >
                     Clear repository
