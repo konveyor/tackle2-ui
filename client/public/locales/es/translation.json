@@ -122,6 +122,7 @@
         "copyAssessmentQuestion": "¿Copiar evaluación?",
         "couldNotFetchBody": "El recurso no existe o no tienes permiso para acceder al mismo",
         "couldNotFetchTitle": "No disponible",
+        "duplicateTag": "Ya existe una etiqueta con este nombre. Use un nombre diferente.",
         "importErrorCheckDocumentation": "Para estados de importación Error por favor verifica la documentación para asegurar la correcta estructura del archivo.",
         "manageDependenciesInstructions": "Agrega aquí dependencias en el norte y sur para la aplicación seleccionada. Cualquier selección realizada será guardada automáticamente. Para deshacer cualquier cambio, debes de eliminar la aplicación de la caja de selección.",
         "noDataAvailableBody": "No hay datos disponibles para ser mostrados aquí.",
