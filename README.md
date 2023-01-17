@@ -11,6 +11,7 @@ To install a Tackle2 cluster environment please refer to [Tackle documentation](
 ## Prerequisites
 
 - [NodeJS](https://nodejs.org/en/) >= 16.x
+- [minikube](https://minikube.sigs.k8s.io/docs/start) (optional): setup your local minikube instance with your container manager of choice. (Docker, Hyperkit, Hyper-V, KVM, Parallels, Podman, VirtualBox, or VMware Fusion/Workstation.)
 
 ## Getting Started
 
@@ -75,20 +76,18 @@ By default, Minikube uses the kvm driver with 6,000 MB of memory. This is not en
 
 Then, the following command will download a qcow2 image of Minikube and start a virtual machine from it. It will then wait for the Kubernetes API to be ready.
 
-`$ minikube start`
+`$ minikube start --addons=dashboard --addons=ingress --addons=olm`
 
-We need to enable the dashboard, ingress and olm addons. The dashboard addon installs the dashboard service that exposes the Kubernetes objects in a user interface. The ingress addon allows us to create Ingress CRs to expose the Tackle UI and Tackle Hub API. The olm addon allows us to use an operator to deploy Tackle.
-
-`$ minikube addons enable dashboard`
-`$ minikube addons enable ingress`
-`$ minikube addons enable olm`
+Note: We need to enable the dashboard, ingress and olm addons. The dashboard addon installs the dashboard service that exposes the Kubernetes objects in a user interface. The ingress addon allows us to create Ingress CRs to expose the Tackle UI and Tackle Hub API. The olm addon allows us to use an operator to deploy Tackle.
 
 The following command gives us the IP address assigned to the virtual machine created by Minikube.
 It's used when interacting with tackle UI image installed on the minikube cluster.
 
 ```
+
 $ minikube ip
 192.168.39.23
+
 ```
 
 ### Configuring kubectl (optional)
@@ -97,12 +96,45 @@ Minikube allows us to use the kubectl command with `minikube kubectl. To make th
 The following example shows how to do it for Bash on Fedora 35.
 
 ```
+
 $ mkdir -p ~/.bashrc.d
 $ cat << EOF > ~/.bashrc.d/minikube
 alias kubectl="minikube kubectl --"
 EOF
 $ source ~/.bashrc
+
 ```
+
+### Installing Tackle on Minikube or Kubernetes
+
+For installation on Kubernetes refer to [https://github.com/konveyor/tackle2-operator#readme](Tackle2 operator readme) file.
+
+Create a `konveyor-tackle` namespace and other supporting tackle resources including the tackle CRD.
+
+`kubectl apply -f https://raw.githubusercontent.com/konveyor/tackle2-operator/main/tackle-k8s.yaml `
+
+Deploy the tackle CR:
+
+Note: The below command will fail if the Tackle CRD is not yet established. This may take some time.
+
+```
+cat << EOF | kubectl apply -f -
+kind: Tackle
+apiVersion: tackle.konveyor.io/v1alpha1
+metadata:
+  name: tackle
+  namespace: konveyor-tackle
+spec:
+EOF
+```
+
+Note: If you wish to run tackle without keycloak authentication enabled, append the following field to the above tackle CR spec:
+
+`feature_auth_required: false`
+
+Wait few minutes to make sure tackle is fully deployed:
+
+`kubectl wait deployment tackle-keycloak-sso -n konveyor-tackle --for condition=Available --timeout=5m`
 
 ### Accessing the Kubernetes dashboard
 
