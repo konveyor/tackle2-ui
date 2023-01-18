@@ -26,7 +26,6 @@ import {
   Proxy,
   Taskgroup,
   ApplicationImport,
-  Volume,
 } from "./models";
 import { QueryKey } from "react-query";
 
@@ -54,8 +53,6 @@ export const PROXIES = HUB + "/proxies";
 export const SETTINGS = HUB + "/settings";
 export const TASKS = HUB + "/tasks";
 export const TASKGROUPS = HUB + "/taskgroups";
-
-export const VOLUMES = HUB + "/volumes";
 
 // PATHFINDER
 export const PATHFINDER = "/hub/pathfinder";
@@ -98,12 +95,12 @@ export const getTaskById = ({
 };
 
 //
-export const getVolumes = (): AxiosPromise<Volume[]> => {
-  return APIClient.get(`${VOLUMES}`, jsonHeaders);
+export const getCache = (): AxiosPromise => {
+  return APIClient.get(`${HUB}/cache/m2`, jsonHeaders);
 };
 
-export const cleanRepository = (id: string): AxiosPromise => {
-  return APIClient.post(`${VOLUMES}/${id}/clean`, jsonHeaders);
+export const deleteCache = (): AxiosPromise => {
+  return APIClient.delete(`${HUB}/cache/m2`, jsonHeaders);
 };
 
 // Business services
