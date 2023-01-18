@@ -23,10 +23,7 @@ import { Setting } from "@app/api/models";
 import { getSettingById, updateSetting } from "@app/api/rest";
 import { useEffect, useState } from "react";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import {
-  useCleanRepositoryMutation,
-  useFetchVolumes,
-} from "@app/queries/volumes";
+import { useDeleteCacheMutation, useFetchCache } from "@app/queries/cache";
 import { ConfirmDialog } from "@app/shared/components";
 import { useQuery } from "react-query";
 import { isRWXSupported } from "@app/Constants";
@@ -121,17 +118,15 @@ export const RepositoriesMvn: React.FC = () => {
   //     });
   // };
 
-  const { volumes, refetch } = useFetchVolumes();
   const [storageValue, setStorageValue] = useState<string>();
-  const [currCleanId, setCurrCleanId] = useState<number>(0);
 
+  const { cache, refetch, isFetching } = useFetchCache();
   useEffect(() => {
-    const thisVol = volumes.find((vol) => vol.name === "m2");
-    if (thisVol) {
-      setStorageValue(`${thisVol.used} of ${thisVol.capacity} `);
+    if (cache) {
+      setStorageValue(`${cache.used} of ${cache.capacity} `);
     }
-    setCurrCleanId(thisVol?.id || 0);
-  }, [volumes, currCleanId]);
+  }, [cache]);
+
   const onHandleCleanSuccess = () => {
     refetch();
   };
@@ -139,10 +134,10 @@ export const RepositoriesMvn: React.FC = () => {
     refetch();
   };
 
-  const { mutate: cleanRepository, isCleaning } = useCleanRepositoryMutation({
-    onSuccess: onHandleCleanSuccess,
-    onError: onHandleCleanError,
-  });
+  const { mutate: deleteCache, isLoading: isDeleting } = useDeleteCacheMutation(
+    onHandleCleanSuccess,
+    onHandleCleanError
+  );
 
   return (
     <>
@@ -161,7 +156,7 @@ export const RepositoriesMvn: React.FC = () => {
                   className="repo"
                   type="text"
                   aria-label="Maven Repository Size"
-                  aria-disabled={!isRWXSupported || isCleaning}
+                  aria-disabled={!isRWXSupported || isFetching || isDeleting}
                   readOnlyVariant="default"
                   size={15}
                   width={10}
@@ -173,8 +168,7 @@ export const RepositoriesMvn: React.FC = () => {
                 >
                   <Button
                     isInline
-                    isAriaDisabled={!isRWXSupported || isCleaning}
-                    className={spacing.mMd}
+                    isAriaDisabled={!isRWXSupported || isFetching || isDeleting}
                     onClick={() => setIsConfirmDialogOpen(true)}
                   >
                     Clear repository
@@ -218,10 +212,7 @@ export const RepositoriesMvn: React.FC = () => {
           onCancel={() => setIsConfirmDialogOpen(false)}
           onClose={() => setIsConfirmDialogOpen(false)}
           onConfirm={() => {
-            if (currCleanId) {
-              const cleanIdStr = currCleanId.toString();
-              cleanRepository(cleanIdStr);
-            }
+            deleteCache();
             setIsConfirmDialogOpen(false);
           }}
         />
