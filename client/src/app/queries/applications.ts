@@ -53,6 +53,7 @@ export const useUpdateApplicationMutation = (
   const { isLoading, mutate, error } = useMutation(updateApplication, {
     onSuccess: (res) => {
       onSuccess(res);
+      queryClient.setQueryData([ApplicationsQueryKey, res.data.id], res);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: (err: AxiosError) => {
