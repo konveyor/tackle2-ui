@@ -234,8 +234,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
         mode: {
           binary: mode.includes("binary"),
           withDeps: mode === "source-code-deps",
-          artifact: fieldValues.artifact
-            ? `/binary/${fieldValues.artifact}`
+          artifact: fieldValues.artifact?.name
+            ? `/binary/${fieldValues.artifact.name}`
             : "",
           diva: fieldValues.diva,
         },
@@ -265,7 +265,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       console.log("Invalid form");
       return;
     }
-
     if (currentTaskgroup) {
       const taskgroup = setupTaskgroup(currentTaskgroup, fieldValues);
 
