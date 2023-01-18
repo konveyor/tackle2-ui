@@ -167,7 +167,9 @@ export const RepositoriesMvn: React.FC = () => {
                   content={t("actions.clearRepositoryNotSupported")}
                 >
                   <Button
+                    id="clear-repository"
                     isInline
+                    className={spacing.mlMd}
                     isAriaDisabled={!isRWXSupported || isFetching || isDeleting}
                     onClick={() => setIsConfirmDialogOpen(true)}
                   >
