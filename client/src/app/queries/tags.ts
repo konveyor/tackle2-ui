@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { deleteTag, deleteTagType, getTags, getTagTypes } from "@app/api/rest";
 import { Tag, TagType } from "@app/api/models";
@@ -23,7 +23,7 @@ export const TagTypesQueryKey = "tagtypes";
 
 export const useFetchTags = (): ITagFetchState => {
   const { data, isLoading, error, refetch } = useQuery(
-    TagsQueryKey,
+    [TagsQueryKey],
     async () => (await getTags()).data,
     {
       onError: (error) => console.log("error, ", error),
@@ -39,7 +39,7 @@ export const useFetchTags = (): ITagFetchState => {
 
 export const useFetchTagTypes = (): ITagTypeFetchState => {
   const { data, isLoading, error, refetch } = useQuery(
-    TagTypesQueryKey,
+    [TagTypesQueryKey],
     async () => (await getTagTypes()).data,
     {
       onError: (error) => console.log("error, ", error),
@@ -62,11 +62,11 @@ export const useDeleteTagMutation = (
   const { isLoading, mutate, error } = useMutation(deleteTag, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries(TagsQueryKey);
+      queryClient.invalidateQueries([TagsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries(TagsQueryKey);
+      queryClient.invalidateQueries([TagsQueryKey]);
     },
   });
   return {
@@ -84,11 +84,11 @@ export const useDeleteTagTypeMutation = (
   const { isLoading, mutate, error } = useMutation(deleteTagType, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries(TagTypesQueryKey);
+      queryClient.invalidateQueries([TagTypesQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries(TagTypesQueryKey);
+      queryClient.invalidateQueries([TagTypesQueryKey]);
     },
   });
   return {

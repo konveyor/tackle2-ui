@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Application, ApplicationDependency } from "@app/api/models";
 import {
@@ -19,6 +19,7 @@ export interface IApplicationDependencyFetchState {
   fetchError: any;
   refetch: any;
 }
+
 export const ApplicationDependencyQueryKey = "applicationdependencies";
 export const ApplicationsQueryKey = "applications";
 
@@ -26,12 +27,12 @@ export const ApplicationsQueryKey = "applications";
 export const useFetchApplications = () => {
   const queryClient = useQueryClient();
   const { data, isLoading, error, refetch } = useQuery(
-    ApplicationsQueryKey,
+    [ApplicationsQueryKey],
     getApplicationsQuery,
     {
       onSuccess: (data: Application[]) => {
-        queryClient.invalidateQueries(reviewsQueryKey);
-        queryClient.invalidateQueries(assessmentsQueryKey);
+        queryClient.invalidateQueries([reviewsQueryKey]);
+        queryClient.invalidateQueries([assessmentsQueryKey]);
       },
       onError: (error: AxiosError) => console.log(error),
     }
@@ -52,7 +53,7 @@ export const useUpdateApplicationMutation = (
   const { isLoading, mutate, error } = useMutation(updateApplication, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries(ApplicationsQueryKey);
+      queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -73,7 +74,7 @@ export const useUpdateAllApplicationsMutation = (
   const { isLoading, mutate, error } = useMutation(updateAllApplications, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries(ApplicationsQueryKey);
+      queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -94,7 +95,7 @@ export const useCreateApplicationMutation = (
   const { isLoading, mutate, error } = useMutation(createApplication, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries(ApplicationsQueryKey);
+      queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -115,7 +116,7 @@ export const useDeleteApplicationMutation = (
   return useMutation(({ id }: { id: number }) => deleteApplication(id), {
     onSuccess: (res) => {
       onSuccess(1);
-      queryClient.invalidateQueries(ApplicationsQueryKey);
+      queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -133,7 +134,7 @@ export const useBulkDeleteApplicationMutation = (
     {
       onSuccess: (res, vars) => {
         onSuccess(vars.ids.length);
-        queryClient.invalidateQueries(ApplicationsQueryKey);
+        queryClient.invalidateQueries([ApplicationsQueryKey]);
       },
       onError: (err: AxiosError) => {
         onError(err);

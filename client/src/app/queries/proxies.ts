@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AxiosError } from "axios";
 import { getProxies, updateProxy } from "@app/api/rest";
 import { Proxy } from "@app/api/models";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export interface IProxyFetchState {
   proxies: Proxy[];
@@ -10,11 +10,13 @@ export interface IProxyFetchState {
   fetchError: AxiosError;
 }
 
+export const ProxiesTasksQueryKey = "proxies";
+
 export const useFetchProxies = (
   defaultIsFetching: boolean = false
 ): IProxyFetchState => {
   const { isLoading, data, error } = useQuery(
-    "proxies",
+    [ProxiesTasksQueryKey],
     async () => (await getProxies()).data,
     { onError: (error) => console.log("error, ", error) }
   );
@@ -33,11 +35,11 @@ export const useUpdateProxyMutation = (onSuccess: any) => {
     onSuccess: (res) => {
       onSuccess();
       setPutResult(res);
-      queryClient.invalidateQueries("proxies");
+      queryClient.invalidateQueries([ProxiesTasksQueryKey]);
     },
     onError: (err) => {
       setPutResult(err);
-      queryClient.invalidateQueries("proxies");
+      queryClient.invalidateQueries([ProxiesTasksQueryKey]);
     },
   });
   return {

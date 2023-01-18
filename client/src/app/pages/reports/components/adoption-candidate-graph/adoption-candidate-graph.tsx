@@ -45,7 +45,7 @@ import { CartesianSquare } from "./cartesian-square";
 import { Arrow } from "./arrow";
 import { useFetchReviews } from "@app/queries/reviews";
 import useFetchApplicationDependencies from "@app/shared/hooks/useFetchApplicationDependencies/useFetchApplicationDependencies";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 interface Line {
   from: LinePoint;
@@ -142,7 +142,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
     isFetching,
     error: fetchError,
   } = useQuery<AssessmentConfidence[]>(
-    "assessmentconfidence",
+    ["assessmentconfidence"],
     async () =>
       (
         await getAssessmentConfidence(

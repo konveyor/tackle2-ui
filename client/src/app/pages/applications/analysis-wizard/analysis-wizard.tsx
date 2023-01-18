@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useIsMutating } from "react-query";
+import { useIsMutating } from "@tanstack/react-query";
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import {
   Truncate,

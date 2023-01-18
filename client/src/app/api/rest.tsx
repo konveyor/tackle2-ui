@@ -27,7 +27,7 @@ import {
   Taskgroup,
   ApplicationImport,
 } from "./models";
-import { QueryKey } from "react-query";
+import { QueryKey } from "@tanstack/react-query";
 
 // TACKLE_HUB
 export const HUB = "/hub";
