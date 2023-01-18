@@ -8,7 +8,9 @@ export const useFetchRisks = (applicationIDs: number[]) => {
   const { data, refetch, isFetching, error } = useQuery<AssessmentRisk[]>(
     ["assessmentrisks", applicationIDs],
     async () => {
-      return (await getAssessmentLandscape(applicationIDs)).data;
+      if (applicationIDs.length > 0)
+        return (await getAssessmentLandscape(applicationIDs)).data;
+      else return [];
     },
     {
       onError: (error) => console.log("error, ", error),

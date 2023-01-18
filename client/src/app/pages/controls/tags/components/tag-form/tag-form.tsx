@@ -76,10 +76,8 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
       .required(t("validation.required"))
       .min(3, t("validation.minLength", { length: 3 }))
       .max(120, t("validation.maxLength", { length: 120 }))
-      .test(
-        "Duplicate name",
-        "An tag with this name already exists. Please use a different name.",
-        (value) => duplicateNameCheck(tags, tag || null, value || "")
+      .test("Duplicate name", t("message.duplicateTag"), (value) =>
+        duplicateNameCheck(tags, tag || null, value || "")
       ),
     tagType: mixed().required(t("validation.required")),
   });
