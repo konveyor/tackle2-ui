@@ -17,7 +17,6 @@ import { SSOMenu } from "./SSOMenu";
 import { MobileDropdown } from "./MobileDropdown";
 
 import navBrandImage from "@app/images/tackle.png";
-import imgAvatar from "@app/images/avatar.svg";
 import { APP_BRAND, BrandType, isAuthRequired } from "@app/Constants";
 import logoRedHat from "@app/images/logoRedHat.svg";
 import "./header.css";
@@ -40,8 +39,8 @@ export const HeaderApp: React.FC = () => {
             {({ toggleModal }) => {
               return (
                 <Button
-                  id="aboutButton"
-                  aria-label="about-button"
+                  id="about-button"
+                  aria-label="about button"
                   variant={ButtonVariant.plain}
                   onClick={toggleModal}
                 >

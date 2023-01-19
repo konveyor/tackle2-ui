@@ -37,13 +37,14 @@ export const SSOMenu: React.FC = () => {
           onSelect={onDropdownSelect}
           isOpen={isDropdownOpen}
           toggle={
-            <DropdownToggle onToggle={onDropdownToggle}>
+            <DropdownToggle id="sso-actions-toggle" onToggle={onDropdownToggle}>
               {(keycloak.idTokenParsed as any)["preferred_username"]}
             </DropdownToggle>
           }
           dropdownItems={[
             <DropdownGroup key="sso">
               <DropdownItem
+                id="manage-account"
                 key="sso_user_management"
                 component="button"
                 onClick={() => keycloak.accountManagement()}
@@ -51,6 +52,7 @@ export const SSOMenu: React.FC = () => {
                 {t("actions.manageAccount")}
               </DropdownItem>
               <DropdownItem
+                id="logout"
                 key="sso_logout"
                 onClick={() => {
                   // Clears selected persona from storage without updating it in React state so we don't re-render the persona selector while logging out.

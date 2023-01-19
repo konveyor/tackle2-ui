@@ -259,6 +259,7 @@ export const ApplicationIdentityForm: React.FC<
         <ActionGroup>
           <Button
             type="submit"
+            id="identity-form-submit"
             aria-label="submit"
             onClick={(e) => {
               e.preventDefault();
@@ -275,6 +276,7 @@ export const ApplicationIdentityForm: React.FC<
             {t("actions.save")}
           </Button>
           <Button
+            id="cancel"
             type="button"
             aria-label="cancel"
             variant={ButtonVariant.link}

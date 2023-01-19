@@ -45,6 +45,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 }) => {
   const confirmBtn = (
     <Button
+      id="confirm-dialog-button"
       key="confirm"
       aria-label="confirm"
       variant={confirmBtnVariant}
@@ -58,6 +59,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   const cancelBtn = onCancel ? (
     <Button
       key="cancel"
+      id="confirm-cancel-button"
       aria-label="cancel"
       variant={ButtonVariant.link}
       isDisabled={inProgress}

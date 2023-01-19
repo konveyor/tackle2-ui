@@ -128,6 +128,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
           <TextInput
             type="text"
             name="name"
+            id="job-function-name"
             aria-label="name"
             aria-describedby="name"
             isRequired={true}
@@ -145,6 +146,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
         <ActionGroup>
           <Button
             type="submit"
+            id="job-function-form-submit"
             aria-label="submit"
             variant={ButtonVariant.primary}
             isDisabled={
@@ -158,6 +160,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
           </Button>
           <Button
             type="button"
+            id="cancel"
             aria-label="cancel"
             variant={ButtonVariant.link}
             isDisabled={formik.isSubmitting || formik.isValidating}

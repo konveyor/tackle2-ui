@@ -143,6 +143,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
           <TextInput
             type="text"
             name="name"
+            id="tag-name"
             aria-label="name"
             aria-describedby="name"
             isRequired={true}
@@ -190,6 +191,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
         <ActionGroup>
           <Button
             type="submit"
+            id="tag-form-submit"
             aria-label="submit"
             variant={ButtonVariant.primary}
             isDisabled={
@@ -203,6 +205,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
           </Button>
           <Button
             type="button"
+            id="cancel"
             aria-label="cancel"
             variant={ButtonVariant.link}
             isDisabled={formik.isSubmitting || formik.isValidating}

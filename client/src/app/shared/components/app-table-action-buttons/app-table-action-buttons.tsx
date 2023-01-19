@@ -26,7 +26,12 @@ export const AppTableActionButtons: React.FC<AppTableActionButtonsProps> = ({
     >
       <Flex>
         <FlexItem align={{ default: "alignRight" }}>
-          <Button aria-label="edit" variant="secondary" onClick={onEdit}>
+          <Button
+            id="edit-button"
+            aria-label="edit"
+            variant="secondary"
+            onClick={onEdit}
+          >
             {t("actions.edit")}
           </Button>
         </FlexItem>
@@ -36,6 +41,7 @@ export const AppTableActionButtons: React.FC<AppTableActionButtonsProps> = ({
             content={tooltipMessage}
           >
             <Button
+              id="delete-button"
               aria-label="delete"
               variant="link"
               onClick={onDelete}
