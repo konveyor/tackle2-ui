@@ -317,6 +317,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
         <ActionGroup>
           <Button
             type="submit"
+            id="review-form-submit"
             aria-label="submit"
             variant={ButtonVariant.primary}
             isDisabled={
@@ -330,6 +331,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
           </Button>
           <Button
             type="button"
+            id="cancel"
             aria-label="cancel"
             variant={ButtonVariant.link}
             isDisabled={formik.isSubmitting || formik.isValidating}

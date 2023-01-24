@@ -359,7 +359,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             ? t("message.copyAssessmentAndReviewBody")
             : t("message.copyAssessmentBody")}
           <Checkbox
-            id="confirm"
+            id="confirm-copy-checkbox"
             name="confirm"
             label={t("message.continueConfirmation")}
             aria-label="Confirm"
@@ -372,7 +372,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
       <ActionGroup>
         <Button
           type="button"
-          id="copy"
+          id="copy-button"
           aria-label="Copy"
           variant={ButtonVariant.primary}
           onClick={onSubmit}

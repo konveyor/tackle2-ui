@@ -215,7 +215,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
           <TextInput
             type="text"
             name="name"
-            id="name"
+            id="stakeholder-name"
             aria-label="name"
             aria-describedby="name"
             isRequired={true}
@@ -294,6 +294,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
           <Button
             type="submit"
             aria-label="submit"
+            id="stakeholder-form-submit"
             variant={ButtonVariant.primary}
             isDisabled={
               !formik.isValid ||
@@ -306,6 +307,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
           </Button>
           <Button
             type="button"
+            id="cancel"
             aria-label="cancel"
             variant={ButtonVariant.link}
             isDisabled={formik.isSubmitting || formik.isValidating}
