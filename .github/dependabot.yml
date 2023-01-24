@@ -7,7 +7,3 @@ updates:
     allow:
       - dependency-name: "@patternfly/*"
         dependency-type: "direct"
-      - dependency-name: "@cypress/*"
-        dependency-type: "direct"
-      - dependency-name: "cypress*"
-        dependency-type: "direct"

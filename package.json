@@ -13,7 +13,6 @@
   },
   "workspaces": [
     "client",
-    "server",
-    "qa"
+    "server"
   ]
 }
