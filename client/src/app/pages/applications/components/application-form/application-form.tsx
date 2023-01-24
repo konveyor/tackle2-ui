@@ -434,6 +434,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 type="text"
                 name="name"
                 data-testid="application-name"
+                id="application-name"
                 aria-label="name"
                 aria-describedby="name"
                 isRequired={true}
@@ -767,6 +768,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         <ActionGroup>
           <Button
             type="submit"
+            id="application-form-submit"
             aria-label="submit"
             variant={ButtonVariant.primary}
             isDisabled={
@@ -780,6 +782,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           </Button>
           <Button
             type="button"
+            id="cancel"
             aria-label="cancel"
             variant={ButtonVariant.link}
             isDisabled={formik.isSubmitting || formik.isValidating}

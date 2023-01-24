@@ -146,7 +146,7 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
           <TextInput
             type="text"
             name="name"
-            id="name"
+            id="tag-type-name"
             aria-label="name"
             aria-describedby="name"
             isRequired={true}
@@ -162,12 +162,14 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
         </FormGroup>
         <FormGroup
           label={t("terms.rank")}
+          id="rank"
           fieldId="rank"
           isRequired={false}
           validated={getValidatedFromError(formik.errors.rank)}
           helperTextInvalid={formik.errors.rank}
         >
           <NumberInput
+            id="rank-input-id"
             inputName="rank"
             inputAriaLabel="rank"
             minusBtnAriaLabel="minus"
@@ -214,6 +216,7 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
         <ActionGroup>
           <Button
             type="submit"
+            id="tag-type-form-submit"
             aria-label="submit"
             variant={ButtonVariant.primary}
             isDisabled={
@@ -227,6 +230,7 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
           </Button>
           <Button
             type="button"
+            id="cancel"
             aria-label="cancel"
             variant={ButtonVariant.link}
             isDisabled={formik.isSubmitting || formik.isValidating}

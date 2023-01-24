@@ -221,8 +221,9 @@ export const CustomRules: React.FC = () => {
             <ToolbarGroup variant="button-group">
               <ToolbarItem>
                 <Button
+                  id="add-rules"
                   type="button"
-                  aria-label="add-rules"
+                  aria-label="add rules"
                   variant="primary"
                   onClick={() => setCustomRulesModalOpen(true)}
                 >

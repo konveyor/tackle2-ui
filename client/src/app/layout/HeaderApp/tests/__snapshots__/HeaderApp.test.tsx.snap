@@ -61,12 +61,12 @@ Object {
             >
               <button
                 aria-disabled="false"
-                aria-label="about-button"
+                aria-label="about button"
                 class="pf-c-button pf-m-plain"
                 data-ouia-component-id="OUIA-Generated-Button-plain-2"
                 data-ouia-component-type="PF4/Button"
                 data-ouia-safe="true"
-                id="aboutButton"
+                id="about-button"
                 type="button"
               >
                 <test-file-stub />
@@ -176,12 +176,12 @@ Object {
           >
             <button
               aria-disabled="false"
-              aria-label="about-button"
+              aria-label="about button"
               class="pf-c-button pf-m-plain"
               data-ouia-component-id="OUIA-Generated-Button-plain-2"
               data-ouia-component-type="PF4/Button"
               data-ouia-safe="true"
-              id="aboutButton"
+              id="about-button"
               type="button"
             >
               <test-file-stub />

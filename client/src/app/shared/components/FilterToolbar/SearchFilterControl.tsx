@@ -57,6 +57,7 @@ export const SearchFilterControl = <T,>({
         />
         <Button
           variant={ButtonVariant.control}
+          id="search-button"
           aria-label="search button for search input"
           onClick={onFilterSubmit}
         >

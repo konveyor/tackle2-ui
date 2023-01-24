@@ -543,8 +543,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               <HookFormPFTextInput
                 control={control}
                 name="password"
-                label="Private Key Passphrase"
                 fieldId="password"
+                label="Private Key Passphrase"
                 type={isPasswordHidden ? "password" : "text"}
                 formGroupProps={{
                   labelIcon: !isPasswordEncrypted ? (
@@ -642,6 +642,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         <Button
           type="submit"
           aria-label="submit"
+          id="identity-form-submit"
           variant={ButtonVariant.primary}
           isDisabled={
             !isValid || isSubmitting || isValidating || isLoading || !isDirty
@@ -651,6 +652,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         </Button>
         <Button
           type="button"
+          id="cancel"
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}

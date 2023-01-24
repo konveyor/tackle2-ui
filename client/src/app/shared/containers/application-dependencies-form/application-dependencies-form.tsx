@@ -208,6 +208,7 @@ export const ApplicationDependenciesForm: React.FC<
       <ActionGroup>
         <Button
           type="button"
+          id="application-dependencies-close"
           aria-label="close"
           variant={ButtonVariant.primary}
           onClick={onCancel}

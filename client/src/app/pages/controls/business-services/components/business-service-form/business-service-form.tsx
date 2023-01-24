@@ -163,6 +163,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
           <TextInput
             type="text"
             name="name"
+            id="business-service-name"
             aria-label="name"
             aria-describedby="name"
             isRequired={true}
@@ -231,6 +232,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
         <ActionGroup>
           <Button
             type="submit"
+            id="business-service-form-submit"
             aria-label="submit"
             variant={ButtonVariant.primary}
             isDisabled={
@@ -244,6 +246,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
           </Button>
           <Button
             type="button"
+            id="cancel"
             aria-label="cancel"
             variant={ButtonVariant.link}
             isDisabled={formik.isSubmitting || formik.isValidating}

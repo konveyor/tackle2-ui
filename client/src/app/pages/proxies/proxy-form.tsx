@@ -380,6 +380,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       <ActionGroup>
         <Button
           type="submit"
+          id="proxy-form-submit"
           aria-label="submit"
           variant={ButtonVariant.primary}
           isDisabled={
