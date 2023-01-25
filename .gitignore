@@ -25,12 +25,6 @@ npm-debug.log*
 
 .eslintcache
 
-# cypress
-# TODO To be groomed
-/qa/cypress/videos
-/qa/cypress/screenshots
-.nyc_output
-
 # VSCode
 .vscode/*
 
