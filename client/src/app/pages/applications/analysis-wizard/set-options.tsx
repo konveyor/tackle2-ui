@@ -14,7 +14,8 @@ import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 
 import { getValidatedFromErrorTouched } from "@app/utils/utils";
-import { defaultSources, defaultTargets } from "./targets";
+import defaultSources from "./sources";
+import { defaultTargets } from "@app/data/targets";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisWizardFormValues } from "./schema";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";

@@ -193,11 +193,14 @@
         "confidence": "Confidence",
         "controls": "Controls",
         "createdBy": "Created By",
+        "credential": "Credential",
         "credentials": "Credentials",
         "credentialsDeleted": "Credentials deleted",
         "credentialType": "Credential type",
         "criticality": "Criticality",
         "currentLandscape": "Current landscape",
+        "customTargets": "Custom migration targets",
+        "customTargetsDetails": "Create and manage custom migration targets. You can also drag and drop the cards to rearrange them. Note that any changes to the layout here will be reflected in the Analysis wizard",
         "date": "Date",
         "decision": "Decision",
         "dependencies": "Dependencies",
@@ -295,8 +298,7 @@
         "workPriority": "Work priority",
         "tag": "Tag",
         "tagDelete": "Tag deleted",
-        "tagTypeDelete": "Tag type deleted",
-        "credential": "Credential"
+        "tagTypeDelete": "Tag type deleted"
     },
     "toastr": {
         "success": {

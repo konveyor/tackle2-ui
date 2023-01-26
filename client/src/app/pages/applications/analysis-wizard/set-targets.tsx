@@ -11,7 +11,10 @@ import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
 
 import { SelectCard } from "./components/select-card";
-import { ITransformationTargets, transformationTargets } from "./targets";
+import {
+  ITransformationTargets,
+  transformationTargets,
+} from "../../../data/targets";
 import { AnalysisWizardFormValues } from "./schema";
 
 export const SetTargets: React.FC = () => {

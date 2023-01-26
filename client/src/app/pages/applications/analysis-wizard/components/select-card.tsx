@@ -11,23 +11,30 @@ import {
   SelectVariant,
   SelectOptionObject,
   Text,
+  Truncate,
+  TruncatePosition,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { ITransformationTargets, targetsLabels } from "../targets";
+import {
+  ITransformationTargets,
+  targetsLabels,
+} from "../../../../data/targets";
 
 import "./select-card.css";
 
 export interface SelectCardProps {
   item: ITransformationTargets;
-  cardSelected: boolean;
-  onChange: (isNewCard: boolean, value: string) => void;
+  cardSelected?: boolean;
+  isEllipsis?: boolean;
+  onChange?: (isNewCard: boolean, value: string) => void;
 }
 
 export const SelectCard: React.FC<SelectCardProps> = ({
   item,
   cardSelected,
+  isEllipsis = false,
   onChange,
 }) => {
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
@@ -97,10 +104,16 @@ export const SelectCard: React.FC<SelectCardProps> = ({
                 </SelectOption>
               ))}
             </Select>
+          ) : isEllipsis ? (
+            <Text className={`${spacing.pMd} pf-u-text-align-left`}> </Text>
           ) : null}
-          <Text className={`${spacing.pMd} pf-u-text-align-left`}>
-            {item.description}
-          </Text>
+          {isEllipsis ? (
+            <Truncate content={item.description ? item.description : ""} />
+          ) : (
+            <Text className={`${spacing.pMd} pf-u-text-align-left`}>
+              {item.description}
+            </Text>
+          )}
         </EmptyState>
       </CardBody>
     </Card>
