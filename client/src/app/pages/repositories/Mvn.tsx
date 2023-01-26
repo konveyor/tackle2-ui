@@ -157,11 +157,11 @@ export const RepositoriesMvn: React.FC = () => {
                   type="text"
                   aria-label="Maven Repository Size"
                   aria-disabled={!isRWXSupported || isFetching || isDeleting}
+                  isDisabled={!isRWXSupported || isFetching || isDeleting}
                   readOnlyVariant="default"
                   size={15}
                   width={10}
                 />
-                {"  "}
                 <ConditionalTooltip
                   isTooltipEnabled={!isRWXSupported}
                   content={t("actions.clearRepositoryNotSupported")}
