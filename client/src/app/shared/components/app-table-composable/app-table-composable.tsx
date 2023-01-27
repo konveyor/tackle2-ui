@@ -1,109 +1,125 @@
 import React from "react";
 import {
+  Bullseye,
+  Spinner,
+  Skeleton,
+  EmptyState,
+  Button,
+  EmptyStateBody,
+  EmptyStateIcon,
+  EmptyStateVariant,
+  Title,
+} from "@patternfly/react-core";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  IRow,
+  TableProps,
+  ExpandableRowContent,
   TableComposable,
-  Thead,
-  Tr,
-  Th,
   Tbody,
   Td,
-  TdProps,
-  ExpandableRowContent,
+  Th,
+  Thead,
+  Tr,
+  TableComposableProps,
 } from "@patternfly/react-table";
 
-import { Application, Stakeholder, Wave } from "@app/api/models";
-import dayjs from "dayjs";
+import "./app-table-composable.css";
+import { StateError } from "../app-table/state-error";
+import { StateNoData } from "../app-table/state-no-data";
+import { StateNoResults } from "../app-table/state-no-results";
+import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 
-export const WavesTable: React.FunctionComponent = () => {
-  var now = dayjs();
-  // In real usage, this data would come from some external source like an API via props.
-  const waves: Wave[] = [
-    {
-      name: "wave1",
-      startDate: "2018-02-03 22:15:01",
-      endDate: "2020-01-03 22:15:014",
-      applications: [{ name: "app1" }, { name: "app2" }],
-      stakeholders: [{ name: "sh1", email: "aaakwd@aol.com" }],
-      status: "n/a",
-    },
-    {
-      name: "wave2",
-      startDate: "2019-03-03 22:15:01",
-      endDate: "2020-01-03 22:15:014",
-      applications: [{ name: "app3" }, { name: "app4" }],
-      stakeholders: [{ name: "sh1", email: "aaakwd@aol.com" }],
-      status: "n/a",
-    },
-  ];
+export interface IAppTableComposableProps extends TableComposableProps {
+  isLoading: boolean;
+  loadingVariant?: "skeleton" | "spinner" | "none";
+  fetchError?: any;
 
-  const columnNames = {
-    name: "Name",
-    startDate: "Start date",
-    endDate: "End date",
-    applications: "Applications",
-    stakeholders: "Stakeholders",
-    status: "Status",
-  };
+  filtersApplied?: boolean;
+  noDataState?: any;
+  noSearchResultsState?: any;
+  errorState?: any;
+  isSelectable?: boolean;
+  composableColumns: any[];
+  composableRows: any[];
+}
 
-  type ColumnKey = keyof typeof columnNames;
+export const AppTableComposable: React.FC<IAppTableComposableProps> = ({
+  composableColumns,
+  composableRows,
+  "aria-label": ariaLabel = "main-table",
 
-  const [expandedCells, setExpandedCells] = React.useState<
-    Record<string, ColumnKey>
-  >({
-    wave1: "applications", // Default to the first cell of the first row being expanded
-  });
-  const setCellExpanded = (
-    application: Application,
-    columnKey: ColumnKey,
-    isExpanding = true
-  ) => {
-    const newExpandedCells = { ...expandedCells };
-    if (isExpanding) {
-      newExpandedCells[application.name] = columnKey;
-    } else {
-      delete newExpandedCells[application.name];
-    }
-    setExpandedCells(newExpandedCells);
-  };
-  const compoundExpandParams = (
-    application: Application,
-    columnKey: ColumnKey,
-    rowIndex: number,
-    columnIndex: number
-  ): TdProps["compoundExpand"] => ({
-    isExpanded: expandedCells[application.name] === columnKey,
-    onToggle: () =>
-      setCellExpanded(
-        application,
-        columnKey,
-        expandedCells[application.name] !== columnKey
-      ),
-    expandId: "composable-compound-expandable-example",
-    rowIndex,
-    columnIndex,
-  });
+  isLoading,
+  fetchError,
+  loadingVariant = "skeleton",
 
+  filtersApplied,
+  noDataState,
+  noSearchResultsState,
+  errorState,
+
+  isSelectable,
+
+  ...rest
+}) => {
   return (
-    <TableComposable aria-label="waves-table">
+    <TableComposable aria-label={ariaLabel}>
       <Thead>
         <Tr>
-          <Th
-            select={{
-              onSelect: (_event, isSelecting) => selectAllWaves(isSelecting),
-              isSelected: areAllWavesSelected,
-            }}
-          />
-          <Th>{columnNames.name}</Th>
-          <Th>{columnNames.startDate}</Th>
-          <Th>{columnNames.endDate}</Th>
-          <Th>{columnNames.applications}</Th>
-          <Th>{columnNames.stakeholders}</Th>
-          <Th>{columnNames.status}</Th>
-          <Th />
+          {isSelectable && (
+            <Th
+              select={{
+                onSelect: (_event, isSelecting) => selectAll(isSelecting),
+                isSelected: areAllSelected,
+              }}
+            />
+          )}
+          {columns.map((column) => (
+            <Th>{column.name} </Th>
+          ))}
         </Tr>
       </Thead>
-      {waves.map((wave: Wave, rowIndex: number) => {
+      {items.map((item: Wave, rowIndex: number) => {
         const expandedCellKey = expandedCells[wave.name];
         const isRowExpanded = !!expandedCellKey;
+        if (isLoading) {
+          <Tbody>
+            <Tr>
+              <Td colSpan={8}>
+                <Bullseye>
+                  <Spinner size="xl" />
+                </Bullseye>
+              </Td>
+            </Tr>
+          </Tbody>;
+        }
+        if (fetchError) {
+          return (
+            <>
+              <Tbody aria-label={ariaLabel}>
+                <Tr>
+                  <Td colSpan={8}>
+                    <Bullseye>
+                      {errorState ? errorState : <StateError />}
+                    </Bullseye>
+                  </Td>
+                </Tr>
+              </Tbody>
+            </>
+          );
+        }
+        if (composableRows.length === 0) {
+          return filtersApplied ? (
+            <>
+              {noSearchResultsState ? noSearchResultsState : <StateNoResults />}
+            </>
+          ) : (
+              {noDataState ? noDataState : <StateNoData />}
+          );
+        }
+
         return (
           <Tbody key={wave.name} isExpanded={isRowExpanded}>
             <Tr>
