@@ -22,6 +22,7 @@ export interface IAppTableWithControlsProps extends IAppTableProps {
   toolbarClearAllFilters?: () => void;
   paginationProps: PaginationStateProps;
   paginationIdPrefix?: string;
+  isComposable?: boolean;
 }
 
 export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
@@ -34,6 +35,7 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
   toolbarClearAllFilters,
   paginationProps,
   paginationIdPrefix,
+  isComposable,
   ...rest
 }) => {
   const { t } = useTranslation();
