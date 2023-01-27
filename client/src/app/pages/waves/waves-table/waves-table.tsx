@@ -10,12 +10,8 @@ import {
   ExpandableRowContent,
 } from "@patternfly/react-table";
 
-import CodeBranchIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import CodeIcon from "@patternfly/react-icons/dist/esm/icons/code-icon";
-import CubeIcon from "@patternfly/react-icons/dist/esm/icons/cube-icon";
 import { Application, Stakeholder, Wave } from "@app/api/models";
 import dayjs from "dayjs";
-import applications from "@app/pages/applications";
 
 export const WavesTable: React.FunctionComponent = () => {
   var now = dayjs();
@@ -23,18 +19,18 @@ export const WavesTable: React.FunctionComponent = () => {
   const waves: Wave[] = [
     {
       name: "wave1",
-      startDate: "2018-05-03 22:15:01",
-      endDate: "20120-05-03 22:15:014",
-      applications: [],
-      stakeholders: [],
+      startDate: "2018-02-03 22:15:01",
+      endDate: "2020-01-03 22:15:014",
+      applications: [{ name: "app1" }, { name: "app2" }],
+      stakeholders: [{ name: "sh1", email: "aaakwd@aol.com" }],
       status: "n/a",
     },
     {
       name: "wave2",
-      startDate: "2019-05-03 22:15:01",
-      endDate: "2020-05-03 22:15:014",
-      applications: [],
-      stakeholders: [],
+      startDate: "2019-03-03 22:15:01",
+      endDate: "2020-01-03 22:15:014",
+      applications: [{ name: "app3" }, { name: "app4" }],
+      stakeholders: [{ name: "sh1", email: "aaakwd@aol.com" }],
       status: "n/a",
     },
   ];
@@ -106,13 +102,13 @@ export const WavesTable: React.FunctionComponent = () => {
           <Tbody key={wave.name} isExpanded={isRowExpanded}>
             <Tr>
               <Td width={25} dataLabel={columnNames.name} component="th">
-                <a href="#">{wave.name}</a>
+                {wave.name}
               </Td>
               <Td width={25} dataLabel={columnNames.startDate} component="th">
-                <a href="#">{wave.startDate}</a>
+                {dayjs(wave.startDate).format("DD/MM/YYYY")}
               </Td>
               <Td width={25} dataLabel={columnNames.endDate} component="th">
-                <a href="#">{wave.endDate}</a>
+                {dayjs(wave.endDate).format("DD/MM/YYYY")}
               </Td>
               <Td
                 width={10}
@@ -124,7 +120,7 @@ export const WavesTable: React.FunctionComponent = () => {
                   1
                 )}
               >
-                <CodeBranchIcon key="icon" /> {wave.applications.length}
+                {wave.applications.length}
               </Td>
               <Td
                 width={10}
@@ -136,13 +132,10 @@ export const WavesTable: React.FunctionComponent = () => {
                   2
                 )}
               >
-                <CodeIcon key="icon" /> {wave.stakeholders.length}
+                {wave.stakeholders.length}
               </Td>
               <Td width={15} dataLabel={columnNames.status}>
                 {wave.status}
-              </Td>
-              <Td width={30}>
-                <a href="#">{wave.status}</a>
               </Td>
             </Tr>
             {isRowExpanded ? (
@@ -152,24 +145,27 @@ export const WavesTable: React.FunctionComponent = () => {
                   noPadding
                   colSpan={6}
                 >
-                  <ExpandableRowContent>
-                    <div className="pf-u-m-md">
-                      Lorem ipsum sit dolor. Lorem ipsum sit dolor. Lorem ipsum
-                      sit dolor. Lorem ipsum sit dolor. Lorem ipsum sit dolor.
-                      Lorem ipsum sit dolor. Lorem ipsum sit dolor. Lorem ipsum
-                      sit dolor. Lorem ipsum sit dolor. Lorem ipsum sit dolor.
-                      Lorem ipsum sit dolor. Lorem ipsum sit dolor. Lorem ipsum
-                      sit dolor. Lorem ipsum sit dolor. Lorem ipsum sit dolor.
-                      Lorem ipsum sit dolor. Lorem ipsum sit dolor. Lorem ipsum
-                      sit dolor. Lorem ipsum sit dolor. Lorem ipsum sit dolor.
-                      Lorem ipsum sit dolor. Lorem ipsum sit dolor. Lorem ipsum
-                      sit dolor. Lorem ipsum sit dolor. Lorem ipsum sit dolor.
-                      Lorem ipsum sit dolor. Lorem ipsum sit dolor. Lorem ipsum
-                      sit dolor. Lorem ipsum sit dolor. Lorem ipsum sit dolor.
-                      Lorem ipsum sit dolor. Lorem ipsum sit dolor. Lorem ipsum
-                      sit dolor.
-                    </div>
-                  </ExpandableRowContent>
+                  {expandedCellKey === "applications" && (
+                    <ExpandableRowContent>
+                      <div className="pf-u-m-md">
+                        {wave.applications.map((app) => (
+                          <div>{app.name}</div>
+                        ))}
+                      </div>
+                    </ExpandableRowContent>
+                  )}
+
+                  {expandedCellKey === "stakeholders" && (
+                    <ExpandableRowContent>
+                      <div className="pf-u-m-md">
+                        {wave.stakeholders.map((sh) => (
+                          <div>
+                            {sh.name} - {sh.email}
+                          </div>
+                        ))}
+                      </div>
+                    </ExpandableRowContent>
+                  )}
                 </Td>
               </Tr>
             ) : null}
