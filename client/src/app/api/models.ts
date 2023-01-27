@@ -474,3 +474,13 @@ export interface IReadFile {
 export interface TagRef extends Ref {
   source?: string;
 }
+
+export interface Wave {
+  name: string;
+  id?: number;
+  startDate: string;
+  endDate: string;
+  applications: Application[];
+  stakeholders: Stakeholder[];
+  status: string;
+}

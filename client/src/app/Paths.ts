@@ -28,6 +28,7 @@ export enum Paths {
   controlsJobFunctions = "/controls/job-functions",
   controlsTags = "/controls/tags",
   reports = "/reports",
+  waves = "/waves",
 
   // Administrator perspective
   general = "/general",

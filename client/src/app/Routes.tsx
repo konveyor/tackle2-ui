@@ -26,6 +26,7 @@ const Identities = lazy(() => import("./pages/identities"));
 const Proxies = lazy(() => import("./pages/proxies"));
 const MigrationTargets = lazy(() => import("./pages/migration-targets"));
 const General = lazy(() => import("./pages/general"));
+const Waves = lazy(() => import("./pages/waves"));
 
 export interface IRoute {
   path: string;
@@ -68,6 +69,11 @@ export const devRoutes: IRoute[] = [
   {
     path: Paths.reports,
     comp: Reports,
+    exact: false,
+  },
+  {
+    path: Paths.waves,
+    comp: Waves,
     exact: false,
   },
 ];
