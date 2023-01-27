@@ -415,3 +415,12 @@ export interface ITypeOptions {
   key: string;
   value: string;
 }
+
+export interface Wave {
+  name: string;
+  startDate: string;
+  endDate: string;
+  applications: Application[];
+  stakeholders: Stakeholder[];
+  status: string;
+}
