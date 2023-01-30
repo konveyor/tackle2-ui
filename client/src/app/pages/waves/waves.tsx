@@ -14,12 +14,12 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 import { useFetchWaves } from "@app/queries/waves";
-import { WavesTable } from "./waves-table/waves-table";
+import { ComposableWaveTableWithControls } from "./waves-table/waves-table";
 
 export const Waves: React.FC = () => {
   const { t } = useTranslation();
 
-  const { waves, isFetching } = useFetchWaves();
+  const { waves, isFetching, fetchError } = useFetchWaves();
 
   return (
     <>
@@ -39,7 +39,10 @@ export const Waves: React.FC = () => {
                 </Title>
               </EmptyState>
             ) : (
-              <WavesTable></WavesTable>
+              <ComposableWaveTableWithControls
+                isLoading={isFetching}
+                fetchError={fetchError}
+              ></ComposableWaveTableWithControls>
             )}
           </CardBody>
         </Card>

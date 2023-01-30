@@ -418,6 +418,7 @@ export interface ITypeOptions {
 
 export interface Wave {
   name: string;
+  id?: number;
   startDate: string;
   endDate: string;
   applications: Application[];
