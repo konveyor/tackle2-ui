@@ -21,6 +21,7 @@ import {
   ITransformationTargets,
   transformationTargets,
 } from "@app/data/targets";
+
 import { SelectCard } from "../applications/analysis-wizard/components/select-card";
 
 interface IDroppable {
@@ -45,6 +46,8 @@ export const CustomTargets: React.FC = () => {
   const { t } = useTranslation();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
+
+  const dragRef = React.useRef(null);
 
   const [targets, setTargets] = React.useState<ITransformationTargets[]>(
     transformationTargets
@@ -103,22 +106,14 @@ export const CustomTargets: React.FC = () => {
         </Grid>
       </PageSection>
       <PageSection>
-        <Gallery
-          hasGutter
-          minWidths={{
-            md: "100px",
-            lg: "150px",
-            xl: "200px",
-            "2xl": "300px",
-          }}
-        >
+        <Gallery hasGutter>
           <DragDrop onDrop={(source, dest) => onDrop(source, dest)}>
             {areas.map((targets, zoneId) => (
               <GalleryItem key={zoneId}>
                 <Droppable droppableId={`${zoneId}`}>
                   {targets.map((target, id) => (
                     <Draggable key={target.label} style={{ padding: "1em" }}>
-                      <SelectCard item={target} />
+                      <SelectCard item={target} onChange={() => {}} />
                     </Draggable>
                   ))}
                 </Droppable>

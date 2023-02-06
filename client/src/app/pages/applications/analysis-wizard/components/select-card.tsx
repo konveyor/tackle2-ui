@@ -28,7 +28,7 @@ export interface SelectCardProps {
   item: ITransformationTargets;
   cardSelected?: boolean;
   isEllipsis?: boolean;
-  onChange?: (isNewCard: boolean, value: string) => void;
+  onChange: (isNewCard: boolean, value: string) => void;
 }
 
 export const SelectCard: React.FC<SelectCardProps> = ({
@@ -65,7 +65,11 @@ export const SelectCard: React.FC<SelectCardProps> = ({
     let result: React.ComponentType<any> = CubesIcon;
     if (item.iconSrc) {
       result = () => (
-        <img src={item.iconSrc} alt="Card logo" style={{ height: 80 }} />
+        <img
+          src={item.iconSrc}
+          alt="Card logo"
+          style={{ height: 80, pointerEvents: "none" }}
+        />
       );
     }
 
