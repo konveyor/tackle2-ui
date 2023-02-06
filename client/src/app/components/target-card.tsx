@@ -22,14 +22,12 @@ import "./target-card.css";
 export interface TargetCardProps {
   item: ITransformationTargets;
   cardSelected?: boolean;
-  isSelectable?: boolean;
   onChange?: (isNewCard: boolean, value: string) => void;
 }
 
 export const TargetCard: React.FC<TargetCardProps> = ({
   item,
   cardSelected,
-  isSelectable,
   onChange = () => {},
 }) => {
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
@@ -74,7 +72,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   return (
     <Card
       onClick={handleCardClick}
-      isSelectable={isSelectable}
+      isSelectable={!!cardSelected}
       isSelected={isCardSelected}
       className="pf-l-stack pf-l-stack__item pf-m-fill"
     >

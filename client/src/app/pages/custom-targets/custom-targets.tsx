@@ -111,7 +111,7 @@ export const CustomTargets: React.FC = () => {
                 <Droppable droppableId={`${zoneId}`}>
                   {targets.map((target, id) => (
                     <Draggable key={target.label} style={{ padding: ".5em" }}>
-                      <TargetCard item={target} isSelectable={false} />
+                      <TargetCard item={target} />
                     </Draggable>
                   ))}
                 </Droppable>
