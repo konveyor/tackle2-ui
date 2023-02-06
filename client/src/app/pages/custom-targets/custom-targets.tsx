@@ -58,7 +58,6 @@ export const CustomTargets: React.FC = () => {
   );
 
   const onDrop = (src: IDroppable, dest?: IDroppable) => {
-    console.log(src, dest);
     if (dest) {
       const newFlatzones = areas.flat();
       const removed = newFlatzones.splice(
