@@ -21,7 +21,7 @@ import {
   ITransformationTargets,
   transformationTargets,
 } from "@app/data/targets";
-import { SelectCard } from "../applications/analysis-wizard/components/select-card";
+import { TargetCard } from "@app/components/target-card";
 import "./custom-targets.css";
 
 interface IDroppable {
@@ -116,7 +116,7 @@ export const CustomTargets: React.FC = () => {
                       key={target.label}
                       style={{ padding: ".5em", cursor: "grab" }}
                     >
-                      <SelectCard
+                      <TargetCard
                         item={target}
                         isSelectable={false}
                         onChange={() => {}}

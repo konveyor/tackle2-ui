@@ -15,21 +15,18 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import {
-  ITransformationTargets,
-  targetsLabels,
-} from "../../../../data/targets";
+import { ITransformationTargets, targetsLabels } from "@app/data/targets";
 
-import "./select-card.css";
+import "./target-card.css";
 
-export interface SelectCardProps {
+export interface TargetCardProps {
   item: ITransformationTargets;
   cardSelected?: boolean;
   isSelectable?: boolean;
   onChange: (isNewCard: boolean, value: string) => void;
 }
 
-export const SelectCard: React.FC<SelectCardProps> = ({
+export const TargetCard: React.FC<TargetCardProps> = ({
   item,
   cardSelected,
   isSelectable,
