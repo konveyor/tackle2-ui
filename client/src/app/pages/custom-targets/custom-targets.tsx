@@ -116,7 +116,11 @@ export const CustomTargets: React.FC = () => {
                       key={target.label}
                       style={{ padding: ".5em", cursor: "grab" }}
                     >
-                      <SelectCard item={target} onChange={() => {}} />
+                      <SelectCard
+                        item={target}
+                        isSelectable={false}
+                        onChange={() => {}}
+                      />
                     </Draggable>
                   ))}
                 </Droppable>

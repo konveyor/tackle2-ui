@@ -53,6 +53,7 @@ export const SetTargets: React.FC = () => {
           <GalleryItem key={index}>
             <SelectCard
               item={elem}
+              isSelectable={true}
               cardSelected={[...elem.options].some((key) =>
                 targets.includes(key)
               )}

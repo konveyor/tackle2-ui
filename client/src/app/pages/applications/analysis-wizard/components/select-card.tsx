@@ -11,8 +11,6 @@ import {
   SelectVariant,
   SelectOptionObject,
   Text,
-  Truncate,
-  TruncatePosition,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -27,14 +25,14 @@ import "./select-card.css";
 export interface SelectCardProps {
   item: ITransformationTargets;
   cardSelected?: boolean;
-  isEllipsis?: boolean;
+  isSelectable?: boolean;
   onChange: (isNewCard: boolean, value: string) => void;
 }
 
 export const SelectCard: React.FC<SelectCardProps> = ({
   item,
   cardSelected,
-  isEllipsis = false,
+  isSelectable,
   onChange,
 }) => {
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
@@ -44,7 +42,7 @@ export const SelectCard: React.FC<SelectCardProps> = ({
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
-    // Workaround to stop 'select' event propagation
+    // Stop 'select' event propagation
     const eventTarget: any = event.target;
     if (eventTarget.type === "button") return;
 
@@ -79,7 +77,7 @@ export const SelectCard: React.FC<SelectCardProps> = ({
   return (
     <Card
       onClick={handleCardClick}
-      isSelectable
+      isSelectable={isSelectable}
       isSelected={isCardSelected}
       className="pf-l-stack pf-l-stack__item pf-m-fill"
     >
@@ -108,16 +106,10 @@ export const SelectCard: React.FC<SelectCardProps> = ({
                 </SelectOption>
               ))}
             </Select>
-          ) : isEllipsis ? (
-            <Text className={`${spacing.pMd} pf-u-text-align-left`}> </Text>
           ) : null}
-          {isEllipsis ? (
-            <Truncate content={item.description ? item.description : ""} />
-          ) : (
-            <Text className={`${spacing.pMd} pf-u-text-align-left`}>
-              {item.description}
-            </Text>
-          )}
+          <Text className={`${spacing.pMd} pf-u-text-align-left`}>
+            {item.description}
+          </Text>
         </EmptyState>
       </CardBody>
     </Card>
