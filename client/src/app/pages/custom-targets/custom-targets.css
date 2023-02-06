@@ -1,0 +1,4 @@
+.pf-c-droppable {
+    --pf-c-droppable--m-drag-outside--after--BorderColor: rgb(255, 255, 255);
+    --pf-c-droppable--m-dragging--after--BorderColor: rgb(255, 255, 255);
+}
