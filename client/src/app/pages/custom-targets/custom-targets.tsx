@@ -21,8 +21,8 @@ import {
   ITransformationTargets,
   transformationTargets,
 } from "@app/data/targets";
-
 import { SelectCard } from "../applications/analysis-wizard/components/select-card";
+import "./custom-targets.css";
 
 interface IDroppable {
   droppableId: string;
@@ -112,7 +112,10 @@ export const CustomTargets: React.FC = () => {
               <GalleryItem key={zoneId}>
                 <Droppable droppableId={`${zoneId}`}>
                   {targets.map((target, id) => (
-                    <Draggable key={target.label} style={{ padding: "1em" }}>
+                    <Draggable
+                      key={target.label}
+                      style={{ padding: ".5em", cursor: "grab" }}
+                    >
                       <SelectCard item={target} onChange={() => {}} />
                     </Draggable>
                   ))}
