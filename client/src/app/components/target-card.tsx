@@ -23,14 +23,14 @@ export interface TargetCardProps {
   item: ITransformationTargets;
   cardSelected?: boolean;
   isSelectable?: boolean;
-  onChange: (isNewCard: boolean, value: string) => void;
+  onChange?: (isNewCard: boolean, value: string) => void;
 }
 
 export const TargetCard: React.FC<TargetCardProps> = ({
   item,
   cardSelected,
   isSelectable,
-  onChange,
+  onChange = () => {},
 }) => {
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
   const [isSelectOpen, setSelectOpen] = React.useState(false);
