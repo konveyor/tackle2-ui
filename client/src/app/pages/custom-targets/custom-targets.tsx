@@ -76,8 +76,6 @@ export const CustomTargets: React.FC = () => {
     return false;
   };
 
-  React.useEffect(() => console.log("areas: ", areas));
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -112,10 +110,7 @@ export const CustomTargets: React.FC = () => {
               <GalleryItem key={zoneId}>
                 <Droppable droppableId={`${zoneId}`}>
                   {targets.map((target, id) => (
-                    <Draggable
-                      key={target.label}
-                      style={{ padding: ".5em", cursor: "grab" }}
-                    >
+                    <Draggable key={target.label} style={{ padding: ".5em" }}>
                       <TargetCard
                         item={target}
                         isSelectable={false}
