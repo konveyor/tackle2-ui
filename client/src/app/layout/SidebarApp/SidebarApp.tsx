@@ -10,7 +10,6 @@ import {
   SelectOption,
   SelectVariant,
   NavExpandable,
-  NavItemSeparator,
 } from "@patternfly/react-core";
 
 import { Paths } from "@app/Paths";
@@ -144,6 +143,11 @@ export const SidebarApp: React.FC = () => {
           <NavItem>
             <NavLink to={Paths.proxies} activeClassName="pf-m-current">
               Proxy
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={Paths.customTargets} activeClassName="pf-m-current">
+              Custom migration targets
             </NavLink>
           </NavItem>
         </NavList>

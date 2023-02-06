@@ -15,20 +15,20 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { ITransformationTargets, targetsLabels } from "../targets";
+import { ITransformationTargets, targetsLabels } from "@app/data/targets";
 
-import "./select-card.css";
+import "./target-card.css";
 
-export interface SelectCardProps {
+export interface TargetCardProps {
   item: ITransformationTargets;
-  cardSelected: boolean;
-  onChange: (isNewCard: boolean, value: string) => void;
+  cardSelected?: boolean;
+  onChange?: (isNewCard: boolean, value: string) => void;
 }
 
-export const SelectCard: React.FC<SelectCardProps> = ({
+export const TargetCard: React.FC<TargetCardProps> = ({
   item,
   cardSelected,
-  onChange,
+  onChange = () => {},
 }) => {
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
   const [isSelectOpen, setSelectOpen] = React.useState(false);
@@ -37,7 +37,7 @@ export const SelectCard: React.FC<SelectCardProps> = ({
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
-    // Workaround to stop 'select' event propagation
+    // Stop 'select' event propagation
     const eventTarget: any = event.target;
     if (eventTarget.type === "button") return;
 
@@ -58,7 +58,11 @@ export const SelectCard: React.FC<SelectCardProps> = ({
     let result: React.ComponentType<any> = CubesIcon;
     if (item.iconSrc) {
       result = () => (
-        <img src={item.iconSrc} alt="Card logo" style={{ height: 80 }} />
+        <img
+          src={item.iconSrc}
+          alt="Card logo"
+          style={{ height: 80, pointerEvents: "none" }}
+        />
       );
     }
 
@@ -68,7 +72,7 @@ export const SelectCard: React.FC<SelectCardProps> = ({
   return (
     <Card
       onClick={handleCardClick}
-      isSelectable
+      isSelectable={!!cardSelected}
       isSelected={isCardSelected}
       className="pf-l-stack pf-l-stack__item pf-m-fill"
     >

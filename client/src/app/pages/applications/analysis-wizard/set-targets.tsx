@@ -10,8 +10,11 @@ import {
 import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
 
-import { SelectCard } from "./components/select-card";
-import { ITransformationTargets, transformationTargets } from "./targets";
+import { TargetCard } from "@app/components/target-card";
+import {
+  ITransformationTargets,
+  transformationTargets,
+} from "@app/data/targets";
 import { AnalysisWizardFormValues } from "./schema";
 
 export const SetTargets: React.FC = () => {
@@ -48,7 +51,7 @@ export const SetTargets: React.FC = () => {
       <Gallery hasGutter>
         {transformationTargets.map((elem, index) => (
           <GalleryItem key={index}>
-            <SelectCard
+            <TargetCard
               item={elem}
               cardSelected={[...elem.options].some((key) =>
                 targets.includes(key)
