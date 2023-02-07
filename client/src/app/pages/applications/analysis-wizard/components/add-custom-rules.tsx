@@ -10,7 +10,7 @@ import {
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import { XMLValidator } from "fast-xml-parser";
 
-import XSDSchema from "./windup-jboss-ruleset.xsd";
+import XSDSchema from "@app/data/windup-jboss-ruleset.xsd";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IReadFile } from "../analysis-wizard";
 

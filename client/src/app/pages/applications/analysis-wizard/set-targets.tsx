@@ -11,10 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
 
 import { TargetCard } from "@app/components/target-card";
-import {
-  ITransformationTargets,
-  transformationTargets,
-} from "@app/data/targets";
+import { IMigrationTarget, transformationTargets } from "@app/data/targets";
 import { AnalysisWizardFormValues } from "./schema";
 
 export const SetTargets: React.FC = () => {
@@ -26,7 +23,7 @@ export const SetTargets: React.FC = () => {
   const handleOnCardChange = (
     isNewCard: boolean,
     selectionValue: string,
-    card: ITransformationTargets
+    card: IMigrationTarget
   ) => {
     const selectedTargets = targets.filter(
       (target) => !card.options.includes(target)

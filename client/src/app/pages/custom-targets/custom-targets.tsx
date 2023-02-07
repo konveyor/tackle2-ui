@@ -16,11 +16,8 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 
-// import { CustomTargetForm } from "./custom-target-form";
-import {
-  ITransformationTargets,
-  transformationTargets,
-} from "@app/data/targets";
+import { CustomTargetModal } from "./custom-target-form";
+import { IMigrationTarget, transformationTargets } from "@app/data/targets";
 import { TargetCard } from "@app/components/target-card";
 import "./custom-targets.css";
 
@@ -38,11 +35,11 @@ const chunksize = (length: number) => {
 };
 
 const byChunks = (
-  targets: ITransformationTargets[],
+  targets: IMigrationTarget[],
   size: number
-): ITransformationTargets[][] => {
+): IMigrationTarget[][] => {
   const copyTargets = [...targets];
-  let chunks: ITransformationTargets[][] = [];
+  let chunks: IMigrationTarget[][] = [];
 
   for (let i = 1; copyTargets.length > 0; i++) {
     const chunk = copyTargets.splice(0, size);
@@ -54,13 +51,13 @@ const byChunks = (
 export const CustomTargets: React.FC = () => {
   const { t } = useTranslation();
 
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
-  const [targets, setTargets] = React.useState<ITransformationTargets[]>(
+  const [targets, setTargets] = React.useState<IMigrationTarget[]>(
     transformationTargets
   );
 
-  const [areas, setAreas] = React.useState<ITransformationTargets[][]>(
+  const [areas, setAreas] = React.useState<IMigrationTarget[][]>(
     byChunks(transformationTargets, chunksize(transformationTargets.length))
   );
 
@@ -115,7 +112,7 @@ export const CustomTargets: React.FC = () => {
               id="clear-repository"
               isInline
               className={spacing.mlMd}
-              onClick={() => setIsCreateDialogOpen(true)}
+              onClick={() => setIsModalOpen(true)}
             >
               Create new
             </Button>
@@ -140,7 +137,7 @@ export const CustomTargets: React.FC = () => {
               <GalleryItem key={zoneId}>
                 <Droppable droppableId={`${zoneId}`}>
                   {targets.map((target, id) => (
-                    <Draggable key={target.label} style={{ padding: ".5em" }}>
+                    <Draggable key={target.name} style={{ padding: ".5em" }}>
                       <TargetCard item={target} />
                     </Draggable>
                   ))}
@@ -150,6 +147,11 @@ export const CustomTargets: React.FC = () => {
           </DragDrop>
         </Gallery>
       </PageSection>
+      <CustomTargetModal
+        isOpen={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        onSaved={() => {}}
+      />
     </>
   );
 };

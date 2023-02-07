@@ -11,25 +11,33 @@ import {
   SelectVariant,
   SelectOptionObject,
   Text,
+  DropdownItem,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { ITransformationTargets, targetsLabels } from "@app/data/targets";
+import { IMigrationTarget, targetsLabels } from "@app/data/targets";
 
 import "./target-card.css";
+import { KebabDropdown } from "@app/shared/components";
+import { useTranslation } from "react-i18next";
 
 export interface TargetCardProps {
-  item: ITransformationTargets;
+  item: IMigrationTarget;
   cardSelected?: boolean;
   onChange?: (isNewCard: boolean, value: string) => void;
 }
+
+// Force display dropdown box even though there only one option available.
+// This is a business rule to guarantee that option is alwyas present.
+const forceSelect = ["Azure"];
 
 export const TargetCard: React.FC<TargetCardProps> = ({
   item,
   cardSelected,
   onChange = () => {},
 }) => {
+  const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
   const [isSelectOpen, setSelectOpen] = React.useState(false);
   const [selectedRelease, setSelectedRelease] = React.useState(
@@ -56,10 +64,10 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 
   const getImage = (): React.ComponentType<any> => {
     let result: React.ComponentType<any> = CubesIcon;
-    if (item.iconSrc) {
+    if (item.image) {
       result = () => (
         <img
-          src={item.iconSrc}
+          src={item.image}
           alt="Card logo"
           style={{ height: 80, pointerEvents: "none" }}
         />
@@ -77,17 +85,40 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       className="pf-l-stack pf-l-stack__item pf-m-fill"
     >
       <CardBody>
+        {item.custom ? (
+          <KebabDropdown
+            // style={{}}
+            dropdownItems={[
+              <DropdownItem
+                key="edit-custom-card"
+                // onClick={() => {
+                //   set(selectedRows);
+                // }}
+              >
+                {t("actions.edit")}
+              </DropdownItem>,
+              <DropdownItem
+                key="delite-custom-card"
+                // onClick={() => {
+                //   openBulkDeleteModal(selectedRows);
+                // }}
+              >
+                {t("actions.delete")}
+              </DropdownItem>,
+            ]}
+          />
+        ) : null}
         <EmptyState
           variant={EmptyStateVariant.small}
           className="select-card__component__empty-state"
         >
           <EmptyStateIcon icon={getImage()} />
           <Title headingLevel="h4" size="md">
-            {item.label}
+            {item.name}
           </Title>
-          {item.forceSelect === true || item.options.length > 1 ? (
+          {item.options.length > 1 || forceSelect.includes(item.name) ? (
             <Select
-              toggleId={`${item.label}-toggle`}
+              toggleId={`${item.name}-toggle`}
               variant={SelectVariant.single}
               aria-label="Select Input"
               onToggle={(isExpanded) => setSelectOpen(isExpanded)}
