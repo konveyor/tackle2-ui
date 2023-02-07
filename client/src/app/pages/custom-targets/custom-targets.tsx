@@ -29,17 +29,26 @@ interface IDroppable {
   index: number;
 }
 
-const CHUNKSIZE = 4;
+const numberOfColumns = 5;
+
+const chunksize = (length: number) => {
+  if (length % numberOfColumns > 0)
+    return Math.round(length / numberOfColumns + 1);
+  return Math.round(length / numberOfColumns);
+};
 
 const byChunks = (
   targets: ITransformationTargets[],
-  length: number = CHUNKSIZE
+  size: number
 ): ITransformationTargets[][] => {
-  let object: ITransformationTargets[][] = [];
-  for (let i = 1; i < length; i++) {
-    object.push(targets.splice(0, length));
+  const copyTargets = [...targets];
+  let chunks: ITransformationTargets[][] = [];
+
+  for (let i = 1; copyTargets.length > 0; i++) {
+    const chunk = copyTargets.splice(0, size);
+    chunks.push(chunk);
   }
-  return object;
+  return chunks;
 };
 
 export const CustomTargets: React.FC = () => {
@@ -47,29 +56,40 @@ export const CustomTargets: React.FC = () => {
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
 
-  const dragRef = React.useRef(null);
-
   const [targets, setTargets] = React.useState<ITransformationTargets[]>(
     transformationTargets
   );
 
   const [areas, setAreas] = React.useState<ITransformationTargets[][]>(
-    byChunks(transformationTargets)
+    byChunks(transformationTargets, chunksize(transformationTargets.length))
   );
 
   const onDrop = (src: IDroppable, dest?: IDroppable) => {
+    const size = chunksize(areas.flat().length);
     if (dest) {
       const newFlatzones = areas.flat();
       const removed = newFlatzones.splice(
-        +src.droppableId * CHUNKSIZE + src.index,
+        +src.droppableId * size + src.index,
         1
       );
-      newFlatzones.splice(
-        +dest.droppableId * CHUNKSIZE + dest.index,
-        0,
-        ...removed
-      );
-      setAreas(byChunks(newFlatzones));
+
+      let dstIndex: number = -1;
+
+      if (src.droppableId === dest.droppableId) {
+        newFlatzones.splice(
+          +dest.droppableId * size + dest.index,
+          0,
+          ...removed
+        );
+      } else {
+        newFlatzones.splice(
+          +dest.droppableId * size + dest.index - 1,
+          0,
+          ...removed
+        );
+      }
+
+      setAreas(byChunks(newFlatzones, size));
       return true;
     }
     return false;
@@ -103,7 +123,18 @@ export const CustomTargets: React.FC = () => {
         </Grid>
       </PageSection>
       <PageSection>
-        <Gallery hasGutter>
+        <Gallery
+          hasGutter
+          minWidths={{
+            default: "100%",
+            md: "100px",
+            xl: "300px",
+          }}
+          maxWidths={{
+            md: "200px",
+            xl: "1fr",
+          }}
+        >
           <DragDrop onDrop={(source, dest) => onDrop(source, dest)}>
             {areas.map((targets, zoneId) => (
               <GalleryItem key={zoneId}>
