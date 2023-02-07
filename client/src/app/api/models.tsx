@@ -415,3 +415,16 @@ export interface ITypeOptions {
   key: string;
   value: string;
 }
+export interface Rule {
+  name: string;
+  fileContents: string;
+}
+export interface CustomTarget {
+  name: string;
+  description: string;
+  image: string;
+  rules: Rule[];
+  custom: boolean;
+  repository: any; //TODO repository fields
+  identity: Ref;
+}

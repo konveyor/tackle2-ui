@@ -26,6 +26,7 @@ import {
   Proxy,
   Taskgroup,
   ApplicationImport,
+  CustomTarget,
 } from "./models";
 import { QueryKey } from "react-query";
 
@@ -53,6 +54,8 @@ export const PROXIES = HUB + "/proxies";
 export const SETTINGS = HUB + "/settings";
 export const TASKS = HUB + "/tasks";
 export const TASKGROUPS = HUB + "/taskgroups";
+
+export const RULESETS = HUB + "/rulesets";
 
 // PATHFINDER
 export const PATHFINDER = "/hub/pathfinder";
@@ -556,4 +559,20 @@ export const removeFileTaskgroup = ({
     `${TASKGROUPS}/${id}/bucket/${path}`
     // formHeaders
   );
+};
+
+export const updateCustomTarget = (
+  obj: CustomTarget
+): AxiosPromise<CustomTarget> => {
+  return APIClient.put(`${RULESETS}/${obj.name}`, obj);
+};
+
+export const createCustomTarget = (
+  obj: CustomTarget
+): AxiosPromise<CustomTarget> => {
+  return APIClient.post(`${RULESETS}`, obj);
+};
+
+export const deleteCustomTarget = (id: number): AxiosPromise => {
+  return APIClient.delete(`${RULESETS}/${id}`);
 };

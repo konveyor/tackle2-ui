@@ -12,17 +12,20 @@ import {
   TextContent,
   Gallery,
   GalleryItem,
+  Modal,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 
 // import { CustomTargetForm } from "./custom-target-form";
+import { TargetCard } from "@app/components/target-card";
+import "./custom-targets.css";
+import { useEntityModal } from "@app/shared/hooks";
+import { CustomTarget } from "@app/api/models";
 import {
   ITransformationTargets,
   transformationTargets,
 } from "@app/data/targets";
-import { TargetCard } from "@app/components/target-card";
-import "./custom-targets.css";
 
 interface IDroppable {
   droppableId: string;
@@ -54,7 +57,14 @@ const byChunks = (
 export const CustomTargets: React.FC = () => {
   const { t } = useTranslation();
 
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
+  // Create and update modal
+  const {
+    isOpen: isCustomTargetModalOpen,
+    data: customTargetToUpdate,
+    create: openCreateCustomTargetModal,
+    update: openUpdateCustomTargetModal,
+    close: closeCustomTargetModal,
+  } = useEntityModal<CustomTarget>();
 
   const [targets, setTargets] = React.useState<ITransformationTargets[]>(
     transformationTargets
@@ -115,7 +125,7 @@ export const CustomTargets: React.FC = () => {
               id="clear-repository"
               isInline
               className={spacing.mlMd}
-              onClick={() => setIsCreateDialogOpen(true)}
+              onClick={() => openCreateCustomTargetModal}
             >
               Create new
             </Button>
@@ -149,6 +159,18 @@ export const CustomTargets: React.FC = () => {
             ))}
           </DragDrop>
         </Gallery>
+        <Modal
+          isOpen={isCustomTargetModalOpen}
+          variant="medium"
+          title={t("dialog.title.newCustomMigrationTarget")}
+          onClose={() => closeCustomTargetModal}
+        >
+          <CustomTargetsForm
+            onSaved={() => {
+              closeCustomTargetModal;
+            }}
+          />
+        </Modal>
       </PageSection>
     </>
   );
