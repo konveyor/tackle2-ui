@@ -6,7 +6,7 @@ import mugIcon from "@app/images/Icon-Red_Hat-Mug-A-Black-RGB.svg";
 import multiplyIcon from "@app/images/Icon-Red_Hat-Multiply-A-Black-RGB.svg";
 import virtualServerStackIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 import { APP_BRAND, BrandType } from "@app/Constants";
-import { IMigrationTarget } from "@app/api/models";
+import { MigrationTarget } from "@app/api/models";
 
 const openTargets: string[] = [
   "camel",
@@ -53,7 +53,7 @@ export const targetsLabels = new Map([
   ["azure-aks", "Azure Kubernetes Service"],
 ]);
 
-export const transformationTargets: IMigrationTarget[] = [
+export const transformationTargets: MigrationTarget[] = [
   {
     name: "Application server migration to",
     description:
@@ -142,6 +142,8 @@ export const transformationTargets: IMigrationTarget[] = [
         ? ["azure-appservice", "azure-aks"]
         : ["azure-appservice"],
     image: virtualServerStackIcon,
+    // TODO for test purpose only, remove
+    // custom: false,
     custom: true,
   },
 ];

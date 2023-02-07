@@ -12,14 +12,19 @@ import {
   TextContent,
   Gallery,
   GalleryItem,
+  Modal,
+  ModalVariant,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 
-import { CustomTargetModal } from "./custom-target-form";
-import { IMigrationTarget, transformationTargets } from "@app/data/targets";
+import { CustomTargetForm } from "./custom-target-form";
+import { transformationTargets } from "@app/data/targets";
 import { TargetCard } from "@app/components/target-card";
-import "./custom-targets.css";
+import { MigrationTarget } from "@app/api/models";
+import { useEntityModal } from "@app/shared/hooks";
+import "./migration-targets.css";
+import { useFetchMigrationTargets } from "@app/queries/rulesets";
 
 interface IDroppable {
   droppableId: string;
@@ -35,11 +40,11 @@ const chunksize = (length: number) => {
 };
 
 const byChunks = (
-  targets: IMigrationTarget[],
+  targets: MigrationTarget[],
   size: number
-): IMigrationTarget[][] => {
+): MigrationTarget[][] => {
   const copyTargets = [...targets];
-  let chunks: IMigrationTarget[][] = [];
+  let chunks: MigrationTarget[][] = [];
 
   for (let i = 1; copyTargets.length > 0; i++) {
     const chunk = copyTargets.splice(0, size);
@@ -48,16 +53,18 @@ const byChunks = (
   return chunks;
 };
 
-export const CustomTargets: React.FC = () => {
+export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
 
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isCustomTargetModalOpen, setIsCustomTargetModalOpen] =
+    React.useState(false);
 
-  const [targets, setTargets] = React.useState<IMigrationTarget[]>(
-    transformationTargets
-  );
+  const { migrationTargets } = useFetchMigrationTargets();
 
-  const [areas, setAreas] = React.useState<IMigrationTarget[][]>(
+  const [targets, setTargets] =
+    React.useState<MigrationTarget[]>(migrationTargets);
+
+  const [areas, setAreas] = React.useState<MigrationTarget[][]>(
     byChunks(transformationTargets, chunksize(transformationTargets.length))
   );
 
@@ -112,7 +119,7 @@ export const CustomTargets: React.FC = () => {
               id="clear-repository"
               isInline
               className={spacing.mlMd}
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => setIsCustomTargetModalOpen(true)}
             >
               Create new
             </Button>
@@ -147,11 +154,31 @@ export const CustomTargets: React.FC = () => {
           </DragDrop>
         </Gallery>
       </PageSection>
-      <CustomTargetModal
-        isOpen={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        onSaved={() => {}}
-      />
+      <Modal
+        title={t("dialog.title.edit", {
+          what: t("terms.customTarget").toLowerCase(),
+        })}
+        // TODO Handle edit case when target selected
+        // title={
+        //   target
+        //     ? t("dialog.title.edit", {
+        //         what: t("terms.customTarget").toLowerCase(),
+        //       })
+        //     : t("dialog.title.new", {
+        //         what: t("terms.customTarget").toLowerCase(),
+        //       })
+        // }
+        variant={ModalVariant.medium}
+        isOpen={isCustomTargetModalOpen}
+        onClose={() => setIsCustomTargetModalOpen(false)}
+      >
+        <CustomTargetForm
+          onCancel={() => setIsCustomTargetModalOpen(false)}
+          onSaved={() => {
+            setIsCustomTargetModalOpen(false);
+          }}
+        />
+      </Modal>
     </>
   );
 };

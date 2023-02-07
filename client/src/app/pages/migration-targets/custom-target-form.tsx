@@ -4,22 +4,19 @@ import {
   Button,
   ButtonVariant,
   Form,
-  Modal,
-  ModalVariant,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { AxiosResponse } from "axios";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
-import { IMigrationTarget } from "@app/api/models";
+import { MigrationTarget, Rule } from "@app/api/models";
 import { HookFormPFTextInput } from "@app/shared/components/hook-form-pf-fields";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-export interface CustomTargetModalProps {
-  isOpen: boolean;
-  target?: IMigrationTarget;
-  onSaved: (response: AxiosResponse<IMigrationTarget>) => void;
+export interface CustomTargetFormProps {
+  target?: MigrationTarget;
+  onSaved: (response: AxiosResponse<MigrationTarget>) => void;
   onCancel: () => void;
 }
 
@@ -27,10 +24,12 @@ interface CustomTargetFormValues {
   id: number;
   name: string;
   description: string;
+  image: string;
+  // rules: Rule[];
+  // repository: any;
 }
 
-export const CustomTargetModal: React.FC<CustomTargetModalProps> = ({
-  isOpen,
+export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   target,
   onSaved,
   onCancel,
@@ -58,6 +57,15 @@ export const CustomTargetModal: React.FC<CustomTargetModalProps> = ({
         .defined()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
+      image: yup
+        .string()
+        .defined()
+        .trim()
+        .max(250, t("validation.maxLength", { length: 250 })),
+      //TODO rules validation
+      // rules: yup.array().defined(),
+      //TODO repo validation
+      // repository: yup.object().shape({}).defined(),
     });
 
   const {
@@ -78,7 +86,7 @@ export const CustomTargetModal: React.FC<CustomTargetModalProps> = ({
   });
 
   const onSubmit = (formValues: CustomTargetFormValues) => {
-    const payload: IMigrationTarget = {
+    const payload: MigrationTarget = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       id: formValues.id,
@@ -90,60 +98,45 @@ export const CustomTargetModal: React.FC<CustomTargetModalProps> = ({
   };
 
   return (
-    <Modal
-      title={
-        target
-          ? t("dialog.title.edit", {
-              what: t("terms.customTarget").toLowerCase(),
-            })
-          : t("dialog.title.new", {
-              what: t("terms.customTarget").toLowerCase(),
-            })
-      }
-      variant={ModalVariant.medium}
-      isOpen={isOpen}
-      onClose={onCancel}
-    >
-      <Form onSubmit={handleSubmit(onSubmit)}>
-        <HookFormPFTextInput
-          control={control}
-          name="name"
-          label="Name"
-          fieldId="name"
-          isRequired
-        />
-        <HookFormPFTextInput
-          control={control}
-          name="description"
-          label="Description"
-          fieldId="description"
-          isRequired
-        />{" "}
-        <ActionGroup>
-          <Button
-            type="submit"
-            aria-label="submit"
-            id="identity-form-submit"
-            variant={ButtonVariant.primary}
-            isDisabled={
-              // !isValid || isSubmitting || isValidating || isLoading || !isDirty
-              !isValid || isSubmitting || isValidating || !isDirty
-            }
-          >
-            {!target ? t("actions.create") : t("actions.save")}
-          </Button>
-          <Button
-            type="button"
-            id="cancel"
-            aria-label="cancel"
-            variant={ButtonVariant.link}
-            isDisabled={isSubmitting || isValidating}
-            onClick={onCancel}
-          >
-            {t("actions.cancel")}
-          </Button>
-        </ActionGroup>
-      </Form>
-    </Modal>
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      <HookFormPFTextInput
+        control={control}
+        name="name"
+        label="Name"
+        fieldId="name"
+        isRequired
+      />
+      <HookFormPFTextInput
+        control={control}
+        name="description"
+        label="Description"
+        fieldId="description"
+        isRequired
+      />{" "}
+      <ActionGroup>
+        <Button
+          type="submit"
+          aria-label="submit"
+          id="identity-form-submit"
+          variant={ButtonVariant.primary}
+          isDisabled={
+            // !isValid || isSubmitting || isValidating || isLoading || !isDirty
+            !isValid || isSubmitting || isValidating || !isDirty
+          }
+        >
+          {!target ? t("actions.create") : t("actions.save")}
+        </Button>
+        <Button
+          type="button"
+          id="cancel"
+          aria-label="cancel"
+          variant={ButtonVariant.link}
+          isDisabled={isSubmitting || isValidating}
+          onClick={onCancel}
+        >
+          {t("actions.cancel")}
+        </Button>
+      </ActionGroup>
+    </Form>
   );
 };

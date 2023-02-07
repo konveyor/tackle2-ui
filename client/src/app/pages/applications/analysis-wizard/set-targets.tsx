@@ -11,8 +11,9 @@ import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
 
 import { TargetCard } from "@app/components/target-card";
-import { IMigrationTarget, transformationTargets } from "@app/data/targets";
+import { transformationTargets } from "@app/data/targets";
 import { AnalysisWizardFormValues } from "./schema";
+import { MigrationTarget } from "@app/api/models";
 
 export const SetTargets: React.FC = () => {
   const { t } = useTranslation();
@@ -23,10 +24,10 @@ export const SetTargets: React.FC = () => {
   const handleOnCardChange = (
     isNewCard: boolean,
     selectionValue: string,
-    card: IMigrationTarget
+    card: MigrationTarget
   ) => {
     const selectedTargets = targets.filter(
-      (target) => !card.options.includes(target)
+      (target) => !card.options?.includes(target)
     );
 
     if (isNewCard) setValue("targets", [...selectedTargets, selectionValue]);
@@ -50,9 +51,11 @@ export const SetTargets: React.FC = () => {
           <GalleryItem key={index}>
             <TargetCard
               item={elem}
-              cardSelected={[...elem.options].some((key) =>
-                targets.includes(key)
-              )}
+              cardSelected={
+                elem.options
+                  ? [...elem.options].some((key) => targets.includes(key))
+                  : false
+              }
               onChange={(isNewCard: boolean, selectionValue: string) => {
                 handleOnCardChange(isNewCard, selectionValue, elem);
               }}

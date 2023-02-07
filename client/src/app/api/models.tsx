@@ -419,19 +419,19 @@ export interface ITypeOptions {
   value: string;
 }
 
-export interface ICustomRule {
+export interface MigrationTargetRule {
   name: string;
   content: string;
 }
 
-export interface IMigrationTarget {
+export interface MigrationTarget {
   id?: number;
   name: string;
   description: string;
   image: string;
-  rules?: ICustomRule[];
+  rules?: MigrationTargetRule[];
   custom: boolean;
   order?: number;
   repository?: Repository;
-  options: string[];
+  options?: string[];
 }

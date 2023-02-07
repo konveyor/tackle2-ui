@@ -16,14 +16,16 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { IMigrationTarget, targetsLabels } from "@app/data/targets";
+import { targetsLabels } from "@app/data/targets";
 
 import "./target-card.css";
 import { KebabDropdown } from "@app/shared/components";
 import { useTranslation } from "react-i18next";
+import { MigrationTarget } from "@app/api/models";
+import { relative } from "path";
 
 export interface TargetCardProps {
-  item: IMigrationTarget;
+  item: MigrationTarget;
   cardSelected?: boolean;
   onChange?: (isNewCard: boolean, value: string) => void;
 }
@@ -41,7 +43,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
   const [isSelectOpen, setSelectOpen] = React.useState(false);
   const [selectedRelease, setSelectedRelease] = React.useState(
-    [...item.options][0]
+    item.options ? [...item.options][0] : ""
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
@@ -84,29 +86,20 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       isSelected={isCardSelected}
       className="pf-l-stack pf-l-stack__item pf-m-fill"
     >
-      <CardBody>
+      <CardBody style={{ position: "relative" }}>
         {item.custom ? (
-          <KebabDropdown
-            // style={{}}
-            dropdownItems={[
-              <DropdownItem
-                key="edit-custom-card"
-                // onClick={() => {
-                //   set(selectedRows);
-                // }}
-              >
-                {t("actions.edit")}
-              </DropdownItem>,
-              <DropdownItem
-                key="delite-custom-card"
-                // onClick={() => {
-                //   openBulkDeleteModal(selectedRows);
-                // }}
-              >
-                {t("actions.delete")}
-              </DropdownItem>,
-            ]}
-          />
+          <div style={{ position: "absolute", right: 0 }}>
+            <KebabDropdown
+              dropdownItems={[
+                <DropdownItem key="edit-custom-card" onClick={() => {}}>
+                  {t("actions.edit")}
+                </DropdownItem>,
+                <DropdownItem key="delite-custom-card" onClick={() => {}}>
+                  {t("actions.delete")}
+                </DropdownItem>,
+              ]}
+            />
+          </div>
         ) : null}
         <EmptyState
           variant={EmptyStateVariant.small}
@@ -116,7 +109,8 @@ export const TargetCard: React.FC<TargetCardProps> = ({
           <Title headingLevel="h4" size="md">
             {item.name}
           </Title>
-          {item.options.length > 1 || forceSelect.includes(item.name) ? (
+          {item.options &&
+          (item.options.length > 1 || forceSelect.includes(item.name)) ? (
             <Select
               toggleId={`${item.name}-toggle`}
               variant={SelectVariant.single}

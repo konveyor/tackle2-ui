@@ -146,7 +146,7 @@ export const SidebarApp: React.FC = () => {
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink to={Paths.customTargets} activeClassName="pf-m-current">
+            <NavLink to={Paths.migrationTargets} activeClassName="pf-m-current">
               Custom migration targets
             </NavLink>
           </NavItem>

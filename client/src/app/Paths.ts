@@ -36,7 +36,7 @@ export enum Paths {
   repositoriesSvn = "/repositories/svn",
   repositoriesMvn = "/repositories/maven",
   proxies = "/proxies",
-  customTargets = "/custom-targets",
+  migrationTargets = "/migration-targets",
 }
 
 export interface AssessmentRoute {
