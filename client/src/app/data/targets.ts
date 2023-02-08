@@ -36,29 +36,20 @@ const openTargets: string[] = [
 
 const proprietaryTargets = ["azure-aks"];
 
-const setDefaultTargets = () => {
-  if (APP_BRAND === BrandType.Konveyor)
-    return [...openTargets, ...proprietaryTargets];
-  return openTargets;
-};
-
-export const defaultTargets: string[] = setDefaultTargets();
-
-export const targetsLabels = new Map([
-  ["eap7", "JBoss EAP 7"],
-  ["eap6", "JBoss EAP 6"],
-  ["openjdk11", "OpenJDK 11"],
-  ["openjdk17", "OpenJDK 17"],
-  ["azure-appservice", "Azure App Service"],
-  ["azure-aks", "Azure Kubernetes Service"],
-]);
+export const defaultTargets =
+  APP_BRAND === BrandType.Konveyor
+    ? [...openTargets, ...proprietaryTargets]
+    : [...openTargets];
 
 export const transformationTargets: MigrationTarget[] = [
   {
     name: "Application server migration to",
     description:
       "Upgrade to the latest Release of JBoss EAP or migrate your applications to JBoss EAP from other Enterprise Application Server (e.g. Oracle WebLogic Server).",
-    options: ["eap7", "eap6"],
+    options: [
+      ["eap7", "JBoss EAP 7"],
+      ["eap6", "JBoss EAP 6"],
+    ],
     image: appOnServerIcon,
     custom: false,
   },
@@ -66,7 +57,7 @@ export const transformationTargets: MigrationTarget[] = [
     name: "Containerization",
     description:
       "A comprehensive set of cloud and container readiness rules to assess applications for suitability for deployment on Kubernetes.",
-    options: ["cloud-readiness"],
+    options: [["cloud-readiness"]],
     image: cloudIcon,
     custom: false,
   },
@@ -74,14 +65,14 @@ export const transformationTargets: MigrationTarget[] = [
     name: "Quarkus",
     description:
       "Rules to support the migration of Spring Boot applications to Quarkus.",
-    options: ["quarkus"],
+    options: [["quarkus"]],
     image: migrationIcon,
     custom: false,
   },
   {
     name: "OracleJDK to OpenJDK",
     description: "Rules to support the migration to OpenJDK from OracleJDK.",
-    options: ["openjdk"],
+    options: [["openjdk"]],
     image: mugIcon,
     custom: false,
   },
@@ -89,7 +80,10 @@ export const transformationTargets: MigrationTarget[] = [
     name: "OpenJDK",
     description:
       "Rules to support upgrading the version of OpenJDK. Migrate to OpenJDK 11 or OpenJDK 17.",
-    options: ["openjdk11", "openjdk17"],
+    options: [
+      ["openjdk11", "OpenJDK 11"],
+      ["openjdk17", "OpenJDK 17"],
+    ],
     image: mugIcon,
     custom: false,
   },
@@ -97,7 +91,7 @@ export const transformationTargets: MigrationTarget[] = [
     name: "Linux",
     description:
       "Ensure there are no Microsoft Windows paths hard coded into your applications.",
-    options: ["linux"],
+    options: [["linux"]],
     image: serverIcon,
     custom: false,
   },
@@ -105,7 +99,7 @@ export const transformationTargets: MigrationTarget[] = [
     name: "Jakarta EE 9",
     description:
       "A collection of rules to support migrating applications from Java EE 8 to Jakarta EE 9. The rules cover project dependencies, package renaming, updating XML Schema namespaces, the renaming of application configuration properties and bootstraping files.",
-    options: ["jakarta-ee"],
+    options: [["jakarta-ee"]],
     image: migrationIcon,
     custom: false,
   },
@@ -113,7 +107,7 @@ export const transformationTargets: MigrationTarget[] = [
     name: "Spring Boot on Red Hat Runtimes",
     description:
       "A set of rules for assessing the compatibility of applications against the versions of Spring Boot libraries supported by Red Hat Runtimes.",
-    options: ["rhr"],
+    options: [["rhr"]],
     image: migrationIcon,
     custom: false,
   },
@@ -121,7 +115,7 @@ export const transformationTargets: MigrationTarget[] = [
     name: "Open Liberty",
     description:
       "A comprehensive set of rulesfor migrating traditional WebSphere applications to Open Liberty.",
-    options: ["openliberty"],
+    options: [["openliberty"]],
     image: migrationIcon,
     custom: false,
   },
@@ -129,7 +123,7 @@ export const transformationTargets: MigrationTarget[] = [
     name: "Camel",
     description:
       "A comprehensive set of rules for migration from Apache Camel 2 to Apache Camel 3.",
-    options: ["camel"],
+    options: [["camel"]],
     image: multiplyIcon,
     custom: false,
   },
@@ -139,8 +133,11 @@ export const transformationTargets: MigrationTarget[] = [
       "Upgrade your Java application so it can be deployed in different flavors of Azure.",
     options:
       APP_BRAND === BrandType.Konveyor
-        ? ["azure-appservice", "azure-aks"]
-        : ["azure-appservice"],
+        ? [
+            ["azure-appservice", "Azure App Service"],
+            ["azure-aks", "Azure Kubernetes Service"],
+          ]
+        : [["azure-appservice", "Azure App Service"]],
     image: virtualServerStackIcon,
     // TODO for test purpose only, remove
     // custom: false,

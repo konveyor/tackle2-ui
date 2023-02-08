@@ -27,7 +27,7 @@ export const SetTargets: React.FC = () => {
     card: MigrationTarget
   ) => {
     const selectedTargets = targets.filter(
-      (target) => !card.options?.includes(target)
+      (target) => !card.options?.map((option) => option[0]).includes(target)
     );
 
     if (isNewCard) setValue("targets", [...selectedTargets, selectionValue]);
@@ -53,7 +53,7 @@ export const SetTargets: React.FC = () => {
               item={elem}
               cardSelected={
                 elem.options
-                  ? [...elem.options].some((key) => targets.includes(key))
+                  ? elem.options.some((option) => targets.includes(option[0]))
                   : false
               }
               onChange={(isNewCard: boolean, selectionValue: string) => {

@@ -119,10 +119,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           aria-label="submit"
           id="identity-form-submit"
           variant={ButtonVariant.primary}
-          isDisabled={
-            // !isValid || isSubmitting || isValidating || isLoading || !isDirty
-            !isValid || isSubmitting || isValidating || !isDirty
-          }
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
         >
           {!target ? t("actions.create") : t("actions.save")}
         </Button>

@@ -16,13 +16,10 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { targetsLabels } from "@app/data/targets";
-
-import "./target-card.css";
 import { KebabDropdown } from "@app/shared/components";
 import { useTranslation } from "react-i18next";
 import { MigrationTarget } from "@app/api/models";
-import { relative } from "path";
+import "./target-card.css";
 
 export interface TargetCardProps {
   item: MigrationTarget;
@@ -43,7 +40,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
   const [isSelectOpen, setSelectOpen] = React.useState(false);
   const [selectedRelease, setSelectedRelease] = React.useState(
-    item.options ? [...item.options][0] : ""
+    item.options ? item.options[0][0] : ""
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
@@ -120,9 +117,9 @@ export const TargetCard: React.FC<TargetCardProps> = ({
               selections={selectedRelease}
               isOpen={isSelectOpen}
             >
-              {[...item.options].map((element) => (
-                <SelectOption key={element} value={element}>
-                  {targetsLabels.get(element)}
+              {item.options.map((element) => (
+                <SelectOption key={element[0]} value={element[0]}>
+                  {element[1]}
                 </SelectOption>
               ))}
             </Select>

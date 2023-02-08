@@ -433,5 +433,5 @@ export interface MigrationTarget {
   custom: boolean;
   order?: number;
   repository?: Repository;
-  options?: string[];
+  options?: string[][];
 }
