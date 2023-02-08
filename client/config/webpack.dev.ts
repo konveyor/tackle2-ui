@@ -6,6 +6,7 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import helpers from "../../server/helpers";
 import { Configuration } from "webpack";
 import "webpack-dev-server";
+const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 const brandType = process.env["PROFILE"] || "konveyor";
 

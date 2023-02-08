@@ -22,6 +22,7 @@ import {
   BulkCopyReview,
   Identity,
   Setting,
+  Addon,
   Task,
   Proxy,
   Taskgroup,
@@ -52,6 +53,7 @@ export const IDENTITIES = HUB + "/identities";
 export const PROXIES = HUB + "/proxies";
 export const SETTINGS = HUB + "/settings";
 export const TASKS = HUB + "/tasks";
+export const ADDONS = HUB + "/addons";
 export const TASKGROUPS = HUB + "/taskgroups";
 
 // PATHFINDER
@@ -512,6 +514,9 @@ export const getApplicationImports = (
 
 export const getTasks = () =>
   axios.get<Task[]>(TASKS).then((response) => response.data);
+
+export const getAddons = () =>
+  axios.get<Addon[]>(ADDONS).then((response) => response.data);
 
 export const deleteTask = (id: number) => axios.delete<Task>(`${TASKS}/${id}`);
 

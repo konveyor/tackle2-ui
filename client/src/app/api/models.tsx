@@ -335,7 +335,7 @@ export interface Task {
   application: { id: number };
   name: string;
   addon: string;
-  data: TaskData;
+  data: any; // TODO(djzager) - may want to fix this
   error?: string;
   image?: string;
   started?: string;
@@ -370,6 +370,11 @@ export interface TaskData {
   };
 }
 
+export interface Addon {
+  name: string;
+  image: string;
+}
+
 interface TaskReport {
   activity: string[];
   completed: number;
@@ -400,7 +405,7 @@ export interface Taskgroup {
   id?: number;
   name: string;
   addon: string;
-  data: TaskData;
+  data: any; // TODO(djzager) - may want to fix this
   tasks: TaskgroupTask[];
 }
 

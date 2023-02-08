@@ -3,6 +3,7 @@ import CopyPlugin from "copy-webpack-plugin";
 import Dotenv from "dotenv-webpack";
 import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 import { Configuration, WatchIgnorePlugin } from "webpack";
+const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 const BG_IMAGES_DIRNAME = "images";
 
@@ -52,6 +53,7 @@ const config: Configuration = {
             __dirname,
             "../../node_modules/@patternfly/patternfly/assets/pficon"
           ),
+          path.resolve(__dirname, "../../node_modules/monaco-editor"),
         ],
         use: {
           loader: "file-loader",
@@ -195,6 +197,7 @@ const config: Configuration = {
     new WatchIgnorePlugin({
       paths: [/\.js$/, /\.d\.ts$/],
     }),
+    new MonacoWebpackPlugin(),
   ],
   resolve: {
     alias: {
