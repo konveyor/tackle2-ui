@@ -16,7 +16,8 @@
     "start:dev:client": "GENERATE_SOURCEMAP=true webpack serve --config config/webpack.dev.ts",
     "start:dev": "concurrently -n port-forward,server,client -c \"white.bold.inverse,green.bold.inverse,blue.bold.inverse\" \"npm:port-forward\" \"npm:start:dev:server\" \"npm:start:dev:client\"",
     "test": "$(npm bin)/jest --rootDir=. --config=config/jest.config.js",
-    "tsc": "../node_modules/typescript/bin/tsc -p ./tsconfig.json"
+    "tsc": "../node_modules/typescript/bin/tsc -p ./tsconfig.json",
+    "prepare": "cd .. && husky install client/.husky"
   },
   "dependencies": {
     "@hookform/resolvers": "^2.8.0",
@@ -82,14 +83,14 @@
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^7.2.1",
     "html-webpack-plugin": "^5.5.0",
-    "husky": "^4.3.7",
+    "husky": "^8.0.3",
     "i18next-parser": "^0.13.0",
     "jest": "^27.4.7",
     "jest-resolve": "^27.4.6",
     "jest-watch-typeahead": "^1.0.0",
-    "lint-staged": "^10.5.3",
     "mini-css-extract-plugin": "^2.5.2",
     "prettier": "^2.2.1",
+    "pretty-quick": "^3.1.3",
     "raw-loader": "^4.0.2",
     "react-dev-utils": "^12.0.0",
     "react-refresh": "^0.11.0",
@@ -127,17 +128,6 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "post-commit": "npm run extract"
-    }
-  },
-  "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
-      "prettier --write"
     ]
   },
   "nyc": {
