@@ -16,6 +16,7 @@ export enum Paths {
   applications = "/applications",
   applicationsAnalysisTab = "/applications/analysis-tab",
   applicationsAssessmentTab = "/applications/assessment-tab",
+  applicationsAddonsTab = "/applications/addons-tab",
   applicationsImports = "/applications/application-imports",
   applicationsImportsDetails = "/applications/application-imports/:importId",
   applicationsAssessment = "/applications/assessment/:assessmentId",

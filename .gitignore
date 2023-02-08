@@ -30,3 +30,6 @@ npm-debug.log*
 
 # Intellij IDEA
 .idea/
+
+# Downloaded runnables for development
+bin/

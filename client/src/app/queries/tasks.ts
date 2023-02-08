@@ -5,6 +5,7 @@ import { cancelTask, deleteTask, getTasks } from "@app/api/rest";
 
 interface FetchTasksFilters {
   addon?: string;
+  notAddons?: string[];
 }
 
 export const TasksQueryKey = "tasks";
@@ -18,8 +19,9 @@ export const useFetchTasks = (filters: FetchTasksFilters = {}) => {
       select: (allTasks) => {
         const filteredTasks = filters
           ? allTasks.filter((task) => {
-              return !filters.addon || task.addon === filters.addon;
-            })
+            return (!filters.addon || task.addon === filters.addon) &&
+              (!filters.notAddons || !filters.notAddons.includes(task.addon))
+          })
           : allTasks;
         let uniqLatestTasks: Task[] = [];
         filteredTasks.forEach((task) => {
@@ -42,6 +44,32 @@ export const useFetchTasks = (filters: FetchTasksFilters = {}) => {
       onError: (err) => console.log(err),
     }
   );
+
+  return {
+    tasks: data || [],
+    isFetching: isLoading,
+    fetchError: error,
+    refetch,
+  };
+};
+
+export const useFetchAllTasks = (filters: FetchTasksFilters = {}) => {
+  const { isLoading, error, refetch, data } = useQuery(
+    [TasksQueryKey],
+    getTasks,
+    {
+      refetchInterval: 5000,
+      select: (allTasks) => {
+        const filteredTasks = filters
+          ? allTasks.filter((task) => {
+            return (!filters.addon || task.addon === filters.addon) &&
+              (!filters.notAddons || !filters.notAddons.includes(task.addon))
+          })
+          : allTasks;
+        return filteredTasks;
+      },
+      onError: (err) => console.log(err),
+    });
 
   return {
     tasks: data || [],
