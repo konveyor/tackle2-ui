@@ -11,5 +11,5 @@ const config: KeycloakConfig = {
   clientId: ENV.KEYCLOAK_CLIENT_ID || "tackle-ui",
 };
 
-const keycloak = Keycloak(config);
+const keycloak = new Keycloak(config);
 export default keycloak;
