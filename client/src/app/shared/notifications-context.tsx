@@ -34,14 +34,15 @@ export const NotificationsProvider: React.FunctionComponent<
 > = ({ children }: INotificationsProvider) => {
   const [notifications, setNotifications] = React.useState<INotification[]>([]);
 
-  const pushNotification = (notification: INotification) => {
-    const hasDupe = notifications.find((n) => n.title === notification.title);
-    if (!hasDupe) {
-      setNotifications([
-        ...notifications,
-        { ...notificationDefault, ...notification },
-      ]);
-    }
+  const pushNotification = (
+    notification: INotification,
+    clearNotificationDelay?: number
+  ) => {
+    setNotifications([
+      ...notifications,
+      { ...notificationDefault, ...notification },
+    ]);
+    setTimeout(() => setNotifications([]), clearNotificationDelay || 10000);
   };
 
   const dismissNotification = (title: string) => {
