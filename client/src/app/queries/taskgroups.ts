@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
   createTaskgroup,
@@ -9,6 +9,7 @@ import {
 } from "@app/api/rest";
 import { Taskgroup } from "@app/api/models";
 import { AxiosError } from "axios";
+import { TasksQueryKey } from "./tasks";
 
 export const useCreateTaskgroupMutation = (
   onSuccess: (res: any) => void,
@@ -28,11 +29,11 @@ export const useSubmitTaskgroupMutation = (
   return useMutation(submitTaskgroup, {
     onSuccess: (data) => {
       onSuccess(data);
-      queryClient.invalidateQueries("tasks");
+      queryClient.invalidateQueries([TasksQueryKey]);
     },
     onError: (err) => {
       onError(err);
-      queryClient.invalidateQueries("tasks");
+      queryClient.invalidateQueries([TasksQueryKey]);
     },
   });
 };
@@ -55,7 +56,7 @@ export const useUploadFileTaskgroupMutation = (
   errorCallback?: (err: AxiosError) => void
 ) => {
   return useMutation(uploadFileTaskgroup, {
-    mutationKey: "upload",
+    mutationKey: ["upload"],
     onSuccess: (res) => {
       successCallback && successCallback(res);
     },
@@ -75,7 +76,7 @@ export const useDeleteTaskgroupMutation = (
     onSuccess,
     onError: (err) => {
       onError(err);
-      queryClient.invalidateQueries("tasks");
+      queryClient.invalidateQueries([TasksQueryKey]);
     },
   });
 };

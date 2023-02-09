@@ -66,7 +66,6 @@ import {
   useApplicationsFilterValues,
 } from "../applicationsFilter";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
-import { useFetchApplicationAssessments } from "@app/queries/assessments";
 import { useEntityModal } from "@app/shared/hooks";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { ConfirmDialog } from "@app/shared/components/confirm-dialog/confirm-dialog";
@@ -115,7 +114,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     toggleRowExpanded,
     expandAll,
     areAllExpanded,
-    setPageNumber,
   } = useApplicationsFilterValues(applications, ApplicationTableType.Analysis);
 
   const { tasks } = useFetchTasks({ addon: "windup" });
@@ -174,9 +172,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     closeApplicationModal();
     refetch();
   };
-
-  const { getApplicationAssessment } =
-    useFetchApplicationAssessments(applications);
 
   // Delete
 

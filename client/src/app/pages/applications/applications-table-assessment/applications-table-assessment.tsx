@@ -76,7 +76,7 @@ import {
   assessmentsQueryKey,
   useFetchApplicationAssessments,
 } from "@app/queries/assessments";
-import { useQueryClient } from "react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { useAssessApplication } from "@app/shared/hooks/useAssessApplication";
 import { NotificationsContext } from "@app/shared/notifications-context";
@@ -548,8 +548,8 @@ export const ApplicationsTable: React.FC = () => {
           variant: "success",
         });
 
-        queryClient.invalidateQueries(assessmentsQueryKey);
-        queryClient.invalidateQueries(reviewsQueryKey);
+        queryClient.invalidateQueries([assessmentsQueryKey]);
+        queryClient.invalidateQueries([reviewsQueryKey]);
 
         fetchApplications();
       })

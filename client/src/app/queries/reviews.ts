@@ -1,4 +1,4 @@
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { getReviews } from "@app/api/rest";
 import { Review } from "@app/api/models";
@@ -14,7 +14,7 @@ export const reviewsQueryKey = "reviews";
 
 export const useFetchReviews = (): IReviewFetchState => {
   const { data, isLoading, error, refetch } = useQuery(
-    reviewsQueryKey,
+    [reviewsQueryKey],
     async () => (await getReviews()).data,
     {
       onError: (error) => console.log("error, ", error),

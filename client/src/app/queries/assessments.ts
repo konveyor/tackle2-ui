@@ -1,4 +1,4 @@
-import { useMutation, useQueries, UseQueryResult } from "react-query";
+import { useMutation, useQueries, UseQueryResult } from "@tanstack/react-query";
 
 import { deleteAssessment, getAssessments } from "@app/api/rest";
 import { AxiosError } from "axios";
@@ -23,8 +23,8 @@ export const assessmentsQueryKey = "assessments";
 export const useFetchApplicationAssessments = (
   applications: Application[] = []
 ) => {
-  const queryResults = useQueries(
-    applications.map((application) => ({
+  const queryResults = useQueries({
+    queries: applications.map((application) => ({
       queryKey: [assessmentsQueryKey, application.id],
       queryFn: async () => {
         const response = await getAssessments({
@@ -34,8 +34,8 @@ export const useFetchApplicationAssessments = (
         return allAssessmentsForApp[0];
       },
       onError: (error: any) => console.log("error, ", error),
-    }))
-  );
+    })),
+  });
   const queryResultsByAppId: Record<number, UseQueryResult<Assessment>> = {};
   applications.forEach((application, i) => {
     if (application.id) queryResultsByAppId[application.id] = queryResults[i];

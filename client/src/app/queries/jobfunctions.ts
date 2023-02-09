@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { JobFunction } from "@app/api/models";
 import { deleteJobFunction, getJobFunctions } from "@app/api/rest";
 import { AxiosError } from "axios";
@@ -13,7 +13,7 @@ export const JobFunctionsQueryKey = "jobfunctions";
 
 export const useFetchJobFunctions = (): IJobFunctionFetchState => {
   const { data, isLoading, error, refetch } = useQuery(
-    JobFunctionsQueryKey,
+    [JobFunctionsQueryKey],
     async () => (await getJobFunctions()).data,
     {
       onError: (error) => console.log("error, ", error),
@@ -36,11 +36,11 @@ export const useDeleteJobFunctionMutation = (
   const { isLoading, mutate, error } = useMutation(deleteJobFunction, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries(JobFunctionsQueryKey);
+      queryClient.invalidateQueries([JobFunctionsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries(JobFunctionsQueryKey);
+      queryClient.invalidateQueries([JobFunctionsQueryKey]);
     },
   });
   return {

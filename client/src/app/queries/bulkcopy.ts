@@ -1,10 +1,5 @@
-import { useMutation, useQuery } from "react-query";
-import {
-  Application,
-  Assessment,
-  BulkCopyReview,
-  Review,
-} from "@app/api/models";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Application, Assessment, Review } from "@app/api/models";
 import {
   createBulkCopyAssessment,
   createBulkCopyReview,

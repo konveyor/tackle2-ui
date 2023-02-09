@@ -21,7 +21,7 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 export interface ITableRowData {
   category: string;
@@ -46,7 +46,7 @@ export const IdentifiedRisksTable: React.FC<
     error: fetchError,
     isFetching,
   } = useQuery<AssessmentQuestionRisk[]>(
-    "assessmentquestionrisks",
+    ["assessmentquestionrisks"],
     async () =>
       (
         await getAssessmentIdentifiedRisks(

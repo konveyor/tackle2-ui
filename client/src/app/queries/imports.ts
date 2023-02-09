@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import {
   deleteApplicationImportSummary,
@@ -30,7 +30,7 @@ export const useFetchImports = (
 
 export const useFetchImportSummaries = () => {
   const { data, isLoading, error, refetch } = useQuery(
-    ImportSummariesQueryKey,
+    [ImportSummariesQueryKey],
     getApplicationsImportSummary,
     {
       refetchInterval: 5000,

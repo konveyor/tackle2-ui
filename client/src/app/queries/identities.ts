@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   createIdentity,
@@ -25,7 +25,7 @@ export const useUpdateIdentityMutation = (
   const { isLoading, mutate, error } = useMutation(updateIdentity, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries("identities");
+      queryClient.invalidateQueries([IdentitiesQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -46,7 +46,7 @@ export const useCreateIdentityMutation = (
   const { isLoading, mutate, error } = useMutation(createIdentity, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries("identities");
+      queryClient.invalidateQueries([IdentitiesQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -61,7 +61,7 @@ export const useCreateIdentityMutation = (
 
 export const useFetchIdentities = (): IIdentityFetchState => {
   const { data, isLoading, error } = useQuery(
-    IdentitiesQueryKey,
+    [IdentitiesQueryKey],
     async () => (await getIdentities()).data,
     {
       onError: (error) => console.log("error, ", error),
@@ -83,11 +83,11 @@ export const useDeleteIdentityMutation = (
   const { isLoading, mutate, error } = useMutation(deleteIdentity, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries("identities");
+      queryClient.invalidateQueries([IdentitiesQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries("identities");
+      queryClient.invalidateQueries([IdentitiesQueryKey]);
     },
   });
   return {

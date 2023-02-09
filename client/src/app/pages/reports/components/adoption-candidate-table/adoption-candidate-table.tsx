@@ -41,7 +41,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useFetchReviews } from "@app/queries/reviews";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useFetchRisks } from "@app/queries/risks";
 
 export interface TableRowData {
@@ -84,7 +84,7 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
     isFetching,
     error: fetchError,
   } = useQuery<AssessmentConfidence[]>(
-    "assessmentconfidence",
+    ["assessmentconfidence"],
     async () =>
       (
         await getAssessmentConfidence(

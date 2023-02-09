@@ -19,7 +19,7 @@ import { getApplicationAdoptionPlan } from "@app/api/rest";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { NoApplicationSelectedEmptyState } from "../no-application-selected-empty-state";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 interface IChartData {
   applicationId: number;
@@ -43,7 +43,7 @@ export const AdoptionPlan: React.FC = () => {
     error: fetchError,
     isFetching,
   } = useQuery<ApplicationAdoptionPlan[]>(
-    "adoptionplan",
+    ["adoptionplan"],
     async () =>
       (
         await getApplicationAdoptionPlan(

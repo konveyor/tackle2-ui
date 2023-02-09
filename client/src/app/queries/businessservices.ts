@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   deleteBusinessService,
@@ -13,7 +13,7 @@ export const BusinessServiceQueryKey = "businessservice";
 
 export const useFetchBusinessServices = () => {
   const { data, isLoading, error, refetch } = useQuery<BusinessService[]>(
-    BusinessServicesQueryKey,
+    [BusinessServicesQueryKey],
     async () => (await getBusinessServices()).data,
     {
       onError: (error) => console.log("error, ", error),
@@ -49,11 +49,11 @@ export const useDeleteBusinessServiceMutation = (
   const { isLoading, mutate, error } = useMutation(deleteBusinessService, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries(BusinessServicesQueryKey);
+      queryClient.invalidateQueries([BusinessServicesQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries(BusinessServicesQueryKey);
+      queryClient.invalidateQueries([BusinessServicesQueryKey]);
     },
   });
   return {
