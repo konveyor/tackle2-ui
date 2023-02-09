@@ -25,7 +25,7 @@ import { useEffect, useState } from "react";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useDeleteCacheMutation, useFetchCache } from "@app/queries/cache";
 import { ConfirmDialog } from "@app/shared/components";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { isRWXSupported } from "@app/Constants";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 

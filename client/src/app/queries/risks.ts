@@ -1,4 +1,4 @@
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { AssessmentRisk } from "@app/api/models";
 import { getAssessmentLandscape } from "@app/api/rest";
 

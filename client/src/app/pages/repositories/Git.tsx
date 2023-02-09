@@ -17,7 +17,7 @@ import { getSettingById, updateSetting } from "@app/api/rest";
 import { Setting } from "@app/api/models";
 import { AxiosError, AxiosPromise } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 export const RepositoriesGit: React.FC = () => {
   const { t } = useTranslation();
