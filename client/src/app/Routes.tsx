@@ -24,7 +24,7 @@ const Reports = lazy(() => import("./pages/reports"));
 const Controls = lazy(() => import("./pages/controls"));
 const Identities = lazy(() => import("./pages/identities"));
 const Proxies = lazy(() => import("./pages/proxies"));
-const CustomTargets = lazy(() => import("./pages/custom-targets"));
+const MigrationTargets = lazy(() => import("./pages/migration-targets"));
 
 export interface IRoute {
   path: string;
@@ -93,7 +93,7 @@ export const adminRoutes: IRoute[] = [
     exact: false,
   },
   { comp: Proxies, path: "/proxies", exact: false },
-  { comp: CustomTargets, path: "/custom-targets", exact: false },
+  { comp: MigrationTargets, path: "/migration-targets", exact: false },
 ];
 export const AppRoutes = () => {
   const location = useLocation();

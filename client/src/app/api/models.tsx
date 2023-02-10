@@ -78,6 +78,14 @@ export type ProposedAction =
 export type EffortEstimate = "small" | "medium" | "large" | "extra_large";
 
 export type ImportSummaryStatus = "Completed" | "In Progress" | "Failed";
+
+export interface Repository {
+  kind?: string;
+  branch?: string;
+  path?: string;
+  url?: string;
+}
+
 export interface Application {
   id?: number;
   name: string;
@@ -87,12 +95,7 @@ export interface Application {
   tags?: Ref[];
   review?: Ref;
   identities?: Ref[];
-  repository?: {
-    kind?: string;
-    branch?: string;
-    path?: string;
-    url?: string;
-  };
+  repository?: Repository;
   binary?: string;
 }
 
@@ -414,4 +417,21 @@ export interface Cache {
 export interface ITypeOptions {
   key: string;
   value: string;
+}
+
+export interface MigrationTargetRule {
+  name: string;
+  content: string;
+}
+
+export interface MigrationTarget {
+  id?: number;
+  name: string;
+  description: string;
+  image: string;
+  rules?: MigrationTargetRule[];
+  custom: boolean;
+  order?: number;
+  repository?: Repository;
+  options?: string[][];
 }

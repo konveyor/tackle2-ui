@@ -11,29 +11,36 @@ import {
   SelectVariant,
   SelectOptionObject,
   Text,
+  DropdownItem,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { ITransformationTargets, targetsLabels } from "@app/data/targets";
-
+import { KebabDropdown } from "@app/shared/components";
+import { useTranslation } from "react-i18next";
+import { MigrationTarget } from "@app/api/models";
 import "./target-card.css";
 
 export interface TargetCardProps {
-  item: ITransformationTargets;
+  item: MigrationTarget;
   cardSelected?: boolean;
   onChange?: (isNewCard: boolean, value: string) => void;
 }
+
+// Force display dropdown box even though there only one option available.
+// This is a business rule to guarantee that option is alwyas present.
+const forceSelect = ["Azure"];
 
 export const TargetCard: React.FC<TargetCardProps> = ({
   item,
   cardSelected,
   onChange = () => {},
 }) => {
+  const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
   const [isSelectOpen, setSelectOpen] = React.useState(false);
   const [selectedRelease, setSelectedRelease] = React.useState(
-    [...item.options][0]
+    item.options ? item.options[0][0] : ""
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
@@ -56,10 +63,10 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 
   const getImage = (): React.ComponentType<any> => {
     let result: React.ComponentType<any> = CubesIcon;
-    if (item.iconSrc) {
+    if (item.image) {
       result = () => (
         <img
-          src={item.iconSrc}
+          src={item.image}
           alt="Card logo"
           style={{ height: 80, pointerEvents: "none" }}
         />
@@ -76,18 +83,33 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       isSelected={isCardSelected}
       className="pf-l-stack pf-l-stack__item pf-m-fill"
     >
-      <CardBody>
+      <CardBody style={{ position: "relative" }}>
+        {item.custom ? (
+          <div style={{ position: "absolute", right: 0 }}>
+            <KebabDropdown
+              dropdownItems={[
+                <DropdownItem key="edit-custom-card" onClick={() => {}}>
+                  {t("actions.edit")}
+                </DropdownItem>,
+                <DropdownItem key="delite-custom-card" onClick={() => {}}>
+                  {t("actions.delete")}
+                </DropdownItem>,
+              ]}
+            />
+          </div>
+        ) : null}
         <EmptyState
           variant={EmptyStateVariant.small}
           className="select-card__component__empty-state"
         >
           <EmptyStateIcon icon={getImage()} />
           <Title headingLevel="h4" size="md">
-            {item.label}
+            {item.name}
           </Title>
-          {item.forceSelect === true || item.options.length > 1 ? (
+          {item.options &&
+          (item.options.length > 1 || forceSelect.includes(item.name)) ? (
             <Select
-              toggleId={`${item.label}-toggle`}
+              toggleId={`${item.name}-toggle`}
               variant={SelectVariant.single}
               aria-label="Select Input"
               onToggle={(isExpanded) => setSelectOpen(isExpanded)}
@@ -95,9 +117,9 @@ export const TargetCard: React.FC<TargetCardProps> = ({
               selections={selectedRelease}
               isOpen={isSelectOpen}
             >
-              {[...item.options].map((element) => (
-                <SelectOption key={element} value={element}>
-                  {targetsLabels.get(element)}
+              {item.options.map((element) => (
+                <SelectOption key={element[0]} value={element[0]}>
+                  {element[1]}
                 </SelectOption>
               ))}
             </Select>
