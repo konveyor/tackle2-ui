@@ -27,10 +27,22 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
+<<<<<<< HEAD
 import { Item } from "./components/dnd/item";
 import { DndGrid } from "./components/dnd/grid";
 import { useFetchMigrationTargets } from "@app/queries/rulesets";
 import { CustomTargetForm } from "./custom-target-form";
+=======
+
+import { DndGrid } from "./grid";
+import { Item } from "./item";
+import { transformationTargets } from "@app/data/targets";
+import { useFetchMigrationTargets } from "@app/queries/rulesets";
+import { CustomTargetForm } from "./custom-target-form";
+
+// import { MigrationTarget } from "@app/api/models";
+// import { useFetchMigrationTargets } from "@app/queries/rulesets";
+>>>>>>> c2745c8 (Regroup modal)
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
@@ -42,9 +54,18 @@ export const MigrationTargets: React.FC = () => {
 
   const [activeId, setActiveId] = useState(null);
 
+  const { migrationTargets } = useFetchMigrationTargets();
+
   const [targetIDs, setTargetIDs] = React.useState<string[]>(
+<<<<<<< HEAD
     migrationTargets.map((target, index) => target.name)
+=======
+    migrationTargets.map((target) => target.name)
+>>>>>>> c2745c8 (Regroup modal)
   );
+
+  const [isCustomTargetFormOpen, setIsCustomTargetFormOpen] =
+    React.useState(false);
 
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
@@ -82,7 +103,12 @@ export const MigrationTargets: React.FC = () => {
             </TextContent>
           </GridItem>
           <GridItem span={2} className="button-align">
-            <Button id="clear-repository" isInline className={spacing.mlMd}>
+            <Button
+              id="clear-repository"
+              isInline
+              className={spacing.mlMd}
+              onClick={() => setIsCustomTargetFormOpen(true)}
+            >
               Create new
             </Button>
           </GridItem>
