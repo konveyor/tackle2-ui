@@ -13,7 +13,7 @@ import {
   SortableContext,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { SortableItem } from "./sortable-item";
+import { SortableItem } from "./components/dnd/sortable-item";
 import {
   PageSection,
   PageSectionVariants,
@@ -25,9 +25,9 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
-import { DndGrid } from "./grid";
-import { Item } from "./item";
+import { Item } from "./components/dnd/item";
 import { transformationTargets } from "@app/data/targets";
+import { DndGrid } from "./components/dnd/grid";
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
@@ -74,12 +74,7 @@ export const MigrationTargets: React.FC = () => {
             </TextContent>
           </GridItem>
           <GridItem span={2} className="button-align">
-            <Button
-              id="clear-repository"
-              isInline
-              className={spacing.mlMd}
-              // onClick={() => setIsCreateDialogOpen(true)}
-            >
+            <Button id="clear-repository" isInline className={spacing.mlMd}>
               Create new
             </Button>
           </GridItem>
@@ -93,8 +88,8 @@ export const MigrationTargets: React.FC = () => {
       >
         <SortableContext items={targetIDs} strategy={rectSortingStrategy}>
           <DndGrid columns={4}>
-            {targetIDs.map((id, index) => (
-              <SortableItem key={id} id={id} index={index} />
+            {targetIDs.map((id) => (
+              <SortableItem key={id} id={id} />
             ))}
           </DndGrid>
           <DragOverlay>{activeId ? <Item id={activeId} /> : null}</DragOverlay>
