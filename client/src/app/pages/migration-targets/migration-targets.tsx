@@ -1,102 +1,61 @@
-import * as React from "react";
+import React, { useState } from "react";
 import {
-  Button,
-  DragDrop,
-  Draggable,
-  Droppable,
-  Grid,
-  GridItem,
+  DndContext,
+  closestCenter,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+import { SortableItem } from "./sortable-item";
+import {
   PageSection,
   PageSectionVariants,
-  Text,
+  Grid,
+  GridItem,
   TextContent,
-  Gallery,
-  GalleryItem,
-  Modal,
-  ModalVariant,
+  Button,
+  Text,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
-
-import { CustomTargetForm } from "./custom-target-form";
+import { DndGrid } from "./grid";
+import { Item } from "./item";
 import { transformationTargets } from "@app/data/targets";
-import { TargetCard } from "@app/components/target-card";
-import { MigrationTarget } from "@app/api/models";
-import { useEntityModal } from "@app/shared/hooks";
-import "./migration-targets.css";
-import { useFetchMigrationTargets } from "@app/queries/rulesets";
-
-interface IDroppable {
-  droppableId: string;
-  index: number;
-}
-
-const numberOfColumns = 5;
-
-const chunksize = (length: number) => {
-  if (length % numberOfColumns > 0)
-    return Math.round(length / numberOfColumns + 1);
-  return Math.round(length / numberOfColumns);
-};
-
-const byChunks = (
-  targets: MigrationTarget[],
-  size: number
-): MigrationTarget[][] => {
-  const copyTargets = [...targets];
-  let chunks: MigrationTarget[][] = [];
-
-  for (let i = 1; copyTargets.length > 0; i++) {
-    const chunk = copyTargets.splice(0, size);
-    chunks.push(chunk);
-  }
-  return chunks;
-};
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
 
-  const [isCustomTargetModalOpen, setIsCustomTargetModalOpen] =
-    React.useState(false);
+  const [activeId, setActiveId] = useState(null);
 
-  const { migrationTargets } = useFetchMigrationTargets();
-
-  const [targets, setTargets] =
-    React.useState<MigrationTarget[]>(migrationTargets);
-
-  const [areas, setAreas] = React.useState<MigrationTarget[][]>(
-    byChunks(transformationTargets, chunksize(transformationTargets.length))
+  const [targetIDs, setTargetIDs] = React.useState<string[]>(
+    transformationTargets.map((target, index) => target.name)
   );
 
-  const onDrop = (src: IDroppable, dest?: IDroppable) => {
-    const size = chunksize(areas.flat().length);
-    if (dest) {
-      const newFlatzones = areas.flat();
-      const removed = newFlatzones.splice(
-        +src.droppableId * size + src.index,
-        1
-      );
+  const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
-      let dstIndex: number = -1;
+  function handleDragEnd(event: any) {
+    const { active, over } = event;
 
-      if (src.droppableId === dest.droppableId) {
-        newFlatzones.splice(
-          +dest.droppableId * size + dest.index,
-          0,
-          ...removed
-        );
-      } else {
-        newFlatzones.splice(
-          +dest.droppableId * size + dest.index - 1,
-          0,
-          ...removed
-        );
-      }
+    if (active.id !== over.id) {
+      setTargetIDs((items) => {
+        const oldIndex = items.indexOf(active.id);
+        const newIndex = items.indexOf(over.id);
 
-      setAreas(byChunks(newFlatzones, size));
-      return true;
+        return arrayMove(items, oldIndex, newIndex);
+      });
     }
-    return false;
+  }
+
+  const handleDragStart = (event: any) => {
+    const { active } = event;
+    setActiveId(active.id);
   };
 
   return (
@@ -119,66 +78,28 @@ export const MigrationTargets: React.FC = () => {
               id="clear-repository"
               isInline
               className={spacing.mlMd}
-              onClick={() => setIsCustomTargetModalOpen(true)}
+              // onClick={() => setIsCreateDialogOpen(true)}
             >
               Create new
             </Button>
           </GridItem>
         </Grid>
       </PageSection>
-      <PageSection>
-        <Gallery
-          hasGutter
-          minWidths={{
-            default: "100%",
-            md: "100px",
-            xl: "300px",
-          }}
-          maxWidths={{
-            md: "200px",
-            xl: "1fr",
-          }}
-        >
-          <DragDrop onDrop={(source, dest) => onDrop(source, dest)}>
-            {areas.map((targets, zoneId) => (
-              <GalleryItem key={zoneId}>
-                <Droppable droppableId={`${zoneId}`}>
-                  {targets.map((target, id) => (
-                    <Draggable key={target.name} style={{ padding: ".5em" }}>
-                      <TargetCard item={target} />
-                    </Draggable>
-                  ))}
-                </Droppable>
-              </GalleryItem>
-            ))}
-          </DragDrop>
-        </Gallery>
-      </PageSection>
-      <Modal
-        title={t("dialog.title.edit", {
-          what: t("terms.customTarget").toLowerCase(),
-        })}
-        // TODO Handle edit case when target selected
-        // title={
-        //   target
-        //     ? t("dialog.title.edit", {
-        //         what: t("terms.customTarget").toLowerCase(),
-        //       })
-        //     : t("dialog.title.new", {
-        //         what: t("terms.customTarget").toLowerCase(),
-        //       })
-        // }
-        variant={ModalVariant.medium}
-        isOpen={isCustomTargetModalOpen}
-        onClose={() => setIsCustomTargetModalOpen(false)}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
       >
-        <CustomTargetForm
-          onCancel={() => setIsCustomTargetModalOpen(false)}
-          onSaved={() => {
-            setIsCustomTargetModalOpen(false);
-          }}
-        />
-      </Modal>
+        <SortableContext items={targetIDs} strategy={rectSortingStrategy}>
+          <DndGrid columns={4}>
+            {targetIDs.map((id, index) => (
+              <SortableItem key={id} id={id} index={index} />
+            ))}
+          </DndGrid>
+          <DragOverlay>{activeId ? <Item id={activeId} /> : null}</DragOverlay>
+        </SortableContext>
+      </DndContext>
     </>
   );
 };
