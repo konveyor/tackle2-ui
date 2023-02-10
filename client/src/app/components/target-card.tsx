@@ -12,8 +12,12 @@ import {
   SelectOptionObject,
   Text,
   DropdownItem,
+  Flex,
+  FlexItem,
+  Button,
+  ButtonVariant,
 } from "@patternfly/react-core";
-import { CubesIcon } from "@patternfly/react-icons";
+import { CubesIcon, GripVerticalIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { KebabDropdown } from "@app/shared/components";
@@ -25,6 +29,7 @@ export interface TargetCardProps {
   item: MigrationTarget;
   cardSelected?: boolean;
   onChange?: (isNewCard: boolean, value: string) => void;
+  handleProps?: any;
 }
 
 // Force display dropdown box even though there only one option available.
@@ -35,6 +40,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   item,
   cardSelected,
   onChange = () => {},
+  handleProps,
 }) => {
   const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
@@ -83,21 +89,36 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       isSelected={isCardSelected}
       className="pf-l-stack pf-l-stack__item pf-m-fill"
     >
-      <CardBody style={{ position: "relative" }}>
-        {item.custom ? (
-          <div style={{ position: "absolute", right: 0 }}>
-            <KebabDropdown
-              dropdownItems={[
-                <DropdownItem key="edit-custom-card" onClick={() => {}}>
-                  {t("actions.edit")}
-                </DropdownItem>,
-                <DropdownItem key="delite-custom-card" onClick={() => {}}>
-                  {t("actions.delete")}
-                </DropdownItem>,
-              ]}
-            />
-          </div>
-        ) : null}
+      <CardBody>
+        <Flex>
+          <FlexItem>
+            <Button
+              className="grabbable"
+              id="dnd-button"
+              aria-label="drag button"
+              variant={ButtonVariant.plain}
+              {...handleProps}
+              {...handleProps?.listeners}
+              {...handleProps?.attributes}
+            >
+              <GripVerticalIcon></GripVerticalIcon>
+            </Button>
+          </FlexItem>
+          <FlexItem className={spacing.mlAuto}>
+            {item.custom ? (
+              <KebabDropdown
+                dropdownItems={[
+                  <DropdownItem key="edit-custom-card" onClick={() => {}}>
+                    {t("actions.edit")}
+                  </DropdownItem>,
+                  <DropdownItem key="delite-custom-card" onClick={() => {}}>
+                    {t("actions.delete")}
+                  </DropdownItem>,
+                ]}
+              />
+            ) : null}
+          </FlexItem>
+        </Flex>
         <EmptyState
           variant={EmptyStateVariant.small}
           className="select-card__component__empty-state"
