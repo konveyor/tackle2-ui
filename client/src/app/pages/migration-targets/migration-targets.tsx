@@ -40,6 +40,7 @@ export const MigrationTargets: React.FC = () => {
 
   const [targetIDs, setTargetIDs] = React.useState<string[]>(
     migrationTargets.map((target) => target.name)
+  );
 
   const [isCustomTargetFormOpen, setIsCustomTargetFormOpen] =
     React.useState(false);
