@@ -24,7 +24,7 @@ import "./target-card.css";
 export interface TargetCardProps {
   item: MigrationTarget;
   cardSelected?: boolean;
-  isEditable?: boolean = false;
+  isEditable?: boolean;
   onChange?: (isNewCard: boolean, value: string) => void;
 }
 
@@ -34,7 +34,7 @@ const forceSelect = ["Azure"];
 
 export const TargetCard: React.FC<TargetCardProps> = ({
   item,
-  isEditable,
+  isEditable = false,
   cardSelected,
   onChange = () => {},
 }) => {
