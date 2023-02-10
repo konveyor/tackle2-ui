@@ -2,30 +2,30 @@ import axios, { AxiosPromise } from "axios";
 import { APIClient } from "@app/axios-config";
 
 import {
-  PageQuery,
-  BusinessService,
-  Stakeholder,
-  StakeholderGroup,
   Application,
-  Assessment,
-  JobFunction,
-  ApplicationDependency,
-  TagType,
-  Tag,
-  Review,
-  AssessmentRisk,
-  AssessmentQuestionRisk,
   ApplicationAdoptionPlan,
-  AssessmentConfidence,
+  ApplicationDependency,
+  ApplicationImport,
   ApplicationImportSummary,
+  Assessment,
+  AssessmentConfidence,
+  AssessmentQuestionRisk,
+  AssessmentRisk,
   BulkCopyAssessment,
   BulkCopyReview,
+  BusinessService,
   Identity,
-  Setting,
-  Task,
+  JobFunction,
+  MigrationTarget,
   Proxy,
+  Review,
+  Setting,
+  Stakeholder,
+  StakeholderGroup,
+  Tag,
+  TagType,
+  Task,
   Taskgroup,
-  ApplicationImport,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 
@@ -53,6 +53,8 @@ export const PROXIES = HUB + "/proxies";
 export const SETTINGS = HUB + "/settings";
 export const TASKS = HUB + "/tasks";
 export const TASKGROUPS = HUB + "/taskgroups";
+
+export const RULESETS = HUB + "/rulesets";
 
 // PATHFINDER
 export const PATHFINDER = "/hub/pathfinder";
@@ -557,3 +559,12 @@ export const removeFileTaskgroup = ({
     // formHeaders
   );
 };
+
+export const updateMigrationTarget = (obj: MigrationTarget) =>
+  axios.put(`${RULESETS}/${obj.name}`, obj);
+
+export const createMigrationTarget = (obj: MigrationTarget) =>
+  axios.post<MigrationTarget>(RULESETS, obj).then((response) => response.data);
+
+export const deleteMigrationTarget = (id: number): AxiosPromise =>
+  axios.delete(`${RULESETS}/${id}`);
