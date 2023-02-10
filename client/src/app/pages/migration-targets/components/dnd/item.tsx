@@ -1,12 +1,11 @@
 import React, { forwardRef } from "react";
 import { TargetCard } from "@app/components/target-card";
 import { useFetchMigrationTargets } from "@app/queries/rulesets";
-import "./dnd.css";
-
 interface ItemProps {
   id: string;
   style?: React.CSSProperties;
   ref?: React.ForwardedRef<any>;
+  handleProps?: any;
 }
 
 export const Item: React.FC<ItemProps> = forwardRef(
@@ -20,11 +19,10 @@ export const Item: React.FC<ItemProps> = forwardRef(
       width: "20em",
       ...style,
     } as React.CSSProperties;
-
     return (
-      <div className="grabbable" {...props} ref={ref} style={inlineStyles}>
+      <div ref={ref} style={inlineStyles}>
         {matchingTarget && (
-          <TargetCard item={matchingTarget} isEditable={true}></TargetCard>
+          <TargetCard item={matchingTarget} handleProps={props.handleProps} />
         )}
       </div>
     );
