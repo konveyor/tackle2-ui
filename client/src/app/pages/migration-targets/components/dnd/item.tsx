@@ -1,9 +1,10 @@
 import React, { forwardRef } from "react";
 import { TargetCard } from "@app/components/target-card";
 import { transformationTargets } from "@app/data/targets";
+import "./dnd.css";
 interface ItemProps {
-  style?: React.CSSProperties;
   id: string;
+  style?: React.CSSProperties;
   ref?: React.ForwardedRef<any>;
 }
 export const Item: React.FC<ItemProps> = forwardRef(
@@ -13,11 +14,12 @@ export const Item: React.FC<ItemProps> = forwardRef(
     );
     const inlineStyles = {
       height: 400,
+      width: "20em",
       ...style,
     } as React.CSSProperties;
 
     return (
-      <div {...props} ref={ref} style={inlineStyles}>
+      <div className="grabbable" {...props} ref={ref} style={inlineStyles}>
         {matchingTarget && <TargetCard item={matchingTarget}></TargetCard>}
       </div>
     );
