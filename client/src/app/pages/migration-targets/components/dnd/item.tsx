@@ -1,15 +1,18 @@
 import React, { forwardRef } from "react";
 import { TargetCard } from "@app/components/target-card";
-import { transformationTargets } from "@app/data/targets";
+import { useFetchMigrationTargets } from "@app/queries/rulesets";
 import "./dnd.css";
+
 interface ItemProps {
   id: string;
   style?: React.CSSProperties;
   ref?: React.ForwardedRef<any>;
 }
+
 export const Item: React.FC<ItemProps> = forwardRef(
   ({ id, style, ...props }, ref) => {
-    const matchingTarget = transformationTargets.find(
+    const { migrationTargets } = useFetchMigrationTargets();
+    const matchingTarget = migrationTargets.find(
       (target) => target.name === id
     );
     const inlineStyles = {
@@ -20,7 +23,9 @@ export const Item: React.FC<ItemProps> = forwardRef(
 
     return (
       <div className="grabbable" {...props} ref={ref} style={inlineStyles}>
-        {matchingTarget && <TargetCard item={matchingTarget}></TargetCard>}
+        {matchingTarget && (
+          <TargetCard item={matchingTarget} isEditable={true}></TargetCard>
+        )}
       </div>
     );
   }
