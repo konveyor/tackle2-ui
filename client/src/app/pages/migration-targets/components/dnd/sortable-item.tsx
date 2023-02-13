@@ -10,8 +10,14 @@ export const SortableItem: React.FC<SortableItemProps> = (
   { style, id },
   ...props
 ) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    setActivatorNodeRef,
+  } = useSortable({ id: id });
 
   const inlineStyles = {
     transform: CSS.Transform.toString(transform),
@@ -26,8 +32,11 @@ export const SortableItem: React.FC<SortableItemProps> = (
     <Item
       ref={setNodeRef}
       style={inlineStyles}
-      {...attributes}
-      {...listeners}
+      handleProps={{
+        ref: setActivatorNodeRef,
+        listeners: listeners,
+        attributes: attributes,
+      }}
       {...props}
       id={id}
     />
