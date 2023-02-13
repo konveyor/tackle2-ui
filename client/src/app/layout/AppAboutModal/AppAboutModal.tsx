@@ -25,7 +25,10 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const brandName = APP_BRAND === BrandType.Konveyor ? "Tackle" : "MTA";
+  const brandName =
+    APP_BRAND === BrandType.Konveyor
+      ? "Tackle"
+      : "Migration Toolkit for Applications";
   return (
     <AboutModal
       isOpen={isOpen}
