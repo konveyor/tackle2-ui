@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MigrationTarget } from "@app/api/models";
 import { createMigrationTarget, updateMigrationTarget } from "@app/api/rest";
 import { transformationTargets } from "@app/data/targets";
@@ -7,7 +7,7 @@ export const MigrationTargetsQueryKey = "rulesets";
 
 export const useFetchMigrationTargets = () => {
   const { data, isLoading, error, refetch } = useQuery<MigrationTarget[]>(
-    MigrationTargetsQueryKey,
+    [MigrationTargetsQueryKey],
     // TODO Replace once rulesets API supported by backend
     // async () => (await getMigrationTargets()).data,
     async () => [],
@@ -33,7 +33,7 @@ export const useUpdateMigrationTargetMutation = (
   const { isLoading, mutate, error } = useMutation(updateMigrationTarget, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries(MigrationTargetsQueryKey);
+      queryClient.invalidateQueries([MigrationTargetsQueryKey]);
     },
     onError: (err) => {
       onError(err);
@@ -54,7 +54,7 @@ export const useCreateMigrationTargetMutation = (
   const { isLoading, mutate, error } = useMutation(createMigrationTarget, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries(MigrationTargetsQueryKey);
+      queryClient.invalidateQueries([MigrationTargetsQueryKey]);
     },
     onError: (err) => {
       onError(err);

@@ -24,6 +24,7 @@ import "./target-card.css";
 export interface TargetCardProps {
   item: MigrationTarget;
   cardSelected?: boolean;
+  isEditable?: boolean;
   onChange?: (isNewCard: boolean, value: string) => void;
 }
 
@@ -33,6 +34,7 @@ const forceSelect = ["Azure"];
 
 export const TargetCard: React.FC<TargetCardProps> = ({
   item,
+  isEditable = false,
   cardSelected,
   onChange = () => {},
 }) => {
@@ -84,7 +86,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       className="pf-l-stack pf-l-stack__item pf-m-fill"
     >
       <CardBody style={{ position: "relative" }}>
-        {item.custom ? (
+        {isEditable && item.custom ? (
           <div style={{ position: "absolute", right: 0 }}>
             <KebabDropdown
               dropdownItems={[
