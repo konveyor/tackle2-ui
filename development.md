@@ -58,6 +58,15 @@ export interface FormValues {
 
 - If you don't need a `FormGroup` around your field (no external label or errors), you can just render a <Controller> for it yourself. That's what we do for [Switch](https://www.patternfly.org/v4/components/switch) fields (because switch has a built in right-aligned label). ([example](https://github.com/konveyor/tackle2-ui/blob/main/client/src/app/pages/proxies/proxy-form.tsx#L286-L300))
 
+### Development against a local hub
+
+- To develop against a local hub instance, you must set 2 env vars:
+
+  - `TACKLE_HUB_URL` to match the url of the locally served hub `http:localhost:8080`
+  - `PORT` must be set to something other than `8080` to avoid conflicting with the locally served hub
+
+- Then, run `npm run start:local`
+
 ## READMEs
 
 For more info about working on the Tackle 2.x UI, check out these READMEs:

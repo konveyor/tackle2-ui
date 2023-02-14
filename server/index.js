@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 
 const setupProxy = require("./setupProxy");
 
-const port = 8080;
+const port = process.env.PORT || 8080;
 
 const helpers = require("./helpers");
 app.use(cookieParser());

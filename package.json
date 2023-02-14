@@ -8,6 +8,7 @@
     "build:dev": "npm run build:dev -w client",
     "build": "npm run build -w client",
     "start:dev": "npm run start:dev -w client",
+    "start:local": "npm run start:local -w client",
     "start": "npm run start -w client",
     "port-forward": "npm run port-forward -w client"
   },

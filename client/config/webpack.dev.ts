@@ -16,8 +16,8 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
     port: 9000,
     proxy: {
       // NOTE: Any future non-UI paths handled by ../../server/index.js should be added here.
-      "/auth": "http://localhost:8080",
-      "/hub": "http://localhost:8080",
+      "/auth": `http://localhost:${process.env.PORT || 8080}`,
+      "/hub": `http://localhost:${process.env.PORT || 8080}`,
     },
     historyApiFallback: true,
   },
