@@ -4,7 +4,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Item } from "./item";
 interface SortableItemProps {
   style?: React.CSSProperties;
-  id: string;
+  id: number;
 }
 export const SortableItem: React.FC<SortableItemProps> = (
   { style, id },

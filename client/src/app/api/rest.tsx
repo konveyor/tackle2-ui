@@ -13,12 +13,13 @@ import {
   AssessmentRisk,
   BulkCopyAssessment,
   BulkCopyReview,
+  BundleOrderSetting,
   BusinessService,
   Identity,
   JobFunction,
-  MigrationTarget,
   Proxy,
   Review,
+  RuleBundle,
   Setting,
   Stakeholder,
   StakeholderGroup,
@@ -54,7 +55,8 @@ export const SETTINGS = HUB + "/settings";
 export const TASKS = HUB + "/tasks";
 export const TASKGROUPS = HUB + "/taskgroups";
 
-export const RULESETS = HUB + "/rulesets";
+export const RULEBUNDLES = HUB + "/rulebundles";
+export const FILES = HUB + "/files";
 
 // PATHFINDER
 export const PATHFINDER = "/hub/pathfinder";
@@ -62,6 +64,7 @@ export const ASSESSMENTS = PATHFINDER + "/assessments";
 
 const jsonHeaders = { headers: { Accept: "application/json" } };
 const formHeaders = { headers: { Accept: "multipart/form-data" } };
+const fileHeaders = { headers: { Accept: "application/octet-stream" } };
 
 type Direction = "asc" | "desc";
 
@@ -449,20 +452,21 @@ export const deleteIdentity = (id: number): AxiosPromise => {
   return APIClient.delete(`${IDENTITIES}/${id}`);
 };
 
-export const getSettingById = (id: number | string): AxiosPromise<boolean> => {
+export const getSettingById = (id: number | string): AxiosPromise<any> => {
   return APIClient.get(`${SETTINGS}/${id}`, jsonHeaders);
 };
 
+export const updateBundleOrderSetting = (
+  obj: BundleOrderSetting
+): AxiosPromise<Setting> => {
+  return APIClient.put(`${SETTINGS}/${obj.key}`, obj.value, jsonHeaders);
+};
 export const updateSetting = (obj: Setting): AxiosPromise<Setting> => {
   return APIClient.put(
     `${SETTINGS}/${obj.key}`,
     obj.value?.toString(),
     jsonHeaders
   );
-};
-
-export const createSetting = (obj: Setting): AxiosPromise<Setting> => {
-  return APIClient.post(`${SETTINGS}`, obj);
 };
 
 export const getProxies = (): AxiosPromise<Array<Proxy>> => {
@@ -560,11 +564,27 @@ export const removeFileTaskgroup = ({
   );
 };
 
-export const updateMigrationTarget = (obj: MigrationTarget) =>
-  axios.put(`${RULESETS}/${obj.name}`, obj);
+export const updateRuleBundle = (obj: RuleBundle) =>
+  axios.put(`${RULEBUNDLES}/${obj.name}`, obj);
 
-export const createMigrationTarget = (obj: MigrationTarget) =>
-  axios.post<MigrationTarget>(RULESETS, obj).then((response) => response.data);
+export const createRuleBundle = (obj: RuleBundle) =>
+  axios.post<RuleBundle>(RULEBUNDLES, obj).then((response) => response.data);
 
-export const deleteMigrationTarget = (id: number): AxiosPromise =>
-  axios.delete(`${RULESETS}/${id}`);
+export const deleteRuleBundle = (id: number): AxiosPromise =>
+  axios.delete(`${RULEBUNDLES}/${id}`);
+
+export const getRuleBundles = () =>
+  axios.get<RuleBundle[]>(RULEBUNDLES).then((response) => response.data);
+
+export const createImageFile = ({
+  image,
+  filename,
+}: {
+  image: FormData;
+  filename: string;
+}) =>
+  axios
+    .post<RuleBundle>(`${FILES}/${filename}`, image, fileHeaders)
+    .then((response) => {
+      return response.data;
+    });

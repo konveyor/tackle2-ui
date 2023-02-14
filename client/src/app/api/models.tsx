@@ -318,6 +318,11 @@ export interface Setting {
   value: boolean | undefined;
 }
 
+export interface BundleOrderSetting {
+  key: string;
+  value: number[];
+}
+
 // Analysis Task
 
 export type TaskState =
@@ -419,19 +424,31 @@ export interface ITypeOptions {
   value: string;
 }
 
-export interface MigrationTargetRule {
+export interface RuleBundleImage {
+  id: number;
   name: string;
-  content: string;
 }
 
-export interface MigrationTarget {
-  id?: number;
+export interface Metadata {
+  target: string;
+}
+
+export interface Ruleset {
+  id: number;
+  metadata: Metadata;
+}
+
+export enum RuleBundleKind {
+  CATEGORY = "category",
+}
+
+export interface RuleBundle {
+  id: number;
   name: string;
   description: string;
-  image: string;
-  rules?: MigrationTargetRule[];
+  image: RuleBundleImage;
+  kind?: RuleBundleKind;
+  rulesets: Ruleset[];
   custom: boolean;
-  order?: number;
   repository?: Repository;
-  options?: string[][];
 }

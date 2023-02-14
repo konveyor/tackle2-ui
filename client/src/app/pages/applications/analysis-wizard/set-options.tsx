@@ -15,11 +15,11 @@ import * as yup from "yup";
 
 import { getValidatedFromErrorTouched } from "@app/utils/utils";
 import defaultSources from "./sources";
-import { defaultTargets } from "@app/data/targets";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisWizardFormValues } from "./schema";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 import { StringListField } from "@app/shared/components/string-list-field";
+import { defaultTargets } from "@app/data/targets";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();

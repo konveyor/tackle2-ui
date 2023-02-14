@@ -11,27 +11,46 @@ import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
 
 import { TargetCard } from "@app/components/target-card";
-import { transformationTargets } from "@app/data/targets";
 import { AnalysisWizardFormValues } from "./schema";
-import { MigrationTarget } from "@app/api/models";
+import {
+  useFetchBundleOrder,
+  useFetchRuleBundles,
+} from "@app/queries/rulebundles";
+import { RuleBundle } from "@app/api/models";
 
 export const SetTargets: React.FC = () => {
   const { t } = useTranslation();
 
+  const {
+    ruleBundles,
+    isFetching: isFetchingRuleBundles,
+    refetch: refetchRuleBundles,
+  } = useFetchRuleBundles();
+
+  const {
+    bundleOrderSetting,
+    isFetching,
+    refetch: refreshBundleOrderSetting,
+  } = useFetchBundleOrder(ruleBundles);
+
   const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
   const targets = watch("targets");
 
-  const handleOnCardChange = (
-    isNewCard: boolean,
-    selectionValue: string,
-    card: MigrationTarget
+  const handleOnCardClick = (
+    isSelecting: boolean,
+    selectedRuleTarget: string,
+    selectedRuleBundle: RuleBundle
   ) => {
-    const selectedTargets = targets.filter(
-      (target) => !card.options?.map((option) => option[0]).includes(target)
+    const selectedRuleTargets = targets.filter(
+      (target) =>
+        !selectedRuleBundle.rulesets
+          .map((rule) => rule.metadata.target)
+          .includes(target)
     );
 
-    if (isNewCard) setValue("targets", [...selectedTargets, selectionValue]);
-    else setValue("targets", selectedTargets);
+    if (isSelecting)
+      setValue("targets", [...selectedRuleTargets, selectedRuleTarget]);
+    else setValue("targets", selectedRuleTargets);
   };
 
   return (
@@ -47,22 +66,34 @@ export const SetTargets: React.FC = () => {
         <Text>{t("wizard.label.setTargets")}</Text>
       </TextContent>
       <Gallery hasGutter>
-        {transformationTargets.map((elem, index) => (
-          <GalleryItem key={index}>
-            <TargetCard
-              readOnly
-              item={elem}
-              cardSelected={
-                elem.options
-                  ? elem.options.some((option) => targets.includes(option[0]))
-                  : false
-              }
-              onChange={(isNewCard: boolean, selectionValue: string) => {
-                handleOnCardChange(isNewCard, selectionValue, elem);
-              }}
-            />
-          </GalleryItem>
-        ))}
+        {bundleOrderSetting.value.map((id, index) => {
+          const matchingRuleBundle = ruleBundles.find(
+            (target) => target.id === id
+          );
+          return (
+            <GalleryItem key={index}>
+              {matchingRuleBundle && (
+                <TargetCard
+                  readOnly
+                  item={matchingRuleBundle}
+                  cardSelected={matchingRuleBundle.rulesets.some((ruleset) =>
+                    targets.includes(ruleset.metadata.target)
+                  )}
+                  onCardClick={(
+                    isSelecting: boolean,
+                    selectedRuleTarget: string
+                  ) => {
+                    handleOnCardClick(
+                      isSelecting,
+                      selectedRuleTarget,
+                      matchingRuleBundle
+                    );
+                  }}
+                />
+              )}
+            </GalleryItem>
+          );
+        })}
       </Gallery>
     </Form>
   );

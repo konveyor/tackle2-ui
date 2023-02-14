@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -28,37 +28,74 @@ import { useTranslation } from "react-i18next";
 
 import { Item } from "./components/dnd/item";
 import { DndGrid } from "./components/dnd/grid";
-import { useFetchMigrationTargets } from "@app/queries/rulesets";
 import { CustomTargetForm } from "./custom-target-form";
+import { BundleOrderSetting, Setting } from "@app/api/models";
+import { updateBundleOrderSetting } from "@app/api/rest";
+import { AxiosPromise } from "axios";
+import {
+  BundleOrderSettingKey,
+  useFetchBundleOrder,
+  useFetchRuleBundles,
+} from "@app/queries/rulebundles";
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
 
-  const { migrationTargets } = useFetchMigrationTargets();
+  const {
+    ruleBundles,
+    isFetching: isFetchingRuleBundles,
+    refetch: refetchRuleBundles,
+  } = useFetchRuleBundles();
+
+  const {
+    bundleOrderSetting,
+    isFetching,
+    refetch: refreshBundleOrderSetting,
+  } = useFetchBundleOrder(ruleBundles);
+
+  useEffect(() => {
+    refetchRuleBundles();
+    refreshBundleOrderSetting();
+  }, [isFetching]);
 
   const [activeId, setActiveId] = useState(null);
-
-  const [targetIDs, setTargetIDs] = React.useState<string[]>(
-    migrationTargets.map((target) => target.name)
-  );
 
   const [isCustomTargetFormOpen, setIsCustomTargetFormOpen] =
     React.useState(false);
 
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
-  function handleDragEnd(event: any) {
+  function handleDragOver(event: any) {
     const { active, over } = event;
 
     if (active.id !== over.id) {
-      setTargetIDs((items) => {
+      const reorderBundle = (items: number[]) => {
         const oldIndex = items.indexOf(active.id);
         const newIndex = items.indexOf(over.id);
 
         return arrayMove(items, oldIndex, newIndex);
-      });
+      };
+
+      const updatedBundleSetting: BundleOrderSetting = {
+        key: BundleOrderSettingKey,
+        value: reorderBundle(bundleOrderSetting.value),
+      };
+      let promise: AxiosPromise<Setting>;
+      if (updatedBundleSetting !== undefined) {
+        promise = updateBundleOrderSetting(updatedBundleSetting);
+      } else {
+        promise = updateBundleOrderSetting(updatedBundleSetting);
+      }
+      promise
+        .then((response) => {
+          refreshBundleOrderSetting();
+        })
+        .catch((error) => {});
     }
   }
+  useEffect(() => {
+    refreshBundleOrderSetting();
+  }, [refreshBundleOrderSetting]);
 
   const handleDragStart = (event: any) => {
     const { active } = event;
@@ -96,11 +133,14 @@ export const MigrationTargets: React.FC = () => {
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
       >
-        <SortableContext items={targetIDs} strategy={rectSortingStrategy}>
+        <SortableContext
+          items={bundleOrderSetting.value}
+          strategy={rectSortingStrategy}
+        >
           <DndGrid columns={4}>
-            {targetIDs.map((id) => (
+            {bundleOrderSetting.value.map((id) => (
               <SortableItem key={id} id={id} />
             ))}
           </DndGrid>

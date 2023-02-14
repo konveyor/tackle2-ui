@@ -9,22 +9,25 @@ import {
   ModalVariant,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import Resizer from "react-image-file-resizer";
 
-import { MigrationTarget, Rule } from "@app/api/models";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useState } from "react";
+import { RuleBundle } from "@app/api/models";
+import { useCreateImageFileMutation } from "@app/queries/rulebundles";
 
 export interface CustomTargetFormProps {
-  target?: MigrationTarget;
+  ruleBundle?: RuleBundle;
   isOpen: boolean;
   onClose: () => void;
-  onSaved: (response: AxiosResponse<MigrationTarget>) => void;
+  onSaved: (response: AxiosResponse<RuleBundle>) => void;
   onCancel: () => void;
 }
 
@@ -32,19 +35,38 @@ interface CustomTargetFormValues {
   id: number;
   name: string;
   description: string;
-  image: string;
+  imageID: number;
   // rules: Rule[];
   // repository: any;
 }
 
 export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
-  target,
+  ruleBundle,
   isOpen,
   onClose,
   onSaved,
   onCancel,
 }) => {
   const { t } = useTranslation();
+
+  const [isImageFileRejected, setIsImageFileRejected] = useState(false);
+
+  const resizeFile = (file: File) =>
+    new Promise<File>((resolve) => {
+      const extension = file?.name?.split(".")[1];
+      Resizer.imageFileResizer(
+        file,
+        80,
+        80,
+        extension,
+        100,
+        0,
+        (uri) => {
+          resolve(uri as File);
+        },
+        "file"
+      );
+    });
 
   const validationSchema: yup.SchemaOf<CustomTargetFormValues> = yup
     .object()
@@ -67,11 +89,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         .defined()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
-      image: yup
-        .string()
-        .defined()
-        .trim()
-        .max(250, t("validation.maxLength", { length: 250 })),
+      imageID: yup.number().defined().nullable(),
       //TODO rules validation
       // rules: yup.array().defined(),
       //TODO repo validation
@@ -83,34 +101,54 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     formState: { isSubmitting, isValidating, isValid, isDirty },
     getValues,
     setValue,
+    setError,
     control,
     watch,
+    resetField,
+    reset,
   } = useForm<CustomTargetFormValues>({
     defaultValues: {
-      name: target?.name || "",
-      description: target?.description || "",
-      id: target?.id || 0,
+      name: ruleBundle?.name || "",
+      description: ruleBundle?.description || "",
+      id: ruleBundle?.id || 0,
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
   });
 
   const onSubmit = (formValues: CustomTargetFormValues) => {
-    const payload: MigrationTarget = {
+    const payload: RuleBundle = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       id: formValues.id,
-      image: "",
-      rules: [{ name: "", content: "" }],
+      image: { id: 0, name: "" },
+      rulesets: [],
       custom: true,
-      order: 0,
     };
   };
+  // IMAGE FILE UPLOAD
+  const [filename, setFilename] = React.useState("");
+
+  const onCreateImageFileSuccess = (response: any) => {
+    //Set image ID for use in form submit
+    setValue("imageID", response?.id);
+  };
+
+  const onCreateImageFileFailure = (error: AxiosError) => {
+    resetField("imageID");
+  };
+
+  const { mutate: createImageFile } = useCreateImageFileMutation(
+    onCreateImageFileSuccess,
+    onCreateImageFileFailure
+  );
+
+  //
 
   return (
     <Modal
       title={
-        target
+        ruleBundle
           ? t("dialog.title.new", {
               what: t("terms.customTarget").toLowerCase(),
             })
@@ -139,33 +177,41 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         />
         <HookFormPFGroupController
           control={control}
-          name="image"
+          name="imageID"
           label={t("terms.image")}
           fieldId="custom-migration-target-upload-image"
           isRequired
-          renderInput={({ field: { value, name } }) => (
+          helperText="Upload a png or jpeg file"
+          renderInput={({ field: { onChange, name } }) => (
             <FileUpload
               id="custom-migration-target-upload-image"
-              // helperText="File cannot exceed 1 MB"
-              // helperTextInvalid="Must be a JPEG or PNG file no larger than 1 MB"
-              type="text"
-              hideDefaultPreview
-              // value={value}
-              // filename={filename}
+              name={name}
+              value={filename}
+              filename={filename}
               filenamePlaceholder="Drag and drop a file or upload one"
-              // onFileInputChange={handleFileInputChange}
-              // onDataChange={handleTextOrDataChange}
-              // onTextChange={handleTextOrDataChange}
-              // onReadStarted={handleFileReadStarted}
-              // onReadFinished={handleFileReadFinished}
-              // onClearClick={handleClear}
-              // isLoading={isLoading}
               dropzoneProps={{
-                accept: ".jpeg, .jpg, .png",
-                maxSize: 1048576,
-                // onDropRejected: handleFileRejected
+                accept: ".png, .jpeg",
+                maxSize: 1000000,
+                onDropRejected: () => setIsImageFileRejected(true),
               }}
-              // validated={isRejected ? 'error' : 'default'}
+              validated={isImageFileRejected ? "error" : "default"}
+              onFileInputChange={async (e, file) => {
+                try {
+                  const image = await resizeFile(file);
+                  setFilename(image.name);
+                  const formFile = new FormData();
+                  formFile.append("file", file);
+                  createImageFile({ image: formFile, filename: file.name });
+                } catch {
+                  resetField("imageID");
+                }
+              }}
+              onClearClick={() => {
+                onChange("");
+                setFilename("");
+                resetField("imageID");
+                setIsImageFileRejected(false);
+              }}
               browseButtonText="Upload"
             />
           )}
@@ -178,7 +224,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             variant={ButtonVariant.primary}
             isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
           >
-            {!target ? t("actions.create") : t("actions.save")}
+            {!ruleBundle ? t("actions.create") : t("actions.save")}
           </Button>
           <Button
             type="button"
