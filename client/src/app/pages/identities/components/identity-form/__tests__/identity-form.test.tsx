@@ -29,7 +29,7 @@ describe("Component: identity-form", () => {
     const identityNameInput = await screen.findByLabelText("Name *");
     expect(identityNameInput).toBeInTheDocument();
 
-    const descriptionInput = await screen.findByLabelText("Description *");
+    const descriptionInput = await screen.findByLabelText("Description");
     expect(descriptionInput).toBeInTheDocument();
 
     const typeSelector = await screen.findByLabelText(

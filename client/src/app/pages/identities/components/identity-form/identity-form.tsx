@@ -405,7 +405,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         name="description"
         label="Description"
         fieldId="description"
-        isRequired
       />
 
       <HookFormPFGroupController
