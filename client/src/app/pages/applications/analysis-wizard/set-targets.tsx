@@ -50,6 +50,7 @@ export const SetTargets: React.FC = () => {
         {transformationTargets.map((elem, index) => (
           <GalleryItem key={index}>
             <TargetCard
+              readOnly
               item={elem}
               cardSelected={
                 elem.options

@@ -25,18 +25,25 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
+
 import { Item } from "./components/dnd/item";
-import { transformationTargets } from "@app/data/targets";
 import { DndGrid } from "./components/dnd/grid";
+import { useFetchMigrationTargets } from "@app/queries/rulesets";
+import { CustomTargetForm } from "./custom-target-form";
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
 
+  const { migrationTargets } = useFetchMigrationTargets();
+
   const [activeId, setActiveId] = useState(null);
 
   const [targetIDs, setTargetIDs] = React.useState<string[]>(
-    transformationTargets.map((target, index) => target.name)
+    migrationTargets.map((target) => target.name)
   );
+
+  const [isCustomTargetFormOpen, setIsCustomTargetFormOpen] =
+    React.useState(false);
 
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
@@ -74,7 +81,12 @@ export const MigrationTargets: React.FC = () => {
             </TextContent>
           </GridItem>
           <GridItem span={2} className="button-align">
-            <Button id="clear-repository" isInline className={spacing.mlMd}>
+            <Button
+              id="clear-repository"
+              isInline
+              className={spacing.mlMd}
+              onClick={() => setIsCustomTargetFormOpen(true)}
+            >
               Create new
             </Button>
           </GridItem>
@@ -95,6 +107,16 @@ export const MigrationTargets: React.FC = () => {
           <DragOverlay>{activeId ? <Item id={activeId} /> : null}</DragOverlay>
         </SortableContext>
       </DndContext>
+      <CustomTargetForm
+        isOpen={isCustomTargetFormOpen}
+        onClose={() => setIsCustomTargetFormOpen(false)}
+        onCancel={() => {
+          setIsCustomTargetFormOpen(false);
+        }}
+        onSaved={() => {
+          setIsCustomTargetFormOpen(false);
+        }}
+      />
     </>
   );
 };
