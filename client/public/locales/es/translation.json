@@ -1,5 +1,6 @@
 {
   "about": {
+    "about": "Acerca de",
     "bottom1": "{{brandType}} es un proyecto dentro de ",
     "bottom2": "Para mayor información por favor diríjase a ",
     "description": "{{brandType}} permite a los usuarios mantener su cartera de aplicaciones con un conjunto completo de metadatos y evaluar su idoneidad para la modernización aprovechando un enfoque basado en cuestionarios.",

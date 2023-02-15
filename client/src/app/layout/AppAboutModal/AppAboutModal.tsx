@@ -40,7 +40,8 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
       brandImageAlt="Logo"
       productName={brandName}
     >
-      <TextContent className="pf-u-py-xl">
+      <TextContent>
+        <Text component={TextVariants.h4}>{t("about.about")}</Text>
         <Text component={TextVariants.p}>
           {t("about.introduction", { brandType: brandName })}
         </Text>
