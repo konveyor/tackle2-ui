@@ -95,17 +95,19 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       <CardBody>
         <Flex>
           <FlexItem>
-            <Button
-              className="grabbable"
-              id="drag-button"
-              aria-label="drag button"
-              variant={ButtonVariant.plain}
-              {...handleProps}
-              {...handleProps?.listeners}
-              {...handleProps?.attributes}
-            >
-              <GripVerticalIcon></GripVerticalIcon>
-            </Button>
+            {!readOnly && (
+              <Button
+                className="grabbable"
+                id="drag-button"
+                aria-label="drag button"
+                variant={ButtonVariant.plain}
+                {...handleProps}
+                {...handleProps?.listeners}
+                {...handleProps?.attributes}
+              >
+                <GripVerticalIcon></GripVerticalIcon>
+              </Button>
+            )}
           </FlexItem>
           <FlexItem className={spacing.mlAuto}>
             {!readOnly && item.custom ? (
