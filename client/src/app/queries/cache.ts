@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { deleteCache, getCache } from "@app/api/rest";
 import { Cache } from "@app/api/models";
@@ -9,7 +9,7 @@ export const CleanProgressQueryKey = "cleanProgress";
 
 export const useFetchCache = () => {
   const { data, isLoading, error, refetch } = useQuery<Cache>(
-    CacheQueryKey,
+    [CacheQueryKey],
     async () => (await getCache()).data,
     {
       onError: (error) => console.log("error, ", error),
