@@ -15,7 +15,7 @@
     "start:dev:server": "NODE_ENV=development node ../server/index.js",
     "start:dev:client": "GENERATE_SOURCEMAP=true webpack serve --config config/webpack.dev.ts",
     "start:dev": "concurrently -n port-forward,server,client -c \"white.bold.inverse,green.bold.inverse,blue.bold.inverse\" \"npm:port-forward\" \"npm:start:dev:server\" \"npm:start:dev:client\"",
-    "test": "$(npm bin)/jest --rootDir=. --config=config/jest.config.js",
+    "test": "jest --rootDir=. --config=config/jest.config.js",
     "tsc": "../node_modules/typescript/bin/tsc -p ./tsconfig.json",
     "prepare": "cd .. && husky install client/.husky"
   },
