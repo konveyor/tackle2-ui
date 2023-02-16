@@ -51,7 +51,6 @@ export const APP_IMPORT_SUMMARY = HUB + "/importsummaries";
 export const APP_IMPORT = HUB + "/imports";
 export const APP_IMPORT_CSV = HUB + "/importsummaries/download";
 
-export const GENERAL = HUB + "/general";
 export const IDENTITIES = HUB + "/identities";
 export const PROXIES = HUB + "/proxies";
 export const SETTINGS = HUB + "/settings";

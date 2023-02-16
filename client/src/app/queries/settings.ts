@@ -10,8 +10,7 @@ export const useSetting = (key: SettingKey) => {
 
   return useQuery({
     queryKey: [SettingQueryKey, key],
-    queryFn: () => getSettingById(key).then((response) => response.data),
-    onSuccess: () => queryClient.invalidateQueries([SettingQueryKey]),
+    queryFn: () => getSettingById(key),
     onError: (error) => console.log(error),
   });
 };
