@@ -24,7 +24,7 @@ export const useSettingMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries([SettingQueryKey]);
     },
-    onError: (err) => {
+    onError: () => {
       queryClient.invalidateQueries([SettingQueryKey]);
     },
   });
