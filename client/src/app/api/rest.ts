@@ -259,26 +259,6 @@ export const getTags = (): AxiosPromise<Tag[]> => {
 
 // App inventory
 
-export const getApplications = (): AxiosPromise<Array<Application>> => {
-  return APIClient.get(`${APPLICATIONS}`, jsonHeaders);
-};
-
-export const deleteApplication = (id: number): AxiosPromise => {
-  return APIClient.delete(`${APPLICATIONS}/${id}`);
-};
-
-export const createApplication = (
-  obj: Application
-): AxiosPromise<Application> => {
-  return APIClient.post(`${APPLICATIONS}`, obj);
-};
-
-export const updateApplication = (
-  obj: Application
-): AxiosPromise<Application> => {
-  return APIClient.put(`${APPLICATIONS}/${obj.id}`, obj);
-};
-
 export const updateAllApplications = (
   updatePromises: AxiosPromise<Application>[]
 ) => {
@@ -468,11 +448,20 @@ export const deleteProxy = (id: number): AxiosPromise => {
 
 // Axios direct
 
-export const getApplicationsQuery = () =>
+export const createApplication = (obj: Application) =>
+  axios.post<Application>(`${APPLICATIONS}`, obj);
+
+export const deleteApplication = (id: number) =>
+  axios.delete<Application>(`${APPLICATIONS}/${id}`);
+
+export const deleteBulkApplications = (ids: number[]) =>
+  axios.delete(APPLICATIONS, { data: ids });
+
+export const getApplications = () =>
   axios.get<Application[]>(APPLICATIONS).then((response) => response.data);
 
-export const deleteBulkApplicationsQuery = (ids: number[]) =>
-  axios.delete(APPLICATIONS, { data: ids });
+export const updateApplication = (obj: Application) =>
+  axios.put<Application>(`${APPLICATIONS}/${obj.id}`, obj);
 
 export const getApplicationsImportSummary = () =>
   axios

@@ -4,12 +4,11 @@ import { Application, ApplicationDependency } from "@app/api/models";
 import {
   createApplication,
   deleteApplication,
-  deleteBulkApplicationsQuery,
-  getApplicationsQuery,
+  deleteBulkApplications,
+  getApplications,
   updateAllApplications,
   updateApplication,
 } from "@app/api/rest";
-import { AxiosError } from "axios";
 import { reviewsQueryKey } from "./reviews";
 import { assessmentsQueryKey } from "./assessments";
 
@@ -28,13 +27,13 @@ export const useFetchApplications = () => {
   const queryClient = useQueryClient();
   const { data, isLoading, error, refetch } = useQuery(
     [ApplicationsQueryKey],
-    getApplicationsQuery,
+    getApplications,
     {
       onSuccess: (data: Application[]) => {
         queryClient.invalidateQueries([reviewsQueryKey]);
         queryClient.invalidateQueries([assessmentsQueryKey]);
       },
-      onError: (error: AxiosError) => console.log(error),
+      onError: (error) => console.log(error),
     }
   );
   return {
@@ -47,7 +46,7 @@ export const useFetchApplications = () => {
 
 export const useUpdateApplicationMutation = (
   onSuccess: (res: any) => void,
-  onError: (err: AxiosError) => void
+  onError: (err: Error | unknown) => void
 ) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation(updateApplication, {
@@ -55,7 +54,7 @@ export const useUpdateApplicationMutation = (
       onSuccess(res);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
-    onError: (err: AxiosError) => {
+    onError: (err) => {
       onError(err);
     },
   });
@@ -68,7 +67,7 @@ export const useUpdateApplicationMutation = (
 
 export const useUpdateAllApplicationsMutation = (
   onSuccess: (res: any) => void,
-  onError: (err: AxiosError) => void
+  onError: (err: Error | unknown) => void
 ) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation(updateAllApplications, {
@@ -76,7 +75,7 @@ export const useUpdateAllApplicationsMutation = (
       onSuccess(res);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
-    onError: (err: AxiosError) => {
+    onError: (err) => {
       onError(err);
     },
   });
@@ -89,7 +88,7 @@ export const useUpdateAllApplicationsMutation = (
 
 export const useCreateApplicationMutation = (
   onSuccess: (res: any) => void,
-  onError: (err: AxiosError) => void
+  onError: (err: Error | unknown) => void
 ) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation(createApplication, {
@@ -97,7 +96,7 @@ export const useCreateApplicationMutation = (
       onSuccess(res);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
-    onError: (err: AxiosError) => {
+    onError: (err) => {
       onError(err);
     },
   });
@@ -110,7 +109,7 @@ export const useCreateApplicationMutation = (
 
 export const useDeleteApplicationMutation = (
   onSuccess: (numberOfApps: number) => void,
-  onError: (err: AxiosError) => void
+  onError: (err: Error | unknown) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation(({ id }: { id: number }) => deleteApplication(id), {
@@ -118,7 +117,7 @@ export const useDeleteApplicationMutation = (
       onSuccess(1);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
-    onError: (err: AxiosError) => {
+    onError: (err) => {
       onError(err);
     },
   });
@@ -126,17 +125,17 @@ export const useDeleteApplicationMutation = (
 
 export const useBulkDeleteApplicationMutation = (
   onSuccess: (numberOfApps: number) => void,
-  onError: (err: AxiosError) => void
+  onError: (err: Error | unknown) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation(
-    ({ ids }: { ids: number[] }) => deleteBulkApplicationsQuery(ids),
+    ({ ids }: { ids: number[] }) => deleteBulkApplications(ids),
     {
       onSuccess: (res, vars) => {
         onSuccess(vars.ids.length);
         queryClient.invalidateQueries([ApplicationsQueryKey]);
       },
-      onError: (err: AxiosError) => {
+      onError: (err) => {
         onError(err);
       },
     }
