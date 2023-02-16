@@ -16,21 +16,36 @@ import {
 import { useTranslation } from "react-i18next";
 import { Controller, useForm } from "react-hook-form";
 
-import { useFetchGeneral } from "@app/queries/general";
-import { General as GeneralModel } from "@app/api/models";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import "./general.css";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { Setting } from "@app/api/models";
+import { useSetting } from "@app/queries/settings";
 
 export const General: React.FC = () => {
   const { t } = useTranslation();
 
-  const { general, isFetching } = useFetchGeneral();
+  const reviewAssessmentSetting = useSetting("review.assessment.required");
+  const downloadCSVSetting = useSetting("download.csv.enabled");
+  const downloadHTMLSetting = useSetting("download.html.enabled");
 
-  const { control } = useForm<GeneralModel>({
+  const { control: review } = useForm<Setting>({
     defaultValues: {
-      allowReview: false,
-      HTMLReports: false,
-      CSVReports: false,
+      key: "review.assessment.required",
+      value: reviewAssessmentSetting.data,
+    },
+  });
+
+  const { control: csv } = useForm<Setting>({
+    defaultValues: {
+      key: "download.csv.enabled",
+      value: downloadCSVSetting.data,
+    },
+  });
+
+  const { control: html } = useForm<Setting>({
+    defaultValues: {
+      key: "download.html.enabled",
+      value: downloadHTMLSetting.data,
     },
   });
 
@@ -44,7 +59,9 @@ export const General: React.FC = () => {
       <PageSection>
         <Card>
           <CardBody>
-            {isFetching ? (
+            {reviewAssessmentSetting.isFetching ||
+            downloadCSVSetting.isFetching ||
+            downloadHTMLSetting.isFetching ? (
               <EmptyState className={spacing.mtXl}>
                 <EmptyStateIcon variant="container" component={Spinner} />
                 <Title size="lg" headingLevel="h4">
@@ -54,11 +71,11 @@ export const General: React.FC = () => {
             ) : (
               <Form className={spacing.mMd} onSubmit={() => {}}>
                 <Controller
-                  control={control}
-                  name="allowReview"
+                  control={review}
+                  name="value"
                   render={({ field: { onChange, value, name, ref } }) => (
                     <Switch
-                      id={name}
+                      id="review.assessment.required"
                       name={name}
                       label={t("terms.generalAllowApps")}
                       isChecked={value}
@@ -66,13 +83,13 @@ export const General: React.FC = () => {
                       ref={ref}
                     />
                   )}
-                />{" "}
+                />
                 <Controller
-                  control={control}
-                  name="HTMLReports"
+                  control={csv}
+                  name="value"
                   render={({ field: { onChange, value, name, ref } }) => (
                     <Switch
-                      id={name}
+                      id="download.html.enabled"
                       name={name}
                       label={t("terms.generalCSVReports")}
                       isChecked={value}
@@ -80,13 +97,13 @@ export const General: React.FC = () => {
                       ref={ref}
                     />
                   )}
-                />{" "}
+                />
                 <Controller
-                  control={control}
-                  name="CSVReports"
+                  control={html}
+                  name="value"
                   render={({ field: { onChange, value, name, ref } }) => (
                     <Switch
-                      id={name}
+                      id="download.html.enabled"
                       name={name}
                       label={t("terms.generalHTTPReports")}
                       isChecked={value}

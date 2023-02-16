@@ -313,9 +313,18 @@ export interface ApplicationImportPage {
   total_count: number;
 }
 
+export type SettingKey =
+  | "download.csv.enabled"
+  | "download.html.enabled"
+  | "git.insecure.enabled"
+  | "mvn.dependencies.update.forced"
+  | "mvn.insecure.enabled"
+  | "review.assessment.required"
+  | "svn.insecure.enabled";
+
 export interface Setting {
-  key: string;
-  value: boolean | undefined;
+  key: SettingKey;
+  value: boolean;
 }
 
 export interface BundleOrderSetting {
@@ -465,10 +474,4 @@ export interface IReadFile {
   loadResult?: "danger" | "success";
   data?: string;
   responseID?: number;
-}
-
-export interface General {
-  allowReview: boolean;
-  HTMLReports: boolean;
-  CSVReports: boolean;
 }
