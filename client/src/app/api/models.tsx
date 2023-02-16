@@ -466,3 +466,9 @@ export interface IReadFile {
   data?: string;
   responseID?: number;
 }
+
+export interface General {
+  allowReview: boolean;
+  HTMLReports: boolean;
+  CSVReports: boolean;
+}

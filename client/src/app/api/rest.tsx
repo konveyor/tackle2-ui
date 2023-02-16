@@ -15,6 +15,7 @@ import {
   BulkCopyReview,
   BundleOrderSetting,
   BusinessService,
+  General,
   Identity,
   IReadFile,
   JobFunction,
@@ -50,6 +51,7 @@ export const APP_IMPORT_SUMMARY = HUB + "/importsummaries";
 export const APP_IMPORT = HUB + "/imports";
 export const APP_IMPORT_CSV = HUB + "/importsummaries/download";
 
+export const GENERAL = HUB + "/general";
 export const IDENTITIES = HUB + "/identities";
 export const PROXIES = HUB + "/proxies";
 export const SETTINGS = HUB + "/settings";
@@ -453,23 +455,6 @@ export const deleteIdentity = (id: number): AxiosPromise => {
   return APIClient.delete(`${IDENTITIES}/${id}`);
 };
 
-export const getSettingById = (id: number | string) => {
-  return axios.get(`${SETTINGS}/${id}`, jsonHeaders).then((res) => res.data);
-};
-
-export const updateBundleOrderSetting = (
-  obj: BundleOrderSetting
-): AxiosPromise<Setting> => {
-  return APIClient.put(`${SETTINGS}/${obj.key}`, obj.value, jsonHeaders);
-};
-export const updateSetting = (obj: Setting): AxiosPromise<Setting> => {
-  return APIClient.put(
-    `${SETTINGS}/${obj.key}`,
-    obj.value?.toString(),
-    jsonHeaders
-  );
-};
-
 export const getProxies = (): AxiosPromise<Array<Proxy>> => {
   return APIClient.get(`${PROXIES}`, jsonHeaders);
 };
@@ -592,3 +577,18 @@ export const createFile = ({
     .then((response) => {
       return response.data;
     });
+
+export const updateBundleOrderSetting = (
+  obj: BundleOrderSetting
+): AxiosPromise<Setting> => {
+  return APIClient.put(`${SETTINGS}/${obj.key}`, obj.value, jsonHeaders);
+};
+
+export const getSettingById = (key: SettingKey) =>
+  axios.get<boolean>(`${SETTINGS}/${key}`).then((response) => response.data);
+
+export const updateSetting = (obj: Setting) =>
+  axios.put<Setting>(`${SETTINGS}/${obj.key}`, obj.value);
+
+export const createSetting = (obj: Setting) =>
+  axios.post<Setting>(`${SETTINGS}`, obj);

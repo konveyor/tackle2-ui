@@ -30,6 +30,7 @@ export enum Paths {
   reports = "/reports",
 
   // Administrator perspective
+  general = "/general",
   identities = "/identities",
   repositories = "/repositories",
   repositoriesGit = "/repositories/git",
