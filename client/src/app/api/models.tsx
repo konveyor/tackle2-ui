@@ -42,7 +42,7 @@ export interface StakeholderGroup {
   stakeholders?: Ref[];
 }
 export interface Ref {
-  id?: number;
+  id: number;
   name: string;
 }
 
@@ -375,6 +375,7 @@ export interface TaskData {
     tags: {
       excluded: string[];
     };
+    bundles: Ref[];
   };
 }
 

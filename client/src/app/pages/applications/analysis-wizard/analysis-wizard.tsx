@@ -176,7 +176,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     defaultValues: {
       artifact: null,
       mode: "binary",
-      targets: [],
+      formTargets: [],
+      formRuleBundles: [],
       sources: [],
       withKnown: "app",
       includedPackages: [],
@@ -224,7 +225,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const setupTaskgroup = (
     currentTaskgroup: Taskgroup,
-    fieldValues: FieldValues
+    fieldValues: AnalysisWizardFormValues
   ): Taskgroup => {
     return {
       ...currentTaskgroup,
@@ -239,7 +240,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             : "",
           diva: fieldValues.diva,
         },
-        targets: fieldValues.targets,
+        targets: fieldValues.formTargets,
         sources: fieldValues.sources,
         scope: {
           withKnown: fieldValues.withKnown.includes("oss") ? true : false,
@@ -253,6 +254,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           tags: {
             excluded: fieldValues.excludedRulesTags,
           },
+          bundles: fieldValues.formRuleBundles, // TODO include selected bundles / targets here
         },
       },
     };
@@ -260,8 +262,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const isModeValid = applications.every((app) => isModeSupported(app, mode));
 
-  const onSubmit = (fieldValues: FieldValues) => {
-    if (fieldValues.targets.length < 1) {
+  const onSubmit = (fieldValues: AnalysisWizardFormValues) => {
+    if (fieldValues.formTargets.length < 1) {
       console.log("Invalid form");
       return;
     }

@@ -41,7 +41,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
 
   const { watch } = useFormContext<AnalysisWizardFormValues>();
   const {
-    targets,
+    formTargets,
     sources,
     withKnown,
     includedPackages,
@@ -81,13 +81,13 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {targets.length > 1
+            {formTargets.length > 1
               ? t("wizard.terms.targets")
               : t("wizard.terms.target")}
           </DescriptionListTerm>
           <DescriptionListDescription id="targets">
             <List isPlain>
-              {targets.map((target, index) => (
+              {formTargets.map((target, index) => (
                 <ListItem key={index}>{target}</ListItem>
               ))}
             </List>
@@ -95,7 +95,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {targets.length > 1
+            {formTargets.length > 1
               ? t("wizard.terms.sources")
               : t("wizard.terms.source")}
           </DescriptionListTerm>

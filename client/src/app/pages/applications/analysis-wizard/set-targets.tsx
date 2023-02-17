@@ -34,23 +34,42 @@ export const SetTargets: React.FC = () => {
   } = useFetchBundleOrder(ruleBundles);
 
   const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
-  const targets = watch("targets");
+  const formTargets = watch("formTargets");
+  const formRuleBundles = watch("formRuleBundles");
 
   const handleOnCardClick = (
     isSelecting: boolean,
     selectedRuleTarget: string,
     selectedRuleBundle: RuleBundle
   ) => {
-    const selectedRuleTargets = targets.filter(
-      (target) =>
+    const otherSelectedRuleTargets = formTargets.filter(
+      (formTarget) =>
         !selectedRuleBundle.rulesets
           .map((rule) => rule.metadata.target)
-          .includes(target)
+          .includes(formTarget)
     );
 
-    if (isSelecting)
-      setValue("targets", [...selectedRuleTargets, selectedRuleTarget]);
-    else setValue("targets", selectedRuleTargets);
+    const otherSelectedRuleBundles = formRuleBundles.filter(
+      (formRuleBundle) => selectedRuleBundle.id !== formRuleBundle.id
+    );
+    const selectedRuleBundleRef = {
+      id: selectedRuleBundle.id,
+      name: selectedRuleBundle.name,
+    };
+
+    if (isSelecting) {
+      setValue("formTargets", [
+        ...otherSelectedRuleTargets,
+        selectedRuleTarget,
+      ]);
+      setValue("formRuleBundles", [
+        ...otherSelectedRuleBundles,
+        selectedRuleBundleRef,
+      ]);
+    } else {
+      setValue("formTargets", otherSelectedRuleTargets);
+      setValue("formRuleBundles", otherSelectedRuleBundles);
+    }
   };
 
   return (
@@ -77,7 +96,7 @@ export const SetTargets: React.FC = () => {
                   readOnly
                   item={matchingRuleBundle}
                   cardSelected={matchingRuleBundle.rulesets.some((ruleset) =>
-                    targets.includes(ruleset.metadata.target)
+                    formTargets.includes(ruleset.metadata.target)
                   )}
                   onCardClick={(
                     isSelecting: boolean,

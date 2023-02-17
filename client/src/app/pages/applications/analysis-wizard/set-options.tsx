@@ -47,7 +47,7 @@ export const SetOptions: React.FC = () => {
       </TextContent>
       <HookFormPFGroupController
         control={control}
-        name="targets"
+        name="formTargets"
         label={t("wizard.terms.targets")}
         fieldId="targets"
         isRequired

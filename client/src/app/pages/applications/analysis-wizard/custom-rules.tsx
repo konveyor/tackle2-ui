@@ -44,7 +44,7 @@ export const CustomRules: React.FC = () => {
 
   const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
 
-  const { sources, targets, customRulesFiles } = watch();
+  const { sources, formTargets, customRulesFiles } = watch();
 
   const [rules, setRules] = React.useState<Rule[]>([]);
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
@@ -98,8 +98,8 @@ export const CustomRules: React.FC = () => {
       if (source && !sources.includes(source))
         setValue("sources", [...sources, source]);
 
-      if (target && !targets.includes(target))
-        setValue("targets", [...targets, target]);
+      if (target && !formTargets.includes(target))
+        setValue("formTargets", [...formTargets, target]);
 
       return rules;
     };
@@ -110,7 +110,7 @@ export const CustomRules: React.FC = () => {
     });
 
     setRules(rules.flat());
-  }, [customRulesFiles, sources, targets, setValue]);
+  }, [customRulesFiles, sources, formTargets, setValue]);
 
   const filterCategories: FilterCategory<Rule>[] = [
     {
