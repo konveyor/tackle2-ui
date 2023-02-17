@@ -38,7 +38,7 @@ export interface SelectDependencyProps {
   options: OptionWithValue<ApplicationDependency>[];
 
   isFetching: boolean;
-  fetchError?: AxiosError;
+  fetchError?: unknown;
 
   isSaving: boolean;
   setIsSaving: (value: boolean) => void;
@@ -128,7 +128,7 @@ export const SelectDependency: React.FC<SelectDependencyProps> = ({
       maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
       options={options}
       isFetching={isFetching}
-      fetchError={fetchError}
+      fetchError={fetchError as AxiosError}
       noResultsFoundText={t("message.noResultsFoundTitle")}
       toggleAriaLabel={toggleAriaLabel}
       toggleId={toggleId}

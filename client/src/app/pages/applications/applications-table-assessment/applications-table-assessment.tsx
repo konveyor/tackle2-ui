@@ -38,13 +38,8 @@ import {
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 
 import { formatPath, Paths } from "@app/Paths";
-
-
-import { Application, Assessment, Task, Review } from "@app/api/models";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-
+import { Application, Assessment, Task } from "@app/api/models";
 import { ApplicationForm } from "../components/application-form";
-
 import { ApplicationAssessment } from "../components/application-assessment";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
@@ -212,9 +207,9 @@ export const ApplicationsTable: React.FC = () => {
     fetchApplications();
   };
 
-  const onDeleteApplicationError = (error: AxiosError) => {
+  const onDeleteApplicationError = (error: unknown) => {
     pushNotification({
-      title: getAxiosErrorMessage(error),
+      title: `${error}`,
       variant: "danger",
     });
   };
@@ -292,10 +287,10 @@ export const ApplicationsTable: React.FC = () => {
     });
     fetchApplications();
   };
-  const onHandleCopyError = (error: AxiosError) => {
+  const onHandleCopyError = (error: unknown) => {
     setIsSubmittingBulkCopy(false);
     pushNotification({
-      title: getAxiosErrorMessage(error),
+      title: `${error}`,
       variant: "danger",
     });
     fetchApplications();
@@ -596,9 +591,9 @@ export const ApplicationsTable: React.FC = () => {
           );
         }
       },
-      (error) => {
+      (error: unknown) => {
         pushNotification({
-          title: getAxiosErrorMessage(error),
+          title: `${error}`,
           variant: "danger",
         });
       }

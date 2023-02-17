@@ -56,7 +56,7 @@ export const ApplicationIdentityForm: React.FC<
   ApplicationIdentityFormProps
 > = ({ applications, onSaved, onCancel }) => {
   const { t } = useTranslation();
-  const [error, setAxiosError] = useState<AxiosError>();
+  const [error, setError] = useState<Error>();
 
   const { identities } = useFetchIdentities();
 
@@ -70,8 +70,8 @@ export const ApplicationIdentityForm: React.FC<
     formik.setSubmitting(false);
   };
 
-  const onCreateUpdateApplicationError = (error: AxiosError) => {
-    setAxiosError(error);
+  const onCreateUpdateApplicationError = (error: unknown) => {
+    if (error instanceof Error) setError(error);
     formik.setSubmitting(false);
   };
 
@@ -191,9 +191,7 @@ export const ApplicationIdentityForm: React.FC<
   return (
     <FormikProvider value={formik}>
       <Form>
-        {error && (
-          <Alert variant="danger" title={getAxiosErrorMessage(error)} />
-        )}
+        {error && <Alert variant="danger" title={error} />}
         <TextInput
           value={formik.values.applicationName}
           type="text"

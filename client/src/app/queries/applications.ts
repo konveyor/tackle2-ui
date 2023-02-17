@@ -11,6 +11,7 @@ import {
 } from "@app/api/rest";
 import { reviewsQueryKey } from "./reviews";
 import { assessmentsQueryKey } from "./assessments";
+import { AxiosError } from "axios";
 
 export interface IApplicationDependencyFetchState {
   applicationDependencies: ApplicationDependency[];
@@ -22,7 +23,6 @@ export interface IApplicationDependencyFetchState {
 export const ApplicationDependencyQueryKey = "applicationdependencies";
 export const ApplicationsQueryKey = "applications";
 
-// TODO: this has the same name as useFetchApplications in src/app/shared/hooks, we should probably eliminate that one in favor of this one
 export const useFetchApplications = () => {
   const queryClient = useQueryClient();
   const { data, isLoading, error, refetch } = useQuery(
@@ -46,7 +46,7 @@ export const useFetchApplications = () => {
 
 export const useUpdateApplicationMutation = (
   onSuccess: (res: any) => void,
-  onError: (err: Error | unknown) => void
+  onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation(updateApplication, {
@@ -54,9 +54,7 @@ export const useUpdateApplicationMutation = (
       onSuccess(res);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
-    onError: (err) => {
-      onError(err);
-    },
+    onError: onError,
   });
   return {
     mutate,
@@ -67,7 +65,7 @@ export const useUpdateApplicationMutation = (
 
 export const useUpdateAllApplicationsMutation = (
   onSuccess: (res: any) => void,
-  onError: (err: Error | unknown) => void
+  onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation(updateAllApplications, {
@@ -75,9 +73,7 @@ export const useUpdateAllApplicationsMutation = (
       onSuccess(res);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
-    onError: (err) => {
-      onError(err);
-    },
+    onError: onError,
   });
   return {
     mutate,
@@ -88,7 +84,7 @@ export const useUpdateAllApplicationsMutation = (
 
 export const useCreateApplicationMutation = (
   onSuccess: (res: any) => void,
-  onError: (err: Error | unknown) => void
+  onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation(createApplication, {
@@ -96,9 +92,7 @@ export const useCreateApplicationMutation = (
       onSuccess(res);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
-    onError: (err) => {
-      onError(err);
-    },
+    onError: onError,
   });
   return {
     mutate,
@@ -109,7 +103,7 @@ export const useCreateApplicationMutation = (
 
 export const useDeleteApplicationMutation = (
   onSuccess: (numberOfApps: number) => void,
-  onError: (err: Error | unknown) => void
+  onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation(({ id }: { id: number }) => deleteApplication(id), {
@@ -117,15 +111,13 @@ export const useDeleteApplicationMutation = (
       onSuccess(1);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
-    onError: (err) => {
-      onError(err);
-    },
+    onError: onError,
   });
 };
 
 export const useBulkDeleteApplicationMutation = (
   onSuccess: (numberOfApps: number) => void,
-  onError: (err: Error | unknown) => void
+  onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation(
@@ -135,9 +127,7 @@ export const useBulkDeleteApplicationMutation = (
         onSuccess(vars.ids.length);
         queryClient.invalidateQueries([ApplicationsQueryKey]);
       },
-      onError: (err) => {
-        onError(err);
-      },
+      onError: onError,
     }
   );
 };
