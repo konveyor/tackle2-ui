@@ -320,11 +320,12 @@ export type SettingKey =
   | "mvn.dependencies.update.forced"
   | "mvn.insecure.enabled"
   | "review.assessment.required"
-  | "svn.insecure.enabled";
+  | "svn.insecure.enabled"
+  | "ui.bundle.order";
 
 export interface Setting {
   key: SettingKey;
-  value: boolean;
+  value: boolean | number[];
 }
 
 export interface BundleOrderSetting {
