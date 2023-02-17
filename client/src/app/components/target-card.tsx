@@ -149,7 +149,10 @@ export const TargetCard: React.FC<TargetCardProps> = ({
               isOpen={isRuleTargetSelectOpen}
             >
               {item.rulesets.map((ruleset) => (
-                <SelectOption key={ruleset.id} value={ruleset.metadata.target}>
+                <SelectOption
+                  key={ruleset.name}
+                  value={ruleset.metadata.target}
+                >
                   {ruleset.metadata.target}
                 </SelectOption>
               ))}
