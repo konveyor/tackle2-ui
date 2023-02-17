@@ -20,8 +20,9 @@ import {
 } from "@app/shared/components/hook-form-pf-fields";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
-import { RuleBundle } from "@app/api/models";
+import { IReadFile, RuleBundle } from "@app/api/models";
 import { useCreateImageFileMutation } from "@app/queries/rulebundles";
+import { AddCustomRules } from "@app/common/CustomRules/add-custom-rules";
 
 export interface CustomTargetFormProps {
   ruleBundle?: RuleBundle;
@@ -94,6 +95,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       // rules: yup.array().defined(),
       //TODO repo validation
       // repository: yup.object().shape({}).defined(),
+      customRulesFiles: yup.array().of(yup.object() as yup.SchemaOf<IReadFile>),
     });
 
   const {
@@ -117,6 +119,12 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   });
 
   const onSubmit = (formValues: CustomTargetFormValues) => {
+    //gather files for submit
+    // const validFiles = readFileData.filter(
+    //   (file) => file.loadResult === "success"
+    // );
+    // setValue("customRulesFiles", [...customRulesFiles, ...validFiles]);
+
     const payload: RuleBundle = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
@@ -216,6 +224,12 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             />
           )}
         />
+        {/* <AddCustomRules
+          customRulesFiles={customRulesFiles}
+          readFileData={readFileData}
+          setReadFileData={setReadFileData}
+        /> */}
+
         <ActionGroup>
           <Button
             type="submit"

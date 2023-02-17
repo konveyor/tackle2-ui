@@ -1,7 +1,6 @@
 import * as yup from "yup";
-import { Application, Ref } from "@app/api/models";
+import { Application, IReadFile, Ref } from "@app/api/models";
 import { useTranslation } from "react-i18next";
-import { IReadFile } from "./analysis-wizard";
 import { useAnalyzableApplicationsByMode } from "./utils";
 
 export const ANALYSIS_MODES = [
@@ -92,14 +91,14 @@ const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
 };
 
 export interface CustomRulesStepValues {
-  sources: string[];
+  formSources: string[];
   customRulesFiles: IReadFile[];
 }
 
 const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
   const { t } = useTranslation();
   return yup.object({
-    sources: yup.array().of(yup.string().defined()),
+    formSources: yup.array().of(yup.string().defined()),
     customRulesFiles: yup.array().of(yup.object() as yup.SchemaOf<IReadFile>),
   });
 };

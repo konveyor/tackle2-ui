@@ -12,7 +12,7 @@ import { XMLValidator } from "fast-xml-parser";
 
 import XSDSchema from "./windup-jboss-ruleset.xsd";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { IReadFile } from "../analysis-wizard";
+import { IReadFile } from "@app/api/models";
 
 const xmllint = require("xmllint");
 interface IAddCustomRules {

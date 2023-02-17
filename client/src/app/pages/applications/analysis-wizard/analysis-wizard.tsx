@@ -10,11 +10,11 @@ import { useTranslation } from "react-i18next";
 
 import {
   Application,
+  IReadFile,
   TaskData,
   Taskgroup,
   TaskgroupTask,
 } from "@app/api/models";
-import { CustomRules } from "./custom-rules";
 import { Review } from "./review";
 import { SetMode } from "./set-mode";
 import { SetOptions } from "./set-options";
@@ -36,20 +36,12 @@ import {
   useAnalysisWizardFormValidationSchema,
 } from "./schema";
 import { useAsyncYupValidation } from "@app/shared/hooks/useAsyncYupValidation";
+import { CustomRules } from "./custom-rules";
 
 interface IAnalysisWizard {
   applications: Application[];
   onClose: () => void;
   isOpen: boolean;
-}
-
-export interface IReadFile {
-  fileName: string;
-  loadError?: DOMException;
-  loadPercentage?: number;
-  loadResult?: "danger" | "success";
-  data?: string;
-  fullFile: File;
 }
 
 const defaultTaskData: TaskData = {
@@ -177,8 +169,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       artifact: null,
       mode: "binary",
       formTargets: [],
+      formSources: [],
       formRuleBundles: [],
-      sources: [],
       withKnown: "app",
       includedPackages: [],
       excludedPackages: [],
@@ -241,7 +233,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           diva: fieldValues.diva,
         },
         targets: fieldValues.formTargets,
-        sources: fieldValues.sources,
+        sources: fieldValues.formSources,
         scope: {
           withKnown: fieldValues.withKnown.includes("oss") ? true : false,
           packages: {

@@ -453,3 +453,12 @@ export interface RuleBundle {
   custom: boolean;
   repository?: Repository;
 }
+
+export interface IReadFile {
+  fileName: string;
+  loadError?: DOMException;
+  loadPercentage?: number;
+  loadResult?: "danger" | "success";
+  data?: string;
+  fullFile: File;
+}
