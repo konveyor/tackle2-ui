@@ -37,6 +37,7 @@ interface CustomTargetFormValues {
   name: string;
   description: string;
   imageID: number;
+  customRulesFiles: IReadFile[];
   // rules: Rule[];
   // repository: any;
 }
@@ -49,6 +50,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   onCancel,
 }) => {
   const { t } = useTranslation();
+  const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
 
   const [isImageFileRejected, setIsImageFileRejected] = useState(false);
 
@@ -113,6 +115,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       name: ruleBundle?.name || "",
       description: ruleBundle?.description || "",
       id: ruleBundle?.id || 0,
+      customRulesFiles: [],
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
@@ -224,11 +227,20 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             />
           )}
         />
-        {/* <AddCustomRules
-          customRulesFiles={customRulesFiles}
-          readFileData={readFileData}
-          setReadFileData={setReadFileData}
-        /> */}
+        <HookFormPFGroupController
+          control={control}
+          name="customRulesFiles"
+          label={t("terms.image")}
+          fieldId="custom-migration-target-upload-image"
+          isRequired
+          renderInput={({ field: { onChange, name, value } }) => (
+            <AddCustomRules
+              customRulesFiles={value}
+              readFileData={readFileData}
+              setReadFileData={setReadFileData}
+            />
+          )}
+        ></HookFormPFGroupController>
 
         <ActionGroup>
           <Button
