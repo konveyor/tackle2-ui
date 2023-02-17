@@ -420,7 +420,6 @@ export interface ITypeOptions {
 
 export interface RuleBundleImage {
   id: number;
-  name: string;
 }
 
 export enum RuleBundleKind {
@@ -428,7 +427,7 @@ export enum RuleBundleKind {
 }
 
 export interface RuleBundle {
-  id: number;
+  id?: number;
   name: string;
   description: string;
   image: RuleBundleImage;
@@ -439,12 +438,14 @@ export interface RuleBundle {
 }
 export interface Metadata {
   target: string;
-  source: string;
+  source?: string;
 }
 export interface Ruleset {
   name: string;
   metadata: Metadata;
-  // file?:
+  file?: {
+    id: number;
+  };
 }
 
 export interface TableRule {
@@ -452,6 +453,7 @@ export interface TableRule {
   source: string | null;
   target: string | null;
   total: number;
+  fileID?: number;
 }
 
 export interface IReadFile {
@@ -461,4 +463,5 @@ export interface IReadFile {
   loadResult?: "danger" | "success";
   data?: string;
   fullFile: File;
+  responseID?: number;
 }

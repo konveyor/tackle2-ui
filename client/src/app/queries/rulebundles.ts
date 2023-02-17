@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BundleOrderSetting, RuleBundle } from "@app/api/models";
+import { BundleOrderSetting, IReadFile, RuleBundle } from "@app/api/models";
 import {
-  createImageFile,
+  createFile,
   createRuleBundle,
   getRuleBundles,
   getSettingById,
@@ -69,14 +69,14 @@ export const useCreateRuleBundleMutation = (
   };
 };
 
-export const useCreateImageFileMutation = (
-  onSuccess: (res: any) => void,
+export const useCreateFileMutation = (
+  onSuccess: (res: any, formData: FormData, file: IReadFile) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(createImageFile, {
-    onSuccess: (res) => {
-      onSuccess(res);
+  const { isLoading, mutate, error } = useMutation(createFile, {
+    onSuccess: (res, { formData, file }) => {
+      onSuccess(res, formData, file);
       queryClient.invalidateQueries([]);
     },
     onError: (err: AxiosError) => {

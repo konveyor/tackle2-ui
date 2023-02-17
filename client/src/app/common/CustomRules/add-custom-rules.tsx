@@ -15,6 +15,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IReadFile } from "@app/api/models";
 import { useUploadFileMutation } from "@app/queries/taskgroups";
 import { AxiosError } from "axios";
+import { useCreateFileMutation } from "@app/queries/rulebundles";
 
 const xmllint = require("xmllint");
 interface IAddCustomRules {
@@ -42,6 +43,26 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
     console.log("File upload failed: ", error);
 
   const { mutate: uploadFile } = useUploadFileMutation(() => {}, onUploadError);
+
+  const onCreateRuleFileSuccess = (
+    response: any,
+    formData: FormData,
+    file: IReadFile
+  ) => {
+    //Set file ID for use in form submit
+    // setValue("imageID", response?.id);
+    const fileWithID: IReadFile = { ...file, ...{ responseID: response?.id } };
+    setReadFileData((prevReadFiles) => [...prevReadFiles, fileWithID]);
+  };
+
+  const onCreateRuleFileFailure = (error: AxiosError) => {
+    // resetField("imageID");
+  };
+
+  const { mutate: createRuleFile } = useCreateFileMutation(
+    onCreateRuleFileSuccess,
+    onCreateRuleFileFailure
+  );
 
   // only show the status component once a file has been uploaded, but keep the status list component itself even if all files are removed
   if (!showStatus && currentFiles.length > 0) {
@@ -167,22 +188,41 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
   };
 
   const handleReadSuccess = (data: string, file: File) => {
-    const newFile: IReadFile = {
-      data,
-      fileName: file.name,
-      loadResult: "success",
-      loadPercentage: 100,
-      fullFile: file,
-    };
-    setReadFileData((prevReadFiles) => [...prevReadFiles, newFile]);
-    const formFile = new FormData();
-    formFile.append("file", newFile.fullFile);
     if (taskgroupID) {
+      const newFile: IReadFile = {
+        data,
+        fileName: file.name,
+        loadResult: "success",
+        loadPercentage: 100,
+        fullFile: file,
+      };
+      setReadFileData((prevReadFiles) => [...prevReadFiles, newFile]);
+      const formFile = new FormData();
+      formFile.append("file", newFile.fullFile);
       //Upload file to bucket if exists
       uploadFile({
         id: taskgroupID as number,
         path: `rules/${newFile.fileName}`,
         file: formFile,
+      });
+    } else {
+      // Use new file api to add file
+      // const image = await resizeFile(file);
+      // setFilename(image.name);
+      // const formFile = new FormData();
+      // formFile.append("file", file);
+      const newFile: IReadFile = {
+        data,
+        fileName: file.name,
+        loadResult: "success",
+        loadPercentage: 100,
+        fullFile: file,
+      };
+      const formFile = new FormData();
+      formFile.append("file", newFile.fullFile);
+      createRuleFile({
+        formData: formFile,
+        file: newFile,
       });
     }
   };

@@ -16,6 +16,7 @@ import {
   BundleOrderSetting,
   BusinessService,
   Identity,
+  IReadFile,
   JobFunction,
   Proxy,
   Review,
@@ -576,15 +577,15 @@ export const deleteRuleBundle = (id: number): AxiosPromise =>
 export const getRuleBundles = () =>
   axios.get<RuleBundle[]>(RULEBUNDLES).then((response) => response.data);
 
-export const createImageFile = ({
-  image,
-  filename,
+export const createFile = ({
+  formData,
+  file,
 }: {
-  image: FormData;
-  filename: string;
+  formData: FormData;
+  file: IReadFile;
 }) =>
   axios
-    .post<RuleBundle>(`${FILES}/${filename}`, image, fileHeaders)
+    .post<RuleBundle>(`${FILES}/${file.fileName}`, formData, fileHeaders)
     .then((response) => {
       return response.data;
     });

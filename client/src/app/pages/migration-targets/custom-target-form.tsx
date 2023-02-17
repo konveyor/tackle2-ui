@@ -21,9 +21,12 @@ import {
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { IReadFile, RuleBundle, Ruleset, TableRule } from "@app/api/models";
-import { useCreateImageFileMutation } from "@app/queries/rulebundles";
 import { AddCustomRules } from "@app/common/CustomRules/add-custom-rules";
 import { parseRules } from "@app/common/CustomRules/rules-utils";
+import {
+  useCreateFileMutation,
+  useCreateRuleBundleMutation,
+} from "@app/queries/rulebundles";
 
 export interface CustomTargetFormProps {
   ruleBundle?: RuleBundle;
@@ -126,12 +129,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   console.log("errors", errors);
   console.log("isValid", isValid);
   const onSubmit = (formValues: CustomTargetFormValues) => {
-    //gather files for submit
-    // const validFiles = readFileData.filter(
-    //   (file) => file.loadResult === "success"
-    // );
-    // setValue("customRulesFiles", [...customRulesFiles, ...validFiles]);
-
     let rulesets: TableRule[] = [];
     let sources: string[] = [];
     let targets: string[] = [];
@@ -149,25 +146,25 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       }
     });
 
-    const payload = {
+    const payload: RuleBundle = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       image: { id: formValues.imageID },
       custom: true,
-      // rulesets: rulesets.map((ruleset) => {
-      //   const matchingFileID = fileIDs.filter(
-      //     (fileID:number) => fileID === ruleset.associatedFileID
-      //   );
-      //   return {
-      //     name: ruleset.name,
-      //     metadata: {
-      //       target: ruleset.target,
-      //       source: ruleset.source,
-      //     },
-      //     file: matchingFileID,
-      //   };
-      // }),
+      rulesets: rulesets.map((ruleset): Ruleset => {
+        return {
+          name: ruleset.name,
+          metadata: {
+            target: ruleset.target ? ruleset.target : "",
+            source: ruleset.source ? ruleset.source : "",
+          },
+          file: {
+            id: ruleset.fileID ? ruleset.fileID : 0,
+          },
+        };
+      }),
     };
+    createRuleBundle(payload);
   };
   // IMAGE FILE UPLOAD
   const [filename, setFilename] = React.useState("");
@@ -181,9 +178,20 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     resetField("imageID");
   };
 
-  const { mutate: createImageFile } = useCreateImageFileMutation(
+  const { mutate: createImageFile } = useCreateFileMutation(
     onCreateImageFileSuccess,
     onCreateImageFileFailure
+  );
+
+  const onCreateRuleBundleSuccess = (response: any) => {
+    onClose();
+  };
+
+  const onCreateRuleBundleFailure = (error: AxiosError) => {};
+
+  const { mutate: createRuleBundle } = useCreateRuleBundleMutation(
+    onCreateRuleBundleSuccess,
+    onCreateRuleBundleFailure
   );
 
   //
@@ -243,7 +251,13 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                   setFilename(image.name);
                   const formFile = new FormData();
                   formFile.append("file", file);
-                  createImageFile({ image: formFile, filename: file.name });
+
+                  const newImageFile: IReadFile = {
+                    fileName: file.name,
+                    fullFile: file,
+                  };
+
+                  createImageFile({ formData: formFile, file: newImageFile });
                 } catch {
                   resetField("imageID");
                 }

@@ -34,6 +34,9 @@ export const parseRules = (file: IReadFile) => {
         source: source,
         target: target,
         total: rulesCount,
+        ...(file.responseID && {
+          fileID: file.responseID,
+        }),
       },
     ];
 
