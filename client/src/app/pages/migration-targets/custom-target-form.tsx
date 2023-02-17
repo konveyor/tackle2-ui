@@ -20,9 +20,10 @@ import {
 } from "@app/shared/components/hook-form-pf-fields";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
-import { IReadFile, RuleBundle } from "@app/api/models";
+import { IReadFile, RuleBundle, Ruleset, TableRule } from "@app/api/models";
 import { useCreateImageFileMutation } from "@app/queries/rulebundles";
 import { AddCustomRules } from "@app/common/CustomRules/add-custom-rules";
+import { parseRules } from "@app/common/CustomRules/rules-utils";
 
 export interface CustomTargetFormProps {
   ruleBundle?: RuleBundle;
@@ -33,7 +34,6 @@ export interface CustomTargetFormProps {
 }
 
 interface CustomTargetFormValues {
-  id: number;
   name: string;
   description: string;
   imageID: number;
@@ -74,7 +74,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   const validationSchema: yup.SchemaOf<CustomTargetFormValues> = yup
     .object()
     .shape({
-      id: yup.number().defined(),
+      // id: yup.number().defined(),
       name: yup
         .string()
         .trim()
@@ -92,17 +92,20 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         .defined()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
-      imageID: yup.number().defined().nullable(),
+      imageID: yup.number().defined().required(),
       //TODO rules validation
       // rules: yup.array().defined(),
       //TODO repo validation
       // repository: yup.object().shape({}).defined(),
-      customRulesFiles: yup.array().of(yup.object() as yup.SchemaOf<IReadFile>),
+      customRulesFiles: yup
+        .array()
+        .of(yup.object() as yup.SchemaOf<IReadFile>)
+        .required(),
     });
 
   const {
     handleSubmit,
-    formState: { isSubmitting, isValidating, isValid, isDirty },
+    formState: { isSubmitting, isValidating, isValid, isDirty, errors },
     getValues,
     setValue,
     setError,
@@ -114,13 +117,14 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     defaultValues: {
       name: ruleBundle?.name || "",
       description: ruleBundle?.description || "",
-      id: ruleBundle?.id || 0,
+      imageID: ruleBundle?.image.id || 0,
       customRulesFiles: [],
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
   });
-
+  console.log("errors", errors);
+  console.log("isValid", isValid);
   const onSubmit = (formValues: CustomTargetFormValues) => {
     //gather files for submit
     // const validFiles = readFileData.filter(
@@ -128,13 +132,41 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     // );
     // setValue("customRulesFiles", [...customRulesFiles, ...validFiles]);
 
-    const payload: RuleBundle = {
+    let rulesets: TableRule[] = [];
+    let sources: string[] = [];
+    let targets: string[] = [];
+
+    readFileData.forEach((file) => {
+      if (file.data) {
+        const newRules = parseRules(file);
+        rulesets = [...rulesets, ...newRules.parsedRules];
+        if (newRules.parsedSource) {
+          sources = [...sources, newRules.parsedSource];
+        }
+        if (newRules.parsedTarget) {
+          targets = [...targets, newRules.parsedTarget];
+        }
+      }
+    });
+
+    const payload = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
-      id: formValues.id,
-      image: { id: 0, name: "" },
-      rulesets: [],
+      image: { id: formValues.imageID },
       custom: true,
+      // rulesets: rulesets.map((ruleset) => {
+      //   const matchingFileID = fileIDs.filter(
+      //     (fileID:number) => fileID === ruleset.associatedFileID
+      //   );
+      //   return {
+      //     name: ruleset.name,
+      //     metadata: {
+      //       target: ruleset.target,
+      //       source: ruleset.source,
+      //     },
+      //     file: matchingFileID,
+      //   };
+      // }),
     };
   };
   // IMAGE FILE UPLOAD
@@ -184,7 +216,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           name="description"
           label="Description"
           fieldId="description"
-          isRequired
         />
         <HookFormPFGroupController
           control={control}

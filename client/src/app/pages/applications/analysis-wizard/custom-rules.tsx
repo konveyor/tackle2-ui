@@ -32,21 +32,24 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { IReadFile, Rule } from "@app/api/models";
+import { IReadFile, TableRule } from "@app/api/models";
 import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
 
 import "./wizard.css";
 import { AnalysisWizardFormValues } from "./schema";
 import { parseRules } from "@app/common/CustomRules/rules-utils";
-
-export const CustomRules: React.FC = () => {
+import { TASKGROUPS } from "@app/api/rest";
+interface CustomRulesProps {
+  taskgroupID: number | null;
+}
+export const CustomRules: React.FC<CustomRulesProps> = (props) => {
   const { t } = useTranslation();
 
   const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
 
   const { formSources, formTargets, customRulesFiles } = watch();
 
-  const [tableRules, setTableRules] = React.useState<Rule[]>([]);
+  const [tableRules, setTableRules] = React.useState<TableRule[]>([]);
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
@@ -56,7 +59,7 @@ export const CustomRules: React.FC = () => {
     setReadFileData([]);
   };
 
-  const filterCategories: FilterCategory<Rule>[] = [
+  const filterCategories: FilterCategory<TableRule>[] = [
     {
       key: "name",
       title: t("terms.name"),
@@ -142,7 +145,7 @@ export const CustomRules: React.FC = () => {
     });
   });
   const refreshRulesData = (updatedCustomRulesFiles: IReadFile[]) => {
-    let rules: Rule[] = [];
+    let rules: TableRule[] = [];
 
     updatedCustomRulesFiles.forEach((file) => {
       if (file.data) {
@@ -182,7 +185,7 @@ export const CustomRules: React.FC = () => {
         >
           <ToolbarContent>
             <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
-              <FilterToolbar<Rule>
+              <FilterToolbar<TableRule>
                 filterCategories={filterCategories}
                 filterValues={filterValues}
                 setFilterValues={setFilterValues}
@@ -269,6 +272,7 @@ export const CustomRules: React.FC = () => {
             customRulesFiles={customRulesFiles}
             readFileData={readFileData}
             setReadFileData={setReadFileData}
+            taskgroupID={props.taskgroupID}
           />
         </Modal>
       )}

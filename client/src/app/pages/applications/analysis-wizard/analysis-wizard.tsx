@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useIsMutating } from "@tanstack/react-query";
-import { FieldValues, FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import {
   Truncate,
   Wizard,
@@ -138,11 +138,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     onSubmitTaskgroupError
   );
 
-  const onUploadError = (error: Error | unknown) =>
-    console.log("Taskgroup upload failed: ", error);
-
-  const { mutate: uploadFile } = useUploadFileMutation(() => {}, onUploadError);
-
   const onDeleteTaskgroupSuccess = () => {
     setCurrentTaskgroup(null);
   };
@@ -262,16 +257,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     if (currentTaskgroup) {
       const taskgroup = setupTaskgroup(currentTaskgroup, fieldValues);
 
-      fieldValues.customRulesFiles.forEach((file: IReadFile) => {
-        const formFile = new FormData();
-        formFile.append("file", file.fullFile);
-        uploadFile({
-          id: taskgroup.id as number,
-          path: `rules/${file.fileName}`,
-          file: formFile,
-        });
-      });
-
       submitTaskgroup(taskgroup);
     }
     onClose();
@@ -344,7 +329,15 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
         {
           id: StepId.CustomRules,
           name: t("wizard.terms.customRules"),
-          component: <CustomRules />,
+          component: (
+            <CustomRules
+              taskgroupID={
+                currentTaskgroup && currentTaskgroup?.id
+                  ? currentTaskgroup.id
+                  : null
+              }
+            />
+          ),
           ...getStepNavProps(StepId.CustomRules),
         },
         {

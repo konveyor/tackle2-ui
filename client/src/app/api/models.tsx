@@ -392,13 +392,6 @@ interface TaskReport {
   updateUser: string;
 }
 
-export interface Rule {
-  name: string;
-  source: string | null;
-  target: string | null;
-  total: number;
-}
-
 export interface TaskgroupTask {
   name: string;
   data: any;
@@ -430,15 +423,6 @@ export interface RuleBundleImage {
   name: string;
 }
 
-export interface Metadata {
-  target: string;
-}
-
-export interface Ruleset {
-  id: number;
-  metadata: Metadata;
-}
-
 export enum RuleBundleKind {
   CATEGORY = "category",
 }
@@ -452,6 +436,22 @@ export interface RuleBundle {
   rulesets: Ruleset[];
   custom: boolean;
   repository?: Repository;
+}
+export interface Metadata {
+  target: string;
+  source: string;
+}
+export interface Ruleset {
+  name: string;
+  metadata: Metadata;
+  // file?:
+}
+
+export interface TableRule {
+  name: string;
+  source: string | null;
+  target: string | null;
+  total: number;
 }
 
 export interface IReadFile {

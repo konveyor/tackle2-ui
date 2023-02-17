@@ -13,12 +13,15 @@ import { XMLValidator } from "fast-xml-parser";
 import XSDSchema from "./windup-jboss-ruleset.xsd";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IReadFile } from "@app/api/models";
+import { useUploadFileMutation } from "@app/queries/taskgroups";
+import { AxiosError } from "axios";
 
 const xmllint = require("xmllint");
 interface IAddCustomRules {
   customRulesFiles: IReadFile[];
   readFileData: IReadFile[];
   setReadFileData: (setReadFile: React.SetStateAction<IReadFile[]>) => void;
+  taskgroupID?: number | null;
 }
 interface IParsedXMLFileStatus {
   state: "valid" | "error";
@@ -29,10 +32,16 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
   customRulesFiles,
   readFileData,
   setReadFileData,
+  taskgroupID,
 }: IAddCustomRules) => {
   const [error, setError] = React.useState("");
   const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
   const [showStatus, setShowStatus] = React.useState(false);
+
+  const onUploadError = (error: AxiosError) =>
+    console.log("File upload failed: ", error);
+
+  const { mutate: uploadFile } = useUploadFileMutation(() => {}, onUploadError);
 
   // only show the status component once a file has been uploaded, but keep the status list component itself even if all files are removed
   if (!showStatus && currentFiles.length > 0) {
@@ -166,6 +175,16 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
       fullFile: file,
     };
     setReadFileData((prevReadFiles) => [...prevReadFiles, newFile]);
+    const formFile = new FormData();
+    formFile.append("file", newFile.fullFile);
+    if (taskgroupID) {
+      //Upload file to bucket if exists
+      uploadFile({
+        id: taskgroupID as number,
+        path: `rules/${newFile.fileName}`,
+        file: formFile,
+      });
+    }
   };
 
   const handleReadFail = (

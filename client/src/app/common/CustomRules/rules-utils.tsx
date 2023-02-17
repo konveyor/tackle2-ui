@@ -1,4 +1,4 @@
-import { IReadFile, Rule } from "@app/api/models";
+import { IReadFile, TableRule } from "@app/api/models";
 
 export const parseRules = (file: IReadFile) => {
   if (file.data) {
@@ -28,7 +28,7 @@ export const parseRules = (file: IReadFile) => {
         rulesCount = rulesGroup[0].getElementsByTagName("rule").length;
     }
 
-    const rules: Rule[] = [
+    const rules: TableRule[] = [
       {
         name: file.fileName,
         source: source,

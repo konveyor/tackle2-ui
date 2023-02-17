@@ -42,7 +42,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
   const { watch } = useFormContext<AnalysisWizardFormValues>();
   const {
     formTargets,
-    sources,
+    formSources,
     withKnown,
     includedPackages,
     hasExcludedPackages,
@@ -101,7 +101,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           </DescriptionListTerm>
           <DescriptionListDescription id="sources">
             <List isPlain>
-              {sources.map((source, index) => (
+              {formSources.map((source, index) => (
                 <ListItem key={index}>{source}</ListItem>
               ))}
             </List>
