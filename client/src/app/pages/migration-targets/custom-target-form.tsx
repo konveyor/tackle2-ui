@@ -9,7 +9,7 @@ import {
   ModalVariant,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import Resizer from "react-image-file-resizer";
@@ -20,13 +20,24 @@ import {
 } from "@app/shared/components/hook-form-pf-fields";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
-import { IReadFile, RuleBundle, Ruleset, TableRule } from "@app/api/models";
+import {
+  BundleOrderSetting,
+  IReadFile,
+  RuleBundle,
+  Ruleset,
+  Setting,
+  TableRule,
+} from "@app/api/models";
 import { AddCustomRules } from "@app/common/CustomRules/add-custom-rules";
 import { parseRules } from "@app/common/CustomRules/rules-utils";
 import {
+  BundleOrderSettingKey,
   useCreateFileMutation,
   useCreateRuleBundleMutation,
+  useFetchBundleOrder,
+  useFetchRuleBundles,
 } from "@app/queries/rulebundles";
+import { updateBundleOrderSetting } from "@app/api/rest";
 
 export interface CustomTargetFormProps {
   ruleBundle?: RuleBundle;
@@ -147,6 +158,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     });
 
     const payload: RuleBundle = {
+      id: 0,
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       image: { id: formValues.imageID },
@@ -183,7 +195,38 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     onCreateImageFileFailure
   );
 
+  const {
+    ruleBundles,
+    isFetching: isFetchingRuleBundles,
+    refetch: refetchRuleBundles,
+  } = useFetchRuleBundles();
+
+  const {
+    bundleOrderSetting,
+    isFetching,
+    refetch: refreshBundleOrderSetting,
+  } = useFetchBundleOrder(ruleBundles);
+
   const onCreateRuleBundleSuccess = (response: any) => {
+    // update bundle order
+    // TODO refactor into shared function
+
+    const updatedBundleSetting: BundleOrderSetting = {
+      key: BundleOrderSettingKey,
+      value: [...bundleOrderSetting.value, response.id],
+    };
+    let promise: AxiosPromise<Setting>;
+    if (updatedBundleSetting !== undefined) {
+      promise = updateBundleOrderSetting(updatedBundleSetting);
+    } else {
+      promise = updateBundleOrderSetting(updatedBundleSetting);
+    }
+    promise
+      .then((response) => {
+        refreshBundleOrderSetting();
+      })
+      .catch((error) => {});
+    //
     onClose();
   };
 

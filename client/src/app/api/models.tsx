@@ -427,7 +427,7 @@ export enum RuleBundleKind {
 }
 
 export interface RuleBundle {
-  id?: number;
+  id: number;
   name: string;
   description: string;
   image: RuleBundleImage;

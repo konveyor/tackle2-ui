@@ -107,7 +107,7 @@ export const useFetchBundleOrder = (ruleBundles: RuleBundle[]) => {
   return {
     bundleOrderSetting: data || {
       key: BundleOrderSettingKey,
-      value: ruleBundles.map((ruleBundle) => ruleBundle?.id),
+      value: ruleBundles.map((ruleBundle) => ruleBundle.id),
     },
     isFetching: isLoading,
     fetchError: error,
