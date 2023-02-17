@@ -82,7 +82,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const [axiosError, setAxiosError] = useState<AxiosError>();
+  const [error, setError] = useState<Error>();
 
   // Business services
 
@@ -316,8 +316,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     onSaved(response);
   };
 
-  const onCreateUpdateApplicationError = (error: AxiosError) => {
-    setAxiosError(error);
+  const onCreateUpdateApplicationError = (error: unknown) => {
+    if (error instanceof Error) setError(error);
   };
 
   const { mutate: createApplication } = useCreateApplicationMutation(
@@ -409,13 +409,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
-        {axiosError && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(axiosError)}
-          />
-        )}
+        {error && <Alert variant="danger" isInline title={Error} />}
         <ExpandableSection
           toggleText={"Basic information"}
           className="toggle"

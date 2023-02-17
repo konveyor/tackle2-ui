@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useHistory } from "react-router-dom";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 import {
@@ -37,7 +37,6 @@ import {
 } from "@app/shared/components";
 import { Paths } from "@app/Paths";
 import { Application, Task } from "@app/api/models";
-import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationForm } from "../components/application-form";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
@@ -185,9 +184,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     refetch();
   };
 
-  const onDeleteApplicationError = (error: AxiosError) => {
+  const onDeleteApplicationError = (error: unknown) => {
     pushNotification({
-      title: getAxiosErrorMessage(error),
+      title: `${error}`,
       variant: "danger",
     });
     refetch();
