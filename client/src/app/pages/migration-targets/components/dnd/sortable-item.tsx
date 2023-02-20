@@ -5,9 +5,10 @@ import { Item } from "./item";
 interface SortableItemProps {
   style?: React.CSSProperties;
   id: number;
+  onEdit?: () => void;
 }
 export const SortableItem: React.FC<SortableItemProps> = (
-  { style, id },
+  { style, id, onEdit },
   ...props
 ) => {
   const {
@@ -37,6 +38,7 @@ export const SortableItem: React.FC<SortableItemProps> = (
         listeners: listeners,
         attributes: attributes,
       }}
+      onEdit={onEdit}
       {...props}
       id={id}
     />

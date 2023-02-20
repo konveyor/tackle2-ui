@@ -19,7 +19,7 @@ import {
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BundleOrderSetting,
   IReadFile,
@@ -133,12 +133,20 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       description: ruleBundle?.description || "",
       imageID: ruleBundle?.image.id || 0,
       customRulesFiles: [],
+      // customRulesFiles: ruleBundle?.rulesets || [],
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
   });
-  console.log("errors", errors);
-  console.log("isValid", isValid);
+
+  const watchAllFields = watch();
+
+  useEffect(() => {
+    // Handle async initial value
+    // https://stackoverflow.com/questions/64306943/defaultvalues-of-react-hook-form-is-not-setting-the-values-to-the-input-fields-i
+    reset(ruleBundle);
+  }, [ruleBundle, reset]);
+
   const onSubmit = (formValues: CustomTargetFormValues) => {
     let rulesets: TableRule[] = [];
     let sources: string[] = [];
@@ -238,7 +246,8 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   );
 
   //
-
+  const values = getValues();
+  console.log("values", values);
   return (
     <Modal
       title={
@@ -323,7 +332,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           isRequired
           renderInput={({ field: { onChange, name, value } }) => (
             <AddCustomRules
-              customRulesFiles={value}
+              customRulesFiles={[]}
               readFileData={readFileData}
               setReadFileData={setReadFileData}
             />

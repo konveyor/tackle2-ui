@@ -7,6 +7,7 @@ interface ItemProps {
   style?: React.CSSProperties;
   ref?: React.ForwardedRef<any>;
   handleProps?: any;
+  onEdit?: () => void;
 }
 
 export const Item: React.FC<ItemProps> = forwardRef(
@@ -26,6 +27,7 @@ export const Item: React.FC<ItemProps> = forwardRef(
           <TargetCard
             item={matchingRuleBundle}
             handleProps={props.handleProps}
+            onEdit={props.onEdit}
           />
         )}
       </div>

@@ -29,17 +29,20 @@ import { useTranslation } from "react-i18next";
 import { Item } from "./components/dnd/item";
 import { DndGrid } from "./components/dnd/grid";
 import { CustomTargetForm } from "./custom-target-form";
-import { BundleOrderSetting, Setting } from "@app/api/models";
+import { BundleOrderSetting, RuleBundle, Setting } from "@app/api/models";
 import { updateBundleOrderSetting } from "@app/api/rest";
-import { AxiosPromise } from "axios";
+import { AxiosPromise, AxiosResponse } from "axios";
 import {
   BundleOrderSettingKey,
   useFetchBundleOrder,
   useFetchRuleBundles,
 } from "@app/queries/rulebundles";
+import { useEntityModal } from "@app/shared/hooks/useEntityModal";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const {
     ruleBundles,
@@ -60,8 +63,32 @@ export const MigrationTargets: React.FC = () => {
 
   const [activeId, setActiveId] = useState(null);
 
-  const [isCustomTargetFormOpen, setIsCustomTargetFormOpen] =
-    React.useState(false);
+  // const [isCustomTargetFormOpen, setIsCustomTargetFormOpen] =
+  //   React.useState(false);
+
+  const onCustomTargetModalSaved = (response: AxiosResponse<RuleBundle>) => {
+    if (!ruleBundleToUpdate) {
+      pushNotification({
+        title: t("toastr.success.added", {
+          what: response.data.name,
+          type: t("terms.application").toLowerCase(),
+        }),
+        variant: "success",
+      });
+    }
+
+    closeMigrationTargetModal();
+    refetchRuleBundles();
+  };
+
+  // Create and update modal
+  const {
+    isOpen: isCustomTargetFormOpen,
+    data: ruleBundleToUpdate,
+    create: openCreateMigrationTargetModal,
+    update: openUpdateMigrationTargetModal,
+    close: closeMigrationTargetModal,
+  } = useEntityModal<RuleBundle>();
 
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
@@ -122,7 +149,7 @@ export const MigrationTargets: React.FC = () => {
               id="clear-repository"
               isInline
               className={spacing.mlMd}
-              onClick={() => setIsCustomTargetFormOpen(true)}
+              onClick={() => openCreateMigrationTargetModal}
             >
               Create new
             </Button>
@@ -141,20 +168,32 @@ export const MigrationTargets: React.FC = () => {
         >
           <DndGrid columns={4}>
             {bundleOrderSetting.value.map((id) => (
-              <SortableItem key={id} id={id} />
+              <SortableItem
+                key={id}
+                id={id}
+                onEdit={() => {
+                  const matchingRuleBundle = ruleBundles.find(
+                    (ruleBundle) => ruleBundle.id === id
+                  );
+                  if (matchingRuleBundle) {
+                    openUpdateMigrationTargetModal(matchingRuleBundle);
+                  }
+                }}
+              />
             ))}
           </DndGrid>
           <DragOverlay>{activeId ? <Item id={activeId} /> : null}</DragOverlay>
         </SortableContext>
       </DndContext>
       <CustomTargetForm
+        ruleBundle={ruleBundleToUpdate}
         isOpen={isCustomTargetFormOpen}
-        onClose={() => setIsCustomTargetFormOpen(false)}
+        onClose={() => closeMigrationTargetModal()}
         onCancel={() => {
-          setIsCustomTargetFormOpen(false);
+          closeMigrationTargetModal();
         }}
         onSaved={() => {
-          setIsCustomTargetFormOpen(false);
+          closeMigrationTargetModal();
         }}
       />
     </>

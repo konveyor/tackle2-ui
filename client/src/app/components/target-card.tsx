@@ -33,6 +33,7 @@ export interface TargetCardProps {
   onCardClick?: (isSelecting: boolean, value: string) => void;
   handleProps?: any;
   readOnly?: boolean;
+  onEdit?: () => void;
 }
 
 // Force display dropdown box even though there only one option available.
@@ -45,6 +46,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   cardSelected,
   onCardClick,
   handleProps,
+  onEdit,
 }) => {
   const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
@@ -118,7 +120,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
             {!readOnly && item.custom ? (
               <KebabDropdown
                 dropdownItems={[
-                  <DropdownItem key="edit-custom-card" onClick={() => {}}>
+                  <DropdownItem key="edit-custom-card" onClick={onEdit}>
                     {t("actions.edit")}
                   </DropdownItem>,
                   <DropdownItem key="delite-custom-card" onClick={() => {}}>
