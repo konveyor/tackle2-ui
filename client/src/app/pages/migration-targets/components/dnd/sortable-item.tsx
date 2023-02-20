@@ -6,9 +6,10 @@ interface SortableItemProps {
   style?: React.CSSProperties;
   id: number;
   onEdit?: () => void;
+  onDelete?: () => void;
 }
 export const SortableItem: React.FC<SortableItemProps> = (
-  { style, id, onEdit },
+  { style, id, onEdit, onDelete },
   ...props
 ) => {
   const {
@@ -39,6 +40,7 @@ export const SortableItem: React.FC<SortableItemProps> = (
         attributes: attributes,
       }}
       onEdit={onEdit}
+      onDelete={onDelete}
       {...props}
       id={id}
     />

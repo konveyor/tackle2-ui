@@ -31,14 +31,16 @@ import { DndGrid } from "./components/dnd/grid";
 import { CustomTargetForm } from "./custom-target-form";
 import { BundleOrderSetting, RuleBundle, Setting } from "@app/api/models";
 import { updateBundleOrderSetting } from "@app/api/rest";
-import { AxiosPromise, AxiosResponse } from "axios";
+import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
 import {
   BundleOrderSettingKey,
+  useDeleteRuleBundleMutation,
   useFetchBundleOrder,
   useFetchRuleBundles,
 } from "@app/queries/rulebundles";
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
@@ -63,8 +65,44 @@ export const MigrationTargets: React.FC = () => {
 
   const [activeId, setActiveId] = useState(null);
 
-  // const [isCustomTargetFormOpen, setIsCustomTargetFormOpen] =
-  //   React.useState(false);
+  const onDeleteRuleBundleSuccess = (response: any, ruleBundleID: number) => {
+    pushNotification({
+      title: t("terms.customTargetDeleted"),
+      variant: "success",
+    });
+
+    // update bundle order
+
+    const updatedBundleSetting: BundleOrderSetting = {
+      key: BundleOrderSettingKey,
+      value: bundleOrderSetting.value.filter(
+        (bundleIDs) => bundleIDs !== ruleBundleID
+      ),
+    };
+    let promise: AxiosPromise<Setting>;
+    if (updatedBundleSetting !== undefined) {
+      promise = updateBundleOrderSetting(updatedBundleSetting);
+    } else {
+      promise = updateBundleOrderSetting(updatedBundleSetting);
+    }
+    promise
+      .then((response) => {
+        refreshBundleOrderSetting();
+      })
+      .catch((error) => {});
+  };
+
+  const onDeleteRuleBundleError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: deleteRuleBundle } = useDeleteRuleBundleMutation(
+    onDeleteRuleBundleSuccess,
+    onDeleteRuleBundleError
+  );
 
   const onCustomTargetModalSaved = (response: AxiosResponse<RuleBundle>) => {
     if (!ruleBundleToUpdate) {
@@ -149,7 +187,7 @@ export const MigrationTargets: React.FC = () => {
               id="clear-repository"
               isInline
               className={spacing.mlMd}
-              onClick={() => openCreateMigrationTargetModal}
+              onClick={openCreateMigrationTargetModal}
             >
               Create new
             </Button>
@@ -177,6 +215,14 @@ export const MigrationTargets: React.FC = () => {
                   );
                   if (matchingRuleBundle) {
                     openUpdateMigrationTargetModal(matchingRuleBundle);
+                  }
+                }}
+                onDelete={() => {
+                  const matchingRuleBundle = ruleBundles.find(
+                    (ruleBundle) => ruleBundle.id === id
+                  );
+                  if (matchingRuleBundle) {
+                    deleteRuleBundle(matchingRuleBundle.id);
                   }
                 }}
               />

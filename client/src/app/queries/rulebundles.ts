@@ -3,6 +3,7 @@ import { BundleOrderSetting, IReadFile, RuleBundle } from "@app/api/models";
 import {
   createFile,
   createRuleBundle,
+  deleteRuleBundle,
   getRuleBundles,
   getSettingById,
   updateRuleBundle,
@@ -39,6 +40,29 @@ export const useUpdateRuleBundleMutation = (
     },
     onError: (err: AxiosError) => {
       onError(err);
+    },
+  });
+  return {
+    mutate,
+    isLoading,
+    error,
+  };
+};
+
+export const useDeleteRuleBundleMutation = (
+  onSuccess: (res: any, id: number) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  const { isLoading, mutate, error } = useMutation(deleteRuleBundle, {
+    onSuccess: (res, id) => {
+      onSuccess(res, id);
+      queryClient.invalidateQueries([RuleBundlesQueryKey]);
+    },
+    onError: (err: AxiosError) => {
+      onError(err);
+      queryClient.invalidateQueries([RuleBundlesQueryKey]);
     },
   });
   return {

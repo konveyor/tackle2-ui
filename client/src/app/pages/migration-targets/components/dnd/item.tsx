@@ -8,6 +8,7 @@ interface ItemProps {
   ref?: React.ForwardedRef<any>;
   handleProps?: any;
   onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export const Item: React.FC<ItemProps> = forwardRef(
@@ -28,6 +29,7 @@ export const Item: React.FC<ItemProps> = forwardRef(
             item={matchingRuleBundle}
             handleProps={props.handleProps}
             onEdit={props.onEdit}
+            onDelete={props.onDelete}
           />
         )}
       </div>

@@ -217,7 +217,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   const onCreateRuleBundleSuccess = (response: any) => {
     // update bundle order
-    // TODO refactor into shared function
 
     const updatedBundleSetting: BundleOrderSetting = {
       key: BundleOrderSettingKey,

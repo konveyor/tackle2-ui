@@ -34,6 +34,7 @@ export interface TargetCardProps {
   handleProps?: any;
   readOnly?: boolean;
   onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 // Force display dropdown box even though there only one option available.
@@ -47,6 +48,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   onCardClick,
   handleProps,
   onEdit,
+  onDelete,
 }) => {
   const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
@@ -123,7 +125,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
                   <DropdownItem key="edit-custom-card" onClick={onEdit}>
                     {t("actions.edit")}
                   </DropdownItem>,
-                  <DropdownItem key="delite-custom-card" onClick={() => {}}>
+                  <DropdownItem key="delete-custom-card" onClick={onDelete}>
                     {t("actions.delete")}
                   </DropdownItem>,
                 ]}
