@@ -566,7 +566,7 @@ export const removeFileTaskgroup = ({
 };
 
 export const updateRuleBundle = (obj: RuleBundle) =>
-  axios.put(`${RULEBUNDLES}/${obj.name}`, obj);
+  axios.put(`${RULEBUNDLES}/${obj.id}`, obj);
 
 export const createRuleBundle = (obj: RuleBundle) =>
   axios.post<RuleBundle>(RULEBUNDLES, obj).then((response) => response.data);

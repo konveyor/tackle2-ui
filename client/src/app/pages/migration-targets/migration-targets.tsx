@@ -41,6 +41,8 @@ import {
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import { UpdateCustomTargetModal } from "./components/update-custom-target-modal/update-custom-target-modal";
+import { NewCustomTargetModal } from "./components/new-custom-target-modal";
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
@@ -121,7 +123,7 @@ export const MigrationTargets: React.FC = () => {
 
   // Create and update modal
   const {
-    isOpen: isCustomTargetFormOpen,
+    isOpen: isMigrationTargetModalOpen,
     data: ruleBundleToUpdate,
     create: openCreateMigrationTargetModal,
     update: openUpdateMigrationTargetModal,
@@ -231,17 +233,66 @@ export const MigrationTargets: React.FC = () => {
           <DragOverlay>{activeId ? <Item id={activeId} /> : null}</DragOverlay>
         </SortableContext>
       </DndContext>
-      <CustomTargetForm
+      <NewCustomTargetModal
+        isOpen={isMigrationTargetModalOpen}
+        onSaved={(ruleBundleResponseID) => {
+          // update bundle order
+
+          const updatedBundleSetting: BundleOrderSetting = {
+            key: BundleOrderSettingKey,
+            value: [...bundleOrderSetting.value, ruleBundleResponseID],
+          };
+          let promise: AxiosPromise<Setting>;
+          if (updatedBundleSetting !== undefined) {
+            promise = updateBundleOrderSetting(updatedBundleSetting);
+          } else {
+            promise = updateBundleOrderSetting(updatedBundleSetting);
+          }
+          promise
+            .then((response) => {
+              refreshBundleOrderSetting();
+            })
+            .catch((error) => {});
+          //;
+          closeMigrationTargetModal();
+        }}
+        onCancel={closeMigrationTargetModal}
+      />
+      <UpdateCustomTargetModal
+        ruleBundle={ruleBundleToUpdate}
+        onSaved={(ruleBundleResponseID) => {
+          // update bundle order
+
+          // const updatedBundleSetting: BundleOrderSetting = {
+          //   key: BundleOrderSettingKey,
+          //   value: [...bundleOrderSetting.value, ruleBundleResponseID],
+          // };
+          // let promise: AxiosPromise<Setting>;
+          // if (updatedBundleSetting !== undefined) {
+          //   promise = updateBundleOrderSetting(updatedBundleSetting);
+          // } else {
+          //   promise = updateBundleOrderSetting(updatedBundleSetting);
+          // }
+          // promise
+          //   .then((response) => {
+          //     refreshBundleOrderSetting();
+          //   })
+          //   .catch((error) => {});
+          // //;
+          closeMigrationTargetModal();
+        }}
+        onCancel={closeMigrationTargetModal}
+      />
+
+      {/* <CustomTargetForm
+
         ruleBundle={ruleBundleToUpdate}
         isOpen={isCustomTargetFormOpen}
-        onClose={() => closeMigrationTargetModal()}
-        onCancel={() => {
-          closeMigrationTargetModal();
+        onClose={closeMigrationTargetModal}
+        onCancel={closeMigrationTargetModal}
+        onSaved={(ruleBundleResponseID) => {
         }}
-        onSaved={() => {
-          closeMigrationTargetModal();
-        }}
-      />
+      /> */}
     </>
   );
 };

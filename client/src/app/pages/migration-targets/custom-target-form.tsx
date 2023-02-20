@@ -5,11 +5,8 @@ import {
   ButtonVariant,
   FileUpload,
   Form,
-  Modal,
-  ModalVariant,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import Resizer from "react-image-file-resizer";
@@ -36,18 +33,18 @@ import {
   useCreateRuleBundleMutation,
   useFetchBundleOrder,
   useFetchRuleBundles,
+  useUpdateRuleBundleMutation,
 } from "@app/queries/rulebundles";
-import { updateBundleOrderSetting } from "@app/api/rest";
+import { AxiosError } from "axios";
 
 export interface CustomTargetFormProps {
   ruleBundle?: RuleBundle;
-  isOpen: boolean;
-  onClose: () => void;
-  onSaved: (response: AxiosResponse<RuleBundle>) => void;
+  onSaved: (ruleBundleResponseID: number) => void;
   onCancel: () => void;
 }
 
 interface CustomTargetFormValues {
+  id: number;
   name: string;
   description: string;
   imageID: number;
@@ -57,14 +54,16 @@ interface CustomTargetFormValues {
 }
 
 export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
-  ruleBundle,
-  isOpen,
-  onClose,
+  ruleBundle: initialRuleBundle,
   onSaved,
   onCancel,
 }) => {
   const { t } = useTranslation();
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
+
+  const [ruleBundle, setRuleBundle] = useState(initialRuleBundle);
+
+  const [filename, setFilename] = React.useState("");
 
   const [isImageFileRejected, setIsImageFileRejected] = useState(false);
 
@@ -88,7 +87,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   const validationSchema: yup.SchemaOf<CustomTargetFormValues> = yup
     .object()
     .shape({
-      // id: yup.number().defined(),
+      id: yup.number().defined(),
       name: yup
         .string()
         .trim()
@@ -129,6 +128,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     reset,
   } = useForm<CustomTargetFormValues>({
     defaultValues: {
+      id: ruleBundle?.id || 0,
       name: ruleBundle?.name || "",
       description: ruleBundle?.description || "",
       imageID: ruleBundle?.image.id || 0,
@@ -139,13 +139,22 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     mode: "onChange",
   });
 
+  useEffect(() => {
+    setRuleBundle(initialRuleBundle);
+    return () => {
+      setRuleBundle(undefined);
+      // setReadFileData([]);
+      // setFilename("");
+    };
+  }, []);
+
   const watchAllFields = watch();
 
-  useEffect(() => {
-    // Handle async initial value
-    // https://stackoverflow.com/questions/64306943/defaultvalues-of-react-hook-form-is-not-setting-the-values-to-the-input-fields-i
-    reset(ruleBundle);
-  }, [ruleBundle, reset]);
+  // useEffect(() => {
+  //   // Handle async initial value
+  //   // https://stackoverflow.com/questions/64306943/defaultvalues-of-react-hook-form-is-not-setting-the-values-to-the-input-fields-i
+  //   reset(ruleBundle);
+  // }, [ruleBundle, reset]);
 
   const onSubmit = (formValues: CustomTargetFormValues) => {
     let rulesets: TableRule[] = [];
@@ -166,7 +175,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     });
 
     const payload: RuleBundle = {
-      id: 0,
+      id: formValues.id,
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       image: { id: formValues.imageID },
@@ -184,10 +193,12 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         };
       }),
     };
-    createRuleBundle(payload);
+    if (ruleBundle) {
+      updateRuleBundle({ ...payload });
+    } else {
+      createRuleBundle(payload);
+    }
   };
-  // IMAGE FILE UPLOAD
-  const [filename, setFilename] = React.useState("");
 
   const onCreateImageFileSuccess = (response: any) => {
     //Set image ID for use in form submit
@@ -203,38 +214,9 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     onCreateImageFileFailure
   );
 
-  const {
-    ruleBundles,
-    isFetching: isFetchingRuleBundles,
-    refetch: refetchRuleBundles,
-  } = useFetchRuleBundles();
-
-  const {
-    bundleOrderSetting,
-    isFetching,
-    refetch: refreshBundleOrderSetting,
-  } = useFetchBundleOrder(ruleBundles);
-
   const onCreateRuleBundleSuccess = (response: any) => {
-    // update bundle order
-
-    const updatedBundleSetting: BundleOrderSetting = {
-      key: BundleOrderSettingKey,
-      value: [...bundleOrderSetting.value, response.id],
-    };
-    let promise: AxiosPromise<Setting>;
-    if (updatedBundleSetting !== undefined) {
-      promise = updateBundleOrderSetting(updatedBundleSetting);
-    } else {
-      promise = updateBundleOrderSetting(updatedBundleSetting);
-    }
-    promise
-      .then((response) => {
-        refreshBundleOrderSetting();
-      })
-      .catch((error) => {});
-    //
-    onClose();
+    onSaved(response.id);
+    reset();
   };
 
   const onCreateRuleBundleFailure = (error: AxiosError) => {};
@@ -244,122 +226,118 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     onCreateRuleBundleFailure
   );
 
+  const onUpdateRuleBundleSuccess = (response: any) => {
+    onSaved(response.id);
+    reset();
+  };
+
+  const onUpdateRuleBundleFailure = (error: AxiosError) => {};
+
+  const { mutate: updateRuleBundle } = useUpdateRuleBundleMutation(
+    onUpdateRuleBundleSuccess,
+    onUpdateRuleBundleFailure
+  );
+
   //
   const values = getValues();
   console.log("values", values);
   return (
-    <Modal
-      title={
-        ruleBundle
-          ? t("dialog.title.new", {
-              what: t("terms.customTarget").toLowerCase(),
-            })
-          : t("dialog.title.edit", {
-              what: t("terms.customTarget").toLowerCase(),
-            })
-      }
-      variant={ModalVariant.medium}
-      isOpen={isOpen}
-      onClose={onClose}
-    >
-      <Form onSubmit={handleSubmit(onSubmit)}>
-        <HookFormPFTextInput
-          control={control}
-          name="name"
-          label="Name"
-          fieldId="name"
-          isRequired
-        />
-        <HookFormPFTextInput
-          control={control}
-          name="description"
-          label="Description"
-          fieldId="description"
-        />
-        <HookFormPFGroupController
-          control={control}
-          name="imageID"
-          label={t("terms.image")}
-          fieldId="custom-migration-target-upload-image"
-          isRequired
-          helperText="Upload a png or jpeg file"
-          renderInput={({ field: { onChange, name } }) => (
-            <FileUpload
-              id="custom-migration-target-upload-image"
-              name={name}
-              value={filename}
-              filename={filename}
-              filenamePlaceholder="Drag and drop a file or upload one"
-              dropzoneProps={{
-                accept: ".png, .jpeg",
-                maxSize: 1000000,
-                onDropRejected: () => setIsImageFileRejected(true),
-              }}
-              validated={isImageFileRejected ? "error" : "default"}
-              onFileInputChange={async (e, file) => {
-                try {
-                  const image = await resizeFile(file);
-                  setFilename(image.name);
-                  const formFile = new FormData();
-                  formFile.append("file", file);
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      <HookFormPFTextInput
+        control={control}
+        name="name"
+        label="Name"
+        fieldId="name"
+        isRequired
+      />
+      <HookFormPFTextInput
+        control={control}
+        name="description"
+        label="Description"
+        fieldId="description"
+      />
+      <HookFormPFGroupController
+        control={control}
+        name="imageID"
+        label={t("terms.image")}
+        fieldId="custom-migration-target-upload-image"
+        isRequired
+        helperText="Upload a png or jpeg file"
+        renderInput={({ field: { onChange, name } }) => (
+          <FileUpload
+            id="custom-migration-target-upload-image"
+            name={name}
+            value={filename}
+            filename={filename}
+            filenamePlaceholder="Drag and drop a file or upload one"
+            dropzoneProps={{
+              accept: ".png, .jpeg",
+              maxSize: 1000000,
+              onDropRejected: () => setIsImageFileRejected(true),
+            }}
+            validated={isImageFileRejected ? "error" : "default"}
+            onFileInputChange={async (e, file) => {
+              try {
+                const image = await resizeFile(file);
+                setFilename(image.name);
+                const formFile = new FormData();
+                formFile.append("file", file);
 
-                  const newImageFile: IReadFile = {
-                    fileName: file.name,
-                    fullFile: file,
-                  };
+                const newImageFile: IReadFile = {
+                  fileName: file.name,
+                  fullFile: file,
+                };
 
-                  createImageFile({ formData: formFile, file: newImageFile });
-                } catch {
-                  resetField("imageID");
-                }
-              }}
-              onClearClick={() => {
-                onChange("");
-                setFilename("");
+                createImageFile({ formData: formFile, file: newImageFile });
+              } catch {
                 resetField("imageID");
-                setIsImageFileRejected(false);
-              }}
-              browseButtonText="Upload"
-            />
-          )}
-        />
-        <HookFormPFGroupController
-          control={control}
-          name="customRulesFiles"
-          label={t("terms.image")}
-          fieldId="custom-migration-target-upload-image"
-          isRequired
-          renderInput={({ field: { onChange, name, value } }) => (
-            <AddCustomRules
-              customRulesFiles={[]}
-              readFileData={readFileData}
-              setReadFileData={setReadFileData}
-            />
-          )}
-        ></HookFormPFGroupController>
+              }
+            }}
+            onClearClick={() => {
+              onChange("");
+              setFilename("");
+              resetField("imageID");
+              setIsImageFileRejected(false);
+            }}
+            browseButtonText="Upload"
+          />
+        )}
+      />
+      <HookFormPFGroupController
+        control={control}
+        name="customRulesFiles"
+        label={t("terms.image")}
+        fieldId="custom-migration-target-upload-image"
+        isRequired
+        renderInput={({ field: { onChange, name, value } }) => (
+          <AddCustomRules
+            readFileData={readFileData}
+            setReadFileData={setReadFileData}
+          />
+        )}
+      ></HookFormPFGroupController>
 
-        <ActionGroup>
-          <Button
-            type="submit"
-            aria-label="submit"
-            id="identity-form-submit"
-            variant={ButtonVariant.primary}
-            isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
-          >
-            {!ruleBundle ? t("actions.create") : t("actions.save")}
-          </Button>
-          <Button
-            type="button"
-            id="cancel"
-            aria-label="cancel"
-            variant={ButtonVariant.link}
-            isDisabled={isSubmitting || isValidating}
-            onClick={onCancel}
-          >
-            {t("actions.cancel")}
-          </Button>
-        </ActionGroup>
-      </Form>
-    </Modal>
+      <ActionGroup>
+        <Button
+          type="submit"
+          aria-label="submit"
+          id="identity-form-submit"
+          variant={ButtonVariant.primary}
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+        >
+          {!ruleBundle ? t("actions.create") : t("actions.save")}
+        </Button>
+        <Button
+          type="button"
+          id="cancel"
+          aria-label="cancel"
+          variant={ButtonVariant.link}
+          isDisabled={isSubmitting || isValidating}
+          onClick={onCancel}
+        >
+          {t("actions.cancel")}
+        </Button>
+      </ActionGroup>
+    </Form>
   );
 };

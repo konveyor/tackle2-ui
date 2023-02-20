@@ -19,7 +19,7 @@ import { useCreateFileMutation } from "@app/queries/rulebundles";
 
 const xmllint = require("xmllint");
 interface IAddCustomRules {
-  customRulesFiles: IReadFile[];
+  customRulesFiles?: IReadFile[];
   readFileData: IReadFile[];
   setReadFileData: (setReadFile: React.SetStateAction<IReadFile[]>) => void;
   taskgroupID?: number | null;
@@ -141,7 +141,7 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
   };
 
   const isFileIncluded = (name: string) =>
-    customRulesFiles.some((file) => file.fileName === name);
+    customRulesFiles?.some((file) => file.fileName === name);
 
   const handleFile = (file: File) => {
     readFile(file)
