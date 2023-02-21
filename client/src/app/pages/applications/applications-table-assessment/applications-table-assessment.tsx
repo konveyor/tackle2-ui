@@ -153,6 +153,8 @@ export const ApplicationsTable: React.FC = () => {
     expandAll,
     areAllExpanded,
     setPageNumber,
+    openDetailDrawer,
+    isDetailDrawerOpen,
   } = useApplicationsFilterValues(
     applications,
     ApplicationTableType.Assessment
@@ -321,8 +323,10 @@ export const ApplicationsTable: React.FC = () => {
 
     rows.push({
       [ENTITY_FIELD]: item,
-      isOpen: isExpanded,
+      isOpen: isExpanded, // TODO(mturley) remove expansion when everything is in details pane
       selected: isSelected,
+      isHoverable: true,
+      isRowSelected: isDetailDrawerOpen(item),
       cells: [
         {
           title: <TableText wrapModifier="truncate">{item.name}</TableText>,
@@ -685,6 +689,7 @@ export const ApplicationsTable: React.FC = () => {
           isLoading={isFetching}
           loadingVariant="skeleton"
           fetchError={fetchError}
+          onAppClick={openDetailDrawer}
           toolbarToggle={
             <FilterToolbar<Application>
               filterCategories={filterCategories}

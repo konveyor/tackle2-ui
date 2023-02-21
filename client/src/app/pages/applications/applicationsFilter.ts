@@ -1,3 +1,5 @@
+import * as React from "react";
+
 import { useTranslation } from "react-i18next";
 
 import { Application } from "@app/api/models";
@@ -208,6 +210,11 @@ export const useApplicationsFilterValues = (
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState(sortedItems, 10);
 
+  const [detailDrawerApplication, openDetailDrawer] =
+    React.useState<Application | null>(null);
+  const isDetailDrawerOpen = (application: Application) =>
+    application.id === detailDrawerApplication?.id;
+
   return {
     currentPageItems,
     paginationProps,
@@ -227,6 +234,8 @@ export const useApplicationsFilterValues = (
     toggleRowExpanded,
     expandAll,
     areAllExpanded,
+    openDetailDrawer,
+    isDetailDrawerOpen,
     setPageNumber,
   };
 };
