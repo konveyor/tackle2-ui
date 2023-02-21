@@ -2,10 +2,12 @@ import React from "react";
 
 import { Modal, ModalVariant } from "@patternfly/react-core";
 import { CustomTargetForm } from "../../custom-target-form";
+import { AxiosResponse } from "axios";
+import { RuleBundle } from "@app/api/models";
 
 export interface NewCustomTargetModalProps {
   isOpen: boolean;
-  onSaved: (response: number) => void;
+  onSaved: (response: AxiosResponse<RuleBundle>) => void;
   onCancel: () => void;
 }
 

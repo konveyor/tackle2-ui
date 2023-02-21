@@ -35,11 +35,11 @@ import {
   useFetchRuleBundles,
   useUpdateRuleBundleMutation,
 } from "@app/queries/rulebundles";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 
 export interface CustomTargetFormProps {
   ruleBundle?: RuleBundle;
-  onSaved: (ruleBundleResponseID: number) => void;
+  onSaved: (response: AxiosResponse<RuleBundle>) => void;
   onCancel: () => void;
 }
 
@@ -49,8 +49,6 @@ interface CustomTargetFormValues {
   description: string;
   imageID: number;
   customRulesFiles: IReadFile[];
-  // rules: Rule[];
-  // repository: any;
 }
 
 export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
@@ -94,22 +92,12 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         .required(t("validation.required"))
         .min(3, t("validation.minLength", { length: 3 }))
         .max(120, t("validation.maxLength", { length: 120 })),
-      // .test(
-      //   "Duplicate name",
-      //   "An identity with this name already exists. Please use a different name.",
-      //   (value) =>
-      //     duplicateNameCheck(identities, identity || null, value || "")
-      // ),
       description: yup
         .string()
         .defined()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
       imageID: yup.number().defined().required(),
-      //TODO rules validation
-      // rules: yup.array().defined(),
-      //TODO repo validation
-      // repository: yup.object().shape({}).defined(),
       customRulesFiles: yup
         .array()
         .of(yup.object() as yup.SchemaOf<IReadFile>)
@@ -143,18 +131,10 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     setRuleBundle(initialRuleBundle);
     return () => {
       setRuleBundle(undefined);
-      // setReadFileData([]);
-      // setFilename("");
     };
   }, []);
 
   const watchAllFields = watch();
-
-  // useEffect(() => {
-  //   // Handle async initial value
-  //   // https://stackoverflow.com/questions/64306943/defaultvalues-of-react-hook-form-is-not-setting-the-values-to-the-input-fields-i
-  //   reset(ruleBundle);
-  // }, [ruleBundle, reset]);
 
   const onSubmit = (formValues: CustomTargetFormValues) => {
     let rulesets: TableRule[] = [];
@@ -215,7 +195,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   );
 
   const onCreateRuleBundleSuccess = (response: any) => {
-    onSaved(response.id);
+    onSaved(response);
     reset();
   };
 
@@ -227,7 +207,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   );
 
   const onUpdateRuleBundleSuccess = (response: any) => {
-    onSaved(response.id);
+    onSaved(response);
     reset();
   };
 

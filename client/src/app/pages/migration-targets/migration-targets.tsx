@@ -28,7 +28,6 @@ import { useTranslation } from "react-i18next";
 
 import { Item } from "./components/dnd/item";
 import { DndGrid } from "./components/dnd/grid";
-import { CustomTargetForm } from "./custom-target-form";
 import { BundleOrderSetting, RuleBundle, Setting } from "@app/api/models";
 import { updateBundleOrderSetting } from "@app/api/rest";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
@@ -69,7 +68,7 @@ export const MigrationTargets: React.FC = () => {
 
   const onDeleteRuleBundleSuccess = (response: any, ruleBundleID: number) => {
     pushNotification({
-      title: t("terms.customTargetDeleted"),
+      title: "Custom target deleted",
       variant: "success",
     });
 
@@ -111,11 +110,29 @@ export const MigrationTargets: React.FC = () => {
       pushNotification({
         title: t("toastr.success.added", {
           what: response.data.name,
-          type: t("terms.application").toLowerCase(),
+          type: "custom target",
         }),
         variant: "success",
       });
     }
+    // update bundle order
+
+    const updatedBundleSetting: BundleOrderSetting = {
+      key: BundleOrderSettingKey,
+      value: [...bundleOrderSetting.value, response.data.id],
+    };
+    let promise: AxiosPromise<Setting>;
+    if (updatedBundleSetting !== undefined) {
+      promise = updateBundleOrderSetting(updatedBundleSetting);
+    } else {
+      promise = updateBundleOrderSetting(updatedBundleSetting);
+    }
+    promise
+      .then((response) => {
+        refreshBundleOrderSetting();
+      })
+      .catch((error) => {});
+    closeMigrationTargetModal();
 
     closeMigrationTargetModal();
     refetchRuleBundles();
@@ -235,64 +252,16 @@ export const MigrationTargets: React.FC = () => {
       </DndContext>
       <NewCustomTargetModal
         isOpen={isMigrationTargetModalOpen}
-        onSaved={(ruleBundleResponseID) => {
-          // update bundle order
-
-          const updatedBundleSetting: BundleOrderSetting = {
-            key: BundleOrderSettingKey,
-            value: [...bundleOrderSetting.value, ruleBundleResponseID],
-          };
-          let promise: AxiosPromise<Setting>;
-          if (updatedBundleSetting !== undefined) {
-            promise = updateBundleOrderSetting(updatedBundleSetting);
-          } else {
-            promise = updateBundleOrderSetting(updatedBundleSetting);
-          }
-          promise
-            .then((response) => {
-              refreshBundleOrderSetting();
-            })
-            .catch((error) => {});
-          //;
-          closeMigrationTargetModal();
-        }}
+        onSaved={onCustomTargetModalSaved}
         onCancel={closeMigrationTargetModal}
       />
       <UpdateCustomTargetModal
         ruleBundle={ruleBundleToUpdate}
         onSaved={(ruleBundleResponseID) => {
-          // update bundle order
-
-          // const updatedBundleSetting: BundleOrderSetting = {
-          //   key: BundleOrderSettingKey,
-          //   value: [...bundleOrderSetting.value, ruleBundleResponseID],
-          // };
-          // let promise: AxiosPromise<Setting>;
-          // if (updatedBundleSetting !== undefined) {
-          //   promise = updateBundleOrderSetting(updatedBundleSetting);
-          // } else {
-          //   promise = updateBundleOrderSetting(updatedBundleSetting);
-          // }
-          // promise
-          //   .then((response) => {
-          //     refreshBundleOrderSetting();
-          //   })
-          //   .catch((error) => {});
-          // //;
           closeMigrationTargetModal();
         }}
         onCancel={closeMigrationTargetModal}
       />
-
-      {/* <CustomTargetForm
-
-        ruleBundle={ruleBundleToUpdate}
-        isOpen={isCustomTargetFormOpen}
-        onClose={closeMigrationTargetModal}
-        onCancel={closeMigrationTargetModal}
-        onSaved={(ruleBundleResponseID) => {
-        }}
-      /> */}
     </>
   );
 };
