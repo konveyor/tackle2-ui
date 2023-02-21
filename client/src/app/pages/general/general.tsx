@@ -35,7 +35,6 @@ export const General: React.FC = () => {
         key: "review.assessment.required",
         value: !reviewAssessmentSetting.data,
       };
-
       settingMutationQuery.mutate(setting);
     }
   };
@@ -46,7 +45,6 @@ export const General: React.FC = () => {
         key: "download.html.enabled",
         value: !downloadHTMLSetting.data,
       };
-
       settingMutationQuery.mutate(setting);
     }
   };
@@ -57,7 +55,6 @@ export const General: React.FC = () => {
         key: "download.csv.enabled",
         value: !downloadCSVSetting.data,
       };
-
       settingMutationQuery.mutate(setting);
     }
   };
@@ -83,7 +80,7 @@ export const General: React.FC = () => {
             ) : (
               <Form className={spacing.mMd}>
                 <Switch
-                  id="git"
+                  id="reviewAssessment"
                   className="repo"
                   label={t("terms.settingsAllowApps")}
                   aria-label="Allow applications review without assessment"
@@ -95,7 +92,7 @@ export const General: React.FC = () => {
                   onChange={onChangeReviewAssessmentSetting}
                 />
                 <Switch
-                  id="git"
+                  id="downloadHTML"
                   className="repo"
                   label={t("terms.settingsHTMLReports")}
                   aria-label="Allow download HTML Reports"
@@ -107,7 +104,7 @@ export const General: React.FC = () => {
                   onChange={onChangeDownloadHTMLSetting}
                 />
                 <Switch
-                  id="git"
+                  id="downloadCSV"
                   className="repo"
                   label={t("terms.settingsCSVReports")}
                   aria-label="Allow download CSV Reports"
