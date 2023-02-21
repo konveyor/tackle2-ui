@@ -33,7 +33,7 @@ export const General: React.FC = () => {
     if (reviewAssessmentSetting.isSuccess) {
       const setting: Setting = {
         key: "review.assessment.required",
-        value: !reviewAssessmentSetting.data,
+        value: !reviewAssessmentSetting.data.toString(),
       };
       settingMutationQuery.mutate(setting);
     }
@@ -43,7 +43,7 @@ export const General: React.FC = () => {
     if (downloadHTMLSetting.isSuccess) {
       const setting: Setting = {
         key: "download.html.enabled",
-        value: !downloadHTMLSetting.data,
+        value: !downloadHTMLSetting.data.toString(),
       };
       settingMutationQuery.mutate(setting);
     }
@@ -53,7 +53,7 @@ export const General: React.FC = () => {
     if (downloadCSVSetting.isSuccess) {
       const setting: Setting = {
         key: "download.csv.enabled",
-        value: !downloadCSVSetting.data,
+        value: !downloadCSVSetting.data.toString(),
       };
       settingMutationQuery.mutate(setting);
     }

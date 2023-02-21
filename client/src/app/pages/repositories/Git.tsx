@@ -25,7 +25,7 @@ export const RepositoriesGit: React.FC = () => {
     if (gitInsecureSetting.isSuccess) {
       const setting: Setting = {
         key: "git.insecure.enabled",
-        value: !gitInsecureSetting.data,
+        value: !gitInsecureSetting.data.toString(),
       };
 
       settingMutationQuery.mutate(setting);
