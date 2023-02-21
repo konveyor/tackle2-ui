@@ -420,6 +420,7 @@ export interface ITypeOptions {
 
 export interface RuleBundleImage {
   id: number;
+  name?: string;
 }
 
 export enum RuleBundleKind {

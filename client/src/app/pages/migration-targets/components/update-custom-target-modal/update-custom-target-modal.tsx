@@ -7,7 +7,7 @@ import { RuleBundle } from "@app/api/models";
 
 export interface UpdateCustomTargetModalProps {
   ruleBundle?: RuleBundle;
-  onSaved: (response: number) => void;
+  onSaved: (response: AxiosResponse<RuleBundle>) => void;
   onCancel: () => void;
 }
 
@@ -16,7 +16,7 @@ export const UpdateCustomTargetModal: React.FC<
 > = ({ ruleBundle, onSaved, onCancel }) => {
   return (
     <Modal
-      title="Update identity"
+      title="Update custom target"
       variant={ModalVariant.medium}
       isOpen={!!ruleBundle}
       onClose={onCancel}

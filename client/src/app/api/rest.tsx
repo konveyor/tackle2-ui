@@ -577,6 +577,9 @@ export const deleteRuleBundle = (id: number): AxiosPromise =>
 export const getRuleBundles = () =>
   axios.get<RuleBundle[]>(RULEBUNDLES).then((response) => response.data);
 
+export const getFileByID = (id: number) =>
+  axios.get<RuleBundle[]>(FILES).then((response) => response.data);
+
 export const createFile = ({
   formData,
   file,

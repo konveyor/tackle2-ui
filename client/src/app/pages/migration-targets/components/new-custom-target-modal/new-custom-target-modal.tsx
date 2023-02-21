@@ -18,7 +18,7 @@ export const NewCustomTargetModal: React.FC<NewCustomTargetModalProps> = ({
 }) => {
   return (
     <Modal
-      title="New Custom Target"
+      title="New custom Target"
       variant={ModalVariant.medium}
       isOpen={isOpen}
       onClose={onCancel}
