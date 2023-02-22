@@ -59,6 +59,7 @@ export const HookFormPFGroupController = <
           fieldId={fieldId}
           className={className}
           isRequired={isRequired}
+          onBlur={field.onBlur}
           validated={
             errorsSuppressed
               ? "default"
