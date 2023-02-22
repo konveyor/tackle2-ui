@@ -453,8 +453,8 @@ export const deleteIdentity = (id: number): AxiosPromise => {
   return APIClient.delete(`${IDENTITIES}/${id}`);
 };
 
-export const getSettingById = (id: number | string): AxiosPromise<any> => {
-  return APIClient.get(`${SETTINGS}/${id}`, jsonHeaders);
+export const getSettingById = (id: number | string) => {
+  return axios.get(`${SETTINGS}/${id}`, jsonHeaders).then((res) => res.data);
 };
 
 export const updateBundleOrderSetting = (
@@ -571,7 +571,7 @@ export const updateRuleBundle = (obj: RuleBundle) =>
 export const createRuleBundle = (obj: RuleBundle) =>
   axios.post<RuleBundle>(RULEBUNDLES, obj);
 
-export const deleteRuleBundle = (id: number): AxiosPromise =>
+export const deleteRuleBundle = (id: number) =>
   axios.delete(`${RULEBUNDLES}/${id}`);
 
 export const getRuleBundles = () =>

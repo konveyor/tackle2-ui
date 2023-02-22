@@ -59,11 +59,6 @@ export const MigrationTargets: React.FC = () => {
     refetch: refreshBundleOrderSetting,
   } = useFetchBundleOrder(ruleBundles);
 
-  useEffect(() => {
-    refetchRuleBundles();
-    refreshBundleOrderSetting();
-  }, [isFetching]);
-
   const [activeId, setActiveId] = useState(null);
 
   const onDeleteRuleBundleSuccess = (response: any, ruleBundleID: number) => {
@@ -77,7 +72,7 @@ export const MigrationTargets: React.FC = () => {
     const updatedBundleSetting: BundleOrderSetting = {
       key: BundleOrderSettingKey,
       value: bundleOrderSetting.value.filter(
-        (bundleIDs) => bundleIDs !== ruleBundleID
+        (bundleID: number) => bundleID !== ruleBundleID
       ),
     };
     let promise: AxiosPromise<Setting>;

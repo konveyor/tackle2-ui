@@ -16,6 +16,8 @@ import { IReadFile } from "@app/api/models";
 import { useUploadFileMutation } from "@app/queries/taskgroups";
 import { AxiosError } from "axios";
 import { useCreateFileMutation } from "@app/queries/rulebundles";
+import { NotificationsContext } from "@app/shared/notifications-context";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const xmllint = require("xmllint");
 interface IAddCustomRules {
@@ -23,7 +25,7 @@ interface IAddCustomRules {
   readFileData: IReadFile[];
   setReadFileData: (setReadFile: React.SetStateAction<IReadFile[]>) => void;
   taskgroupID?: number | null;
-  handleChange?: any;
+  handleCustomTargetFileChange?: (readFiles: IReadFile[]) => void;
 }
 interface IParsedXMLFileStatus {
   state: "valid" | "error";
@@ -35,8 +37,9 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
   readFileData,
   setReadFileData,
   taskgroupID,
-  handleChange,
+  handleCustomTargetFileChange,
 }: IAddCustomRules) => {
+  const { pushNotification } = React.useContext(NotificationsContext);
   const [error, setError] = React.useState("");
   const [currentFiles, setCurrentFiles] = React.useState<File[]>(
     !taskgroupID ? customRulesFiles.map((crf) => crf.fullFile) : []
@@ -59,7 +62,10 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
   };
 
   const onCreateRuleFileFailure = (error: AxiosError) => {
-    // resetField("imageID");
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
   };
 
   const { mutate: createRuleFile } = useCreateFileMutation(
@@ -144,13 +150,13 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
   };
 
   const isFileIncluded = (name: string) =>
-    customRulesFiles?.some((file) => file.fileName === name);
+    customRulesFiles.some((file) => file.fileName === name);
 
   const handleFile = (file: File) => {
     readFile(file)
       .then((data) => {
         if (isFileIncluded(file.name) && !taskgroupID) {
-          //existing file loaded in edit mode. Add placeholder file
+          //If existing file loaded in edit mode, add placeholder file for custom target form
           handleReadSuccess(data || "", file);
         } else {
           if (isFileIncluded(file.name)) {
@@ -193,11 +199,12 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
     );
 
     setReadFileData(newReadFiles);
-    handleChange && handleChange(newReadFiles);
+    handleCustomTargetFileChange && handleCustomTargetFileChange(newReadFiles);
   };
 
   const handleReadSuccess = (data: string, file: File) => {
     if (taskgroupID) {
+      // Upload file to bucket if bucket exists / in analysis wizard mode
       const newFile: IReadFile = {
         data,
         fileName: file.name,
@@ -208,14 +215,13 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
       setReadFileData((prevReadFiles) => [...prevReadFiles, newFile]);
       const formFile = new FormData();
       formFile.append("file", newFile.fullFile);
-      //Upload file to bucket if exists
       uploadFile({
         id: taskgroupID as number,
         path: `rules/${newFile.fileName}`,
         file: formFile,
       });
     } else {
-      // Use new file api to add file
+      // Use new file api to add file when in custom target edit mode
       const newFile: IReadFile = {
         data,
         fileName: file.name,
@@ -223,8 +229,8 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
         loadPercentage: 100,
         fullFile: file,
       };
-      // setReadFileData((prevReadFiles) => [...prevReadFiles, newFile]);
-      handleChange && handleChange([...readFileData, newFile]);
+      handleCustomTargetFileChange &&
+        handleCustomTargetFileChange([...readFileData, newFile]);
       const formFile = new FormData();
       formFile.append("file", newFile.fullFile);
       createRuleFile({
@@ -250,8 +256,8 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
         fullFile: file,
       },
     ]);
-    handleChange &&
-      handleChange([
+    handleCustomTargetFileChange &&
+      handleCustomTargetFileChange([
         ...readFileData,
         {
           loadError: error,

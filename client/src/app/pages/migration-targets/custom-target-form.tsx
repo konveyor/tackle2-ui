@@ -343,7 +343,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             customRulesFiles={value}
             readFileData={readFileData}
             setReadFileData={setReadFileData}
-            handleChange={onChange}
+            handleCustomTargetFileChange={onChange}
           />
         )}
       ></HookFormPFGroupController>
