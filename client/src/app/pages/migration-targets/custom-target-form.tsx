@@ -224,20 +224,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     onUpdateRuleBundleFailure
   );
 
-  //
-  const values = getValues();
-  console.log("values", values);
-  console.log(
-    "errors",
-    errors,
-    isSubmitting,
-    isValidating,
-    isValid,
-    isDirty,
-    touchedFields,
-    isLoading
-  );
-
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <HookFormPFTextInput
