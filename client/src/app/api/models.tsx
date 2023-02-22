@@ -459,10 +459,10 @@ export interface TableRule {
 
 export interface IReadFile {
   fileName: string;
+  fullFile: File;
   loadError?: DOMException;
   loadPercentage?: number;
   loadResult?: "danger" | "success";
   data?: string;
-  fullFile: File;
   responseID?: number;
 }

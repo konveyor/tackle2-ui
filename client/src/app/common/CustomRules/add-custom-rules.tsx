@@ -19,10 +19,11 @@ import { useCreateFileMutation } from "@app/queries/rulebundles";
 
 const xmllint = require("xmllint");
 interface IAddCustomRules {
-  customRulesFiles?: IReadFile[];
+  customRulesFiles: IReadFile[];
   readFileData: IReadFile[];
   setReadFileData: (setReadFile: React.SetStateAction<IReadFile[]>) => void;
   taskgroupID?: number | null;
+  handleChange?: any;
 }
 interface IParsedXMLFileStatus {
   state: "valid" | "error";
@@ -34,11 +35,15 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
   readFileData,
   setReadFileData,
   taskgroupID,
+  handleChange,
 }: IAddCustomRules) => {
   const [error, setError] = React.useState("");
-  const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
-  const [showStatus, setShowStatus] = React.useState(false);
-
+  const [currentFiles, setCurrentFiles] = React.useState<File[]>(
+    customRulesFiles.map((crf) => crf.fullFile)
+  );
+  const [showStatus, setShowStatus] = React.useState(true);
+  console.log("crfs", customRulesFiles);
+  console.log("rfd", readFileData);
   const onUploadError = (error: AxiosError) =>
     console.log("File upload failed: ", error);
 
@@ -50,7 +55,6 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
     file: IReadFile
   ) => {
     //Set file ID for use in form submit
-    // setValue("imageID", response?.id);
     const fileWithID: IReadFile = { ...file, ...{ responseID: response?.id } };
     setReadFileData((prevReadFiles) => [...prevReadFiles, fileWithID]);
   };
@@ -146,21 +150,26 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
   const handleFile = (file: File) => {
     readFile(file)
       .then((data) => {
-        if (isFileIncluded(file.name)) {
-          const error = new DOMException(
-            `File "${file.name}" is already uploaded`
-          );
-          handleReadFail(error, 100, file);
+        if (isFileIncluded(file.name) && !taskgroupID) {
+          //existing file loaded in edit mode. Add placeholder file
+          handleReadSuccess(data || "", file);
         } else {
-          if (data) {
-            const validatedXMLResult = validateXMLFile(data);
-            if (validatedXMLResult.state === "valid")
-              handleReadSuccess(data, file);
-            else {
-              const error = new DOMException(
-                `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
-              );
-              handleReadFail(error, 100, file);
+          if (isFileIncluded(file.name)) {
+            const error = new DOMException(
+              `File "${file.name}" is already uploaded`
+            );
+            handleReadFail(error, 100, file);
+          } else {
+            if (data) {
+              const validatedXMLResult = validateXMLFile(data);
+              if (validatedXMLResult.state === "valid")
+                handleReadSuccess(data, file);
+              else {
+                const error = new DOMException(
+                  `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
+                );
+                handleReadFail(error, 100, file);
+              }
             }
           }
         }
@@ -185,6 +194,7 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
     );
 
     setReadFileData(newReadFiles);
+    handleChange && handleChange(newReadFiles);
   };
 
   const handleReadSuccess = (data: string, file: File) => {
@@ -207,10 +217,6 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
       });
     } else {
       // Use new file api to add file
-      // const image = await resizeFile(file);
-      // setFilename(image.name);
-      // const formFile = new FormData();
-      // formFile.append("file", file);
       const newFile: IReadFile = {
         data,
         fileName: file.name,
@@ -218,6 +224,8 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
         loadPercentage: 100,
         fullFile: file,
       };
+      // setReadFileData((prevReadFiles) => [...prevReadFiles, newFile]);
+      handleChange && handleChange([...readFileData, newFile]);
       const formFile = new FormData();
       formFile.append("file", newFile.fullFile);
       createRuleFile({
@@ -243,6 +251,17 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
         fullFile: file,
       },
     ]);
+    handleChange &&
+      handleChange([
+        ...readFileData,
+        {
+          loadError: error,
+          fileName: file.name,
+          loadResult: "danger",
+          loadPercentage: percentage,
+          fullFile: file,
+        },
+      ]);
   };
 
   const successfullyReadFileCount = readFileData.filter(

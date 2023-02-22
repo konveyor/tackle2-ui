@@ -28,26 +28,24 @@ export const parseRules = (file: IReadFile) => {
         rulesCount = rulesGroup[0].getElementsByTagName("rule").length;
     }
 
-    const rules: TableRule[] = [
-      {
-        name: file.fileName,
-        source: source,
-        target: target,
-        total: rulesCount,
-        ...(file.responseID && {
-          fileID: file.responseID,
-        }),
-      },
-    ];
+    const ruleset: TableRule = {
+      name: file.fileName,
+      source: source,
+      target: target,
+      total: rulesCount,
+      ...(file.responseID && {
+        fileID: file.responseID,
+      }),
+    };
 
     return {
-      parsedRules: rules,
+      parsedRuleset: ruleset,
       parsedSource: source,
       parsedTarget: target,
     };
   } else {
     return {
-      parsedRules: [],
+      parsedRuleset: null,
       parsedSource: null,
       parsedTarget: null,
     };

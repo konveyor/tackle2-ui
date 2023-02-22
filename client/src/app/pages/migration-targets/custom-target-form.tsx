@@ -46,9 +46,10 @@ export interface CustomTargetFormProps {
 interface CustomTargetFormValues {
   id: number;
   name: string;
-  description: string;
-  imageID: number;
-  customRulesFiles: IReadFile[];
+  description?: string;
+  imageID: number | null;
+  // customRulesFiles: IReadFile[];
+  customRulesFiles: any[];
 }
 
 export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
@@ -82,6 +83,11 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       );
     });
 
+  const rulesetSchema = yup.object({
+    name: yup.string().required(),
+    metadata: yup.object(),
+    file: yup.object(),
+  });
   const validationSchema: yup.SchemaOf<CustomTargetFormValues> = yup
     .object()
     .shape({
@@ -92,21 +98,27 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         .required(t("validation.required"))
         .min(3, t("validation.minLength", { length: 3 }))
         .max(120, t("validation.maxLength", { length: 120 })),
-      description: yup
-        .string()
-        .defined()
-        .trim()
-        .max(250, t("validation.maxLength", { length: 250 })),
+      description: yup.string(),
+      // .defined()
+      // .trim()
+      // .max(250, t("validation.maxLength", { length: 250 })),
       imageID: yup.number().defined().required(),
-      customRulesFiles: yup
-        .array()
-        .of(yup.object() as yup.SchemaOf<IReadFile>)
-        .required(),
+      customRulesFiles: yup.array().min(1),
+      // .of(yup.object() as yup.SchemaOf<IReadFile>)
+      // .min(1),
     });
 
   const {
     handleSubmit,
-    formState: { isSubmitting, isValidating, isValid, isDirty, errors },
+    formState: {
+      isSubmitting,
+      isValidating,
+      isValid,
+      isDirty,
+      errors,
+      touchedFields,
+      isLoading,
+    },
     getValues,
     setValue,
     setError,
@@ -119,9 +131,17 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       id: ruleBundle?.id || 0,
       name: ruleBundle?.name || "",
       description: ruleBundle?.description || "",
-      imageID: ruleBundle?.image.id || 0,
-      customRulesFiles: [],
-      // customRulesFiles: ruleBundle?.rulesets || [],
+      imageID: ruleBundle?.image.id || null,
+      customRulesFiles:
+        ruleBundle?.rulesets.map((ruleset): IReadFile => {
+          const emptyFile = new File(["empty"], ruleset.name, {
+            type: "placeholder",
+          });
+          return {
+            fileName: ruleset.name,
+            fullFile: emptyFile,
+          };
+        }) || [],
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
@@ -129,6 +149,19 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   useEffect(() => {
     setRuleBundle(initialRuleBundle);
+    // const initialReadFileData = initialRuleBundle?.rulesets;
+    // setReadFileData(
+    //   initialRuleBundle?.rulesets.map((ruleset): IReadFile => {
+    //     const emptyFile = new File(["empty"], ruleset.name, {
+    //       type: "text/plain",
+    //     });
+    //     return {
+    //       fileName: ruleset.name,
+    //       fullFile: emptyFile,
+    //     };
+    //   }) || []
+    // );
+
     return () => {
       setRuleBundle(undefined);
     };
@@ -137,19 +170,35 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   const watchAllFields = watch();
 
   const onSubmit = (formValues: CustomTargetFormValues) => {
-    let rulesets: TableRule[] = [];
-    let sources: string[] = [];
-    let targets: string[] = [];
+    let rulesets: Ruleset[] = [];
 
     readFileData.forEach((file) => {
-      if (file.data) {
-        const newRules = parseRules(file);
-        rulesets = [...rulesets, ...newRules.parsedRules];
-        if (newRules.parsedSource) {
-          sources = [...sources, newRules.parsedSource];
-        }
-        if (newRules.parsedTarget) {
-          targets = [...targets, newRules.parsedTarget];
+      if (file.data && file.fullFile.type !== "placeholder") {
+        const newParsedFile = parseRules(file);
+        const newRuleset: Ruleset = {
+          name: file.fileName,
+          metadata: {
+            target: newParsedFile.parsedRuleset?.target
+              ? newParsedFile.parsedRuleset.target
+              : "",
+            source: newParsedFile.parsedRuleset?.source
+              ? newParsedFile.parsedRuleset.source
+              : "",
+          },
+          file: {
+            id: newParsedFile.parsedRuleset?.fileID
+              ? newParsedFile.parsedRuleset.fileID
+              : 0,
+          },
+        };
+        rulesets = [...rulesets, newRuleset];
+      } else {
+        //existing ruleset
+        const matchingExistingRuleset = ruleBundle?.rulesets.find(
+          (ruleset) => ruleset.name === file.fileName
+        );
+        if (matchingExistingRuleset) {
+          rulesets = [...rulesets, matchingExistingRuleset];
         }
       }
     });
@@ -157,21 +206,10 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     const payload: RuleBundle = {
       id: formValues.id,
       name: formValues.name.trim(),
-      description: formValues.description.trim(),
-      image: { id: formValues.imageID },
+      description: formValues?.description?.trim() || "",
+      image: { id: formValues.imageID ? formValues.imageID : 0 },
       custom: true,
-      rulesets: rulesets.map((ruleset): Ruleset => {
-        return {
-          name: ruleset.name,
-          metadata: {
-            target: ruleset.target ? ruleset.target : "",
-            source: ruleset.source ? ruleset.source : "",
-          },
-          file: {
-            id: ruleset.fileID ? ruleset.fileID : 0,
-          },
-        };
-      }),
+      rulesets: rulesets,
     };
     if (ruleBundle) {
       updateRuleBundle({ ...payload });
@@ -221,6 +259,17 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   //
   const values = getValues();
   console.log("values", values);
+  console.log(
+    "errors",
+    errors,
+    isSubmitting,
+    isValidating,
+    isValid,
+    isDirty,
+    touchedFields,
+    isLoading
+  );
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <HookFormPFTextInput
@@ -291,8 +340,10 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         isRequired
         renderInput={({ field: { onChange, name, value } }) => (
           <AddCustomRules
+            customRulesFiles={value}
             readFileData={readFileData}
             setReadFileData={setReadFileData}
+            handleChange={onChange}
           />
         )}
       ></HookFormPFGroupController>
