@@ -17,22 +17,12 @@ import {
 } from "@app/shared/components/hook-form-pf-fields";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
-import {
-  BundleOrderSetting,
-  IReadFile,
-  RuleBundle,
-  Ruleset,
-  Setting,
-  TableRule,
-} from "@app/api/models";
+import { IReadFile, RuleBundle, Ruleset } from "@app/api/models";
 import { AddCustomRules } from "@app/common/CustomRules/add-custom-rules";
 import { parseRules } from "@app/common/CustomRules/rules-utils";
 import {
-  BundleOrderSettingKey,
   useCreateFileMutation,
   useCreateRuleBundleMutation,
-  useFetchBundleOrder,
-  useFetchRuleBundles,
   useUpdateRuleBundleMutation,
 } from "@app/queries/rulebundles";
 import { AxiosError, AxiosResponse } from "axios";
@@ -48,7 +38,6 @@ interface CustomTargetFormValues {
   name: string;
   description?: string;
   imageID: number | null;
-  // customRulesFiles: IReadFile[];
   customRulesFiles: any[];
 }
 
@@ -83,11 +72,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       );
     });
 
-  const rulesetSchema = yup.object({
-    name: yup.string().required(),
-    metadata: yup.object(),
-    file: yup.object(),
-  });
   const validationSchema: yup.SchemaOf<CustomTargetFormValues> = yup
     .object()
     .shape({
@@ -99,13 +83,8 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         .min(3, t("validation.minLength", { length: 3 }))
         .max(120, t("validation.maxLength", { length: 120 })),
       description: yup.string(),
-      // .defined()
-      // .trim()
-      // .max(250, t("validation.maxLength", { length: 250 })),
       imageID: yup.number().defined().required(),
       customRulesFiles: yup.array().min(1),
-      // .of(yup.object() as yup.SchemaOf<IReadFile>)
-      // .min(1),
     });
 
   const {
@@ -149,21 +128,10 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   useEffect(() => {
     setRuleBundle(initialRuleBundle);
-    // const initialReadFileData = initialRuleBundle?.rulesets;
-    // setReadFileData(
-    //   initialRuleBundle?.rulesets.map((ruleset): IReadFile => {
-    //     const emptyFile = new File(["empty"], ruleset.name, {
-    //       type: "text/plain",
-    //     });
-    //     return {
-    //       fileName: ruleset.name,
-    //       fullFile: emptyFile,
-    //     };
-    //   }) || []
-    // );
-
+    setFilename(initialRuleBundle?.image?.name || "");
     return () => {
       setRuleBundle(undefined);
+      setFilename("");
     };
   }, []);
 
