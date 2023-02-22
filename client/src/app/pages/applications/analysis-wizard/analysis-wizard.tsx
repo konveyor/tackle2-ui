@@ -240,7 +240,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           tags: {
             excluded: fieldValues.excludedRulesTags,
           },
-          bundles: fieldValues.formRuleBundles, // TODO include selected bundles / targets here
+          bundles: fieldValues.formRuleBundles,
         },
       },
     };
