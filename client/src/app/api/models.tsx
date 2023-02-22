@@ -318,6 +318,11 @@ export interface Setting {
   value: boolean | undefined;
 }
 
+export interface BundleOrderSetting {
+  key: string;
+  value: number[];
+}
+
 // Analysis Task
 
 export type TaskState =
@@ -370,6 +375,7 @@ export interface TaskData {
     tags: {
       excluded: string[];
     };
+    bundles: Ref[];
   };
 }
 
@@ -384,13 +390,6 @@ interface TaskReport {
   task: number;
   total: number;
   updateUser: string;
-}
-
-export interface Rule {
-  name: string;
-  source: string | null;
-  target: string | null;
-  total: number;
 }
 
 export interface TaskgroupTask {
@@ -419,19 +418,51 @@ export interface ITypeOptions {
   value: string;
 }
 
-export interface MigrationTargetRule {
-  name: string;
-  content: string;
+export interface RuleBundleImage {
+  id: number;
+  name?: string;
 }
 
-export interface MigrationTarget {
-  id?: number;
+export enum RuleBundleKind {
+  CATEGORY = "category",
+}
+
+export interface RuleBundle {
+  id: number;
   name: string;
   description: string;
-  image: string;
-  rules?: MigrationTargetRule[];
+  image: RuleBundleImage;
+  kind?: RuleBundleKind;
+  rulesets: Ruleset[];
   custom: boolean;
-  order?: number;
   repository?: Repository;
-  options?: string[][];
+}
+export interface Metadata {
+  target: string;
+  source?: string;
+}
+export interface Ruleset {
+  name: string;
+  metadata: Metadata;
+  file?: {
+    id: number;
+  };
+}
+
+export interface TableRule {
+  name: string;
+  source: string | null;
+  target: string | null;
+  total: number;
+  fileID?: number;
+}
+
+export interface IReadFile {
+  fileName: string;
+  fullFile: File;
+  loadError?: DOMException;
+  loadPercentage?: number;
+  loadResult?: "danger" | "success";
+  data?: string;
+  responseID?: number;
 }

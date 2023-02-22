@@ -1,18 +1,21 @@
 import React, { forwardRef } from "react";
 import { TargetCard } from "@app/components/target-card";
-import { useFetchMigrationTargets } from "@app/queries/rulesets";
+import { useFetchRuleBundles } from "@app/queries/rulebundles";
+
 interface ItemProps {
-  id: string;
+  id: number;
   style?: React.CSSProperties;
   ref?: React.ForwardedRef<any>;
   handleProps?: any;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export const Item: React.FC<ItemProps> = forwardRef(
   ({ id, style, ...props }, ref) => {
-    const { migrationTargets } = useFetchMigrationTargets();
-    const matchingTarget = migrationTargets.find(
-      (target) => target.name === id
+    const { ruleBundles } = useFetchRuleBundles();
+    const matchingRuleBundle = ruleBundles.find(
+      (ruleBundle) => ruleBundle.id === id
     );
     const inlineStyles = {
       height: 400,
@@ -21,8 +24,13 @@ export const Item: React.FC<ItemProps> = forwardRef(
     } as React.CSSProperties;
     return (
       <div ref={ref} style={inlineStyles}>
-        {matchingTarget && (
-          <TargetCard item={matchingTarget} handleProps={props.handleProps} />
+        {matchingRuleBundle && (
+          <TargetCard
+            item={matchingRuleBundle}
+            handleProps={props.handleProps}
+            onEdit={props.onEdit}
+            onDelete={props.onDelete}
+          />
         )}
       </div>
     );
