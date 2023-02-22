@@ -150,7 +150,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
     updatedCustomRulesFiles.forEach((file) => {
       if (file.data) {
         const newRules = parseRules(file);
-        rules = [...rules, ...newRules.parsedRules];
+        if (newRules.parsedRuleset) rules = [...rules, newRules.parsedRuleset];
         if (
           newRules.parsedSource &&
           !formSources.includes(newRules.parsedSource)

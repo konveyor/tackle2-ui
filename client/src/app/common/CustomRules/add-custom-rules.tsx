@@ -39,11 +39,10 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
 }: IAddCustomRules) => {
   const [error, setError] = React.useState("");
   const [currentFiles, setCurrentFiles] = React.useState<File[]>(
-    customRulesFiles.map((crf) => crf.fullFile)
+    !taskgroupID ? customRulesFiles.map((crf) => crf.fullFile) : []
   );
   const [showStatus, setShowStatus] = React.useState(true);
-  console.log("crfs", customRulesFiles);
-  console.log("rfd", readFileData);
+
   const onUploadError = (error: AxiosError) =>
     console.log("File upload failed: ", error);
 
