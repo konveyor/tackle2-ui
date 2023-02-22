@@ -87,7 +87,7 @@
     "fork-ts-checker-webpack-plugin": "^7.2.1",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^8.0.3",
-    "i18next-parser": "^0.13.0",
+    "i18next-parser": "^7.7.0",
     "jest": "^27.4.7",
     "jest-resolve": "^27.4.6",
     "jest-watch-typeahead": "^1.0.0",
