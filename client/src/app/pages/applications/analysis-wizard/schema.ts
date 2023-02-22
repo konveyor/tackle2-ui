@@ -1,7 +1,6 @@
 import * as yup from "yup";
-import { Application } from "@app/api/models";
+import { Application, IReadFile, Ref } from "@app/api/models";
 import { useTranslation } from "react-i18next";
-import { IReadFile } from "./analysis-wizard";
 import { useAnalyzableApplicationsByMode } from "./utils";
 
 export const ANALYSIS_MODES = [
@@ -10,7 +9,7 @@ export const ANALYSIS_MODES = [
   "source-code-deps",
   "binary-upload",
 ] as const;
-export type AnalysisMode = typeof ANALYSIS_MODES[number];
+export type AnalysisMode = (typeof ANALYSIS_MODES)[number];
 
 export type AnalysisScope = "app" | "app,oss" | "app,oss,select";
 
@@ -49,16 +48,18 @@ const useModeStepSchema = ({
 };
 
 export interface TargetsStepValues {
-  targets: string[];
+  formTargets: string[];
+  formRuleBundles: Ref[];
 }
 
 const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
   const { t } = useTranslation();
   return yup.object({
-    targets: yup
+    formTargets: yup
       .array()
       .of(yup.string().defined())
       .min(1, "At least 1 target is required"), // TODO translation here
+    formRuleBundles: yup.array(),
   });
 };
 
@@ -90,14 +91,14 @@ const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
 };
 
 export interface CustomRulesStepValues {
-  sources: string[];
+  formSources: string[];
   customRulesFiles: IReadFile[];
 }
 
 const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
   const { t } = useTranslation();
   return yup.object({
-    sources: yup.array().of(yup.string().defined()),
+    formSources: yup.array().of(yup.string().defined()),
     customRulesFiles: yup.array().of(yup.object() as yup.SchemaOf<IReadFile>),
   });
 };

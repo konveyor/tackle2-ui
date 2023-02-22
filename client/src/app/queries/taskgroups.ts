@@ -83,13 +83,13 @@ export const useDeleteTaskgroupMutation = (
 
 export const useUploadFileMutation = (
   successCallback: (res: any) => void,
-  errorCallback: (err: Error | null) => void
+  errorCallback: (err: AxiosError) => void
 ) => {
   return useMutation(uploadFileTaskgroup, {
     onSuccess: (res) => {
       successCallback && successCallback(res);
     },
-    onError: (err: Error) => {
+    onError: (err: AxiosError) => {
       errorCallback && errorCallback(err);
     },
   });

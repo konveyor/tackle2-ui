@@ -25,28 +25,31 @@ import { useTranslation } from "react-i18next";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 
-import { AddCustomRules } from "./components/add-custom-rules";
+import { AddCustomRules } from "../../../common/CustomRules/add-custom-rules";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { Rule } from "@app/api/models";
+import { IReadFile, TableRule } from "@app/api/models";
 import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
-import { IReadFile } from "./analysis-wizard";
 
 import "./wizard.css";
 import { AnalysisWizardFormValues } from "./schema";
-
-export const CustomRules: React.FC = () => {
+import { parseRules } from "@app/common/CustomRules/rules-utils";
+import { TASKGROUPS } from "@app/api/rest";
+interface CustomRulesProps {
+  taskgroupID: number | null;
+}
+export const CustomRules: React.FC<CustomRulesProps> = (props) => {
   const { t } = useTranslation();
 
   const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
 
-  const { sources, targets, customRulesFiles } = watch();
+  const { formSources, formTargets, customRulesFiles } = watch();
 
-  const [rules, setRules] = React.useState<Rule[]>([]);
+  const [tableRules, setTableRules] = React.useState<TableRule[]>([]);
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
@@ -56,63 +59,7 @@ export const CustomRules: React.FC = () => {
     setReadFileData([]);
   };
 
-  React.useEffect(() => {
-    const getRules = (file: IReadFile) => {
-      if (!file.data) return [];
-
-      let source: string | null = null;
-      let target: string | null = null;
-      let rulesCount = 0;
-
-      const payload = atob(file.data.substring(21));
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(payload, "text/xml");
-
-      const ruleSets = xml.getElementsByTagName("ruleset");
-
-      if (ruleSets && ruleSets.length > 0) {
-        const metadata = ruleSets[0].getElementsByTagName("metadata");
-
-        if (metadata && metadata.length > 0) {
-          const sources = metadata[0].getElementsByTagName("sourceTechnology");
-          if (sources && sources.length > 0) source = sources[0].id;
-
-          const targets = metadata[0].getElementsByTagName("targetTechnology");
-          if (targets && targets.length > 0) target = targets[0].id;
-        }
-
-        const rulesGroup = ruleSets[0].getElementsByTagName("rules");
-        if (rulesGroup && rulesGroup.length > 0)
-          rulesCount = rulesGroup[0].getElementsByTagName("rule").length;
-      }
-
-      const rules: Rule[] = [
-        {
-          name: file.fileName,
-          source: source,
-          target: target,
-          total: rulesCount,
-        },
-      ];
-
-      if (source && !sources.includes(source))
-        setValue("sources", [...sources, source]);
-
-      if (target && !targets.includes(target))
-        setValue("targets", [...targets, target]);
-
-      return rules;
-    };
-
-    let rules: Rule[] = [];
-    customRulesFiles.forEach((file) => {
-      if (file.data) rules = [...rules, ...getRules(file)];
-    });
-
-    setRules(rules.flat());
-  }, [customRulesFiles, sources, targets, setValue]);
-
-  const filterCategories: FilterCategory<Rule>[] = [
+  const filterCategories: FilterCategory<TableRule>[] = [
     {
       key: "name",
       title: t("terms.name"),
@@ -128,7 +75,7 @@ export const CustomRules: React.FC = () => {
   ];
 
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
-    rules || [],
+    tableRules || [],
     filterCategories
   );
 
@@ -177,13 +124,16 @@ export const CustomRules: React.FC = () => {
           title: (
             <div className="pf-c-inline-edit__action pf-m-enable-editable">
               <Button
+                id="remove-rule-button"
                 type="button"
                 variant="plain"
                 onClick={() => {
-                  const fileList = customRulesFiles.filter(
+                  // Remove rule file from list
+                  const updatedFileList = customRulesFiles.filter(
                     (file) => file.fileName !== item.name
                   );
-                  setValue("customRulesFiles", fileList);
+                  setValue("customRulesFiles", updatedFileList);
+                  refreshRulesData(updatedFileList);
                 }}
               >
                 <TrashIcon />
@@ -194,6 +144,29 @@ export const CustomRules: React.FC = () => {
       ],
     });
   });
+  const refreshRulesData = (updatedCustomRulesFiles: IReadFile[]) => {
+    let rules: TableRule[] = [];
+
+    updatedCustomRulesFiles.forEach((file) => {
+      if (file.data) {
+        const newRules = parseRules(file);
+        if (newRules.parsedRuleset) rules = [...rules, newRules.parsedRuleset];
+        if (
+          newRules.parsedSource &&
+          !formSources.includes(newRules.parsedSource)
+        ) {
+          setValue("formSources", [...formSources, newRules.parsedSource]);
+        }
+        if (
+          newRules.parsedTarget &&
+          !formTargets.includes(newRules.parsedTarget)
+        ) {
+          setValue("formTargets", [...formTargets, newRules.parsedTarget]);
+        }
+      }
+    });
+    setTableRules(rules.flat());
+  };
 
   return (
     <>
@@ -212,7 +185,7 @@ export const CustomRules: React.FC = () => {
         >
           <ToolbarContent>
             <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
-              <FilterToolbar<Rule>
+              <FilterToolbar<TableRule>
                 filterCategories={filterCategories}
                 filterValues={filterValues}
                 setFilterValues={setFilterValues}
@@ -275,10 +248,12 @@ export const CustomRules: React.FC = () => {
                 const validFiles = readFileData.filter(
                   (file) => file.loadResult === "success"
                 );
-                setValue("customRulesFiles", [
+                const updatedCustomRulesFiles = [
                   ...customRulesFiles,
                   ...validFiles,
-                ]);
+                ];
+                setValue("customRulesFiles", updatedCustomRulesFiles);
+                refreshRulesData(updatedCustomRulesFiles);
                 setReadFileData([]);
               }}
             >
@@ -297,6 +272,7 @@ export const CustomRules: React.FC = () => {
             customRulesFiles={customRulesFiles}
             readFileData={readFileData}
             setReadFileData={setReadFileData}
+            taskgroupID={props.taskgroupID}
           />
         </Modal>
       )}

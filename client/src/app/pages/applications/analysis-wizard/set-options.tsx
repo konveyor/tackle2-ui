@@ -15,11 +15,11 @@ import * as yup from "yup";
 
 import { getValidatedFromErrorTouched } from "@app/utils/utils";
 import defaultSources from "./sources";
-import { defaultTargets } from "@app/data/targets";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisWizardFormValues } from "./schema";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 import { StringListField } from "@app/shared/components/string-list-field";
+import { defaultTargets } from "@app/data/targets";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
@@ -27,7 +27,7 @@ export const SetOptions: React.FC = () => {
   const { watch, control, setValue } =
     useFormContext<AnalysisWizardFormValues>();
 
-  const { sources, diva, excludedRulesTags } = watch();
+  const { formSources, diva, excludedRulesTags } = watch();
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
@@ -47,7 +47,7 @@ export const SetOptions: React.FC = () => {
       </TextContent>
       <HookFormPFGroupController
         control={control}
-        name="targets"
+        name="formTargets"
         label={t("wizard.terms.targets")}
         fieldId="targets"
         isRequired
@@ -87,7 +87,7 @@ export const SetOptions: React.FC = () => {
       />
       <HookFormPFGroupController
         control={control}
-        name="sources"
+        name="formSources"
         label={t("wizard.terms.sources")}
         fieldId="sources"
         renderInput={({
@@ -95,7 +95,7 @@ export const SetOptions: React.FC = () => {
           fieldState: { isTouched, error },
         }) => (
           <Select
-            id="sources"
+            id="formSources-id"
             toggleId="sources-toggle"
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select sources"
@@ -103,9 +103,11 @@ export const SetOptions: React.FC = () => {
             isOpen={isSelectSourcesOpen}
             onSelect={(_, selection) => {
               if (!value.includes(selection as string)) {
-                onChange([...sources, selection] as string[]);
+                onChange([...formSources, selection] as string[]);
               } else {
-                onChange(sources.filter((source) => source !== selection));
+                onChange(
+                  formSources.filter((source: string) => source !== selection)
+                );
               }
               onBlur();
               setSelectSourcesOpen(!isSelectSourcesOpen);

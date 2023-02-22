@@ -11,27 +11,65 @@ import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
 
 import { TargetCard } from "@app/components/target-card";
-import { transformationTargets } from "@app/data/targets";
 import { AnalysisWizardFormValues } from "./schema";
-import { MigrationTarget } from "@app/api/models";
+import {
+  useFetchBundleOrder,
+  useFetchRuleBundles,
+} from "@app/queries/rulebundles";
+import { RuleBundle } from "@app/api/models";
 
 export const SetTargets: React.FC = () => {
   const { t } = useTranslation();
 
-  const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
-  const targets = watch("targets");
+  const {
+    ruleBundles,
+    isFetching: isFetchingRuleBundles,
+    refetch: refetchRuleBundles,
+  } = useFetchRuleBundles();
 
-  const handleOnCardChange = (
-    isNewCard: boolean,
-    selectionValue: string,
-    card: MigrationTarget
+  const {
+    bundleOrderSetting,
+    isFetching,
+    refetch: refreshBundleOrderSetting,
+  } = useFetchBundleOrder(ruleBundles);
+
+  const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
+  const formTargets = watch("formTargets");
+  const formRuleBundles = watch("formRuleBundles");
+
+  const handleOnCardClick = (
+    isSelecting: boolean,
+    selectedRuleTarget: string,
+    selectedRuleBundle: RuleBundle
   ) => {
-    const selectedTargets = targets.filter(
-      (target) => !card.options?.map((option) => option[0]).includes(target)
+    const otherSelectedRuleTargets = formTargets.filter(
+      (formTarget) =>
+        !selectedRuleBundle.rulesets
+          .map((rule) => rule.metadata.target)
+          .includes(formTarget)
     );
 
-    if (isNewCard) setValue("targets", [...selectedTargets, selectionValue]);
-    else setValue("targets", selectedTargets);
+    const otherSelectedRuleBundles = formRuleBundles.filter(
+      (formRuleBundle) => selectedRuleBundle.id !== formRuleBundle.id
+    );
+    const selectedRuleBundleRef = {
+      id: selectedRuleBundle.id,
+      name: selectedRuleBundle.name,
+    };
+
+    if (isSelecting) {
+      setValue("formTargets", [
+        ...otherSelectedRuleTargets,
+        selectedRuleTarget,
+      ]);
+      setValue("formRuleBundles", [
+        ...otherSelectedRuleBundles,
+        selectedRuleBundleRef,
+      ]);
+    } else {
+      setValue("formTargets", otherSelectedRuleTargets);
+      setValue("formRuleBundles", otherSelectedRuleBundles);
+    }
   };
 
   return (
@@ -47,22 +85,34 @@ export const SetTargets: React.FC = () => {
         <Text>{t("wizard.label.setTargets")}</Text>
       </TextContent>
       <Gallery hasGutter>
-        {transformationTargets.map((elem, index) => (
-          <GalleryItem key={index}>
-            <TargetCard
-              readOnly
-              item={elem}
-              cardSelected={
-                elem.options
-                  ? elem.options.some((option) => targets.includes(option[0]))
-                  : false
-              }
-              onChange={(isNewCard: boolean, selectionValue: string) => {
-                handleOnCardChange(isNewCard, selectionValue, elem);
-              }}
-            />
-          </GalleryItem>
-        ))}
+        {bundleOrderSetting.value.map((id, index) => {
+          const matchingRuleBundle = ruleBundles.find(
+            (target) => target.id === id
+          );
+          return (
+            <GalleryItem key={index}>
+              {matchingRuleBundle && (
+                <TargetCard
+                  readOnly
+                  item={matchingRuleBundle}
+                  cardSelected={matchingRuleBundle.rulesets.some((ruleset) =>
+                    formTargets.includes(ruleset.metadata.target)
+                  )}
+                  onCardClick={(
+                    isSelecting: boolean,
+                    selectedRuleTarget: string
+                  ) => {
+                    handleOnCardClick(
+                      isSelecting,
+                      selectedRuleTarget,
+                      matchingRuleBundle
+                    );
+                  }}
+                />
+              )}
+            </GalleryItem>
+          );
+        })}
       </Gallery>
     </Form>
   );

@@ -12,13 +12,20 @@ import { XMLValidator } from "fast-xml-parser";
 
 import XSDSchema from "./windup-jboss-ruleset.xsd";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { IReadFile } from "../analysis-wizard";
+import { IReadFile } from "@app/api/models";
+import { useUploadFileMutation } from "@app/queries/taskgroups";
+import { AxiosError } from "axios";
+import { useCreateFileMutation } from "@app/queries/rulebundles";
+import { NotificationsContext } from "@app/shared/notifications-context";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const xmllint = require("xmllint");
 interface IAddCustomRules {
   customRulesFiles: IReadFile[];
   readFileData: IReadFile[];
   setReadFileData: (setReadFile: React.SetStateAction<IReadFile[]>) => void;
+  taskgroupID?: number | null;
+  handleCustomTargetFileChange?: (readFiles: IReadFile[]) => void;
 }
 interface IParsedXMLFileStatus {
   state: "valid" | "error";
@@ -29,10 +36,42 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
   customRulesFiles,
   readFileData,
   setReadFileData,
+  taskgroupID,
+  handleCustomTargetFileChange,
 }: IAddCustomRules) => {
+  const { pushNotification } = React.useContext(NotificationsContext);
   const [error, setError] = React.useState("");
-  const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
-  const [showStatus, setShowStatus] = React.useState(false);
+  const [currentFiles, setCurrentFiles] = React.useState<File[]>(
+    !taskgroupID ? customRulesFiles.map((crf) => crf.fullFile) : []
+  );
+  const [showStatus, setShowStatus] = React.useState(true);
+
+  const onUploadError = (error: AxiosError) =>
+    console.log("File upload failed: ", error);
+
+  const { mutate: uploadFile } = useUploadFileMutation(() => {}, onUploadError);
+
+  const onCreateRuleFileSuccess = (
+    response: any,
+    formData: FormData,
+    file: IReadFile
+  ) => {
+    //Set file ID for use in form submit
+    const fileWithID: IReadFile = { ...file, ...{ responseID: response?.id } };
+    setReadFileData((prevReadFiles) => [...prevReadFiles, fileWithID]);
+  };
+
+  const onCreateRuleFileFailure = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: createRuleFile } = useCreateFileMutation(
+    onCreateRuleFileSuccess,
+    onCreateRuleFileFailure
+  );
 
   // only show the status component once a file has been uploaded, but keep the status list component itself even if all files are removed
   if (!showStatus && currentFiles.length > 0) {
@@ -116,21 +155,26 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
   const handleFile = (file: File) => {
     readFile(file)
       .then((data) => {
-        if (isFileIncluded(file.name)) {
-          const error = new DOMException(
-            `File "${file.name}" is already uploaded`
-          );
-          handleReadFail(error, 100, file);
+        if (isFileIncluded(file.name) && !taskgroupID) {
+          //If existing file loaded in edit mode, add placeholder file for custom target form
+          handleReadSuccess(data || "", file);
         } else {
-          if (data) {
-            const validatedXMLResult = validateXMLFile(data);
-            if (validatedXMLResult.state === "valid")
-              handleReadSuccess(data, file);
-            else {
-              const error = new DOMException(
-                `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
-              );
-              handleReadFail(error, 100, file);
+          if (isFileIncluded(file.name)) {
+            const error = new DOMException(
+              `File "${file.name}" is already uploaded`
+            );
+            handleReadFail(error, 100, file);
+          } else {
+            if (data) {
+              const validatedXMLResult = validateXMLFile(data);
+              if (validatedXMLResult.state === "valid")
+                handleReadSuccess(data, file);
+              else {
+                const error = new DOMException(
+                  `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
+                );
+                handleReadFail(error, 100, file);
+              }
             }
           }
         }
@@ -155,17 +199,45 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
     );
 
     setReadFileData(newReadFiles);
+    handleCustomTargetFileChange && handleCustomTargetFileChange(newReadFiles);
   };
 
   const handleReadSuccess = (data: string, file: File) => {
-    const newFile: IReadFile = {
-      data,
-      fileName: file.name,
-      loadResult: "success",
-      loadPercentage: 100,
-      fullFile: file,
-    };
-    setReadFileData((prevReadFiles) => [...prevReadFiles, newFile]);
+    if (taskgroupID) {
+      // Upload file to bucket if bucket exists / in analysis wizard mode
+      const newFile: IReadFile = {
+        data,
+        fileName: file.name,
+        loadResult: "success",
+        loadPercentage: 100,
+        fullFile: file,
+      };
+      setReadFileData((prevReadFiles) => [...prevReadFiles, newFile]);
+      const formFile = new FormData();
+      formFile.append("file", newFile.fullFile);
+      uploadFile({
+        id: taskgroupID as number,
+        path: `rules/${newFile.fileName}`,
+        file: formFile,
+      });
+    } else {
+      // Use new file api to add file when in custom target edit mode
+      const newFile: IReadFile = {
+        data,
+        fileName: file.name,
+        loadResult: "success",
+        loadPercentage: 100,
+        fullFile: file,
+      };
+      handleCustomTargetFileChange &&
+        handleCustomTargetFileChange([...readFileData, newFile]);
+      const formFile = new FormData();
+      formFile.append("file", newFile.fullFile);
+      createRuleFile({
+        formData: formFile,
+        file: newFile,
+      });
+    }
   };
 
   const handleReadFail = (
@@ -184,6 +256,17 @@ export const AddCustomRules: React.FC<IAddCustomRules> = ({
         fullFile: file,
       },
     ]);
+    handleCustomTargetFileChange &&
+      handleCustomTargetFileChange([
+        ...readFileData,
+        {
+          loadError: error,
+          fileName: file.name,
+          loadResult: "danger",
+          loadPercentage: percentage,
+          fullFile: file,
+        },
+      ]);
   };
 
   const successfullyReadFileCount = readFileData.filter(

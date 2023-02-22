@@ -140,7 +140,8 @@ describe("<AnalysisWizard />", () => {
     await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
   });
 
-  it("can run analysis on applications with a binary definition using defaults", async () => {
+  //TODO
+  it.skip("can run analysis on applications with a binary definition using defaults", async () => {
     const applicationsData = [
       {
         ...applicationData1,

@@ -22,16 +22,19 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { KebabDropdown } from "@app/shared/components";
 import { useTranslation } from "react-i18next";
-import { MigrationTarget } from "@app/api/models";
 import "./target-card.css";
+import DefaultRuleBundleIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
+import { RuleBundle } from "@app/api/models";
 
 export interface TargetCardProps {
-  item: MigrationTarget;
+  item: RuleBundle;
   cardSelected?: boolean;
   isEditable?: boolean;
-  onChange?: (isNewCard: boolean, value: string) => void;
+  onCardClick?: (isSelecting: boolean, value: string) => void;
   handleProps?: any;
   readOnly?: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 // Force display dropdown box even though there only one option available.
@@ -42,14 +45,17 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   item,
   readOnly,
   cardSelected,
-  onChange = () => {},
+  onCardClick,
   handleProps,
+  onEdit,
+  onDelete,
 }) => {
   const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
-  const [isSelectOpen, setSelectOpen] = React.useState(false);
-  const [selectedRelease, setSelectedRelease] = React.useState(
-    item.options ? item.options[0][0] : ""
+  const [isRuleTargetSelectOpen, setRuleTargetSelectOpen] =
+    React.useState(false);
+  const [selectedRuleTarget, setSelectedRuleTarget] = React.useState(
+    item.rulesets[0]?.metadata?.target
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
@@ -58,24 +64,27 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     if (eventTarget.type === "button") return;
 
     setCardSelected(!isCardSelected);
-    onChange(!isCardSelected, selectedRelease);
+    onCardClick && onCardClick(!isCardSelected, selectedRuleTarget);
   };
 
-  const handleSelectSelection = (
+  const handleRuleTargetSelection = (
     event: React.MouseEvent | React.ChangeEvent,
     selection: string | SelectOptionObject
   ) => {
     event.stopPropagation();
-    setSelectOpen(false);
-    setSelectedRelease(selection as string);
+    setRuleTargetSelectOpen(false);
+    setSelectedRuleTarget(selection as string);
   };
 
-  const getImage = (): React.ComponentType<any> => {
+  const getImage = (): React.ComponentType => {
     let result: React.ComponentType<any> = CubesIcon;
+    const imagePath = item.image.id
+      ? `/hub/files/${item.image.id}`
+      : DefaultRuleBundleIcon;
     if (item.image) {
       result = () => (
         <img
-          src={item.image}
+          src={imagePath}
           alt="Card logo"
           style={{ height: 80, pointerEvents: "none" }}
         />
@@ -113,10 +122,10 @@ export const TargetCard: React.FC<TargetCardProps> = ({
             {!readOnly && item.custom ? (
               <KebabDropdown
                 dropdownItems={[
-                  <DropdownItem key="edit-custom-card" onClick={() => {}}>
+                  <DropdownItem key="edit-custom-card" onClick={onEdit}>
                     {t("actions.edit")}
                   </DropdownItem>,
-                  <DropdownItem key="delite-custom-card" onClick={() => {}}>
+                  <DropdownItem key="delete-custom-card" onClick={onDelete}>
                     {t("actions.delete")}
                   </DropdownItem>,
                 ]}
@@ -132,20 +141,23 @@ export const TargetCard: React.FC<TargetCardProps> = ({
           <Title headingLevel="h4" size="md">
             {item.name}
           </Title>
-          {item.options &&
-          (item.options.length > 1 || forceSelect.includes(item.name)) ? (
+          {item.kind === "category" &&
+          (item.rulesets.length > 1 || forceSelect.includes(item.name)) ? (
             <Select
               toggleId={`${item.name}-toggle`}
               variant={SelectVariant.single}
               aria-label="Select Input"
-              onToggle={(isExpanded) => setSelectOpen(isExpanded)}
-              onSelect={handleSelectSelection}
-              selections={selectedRelease}
-              isOpen={isSelectOpen}
+              onToggle={(isExpanded) => setRuleTargetSelectOpen(isExpanded)}
+              onSelect={handleRuleTargetSelection}
+              selections={selectedRuleTarget}
+              isOpen={isRuleTargetSelectOpen}
             >
-              {item.options.map((element) => (
-                <SelectOption key={element[0]} value={element[0]}>
-                  {element[1]}
+              {item.rulesets.map((ruleset) => (
+                <SelectOption
+                  key={ruleset.name}
+                  value={ruleset.metadata.target}
+                >
+                  {ruleset.metadata.target}
                 </SelectOption>
               ))}
             </Select>

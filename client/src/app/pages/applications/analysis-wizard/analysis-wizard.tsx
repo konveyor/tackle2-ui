@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useIsMutating } from "@tanstack/react-query";
-import { FieldValues, FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import {
   Truncate,
   Wizard,
@@ -10,11 +10,11 @@ import { useTranslation } from "react-i18next";
 
 import {
   Application,
+  IReadFile,
   TaskData,
   Taskgroup,
   TaskgroupTask,
 } from "@app/api/models";
-import { CustomRules } from "./custom-rules";
 import { Review } from "./review";
 import { SetMode } from "./set-mode";
 import { SetOptions } from "./set-options";
@@ -24,7 +24,6 @@ import {
   useCreateTaskgroupMutation,
   useDeleteTaskgroupMutation,
   useSubmitTaskgroupMutation,
-  useUploadFileMutation,
 } from "@app/queries/taskgroups";
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -36,20 +35,12 @@ import {
   useAnalysisWizardFormValidationSchema,
 } from "./schema";
 import { useAsyncYupValidation } from "@app/shared/hooks/useAsyncYupValidation";
+import { CustomRules } from "./custom-rules";
 
 interface IAnalysisWizard {
   applications: Application[];
   onClose: () => void;
   isOpen: boolean;
-}
-
-export interface IReadFile {
-  fileName: string;
-  loadError?: DOMException;
-  loadPercentage?: number;
-  loadResult?: "danger" | "success";
-  data?: string;
-  fullFile: File;
 }
 
 const defaultTaskData: TaskData = {
@@ -146,11 +137,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     onSubmitTaskgroupError
   );
 
-  const onUploadError = (error: Error | unknown) =>
-    console.log("Taskgroup upload failed: ", error);
-
-  const { mutate: uploadFile } = useUploadFileMutation(() => {}, onUploadError);
-
   const onDeleteTaskgroupSuccess = () => {
     setCurrentTaskgroup(null);
   };
@@ -176,8 +162,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     defaultValues: {
       artifact: null,
       mode: "binary",
-      targets: [],
-      sources: [],
+      formTargets: [],
+      formSources: [],
+      formRuleBundles: [],
       withKnown: "app",
       includedPackages: [],
       excludedPackages: [],
@@ -224,7 +211,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const setupTaskgroup = (
     currentTaskgroup: Taskgroup,
-    fieldValues: FieldValues
+    fieldValues: AnalysisWizardFormValues
   ): Taskgroup => {
     return {
       ...currentTaskgroup,
@@ -239,8 +226,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             : "",
           diva: fieldValues.diva,
         },
-        targets: fieldValues.targets,
-        sources: fieldValues.sources,
+        targets: fieldValues.formTargets,
+        sources: fieldValues.formSources,
         scope: {
           withKnown: fieldValues.withKnown.includes("oss") ? true : false,
           packages: {
@@ -253,6 +240,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           tags: {
             excluded: fieldValues.excludedRulesTags,
           },
+          bundles: fieldValues.formRuleBundles,
         },
       },
     };
@@ -260,23 +248,13 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const isModeValid = applications.every((app) => isModeSupported(app, mode));
 
-  const onSubmit = (fieldValues: FieldValues) => {
-    if (fieldValues.targets.length < 1) {
+  const onSubmit = (fieldValues: AnalysisWizardFormValues) => {
+    if (fieldValues.formTargets.length < 1) {
       console.log("Invalid form");
       return;
     }
     if (currentTaskgroup) {
       const taskgroup = setupTaskgroup(currentTaskgroup, fieldValues);
-
-      fieldValues.customRulesFiles.forEach((file: IReadFile) => {
-        const formFile = new FormData();
-        formFile.append("file", file.fullFile);
-        uploadFile({
-          id: taskgroup.id as number,
-          path: `rules/${file.fileName}`,
-          file: formFile,
-        });
-      });
 
       submitTaskgroup(taskgroup);
     }
@@ -350,7 +328,15 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
         {
           id: StepId.CustomRules,
           name: t("wizard.terms.customRules"),
-          component: <CustomRules />,
+          component: (
+            <CustomRules
+              taskgroupID={
+                currentTaskgroup && currentTaskgroup?.id
+                  ? currentTaskgroup.id
+                  : null
+              }
+            />
+          ),
           ...getStepNavProps(StepId.CustomRules),
         },
         {

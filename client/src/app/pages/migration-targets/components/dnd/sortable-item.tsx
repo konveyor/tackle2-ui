@@ -4,10 +4,12 @@ import { CSS } from "@dnd-kit/utilities";
 import { Item } from "./item";
 interface SortableItemProps {
   style?: React.CSSProperties;
-  id: string;
+  id: number;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 export const SortableItem: React.FC<SortableItemProps> = (
-  { style, id },
+  { style, id, onEdit, onDelete },
   ...props
 ) => {
   const {
@@ -37,6 +39,8 @@ export const SortableItem: React.FC<SortableItemProps> = (
         listeners: listeners,
         attributes: attributes,
       }}
+      onEdit={onEdit}
+      onDelete={onDelete}
       {...props}
       id={id}
     />
