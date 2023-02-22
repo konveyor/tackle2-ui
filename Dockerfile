@@ -1,12 +1,12 @@
 # Builder image
-FROM registry.access.redhat.com/ubi8/nodejs-16 as builder
+FROM registry.access.redhat.com/ubi9/nodejs-16 as builder
 USER 0
 COPY . .
 WORKDIR "/opt/app-root/src" 
 RUN npm install -w client && npm run build -w client && rm -rf node_modules && npm install -w server
 
 # Runner image
-FROM registry.access.redhat.com/ubi8/nodejs-16-minimal
+FROM registry.access.redhat.com/ubi9/nodejs-16-minimal
 
 # Add ps package to allow liveness probe for k8s cluster
 # Add tar package to allow copying files with kubectl scp
