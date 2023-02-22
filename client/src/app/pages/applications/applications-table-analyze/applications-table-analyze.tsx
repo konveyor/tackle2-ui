@@ -115,7 +115,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     expandAll,
     areAllExpanded,
     openDetailDrawer,
-    isDetailDrawerOpen,
+    closeDetailDrawer,
+    activeAppInDetailDrawer,
   } = useApplicationsFilterValues(applications, ApplicationTableType.Analysis);
 
   const { tasks } = useFetchTasks({ addon: "windup" });
@@ -267,7 +268,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       isOpen: isExpanded, // TODO(mturley) remove expansion when everything is in details pane
       selected: isSelected,
       isHoverable: true,
-      isRowSelected: isDetailDrawerOpen(item),
+      isRowSelected: activeAppInDetailDrawer?.id === item.id,
       cells: [
         {
           title: <TableText wrapModifier="truncate">{item.name}</TableText>,
@@ -515,6 +516,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           loadingVariant="skeleton"
           fetchError={fetchError}
           onAppClick={openDetailDrawer}
+          closeDetailDrawer={closeDetailDrawer}
+          activeAppInDetailDrawer={activeAppInDetailDrawer}
           toolbarToggle={
             <FilterToolbar<Application>
               filterCategories={filterCategories}

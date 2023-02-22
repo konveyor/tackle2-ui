@@ -210,10 +210,11 @@ export const useApplicationsFilterValues = (
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState(sortedItems, 10);
 
-  const [detailDrawerApplication, openDetailDrawer] =
+  const [activeAppInDetailDrawer, openDetailDrawer] =
     React.useState<Application | null>(null);
   const isDetailDrawerOpen = (application: Application) =>
-    application.id === detailDrawerApplication?.id;
+    application.id === activeAppInDetailDrawer?.id;
+  const closeDetailDrawer = () => openDetailDrawer(null);
 
   return {
     currentPageItems,
@@ -235,7 +236,8 @@ export const useApplicationsFilterValues = (
     expandAll,
     areAllExpanded,
     openDetailDrawer,
-    isDetailDrawerOpen,
+    closeDetailDrawer,
+    activeAppInDetailDrawer,
     setPageNumber,
   };
 };
