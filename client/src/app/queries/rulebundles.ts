@@ -116,22 +116,17 @@ export const useCreateFileMutation = (
 
 export const BundleOrderSettingKey = "ui.bundle.order";
 export const useFetchBundleOrder = (ruleBundles: RuleBundle[]) => {
-  const { data, isLoading, error, refetch } = useQuery<BundleOrderSetting>(
+  const { data, isLoading, error, refetch } = useQuery<number[]>(
     [BundleOrderSettingKey],
-    async () => {
-      return {
-        key: BundleOrderSettingKey,
-        value: (await getSettingById(BundleOrderSettingKey)).data,
-      };
-    },
+    async () => await getSettingById(BundleOrderSettingKey),
     {
       onError: (err) => console.log(err),
     }
   );
   return {
-    bundleOrderSetting: data || {
+    bundleOrderSetting: {
       key: BundleOrderSettingKey,
-      value: ruleBundles.map((ruleBundle) => ruleBundle.id),
+      value: data || ruleBundles?.map((ruleBundle) => ruleBundle.id) || [],
     },
     isFetching: isLoading,
     fetchError: error,

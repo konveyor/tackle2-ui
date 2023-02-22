@@ -219,7 +219,7 @@ export const MigrationTargets: React.FC = () => {
           strategy={rectSortingStrategy}
         >
           <DndGrid columns={4}>
-            {bundleOrderSetting.value.map((id) => (
+            {bundleOrderSetting?.value?.map((id) => (
               <SortableItem
                 key={id}
                 id={id}
