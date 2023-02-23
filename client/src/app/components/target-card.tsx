@@ -31,6 +31,7 @@ export interface TargetCardProps {
   cardSelected?: boolean;
   isEditable?: boolean;
   onCardClick?: (isSelecting: boolean, value: string) => void;
+  onSelectedCardTargetChange?: (value: string) => void;
   handleProps?: any;
   readOnly?: boolean;
   onEdit?: () => void;
@@ -46,6 +47,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   readOnly,
   cardSelected,
   onCardClick,
+  onSelectedCardTargetChange,
   handleProps,
   onEdit,
   onDelete,
@@ -74,6 +76,11 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     event.stopPropagation();
     setRuleTargetSelectOpen(false);
     setSelectedRuleTarget(selection as string);
+
+    //update the formTargets if this card is selected
+    if (isCardSelected && onSelectedCardTargetChange) {
+      onSelectedCardTargetChange(selection as string);
+    }
   };
 
   const getImage = (): React.ComponentType => {
