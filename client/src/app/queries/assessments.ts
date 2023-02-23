@@ -31,7 +31,7 @@ export const useFetchApplicationAssessments = (
           applicationId: application.id,
         });
         const allAssessmentsForApp = response.data;
-        return allAssessmentsForApp[0];
+        return allAssessmentsForApp[0] || [];
       },
       onError: (error: any) => console.log("error, ", error),
     })),
