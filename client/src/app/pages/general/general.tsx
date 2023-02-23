@@ -86,7 +86,7 @@ export const General: React.FC = () => {
                   aria-label="Allow applications review without assessment"
                   isChecked={
                     reviewAssessmentSetting.isSuccess
-                      ? reviewAssessmentSetting.data
+                      ? (reviewAssessmentSetting.data as boolean)
                       : false
                   }
                   onChange={onChangeReviewAssessmentSetting}
@@ -98,7 +98,7 @@ export const General: React.FC = () => {
                   aria-label="Allow download HTML Reports"
                   isChecked={
                     downloadHTMLSetting.isSuccess
-                      ? downloadHTMLSetting.data
+                      ? (downloadHTMLSetting.data as boolean)
                       : false
                   }
                   onChange={onChangeDownloadHTMLSetting}
@@ -110,7 +110,7 @@ export const General: React.FC = () => {
                   aria-label="Allow download CSV Reports"
                   isChecked={
                     downloadCSVSetting.isSuccess
-                      ? downloadCSVSetting.data
+                      ? (downloadCSVSetting.data as boolean)
                       : false
                   }
                   onChange={onChangeDownloadCSVSetting}

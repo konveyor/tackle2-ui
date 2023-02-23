@@ -19,7 +19,7 @@ import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Setting } from "@app/api/models";
+import { Setting, SettingBoolean } from "@app/api/models";
 import { useEffect, useState } from "react";
 import { useDeleteCacheMutation, useFetchCache } from "@app/queries/cache";
 import { ConfirmDialog } from "@app/shared/components";
@@ -38,7 +38,7 @@ export const RepositoriesMvn: React.FC = () => {
 
   const onChangeInsecure = () => {
     if (mvnInsecureSetting.isSuccess) {
-      const setting: Setting = {
+      const setting: SettingBoolean = {
         key: "mvn.insecure.enabled",
         value: !mvnInsecureSetting.data.toString(),
       };
@@ -138,7 +138,7 @@ export const RepositoriesMvn: React.FC = () => {
                     aria-label="Insecure Maven repositories"
                     isChecked={
                       mvnInsecureSetting.isSuccess
-                        ? mvnInsecureSetting.data
+                        ? (mvnInsecureSetting.data as boolean)
                         : false
                     }
                     onChange={onChangeInsecure}

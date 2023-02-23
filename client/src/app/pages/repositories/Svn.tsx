@@ -12,7 +12,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
-import { Setting } from "@app/api/models";
+import { Setting, SettingBoolean } from "@app/api/models";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
 
 export const RepositoriesSvn: React.FC = () => {
@@ -22,7 +22,7 @@ export const RepositoriesSvn: React.FC = () => {
 
   const onChange = () => {
     if (svnInsecureSetting.isSuccess) {
-      const setting: Setting = {
+      const setting: SettingBoolean = {
         key: "svn.insecure.enabled",
         value: !svnInsecureSetting.data.toString(),
       };
@@ -54,7 +54,9 @@ export const RepositoriesSvn: React.FC = () => {
               label="Consume insecure Subversion repositories"
               aria-label="Insecure Subversion Repositories"
               isChecked={
-                svnInsecureSetting.isSuccess ? svnInsecureSetting.data : false
+                svnInsecureSetting.isSuccess
+                  ? (svnInsecureSetting.data as boolean)
+                  : false
               }
               onChange={onChange}
             />

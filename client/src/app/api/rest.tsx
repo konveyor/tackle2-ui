@@ -13,7 +13,6 @@ import {
   AssessmentRisk,
   BulkCopyAssessment,
   BulkCopyReview,
-  BundleOrderSetting,
   BusinessService,
   Identity,
   IReadFile,
@@ -22,7 +21,8 @@ import {
   Review,
   RuleBundle,
   Setting,
-  SettingKey,
+  SettingKeyBoolean,
+  SettingKeyNumber,
   Stakeholder,
   StakeholderGroup,
   Tag,
@@ -577,14 +577,10 @@ export const createFile = ({
       return response.data;
     });
 
-export const updateBundleOrderSetting = (
-  obj: BundleOrderSetting
-): AxiosPromise<Setting> => {
-  return APIClient.put(`${SETTINGS}/${obj.key}`, obj.value, jsonHeaders);
-};
-
-export const getSettingById = (key: SettingKey) =>
-  axios.get<boolean>(`${SETTINGS}/${key}`).then((response) => response.data);
+export const getSettingById = (key: SettingKeyBoolean | SettingKeyNumber) =>
+  axios
+    .get<boolean | number[]>(`${SETTINGS}/${key}`)
+    .then((response) => response.data);
 
 export const updateSetting = (obj: Setting) =>
   axios.put<Setting>(`${SETTINGS}/${obj.key}`, obj.value);

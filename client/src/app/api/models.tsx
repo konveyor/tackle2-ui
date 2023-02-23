@@ -313,25 +313,27 @@ export interface ApplicationImportPage {
   total_count: number;
 }
 
-export type SettingKey =
+export type SettingKeyBoolean =
   | "download.csv.enabled"
   | "download.html.enabled"
   | "git.insecure.enabled"
   | "mvn.dependencies.update.forced"
   | "mvn.insecure.enabled"
   | "review.assessment.required"
-  | "svn.insecure.enabled"
-  | "ui.bundle.order";
+  | "svn.insecure.enabled";
 
-export interface Setting {
-  key: SettingKey;
-  value: boolean | number[];
+export type SettingKeyNumber = "ui.bundle.order";
+
+export interface SettingBoolean {
+  key: SettingKeyBoolean;
+  value: boolean;
 }
-
-export interface BundleOrderSetting {
-  key: string;
+export type SettingNumber = {
+  key: SettingKeyNumber;
   value: number[];
-}
+};
+
+export type Setting = SettingBoolean | SettingNumber;
 
 // Analysis Task
 

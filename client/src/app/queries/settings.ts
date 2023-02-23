@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { getSettingById, updateSetting } from "@app/api/rest";
-import { Setting, SettingKey } from "@app/api/models";
+import { Setting, SettingKeyBoolean, SettingKeyNumber } from "@app/api/models";
 
 export const SettingQueryKey = "setting";
 
-export const useSetting = (key: SettingKey) => {
+export const useSetting = (key: SettingKeyBoolean | SettingKeyNumber) => {
   const queryClient = useQueryClient();
 
   return useQuery({

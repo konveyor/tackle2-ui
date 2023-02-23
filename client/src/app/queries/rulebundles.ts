@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BundleOrderSetting, IReadFile, RuleBundle } from "@app/api/models";
+import { IReadFile, RuleBundle } from "@app/api/models";
 import {
   createFile,
   createRuleBundle,
@@ -111,25 +111,5 @@ export const useCreateFileMutation = (
     mutate,
     isLoading,
     error,
-  };
-};
-
-export const BundleOrderSettingKey = "ui.bundle.order";
-export const useFetchBundleOrder = (ruleBundles: RuleBundle[]) => {
-  const { data, isLoading, error, refetch } = useQuery<number[]>(
-    [BundleOrderSettingKey],
-    async () => await getSettingById(BundleOrderSettingKey),
-    {
-      onError: (err) => console.log(err),
-    }
-  );
-  return {
-    bundleOrderSetting: {
-      key: BundleOrderSettingKey,
-      value: data || ruleBundles?.map((ruleBundle) => ruleBundle.id) || [],
-    },
-    isFetching: isLoading,
-    fetchError: error,
-    refetch,
   };
 };
