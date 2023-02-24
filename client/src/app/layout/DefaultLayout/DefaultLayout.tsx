@@ -22,7 +22,8 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
     <SkipToContent href={`#${pageId}`}>Skip to content</SkipToContent>
   );
 
-  const pageDrawerState = React.useContext(PageDrawerContext);
+  const { isDrawerExpanded, drawerFocusRef, drawerChildren } =
+    React.useContext(PageDrawerContext);
 
   const pageContent = (
     <>
@@ -41,8 +42,8 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
     >
       <div className={pageStyles.pageDrawer}>
         <Drawer
-          isExpanded={pageDrawerState.isDrawerExpanded}
-          onExpand={() => pageDrawerState.drawerFocusRef?.current?.focus()}
+          isExpanded={isDrawerExpanded}
+          onExpand={() => drawerFocusRef?.current?.focus()}
           position="right"
         >
           <DrawerContent
@@ -52,7 +53,9 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
                 id="page-drawer-content"
                 defaultSize="500px"
                 minSize="150px"
-              />
+              >
+                {drawerChildren}
+              </DrawerPanelContent>
             }
           >
             <DrawerContentBody>{pageContent}</DrawerContentBody>

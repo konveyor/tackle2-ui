@@ -2,13 +2,6 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import {
-  Drawer,
-  DrawerActions,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerContentBody,
-  DrawerHead,
-  DrawerPanelContent,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -19,7 +12,7 @@ import { AppTable, IAppTableProps } from "../app-table/app-table";
 import { PaginationStateProps } from "@app/shared/hooks/usePaginationState";
 import { SimplePagination } from "../simple-pagination";
 import { Application } from "@app/api/models";
-import { PageDrawerContentPortal } from "@app/shared/page-drawer-context";
+import { PageDrawerContent } from "@app/shared/page-drawer-context";
 
 export interface IAppTableWithControlsProps extends IAppTableProps {
   count: number;
@@ -89,12 +82,12 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
           paginationProps={paginationProps}
         />
       )}
-      <PageDrawerContentPortal
+      <PageDrawerContent
         isExpanded={!!activeAppInDetailDrawer}
         onCloseClick={closeDetailDrawer}
       >
         <h1>TODO: content about app "{activeAppInDetailDrawer?.name}"</h1>
-      </PageDrawerContentPortal>
+      </PageDrawerContent>
     </div>
   );
 };
