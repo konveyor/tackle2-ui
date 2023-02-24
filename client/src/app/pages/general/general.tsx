@@ -18,7 +18,7 @@ import { Controller, useForm } from "react-hook-form";
 
 import "./general.css";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Setting } from "@app/api/models";
+import { Setting, SettingBoolean } from "@app/api/models";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
 
 export const General: React.FC = () => {
@@ -31,9 +31,9 @@ export const General: React.FC = () => {
 
   const onChangeReviewAssessmentSetting = () => {
     if (reviewAssessmentSetting.isSuccess) {
-      const setting: Setting = {
+      const setting: SettingBoolean = {
         key: "review.assessment.required",
-        value: !reviewAssessmentSetting.data.toString(),
+        value: !reviewAssessmentSetting.data,
       };
       settingMutationQuery.mutate(setting);
     }
@@ -41,9 +41,9 @@ export const General: React.FC = () => {
 
   const onChangeDownloadHTMLSetting = () => {
     if (downloadHTMLSetting.isSuccess) {
-      const setting: Setting = {
+      const setting: SettingBoolean = {
         key: "download.html.enabled",
-        value: !downloadHTMLSetting.data.toString(),
+        value: !downloadHTMLSetting.data,
       };
       settingMutationQuery.mutate(setting);
     }
@@ -51,9 +51,9 @@ export const General: React.FC = () => {
 
   const onChangeDownloadCSVSetting = () => {
     if (downloadCSVSetting.isSuccess) {
-      const setting: Setting = {
+      const setting: SettingBoolean = {
         key: "download.csv.enabled",
-        value: !downloadCSVSetting.data.toString(),
+        value: !downloadCSVSetting.data,
       };
       settingMutationQuery.mutate(setting);
     }

@@ -24,7 +24,7 @@ export const RepositoriesSvn: React.FC = () => {
     if (svnInsecureSetting.isSuccess) {
       const setting: SettingBoolean = {
         key: "svn.insecure.enabled",
-        value: !svnInsecureSetting.data.toString(),
+        value: !svnInsecureSetting.data as boolean,
       };
 
       settingMutationQuery.mutate(setting);

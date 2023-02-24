@@ -583,7 +583,7 @@ export const getSettingById = (key: SettingKeyBoolean | SettingKeyNumber) =>
     .then((response) => response.data);
 
 export const updateSetting = (obj: Setting) =>
-  axios.put<Setting>(`${SETTINGS}/${obj.key}`, obj.value);
-
-export const createSetting = (obj: Setting) =>
-  axios.post<Setting>(`${SETTINGS}`, obj);
+  axios.put<Setting>(
+    `${SETTINGS}/${obj.key}`,
+    typeof obj.value === "boolean" ? obj.value.toString() : obj.value
+  );

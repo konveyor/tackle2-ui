@@ -40,7 +40,7 @@ export const RepositoriesMvn: React.FC = () => {
     if (mvnInsecureSetting.isSuccess) {
       const setting: SettingBoolean = {
         key: "mvn.insecure.enabled",
-        value: !mvnInsecureSetting.data.toString(),
+        value: !mvnInsecureSetting.data as boolean,
       };
 
       settingMutationQuery.mutate(setting);
@@ -54,7 +54,7 @@ export const RepositoriesMvn: React.FC = () => {
   //   if (mvnForcedSetting.isSuccess) {
   //     const setting: Setting = {
   //       key: "mvn.dependencies.update.forced",
-  //       value: !mvnForcedSetting.data.toString(),
+  //       value: (!mvnForcedSetting.data as boolean).toString(),
   //     };
   //
   //     settingMutationQuery.mutate(setting);
