@@ -6,14 +6,14 @@ import {
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
+export const PAGE_DRAWER_CONTENT_ID = "page-drawer-content";
+
 const usePageDrawerState = () => {
   const [isDrawerExpanded, setIsDrawerExpanded] = React.useState(false);
-  const drawerPanelRef = React.useRef(document.createElement("div"));
   const drawerFocusRef = React.useRef(document.createElement("span"));
   return {
     isDrawerExpanded,
     setIsDrawerExpanded,
-    drawerPanelRef: drawerPanelRef as typeof drawerPanelRef | null,
     drawerFocusRef: drawerFocusRef as typeof drawerFocusRef | null,
   };
 };
@@ -23,20 +23,16 @@ export type PageDrawerState = ReturnType<typeof usePageDrawerState>;
 export const PageDrawerContext = React.createContext<PageDrawerState>({
   isDrawerExpanded: false,
   setIsDrawerExpanded: () => {},
-  drawerPanelRef: null,
   drawerFocusRef: null,
 });
 
 export const PageDrawerContextProvider: React.FunctionComponent<{
   children: React.ReactNode;
-}> = ({ children }) => {
-  const pageDrawerState = usePageDrawerState();
-  return (
-    <PageDrawerContext.Provider value={pageDrawerState}>
-      {children}
-    </PageDrawerContext.Provider>
-  );
-};
+}> = ({ children }) => (
+  <PageDrawerContext.Provider value={usePageDrawerState()}>
+    {children}
+  </PageDrawerContext.Provider>
+);
 
 export interface IPageDrawerContentPortalProps {
   isExpanded: boolean;
@@ -47,12 +43,8 @@ export interface IPageDrawerContentPortalProps {
 export const PageDrawerContentPortal: React.FunctionComponent<
   IPageDrawerContentPortalProps
 > = ({ isExpanded: localIsExpandedProp, onCloseClick, children }) => {
-  const {
-    isDrawerExpanded,
-    setIsDrawerExpanded,
-    drawerPanelRef,
-    drawerFocusRef,
-  } = React.useContext(PageDrawerContext);
+  const { setIsDrawerExpanded, drawerFocusRef } =
+    React.useContext(PageDrawerContext);
 
   // Lift the value of isExpanded out to the context, but derive it from deeper state such as the presence of a selected table row
   React.useEffect(() => {
@@ -62,7 +54,11 @@ export const PageDrawerContentPortal: React.FunctionComponent<
     };
   }, [localIsExpandedProp]);
 
-  return drawerPanelRef?.current
+  const drawerPanelMainElement = document.querySelector(
+    `#${PAGE_DRAWER_CONTENT_ID} .pf-c-drawer__panel-main`
+  );
+
+  return drawerPanelMainElement
     ? ReactDOM.createPortal(
         <DrawerHead>
           <span tabIndex={0} ref={drawerFocusRef}>
@@ -77,7 +73,7 @@ export const PageDrawerContentPortal: React.FunctionComponent<
             />
           </DrawerActions>
         </DrawerHead>,
-        drawerPanelRef?.current
+        drawerPanelMainElement
       )
     : null;
 };

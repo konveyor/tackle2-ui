@@ -52,10 +52,7 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
                 id="page-drawer-content"
                 defaultSize="500px"
                 minSize="150px"
-                ref={pageDrawerState.drawerPanelRef}
-              >
-                <div ref={pageDrawerState.drawerPanelRef} />
-              </DrawerPanelContent>
+              />
             }
           >
             <DrawerContentBody>{pageContent}</DrawerContentBody>
