@@ -81,6 +81,7 @@ import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { useAssessApplication } from "@app/shared/hooks/useAssessApplication";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
+import { PageDrawerContent } from "@app/shared/page-drawer-context";
 
 const ENTITY_FIELD = "entity";
 
@@ -691,8 +692,6 @@ export const ApplicationsTable: React.FC = () => {
           loadingVariant="skeleton"
           fetchError={fetchError}
           onAppClick={openDetailDrawer}
-          closeDetailDrawer={closeDetailDrawer}
-          activeAppInDetailDrawer={activeAppInDetailDrawer}
           toolbarToggle={
             <FilterToolbar<Application>
               filterCategories={filterCategories}
@@ -801,6 +800,14 @@ export const ApplicationsTable: React.FC = () => {
             />
           }
         />
+        <PageDrawerContent
+          isExpanded={!!activeAppInDetailDrawer}
+          onCloseClick={closeDetailDrawer}
+        >
+          <h1>
+            TODO: assessment content about app "{activeAppInDetailDrawer?.name}"
+          </h1>
+        </PageDrawerContent>
       </ConditionalRender>
       <Modal
         title={

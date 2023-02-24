@@ -11,8 +11,6 @@ import {
 import { AppTable, IAppTableProps } from "../app-table/app-table";
 import { PaginationStateProps } from "@app/shared/hooks/usePaginationState";
 import { SimplePagination } from "../simple-pagination";
-import { Application } from "@app/api/models";
-import { PageDrawerContent } from "@app/shared/page-drawer-context";
 
 export interface IAppTableWithControlsProps extends IAppTableProps {
   count: number;
@@ -24,8 +22,6 @@ export interface IAppTableWithControlsProps extends IAppTableProps {
   toolbarClearAllFilters?: () => void;
   paginationProps: PaginationStateProps;
   paginationIdPrefix?: string;
-  activeAppInDetailDrawer: Application | null;
-  closeDetailDrawer: () => void;
 }
 
 export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
@@ -38,8 +34,6 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
   toolbarClearAllFilters,
   paginationProps,
   paginationIdPrefix,
-  activeAppInDetailDrawer,
-  closeDetailDrawer,
   ...rest
 }) => {
   const { t } = useTranslation();
@@ -82,12 +76,6 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
           paginationProps={paginationProps}
         />
       )}
-      <PageDrawerContent
-        isExpanded={!!activeAppInDetailDrawer}
-        onCloseClick={closeDetailDrawer}
-      >
-        <h1>TODO: content about app "{activeAppInDetailDrawer?.name}"</h1>
-      </PageDrawerContent>
     </div>
   );
 };

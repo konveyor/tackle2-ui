@@ -69,6 +69,7 @@ import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 import { useEntityModal } from "@app/shared/hooks";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { ConfirmDialog } from "@app/shared/components/confirm-dialog/confirm-dialog";
+import { PageDrawerContent } from "@app/shared/page-drawer-context";
 
 const ENTITY_FIELD = "entity";
 
@@ -516,8 +517,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           loadingVariant="skeleton"
           fetchError={fetchError}
           onAppClick={openDetailDrawer}
-          closeDetailDrawer={closeDetailDrawer}
-          activeAppInDetailDrawer={activeAppInDetailDrawer}
           toolbarToggle={
             <FilterToolbar<Application>
               filterCategories={filterCategories}
@@ -619,6 +618,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             />
           }
         />
+        <PageDrawerContent
+          isExpanded={!!activeAppInDetailDrawer}
+          onCloseClick={closeDetailDrawer}
+        >
+          <h1>
+            TODO: analysis content about app "{activeAppInDetailDrawer?.name}"
+          </h1>
+        </PageDrawerContent>
       </ConditionalRender>
 
       <Modal
