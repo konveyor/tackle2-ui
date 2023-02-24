@@ -22,7 +22,7 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
     <SkipToContent href={`#${pageId}`}>Skip to content</SkipToContent>
   );
 
-  const { isDrawerExpanded, drawerFocusRef, drawerChildren } =
+  const { isDrawerMounted, isDrawerExpanded, drawerFocusRef, drawerChildren } =
     React.useContext(PageDrawerContext);
 
   const pageContent = (
@@ -40,28 +40,32 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
       skipToContent={PageSkipToContent}
       mainContainerId={pageId}
     >
-      <div className={pageStyles.pageDrawer}>
-        <Drawer
-          isExpanded={isDrawerExpanded}
-          onExpand={() => drawerFocusRef?.current?.focus()}
-          position="right"
-        >
-          <DrawerContent
-            panelContent={
-              <DrawerPanelContent
-                isResizable
-                id="page-drawer-content"
-                defaultSize="500px"
-                minSize="150px"
-              >
-                {drawerChildren}
-              </DrawerPanelContent>
-            }
+      {isDrawerMounted ? (
+        <div className={pageStyles.pageDrawer}>
+          <Drawer
+            isExpanded={isDrawerExpanded}
+            onExpand={() => drawerFocusRef?.current?.focus()}
+            position="right"
           >
-            <DrawerContentBody>{pageContent}</DrawerContentBody>
-          </DrawerContent>
-        </Drawer>
-      </div>
+            <DrawerContent
+              panelContent={
+                <DrawerPanelContent
+                  isResizable
+                  id="page-drawer-content"
+                  defaultSize="500px"
+                  minSize="150px"
+                >
+                  {drawerChildren}
+                </DrawerPanelContent>
+              }
+            >
+              <DrawerContentBody>{pageContent}</DrawerContentBody>
+            </DrawerContent>
+          </Drawer>
+        </div>
+      ) : (
+        pageContent
+      )}
     </Page>
   );
 };

@@ -6,11 +6,14 @@ import {
 import * as React from "react";
 
 const usePageDrawerState = () => {
+  const [isDrawerMounted, setIsDrawerMounted] = React.useState(false);
   const [isDrawerExpanded, setIsDrawerExpanded] = React.useState(false);
   const [drawerChildren, setDrawerChildren] =
     React.useState<React.ReactNode>(null);
   const drawerFocusRef = React.useRef(document.createElement("span"));
   return {
+    isDrawerMounted,
+    setIsDrawerMounted,
     isDrawerExpanded,
     setIsDrawerExpanded,
     drawerChildren,
@@ -22,6 +25,8 @@ const usePageDrawerState = () => {
 export type PageDrawerState = ReturnType<typeof usePageDrawerState>;
 
 export const PageDrawerContext = React.createContext<PageDrawerState>({
+  isDrawerMounted: false,
+  setIsDrawerMounted: () => {},
   isDrawerExpanded: false,
   setIsDrawerExpanded: () => {},
   drawerChildren: null,
@@ -48,8 +53,29 @@ let numPageDrawerContentInstances = 0;
 export const PageDrawerContent: React.FunctionComponent<
   IPageDrawerContentProps
 > = ({ isExpanded: localIsExpandedProp, onCloseClick, children }) => {
-  const { setIsDrawerExpanded, drawerFocusRef, setDrawerChildren } =
-    React.useContext(PageDrawerContext);
+  const {
+    setIsDrawerMounted,
+    setIsDrawerExpanded,
+    drawerFocusRef,
+    setDrawerChildren,
+  } = React.useContext(PageDrawerContext);
+
+  // Only render the Drawer boilerplate in DefaultLayout if this component is rendered.
+  // Also, warn if we are trying to render more than one PageDrawerContent
+  // (they'll fight over the same state in context)
+  React.useEffect(() => {
+    numPageDrawerContentInstances++;
+    setIsDrawerMounted(true);
+    return () => {
+      numPageDrawerContentInstances--;
+      setIsDrawerMounted(false);
+    };
+  }, []);
+  if (numPageDrawerContentInstances > 1) {
+    console.warn(
+      `${numPageDrawerContentInstances} instances of PageDrawerContent are currently rendered! Only one instance of this component should be rendered at a time.`
+    );
+  }
 
   // Lift the value of isExpanded out to the context, but derive it from deeper state such as the presence of a selected table row
   React.useEffect(() => {
@@ -58,19 +84,6 @@ export const PageDrawerContent: React.FunctionComponent<
       setIsDrawerExpanded(false);
     };
   }, [localIsExpandedProp]);
-
-  // Just in case, warn if we are trying to render more than one PageDrawerContent (they'll fight over the same context state)
-  React.useEffect(() => {
-    numPageDrawerContentInstances++;
-    return () => {
-      numPageDrawerContentInstances--;
-    };
-  }, []);
-  if (numPageDrawerContentInstances > 1) {
-    console.warn(
-      `${numPageDrawerContentInstances} instances of PageDrawerContent are currently rendered! Only one instance of this component should be rendered at a time.`
-    );
-  }
 
   React.useEffect(() => {
     setDrawerChildren(
