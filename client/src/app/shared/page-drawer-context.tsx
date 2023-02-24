@@ -37,14 +37,16 @@ export const PageDrawerContextProvider: React.FunctionComponent<{
   </PageDrawerContext.Provider>
 );
 
-export interface IPageDrawerContentPortalProps {
+export interface IPageDrawerContentProps {
   isExpanded: boolean;
   onCloseClick: () => void;
   children: React.ReactNode;
 }
 
+let numPageDrawerContentInstances = 0;
+
 export const PageDrawerContent: React.FunctionComponent<
-  IPageDrawerContentPortalProps
+  IPageDrawerContentProps
 > = ({ isExpanded: localIsExpandedProp, onCloseClick, children }) => {
   const { setIsDrawerExpanded, drawerFocusRef, setDrawerChildren } =
     React.useContext(PageDrawerContext);
@@ -56,6 +58,19 @@ export const PageDrawerContent: React.FunctionComponent<
       setIsDrawerExpanded(false);
     };
   }, [localIsExpandedProp]);
+
+  // Just in case, warn if we are trying to render more than one PageDrawerContent (they'll fight over the same context state)
+  React.useEffect(() => {
+    numPageDrawerContentInstances++;
+    return () => {
+      numPageDrawerContentInstances--;
+    };
+  }, []);
+  if (numPageDrawerContentInstances > 1) {
+    console.warn(
+      `${numPageDrawerContentInstances} instances of PageDrawerContent are currently rendered! Only one instance of this component should be rendered at a time.`
+    );
+  }
 
   React.useEffect(() => {
     setDrawerChildren(
