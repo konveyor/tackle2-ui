@@ -619,6 +619,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           }
         />
         <PageDrawerContent
+          // TODO(mturley) -- factor out a component for this for both tables
+          // TODO(mturley) -- move all content from expanded rows into here!
+          // TODO(mturley) -- add filters and other features from new design!
           isExpanded={!!activeAppInDetailDrawer}
           onCloseClick={closeDetailDrawer}
         >
