@@ -36,12 +36,42 @@ export const SetTargets: React.FC = () => {
   const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
   const formTargets = watch("formTargets");
   const formRuleBundles = watch("formRuleBundles");
+  const formSources = watch("formSources");
+
+  const handleOnSelectedCardTargetChange = (
+    selectedRuleTarget: string,
+    selectedRuleBundle: RuleBundle
+  ) => {
+    const otherSelectedRuleTargets = formTargets.filter(
+      (formTarget) =>
+        !selectedRuleBundle.rulesets
+          .map((rule) => rule.metadata.target)
+          .includes(formTarget)
+    );
+    const definedSelectedTargets: string[] =
+      selectedRuleBundle.kind === "category"
+        ? [selectedRuleTarget]
+        : selectedRuleBundle.rulesets
+            .map((rulesets) => rulesets?.metadata?.target || "")
+            .filter((target) => !!target);
+
+    setValue("formTargets", [
+      ...otherSelectedRuleTargets,
+      ...definedSelectedTargets,
+    ]);
+  };
 
   const handleOnCardClick = (
     isSelecting: boolean,
     selectedRuleTarget: string,
     selectedRuleBundle: RuleBundle
   ) => {
+    const otherSelectedRuleSources = formSources.filter(
+      (formSource) =>
+        !selectedRuleBundle.rulesets
+          .map((rule) => rule.metadata.source)
+          .includes(formSource)
+    );
     const otherSelectedRuleTargets = formTargets.filter(
       (formTarget) =>
         !selectedRuleBundle.rulesets
@@ -58,20 +88,37 @@ export const SetTargets: React.FC = () => {
     };
 
     if (isSelecting) {
+      const definedSelectedSources: string[] = selectedRuleBundle.rulesets
+        .map((rulesets) => rulesets?.metadata?.source || "")
+        .filter((source) => !!source);
+
+      setValue("formSources", [
+        ...otherSelectedRuleSources,
+        ...definedSelectedSources,
+      ]);
+
+      const definedSelectedTargets: string[] =
+        selectedRuleBundle.kind === "category"
+          ? [selectedRuleTarget]
+          : selectedRuleBundle.rulesets
+              .map((rulesets) => rulesets?.metadata?.target || "")
+              .filter((target) => !!target);
+
       setValue("formTargets", [
         ...otherSelectedRuleTargets,
-        selectedRuleTarget,
+        ...definedSelectedTargets,
       ]);
+
       setValue("formRuleBundles", [
         ...otherSelectedRuleBundles,
         selectedRuleBundleRef,
       ]);
     } else {
+      setValue("formSources", otherSelectedRuleSources);
       setValue("formTargets", otherSelectedRuleTargets);
       setValue("formRuleBundles", otherSelectedRuleBundles);
     }
   };
-
   return (
     <Form
       onSubmit={(event) => {
@@ -95,9 +142,15 @@ export const SetTargets: React.FC = () => {
                 <TargetCard
                   readOnly
                   item={matchingRuleBundle}
-                  cardSelected={matchingRuleBundle.rulesets.some((ruleset) =>
-                    formTargets.includes(ruleset.metadata.target)
-                  )}
+                  cardSelected={formRuleBundles
+                    .map((formRuleBundle) => formRuleBundle.name)
+                    .includes(matchingRuleBundle.name)}
+                  onSelectedCardTargetChange={(selectedRuleTarget: string) => {
+                    handleOnSelectedCardTargetChange(
+                      selectedRuleTarget,
+                      matchingRuleBundle
+                    );
+                  }}
                   onCardClick={(
                     isSelecting: boolean,
                     selectedRuleTarget: string
