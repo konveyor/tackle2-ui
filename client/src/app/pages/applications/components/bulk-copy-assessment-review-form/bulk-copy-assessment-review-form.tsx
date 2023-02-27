@@ -103,6 +103,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
       type: FilterType.multiselect,
       selectOptions: dedupeFunction(
         applications
+          .filter((app) => !!app.businessService?.name)
           .map((app) => app.businessService?.name)
           .map((name) => ({
             key: `BulkCopyAssessmentReviewForm-${name}`,
