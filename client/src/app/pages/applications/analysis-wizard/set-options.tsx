@@ -27,7 +27,7 @@ export const SetOptions: React.FC = () => {
   const { watch, control, setValue } =
     useFormContext<AnalysisWizardFormValues>();
 
-  const { formSources, diva, excludedRulesTags } = watch();
+  const { formSources, formTargets, diva, excludedRulesTags } = watch();
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
