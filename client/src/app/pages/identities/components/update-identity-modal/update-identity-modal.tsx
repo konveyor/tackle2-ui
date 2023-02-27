@@ -5,6 +5,7 @@ import { Modal, ModalVariant } from "@patternfly/react-core";
 
 import { Identity } from "@app/api/models";
 import { IdentityForm } from "../identity-form";
+import { validateXML } from "../identity-form/validateXML";
 
 export interface UpdateIdentityModalProps {
   identity?: Identity;
@@ -24,7 +25,12 @@ export const UpdateIdentityModal: React.FC<UpdateIdentityModalProps> = ({
       isOpen={!!identity}
       onClose={onCancel}
     >
-      <IdentityForm identity={identity} onSaved={onSaved} onCancel={onCancel} />
+      <IdentityForm
+        identity={identity}
+        onSaved={onSaved}
+        onCancel={onCancel}
+        xmlValidator={validateXML}
+      />
     </Modal>
   );
 };
