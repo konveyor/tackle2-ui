@@ -27,9 +27,9 @@ const usePageDrawerState = () => {
   };
 };
 
-export type PageDrawerState = ReturnType<typeof usePageDrawerState>;
+type PageDrawerState = ReturnType<typeof usePageDrawerState>;
 
-export const PageDrawerContext = React.createContext<PageDrawerState>({
+const PageDrawerContext = React.createContext<PageDrawerState>({
   isDrawerMounted: false,
   setIsDrawerMounted: () => {},
   isDrawerExpanded: false,
