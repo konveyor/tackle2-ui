@@ -28,7 +28,7 @@ import { useTranslation } from "react-i18next";
 
 import { Item } from "./components/dnd/item";
 import { DndGrid } from "./components/dnd/grid";
-import { RuleBundle, Setting, SettingNumber } from "@app/api/models";
+import { RuleBundle, Setting, BundleOrderSetting } from "@app/api/models";
 import { AxiosError, AxiosResponse } from "axios";
 import {
   useDeleteRuleBundleMutation,
@@ -51,7 +51,7 @@ export const MigrationTargets: React.FC = () => {
     refetch: refetchRuleBundles,
   } = useFetchRuleBundles();
 
-  const bundleOrderSetting = useSetting("ui.bundle.order");
+  const bundleOrderSetting = useSetting<number[]>("ui.bundle.order");
   const settingMutationQuery = useSettingMutation();
 
   const [activeId, setActiveId] = useState(null);
@@ -64,9 +64,9 @@ export const MigrationTargets: React.FC = () => {
 
     // update bundle order
     if (bundleOrderSetting.isSuccess) {
-      const updatedBundleSetting: SettingNumber = {
+      const updatedBundleSetting: BundleOrderSetting = {
         key: "ui.bundle.order",
-        value: (bundleOrderSetting.data as number[]).filter(
+        value: bundleOrderSetting.data.filter(
           (bundleID: number) => bundleID !== ruleBundleID
         ),
       };
@@ -99,9 +99,9 @@ export const MigrationTargets: React.FC = () => {
     // update bundle order
 
     if (bundleOrderSetting.isSuccess) {
-      const updatedBundleSetting: SettingNumber = {
+      const updatedBundleSetting: BundleOrderSetting = {
         key: "ui.bundle.order",
-        value: [...(bundleOrderSetting.data as number[]), response.data.id],
+        value: [...bundleOrderSetting.data, response.data.id],
       };
       settingMutationQuery.mutate(updatedBundleSetting);
       closeMigrationTargetModal();
@@ -134,7 +134,7 @@ export const MigrationTargets: React.FC = () => {
 
         const updatedBundleSetting: Setting = {
           key: "ui.bundle.order",
-          value: reorderBundle(bundleOrderSetting.data as number[]),
+          value: reorderBundle(bundleOrderSetting.data),
         };
         settingMutationQuery.mutate(updatedBundleSetting);
       }
@@ -180,11 +180,7 @@ export const MigrationTargets: React.FC = () => {
         onDragOver={handleDragOver}
       >
         <SortableContext
-          items={
-            bundleOrderSetting.isSuccess
-              ? (bundleOrderSetting.data as number[])
-              : []
-          }
+          items={bundleOrderSetting.isSuccess ? bundleOrderSetting.data : []}
           strategy={rectSortingStrategy}
         >
           <DndGrid columns={4}>

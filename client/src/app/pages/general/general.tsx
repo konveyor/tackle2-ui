@@ -18,20 +18,22 @@ import { Controller, useForm } from "react-hook-form";
 
 import "./general.css";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Setting, SettingBoolean } from "@app/api/models";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
+import { FlagSetting } from "@app/api/models";
 
 export const General: React.FC = () => {
   const { t } = useTranslation();
 
-  const reviewAssessmentSetting = useSetting("review.assessment.required");
-  const downloadHTMLSetting = useSetting("download.html.enabled");
-  const downloadCSVSetting = useSetting("download.csv.enabled");
+  const reviewAssessmentSetting = useSetting<boolean>(
+    "review.assessment.required"
+  );
+  const downloadHTMLSetting = useSetting<boolean>("download.html.enabled");
+  const downloadCSVSetting = useSetting<boolean>("download.csv.enabled");
   const settingMutationQuery = useSettingMutation();
 
   const onChangeReviewAssessmentSetting = () => {
     if (reviewAssessmentSetting.isSuccess) {
-      const setting: SettingBoolean = {
+      const setting: FlagSetting = {
         key: "review.assessment.required",
         value: !reviewAssessmentSetting.data,
       };
@@ -41,7 +43,7 @@ export const General: React.FC = () => {
 
   const onChangeDownloadHTMLSetting = () => {
     if (downloadHTMLSetting.isSuccess) {
-      const setting: SettingBoolean = {
+      const setting: FlagSetting = {
         key: "download.html.enabled",
         value: !downloadHTMLSetting.data,
       };
@@ -51,7 +53,7 @@ export const General: React.FC = () => {
 
   const onChangeDownloadCSVSetting = () => {
     if (downloadCSVSetting.isSuccess) {
-      const setting: SettingBoolean = {
+      const setting: FlagSetting = {
         key: "download.csv.enabled",
         value: !downloadCSVSetting.data,
       };
@@ -86,7 +88,7 @@ export const General: React.FC = () => {
                   aria-label="Allow applications review without assessment"
                   isChecked={
                     reviewAssessmentSetting.isSuccess
-                      ? (reviewAssessmentSetting.data as boolean)
+                      ? reviewAssessmentSetting.data
                       : false
                   }
                   onChange={onChangeReviewAssessmentSetting}
@@ -98,7 +100,7 @@ export const General: React.FC = () => {
                   aria-label="Allow download HTML Reports"
                   isChecked={
                     downloadHTMLSetting.isSuccess
-                      ? (downloadHTMLSetting.data as boolean)
+                      ? downloadHTMLSetting.data
                       : false
                   }
                   onChange={onChangeDownloadHTMLSetting}
@@ -110,7 +112,7 @@ export const General: React.FC = () => {
                   aria-label="Allow download CSV Reports"
                   isChecked={
                     downloadCSVSetting.isSuccess
-                      ? (downloadCSVSetting.data as boolean)
+                      ? downloadCSVSetting.data
                       : false
                   }
                   onChange={onChangeDownloadCSVSetting}

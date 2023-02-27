@@ -16,11 +16,11 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
 
 import "./Repositories.css";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Setting, SettingBoolean } from "@app/api/models";
-import { useEffect, useState } from "react";
+import { FlagSetting } from "@app/api/models";
 import { useDeleteCacheMutation, useFetchCache } from "@app/queries/cache";
 import { ConfirmDialog } from "@app/shared/components";
 import { isRWXSupported } from "@app/Constants";
@@ -33,14 +33,14 @@ export const RepositoriesMvn: React.FC = () => {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
     React.useState<Boolean>(false);
 
-  const mvnInsecureSetting = useSetting("mvn.insecure.enabled");
+  const mvnInsecureSetting = useSetting<boolean>("mvn.insecure.enabled");
   const settingMutationQuery = useSettingMutation();
 
   const onChangeInsecure = () => {
     if (mvnInsecureSetting.isSuccess) {
-      const setting: SettingBoolean = {
+      const setting: FlagSetting = {
         key: "mvn.insecure.enabled",
-        value: !mvnInsecureSetting.data as boolean,
+        value: !mvnInsecureSetting.data,
       };
 
       settingMutationQuery.mutate(setting);
@@ -54,7 +54,7 @@ export const RepositoriesMvn: React.FC = () => {
   //   if (mvnForcedSetting.isSuccess) {
   //     const setting: Setting = {
   //       key: "mvn.dependencies.update.forced",
-  //       value: (!mvnForcedSetting.data as boolean).toString(),
+  //       value: !mvnForcedSetting.data,
   //     };
   //
   //     settingMutationQuery.mutate(setting);
@@ -138,7 +138,7 @@ export const RepositoriesMvn: React.FC = () => {
                     aria-label="Insecure Maven repositories"
                     isChecked={
                       mvnInsecureSetting.isSuccess
-                        ? (mvnInsecureSetting.data as boolean)
+                        ? mvnInsecureSetting.data
                         : false
                     }
                     onChange={onChangeInsecure}

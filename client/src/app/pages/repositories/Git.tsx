@@ -12,22 +12,21 @@ import {
 import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
-import { Setting, SettingBoolean } from "@app/api/models";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
+import { FlagSetting } from "@app/api/models";
 
 export const RepositoriesGit: React.FC = () => {
   const { t } = useTranslation();
 
-  const gitInsecureSetting = useSetting("git.insecure.enabled");
+  const gitInsecureSetting = useSetting<boolean>("git.insecure.enabled");
   const settingMutationQuery = useSettingMutation();
 
   const onChange = () => {
     if (gitInsecureSetting.isSuccess) {
-      const setting: SettingBoolean = {
+      const setting: FlagSetting = {
         key: "git.insecure.enabled",
         value: !gitInsecureSetting.data,
       };
-
       settingMutationQuery.mutate(setting);
     }
   };
@@ -55,9 +54,7 @@ export const RepositoriesGit: React.FC = () => {
               label="Consume insecure Git repositories"
               aria-label="HTTP Proxy"
               isChecked={
-                gitInsecureSetting.isSuccess
-                  ? (gitInsecureSetting.data as boolean)
-                  : false
+                gitInsecureSetting.isSuccess ? gitInsecureSetting.data : false
               }
               onChange={onChange}
             />

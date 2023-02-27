@@ -25,7 +25,7 @@ export const SetTargets: React.FC = () => {
     refetch: refetchRuleBundles,
   } = useFetchRuleBundles();
 
-  const bundleOrderSetting = useSetting("ui.bundle.order");
+  const bundleOrderSetting = useSetting<number[]>("ui.bundle.order");
 
   const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
   const formTargets = watch("formTargets");
@@ -126,40 +126,44 @@ export const SetTargets: React.FC = () => {
         <Text>{t("wizard.label.setTargets")}</Text>
       </TextContent>
       <Gallery hasGutter>
-        {(bundleOrderSetting.data as number[]).map((id, index) => {
-          const matchingRuleBundle = ruleBundles.find(
-            (target) => target.id === id
-          );
-          return (
-            <GalleryItem key={index}>
-              {matchingRuleBundle && (
-                <TargetCard
-                  readOnly
-                  item={matchingRuleBundle}
-                  cardSelected={formRuleBundles
-                    .map((formRuleBundle) => formRuleBundle.name)
-                    .includes(matchingRuleBundle.name)}
-                  onSelectedCardTargetChange={(selectedRuleTarget: string) => {
-                    handleOnSelectedCardTargetChange(
-                      selectedRuleTarget,
-                      matchingRuleBundle
-                    );
-                  }}
-                  onCardClick={(
-                    isSelecting: boolean,
-                    selectedRuleTarget: string
-                  ) => {
-                    handleOnCardClick(
-                      isSelecting,
-                      selectedRuleTarget,
-                      matchingRuleBundle
-                    );
-                  }}
-                />
-              )}
-            </GalleryItem>
-          );
-        })}
+        {bundleOrderSetting.isSuccess
+          ? bundleOrderSetting.data.map((id, index) => {
+              const matchingRuleBundle = ruleBundles.find(
+                (target) => target.id === id
+              );
+              return (
+                <GalleryItem key={index}>
+                  {matchingRuleBundle && (
+                    <TargetCard
+                      readOnly
+                      item={matchingRuleBundle}
+                      cardSelected={formRuleBundles
+                        .map((formRuleBundle) => formRuleBundle.name)
+                        .includes(matchingRuleBundle.name)}
+                      onSelectedCardTargetChange={(
+                        selectedRuleTarget: string
+                      ) => {
+                        handleOnSelectedCardTargetChange(
+                          selectedRuleTarget,
+                          matchingRuleBundle
+                        );
+                      }}
+                      onCardClick={(
+                        isSelecting: boolean,
+                        selectedRuleTarget: string
+                      ) => {
+                        handleOnCardClick(
+                          isSelecting,
+                          selectedRuleTarget,
+                          matchingRuleBundle
+                        );
+                      }}
+                    />
+                  )}
+                </GalleryItem>
+              );
+            })
+          : null}
       </Gallery>
     </Form>
   );

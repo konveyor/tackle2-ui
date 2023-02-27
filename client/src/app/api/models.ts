@@ -313,7 +313,7 @@ export interface ApplicationImportPage {
   total_count: number;
 }
 
-export type SettingKeyBoolean =
+export type FlagSettingKey =
   | "download.csv.enabled"
   | "download.html.enabled"
   | "git.insecure.enabled"
@@ -322,18 +322,19 @@ export type SettingKeyBoolean =
   | "review.assessment.required"
   | "svn.insecure.enabled";
 
-export type SettingKeyNumber = "ui.bundle.order";
+export type BundleOrderSettingKey = "ui.bundle.order";
 
-export interface SettingBoolean {
-  key: SettingKeyBoolean;
+export interface FlagSetting {
+  key: FlagSettingKey;
   value: boolean;
 }
-export type SettingNumber = {
-  key: SettingKeyNumber;
-  value: number[];
-};
 
-export type Setting = SettingBoolean | SettingNumber;
+export interface BundleOrderSetting {
+  key: BundleOrderSettingKey;
+  value: number[];
+}
+
+export type Setting = FlagSetting | BundleOrderSetting;
 
 // Analysis Task
 
