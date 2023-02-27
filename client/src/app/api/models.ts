@@ -313,28 +313,21 @@ export interface ApplicationImportPage {
   total_count: number;
 }
 
-export type FlagSettingKey =
-  | "download.csv.enabled"
-  | "download.html.enabled"
-  | "git.insecure.enabled"
-  | "mvn.dependencies.update.forced"
-  | "mvn.insecure.enabled"
-  | "review.assessment.required"
-  | "svn.insecure.enabled";
+export type SettingTypes = {
+  "download.csv.enabled": boolean;
+  "download.html.enabled": boolean;
+  "git.insecure.enabled": boolean;
+  "mvn.dependencies.update.forced": boolean;
+  "mvn.insecure.enabled": boolean;
+  "review.assessment.required": boolean;
+  "svn.insecure.enabled": boolean;
+  "ui.bundle.order": number[];
+};
 
-export type BundleOrderSettingKey = "ui.bundle.order";
-
-export interface FlagSetting {
-  key: FlagSettingKey;
-  value: boolean;
-}
-
-export interface BundleOrderSetting {
-  key: BundleOrderSettingKey;
-  value: number[];
-}
-
-export type Setting = FlagSetting | BundleOrderSetting;
+export type Setting<K extends keyof SettingTypes> = {
+  key: K;
+  value: SettingTypes[K];
+};
 
 // Analysis Task
 

@@ -25,7 +25,7 @@ export const SetTargets: React.FC = () => {
     refetch: refetchRuleBundles,
   } = useFetchRuleBundles();
 
-  const bundleOrderSetting = useSetting<number[]>("ui.bundle.order");
+  const bundleOrderSetting = useSetting("ui.bundle.order");
 
   const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
   const formTargets = watch("formTargets");

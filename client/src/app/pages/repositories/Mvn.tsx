@@ -20,7 +20,6 @@ import { useEffect, useState } from "react";
 
 import "./Repositories.css";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { FlagSetting } from "@app/api/models";
 import { useDeleteCacheMutation, useFetchCache } from "@app/queries/cache";
 import { ConfirmDialog } from "@app/shared/components";
 import { isRWXSupported } from "@app/Constants";
@@ -33,18 +32,12 @@ export const RepositoriesMvn: React.FC = () => {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
     React.useState<Boolean>(false);
 
-  const mvnInsecureSetting = useSetting<boolean>("mvn.insecure.enabled");
-  const settingMutationQuery = useSettingMutation();
+  const mvnInsecureSetting = useSetting("mvn.insecure.enabled");
+  const mvnInsecureSettingMutation = useSettingMutation("mvn.insecure.enabled");
 
   const onChangeInsecure = () => {
-    if (mvnInsecureSetting.isSuccess) {
-      const setting: FlagSetting = {
-        key: "mvn.insecure.enabled",
-        value: !mvnInsecureSetting.data,
-      };
-
-      settingMutationQuery.mutate(setting);
-    }
+    if (mvnInsecureSetting.isSuccess)
+      mvnInsecureSettingMutation.mutate(!mvnInsecureSetting.data);
   };
 
   // TODO: Implement mvn forced setting

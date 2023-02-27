@@ -28,7 +28,7 @@ import { useTranslation } from "react-i18next";
 
 import { Item } from "./components/dnd/item";
 import { DndGrid } from "./components/dnd/grid";
-import { RuleBundle, Setting, BundleOrderSetting } from "@app/api/models";
+import { RuleBundle, Setting } from "@app/api/models";
 import { AxiosError, AxiosResponse } from "axios";
 import {
   useDeleteRuleBundleMutation,
@@ -51,8 +51,8 @@ export const MigrationTargets: React.FC = () => {
     refetch: refetchRuleBundles,
   } = useFetchRuleBundles();
 
-  const bundleOrderSetting = useSetting<number[]>("ui.bundle.order");
-  const settingMutationQuery = useSettingMutation();
+  const bundleOrderSetting = useSetting("ui.bundle.order");
+  const bundleOrderSettingMutation = useSettingMutation("ui.bundle.order");
 
   const [activeId, setActiveId] = useState(null);
 
@@ -62,16 +62,12 @@ export const MigrationTargets: React.FC = () => {
       variant: "success",
     });
 
-    // update bundle order
-    if (bundleOrderSetting.isSuccess) {
-      const updatedBundleSetting: BundleOrderSetting = {
-        key: "ui.bundle.order",
-        value: bundleOrderSetting.data.filter(
+    if (bundleOrderSetting.isSuccess)
+      bundleOrderSettingMutation.mutate(
+        bundleOrderSetting.data.filter(
           (bundleID: number) => bundleID !== ruleBundleID
-        ),
-      };
-      settingMutationQuery.mutate(updatedBundleSetting);
-    }
+        )
+      );
   };
 
   const onDeleteRuleBundleError = (error: AxiosError) => {
@@ -99,11 +95,10 @@ export const MigrationTargets: React.FC = () => {
     // update bundle order
 
     if (bundleOrderSetting.isSuccess) {
-      const updatedBundleSetting: BundleOrderSetting = {
-        key: "ui.bundle.order",
-        value: [...bundleOrderSetting.data, response.data.id],
-      };
-      settingMutationQuery.mutate(updatedBundleSetting);
+      bundleOrderSettingMutation.mutate([
+        ...bundleOrderSetting.data,
+        response.data.id,
+      ]);
       closeMigrationTargetModal();
       refetchRuleBundles();
     }
@@ -132,11 +127,9 @@ export const MigrationTargets: React.FC = () => {
           return arrayMove(items, oldIndex, newIndex);
         };
 
-        const updatedBundleSetting: Setting = {
-          key: "ui.bundle.order",
-          value: reorderBundle(bundleOrderSetting.data),
-        };
-        settingMutationQuery.mutate(updatedBundleSetting);
+        bundleOrderSettingMutation.mutate(
+          reorderBundle(bundleOrderSetting.data)
+        );
       }
     }
   }

@@ -14,51 +14,38 @@ import {
   Title,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { Controller, useForm } from "react-hook-form";
 
 import "./general.css";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
-import { FlagSetting } from "@app/api/models";
 
 export const General: React.FC = () => {
   const { t } = useTranslation();
 
-  const reviewAssessmentSetting = useSetting<boolean>(
-    "review.assessment.required"
+  const reviewAssessmentSetting = useSetting("review.assessment.required");
+  const downloadHTMLSetting = useSetting("download.html.enabled");
+  const downloadCSVSetting = useSetting("download.csv.enabled");
+  const reviewAssessmentSettingMutation = useSettingMutation(
+    "svn.insecure.enabled"
   );
-  const downloadHTMLSetting = useSetting<boolean>("download.html.enabled");
-  const downloadCSVSetting = useSetting<boolean>("download.csv.enabled");
-  const settingMutationQuery = useSettingMutation();
+  const downloadHTMLSettingMutation = useSettingMutation(
+    "svn.insecure.enabled"
+  );
+  const downloadCSVSettingMutation = useSettingMutation("svn.insecure.enabled");
 
   const onChangeReviewAssessmentSetting = () => {
-    if (reviewAssessmentSetting.isSuccess) {
-      const setting: FlagSetting = {
-        key: "review.assessment.required",
-        value: !reviewAssessmentSetting.data,
-      };
-      settingMutationQuery.mutate(setting);
-    }
+    if (reviewAssessmentSetting.isSuccess)
+      reviewAssessmentSettingMutation.mutate(!reviewAssessmentSetting.data);
   };
 
   const onChangeDownloadHTMLSetting = () => {
-    if (downloadHTMLSetting.isSuccess) {
-      const setting: FlagSetting = {
-        key: "download.html.enabled",
-        value: !downloadHTMLSetting.data,
-      };
-      settingMutationQuery.mutate(setting);
-    }
+    if (downloadHTMLSetting.isSuccess)
+      downloadHTMLSettingMutation.mutate(!downloadHTMLSetting.data);
   };
 
   const onChangeDownloadCSVSetting = () => {
-    if (downloadCSVSetting.isSuccess) {
-      const setting: FlagSetting = {
-        key: "download.csv.enabled",
-        value: !downloadCSVSetting.data,
-      };
-      settingMutationQuery.mutate(setting);
-    }
+    if (downloadCSVSetting.isSuccess)
+      downloadCSVSettingMutation.mutate(!downloadCSVSetting.data);
   };
   return (
     <>

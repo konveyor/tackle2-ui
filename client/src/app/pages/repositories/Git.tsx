@@ -13,22 +13,16 @@ import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
-import { FlagSetting } from "@app/api/models";
 
 export const RepositoriesGit: React.FC = () => {
   const { t } = useTranslation();
 
-  const gitInsecureSetting = useSetting<boolean>("git.insecure.enabled");
-  const settingMutationQuery = useSettingMutation();
+  const gitInsecureSetting = useSetting("git.insecure.enabled");
+  const gitInsecureSettingMutation = useSettingMutation("git.insecure.enabled");
 
   const onChange = () => {
-    if (gitInsecureSetting.isSuccess) {
-      const setting: FlagSetting = {
-        key: "git.insecure.enabled",
-        value: !gitInsecureSetting.data,
-      };
-      settingMutationQuery.mutate(setting);
-    }
+    if (gitInsecureSetting.isSuccess)
+      gitInsecureSettingMutation.mutate(!gitInsecureSetting.data);
   };
 
   return (

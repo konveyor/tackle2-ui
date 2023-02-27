@@ -21,6 +21,7 @@ import {
   Review,
   RuleBundle,
   Setting,
+  SettingTypes,
   Stakeholder,
   StakeholderGroup,
   Tag,
@@ -575,10 +576,14 @@ export const createFile = ({
       return response.data;
     });
 
-export const getSettingById = <T>(key: string): Promise<T> =>
-  axios.get(`${SETTINGS}/${key}`).then((response) => response.data);
+export const getSettingById = <K extends keyof SettingTypes>(
+  id: K
+): Promise<SettingTypes[K]> =>
+  axios.get(`${SETTINGS}/${id}`).then((response) => response.data);
 
-export const updateSetting = (obj: Setting): Promise<Setting> =>
+export const updateSetting = <K extends keyof SettingTypes>(
+  obj: Setting<K>
+): Promise<Setting<K>> =>
   axios.put(
     `${SETTINGS}/${obj.key}`,
     typeof obj.value == "boolean" ? obj.value.toString() : obj.value

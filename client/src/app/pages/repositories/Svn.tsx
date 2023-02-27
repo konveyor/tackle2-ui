@@ -13,22 +13,15 @@ import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
-import { FlagSetting } from "@app/api/models";
 
 export const RepositoriesSvn: React.FC = () => {
   const { t } = useTranslation();
-  const svnInsecureSetting = useSetting<boolean>("svn.insecure.enabled");
-  const settingMutationQuery = useSettingMutation();
+  const svnInsecureSetting = useSetting("svn.insecure.enabled");
+  const svnInsecureSettingMutation = useSettingMutation("svn.insecure.enabled");
 
   const onChange = () => {
-    if (svnInsecureSetting.isSuccess) {
-      const setting: FlagSetting = {
-        key: "svn.insecure.enabled",
-        value: !svnInsecureSetting.data as boolean,
-      };
-
-      settingMutationQuery.mutate(setting);
-    }
+    if (svnInsecureSetting.isSuccess)
+      svnInsecureSettingMutation.mutate(!svnInsecureSetting.data);
   };
 
   return (
