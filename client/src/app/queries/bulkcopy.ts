@@ -69,44 +69,46 @@ export const useCreateBulkCopyMutation = ({
   const hasReview = mutationResult?.hasReview;
 
   //Fetch until assessment bulk copy is complete
-  const { data: assessmentData, isLoading: isBulkCopyAssessmentLoading } =
-    useQuery(
-      [BulkCopyProgressQueryKey, assessmentBulkResult?.bulkId],
-      getBulkCopyAssessment,
-      {
-        onSuccess: (res) => {
-          // Checks that both the
-          // - bulk review request
-          // and
-          // - bulk assessment copy request
-          // are successful. Bubbles a success event if so.
+  const {
+    data: assessmentData,
+    isInitialLoading: isBulkCopyAssessmentLoading,
+  } = useQuery(
+    [BulkCopyProgressQueryKey, assessmentBulkResult?.bulkId],
+    getBulkCopyAssessment,
+    {
+      onSuccess: (res) => {
+        // Checks that both the
+        // - bulk review request
+        // and
+        // - bulk assessment copy request
+        // are successful. Bubbles a success event if so.
 
-          const hasSuccessfulReviewCopy = reviewBulkResult?.status === 204;
-          if (
-            res?.data.completed &&
-            (hasReview ? hasSuccessfulReviewCopy : true)
-          ) {
-            reset();
-            onSuccess(hasSuccessfulReviewCopy);
-          }
-        },
-        onError: (error: AxiosError) => {
-          console.error(error);
-          pushNotification({
-            title: "Failed",
-            message: "Copy assessment failed.",
-            variant: "danger",
-          });
-
+        const hasSuccessfulReviewCopy = reviewBulkResult?.status === 204;
+        if (
+          res?.data.completed &&
+          (hasReview ? hasSuccessfulReviewCopy : true)
+        ) {
           reset();
-          onError(error);
-        },
-        enabled: assessmentBulkResult !== null,
-        refetchInterval: isBulkCopyLoading ? false : 1000,
-        refetchIntervalInBackground: true,
-        refetchOnWindowFocus: false,
-      }
-    );
+          onSuccess(hasSuccessfulReviewCopy);
+        }
+      },
+      onError: (error: AxiosError) => {
+        console.error(error);
+        pushNotification({
+          title: "Failed",
+          message: "Copy assessment failed.",
+          variant: "danger",
+        });
+
+        reset();
+        onError(error);
+      },
+      enabled: assessmentBulkResult !== null,
+      refetchInterval: isBulkCopyLoading ? false : 1000,
+      refetchIntervalInBackground: true,
+      refetchOnWindowFocus: false,
+    }
+  );
 
   return {
     mutate,
