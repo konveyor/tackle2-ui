@@ -1,9 +1,14 @@
+import * as React from "react";
 import {
+  Drawer,
   DrawerActions,
   DrawerCloseButton,
+  DrawerContent,
+  DrawerContentBody,
   DrawerHead,
+  DrawerPanelContent,
 } from "@patternfly/react-core";
-import * as React from "react";
+import pageStyles from "@patternfly/react-styles/css/components/Page/page";
 
 const usePageDrawerState = () => {
   const [isDrawerMounted, setIsDrawerMounted] = React.useState(false);
@@ -34,25 +39,56 @@ export const PageDrawerContext = React.createContext<PageDrawerState>({
   drawerFocusRef: null,
 });
 
-export const PageDrawerContextProvider: React.FunctionComponent<{
+// PageContentWithDrawerProvider should only be rendered as the direct child of a PatternFly Page component.
+// `children` here is the entire content of the page. See usage in client/src/app/layout/DefaultLayout.
+export const PageContentWithDrawerProvider: React.FC<{
   children: React.ReactNode;
-}> = ({ children }) => (
-  <PageDrawerContext.Provider value={usePageDrawerState()}>
-    {children}
-  </PageDrawerContext.Provider>
-);
-
-export interface IPageDrawerContentProps {
-  isExpanded: boolean;
-  onCloseClick: () => void;
-  children: React.ReactNode;
-}
+}> = ({ children }) => {
+  const pageDrawerState = usePageDrawerState();
+  const { isDrawerMounted, isDrawerExpanded, drawerFocusRef, drawerChildren } =
+    pageDrawerState;
+  return (
+    <PageDrawerContext.Provider value={pageDrawerState}>
+      {isDrawerMounted ? (
+        <div className={pageStyles.pageDrawer}>
+          <Drawer
+            isExpanded={isDrawerExpanded}
+            onExpand={() => drawerFocusRef?.current?.focus()}
+            position="right"
+          >
+            <DrawerContent
+              panelContent={
+                <DrawerPanelContent
+                  isResizable
+                  id="page-drawer-content"
+                  defaultSize="500px"
+                  minSize="150px"
+                >
+                  {drawerChildren}
+                </DrawerPanelContent>
+              }
+            >
+              <DrawerContentBody>{children}</DrawerContentBody>
+            </DrawerContent>
+          </Drawer>
+        </div>
+      ) : (
+        children
+      )}
+    </PageDrawerContext.Provider>
+  );
+};
 
 let numPageDrawerContentInstances = 0;
 
-export const PageDrawerContent: React.FunctionComponent<
-  IPageDrawerContentProps
-> = ({ isExpanded: localIsExpandedProp, onCloseClick, children }) => {
+// PageDrawerContent can be rendered anywhere, but must have only one instance rendered at a time.
+// `children` here is the content to show in the drawer when `isExpanded` is true.
+// `onCloseClick` should be used to update local state such that `isExpanded` becomes false.
+export const PageDrawerContent: React.FC<{
+  isExpanded: boolean;
+  onCloseClick: () => void;
+  children: React.ReactNode;
+}> = ({ isExpanded: localIsExpandedProp, onCloseClick, children }) => {
   const {
     setIsDrawerMounted,
     setIsDrawerExpanded,
@@ -60,9 +96,8 @@ export const PageDrawerContent: React.FunctionComponent<
     setDrawerChildren,
   } = React.useContext(PageDrawerContext);
 
-  // Only render the Drawer boilerplate in DefaultLayout if this component is rendered.
-  // Also, warn if we are trying to render more than one PageDrawerContent
-  // (they'll fight over the same state in context)
+  // Prevent Drawer boilerplate from being rendered in PageContentWithDrawerProvider if no PageDrawerContent exists.
+  // Also, warn if we are trying to render more than one PageDrawerContent (they'll fight over the same state).
   React.useEffect(() => {
     numPageDrawerContentInstances++;
     setIsDrawerMounted(true);
@@ -77,7 +112,9 @@ export const PageDrawerContent: React.FunctionComponent<
     );
   }
 
-  // Lift the value of isExpanded out to the context, but derive it from deeper state such as the presence of a selected table row
+  // Lift the value of isExpanded out to the context, but derive it from local state such as a selected table row.
+  // This is the ONLY place where `setIsDrawerExpanded` should be called.
+  // To expand/collapse the drawer, use the `isExpanded` prop when rendering PageDrawerContent.
   React.useEffect(() => {
     setIsDrawerExpanded(localIsExpandedProp);
     return () => {
@@ -94,8 +131,7 @@ export const PageDrawerContent: React.FunctionComponent<
         <DrawerActions>
           <DrawerCloseButton
             // We call onCloseClick here instead of setIsDrawerExpanded
-            // because we want the isExpanded prop here to be the source of truth.
-            // (state driven from the parent of the PageDrawerContent, not from the context)
+            // because we want the isExpanded prop of PageDrawerContent to be the source of truth.
             onClick={onCloseClick}
           />
         </DrawerActions>
