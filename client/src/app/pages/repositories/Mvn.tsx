@@ -42,16 +42,11 @@ export const RepositoriesMvn: React.FC = () => {
 
   // TODO: Implement mvn forced setting
   // const mvnForcedSetting = useSetting("mvn.dependencies.update.forced");
-  //
+  // const mvnForcedSettingMutation = useSettingMutation("mvn.insecure.enabled");
+
   // const onChangeForced = () => {
-  //   if (mvnForcedSetting.isSuccess) {
-  //     const setting: Setting = {
-  //       key: "mvn.dependencies.update.forced",
-  //       value: !mvnForcedSetting.data,
-  //     };
-  //
-  //     settingMutationQuery.mutate(setting);
-  //   }
+  //   if (mvnForcedSetting.isSuccess)
+  //     mvnForcedSettingMutation.mutate(!mvnForcedSetting.data);
   // };
 
   const [storageValue, setStorageValue] = useState<string>();
