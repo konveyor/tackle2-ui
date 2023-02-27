@@ -26,12 +26,12 @@ export const General: React.FC = () => {
   const downloadHTMLSetting = useSetting("download.html.enabled");
   const downloadCSVSetting = useSetting("download.csv.enabled");
   const reviewAssessmentSettingMutation = useSettingMutation(
-    "svn.insecure.enabled"
+    "review.assessment.required"
   );
   const downloadHTMLSettingMutation = useSettingMutation(
-    "svn.insecure.enabled"
+    "download.html.enabled"
   );
-  const downloadCSVSettingMutation = useSettingMutation("svn.insecure.enabled");
+  const downloadCSVSettingMutation = useSettingMutation("download.csv.enabled");
 
   const onChangeReviewAssessmentSetting = () => {
     if (reviewAssessmentSetting.isSuccess)
