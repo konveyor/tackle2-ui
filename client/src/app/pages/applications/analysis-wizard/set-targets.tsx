@@ -19,11 +19,7 @@ import { useSetting } from "@app/queries/settings";
 export const SetTargets: React.FC = () => {
   const { t } = useTranslation();
 
-  const {
-    ruleBundles,
-    isFetching: isFetchingRuleBundles,
-    refetch: refetchRuleBundles,
-  } = useFetchRuleBundles();
+  const { ruleBundles } = useFetchRuleBundles();
 
   const bundleOrderSetting = useSetting("ui.bundle.order");
 
