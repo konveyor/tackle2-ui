@@ -81,7 +81,7 @@ export const ApplicationIdentityForm: React.FC<
   );
 
   const onSubmit = (formValues: FormValues) => {
-    let updatePromises: Array<AxiosPromise<Application>> = [];
+    let updatePromises: Array<Promise<Application>> = [];
     applications.forEach((application) => {
       let updatedIdentities: Ref[] = [];
       if (application.identities && identities) {
@@ -105,7 +105,7 @@ export const ApplicationIdentityForm: React.FC<
           id: application.id,
           businessService: application.businessService,
         };
-        let promise: AxiosPromise<Application>;
+        let promise: Promise<Application>;
         promise = updateApplication({
           ...application,
           ...payload,
