@@ -16,6 +16,7 @@ import {
   FlexItem,
   Button,
   ButtonVariant,
+  Label,
 } from "@patternfly/react-core";
 import { CubesIcon, GripVerticalIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -126,18 +127,22 @@ export const TargetCard: React.FC<TargetCardProps> = ({
             )}
           </FlexItem>
           <FlexItem className={spacing.mlAuto}>
-            {!readOnly && item.custom ? (
-              <KebabDropdown
-                dropdownItems={[
-                  <DropdownItem key="edit-custom-card" onClick={onEdit}>
-                    {t("actions.edit")}
-                  </DropdownItem>,
-                  <DropdownItem key="delete-custom-card" onClick={onDelete}>
-                    {t("actions.delete")}
-                  </DropdownItem>,
-                ]}
-              />
-            ) : null}
+            {readOnly && item.custom ? (
+              <Label color="grey">Custom</Label>
+            ) : (
+              item.custom && (
+                <KebabDropdown
+                  dropdownItems={[
+                    <DropdownItem key="edit-custom-card" onClick={onEdit}>
+                      {t("actions.edit")}
+                    </DropdownItem>,
+                    <DropdownItem key="delete-custom-card" onClick={onDelete}>
+                      {t("actions.delete")}
+                    </DropdownItem>,
+                  ]}
+                />
+              )
+            )}
           </FlexItem>
         </Flex>
         <EmptyState
