@@ -69,7 +69,7 @@ import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 import { useEntityModal } from "@app/shared/hooks";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { ConfirmDialog } from "@app/shared/components/confirm-dialog/confirm-dialog";
-import { PageDrawerContent } from "@app/shared/page-drawer-context";
+import { ApplicationDetailDrawer } from "../components/application-detail-drawer";
 
 const ENTITY_FIELD = "entity";
 
@@ -618,18 +618,12 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             />
           }
         />
-        <PageDrawerContent
-          // TODO(mturley) -- factor out a component for this for both tables
-          // TODO(mturley) -- move all content from expanded rows into here!
-          // TODO(mturley) -- add filters and other features from new design!
+        <ApplicationDetailDrawer
           isExpanded={!!activeAppInDetailDrawer}
           onCloseClick={closeDetailDrawer}
-          focusKey={activeAppInDetailDrawer?.id}
-        >
-          <h1>
-            TODO: analysis content about app "{activeAppInDetailDrawer?.name}"
-          </h1>
-        </PageDrawerContent>
+          application={activeAppInDetailDrawer}
+          showReportsTab
+        />
       </ConditionalRender>
 
       <Modal
