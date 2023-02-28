@@ -803,6 +803,7 @@ export const ApplicationsTable: React.FC = () => {
         <PageDrawerContent
           isExpanded={!!activeAppInDetailDrawer}
           onCloseClick={closeDetailDrawer}
+          focusKey={activeAppInDetailDrawer?.id}
         >
           <h1>
             TODO: assessment content about app "{activeAppInDetailDrawer?.name}"

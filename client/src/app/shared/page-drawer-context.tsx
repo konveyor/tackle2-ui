@@ -40,10 +40,12 @@ const PageDrawerContext = React.createContext<PageDrawerState>({
 });
 
 // PageContentWithDrawerProvider should only be rendered as the direct child of a PatternFly Page component.
-// `children` here is the entire content of the page. See usage in client/src/app/layout/DefaultLayout.
-export const PageContentWithDrawerProvider: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
+interface IPageContentWithDrawerProviderProps {
+  children: React.ReactNode; // The entire content of the page. See usage in client/src/app/layout/DefaultLayout.
+}
+export const PageContentWithDrawerProvider: React.FC<
+  IPageContentWithDrawerProviderProps
+> = ({ children }) => {
   const pageDrawerState = usePageDrawerState();
   const { isDrawerMounted, isDrawerExpanded, drawerFocusRef, drawerChildren } =
     pageDrawerState;
@@ -82,13 +84,19 @@ export const PageContentWithDrawerProvider: React.FC<{
 let numPageDrawerContentInstances = 0;
 
 // PageDrawerContent can be rendered anywhere, but must have only one instance rendered at a time.
-// `children` here is the content to show in the drawer when `isExpanded` is true.
-// `onCloseClick` should be used to update local state such that `isExpanded` becomes false.
-export const PageDrawerContent: React.FC<{
+export interface IPageDrawerContentProps {
   isExpanded: boolean;
-  onCloseClick: () => void;
-  children: React.ReactNode;
-}> = ({ isExpanded: localIsExpandedProp, onCloseClick, children }) => {
+  onCloseClick: () => void; // Should be used to update local state such that `isExpanded` becomes false.
+  children: React.ReactNode; // The content to show in the drawer when `isExpanded` is true.
+  focusKey?: string | number; // A unique key representing the object being described in the drawer. When this changes, the drawer will regain focus.
+}
+
+export const PageDrawerContent: React.FC<IPageDrawerContentProps> = ({
+  isExpanded: localIsExpandedProp,
+  onCloseClick,
+  children,
+  focusKey,
+}) => {
   const {
     setIsDrawerMounted,
     setIsDrawerExpanded,
@@ -121,6 +129,11 @@ export const PageDrawerContent: React.FC<{
       setIsDrawerExpanded(false);
     };
   }, [localIsExpandedProp]);
+
+  // If the drawer is already expanded describing app A, then the user clicks app B, we want to send focus back to the drawer.
+  React.useEffect(() => {
+    drawerFocusRef?.current?.focus();
+  }, [focusKey]);
 
   React.useEffect(() => {
     setDrawerChildren(

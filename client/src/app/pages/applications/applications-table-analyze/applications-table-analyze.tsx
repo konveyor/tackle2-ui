@@ -624,6 +624,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           // TODO(mturley) -- add filters and other features from new design!
           isExpanded={!!activeAppInDetailDrawer}
           onCloseClick={closeDetailDrawer}
+          focusKey={activeAppInDetailDrawer?.id}
         >
           <h1>
             TODO: analysis content about app "{activeAppInDetailDrawer?.name}"
