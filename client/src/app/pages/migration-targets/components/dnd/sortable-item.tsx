@@ -24,9 +24,8 @@ export const SortableItem: React.FC<SortableItemProps> = (
   const inlineStyles = {
     transform: CSS.Transform.toString(transform),
     transition: [transition].filter(Boolean).join(", "),
-    height: 400,
+    height: 410,
     width: "20em",
-    backgroundColor: "grey",
     ...style,
   } as React.CSSProperties;
 
