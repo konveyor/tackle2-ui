@@ -160,7 +160,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
           />
         </FormGroup>
         <FormGroup
-          label={t("terms.tagcategory")}
+          label={t("terms.tagCategory")}
           fieldId="tagCategory"
           isRequired={true}
           validated={getValidatedFromError(formik.errors.tagCategory)}
@@ -178,7 +178,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
               clearSelectionsAriaLabel: "tag-type",
               removeSelectionAriaLabel: "tag-type",
               placeholderText: t("composed.selectOne", {
-                what: t("terms.tagcategory").toLowerCase(),
+                what: t("terms.tagCategory").toLowerCase(),
               }),
               menuAppendTo: () => document.body,
               maxHeight: DEFAULT_SELECT_MAX_HEIGHT,

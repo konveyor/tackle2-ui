@@ -22,8 +22,8 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
 }) => {
   const [tagCategories, setTagCategories] = useState<Map<number, TagCategory>>(
     new Map()
-  ); // <tagCategoryId, tagCategory>
-  const [tags, setTags] = useState<Map<number, Tag[]>>(new Map()); // <tagCategoryId, tags[]>
+  );
+  const [tags, setTags] = useState<Map<number, Tag[]>>(new Map());
 
   const [isFetching, setIsFetching] = useState(false);
 

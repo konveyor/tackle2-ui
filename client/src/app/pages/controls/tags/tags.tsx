@@ -114,7 +114,7 @@ export const Tags: React.FC = () => {
 
   const onDeleteTagCategorySuccess = (response: any) => {
     pushNotification({
-      title: t("terms.tagcategoryDeleted"),
+      title: t("terms.tagCategoryDeleted"),
       variant: "success",
     });
     refetch();
@@ -251,7 +251,7 @@ export const Tags: React.FC = () => {
 
   const columns: ICell[] = [
     {
-      title: t("terms.tagcategory"),
+      title: t("terms.tagCategory"),
       transforms: [sortable],
       cellFormatters: [expandable],
     },
@@ -466,14 +466,14 @@ export const Tags: React.FC = () => {
           }
           noDataState={
             <NoDataEmptyState
-              // t('terms.tagcategories')
+              // t('terms.tagCategories')
               title={t("composed.noDataStateTitle", {
-                what: t("terms.tagcategories").toLowerCase(),
+                what: t("terms.tagCategories").toLowerCase(),
               })}
               // t('terms.stakeholderGroup')
               description={
                 t("composed.noDataStateBody", {
-                  what: t("terms.tagcategory").toLowerCase(),
+                  what: t("terms.tagCategory").toLowerCase(),
                 }) + "."
               }
             />
@@ -527,7 +527,7 @@ export const Tags: React.FC = () => {
       {isTagCategoryToDeleteConfirmDialogOpen && (
         <ConfirmDialog
           title={t("dialog.title.delete", {
-            what: t("terms.tagcategory").toLowerCase(),
+            what: t("terms.tagCategory").toLowerCase(),
           })}
           titleIconVariant={"warning"}
           message={t("dialog.message.delete")}

@@ -97,14 +97,14 @@
       "newStakeholder": "Nuevo interesado",
       "newStakeholderGroup": "Nuevo grupo de interesados",
       "newTag": "Nueva etiqueta",
-      "newtagcategory": "Nuevo categoría de etiqueta",
+      "newTagCategory": "Nuevo categoría de etiqueta",
       "updateApplication": "Actualizar aplicación",
       "updateBusinessService": "Actualizar servicio de negocio",
       "updateJobFunction": "Actualizar función laboral",
       "updateStakeholder": "Actualizar interesado",
       "updateStakeholderGroup": "Actualizar grupo de interesados",
       "updateTag": "Actualizar etiqueta",
-      "updatetagcategory": "Actualizar categoría de etiqueta"
+      "updateTagCategory": "Actualizar categoría de etiqueta"
     }
   },
   "efforts": {
@@ -287,14 +287,15 @@
     "suggestedAdoptionPlan": "Plan de adopción sugerido",
     "svnConfig": "configuiración de Subversion",
     "tableView": "Vista de tabla",
+    "tag": "Etiqueta",
     "tag(s)": "Etiqueta(s)",
     "tagCount": "Número de etiquetas",
     "tagDeleted": "Etiqueta descheda",
     "tagName": "Nombre de etiqueta",
     "tags": "Etiquetas",
-    "tagcategory": "Categoría de etiqueta",
-    "tagcategoryDeleted": "Categoría de etiqueta descheda",
-    "tagcategories": "Categorías de etiqueta",
+    "tagCategory": "Categoría de etiqueta",
+    "tagCategoryDeleted": "Categoría de etiqueta descheda",
+    "tagCategories": "Categorías de etiqueta",
     "teamMember": "miembro del equipo",
     "trivialButMigratable": "Trivial pero migrable",
     "unassesed": "No evaluado",
@@ -304,7 +305,6 @@
     "user": "Usuario",
     "version": "Versión",
     "workPriority": "Prioridad de trabajo",
-    "tag": "Etiqueta",
     "credential": "Credencial"
   },
   "toastr": {

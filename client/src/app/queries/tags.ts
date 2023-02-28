@@ -24,7 +24,7 @@ export interface ITagCategoryFetchState {
 }
 
 export const TagsQueryKey = "tags";
-export const TagCategoriesQueryKey = "tagcategory";
+export const TagCategoriesQueryKey = "tagcategories";
 
 export const useFetchTags = (): ITagFetchState => {
   const { data, isLoading, error, refetch } = useQuery(

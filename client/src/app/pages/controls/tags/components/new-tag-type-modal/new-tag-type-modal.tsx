@@ -23,7 +23,7 @@ export const NewTagCategoryModal: React.FC<NewTagCategoryModalProps> = ({
 
   return (
     <Modal
-      title={t("dialog.title.newtagcategory")}
+      title={t("dialog.title.newTagCategory")}
       variant={ModalVariant.medium}
       isOpen={isOpen}
       onClose={onCancel}
