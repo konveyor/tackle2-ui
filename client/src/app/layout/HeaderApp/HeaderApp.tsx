@@ -16,7 +16,7 @@ import { AppAboutModalState } from "../AppAboutModalState";
 import { SSOMenu } from "./SSOMenu";
 import { MobileDropdown } from "./MobileDropdown";
 
-import navBrandImage from "@app/images/tackle.png";
+import navBrandImage from "@app/images/konveyor-logo-white-text.png";
 import { APP_BRAND, BrandType, isAuthRequired } from "@app/Constants";
 import logoRedHat from "@app/images/logoRedHat.svg";
 import "./header.css";

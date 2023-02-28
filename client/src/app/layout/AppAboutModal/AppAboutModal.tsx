@@ -10,7 +10,7 @@ import {
   TextListItem,
 } from "@patternfly/react-core";
 
-import tackleBrandImage from "@app/images/tackle.png";
+import konveyorBrandImage from "@app/images/konveyor-logo-white-text.png";
 import mtaBrandImage from "@app/images/logoRedHat.svg";
 import { APP_BRAND, BrandType } from "@app/Constants";
 import { ENV } from "@app/env";
@@ -27,7 +27,7 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
   const { t } = useTranslation();
   const brandName =
     APP_BRAND === BrandType.Konveyor
-      ? "Tackle"
+      ? "Konveyor"
       : "Migration Toolkit for Applications";
   return (
     <AboutModal
@@ -35,7 +35,7 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
       onClose={onClose}
       trademark="COPYRIGHT © 2022."
       brandImageSrc={
-        APP_BRAND === BrandType.Konveyor ? tackleBrandImage : mtaBrandImage
+        APP_BRAND === BrandType.Konveyor ? konveyorBrandImage : mtaBrandImage
       }
       brandImageAlt="Logo"
       productName={brandName}
@@ -65,7 +65,7 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
             component={TextVariants.a}
             href={
               APP_BRAND === BrandType.Konveyor
-                ? "https://tackle-docs.konveyor.io/"
+                ? "https://konveyor-docs.konveyor.io/"
                 : "https://access.redhat.com/documentation/en-us/migration_toolkit_for_applications"
             }
             target="_blank"
