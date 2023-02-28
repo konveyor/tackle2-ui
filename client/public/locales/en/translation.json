@@ -153,10 +153,10 @@
     "unknown": "Unknown"
   },
   "sidebar": {
-    "administrator": "Administrator",
+    "administrator": "Administration",
     "applicationInventory": "Application inventory",
     "controls": "Controls",
-    "developer": "Developer",
+    "developer": "Migration",
     "reports": "Reports"
   },
   "terms": {
