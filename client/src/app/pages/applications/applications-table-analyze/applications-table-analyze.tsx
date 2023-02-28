@@ -619,9 +619,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           }
         />
         <ApplicationDetailDrawer
-          isExpanded={!!activeAppInDetailDrawer}
-          onCloseClick={closeDetailDrawer}
           application={activeAppInDetailDrawer}
+          onCloseClick={closeDetailDrawer}
           showReportsTab
         />
       </ConditionalRender>

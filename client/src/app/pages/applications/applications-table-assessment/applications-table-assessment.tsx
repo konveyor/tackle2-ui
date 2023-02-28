@@ -801,9 +801,8 @@ export const ApplicationsTable: React.FC = () => {
           }
         />
         <ApplicationDetailDrawer
-          isExpanded={!!activeAppInDetailDrawer}
-          onCloseClick={closeDetailDrawer}
           application={activeAppInDetailDrawer}
+          onCloseClick={closeDetailDrawer}
         />
       </ConditionalRender>
       <Modal
