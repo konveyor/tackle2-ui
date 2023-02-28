@@ -335,10 +335,15 @@
       "noCustomRules": "No custom rules personalizadas disponibles",
       "notAllAnalyzable": "Algunas aplicaciones no se pueden analizar",
       "notAllAnalyzableDetails": "Algunas de las aplicaciones seleccionadas no se pueden analizar con la fuente seleccionada porque esos valores no se han definido. Si continúa, estas aplicaciones no se incluirán en el análisis.",
+      "packageToInclude": "Agregar un paquete para incluir",
+      "packageIncluded": "Este paquete ya está incluido.",
+      "packageToExclude": "Agregar un paquete para excluir",
+      "packageExcluded": "Este paquete ya está excluido",
       "reviewDetails": "Revise la información a continuación, luego ejecute el análisis.",
+      "scope": "Seleccione el alcance de las dependencias que desea incluir en el análisis.",
       "scopeAllDeps": "Aplicación y todas las dependencias, incluidas las bibliotecas de código abierto conocidas",
       "scopeInternalDeps": "Aplicación y dependencias internas solamente",
-      "scopeSelectDeps": "Seleccionar la lista de paquetes a analizar manualmente",
+      "scopeSelectDeps": "Agregar la lista de paquetes a analizar",
       "setTargets": "Seleccione una o más opciones de destino en foco para el análisis."
     },
     "terms": {

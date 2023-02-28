@@ -31,9 +31,7 @@ export const SetScope: React.FC = () => {
       <Title headingLevel="h3" size="xl">
         Scope
       </Title>
-      <Text>
-        Select the scope of dependencies you want to include in the analysis.
-      </Text>
+      <Text>{t("wizard.label.scope")}</Text>
       <Radio
         id="app"
         name="app"
@@ -70,8 +68,8 @@ export const SetScope: React.FC = () => {
               setListItems={(items) => setValue("includedPackages", items)}
               itemToAddSchema={packageNameSchema}
               itemToAddFieldId="packageToInclude"
-              itemToAddAriaLabel="Add a package to include" // TODO translation here
-              itemNotUniqueMessage="This package is already included" // TODO translation here
+              itemToAddAriaLabel={t("wizard.label.packageToInclude")}
+              itemNotUniqueMessage={t("wizard.label.packageIncluded")}
               removeItemButtonId={(pkg) =>
                 `remove-${pkg}-from-included-packages`
               }
@@ -95,8 +93,8 @@ export const SetScope: React.FC = () => {
           setListItems={(items) => setValue("excludedPackages", items)}
           itemToAddSchema={packageNameSchema}
           itemToAddFieldId="packageToExclude"
-          itemToAddAriaLabel="Add a package to exclude" // TODO translation here
-          itemNotUniqueMessage="This package is already excluded" // TODO translation here
+          itemToAddAriaLabel={t("wizard.label.packageToExclude")}
+          itemNotUniqueMessage={t("wizard.label.packageExcluded")}
           removeItemButtonId={(pkg) => `remove-${pkg}-from-excluded-packages`}
           className={`${spacing.mtSm} ${spacing.mlLg}`}
         />
