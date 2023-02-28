@@ -8,12 +8,14 @@ import {
   DropdownToggle,
   PageHeaderToolsItem,
 } from "@patternfly/react-core";
-import { LocalStorageKey } from "@app/Constants";
+import { isAuthRequired, LocalStorageKey } from "@app/Constants";
+import { useHistory } from "react-router-dom";
 
 export const SSOMenu: React.FC = () => {
   const { t } = useTranslation();
 
-  const { keycloak } = useKeycloak();
+  const { keycloak } = (isAuthRequired && useKeycloak()) || {};
+  const history = useHistory();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const onDropdownSelect = () => {
@@ -30,19 +32,21 @@ export const SSOMenu: React.FC = () => {
         md: "visible",
       }} /** this user dropdown is hidden on mobile sizes */
     >
-      {keycloak && (
-        <Dropdown
-          isPlain
-          position="right"
-          onSelect={onDropdownSelect}
-          isOpen={isDropdownOpen}
-          toggle={
-            <DropdownToggle id="sso-actions-toggle" onToggle={onDropdownToggle}>
-              {(keycloak.idTokenParsed as any)["preferred_username"]}
-            </DropdownToggle>
-          }
-          dropdownItems={[
-            <DropdownGroup key="sso">
+      <Dropdown
+        isPlain
+        position="right"
+        onSelect={onDropdownSelect}
+        isOpen={isDropdownOpen}
+        toggle={
+          <DropdownToggle id="sso-actions-toggle" onToggle={onDropdownToggle}>
+            {keycloak
+              ? (keycloak.idTokenParsed as any)["preferred_username"]
+              : "Username"}
+          </DropdownToggle>
+        }
+        dropdownItems={[
+          <DropdownGroup key="sso">
+            {keycloak && (
               <DropdownItem
                 id="manage-account"
                 key="sso_user_management"
@@ -51,24 +55,33 @@ export const SSOMenu: React.FC = () => {
               >
                 {t("actions.manageAccount")}
               </DropdownItem>
-              <DropdownItem
-                id="logout"
-                key="sso_logout"
-                onClick={() => {
-                  // Clears selected persona from storage without updating it in React state so we don't re-render the persona selector while logging out.
-                  // We have to clear it before logout because the redirect can happen before the logout promise resolves.
-                  window.localStorage.removeItem(
-                    LocalStorageKey.selectedPersona
-                  );
-                  keycloak.logout();
-                }}
-              >
-                {t("actions.logout")}
-              </DropdownItem>
-            </DropdownGroup>,
-          ]}
-        />
-      )}
+            )}
+            <DropdownItem
+              id="logout"
+              key="sso_logout"
+              onClick={() => {
+                // Clears selected persona from storage without updating it in React state so we don't re-render the persona selector while logging out.
+                // We have to clear it before logout because the redirect can happen before the logout promise resolves.
+                window.localStorage.removeItem(LocalStorageKey.selectedPersona);
+                if (keycloak) {
+                  keycloak
+                    .logout()
+                    .then((res) => {
+                      history.push("/");
+                    })
+                    .catch((err) => {
+                      history.push("/");
+                    });
+                } else {
+                  history.push("/");
+                }
+              }}
+            >
+              {t("actions.logout")}
+            </DropdownItem>
+          </DropdownGroup>,
+        ]}
+      />
     </PageHeaderToolsItem>
   );
 };
