@@ -10,7 +10,7 @@ import {
   APPLICATIONS,
   BUSINESS_SERVICES,
   REVIEWS,
-  TAG_TYPES,
+  TAG_CATEGORIES,
 } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
 import { ApplicationForm } from "../application-form";
@@ -22,7 +22,7 @@ import { BusinessService } from "@app/api/models";
 
 const data: any[] = [];
 mock.onGet(`${BUSINESS_SERVICES}`).reply(200, data);
-mock.onGet(`${TAG_TYPES}`).reply(200, data);
+mock.onGet(`${TAG_CATEGORIES}`).reply(200, data);
 mock.onGet(`${APPLICATIONS}`).reply(200, data);
 mock.onGet(`${REVIEWS}`).reply(200, data);
 
