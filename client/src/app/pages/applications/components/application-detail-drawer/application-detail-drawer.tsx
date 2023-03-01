@@ -13,11 +13,12 @@ import {
   IPageDrawerContentProps,
   PageDrawerContent,
 } from "@app/shared/page-drawer-context";
+import { ApplicationBusinessService } from "../application-business-service";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
   application: Application | null;
-  detailsTabDescriptionList: React.ReactNode;
+  detailsTabMainContent: React.ReactNode;
   showReportsTab?: boolean;
 }
 
@@ -27,15 +28,12 @@ enum TabKey {
   Reports,
 }
 
-// TODO(mturley) -- move all content from expanded rows into here!
-// TODO(mturley) -- add filters and other features from new design!
-
 export const ApplicationDetailDrawer: React.FC<
   IApplicationDetailDrawerProps
 > = ({
   onCloseClick,
   application,
-  detailsTabDescriptionList,
+  detailsTabMainContent,
   showReportsTab = false,
 }) => {
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
@@ -47,65 +45,54 @@ export const ApplicationDetailDrawer: React.FC<
       onCloseClick={onCloseClick}
       focusKey={application?.id}
     >
-      {application && (
-        <>
-          <TextContent>
-            <Text component="small" className={spacing.mb_0}>
-              Name
-            </Text>
-            <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
-              {application?.name}
+      <TextContent>
+        <Text component="small" className={spacing.mb_0}>
+          Name
+        </Text>
+        <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
+          {application?.name}
+        </Title>
+      </TextContent>
+      <Tabs
+        activeKey={activeTabKey}
+        onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
+        className={spacing.mtLg}
+      >
+        <Tab
+          eventKey={TabKey.Details}
+          title={<TabTitleText>Details</TabTitleText>}
+        >
+          <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
+            <Text component="small">{application?.description}</Text>
+            <Title headingLevel="h3" size="md">
+              Business service
             </Title>
+            <Text component="small">
+              {application?.businessService && (
+                <ApplicationBusinessService
+                  id={application.businessService.id}
+                />
+              )}
+            </Text>
           </TextContent>
-          <Tabs
-            activeKey={activeTabKey}
-            onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
-            className={spacing.mtLg}
+          {detailsTabMainContent}
+        </Tab>
+        <Tab eventKey={TabKey.Tags} title={<TabTitleText>Tags</TabTitleText>}>
+          <TextContent className={spacing.mtMd}>
+            <Text component="small">Tags content goes here!</Text>
+          </TextContent>
+        </Tab>
+        {showReportsTab && (
+          <Tab
+            eventKey={TabKey.Reports}
+            title={<TabTitleText>Reports</TabTitleText>}
           >
-            <Tab
-              eventKey={TabKey.Details}
-              title={<TabTitleText>Details</TabTitleText>}
-            >
-              <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
-                <Text component="small">TODO (description)</Text>
-                <Title headingLevel="h3" size="md">
-                  Business services
-                </Title>
-                <Text component="small">TODO</Text>
-              </TextContent>
-              {detailsTabDescriptionList}
-              <TextContent className={spacing.mtLg}>
-                <Title headingLevel="h3" size="md">
-                  Reviewer comments
-                </Title>
-                <Text component="small">TODO</Text>
-                <Title headingLevel="h3" size="md">
-                  Comments
-                </Title>
-                <Text component="small">TODO</Text>
-              </TextContent>
-            </Tab>
-            <Tab
-              eventKey={TabKey.Tags}
-              title={<TabTitleText>Tags</TabTitleText>}
-            >
-              <TextContent className={spacing.mtMd}>
-                <Text component="small">Tags content goes here!</Text>
-              </TextContent>
-            </Tab>
-            {showReportsTab && (
-              <Tab
-                eventKey={TabKey.Reports}
-                title={<TabTitleText>Reports</TabTitleText>}
-              >
-                <TextContent className={spacing.mtMd}>
-                  <Text component="small">Reports content goes here!</Text>
-                </TextContent>
-              </Tab>
-            )}
-          </Tabs>
-        </>
-      )}
+            <TextContent className={spacing.mtMd}>
+              <Text component="small">Reports content goes here!</Text>
+            </TextContent>
+          </Tab>
+        )}
+      </Tabs>
     </PageDrawerContent>
   );
 };

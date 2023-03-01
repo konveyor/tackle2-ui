@@ -803,6 +803,12 @@ export const ApplicationsTable: React.FC = () => {
         <ApplicationDetailDrawerAssessment
           application={activeAppInDetailDrawer}
           onCloseClick={closeDetailDrawer}
+          reviews={reviews}
+          assessment={
+            (activeAppInDetailDrawer &&
+              getApplicationAssessment(activeAppInDetailDrawer.id!)) ||
+            null
+          }
         />
       </ConditionalRender>
       <Modal
