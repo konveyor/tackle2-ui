@@ -30,7 +30,7 @@ import {
 
 import { Application, Assessment, Review } from "@app/api/models";
 
-import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
+import { dedupeFunction } from "@app/utils/utils";
 
 import { ApplicationBusinessService } from "../application-business-service";
 import { ApplicationAssessment } from "../application-assessment";
@@ -94,22 +94,23 @@ export const BulkCopyAssessmentReviewForm: React.FC<
       type: FilterType.search,
       placeholderText: "Filter by name...",
       getItemValue: (item) => {
-        return item?.name || "";
+        return item.name || "";
       },
     },
     {
       key: "businessService",
-      title: "Business service",
+      title: t("terms.businessService"),
       type: FilterType.multiselect,
       selectOptions: dedupeFunction(
         applications
+          .filter((app) => !!app.businessService?.name)
           .map((app) => app.businessService?.name)
-          .map((name) => ({
-            key: `BulkCopyAssessmentReviewForm-${name}`,
-            value: name,
-          }))
+          .map((name) => ({ key: name, value: name }))
       ),
-      placeholderText: "Filter by business service...",
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.businessService").toLowerCase(),
+        }) + "...",
       getItemValue: (item) => {
         return item.businessService?.name || "";
       },
