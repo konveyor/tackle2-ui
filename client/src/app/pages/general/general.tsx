@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+  Alert,
   Card,
   CardBody,
   EmptyState,
@@ -57,6 +58,27 @@ export const General: React.FC = () => {
       <PageSection>
         <Card>
           <CardBody>
+            {reviewAssessmentSetting.isError && (
+              <Alert
+                variant="danger"
+                isInline
+                title={reviewAssessmentSetting.error}
+              />
+            )}
+            {downloadCSVSetting.isError && (
+              <Alert
+                variant="danger"
+                isInline
+                title={downloadCSVSetting.error}
+              />
+            )}
+            {downloadHTMLSetting.isError && (
+              <Alert
+                variant="danger"
+                isInline
+                title={downloadHTMLSetting.error}
+              />
+            )}
             {reviewAssessmentSetting.isFetching ||
             downloadCSVSetting.isFetching ||
             downloadHTMLSetting.isFetching ? (
