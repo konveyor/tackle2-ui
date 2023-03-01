@@ -313,15 +313,21 @@ export interface ApplicationImportPage {
   total_count: number;
 }
 
-export interface Setting {
-  key: string;
-  value: boolean | undefined;
-}
+export type SettingTypes = {
+  "download.csv.enabled": boolean;
+  "download.html.enabled": boolean;
+  "git.insecure.enabled": boolean;
+  "mvn.dependencies.update.forced": boolean;
+  "mvn.insecure.enabled": boolean;
+  "review.assessment.required": boolean;
+  "svn.insecure.enabled": boolean;
+  "ui.bundle.order": number[];
+};
 
-export interface BundleOrderSetting {
-  key: string;
-  value: number[];
-}
+export type Setting<K extends keyof SettingTypes> = {
+  key: K;
+  value: SettingTypes[K];
+};
 
 // Analysis Task
 

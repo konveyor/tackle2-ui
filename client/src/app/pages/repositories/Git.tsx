@@ -12,53 +12,18 @@ import {
 import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
-import { useEffect } from "react";
-import { getSettingById, updateSetting } from "@app/api/rest";
-import { Setting } from "@app/api/models";
-import { AxiosError, AxiosPromise } from "axios";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useSetting, useSettingMutation } from "@app/queries/settings";
 
 export const RepositoriesGit: React.FC = () => {
   const { t } = useTranslation();
-  const [error, setError] = React.useState<AxiosError>();
 
-  const { data: gitInsecureSetting, refetch: refreshGitInsecureSetting } =
-    useQuery<boolean>(
-      ["setting"],
-      async () => {
-        return (await getSettingById("git.insecure.enabled")).data;
-      },
-      {
-        onError: (error) => console.log("error, ", error),
-      }
-    );
+  const gitInsecureSetting = useSetting("git.insecure.enabled");
+  const gitInsecureSettingMutation = useSettingMutation("git.insecure.enabled");
 
   const onChange = () => {
-    const setting: Setting = {
-      key: "git.insecure.enabled",
-      value: !gitInsecureSetting,
-    };
-
-    let promise: AxiosPromise<Setting>;
-    if (gitInsecureSetting !== undefined) {
-      promise = updateSetting(setting);
-    } else {
-      promise = updateSetting(setting);
-    }
-
-    promise
-      .then((response) => {
-        refreshGitInsecureSetting();
-      })
-      .catch((error) => {
-        setError(error);
-      });
+    if (gitInsecureSetting.isSuccess)
+      gitInsecureSettingMutation.mutate(!gitInsecureSetting.data);
   };
-
-  useEffect(() => {
-    refreshGitInsecureSetting();
-  }, [refreshGitInsecureSetting]);
 
   return (
     <>
@@ -70,11 +35,11 @@ export const RepositoriesGit: React.FC = () => {
       <PageSection>
         <Card>
           <CardBody>
-            {error && (
+            {gitInsecureSetting.isError && (
               <Alert
                 variant="danger"
                 isInline
-                title={getAxiosErrorMessage(error)}
+                title={gitInsecureSetting.error}
               />
             )}
             <Switch
@@ -82,7 +47,9 @@ export const RepositoriesGit: React.FC = () => {
               className="repo"
               label="Consume insecure Git repositories"
               aria-label="HTTP Proxy"
-              isChecked={gitInsecureSetting === true ? true : false}
+              isChecked={
+                gitInsecureSetting.isSuccess ? gitInsecureSetting.data : false
+              }
               onChange={onChange}
             />
           </CardBody>
