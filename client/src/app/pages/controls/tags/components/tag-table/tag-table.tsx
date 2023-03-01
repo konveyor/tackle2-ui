@@ -12,7 +12,7 @@ import {
   TableHeader,
 } from "@patternfly/react-table";
 
-import { Tag, TagType } from "@app/api/models";
+import { Tag, TagCategory } from "@app/api/models";
 import "./tag-table.css";
 
 const ENTITY_FIELD = "entity";
@@ -22,13 +22,13 @@ const getRow = (rowData: IRowData): Tag => {
 };
 
 export interface TabTableProps {
-  tagType: TagType;
+  tagCategory: TagCategory;
   onEdit: (tag: Tag) => void;
   onDelete: (tag: Tag) => void;
 }
 
 export const TagTable: React.FC<TabTableProps> = ({
-  tagType,
+  tagCategory: tagCategory,
   onEdit,
   onDelete,
 }) => {
@@ -46,7 +46,7 @@ export const TagTable: React.FC<TabTableProps> = ({
   ];
 
   const rows: IRow[] = [];
-  (tagType.tags || [])
+  (tagCategory.tags || [])
     .sort((a, b) => a.name.localeCompare(b.name))
     .forEach((item) => {
       rows.push({

@@ -24,7 +24,7 @@
     "create": "Create",
     "createNew": "Create new",
     "createTag": "Create tag",
-    "createTagType": "Create tag type",
+    "createTagCategory": "Create tag category",
     "delete": "Delete",
     "discardAssessment": "Discard assessment",
     "downloadCsvTemplate": "Download CSV template",
@@ -97,14 +97,14 @@
       "newStakeholder": "New stakeholder",
       "newStakeholderGroup": "New stakeholder group",
       "newTag": "New Tag",
-      "newTagType": "New tag type",
+      "newTagCategory": "New tag category",
       "updateApplication": "Update application",
       "updateBusinessService": "Update business service",
       "updateJobFunction": "Update job function",
       "updateStakeholder": "Update stakeholder",
       "updateStakeholderGroup": "Update stakeholder group",
       "updateTag": "Update tag",
-      "updateTagType": "Update tag type"
+      "updateTagCategory": "Update tag category"
     }
   },
   "efforts": {
@@ -291,12 +291,12 @@
     "tableView": "Table view",
     "tag(s)": "Tag(s)",
     "tagCount": "Tag count",
-    "tagDeleted": "",
+    "tagDeleted": "Tag deleted",
     "tagName": "Tag name",
     "tags": "Tags",
-    "tagType": "Tag type",
-    "tagTypeDeleted": "",
-    "tagTypes": "Tag types",
+    "tagCategory": "Tag category",
+    "tagCategoryDeleted": "Tag category deleted",
+    "tagCategories": "Tag categories",
     "teamMember": "team member",
     "trivialButMigratable": "Trivial but migratable",
     "unassesed": "Unassesed",
@@ -306,9 +306,7 @@
     "user": "User",
     "version": "Version",
     "workPriority": "Work priority",
-    "tag": "Tag",
-    "tagDelete": "Tag deleted",
-    "tagTypeDelete": "Tag type deleted"
+    "tag": "Tag"
   },
   "toastr": {
     "success": {

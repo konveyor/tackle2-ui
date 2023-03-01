@@ -8,14 +8,14 @@ import { TagCategory } from "@app/api/models";
 
 import { TagCategoryForm } from "../tag-category-form";
 
-export interface NewTagCategoryModalProps {
-  isOpen: boolean;
+export interface UpdateTagCategoryModalProps {
+  tagCategory?: TagCategory;
   onSaved: (response: AxiosResponse<TagCategory>) => void;
   onCancel: () => void;
 }
 
-export const NewTagCategoryModal: React.FC<NewTagCategoryModalProps> = ({
-  isOpen,
+export const UpdateTagCategoryModal: React.FC<UpdateTagCategoryModalProps> = ({
+  tagCategory: tagCategory,
   onSaved,
   onCancel,
 }) => {
@@ -23,12 +23,16 @@ export const NewTagCategoryModal: React.FC<NewTagCategoryModalProps> = ({
 
   return (
     <Modal
-      title={t("dialog.title.newTagCategory")}
+      title={t("dialog.title.updateTagCategory")}
       variant={ModalVariant.medium}
-      isOpen={isOpen}
+      isOpen={!!tagCategory}
       onClose={onCancel}
     >
-      <TagCategoryForm onSaved={onSaved} onCancel={onCancel} />
+      <TagCategoryForm
+        tagCategory={tagCategory}
+        onSaved={onSaved}
+        onCancel={onCancel}
+      />
     </Modal>
   );
 };

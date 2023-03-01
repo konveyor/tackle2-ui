@@ -10,7 +10,7 @@ import {
   Stakeholder,
   StakeholderGroup,
   Tag,
-  TagType,
+  TagCategory,
 } from "@app/api/models";
 import { Color, OptionWithValue } from "@app/shared/components";
 
@@ -115,30 +115,33 @@ export const toIJobFunctionDropdownOptionWithValue = (
   toString: () => value.name,
 });
 
-// TagType
+// TagCategory
 
-export interface ITagTypeDropdown extends Pick<TagType, "id" | "name"> {}
+export interface ITagCategoryDropdown
+  extends Pick<TagCategory, "id" | "name"> {}
 
-export const toITagTypeDropdown = (value: TagType): ITagTypeDropdown => ({
+export const toITagCategoryDropdown = (
+  value: TagCategory
+): ITagCategoryDropdown => ({
   id: value.id,
   name: value.name,
 });
 
-export const toITagTypeDropdownOptionWithValue = (
-  value: ITagTypeDropdown
-): OptionWithValue<ITagTypeDropdown> => ({
+export const toITagCategoryDropdownOptionWithValue = (
+  value: ITagCategoryDropdown
+): OptionWithValue<ITagCategoryDropdown> => ({
   value,
   toString: () => value.name,
 });
 
 // Tag
 
-export interface ITagDropdown extends Pick<Tag, "id" | "name" | "tagType"> {}
+export interface ITagDropdown extends Pick<Tag, "id" | "name" | "category"> {}
 
 export const toITagDropdown = (value: Tag): ITagDropdown => ({
   id: value.id,
   name: value.name,
-  tagType: value.tagType,
+  category: value.category,
 });
 
 export const toITagDropdownOptionWithValue = (
@@ -147,7 +150,7 @@ export const toITagDropdownOptionWithValue = (
   value,
   toString: () => value.name,
   props: {
-    description: value.tagType ? value.tagType.name : "",
+    description: value.category ? value.category.name : "",
   },
 });
 

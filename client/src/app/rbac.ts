@@ -52,7 +52,7 @@ export const readScopes = [
   "stakeholdergroups:get",
   "stakeholders:get",
   "tags:get",
-  "tagtypes:get",
+  "tagcategories:get",
   "tasks:get",
 ];
 
@@ -90,9 +90,9 @@ export const controlsWriteScopes = [
   "tags:put",
   "tags:post",
   "tags:delete",
-  "tagtypes:put",
-  "tagtypes:post",
-  "tagtypes:delete",
+  "tagcategories:put",
+  "tagcategories:post",
+  "tagcategories:delete",
 ];
 
 export const dependenciesWriteScopes = [

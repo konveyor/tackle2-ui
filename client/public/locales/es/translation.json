@@ -24,7 +24,7 @@
     "create": "Crear",
     "createNew": "Crear nuevo",
     "createTag": "Crear etiqueta",
-    "createTagType": "Crear tipo de etiqueta",
+    "createTagCategory": "Crear categoría de etiqueta",
     "delete": "Eliminar",
     "discardAssessment": "Descartar evaluación",
     "downloadCsvTemplate": "Descargar plantilla CSV",
@@ -97,14 +97,14 @@
       "newStakeholder": "Nuevo interesado",
       "newStakeholderGroup": "Nuevo grupo de interesados",
       "newTag": "Nueva etiqueta",
-      "newTagType": "Nuevo tipo de etiqueta",
+      "newTagCategory": "Nuevo categoría de etiqueta",
       "updateApplication": "Actualizar aplicación",
       "updateBusinessService": "Actualizar servicio de negocio",
       "updateJobFunction": "Actualizar función laboral",
       "updateStakeholder": "Actualizar interesado",
       "updateStakeholderGroup": "Actualizar grupo de interesados",
       "updateTag": "Actualizar etiqueta",
-      "updateTagType": "Actualizar tipo de etiqueta"
+      "updateTagCategory": "Actualizar categoría de etiqueta"
     }
   },
   "efforts": {
@@ -287,14 +287,15 @@
     "suggestedAdoptionPlan": "Plan de adopción sugerido",
     "svnConfig": "configuiración de Subversion",
     "tableView": "Vista de tabla",
+    "tag": "Etiqueta",
     "tag(s)": "Etiqueta(s)",
     "tagCount": "Número de etiquetas",
     "tagDeleted": "Etiqueta descheda",
     "tagName": "Nombre de etiqueta",
     "tags": "Etiquetas",
-    "tagType": "Tipo de etiqueta",
-    "tagTypeDeleted": "Tipo de etiqueta descheda",
-    "tagTypes": "Tipos de etiqueta",
+    "tagCategory": "Categoría de etiqueta",
+    "tagCategoryDeleted": "Categoría de etiqueta descheda",
+    "tagCategories": "Categorías de etiqueta",
     "teamMember": "miembro del equipo",
     "trivialButMigratable": "Trivial pero migrable",
     "unassesed": "No evaluado",
@@ -304,7 +305,6 @@
     "user": "Usuario",
     "version": "Versión",
     "workPriority": "Prioridad de trabajo",
-    "tag": "Etiqueta",
     "credential": "Credencial"
   },
   "toastr": {

@@ -51,7 +51,7 @@ import {
 } from "@app/queries/applications";
 import "./application-form.css";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
-import { useFetchTagTypes } from "@app/queries/tags";
+import { useFetchTagCategories } from "@app/queries/tags";
 export interface FormValues {
   name: string;
   description: string;
@@ -92,26 +92,26 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     fetchError: fetchErrorBusinessServices,
   } = useFetchBusinessServices();
 
-  // TagTypes
+  // TagCategories
 
   const {
-    tagTypes,
-    isFetching: isFetchingTagTypes,
-    fetchError: fetchErrorTagTypes,
-    refetch: fetchTagTypes,
-  } = useFetchTagTypes();
+    tagCategories: tagCategories,
+    isFetching: isFetchingTagCategories,
+    fetchError: fetchErrorTagCategories,
+    refetch: fetchTagCategories,
+  } = useFetchTagCategories();
 
   useEffect(() => {
-    fetchTagTypes();
-  }, [fetchTagTypes]);
+    fetchTagCategories();
+  }, [fetchTagCategories]);
 
   // Tags
 
   const [tags, setTags] = useState<Ref[]>();
 
   useEffect(() => {
-    if (tagTypes) {
-      setTags(tagTypes.flatMap((f) => f.tags || []));
+    if (tagCategories) {
+      setTags(tagCategories.flatMap((f) => f.tags || []));
     }
   }, []);
 
@@ -532,8 +532,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   }),
                   menuAppendTo: () => document.body,
                   maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-                  isFetching: isFetchingTagTypes,
-                  fetchError: fetchErrorTagTypes,
+                  isFetching: isFetchingTagCategories,
+                  fetchError: fetchErrorTagCategories,
                 }}
                 options={(tags || []).map(toITagDropdown)}
                 toOptionWithValue={toITagDropdownOptionWithValue}
