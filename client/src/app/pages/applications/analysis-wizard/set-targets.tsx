@@ -12,11 +12,9 @@ import { useFormContext } from "react-hook-form";
 
 import { TargetCard } from "@app/components/target-card";
 import { AnalysisWizardFormValues } from "./schema";
-import {
-  useFetchBundleOrder,
-  useFetchRuleBundles,
-} from "@app/queries/rulebundles";
+import { useFetchRuleBundles } from "@app/queries/rulebundles";
 import { RuleBundle } from "@app/api/models";
+import { useSetting } from "@app/queries/settings";
 
 export const SetTargets: React.FC = () => {
   const { t } = useTranslation();
@@ -27,11 +25,7 @@ export const SetTargets: React.FC = () => {
     refetch: refetchRuleBundles,
   } = useFetchRuleBundles();
 
-  const {
-    bundleOrderSetting,
-    isFetching,
-    refetch: refreshBundleOrderSetting,
-  } = useFetchBundleOrder(ruleBundles);
+  const bundleOrderSetting = useSetting("ui.bundle.order");
 
   const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
   const formTargets = watch("formTargets");
@@ -132,40 +126,44 @@ export const SetTargets: React.FC = () => {
         <Text>{t("wizard.label.setTargets")}</Text>
       </TextContent>
       <Gallery hasGutter>
-        {bundleOrderSetting.value.map((id, index) => {
-          const matchingRuleBundle = ruleBundles.find(
-            (target) => target.id === id
-          );
-          return (
-            <GalleryItem key={index}>
-              {matchingRuleBundle && (
-                <TargetCard
-                  readOnly
-                  item={matchingRuleBundle}
-                  cardSelected={formRuleBundles
-                    .map((formRuleBundle) => formRuleBundle.name)
-                    .includes(matchingRuleBundle.name)}
-                  onSelectedCardTargetChange={(selectedRuleTarget: string) => {
-                    handleOnSelectedCardTargetChange(
-                      selectedRuleTarget,
-                      matchingRuleBundle
-                    );
-                  }}
-                  onCardClick={(
-                    isSelecting: boolean,
-                    selectedRuleTarget: string
-                  ) => {
-                    handleOnCardClick(
-                      isSelecting,
-                      selectedRuleTarget,
-                      matchingRuleBundle
-                    );
-                  }}
-                />
-              )}
-            </GalleryItem>
-          );
-        })}
+        {bundleOrderSetting.isSuccess
+          ? bundleOrderSetting.data.map((id, index) => {
+              const matchingRuleBundle = ruleBundles.find(
+                (target) => target.id === id
+              );
+              return (
+                <GalleryItem key={index}>
+                  {matchingRuleBundle && (
+                    <TargetCard
+                      readOnly
+                      item={matchingRuleBundle}
+                      cardSelected={formRuleBundles
+                        .map((formRuleBundle) => formRuleBundle.name)
+                        .includes(matchingRuleBundle.name)}
+                      onSelectedCardTargetChange={(
+                        selectedRuleTarget: string
+                      ) => {
+                        handleOnSelectedCardTargetChange(
+                          selectedRuleTarget,
+                          matchingRuleBundle
+                        );
+                      }}
+                      onCardClick={(
+                        isSelecting: boolean,
+                        selectedRuleTarget: string
+                      ) => {
+                        handleOnCardClick(
+                          isSelecting,
+                          selectedRuleTarget,
+                          matchingRuleBundle
+                        );
+                      }}
+                    />
+                  )}
+                </GalleryItem>
+              );
+            })
+          : null}
       </Gallery>
     </Form>
   );

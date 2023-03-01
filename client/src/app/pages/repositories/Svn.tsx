@@ -12,52 +12,16 @@ import {
 import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
-import { Setting } from "@app/api/models";
-import { getSettingById, updateSetting } from "@app/api/rest";
-import { AxiosError, AxiosPromise } from "axios";
-import { useEffect } from "react";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useSetting, useSettingMutation } from "@app/queries/settings";
 
 export const RepositoriesSvn: React.FC = () => {
   const { t } = useTranslation();
-  const [error, setError] = React.useState<AxiosError>();
-
-  const { data: svnInsecureSetting, refetch: refreshSvnInsecureSetting } =
-    useQuery<boolean>(
-      ["svnsetting"],
-      async () => {
-        return (await getSettingById("svn.insecure.enabled")).data;
-      },
-      {
-        onError: (error) => console.log("error, ", error),
-      }
-    );
-
-  useEffect(() => {
-    refreshSvnInsecureSetting();
-  }, [refreshSvnInsecureSetting]);
+  const svnInsecureSetting = useSetting("svn.insecure.enabled");
+  const svnInsecureSettingMutation = useSettingMutation("svn.insecure.enabled");
 
   const onChange = () => {
-    const setting: Setting = {
-      key: "svn.insecure.enabled",
-      value: !svnInsecureSetting,
-    };
-
-    let promise: AxiosPromise<Setting>;
-    if (svnInsecureSetting !== undefined) {
-      promise = updateSetting(setting);
-    } else {
-      promise = updateSetting(setting);
-    }
-
-    promise
-      .then((response) => {
-        refreshSvnInsecureSetting();
-      })
-      .catch((error) => {
-        setError(error);
-      });
+    if (svnInsecureSetting.isSuccess)
+      svnInsecureSettingMutation.mutate(!svnInsecureSetting.data);
   };
 
   return (
@@ -70,11 +34,11 @@ export const RepositoriesSvn: React.FC = () => {
       <PageSection>
         <Card>
           <CardBody>
-            {error && (
+            {svnInsecureSetting.isError && (
               <Alert
                 variant="danger"
                 isInline
-                title={getAxiosErrorMessage(error)}
+                title={svnInsecureSetting.error}
               />
             )}
             <Switch
@@ -82,7 +46,9 @@ export const RepositoriesSvn: React.FC = () => {
               className="repo"
               label="Consume insecure Subversion repositories"
               aria-label="Insecure Subversion Repositories"
-              isChecked={svnInsecureSetting === true ? true : false}
+              isChecked={
+                svnInsecureSetting.isSuccess ? svnInsecureSetting.data : false
+              }
               onChange={onChange}
             />
           </CardBody>

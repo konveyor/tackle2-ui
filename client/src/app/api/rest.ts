@@ -13,7 +13,6 @@ import {
   AssessmentRisk,
   BulkCopyAssessment,
   BulkCopyReview,
-  BundleOrderSetting,
   BusinessService,
   Identity,
   IReadFile,
@@ -22,6 +21,7 @@ import {
   Review,
   RuleBundle,
   Setting,
+  SettingTypes,
   Stakeholder,
   StakeholderGroup,
   Tag,
@@ -453,23 +453,6 @@ export const deleteIdentity = (id: number): AxiosPromise => {
   return APIClient.delete(`${IDENTITIES}/${id}`);
 };
 
-export const getSettingById = (id: number | string) => {
-  return axios.get(`${SETTINGS}/${id}`, jsonHeaders).then((res) => res.data);
-};
-
-export const updateBundleOrderSetting = (
-  obj: BundleOrderSetting
-): AxiosPromise<Setting> => {
-  return APIClient.put(`${SETTINGS}/${obj.key}`, obj.value, jsonHeaders);
-};
-export const updateSetting = (obj: Setting): AxiosPromise<Setting> => {
-  return APIClient.put(
-    `${SETTINGS}/${obj.key}`,
-    obj.value?.toString(),
-    jsonHeaders
-  );
-};
-
 export const getProxies = (): AxiosPromise<Array<Proxy>> => {
   return APIClient.get(`${PROXIES}`, jsonHeaders);
 };
@@ -592,3 +575,16 @@ export const createFile = ({
     .then((response) => {
       return response.data;
     });
+
+export const getSettingById = <K extends keyof SettingTypes>(
+  id: K
+): Promise<SettingTypes[K]> =>
+  axios.get(`${SETTINGS}/${id}`).then((response) => response.data);
+
+export const updateSetting = <K extends keyof SettingTypes>(
+  obj: Setting<K>
+): Promise<Setting<K>> =>
+  axios.put(
+    `${SETTINGS}/${obj.key}`,
+    typeof obj.value == "boolean" ? obj.value.toString() : obj.value
+  );
