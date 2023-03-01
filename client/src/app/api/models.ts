@@ -52,7 +52,7 @@ export interface JobFunction {
   stakeholders?: Array<Ref>;
 }
 
-export interface TagType {
+export interface TagCategory {
   id?: number;
   name: string;
   rank?: number;
@@ -63,7 +63,7 @@ export interface TagType {
 export interface Tag {
   id?: number;
   name: string;
-  tagType?: Ref;
+  category?: Ref;
 }
 
 // Application inventory
@@ -271,16 +271,9 @@ export interface StakeholderGroupPage {
 
 export type JobFunctionPage = Array<JobFunction>;
 
-export interface TagTypePage {
+export interface TagCategoryPage {
   _embedded: {
-    "tag-type": TagType[];
-  };
-  total_count: number;
-}
-
-export interface TagTypePage {
-  _embedded: {
-    "tag-type": TagType[];
+    "tag-type": TagCategory[];
   };
   total_count: number;
 }

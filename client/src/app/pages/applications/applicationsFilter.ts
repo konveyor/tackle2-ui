@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 
 import { Application } from "@app/api/models";
 import { useFetchIdentities } from "@app/queries/identities";
-import { useFetchTagTypes } from "@app/queries/tags";
+import { useFetchTagCategories } from "@app/queries/tags";
 import {
   FilterCategory,
   FilterType,
@@ -24,7 +24,7 @@ export const useApplicationsFilterValues = (
 
   const { t } = useTranslation();
 
-  const { tagTypes } = useFetchTagTypes();
+  const { tagCategories: tagCategories } = useFetchTagCategories();
 
   const filterCategories: FilterCategory<Application>[] = [
     {
@@ -145,8 +145,8 @@ export const useApplicationsFilterValues = (
         return tagNames || "";
       },
       selectOptions: dedupeFunction(
-        tagTypes
-          ?.map((tagType) => tagType?.tags)
+        tagCategories
+          ?.map((tagCategory) => tagCategory?.tags)
           .flat()
           .filter((tag) => tag && tag.name)
           .map((tag) => ({ key: tag?.name, value: tag?.name }))

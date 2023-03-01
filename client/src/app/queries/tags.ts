@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { deleteTag, deleteTagType, getTags, getTagTypes } from "@app/api/rest";
-import { Tag, TagType } from "@app/api/models";
+import {
+  deleteTag,
+  deleteTagCategory,
+  getTags,
+  getTagCategories,
+} from "@app/api/rest";
+import { Tag, TagCategory } from "@app/api/models";
 import { AxiosError } from "axios";
 
 export interface ITagFetchState {
@@ -11,15 +16,15 @@ export interface ITagFetchState {
   refetch: any;
 }
 
-export interface ITagTypeFetchState {
-  tagTypes: TagType[];
+export interface ITagCategoryFetchState {
+  tagCategories: TagCategory[];
   isFetching: boolean;
   fetchError: any;
   refetch: any;
 }
 
 export const TagsQueryKey = "tags";
-export const TagTypesQueryKey = "tagtypes";
+export const TagCategoriesQueryKey = "tagcategories";
 
 export const useFetchTags = (): ITagFetchState => {
   const { data, isLoading, error, refetch } = useQuery(
@@ -37,16 +42,16 @@ export const useFetchTags = (): ITagFetchState => {
   };
 };
 
-export const useFetchTagTypes = (): ITagTypeFetchState => {
+export const useFetchTagCategories = (): ITagCategoryFetchState => {
   const { data, isLoading, error, refetch } = useQuery(
-    [TagTypesQueryKey],
-    async () => (await getTagTypes()).data,
+    [TagCategoriesQueryKey],
+    async () => (await getTagCategories()).data,
     {
       onError: (error) => console.log("error, ", error),
     }
   );
   return {
-    tagTypes: data || [],
+    tagCategories: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,
@@ -75,20 +80,20 @@ export const useDeleteTagMutation = (
     error,
   };
 };
-export const useDeleteTagTypeMutation = (
+export const useDeleteTagCategoryMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation(deleteTagType, {
+  const { isLoading, mutate, error } = useMutation(deleteTagCategory, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TagTypesQueryKey]);
+      queryClient.invalidateQueries([TagCategoriesQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([TagTypesQueryKey]);
+      queryClient.invalidateQueries([TagCategoriesQueryKey]);
     },
   });
   return {

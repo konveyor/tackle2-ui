@@ -25,7 +25,7 @@ import {
   Stakeholder,
   StakeholderGroup,
   Tag,
-  TagType,
+  TagCategory,
   Task,
   Taskgroup,
 } from "./models";
@@ -38,7 +38,7 @@ export const BUSINESS_SERVICES = HUB + "/businessservices";
 export const STAKEHOLDERS = HUB + "/stakeholders";
 export const STAKEHOLDER_GROUPS = HUB + "/stakeholdergroups";
 export const JOB_FUNCTIONS = HUB + "/jobfunctions";
-export const TAG_TYPES = HUB + "/tagtypes";
+export const TAG_CATEGORIES = HUB + "/tagcategories";
 export const TAGS = HUB + "/tags";
 
 export const APPLICATIONS = HUB + "/applications";
@@ -218,26 +218,30 @@ export const getJobFunctions = (): AxiosPromise<JobFunction[]> => {
   return APIClient.get(`${JOB_FUNCTIONS}`, jsonHeaders);
 };
 
-// Tag types
+// Tag categories
 
-export const getTagTypes = (): AxiosPromise<Array<TagType>> => {
-  return APIClient.get(`${TAG_TYPES}`, jsonHeaders);
+export const getTagCategories = (): AxiosPromise<Array<TagCategory>> => {
+  return APIClient.get(`${TAG_CATEGORIES}`, jsonHeaders);
 };
 
-export const deleteTagType = (id: number): AxiosPromise => {
-  return APIClient.delete(`${TAG_TYPES}/${id}`);
+export const deleteTagCategory = (id: number): AxiosPromise => {
+  return APIClient.delete(`${TAG_CATEGORIES}/${id}`);
 };
 
-export const createTagType = (obj: TagType): AxiosPromise<TagType> => {
-  return APIClient.post(`${TAG_TYPES}`, obj);
+export const createTagCategory = (
+  obj: TagCategory
+): AxiosPromise<TagCategory> => {
+  return APIClient.post(`${TAG_CATEGORIES}`, obj);
 };
 
-export const updateTagType = (obj: TagType): AxiosPromise<TagType> => {
-  return APIClient.put(`${TAG_TYPES}/${obj.id}`, obj);
+export const updateTagCategory = (
+  obj: TagCategory
+): AxiosPromise<TagCategory> => {
+  return APIClient.put(`${TAG_CATEGORIES}/${obj.id}`, obj);
 };
 
-export const getTagTypeById = (id: number): AxiosPromise<TagType> => {
-  return APIClient.get(`${TAG_TYPES}/${id}`);
+export const getTagCategoryById = (id: number): AxiosPromise<TagCategory> => {
+  return APIClient.get(`${TAG_CATEGORIES}/${id}`);
 };
 
 export const deleteTag = (id: number): AxiosPromise => {

@@ -28,10 +28,10 @@ import {
   ConfirmDialog,
 } from "@app/shared/components";
 import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
-import { Tag, TagType } from "@app/api/models";
+import { Tag, TagCategory } from "@app/api/models";
 
-import { NewTagTypeModal } from "./components/new-tag-type-modal";
-import { UpdateTagTypeModal } from "./components/update-tag-type-modal";
+import { NewTagCategoryModal } from "./components/new-tag-type-modal";
+import { UpdateTagCategoryModal } from "./components/update-tag-category-modal";
 import { NewTagModal } from "./components/new-tag-modal";
 import { UpdateTagModal } from "./components/update-tag-modal";
 import { TagTable } from "./components/tag-table";
@@ -47,14 +47,14 @@ import { DEFAULT_COLOR_LABELS } from "@app/Constants";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import {
   useDeleteTagMutation,
-  useDeleteTagTypeMutation,
-  useFetchTagTypes,
+  useDeleteTagCategoryMutation,
+  useFetchTagCategories,
 } from "@app/queries/tags";
 import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
 
-const getRow = (rowData: IRowData): TagType => {
+const getRow = (rowData: IRowData): TagCategory => {
   return rowData[ENTITY_FIELD];
 };
 
@@ -65,17 +65,19 @@ export const Tags: React.FC = () => {
     React.useState<Boolean>(false);
 
   const [
-    isTagTypeToDeleteConfirmDialogOpen,
-    setIsTagTypeToDeleteConfirmDialogOpen,
+    isTagCategoryToDeleteConfirmDialogOpen,
+    setIsTagCategoryToDeleteConfirmDialogOpen,
   ] = React.useState<Boolean>(false);
 
   const [tagIdToDelete, setTagIdToDelete] = React.useState<number>();
-  const [tagTypeIdToDelete, setTagTypeIdToDelete] = React.useState<number>();
+  const [tagCategoryIdToDelete, setTagCategoryIdToDelete] =
+    React.useState<number>();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [isNewTagTypeModalOpen, setIsNewTagTypeModalOpen] = useState(false);
-  const [rowToUpdate, setRowToUpdate] = useState<TagType>();
+  const [isNewTagCategoryModalOpen, setIsNewTagCategoryModalOpen] =
+    useState(false);
+  const [rowToUpdate, setRowToUpdate] = useState<TagCategory>();
 
   const [isNewTagModalOpen, setIsNewTagModalOpen] = useState(false);
   const [tagToUpdate, setTagToUpdate] = useState<Tag>();
@@ -110,15 +112,15 @@ export const Tags: React.FC = () => {
     onDeleteTagError
   );
 
-  const onDeleteTagTypeSuccess = (response: any) => {
+  const onDeleteTagCategorySuccess = (response: any) => {
     pushNotification({
-      title: t("terms.tagTypeDeleted"),
+      title: t("terms.tagCategoryDeleted"),
       variant: "success",
     });
     refetch();
   };
 
-  const onDeleteTagTypeError = (error: AxiosError) => {
+  const onDeleteTagCategoryError = (error: AxiosError) => {
     if (
       error.response?.status === 500 &&
       error.response?.data.error === "FOREIGN KEY constraint failed"
@@ -135,22 +137,27 @@ export const Tags: React.FC = () => {
     }
   };
 
-  const { mutate: deleteTagType } = useDeleteTagTypeMutation(
-    onDeleteTagTypeSuccess,
-    onDeleteTagTypeError
+  const { mutate: deleteTagCategory } = useDeleteTagCategoryMutation(
+    onDeleteTagCategorySuccess,
+    onDeleteTagCategoryError
   );
 
-  const { tagTypes, isFetching, fetchError, refetch } = useFetchTagTypes();
+  const {
+    tagCategories: tagCategories,
+    isFetching,
+    fetchError,
+    refetch,
+  } = useFetchTagCategories();
 
   const {
     isItemSelected: isItemExpanded,
     toggleItemSelected: toggleItemExpanded,
-  } = useSelectionState<TagType>({
-    items: tagTypes || [],
+  } = useSelectionState<TagCategory>({
+    items: tagCategories || [],
     isEqual: (a, b) => a.id === b.id,
   });
 
-  const filterCategories: FilterCategory<TagType>[] = [
+  const filterCategories: FilterCategory<TagCategory>[] = [
     {
       key: "tags",
       title: t("terms.name"),
@@ -159,25 +166,25 @@ export const Tags: React.FC = () => {
         t("actions.filterBy", {
           what: t("terms.name").toLowerCase(),
         }) + "...",
-      getItemValue: (item: TagType) => {
-        let tagTypeNames = item.name?.toString() || "";
+      getItemValue: (item: TagCategory) => {
+        let tagCategoryNames = item.name?.toString() || "";
         let tagNames = item?.tags
           ?.map((tag) => tag.name)
-          .concat(tagTypeNames)
+          .concat(tagCategoryNames)
           .join("");
 
         return tagNames || "";
       },
       selectOptions: dedupeFunction(
-        tagTypes
-          ?.map((tagType) => tagType?.tags)
+        tagCategories
+          ?.map((tagCategory) => tagCategory?.tags)
           .flat()
           .filter((tag) => tag && tag.name)
           .map((tag) => ({ key: tag?.name, value: tag?.name }))
           .concat(
-            tagTypes?.map((tagType) => ({
-              key: tagType?.name,
-              value: tagType?.name,
+            tagCategories?.map((tagCategory) => ({
+              key: tagCategory?.name,
+              value: tagCategory?.name,
             }))
           )
           .sort((a, b) => {
@@ -216,11 +223,11 @@ export const Tags: React.FC = () => {
     },
   ];
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
-    tagTypes || [],
+    tagCategories || [],
     filterCategories
   );
 
-  const getSortValues = (item: TagType) => [
+  const getSortValues = (item: TagCategory) => [
     "",
     item?.name || "",
     item?.rank || "",
@@ -244,7 +251,7 @@ export const Tags: React.FC = () => {
 
   const columns: ICell[] = [
     {
-      title: t("terms.tagType"),
+      title: t("terms.tagCategory"),
       transforms: [sortable],
       cellFormatters: [expandable],
     },
@@ -307,7 +314,7 @@ export const Tags: React.FC = () => {
             title: (
               <div>
                 <TagTable
-                  tagType={item}
+                  tagCategory={item}
                   onEdit={setTagToUpdate}
                   onDelete={deleteTagFromTable}
                 />
@@ -332,9 +339,9 @@ export const Tags: React.FC = () => {
     toggleItemExpanded(row);
   };
 
-  const deleteRow = (row: TagType) => {
-    setTagTypeIdToDelete(row.id);
-    setIsTagTypeToDeleteConfirmDialogOpen(true);
+  const deleteRow = (row: TagCategory) => {
+    setTagCategoryIdToDelete(row.id);
+    setIsTagCategoryToDeleteConfirmDialogOpen(true);
   };
 
   // Advanced filters
@@ -345,16 +352,18 @@ export const Tags: React.FC = () => {
 
   // Create Modal
 
-  const handleOnOpenCreateNewTagTypeModal = () => {
-    setIsNewTagTypeModalOpen(true);
+  const handleOnOpenCreateNewTagCategoryModal = () => {
+    setIsNewTagCategoryModalOpen(true);
   };
 
   const handleOnOpenCreateNewTagModal = () => {
     setIsNewTagModalOpen(true);
   };
 
-  const handleOnCreatedNewTagType = (response: AxiosResponse<TagType>) => {
-    setIsNewTagTypeModalOpen(false);
+  const handleOnCreatedNewTagCategory = (
+    response: AxiosResponse<TagCategory>
+  ) => {
+    setIsNewTagCategoryModalOpen(false);
     refetch();
     pushNotification({
       title: t("toastr.success.added", {
@@ -378,13 +387,13 @@ export const Tags: React.FC = () => {
   };
 
   const handleOnCreateNewCancel = () => {
-    setIsNewTagTypeModalOpen(false);
+    setIsNewTagCategoryModalOpen(false);
     setIsNewTagModalOpen(false);
   };
 
   // Update Modal
 
-  const handleOnTagTypeUpdated = () => {
+  const handleOnTagCategoryUpdated = () => {
     setRowToUpdate(undefined);
     refetch();
   };
@@ -401,13 +410,13 @@ export const Tags: React.FC = () => {
   return (
     <>
       <ConditionalRender
-        when={isFetching && !(tagTypes || fetchError)}
+        when={isFetching && !(tagCategories || fetchError)}
         then={<AppPlaceholder />}
       >
         <AppTableWithControls
           paginationProps={paginationProps}
           paginationIdPrefix="tags"
-          count={tagTypes ? tagTypes.length : 0}
+          count={tagCategories ? tagCategories.length : 0}
           sortBy={sortBy}
           onSort={onSort}
           onCollapse={collapseRow}
@@ -418,7 +427,7 @@ export const Tags: React.FC = () => {
           fetchError={fetchError}
           toolbarClearAllFilters={handleOnClearAllFilters}
           toolbarToggle={
-            <FilterToolbar<TagType>
+            <FilterToolbar<TagCategory>
               filterCategories={filterCategories}
               filterValues={filterValues}
               setFilterValues={setFilterValues}
@@ -447,9 +456,9 @@ export const Tags: React.FC = () => {
                     id="create-tag-type"
                     aria-label="Create tag type"
                     variant={ButtonVariant.secondary}
-                    onClick={handleOnOpenCreateNewTagTypeModal}
+                    onClick={handleOnOpenCreateNewTagCategoryModal}
                   >
-                    {t("actions.createTagType")}
+                    {t("actions.createTagCategory")}
                   </Button>
                 </ToolbarItem>
               </RBAC>
@@ -457,14 +466,14 @@ export const Tags: React.FC = () => {
           }
           noDataState={
             <NoDataEmptyState
-              // t('terms.tagTypes')
+              // t('terms.tagCategories')
               title={t("composed.noDataStateTitle", {
-                what: t("terms.tagTypes").toLowerCase(),
+                what: t("terms.tagCategories").toLowerCase(),
               })}
               // t('terms.stakeholderGroup')
               description={
                 t("composed.noDataStateBody", {
-                  what: t("terms.tagType").toLowerCase(),
+                  what: t("terms.tagCategory").toLowerCase(),
                 }) + "."
               }
             />
@@ -472,14 +481,14 @@ export const Tags: React.FC = () => {
         />
       </ConditionalRender>
 
-      <NewTagTypeModal
-        isOpen={isNewTagTypeModalOpen}
-        onSaved={handleOnCreatedNewTagType}
+      <NewTagCategoryModal
+        isOpen={isNewTagCategoryModalOpen}
+        onSaved={handleOnCreatedNewTagCategory}
         onCancel={handleOnCreateNewCancel}
       />
-      <UpdateTagTypeModal
-        tagType={rowToUpdate}
-        onSaved={handleOnTagTypeUpdated}
+      <UpdateTagCategoryModal
+        tagCategory={rowToUpdate}
+        onSaved={handleOnTagCategoryUpdated}
         onCancel={handleOnUpdatedCancel}
       />
 
@@ -515,10 +524,10 @@ export const Tags: React.FC = () => {
           }}
         />
       )}
-      {isTagTypeToDeleteConfirmDialogOpen && (
+      {isTagCategoryToDeleteConfirmDialogOpen && (
         <ConfirmDialog
           title={t("dialog.title.delete", {
-            what: t("terms.tagType").toLowerCase(),
+            what: t("terms.tagCategory").toLowerCase(),
           })}
           titleIconVariant={"warning"}
           message={t("dialog.message.delete")}
@@ -526,14 +535,14 @@ export const Tags: React.FC = () => {
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
           cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsTagTypeToDeleteConfirmDialogOpen(false)}
-          onClose={() => setIsTagTypeToDeleteConfirmDialogOpen(false)}
+          onCancel={() => setIsTagCategoryToDeleteConfirmDialogOpen(false)}
+          onClose={() => setIsTagCategoryToDeleteConfirmDialogOpen(false)}
           onConfirm={() => {
-            if (tagTypeIdToDelete) {
-              deleteTagType(tagTypeIdToDelete);
-              setTagTypeIdToDelete(undefined);
+            if (tagCategoryIdToDelete) {
+              deleteTagCategory(tagCategoryIdToDelete);
+              setTagCategoryIdToDelete(undefined);
             }
-            setIsTagTypeToDeleteConfirmDialogOpen(false);
+            setIsTagCategoryToDeleteConfirmDialogOpen(false);
           }}
         />
       )}

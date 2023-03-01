@@ -19,8 +19,8 @@ import {
   DEFAULT_SELECT_MAX_HEIGHT,
   DEFAULT_COLOR_PALETE as DEFAULT_COLOR_PALETTE,
 } from "@app/Constants";
-import { createTagType, updateTagType } from "@app/api/rest";
-import { TagType } from "@app/api/models";
+import { createTagCategory, updateTagCategory } from "@app/api/rest";
+import { TagCategory } from "@app/api/models";
 import {
   duplicateNameCheck,
   getAxiosErrorMessage,
@@ -28,7 +28,7 @@ import {
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
 import { colorHexToOptionWithValue } from "@app/utils/model-utils";
-import { useFetchTagTypes } from "@app/queries/tags";
+import { useFetchTagCategories } from "@app/queries/tags";
 
 export interface FormValues {
   name: string;
@@ -36,14 +36,14 @@ export interface FormValues {
   color: string | null;
 }
 
-export interface TagTypeFormProps {
-  tagType?: TagType;
-  onSaved: (response: AxiosResponse<TagType>) => void;
+export interface TagCategoryFormProps {
+  tagCategory?: TagCategory;
+  onSaved: (response: AxiosResponse<TagCategory>) => void;
   onCancel: () => void;
 }
 
-export const TagTypeForm: React.FC<TagTypeFormProps> = ({
-  tagType,
+export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
+  tagCategory: tagCategory,
   onSaved,
   onCancel,
 }) => {
@@ -51,12 +51,12 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
 
   const [error, setError] = useState<AxiosError>();
 
-  const { tagTypes } = useFetchTagTypes();
+  const { tagCategories: tagCategories } = useFetchTagCategories();
 
   const initialValues: FormValues = {
-    name: tagType?.name || "",
-    rank: tagType?.rank || 1,
-    color: tagType?.colour || null,
+    name: tagCategory?.name || "",
+    rank: tagCategory?.rank || 1,
+    color: tagCategory?.colour || null,
   };
 
   const validationSchema = object().shape({
@@ -70,8 +70,8 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
         "A tag type with this name already exists. Please use a different name.",
         (value) => {
           return duplicateNameCheck(
-            tagTypes || [],
-            tagType || null,
+            tagCategories || [],
+            tagCategory || null,
             value || ""
           );
         }
@@ -88,20 +88,20 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
     formValues: FormValues,
     formikHelpers: FormikHelpers<FormValues>
   ) => {
-    const payload: TagType = {
+    const payload: TagCategory = {
       name: formValues.name.trim(),
       rank: formValues.rank,
       colour: formValues.color || undefined,
     };
 
-    let promise: AxiosPromise<TagType>;
-    if (tagType) {
-      promise = updateTagType({
-        ...tagType,
+    let promise: AxiosPromise<TagCategory>;
+    if (tagCategory) {
+      promise = updateTagCategory({
+        ...tagCategory,
         ...payload,
       });
     } else {
-      promise = createTagType(payload);
+      promise = createTagCategory(payload);
     }
 
     promise
@@ -226,7 +226,7 @@ export const TagTypeForm: React.FC<TagTypeFormProps> = ({
               formik.isValidating
             }
           >
-            {!tagType ? t("actions.create") : t("actions.save")}
+            {!tagCategory ? t("actions.create") : t("actions.save")}
           </Button>
           <Button
             type="button"

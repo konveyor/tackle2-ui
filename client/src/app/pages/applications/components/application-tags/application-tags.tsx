@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 
 import { ConditionalRender } from "@app/shared/components";
 
-import { Application, Tag, TagType } from "@app/api/models";
-import { getTagById, getTagTypeById } from "@app/api/rest";
+import { Application, Tag, TagCategory } from "@app/api/models";
+import { getTagById, getTagCategoryById } from "@app/api/rest";
 import {
   Label,
   LabelGroup,
@@ -20,8 +20,10 @@ export interface ApplicationTagsProps {
 export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
   application,
 }) => {
-  const [tagTypes, setTagTypes] = useState<Map<number, TagType>>(new Map()); // <tagTypeId, tagType>
-  const [tags, setTags] = useState<Map<number, Tag[]>>(new Map()); // <tagTypeId, tags[]>
+  const [tagCategories, setTagCategories] = useState<Map<number, TagCategory>>(
+    new Map()
+  );
+  const [tags, setTags] = useState<Map<number, Tag[]>>(new Map());
 
   const [isFetching, setIsFetching] = useState(false);
 
@@ -35,7 +37,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           .map((p) => p.catch(() => null))
       )
         .then((tags) => {
-          const newTagTypes: Map<number, TagType> = new Map();
+          const newTagCategories: Map<number, TagCategory> = new Map();
           const newTags: Map<number, Tag[]> = new Map();
 
           const tagValidResponses = tags.reduce((prev, current) => {
@@ -48,38 +50,44 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
 
           Promise.all(
             tagValidResponses.map((tag) =>
-              getTagTypeById(tag?.tagType?.id || 0)
+              getTagCategoryById(tag?.category?.id || 0)
             )
-          ).then((tagTypes) => {
-            // Tag types
-            const tagTypeValidResponses = tagTypes.reduce((prev, current) => {
-              if (current) {
-                return [...prev, current.data];
-              } else {
-                return prev;
-              }
-            }, [] as TagType[]);
+          ).then((tagCategories) => {
+            // Tag categories
+            const tagCategoryValidResponses = tagCategories.reduce(
+              (prev, current) => {
+                if (current) {
+                  return [...prev, current.data];
+                } else {
+                  return prev;
+                }
+              },
+              [] as TagCategory[]
+            );
             tagValidResponses.forEach((tag) => {
-              const tagTypeRef = tag.tagType;
-              if (tagTypeRef?.id) {
-                const thisTagsFullTagType = tagTypeValidResponses.find(
-                  (tagType) => tagType.id === tagTypeRef?.id
+              const tagCategoryRef = tag.category;
+              if (tagCategoryRef?.id) {
+                const thisTagsFullTagCategory = tagCategoryValidResponses.find(
+                  (tagCategory) => tagCategory.id === tagCategoryRef?.id
                 );
-                const tagTypeWithColour: TagType = {
-                  ...tagTypeRef,
-                  colour: thisTagsFullTagType?.colour || "",
+                const tagCategoryWithColour: TagCategory = {
+                  ...tagCategoryRef,
+                  colour: thisTagsFullTagCategory?.colour || "",
                 };
-                newTagTypes.set(tagTypeWithColour.id!, tagTypeWithColour);
+                newTagCategories.set(
+                  tagCategoryWithColour.id!,
+                  tagCategoryWithColour
+                );
 
                 // // // Tags
-                newTags.set(tagTypeWithColour.id!, [
-                  ...(newTags.get(tagTypeWithColour.id!) || []),
+                newTags.set(tagCategoryWithColour.id!, [
+                  ...(newTags.get(tagCategoryWithColour.id!) || []),
                   tag,
                 ]);
               }
             });
 
-            setTagTypes(newTagTypes);
+            setTagCategories(newTagCategories);
             setTags(newTags);
 
             setIsFetching(false);
@@ -89,7 +97,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           setIsFetching(false);
         });
     } else {
-      setTagTypes(new Map());
+      setTagCategories(new Map());
       setTags(new Map());
     }
   }, [application]);
@@ -97,18 +105,18 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
   return (
     <ConditionalRender when={isFetching} then={<Spinner isSVG size="md" />}>
       <Split hasGutter>
-        {Array.from(tagTypes.values())
+        {Array.from(tagCategories.values())
           .sort((a, b) => (a.rank || 0) - (b.rank || 0))
-          .map((tagType) => {
+          .map((tagCategory) => {
             return (
-              <SplitItem key={tagType.id}>
+              <SplitItem key={tagCategory.id}>
                 <LabelGroup numLabels={10}>
                   {tags
-                    .get(tagType.id!)
+                    .get(tagCategory.id!)
                     ?.sort((a, b) => a.name.localeCompare(b.name))
                     .map((tag) => {
                       const colorLabel = DEFAULT_COLOR_LABELS.get(
-                        tagType?.colour || ""
+                        tagCategory?.colour || ""
                       );
 
                       return (

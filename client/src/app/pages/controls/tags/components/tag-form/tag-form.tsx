@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
 import { useFormik, FormikProvider, FormikHelpers } from "formik";
@@ -18,7 +18,7 @@ import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components"
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createTag, updateTag } from "@app/api/rest";
-import { Tag, TagType } from "@app/api/models";
+import { Tag, TagCategory } from "@app/api/models";
 import {
   duplicateNameCheck,
   getAxiosErrorMessage,
@@ -26,15 +26,15 @@ import {
   getValidatedFromErrorTouched,
 } from "@app/utils/utils";
 import {
-  ITagTypeDropdown,
-  toITagTypeDropdown,
-  toITagTypeDropdownOptionWithValue,
+  ITagCategoryDropdown,
+  toITagCategoryDropdown,
+  toITagCategoryDropdownOptionWithValue,
 } from "@app/utils/model-utils";
-import { useFetchTags, useFetchTagTypes } from "@app/queries/tags";
+import { useFetchTags, useFetchTagCategories } from "@app/queries/tags";
 
 export interface FormValues {
   name: string;
-  tagType: ITagTypeDropdown | null;
+  tagCategory: ITagCategoryDropdown | null;
 }
 
 export interface TagFormProps {
@@ -50,24 +50,26 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
   const { tags } = useFetchTags();
 
   const {
-    tagTypes,
-    isFetching: isFetchingTagTypes,
-    fetchError: fetchErrorTagTypes,
-  } = useFetchTagTypes();
+    tagCategories,
+    isFetching: isFetchingTagCategories,
+    fetchError: fetchErrorTagCategories,
+  } = useFetchTagCategories();
 
-  const tagTypeInitialValue: ITagTypeDropdown | null = useMemo(() => {
-    const matchingTagType = tagTypes
-      .filter((tagType) => tagType.tags)
-      .find((tagType) => {
-        const tagValues = Object.values(tagType.tags || []);
+  const tagCategoryInitialValue: ITagCategoryDropdown | null = useMemo(() => {
+    const matchingTagCategory = tagCategories
+      .filter((tagCategory) => tagCategory.tags)
+      .find((tagCategory) => {
+        const tagValues = Object.values(tagCategory.tags || []);
         return tagValues.some((tagVal) => tagVal.name === tag?.name);
       });
-    return matchingTagType ? toITagTypeDropdown(matchingTagType) : null;
-  }, [tag, tagTypes]);
+    return matchingTagCategory
+      ? toITagCategoryDropdown(matchingTagCategory)
+      : null;
+  }, [tag, tagCategories]);
 
   const initialValues: FormValues = {
     name: tag?.name || "",
-    tagType: tagTypeInitialValue,
+    tagCategory: tagCategoryInitialValue,
   };
 
   const validationSchema = object().shape({
@@ -79,7 +81,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
       .test("Duplicate name", t("message.duplicateTag"), (value) =>
         duplicateNameCheck(tags, tag || null, value || "")
       ),
-    tagType: mixed().required(t("validation.required")),
+    tagCategory: mixed().required(t("validation.required")),
   });
 
   const onSubmit = (
@@ -88,7 +90,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
   ) => {
     const payload: Tag = {
       name: formValues.name.trim(),
-      tagType: formValues.tagType as TagType,
+      category: formValues.tagCategory as TagCategory,
     };
 
     let promise: AxiosPromise<Tag>;
@@ -158,14 +160,14 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
           />
         </FormGroup>
         <FormGroup
-          label={t("terms.tagType")}
-          fieldId="tagType"
+          label={t("terms.tagCategory")}
+          fieldId="tagCategory"
           isRequired={true}
-          validated={getValidatedFromError(formik.errors.tagType)}
-          helperTextInvalid={formik.errors.tagType}
+          validated={getValidatedFromError(formik.errors.tagCategory)}
+          helperTextInvalid={formik.errors.tagCategory}
         >
-          <SingleSelectFetchOptionValueFormikField<ITagTypeDropdown>
-            fieldConfig={{ name: "tagType" }}
+          <SingleSelectFetchOptionValueFormikField<ITagCategoryDropdown>
+            fieldConfig={{ name: "tagCategory" }}
             selectConfig={{
               variant: "single",
               toggleId: "tag-type-toggle",
@@ -176,15 +178,15 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
               clearSelectionsAriaLabel: "tag-type",
               removeSelectionAriaLabel: "tag-type",
               placeholderText: t("composed.selectOne", {
-                what: t("terms.tagType").toLowerCase(),
+                what: t("terms.tagCategory").toLowerCase(),
               }),
               menuAppendTo: () => document.body,
               maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-              fetchError: fetchErrorTagTypes,
-              isFetching: isFetchingTagTypes,
+              fetchError: fetchErrorTagCategories,
+              isFetching: isFetchingTagCategories,
             }}
-            options={(tagTypes || []).map(toITagTypeDropdown)}
-            toOptionWithValue={toITagTypeDropdownOptionWithValue}
+            options={(tagCategories || []).map(toITagCategoryDropdown)}
+            toOptionWithValue={toITagCategoryDropdownOptionWithValue}
           />
         </FormGroup>
 
