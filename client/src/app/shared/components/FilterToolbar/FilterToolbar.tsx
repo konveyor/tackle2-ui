@@ -1,11 +1,8 @@
 import * as React from "react";
 import {
   SelectOptionProps,
-  Toolbar,
-  ToolbarContent,
   ToolbarToggleGroup,
   ToolbarItem,
-  ToolbarGroup,
   Dropdown,
   DropdownToggle,
   DropdownItem,
@@ -22,9 +19,7 @@ export enum FilterType {
 
 export type FilterValue = string[] | undefined | null;
 
-// TODO workaround until https://github.com/patternfly/patternfly-react/pull/6147 is GA
-export interface OptionPropsWithKey
-  extends Omit<SelectOptionProps, "isLastOptionBeforeFooter"> {
+export interface OptionPropsWithKey extends SelectOptionProps {
   key: string;
 }
 
@@ -68,8 +63,6 @@ export const FilterToolbar = <T,>({
   filterCategories,
   filterValues,
   setFilterValues,
-  beginToolbarItems,
-  endToolbarItems,
   pagination,
 }: React.PropsWithChildren<IFilterToolbarProps<T>>): JSX.Element | null => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] =
