@@ -28,13 +28,10 @@ import { useTranslation } from "react-i18next";
 
 import { Item } from "./components/dnd/item";
 import { DndGrid } from "./components/dnd/grid";
-import { BundleOrderSetting, RuleBundle, Setting } from "@app/api/models";
-import { updateBundleOrderSetting } from "@app/api/rest";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
+import { RuleBundle, Setting } from "@app/api/models";
+import { AxiosError, AxiosResponse } from "axios";
 import {
-  BundleOrderSettingKey,
   useDeleteRuleBundleMutation,
-  useFetchBundleOrder,
   useFetchRuleBundles,
 } from "@app/queries/rulebundles";
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
@@ -42,6 +39,7 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { UpdateCustomTargetModal } from "./components/update-custom-target-modal/update-custom-target-modal";
 import { NewCustomTargetModal } from "./components/new-custom-target-modal";
+import { useSetting, useSettingMutation } from "@app/queries/settings";
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
@@ -53,11 +51,8 @@ export const MigrationTargets: React.FC = () => {
     refetch: refetchRuleBundles,
   } = useFetchRuleBundles();
 
-  const {
-    bundleOrderSetting,
-    isFetching,
-    refetch: refreshBundleOrderSetting,
-  } = useFetchBundleOrder(ruleBundles);
+  const bundleOrderSetting = useSetting("ui.bundle.order");
+  const bundleOrderSettingMutation = useSettingMutation("ui.bundle.order");
 
   const [activeId, setActiveId] = useState(null);
 
@@ -67,25 +62,12 @@ export const MigrationTargets: React.FC = () => {
       variant: "success",
     });
 
-    // update bundle order
-
-    const updatedBundleSetting: BundleOrderSetting = {
-      key: BundleOrderSettingKey,
-      value: bundleOrderSetting.value.filter(
-        (bundleID: number) => bundleID !== ruleBundleID
-      ),
-    };
-    let promise: AxiosPromise<Setting>;
-    if (updatedBundleSetting !== undefined) {
-      promise = updateBundleOrderSetting(updatedBundleSetting);
-    } else {
-      promise = updateBundleOrderSetting(updatedBundleSetting);
-    }
-    promise
-      .then((response) => {
-        refreshBundleOrderSetting();
-      })
-      .catch((error) => {});
+    if (bundleOrderSetting.isSuccess)
+      bundleOrderSettingMutation.mutate(
+        bundleOrderSetting.data.filter(
+          (bundleID: number) => bundleID !== ruleBundleID
+        )
+      );
   };
 
   const onDeleteRuleBundleError = (error: AxiosError) => {
@@ -112,25 +94,14 @@ export const MigrationTargets: React.FC = () => {
     }
     // update bundle order
 
-    const updatedBundleSetting: BundleOrderSetting = {
-      key: BundleOrderSettingKey,
-      value: [...bundleOrderSetting.value, response.data.id],
-    };
-    let promise: AxiosPromise<Setting>;
-    if (updatedBundleSetting !== undefined) {
-      promise = updateBundleOrderSetting(updatedBundleSetting);
-    } else {
-      promise = updateBundleOrderSetting(updatedBundleSetting);
+    if (bundleOrderSetting.isSuccess) {
+      bundleOrderSettingMutation.mutate([
+        ...bundleOrderSetting.data,
+        response.data.id,
+      ]);
+      closeMigrationTargetModal();
+      refetchRuleBundles();
     }
-    promise
-      .then((response) => {
-        refreshBundleOrderSetting();
-      })
-      .catch((error) => {});
-    closeMigrationTargetModal();
-
-    closeMigrationTargetModal();
-    refetchRuleBundles();
   };
 
   // Create and update modal
@@ -145,36 +116,23 @@ export const MigrationTargets: React.FC = () => {
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
   function handleDragOver(event: any) {
-    const { active, over } = event;
+    if (bundleOrderSetting.isSuccess) {
+      const { active, over } = event;
 
-    if (active.id !== over.id) {
-      const reorderBundle = (items: number[]) => {
-        const oldIndex = items.indexOf(active.id);
-        const newIndex = items.indexOf(over.id);
+      if (active.id !== over.id) {
+        const reorderBundle = (items: number[]) => {
+          const oldIndex = items.indexOf(active.id);
+          const newIndex = items.indexOf(over.id);
 
-        return arrayMove(items, oldIndex, newIndex);
-      };
+          return arrayMove(items, oldIndex, newIndex);
+        };
 
-      const updatedBundleSetting: BundleOrderSetting = {
-        key: BundleOrderSettingKey,
-        value: reorderBundle(bundleOrderSetting.value),
-      };
-      let promise: AxiosPromise<Setting>;
-      if (updatedBundleSetting !== undefined) {
-        promise = updateBundleOrderSetting(updatedBundleSetting);
-      } else {
-        promise = updateBundleOrderSetting(updatedBundleSetting);
+        bundleOrderSettingMutation.mutate(
+          reorderBundle(bundleOrderSetting.data)
+        );
       }
-      promise
-        .then((response) => {
-          refreshBundleOrderSetting();
-        })
-        .catch((error) => {});
     }
   }
-  useEffect(() => {
-    refreshBundleOrderSetting();
-  }, [refreshBundleOrderSetting]);
 
   const handleDragStart = (event: any) => {
     const { active } = event;
@@ -215,32 +173,33 @@ export const MigrationTargets: React.FC = () => {
         onDragOver={handleDragOver}
       >
         <SortableContext
-          items={bundleOrderSetting.value}
+          items={bundleOrderSetting.isSuccess ? bundleOrderSetting.data : []}
           strategy={rectSortingStrategy}
         >
           <DndGrid columns={4}>
-            {bundleOrderSetting?.value?.map((id) => (
-              <SortableItem
-                key={id}
-                id={id}
-                onEdit={() => {
-                  const matchingRuleBundle = ruleBundles.find(
-                    (ruleBundle) => ruleBundle.id === id
-                  );
-                  if (matchingRuleBundle) {
-                    openUpdateMigrationTargetModal(matchingRuleBundle);
-                  }
-                }}
-                onDelete={() => {
-                  const matchingRuleBundle = ruleBundles.find(
-                    (ruleBundle) => ruleBundle.id === id
-                  );
-                  if (matchingRuleBundle) {
-                    deleteRuleBundle(matchingRuleBundle.id);
-                  }
-                }}
-              />
-            ))}
+            {bundleOrderSetting.isSuccess &&
+              (bundleOrderSetting.data as number[]).map((id) => (
+                <SortableItem
+                  key={id}
+                  id={id}
+                  onEdit={() => {
+                    const matchingRuleBundle = ruleBundles.find(
+                      (ruleBundle) => ruleBundle.id === id
+                    );
+                    if (matchingRuleBundle) {
+                      openUpdateMigrationTargetModal(matchingRuleBundle);
+                    }
+                  }}
+                  onDelete={() => {
+                    const matchingRuleBundle = ruleBundles.find(
+                      (ruleBundle) => ruleBundle.id === id
+                    );
+                    if (matchingRuleBundle) {
+                      deleteRuleBundle(matchingRuleBundle.id);
+                    }
+                  }}
+                />
+              ))}
           </DndGrid>
           <DragOverlay>{activeId ? <Item id={activeId} /> : null}</DragOverlay>
         </SortableContext>

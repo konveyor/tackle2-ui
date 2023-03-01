@@ -105,6 +105,11 @@ export const SidebarApp: React.FC = () => {
       ) : (
         <NavList title="Admin">
           <NavItem>
+            <NavLink to={Paths.general} activeClassName="pf-m-current">
+              {t("terms.general")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
             <NavLink to={Paths.identities} activeClassName="pf-m-current">
               {t("terms.credentials")}
             </NavLink>

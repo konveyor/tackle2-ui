@@ -16,20 +16,15 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
 
 import "./Repositories.css";
-import { AxiosError, AxiosPromise } from "axios";
-import { Setting } from "@app/api/models";
-import { getSettingById, updateSetting } from "@app/api/rest";
-import { useEffect, useState } from "react";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useDeleteCacheMutation, useFetchCache } from "@app/queries/cache";
 import { ConfirmDialog } from "@app/shared/components";
-import { useQuery } from "@tanstack/react-query";
 import { isRWXSupported } from "@app/Constants";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
-
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { useSetting, useSettingMutation } from "@app/queries/settings";
 
 export const RepositoriesMvn: React.FC = () => {
   const { t } = useTranslation();
@@ -37,85 +32,21 @@ export const RepositoriesMvn: React.FC = () => {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
     React.useState<Boolean>(false);
 
-  const [insecureSettingError, setInsecureSettingError] =
-    React.useState<AxiosError>();
-
-  const { data: mvnInsecureSetting, refetch: refreshMvnInsecureSetting } =
-    useQuery<boolean>(
-      ["mvninsecuresetting"],
-      async () => {
-        return (await getSettingById("mvn.insecure.enabled")).data;
-      },
-      {
-        onError: (error) => console.log("error, ", error),
-      }
-    );
-
-  useEffect(() => {
-    refreshMvnInsecureSetting();
-  }, [refreshMvnInsecureSetting]);
+  const mvnInsecureSetting = useSetting("mvn.insecure.enabled");
+  const mvnInsecureSettingMutation = useSettingMutation("mvn.insecure.enabled");
 
   const onChangeInsecure = () => {
-    const setting: Setting = {
-      key: "mvn.insecure.enabled",
-      value: !mvnInsecureSetting,
-    };
-
-    let promise: AxiosPromise<Setting>;
-    if (mvnInsecureSetting !== undefined) {
-      promise = updateSetting(setting);
-    } else {
-      promise = updateSetting(setting);
-    }
-
-    promise
-      .then((response) => {
-        refreshMvnInsecureSetting();
-      })
-      .catch((error) => {
-        setInsecureSettingError(error);
-      });
+    if (mvnInsecureSetting.isSuccess)
+      mvnInsecureSettingMutation.mutate(!mvnInsecureSetting.data);
   };
-  //TODO: Implement mvn forced setting
 
-  // const [forcedSettingError, setForcedSettingError] =
-  //   React.useState<AxiosError>();
-
-  // const { data: mvnForcedSetting, refetch: refreshMvnForcedSetting } =
-  //   useQuery<boolean>(
-  //     ["mvnforcedsetting"],
-  //     async () => {
-  //       return (await getSettingById("mvn.dependencies.update.forced")).data;
-  //     },
-  //     {
-  //       onError: (error) => console.log("error, ", error),
-  //     }
-  //   );
-
-  // useEffect(() => {
-  //   refreshMvnForcedSetting();
-  // }, [refreshMvnForcedSetting]);
+  // TODO: Implement mvn forced setting
+  // const mvnForcedSetting = useSetting("mvn.dependencies.update.forced");
+  // const mvnForcedSettingMutation = useSettingMutation("mvn.insecure.enabled");
 
   // const onChangeForced = () => {
-  //   const setting: Setting = {
-  //     key: "mvn.dependencies.update.forced",
-  //     value: !mvnForcedSetting,
-  //   };
-
-  //   let promise: AxiosPromise<Setting>;
-  //   if (mvnInsecureSetting !== undefined) {
-  //     promise = updateSetting(setting);
-  //   } else {
-  //     promise = updateSetting(setting);
-  //   }
-
-  //   promise
-  //     .then((response) => {
-  //       refreshMvnForcedSetting();
-  //     })
-  //     .catch((error) => {
-  //       setForcedSettingError(error);
-  //     });
+  //   if (mvnForcedSetting.isSuccess)
+  //     mvnForcedSettingMutation.mutate(!mvnForcedSetting.data);
   // };
 
   const [storageValue, setStorageValue] = useState<string>();
@@ -178,11 +109,11 @@ export const RepositoriesMvn: React.FC = () => {
                 </ConditionalTooltip>
               </FormGroup>
               <FormGroup fieldId="isInsecure">
-                {insecureSettingError && (
+                {mvnInsecureSetting.isError && (
                   <Alert
                     variant="danger"
                     isInline
-                    title={getAxiosErrorMessage(insecureSettingError)}
+                    title={mvnInsecureSetting.error}
                   />
                 )}
                 <Tooltip
@@ -193,7 +124,11 @@ export const RepositoriesMvn: React.FC = () => {
                     className="repo"
                     label="Consume insecure Maven repositories"
                     aria-label="Insecure Maven repositories"
-                    isChecked={mvnInsecureSetting === true ? true : false}
+                    isChecked={
+                      mvnInsecureSetting.isSuccess
+                        ? mvnInsecureSetting.data
+                        : false
+                    }
                     onChange={onChangeInsecure}
                   />
                 </Tooltip>
