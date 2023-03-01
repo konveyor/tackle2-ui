@@ -79,55 +79,42 @@ export const General: React.FC = () => {
                 title={downloadHTMLSetting.error}
               />
             )}
-            {reviewAssessmentSetting.isFetching ||
-            downloadCSVSetting.isFetching ||
-            downloadHTMLSetting.isFetching ? (
-              <EmptyState className={spacing.mtXl}>
-                <EmptyStateIcon variant="container" component={Spinner} />
-                <Title size="lg" headingLevel="h4">
-                  Loading
-                </Title>
-              </EmptyState>
-            ) : (
-              <Form className={spacing.mMd}>
-                <Switch
-                  id="reviewAssessment"
-                  className="repo"
-                  label={t("terms.settingsAllowApps")}
-                  aria-label="Allow applications review without assessment"
-                  isChecked={
-                    reviewAssessmentSetting.isSuccess
-                      ? reviewAssessmentSetting.data
-                      : false
-                  }
-                  onChange={onChangeReviewAssessmentSetting}
-                />
-                <Switch
-                  id="downloadHTML"
-                  className="repo"
-                  label={t("terms.settingsHTMLReports")}
-                  aria-label="Allow download HTML Reports"
-                  isChecked={
-                    downloadHTMLSetting.isSuccess
-                      ? downloadHTMLSetting.data
-                      : false
-                  }
-                  onChange={onChangeDownloadHTMLSetting}
-                />
-                <Switch
-                  id="downloadCSV"
-                  className="repo"
-                  label={t("terms.settingsCSVReports")}
-                  aria-label="Allow download CSV Reports"
-                  isChecked={
-                    downloadCSVSetting.isSuccess
-                      ? downloadCSVSetting.data
-                      : false
-                  }
-                  onChange={onChangeDownloadCSVSetting}
-                />
-              </Form>
-            )}
+            <Form className={spacing.mMd}>
+              <Switch
+                id="reviewAssessment"
+                className="repo"
+                label={t("terms.settingsAllowApps")}
+                aria-label="Allow applications review without assessment"
+                isChecked={
+                  reviewAssessmentSetting.isSuccess
+                    ? reviewAssessmentSetting.data
+                    : false
+                }
+                onChange={onChangeReviewAssessmentSetting}
+              />
+              <Switch
+                id="downloadHTML"
+                className="repo"
+                label={t("terms.settingsHTMLReports")}
+                aria-label="Allow download HTML Reports"
+                isChecked={
+                  downloadHTMLSetting.isSuccess
+                    ? downloadHTMLSetting.data
+                    : false
+                }
+                onChange={onChangeDownloadHTMLSetting}
+              />
+              <Switch
+                id="downloadCSV"
+                className="repo"
+                label={t("terms.settingsCSVReports")}
+                aria-label="Allow download CSV Reports"
+                isChecked={
+                  downloadCSVSetting.isSuccess ? downloadCSVSetting.data : false
+                }
+                onChange={onChangeDownloadCSVSetting}
+              />
+            </Form>
           </CardBody>
         </Card>
       </PageSection>
