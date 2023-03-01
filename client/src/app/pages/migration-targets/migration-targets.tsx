@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -54,6 +54,12 @@ export const MigrationTargets: React.FC = () => {
   const bundleOrderSetting = useSetting("ui.bundle.order");
   const bundleOrderSettingMutation = useSettingMutation("ui.bundle.order");
 
+  const targetsEndRef = useRef<null | HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    targetsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   const [activeId, setActiveId] = useState(null);
 
   const onDeleteRuleBundleSuccess = (response: any, ruleBundleID: number) => {
@@ -90,6 +96,15 @@ export const MigrationTargets: React.FC = () => {
           type: "custom target",
         }),
         variant: "success",
+        message: (
+          <Button
+            variant="link"
+            onClick={scrollToBottom}
+            className={spacing.pl_0}
+          >
+            Take me there
+          </Button>
+        ),
       });
     }
     // update bundle order
@@ -178,7 +193,7 @@ export const MigrationTargets: React.FC = () => {
         >
           <DndGrid columns={4}>
             {bundleOrderSetting.isSuccess &&
-              (bundleOrderSetting.data as number[]).map((id) => (
+              bundleOrderSetting.data.map((id) => (
                 <SortableItem
                   key={id}
                   id={id}
@@ -200,6 +215,7 @@ export const MigrationTargets: React.FC = () => {
                   }}
                 />
               ))}
+            <div ref={targetsEndRef} />
           </DndGrid>
           <DragOverlay>{activeId ? <Item id={activeId} /> : null}</DragOverlay>
         </SortableContext>
