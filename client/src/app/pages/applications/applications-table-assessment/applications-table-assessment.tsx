@@ -81,7 +81,7 @@ import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { useAssessApplication } from "@app/shared/hooks/useAssessApplication";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
-import { ApplicationDetailDrawer } from "../components/application-detail-drawer";
+import { ApplicationDetailDrawerAssessment } from "../components/application-detail-drawer";
 
 const ENTITY_FIELD = "entity";
 
@@ -800,7 +800,7 @@ export const ApplicationsTable: React.FC = () => {
             />
           }
         />
-        <ApplicationDetailDrawer
+        <ApplicationDetailDrawerAssessment
           application={activeAppInDetailDrawer}
           onCloseClick={closeDetailDrawer}
         />

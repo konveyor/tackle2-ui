@@ -6,10 +6,6 @@ import {
   Tabs,
   Tab,
   TabTitleText,
-  DescriptionList,
-  DescriptionListDescription,
-  DescriptionListGroup,
-  DescriptionListTerm,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Application } from "@app/api/models";
@@ -21,6 +17,7 @@ import {
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
   application: Application | null;
+  detailsTabDescriptionList: React.ReactNode;
   showReportsTab?: boolean;
 }
 
@@ -35,7 +32,12 @@ enum TabKey {
 
 export const ApplicationDetailDrawer: React.FC<
   IApplicationDetailDrawerProps
-> = ({ onCloseClick, application, showReportsTab = false }) => {
+> = ({
+  onCloseClick,
+  application,
+  detailsTabDescriptionList,
+  showReportsTab = false,
+}) => {
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
   );
@@ -64,45 +66,14 @@ export const ApplicationDetailDrawer: React.FC<
               eventKey={TabKey.Details}
               title={<TabTitleText>Details</TabTitleText>}
             >
-              <TextContent className={spacing.mtMd}>
+              <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
                 <Text component="small">TODO (description)</Text>
                 <Title headingLevel="h3" size="md">
                   Business services
                 </Title>
                 <Text component="small">TODO</Text>
               </TextContent>
-              <DescriptionList
-                isHorizontal
-                isCompact
-                columnModifier={{ default: "1Col" }}
-                horizontalTermWidthModifier={{
-                  default: "14ch",
-                }}
-                className={spacing.mtMd}
-              >
-                <DescriptionListGroup>
-                  <DescriptionListTerm>Proposed action</DescriptionListTerm>
-                  <DescriptionListDescription>TODO</DescriptionListDescription>
-                </DescriptionListGroup>
-                <DescriptionListGroup>
-                  <DescriptionListTerm>Effort estimate</DescriptionListTerm>
-                  <DescriptionListDescription>TODO</DescriptionListDescription>
-                </DescriptionListGroup>
-                <DescriptionListGroup>
-                  <DescriptionListTerm>
-                    Business criticality
-                  </DescriptionListTerm>
-                  <DescriptionListDescription>TODO</DescriptionListDescription>
-                </DescriptionListGroup>
-                <DescriptionListGroup>
-                  <DescriptionListTerm>Work priority</DescriptionListTerm>
-                  <DescriptionListDescription>TODO</DescriptionListDescription>
-                </DescriptionListGroup>
-                <DescriptionListGroup>
-                  <DescriptionListTerm>Risk</DescriptionListTerm>
-                  <DescriptionListDescription>TODO</DescriptionListDescription>
-                </DescriptionListGroup>
-              </DescriptionList>
+              {detailsTabDescriptionList}
               <TextContent className={spacing.mtLg}>
                 <Title headingLevel="h3" size="md">
                   Reviewer comments

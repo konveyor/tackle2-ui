@@ -69,7 +69,7 @@ import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 import { useEntityModal } from "@app/shared/hooks";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { ConfirmDialog } from "@app/shared/components/confirm-dialog/confirm-dialog";
-import { ApplicationDetailDrawer } from "../components/application-detail-drawer";
+import { ApplicationDetailDrawerAnalysis } from "../components/application-detail-drawer";
 
 const ENTITY_FIELD = "entity";
 
@@ -618,10 +618,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             />
           }
         />
-        <ApplicationDetailDrawer
+        <ApplicationDetailDrawerAnalysis
           application={activeAppInDetailDrawer}
           onCloseClick={closeDetailDrawer}
-          showReportsTab
         />
       </ConditionalRender>
 
