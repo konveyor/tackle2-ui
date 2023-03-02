@@ -13,7 +13,6 @@ import {
 } from "@patternfly/react-core";
 import {
   cellWidth,
-  expandable,
   IAction,
   ICell,
   IExtraData,
@@ -48,7 +47,6 @@ import { ApplicationForm } from "../components/application-form";
 
 import { ApplicationAssessment } from "../components/application-assessment";
 import { ApplicationBusinessService } from "../components/application-business-service";
-import { ApplicationListExpandedArea } from "../components/application-list-expanded-area";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
 import {
@@ -149,10 +147,6 @@ export const ApplicationsTable: React.FC = () => {
     selectMultiple,
     areAllSelected,
     selectedRows,
-    isRowExpanded,
-    toggleRowExpanded,
-    expandAll,
-    areAllExpanded,
     setPageNumber,
     openDetailDrawer,
     closeDetailDrawer,
@@ -300,7 +294,6 @@ export const ApplicationsTable: React.FC = () => {
     {
       title: t("terms.name"),
       transforms: [sortable, cellWidth(20)],
-      cellFormatters: [expandable],
     },
     { title: t("terms.description"), transforms: [cellWidth(25)] },
     {
@@ -320,12 +313,10 @@ export const ApplicationsTable: React.FC = () => {
 
   const rows: IRow[] = [];
   currentPageItems?.forEach((item) => {
-    const isExpanded = isRowExpanded(item);
     const isSelected = isRowSelected(item);
 
     rows.push({
       [ENTITY_FIELD]: item,
-      isOpen: isExpanded, // TODO(mturley) remove expansion when everything is in details pane
       selected: isSelected,
       isHoverable: true,
       isRowSelected: activeAppInDetailDrawer?.id === item.id,
@@ -388,20 +379,6 @@ export const ApplicationsTable: React.FC = () => {
             </div>
           ),
         },
-      ],
-    });
-
-    rows.push({
-      parent: rows.length - 1,
-      fullWidth: false,
-      cells: [
-        <div className="pf-c-table__expandable-row-content">
-          <ApplicationListExpandedArea
-            application={item}
-            reviews={reviews}
-            assessment={getApplicationAssessment(item.id!)}
-          />
-        </div>,
       ],
     });
   });
@@ -504,17 +481,6 @@ export const ApplicationsTable: React.FC = () => {
   };
 
   // Row actions
-  const collapseRow = (
-    event: React.MouseEvent,
-    rowIndex: number,
-    isOpen: boolean,
-    rowData: IRowData,
-    extraData: IExtraData
-  ) => {
-    const row = getRow(rowData);
-    toggleRowExpanded(row);
-  };
-
   const selectRow = (
     event: React.FormEvent<HTMLInputElement>,
     isSelected: boolean,
@@ -682,7 +648,6 @@ export const ApplicationsTable: React.FC = () => {
           count={applications ? applications.length : 0}
           sortBy={sortBy}
           onSort={onSort}
-          onCollapse={collapseRow}
           onSelect={selectRow}
           canSelectAll={false}
           cells={columns}
@@ -701,10 +666,7 @@ export const ApplicationsTable: React.FC = () => {
           }
           toolbarBulkSelector={
             <ToolbarBulkSelector
-              isExpandable={true}
-              onExpandAll={expandAll}
               onSelectAll={selectAll}
-              areAllExpanded={areAllExpanded}
               areAllSelected={areAllSelected}
               selectedRows={selectedRows}
               paginationProps={paginationProps}

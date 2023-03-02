@@ -13,7 +13,6 @@ import {
 } from "@patternfly/react-core";
 import {
   cellWidth,
-  expandable,
   IAction,
   ICell,
   IExtraData,
@@ -41,7 +40,6 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationForm } from "../components/application-form";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
-import { ApplicationListExpandedAreaAnalysis } from "../components/application-list-expanded-area/application-list-expanded-area-analysis";
 import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
@@ -111,10 +109,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     selectMultiple,
     areAllSelected,
     selectedRows,
-    isRowExpanded,
-    toggleRowExpanded,
-    expandAll,
-    areAllExpanded,
     openDetailDrawer,
     closeDetailDrawer,
     activeAppInDetailDrawer,
@@ -234,7 +228,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     {
       title: t("terms.name"),
       transforms: [sortable, cellWidth(20)],
-      cellFormatters: [expandable],
     },
     { title: t("terms.description"), transforms: [cellWidth(25)] },
     {
@@ -261,12 +254,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const rows: IRow[] = [];
   currentPageItems?.forEach((item) => {
-    const isExpanded = isRowExpanded(item);
     const isSelected = isRowSelected(item);
 
     rows.push({
       [ENTITY_FIELD]: item,
-      isOpen: isExpanded, // TODO(mturley) remove expansion when everything is in details pane
       selected: isSelected,
       isHoverable: true,
       isRowSelected: activeAppInDetailDrawer?.id === item.id,
@@ -324,19 +315,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         },
       ],
     });
-
-    rows.push({
-      parent: rows.length - 1,
-      fullWidth: false,
-      cells: [
-        <div className="pf-c-table__expandable-row-content">
-          <ApplicationListExpandedAreaAnalysis
-            application={item}
-            task={getTask(item)}
-          />
-        </div>,
-      ],
-    });
   });
 
   const actionResolver = (rowData: IRowData): (IAction | ISeparator)[] => {
@@ -387,17 +365,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   };
 
   // Row actions
-  const collapseRow = (
-    event: React.MouseEvent,
-    rowIndex: number,
-    isOpen: boolean,
-    rowData: IRowData,
-    extraData: IExtraData
-  ) => {
-    const row = getRow(rowData);
-    toggleRowExpanded(row);
-  };
-
   const selectRow = (
     event: React.FormEvent<HTMLInputElement>,
     isSelected: boolean,
@@ -507,7 +474,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           paginationIdPrefix="app-analysis"
           sortBy={sortBy}
           onSort={onSort}
-          onCollapse={collapseRow}
           onSelect={selectRow}
           canSelectAll={false}
           cells={columns}
@@ -529,10 +495,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           }
           toolbarBulkSelector={
             <ToolbarBulkSelector
-              isExpandable={true}
-              onExpandAll={expandAll}
               onSelectAll={selectAll}
-              areAllExpanded={areAllExpanded}
               areAllSelected={areAllSelected}
               selectedRows={selectedRows}
               paginationProps={paginationProps}

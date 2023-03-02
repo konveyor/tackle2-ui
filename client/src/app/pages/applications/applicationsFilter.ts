@@ -183,17 +183,6 @@ export const useApplicationsFilterValues = (
     getSortValues
   );
 
-  // Expand, select rows
-  const {
-    isItemSelected: isRowExpanded,
-    toggleItemSelected: toggleRowExpanded,
-    selectAll: expandAll,
-    areAllSelected: areAllExpanded,
-  } = useSelectionState<Application>({
-    items: filteredItems || [],
-    isEqual: (a, b) => a.id === b.id,
-  });
-
   //Bulk selection
   const {
     isItemSelected: isRowSelected,
@@ -212,8 +201,6 @@ export const useApplicationsFilterValues = (
 
   const [activeAppInDetailDrawer, openDetailDrawer] =
     React.useState<Application | null>(null);
-  const isDetailDrawerOpen = (application: Application) =>
-    application.id === activeAppInDetailDrawer?.id;
   const closeDetailDrawer = () => openDetailDrawer(null);
 
   return {
@@ -231,10 +218,6 @@ export const useApplicationsFilterValues = (
     selectMultiple,
     areAllSelected,
     selectedRows,
-    isRowExpanded,
-    toggleRowExpanded,
-    expandAll,
-    areAllExpanded,
     openDetailDrawer,
     closeDetailDrawer,
     activeAppInDetailDrawer,
