@@ -49,20 +49,18 @@ export const RepositoriesMvn: React.FC = () => {
   //     mvnForcedSettingMutation.mutate(!mvnForcedSetting.data);
   // };
 
-  const [storageValue, setStorageValue] = useState<string>();
+  let storageValue: string = "";
+  const cache = useFetchCache();
 
-  const { cache, refetch, isFetching } = useFetchCache();
-  useEffect(() => {
-    if (cache) {
-      setStorageValue(`${cache.used} of ${cache.capacity} `);
-    }
-  }, [cache]);
+  if (cache.isSuccess)
+    storageValue = `${cache.data.used} of ${cache.data.capacity} `;
 
   const onHandleCleanSuccess = () => {
-    refetch();
+    cache.refetch();
   };
+
   const onHandleCleanError = () => {
-    refetch();
+    cache.refetch();
   };
 
   const { mutate: deleteCache, isLoading: isDeleting } = useDeleteCacheMutation(
@@ -87,8 +85,10 @@ export const RepositoriesMvn: React.FC = () => {
                   className="repo"
                   type="text"
                   aria-label="Maven Repository Size"
-                  aria-disabled={!isRWXSupported || isFetching || isDeleting}
-                  isDisabled={!isRWXSupported || isFetching || isDeleting}
+                  aria-disabled={
+                    !isRWXSupported || cache.isFetching || isDeleting
+                  }
+                  isDisabled={!isRWXSupported || cache.isFetching || isDeleting}
                   readOnlyVariant="default"
                   size={15}
                   width={10}
@@ -101,7 +101,9 @@ export const RepositoriesMvn: React.FC = () => {
                     id="clear-repository"
                     isInline
                     className={spacing.mlMd}
-                    isAriaDisabled={!isRWXSupported || isFetching || isDeleting}
+                    isAriaDisabled={
+                      !isRWXSupported || cache.isFetching || isDeleting
+                    }
                     onClick={() => setIsConfirmDialogOpen(true)}
                   >
                     Clear repository
