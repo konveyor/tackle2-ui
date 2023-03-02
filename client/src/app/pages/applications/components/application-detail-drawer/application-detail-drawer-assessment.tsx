@@ -121,8 +121,7 @@ export const ApplicationDetailDrawerAssessment: React.FC<
             </Title>
             <Text component="small" cy-data="comments">
               {application?.comments || (
-                // TODO i18n here
-                <EmptyTextMessage message="No comments" />
+                <EmptyTextMessage message={t("terms.notAvailable")} />
               )}
             </Text>
           </TextContent>
