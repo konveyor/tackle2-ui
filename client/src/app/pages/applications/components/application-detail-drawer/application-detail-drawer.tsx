@@ -29,8 +29,6 @@ enum TabKey {
   Reports,
 }
 
-// TODO all these h3s are bold and the mockups seem inconsistent about that?
-
 export const ApplicationDetailDrawer: React.FC<
   IApplicationDetailDrawerProps
 > = ({
