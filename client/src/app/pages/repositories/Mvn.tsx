@@ -16,7 +16,6 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
 
 import "./Repositories.css";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -49,18 +48,15 @@ export const RepositoriesMvn: React.FC = () => {
   //     mvnForcedSettingMutation.mutate(!mvnForcedSetting.data);
   // };
 
-  const [storageValue, setStorageValue] = useState<string>();
+  let storageValue: string = "";
+  const { data: cache, isFetching, isSuccess, refetch } = useFetchCache();
 
-  const { cache, refetch, isFetching } = useFetchCache();
-  useEffect(() => {
-    if (cache) {
-      setStorageValue(`${cache.used} of ${cache.capacity} `);
-    }
-  }, [cache]);
+  if (isSuccess) storageValue = `${cache.used} of ${cache.capacity} `;
 
   const onHandleCleanSuccess = () => {
     refetch();
   };
+
   const onHandleCleanError = () => {
     refetch();
   };

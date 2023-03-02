@@ -14,6 +14,7 @@ import {
   BulkCopyAssessment,
   BulkCopyReview,
   BusinessService,
+  Cache,
   Identity,
   IReadFile,
   JobFunction,
@@ -58,6 +59,7 @@ export const TASKGROUPS = HUB + "/taskgroups";
 
 export const RULEBUNDLES = HUB + "/rulebundles";
 export const FILES = HUB + "/files";
+export const CACHE = HUB + "/cache/m2";
 
 // PATHFINDER
 export const PATHFINDER = "/hub/pathfinder";
@@ -98,15 +100,6 @@ export const getTaskById = ({
 }): AxiosPromise<Task> => {
   const [_, processId] = queryKey;
   return axios.get<Task>(`${TASKS}/${processId}`);
-};
-
-//
-export const getCache = (): AxiosPromise => {
-  return APIClient.get(`${HUB}/cache/m2`, jsonHeaders);
-};
-
-export const deleteCache = (): AxiosPromise => {
-  return APIClient.delete(`${HUB}/cache/m2`, jsonHeaders);
 };
 
 // Business services
@@ -592,3 +585,8 @@ export const updateSetting = <K extends keyof SettingTypes>(
     `${SETTINGS}/${obj.key}`,
     typeof obj.value == "boolean" ? obj.value.toString() : obj.value
   );
+
+export const getCache = (): Promise<Cache> =>
+  axios.get(CACHE).then((response) => response.data);
+
+export const deleteCache = (): Promise<Cache> => axios.delete(CACHE);
