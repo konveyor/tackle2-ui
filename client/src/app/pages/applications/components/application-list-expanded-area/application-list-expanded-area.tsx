@@ -65,7 +65,7 @@ export const ApplicationListExpandedArea: React.FC<
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.tags")}</DescriptionListTerm>
         <DescriptionListDescription cy-data="tags">
-          <ApplicationTags application={application} />
+          TODO - removed for debugging purposes
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>

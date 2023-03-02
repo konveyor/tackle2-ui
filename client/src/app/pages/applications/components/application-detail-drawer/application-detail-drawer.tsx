@@ -14,6 +14,7 @@ import {
   PageDrawerContent,
 } from "@app/shared/page-drawer-context";
 import { ApplicationBusinessService } from "../application-business-service";
+import { ApplicationTags } from "../application-tags";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -79,7 +80,10 @@ export const ApplicationDetailDrawer: React.FC<
         </Tab>
         <Tab eventKey={TabKey.Tags} title={<TabTitleText>Tags</TabTitleText>}>
           <TextContent className={spacing.mtMd}>
-            <Text component="small">Tags content goes here!</Text>
+            <Text component="small">
+              {/* TODO(mturley): group tabs by source and tag-type, add filter dropdowns */}
+              {application && <ApplicationTags application={application} />}
+            </Text>
           </TextContent>
         </Tab>
         {showReportsTab && (
