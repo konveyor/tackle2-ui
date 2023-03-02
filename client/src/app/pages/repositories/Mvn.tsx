@@ -49,7 +49,7 @@ export const RepositoriesMvn: React.FC = () => {
   // };
 
   let storageValue: string = "";
-  const { data: cache, isLoading, isSuccess, refetch } = useFetchCache();
+  const { data: cache, isFetching, isSuccess, refetch } = useFetchCache();
 
   if (isSuccess) storageValue = `${cache.used} of ${cache.capacity} `;
 
@@ -83,8 +83,8 @@ export const RepositoriesMvn: React.FC = () => {
                   className="repo"
                   type="text"
                   aria-label="Maven Repository Size"
-                  aria-disabled={!isRWXSupported || isLoading || isDeleting}
-                  isDisabled={!isRWXSupported || isLoading || isDeleting}
+                  aria-disabled={!isRWXSupported || isFetching || isDeleting}
+                  isDisabled={!isRWXSupported || isFetching || isDeleting}
                   readOnlyVariant="default"
                   size={15}
                   width={10}
@@ -97,7 +97,7 @@ export const RepositoriesMvn: React.FC = () => {
                     id="clear-repository"
                     isInline
                     className={spacing.mlMd}
-                    isAriaDisabled={!isRWXSupported || isLoading || isDeleting}
+                    isAriaDisabled={!isRWXSupported || isFetching || isDeleting}
                     onClick={() => setIsConfirmDialogOpen(true)}
                   >
                     Clear repository
