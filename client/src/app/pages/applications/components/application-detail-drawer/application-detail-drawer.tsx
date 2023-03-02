@@ -29,6 +29,9 @@ enum TabKey {
   Reports,
 }
 
+// TODO all these h3s are bold and the mockups seem inconsistent about that?
+// TODO there is a layout issue if the height of the table content is too small
+
 export const ApplicationDetailDrawer: React.FC<
   IApplicationDetailDrawerProps
 > = ({
