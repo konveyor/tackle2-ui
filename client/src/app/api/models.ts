@@ -375,6 +375,8 @@ export interface TaskData {
       excluded: string[];
     };
     bundles: Ref[];
+    repository?: Repository;
+    identity?: Ref;
   };
 }
 
@@ -435,6 +437,7 @@ export interface RuleBundle {
   rulesets: Ruleset[];
   custom: boolean;
   repository?: Repository;
+  identity?: Ref;
 }
 export interface Metadata {
   target: string;

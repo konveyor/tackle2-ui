@@ -49,17 +49,14 @@ const useModeStepSchema = ({
 
 export interface TargetsStepValues {
   formTargets: string[];
-  formRuleBundles: Ref[];
+  formRuleBundles: any[];
 }
 
 const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
   const { t } = useTranslation();
   return yup.object({
-    formTargets: yup
-      .array()
-      .of(yup.string().defined())
-      .min(1, "At least 1 target is required"), // TODO translation here
-    formRuleBundles: yup.array(),
+    formTargets: yup.array(),
+    formRuleBundles: yup.array().min(1, "At least 1 target is required"), // TODO translation here
   });
 };
 
@@ -92,14 +89,49 @@ const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
 
 export interface CustomRulesStepValues {
   formSources: string[];
-  customRulesFiles: IReadFile[];
+  customRulesFiles: any[];
+  rulesKind: string;
+  repositoryType?: string;
+  sourceRepository?: string;
+  branch?: string;
+  rootPath?: string;
+  associatedCredentials?: Ref;
 }
 
 const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     formSources: yup.array().of(yup.string().defined()),
-    customRulesFiles: yup.array().of(yup.object() as yup.SchemaOf<IReadFile>),
+    rulesKind: yup.string().defined(),
+    customRulesFiles: yup.array().when("rulesKind", {
+      is: "manual",
+      then: yup.array(),
+      otherwise: (schema) => schema,
+    }),
+    repositoryType: yup.mixed<string>().when("rulesKind", {
+      is: "repository",
+      then: yup.mixed<string>().required(),
+    }),
+    sourceRepository: yup.mixed<string>().when("rulesKind", {
+      is: "repository",
+      then: yup
+        .string()
+        .required("This value is required")
+        .min(3, t("validation.minLength", { length: 3 }))
+        .max(120, t("validation.maxLength", { length: 120 })),
+    }),
+    branch: yup.mixed<string>().when("rulesKind", {
+      is: "repository",
+      then: yup.mixed<string>(),
+    }),
+    rootPath: yup.mixed<string>().when("rulesKind", {
+      is: "repository",
+      then: yup.mixed<string>(),
+    }),
+    associatedCredentials: yup.mixed<any>().when("rulesKind", {
+      is: "repository",
+      then: yup.mixed<any>(),
+    }),
   });
 };
 

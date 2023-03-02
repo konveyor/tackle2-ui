@@ -1,7 +1,11 @@
 import * as React from "react";
 import {
   Button,
+  Form,
   Modal,
+  Tab,
+  Tabs,
+  TabTitleText,
   Text,
   TextContent,
   Title,
@@ -24,6 +28,7 @@ import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AddCustomRules } from "../../../common/CustomRules/add-custom-rules";
 import {
@@ -32,22 +37,34 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { IReadFile, TableRule } from "@app/api/models";
+import { Identity, IReadFile, Ref, TableRule } from "@app/api/models";
 import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
 
 import "./wizard.css";
 import { AnalysisWizardFormValues } from "./schema";
 import { parseRules } from "@app/common/CustomRules/rules-utils";
-import { TASKGROUPS } from "@app/api/rest";
+import {
+  HookFormPFGroupController,
+  HookFormPFTextInput,
+} from "@app/shared/components/hook-form-pf-fields";
+import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import {
+  IdentityDropdown,
+  toIdentityDropdown,
+  toOptionLike,
+} from "@app/utils/model-utils";
+import { useFetchIdentities } from "@app/queries/identities";
 interface CustomRulesProps {
   taskgroupID: number | null;
 }
 export const CustomRules: React.FC<CustomRulesProps> = (props) => {
   const { t } = useTranslation();
 
-  const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
+  const { watch, setValue, control } =
+    useFormContext<AnalysisWizardFormValues>();
 
   const { formSources, formTargets, customRulesFiles } = watch();
+  const [activeTabKey, setActiveTabKey] = React.useState(0);
 
   const [tableRules, setTableRules] = React.useState<TableRule[]>([]);
   const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
@@ -58,6 +75,34 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
     setCustomRulesModalOpen(false);
     setReadFileData([]);
   };
+
+  const repositoryTypeOptions: OptionWithValue<string>[] = [
+    {
+      value: "git",
+      toString: () => `Git`,
+    },
+    {
+      value: "svn",
+      toString: () => `Subversion`,
+    },
+  ];
+
+  const { identities } = useFetchIdentities();
+  const emptyIdentity: Identity = { id: 0, name: "None", createUser: "" };
+
+  let sourceIdentityOptions: Identity[] =
+    identities?.filter((i) => i.kind === "source") || [];
+  sourceIdentityOptions.unshift(emptyIdentity);
+  sourceIdentityOptions = sourceIdentityOptions.map((i) =>
+    toIdentityDropdown(i)
+  );
+
+  const toOptionWithValue = (
+    value: IdentityDropdown
+  ): OptionWithValue<IdentityDropdown> => ({
+    value,
+    toString: () => value?.name || "",
+  });
 
   const filterCategories: FilterCategory<TableRule>[] = [
     {
@@ -176,60 +221,153 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
         </Title>
         <Text> {t("wizard.label.customRules")}</Text>
       </TextContent>
-      <div className="line">
-        <Toolbar
-          className="pf-m-toggle-group-container"
-          collapseListedFiltersBreakpoint="xl"
-          clearAllFilters={handleOnClearAllFilters}
-          clearFiltersButtonText="clear Filter"
-        >
-          <ToolbarContent>
-            <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
-              <FilterToolbar<TableRule>
-                filterCategories={filterCategories}
-                filterValues={filterValues}
-                setFilterValues={setFilterValues}
-              />
-            </ToolbarToggleGroup>
-            <ToolbarGroup variant="button-group">
-              <ToolbarItem>
-                <Button
-                  id="add-rules"
-                  type="button"
-                  aria-label="add rules"
-                  variant="primary"
-                  onClick={() => setCustomRulesModalOpen(true)}
-                >
-                  {
-                    // t("wizard.terms.rules")
-                    t("composed.add", {
-                      what: t("wizard.terms.rules").toLowerCase(),
-                    })
-                  }
-                </Button>
-              </ToolbarItem>
-            </ToolbarGroup>
-          </ToolbarContent>
-        </Toolbar>
-      </div>
-      {filteredItems.length > 0 ? (
-        <Table
-          aria-label="Custom rules table"
-          className="custom-rules-table"
-          cells={columns}
-          rows={rows}
-        >
-          <TableHeader />
-          <TableBody />
-        </Table>
-      ) : (
-        <NoDataEmptyState
-          title={t("wizard.label.noCustomRules")}
-          description={t("composed.add", {
-            what: t("wizard.terms.rules").toLowerCase(),
-          })}
-        />
+      <HookFormPFGroupController
+        control={control}
+        name="rulesKind"
+        label="Custom rules"
+        fieldId="type-select"
+        isRequired
+        renderInput={({ field: { value, name, onChange } }) => (
+          <Tabs
+            className={spacing.mtSm}
+            activeKey={activeTabKey}
+            onSelect={(_event, tabIndex) => {
+              setActiveTabKey(tabIndex as number);
+              if (tabIndex === 0) onChange("manual");
+              if (tabIndex === 1) onChange("repository");
+            }}
+          >
+            <Tab eventKey={0} title={<TabTitleText>Manual</TabTitleText>} />
+            <Tab eventKey={1} title={<TabTitleText>Repository</TabTitleText>} />
+          </Tabs>
+        )}
+      ></HookFormPFGroupController>
+      {activeTabKey === 0 && (
+        <>
+          <div className="line">
+            <Toolbar
+              className="pf-m-toggle-group-container"
+              collapseListedFiltersBreakpoint="xl"
+              clearAllFilters={handleOnClearAllFilters}
+              clearFiltersButtonText="clear Filter"
+            >
+              <ToolbarContent>
+                <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
+                  <FilterToolbar<TableRule>
+                    filterCategories={filterCategories}
+                    filterValues={filterValues}
+                    setFilterValues={setFilterValues}
+                  />
+                </ToolbarToggleGroup>
+                <ToolbarGroup variant="button-group">
+                  <ToolbarItem>
+                    <Button
+                      id="add-rules"
+                      type="button"
+                      aria-label="add rules"
+                      variant="primary"
+                      onClick={() => setCustomRulesModalOpen(true)}
+                    >
+                      {t("composed.add", {
+                        what: t("wizard.terms.rules").toLowerCase(),
+                      })}
+                    </Button>
+                  </ToolbarItem>
+                </ToolbarGroup>
+              </ToolbarContent>
+            </Toolbar>
+          </div>
+          {filteredItems.length > 0 ? (
+            <Table
+              aria-label="Custom rules table"
+              className="custom-rules-table"
+              cells={columns}
+              rows={rows}
+            >
+              <TableHeader />
+              <TableBody />
+            </Table>
+          ) : (
+            <NoDataEmptyState
+              title={t("wizard.label.noCustomRules")}
+              description={t("composed.add", {
+                what: t("wizard.terms.rules").toLowerCase(),
+              })}
+            />
+          )}
+        </>
       )}
+      {activeTabKey === 1 && (
+        <>
+          <Form className={spacing.mtLg}>
+            <HookFormPFGroupController
+              control={control}
+              name="repositoryType"
+              label="Repository type"
+              fieldId="repo-type-select"
+              isRequired
+              renderInput={({ field: { value, name, onChange } }) => (
+                <SimpleSelect
+                  id="repo-type-select"
+                  toggleId="repo-type-select-toggle"
+                  toggleAriaLabel="Repository type select dropdown toggle"
+                  aria-label={name}
+                  value={
+                    value
+                      ? toOptionLike(value, repositoryTypeOptions)
+                      : undefined
+                  }
+                  options={repositoryTypeOptions}
+                  onChange={(selection) => {
+                    const selectionValue = selection as OptionWithValue<string>;
+                    onChange(selectionValue.value);
+                  }}
+                />
+              )}
+            />
+            <HookFormPFTextInput
+              control={control}
+              name="sourceRepository"
+              label="Source repository"
+              fieldId="sourceRepository"
+              isRequired
+            />
+            <HookFormPFTextInput
+              control={control}
+              name="branch"
+              label="Branch"
+              fieldId="branch"
+            />
+            <HookFormPFTextInput
+              control={control}
+              name="rootPath"
+              label="Root path"
+              fieldId="rootPath"
+            />
+            <HookFormPFGroupController
+              control={control}
+              name="associatedCredentials"
+              label="Associated credentials"
+              fieldId="credentials-select"
+              renderInput={({ field: { value, name, onBlur, onChange } }) => (
+                <SimpleSelect
+                  id="associated-credentials-select"
+                  toggleId="associated-credentials-select-toggle"
+                  toggleAriaLabel="Associated credentials dropdown toggle"
+                  aria-label={name}
+                  value={value ? toOptionWithValue(value) : undefined}
+                  options={sourceIdentityOptions.map(toOptionWithValue)}
+                  onChange={(selection) => {
+                    const selectionValue = selection as OptionWithValue<Ref>;
+                    onChange(selectionValue.value);
+                  }}
+                />
+              )}
+            />
+          </Form>
+        </>
+      )}
+
       {isAddCustomRulesModalOpen && (
         <Modal
           isOpen={isAddCustomRulesModalOpen}

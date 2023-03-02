@@ -172,6 +172,12 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       excludedRulesTags: [],
       diva: false,
       hasExcludedPackages: false,
+      associatedCredentials: { id: 0, name: "" },
+      rulesKind: "manual",
+      repositoryType: "",
+      sourceRepository: "",
+      branch: "",
+      rootPath: "",
     },
     resolver: yupResolver(allFieldsSchema),
     mode: "onChange",
@@ -241,6 +247,19 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             excluded: fieldValues.excludedRulesTags,
           },
           bundles: fieldValues.formRuleBundles,
+          ...(fieldValues.rulesKind === "repository" && {
+            repository: {
+              kind: fieldValues?.repositoryType,
+              url: fieldValues?.sourceRepository?.trim(),
+              branch: fieldValues?.branch?.trim(),
+              path: fieldValues?.rootPath?.trim(),
+            },
+          }),
+          ...(fieldValues.associatedCredentials &&
+            !!fieldValues?.associatedCredentials?.id &&
+            fieldValues.rulesKind === "repository" && {
+              identity: fieldValues.associatedCredentials,
+            }),
         },
       },
     };
@@ -249,7 +268,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const isModeValid = applications.every((app) => isModeSupported(app, mode));
 
   const onSubmit = (fieldValues: AnalysisWizardFormValues) => {
-    if (fieldValues.formTargets.length < 1) {
+    if (fieldValues.formRuleBundles.length < 1) {
       console.log("Invalid form");
       return;
     }
