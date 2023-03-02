@@ -5,6 +5,7 @@ import {
   ButtonVariant,
   FileUpload,
   Form,
+  Radio,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
@@ -16,8 +17,8 @@ import {
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useState } from "react";
-import { IReadFile, RuleBundle, Ruleset } from "@app/api/models";
+import { useEffect, useMemo, useState } from "react";
+import { Identity, IReadFile, Ref, RuleBundle, Ruleset } from "@app/api/models";
 import { AddCustomRules } from "@app/common/CustomRules/add-custom-rules";
 import { parseRules } from "@app/common/CustomRules/rules-utils";
 import {
@@ -26,6 +27,14 @@ import {
   useUpdateRuleBundleMutation,
 } from "@app/queries/rulebundles";
 import { AxiosError, AxiosResponse } from "axios";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import {
+  IdentityDropdown,
+  toIdentityDropdown,
+  toOptionLike,
+} from "@app/utils/model-utils";
+import { useFetchIdentities } from "@app/queries/identities";
 
 export interface CustomTargetFormProps {
   ruleBundle?: RuleBundle;
@@ -39,6 +48,12 @@ interface CustomTargetFormValues {
   description?: string;
   imageID: number | null;
   customRulesFiles: any[];
+  rulesKind: string;
+  repositoryType?: string;
+  sourceRepository?: string;
+  branch?: string;
+  rootPath?: string;
+  associatedCredentials?: Ref;
 }
 
 export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
@@ -51,7 +66,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   const [ruleBundle, setRuleBundle] = useState(initialRuleBundle);
 
-  const [filename, setFilename] = React.useState("");
+  const [filename, setFilename] = React.useState("default.png");
 
   const [isImageFileRejected, setIsImageFileRejected] = useState(false);
 
@@ -72,6 +87,44 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       );
     });
 
+  const repositoryTypeOptions: OptionWithValue<string>[] = [
+    {
+      value: "git",
+      toString: () => `Git`,
+    },
+    {
+      value: "svn",
+      toString: () => `Subversion`,
+    },
+  ];
+
+  const { identities } = useFetchIdentities();
+  const emptyIdentity: Identity = { id: 0, name: "None", createUser: "" };
+
+  let sourceIdentityOptions: Identity[] =
+    identities?.filter((i) => i.kind === "source") || [];
+  sourceIdentityOptions.unshift(emptyIdentity);
+  sourceIdentityOptions = sourceIdentityOptions.map((i) =>
+    toIdentityDropdown(i)
+  );
+
+  const toOptionWithValue = (
+    value: IdentityDropdown
+  ): OptionWithValue<IdentityDropdown> => ({
+    value,
+    toString: () => value?.name || "",
+  });
+
+  const sourceCredentialsInitialValue = useMemo(() => {
+    let result: IdentityDropdown = { id: 0, name: "" };
+    if (ruleBundle?.identity) {
+      result = toIdentityDropdown(ruleBundle.identity);
+    } else {
+      result = emptyIdentity;
+    }
+    return result;
+  }, [identities, ruleBundle]);
+
   const validationSchema: yup.SchemaOf<CustomTargetFormValues> = yup
     .object()
     .shape({
@@ -83,34 +136,56 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         .min(3, t("validation.minLength", { length: 3 }))
         .max(120, t("validation.maxLength", { length: 120 })),
       description: yup.string(),
-      imageID: yup.number().defined().required(),
-      customRulesFiles: yup.array().min(1),
+      imageID: yup.number().defined(),
+      rulesKind: yup.string().defined(),
+      customRulesFiles: yup.array().when("rulesKind", {
+        is: "manual",
+        then: yup.array().min(1),
+        otherwise: (schema) => schema,
+      }),
+      repositoryType: yup.mixed<string>().when("rulesKind", {
+        is: "repository",
+        then: yup.mixed<string>().required(),
+      }),
+      sourceRepository: yup.mixed<string>().when("rulesKind", {
+        is: "repository",
+        then: yup
+          .string()
+          .required("This value is required")
+          .min(3, t("validation.minLength", { length: 3 }))
+          .max(120, t("validation.maxLength", { length: 120 })),
+      }),
+      branch: yup.mixed<string>().when("rulesKind", {
+        is: "repository",
+        then: yup.mixed<string>(),
+      }),
+      rootPath: yup.mixed<string>().when("rulesKind", {
+        is: "repository",
+        then: yup.mixed<string>(),
+      }),
+      associatedCredentials: yup.mixed<any>().when("rulesKind", {
+        is: "repository",
+        then: yup.mixed<any>(),
+      }),
     });
 
   const {
     handleSubmit,
-    formState: {
-      isSubmitting,
-      isValidating,
-      isValid,
-      isDirty,
-      errors,
-      touchedFields,
-      isLoading,
-    },
+    formState: { isSubmitting, isValidating, isValid, isDirty },
     getValues,
     setValue,
-    setError,
     control,
     watch,
-    resetField,
+    setFocus,
+    clearErrors,
+    trigger,
     reset,
   } = useForm<CustomTargetFormValues>({
     defaultValues: {
       id: ruleBundle?.id || 0,
       name: ruleBundle?.name || "",
       description: ruleBundle?.description || "",
-      imageID: ruleBundle?.image.id || null,
+      imageID: ruleBundle?.image.id || 1,
       customRulesFiles:
         ruleBundle?.rulesets.map((ruleset): IReadFile => {
           const emptyFile = new File(["empty"], ruleset.name, {
@@ -121,6 +196,16 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             fullFile: emptyFile,
           };
         }) || [],
+      rulesKind: !ruleBundle
+        ? "manual"
+        : !!ruleBundle?.rulesets?.length
+        ? "manual"
+        : "repository",
+      associatedCredentials: sourceCredentialsInitialValue,
+      repositoryType: ruleBundle?.repository?.kind,
+      sourceRepository: ruleBundle?.repository?.url,
+      branch: ruleBundle?.repository?.branch,
+      rootPath: ruleBundle?.repository?.path,
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
@@ -128,14 +213,15 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   useEffect(() => {
     setRuleBundle(initialRuleBundle);
-    setFilename(initialRuleBundle?.image?.name || "");
+    setFilename(initialRuleBundle?.image?.name || "default.png");
     return () => {
       setRuleBundle(undefined);
-      setFilename("");
+      setFilename("default.png");
     };
   }, []);
 
   const watchAllFields = watch();
+  const values = getValues();
 
   const onSubmit = (formValues: CustomTargetFormValues) => {
     let rulesets: Ruleset[] = [];
@@ -161,7 +247,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         };
         rulesets = [...rulesets, newRuleset];
       } else {
-        //existing ruleset
         const matchingExistingRuleset = ruleBundle?.rulesets.find(
           (ruleset) => ruleset.name === file.fileName
         );
@@ -175,9 +260,22 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       id: formValues.id,
       name: formValues.name.trim(),
       description: formValues?.description?.trim() || "",
-      image: { id: formValues.imageID ? formValues.imageID : 0 },
+      image: { id: formValues.imageID ? formValues.imageID : 1 },
       custom: true,
       rulesets: rulesets,
+      ...(formValues.rulesKind === "repository" && {
+        repository: {
+          kind: formValues?.repositoryType,
+          url: formValues?.sourceRepository?.trim(),
+          branch: formValues?.branch?.trim(),
+          path: formValues?.rootPath?.trim(),
+        },
+      }),
+      ...(formValues.associatedCredentials &&
+        !!formValues?.associatedCredentials?.id &&
+        formValues.rulesKind === "repository" && {
+          identity: formValues.associatedCredentials,
+        }),
     };
     if (ruleBundle) {
       updateRuleBundle({ ...payload });
@@ -187,12 +285,14 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   };
 
   const onCreateImageFileSuccess = (response: any) => {
-    //Set image ID for use in form submit
     setValue("imageID", response?.id);
+    setFocus("imageID");
+    clearErrors("imageID");
+    trigger("imageID");
   };
 
   const onCreateImageFileFailure = (error: AxiosError) => {
-    resetField("imageID");
+    setValue("imageID", 1);
   };
 
   const { mutate: createImageFile } = useCreateFileMutation(
@@ -244,9 +344,8 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         name="imageID"
         label={t("terms.image")}
         fieldId="custom-migration-target-upload-image"
-        isRequired
         helperText="Upload a png or jpeg file"
-        renderInput={({ field: { onChange, name } }) => (
+        renderInput={({ field: { onChange, name }, fieldState: { error } }) => (
           <FileUpload
             id="custom-migration-target-upload-image"
             name={name}
@@ -258,7 +357,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
               maxSize: 1000000,
               onDropRejected: () => setIsImageFileRejected(true),
             }}
-            validated={isImageFileRejected ? "error" : "default"}
+            validated={isImageFileRejected || error ? "error" : "default"}
             onFileInputChange={async (e, file) => {
               try {
                 const image = await resizeFile(file);
@@ -271,15 +370,19 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                   fullFile: file,
                 };
 
-                createImageFile({ formData: formFile, file: newImageFile });
+                createImageFile({
+                  formData: formFile,
+                  file: newImageFile,
+                });
+                onChange();
               } catch {
-                resetField("imageID");
+                setValue("imageID", 1);
               }
             }}
             onClearClick={() => {
-              onChange("");
-              setFilename("");
-              resetField("imageID");
+              onChange();
+              setFilename("default.png");
+              setValue("imageID", 1);
               setIsImageFileRejected(false);
             }}
             browseButtonText="Upload"
@@ -288,19 +391,117 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       />
       <HookFormPFGroupController
         control={control}
-        name="customRulesFiles"
-        label={t("terms.image")}
-        fieldId="custom-migration-target-upload-image"
+        name="rulesKind"
+        label="Custom rules"
+        fieldId="type-select"
         isRequired
-        renderInput={({ field: { onChange, name, value } }) => (
-          <AddCustomRules
-            customRulesFiles={value}
-            readFileData={readFileData}
-            setReadFileData={setReadFileData}
-            handleCustomTargetFileChange={onChange}
-          />
+        renderInput={({ field: { value, name, onChange } }) => (
+          <>
+            <Radio
+              id="manual"
+              name="Upload manually"
+              isChecked={value === "manual"}
+              onChange={() => {
+                onChange("manual");
+              }}
+              label="Upload manually"
+              className={spacing.mbXs}
+            />
+            <Radio
+              id="repository"
+              name="repository"
+              isChecked={value === "repository"}
+              onChange={() => {
+                onChange("repository");
+              }}
+              label="Retrieve from a repository"
+              className={spacing.mbXs}
+            />
+          </>
         )}
-      ></HookFormPFGroupController>
+      />
+
+      {values?.rulesKind === "manual" && (
+        <HookFormPFGroupController
+          control={control}
+          name="customRulesFiles"
+          fieldId="custom-migration-target-upload-image"
+          isRequired
+          renderInput={({ field: { onChange, name, value } }) => (
+            <AddCustomRules
+              customRulesFiles={value}
+              readFileData={readFileData}
+              setReadFileData={setReadFileData}
+              handleCustomTargetFileChange={onChange}
+            />
+          )}
+        ></HookFormPFGroupController>
+      )}
+      {values?.rulesKind === "repository" && (
+        <>
+          <HookFormPFGroupController
+            control={control}
+            name="repositoryType"
+            fieldId="repo-type-select"
+            isRequired
+            renderInput={({ field: { value, name, onChange } }) => (
+              <SimpleSelect
+                id="repo-type-select"
+                toggleId="repo-type-select-toggle"
+                toggleAriaLabel="Repository type select dropdown toggle"
+                aria-label={name}
+                value={
+                  value ? toOptionLike(value, repositoryTypeOptions) : undefined
+                }
+                options={repositoryTypeOptions}
+                onChange={(selection) => {
+                  const selectionValue = selection as OptionWithValue<string>;
+                  onChange(selectionValue.value);
+                }}
+              />
+            )}
+          />
+          <HookFormPFTextInput
+            control={control}
+            name="sourceRepository"
+            label="Source repository"
+            fieldId="sourceRepository"
+            isRequired
+          />
+          <HookFormPFTextInput
+            control={control}
+            name="branch"
+            label="Branch"
+            fieldId="branch"
+          />
+          <HookFormPFTextInput
+            control={control}
+            name="rootPath"
+            label="Root path"
+            fieldId="rootPath"
+          />
+          <HookFormPFGroupController
+            control={control}
+            name="associatedCredentials"
+            label="Associated credentials"
+            fieldId="credentials-select"
+            renderInput={({ field: { value, name, onBlur, onChange } }) => (
+              <SimpleSelect
+                id="associated-credentials-select"
+                toggleId="associated-credentials-select-toggle"
+                toggleAriaLabel="Associated credentials dropdown toggle"
+                aria-label={name}
+                value={value ? toOptionWithValue(value) : undefined}
+                options={sourceIdentityOptions.map(toOptionWithValue)}
+                onChange={(selection) => {
+                  const selectionValue = selection as OptionWithValue<Ref>;
+                  onChange(selectionValue.value);
+                }}
+              />
+            )}
+          />
+        </>
+      )}
 
       <ActionGroup>
         <Button
