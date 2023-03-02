@@ -66,17 +66,17 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
           {matchingSourceCredsRef && matchingMavenCredsRef ? (
             <Text component="small">
               <OkIcon color="green"></OkIcon>
-              <span className={spacing.mlSm}>(Source and Maven)</span>
+              <span className={spacing.mlSm}>Source and Maven</span>
             </Text>
           ) : matchingMavenCredsRef ? (
             <Text component="small">
               <OkIcon color="green"></OkIcon>
-              <span className={spacing.mlSm}>(Maven)</span>
+              <span className={spacing.mlSm}>Maven</span>
             </Text>
           ) : matchingSourceCredsRef ? (
             <Text component="small">
               <OkIcon color="green"></OkIcon>
-              <span className={spacing.mlSm}>(Source)</span>
+              <span className={spacing.mlSm}>Source</span>
             </Text>
           ) : (
             notAvailable
