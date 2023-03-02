@@ -1,3 +1,5 @@
+import * as React from "react";
+
 import { useTranslation } from "react-i18next";
 
 import { Application } from "@app/api/models";
@@ -181,17 +183,6 @@ export const useApplicationsFilterValues = (
     getSortValues
   );
 
-  // Expand, select rows
-  const {
-    isItemSelected: isRowExpanded,
-    toggleItemSelected: toggleRowExpanded,
-    selectAll: expandAll,
-    areAllSelected: areAllExpanded,
-  } = useSelectionState<Application>({
-    items: filteredItems || [],
-    isEqual: (a, b) => a.id === b.id,
-  });
-
   //Bulk selection
   const {
     isItemSelected: isRowSelected,
@@ -208,6 +199,10 @@ export const useApplicationsFilterValues = (
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState(sortedItems, 10);
 
+  const [activeAppInDetailDrawer, openDetailDrawer] =
+    React.useState<Application | null>(null);
+  const closeDetailDrawer = () => openDetailDrawer(null);
+
   return {
     currentPageItems,
     paginationProps,
@@ -223,10 +218,9 @@ export const useApplicationsFilterValues = (
     selectMultiple,
     areAllSelected,
     selectedRows,
-    isRowExpanded,
-    toggleRowExpanded,
-    expandAll,
-    areAllExpanded,
+    openDetailDrawer,
+    closeDetailDrawer,
+    activeAppInDetailDrawer,
     setPageNumber,
   };
 };

@@ -39,7 +39,11 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div style={{ backgroundColor: "var(--pf-global--BackgroundColor--100)" }}>
+    <div
+      style={{
+        backgroundColor: "var(--pf-global--BackgroundColor--100)",
+      }}
+    >
       <Toolbar
         className="pf-m-toggle-group-container"
         collapseListedFiltersBreakpoint="xl"

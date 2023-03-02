@@ -13,7 +13,6 @@ import {
 } from "@patternfly/react-core";
 import {
   cellWidth,
-  expandable,
   IAction,
   ICell,
   IExtraData,
@@ -48,7 +47,6 @@ import { ApplicationForm } from "../components/application-form";
 
 import { ApplicationAssessment } from "../components/application-assessment";
 import { ApplicationBusinessService } from "../components/application-business-service";
-import { ApplicationListExpandedArea } from "../components/application-list-expanded-area";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
 import {
@@ -81,6 +79,7 @@ import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { useAssessApplication } from "@app/shared/hooks/useAssessApplication";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
+import { ApplicationDetailDrawerAssessment } from "../components/application-detail-drawer";
 
 const ENTITY_FIELD = "entity";
 
@@ -148,11 +147,10 @@ export const ApplicationsTable: React.FC = () => {
     selectMultiple,
     areAllSelected,
     selectedRows,
-    isRowExpanded,
-    toggleRowExpanded,
-    expandAll,
-    areAllExpanded,
     setPageNumber,
+    openDetailDrawer,
+    closeDetailDrawer,
+    activeAppInDetailDrawer,
   } = useApplicationsFilterValues(
     applications,
     ApplicationTableType.Assessment
@@ -296,7 +294,6 @@ export const ApplicationsTable: React.FC = () => {
     {
       title: t("terms.name"),
       transforms: [sortable, cellWidth(20)],
-      cellFormatters: [expandable],
     },
     { title: t("terms.description"), transforms: [cellWidth(25)] },
     {
@@ -316,13 +313,13 @@ export const ApplicationsTable: React.FC = () => {
 
   const rows: IRow[] = [];
   currentPageItems?.forEach((item) => {
-    const isExpanded = isRowExpanded(item);
     const isSelected = isRowSelected(item);
 
     rows.push({
       [ENTITY_FIELD]: item,
-      isOpen: isExpanded,
       selected: isSelected,
+      isHoverable: true,
+      isRowSelected: activeAppInDetailDrawer?.id === item.id,
       cells: [
         {
           title: <TableText wrapModifier="truncate">{item.name}</TableText>,
@@ -382,20 +379,6 @@ export const ApplicationsTable: React.FC = () => {
             </div>
           ),
         },
-      ],
-    });
-
-    rows.push({
-      parent: rows.length - 1,
-      fullWidth: false,
-      cells: [
-        <div className="pf-c-table__expandable-row-content">
-          <ApplicationListExpandedArea
-            application={item}
-            reviews={reviews}
-            assessment={getApplicationAssessment(item.id!)}
-          />
-        </div>,
       ],
     });
   });
@@ -498,17 +481,6 @@ export const ApplicationsTable: React.FC = () => {
   };
 
   // Row actions
-  const collapseRow = (
-    event: React.MouseEvent,
-    rowIndex: number,
-    isOpen: boolean,
-    rowData: IRowData,
-    extraData: IExtraData
-  ) => {
-    const row = getRow(rowData);
-    toggleRowExpanded(row);
-  };
-
   const selectRow = (
     event: React.FormEvent<HTMLInputElement>,
     isSelected: boolean,
@@ -676,7 +648,6 @@ export const ApplicationsTable: React.FC = () => {
           count={applications ? applications.length : 0}
           sortBy={sortBy}
           onSort={onSort}
-          onCollapse={collapseRow}
           onSelect={selectRow}
           canSelectAll={false}
           cells={columns}
@@ -685,6 +656,7 @@ export const ApplicationsTable: React.FC = () => {
           isLoading={isFetching}
           loadingVariant="skeleton"
           fetchError={fetchError}
+          onAppClick={openDetailDrawer}
           toolbarToggle={
             <FilterToolbar<Application>
               filterCategories={filterCategories}
@@ -694,10 +666,7 @@ export const ApplicationsTable: React.FC = () => {
           }
           toolbarBulkSelector={
             <ToolbarBulkSelector
-              isExpandable={true}
-              onExpandAll={expandAll}
               onSelectAll={selectAll}
-              areAllExpanded={areAllExpanded}
               areAllSelected={areAllSelected}
               selectedRows={selectedRows}
               paginationProps={paginationProps}
@@ -791,6 +760,16 @@ export const ApplicationsTable: React.FC = () => {
                 }) + "."
               }
             />
+          }
+        />
+        <ApplicationDetailDrawerAssessment
+          application={activeAppInDetailDrawer}
+          onCloseClick={closeDetailDrawer}
+          reviews={reviews}
+          assessment={
+            (activeAppInDetailDrawer &&
+              getApplicationAssessment(activeAppInDetailDrawer.id!)) ||
+            null
           }
         />
       </ConditionalRender>
