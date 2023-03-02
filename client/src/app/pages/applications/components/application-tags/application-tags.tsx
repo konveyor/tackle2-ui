@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
-
+import {
+  Flex,
+  Label,
+  Spinner,
+  TextContent,
+  Text,
+} from "@patternfly/react-core";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
+import { DEFAULT_COLOR_LABELS } from "@app/Constants";
 import { ConditionalRender } from "@app/shared/components";
-
 import { Application, Tag, TagCategory } from "@app/api/models";
 import { getTagById, getTagCategoryById } from "@app/api/rest";
-import {
-  Label,
-  LabelGroup,
-  Spinner,
-  Split,
-  SplitItem,
-} from "@patternfly/react-core";
-import { DEFAULT_COLOR_LABELS } from "@app/Constants";
 
 export interface ApplicationTagsProps {
   application: Application;
@@ -102,34 +102,46 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
     }
   }, [application]);
 
+  // TODO(mturley) group by source, with h3 for each source name
+
   return (
     <ConditionalRender when={isFetching} then={<Spinner isSVG size="md" />}>
-      <Split hasGutter>
-        {Array.from(tagCategories.values())
-          .sort((a, b) => (a.rank || 0) - (b.rank || 0))
-          .map((tagCategory) => {
-            return (
-              <SplitItem key={tagCategory.id}>
-                <LabelGroup numLabels={10}>
-                  {tags
-                    .get(tagCategory.id!)
-                    ?.sort((a, b) => a.name.localeCompare(b.name))
-                    .map((tag) => {
-                      const colorLabel = DEFAULT_COLOR_LABELS.get(
-                        tagCategory?.colour || ""
-                      );
+      {Array.from(tagCategories.values())
+        .sort((a, b) => (a.rank || 0) - (b.rank || 0))
+        .map((tagCategory) => {
+          return (
+            <React.Fragment key={tagCategory.id}>
+              <TextContent>
+                <Text
+                  component="h4"
+                  className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightLight}`}
+                >
+                  {tagCategory.name}
+                </Text>
+              </TextContent>
+              <Flex>
+                {tags
+                  .get(tagCategory.id!)
+                  ?.sort((a, b) => a.name.localeCompare(b.name))
+                  .map((tag) => {
+                    const colorLabel = DEFAULT_COLOR_LABELS.get(
+                      tagCategory?.colour || ""
+                    );
 
-                      return (
-                        <Label key={tag.id} color={colorLabel as any}>
-                          {tag.name}
-                        </Label>
-                      );
-                    })}
-                </LabelGroup>
-              </SplitItem>
-            );
-          })}
-      </Split>
+                    return (
+                      <Label
+                        key={tag.id}
+                        color={colorLabel as any}
+                        className={`${spacing.mrSm} ${spacing.mbSm}`}
+                      >
+                        {tag.name}
+                      </Label>
+                    );
+                  })}
+              </Flex>
+            </React.Fragment>
+          );
+        })}
     </ConditionalRender>
   );
 };

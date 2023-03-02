@@ -12,6 +12,9 @@ import { StateNoData } from "./state-no-data";
 import { StateNoResults } from "./state-no-results";
 import { StateError } from "./state-error";
 import "./app-table.css";
+import { Application } from "@app/api/models";
+
+const ENTITY_FIELD = "entity";
 
 export interface IAppTableProps extends TableProps {
   isLoading: boolean;
@@ -22,6 +25,7 @@ export interface IAppTableProps extends TableProps {
   noDataState?: any;
   noSearchResultsState?: any;
   errorState?: any;
+  onAppClick?: (application: Application) => void;
 }
 
 export const AppTable: React.FC<IAppTableProps> = ({
@@ -37,6 +41,8 @@ export const AppTable: React.FC<IAppTableProps> = ({
   noDataState,
   noSearchResultsState,
   errorState,
+
+  onAppClick,
 
   ...rest
 }) => {
@@ -134,7 +140,17 @@ export const AppTable: React.FC<IAppTableProps> = ({
       {...rest}
     >
       <TableHeader />
-      <TableBody />
+      <TableBody
+        onRowClick={(event, row) => {
+          // Only open the details pane if we click outside the row's checkbox
+          if (
+            event.target instanceof Element &&
+            event.target.tagName.toLowerCase() !== "input"
+          ) {
+            onAppClick?.(row[ENTITY_FIELD] || null);
+          }
+        }}
+      />
     </Table>
   );
 };

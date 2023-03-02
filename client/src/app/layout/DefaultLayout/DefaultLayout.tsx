@@ -4,6 +4,7 @@ import { Page, SkipToContent } from "@patternfly/react-core";
 import { HeaderApp } from "../HeaderApp";
 import { SidebarApp } from "../SidebarApp";
 import { Notifications } from "@app/shared/components/Notifications";
+import { PageContentWithDrawerProvider } from "@app/shared/page-drawer-context";
 
 export interface DefaultLayoutProps {}
 
@@ -21,8 +22,10 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
       skipToContent={PageSkipToContent}
       mainContainerId={pageId}
     >
-      {children}
-      <Notifications />
+      <PageContentWithDrawerProvider>
+        {children}
+        <Notifications />
+      </PageContentWithDrawerProvider>
     </Page>
   );
 };
