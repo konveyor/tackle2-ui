@@ -1,12 +1,19 @@
 import * as React from "react";
 import {
   ActionGroup,
+  Alert,
+  AlertActionCloseButton,
   Button,
   ButtonVariant,
   FileUpload,
   Form,
+  MultipleFileUpload,
+  MultipleFileUploadMain,
+  MultipleFileUploadStatus,
+  MultipleFileUploadStatusItem,
   Radio,
 } from "@patternfly/react-core";
+import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -19,7 +26,6 @@ import {
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useMemo, useState } from "react";
 import { Identity, IReadFile, Ref, RuleBundle, Ruleset } from "@app/api/models";
-import { AddCustomRules } from "@app/common/CustomRules/add-custom-rules";
 import { parseRules } from "@app/common/CustomRules/rules-utils";
 import {
   useCreateFileMutation,
@@ -35,6 +41,7 @@ import {
   toOptionLike,
 } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
+import useRuleFiles from "@app/common/CustomRules/useRuleFiles";
 
 export interface CustomTargetFormProps {
   ruleBundle?: RuleBundle;
@@ -42,7 +49,7 @@ export interface CustomTargetFormProps {
   onCancel: () => void;
 }
 
-interface CustomTargetFormValues {
+export interface CustomTargetFormValues {
   id: number;
   name: string;
   description?: string;
@@ -62,8 +69,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   onCancel,
 }) => {
   const { t } = useTranslation();
-  const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
-
   const [ruleBundle, setRuleBundle] = useState(initialRuleBundle);
 
   const [filename, setFilename] = React.useState("default.png");
@@ -140,7 +145,9 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       rulesKind: yup.string().defined(),
       customRulesFiles: yup.array().when("rulesKind", {
         is: "manual",
-        then: yup.array().min(1),
+        then: yup
+          .array()
+          .min(1, "At least 1 valid custom rule file must be uploaded."),
         otherwise: (schema) => schema,
       }),
       repositoryType: yup.mixed<string>().when("rulesKind", {
@@ -169,18 +176,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       }),
     });
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting, isValidating, isValid, isDirty },
-    getValues,
-    setValue,
-    control,
-    watch,
-    setFocus,
-    clearErrors,
-    trigger,
-    reset,
-  } = useForm<CustomTargetFormValues>({
+  const methods = useForm<CustomTargetFormValues>({
     defaultValues: {
       id: ruleBundle?.id || 0,
       name: ruleBundle?.name || "",
@@ -211,6 +207,20 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     mode: "onChange",
   });
 
+  const {
+    handleSubmit,
+    formState: { isSubmitting, isValidating, isValid, isDirty },
+    getValues,
+    setValue,
+    control,
+    watch,
+    setFocus,
+    clearErrors,
+    trigger,
+    reset,
+    register,
+  } = methods;
+
   useEffect(() => {
     setRuleBundle(initialRuleBundle);
     setFilename(initialRuleBundle?.image?.name || "default.png");
@@ -223,10 +233,24 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   const watchAllFields = watch();
   const values = getValues();
 
+  const {
+    ruleFiles,
+    handleFileDrop,
+    showStatus,
+    uploadError,
+    setUploadError,
+    setStatus,
+    getloadPercentage,
+    getloadResult,
+    successfullyReadFileCount,
+    handleFile,
+    removeFiles,
+  } = useRuleFiles(null, values.customRulesFiles, methods);
+
   const onSubmit = (formValues: CustomTargetFormValues) => {
     let rulesets: Ruleset[] = [];
 
-    readFileData.forEach((file) => {
+    ruleFiles.forEach((file) => {
       if (file.data && file.fullFile.type !== "placeholder") {
         const newParsedFile = parseRules(file);
         const newRuleset: Ruleset = {
@@ -422,20 +446,50 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       />
 
       {values?.rulesKind === "manual" && (
-        <HookFormPFGroupController
-          control={control}
-          name="customRulesFiles"
-          fieldId="custom-migration-target-upload-image"
-          isRequired
-          renderInput={({ field: { onChange, name, value } }) => (
-            <AddCustomRules
-              customRulesFiles={value}
-              readFileData={readFileData}
-              setReadFileData={setReadFileData}
-              handleCustomTargetFileChange={onChange}
+        <>
+          {uploadError !== "" && (
+            <Alert
+              className={`${spacing.mtMd} ${spacing.mbMd}`}
+              variant="danger"
+              isInline
+              title={uploadError}
+              actionClose={
+                <AlertActionCloseButton onClose={() => setUploadError("")} />
+              }
             />
           )}
-        ></HookFormPFGroupController>
+          <MultipleFileUpload
+            onFileDrop={handleFileDrop}
+            dropzoneProps={{
+              accept: ".windup.xml",
+            }}
+            {...register("customRulesFiles")}
+          >
+            <MultipleFileUploadMain
+              titleIcon={<UploadIcon />}
+              titleText="Drag and drop files here"
+              titleTextSeparator="or"
+              infoText="Accepted file types: XML with '.windup.xml' suffix."
+            />
+            {showStatus && (
+              <MultipleFileUploadStatus
+                statusToggleText={`${successfullyReadFileCount} of ${ruleFiles.length} files uploaded`}
+                statusToggleIcon={setStatus()}
+              >
+                {ruleFiles.map((file) => (
+                  <MultipleFileUploadStatusItem
+                    file={file.fullFile}
+                    key={file.fileName}
+                    customFileHandler={(file) => handleFile(file)}
+                    onClearClick={() => removeFiles([file.fileName])}
+                    progressValue={getloadPercentage(file.fileName)}
+                    progressVariant={getloadResult(file.fileName)}
+                  />
+                ))}
+              </MultipleFileUploadStatus>
+            )}
+          </MultipleFileUpload>
+        </>
       )}
       {values?.rulesKind === "repository" && (
         <>

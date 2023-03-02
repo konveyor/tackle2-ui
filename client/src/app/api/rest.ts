@@ -519,15 +519,17 @@ export const deleteTaskgroup = (id: number): AxiosPromise =>
 export const uploadFileTaskgroup = ({
   id,
   path,
+  formData,
   file,
 }: {
   id: number;
   path: string;
+  formData: any;
   file: any;
 }) => {
   return axios.post<Taskgroup>(
     `${TASKGROUPS}/${id}/bucket/${path}`,
-    file,
+    formData,
     formHeaders
   );
 };
