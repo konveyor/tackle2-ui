@@ -21,6 +21,7 @@ import {
   ApplicationDetailDrawer,
   IApplicationDetailDrawerProps,
 } from "./application-detail-drawer";
+import { EmptyTextMessage } from "@app/shared/components";
 
 export interface IApplicationDetailDrawerAnalysisProps
   extends Pick<IApplicationDetailDrawerProps, "application" | "onCloseClick"> {
@@ -130,7 +131,10 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
               {t("terms.comments")}
             </Title>
             <Text component="small" cy-data="comments">
-              {application?.comments}
+              {application?.comments || (
+                // TODO i18n here
+                <EmptyTextMessage message="No comments" />
+              )}
             </Text>
           </TextContent>
         </>

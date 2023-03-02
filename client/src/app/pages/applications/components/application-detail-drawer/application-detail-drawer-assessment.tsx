@@ -31,38 +31,13 @@ export const ApplicationDetailDrawerAssessment: React.FC<
 > = ({ application, onCloseClick, reviews, assessment }) => {
   const { t } = useTranslation();
 
-  const notYetReviewed = (
-    <EmptyTextMessage message={t("terms.notYetReviewed")} />
-  );
-
   const appReview = reviews?.find(
     (review) => review.id === application?.review?.id
   );
 
-  const reviewToShow = appReview
-    ? {
-        proposedAction: (
-          <Label>
-            {PROPOSED_ACTION_LIST[appReview.proposedAction]
-              ? t(PROPOSED_ACTION_LIST[appReview.proposedAction].i18Key)
-              : appReview.proposedAction}
-          </Label>
-        ),
-        effortEstimate: EFFORT_ESTIMATE_LIST[appReview.effortEstimate]
-          ? t(EFFORT_ESTIMATE_LIST[appReview.effortEstimate].i18Key)
-          : appReview.effortEstimate,
-        criticality: appReview.businessCriticality,
-        workPriority: appReview.workPriority,
-        comments: appReview.comments,
-      }
-    : {
-        proposedAction: notYetReviewed,
-        effortEstimate: notYetReviewed,
-        criticality: notYetReviewed,
-        workPriority: notYetReviewed,
-        notYetReviewed: notYetReviewed,
-        comments: notYetReviewed,
-      };
+  const notYetReviewed = (
+    <EmptyTextMessage message={t("terms.notYetReviewed")} />
+  );
 
   return (
     <ApplicationDetailDrawer
@@ -83,7 +58,15 @@ export const ApplicationDetailDrawerAssessment: React.FC<
                 {t("terms.proposedAction")}
               </DescriptionListTerm>
               <DescriptionListDescription cy-data="proposed-action">
-                {reviewToShow.proposedAction}
+                {appReview ? (
+                  <Label>
+                    {PROPOSED_ACTION_LIST[appReview.proposedAction]
+                      ? t(PROPOSED_ACTION_LIST[appReview.proposedAction].i18Key)
+                      : appReview.proposedAction}
+                  </Label>
+                ) : (
+                  notYetReviewed
+                )}
               </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
@@ -91,7 +74,11 @@ export const ApplicationDetailDrawerAssessment: React.FC<
                 {t("terms.effortEstimate")}
               </DescriptionListTerm>
               <DescriptionListDescription cy-data="effort-estimate">
-                {reviewToShow.effortEstimate}
+                {appReview
+                  ? EFFORT_ESTIMATE_LIST[appReview.effortEstimate]
+                    ? t(EFFORT_ESTIMATE_LIST[appReview.effortEstimate].i18Key)
+                    : appReview.effortEstimate
+                  : notYetReviewed}
               </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
@@ -99,7 +86,7 @@ export const ApplicationDetailDrawerAssessment: React.FC<
                 {t("terms.businessCriticality")}
               </DescriptionListTerm>
               <DescriptionListDescription cy-data="business-criticality">
-                {reviewToShow.criticality}
+                {appReview?.businessCriticality || notYetReviewed}
               </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
@@ -107,7 +94,7 @@ export const ApplicationDetailDrawerAssessment: React.FC<
                 {t("terms.workPriority")}
               </DescriptionListTerm>
               <DescriptionListDescription cy-data="work-priority">
-                {reviewToShow.workPriority}
+                {appReview?.workPriority || notYetReviewed}
               </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
@@ -127,13 +114,16 @@ export const ApplicationDetailDrawerAssessment: React.FC<
               {t("terms.reviewComments")}
             </Title>
             <Text component="small" cy-data="review-comments">
-              {reviewToShow.comments}
+              {appReview?.comments || notYetReviewed}
             </Text>
             <Title headingLevel="h3" size="md">
               {t("terms.comments")}
             </Title>
             <Text component="small" cy-data="comments">
-              {application?.comments}
+              {application?.comments || (
+                // TODO i18n here
+                <EmptyTextMessage message="No comments" />
+              )}
             </Text>
           </TextContent>
         </>
