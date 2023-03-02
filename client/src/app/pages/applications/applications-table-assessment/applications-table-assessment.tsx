@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation, Trans } from "react-i18next";
 
 import {
@@ -80,6 +80,7 @@ import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { useAssessApplication } from "@app/shared/hooks/useAssessApplication";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const ENTITY_FIELD = "entity";
 
@@ -124,9 +125,9 @@ export const ApplicationsTable: React.FC = () => {
 
   // Table data
   const {
-    applications,
+    data: applications,
     isFetching,
-    fetchError,
+    error: fetchError,
     refetch: fetchApplications,
   } = useFetchApplications();
 
@@ -153,7 +154,7 @@ export const ApplicationsTable: React.FC = () => {
     areAllExpanded,
     setPageNumber,
   } = useApplicationsFilterValues(
-    applications,
+    applications ? applications : [],
     ApplicationTableType.Assessment
   );
 
@@ -192,9 +193,9 @@ export const ApplicationsTable: React.FC = () => {
     fetchApplications();
   };
 
-  const onDeleteApplicationError = (error: unknown) => {
+  const onDeleteApplicationError = (error: AxiosError) => {
     pushNotification({
-      title: `${error}`,
+      title: getAxiosErrorMessage(error),
       variant: "danger",
     });
   };
@@ -272,10 +273,10 @@ export const ApplicationsTable: React.FC = () => {
     });
     fetchApplications();
   };
-  const onHandleCopyError = (error: unknown) => {
+  const onHandleCopyError = (error: AxiosError) => {
     setIsSubmittingBulkCopy(false);
     pushNotification({
-      title: `${error}`,
+      title: getAxiosErrorMessage(error),
       variant: "danger",
     });
     fetchApplications();
@@ -552,9 +553,9 @@ export const ApplicationsTable: React.FC = () => {
 
         fetchApplications();
       })
-      .catch((error: unknown) => {
+      .catch((error: AxiosError) => {
         pushNotification({
-          title: `${error}`,
+          title: getAxiosErrorMessage(error),
           variant: "danger",
         });
       });
@@ -586,9 +587,9 @@ export const ApplicationsTable: React.FC = () => {
           );
         }
       },
-      (error: unknown) => {
+      (error: AxiosError) => {
         pushNotification({
-          title: `${error}`,
+          title: getAxiosErrorMessage(error),
           variant: "danger",
         });
       }

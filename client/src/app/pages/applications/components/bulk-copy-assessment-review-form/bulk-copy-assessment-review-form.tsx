@@ -83,7 +83,11 @@ export const BulkCopyAssessmentReviewForm: React.FC<
   const [requestConfirmation, setRequestConfirmation] = useState(false);
   const [confirmationAccepted, setConfirmationAccepted] = useState(false);
 
-  const { applications, isFetching, fetchError } = useFetchApplications();
+  const {
+    data: applications,
+    isFetching,
+    error: fetchError,
+  } = useFetchApplications();
 
   const { tagCategories: tagCategories } = useFetchTagCategories();
 
@@ -103,9 +107,11 @@ export const BulkCopyAssessmentReviewForm: React.FC<
       type: FilterType.multiselect,
       selectOptions: dedupeFunction(
         applications
-          .filter((app) => !!app.businessService?.name)
-          .map((app) => app.businessService?.name)
-          .map((name) => ({ key: name, value: name }))
+          ? applications
+              .filter((app) => !!app.businessService?.name)
+              .map((app) => app.businessService?.name)
+              .map((name) => ({ key: name, value: name }))
+          : []
       ),
       placeholderText:
         t("actions.filterBy", {

@@ -18,8 +18,6 @@ import {
 } from "@patternfly/react-core";
 import QuestionCircleIcon from "@patternfly/react-icons/dist/js/icons/question-circle-icon";
 
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-
 import {
   SingleSelectFetchOptionValueFormikField,
   MultiSelectFetchOptionValueFormikField,
@@ -52,6 +50,7 @@ import {
 import "./application-form.css";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTagCategories } from "@app/queries/tags";
+
 export interface FormValues {
   name: string;
   description: string;
@@ -82,7 +81,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const [error, setError] = useState<Error>();
+  const [axiosError, setAxiosError] = useState<AxiosError>();
 
   // Business services
 
@@ -202,7 +201,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     });
   };
 
-  const { applications } = useFetchApplications();
+  const { data: applications } = useFetchApplications();
 
   const validationSchema = object().shape(
     {
@@ -215,7 +214,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           "Duplicate name",
           "An application with this name already exists. Please use a different name.",
           (value) =>
-            duplicateNameCheck(applications, application || null, value || "")
+            duplicateNameCheck(
+              applications ? applications : [],
+              application || null,
+              value || ""
+            )
         ),
       description: string()
         .trim()
@@ -316,8 +319,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     onSaved(response);
   };
 
-  const onCreateUpdateApplicationError = (error: unknown) => {
-    if (error instanceof Error) setError(error);
+  const onCreateUpdateApplicationError = (error: AxiosError) => {
+    setAxiosError(error);
   };
 
   const { mutate: createApplication } = useCreateApplicationMutation(
@@ -409,7 +412,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
-        {error && <Alert variant="danger" isInline title={Error} />}
+        {axiosError && (
+          <Alert
+            variant="danger"
+            isInline
+            title={getAxiosErrorMessage(axiosError)}
+          />
+        )}
         <ExpandableSection
           toggleText={"Basic information"}
           className="toggle"

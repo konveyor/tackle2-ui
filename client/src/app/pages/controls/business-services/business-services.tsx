@@ -84,7 +84,7 @@ export const BusinessServices: React.FC = () => {
   const { businessServices, isFetching, fetchError, refetch } =
     useFetchBusinessServices();
 
-  const { applications } = useFetchApplications();
+  const { data: applications } = useFetchApplications();
 
   const filterCategories: FilterCategory<BusinessService>[] = [
     {
@@ -158,7 +158,7 @@ export const BusinessServices: React.FC = () => {
 
   const rows: IRow[] = [];
   currentPageItems?.forEach((item) => {
-    const isAssignedToApplication = applications.some(
+    const isAssignedToApplication = applications?.some(
       (app) => app.businessService?.id === item.id
     );
     rows.push({

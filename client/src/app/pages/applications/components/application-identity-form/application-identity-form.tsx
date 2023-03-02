@@ -33,11 +33,7 @@ import {
 } from "./field-names";
 import validationSchema from "./validation-schema";
 import { updateApplication } from "@app/api/rest";
-import {
-  useFetchApplications,
-  useUpdateAllApplicationsMutation,
-  useUpdateApplicationMutation,
-} from "@app/queries/applications";
+import { useUpdateAllApplicationsMutation } from "@app/queries/applications";
 import { useFetchIdentities } from "@app/queries/identities";
 
 export interface FormValues {
@@ -56,11 +52,9 @@ export const ApplicationIdentityForm: React.FC<
   ApplicationIdentityFormProps
 > = ({ applications, onSaved, onCancel }) => {
   const { t } = useTranslation();
-  const [error, setError] = useState<Error>();
+  const [error, setAxiosError] = useState<AxiosError>();
 
   const { identities } = useFetchIdentities();
-
-  const { refetch: refetchApplications } = useFetchApplications();
 
   // Actions
   const onCreateUpdateApplicationSuccess = (response: any) => {
@@ -70,8 +64,8 @@ export const ApplicationIdentityForm: React.FC<
     formik.setSubmitting(false);
   };
 
-  const onCreateUpdateApplicationError = (error: unknown) => {
-    if (error instanceof Error) setError(error);
+  const onCreateUpdateApplicationError = (error: AxiosError) => {
+    setAxiosError(error);
     formik.setSubmitting(false);
   };
 
@@ -188,10 +182,13 @@ export const ApplicationIdentityForm: React.FC<
     }
   }, [identities, formik.values]);
   const [existingIdentitiesError, setExistingIdentitiesError] = useState(false);
+
   return (
     <FormikProvider value={formik}>
       <Form>
-        {error && <Alert variant="danger" title={error} />}
+        {error && (
+          <Alert variant="danger" title={getAxiosErrorMessage(error)} />
+        )}
         <TextInput
           value={formik.values.applicationName}
           type="text"
