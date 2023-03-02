@@ -20,7 +20,7 @@ export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
   application: Application | null;
   detailsTabMainContent: React.ReactNode;
-  showReportsTab?: boolean;
+  reportsTabContent?: React.ReactNode;
 }
 
 enum TabKey {
@@ -35,7 +35,7 @@ export const ApplicationDetailDrawer: React.FC<
   onCloseClick,
   application,
   detailsTabMainContent,
-  showReportsTab = false,
+  reportsTabContent = null,
 }) => {
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
@@ -86,14 +86,12 @@ export const ApplicationDetailDrawer: React.FC<
             </Text>
           </TextContent>
         </Tab>
-        {showReportsTab && (
+        {reportsTabContent && (
           <Tab
             eventKey={TabKey.Reports}
             title={<TabTitleText>Reports</TabTitleText>}
           >
-            <TextContent className={spacing.mtMd}>
-              <Text component="small">Reports content goes here!</Text>
-            </TextContent>
+            {reportsTabContent}
           </Tab>
         )}
       </Tabs>
