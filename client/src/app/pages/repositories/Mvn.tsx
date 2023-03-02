@@ -16,7 +16,6 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
 
 import "./Repositories.css";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -50,17 +49,16 @@ export const RepositoriesMvn: React.FC = () => {
   // };
 
   let storageValue: string = "";
-  const cache = useFetchCache();
+  const { data: cache, isLoading, isSuccess, refetch } = useFetchCache();
 
-  if (cache.isSuccess)
-    storageValue = `${cache.data.used} of ${cache.data.capacity} `;
+  if (isSuccess) storageValue = `${cache.used} of ${cache.capacity} `;
 
   const onHandleCleanSuccess = () => {
-    cache.refetch();
+    refetch();
   };
 
   const onHandleCleanError = () => {
-    cache.refetch();
+    refetch();
   };
 
   const { mutate: deleteCache, isLoading: isDeleting } = useDeleteCacheMutation(
@@ -85,10 +83,8 @@ export const RepositoriesMvn: React.FC = () => {
                   className="repo"
                   type="text"
                   aria-label="Maven Repository Size"
-                  aria-disabled={
-                    !isRWXSupported || cache.isFetching || isDeleting
-                  }
-                  isDisabled={!isRWXSupported || cache.isFetching || isDeleting}
+                  aria-disabled={!isRWXSupported || isLoading || isDeleting}
+                  isDisabled={!isRWXSupported || isLoading || isDeleting}
                   readOnlyVariant="default"
                   size={15}
                   width={10}
@@ -101,9 +97,7 @@ export const RepositoriesMvn: React.FC = () => {
                     id="clear-repository"
                     isInline
                     className={spacing.mlMd}
-                    isAriaDisabled={
-                      !isRWXSupported || cache.isFetching || isDeleting
-                    }
+                    isAriaDisabled={!isRWXSupported || isLoading || isDeleting}
                     onClick={() => setIsConfirmDialogOpen(true)}
                   >
                     Clear repository
