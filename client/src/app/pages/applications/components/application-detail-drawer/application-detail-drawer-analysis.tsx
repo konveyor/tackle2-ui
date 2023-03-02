@@ -46,6 +46,8 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
     if (task) window.open(`/hub/tasks/${task.id}`, "_blank");
   };
 
+  const notAvailable = <EmptyTextMessage message={t("terms.notAvailable")} />;
+
   return (
     <ApplicationDetailDrawer
       application={application}
@@ -78,7 +80,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                     <span className={spacing.mlSm}>(Source)</span>
                   </>
                 ) : (
-                  "Not available"
+                  notAvailable
                 )}
               </DescriptionListDescription>
             </DescriptionListGroup>
@@ -121,7 +123,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                     )}
                   </>
                 ) : (
-                  "Not available"
+                  notAvailable
                 )}
               </DescriptionListDescription>
             </DescriptionListGroup>
@@ -131,10 +133,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
               {t("terms.comments")}
             </Title>
             <Text component="small" cy-data="comments">
-              {application?.comments || (
-                // TODO i18n here
-                <EmptyTextMessage message="No comments" />
-              )}
+              {application?.comments || notAvailable}
             </Text>
           </TextContent>
         </>

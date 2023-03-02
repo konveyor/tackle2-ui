@@ -14,7 +14,6 @@ import { EmptyTextMessage } from "@app/shared/components";
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
 import { Application, Assessment, Review } from "@app/api/models";
 
-import { ApplicationTags } from "../application-tags";
 import { ApplicationRisk } from "../application-detail-drawer/application-risk";
 
 export interface IApplicationListExpandedAreaProps {
