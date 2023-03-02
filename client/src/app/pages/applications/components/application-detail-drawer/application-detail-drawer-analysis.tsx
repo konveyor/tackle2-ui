@@ -8,7 +8,10 @@ import {
   Tooltip,
   Button,
 } from "@patternfly/react-core";
-import { OkIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+} from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Identity, Task } from "@app/api/models";
 import { getKindIDByRef } from "@app/utils/model-utils";
@@ -65,17 +68,17 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
           </Title>
           {matchingSourceCredsRef && matchingMavenCredsRef ? (
             <Text component="small">
-              <OkIcon color="green"></OkIcon>
+              <CheckCircleIcon color="green" />
               <span className={spacing.mlSm}>Source and Maven</span>
             </Text>
           ) : matchingMavenCredsRef ? (
             <Text component="small">
-              <OkIcon color="green"></OkIcon>
+              <CheckCircleIcon color="green" />
               <span className={spacing.mlSm}>Maven</span>
             </Text>
           ) : matchingSourceCredsRef ? (
             <Text component="small">
-              <OkIcon color="green"></OkIcon>
+              <CheckCircleIcon color="green" />
               <span className={spacing.mlSm}>Source</span>
             </Text>
           ) : (
