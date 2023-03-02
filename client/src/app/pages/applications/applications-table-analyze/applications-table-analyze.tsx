@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useHistory } from "react-router-dom";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 import {
@@ -68,6 +68,7 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 import { ConfirmDialog } from "@app/shared/components/confirm-dialog/confirm-dialog";
 import { ApplicationDetailDrawerAnalysis } from "../components/application-detail-drawer";
 import { useQueryClient } from "@tanstack/react-query";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const ENTITY_FIELD = "entity";
 
@@ -91,8 +92,12 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   // Router
   const history = useHistory();
 
-  const { applications, isFetching, fetchError, refetch } =
-    useFetchApplications();
+  const {
+    data: applications,
+    isFetching,
+    error: fetchError,
+    refetch,
+  } = useFetchApplications();
 
   const {
     paginationProps,
@@ -112,7 +117,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     openDetailDrawer,
     closeDetailDrawer,
     activeAppInDetailDrawer,
-  } = useApplicationsFilterValues(applications, ApplicationTableType.Analysis);
+  } = useApplicationsFilterValues(
+    applications ? applications : [],
+    ApplicationTableType.Analysis
+  );
 
   const { tasks } = useFetchTasks({ addon: "windup" });
 
@@ -189,9 +197,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     refetch();
   };
 
-  const onDeleteApplicationError = (error: unknown) => {
+  const onDeleteApplicationError = (error: AxiosError) => {
     pushNotification({
-      title: `${error}`,
+      title: getAxiosErrorMessage(error),
       variant: "danger",
     });
     refetch();

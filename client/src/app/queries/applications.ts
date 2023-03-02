@@ -25,23 +25,15 @@ export const ApplicationsQueryKey = "applications";
 
 export const useFetchApplications = () => {
   const queryClient = useQueryClient();
-  const { data, isLoading, error, refetch } = useQuery(
-    [ApplicationsQueryKey],
-    getApplications,
-    {
-      onSuccess: (data: Application[]) => {
-        queryClient.invalidateQueries([reviewsQueryKey]);
-        queryClient.invalidateQueries([assessmentsQueryKey]);
-      },
-      onError: (error) => console.log(error),
-    }
-  );
-  return {
-    applications: data || [],
-    isFetching: isLoading,
-    fetchError: error,
-    refetch,
-  };
+  return useQuery({
+    queryKey: [ApplicationsQueryKey],
+    queryFn: getApplications,
+    onSuccess: (data: Application[]) => {
+      queryClient.invalidateQueries([reviewsQueryKey]);
+      queryClient.invalidateQueries([assessmentsQueryKey]);
+    },
+    onError: (error: AxiosError) => console.log(error),
+  });
 };
 
 export const useUpdateApplicationMutation = (
@@ -49,18 +41,14 @@ export const useUpdateApplicationMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(updateApplication, {
+  return useMutation({
+    mutationFn: updateApplication,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: onError,
   });
-  return {
-    mutate,
-    isLoading,
-    error,
-  };
 };
 
 export const useUpdateAllApplicationsMutation = (
@@ -68,18 +56,14 @@ export const useUpdateAllApplicationsMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(updateAllApplications, {
+  return useMutation({
+    mutationFn: updateAllApplications,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: onError,
   });
-  return {
-    mutate,
-    isLoading,
-    error,
-  };
 };
 
 export const useCreateApplicationMutation = (
@@ -87,18 +71,14 @@ export const useCreateApplicationMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(createApplication, {
+  return useMutation({
+    mutationFn: createApplication,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: onError,
   });
-  return {
-    mutate,
-    isLoading,
-    error,
-  };
 };
 
 export const useDeleteApplicationMutation = (

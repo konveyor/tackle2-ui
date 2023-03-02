@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosPromise } from "axios";
+import axios, { AxiosPromise } from "axios";
 import { APIClient } from "@app/axios-config";
 
 import {
@@ -460,17 +460,7 @@ export const deleteBulkApplications = (ids: number[]): Promise<Application[]> =>
   axios.delete(APPLICATIONS, { data: ids });
 
 export const getApplications = (): Promise<Application[]> =>
-  axios
-    .get(APPLICATIONS)
-    .then((response) => response.data)
-    .catch((error: Error | AxiosError) => {
-      if (axios.isAxiosError(error)) {
-        return error;
-      } else {
-        console.log(`${error}`);
-        return;
-      }
-    });
+  axios.get(APPLICATIONS).then((response) => response.data);
 
 export const updateApplication = (obj: Application): Promise<Application> =>
   axios.put(`${APPLICATIONS}/${obj.id}`, obj);

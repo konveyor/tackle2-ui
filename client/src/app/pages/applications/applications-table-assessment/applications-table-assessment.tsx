@@ -85,6 +85,7 @@ import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
 import { ApplicationDetailDrawerAssessment } from "../components/application-detail-drawer";
 import { useSetting } from "@app/queries/settings";
 import { useFetchTasks } from "@app/queries/tasks";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const ENTITY_FIELD = "entity";
 
@@ -135,9 +136,9 @@ export const ApplicationsTable: React.FC = () => {
 
   // Table data
   const {
-    applications,
+    data: applications,
     isFetching,
-    fetchError,
+    error: fetchError,
     refetch: fetchApplications,
   } = useFetchApplications();
 
@@ -168,7 +169,7 @@ export const ApplicationsTable: React.FC = () => {
     closeDetailDrawer,
     activeAppInDetailDrawer,
   } = useApplicationsFilterValues(
-    applications,
+    applications ? applications : [],
     ApplicationTableType.Assessment
   );
 
@@ -207,9 +208,9 @@ export const ApplicationsTable: React.FC = () => {
     fetchApplications();
   };
 
-  const onDeleteApplicationError = (error: unknown) => {
+  const onDeleteApplicationError = (error: AxiosError) => {
     pushNotification({
-      title: `${error}`,
+      title: getAxiosErrorMessage(error),
       variant: "danger",
     });
   };
@@ -287,10 +288,10 @@ export const ApplicationsTable: React.FC = () => {
     });
     fetchApplications();
   };
-  const onHandleCopyError = (error: unknown) => {
+  const onHandleCopyError = (error: AxiosError) => {
     setIsSubmittingBulkCopy(false);
     pushNotification({
-      title: `${error}`,
+      title: getAxiosErrorMessage(error),
       variant: "danger",
     });
     fetchApplications();
@@ -591,9 +592,9 @@ export const ApplicationsTable: React.FC = () => {
           );
         }
       },
-      (error: unknown) => {
+      (error: AxiosError) => {
         pushNotification({
-          title: `${error}`,
+          title: getAxiosErrorMessage(error),
           variant: "danger",
         });
       }
