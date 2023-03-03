@@ -100,7 +100,8 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
       uploadFile({
         id: taskgroupID,
         path: `binary/${droppedFiles[0].name}`,
-        file: form,
+        formData: form,
+        file: droppedFiles[0],
       });
       setValue("artifact", droppedFiles[0]);
     }

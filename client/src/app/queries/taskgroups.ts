@@ -7,7 +7,7 @@ import {
   submitTaskgroup,
   uploadFileTaskgroup,
 } from "@app/api/rest";
-import { Taskgroup } from "@app/api/models";
+import { IReadFile, Taskgroup } from "@app/api/models";
 import { AxiosError } from "axios";
 import { TasksQueryKey } from "./tasks";
 
@@ -82,12 +82,18 @@ export const useDeleteTaskgroupMutation = (
 };
 
 export const useUploadFileMutation = (
-  successCallback: (res: any) => void,
+  onSuccess: (
+    res: any,
+    id: number,
+    path: string,
+    formData: any,
+    file: IReadFile
+  ) => void,
   errorCallback: (err: AxiosError) => void
 ) => {
   return useMutation(uploadFileTaskgroup, {
-    onSuccess: (res) => {
-      successCallback && successCallback(res);
+    onSuccess: (res, { id, path, formData, file }) => {
+      onSuccess(res, id, path, formData, file);
     },
     onError: (err: AxiosError) => {
       errorCallback && errorCallback(err);
