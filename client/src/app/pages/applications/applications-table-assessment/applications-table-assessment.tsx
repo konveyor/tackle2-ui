@@ -80,6 +80,7 @@ import { useAssessApplication } from "@app/shared/hooks/useAssessApplication";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
 import { ApplicationDetailDrawerAssessment } from "../components/application-detail-drawer";
+import { useSetting } from "@app/queries/settings";
 
 const ENTITY_FIELD = "entity";
 
@@ -568,6 +569,7 @@ export const ApplicationsTable: React.FC = () => {
     );
   };
 
+  const reviewAssessmentSetting = useSetting("review.assessment.required");
   const reviewSelectedRows = () => {
     if (selectedRows.length !== 1) {
       const msg = "The number of applications to be reviewed must be 1";
@@ -580,7 +582,7 @@ export const ApplicationsTable: React.FC = () => {
 
     const row = selectedRows[0];
     const assessment = getApplicationAssessment(row.id!);
-    if (!assessment) {
+    if (!assessment && !reviewAssessmentSetting.data) {
       console.log("You must assess the application before reviewing it");
       return;
     }
@@ -594,6 +596,7 @@ export const ApplicationsTable: React.FC = () => {
 
   // Flags
   const isReviewBtnDisabled = (row: Application) => {
+    if (reviewAssessmentSetting.data) return false;
     const assessment = getApplicationAssessment(row.id!);
     return assessment === undefined || assessment.status !== "COMPLETE";
   };
