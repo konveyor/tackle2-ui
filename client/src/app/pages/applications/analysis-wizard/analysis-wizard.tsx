@@ -45,6 +45,9 @@ interface IAnalysisWizard {
 
 const defaultTaskData: TaskData = {
   output: "/windup/report",
+  tagger: {
+    enabled: true,
+  },
   mode: {
     binary: false,
     withDeps: false,
@@ -178,6 +181,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       sourceRepository: "",
       branch: "",
       rootPath: "",
+      autoTaggingEnabled: true,
     },
     resolver: yupResolver(allFieldsSchema),
     mode: "onChange",
@@ -224,6 +228,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       tasks: analyzableApplications.map((app: Application) => initTask(app)),
       data: {
         ...defaultTaskData,
+        tagger: {
+          enabled: fieldValues.autoTaggingEnabled,
+        },
         mode: {
           binary: mode.includes("binary"),
           withDeps: mode === "source-code-deps",
