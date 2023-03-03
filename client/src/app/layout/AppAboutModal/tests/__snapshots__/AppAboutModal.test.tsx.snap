@@ -69,7 +69,7 @@ Object {
                 data-ouia-safe="true"
                 id="pf-about-modal-title-0"
               >
-                Tackle
+                Konveyor
               </h1>
             </div>
             <div
@@ -149,10 +149,10 @@ Object {
                         data-ouia-component-type="PF4/Text"
                         data-ouia-safe="true"
                         data-pf-content="true"
-                        href="https://tackle-docs.konveyor.io/"
+                        href="https://konveyor-docs.konveyor.io/"
                         target="_blank"
                       >
-                        Tackle
+                        Konveyor
                          documentation
                       </a>
                       .
