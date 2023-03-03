@@ -41,6 +41,7 @@ import { ReviewForm } from "./components/review-form";
 import { ApplicationAssessmentDonutChart } from "./components/application-assessment-donut-chart";
 import { ApplicationAssessmentSummaryTable } from "./components/application-assessment-summary-table";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import { useSetting } from "@app/queries/settings";
 
 export const ApplicationReview: React.FC = () => {
   const { t } = useTranslation();
@@ -52,6 +53,10 @@ export const ApplicationReview: React.FC = () => {
 
   const { assessApplication, inProgress: isApplicationAssessInProgress } =
     useAssessApplication();
+
+  const { data: reviewAssessmentSetting } = useSetting(
+    "review.assessment.required"
+  );
 
   // Application and review
 
@@ -146,7 +151,8 @@ export const ApplicationReview: React.FC = () => {
 
   if (
     !isFetching &&
-    (!assessment || (assessment && assessment.status !== "COMPLETE"))
+    (!assessment || (assessment && assessment.status !== "COMPLETE")) &&
+    !reviewAssessmentSetting
   ) {
     return (
       <ApplicationReviewPage>
