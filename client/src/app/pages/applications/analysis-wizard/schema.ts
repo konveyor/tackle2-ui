@@ -138,6 +138,7 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
 export interface OptionsStepValues {
   diva: boolean;
   excludedRulesTags: string[];
+  autoTaggingEnabled: boolean;
 }
 
 const useOptionsStepSchema = (): yup.SchemaOf<OptionsStepValues> => {
@@ -145,6 +146,7 @@ const useOptionsStepSchema = (): yup.SchemaOf<OptionsStepValues> => {
   return yup.object({
     diva: yup.bool().defined(),
     excludedRulesTags: yup.array().of(yup.string().defined()),
+    autoTaggingEnabled: yup.bool().defined(),
   });
 };
 

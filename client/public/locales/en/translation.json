@@ -372,7 +372,8 @@
       "sources": "Sources",
       "target": "Target",
       "targets": "Targets",
-      "transactionReport": "Transaction Report"
+      "transactionReport": "Transaction Report",
+      "autoTagging": "Automated tagging"
     },
     "title": {
       "advancedOptions": "Advanced options",

@@ -27,7 +27,13 @@ export const SetOptions: React.FC = () => {
   const { watch, control, setValue } =
     useFormContext<AnalysisWizardFormValues>();
 
-  const { formSources, formTargets, diva, excludedRulesTags } = watch();
+  const {
+    formSources,
+    formTargets,
+    diva,
+    excludedRulesTags,
+    autoTaggingEnabled,
+  } = watch();
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
@@ -151,6 +157,16 @@ export const SetOptions: React.FC = () => {
         onChange={() => setValue("diva", !diva)}
         id="enable-transaction-report-checkbox"
         name="enableTransactionReport"
+      />
+      <Checkbox
+        className={spacing.mtMd}
+        label={t("wizard.composed.enable", {
+          what: t("wizard.terms.autoTagging").toLowerCase(),
+        })}
+        isChecked={autoTaggingEnabled}
+        onChange={() => setValue("autoTaggingEnabled", !autoTaggingEnabled)}
+        id="enable-auto-tagging-checkbox"
+        name="autoTaggingEnabled"
       />
     </Form>
   );
