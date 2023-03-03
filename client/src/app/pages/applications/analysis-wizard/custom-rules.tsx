@@ -1,8 +1,14 @@
 import * as React from "react";
 import {
+  Alert,
+  AlertActionCloseButton,
   Button,
   Form,
   Modal,
+  MultipleFileUpload,
+  MultipleFileUploadMain,
+  MultipleFileUploadStatus,
+  MultipleFileUploadStatusItem,
   Tab,
   Tabs,
   TabTitleText,
@@ -30,7 +36,7 @@ import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { AddCustomRules } from "../../../common/CustomRules/add-custom-rules";
+import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import {
   FilterCategory,
   FilterToolbar,
@@ -54,6 +60,7 @@ import {
   toOptionLike,
 } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
+import useRuleFiles from "@app/common/CustomRules/useRuleFiles";
 interface CustomRulesProps {
   taskgroupID: number | null;
 }
@@ -67,14 +74,27 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
   const [activeTabKey, setActiveTabKey] = React.useState(0);
 
   const [tableRules, setTableRules] = React.useState<TableRule[]>([]);
-  const [readFileData, setReadFileData] = React.useState<IReadFile[]>([]);
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
 
   const onCloseCustomRuleModal = () => {
     setCustomRulesModalOpen(false);
-    setReadFileData([]);
   };
+
+  const {
+    ruleFiles,
+    setRuleFiles,
+    handleFileDrop,
+    showStatus,
+    uploadError,
+    setUploadError,
+    setStatus,
+    getloadPercentage,
+    getloadResult,
+    successfullyReadFileCount,
+    handleFile,
+    removeFiles,
+  } = useRuleFiles(props?.taskgroupID, customRulesFiles);
 
   const repositoryTypeOptions: OptionWithValue<string>[] = [
     {
@@ -379,11 +399,11 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
               key="add"
               variant="primary"
               isDisabled={
-                !readFileData.find((file) => file.loadResult === "success")
+                !ruleFiles.find((file) => file.loadResult === "success")
               }
               onClick={(event) => {
                 setCustomRulesModalOpen(false);
-                const validFiles = readFileData.filter(
+                const validFiles = ruleFiles.filter(
                   (file) => file.loadResult === "success"
                 );
                 const updatedCustomRulesFiles = [
@@ -392,7 +412,8 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                 ];
                 setValue("customRulesFiles", updatedCustomRulesFiles);
                 refreshRulesData(updatedCustomRulesFiles);
-                setReadFileData([]);
+                setRuleFiles([]);
+                setUploadError("");
               }}
             >
               Add
@@ -406,12 +427,49 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
             </Button>,
           ]}
         >
-          <AddCustomRules
-            customRulesFiles={customRulesFiles}
-            readFileData={readFileData}
-            setReadFileData={setReadFileData}
-            taskgroupID={props.taskgroupID}
-          />
+          <>
+            {uploadError !== "" && (
+              <Alert
+                className={`${spacing.mtMd} ${spacing.mbMd}`}
+                variant="danger"
+                isInline
+                title={uploadError}
+                actionClose={
+                  <AlertActionCloseButton onClose={() => setUploadError("")} />
+                }
+              />
+            )}
+            <MultipleFileUpload
+              onFileDrop={handleFileDrop}
+              dropzoneProps={{
+                accept: ".windup.xml",
+              }}
+            >
+              <MultipleFileUploadMain
+                titleIcon={<UploadIcon />}
+                titleText="Drag and drop files here"
+                titleTextSeparator="or"
+                infoText="Accepted file types: XML with '.windup.xml' suffix."
+              />
+              {showStatus && (
+                <MultipleFileUploadStatus
+                  statusToggleText={`${successfullyReadFileCount} of ${ruleFiles.length} files uploaded`}
+                  statusToggleIcon={setStatus()}
+                >
+                  {ruleFiles.map((file) => (
+                    <MultipleFileUploadStatusItem
+                      file={file.fullFile}
+                      key={file.fileName}
+                      customFileHandler={handleFile}
+                      onClearClick={() => removeFiles([file.fileName])}
+                      progressValue={getloadPercentage(file.fileName)}
+                      progressVariant={getloadResult(file.fileName)}
+                    />
+                  ))}
+                </MultipleFileUploadStatus>
+              )}
+            </MultipleFileUpload>
+          </>
         </Modal>
       )}
     </>
