@@ -59,7 +59,7 @@ export const HeaderApp: React.FC = () => {
         >
           <MobileDropdown />
         </PageHeaderToolsItem>
-        {isAuthRequired && <SSOMenu />}
+        <SSOMenu />
       </PageHeaderToolsGroup>
       {APP_BRAND === BrandType.MTA && (
         <PageHeaderToolsGroup>
