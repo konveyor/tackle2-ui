@@ -54,7 +54,9 @@ export const ApplicationReview: React.FC = () => {
   const { assessApplication, inProgress: isApplicationAssessInProgress } =
     useAssessApplication();
 
-  const reviewAssessmentSetting = useSetting("review.assessment.required");
+  const { data: reviewAssessmentSetting } = useSetting(
+    "review.assessment.required"
+  );
 
   // Application and review
 
@@ -150,7 +152,7 @@ export const ApplicationReview: React.FC = () => {
   if (
     !isFetching &&
     (!assessment || (assessment && assessment.status !== "COMPLETE")) &&
-    !reviewAssessmentSetting.data
+    !reviewAssessmentSetting
   ) {
     return (
       <ApplicationReviewPage>

@@ -569,7 +569,10 @@ export const ApplicationsTable: React.FC = () => {
     );
   };
 
-  const reviewAssessmentSetting = useSetting("review.assessment.required");
+  const { data: reviewAssessmentSetting } = useSetting(
+    "review.assessment.required"
+  );
+
   const reviewSelectedRows = () => {
     if (selectedRows.length !== 1) {
       const msg = "The number of applications to be reviewed must be 1";
@@ -582,7 +585,7 @@ export const ApplicationsTable: React.FC = () => {
 
     const row = selectedRows[0];
     const assessment = getApplicationAssessment(row.id!);
-    if (!assessment && !reviewAssessmentSetting.data) {
+    if (!assessment && !reviewAssessmentSetting) {
       console.log("You must assess the application before reviewing it");
       return;
     }
@@ -596,7 +599,7 @@ export const ApplicationsTable: React.FC = () => {
 
   // Flags
   const isReviewBtnDisabled = (row: Application) => {
-    if (reviewAssessmentSetting.data) return false;
+    if (reviewAssessmentSetting) return false;
     const assessment = getApplicationAssessment(row.id!);
     return assessment === undefined || assessment.status !== "COMPLETE";
   };
