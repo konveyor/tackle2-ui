@@ -142,10 +142,27 @@ export const AppTable: React.FC<IAppTableProps> = ({
       <TableHeader />
       <TableBody
         onRowClick={(event, row) => {
-          // Only open the details pane if we click outside the row's checkbox
+          // Check if there is a clickable element between the event target and the row such as a
+          // checkbox, button or link. Don't trigger the row click if those are clicked.
+          // This recursive parent check is necessary because the event target could be,
+          // for example, the SVG icon inside a button rather than the button itself.
+          const isClickableElementInTheWay = (element: Element): boolean => {
+            if (
+              ["input", "button", "a"].includes(element.tagName.toLowerCase())
+            ) {
+              return true;
+            }
+            if (
+              !element.parentElement ||
+              element.parentElement?.tagName.toLowerCase() === "tr"
+            ) {
+              return false;
+            }
+            return isClickableElementInTheWay(element.parentElement);
+          };
           if (
             event.target instanceof Element &&
-            event.target.tagName.toLowerCase() !== "input"
+            !isClickableElementInTheWay(event.target)
           ) {
             onAppClick?.(row[ENTITY_FIELD] || null);
           }
