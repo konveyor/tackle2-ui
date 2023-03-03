@@ -353,6 +353,9 @@ export interface Task {
 }
 
 export interface TaskData {
+  tagger: {
+    enabled: boolean;
+  };
   output: string;
   mode: {
     binary: boolean;
