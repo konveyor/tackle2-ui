@@ -584,6 +584,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         <ApplicationDetailDrawerAnalysis
           application={activeAppInDetailDrawer}
           onCloseClick={closeDetailDrawer}
+          task={
+            activeAppInDetailDrawer ? getTask(activeAppInDetailDrawer) : null
+          }
         />
       </ConditionalRender>
 
