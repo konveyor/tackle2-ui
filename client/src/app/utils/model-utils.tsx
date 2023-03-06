@@ -11,6 +11,7 @@ import {
   StakeholderGroup,
   Tag,
   TagCategory,
+  TagRef,
 } from "@app/api/models";
 import { Color, OptionWithValue } from "@app/shared/components";
 
@@ -136,12 +137,12 @@ export const toITagCategoryDropdownOptionWithValue = (
 
 // Tag
 
-export interface ITagDropdown extends Pick<Tag, "id" | "name" | "category"> {}
+export interface ITagDropdown extends Pick<TagRef, "id" | "name" | "source"> {}
 
-export const toITagDropdown = (value: Tag): ITagDropdown => ({
+export const toITagDropdown = (value: TagRef): ITagDropdown => ({
   id: value.id,
   name: value.name,
-  category: value.category,
+  source: value?.source || "",
 });
 
 export const toITagDropdownOptionWithValue = (
@@ -149,9 +150,6 @@ export const toITagDropdownOptionWithValue = (
 ): OptionWithValue<ITagDropdown> => ({
   value,
   toString: () => value.name,
-  props: {
-    description: value.category ? value.category.name : "",
-  },
 });
 
 // Colors

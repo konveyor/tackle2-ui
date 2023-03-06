@@ -92,7 +92,7 @@ export interface Application {
   description?: string;
   comments?: string;
   businessService?: Ref;
-  tags?: Ref[];
+  tags?: TagRef[];
   review?: Ref;
   identities?: Ref[];
   repository?: Repository;
@@ -470,4 +470,8 @@ export interface IReadFile {
   loadResult?: "danger" | "success";
   data?: string;
   responseID?: number;
+}
+
+export interface TagRef extends Ref {
+  source?: string;
 }
