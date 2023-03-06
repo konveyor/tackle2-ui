@@ -43,7 +43,7 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { Identity, IReadFile, Ref, TableRule } from "@app/api/models";
+import { Identity, IReadFile, Ref } from "@app/api/models";
 import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
 
 import "./wizard.css";
@@ -67,13 +67,13 @@ interface CustomRulesProps {
 export const CustomRules: React.FC<CustomRulesProps> = (props) => {
   const { t } = useTranslation();
 
-  const { watch, setValue, control } =
+  const { watch, setValue, control, getValues } =
     useFormContext<AnalysisWizardFormValues>();
+  const values = getValues();
 
   const { formSources, formTargets, customRulesFiles } = watch();
   const [activeTabKey, setActiveTabKey] = React.useState(0);
 
-  const [tableRules, setTableRules] = React.useState<TableRule[]>([]);
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
 
@@ -124,7 +124,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
     toString: () => value?.name || "",
   });
 
-  const filterCategories: FilterCategory<TableRule>[] = [
+  const filterCategories: FilterCategory<IReadFile>[] = [
     {
       key: "name",
       title: t("terms.name"),
@@ -134,13 +134,13 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
           what: t("terms.name").toLowerCase(),
         }) + "...",
       getItemValue: (item) => {
-        return item?.name || "";
+        return item?.fileName || "";
       },
     },
   ];
 
   const { filterValues, setFilterValues, filteredItems } = useFilterState(
-    tableRules || [],
+    values?.customRulesFiles || [],
     filterCategories
   );
 
@@ -169,21 +169,23 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
 
   const rows: IRow[] = [];
   filteredItems?.forEach((item) => {
+    const { source, target, total } = parseRules(item);
+
     rows.push({
       entity: item,
       cells: [
         {
-          title: <TableText wrapModifier="truncate">{item.name}</TableText>,
+          title: <TableText wrapModifier="truncate">{item.fileName}</TableText>,
         },
         {
           title: (
             <TableText wrapModifier="truncate">
-              {item.source} / {item.target}
+              {source} / {target}
             </TableText>
           ),
         },
         {
-          title: <TableText wrapModifier="truncate">{item.total}</TableText>,
+          title: <TableText wrapModifier="truncate">{total}</TableText>,
         },
         {
           title: (
@@ -195,10 +197,12 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                 onClick={() => {
                   // Remove rule file from list
                   const updatedFileList = customRulesFiles.filter(
-                    (file) => file.fileName !== item.name
+                    (file) => file.fileName !== item.fileName
                   );
-                  setValue("customRulesFiles", updatedFileList);
-                  refreshRulesData(updatedFileList);
+                  setValue("customRulesFiles", updatedFileList, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  });
                 }}
               >
                 <TrashIcon />
@@ -209,29 +213,6 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
       ],
     });
   });
-  const refreshRulesData = (updatedCustomRulesFiles: IReadFile[]) => {
-    let rules: TableRule[] = [];
-
-    updatedCustomRulesFiles.forEach((file) => {
-      if (file.data) {
-        const newRules = parseRules(file);
-        if (newRules.parsedRuleset) rules = [...rules, newRules.parsedRuleset];
-        if (
-          newRules.parsedSource &&
-          !formSources.includes(newRules.parsedSource)
-        ) {
-          setValue("formSources", [...formSources, newRules.parsedSource]);
-        }
-        if (
-          newRules.parsedTarget &&
-          !formTargets.includes(newRules.parsedTarget)
-        ) {
-          setValue("formTargets", [...formTargets, newRules.parsedTarget]);
-        }
-      }
-    });
-    setTableRules(rules.flat());
-  };
 
   return (
     <>
@@ -273,7 +254,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
             >
               <ToolbarContent>
                 <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
-                  <FilterToolbar<TableRule>
+                  <FilterToolbar<IReadFile>
                     filterCategories={filterCategories}
                     filterValues={filterValues}
                     setFilterValues={setFilterValues}
@@ -410,8 +391,19 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                   ...customRulesFiles,
                   ...validFiles,
                 ];
-                setValue("customRulesFiles", updatedCustomRulesFiles);
-                refreshRulesData(updatedCustomRulesFiles);
+                setValue("customRulesFiles", updatedCustomRulesFiles, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+                updatedCustomRulesFiles.forEach((file) => {
+                  const { source, target } = parseRules(file);
+                  if (source && !formSources.includes(source)) {
+                    setValue("formSources", [...formSources, source]);
+                  }
+                  if (target && !formTargets.includes(target)) {
+                    setValue("formTargets", [...formTargets, target]);
+                  }
+                });
                 setRuleFiles([]);
                 setUploadError("");
               }}
