@@ -20,10 +20,10 @@ export interface ApplicationTagsProps {
 export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
   application,
 }) => {
-  const [tagCategories, setTagCategories] = useState<Map<number, TagCategory>>(
-    new Map()
-  );
-  const [tags, setTags] = useState<Map<number, Tag[]>>(new Map());
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [tagCategoriesById, setTagCategoriesById] = useState<
+    Map<number, TagCategory>
+  >(new Map());
 
   const [isFetching, setIsFetching] = useState(false);
 
@@ -37,9 +37,6 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           .map((p) => p.catch(() => null))
       )
         .then((tags) => {
-          const newTagCategories: Map<number, TagCategory> = new Map();
-          const newTags: Map<number, Tag[]> = new Map();
-
           const tagValidResponses = tags.reduce((prev, current) => {
             if (current) {
               return [...prev, current.data];
@@ -47,10 +44,13 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
               return prev;
             }
           }, [] as Tag[]);
-
+          const tagCategoryIds = new Set<number>();
+          tagValidResponses.forEach(
+            (tag) => tag.category?.id && tagCategoryIds.add(tag.category?.id)
+          );
           Promise.all(
-            tagValidResponses.map((tag) =>
-              getTagCategoryById(tag?.category?.id || 0)
+            Array.from(tagCategoryIds).map((tagCategoryId) =>
+              getTagCategoryById(tagCategoryId)
             )
           ).then((tagCategories) => {
             // Tag categories
@@ -64,31 +64,14 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
               },
               [] as TagCategory[]
             );
-            tagValidResponses.forEach((tag) => {
-              const tagCategoryRef = tag.category;
-              if (tagCategoryRef?.id) {
-                const thisTagsFullTagCategory = tagCategoryValidResponses.find(
-                  (tagCategory) => tagCategory.id === tagCategoryRef?.id
-                );
-                const tagCategoryWithColour: TagCategory = {
-                  ...tagCategoryRef,
-                  colour: thisTagsFullTagCategory?.colour || "",
-                };
-                newTagCategories.set(
-                  tagCategoryWithColour.id!,
-                  tagCategoryWithColour
-                );
 
-                // // // Tags
-                newTags.set(tagCategoryWithColour.id!, [
-                  ...(newTags.get(tagCategoryWithColour.id!) || []),
-                  tag,
-                ]);
-              }
-            });
+            const newTagCategoriesById = new Map<number, TagCategory>();
+            tagCategoryValidResponses.forEach((tagCategory) =>
+              newTagCategoriesById.set(tagCategory.id!, tagCategory)
+            );
 
-            setTagCategories(newTagCategories);
-            setTags(newTags);
+            setTags(tagValidResponses);
+            setTagCategoriesById(newTagCategoriesById);
 
             setIsFetching(false);
           });
@@ -97,48 +80,88 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           setIsFetching(false);
         });
     } else {
-      setTagCategories(new Map());
-      setTags(new Map());
+      setTags([]);
+      setTagCategoriesById(new Map());
     }
   }, [application]);
 
-  // TODO(mturley) group by source, with h3 for each source name
+  const tagsById = new Map<number, Tag>();
+  tags.forEach((tag) => tagsById.set(tag.id!, tag));
+  const tagsBySource = new Map<string, Tag[]>();
+  application.tags?.forEach((tagRef) => {
+    const tag = tagRef.id ? tagsById.get(tagRef.id) : undefined;
+    if (tag) {
+      const tagsByThisSource = tagsBySource.get(tagRef.source || "");
+      if (tagsByThisSource) {
+        tagsByThisSource.push(tag);
+      } else {
+        tagsBySource.set(tagRef.source || "", [tag]);
+      }
+    }
+  });
 
   return (
     <ConditionalRender when={isFetching} then={<Spinner isSVG size="md" />}>
-      {Array.from(tagCategories.values())
-        .sort((a, b) => (a.rank || 0) - (b.rank || 0))
-        .map((tagCategory) => {
+      {Array.from(tagsBySource.keys())
+        .sort((a, b) => {
+          // Always put Manual tags (source === "") first
+          if (a === "") return -1;
+          if (b === "") return 1;
+          return a.localeCompare(b);
+        })
+        .map((source) => {
+          const tagsInThisSource = tagsBySource.get(source);
+          const tagCategoriesInThisSource = new Set<TagCategory>();
+          tagsInThisSource?.forEach((tag) => {
+            const category =
+              tag?.category?.id && tagCategoriesById.get(tag?.category?.id);
+            category && tagCategoriesInThisSource.add(category);
+          });
           return (
-            <React.Fragment key={tagCategory.id}>
+            <React.Fragment key={source}>
               <TextContent>
                 <Text
-                  component="h4"
-                  className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightLight}`}
+                  component="h3"
+                  className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeMd}`}
                 >
-                  {tagCategory.name}
+                  {source === "" ? "Manual" : source}
                 </Text>
               </TextContent>
-              <Flex>
-                {tags
-                  .get(tagCategory.id!)
-                  ?.sort((a, b) => a.name.localeCompare(b.name))
-                  .map((tag) => {
-                    const colorLabel = DEFAULT_COLOR_LABELS.get(
-                      tagCategory?.colour || ""
-                    );
-
-                    return (
-                      <Label
-                        key={tag.id}
-                        color={colorLabel as any}
-                        className={`${spacing.mrSm} ${spacing.mbSm}`}
+              {Array.from(tagCategoriesInThisSource).map((tagCategory) => {
+                const tagsInThisCategoryInThisSource = tagsInThisSource?.filter(
+                  (tag) => tag.category?.id === tagCategory.id
+                );
+                return (
+                  <React.Fragment key={tagCategory.id}>
+                    <TextContent>
+                      <Text
+                        component="h4"
+                        className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightLight}`}
                       >
-                        {tag.name}
-                      </Label>
-                    );
-                  })}
-              </Flex>
+                        {tagCategory.name}
+                      </Text>
+                    </TextContent>
+                    <Flex>
+                      {tagsInThisCategoryInThisSource
+                        ?.sort((a, b) => a.name.localeCompare(b.name))
+                        .map((tag) => {
+                          const colorLabel = DEFAULT_COLOR_LABELS.get(
+                            tagCategory?.colour || ""
+                          );
+                          return (
+                            <Label
+                              key={tag.id}
+                              color={colorLabel as any}
+                              className={`${spacing.mrSm} ${spacing.mbSm}`}
+                            >
+                              {tag.name}
+                            </Label>
+                          );
+                        })}
+                    </Flex>
+                  </React.Fragment>
+                );
+              })}
             </React.Fragment>
           );
         })}
