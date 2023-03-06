@@ -18,8 +18,6 @@ import {
 } from "@patternfly/react-core";
 import QuestionCircleIcon from "@patternfly/react-icons/dist/js/icons/question-circle-icon";
 
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-
 import {
   SingleSelectFetchOptionValueFormikField,
   MultiSelectFetchOptionValueFormikField,
@@ -27,7 +25,7 @@ import {
   OptionWithValue,
 } from "@app/shared/components";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { Application, Ref } from "@app/api/models";
+import { Application, Ref, TagRef } from "@app/api/models";
 import {
   duplicateNameCheck,
   getAxiosErrorMessage,
@@ -141,13 +139,16 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
     if (application && application.tags && tags) {
       result = application.tags.reduce((prev, current) => {
-        const exists = tags.find((f) => f.id === current.id);
-        return exists ? [...prev, toITagDropdown(exists)] : prev;
+        const tagExists = tags.find((tag) => {
+          return tag.id === current.id;
+        });
+        return tagExists ? [...prev, toITagDropdown(current)] : prev;
       }, [] as ITagDropdown[]);
     }
 
     return result;
   }, [application, tags]);
+
   const getBinaryInitialValue = (
     application: Application | undefined,
     fieldName: string
@@ -344,8 +345,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             name: formValues.businessService.name,
           }
         : undefined,
-      tags: formValues.tags.map((f): Ref => {
-        const thisTag = { id: f.id, name: f.name };
+      tags: formValues.tags.map((tagRef): TagRef => {
+        const thisTag = {
+          id: tagRef.id,
+          name: tagRef.name,
+          source: tagRef.source,
+        };
         return thisTag;
       }),
       ...(formValues.sourceRepository
@@ -526,7 +531,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   toggleAriaLabel: "tags",
                   clearSelectionsAriaLabel: "tags",
                   removeSelectionAriaLabel: "tags",
-                  // t("terms.tag(s)")
                   placeholderText: t("composed.selectOne", {
                     what: t("terms.tag(s)").toLowerCase(),
                   }),
