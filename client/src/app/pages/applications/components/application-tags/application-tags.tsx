@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Flex,
   Label,
@@ -12,6 +13,23 @@ import { DEFAULT_COLOR_LABELS } from "@app/Constants";
 import { ConditionalRender } from "@app/shared/components";
 import { Application, Tag, TagCategory } from "@app/api/models";
 import { getTagById, getTagCategoryById } from "@app/api/rest";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
+import { useFilterState } from "@app/shared/hooks/useFilterState";
+
+interface TagWithSource extends Tag {
+  source?: string;
+}
+
+const compareSources = (a: string, b: string) => {
+  // Always put Manual tags (source === "") first
+  if (a === "") return -1;
+  if (b === "") return 1;
+  return a.localeCompare(b);
+};
 
 export interface ApplicationTagsProps {
   application: Application;
@@ -20,7 +38,9 @@ export interface ApplicationTagsProps {
 export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
   application,
 }) => {
-  const [tags, setTags] = useState<Tag[]>([]);
+  const { t } = useTranslation();
+
+  const [tags, setTags] = useState<TagWithSource[]>([]);
   const [tagCategoriesById, setTagCategoriesById] = useState<
     Map<number, TagCategory>
   >(new Map());
@@ -37,15 +57,20 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           .map((p) => p.catch(() => null))
       )
         .then((tags) => {
-          const tagValidResponses = tags.reduce((prev, current) => {
+          const tagsWithSources = tags.reduce((prev, current, index) => {
             if (current) {
-              return [...prev, current.data];
+              const currentTagWithSource: TagWithSource = {
+                ...current.data,
+                source: application.tags?.[index].source,
+              };
+              return [...prev, currentTagWithSource];
             } else {
+              // Filter out error responses
               return prev;
             }
           }, [] as Tag[]);
           const tagCategoryIds = new Set<number>();
-          tagValidResponses.forEach(
+          tagsWithSources.forEach(
             (tag) => tag.category?.id && tagCategoryIds.add(tag.category?.id)
           );
           Promise.all(
@@ -70,7 +95,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
               newTagCategoriesById.set(tagCategory.id!, tagCategory)
             );
 
-            setTags(tagValidResponses);
+            setTags(tagsWithSources);
             setTagCategoriesById(newTagCategoriesById);
 
             setIsFetching(false);
@@ -85,30 +110,66 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
     }
   }, [application]);
 
-  const tagsById = new Map<number, Tag>();
-  tags.forEach((tag) => tagsById.set(tag.id!, tag));
+  const sources = new Set<string>();
+  tags.forEach((tag) => sources.add(tag.source || ""));
+
+  const filterCategories: FilterCategory<TagWithSource>[] = [
+    {
+      key: "source",
+      title: t("terms.source"),
+      type: FilterType.multiselect,
+      placeholderText: `${t("actions.filterBy", {
+        what: t("terms.source").toLowerCase(),
+      })}...`,
+      getItemValue: (tag) => tag.source || "Manual",
+      selectOptions: Array.from(sources)
+        .sort(compareSources)
+        .map((source) => source || "Manual")
+        .map((source) => ({ key: source, value: source })),
+    },
+    {
+      key: "tagCategory",
+      title: t("terms.tagCategory"),
+      type: FilterType.multiselect,
+      placeholderText: `${t("actions.filterBy", {
+        what: t("terms.tagCategory").toLowerCase(),
+      })}...`,
+      getItemValue: (tag) => tag.category?.name || "",
+      selectOptions: Array.from(tagCategoriesById.values())
+        .map((tagCategory) => tagCategory.name)
+        .sort((a, b) => a.localeCompare(b))
+        .map((tagCategoryName) => ({
+          key: tagCategoryName,
+          value: tagCategoryName,
+        })),
+    },
+  ];
+
+  const {
+    filterValues,
+    setFilterValues,
+    filteredItems: filteredTags,
+  } = useFilterState(tags, filterCategories);
+
   const tagsBySource = new Map<string, Tag[]>();
-  application.tags?.forEach((tagRef) => {
-    const tag = tagRef.id ? tagsById.get(tagRef.id) : undefined;
-    if (tag) {
-      const tagsByThisSource = tagsBySource.get(tagRef.source || "");
-      if (tagsByThisSource) {
-        tagsByThisSource.push(tag);
-      } else {
-        tagsBySource.set(tagRef.source || "", [tag]);
-      }
+  filteredTags.forEach((tag) => {
+    const tagsInThisSource = tagsBySource.get(tag.source || "");
+    if (tagsInThisSource) {
+      tagsInThisSource.push(tag);
+    } else {
+      tagsBySource.set(tag.source || "", [tag]);
     }
   });
 
   return (
     <ConditionalRender when={isFetching} then={<Spinner isSVG size="md" />}>
+      <FilterToolbar<TagWithSource>
+        filterCategories={filterCategories}
+        filterValues={filterValues}
+        setFilterValues={setFilterValues}
+      />
       {Array.from(tagsBySource.keys())
-        .sort((a, b) => {
-          // Always put Manual tags (source === "") first
-          if (a === "") return -1;
-          if (b === "") return 1;
-          return a.localeCompare(b);
-        })
+        .sort(compareSources)
         .map((source) => {
           const tagsInThisSource = tagsBySource.get(source);
           const tagCategoriesInThisSource = new Set<TagCategory>();
