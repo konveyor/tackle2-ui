@@ -24,7 +24,7 @@ import { EmptyTextMessage } from "@app/shared/components";
 
 export interface IApplicationDetailDrawerAnalysisProps
   extends Pick<IApplicationDetailDrawerProps, "application" | "onCloseClick"> {
-  task?: Task;
+  task: Task | undefined | null;
 }
 
 export const ApplicationDetailDrawerAnalysis: React.FC<
