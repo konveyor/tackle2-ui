@@ -66,9 +66,6 @@ export const adminWriteScopes = [
   "proxies:put",
   "proxies:post",
   "proxies:delete",
-  "customTargets:put",
-  "customTargets:post",
-  "customTargets:delete",
 ];
 
 export const controlsWriteScopes = [
