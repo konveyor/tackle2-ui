@@ -1,6 +1,6 @@
-import { IReadFile, TableRule } from "@app/api/models";
+import { IReadFile, ParsedRule } from "@app/api/models";
 
-export const parseRules = (file: IReadFile) => {
+export const parseRules = (file: IReadFile): ParsedRule => {
   if (file.data) {
     let source: string | null = null;
     let target: string | null = null;
@@ -28,26 +28,19 @@ export const parseRules = (file: IReadFile) => {
         rulesCount = rulesGroup[0].getElementsByTagName("rule").length;
     }
 
-    const ruleset: TableRule = {
-      name: file.fileName,
-      source: source,
-      target: target,
+    return {
+      source,
+      target,
       total: rulesCount,
       ...(file.responseID && {
         fileID: file.responseID,
       }),
     };
-
-    return {
-      parsedRuleset: ruleset,
-      parsedSource: source,
-      parsedTarget: target,
-    };
   } else {
     return {
-      parsedRuleset: null,
-      parsedSource: null,
-      parsedTarget: null,
+      source: null,
+      target: null,
+      total: 0,
     };
   }
 };

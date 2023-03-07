@@ -89,7 +89,7 @@ const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
 
 export interface CustomRulesStepValues {
   formSources: string[];
-  customRulesFiles: any[];
+  customRulesFiles: IReadFile[];
   rulesKind: string;
   repositoryType?: string;
   sourceRepository?: string;
@@ -97,17 +97,28 @@ export interface CustomRulesStepValues {
   rootPath?: string;
   associatedCredentials?: Ref;
 }
-
+export const customRulesFilesSchema: yup.SchemaOf<IReadFile> = yup.object({
+  fileName: yup.string().required(),
+  fullFile: yup.mixed<File>(),
+  loadError: yup.mixed<DOMException>(),
+  loadPercentage: yup.number(),
+  loadResult: yup.mixed<"danger" | "success" | undefined>(),
+  data: yup.string(),
+  responseID: yup.number(),
+});
 const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     formSources: yup.array().of(yup.string().defined()),
     rulesKind: yup.string().defined(),
-    customRulesFiles: yup.array().when("rulesKind", {
-      is: "manual",
-      then: yup.array(),
-      otherwise: (schema) => schema,
-    }),
+    customRulesFiles: yup
+      .array()
+      .of(customRulesFilesSchema)
+      .when("rulesKind", {
+        is: "manual",
+        then: yup.array().of(customRulesFilesSchema),
+        otherwise: (schema) => schema,
+      }),
     repositoryType: yup.mixed<string>().when("rulesKind", {
       is: "repository",
       then: yup.mixed<string>().required(),
