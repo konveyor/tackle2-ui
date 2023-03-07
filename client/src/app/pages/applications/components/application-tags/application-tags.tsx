@@ -12,8 +12,7 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
-import toggleGroupStyles from "@patternfly/react-styles/css/components/ToggleGroup/toggle-group";
-import { FilterIcon } from "@patternfly/react-icons";
+import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import { DEFAULT_COLOR_LABELS } from "@app/Constants";
 import { ConditionalRender } from "@app/shared/components";
 import { Application, Tag, TagCategory } from "@app/api/models";
@@ -172,14 +171,15 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
     <ConditionalRender when={isFetching} then={<Spinner isSVG size="md" />}>
       <Toolbar
         clearAllFilters={() => setFilterValues({})}
-        clearFiltersButtonText="Clear filters"
+        clearFiltersButtonText={t("actions.clearAllFilters")}
       >
-        <ToolbarContent>
+        <ToolbarContent className={spacing.p_0}>
           <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
             <FilterToolbar<TagWithSource>
               filterCategories={filterCategories}
               filterValues={filterValues}
               setFilterValues={setFilterValues}
+              showFiltersSideBySide
             />
           </ToolbarToggleGroup>
         </ToolbarContent>

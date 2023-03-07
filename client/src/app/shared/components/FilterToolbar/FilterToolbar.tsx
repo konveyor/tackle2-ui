@@ -59,6 +59,7 @@ export interface IFilterToolbarProps<T> {
   beginToolbarItems?: JSX.Element;
   endToolbarItems?: JSX.Element;
   pagination?: JSX.Element;
+  showFiltersSideBySide?: boolean;
 }
 
 export const FilterToolbar = <T,>({
@@ -66,6 +67,7 @@ export const FilterToolbar = <T,>({
   filterValues,
   setFilterValues,
   pagination,
+  showFiltersSideBySide = false,
 }: React.PropsWithChildren<IFilterToolbarProps<T>>): JSX.Element | null => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] =
     React.useState(false);
@@ -91,31 +93,36 @@ export const FilterToolbar = <T,>({
         variant="filter-group"
         toggleIcon={<FilterIcon />}
         breakpoint="2xl"
+        spaceItems={
+          showFiltersSideBySide ? { default: "spaceItemsMd" } : undefined
+        }
       >
-        <ToolbarItem>
-          <Dropdown
-            toggle={
-              <DropdownToggle
-                id="filtered-by"
-                onToggle={() =>
-                  setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
-                }
-              >
-                <FilterIcon /> {currentFilterCategory?.title}
-              </DropdownToggle>
-            }
-            isOpen={isCategoryDropdownOpen}
-            dropdownItems={filterCategories.map((category) => (
-              <DropdownItem
-                id={`filter-category-${category.key}`}
-                key={category.key}
-                onClick={() => onCategorySelect(category)}
-              >
-                {category.title}
-              </DropdownItem>
-            ))}
-          />
-        </ToolbarItem>
+        {!showFiltersSideBySide && (
+          <ToolbarItem>
+            <Dropdown
+              toggle={
+                <DropdownToggle
+                  id="filtered-by"
+                  onToggle={() =>
+                    setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
+                  }
+                >
+                  <FilterIcon /> {currentFilterCategory?.title}
+                </DropdownToggle>
+              }
+              isOpen={isCategoryDropdownOpen}
+              dropdownItems={filterCategories.map((category) => (
+                <DropdownItem
+                  id={`filter-category-${category.key}`}
+                  key={category.key}
+                  onClick={() => onCategorySelect(category)}
+                >
+                  {category.title}
+                </DropdownItem>
+              ))}
+            />
+          </ToolbarItem>
+        )}
 
         {filterCategories.map((category) => (
           <FilterControl<T>
@@ -123,7 +130,10 @@ export const FilterToolbar = <T,>({
             category={category}
             filterValue={filterValues[category.key]}
             setFilterValue={(newValue) => setFilterValue(category, newValue)}
-            showToolbarItem={currentFilterCategory?.key === category.key}
+            showToolbarItem={
+              showFiltersSideBySide ||
+              currentFilterCategory?.key === category.key
+            }
           />
         ))}
       </ToolbarToggleGroup>
