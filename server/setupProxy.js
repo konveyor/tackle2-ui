@@ -19,6 +19,9 @@ module.exports = function (app) {
       },
       logLevel: process.env.DEBUG ? "debug" : "info",
       onProxyReq: (proxyReq, req, res) => {
+        if (req.originalUrl.includes("windup/report/?filter")) {
+          proxyReq.setHeader("Accept", "");
+        }
         if (req.cookies.keycloak_cookie && !req.headers["authorization"]) {
           proxyReq.setHeader(
             "Authorization",
