@@ -214,7 +214,7 @@ export default function useRuleFiles(
         fullFile: file,
       };
       const formFile = new FormData();
-      formFile.append("file", newFile.fullFile);
+      newFile.fullFile && formFile.append("file", newFile.fullFile);
       uploadFile({
         id: taskgroupID as number,
         path: `rules/${newFile.fileName}`,
@@ -230,7 +230,7 @@ export default function useRuleFiles(
         fullFile: file,
       };
       const formFile = new FormData();
-      formFile.append("file", newFile.fullFile);
+      newFile.fullFile && formFile.append("file", newFile?.fullFile);
       createRuleFile({
         formData: formFile,
         file: newFile,

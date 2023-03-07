@@ -454,8 +454,7 @@ export interface Ruleset {
   };
 }
 
-export interface TableRule {
-  name: string;
+export interface ParsedRule {
   source: string | null;
   target: string | null;
   total: number;
@@ -464,7 +463,7 @@ export interface TableRule {
 
 export interface IReadFile {
   fileName: string;
-  fullFile: File;
+  fullFile?: File;
   loadError?: DOMException;
   loadPercentage?: number;
   loadResult?: "danger" | "success";

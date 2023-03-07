@@ -30,6 +30,7 @@ import { parseRules } from "@app/common/CustomRules/rules-utils";
 import {
   useCreateFileMutation,
   useCreateRuleBundleMutation,
+  useFetchRuleBundles,
   useUpdateRuleBundleMutation,
 } from "@app/queries/rulebundles";
 import { AxiosError, AxiosResponse } from "axios";
@@ -42,6 +43,7 @@ import {
 } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
 import useRuleFiles from "@app/common/CustomRules/useRuleFiles";
+import { duplicateNameCheck } from "@app/utils/utils";
 
 export interface CustomTargetFormProps {
   ruleBundle?: RuleBundle;
@@ -130,6 +132,8 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     return result;
   }, [identities, ruleBundle]);
 
+  const { ruleBundles } = useFetchRuleBundles();
+
   const validationSchema: yup.SchemaOf<CustomTargetFormValues> = yup
     .object()
     .shape({
@@ -139,7 +143,13 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         .trim()
         .required(t("validation.required"))
         .min(3, t("validation.minLength", { length: 3 }))
-        .max(120, t("validation.maxLength", { length: 120 })),
+        .max(120, t("validation.maxLength", { length: 120 }))
+        .test(
+          "Duplicate name",
+          "A custom target with this name already exists. Please use a different name.",
+          (value) =>
+            duplicateNameCheck(ruleBundles, ruleBundle || null, value || "")
+        ),
       description: yup.string(),
       imageID: yup.number().defined(),
       rulesKind: yup.string().defined(),
@@ -251,22 +261,16 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     let rulesets: Ruleset[] = [];
 
     ruleFiles.forEach((file) => {
-      if (file.data && file.fullFile.type !== "placeholder") {
-        const newParsedFile = parseRules(file);
+      if (file.data && file?.fullFile?.type !== "placeholder") {
+        const { source, target, fileID } = parseRules(file);
         const newRuleset: Ruleset = {
           name: file.fileName,
           metadata: {
-            target: newParsedFile.parsedRuleset?.target
-              ? newParsedFile.parsedRuleset.target
-              : "",
-            source: newParsedFile.parsedRuleset?.source
-              ? newParsedFile.parsedRuleset.source
-              : "",
+            target: target ? target : "",
+            source: source ? source : "",
           },
           file: {
-            id: newParsedFile.parsedRuleset?.fileID
-              ? newParsedFile.parsedRuleset.fileID
-              : 0,
+            id: fileID ? fileID : 0,
           },
         };
         rulesets = [...rulesets, newRuleset];
