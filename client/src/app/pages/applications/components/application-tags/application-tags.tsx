@@ -9,6 +9,7 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarToggleGroup,
+  ToolbarItem,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
@@ -122,9 +123,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
       key: "source",
       title: t("terms.source"),
       type: FilterType.multiselect,
-      placeholderText: `${t("actions.filterBy", {
-        what: t("terms.source").toLowerCase(),
-      })}...`,
+      placeholderText: t("terms.source"),
       getItemValue: (tag) => tag.source || "Manual",
       selectOptions: Array.from(sources)
         .sort(compareSources)
@@ -136,9 +135,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
       key: "tagCategory",
       title: t("terms.tagCategory"),
       type: FilterType.multiselect,
-      placeholderText: `${t("actions.filterBy", {
-        what: t("terms.tagCategory").toLowerCase(),
-      })}...`,
+      placeholderText: t("terms.tagCategory"),
       getItemValue: (tag) => tag.category?.name || "",
       selectOptions: Array.from(tagCategoriesById.values())
         .map((tagCategory) => tagCategory.name)
@@ -174,6 +171,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
         clearFiltersButtonText={t("actions.clearAllFilters")}
       >
         <ToolbarContent className={spacing.p_0}>
+          <ToolbarItem>Filter by:</ToolbarItem>
           <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
             <FilterToolbar<TagWithSource>
               filterCategories={filterCategories}
