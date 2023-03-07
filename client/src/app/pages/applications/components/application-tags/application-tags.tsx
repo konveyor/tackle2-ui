@@ -6,9 +6,14 @@ import {
   Spinner,
   TextContent,
   Text,
+  Toolbar,
+  ToolbarContent,
+  ToolbarToggleGroup,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
+import toggleGroupStyles from "@patternfly/react-styles/css/components/ToggleGroup/toggle-group";
+import { FilterIcon } from "@patternfly/react-icons";
 import { DEFAULT_COLOR_LABELS } from "@app/Constants";
 import { ConditionalRender } from "@app/shared/components";
 import { Application, Tag, TagCategory } from "@app/api/models";
@@ -126,6 +131,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
         .sort(compareSources)
         .map((source) => source || "Manual")
         .map((source) => ({ key: source, value: source })),
+      logicOperator: "OR",
     },
     {
       key: "tagCategory",
@@ -142,6 +148,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           key: tagCategoryName,
           value: tagCategoryName,
         })),
+      logicOperator: "OR",
     },
   ];
 
@@ -163,11 +170,21 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
 
   return (
     <ConditionalRender when={isFetching} then={<Spinner isSVG size="md" />}>
-      <FilterToolbar<TagWithSource>
-        filterCategories={filterCategories}
-        filterValues={filterValues}
-        setFilterValues={setFilterValues}
-      />
+      <Toolbar
+        clearAllFilters={() => setFilterValues({})}
+        clearFiltersButtonText="Clear filters"
+      >
+        <ToolbarContent>
+          <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
+            <FilterToolbar<TagWithSource>
+              filterCategories={filterCategories}
+              filterValues={filterValues}
+              setFilterValues={setFilterValues}
+            />
+          </ToolbarToggleGroup>
+        </ToolbarContent>
+      </Toolbar>
+
       {Array.from(tagsBySource.keys())
         .sort(compareSources)
         .map((source) => {

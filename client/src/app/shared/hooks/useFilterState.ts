@@ -1,6 +1,10 @@
 import * as React from "react";
 import { useSessionStorage } from "@migtools/lib-ui";
-import { IFilterValues, FilterCategory } from "../components/FilterToolbar";
+import {
+  IFilterValues,
+  FilterCategory,
+  IMultiselectFilterCategory,
+} from "../components/FilterToolbar";
 
 export interface IFilterStateHook<T> {
   filterValues: IFilterValues;
@@ -28,12 +32,18 @@ export const useFilterState = <T>(
       if (filterCategory?.getItemValue) {
         itemValue = filterCategory.getItemValue(item);
       }
-      return values.every((filterValue) => {
-        if (!itemValue) return false;
-        const lowerCaseItemValue = String(itemValue).toLowerCase();
-        const lowerCaseFilterValue = String(filterValue).toLowerCase();
-        return lowerCaseItemValue.indexOf(lowerCaseFilterValue) !== -1;
-      });
+      const logicOperator =
+        (filterCategory &&
+          (filterCategory as IMultiselectFilterCategory<T>).logicOperator) ||
+        "AND";
+      return values[logicOperator === "AND" ? "every" : "some"](
+        (filterValue) => {
+          if (!itemValue) return false;
+          const lowerCaseItemValue = String(itemValue).toLowerCase();
+          const lowerCaseFilterValue = String(filterValue).toLowerCase();
+          return lowerCaseItemValue.indexOf(lowerCaseFilterValue) !== -1;
+        }
+      );
     })
   );
   return { filterValues, setFilterValues, filteredItems };

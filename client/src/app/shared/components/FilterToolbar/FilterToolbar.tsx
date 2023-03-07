@@ -32,6 +32,7 @@ export interface IBasicFilterCategory<T> {
 
 export interface IMultiselectFilterCategory<T> extends IBasicFilterCategory<T> {
   selectOptions: OptionPropsWithKey[];
+  logicOperator?: "AND" | "OR";
 }
 
 export interface ISelectFilterCategory<T> extends IBasicFilterCategory<T> {
@@ -43,8 +44,9 @@ export interface ISearchFilterCategory<T> extends IBasicFilterCategory<T> {
 }
 
 export type FilterCategory<T> =
-  | ISearchFilterCategory<T>
-  | ISelectFilterCategory<T>;
+  | IMultiselectFilterCategory<T>
+  | ISelectFilterCategory<T>
+  | ISearchFilterCategory<T>;
 
 export interface IFilterValues {
   [categoryKey: string]: FilterValue;
