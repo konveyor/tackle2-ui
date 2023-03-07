@@ -36,6 +36,7 @@ import {
 } from "./schema";
 import { useAsyncYupValidation } from "@app/shared/hooks/useAsyncYupValidation";
 import { CustomRules } from "./custom-rules";
+import { useSetting } from "@app/queries/settings";
 
 interface IAnalysisWizard {
   applications: Application[];
@@ -89,6 +90,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 }: IAnalysisWizard) => {
   const { t } = useTranslation();
   const title = t("dialog.title.applicationAnalysis");
+
+  const { data: isCSVDownloadEnabled } = useSetting("download.csv.enabled");
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -238,6 +241,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             ? `/binary/${fieldValues.artifact.name}`
             : "",
           diva: fieldValues.diva,
+          ...(isCSVDownloadEnabled && { csv: isCSVDownloadEnabled }),
         },
         targets: fieldValues.formTargets,
         sources: fieldValues.formSources,
