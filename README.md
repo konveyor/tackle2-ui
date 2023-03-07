@@ -32,7 +32,7 @@ With an existing Tackle2 environment available, one can start a locally served t
 ## Tackle2 environment setup
 
 With the UI project setup out of the way, you can now begin setting up you local Tackle2 dev environment. The preferred local development option is to setup a minikube instance.
-Alternatively, for information on general Kubernetes installation refer to [https://github.com/konveyor/tackle2-operator#readme](Tackle2 operator readme) file.
+Alternatively, for information on general Kubernetes installation refer to [Tackle2 operator readme](https://github.com/konveyor/tackle2-operator#readme) file.
 
 ### Minikube setup
 
