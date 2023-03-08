@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   ToolbarFilter,
   Select,
@@ -26,6 +27,8 @@ export const MultiselectFilterControl = <T,>({
 }: React.PropsWithChildren<
   IMultiselectFilterControlProps<T>
 >): JSX.Element | null => {
+  const { t } = useTranslation();
+
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
 
   const getOptionKeyFromOptionValue = (
@@ -93,6 +96,12 @@ export const MultiselectFilterControl = <T,>({
       })
     );
 
+  const placeholderText =
+    category.placeholderText ||
+    `${t("actions.filterBy", {
+      what: category.title,
+    })}...`;
+
   return (
     <ToolbarFilter
       chips={chips}
@@ -108,9 +117,7 @@ export const MultiselectFilterControl = <T,>({
         selections={selections || []}
         onSelect={(_, value) => onFilterSelect(value)}
         isOpen={isFilterDropdownOpen}
-        placeholderText={`Filter by ${category.title
-          .charAt(0)
-          .toLowerCase()}${category.title.slice(1)}`}
+        placeholderText={category.placeholderText}
         hasInlineFilter
         onFilter={onOptionsFilter}
         isDisabled={category.selectOptions.length === 0}
