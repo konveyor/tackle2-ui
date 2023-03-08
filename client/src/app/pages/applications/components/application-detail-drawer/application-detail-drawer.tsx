@@ -79,12 +79,7 @@ export const ApplicationDetailDrawer: React.FC<
           {detailsTabMainContent}
         </Tab>
         <Tab eventKey={TabKey.Tags} title={<TabTitleText>Tags</TabTitleText>}>
-          <TextContent className={spacing.mtMd}>
-            <Text component="small">
-              {/* TODO(mturley): group tabs by source and tag-type, add filter dropdowns */}
-              {application && <ApplicationTags application={application} />}
-            </Text>
-          </TextContent>
+          {application && <ApplicationTags application={application} />}
         </Tab>
         {reportsTabContent && (
           <Tab

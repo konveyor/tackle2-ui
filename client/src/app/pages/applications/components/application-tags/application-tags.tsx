@@ -1,17 +1,40 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Flex,
   Label,
   Spinner,
   TextContent,
   Text,
+  Toolbar,
+  ToolbarContent,
+  ToolbarToggleGroup,
+  ToolbarItem,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
+import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import { DEFAULT_COLOR_LABELS } from "@app/Constants";
 import { ConditionalRender } from "@app/shared/components";
 import { Application, Tag, TagCategory } from "@app/api/models";
 import { getTagById, getTagCategoryById } from "@app/api/rest";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
+import { useFilterState } from "@app/shared/hooks/useFilterState";
+
+interface TagWithSource extends Tag {
+  source?: string;
+}
+
+const compareSources = (a: string, b: string) => {
+  // Always put Manual tags (source === "") first
+  if (a === "") return -1;
+  if (b === "") return 1;
+  return a.localeCompare(b);
+};
 
 export interface ApplicationTagsProps {
   application: Application;
@@ -20,10 +43,12 @@ export interface ApplicationTagsProps {
 export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
   application,
 }) => {
-  const [tagCategories, setTagCategories] = useState<Map<number, TagCategory>>(
-    new Map()
-  );
-  const [tags, setTags] = useState<Map<number, Tag[]>>(new Map());
+  const { t } = useTranslation();
+
+  const [tags, setTags] = useState<TagWithSource[]>([]);
+  const [tagCategoriesById, setTagCategoriesById] = useState<
+    Map<number, TagCategory>
+  >(new Map());
 
   const [isFetching, setIsFetching] = useState(false);
 
@@ -37,20 +62,25 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           .map((p) => p.catch(() => null))
       )
         .then((tags) => {
-          const newTagCategories: Map<number, TagCategory> = new Map();
-          const newTags: Map<number, Tag[]> = new Map();
-
-          const tagValidResponses = tags.reduce((prev, current) => {
+          const tagsWithSources = tags.reduce((prev, current, index) => {
             if (current) {
-              return [...prev, current.data];
+              const currentTagWithSource: TagWithSource = {
+                ...current.data,
+                source: application.tags?.[index].source,
+              };
+              return [...prev, currentTagWithSource];
             } else {
+              // Filter out error responses
               return prev;
             }
           }, [] as Tag[]);
-
+          const tagCategoryIds = new Set<number>();
+          tagsWithSources.forEach(
+            (tag) => tag.category?.id && tagCategoryIds.add(tag.category?.id)
+          );
           Promise.all(
-            tagValidResponses.map((tag) =>
-              getTagCategoryById(tag?.category?.id || 0)
+            Array.from(tagCategoryIds).map((tagCategoryId) =>
+              getTagCategoryById(tagCategoryId)
             )
           ).then((tagCategories) => {
             // Tag categories
@@ -64,31 +94,14 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
               },
               [] as TagCategory[]
             );
-            tagValidResponses.forEach((tag) => {
-              const tagCategoryRef = tag.category;
-              if (tagCategoryRef?.id) {
-                const thisTagsFullTagCategory = tagCategoryValidResponses.find(
-                  (tagCategory) => tagCategory.id === tagCategoryRef?.id
-                );
-                const tagCategoryWithColour: TagCategory = {
-                  ...tagCategoryRef,
-                  colour: thisTagsFullTagCategory?.colour || "",
-                };
-                newTagCategories.set(
-                  tagCategoryWithColour.id!,
-                  tagCategoryWithColour
-                );
 
-                // // // Tags
-                newTags.set(tagCategoryWithColour.id!, [
-                  ...(newTags.get(tagCategoryWithColour.id!) || []),
-                  tag,
-                ]);
-              }
-            });
+            const newTagCategoriesById = new Map<number, TagCategory>();
+            tagCategoryValidResponses.forEach((tagCategory) =>
+              newTagCategoriesById.set(tagCategory.id!, tagCategory)
+            );
 
-            setTagCategories(newTagCategories);
-            setTags(newTags);
+            setTags(tagsWithSources);
+            setTagCategoriesById(newTagCategoriesById);
 
             setIsFetching(false);
           });
@@ -97,48 +110,134 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           setIsFetching(false);
         });
     } else {
-      setTagCategories(new Map());
-      setTags(new Map());
+      setTags([]);
+      setTagCategoriesById(new Map());
     }
   }, [application]);
 
-  // TODO(mturley) group by source, with h3 for each source name
+  const sources = new Set<string>();
+  tags.forEach((tag) => sources.add(tag.source || ""));
+
+  const filterCategories: FilterCategory<TagWithSource>[] = [
+    {
+      key: "source",
+      title: t("terms.source"),
+      type: FilterType.multiselect,
+      placeholderText: t("terms.source"),
+      getItemValue: (tag) => tag.source || "Manual",
+      selectOptions: Array.from(sources)
+        .sort(compareSources)
+        .map((source) => source || "Manual")
+        .map((source) => ({ key: source, value: source })),
+      logicOperator: "OR",
+    },
+    {
+      key: "tagCategory",
+      title: t("terms.tagCategory"),
+      type: FilterType.multiselect,
+      placeholderText: t("terms.tagCategory"),
+      getItemValue: (tag) => tag.category?.name || "",
+      selectOptions: Array.from(tagCategoriesById.values())
+        .map((tagCategory) => tagCategory.name)
+        .sort((a, b) => a.localeCompare(b))
+        .map((tagCategoryName) => ({
+          key: tagCategoryName,
+          value: tagCategoryName,
+        })),
+      logicOperator: "OR",
+    },
+  ];
+
+  const {
+    filterValues,
+    setFilterValues,
+    filteredItems: filteredTags,
+  } = useFilterState(tags, filterCategories);
+
+  const tagsBySource = new Map<string, Tag[]>();
+  filteredTags.forEach((tag) => {
+    const tagsInThisSource = tagsBySource.get(tag.source || "");
+    if (tagsInThisSource) {
+      tagsInThisSource.push(tag);
+    } else {
+      tagsBySource.set(tag.source || "", [tag]);
+    }
+  });
 
   return (
     <ConditionalRender when={isFetching} then={<Spinner isSVG size="md" />}>
-      {Array.from(tagCategories.values())
-        .sort((a, b) => (a.rank || 0) - (b.rank || 0))
-        .map((tagCategory) => {
+      <Toolbar
+        clearAllFilters={() => setFilterValues({})}
+        clearFiltersButtonText={t("actions.clearAllFilters")}
+      >
+        <ToolbarContent className={spacing.p_0}>
+          <ToolbarItem>Filter by:</ToolbarItem>
+          <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
+            <FilterToolbar<TagWithSource>
+              filterCategories={filterCategories}
+              filterValues={filterValues}
+              setFilterValues={setFilterValues}
+              showFiltersSideBySide
+            />
+          </ToolbarToggleGroup>
+        </ToolbarContent>
+      </Toolbar>
+
+      {Array.from(tagsBySource.keys())
+        .sort(compareSources)
+        .map((source) => {
+          const tagsInThisSource = tagsBySource.get(source);
+          const tagCategoriesInThisSource = new Set<TagCategory>();
+          tagsInThisSource?.forEach((tag) => {
+            const category =
+              tag?.category?.id && tagCategoriesById.get(tag?.category?.id);
+            category && tagCategoriesInThisSource.add(category);
+          });
           return (
-            <React.Fragment key={tagCategory.id}>
+            <React.Fragment key={source}>
               <TextContent>
                 <Text
-                  component="h4"
-                  className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightLight}`}
+                  component="h3"
+                  className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeMd}`}
                 >
-                  {tagCategory.name}
+                  {source === "" ? "Manual" : source}
                 </Text>
               </TextContent>
-              <Flex>
-                {tags
-                  .get(tagCategory.id!)
-                  ?.sort((a, b) => a.name.localeCompare(b.name))
-                  .map((tag) => {
-                    const colorLabel = DEFAULT_COLOR_LABELS.get(
-                      tagCategory?.colour || ""
-                    );
-
-                    return (
-                      <Label
-                        key={tag.id}
-                        color={colorLabel as any}
-                        className={`${spacing.mrSm} ${spacing.mbSm}`}
+              {Array.from(tagCategoriesInThisSource).map((tagCategory) => {
+                const tagsInThisCategoryInThisSource = tagsInThisSource?.filter(
+                  (tag) => tag.category?.id === tagCategory.id
+                );
+                return (
+                  <React.Fragment key={tagCategory.id}>
+                    <TextContent>
+                      <Text
+                        component="h4"
+                        className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightLight}`}
                       >
-                        {tag.name}
-                      </Label>
-                    );
-                  })}
-              </Flex>
+                        {tagCategory.name}
+                      </Text>
+                    </TextContent>
+                    <Flex>
+                      {tagsInThisCategoryInThisSource
+                        ?.sort((a, b) => a.name.localeCompare(b.name))
+                        .map((tag) => {
+                          const colorLabel = DEFAULT_COLOR_LABELS.get(
+                            tagCategory?.colour || ""
+                          );
+                          return (
+                            <Label
+                              key={tag.id}
+                              color={colorLabel as any}
+                              className={`${spacing.mrSm} ${spacing.mbSm}`}
+                            >
+                              {tag.name}
+                            </Label>
+                          );
+                        })}
+                    </Flex>
+                  </React.Fragment>
+                );
+              })}
             </React.Fragment>
           );
         })}

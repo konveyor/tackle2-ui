@@ -272,6 +272,7 @@
     "settingsAllowApps": "Allow reviewing applications without running an assessment first",
     "settingsCSVReports": "Enable downloads for CSV reports",
     "settingsHTMLReports": "Enable downloads for HTML reports",
+    "source": "Source",
     "sourceBranch": "Branch",
     "sourceCode": "Source code",
     "sourceRepo": "Source Repository",
