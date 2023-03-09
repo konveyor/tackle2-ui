@@ -101,7 +101,7 @@ export const SetTargets: React.FC = () => {
 
       setValue("formRuleBundles", [
         ...otherSelectedRuleBundles,
-        selectedRuleBundleRef,
+        selectedRuleBundle,
       ]);
     } else {
       setValue("formSources", otherSelectedRuleSources);

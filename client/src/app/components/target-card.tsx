@@ -86,7 +86,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 
   const getImage = (): React.ComponentType => {
     let result: React.ComponentType<any> = CubesIcon;
-    const imagePath = item.image.id
+    const imagePath = item?.image?.id
       ? `/hub/files/${item.image.id}`
       : DefaultRuleBundleIcon;
     if (item.image) {

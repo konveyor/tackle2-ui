@@ -191,7 +191,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       id: ruleBundle?.id || 0,
       name: ruleBundle?.name || "",
       description: ruleBundle?.description || "",
-      imageID: ruleBundle?.image.id || 1,
+      imageID: ruleBundle?.image?.id || 1,
       customRulesFiles:
         ruleBundle?.rulesets.map((ruleset): IReadFile => {
           const emptyFile = new File(["empty"], ruleset.name, {
