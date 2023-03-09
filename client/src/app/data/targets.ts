@@ -7,6 +7,7 @@ const openTargets: string[] = [
   "eap",
   "eap6",
   "eap7",
+  "eap8",
   "eapxp",
   "fsw",
   "fuse",

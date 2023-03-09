@@ -9,6 +9,7 @@ const defaultSources = [
   "eap",
   "eap6",
   "eap7",
+  "eap8",
   "eapxp",
   "elytron",
   "glassfish",
