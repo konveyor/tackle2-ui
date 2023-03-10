@@ -465,7 +465,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           <MultipleFileUpload
             onFileDrop={handleFileDrop}
             dropzoneProps={{
-              accept: ".windup.xml",
+              accept: ".xml",
             }}
             {...register("customRulesFiles")}
           >
