@@ -22,6 +22,7 @@ import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-f
 import { StringListField } from "@app/shared/components/string-list-field";
 import { useFetchRuleBundles } from "@app/queries/rulebundles";
 import { RuleBundle } from "@app/api/models";
+import { getruleBundleTargetList } from "@app/common/CustomRules/rules-utils";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
@@ -40,18 +41,8 @@ export const SetOptions: React.FC = () => {
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
-  const {
-    ruleBundles,
-    isFetching: isFetchingRuleBundles,
-    refetch: refetchRuleBundles,
-  } = useFetchRuleBundles();
+  const { ruleBundles } = useFetchRuleBundles();
 
-  const getruleBundleTargetList = (ruleBundle: RuleBundle) => {
-    return ruleBundle.rulesets.reduce((acc: string[], ruleset) => {
-      acc.push(ruleset?.metadata?.target);
-      return acc;
-    }, []);
-  };
   const allRuleBundleTargets = ruleBundles
     .map((ruleBundle) => getruleBundleTargetList(ruleBundle))
     .flat();

@@ -1,4 +1,4 @@
-import { IReadFile, ParsedRule } from "@app/api/models";
+import { IReadFile, ParsedRule, RuleBundle } from "@app/api/models";
 
 export const parseRules = (file: IReadFile): ParsedRule => {
   if (file.data) {
@@ -43,4 +43,11 @@ export const parseRules = (file: IReadFile): ParsedRule => {
       total: 0,
     };
   }
+};
+
+export const getruleBundleTargetList = (ruleBundle: RuleBundle) => {
+  return ruleBundle.rulesets.reduce((acc: string[], ruleset) => {
+    acc.push(ruleset?.metadata?.target);
+    return acc;
+  }, []);
 };
