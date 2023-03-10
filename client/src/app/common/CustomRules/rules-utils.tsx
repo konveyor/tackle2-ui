@@ -47,7 +47,6 @@ export const parseRules = (file: IReadFile): ParsedRule => {
 
 export const getruleBundleTargetList = (ruleBundle: RuleBundle) => {
   return ruleBundle.rulesets.reduce((acc: string[], ruleset) => {
-    acc.push(ruleset?.metadata?.target);
-    return acc;
+    return [...acc, ruleset?.metadata?.target];
   }, []);
 };
