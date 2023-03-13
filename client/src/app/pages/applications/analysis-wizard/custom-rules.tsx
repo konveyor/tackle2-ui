@@ -434,7 +434,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
             <MultipleFileUpload
               onFileDrop={handleFileDrop}
               dropzoneProps={{
-                accept: ".windup.xml",
+                accept: ".xml",
               }}
             >
               <MultipleFileUploadMain
