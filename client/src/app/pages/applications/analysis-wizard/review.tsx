@@ -50,6 +50,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
     customRulesFiles,
     excludedRulesTags,
     diva,
+    autoTaggingEnabled,
   } = watch();
 
   const hasIncludedPackages = withKnown.includes("select");
@@ -190,6 +191,16 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           </DescriptionListTerm>
           <DescriptionListDescription id="diva">
             {diva ? t("wizard.terms.enabled") : t("wizard.terms.disabled")}
+          </DescriptionListDescription>
+        </DescriptionListGroup>{" "}
+        <DescriptionListGroup>
+          <DescriptionListTerm>
+            {t("wizard.terms.autoTagging")}
+          </DescriptionListTerm>
+          <DescriptionListDescription id="autoTagging">
+            {autoTaggingEnabled
+              ? t("wizard.terms.enabled")
+              : t("wizard.terms.disabled")}
           </DescriptionListDescription>
         </DescriptionListGroup>
       </DescriptionList>
