@@ -72,10 +72,6 @@ export const SetTargets: React.FC = () => {
     const otherSelectedRuleBundles = formRuleBundles.filter(
       (formRuleBundle) => selectedRuleBundle.id !== formRuleBundle.id
     );
-    const selectedRuleBundleRef = {
-      id: selectedRuleBundle.id,
-      name: selectedRuleBundle.name,
-    };
 
     if (isSelecting) {
       const definedSelectedSources: string[] = selectedRuleBundle.rulesets
@@ -101,7 +97,7 @@ export const SetTargets: React.FC = () => {
 
       setValue("formRuleBundles", [
         ...otherSelectedRuleBundles,
-        selectedRuleBundleRef,
+        selectedRuleBundle,
       ]);
     } else {
       setValue("formSources", otherSelectedRuleSources);
