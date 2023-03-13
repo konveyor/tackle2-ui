@@ -120,7 +120,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                         className={spacing.pXs}
                       >
                         <Link
-                          to={`${APPLICATIONS}/${application.id}/bucket${task?.data?.output}?filter=*`}
+                          to={`${APPLICATIONS}/${application.id}/bucket${task?.data?.output}?filter=`}
                           target="_blank"
                           download
                         >
