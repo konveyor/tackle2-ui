@@ -26,6 +26,10 @@ import { useTranslation } from "react-i18next";
 import "./target-card.css";
 import DefaultRuleBundleIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 import { RuleBundle } from "@app/api/models";
+import { useFetchRuleBundles } from "@app/queries/rulebundles";
+import { getruleBundleTargetList } from "@app/common/CustomRules/rules-utils";
+import { useFormContext } from "react-hook-form";
+import { AnalysisWizardFormValues } from "@app/pages/applications/analysis-wizard/schema";
 
 export interface TargetCardProps {
   item: RuleBundle;
@@ -55,10 +59,22 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 }) => {
   const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
+
+  const { getValues } = useFormContext<AnalysisWizardFormValues>();
+  const values = getValues();
+
   const [isRuleTargetSelectOpen, setRuleTargetSelectOpen] =
     React.useState(false);
+
+  const prevSelectedTarget = values.formTargets.find(
+    (target) =>
+      item.rulesets
+        .map((ruleset) => ruleset.metadata.target)
+        .indexOf(target) !== -1
+  );
+
   const [selectedRuleTarget, setSelectedRuleTarget] = React.useState(
-    item.rulesets[0]?.metadata?.target
+    prevSelectedTarget || item.rulesets[0]?.metadata?.target
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
@@ -86,7 +102,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 
   const getImage = (): React.ComponentType => {
     let result: React.ComponentType<any> = CubesIcon;
-    const imagePath = item.image.id
+    const imagePath = item?.image?.id
       ? `/hub/files/${item.image.id}`
       : DefaultRuleBundleIcon;
     if (item.image) {

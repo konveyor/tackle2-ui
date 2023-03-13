@@ -432,13 +432,15 @@ export enum RuleBundleKind {
 }
 
 export interface RuleBundle {
-  id: number;
-  name: string;
+  createTime?: string;
+  createUser?: string;
   description: string;
-  image: RuleBundleImage;
+  id: number;
+  image?: RuleBundleImage;
   kind?: RuleBundleKind;
+  name: string;
   rulesets: Ruleset[];
-  custom: boolean;
+  custom?: boolean;
   repository?: Repository;
   identity?: Ref;
 }

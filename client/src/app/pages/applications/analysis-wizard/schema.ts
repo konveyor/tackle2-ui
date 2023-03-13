@@ -1,5 +1,13 @@
 import * as yup from "yup";
-import { Application, IReadFile, Ref } from "@app/api/models";
+import {
+  Application,
+  IReadFile,
+  Ref,
+  Repository,
+  RuleBundle,
+  RuleBundleImage,
+  RuleBundleKind,
+} from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import { useAnalyzableApplicationsByMode } from "./utils";
 
@@ -49,14 +57,31 @@ const useModeStepSchema = ({
 
 export interface TargetsStepValues {
   formTargets: string[];
-  formRuleBundles: any[];
+  formRuleBundles: RuleBundle[];
 }
+export const ruleBundleSchema: yup.SchemaOf<RuleBundle> = yup.object({
+  createTime: yup.string(),
+  createUser: yup.string(),
+  description: yup.string().required(),
+  id: yup.number().required(),
+  name: yup.string().required(),
+  image: yup.mixed<RuleBundleImage>(),
+  kind: yup.mixed<RuleBundleKind>(),
+  rulesets: yup.array(),
+  custom: yup.boolean(),
+  repository: yup.mixed<Repository>(),
+  identity: yup.mixed<Ref>(),
+  updateUser: yup.string(),
+});
 
 const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     formTargets: yup.array(),
-    formRuleBundles: yup.array().min(1, "At least 1 target is required"), // TODO translation here
+    formRuleBundles: yup
+      .array()
+      .of(ruleBundleSchema)
+      .min(1, "At least 1 target is required"), // TODO translation here
   });
 };
 
