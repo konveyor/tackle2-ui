@@ -2,7 +2,7 @@
   "about": {
     "about": "About",
     "bottom1": "{{brandType}} is a project within the",
-    "bottom2": "For more information please refer to",
+    "bottom2": "For more information, refer to",
     "description": "{{brandType}} allows users to maintain their portfolio of applications with a full set of metadata and to assess their suitability for modernization leveraging a questionnaire based approach.",
     "iconLibrary": "The Icon Library used in this project is a derivative of the <2>Standard Icons library</2> by <5>Red Hat</5>, used under <8>CC BY 4.0</8>",
     "introduction": "{{brandType}} is a collection of tools that supports large-scale application modernization and migration projects to Kubernetes."
@@ -115,7 +115,7 @@
   },
   "message": {
     "appNotAssesedTitle": "Assessment has not been completed",
-    "appNotAssessedBody": "In order to review an application it must be assessed first. Please assess the application",
+    "appNotAssessedBody": "In order to review an application it must be assessed first. Assess the application and try again.",
     "assessmentStakeholderHeader": "Select the stakeholder(s) or stakeholder group(s) associated with this assessment.",
     "binaryPackaging": "Packaging will default to JAR if left empty.",
     "continueConfirmation": "Yes, continue",
@@ -126,7 +126,7 @@
     "couldNotFetchBody": "Resource doesn't exists or you don't have access to it",
     "couldNotFetchTitle": "Not available",
     "duplicateTag": "A tag with this name already exists. Use a different name.",
-    "importErrorCheckDocumentation": "For status Error imports please check the documentation to ensure your file is structured correctly.",
+    "importErrorCheckDocumentation": "For status Error imports, check the documentation to ensure your file is structured correctly.",
     "manageDependenciesInstructions": "Add northbound and southbound dependencies for the selected application here. Note that any selections made will be saved automatically. To undo any changes, you must manually delete the applications from the dropdowns.",
     "noDataAvailableBody": "No data available to be shown here.",
     "noDataAvailableTitle": "No data available",

@@ -177,7 +177,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .max(120, t("validation.maxLength", { length: 120 }))
         .test(
           "Duplicate name",
-          "An identity with this name already exists. Please use a different name.",
+          "An identity with this name already exists. Use a different name.",
           (value) =>
             duplicateNameCheck(identities, identity || null, value || "")
         ),
