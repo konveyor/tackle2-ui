@@ -146,7 +146,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         .max(120, t("validation.maxLength", { length: 120 }))
         .test(
           "Duplicate name",
-          "A custom target with this name already exists. Please use a different name.",
+          "A custom target with this name already exists. Use a different name.",
           (value) =>
             duplicateNameCheck(ruleBundles, ruleBundle || null, value || "")
         ),
