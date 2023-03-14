@@ -214,7 +214,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         .max(120, t("validation.maxLength", { length: 120 }))
         .test(
           "Duplicate name",
-          "An application with this name already exists. Please use a different name.",
+          "An application with this name already exists. Use a different name.",
           (value) =>
             duplicateNameCheck(applications, application || null, value || "")
         ),
@@ -244,17 +244,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         .when("branch", {
           is: (branch: any) => branch?.length > 0,
           then: (schema) =>
-            customURLValidation(schema).required(
-              "Please enter repository url."
-            ),
+            customURLValidation(schema).required("Enter repository url."),
           otherwise: (schema) => customURLValidation(schema),
         })
         .when("rootPath", {
           is: (rootPath: any) => rootPath?.length > 0,
           then: (schema) =>
-            customURLValidation(schema).required(
-              "Please enter repository url."
-            ),
+            customURLValidation(schema).required("Enter repository url."),
           otherwise: (schema) => customURLValidation(schema),
         }),
       group: string()

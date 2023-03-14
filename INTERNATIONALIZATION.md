@@ -27,11 +27,11 @@ npm extract
 
 The previous command created a file `public/locales/{myLanguageCode}/translation.json`; the content of this file should be the translated new language. As a reference you can use the english version of the translation located at [public/locales/en/translation.json](https://github.com/konveyor/tackle-ui/blob/main/public/locales/en/translation.json)
 
-> As soon as you feel confident, please open a new Pull Request with your changes and make it part of the official repository.
+> As soon as you feel confident, open a new Pull Request with your changes and make it part of the official repository.
 
 ## How to see the new translation in action?
 
-To see your changes in action you will need to start Tackle UI in development mode. For starting Tackle UI in development mode please follow the instruction at [Starting the UI](https://github.com/konveyor/tackle-ui#starting-the-ui)
+To see your changes in action you will need to start Tackle UI in development mode. For starting Tackle UI in development mode follow the instruction at [Starting the UI](https://github.com/konveyor/tackle-ui#starting-the-ui)
 
 Steps:
 

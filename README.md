@@ -4,7 +4,7 @@
 
 Tackle (2nd generation) UI component.
 
-To install a Tackle2 cluster environment please refer to [Tackle documentation](https://github.com/konveyor/tackle).
+To install a Tackle2 cluster environment, refer to [Tackle documentation](https://github.com/konveyor/tackle).
 
 # Development
 
