@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { getReviews } from "@app/api/rest";
+import { deleteReview, getReviews } from "@app/api/rest";
 import { Review } from "@app/api/models";
+import { AxiosError } from "axios";
 
 export interface IReviewFetchState {
   reviews: Review[];
@@ -26,4 +27,17 @@ export const useFetchReviews = (): IReviewFetchState => {
     fetchError: error,
     refetch,
   };
+};
+
+export const useDeleteReviewMutation = (
+  onSuccess?: () => void,
+  onError?: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteReview,
+    onSuccess,
+    onError,
+  });
 };

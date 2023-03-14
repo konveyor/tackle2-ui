@@ -4,20 +4,6 @@ import { deleteAssessment, getAssessments } from "@app/api/rest";
 import { AxiosError } from "axios";
 import { Application, Assessment } from "@app/api/models";
 
-export const useDeleteAssessmentMutation = (
-  onSuccess?: () => void,
-  onError?: (err: AxiosError) => void
-) => {
-  return useMutation(deleteAssessment, {
-    onSuccess: () => {
-      onSuccess && onSuccess();
-    },
-    onError: (err: AxiosError) => {
-      onError && onError(err);
-    },
-  });
-};
-
 export const assessmentsQueryKey = "assessments";
 
 export const useFetchApplicationAssessments = (
@@ -47,4 +33,15 @@ export const useFetchApplicationAssessments = (
     fetchErrorApplicationAssessment: (id: number) =>
       queryResultsByAppId[id].error as AxiosError | undefined,
   };
+};
+
+export const useDeleteAssessmentMutation = (
+  onSuccess?: () => void,
+  onError?: (err: AxiosError) => void
+) => {
+  return useMutation({
+    mutationFn: deleteAssessment,
+    onSuccess,
+    onError,
+  });
 };

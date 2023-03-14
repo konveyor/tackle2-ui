@@ -39,8 +39,7 @@ import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 
 import { formatPath, Paths } from "@app/Paths";
 
-import { Application, Assessment, Review } from "@app/api/models";
-import { deleteAssessment, deleteReview, getAssessments } from "@app/api/rest";
+import { Application, Assessment } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationForm } from "../components/application-form";
@@ -69,9 +68,14 @@ import {
   useApplicationsFilterValues,
 } from "../applicationsFilter";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { reviewsQueryKey, useFetchReviews } from "@app/queries/reviews";
+import {
+  reviewsQueryKey,
+  useDeleteReviewMutation,
+  useFetchReviews,
+} from "@app/queries/reviews";
 import {
   assessmentsQueryKey,
+  useDeleteAssessmentMutation,
   useFetchApplicationAssessments,
 } from "@app/queries/assessments";
 import { useQueryClient } from "@tanstack/react-query";
@@ -112,8 +116,10 @@ export const ApplicationsTable: React.FC = () => {
   const [applicationToDelete, setApplicationToDelete] =
     React.useState<number>();
 
-  const [applicationAssessmentToDiscard, setApplicationAssessmentToDiscard] =
-    React.useState<Application>();
+  const [
+    applicationAssessmentOrReviewToDiscard,
+    setApplicationAssessmentOrReviewToDiscard,
+  ] = React.useState<Application>();
 
   const [assessmentToEdit, setAssessmentToEdit] = React.useState<Assessment>();
 
@@ -481,6 +487,9 @@ export const ApplicationsTable: React.FC = () => {
     return actions;
   };
 
+  const { mutate: deleteReview } = useDeleteReviewMutation();
+  const { mutate: deleteAssessment } = useDeleteAssessmentMutation();
+
   // Row actions
   const selectRow = (
     event: React.FormEvent<HTMLInputElement>,
@@ -499,11 +508,11 @@ export const ApplicationsTable: React.FC = () => {
   };
 
   const discardAssessmentRow = (row: Application) => {
-    setApplicationAssessmentToDiscard(row);
+    setApplicationAssessmentOrReviewToDiscard(row);
     setIsDiscardAssessmentConfirmDialogOpen(true);
   };
 
-  const discardAssessment = (application: Application) => {
+  const discardAssessmentAndReview = (application: Application) => {
     Promise.all([
       application.review ? deleteReview(application.review.id!) : undefined,
     ])
@@ -960,7 +969,7 @@ export const ApplicationsTable: React.FC = () => {
               <Trans
                 i18nKey="dialog.message.discardAssessment"
                 values={{
-                  applicationName: applicationAssessmentToDiscard?.name,
+                  applicationName: applicationAssessmentOrReviewToDiscard?.name,
                 }}
               >
                 The assessment for <strong>applicationName</strong> will be
@@ -975,9 +984,11 @@ export const ApplicationsTable: React.FC = () => {
           onCancel={() => setIsDiscardAssessmentConfirmDialogOpen(false)}
           onClose={() => setIsDiscardAssessmentConfirmDialogOpen(false)}
           onConfirm={() => {
-            if (applicationAssessmentToDiscard) {
-              discardAssessment(applicationAssessmentToDiscard);
-              setApplicationAssessmentToDiscard(undefined);
+            if (applicationAssessmentOrReviewToDiscard) {
+              discardAssessmentAndReview(
+                applicationAssessmentOrReviewToDiscard
+              );
+              setApplicationAssessmentOrReviewToDiscard(undefined);
             }
             setIsDiscardAssessmentConfirmDialogOpen(false);
           }}
