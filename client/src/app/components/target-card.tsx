@@ -26,10 +26,6 @@ import { useTranslation } from "react-i18next";
 import "./target-card.css";
 import DefaultRuleBundleIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 import { RuleBundle } from "@app/api/models";
-import { useFetchRuleBundles } from "@app/queries/rulebundles";
-import { getruleBundleTargetList } from "@app/common/CustomRules/rules-utils";
-import { useFormContext } from "react-hook-form";
-import { AnalysisWizardFormValues } from "@app/pages/applications/analysis-wizard/schema";
 
 export interface TargetCardProps {
   item: RuleBundle;
@@ -37,6 +33,7 @@ export interface TargetCardProps {
   isEditable?: boolean;
   onCardClick?: (isSelecting: boolean, value: string) => void;
   onSelectedCardTargetChange?: (value: string) => void;
+  formTargets?: string[];
   handleProps?: any;
   readOnly?: boolean;
   onEdit?: () => void;
@@ -51,6 +48,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   item,
   readOnly,
   cardSelected,
+  formTargets,
   onCardClick,
   onSelectedCardTargetChange,
   handleProps,
@@ -60,18 +58,15 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
 
-  const { getValues } = useFormContext<AnalysisWizardFormValues>();
-  const values = getValues();
-
-  const [isRuleTargetSelectOpen, setRuleTargetSelectOpen] =
-    React.useState(false);
-
-  const prevSelectedTarget = values.formTargets.find(
+  const prevSelectedTarget = formTargets?.find(
     (target) =>
       item.rulesets
         .map((ruleset) => ruleset.metadata.target)
         .indexOf(target) !== -1
   );
+
+  const [isRuleTargetSelectOpen, setRuleTargetSelectOpen] =
+    React.useState(false);
 
   const [selectedRuleTarget, setSelectedRuleTarget] = React.useState(
     prevSelectedTarget || item.rulesets[0]?.metadata?.target
