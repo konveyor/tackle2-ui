@@ -169,7 +169,9 @@
     "applicationInventory": "Application inventory",
     "controls": "Controls",
     "developer": "Migration",
-    "reports": "Reports"
+    "reports": "Reports",
+    "waves": "Migration waves"
+
   },
   "terms": {
     "accepted": "Accepted",
@@ -257,6 +259,7 @@
     "memberCount": "Member count",
     "message": "Message",
     "modernizable": "Modernizable",
+    "migrationWaves": "Migration waves",
     "name": "Name",
     "northboundDependencies": "Northbound dependencies",
     "notAvailable": "Not available",
