@@ -150,6 +150,7 @@ export const SetTargets: React.FC = () => {
                           matchingRuleBundle
                         );
                       }}
+                      formTargets={formTargets}
                     />
                   )}
                 </GalleryItem>
