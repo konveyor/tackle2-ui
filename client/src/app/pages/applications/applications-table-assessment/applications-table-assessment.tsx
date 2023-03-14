@@ -434,7 +434,7 @@ export const ApplicationsTable: React.FC = () => {
       });
     }
     if (
-      applicationAssessment &&
+      (applicationAssessment?.status || row.review) &&
       checkAccess(userScopes, ["assessments:delete"])
     ) {
       actions.push({
