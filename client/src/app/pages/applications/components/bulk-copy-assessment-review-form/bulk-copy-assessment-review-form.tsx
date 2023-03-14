@@ -79,8 +79,6 @@ export const BulkCopyAssessmentReviewForm: React.FC<
   // i18
   const { t } = useTranslation();
 
-  // Local state
-  const [requestConfirmation, setRequestConfirmation] = useState(false);
   const [confirmationAccepted, setConfirmationAccepted] = useState(false);
 
   const { applications, isFetching, fetchError } = useFetchApplications();
@@ -266,31 +264,26 @@ export const BulkCopyAssessmentReviewForm: React.FC<
     toggleAppSelected(app);
   };
 
-  // Confirmation checbox
-  useEffect(() => {
-    let selectedAnyAppWithAssessment = selectedApps.some((f) =>
-      getApplicationAssessment(f.id!)
-    );
+  const requestConfirmation = () => {
+    let selectedAnyAppWithAssessment = selectedApps.some((f) => {
+      const assessment = getApplicationAssessment(f.id!);
+      if (
+        assessment &&
+        (assessment.status === "COMPLETE" || assessment.status === "STARTED")
+      )
+        return true;
+      return false;
+    });
 
     if (review) {
       const selectedAnyAppWithReview = selectedApps.some((f) => f.review);
       selectedAnyAppWithAssessment =
         selectedAnyAppWithAssessment || selectedAnyAppWithReview;
     }
+    return selectedAnyAppWithAssessment;
+  };
 
-    setRequestConfirmation(selectedAnyAppWithAssessment);
-  }, [review, selectedApps, getApplicationAssessment]);
-
-  useEffect(() => {
-    setConfirmationAccepted(false);
-  }, [requestConfirmation]);
-
-  // Copy
   const onSubmit = () => {
-    if (requestConfirmation && !confirmationAccepted) {
-      console.log("Accept confirmation to continue");
-      return;
-    }
     setIsSubmittingBulkCopy(true);
     onSaved();
     createCopy({ assessment, selectedApps, review });
@@ -340,7 +333,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
           />
         </CardBody>
       </Card>
-      {requestConfirmation && (
+      {requestConfirmation() && (
         <FormGroup
           fieldId="confirm"
           label={
@@ -379,7 +372,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
           onClick={onSubmit}
           isDisabled={
             selectedApps.length === 0 ||
-            (requestConfirmation && !confirmationAccepted) ||
+            (requestConfirmation() && !confirmationAccepted) ||
             isSubmittingBulkCopy
           }
         >
