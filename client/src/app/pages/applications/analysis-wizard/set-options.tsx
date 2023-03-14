@@ -13,23 +13,27 @@ import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 
-import { getValidatedFromErrorTouched } from "@app/utils/utils";
+import { dedupeFunction, getValidatedFromErrorTouched } from "@app/utils/utils";
 import defaultSources from "./sources";
+import { defaultTargets } from "../../../data/targets";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisWizardFormValues } from "./schema";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 import { StringListField } from "@app/shared/components/string-list-field";
-import { defaultTargets } from "@app/data/targets";
+import { useFetchRuleBundles } from "@app/queries/rulebundles";
+import { RuleBundle } from "@app/api/models";
+import { getruleBundleTargetList } from "@app/common/CustomRules/rules-utils";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
 
-  const { watch, control, setValue } =
+  const { watch, control, setValue, getValues } =
     useFormContext<AnalysisWizardFormValues>();
 
   const {
     formSources,
     formTargets,
+    formRuleBundles,
     diva,
     excludedRulesTags,
     autoTaggingEnabled,
@@ -37,6 +41,15 @@ export const SetOptions: React.FC = () => {
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
+  const { ruleBundles } = useFetchRuleBundles();
+
+  const allRuleBundleTargets = ruleBundles
+    .map((ruleBundle) => getruleBundleTargetList(ruleBundle))
+    .flat();
+
+  const defaultTargetsAndBundleTargets = [
+    ...new Set(defaultTargets.concat(allRuleBundleTargets)),
+  ];
 
   return (
     <Form
@@ -58,21 +71,43 @@ export const SetOptions: React.FC = () => {
         fieldId="targets"
         isRequired
         renderInput={({
-          field: { onChange, onBlur, value },
+          field: { onChange, onBlur, value: selectedFormTargets },
           fieldState: { isTouched, error },
         }) => (
           <Select
-            id="targets"
-            toggleId="targets-toggle"
+            id="ruleBundles"
+            toggleId="rule-bundles-toggle"
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select targets"
-            selections={value}
+            selections={formTargets}
             isOpen={isSelectTargetsOpen}
             onSelect={(_, selection) => {
-              if (!value.includes(selection as string)) {
-                onChange([...value, selection] as string[]);
+              const matchingRuleBundle = ruleBundles.find((ruleBundle) =>
+                getruleBundleTargetList(ruleBundle).includes(
+                  selection as string
+                )
+              );
+              if (!formTargets.includes(selection as string)) {
+                onChange([...selectedFormTargets, selection]);
+                if (matchingRuleBundle)
+                  setValue("formRuleBundles", [
+                    ...formRuleBundles,
+                    matchingRuleBundle,
+                  ]);
               } else {
-                onChange(value.filter((target) => target !== selection));
+                if (matchingRuleBundle)
+                  setValue(
+                    "formRuleBundles",
+                    formRuleBundles.filter(
+                      (formRuleBundle) =>
+                        formRuleBundle.name !== matchingRuleBundle.name
+                    )
+                  );
+                onChange(
+                  selectedFormTargets.filter(
+                    (formTarget) => formTarget !== selection
+                  )
+                );
               }
               onBlur();
               setSelectTargetsOpen(!isSelectTargetsOpen);
@@ -85,8 +120,8 @@ export const SetOptions: React.FC = () => {
             }}
             validated={getValidatedFromErrorTouched(error, isTouched)}
           >
-            {defaultTargets.map((target, index) => (
-              <SelectOption key={index} component="button" value={target} />
+            {defaultTargetsAndBundleTargets.map((targetName, index) => (
+              <SelectOption key={index} component="button" value={targetName} />
             ))}
           </Select>
         )}

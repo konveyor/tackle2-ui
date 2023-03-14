@@ -146,7 +146,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         .max(120, t("validation.maxLength", { length: 120 }))
         .test(
           "Duplicate name",
-          "A custom target with this name already exists. Please use a different name.",
+          "A custom target with this name already exists. Use a different name.",
           (value) =>
             duplicateNameCheck(ruleBundles, ruleBundle || null, value || "")
         ),
@@ -191,7 +191,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       id: ruleBundle?.id || 0,
       name: ruleBundle?.name || "",
       description: ruleBundle?.description || "",
-      imageID: ruleBundle?.image.id || 1,
+      imageID: ruleBundle?.image?.id || 1,
       customRulesFiles:
         ruleBundle?.rulesets.map((ruleset): IReadFile => {
           const emptyFile = new File(["empty"], ruleset.name, {
@@ -470,7 +470,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           <MultipleFileUpload
             onFileDrop={handleFileDrop}
             dropzoneProps={{
-              accept: ".windup.xml",
+              accept: ".xml",
             }}
             {...register("customRulesFiles")}
           >

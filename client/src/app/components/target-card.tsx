@@ -33,6 +33,7 @@ export interface TargetCardProps {
   isEditable?: boolean;
   onCardClick?: (isSelecting: boolean, value: string) => void;
   onSelectedCardTargetChange?: (value: string) => void;
+  formTargets?: string[];
   handleProps?: any;
   readOnly?: boolean;
   onEdit?: () => void;
@@ -47,6 +48,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   item,
   readOnly,
   cardSelected,
+  formTargets,
   onCardClick,
   onSelectedCardTargetChange,
   handleProps,
@@ -55,10 +57,19 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 }) => {
   const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
+
+  const prevSelectedTarget = formTargets?.find(
+    (target) =>
+      item.rulesets
+        .map((ruleset) => ruleset.metadata.target)
+        .indexOf(target) !== -1
+  );
+
   const [isRuleTargetSelectOpen, setRuleTargetSelectOpen] =
     React.useState(false);
+
   const [selectedRuleTarget, setSelectedRuleTarget] = React.useState(
-    item.rulesets[0]?.metadata?.target
+    prevSelectedTarget || item.rulesets[0]?.metadata?.target
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
@@ -86,7 +97,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 
   const getImage = (): React.ComponentType => {
     let result: React.ComponentType<any> = CubesIcon;
-    const imagePath = item.image.id
+    const imagePath = item?.image?.id
       ? `/hub/files/${item.image.id}`
       : DefaultRuleBundleIcon;
     if (item.image) {
