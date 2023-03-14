@@ -101,6 +101,11 @@ export const SidebarApp: React.FC = () => {
               {t("sidebar.controls")}
             </NavLink>
           </NavItem>
+          <NavItem>
+            <NavLink to={Paths.waves} activeClassName="pf-m-current">
+              {t("sidebar.waves")}
+            </NavLink>
+          </NavItem>
         </NavList>
       ) : (
         <NavList title="Admin">
