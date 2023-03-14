@@ -383,29 +383,34 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             dropzoneProps={{
               accept: ".png, .jpeg",
               maxSize: 1000000,
-              onDropRejected: () => setIsImageFileRejected(true),
+              onDropRejected: (event) => {
+                const currentFile = event[0];
+                if (currentFile.size > 1000000) {
+                  methods.setError("imageID", {
+                    type: "custom",
+                    message: "Max image file size of 1 MB exceeded.",
+                  });
+                }
+                setIsImageFileRejected(true);
+              },
             }}
             validated={isImageFileRejected || error ? "error" : "default"}
-            onFileInputChange={async (e, file) => {
-              try {
-                const image = await resizeFile(file);
-                setFilename(image.name);
-                const formFile = new FormData();
-                formFile.append("file", file);
+            onChange={async (fileContents, fileName, event) => {
+              const image = await resizeFile(fileContents as File);
+              setFilename(image.name);
+              const formFile = new FormData();
+              formFile.append("file", fileContents);
 
-                const newImageFile: IReadFile = {
-                  fileName: file.name,
-                  fullFile: file,
-                };
+              const newImageFile: IReadFile = {
+                fileName: fileName,
+                fullFile: fileContents as File,
+              };
 
-                createImageFile({
-                  formData: formFile,
-                  file: newImageFile,
-                });
-                onChange();
-              } catch {
-                setValue("imageID", 1);
-              }
+              createImageFile({
+                formData: formFile,
+                file: newImageFile,
+              });
+              onChange();
             }}
             onClearClick={() => {
               onChange();
