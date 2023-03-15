@@ -44,6 +44,7 @@ import {
 import { useFetchIdentities } from "@app/queries/identities";
 import useRuleFiles from "@app/common/CustomRules/useRuleFiles";
 import { duplicateNameCheck } from "@app/utils/utils";
+import { customRulesFilesSchema } from "../applications/analysis-wizard/schema";
 
 export interface CustomTargetFormProps {
   ruleBundle?: RuleBundle;
@@ -56,7 +57,7 @@ export interface CustomTargetFormValues {
   name: string;
   description?: string;
   imageID: number | null;
-  customRulesFiles: any[];
+  customRulesFiles: IReadFile[];
   rulesKind: string;
   repositoryType?: string;
   sourceRepository?: string;
@@ -153,13 +154,17 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       description: yup.string(),
       imageID: yup.number().defined(),
       rulesKind: yup.string().defined(),
-      customRulesFiles: yup.array().when("rulesKind", {
-        is: "manual",
-        then: yup
-          .array()
-          .min(1, "At least 1 valid custom rule file must be uploaded."),
-        otherwise: (schema) => schema,
-      }),
+      customRulesFiles: yup
+        .array()
+        .of(customRulesFilesSchema)
+        .when("rulesKind", {
+          is: "manual",
+          then: yup
+            .array()
+            .of(customRulesFilesSchema)
+            .min(1, "At least 1 valid custom rule file must be uploaded."),
+          otherwise: (schema) => schema,
+        }),
       repositoryType: yup.mixed<string>().when("rulesKind", {
         is: "repository",
         then: yup.mixed<string>().required(),
@@ -186,22 +191,26 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       }),
     });
 
+  const getInitialCustomRulesFilesData = () =>
+    ruleBundle?.rulesets?.map((ruleset): IReadFile => {
+      const emptyFile = new File(["empty"], ruleset.name, {
+        type: "placeholder",
+      });
+      return {
+        fileName: ruleset.name,
+        fullFile: emptyFile,
+        loadResult: "success",
+        loadPercentage: 100,
+      };
+    }) || [];
+
   const methods = useForm<CustomTargetFormValues>({
     defaultValues: {
       id: ruleBundle?.id || 0,
       name: ruleBundle?.name || "",
       description: ruleBundle?.description || "",
       imageID: ruleBundle?.image?.id || 1,
-      customRulesFiles:
-        ruleBundle?.rulesets.map((ruleset): IReadFile => {
-          const emptyFile = new File(["empty"], ruleset.name, {
-            type: "placeholder",
-          });
-          return {
-            fileName: ruleset.name,
-            fullFile: emptyFile,
-          };
-        }) || [],
+      customRulesFiles: getInitialCustomRulesFilesData(),
       rulesKind: !ruleBundle
         ? "manual"
         : !!ruleBundle?.rulesets?.length

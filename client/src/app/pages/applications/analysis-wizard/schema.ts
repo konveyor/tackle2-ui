@@ -7,6 +7,7 @@ import {
   RuleBundle,
   RuleBundleImage,
   RuleBundleKind,
+  FileLoadError,
 } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import { useAnalyzableApplicationsByMode } from "./utils";
@@ -126,12 +127,13 @@ export interface CustomRulesStepValues {
 export const customRulesFilesSchema: yup.SchemaOf<IReadFile> = yup.object({
   fileName: yup.string().required(),
   fullFile: yup.mixed<File>(),
-  loadError: yup.mixed<DOMException>(),
+  loadError: yup.mixed<FileLoadError>(),
   loadPercentage: yup.number(),
   loadResult: yup.mixed<"danger" | "success" | undefined>(),
   data: yup.string(),
   responseID: yup.number(),
 });
+
 const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
   const { t } = useTranslation();
   return yup.object({

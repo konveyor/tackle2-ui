@@ -126,7 +126,7 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
 
   const handleFile = (file: File) => {
     if (!artifact)
-      readFile(file).catch((error: DOMException) => {
+      readFile(file).catch((error) => {
         setValue("artifact", undefined);
         setFileUploadProgress(0);
         setFileUploadStatus("danger");

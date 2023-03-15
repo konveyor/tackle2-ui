@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import XSDSchema from "./windup-jboss-ruleset.xsd";
 import { XMLValidator } from "fast-xml-parser";
-import { IReadFile } from "@app/api/models";
+import { FileLoadError, IReadFile } from "@app/api/models";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { AxiosError } from "axios";
 import { useUploadFileMutation } from "@app/queries/taskgroups";
@@ -29,22 +29,26 @@ export default function useRuleFiles(
     formData: FormData,
     file: IReadFile
   ) => {
-    //Set file ID for use in form submit
-    const fileWithID: IReadFile = { ...file, ...{ responseID: response?.id } };
-    const updatedFiles = [...ruleFiles];
-    const ruleFileToUpdate = ruleFiles.findIndex(
-      (ruleFile) => ruleFile.fileName === file.fileName
-    );
-    updatedFiles[ruleFileToUpdate] = fileWithID;
-
-    setRuleFiles(updatedFiles);
-    if (methods) {
-      methods.setValue(
-        "customRulesFiles",
-        updatedFiles.filter((ruleFile) => ruleFile.loadResult === "success"),
-        { shouldDirty: true, shouldValidate: true }
+    setRuleFiles((oldRuleFiles) => {
+      const fileWithID: IReadFile = {
+        ...file,
+        ...{ responseID: response?.id },
+      };
+      const updatedFiles = [...oldRuleFiles];
+      const ruleFileToUpdate = ruleFiles.findIndex(
+        (ruleFile) => ruleFile.fileName === file.fileName
       );
-    }
+      updatedFiles[ruleFileToUpdate] = fileWithID;
+
+      if (methods) {
+        methods.setValue(
+          "customRulesFiles",
+          updatedFiles.filter((ruleFile) => ruleFile.loadResult === "success"),
+          { shouldDirty: true, shouldValidate: true }
+        );
+      }
+      return updatedFiles;
+    });
   };
 
   const onCreateRuleFileFailure = (error: AxiosError) => {
@@ -179,9 +183,7 @@ export default function useRuleFiles(
           handleReadSuccess(data || "", file);
         } else {
           if (isFileIncluded(file.name)) {
-            const error = new DOMException(
-              `File "${file.name}" is already uploaded`
-            );
+            const error = new Error(`File "${file.name}" is already uploaded`);
             handleReadFail(error, 100, file);
           } else {
             if (data) {
@@ -189,7 +191,7 @@ export default function useRuleFiles(
               if (validatedXMLResult.state === "valid")
                 handleReadSuccess(data, file);
               else {
-                const error = new DOMException(
+                const error = new Error(
                   `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
                 );
                 handleReadFail(error, 100, file);
@@ -198,7 +200,7 @@ export default function useRuleFiles(
           }
         }
       })
-      .catch((error: DOMException) => {
+      .catch((error) => {
         handleReadFail(error, 0, file);
       });
   };
@@ -238,14 +240,10 @@ export default function useRuleFiles(
     }
   };
 
-  const handleReadFail = (
-    error: DOMException,
-    percentage: number,
-    file: File
-  ) => {
+  const handleReadFail = (error: Error, percentage: number, file: File) => {
     setUploadError(error.toString());
     const fileWithErrorState: IReadFile = {
-      loadError: error,
+      loadError: error as FileLoadError,
       fileName: file.name,
       loadResult: "danger",
       loadPercentage: percentage,
