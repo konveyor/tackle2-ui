@@ -37,6 +37,7 @@ import {
 import { useAsyncYupValidation } from "@app/shared/hooks/useAsyncYupValidation";
 import { CustomRules } from "./custom-rules";
 import { useSetting } from "@app/queries/settings";
+import defaultSources from "./sources";
 
 interface IAnalysisWizard {
   applications: Application[];
@@ -169,7 +170,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       artifact: null,
       mode: "binary",
       formTargets: [],
-      formSources: [],
+      selectedFormSources: [],
+      formSources: defaultSources,
       formRuleBundles: [],
       withKnown: "app",
       includedPackages: [],

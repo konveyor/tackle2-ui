@@ -13,15 +13,13 @@ import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 
-import { dedupeFunction, getValidatedFromErrorTouched } from "@app/utils/utils";
-import defaultSources from "./sources";
+import { getValidatedFromErrorTouched } from "@app/utils/utils";
 import { defaultTargets } from "../../../data/targets";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisWizardFormValues } from "./schema";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 import { StringListField } from "@app/shared/components/string-list-field";
 import { useFetchRuleBundles } from "@app/queries/rulebundles";
-import { RuleBundle } from "@app/api/models";
 import { getruleBundleTargetList } from "@app/common/CustomRules/rules-utils";
 
 export const SetOptions: React.FC = () => {
@@ -32,6 +30,7 @@ export const SetOptions: React.FC = () => {
 
   const {
     formSources,
+    selectedFormSources,
     formTargets,
     formRuleBundles,
     diva,
@@ -128,7 +127,7 @@ export const SetOptions: React.FC = () => {
       />
       <HookFormPFGroupController
         control={control}
-        name="formSources"
+        name="selectedFormSources"
         label={t("wizard.terms.sources")}
         fieldId="sources"
         renderInput={({
@@ -144,10 +143,12 @@ export const SetOptions: React.FC = () => {
             isOpen={isSelectSourcesOpen}
             onSelect={(_, selection) => {
               if (!value.includes(selection as string)) {
-                onChange([...formSources, selection] as string[]);
+                onChange([...selectedFormSources, selection] as string[]);
               } else {
                 onChange(
-                  formSources.filter((source: string) => source !== selection)
+                  selectedFormSources.filter(
+                    (source: string) => source !== selection
+                  )
                 );
               }
               onBlur();
@@ -161,7 +162,7 @@ export const SetOptions: React.FC = () => {
             }}
             validated={getValidatedFromErrorTouched(error, isTouched)}
           >
-            {defaultSources.map((source, index) => (
+            {formSources.map((source, index) => (
               <SelectOption key={index} component="button" value={source} />
             ))}
           </Select>
