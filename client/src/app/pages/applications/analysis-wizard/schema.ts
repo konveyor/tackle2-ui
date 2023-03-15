@@ -115,6 +115,7 @@ const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
 
 export interface CustomRulesStepValues {
   formSources: string[];
+  selectedFormSources: string[];
   customRulesFiles: IReadFile[];
   rulesKind: string;
   repositoryType?: string;
@@ -136,6 +137,7 @@ export const customRulesFilesSchema: yup.SchemaOf<IReadFile> = yup.object({
 const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
   const { t } = useTranslation();
   return yup.object({
+    selectedFormSources: yup.array().of(yup.string().defined()),
     formSources: yup.array().of(yup.string().defined()),
     rulesKind: yup.string().defined(),
     customRulesFiles: yup
