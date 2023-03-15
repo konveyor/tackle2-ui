@@ -434,7 +434,7 @@ export enum RuleBundleKind {
 export interface RuleBundle {
   createTime?: string;
   createUser?: string;
-  description: string;
+  description?: string;
   id: number;
   image?: RuleBundleImage;
   kind?: RuleBundleKind;
