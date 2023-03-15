@@ -419,7 +419,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                 formData: formFile,
                 file: newImageFile,
               });
-              onChange();
             }}
             onClearClick={() => {
               onChange();
