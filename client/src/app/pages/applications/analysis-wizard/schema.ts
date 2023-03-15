@@ -62,7 +62,7 @@ export interface TargetsStepValues {
 export const ruleBundleSchema: yup.SchemaOf<RuleBundle> = yup.object({
   createTime: yup.string(),
   createUser: yup.string(),
-  description: yup.string().required(),
+  description: yup.string(),
   id: yup.number().required(),
   name: yup.string().required(),
   image: yup.mixed<RuleBundleImage>(),
