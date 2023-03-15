@@ -168,7 +168,6 @@ export const useApplicationsFilterValues = (
 
   const getSortValues = (item: Application) => [
     "",
-    "",
     item?.name || "",
     "",
     item.businessService?.name || "",
