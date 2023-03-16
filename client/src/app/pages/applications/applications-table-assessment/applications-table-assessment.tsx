@@ -539,6 +539,7 @@ export const ApplicationsTable: React.FC = () => {
           variant: "success",
         });
         queryClient.invalidateQueries([reviewsQueryKey]);
+        fetchApplications();
       }
     }
 
@@ -558,6 +559,7 @@ export const ApplicationsTable: React.FC = () => {
           variant: "success",
         });
         queryClient.invalidateQueries([assessmentsQueryKey]);
+        fetchApplications();
       }
     }
   };
