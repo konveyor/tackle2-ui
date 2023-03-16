@@ -390,7 +390,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             filename={filename}
             filenamePlaceholder="Drag and drop a file or upload one"
             dropzoneProps={{
-              accept: ".png, .jpeg",
+              accept: ".png, .jpeg, .jpg",
               maxSize: 1000000,
               onDropRejected: (event) => {
                 const currentFile = event[0];
