@@ -523,7 +523,6 @@ export const ApplicationsTable: React.FC = () => {
   } = useDeleteAssessmentMutation();
 
   const discardAssessmentAndReview = (application: Application) => {
-    const refetch = false;
     if (application.review) {
       deleteReview(application.review.id!);
       if (isDeleteReviewError) {
