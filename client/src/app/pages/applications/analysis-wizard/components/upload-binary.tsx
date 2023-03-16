@@ -150,19 +150,22 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
           maxSize: uploadLimitInBytes,
         }}
       >
-        <MultipleFileUploadMain
-          titleIcon={<UploadIcon />}
-          titleText="Drag and drop file here"
-          titleTextSeparator="or"
-          infoText={
-            <>
-              <div>Accepted file types: war, ear, jar or zip</div>
-              <div>
-                Upload size limit: {Math.round(uploadLimitInBytes / 1000000)} MB
-              </div>
-            </>
-          }
-        />
+        {!artifact && (
+          <MultipleFileUploadMain
+            titleIcon={<UploadIcon />}
+            titleText="Drag and drop file here"
+            titleTextSeparator="or"
+            infoText={
+              <>
+                <div>Accepted file types: war, ear, jar or zip</div>
+                <div>
+                  Upload size limit: {Math.round(uploadLimitInBytes / 1000000)}{" "}
+                  MB
+                </div>
+              </>
+            }
+          />
+        )}
         {artifact && (
           <MultipleFileUploadStatusItem
             file={artifact}
