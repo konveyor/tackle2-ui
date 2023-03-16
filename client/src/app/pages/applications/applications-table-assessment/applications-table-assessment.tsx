@@ -59,6 +59,7 @@ import {
 import { checkAccess, checkAccessAll } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
 import {
+  ApplicationsQueryKey,
   useBulkDeleteApplicationMutation,
   useDeleteApplicationMutation,
   useFetchApplications,
@@ -522,6 +523,7 @@ export const ApplicationsTable: React.FC = () => {
   } = useDeleteAssessmentMutation();
 
   const discardAssessmentAndReview = (application: Application) => {
+    const refetch = false;
     if (application.review) {
       deleteReview(application.review.id!);
       if (isDeleteReviewError) {
@@ -555,7 +557,7 @@ export const ApplicationsTable: React.FC = () => {
           }),
           variant: "success",
         });
-        queryClient.invalidateQueries([reviewsQueryKey]);
+        queryClient.invalidateQueries([assessmentsQueryKey]);
       }
     }
   };

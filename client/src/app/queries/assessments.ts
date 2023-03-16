@@ -35,9 +35,7 @@ export const useFetchApplicationAssessments = (
   };
 };
 
-export const useDeleteAssessmentMutation = () => {
-  return useMutation({
+export const useDeleteAssessmentMutation = () =>
+  useMutation({
     mutationFn: deleteAssessment,
-    onError: (onError) => onError,
   });
-};

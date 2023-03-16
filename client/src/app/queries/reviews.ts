@@ -33,6 +33,5 @@ export const useDeleteReviewMutation = () => {
 
   return useMutation({
     mutationFn: deleteReview,
-    onError: (onError) => onError,
   });
 };
