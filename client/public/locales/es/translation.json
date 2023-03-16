@@ -314,8 +314,9 @@
       "applicationDeleted": "{{appIDCount}} aplicacione(s) descheda.",
       "assessmentAndReviewCopied": "Éxito! Evaluación y revisión copiada a las aplicaciones seleccionadas",
       "assessmentCopied": "Éxito! Evaluación copiada a las aplicaciones seleccionadas",
-      "assessmentDiscarded": "Éxito! Evaluación/revisión de {{application}} desechada.",
-      "fileSavedToBeProcessed": "Éxito! El archivo fue guardado para ser procesado."
+      "assessmentDiscarded": "Éxito! Evaluación de {{application}} desechada.",
+      "fileSavedToBeProcessed": "Éxito! El archivo fue guardado para ser procesado.",
+      "reviewDiscarded": "Éxito! Revisión de {{application}} desechada."
     }
   },
   "validation": {

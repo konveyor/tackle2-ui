@@ -316,8 +316,9 @@
       "applicationDeleted": "{{appIDCount}} application(s) successfully deleted.",
       "assessmentAndReviewCopied": "Success! Assessment and review copied to selected applications",
       "assessmentCopied": "Success! Assessment copied to selected applications",
-      "assessmentDiscarded": "Success! Assessment/review discarded for {{application}}.",
-      "fileSavedToBeProcessed": "Success! file saved to be processed."
+      "assessmentDiscarded": "Success! Assessment discarded for {{application}}.",
+      "fileSavedToBeProcessed": "Success! file saved to be processed.",
+      "reviewDiscarded": "Success! Review discarded for {{application}}."
     }
   },
   "validation": {

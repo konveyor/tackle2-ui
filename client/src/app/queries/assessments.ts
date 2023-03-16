@@ -35,13 +35,9 @@ export const useFetchApplicationAssessments = (
   };
 };
 
-export const useDeleteAssessmentMutation = (
-  onSuccess?: () => void,
-  onError?: (err: AxiosError) => void
-) => {
+export const useDeleteAssessmentMutation = () => {
   return useMutation({
     mutationFn: deleteAssessment,
-    onSuccess,
-    onError,
+    onError: (onError) => onError,
   });
 };

@@ -487,9 +487,6 @@ export const ApplicationsTable: React.FC = () => {
     return actions;
   };
 
-  const { mutate: deleteReview } = useDeleteReviewMutation();
-  const { mutate: deleteAssessment } = useDeleteAssessmentMutation();
-
   // Row actions
   const selectRow = (
     event: React.FormEvent<HTMLInputElement>,
@@ -512,35 +509,55 @@ export const ApplicationsTable: React.FC = () => {
     setIsDiscardAssessmentConfirmDialogOpen(true);
   };
 
+  const {
+    mutate: deleteReview,
+    isError: isDeleteReviewError,
+    error: deleteReviewError,
+  } = useDeleteReviewMutation();
+
+  const {
+    mutate: deleteAssessment,
+    isError: isDeleteAssessmentError,
+    error: deleteAssessmentError,
+  } = useDeleteAssessmentMutation();
+
   const discardAssessmentAndReview = (application: Application) => {
-    Promise.all([
-      application.review ? deleteReview(application.review.id!) : undefined,
-    ])
-      .then(() => {
-        const assessment = getApplicationAssessment(application.id!);
-        return Promise.all([
-          assessment ? deleteAssessment(assessment.id!) : undefined,
-        ]);
-      })
-      .then(() => {
+    if (application.review) {
+      deleteReview(application.review.id!);
+      if (isDeleteReviewError) {
+        pushNotification({
+          title: `${deleteReviewError}`,
+          variant: "danger",
+        });
+      } else {
+        pushNotification({
+          title: t("toastr.success.reviewDiscarded", {
+            application: application.name,
+          }),
+          variant: "success",
+        });
+        queryClient.invalidateQueries([reviewsQueryKey]);
+      }
+    }
+
+    const assessment = getApplicationAssessment(application.id!);
+    if (assessment && assessment.id) {
+      deleteAssessment(assessment.id);
+      if (isDeleteAssessmentError) {
+        pushNotification({
+          title: `${deleteAssessmentError}`,
+          variant: "danger",
+        });
+      } else {
         pushNotification({
           title: t("toastr.success.assessmentDiscarded", {
             application: application.name,
           }),
           variant: "success",
         });
-
-        queryClient.invalidateQueries([assessmentsQueryKey]);
         queryClient.invalidateQueries([reviewsQueryKey]);
-
-        fetchApplications();
-      })
-      .catch((error) => {
-        pushNotification({
-          title: getAxiosErrorMessage(error),
-          variant: "danger",
-        });
-      });
+      }
+    }
   };
 
   // Toolbar actions
