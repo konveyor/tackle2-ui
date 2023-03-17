@@ -79,10 +79,7 @@ const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     formTargets: yup.array(),
-    formRuleBundles: yup
-      .array()
-      .of(ruleBundleSchema)
-      .min(1, "At least 1 target is required"), // TODO translation here
+    formRuleBundles: yup.array().of(ruleBundleSchema),
   });
 };
 
@@ -147,6 +144,11 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
         is: "manual",
         then: yup.array().of(customRulesFilesSchema),
         otherwise: (schema) => schema,
+      })
+      .when(["formRuleBundles", "rulesKind"], {
+        is: (ruleBundles: RuleBundle[], rulesKind: string) =>
+          ruleBundles.length === 0 && rulesKind === "manual",
+        then: (schema) => schema.min(1, "At least 1 Rule File is required"), // TODO translation here
       }),
     repositoryType: yup.mixed<string>().when("rulesKind", {
       is: "repository",
