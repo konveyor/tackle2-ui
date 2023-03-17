@@ -70,12 +70,14 @@ import {
 } from "../applicationsFilter";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
 import {
+  IReviewMutation,
   reviewsQueryKey,
   useDeleteReviewMutation,
   useFetchReviews,
 } from "@app/queries/reviews";
 import {
   assessmentsQueryKey,
+  IAssessementMutation,
   useDeleteAssessmentMutation,
   useFetchApplicationAssessments,
 } from "@app/queries/assessments";
@@ -510,8 +512,7 @@ export const ApplicationsTable: React.FC = () => {
     setIsDiscardAssessmentConfirmDialogOpen(true);
   };
 
-  const onDeleteReviewSuccess = (data: any, args: any) => {
-    console.log(args);
+  const onDeleteReviewSuccess = (args: IReviewMutation) => {
     pushNotification({
       title: t("toastr.success.reviewDiscarded", {
         application: args.name,
@@ -521,7 +522,7 @@ export const ApplicationsTable: React.FC = () => {
     queryClient.invalidateQueries([ApplicationsQueryKey]);
   };
 
-  const onDeleteAssessmentSuccess = (data: any, args: any) => {
+  const onDeleteAssessmentSuccess = (args: IAssessementMutation) => {
     pushNotification({
       title: t("toastr.success.assessmentDiscarded", {
         application: args.name,
