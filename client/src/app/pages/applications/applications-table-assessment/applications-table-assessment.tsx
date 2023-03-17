@@ -510,58 +510,51 @@ export const ApplicationsTable: React.FC = () => {
     setIsDiscardAssessmentConfirmDialogOpen(true);
   };
 
-  const {
-    mutate: deleteReview,
-    isError: isDeleteReviewError,
-    error: deleteReviewError,
-  } = useDeleteReviewMutation();
+  const deleteReviewSuccess = () => {
+    pushNotification({
+      title: t("toastr.success.reviewDiscarded", {
+        application: "application",
+      }),
+      variant: "success",
+    });
+    queryClient.invalidateQueries([reviewsQueryKey]);
+    queryClient.invalidateQueries([ApplicationsQueryKey]);
+  };
 
-  const {
-    mutate: deleteAssessment,
-    isError: isDeleteAssessmentError,
-    error: deleteAssessmentError,
-  } = useDeleteAssessmentMutation();
+  const deleteAssessmentSuccess = () => {
+    pushNotification({
+      title: t("toastr.success.assessmentDiscarded", {
+        application: "application",
+      }),
+      variant: "success",
+    });
+    queryClient.invalidateQueries([assessmentsQueryKey]);
+    queryClient.invalidateQueries([ApplicationsQueryKey]);
+  };
+
+  const deleteError = (error: unknown) => {
+    pushNotification({
+      title: `${error}`,
+      variant: "danger",
+    });
+  };
+
+  const { mutate: deleteReview } = useDeleteReviewMutation(
+    deleteReviewSuccess,
+    deleteError
+  );
+
+  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
+    deleteAssessmentSuccess,
+    deleteError
+  );
 
   const discardAssessmentAndReview = (application: Application) => {
-    if (application.review?.id) {
-      deleteReview(application.review.id!);
-      if (isDeleteReviewError) {
-        pushNotification({
-          title: `${deleteReviewError}`,
-          variant: "danger",
-        });
-      } else {
-        pushNotification({
-          title: t("toastr.success.reviewDiscarded", {
-            application: application.name,
-          }),
-          variant: "success",
-        });
-        queryClient.invalidateQueries([reviewsQueryKey]);
-        queryClient.invalidateQueries([ApplicationsQueryKey]);
-        fetchApplications();
-      }
-    }
+    if (application.review?.id) deleteReview(application.review.id!);
 
     const assessment = getApplicationAssessment(application.id!);
     if (assessment && assessment.id) {
       deleteAssessment(assessment.id);
-      if (isDeleteAssessmentError) {
-        pushNotification({
-          title: `${deleteAssessmentError}`,
-          variant: "danger",
-        });
-      } else {
-        pushNotification({
-          title: t("toastr.success.assessmentDiscarded", {
-            application: application.name,
-          }),
-          variant: "success",
-        });
-        queryClient.invalidateQueries([assessmentsQueryKey]);
-        queryClient.invalidateQueries([ApplicationsQueryKey]);
-        fetchApplications();
-      }
     }
   };
 

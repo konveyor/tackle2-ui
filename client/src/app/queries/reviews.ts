@@ -28,10 +28,12 @@ export const useFetchReviews = (): IReviewFetchState => {
   };
 };
 
-export const useDeleteReviewMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
+export const useDeleteReviewMutation = (
+  onSuccess: () => void,
+  onError: (error: unknown) => void
+) =>
+  useMutation({
     mutationFn: deleteReview,
+    onSuccess: onSuccess,
+    onError: onError,
   });
-};
