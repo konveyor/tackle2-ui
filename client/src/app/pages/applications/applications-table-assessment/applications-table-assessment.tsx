@@ -510,29 +510,28 @@ export const ApplicationsTable: React.FC = () => {
     setIsDiscardAssessmentConfirmDialogOpen(true);
   };
 
-  const deleteReviewSuccess = () => {
+  const onDeleteReviewSuccess = (data: any, args: any) => {
+    console.log(args);
     pushNotification({
       title: t("toastr.success.reviewDiscarded", {
-        application: "application",
+        application: args.name,
       }),
       variant: "success",
     });
-    queryClient.invalidateQueries([reviewsQueryKey]);
     queryClient.invalidateQueries([ApplicationsQueryKey]);
   };
 
-  const deleteAssessmentSuccess = () => {
+  const onDeleteAssessmentSuccess = (data: any, args: any) => {
     pushNotification({
       title: t("toastr.success.assessmentDiscarded", {
-        application: "application",
+        application: args.name,
       }),
       variant: "success",
     });
-    queryClient.invalidateQueries([assessmentsQueryKey]);
     queryClient.invalidateQueries([ApplicationsQueryKey]);
   };
 
-  const deleteError = (error: unknown) => {
+  const onDeleteError = (error: AxiosError) => {
     pushNotification({
       title: `${error}`,
       variant: "danger",
@@ -540,21 +539,22 @@ export const ApplicationsTable: React.FC = () => {
   };
 
   const { mutate: deleteReview } = useDeleteReviewMutation(
-    deleteReviewSuccess,
-    deleteError
+    onDeleteReviewSuccess,
+    onDeleteError
   );
 
   const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
-    deleteAssessmentSuccess,
-    deleteError
+    onDeleteAssessmentSuccess,
+    onDeleteError
   );
 
   const discardAssessmentAndReview = (application: Application) => {
-    if (application.review?.id) deleteReview(application.review.id!);
+    if (application.review?.id)
+      deleteReview({ id: application.review.id, name: application.name });
 
     const assessment = getApplicationAssessment(application.id!);
     if (assessment && assessment.id) {
-      deleteAssessment(assessment.id);
+      deleteAssessment({ id: assessment.id, name: application.name });
     }
   };
 
