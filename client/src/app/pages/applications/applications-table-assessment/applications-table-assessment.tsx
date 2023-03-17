@@ -531,7 +531,6 @@ export const ApplicationsTable: React.FC = () => {
           variant: "danger",
         });
       } else {
-        console.log(application);
         pushNotification({
           title: t("toastr.success.reviewDiscarded", {
             application: application.name,
