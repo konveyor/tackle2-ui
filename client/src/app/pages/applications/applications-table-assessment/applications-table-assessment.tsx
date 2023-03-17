@@ -560,6 +560,7 @@ export const ApplicationsTable: React.FC = () => {
         });
         queryClient.invalidateQueries([assessmentsQueryKey]);
         queryClient.invalidateQueries([ApplicationsQueryKey]);
+        fetchApplications();
       }
     }
   };
