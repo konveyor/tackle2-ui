@@ -523,7 +523,7 @@ export const ApplicationsTable: React.FC = () => {
   } = useDeleteAssessmentMutation();
 
   const discardAssessmentAndReview = (application: Application) => {
-    if (application.review) {
+    if (application.review?.id) {
       deleteReview(application.review.id!);
       if (isDeleteReviewError) {
         pushNotification({
@@ -531,6 +531,7 @@ export const ApplicationsTable: React.FC = () => {
           variant: "danger",
         });
       } else {
+        console.log(application);
         pushNotification({
           title: t("toastr.success.reviewDiscarded", {
             application: application.name,
@@ -539,6 +540,7 @@ export const ApplicationsTable: React.FC = () => {
         });
         queryClient.invalidateQueries([reviewsQueryKey]);
         queryClient.invalidateQueries([ApplicationsQueryKey]);
+        fetchApplications();
       }
     }
 
