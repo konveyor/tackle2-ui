@@ -512,20 +512,20 @@ export const ApplicationsTable: React.FC = () => {
     setIsDiscardAssessmentConfirmDialogOpen(true);
   };
 
-  const onDeleteReviewSuccess = (args: IReviewMutation) => {
+  const onDeleteReviewSuccess = (name: string) => {
     pushNotification({
       title: t("toastr.success.reviewDiscarded", {
-        application: args.name,
+        application: name,
       }),
       variant: "success",
     });
     queryClient.invalidateQueries([ApplicationsQueryKey]);
   };
 
-  const onDeleteAssessmentSuccess = (args: IAssessementMutation) => {
+  const onDeleteAssessmentSuccess = (name: string) => {
     pushNotification({
       title: t("toastr.success.assessmentDiscarded", {
-        application: args.name,
+        application: name,
       }),
       variant: "success",
     });

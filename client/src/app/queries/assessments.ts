@@ -45,7 +45,7 @@ export interface IAssessementMutation {
 }
 
 export const useDeleteAssessmentMutation = (
-  onSuccess: (args: IAssessementMutation) => void,
+  onSuccess: (name: string) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
@@ -53,7 +53,7 @@ export const useDeleteAssessmentMutation = (
   return useMutation({
     mutationFn: async (args: IAssessementMutation) => deleteAssessment(args.id),
     onSuccess: (_, args) => {
-      onSuccess(args);
+      onSuccess(args.name);
       queryClient.invalidateQueries([assessmentsQueryKey]);
     },
     onError: onError,
