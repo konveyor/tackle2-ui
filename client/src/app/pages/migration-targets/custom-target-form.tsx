@@ -242,7 +242,11 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   useEffect(() => {
     setRuleBundle(initialRuleBundle);
-    setFilename(initialRuleBundle?.image?.name || "default.png");
+    if (initialRuleBundle?.image?.id === 1) {
+      setFilename("default.png");
+    } else {
+      setFilename(initialRuleBundle?.image?.name || "default.png");
+    }
     return () => {
       setRuleBundle(undefined);
       setFilename("default.png");
