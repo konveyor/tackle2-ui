@@ -246,7 +246,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           ...(isCSVDownloadEnabled && { csv: isCSVDownloadEnabled }),
         },
         targets: fieldValues.formTargets,
-        sources: fieldValues.formSources,
+        sources: fieldValues.selectedFormSources,
         scope: {
           withKnown: fieldValues.withKnown.includes("oss") ? true : false,
           packages: {
