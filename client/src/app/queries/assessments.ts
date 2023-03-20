@@ -1,22 +1,13 @@
-import { useMutation, useQueries, UseQueryResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueries,
+  useQueryClient,
+  UseQueryResult,
+} from "@tanstack/react-query";
 
 import { deleteAssessment, getAssessments } from "@app/api/rest";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { Application, Assessment } from "@app/api/models";
-
-export const useDeleteAssessmentMutation = (
-  onSuccess?: () => void,
-  onError?: (err: AxiosError) => void
-) => {
-  return useMutation(deleteAssessment, {
-    onSuccess: () => {
-      onSuccess && onSuccess();
-    },
-    onError: (err: AxiosError) => {
-      onError && onError(err);
-    },
-  });
-};
 
 export const assessmentsQueryKey = "assessments";
 
@@ -47,4 +38,24 @@ export const useFetchApplicationAssessments = (
     fetchErrorApplicationAssessment: (id: number) =>
       queryResultsByAppId[id].error as AxiosError | undefined,
   };
+};
+export interface IAssessementMutation {
+  id: number;
+  name: string;
+}
+
+export const useDeleteAssessmentMutation = (
+  onSuccess: (name: string) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (args: IAssessementMutation) => deleteAssessment(args.id),
+    onSuccess: (_, args) => {
+      onSuccess(args.name);
+      queryClient.invalidateQueries([assessmentsQueryKey]);
+    },
+    onError: onError,
+  });
 };

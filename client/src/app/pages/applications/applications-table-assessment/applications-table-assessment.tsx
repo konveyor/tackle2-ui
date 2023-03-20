@@ -39,8 +39,7 @@ import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 
 import { formatPath, Paths } from "@app/Paths";
 
-import { Application, Assessment, Review } from "@app/api/models";
-import { deleteAssessment, deleteReview, getAssessments } from "@app/api/rest";
+import { Application, Assessment } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationForm } from "../components/application-form";
@@ -60,6 +59,7 @@ import {
 import { checkAccess, checkAccessAll } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
 import {
+  ApplicationsQueryKey,
   useBulkDeleteApplicationMutation,
   useDeleteApplicationMutation,
   useFetchApplications,
@@ -69,9 +69,16 @@ import {
   useApplicationsFilterValues,
 } from "../applicationsFilter";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { reviewsQueryKey, useFetchReviews } from "@app/queries/reviews";
+import {
+  IReviewMutation,
+  reviewsQueryKey,
+  useDeleteReviewMutation,
+  useFetchReviews,
+} from "@app/queries/reviews";
 import {
   assessmentsQueryKey,
+  IAssessementMutation,
+  useDeleteAssessmentMutation,
   useFetchApplicationAssessments,
 } from "@app/queries/assessments";
 import { useQueryClient } from "@tanstack/react-query";
@@ -112,8 +119,10 @@ export const ApplicationsTable: React.FC = () => {
   const [applicationToDelete, setApplicationToDelete] =
     React.useState<number>();
 
-  const [applicationAssessmentToDiscard, setApplicationAssessmentToDiscard] =
-    React.useState<Application>();
+  const [
+    applicationAssessmentOrReviewToDiscard,
+    setApplicationAssessmentOrReviewToDiscard,
+  ] = React.useState<Application>();
 
   const [assessmentToEdit, setAssessmentToEdit] = React.useState<Assessment>();
 
@@ -434,7 +443,7 @@ export const ApplicationsTable: React.FC = () => {
       });
     }
     if (
-      applicationAssessment &&
+      (applicationAssessment?.status || row.review) &&
       checkAccess(userScopes, ["assessments:delete"])
     ) {
       actions.push({
@@ -499,39 +508,55 @@ export const ApplicationsTable: React.FC = () => {
   };
 
   const discardAssessmentRow = (row: Application) => {
-    setApplicationAssessmentToDiscard(row);
+    setApplicationAssessmentOrReviewToDiscard(row);
     setIsDiscardAssessmentConfirmDialogOpen(true);
   };
 
-  const discardAssessment = (application: Application) => {
-    Promise.all([
-      application.review ? deleteReview(application.review.id!) : undefined,
-    ])
-      .then(() => {
-        const assessment = getApplicationAssessment(application.id!);
-        return Promise.all([
-          assessment ? deleteAssessment(assessment.id!) : undefined,
-        ]);
-      })
-      .then(() => {
-        pushNotification({
-          title: t("toastr.success.assessmentDiscarded", {
-            application: application.name,
-          }),
-          variant: "success",
-        });
+  const onDeleteReviewSuccess = (name: string) => {
+    pushNotification({
+      title: t("toastr.success.reviewDiscarded", {
+        application: name,
+      }),
+      variant: "success",
+    });
+    queryClient.invalidateQueries([ApplicationsQueryKey]);
+  };
 
-        queryClient.invalidateQueries([assessmentsQueryKey]);
-        queryClient.invalidateQueries([reviewsQueryKey]);
+  const onDeleteAssessmentSuccess = (name: string) => {
+    pushNotification({
+      title: t("toastr.success.assessmentDiscarded", {
+        application: name,
+      }),
+      variant: "success",
+    });
+    queryClient.invalidateQueries([ApplicationsQueryKey]);
+  };
 
-        fetchApplications();
-      })
-      .catch((error) => {
-        pushNotification({
-          title: getAxiosErrorMessage(error),
-          variant: "danger",
-        });
-      });
+  const onDeleteError = (error: AxiosError) => {
+    pushNotification({
+      title: `${error}`,
+      variant: "danger",
+    });
+  };
+
+  const { mutate: deleteReview } = useDeleteReviewMutation(
+    onDeleteReviewSuccess,
+    onDeleteError
+  );
+
+  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
+    onDeleteAssessmentSuccess,
+    onDeleteError
+  );
+
+  const discardAssessmentAndReview = (application: Application) => {
+    if (application.review?.id)
+      deleteReview({ id: application.review.id, name: application.name });
+
+    const assessment = getApplicationAssessment(application.id!);
+    if (assessment && assessment.id) {
+      deleteAssessment({ id: assessment.id, name: application.name });
+    }
   };
 
   // Toolbar actions
@@ -960,7 +985,7 @@ export const ApplicationsTable: React.FC = () => {
               <Trans
                 i18nKey="dialog.message.discardAssessment"
                 values={{
-                  applicationName: applicationAssessmentToDiscard?.name,
+                  applicationName: applicationAssessmentOrReviewToDiscard?.name,
                 }}
               >
                 The assessment for <strong>applicationName</strong> will be
@@ -975,9 +1000,11 @@ export const ApplicationsTable: React.FC = () => {
           onCancel={() => setIsDiscardAssessmentConfirmDialogOpen(false)}
           onClose={() => setIsDiscardAssessmentConfirmDialogOpen(false)}
           onConfirm={() => {
-            if (applicationAssessmentToDiscard) {
-              discardAssessment(applicationAssessmentToDiscard);
-              setApplicationAssessmentToDiscard(undefined);
+            if (applicationAssessmentOrReviewToDiscard) {
+              discardAssessmentAndReview(
+                applicationAssessmentOrReviewToDiscard
+              );
+              setApplicationAssessmentOrReviewToDiscard(undefined);
             }
             setIsDiscardAssessmentConfirmDialogOpen(false);
           }}
