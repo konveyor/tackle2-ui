@@ -51,7 +51,7 @@ export const useDeleteAssessmentMutation = (
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (args: IAssessementMutation) => deleteAssessment(args.id),
+    mutationFn: (args: IAssessementMutation) => deleteAssessment(args.id),
     onSuccess: (_, args) => {
       onSuccess(args.name);
       queryClient.invalidateQueries([assessmentsQueryKey]);

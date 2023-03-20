@@ -41,7 +41,7 @@ export const useDeleteReviewMutation = (
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (args: IReviewMutation) => deleteReview(args.id),
+    mutationFn: (args: IReviewMutation) => deleteReview(args.id),
     onSuccess: (_, args) => {
       onSuccess(args.name);
       queryClient.invalidateQueries([reviewsQueryKey]);
