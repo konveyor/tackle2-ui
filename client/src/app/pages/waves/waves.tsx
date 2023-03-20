@@ -34,11 +34,21 @@ import dayjs from "dayjs";
 import { IComposableRow } from "@app/shared/components/composable-app-table/composable-app-table";
 import { WaveApplicationsTable } from "./wave-applications-table/wave-applications-table";
 import { WaveStakeholdersTable } from "./wave-stakeholders-table/wave-stakeholders-table";
+import {
+  CreateEditWaveModal,
+  CreateEditWaveModalProps,
+} from "./components/create-edit-wave-modal";
 
 export const Waves: React.FC = () => {
   const { t } = useTranslation();
 
   const { waves, isFetching, fetchError } = useFetchWaves();
+
+  const [waveModalMode, setWaveModalMode] =
+    React.useState<CreateEditWaveModalProps["mode"]>(null);
+  const openCreateWaveModal = () => setWaveModalMode("create");
+  const openEditWaveModal = () => setWaveModalMode("edit");
+  const closeWaveModal = () => setWaveModalMode(null);
 
   const filterCategories: FilterCategory<Wave>[] = [
     {
@@ -281,7 +291,7 @@ export const Waves: React.FC = () => {
                       id="create-wave"
                       aria-label="Create new wave"
                       variant={ButtonVariant.primary}
-                      // onClick={openCreateWaveModal}
+                      onClick={openCreateWaveModal}
                     >
                       {t("actions.createNew")}
                     </Button>
@@ -325,6 +335,11 @@ export const Waves: React.FC = () => {
           ></ComposableAppTable>
         </ConditionalRender>
       </PageSection>
+      <CreateEditWaveModal
+        mode={waveModalMode}
+        onSaved={() => {}}
+        onCancel={closeWaveModal}
+      />
     </>
   );
 };
