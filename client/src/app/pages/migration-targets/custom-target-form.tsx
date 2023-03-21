@@ -517,6 +517,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           <HookFormPFGroupController
             control={control}
             name="repositoryType"
+            label="Repository type"
             fieldId="repo-type-select"
             isRequired
             renderInput={({ field: { value, name, onChange } }) => (
