@@ -69,7 +69,7 @@ export const SidebarApp: React.FC = () => {
             setSelectedPersona(selection as string);
             setIsOpen(!isOpen);
             if (selection === "Administrator") {
-              history.push(Paths.identities);
+              history.push(Paths.general);
             } else {
               history.push(Paths.applications);
             }
