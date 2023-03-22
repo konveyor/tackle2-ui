@@ -26,13 +26,16 @@ import { useSetting } from "@app/queries/settings";
 import { APPLICATIONS } from "@app/api/rest";
 
 export interface IApplicationDetailDrawerAnalysisProps
-  extends Pick<IApplicationDetailDrawerProps, "application" | "onCloseClick"> {
+  extends Pick<
+    IApplicationDetailDrawerProps,
+    "application" | "applications" | "onCloseClick"
+  > {
   task: Task | undefined | null;
 }
 
 export const ApplicationDetailDrawerAnalysis: React.FC<
   IApplicationDetailDrawerAnalysisProps
-> = ({ application, onCloseClick, task }) => {
+> = ({ application, applications, onCloseClick, task }) => {
   const { t } = useTranslation();
 
   const { identities } = useFetchIdentities();
@@ -53,9 +56,13 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
 
   const notAvailable = <EmptyTextMessage message={t("terms.notAvailable")} />;
 
+  const updatedApplication = applications?.find(
+    (app) => app.id === application?.id
+  );
+
   return (
     <ApplicationDetailDrawer
-      application={application}
+      application={updatedApplication || null}
       onCloseClick={onCloseClick}
       detailsTabMainContent={
         <TextContent className={spacing.mtLg}>
