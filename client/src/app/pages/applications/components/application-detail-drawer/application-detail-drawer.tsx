@@ -19,6 +19,7 @@ import { ApplicationTags } from "../application-tags";
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
   application: Application | null;
+  applications?: Application[];
   detailsTabMainContent: React.ReactNode;
   reportsTabContent?: React.ReactNode;
 }
@@ -40,6 +41,7 @@ export const ApplicationDetailDrawer: React.FC<
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
   );
+
   return (
     <PageDrawerContent
       isExpanded={!!application}
