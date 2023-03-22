@@ -68,6 +68,7 @@ import { useEntityModal } from "@app/shared/hooks";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { ConfirmDialog } from "@app/shared/components/confirm-dialog/confirm-dialog";
 import { ApplicationDetailDrawerAnalysis } from "../components/application-detail-drawer";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ENTITY_FIELD = "entity";
 
@@ -115,6 +116,12 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   } = useApplicationsFilterValues(applications, ApplicationTableType.Analysis);
 
   const { tasks } = useFetchTasks({ addon: "windup" });
+
+  const queryClient = useQueryClient();
+  const allTasksComplete = tasks.every((task) => task.state !== "Running");
+  React.useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ["applications"] });
+  }, [allTasksComplete]);
 
   const completedCancelTask = () => {
     pushNotification({
@@ -249,8 +256,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (task && task.state) return task.state;
     return "No task";
   };
-
-  //
 
   const rows: IRow[] = [];
   currentPageItems?.forEach((item) => {
@@ -461,7 +466,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const hasExistingAnalysis = selectedRows.some((app) =>
     tasks.some((task) => task.application?.id === app.id)
   );
-
   return (
     <>
       <ConditionalRender
@@ -583,6 +587,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         />
         <ApplicationDetailDrawerAnalysis
           application={activeAppInDetailDrawer}
+          applications={applications}
           onCloseClick={closeDetailDrawer}
           task={
             activeAppInDetailDrawer ? getTask(activeAppInDetailDrawer) : null
