@@ -281,10 +281,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const isModeValid = applications.every((app) => isModeSupported(app, mode));
 
   const onSubmit = (fieldValues: AnalysisWizardFormValues) => {
-    if (fieldValues.formRuleBundles.length < 1) {
-      console.log("Invalid form");
-      return;
-    }
     if (currentTaskgroup) {
       const taskgroup = setupTaskgroup(currentTaskgroup, fieldValues);
 
