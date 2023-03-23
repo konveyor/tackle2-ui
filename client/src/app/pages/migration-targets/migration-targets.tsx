@@ -191,7 +191,7 @@ export const MigrationTargets: React.FC = () => {
           items={bundleOrderSetting.isSuccess ? bundleOrderSetting.data : []}
           strategy={rectSortingStrategy}
         >
-          <DndGrid columns={4}>
+          <DndGrid>
             {bundleOrderSetting.isSuccess &&
               bundleOrderSetting.data.map((id) => (
                 <SortableItem
