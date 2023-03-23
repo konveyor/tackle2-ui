@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Button,
   Flex,
   Label,
   Spinner,
@@ -10,6 +11,7 @@ import {
   ToolbarContent,
   ToolbarToggleGroup,
   ToolbarItem,
+  ButtonVariant,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
@@ -24,6 +26,7 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useHistory } from "react-router-dom";
 
 interface TagWithSource extends Tag {
   source?: string;
@@ -164,6 +167,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
     }
   });
 
+  const history = useHistory();
   return tagsBySource.size > 0 ? (
     <ConditionalRender when={isFetching} then={<Spinner isSVG size="md" />}>
       <Toolbar
@@ -243,11 +247,26 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
         })}
     </ConditionalRender>
   ) : (
-    <NoDataEmptyState
-      title={t("composed.noDataStateTitle", {
-        what: "tags",
-      })}
-      description={t("message.toTagApplication")}
-    />
+    <>
+      <NoDataEmptyState
+        title={t("composed.noDataStateTitle", {
+          what: "tags",
+        })}
+        description={t("message.toTagApplication")}
+      />
+      <div className="pf-u-text-align-center">
+        <Button
+          type="button"
+          id="create-tags"
+          aria-label="Create Tags"
+          variant={ButtonVariant.primary}
+          onClick={() => {
+            history.push("/controls/tags");
+          }}
+        >
+          {t("actions.createTag")}
+        </Button>
+      </div>
+    </>
   );
 };
