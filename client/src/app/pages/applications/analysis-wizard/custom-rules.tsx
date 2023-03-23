@@ -374,7 +374,11 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
           isOpen={isAddCustomRulesModalOpen}
           variant="medium"
           title="Add rules"
-          onClose={onCloseCustomRuleModal}
+          onClose={() => {
+            setRuleFiles([]);
+            setUploadError("");
+            onCloseCustomRuleModal();
+          }}
           actions={[
             <Button
               key="add"
@@ -413,7 +417,11 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
             <Button
               key="cancel"
               variant="link"
-              onClick={onCloseCustomRuleModal}
+              onClick={() => {
+                setRuleFiles([]);
+                setUploadError("");
+                onCloseCustomRuleModal();
+              }}
             >
               Cancel
             </Button>,
