@@ -180,6 +180,16 @@ export const MigrationTargets: React.FC = () => {
             </Button>
           </GridItem>
         </Grid>
+        <NewCustomTargetModal
+          isOpen={isMigrationTargetModalOpen && !!!ruleBundleToUpdate}
+          onSaved={onCustomTargetModalSaved}
+          onCancel={closeMigrationTargetModal}
+        />
+        <UpdateCustomTargetModal
+          ruleBundle={ruleBundleToUpdate}
+          onSaved={closeMigrationTargetModal}
+          onCancel={closeMigrationTargetModal}
+        />
       </PageSection>
       <DndContext
         sensors={sensors}
@@ -220,18 +230,6 @@ export const MigrationTargets: React.FC = () => {
           <DragOverlay>{activeId ? <Item id={activeId} /> : null}</DragOverlay>
         </SortableContext>
       </DndContext>
-      <NewCustomTargetModal
-        isOpen={isMigrationTargetModalOpen}
-        onSaved={onCustomTargetModalSaved}
-        onCancel={closeMigrationTargetModal}
-      />
-      <UpdateCustomTargetModal
-        ruleBundle={ruleBundleToUpdate}
-        onSaved={(ruleBundleResponseID) => {
-          closeMigrationTargetModal();
-        }}
-        onCancel={closeMigrationTargetModal}
-      />
     </>
   );
 };
