@@ -15,7 +15,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import { DEFAULT_COLOR_LABELS } from "@app/Constants";
-import { ConditionalRender } from "@app/shared/components";
+import { ConditionalRender, NoDataEmptyState } from "@app/shared/components";
 import { Application, Tag, TagCategory } from "@app/api/models";
 import { getTagById, getTagCategoryById } from "@app/api/rest";
 import {
@@ -164,7 +164,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
     }
   });
 
-  return (
+  return tagsBySource.size > 0 ? (
     <ConditionalRender when={isFetching} then={<Spinner isSVG size="md" />}>
       <Toolbar
         clearAllFilters={() => setFilterValues({})}
@@ -242,5 +242,12 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           );
         })}
     </ConditionalRender>
+  ) : (
+    <NoDataEmptyState
+      title={t("composed.noDataStateTitle", {
+        what: "tags",
+      })}
+      description={t("message.toTagApplication")}
+    />
   );
 };
