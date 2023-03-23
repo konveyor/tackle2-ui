@@ -65,15 +65,8 @@ import {
   useApplicationsFilterValues,
 } from "../applicationsFilter";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
+import { useDeleteReviewMutation, useFetchReviews } from "@app/queries/reviews";
 import {
-  IReviewMutation,
-  reviewsQueryKey,
-  useDeleteReviewMutation,
-  useFetchReviews,
-} from "@app/queries/reviews";
-import {
-  assessmentsQueryKey,
-  IAssessementMutation,
   useDeleteAssessmentMutation,
   useFetchApplicationAssessments,
 } from "@app/queries/assessments";
@@ -541,7 +534,7 @@ export const ApplicationsTable: React.FC = () => {
 
   const onDeleteError = (error: AxiosError) => {
     pushNotification({
-      title: `${error}`,
+      title: getAxiosErrorMessage(error),
       variant: "danger",
     });
   };

@@ -36,6 +36,7 @@ import {
 } from "@app/shared/components";
 import { Paths } from "@app/Paths";
 import { Application, Task } from "@app/api/models";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationForm } from "../components/application-form";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
@@ -68,7 +69,6 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 import { ConfirmDialog } from "@app/shared/components/confirm-dialog/confirm-dialog";
 import { ApplicationDetailDrawerAnalysis } from "../components/application-detail-drawer";
 import { useQueryClient } from "@tanstack/react-query";
-import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const ENTITY_FIELD = "entity";
 
