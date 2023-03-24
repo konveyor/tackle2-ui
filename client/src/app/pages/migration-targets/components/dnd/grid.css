@@ -1,0 +1,53 @@
+.dnd-grid {
+  display: grid;
+  grid-gap: 20px;
+  padding: 20px;
+}
+@media (min-width: 3400px) {
+  .columns {
+    grid-template-columns: repeat(8, 20em);
+  }
+}
+@media (min-width: 3000px) and (max-width: 3400px) {
+  .columns {
+    grid-template-columns: repeat(8, 20em);
+  }
+}
+@media (min-width: 2700px) and (max-width: 3000px) {
+  .columns {
+    grid-template-columns: repeat(7, 20em);
+  }
+}
+@media (min-width: 2470px) and (max-width: 2700px) {
+  .columns {
+    grid-template-columns: repeat(6, 20em);
+  }
+}
+@media (min-width: 2000px) and (max-width: 2470px) {
+  .columns {
+    grid-template-columns: repeat(5, 20em);
+  }
+}
+
+@media (min-width: 1668px) and (max-width: 2000px) {
+  .columns {
+    grid-template-columns: repeat(4, 20em);
+  }
+}
+@media (min-width: 1324px) and (max-width: 1668px) {
+  .columns {
+    grid-template-columns: repeat(3, 20em);
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1324px) {
+  .columns {
+    grid-template-columns: repeat(2, 20em);
+  }
+}
+
+@media (min-width: 0px) and (max-width: 900px) {
+  .columns {
+    grid-template-columns: repeat(1, 20em);
+  }
+}
