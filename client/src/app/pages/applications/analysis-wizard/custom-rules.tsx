@@ -94,7 +94,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
     successfullyReadFileCount,
     handleFile,
     removeFiles,
-  } = useRuleFiles(props?.taskgroupID, customRulesFiles);
+  } = useRuleFiles(props?.taskgroupID);
 
   const repositoryTypeOptions: OptionWithValue<string>[] = [
     {
@@ -195,6 +195,22 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                 type="button"
                 variant="plain"
                 onClick={() => {
+                  customRulesFiles.forEach((file) => {
+                    const { source, target } = parseRules(file);
+                    if (source && formSources.includes(source)) {
+                      const updatedSources = formSources.filter(
+                        (formSource) => formSource !== source
+                      );
+                      setValue("formSources", [...updatedSources]);
+                    }
+                    if (target && formTargets.includes(target)) {
+                      const updatedTargets = formTargets.filter(
+                        (formTarget) => formTarget !== target
+                      );
+                      setValue("formTargets", [...updatedTargets]);
+                    }
+                  });
+
                   // Remove rule file from list
                   const updatedFileList = customRulesFiles.filter(
                     (file) => file.fileName !== item.fileName
@@ -387,29 +403,48 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                 !ruleFiles.find((file) => file.loadResult === "success")
               }
               onClick={(event) => {
-                setCustomRulesModalOpen(false);
+                let hasExistingRuleFile = null;
                 const validFiles = ruleFiles.filter(
                   (file) => file.loadResult === "success"
                 );
-                const updatedCustomRulesFiles = [
-                  ...customRulesFiles,
-                  ...validFiles,
-                ];
-                setValue("customRulesFiles", updatedCustomRulesFiles, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                });
-                updatedCustomRulesFiles.forEach((file) => {
-                  const { source, target } = parseRules(file);
-                  if (source && !formSources.includes(source)) {
-                    setValue("formSources", [...formSources, source]);
-                  }
-                  if (target && !formTargets.includes(target)) {
-                    setValue("formTargets", [...formTargets, target]);
-                  }
-                });
-                setRuleFiles([]);
-                setUploadError("");
+                try {
+                  ruleFiles.forEach((ruleFile) => {
+                    hasExistingRuleFile = customRulesFiles.some(
+                      (file) => file.fileName === ruleFile.fileName
+                    );
+                    if (hasExistingRuleFile) {
+                      const error = new Error(
+                        `File "${ruleFile.fileName}" is already uploaded`
+                      );
+                      throw error.toString();
+                    }
+                  });
+                } catch (error) {
+                  setUploadError(error as string);
+                }
+
+                if (!hasExistingRuleFile) {
+                  const updatedCustomRulesFiles = [
+                    ...customRulesFiles,
+                    ...validFiles,
+                  ];
+                  setValue("customRulesFiles", updatedCustomRulesFiles, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  });
+                  updatedCustomRulesFiles.forEach((file) => {
+                    const { source, target } = parseRules(file);
+                    if (source && !formSources.includes(source)) {
+                      setValue("formSources", [...formSources, source]);
+                    }
+                    if (target && !formTargets.includes(target)) {
+                      setValue("formTargets", [...formTargets, target]);
+                    }
+                  });
+                  setRuleFiles([]);
+                  setUploadError("");
+                  setCustomRulesModalOpen(false);
+                }
               }}
             >
               Add
