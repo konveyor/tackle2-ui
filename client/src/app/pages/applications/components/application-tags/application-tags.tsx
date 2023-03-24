@@ -47,6 +47,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
   application,
 }) => {
   const { t } = useTranslation();
+  const history = useHistory();
 
   const [tags, setTags] = useState<TagWithSource[]>([]);
   const [tagCategoriesById, setTagCategoriesById] = useState<
@@ -167,8 +168,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
     }
   });
 
-  const history = useHistory();
-  return tagsBySource.size > 0 ? (
+  return !!tagsBySource.size ? (
     <ConditionalRender when={isFetching} then={<Spinner isSVG size="md" />}>
       <Toolbar
         clearAllFilters={() => setFilterValues({})}
