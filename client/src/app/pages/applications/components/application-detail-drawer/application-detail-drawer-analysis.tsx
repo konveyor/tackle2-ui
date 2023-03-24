@@ -136,10 +136,12 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                       </Button>
                     </Tooltip>
                   )}
-                  {isHTMLDownloadEnabled && isCSVDownloadEnabled && (
-                    <span className={spacing.pXs}>|</span>
-                  )}
-                  {isCSVDownloadEnabled && (
+                  {isHTMLDownloadEnabled &&
+                    isCSVDownloadEnabled &&
+                    task?.data?.mode?.csv && (
+                      <span className={spacing.pXs}>|</span>
+                    )}
+                  {isCSVDownloadEnabled && task?.data?.mode?.csv && (
                     <>
                       <Tooltip content="Click to download Analysis report">
                         <Button
