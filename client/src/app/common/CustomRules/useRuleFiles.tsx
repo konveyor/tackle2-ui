@@ -71,15 +71,21 @@ export default function useRuleFiles(
     file: IReadFile
   ) => {
     //Set file ID for use in form submit
-    const fileWithID: IReadFile = { ...file, ...{ responseID: response?.id } };
-    const updatedFiles = [...ruleFiles];
-    const ruleFileToUpdate = ruleFiles.findIndex(
-      (ruleFile) => ruleFile.fileName === file.fileName
-    );
-    updatedFiles[ruleFileToUpdate] = fileWithID;
+    setRuleFiles((oldRuleFiles) => {
+      const fileWithID: IReadFile = {
+        ...file,
+        ...{ responseID: response?.id },
+      };
+      const updatedFiles = [...oldRuleFiles];
+      const ruleFileToUpdate = ruleFiles.findIndex(
+        (ruleFile) => ruleFile.fileName === file.fileName
+      );
+      updatedFiles[ruleFileToUpdate] = fileWithID;
 
-    setRuleFiles(updatedFiles);
+      return updatedFiles;
+    });
   };
+
   const { mutate: uploadFile } = useUploadFileMutation(
     onUploadFileSuccess,
     onUploadError
