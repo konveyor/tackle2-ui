@@ -362,6 +362,7 @@ export interface TaskData {
     withDeps: boolean;
     artifact: string;
     diva: boolean;
+    csv?: boolean;
   };
   targets: string[];
   sources: string[];
