@@ -129,7 +129,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                         <Link
                           to={`${APPLICATIONS}/${application.id}/bucket${task?.data?.output}?filter=`}
                           target="_blank"
-                          download
+                          download={application?.name}
                         >
                           HTML
                         </Link>
@@ -153,7 +153,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                           <Link
                             to={`${APPLICATIONS}/${application.id}/bucket${task?.data?.output}?filter=*.csv`}
                             target="_blank"
-                            download
+                            download={application?.name}
                           >
                             CSV
                           </Link>
