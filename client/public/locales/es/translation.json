@@ -25,6 +25,7 @@
     "createNew": "Crear nuevo",
     "createTag": "Crear etiqueta",
     "createTagCategory": "Crear categoría de etiqueta",
+    "createTags": "Create tags",
     "delete": "Eliminar",
     "discardAssessment": "Descartar evaluación/revisar",
     "downloadCsvTemplate": "Descargar plantilla CSV",
@@ -136,7 +137,8 @@
     "reviewInstructions": "Utilice esta sección para proporcionar su evaluación del posible plan de migración / modernización y la estimación del esfuerzo.",
     "savingSelection": "Guardando selección",
     "selectOwnerFromStakeholdersList": "Seleccione un propietario de la lista de interesados",
-    "suggestedAdoptionPlanHelpText": "El enfoque sugerido para la migración basado en el esfuerzo, la prioridad y las dependencias."
+    "suggestedAdoptionPlanHelpText": "El enfoque sugerido para la migración basado en el esfuerzo, la prioridad y las dependencias.",
+    "toTagApplication": "Todavía no existen etiquetas o es posible que no tenga permiso para ver ninguna. Si tiene permiso, intente crear una nueva etiqueta personalizada."
   },
   "proposedActions": {
     "refactor": "",
