@@ -47,7 +47,7 @@ export const KeycloakProvider: React.FC<IKeycloakProviderProps> = ({
             </Flex>
           }
           isLoadingCheck={(keycloak) => {
-            if (keycloak.authenticated) {
+            if (keycloak.authenticated && keycloak.refreshToken) {
               initInterceptors(() => {
                 return new Promise<string>((resolve, reject) => {
                   if (keycloak.token) {
