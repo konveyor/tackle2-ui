@@ -47,10 +47,10 @@ export const KeycloakProvider: React.FC<IKeycloakProviderProps> = ({
             </Flex>
           }
           isLoadingCheck={(keycloak) => {
-            if (keycloak.authenticated && keycloak.refreshToken) {
+            if (keycloak.authenticated) {
               initInterceptors(() => {
                 return new Promise<string>((resolve, reject) => {
-                  if (keycloak.token) {
+                  if (keycloak.token && keycloak.refreshToken) {
                     keycloak
                       .updateToken(60)
                       .then(() => {
@@ -62,6 +62,8 @@ export const KeycloakProvider: React.FC<IKeycloakProviderProps> = ({
                         console.log("err", err);
                         return reject("Failed to refresh token");
                       });
+                  } else if (keycloak.token) {
+                    return resolve(keycloak.token!);
                   } else {
                     keycloak.login();
                     reject("Not logged in");
