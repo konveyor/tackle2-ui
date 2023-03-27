@@ -25,6 +25,7 @@
     "createNew": "Create new",
     "createTag": "Create tag",
     "createTagCategory": "Create tag category",
+    "createTags": "Create tags",
     "delete": "Delete",
     "discardAssessment": "Discard assessment/review",
     "downloadCsvTemplate": "Download CSV template",
@@ -136,7 +137,8 @@
     "reviewInstructions": "Use this section to provide your assessment of the possible migration/modernization plan and effort estimation.",
     "savingSelection": "Saving selection",
     "selectOwnerFromStakeholdersList": "Select owner from list of stakeholders",
-    "suggestedAdoptionPlanHelpText": "The suggested approach to migration based on effort, priority, and dependencies."
+    "suggestedAdoptionPlanHelpText": "The suggested approach to migration based on effort, priority, and dependencies.",
+    "toTagApplication": "Either no tags exist yet or you may not have permission to view any. If you have permission, try creating a new custom tag."
   },
   "proposedActions": {
     "refactor": "Refactor",
