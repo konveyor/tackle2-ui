@@ -13,10 +13,11 @@ import {
   ToolbarItem,
   ButtonVariant,
 } from "@patternfly/react-core";
+import { LabelCustomColor } from "@migtools/lib-ui";
+
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
-import { DEFAULT_COLOR_LABELS } from "@app/Constants";
 import { ConditionalRender, NoDataEmptyState } from "@app/shared/components";
 import { Application, Tag, TagCategory } from "@app/api/models";
 import { getTagById, getTagCategoryById } from "@app/api/rest";
@@ -189,7 +190,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
 
       {Array.from(tagsBySource.keys())
         .sort(compareSources)
-        .map((source) => {
+        .map((source, tagSourceIndex) => {
           const tagsInThisSource = tagsBySource.get(source);
           const tagCategoriesInThisSource = new Set<TagCategory>();
           tagsInThisSource?.forEach((tag) => {
@@ -222,22 +223,19 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
                       </Text>
                     </TextContent>
                     <Flex>
-                      {tagsInThisCategoryInThisSource
-                        ?.sort((a, b) => a.name.localeCompare(b.name))
-                        .map((tag) => {
-                          const colorLabel = DEFAULT_COLOR_LABELS.get(
-                            tagCategory?.colour || ""
-                          );
-                          return (
-                            <Label
-                              key={tag.id}
-                              color={colorLabel as any}
-                              className={`${spacing.mrSm} ${spacing.mbSm}`}
-                            >
-                              {tag.name}
-                            </Label>
-                          );
-                        })}
+                      {tagsInThisCategoryInThisSource &&
+                        tagsInThisCategoryInThisSource.map((tag) => (
+                          <LabelCustomColor
+                            key={tag.id}
+                            color={
+                              tagCategoriesById.get(tag?.category?.id || 0)
+                                ?.colour || "gray"
+                            }
+                            className={spacing.mXs}
+                          >
+                            {tag.name}
+                          </LabelCustomColor>
+                        ))}
                     </Flex>
                   </React.Fragment>
                 );
