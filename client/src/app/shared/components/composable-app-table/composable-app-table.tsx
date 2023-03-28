@@ -26,6 +26,7 @@ import { PaginationStateProps } from "@app/shared/hooks/usePaginationState";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import { TdCompoundExpandType } from "@patternfly/react-table/dist/esm/components/Table/base";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { StateNoData } from "../app-table/state-no-data";
 
 export interface IRowCell extends TdProps {
   isExpanded?: boolean;
@@ -62,6 +63,7 @@ export interface IComposableWaveTableWithControlsProps
     isSelecting: boolean
   ) => void;
   isSelectable?: boolean;
+  noDataState?: any;
 }
 
 export const ComposableAppTable: React.FC<
@@ -84,6 +86,7 @@ export const ComposableAppTable: React.FC<
   handleToggleRowSelected,
   isSelectable,
   variant,
+  noDataState,
 }) => {
   const { t } = useTranslation();
 
@@ -138,6 +141,17 @@ export const ComposableAppTable: React.FC<
             <Tr>
               <Td colSpan={8}>
                 <Bullseye>{errorState ? errorState : <StateError />}</Bullseye>
+              </Td>
+            </Tr>
+          </Tbody>
+        )}
+        {!!rowItems && (
+          <Tbody aria-label="Tablerror">
+            <Tr>
+              <Td colSpan={8}>
+                <Bullseye>
+                  {noDataState ? noDataState : <StateNoData />}
+                </Bullseye>
               </Td>
             </Tr>
           </Tbody>

@@ -27,6 +27,7 @@ const Proxies = lazy(() => import("./pages/proxies"));
 const MigrationTargets = lazy(() => import("./pages/migration-targets"));
 const General = lazy(() => import("./pages/general"));
 const Waves = lazy(() => import("./pages/waves"));
+const Jira = lazy(() => import("./pages/jira-trackers"));
 
 export interface IRoute {
   path: string;
@@ -106,6 +107,11 @@ export const adminRoutes: IRoute[] = [
   },
   { comp: Proxies, path: "/proxies", exact: false },
   { comp: MigrationTargets, path: "/migration-targets", exact: false },
+  {
+    comp: Jira,
+    path: Paths.jira,
+    exact: false,
+  },
 ];
 export const AppRoutes = () => {
   const location = useLocation();
