@@ -48,26 +48,29 @@ export const KeycloakProvider: React.FC<IKeycloakProviderProps> = ({
           }
           isLoadingCheck={(keycloak) => {
             if (keycloak.authenticated) {
-              initInterceptors(() => {
-                return new Promise<string>((resolve, reject) => {
-                  if (keycloak.token) {
-                    keycloak
-                      .updateToken(60)
-                      .then(() => {
-                        deleteCookie("keycloak_cookie");
-                        checkAuthCookie();
-                        return resolve(keycloak.token!);
-                      })
-                      .catch((err) => {
-                        console.log("err", err);
-                        return reject("Failed to refresh token");
-                      });
-                  } else {
-                    keycloak.login();
-                    reject("Not logged in");
-                  }
-                });
-              });
+              initInterceptors(
+                () =>
+                  new Promise<string>((resolve, reject) => {
+                    if (keycloak.token) {
+                      if (keycloak.refreshToken) {
+                        keycloak
+                          .updateToken(60)
+                          .then(() => {
+                            deleteCookie("keycloak_cookie");
+                            checkAuthCookie();
+                            return resolve(keycloak.token!);
+                          })
+                          .catch((err) => {
+                            console.log("err", err);
+                            return reject("Failed to refresh token");
+                          });
+                      } else return resolve(keycloak.token!);
+                    } else {
+                      keycloak.login();
+                      reject("Not logged in");
+                    }
+                  })
+              );
 
               const kcLocale = (keycloak.tokenParsed as any)["locale"];
               if (kcLocale) {
