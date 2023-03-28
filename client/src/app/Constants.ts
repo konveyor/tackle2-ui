@@ -42,6 +42,8 @@ export const DEFAULT_SELECT_MAX_HEIGHT = 200;
 // t('colors.purple')
 // t('colors.red')
 
+// TODO move the TAG_COLORS here and figure out how to make the rest of the UI happy with that
+
 export const DEFAULT_COLOR_LABELS: Map<string, string> = new Map([
   [blue.value, "blue"],
   [cyan.value, "cyan"],
