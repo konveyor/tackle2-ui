@@ -17,9 +17,10 @@ interface WaveFormValues {
   stakeholderGroups: StakeholderGroup[];
 }
 
+type MigrationWave = any; // TODO add a real MigrationWave type and queries
+
 export interface WaveFormProps {
-  // waveBeingEdited?: MigrationWave;
-  waveBeingEdited?: any; // TODO
+  waveBeingEdited?: MigrationWave;
   onCancel: () => void;
 }
 

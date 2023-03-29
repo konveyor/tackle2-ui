@@ -4,23 +4,25 @@ import { Modal, ModalVariant } from "@patternfly/react-core";
 
 import { WaveForm } from "./wave-form";
 
+type MigrationWave = any; // TODO add a real MigrationWave type and queries
+
 export interface CreateEditWaveModalProps {
-  mode: "create" | "edit" | null; // TODO should we just drive this from waveBeingEdited and an open boolean?
+  isOpen: boolean;
+  waveBeingEdited: MigrationWave;
   onSaved: (response: AxiosResponse<unknown>) => void;
   onCancel: () => void;
 }
 
 export const CreateEditWaveModal: React.FC<CreateEditWaveModalProps> = ({
-  mode,
+  isOpen,
+  waveBeingEdited,
   onSaved,
   onCancel,
 }) => {
-  if (mode === null) return null;
+  if (!isOpen) return null;
   return (
     <Modal
-      title={
-        mode === "create" ? "Create migration wave" : "Edit migration wave"
-      }
+      title={!waveBeingEdited ? "Create migration wave" : "Edit migration wave"}
       variant={ModalVariant.small}
       isOpen
       onClose={onCancel}

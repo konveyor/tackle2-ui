@@ -34,21 +34,26 @@ import dayjs from "dayjs";
 import { IComposableRow } from "@app/shared/components/composable-app-table/composable-app-table";
 import { WaveApplicationsTable } from "./wave-applications-table/wave-applications-table";
 import { WaveStakeholdersTable } from "./wave-stakeholders-table/wave-stakeholders-table";
-import {
-  CreateEditWaveModal,
-  CreateEditWaveModalProps,
-} from "./components/create-edit-wave-modal";
+import { CreateEditWaveModal } from "./components/create-edit-wave-modal";
 
 export const Waves: React.FC = () => {
   const { t } = useTranslation();
 
   const { waves, isFetching, fetchError } = useFetchWaves();
 
-  const [waveModalMode, setWaveModalMode] =
-    React.useState<CreateEditWaveModalProps["mode"]>(null);
-  const openCreateWaveModal = () => setWaveModalMode("create");
-  const openEditWaveModal = () => setWaveModalMode("edit");
-  const closeWaveModal = () => setWaveModalMode(null);
+  type MigrationWave = any; // TODO add a real MigrationWave type and queries
+  // When waveModalState is:
+  //   'create': the modal is open for creating a new wave.
+  //   A MigrationWave: the modal is open for editing that wave.
+  //   null: the modal is closed.
+  const [waveModalState, setWaveModalState] = React.useState<
+    "create" | MigrationWave | null
+  >(null);
+  const isWaveModalOpen = waveModalState !== null;
+  const waveBeingEdited = waveModalState !== "create" ? waveModalState : null;
+  const openCreateWaveModal = () => setWaveModalState("create");
+  const openEditWaveModal = (wave: MigrationWave) => setWaveModalState(wave);
+  const closeWaveModal = () => setWaveModalState(null);
 
   const filterCategories: FilterCategory<Wave>[] = [
     {
@@ -336,7 +341,8 @@ export const Waves: React.FC = () => {
         </ConditionalRender>
       </PageSection>
       <CreateEditWaveModal
-        mode={waveModalMode}
+        isOpen={isWaveModalOpen}
+        waveBeingEdited={waveBeingEdited}
         onSaved={() => {}}
         onCancel={closeWaveModal}
       />
