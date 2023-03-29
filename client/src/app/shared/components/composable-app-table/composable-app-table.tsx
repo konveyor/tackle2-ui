@@ -145,7 +145,7 @@ export const ComposableAppTable: React.FC<
             </Tr>
           </Tbody>
         )}
-        {!!rowItems && (
+        {rowItems.length === 0 && (
           <Tbody aria-label="Tablerror">
             <Tr>
               <Td colSpan={8}>
