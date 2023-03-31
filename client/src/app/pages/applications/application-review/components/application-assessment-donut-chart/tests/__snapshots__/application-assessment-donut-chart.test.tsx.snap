@@ -51,7 +51,7 @@ Object {
                 d="M-56.59479785059055,76.30222051979085A95,95,0,0,1,-0.9368333156413414,-94.99538064210651L-0.9368333156413101,-49.99122266297059A50,50,0,0,0,-30.14201749861381,39.89309189713501Z"
                 role="presentation"
                 shape-rendering="auto"
-                style="fill: #b8bbbe; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+                style="fill: #030303; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
                 transform="translate(130, 115)"
               />
             </g>
@@ -104,7 +104,7 @@ Object {
       z"
                 role="presentation"
                 shape-rendering="auto"
-                style="fill: #b8bbbe;"
+                style="fill: #030303;"
               />
               <text
                 direction="inherit"
@@ -237,7 +237,7 @@ Object {
               d="M-56.59479785059055,76.30222051979085A95,95,0,0,1,-0.9368333156413414,-94.99538064210651L-0.9368333156413101,-49.99122266297059A50,50,0,0,0,-30.14201749861381,39.89309189713501Z"
               role="presentation"
               shape-rendering="auto"
-              style="fill: #b8bbbe; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+              style="fill: #030303; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
               transform="translate(130, 115)"
             />
           </g>
@@ -290,7 +290,7 @@ Object {
       z"
               role="presentation"
               shape-rendering="auto"
-              style="fill: #b8bbbe;"
+              style="fill: #030303;"
             />
             <text
               direction="inherit"

@@ -13,10 +13,11 @@ import {
   ToolbarItem,
   ButtonVariant,
 } from "@patternfly/react-core";
+import { LabelCustomColor } from "@migtools/lib-ui";
+
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
-import { DEFAULT_COLOR_LABELS } from "@app/Constants";
 import { ConditionalRender, NoDataEmptyState } from "@app/shared/components";
 import { Application, Tag, TagCategory } from "@app/api/models";
 import { getTagById, getTagCategoryById } from "@app/api/rest";
@@ -27,6 +28,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useHistory } from "react-router-dom";
+import { ApplicationTagLabel } from "./application-tag-label";
 
 interface TagWithSource extends Tag {
   source?: string;
@@ -189,7 +191,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
 
       {Array.from(tagsBySource.keys())
         .sort(compareSources)
-        .map((source) => {
+        .map((source, tagSourceIndex) => {
           const tagsInThisSource = tagsBySource.get(source);
           const tagCategoriesInThisSource = new Set<TagCategory>();
           tagsInThisSource?.forEach((tag) => {
@@ -208,9 +210,10 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
                 </Text>
               </TextContent>
               {Array.from(tagCategoriesInThisSource).map((tagCategory) => {
-                const tagsInThisCategoryInThisSource = tagsInThisSource?.filter(
-                  (tag) => tag.category?.id === tagCategory.id
-                );
+                const tagsInThisCategoryInThisSource =
+                  tagsInThisSource?.filter(
+                    (tag) => tag.category?.id === tagCategory.id
+                  ) || [];
                 return (
                   <React.Fragment key={tagCategory.id}>
                     <TextContent>
@@ -222,22 +225,16 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
                       </Text>
                     </TextContent>
                     <Flex>
-                      {tagsInThisCategoryInThisSource
-                        ?.sort((a, b) => a.name.localeCompare(b.name))
-                        .map((tag) => {
-                          const colorLabel = DEFAULT_COLOR_LABELS.get(
-                            tagCategory?.colour || ""
-                          );
-                          return (
-                            <Label
-                              key={tag.id}
-                              color={colorLabel as any}
-                              className={`${spacing.mrSm} ${spacing.mbSm}`}
-                            >
-                              {tag.name}
-                            </Label>
-                          );
-                        })}
+                      {tagsInThisCategoryInThisSource.map((tag) => (
+                        <ApplicationTagLabel
+                          key={tag.id}
+                          tag={tag}
+                          category={tagCategoriesById.get(
+                            tag?.category?.id || 0
+                          )}
+                          className={spacing.mXs}
+                        />
+                      ))}
                     </Flex>
                   </React.Fragment>
                 );
