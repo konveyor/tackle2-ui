@@ -18,7 +18,9 @@ export default function useRuleFiles(
 ) {
   const { pushNotification } = useContext(NotificationsContext);
   const [uploadError, setUploadError] = useState("");
-  const [ruleFiles, setRuleFiles] = useState<IReadFile[]>(existingRuleFiles);
+  const [ruleFiles, setRuleFiles] = useState<IReadFile[]>(
+    taskgroupID ? [] : existingRuleFiles
+  );
   const [showStatus, setShowStatus] = useState(true);
 
   const onUploadError = (error: AxiosError) =>
