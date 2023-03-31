@@ -54,6 +54,7 @@ export const DEFAULT_SELECT_MAX_HEIGHT = 200;
 // t('colors.black')
 
 // Colors from https://sashamaps.net/docs/resources/20-colors/ with some colors removed for being too bright
+// and closest equivalent PF colors swapped in where applicable
 export const COLOR_HEX_VALUES_BY_NAME = {
   red: "#d95f55", // (PF red is weird because 100 is too close to Maroon and 50 is too bright)
   green: green.value,
