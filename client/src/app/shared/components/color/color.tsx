@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { Split, SplitItem } from "@patternfly/react-core";
 
-import { DEFAULT_COLOR_LABELS } from "@app/Constants";
+import { COLOR_NAMES_BY_HEX_VALUE } from "@app/Constants";
 import "./color.css";
 
 export interface ColorProps {
@@ -13,7 +13,7 @@ export interface ColorProps {
 export const Color: React.FC<ColorProps> = ({ hex }) => {
   const { t } = useTranslation();
 
-  const colorName = DEFAULT_COLOR_LABELS.get(hex.toLowerCase());
+  const colorName = COLOR_NAMES_BY_HEX_VALUE[hex.toLowerCase()];
 
   return (
     <Split hasGutter>
