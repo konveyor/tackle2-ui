@@ -232,18 +232,25 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
 
   return (
     <>
-      <TextContent>
+      <TextContent className={spacing.mbSm}>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.customRules")}
         </Title>
         <Text> {t("wizard.label.customRules")}</Text>
       </TextContent>
+      {values.formRuleBundles.length === 0 &&
+        values.customRulesFiles.length === 0 &&
+        !values.sourceRepository && (
+          <Alert
+            variant="warning"
+            isInline
+            title={t("wizard.label.ruleFileRequiredDetails")}
+          />
+        )}
       <HookFormPFGroupController
         control={control}
         name="rulesKind"
-        label="Custom rules"
         fieldId="type-select"
-        isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <Tabs
             className={spacing.mtSm}
@@ -258,7 +265,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
             <Tab eventKey={1} title={<TabTitleText>Repository</TabTitleText>} />
           </Tabs>
         )}
-      ></HookFormPFGroupController>
+      />
       {activeTabKey === 0 && (
         <>
           <div className="line">

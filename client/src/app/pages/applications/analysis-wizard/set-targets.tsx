@@ -6,6 +6,7 @@ import {
   Gallery,
   GalleryItem,
   Form,
+  Alert,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
@@ -23,7 +24,9 @@ export const SetTargets: React.FC = () => {
 
   const bundleOrderSetting = useSetting("ui.bundle.order");
 
-  const { watch, setValue } = useFormContext<AnalysisWizardFormValues>();
+  const { watch, setValue, getValues } =
+    useFormContext<AnalysisWizardFormValues>();
+  const values = getValues();
   const formTargets = watch("formTargets");
   const formRuleBundles = watch("formRuleBundles");
   const formSources = watch("formSources");
@@ -117,6 +120,15 @@ export const SetTargets: React.FC = () => {
         </Title>
         <Text>{t("wizard.label.setTargets")}</Text>
       </TextContent>
+      {values.formRuleBundles.length === 0 &&
+        values.customRulesFiles.length === 0 &&
+        !values.sourceRepository && (
+          <Alert
+            variant="warning"
+            isInline
+            title={t("wizard.label.ruleFileRequiredDetails")}
+          />
+        )}
       <Gallery hasGutter>
         {bundleOrderSetting.isSuccess
           ? bundleOrderSetting.data.map((id, index) => {
