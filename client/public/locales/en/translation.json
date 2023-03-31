@@ -356,6 +356,8 @@
       "noCustomRules": "No custom rules available",
       "notAllAnalyzable": "Some applications cannot be analyzed",
       "notAllAnalyzableDetails": "Some of the selected applications cannot be analyzed with the selected source because those values have not been defined. By continuing, these applications won't be included in the analysis.",
+      "ruleFileRequired": "Target or rule file required",
+      "ruleFileRequiredDetails": "At least one custom rule file is required if no targets are selected.",
       "packageToInclude": "Add a package to include",
       "packageIncluded": "This package is already included",
       "packageToExclude": "Add a package to exclude",
