@@ -50,12 +50,22 @@
     "viewErrorReport": "View error report"
   },
   "colors": {
+    "black": "Black",
     "blue": "Blue",
+    "brown": "Brown",
     "cyan": "Cyan",
+    "gold": "Gold",
+    "gray": "Gray",
     "green": "Green",
+    "lime": "Lime",
+    "magenta": "Magenta",
+    "maroon": "Maroon",
+    "navy": "Navy",
+    "olive": "Olive",
     "orange": "Orange",
     "purple": "Purple",
-    "red": "Red"
+    "red": "Red",
+    "teal": "Teal"
   },
   "composed": {
     "add": "Add {{what}}",

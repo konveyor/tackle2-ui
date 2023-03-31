@@ -43,7 +43,6 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSortState } from "@app/shared/hooks/useSortState";
-import { DEFAULT_COLOR_LABELS } from "@app/Constants";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import {
   useDeleteTagMutation,
@@ -51,6 +50,7 @@ import {
   useFetchTagCategories,
 } from "@app/queries/tags";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import { COLOR_NAMES_BY_HEX_VALUE } from "@app/Constants";
 
 const ENTITY_FIELD = "entity";
 
@@ -217,8 +217,9 @@ export const Tags: React.FC = () => {
           what: t("terms.color").toLowerCase(),
         }) + "...",
       getItemValue: (item) => {
-        const colorLabel = DEFAULT_COLOR_LABELS.get(item?.colour || "");
-        return colorLabel || "";
+        const hex = item?.colour || "";
+        const colorLabel = COLOR_NAMES_BY_HEX_VALUE[hex];
+        return colorLabel || hex;
       },
     },
   ];

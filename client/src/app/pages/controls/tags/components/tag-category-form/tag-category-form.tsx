@@ -17,7 +17,7 @@ import {
 import { SingleSelectOptionValueFormikField } from "@app/shared/components";
 import {
   DEFAULT_SELECT_MAX_HEIGHT,
-  DEFAULT_COLOR_PALETE as DEFAULT_COLOR_PALETTE,
+  COLOR_HEX_VALUES_BY_NAME,
 } from "@app/Constants";
 import { createTagCategory, updateTagCategory } from "@app/api/rest";
 import { TagCategory } from "@app/api/models";
@@ -208,7 +208,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
               menuAppendTo: () => document.body,
               maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
             }}
-            options={DEFAULT_COLOR_PALETTE}
+            options={Object.values(COLOR_HEX_VALUES_BY_NAME)}
             toOptionWithValue={colorHexToOptionWithValue}
           />
         </FormGroup>

@@ -28,6 +28,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useHistory } from "react-router-dom";
+import { ApplicationTagLabel } from "./application-tag-label";
 
 interface TagWithSource extends Tag {
   source?: string;
@@ -209,9 +210,10 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
                 </Text>
               </TextContent>
               {Array.from(tagCategoriesInThisSource).map((tagCategory) => {
-                const tagsInThisCategoryInThisSource = tagsInThisSource?.filter(
-                  (tag) => tag.category?.id === tagCategory.id
-                );
+                const tagsInThisCategoryInThisSource =
+                  tagsInThisSource?.filter(
+                    (tag) => tag.category?.id === tagCategory.id
+                  ) || [];
                 return (
                   <React.Fragment key={tagCategory.id}>
                     <TextContent>
@@ -223,19 +225,16 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
                       </Text>
                     </TextContent>
                     <Flex>
-                      {tagsInThisCategoryInThisSource &&
-                        tagsInThisCategoryInThisSource.map((tag) => (
-                          <LabelCustomColor
-                            key={tag.id}
-                            color={
-                              tagCategoriesById.get(tag?.category?.id || 0)
-                                ?.colour || "gray"
-                            }
-                            className={spacing.mXs}
-                          >
-                            {tag.name}
-                          </LabelCustomColor>
-                        ))}
+                      {tagsInThisCategoryInThisSource.map((tag) => (
+                        <ApplicationTagLabel
+                          key={tag.id}
+                          tag={tag}
+                          category={tagCategoriesById.get(
+                            tag?.category?.id || 0
+                          )}
+                          className={spacing.mXs}
+                        />
+                      ))}
                     </Flex>
                   </React.Fragment>
                 );

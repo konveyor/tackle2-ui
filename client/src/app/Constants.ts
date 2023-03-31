@@ -1,11 +1,12 @@
 import {
+  global_palette_black_1000 as black,
+  global_palette_black_500 as gray,
   global_palette_blue_300 as blue,
   global_palette_green_300 as green,
   global_palette_cyan_300 as cyan,
-  global_palette_purple_300 as purple,
+  global_palette_purple_600 as purple,
+  global_palette_gold_300 as gold,
   global_palette_orange_300 as orange,
-  global_palette_red_300 as red,
-  global_palette_black_400 as black,
 } from "@patternfly/react-tokens";
 
 import {
@@ -35,30 +36,50 @@ export const DEFAULT_SELECT_MAX_HEIGHT = 200;
 
 // Colors
 
-// t('colors.blue')
-// t('colors.cyan')
+// t('colors.red')
 // t('colors.green')
+// t('colors.gold')
+// t('colors.blue')
 // t('colors.orange')
 // t('colors.purple')
-// t('colors.red')
+// t('colors.cyan')
+// t('colors.magenta')
+// t('colors.lime')
+// t('colors.teal')
+// t('colors.brown')
+// t('colors.maroon')
+// t('colors.olive')
+// t('colors.navy')
+// t('colors.gray')
+// t('colors.black')
 
-export const DEFAULT_COLOR_LABELS: Map<string, string> = new Map([
-  [blue.value, "blue"],
-  [cyan.value, "cyan"],
-  [green.value, "green"],
-  [orange.value, "orange"],
-  [purple.value, "purple"],
-  [red.value, "red"],
-]);
+// Colors from https://sashamaps.net/docs/resources/20-colors/ with some colors removed for being too bright
+// and closest equivalent PF colors swapped in where applicable
+export const COLOR_HEX_VALUES_BY_NAME = {
+  red: "#d95f55", // (PF red is weird because 100 is too close to Maroon and 50 is too bright)
+  green: green.value,
+  gold: gold.value,
+  blue: blue.value,
+  orange: orange.value,
+  purple: purple.value,
+  cyan: cyan.value,
+  magenta: "#f032e6",
+  lime: "#bfef45",
+  teal: "#469990",
+  brown: "#9a6324",
+  maroon: "#800000",
+  olive: "#808000",
+  navy: "#000075",
+  gray: gray.value,
+  black: black.value,
+} as const;
 
-export const DEFAULT_COLOR_PALETE = [
-  blue.value,
-  cyan.value,
-  green.value,
-  orange.value,
-  purple.value,
-  red.value,
-];
+export const COLOR_NAMES_BY_HEX_VALUE: Record<
+  string,
+  keyof typeof COLOR_HEX_VALUES_BY_NAME | undefined
+> = Object.fromEntries(
+  Object.entries(COLOR_HEX_VALUES_BY_NAME).map((e) => e.reverse())
+);
 
 // Risks
 type RiskListType = {
