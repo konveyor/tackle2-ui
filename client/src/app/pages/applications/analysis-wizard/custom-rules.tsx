@@ -94,7 +94,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
     successfullyReadFileCount,
     handleFile,
     removeFiles,
-  } = useRuleFiles(props?.taskgroupID);
+  } = useRuleFiles(props?.taskgroupID, values.customRulesFiles);
 
   const repositoryTypeOptions: OptionWithValue<string>[] = [
     {
