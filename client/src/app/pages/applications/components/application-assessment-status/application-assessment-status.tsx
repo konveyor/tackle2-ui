@@ -10,7 +10,7 @@ import {
 import { Assessment } from "@app/api/models";
 import { Spinner } from "@patternfly/react-core";
 
-export interface ApplicationAssessmentProps {
+export interface ApplicationAssessmentStatusProps {
   assessment?: Assessment;
   isLoading: boolean;
   fetchError?: AxiosError;
@@ -29,11 +29,9 @@ const getStatusIconFrom = (assessment: Assessment): StatusIconType => {
   }
 };
 
-export const ApplicationAssessment: React.FC<ApplicationAssessmentProps> = ({
-  assessment,
-  isLoading,
-  fetchError,
-}) => {
+export const ApplicationAssessmentStatus: React.FC<
+  ApplicationAssessmentStatusProps
+> = ({ assessment, isLoading, fetchError }) => {
   const { t } = useTranslation();
 
   if (fetchError) {

@@ -39,7 +39,6 @@
     "ejs": "^3.1.7",
     "fast-xml-parser": "^4.0.3",
     "file-saver": "^2.0.5",
-    "formik": "^2.2.6",
     "i18next": "^19.8.4",
     "i18next-http-backend": "^1.0.22",
     "keycloak-js": "^18.0.1",

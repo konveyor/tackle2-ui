@@ -119,7 +119,7 @@ export interface CustomRulesStepValues {
   sourceRepository?: string;
   branch?: string;
   rootPath?: string;
-  associatedCredentials?: Ref;
+  associatedCredentials?: string;
 }
 export const customRulesFilesSchema: yup.SchemaOf<IReadFile> = yup.object({
   fileName: yup.string().required(),

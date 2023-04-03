@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import { useFormik, FormikProvider, FormikHelpers } from "formik";
 import { object, string, number } from "yup";
 import {
   ActionGroup,
@@ -9,27 +8,25 @@ import {
   Button,
   ButtonVariant,
   Form,
-  FormGroup,
   NumberInput,
-  TextInput,
 } from "@patternfly/react-core";
 
-import { SingleSelectOptionValueFormikField } from "@app/shared/components";
 import {
   DEFAULT_SELECT_MAX_HEIGHT,
   COLOR_HEX_VALUES_BY_NAME,
 } from "@app/Constants";
 import { createTagCategory, updateTagCategory } from "@app/api/rest";
 import { TagCategory } from "@app/api/models";
-import {
-  duplicateNameCheck,
-  getAxiosErrorMessage,
-  getValidatedFromError,
-  getValidatedFromErrorTouched,
-} from "@app/utils/utils";
-import { colorHexToOptionWithValue } from "@app/utils/model-utils";
+import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchTagCategories } from "@app/queries/tags";
-
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  HookFormPFGroupController,
+  HookFormPFTextInput,
+} from "@app/shared/components/hook-form-pf-fields";
+import { Color, OptionWithValue, SimpleSelect } from "@app/shared/components";
 export interface FormValues {
   name: string;
   rank?: number;
@@ -52,12 +49,6 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
   const [error, setError] = useState<AxiosError>();
 
   const { tagCategories: tagCategories } = useFetchTagCategories();
-
-  const initialValues: FormValues = {
-    name: tagCategory?.name || "",
-    rank: tagCategory?.rank || 1,
-    color: tagCategory?.colour || null,
-  };
 
   const validationSchema = object().shape({
     name: string()
@@ -83,11 +74,24 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
       .required(t("validation.required"))
       .min(1, t("validation.minLength", { length: 3 })),
   });
+  const {
+    handleSubmit,
+    formState: { isSubmitting, isValidating, isValid, isDirty },
+    getValues,
+    setValue,
+    control,
+    watch,
+  } = useForm<FormValues>({
+    defaultValues: {
+      name: tagCategory?.name || "",
+      rank: tagCategory?.rank || 1,
+      color: tagCategory?.colour || null,
+    },
+    resolver: yupResolver(validationSchema),
+    mode: "onChange",
+  });
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
+  const onSubmit = (formValues: FormValues) => {
     const payload: TagCategory = {
       name: formValues.name.trim(),
       rank: formValues.rank,
@@ -106,140 +110,116 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
 
     promise
       .then((response) => {
-        formikHelpers.setSubmitting(false);
         onSaved(response);
       })
       .catch((error) => {
-        formikHelpers.setSubmitting(false);
         setError(error);
       });
   };
 
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: initialValues,
-    validationSchema: validationSchema,
-    onSubmit: onSubmit,
-  });
-
-  const onChangeField = (value: string, event: React.FormEvent<any>) => {
-    formik.handleChange(event);
-  };
-
   return (
-    <FormikProvider value={formik}>
-      <Form onSubmit={formik.handleSubmit}>
-        {error && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(error)}
-          />
-        )}
-        <FormGroup
-          label={t("terms.name")}
-          fieldId="name"
-          isRequired={true}
-          validated={getValidatedFromError(formik.errors.name)}
-          helperTextInvalid={formik.errors.name}
-        >
-          <TextInput
-            type="text"
-            name="name"
-            id="tag-type-name"
-            aria-label="name"
-            aria-describedby="name"
-            isRequired={true}
-            onChange={onChangeField}
-            onBlur={formik.handleBlur}
-            value={formik.values.name}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.name,
-              formik.touched.name
-            )}
-            autoComplete="off"
-          />
-        </FormGroup>
-        <FormGroup
-          label={t("terms.rank")}
-          id="rank"
-          fieldId="rank"
-          isRequired={false}
-          validated={getValidatedFromError(formik.errors.rank)}
-          helperTextInvalid={formik.errors.rank}
-        >
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      {error && (
+        <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />
+      )}
+      <HookFormPFTextInput
+        control={control}
+        name="name"
+        label="Name"
+        fieldId="name"
+        isRequired
+      />
+      <HookFormPFGroupController
+        control={control}
+        name="rank"
+        label={t("terms.rank")}
+        fieldId="rank"
+        renderInput={({ field: { value, name, onChange } }) => (
           <NumberInput
-            id="rank-input-id"
-            inputName="rank"
+            inputName={name}
             inputAriaLabel="rank"
             minusBtnAriaLabel="minus"
             plusBtnAriaLabel="plus"
-            value={formik.values.rank}
+            value={value}
+            min={1}
+            max={10}
             onMinus={() => {
-              formik.setFieldValue("rank", (formik.values.rank || 0) - 1);
+              onChange((value || 0) - 1);
             }}
-            onChange={formik.handleChange}
+            onChange={onChange}
             onPlus={() => {
-              formik.setFieldValue("rank", (formik.values.rank || 0) + 1);
+              onChange((value || 0) + 1);
             }}
           />
-        </FormGroup>
-        <FormGroup
-          label={t("terms.color")}
-          fieldId="color"
-          isRequired={true}
-          validated={getValidatedFromError(formik.errors.color)}
-          helperTextInvalid={formik.errors.color}
-        >
-          <SingleSelectOptionValueFormikField<string>
-            fieldConfig={{ name: "color" }}
-            selectConfig={{
-              variant: "single",
-              toggleId: "color-toggle",
-              "aria-label": "color",
-              "aria-describedby": "color",
-              typeAheadAriaLabel: "color",
-              toggleAriaLabel: "Options menu",
-              clearSelectionsAriaLabel: "color",
-              removeSelectionAriaLabel: "color",
-              placeholderText: t("composed.selectOne", {
-                what: t("terms.color").toLowerCase(),
-              }),
-              menuAppendTo: () => document.body,
-              maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-            }}
-            options={Object.values(COLOR_HEX_VALUES_BY_NAME)}
-            toOptionWithValue={colorHexToOptionWithValue}
-          />
-        </FormGroup>
-
-        <ActionGroup>
-          <Button
-            type="submit"
-            id="tag-type-form-submit"
-            aria-label="submit"
-            variant={ButtonVariant.primary}
-            isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
+        )}
+      />
+      <HookFormPFGroupController
+        control={control}
+        name="color"
+        label={t("terms.color")}
+        fieldId="color"
+        isRequired
+        renderInput={({ field: { value, name, onChange } }) => (
+          <SimpleSelect
+            variant="single"
+            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+            id="type-select"
+            toggleId="type-select-toggle"
+            toggleAriaLabel="Type select dropdown toggle"
+            aria-label={name}
+            value={
+              value
+                ? toOptionLike(
+                    value,
+                    Object.values(COLOR_HEX_VALUES_BY_NAME).map((color) => {
+                      return {
+                        value: color,
+                        toString: () => color,
+                        props: {
+                          children: <Color hex={color} />,
+                        },
+                      };
+                    })
+                  )
+                : undefined
             }
-          >
-            {!tagCategory ? t("actions.create") : t("actions.save")}
-          </Button>
-          <Button
-            type="button"
-            id="cancel"
-            aria-label="cancel"
-            variant={ButtonVariant.link}
-            isDisabled={formik.isSubmitting || formik.isValidating}
-            onClick={onCancel}
-          >
-            {t("actions.cancel")}
-          </Button>
-        </ActionGroup>
-      </Form>
-    </FormikProvider>
+            options={Object.values(COLOR_HEX_VALUES_BY_NAME).map((color) => {
+              return {
+                value: color,
+                toString: () => color,
+                props: {
+                  children: <Color hex={color} />,
+                },
+              };
+            })}
+            onChange={(selection) => {
+              const selectionValue = selection as OptionWithValue<string>;
+              onChange(selectionValue.value);
+            }}
+          />
+        )}
+      />
+      <ActionGroup>
+        <Button
+          type="submit"
+          id="tag-type-form-submit"
+          aria-label="submit"
+          variant={ButtonVariant.primary}
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+        >
+          {!tagCategory ? t("actions.create") : t("actions.save")}
+        </Button>
+        <Button
+          type="button"
+          id="cancel"
+          aria-label="cancel"
+          variant={ButtonVariant.link}
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+          onClick={onCancel}
+        >
+          {t("actions.cancel")}
+        </Button>
+      </ActionGroup>
+    </Form>
   );
 };
