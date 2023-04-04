@@ -41,34 +41,41 @@ export interface IComposableRow extends TrProps {
 }
 type ColumnNameObj = { [key: string]: string };
 
-export interface IComposableTableWithControlsProps
+export interface IComposableTableWithControlsProps<T>
   extends TableComposableProps {
   withoutTopPagination?: boolean;
   withoutBottomPagination?: boolean;
-  toolbarBulkSelector?: any;
-  toolbarToggle?: any;
-  toolbarActions?: any;
+  toolbarBulkSelector?: React.ReactNode;
+  toolbarToggle?: React.ReactNode;
+  toolbarActions?: React.ReactNode;
   toolbarClearAllFilters?: () => void;
   paginationProps: PaginationStateProps;
   paginationIdPrefix?: string;
   isLoading?: boolean;
-  fetchError?: any;
-  errorState?: any;
+  fetchError?: unknown;
+  errorState?: React.ReactNode;
+  isNoData?: boolean;
+  noDataState?: React.ReactNode;
+
   columnNames: ColumnNameObj;
 
-  rowItems: any[];
-  handleIsRowSelected?: (item: IComposableRow) => boolean;
-  handleToggleRowSelected?: (
-    item: IComposableRow,
-    isSelecting: boolean
-  ) => void;
   isSelectable?: boolean;
-  noDataState?: any;
+  isRowSelected?: (item: T) => boolean;
+  toggleRowSelected?: (item: T, isSelecting?: boolean) => void;
+
+  isExpandable?: boolean;
+
+  renderTableBody: (renderTableBodyParams: {
+    renderSelectCheckboxTd: (item: T, rowIndex: number) => React.ReactNode;
+    renderExpandedContentTr: (renderExpandedContentParams: {
+      isExpanded: boolean;
+      expandedColumnName?: string;
+      content: React.ReactNode;
+    }) => React.ReactNode;
+  }) => React.ReactNode;
 }
 
-export const ComposableTableWithControls: React.FC<
-  IComposableTableWithControlsProps
-> = ({
+export const ComposableTableWithControls = <T,>({
   withoutTopPagination,
   withoutBottomPagination,
   toolbarBulkSelector,
@@ -79,16 +86,31 @@ export const ComposableTableWithControls: React.FC<
   paginationIdPrefix,
   isLoading,
   fetchError,
+  isNoData = false,
   errorState,
   columnNames,
-  rowItems,
-  handleIsRowSelected,
-  handleToggleRowSelected,
-  isSelectable,
+  isSelectable = false,
+  isRowSelected,
+  toggleRowSelected,
+  isExpandable = false,
   variant,
   noDataState,
-}) => {
+  renderTableBody,
+}: React.PropsWithChildren<
+  IComposableTableWithControlsProps<T>
+>): JSX.Element | null => {
   const { t } = useTranslation();
+
+  const isUsingSelection = isSelectable && isRowSelected && toggleRowSelected;
+  const isUsingActions = !!toolbarActions;
+
+  const numColumns =
+    Object.keys(columnNames).length +
+    (isUsingSelection ? 1 : 0) +
+    (isUsingActions ? 1 : 0);
+
+  // TODO FIXME, this just prevents rendering tables we haven't converted to use render props yet
+  if (typeof renderTableBody !== "function") return null;
 
   return (
     <div style={{ backgroundColor: "var(--pf-global--BackgroundColor--100)" }}>
@@ -119,103 +141,74 @@ export const ComposableTableWithControls: React.FC<
       <TableComposable aria-label="waves-table" variant={variant}>
         <Thead>
           <Tr>
-            {Object.keys(columnNames).map((name: string) => (
-              <Th>{columnNames[name]}</Th>
+            {isUsingSelection ? <Th /> : null}
+            {Object.keys(columnNames).map((nameKey: string) => (
+              <Th key={nameKey}>{columnNames[nameKey]}</Th>
             ))}
-            <Th />
+            {isUsingActions ? <Th /> : null}
           </Tr>
         </Thead>
-        {isLoading && (
+        {isLoading ? (
           <Tbody>
             <Tr>
-              <Td colSpan={8}>
+              <Td colSpan={numColumns}>
                 <Bullseye>
                   <Spinner size="xl" />
                 </Bullseye>
               </Td>
             </Tr>
           </Tbody>
-        )}
-        {fetchError && (
+        ) : fetchError ? (
           <Tbody aria-label="Table error">
             <Tr>
-              <Td colSpan={8}>
+              <Td colSpan={numColumns}>
                 <Bullseye>{errorState ? errorState : <StateError />}</Bullseye>
               </Td>
             </Tr>
           </Tbody>
-        )}
-        {rowItems.length === 0 && (
-          <Tbody aria-label="Tablerror">
+        ) : isNoData ? (
+          <Tbody aria-label="Table error">
             <Tr>
-              <Td colSpan={8}>
+              <Td colSpan={numColumns}>
                 <Bullseye>
                   {noDataState ? noDataState : <StateNoData />}
                 </Bullseye>
               </Td>
             </Tr>
           </Tbody>
-        )}
-
-        {rowItems.map((row: IComposableRow, rowIndex: number) => {
-          return (
-            <Tbody key={row.id} isExpanded={row.isExpanded}>
-              <Tr>
-                {isSelectable &&
-                  handleToggleRowSelected &&
-                  handleIsRowSelected && (
-                    <Td
-                      select={{
-                        rowIndex,
-                        onSelect: (_event, isSelecting) => {
-                          handleToggleRowSelected(row, isSelecting);
-                        },
-                        isSelected: handleIsRowSelected(row),
-                      }}
-                    />
-                  )}
-                {row.cells.map((cell: IRowCell, i) => (
+        ) : (
+          renderTableBody({
+            renderSelectCheckboxTd: (item, rowIndex) =>
+              isUsingSelection ? (
+                <Td
+                  select={{
+                    rowIndex,
+                    onSelect: (_event, isSelecting) => {
+                      toggleRowSelected(item, isSelecting);
+                    },
+                    isSelected: isRowSelected(item),
+                  }}
+                />
+              ) : null,
+            renderExpandedContentTr: ({
+              isExpanded,
+              expandedColumnName,
+              content,
+            }) =>
+              isExpandable && isExpanded ? (
+                <Tr isExpanded={isExpanded}>
                   <Td
-                    width={cell.width}
-                    dataLabel={cell.id}
-                    component="th"
-                    compoundExpand={cell.compoundExpand}
-                    className={cell.className}
-                    style={cell.style}
-                  >
-                    {cell.title}
-                    {cell.children}
-                  </Td>
-                ))}
-              </Tr>
-              {!!row.expandedContentMap && row.isExpanded ? (
-                <Tr isExpanded={row.isExpanded}>
-                  <Td
-                    dataLabel={columnNames[row.expandedCellKey]}
+                    dataLabel={expandedColumnName}
                     noPadding
-                    colSpan={8}
+                    colSpan={numColumns}
                     width={100}
                   >
-                    {Object.keys(row.expandedContentMap).map(
-                      (expandableRowName: string) => {
-                        if (row.expandedCellKey === expandableRowName) {
-                          return (
-                            <ExpandableRowContent>
-                              {!!row.expandedContentMap &&
-                                row.expandedContentMap[expandableRowName]}
-                            </ExpandableRowContent>
-                          );
-                        } else {
-                          return;
-                        }
-                      }
-                    )}
+                    <ExpandableRowContent>{content}</ExpandableRowContent>
                   </Td>
                 </Tr>
-              ) : null}
-            </Tbody>
-          );
-        })}
+              ) : null,
+          })
+        )}
       </TableComposable>
       {!withoutBottomPagination && (
         <SimplePagination
