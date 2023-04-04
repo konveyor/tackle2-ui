@@ -41,18 +41,17 @@ export const Waves: React.FC = () => {
 
   const { waves, isFetching, fetchError } = useFetchWaves();
 
-  type MigrationWave = any; // TODO add a real MigrationWave type and queries
   // When waveModalState is:
   //   'create': the modal is open for creating a new wave.
-  //   A MigrationWave: the modal is open for editing that wave.
+  //   A Wave: the modal is open for editing that wave.
   //   null: the modal is closed.
   const [waveModalState, setWaveModalState] = React.useState<
-    "create" | MigrationWave | null
+    "create" | Wave | null
   >(null);
   const isWaveModalOpen = waveModalState !== null;
   const waveBeingEdited = waveModalState !== "create" ? waveModalState : null;
   const openCreateWaveModal = () => setWaveModalState("create");
-  const openEditWaveModal = (wave: MigrationWave) => setWaveModalState(wave);
+  const openEditWaveModal = (wave: Wave) => setWaveModalState(wave);
   const closeWaveModal = () => setWaveModalState(null);
 
   const filterCategories: FilterCategory<Wave>[] = [

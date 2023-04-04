@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { ActionGroup, Button, Form } from "@patternfly/react-core";
 
-import { Stakeholder, StakeholderGroup } from "@app/api/models";
+import { Stakeholder, StakeholderGroup, Wave } from "@app/api/models";
 import { duplicateNameCheck } from "@app/utils/utils";
 import { HookFormPFTextInput } from "@app/shared/components/hook-form-pf-fields";
 
@@ -17,10 +17,8 @@ interface WaveFormValues {
   stakeholderGroups: StakeholderGroup[];
 }
 
-type MigrationWave = any; // TODO add a real MigrationWave type and queries
-
 export interface WaveFormProps {
-  waveBeingEdited?: MigrationWave;
+  waveBeingEdited?: Wave;
   onCancel: () => void;
 }
 
@@ -30,7 +28,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const waves: { name: string }[] = []; // TODO query this from the API, add a type for MigrationWaves
+  const waves: Wave[] = []; // TODO use the useFetchWaves query here
   const isLoading = false; // TODO
 
   const validationSchema: yup.SchemaOf<WaveFormValues> = yup.object().shape({

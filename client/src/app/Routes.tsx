@@ -12,6 +12,7 @@ import { RouteWrapper } from "./common/RouteWrapper";
 import { adminRoles, devRoles } from "./rbac";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "@app/common/ErrorFallback";
+import { FEATURES_ENABLED } from "./FeatureFlags";
 
 const Applications = lazy(() => import("./pages/applications"));
 const ManageImports = lazy(() => import("./pages/applications/manage-imports"));
@@ -72,11 +73,15 @@ export const devRoutes: IRoute[] = [
     comp: Reports,
     exact: false,
   },
-  {
-    path: Paths.waves,
-    comp: Waves,
-    exact: false,
-  },
+  ...(FEATURES_ENABLED.migrationWaves
+    ? [
+        {
+          path: Paths.waves,
+          comp: Waves,
+          exact: false,
+        },
+      ]
+    : []),
 ];
 
 export const adminRoutes: IRoute[] = [
