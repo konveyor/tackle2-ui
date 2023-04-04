@@ -13,7 +13,7 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { EmptyTextMessage } from "@app/shared/components";
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
-import { Assessment, Review } from "@app/api/models";
+import { Assessment, Review, Task } from "@app/api/models";
 import { ApplicationRisk } from "./application-risk";
 import {
   ApplicationDetailDrawer,
@@ -24,11 +24,12 @@ export interface IApplicationDetailDrawerAssessmentProps
   extends Pick<IApplicationDetailDrawerProps, "application" | "onCloseClick"> {
   reviews: Review[];
   assessment: Assessment | null;
+  task: Task | undefined | null;
 }
 
 export const ApplicationDetailDrawerAssessment: React.FC<
   IApplicationDetailDrawerAssessmentProps
-> = ({ application, onCloseClick, reviews, assessment }) => {
+> = ({ application, onCloseClick, reviews, assessment, task }) => {
   const { t } = useTranslation();
 
   const appReview = reviews?.find(
@@ -42,6 +43,7 @@ export const ApplicationDetailDrawerAssessment: React.FC<
   return (
     <ApplicationDetailDrawer
       application={application}
+      task={task}
       onCloseClick={onCloseClick}
       detailsTabMainContent={
         <>
