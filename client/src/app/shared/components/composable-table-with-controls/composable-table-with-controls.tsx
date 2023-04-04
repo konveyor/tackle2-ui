@@ -51,12 +51,8 @@ export interface IComposableTableWithControlsProps<
   isRowSelected?: (item: TItem) => boolean;
   toggleRowSelected?: (item: TItem, isSelecting?: boolean) => void;
 
-  // TODO we will need to adapt this to regular-expandable and not just compound-expandable
-  // (probably just means the addition of a renderExpandToggleTd in renderTableBody)
-  isExpandable?: boolean;
-  isRowExpanded?: (item: TItem, columnKey?: keyof TColumnNames) => boolean;
-
   renderTableBody: (renderTableBodyParams: {
+    isCellExpanded: (item: TItem, columnKey?: keyof TColumnNames) => boolean;
     getSelectCheckboxTdProps: (params: {
       item: TItem;
       rowIndex: number;
@@ -65,10 +61,9 @@ export interface IComposableTableWithControlsProps<
       item: TItem;
       rowIndex: number;
       columnKey: keyof TColumnNames;
-      onToggle: () => void;
     }) => Pick<TdProps, "compoundExpand">;
     getExpandedContentTdProps: (params: {
-      expandedColumnKey?: keyof TColumnNames;
+      item: TItem;
     }) => Pick<TdProps, "dataLabel" | "noPadding" | "colSpan" | "width">;
   }) => React.ReactNode;
 }
@@ -94,8 +89,6 @@ export const ComposableTableWithControls = <
   isSelectable = false,
   isRowSelected = () => false,
   toggleRowSelected = () => {},
-  isExpandable = false,
-  isRowExpanded = () => false,
   variant,
   noDataState,
   renderTableBody,
@@ -108,6 +101,39 @@ export const ComposableTableWithControls = <
     Object.keys(columnNames).length +
     (isSelectable ? 1 : 0) +
     (hasActionsColumn ? 1 : 0);
+
+  // TExpandedCells maps item names to either:
+  //  - The key of an expanded column in that row, if the table is compound-expandable
+  //  - The `true` literal value (the entire row is expanded), if non-compound-expandable
+  type TExpandedCells = Record<string, keyof TColumnNames | boolean>;
+  const [expandedCells, setExpandedCells] = React.useState<TExpandedCells>({});
+  const setCellExpanded = ({
+    item,
+    isExpanding = true,
+    columnKey,
+  }: {
+    item: TItem;
+    isExpanding?: boolean;
+    columnKey?: keyof TColumnNames;
+  }) => {
+    const newExpandedCells = { ...expandedCells };
+    if (isExpanding) {
+      newExpandedCells[item.name] = columnKey || true;
+    } else {
+      delete newExpandedCells[item.name];
+    }
+    setExpandedCells(newExpandedCells);
+  };
+  // isCellExpanded:
+  //  - If called with a columnKey, returns whether that specific cell is expanded
+  //  - If called without a columnKey, returns whether the row is expanded at all
+  const isCellExpanded = (item: TItem, columnKey?: keyof TColumnNames) =>
+    columnKey
+      ? expandedCells[item.name] === columnKey
+      : !!expandedCells[item.name];
+
+  // TODO we will need to adapt this to regular-expandable and not just compound-expandable
+  // (probably just means the addition of a renderExpandToggleTd in renderTableBody)
 
   // TODO FIXME, this just prevents rendering tables we haven't converted to use render props yet
   if (typeof renderTableBody !== "function") return null;
@@ -178,6 +204,7 @@ export const ComposableTableWithControls = <
           </Tbody>
         ) : (
           renderTableBody({
+            isCellExpanded,
             getSelectCheckboxTdProps: ({ item, rowIndex }) => ({
               select: {
                 rowIndex,
@@ -187,15 +214,15 @@ export const ComposableTableWithControls = <
                 isSelected: isRowSelected(item),
               },
             }),
-            getCompoundExpandTdProps: ({
-              item,
-              rowIndex,
-              columnKey,
-              onToggle,
-            }) => ({
+            getCompoundExpandTdProps: ({ item, rowIndex, columnKey }) => ({
               compoundExpand: {
-                isExpanded: isRowExpanded(item, columnKey),
-                onToggle, // TODO maybe we bring the setCellExpanded state into here?
+                isExpanded: isCellExpanded(item, columnKey),
+                onToggle: () =>
+                  setCellExpanded({
+                    item,
+                    isExpanding: !isCellExpanded(item, columnKey),
+                    columnKey,
+                  }),
                 expandId: `compound-expand-${item.name}-${columnKey as string}`,
                 rowIndex,
                 columnIndex: Object.keys(columnNames).indexOf(
@@ -203,12 +230,18 @@ export const ComposableTableWithControls = <
                 ),
               },
             }),
-            getExpandedContentTdProps: ({ expandedColumnKey }) => ({
-              dataLabel: expandedColumnKey && columnNames[expandedColumnKey],
-              noPadding: true,
-              colSpan: numColumns,
-              width: 100,
-            }),
+            getExpandedContentTdProps: ({ item }) => {
+              const expandedColumnKey = expandedCells[item.name];
+              return {
+                dataLabel:
+                  typeof expandedColumnKey === "string"
+                    ? columnNames[expandedColumnKey]
+                    : undefined,
+                noPadding: true,
+                colSpan: numColumns,
+                width: 100,
+              };
+            },
           })
         )}
       </TableComposable>

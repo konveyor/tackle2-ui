@@ -112,27 +112,6 @@ export const Waves: React.FC = () => {
     status: "Status",
   } as const;
 
-  //Compound expandable code
-  // TODO can we abstract this into the component? should we?
-  const [expandedCells, setExpandedCells] = React.useState<
-    Record<string, keyof typeof columnNames>
-  >({
-    wave1: "applications", // Default to the first cell of the first row being expanded
-  });
-  const setCellExpanded = (
-    wave: Wave,
-    columnKey: keyof typeof columnNames,
-    isExpanding = true
-  ) => {
-    const newExpandedCells = { ...expandedCells };
-    if (isExpanding) {
-      newExpandedCells[wave.name] = columnKey;
-    } else {
-      delete newExpandedCells[wave.name];
-    }
-    setExpandedCells(newExpandedCells);
-  };
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -149,12 +128,6 @@ export const Waves: React.FC = () => {
             isSelectable
             isRowSelected={isRowSelected}
             toggleRowSelected={toggleRowSelected}
-            isExpandable
-            isRowExpanded={(wave, columnKey) =>
-              columnKey
-                ? expandedCells[wave.name] === columnKey
-                : !!expandedCells[wave.name]
-            }
             toolbarActions={
               <ToolbarGroup variant="button-group">
                 {/* <RBAC
@@ -227,6 +200,7 @@ export const Waves: React.FC = () => {
             }
             toolbarClearAllFilters={handleOnClearAllFilters}
             renderTableBody={({
+              isCellExpanded,
               getSelectCheckboxTdProps,
               getCompoundExpandTdProps,
               getExpandedContentTdProps,
@@ -234,10 +208,7 @@ export const Waves: React.FC = () => {
               <>
                 {currentPageItems?.map((wave, rowIndex) => {
                   return (
-                    <Tbody
-                      key={wave.id}
-                      isExpanded={!!expandedCells[wave.name]}
-                    >
+                    <Tbody key={wave.id} isExpanded={isCellExpanded(wave)}>
                       <Tr>
                         <Td
                           {...getSelectCheckboxTdProps({
@@ -258,12 +229,6 @@ export const Waves: React.FC = () => {
                             item: wave,
                             rowIndex,
                             columnKey: "applications",
-                            onToggle: () =>
-                              setCellExpanded(
-                                wave,
-                                "applications",
-                                expandedCells[wave.name] !== "applications"
-                              ),
                           })}
                         >
                           {wave?.applications?.length.toString()}
@@ -274,12 +239,6 @@ export const Waves: React.FC = () => {
                             item: wave,
                             rowIndex,
                             columnKey: "stakeholders",
-                            onToggle: () =>
-                              setCellExpanded(
-                                wave,
-                                "stakeholders",
-                                expandedCells[wave.name] !== "stakeholders"
-                              ),
                           })}
                         >
                           {wave?.stakeholders?.length.toString()}
@@ -313,15 +272,11 @@ export const Waves: React.FC = () => {
                           />
                         </Td>
                       </Tr>
-                      {expandedCells[wave.name] ? (
+                      {isCellExpanded(wave) ? (
                         <Tr isExpanded>
-                          <Td
-                            {...getExpandedContentTdProps({
-                              expandedColumnKey: expandedCells[wave.name],
-                            })}
-                          >
+                          <Td {...getExpandedContentTdProps({ item: wave })}>
                             <ExpandableRowContent>
-                              {expandedCells[wave.name] === "applications" ? (
+                              {isCellExpanded(wave, "applications") ? (
                                 // TODO restore this
                                 /*
                                   <WaveApplicationsTable
@@ -331,8 +286,7 @@ export const Waves: React.FC = () => {
                                 <h1>
                                   TODO expanded content here for Applications
                                 </h1>
-                              ) : expandedCells[wave.name] ===
-                                "stakeholders" ? (
+                              ) : isCellExpanded(wave, "stakeholders") ? (
                                 // TODO restore this
                                 /*
                                   <WaveStakeholdersTable
