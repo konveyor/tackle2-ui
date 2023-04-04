@@ -20,6 +20,7 @@ import keycloak from "@app/keycloak";
 import "./SidebarApp.css";
 import { useLocalStorage } from "@migtools/lib-ui";
 import { LocalStorageKey } from "@app/Constants";
+import { FEATURES_ENABLED } from "@app/FeatureFlags";
 
 export const SidebarApp: React.FC = () => {
   const token = keycloak.tokenParsed || undefined;
@@ -101,6 +102,13 @@ export const SidebarApp: React.FC = () => {
               {t("sidebar.controls")}
             </NavLink>
           </NavItem>
+          {FEATURES_ENABLED.migrationWaves ? (
+            <NavItem>
+              <NavLink to={Paths.waves} activeClassName="pf-m-current">
+                {t("sidebar.waves")}
+              </NavLink>
+            </NavItem>
+          ) : null}
         </NavList>
       ) : (
         <NavList title="Admin">
@@ -155,6 +163,18 @@ export const SidebarApp: React.FC = () => {
               Custom migration targets
             </NavLink>
           </NavItem>
+          <NavExpandable
+            title="Issue management"
+            srText="SR Link"
+            groupId="admin-issue-management"
+            isExpanded
+          >
+            <NavItem>
+              <NavLink to={Paths.jira} activeClassName="pf-m-current">
+                Jira
+              </NavLink>
+            </NavItem>
+          </NavExpandable>
         </NavList>
       )}
     </Nav>
