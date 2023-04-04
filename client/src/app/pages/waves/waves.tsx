@@ -180,7 +180,6 @@ export const Waves: React.FC = () => {
             isNoData={currentPageItems.length === 0}
             paginationProps={paginationProps}
             toolbarBulkSelector={
-              // TODO can we abstract this into the component? should we?
               <ToolbarBulkSelector
                 onSelectAll={selectAll}
                 areAllSelected={areAllSelected}
@@ -191,7 +190,6 @@ export const Waves: React.FC = () => {
               />
             }
             toolbarToggle={
-              // TODO can we abstract this into the component? should we?
               <FilterToolbar<Wave>
                 filterCategories={filterCategories}
                 filterValues={filterValues}
