@@ -57,20 +57,19 @@ export interface IComposableTableWithControlsProps<
   isRowExpanded?: (item: TItem, columnKey?: keyof TColumnNames) => boolean;
 
   renderTableBody: (renderTableBodyParams: {
-    renderSelectCheckboxTd: (item: TItem, rowIndex: number) => React.ReactNode;
-    renderExpandedContentTr: (renderExpandedContentParams: {
+    getSelectCheckboxTdProps: (params: {
       item: TItem;
-      expandedColumnKey?: string;
-      content: React.ReactNode;
-    }) => React.ReactNode;
-    renderCompoundExpandTd: (renderCompoundExpandTdParams: {
+      rowIndex: number;
+    }) => Pick<TdProps, "select">;
+    getCompoundExpandTdProps: (params: {
       item: TItem;
       rowIndex: number;
       columnKey: keyof TColumnNames;
       onToggle: () => void;
-      tdProps?: Omit<TdProps, "ref">;
-      content: React.ReactNode;
-    }) => React.ReactNode;
+    }) => Pick<TdProps, "compoundExpand">;
+    getExpandedContentTdProps: (params: {
+      expandedColumnKey?: keyof TColumnNames;
+    }) => Pick<TdProps, "dataLabel" | "noPadding" | "colSpan" | "width">;
   }) => React.ReactNode;
 }
 
@@ -179,59 +178,37 @@ export const ComposableTableWithControls = <
           </Tbody>
         ) : (
           renderTableBody({
-            renderSelectCheckboxTd: (item, rowIndex) =>
-              isSelectable ? (
-                <Td
-                  select={{
-                    rowIndex,
-                    onSelect: (_event, isSelecting) => {
-                      toggleRowSelected(item, isSelecting);
-                    },
-                    isSelected: isRowSelected(item),
-                  }}
-                />
-              ) : null,
-            renderExpandedContentTr: ({ item, expandedColumnKey, content }) =>
-              isExpandable && isRowExpanded(item) ? (
-                <Tr isExpanded={isRowExpanded(item)}>
-                  <Td
-                    dataLabel={
-                      expandedColumnKey && columnNames[expandedColumnKey]
-                    }
-                    noPadding
-                    colSpan={numColumns}
-                    width={100}
-                  >
-                    <ExpandableRowContent>{content}</ExpandableRowContent>
-                  </Td>
-                </Tr>
-              ) : null,
-            renderCompoundExpandTd: ({
+            getSelectCheckboxTdProps: ({ item, rowIndex }) => ({
+              select: {
+                rowIndex,
+                onSelect: (_event, isSelecting) => {
+                  toggleRowSelected(item, isSelecting);
+                },
+                isSelected: isRowSelected(item),
+              },
+            }),
+            getCompoundExpandTdProps: ({
               item,
               rowIndex,
               columnKey,
               onToggle,
-              tdProps = {},
-              content,
-            }) => (
-              <Td
-                width={10}
-                compoundExpand={{
-                  isExpanded: isRowExpanded(item, columnKey),
-                  onToggle, // TODO maybe we bring the setCellExpanded state into here?
-                  expandId: `compound-expand-${item.name}-${
-                    columnKey as string
-                  }`,
-                  rowIndex,
-                  columnIndex: Object.keys(columnNames).indexOf(
-                    columnKey as string
-                  ),
-                }}
-                {...tdProps}
-              >
-                {content}
-              </Td>
-            ),
+            }) => ({
+              compoundExpand: {
+                isExpanded: isRowExpanded(item, columnKey),
+                onToggle, // TODO maybe we bring the setCellExpanded state into here?
+                expandId: `compound-expand-${item.name}-${columnKey as string}`,
+                rowIndex,
+                columnIndex: Object.keys(columnNames).indexOf(
+                  columnKey as string
+                ),
+              },
+            }),
+            getExpandedContentTdProps: ({ expandedColumnKey }) => ({
+              dataLabel: expandedColumnKey && columnNames[expandedColumnKey],
+              noPadding: true,
+              colSpan: numColumns,
+              width: 100,
+            }),
           })
         )}
       </TableComposable>

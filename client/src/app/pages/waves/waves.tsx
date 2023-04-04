@@ -29,7 +29,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSelectionState } from "@migtools/lib-ui";
-import { Tbody, Td, Tr } from "@patternfly/react-table";
+import { ExpandableRowContent, Tbody, Td, Tr } from "@patternfly/react-table";
 import dayjs from "dayjs";
 import { WaveApplicationsTable } from "./wave-applications-table/wave-applications-table";
 import { WaveStakeholdersTable } from "./wave-stakeholders-table/wave-stakeholders-table";
@@ -113,17 +113,15 @@ export const Waves: React.FC = () => {
   } as const;
 
   //Compound expandable code
-  type ColumnKey = keyof typeof columnNames;
-
   // TODO can we abstract this into the component? should we?
   const [expandedCells, setExpandedCells] = React.useState<
-    Record<string, ColumnKey>
+    Record<string, keyof typeof columnNames>
   >({
     wave1: "applications", // Default to the first cell of the first row being expanded
   });
   const setCellExpanded = (
     wave: Wave,
-    columnKey: ColumnKey,
+    columnKey: keyof typeof columnNames,
     isExpanding = true
   ) => {
     const newExpandedCells = { ...expandedCells };
@@ -229,9 +227,9 @@ export const Waves: React.FC = () => {
             }
             toolbarClearAllFilters={handleOnClearAllFilters}
             renderTableBody={({
-              renderSelectCheckboxTd,
-              renderExpandedContentTr,
-              renderCompoundExpandTd,
+              getSelectCheckboxTdProps,
+              getCompoundExpandTdProps,
+              getExpandedContentTdProps,
             }) => (
               <>
                 {currentPageItems?.map((wave, rowIndex) => {
@@ -241,7 +239,12 @@ export const Waves: React.FC = () => {
                       isExpanded={!!expandedCells[wave.name]}
                     >
                       <Tr>
-                        {renderSelectCheckboxTd(wave, rowIndex)}
+                        <Td
+                          {...getSelectCheckboxTdProps({
+                            item: wave,
+                            rowIndex,
+                          })}
+                        />
                         <Td width={25}>{wave.name}</Td>
                         <Td width={10}>
                           {dayjs(wave.startDate).format("DD/MM/YYYY")}
@@ -249,32 +252,38 @@ export const Waves: React.FC = () => {
                         <Td width={10}>
                           {dayjs(wave.endDate).format("DD/MM/YYYY")}
                         </Td>
-                        {renderCompoundExpandTd({
-                          item: wave,
-                          rowIndex,
-                          columnKey: "applications",
-                          onToggle: () =>
-                            setCellExpanded(
-                              wave,
-                              "applications",
-                              expandedCells[wave.name] !== "applications"
-                            ),
-                          tdProps: { width: 10 },
-                          content: wave?.applications?.length.toString(),
-                        })}
-                        {renderCompoundExpandTd({
-                          item: wave,
-                          rowIndex,
-                          columnKey: "stakeholders",
-                          onToggle: () =>
-                            setCellExpanded(
-                              wave,
-                              "stakeholders",
-                              expandedCells[wave.name] !== "stakeholders"
-                            ),
-                          tdProps: { width: 10 },
-                          content: wave?.applications?.length.toString(),
-                        })}
+                        <Td
+                          width={10}
+                          {...getCompoundExpandTdProps({
+                            item: wave,
+                            rowIndex,
+                            columnKey: "applications",
+                            onToggle: () =>
+                              setCellExpanded(
+                                wave,
+                                "applications",
+                                expandedCells[wave.name] !== "applications"
+                              ),
+                          })}
+                        >
+                          {wave?.applications?.length.toString()}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getCompoundExpandTdProps({
+                            item: wave,
+                            rowIndex,
+                            columnKey: "stakeholders",
+                            onToggle: () =>
+                              setCellExpanded(
+                                wave,
+                                "stakeholders",
+                                expandedCells[wave.name] !== "stakeholders"
+                              ),
+                          })}
+                        >
+                          {wave?.stakeholders?.length.toString()}
+                        </Td>
 
                         <Td width={20}>Status</Td>
                         <Td width={10}>
@@ -304,28 +313,40 @@ export const Waves: React.FC = () => {
                           />
                         </Td>
                       </Tr>
-                      {renderExpandedContentTr({
-                        item: wave,
-                        expandedColumnKey: expandedCells[wave.name],
-                        content:
-                          expandedCells[wave.name] === "applications" ? (
-                            // TODO restore this
-                            /*
-                            <WaveApplicationsTable
-                              applications={wave.applications}
-                            />
-                            */
-                            <h1>TODO expanded content here for Applications</h1>
-                          ) : expandedCells[wave.name] === "stakeholders" ? (
-                            // TODO restore this
-                            /*
-                            <WaveStakeholdersTable
-                              stakeholders={wave.stakeholders}
-                            />
-                            */
-                            <h1>TODO expanded content here for Stakeholders</h1>
-                          ) : null,
-                      })}
+                      {expandedCells[wave.name] ? (
+                        <Tr isExpanded>
+                          <Td
+                            {...getExpandedContentTdProps({
+                              expandedColumnKey: expandedCells[wave.name],
+                            })}
+                          >
+                            <ExpandableRowContent>
+                              {expandedCells[wave.name] === "applications" ? (
+                                // TODO restore this
+                                /*
+                                  <WaveApplicationsTable
+                                    applications={wave.applications}
+                                  />
+                                */
+                                <h1>
+                                  TODO expanded content here for Applications
+                                </h1>
+                              ) : expandedCells[wave.name] ===
+                                "stakeholders" ? (
+                                // TODO restore this
+                                /*
+                                  <WaveStakeholdersTable
+                                    stakeholders={wave.stakeholders}
+                                  />
+                                */
+                                <h1>
+                                  TODO expanded content here for Stakeholders
+                                </h1>
+                              ) : null}
+                            </ExpandableRowContent>
+                          </Td>
+                        </Tr>
+                      ) : null}
                     </Tbody>
                   );
                 })}
