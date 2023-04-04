@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   Flex,
-  Label,
   Spinner,
   TextContent,
   Text,
@@ -12,8 +11,8 @@ import {
   ToolbarToggleGroup,
   ToolbarItem,
   ButtonVariant,
+  Bullseye,
 } from "@patternfly/react-core";
-import { LabelCustomColor } from "@migtools/lib-ui";
 
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
@@ -170,8 +169,15 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
     }
   });
 
-  return !!tagsBySource.size ? (
-    <ConditionalRender when={isFetching} then={<Spinner isSVG size="md" />}>
+  return !!tagsBySource.size || isFetching ? (
+    <ConditionalRender
+      when={isFetching}
+      then={
+        <Bullseye className={spacing.mtLg}>
+          <Spinner size="xl">Loading...</Spinner>
+        </Bullseye>
+      }
+    >
       <Toolbar
         clearAllFilters={() => setFilterValues({})}
         clearFiltersButtonText={t("actions.clearAllFilters")}

@@ -6,9 +6,11 @@ import {
   Tabs,
   Tab,
   TabTitleText,
+  Spinner,
+  Bullseye,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Application } from "@app/api/models";
+import { Application, Task } from "@app/api/models";
 import {
   IPageDrawerContentProps,
   PageDrawerContent,
@@ -19,6 +21,7 @@ import { ApplicationTags } from "../application-tags";
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
   application: Application | null;
+  task: Task | undefined | null;
   applications?: Application[];
   detailsTabMainContent: React.ReactNode;
   reportsTabContent?: React.ReactNode;
@@ -35,6 +38,7 @@ export const ApplicationDetailDrawer: React.FC<
 > = ({
   onCloseClick,
   application,
+  task,
   detailsTabMainContent,
   reportsTabContent = null,
 }) => {
@@ -81,14 +85,26 @@ export const ApplicationDetailDrawer: React.FC<
           {detailsTabMainContent}
         </Tab>
         <Tab eventKey={TabKey.Tags} title={<TabTitleText>Tags</TabTitleText>}>
-          {application && <ApplicationTags application={application} />}
+          {application && task?.state === "Running" ? (
+            <Bullseye className={spacing.mtLg}>
+              <Spinner size="xl">Loading...</Spinner>
+            </Bullseye>
+          ) : (
+            application && <ApplicationTags application={application} />
+          )}
         </Tab>
         {reportsTabContent && (
           <Tab
             eventKey={TabKey.Reports}
             title={<TabTitleText>Reports</TabTitleText>}
           >
-            {reportsTabContent}
+            {task?.state === "Running" ? (
+              <Bullseye className={spacing.mtLg}>
+                <Spinner size="xl">Loading...</Spinner>
+              </Bullseye>
+            ) : (
+              reportsTabContent
+            )}
           </Tab>
         )}
       </Tabs>

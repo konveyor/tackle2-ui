@@ -62,6 +62,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
 
   return (
     <ApplicationDetailDrawer
+      task={task}
       application={updatedApplication || null}
       onCloseClick={onCloseClick}
       detailsTabMainContent={
