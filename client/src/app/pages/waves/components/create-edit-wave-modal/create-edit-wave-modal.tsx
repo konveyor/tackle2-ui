@@ -3,12 +3,11 @@ import { AxiosResponse } from "axios";
 import { Modal, ModalVariant } from "@patternfly/react-core";
 
 import { WaveForm } from "./wave-form";
-
-type MigrationWave = any; // TODO add a real MigrationWave type and queries
+import { Wave } from "@app/api/models";
 
 export interface CreateEditWaveModalProps {
   isOpen: boolean;
-  waveBeingEdited: MigrationWave;
+  waveBeingEdited: Wave | null;
   onSaved: (response: AxiosResponse<unknown>) => void;
   onCancel: () => void;
 }

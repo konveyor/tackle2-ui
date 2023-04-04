@@ -3,8 +3,8 @@ import { Application, Stakeholder, Wave } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
-import { ComposableAppTable } from "@app/shared/components/composable-app-table";
-import { IComposableRow } from "@app/shared/components/composable-app-table/composable-app-table";
+import { ComposableTableWithControls } from "@app/shared/components/composable-table-with-controls";
+import { IComposableRow } from "@app/shared/components/composable-table-with-controls/composable-table-with-controls";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import { Button } from "@patternfly/react-core";
 
@@ -88,12 +88,12 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
   });
 
   return (
-    <ComposableAppTable
+    <ComposableTableWithControls
       variant="compact"
       rowItems={rows}
       columnNames={columnNames}
       paginationProps={paginationProps}
       withoutBottomPagination={true}
-    ></ComposableAppTable>
+    ></ComposableTableWithControls>
   );
 };

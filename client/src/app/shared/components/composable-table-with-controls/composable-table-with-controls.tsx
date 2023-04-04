@@ -41,7 +41,7 @@ export interface IComposableRow extends TrProps {
 }
 type ColumnNameObj = { [key: string]: string };
 
-export interface IComposableWaveTableWithControlsProps
+export interface IComposableTableWithControlsProps
   extends TableComposableProps {
   withoutTopPagination?: boolean;
   withoutBottomPagination?: boolean;
@@ -66,8 +66,8 @@ export interface IComposableWaveTableWithControlsProps
   noDataState?: any;
 }
 
-export const ComposableAppTable: React.FC<
-  IComposableWaveTableWithControlsProps
+export const ComposableTableWithControls: React.FC<
+  IComposableTableWithControlsProps
 > = ({
   withoutTopPagination,
   withoutBottomPagination,

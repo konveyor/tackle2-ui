@@ -20,6 +20,7 @@ import keycloak from "@app/keycloak";
 import "./SidebarApp.css";
 import { useLocalStorage } from "@migtools/lib-ui";
 import { LocalStorageKey } from "@app/Constants";
+import { FEATURES_ENABLED } from "@app/FeatureFlags";
 
 export const SidebarApp: React.FC = () => {
   const token = keycloak.tokenParsed || undefined;
@@ -101,11 +102,13 @@ export const SidebarApp: React.FC = () => {
               {t("sidebar.controls")}
             </NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink to={Paths.waves} activeClassName="pf-m-current">
-              {t("sidebar.waves")}
-            </NavLink>
-          </NavItem>
+          {FEATURES_ENABLED.migrationWaves ? (
+            <NavItem>
+              <NavLink to={Paths.waves} activeClassName="pf-m-current">
+                {t("sidebar.waves")}
+              </NavLink>
+            </NavItem>
+          ) : null}
         </NavList>
       ) : (
         <NavList title="Admin">

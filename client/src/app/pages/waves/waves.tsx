@@ -12,7 +12,7 @@ import {
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { useFetchWaves } from "@app/queries/waves";
-import { ComposableAppTable } from "@app/shared/components/composable-app-table";
+import { ComposableTableWithControls } from "@app/shared/components/composable-table-with-controls";
 import {
   AppPlaceholder,
   ConditionalRender,
@@ -31,7 +31,7 @@ import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSelectionState } from "@migtools/lib-ui";
 import { TdProps } from "@patternfly/react-table";
 import dayjs from "dayjs";
-import { IComposableRow } from "@app/shared/components/composable-app-table/composable-app-table";
+import { IComposableRow } from "@app/shared/components/composable-table-with-controls/composable-table-with-controls";
 import { WaveApplicationsTable } from "./wave-applications-table/wave-applications-table";
 import { WaveStakeholdersTable } from "./wave-stakeholders-table/wave-stakeholders-table";
 import { CreateEditWaveModal } from "./components/create-edit-wave-modal";
@@ -41,18 +41,17 @@ export const Waves: React.FC = () => {
 
   const { waves, isFetching, fetchError } = useFetchWaves();
 
-  type MigrationWave = any; // TODO add a real MigrationWave type and queries
   // When waveModalState is:
   //   'create': the modal is open for creating a new wave.
-  //   A MigrationWave: the modal is open for editing that wave.
+  //   A Wave: the modal is open for editing that wave.
   //   null: the modal is closed.
   const [waveModalState, setWaveModalState] = React.useState<
-    "create" | MigrationWave | null
+    "create" | Wave | null
   >(null);
   const isWaveModalOpen = waveModalState !== null;
   const waveBeingEdited = waveModalState !== "create" ? waveModalState : null;
   const openCreateWaveModal = () => setWaveModalState("create");
-  const openEditWaveModal = (wave: MigrationWave) => setWaveModalState(wave);
+  const openEditWaveModal = (wave: Wave) => setWaveModalState(wave);
   const closeWaveModal = () => setWaveModalState(null);
 
   const filterCategories: FilterCategory<Wave>[] = [
@@ -279,7 +278,7 @@ export const Waves: React.FC = () => {
           when={isFetching && !(waves || fetchError)}
           then={<AppPlaceholder />}
         >
-          <ComposableAppTable
+          <ComposableTableWithControls
             isSelectable={true}
             handleToggleRowSelected={handleToggleRowSelected}
             handleIsRowSelected={handleIsRowSelected}
@@ -337,7 +336,7 @@ export const Waves: React.FC = () => {
               />
             }
             toolbarClearAllFilters={handleOnClearAllFilters}
-          ></ComposableAppTable>
+          ></ComposableTableWithControls>
         </ConditionalRender>
       </PageSection>
       <CreateEditWaveModal
