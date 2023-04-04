@@ -28,6 +28,7 @@ export enum Paths {
   controlsJobFunctions = "/controls/job-functions",
   controlsTags = "/controls/tags",
   reports = "/reports",
+  waves = "/waves",
 
   // Administrator perspective
   general = "/general",
@@ -38,6 +39,7 @@ export enum Paths {
   repositoriesMvn = "/repositories/maven",
   proxies = "/proxies",
   migrationTargets = "/migration-targets",
+  jira = "/jira",
 }
 
 export interface AssessmentRoute {

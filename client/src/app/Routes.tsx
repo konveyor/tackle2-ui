@@ -12,6 +12,7 @@ import { RouteWrapper } from "./common/RouteWrapper";
 import { adminRoles, devRoles } from "./rbac";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "@app/common/ErrorFallback";
+import { FEATURES_ENABLED } from "./FeatureFlags";
 
 const Applications = lazy(() => import("./pages/applications"));
 const ManageImports = lazy(() => import("./pages/applications/manage-imports"));
@@ -26,6 +27,8 @@ const Identities = lazy(() => import("./pages/identities"));
 const Proxies = lazy(() => import("./pages/proxies"));
 const MigrationTargets = lazy(() => import("./pages/migration-targets"));
 const General = lazy(() => import("./pages/general"));
+const Waves = lazy(() => import("./pages/waves"));
+const Jira = lazy(() => import("./pages/jira-trackers"));
 
 export interface IRoute {
   path: string;
@@ -70,6 +73,15 @@ export const devRoutes: IRoute[] = [
     comp: Reports,
     exact: false,
   },
+  ...(FEATURES_ENABLED.migrationWaves
+    ? [
+        {
+          path: Paths.waves,
+          comp: Waves,
+          exact: false,
+        },
+      ]
+    : []),
 ];
 
 export const adminRoutes: IRoute[] = [
@@ -100,6 +112,11 @@ export const adminRoutes: IRoute[] = [
   },
   { comp: Proxies, path: "/proxies", exact: false },
   { comp: MigrationTargets, path: "/migration-targets", exact: false },
+  {
+    comp: Jira,
+    path: Paths.jira,
+    exact: false,
+  },
 ];
 export const AppRoutes = () => {
   const location = useLocation();

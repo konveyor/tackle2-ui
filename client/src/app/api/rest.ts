@@ -17,6 +17,7 @@ import {
   Cache,
   Identity,
   IReadFile,
+  JiraTracker,
   JobFunction,
   Proxy,
   Review,
@@ -56,6 +57,7 @@ export const PROXIES = HUB + "/proxies";
 export const SETTINGS = HUB + "/settings";
 export const TASKS = HUB + "/tasks";
 export const TASKGROUPS = HUB + "/taskgroups";
+export const JIRATRACKERS = HUB + "/trackers";
 
 export const RULEBUNDLES = HUB + "/rulebundles";
 export const FILES = HUB + "/files";
@@ -592,3 +594,6 @@ export const getCache = (): Promise<Cache> =>
   axios.get(CACHE).then((response) => response.data);
 
 export const deleteCache = (): Promise<Cache> => axios.delete(CACHE);
+
+export const getJiraTrackers = () =>
+  axios.get<JiraTracker[]>(JIRATRACKERS).then((response) => response.data);
