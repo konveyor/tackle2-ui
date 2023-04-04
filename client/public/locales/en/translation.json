@@ -169,7 +169,8 @@
     "applicationInventory": "Application inventory",
     "controls": "Controls",
     "developer": "Migration",
-    "reports": "Reports"
+    "reports": "Reports",
+    "waves": "Migration waves"
   },
   "terms": {
     "accepted": "Accepted",
@@ -351,7 +352,7 @@
     "label": {
       "advancedOptions": "Specify additional options here.",
       "analysisSource": "Source for analysis",
-      "customRules": "Upload the rules you want to include in the analysis.",
+      "customRules": "Include rules for the analysis by uploading or importing from a repository.",
       "excludePackages": "Exclude packages",
       "noCustomRules": "No custom rules available",
       "notAllAnalyzable": "Some applications cannot be analyzed",
