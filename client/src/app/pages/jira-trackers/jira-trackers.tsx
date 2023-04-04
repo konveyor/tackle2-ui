@@ -10,7 +10,7 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { ComposableAppTable } from "@app/shared/components/composable-app-table";
+import { ComposableTableWithControls } from "@app/shared/components/composable-table-with-controls";
 import { AppPlaceholder, ConditionalRender } from "@app/shared/components";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
@@ -21,7 +21,7 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { IComposableRow } from "@app/shared/components/composable-app-table/composable-app-table";
+import { IComposableRow } from "@app/shared/components/composable-table-with-controls/composable-table-with-controls";
 import { useFetchJiraTrackers } from "@app/queries/jiratrackers";
 
 export const JiraTrackers: React.FC = () => {
@@ -102,7 +102,7 @@ export const JiraTrackers: React.FC = () => {
           when={isFetching && !(jiraTrackers || fetchError)}
           then={<AppPlaceholder />}
         >
-          <ComposableAppTable
+          <ComposableTableWithControls
             isSelectable={true}
             toolbarActions={
               <>
@@ -148,7 +148,7 @@ export const JiraTrackers: React.FC = () => {
               />
             }
             toolbarClearAllFilters={handleOnClearAllFilters}
-          ></ComposableAppTable>
+          ></ComposableTableWithControls>
         </ConditionalRender>
       </PageSection>
     </>
