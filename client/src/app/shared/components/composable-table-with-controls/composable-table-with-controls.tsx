@@ -6,10 +6,9 @@ import {
   Th,
   Tbody,
   Td,
-  TdProps,
   ExpandableRowContent,
-  TrProps,
   TableComposableProps,
+  TdProps,
 } from "@patternfly/react-table";
 
 import { StateError } from "@app/shared/components";
@@ -24,25 +23,13 @@ import {
 import { useTranslation } from "react-i18next";
 import { PaginationStateProps } from "@app/shared/hooks/usePaginationState";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
-import { TdCompoundExpandType } from "@patternfly/react-table/dist/esm/components/Table/base";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { StateNoData } from "../app-table/state-no-data";
 
-export interface IRowCell extends TdProps {
-  isExpanded?: boolean;
-  compoundExpand?: TdCompoundExpandType;
-}
-export interface IComposableRow extends TrProps {
-  isExpanded?: boolean;
-  expandedCellKey?: any;
-  isSelected?: boolean;
-  cells: IRowCell[];
-  expandedContentMap?: { [key: string]: any };
-}
-type ColumnNameObj = { [key: string]: string };
-
-export interface IComposableTableWithControlsProps<T>
-  extends TableComposableProps {
+export interface IComposableTableWithControlsProps<
+  TItem extends { name: string },
+  TColumnNames extends Record<string, string>
+> extends TableComposableProps {
   withoutTopPagination?: boolean;
   withoutBottomPagination?: boolean;
   toolbarBulkSelector?: React.ReactNode;
@@ -57,25 +44,40 @@ export interface IComposableTableWithControlsProps<T>
   isNoData?: boolean;
   noDataState?: React.ReactNode;
 
-  columnNames: ColumnNameObj;
+  columnNames: TColumnNames;
+  hasActionsColumn?: boolean;
 
   isSelectable?: boolean;
-  isRowSelected?: (item: T) => boolean;
-  toggleRowSelected?: (item: T, isSelecting?: boolean) => void;
+  isRowSelected?: (item: TItem) => boolean;
+  toggleRowSelected?: (item: TItem, isSelecting?: boolean) => void;
 
+  // TODO we will need to adapt this to regular-expandable and not just compound-expandable
+  // (probably just means the addition of a renderExpandToggleTd in renderTableBody)
   isExpandable?: boolean;
+  isRowExpanded?: (item: TItem, columnKey?: keyof TColumnNames) => boolean;
 
   renderTableBody: (renderTableBodyParams: {
-    renderSelectCheckboxTd: (item: T, rowIndex: number) => React.ReactNode;
+    renderSelectCheckboxTd: (item: TItem, rowIndex: number) => React.ReactNode;
     renderExpandedContentTr: (renderExpandedContentParams: {
-      isExpanded: boolean;
-      expandedColumnName?: string;
+      item: TItem;
+      expandedColumnKey?: string;
+      content: React.ReactNode;
+    }) => React.ReactNode;
+    renderCompoundExpandTd: (renderCompoundExpandTdParams: {
+      item: TItem;
+      rowIndex: number;
+      columnKey: keyof TColumnNames;
+      onToggle: () => void;
+      tdProps?: Omit<TdProps, "ref">;
       content: React.ReactNode;
     }) => React.ReactNode;
   }) => React.ReactNode;
 }
 
-export const ComposableTableWithControls = <T,>({
+export const ComposableTableWithControls = <
+  TItem extends { name: string },
+  TColumnNames extends Record<string, string>
+>({
   withoutTopPagination,
   withoutBottomPagination,
   toolbarBulkSelector,
@@ -89,25 +91,24 @@ export const ComposableTableWithControls = <T,>({
   isNoData = false,
   errorState,
   columnNames,
+  hasActionsColumn = false,
   isSelectable = false,
-  isRowSelected,
-  toggleRowSelected,
+  isRowSelected = () => false,
+  toggleRowSelected = () => {},
   isExpandable = false,
+  isRowExpanded = () => false,
   variant,
   noDataState,
   renderTableBody,
 }: React.PropsWithChildren<
-  IComposableTableWithControlsProps<T>
+  IComposableTableWithControlsProps<TItem, TColumnNames>
 >): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const isUsingSelection = isSelectable && isRowSelected && toggleRowSelected;
-  const isUsingActions = !!toolbarActions;
-
   const numColumns =
     Object.keys(columnNames).length +
-    (isUsingSelection ? 1 : 0) +
-    (isUsingActions ? 1 : 0);
+    (isSelectable ? 1 : 0) +
+    (hasActionsColumn ? 1 : 0);
 
   // TODO FIXME, this just prevents rendering tables we haven't converted to use render props yet
   if (typeof renderTableBody !== "function") return null;
@@ -141,11 +142,11 @@ export const ComposableTableWithControls = <T,>({
       <TableComposable aria-label="waves-table" variant={variant}>
         <Thead>
           <Tr>
-            {isUsingSelection ? <Th /> : null}
-            {Object.keys(columnNames).map((nameKey: string) => (
-              <Th key={nameKey}>{columnNames[nameKey]}</Th>
+            {isSelectable ? <Th /> : null}
+            {Object.keys(columnNames).map((columnKey: string) => (
+              <Th key={columnKey}>{columnNames[columnKey]}</Th>
             ))}
-            {isUsingActions ? <Th /> : null}
+            {hasActionsColumn ? <Th /> : null}
           </Tr>
         </Thead>
         {isLoading ? (
@@ -179,7 +180,7 @@ export const ComposableTableWithControls = <T,>({
         ) : (
           renderTableBody({
             renderSelectCheckboxTd: (item, rowIndex) =>
-              isUsingSelection ? (
+              isSelectable ? (
                 <Td
                   select={{
                     rowIndex,
@@ -190,15 +191,13 @@ export const ComposableTableWithControls = <T,>({
                   }}
                 />
               ) : null,
-            renderExpandedContentTr: ({
-              isExpanded,
-              expandedColumnName,
-              content,
-            }) =>
-              isExpandable && isExpanded ? (
-                <Tr isExpanded={isExpanded}>
+            renderExpandedContentTr: ({ item, expandedColumnKey, content }) =>
+              isExpandable && isRowExpanded(item) ? (
+                <Tr isExpanded={isRowExpanded(item)}>
                   <Td
-                    dataLabel={expandedColumnName}
+                    dataLabel={
+                      expandedColumnKey && columnNames[expandedColumnKey]
+                    }
                     noPadding
                     colSpan={numColumns}
                     width={100}
@@ -207,6 +206,32 @@ export const ComposableTableWithControls = <T,>({
                   </Td>
                 </Tr>
               ) : null,
+            renderCompoundExpandTd: ({
+              item,
+              rowIndex,
+              columnKey,
+              onToggle,
+              tdProps = {},
+              content,
+            }) => (
+              <Td
+                width={10}
+                compoundExpand={{
+                  isExpanded: isRowExpanded(item, columnKey),
+                  onToggle, // TODO maybe we bring the setCellExpanded state into here?
+                  expandId: `compound-expand-${item.name}-${
+                    columnKey as string
+                  }`,
+                  rowIndex,
+                  columnIndex: Object.keys(columnNames).indexOf(
+                    columnKey as string
+                  ),
+                }}
+                {...tdProps}
+              >
+                {content}
+              </Td>
+            ),
           })
         )}
       </TableComposable>

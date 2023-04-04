@@ -21,7 +21,7 @@ import {
 } from "@app/shared/components";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
-import { Application, Wave } from "@app/api/models";
+import { Wave } from "@app/api/models";
 import {
   FilterCategory,
   FilterToolbar,
@@ -29,9 +29,8 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSelectionState } from "@migtools/lib-ui";
-import { Tbody, Td, TdProps, Tr } from "@patternfly/react-table";
+import { Tbody, Td, Tr } from "@patternfly/react-table";
 import dayjs from "dayjs";
-import { IComposableRow } from "@app/shared/components/composable-table-with-controls/composable-table-with-controls";
 import { WaveApplicationsTable } from "./wave-applications-table/wave-applications-table";
 import { WaveStakeholdersTable } from "./wave-stakeholders-table/wave-stakeholders-table";
 import { CreateEditWaveModal } from "./components/create-edit-wave-modal";
@@ -111,7 +110,7 @@ export const Waves: React.FC = () => {
     applications: "Applications",
     stakeholders: "Stakeholders",
     status: "Status",
-  };
+  } as const;
 
   //Compound expandable code
   type ColumnKey = keyof typeof columnNames;
@@ -136,42 +135,6 @@ export const Waves: React.FC = () => {
     setExpandedCells(newExpandedCells);
   };
 
-  // TODO maybe we can integrate this in the abstraction somehow?
-  const compoundExpandParams = (
-    wave: Wave,
-    columnKey: ColumnKey,
-    rowIndex: number,
-    columnIndex: number
-  ): TdProps["compoundExpand"] => ({
-    isExpanded: expandedCells[wave.name] === columnKey,
-    onToggle: () =>
-      setCellExpanded(wave, columnKey, expandedCells[wave.name] !== columnKey),
-    expandId: "composable-compound-expandable-example",
-    rowIndex,
-    columnIndex,
-  });
-
-  //RBAC
-  // xxxxWriteAccess = checkAccess(userScopes, waveWriteScopes);
-  const waveRowDropdownItems = true //TODO: Check RBAC access
-    ? [
-        <DropdownItem
-          key="bulk-export-to-issue-manager"
-          component="button"
-          // onClick={() => setExportIssueModalOpen(true)}
-        >
-          {t("actions.export")}
-        </DropdownItem>,
-        <DropdownItem
-          key="bulk-delete"
-          // onClick={() => {
-          // }}
-        >
-          {t("actions.delete")}
-        </DropdownItem>,
-      ]
-    : [];
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -184,11 +147,16 @@ export const Waves: React.FC = () => {
           when={isFetching && !(waves || fetchError)}
           then={<AppPlaceholder />}
         >
-          <ComposableTableWithControls<Wave>
+          <ComposableTableWithControls<Wave, typeof columnNames>
             isSelectable
             isRowSelected={isRowSelected}
             toggleRowSelected={toggleRowSelected}
             isExpandable
+            isRowExpanded={(wave, columnKey) =>
+              columnKey
+                ? expandedCells[wave.name] === columnKey
+                : !!expandedCells[wave.name]
+            }
             toolbarActions={
               <ToolbarGroup variant="button-group">
                 {/* <RBAC
@@ -263,6 +231,7 @@ export const Waves: React.FC = () => {
             renderTableBody={({
               renderSelectCheckboxTd,
               renderExpandedContentTr,
+              renderCompoundExpandTd,
             }) => (
               <>
                 {currentPageItems?.map((wave, rowIndex) => {
@@ -280,28 +249,33 @@ export const Waves: React.FC = () => {
                         <Td width={10}>
                           {dayjs(wave.endDate).format("DD/MM/YYYY")}
                         </Td>
-                        <Td
-                          width={10}
-                          compoundExpand={compoundExpandParams(
-                            wave,
-                            "applications",
-                            rowIndex,
-                            1 // TODO Is this really the right columnIndex?
-                          )}
-                        >
-                          {wave?.applications?.length.toString()}
-                        </Td>
-                        <Td
-                          width={10}
-                          compoundExpand={compoundExpandParams(
-                            wave,
-                            "stakeholders",
-                            rowIndex,
-                            1 // TODO Is this really the right columnIndex?
-                          )}
-                        >
-                          {wave?.stakeholders?.length.toString()}
-                        </Td>
+                        {renderCompoundExpandTd({
+                          item: wave,
+                          rowIndex,
+                          columnKey: "applications",
+                          onToggle: () =>
+                            setCellExpanded(
+                              wave,
+                              "applications",
+                              expandedCells[wave.name] !== "applications"
+                            ),
+                          tdProps: { width: 10 },
+                          content: wave?.applications?.length.toString(),
+                        })}
+                        {renderCompoundExpandTd({
+                          item: wave,
+                          rowIndex,
+                          columnKey: "stakeholders",
+                          onToggle: () =>
+                            setCellExpanded(
+                              wave,
+                              "stakeholders",
+                              expandedCells[wave.name] !== "stakeholders"
+                            ),
+                          tdProps: { width: 10 },
+                          content: wave?.applications?.length.toString(),
+                        })}
+
                         <Td width={20}>Status</Td>
                         <Td width={10}>
                           <KebabDropdown
@@ -331,18 +305,25 @@ export const Waves: React.FC = () => {
                         </Td>
                       </Tr>
                       {renderExpandedContentTr({
-                        isExpanded: !!expandedCells[wave.name],
-                        expandedColumnName:
-                          columnNames[expandedCells[wave.name]],
+                        item: wave,
+                        expandedColumnKey: expandedCells[wave.name],
                         content:
                           expandedCells[wave.name] === "applications" ? (
+                            // TODO restore this
+                            /*
                             <WaveApplicationsTable
                               applications={wave.applications}
                             />
+                            */
+                            <h1>TODO expanded content here for Applications</h1>
                           ) : expandedCells[wave.name] === "stakeholders" ? (
+                            // TODO restore this
+                            /*
                             <WaveStakeholdersTable
                               stakeholders={wave.stakeholders}
                             />
+                            */
+                            <h1>TODO expanded content here for Stakeholders</h1>
                           ) : null,
                       })}
                     </Tbody>
