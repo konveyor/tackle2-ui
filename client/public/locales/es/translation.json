@@ -134,6 +134,7 @@
     "noResultsFoundBody": "Ningún resultado coincide con los criterios del filtro. Elimine todos los filtros o borre todos los filtros para mostrar los resultados.",
     "noResultsFoundTitle": "No se han encontrado resultados",
     "overrideAssessmentConfirmation": "Esta aplicación ya fue evaluada ¿Deseas continuar?",
+    "overrideReviewConfirmation": "Esta aplicación ya fue revisada ¿Deseas continuar?",
     "reviewInstructions": "Utilice esta sección para proporcionar su evaluación del posible plan de migración / modernización y la estimación del esfuerzo.",
     "savingSelection": "Guardando selección",
     "selectOwnerFromStakeholdersList": "Seleccione un propietario de la lista de interesados",

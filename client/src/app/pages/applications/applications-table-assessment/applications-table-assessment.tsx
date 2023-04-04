@@ -39,7 +39,7 @@ import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 
 import { formatPath, Paths } from "@app/Paths";
 
-import { Application, Assessment } from "@app/api/models";
+import { Application, Assessment, Review } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationForm } from "../components/application-form";
@@ -116,6 +116,9 @@ export const ApplicationsTable: React.FC = () => {
     setIsEditAssessmentConfirmDialogOpen,
   ] = React.useState<Boolean>(false);
 
+  const [isEditReviewConfirmDialogOpen, setIsEditReviewConfirmDialogOpen] =
+    React.useState<Boolean>(false);
+
   const [applicationToDelete, setApplicationToDelete] =
     React.useState<number>();
 
@@ -125,6 +128,7 @@ export const ApplicationsTable: React.FC = () => {
   ] = React.useState<Application>();
 
   const [assessmentToEdit, setAssessmentToEdit] = React.useState<Assessment>();
+  const [reviewToEdit, setReviewToEdit] = React.useState<number>();
 
   const { pushNotification } = React.useContext(NotificationsContext);
   const [isSubmittingBulkCopy, setIsSubmittingBulkCopy] = useState(false);
@@ -609,17 +613,16 @@ export const ApplicationsTable: React.FC = () => {
     }
 
     const row = selectedRows[0];
-    const assessment = getApplicationAssessment(row.id!);
-    if (!assessment && !reviewAssessmentSetting) {
-      console.log("You must assess the application before reviewing it");
-      return;
+    if (row.review) {
+      setReviewToEdit(row.id);
+      setIsEditReviewConfirmDialogOpen(true);
+    } else {
+      history.push(
+        formatPath(Paths.applicationsReview, {
+          applicationId: row.id,
+        })
+      );
     }
-
-    history.push(
-      formatPath(Paths.applicationsReview, {
-        applicationId: row.id,
-      })
-    );
   };
 
   // Flags
@@ -1031,6 +1034,30 @@ export const ApplicationsTable: React.FC = () => {
             );
             setAssessmentToEdit(undefined);
             setIsEditAssessmentConfirmDialogOpen(false);
+          }}
+        />
+      )}
+      {isEditReviewConfirmDialogOpen && (
+        <ConfirmDialog
+          title={t("composed.editQuestion", {
+            what: t("terms.review").toLowerCase(),
+          })}
+          titleIconVariant={"warning"}
+          isOpen={true}
+          message={t("message.overrideReviewConfirmation")}
+          confirmBtnVariant={ButtonVariant.primary}
+          confirmBtnLabel={t("actions.continue")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setIsEditReviewConfirmDialogOpen(false)}
+          onClose={() => setIsEditReviewConfirmDialogOpen(false)}
+          onConfirm={() => {
+            history.push(
+              formatPath(Paths.applicationsReview, {
+                applicationId: reviewToEdit,
+              })
+            );
+            setReviewToEdit(undefined);
+            setIsEditReviewConfirmDialogOpen(false);
           }}
         />
       )}
