@@ -171,6 +171,9 @@ export default function useRuleFiles(
         )
     );
     setRuleFiles(updatedRuleFilesList);
+    if (!updatedRuleFilesList.some((file) => file.loadResult === "danger")) {
+      setUploadError("");
+    }
     if (methods) {
       methods.setValue(
         "customRulesFiles",
