@@ -144,6 +144,7 @@
     "noResultsFoundBody": "No results match the filter criteria. Remove all filters or clear all filters to show results.",
     "noResultsFoundTitle": "No results found",
     "overrideAssessmentConfirmation": "This application has already been assessed. Do you want to continue?",
+    "overrideReviewConfirmation": "This application has already been reviewed. Do you want to continue?",
     "reviewInstructions": "Use this section to provide your assessment of the possible migration/modernization plan and effort estimation.",
     "savingSelection": "Saving selection",
     "selectOwnerFromStakeholdersList": "Select owner from list of stakeholders",
