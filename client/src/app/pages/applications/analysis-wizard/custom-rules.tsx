@@ -407,7 +407,8 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
               key="add"
               variant="primary"
               isDisabled={
-                !ruleFiles.find((file) => file.loadResult === "success")
+                !ruleFiles.find((file) => file.loadResult === "success") ||
+                ruleFiles.some((file) => file.loadResult === "danger")
               }
               onClick={(event) => {
                 let hasExistingRuleFile = null;
