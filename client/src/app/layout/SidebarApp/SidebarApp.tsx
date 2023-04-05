@@ -163,18 +163,20 @@ export const SidebarApp: React.FC = () => {
               Custom migration targets
             </NavLink>
           </NavItem>
-          <NavExpandable
-            title="Issue management"
-            srText="SR Link"
-            groupId="admin-issue-management"
-            isExpanded
-          >
-            <NavItem>
-              <NavLink to={Paths.jira} activeClassName="pf-m-current">
-                Jira
-              </NavLink>
-            </NavItem>
-          </NavExpandable>
+          {FEATURES_ENABLED.migrationWaves ? (
+            <NavExpandable
+              title="Issue management"
+              srText="SR Link"
+              groupId="admin-issue-management"
+              isExpanded
+            >
+              <NavItem>
+                <NavLink to={Paths.jira} activeClassName="pf-m-current">
+                  Jira
+                </NavLink>
+              </NavItem>
+            </NavExpandable>
+          ) : null}
         </NavList>
       )}
     </Nav>
