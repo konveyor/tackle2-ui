@@ -112,11 +112,15 @@ export const adminRoutes: IRoute[] = [
   },
   { comp: Proxies, path: "/proxies", exact: false },
   { comp: MigrationTargets, path: "/migration-targets", exact: false },
-  {
-    comp: Jira,
-    path: Paths.jira,
-    exact: false,
-  },
+  ...(FEATURES_ENABLED.migrationWaves
+    ? [
+        {
+          comp: Jira,
+          path: Paths.jira,
+          exact: false,
+        },
+      ]
+    : []),
 ];
 export const AppRoutes = () => {
   const location = useLocation();
