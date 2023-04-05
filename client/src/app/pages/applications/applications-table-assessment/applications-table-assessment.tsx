@@ -39,7 +39,8 @@ import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 
 import { formatPath, Paths } from "@app/Paths";
 
-import { Application, Assessment, Review } from "@app/api/models";
+
+import { Application, Assessment, Task, Review } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ApplicationForm } from "../components/application-form";
@@ -88,6 +89,7 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
 import { ApplicationDetailDrawerAssessment } from "../components/application-detail-drawer";
 import { useSetting } from "@app/queries/settings";
+import { useFetchTasks } from "@app/queries/tasks";
 
 const ENTITY_FIELD = "entity";
 
@@ -143,6 +145,11 @@ export const ApplicationsTable: React.FC = () => {
     fetchError,
     refetch: fetchApplications,
   } = useFetchApplications();
+
+  const { tasks } = useFetchTasks({ addon: "windup" });
+
+  const getTask = (application: Application) =>
+    tasks.find((task: Task) => task.application?.id === application.id);
 
   const queryClient = useQueryClient();
 
@@ -690,7 +697,13 @@ export const ApplicationsTable: React.FC = () => {
           isLoading={isFetching}
           loadingVariant="skeleton"
           fetchError={fetchError}
-          onAppClick={openDetailDrawer}
+          onAppClick={(application) => {
+            if (activeAppInDetailDrawer === application) {
+              closeDetailDrawer();
+            } else {
+              openDetailDrawer(application);
+            }
+          }}
           toolbarToggle={
             <FilterToolbar<Application>
               filterCategories={filterCategories}
@@ -804,6 +817,9 @@ export const ApplicationsTable: React.FC = () => {
             (activeAppInDetailDrawer &&
               getApplicationAssessment(activeAppInDetailDrawer.id!)) ||
             null
+          }
+          task={
+            activeAppInDetailDrawer ? getTask(activeAppInDetailDrawer) : null
           }
         />
       </ConditionalRender>

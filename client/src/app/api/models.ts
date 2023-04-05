@@ -484,3 +484,39 @@ export interface IReadFile {
 export interface TagRef extends Ref {
   source?: string;
 }
+
+export interface Wave {
+  name: string;
+  id?: number;
+  startDate: string;
+  endDate: string;
+  applications: Application[];
+  stakeholders: Stakeholder[];
+  status: string;
+}
+
+export interface Project {
+  id: string;
+  key: string;
+  name: string;
+  issueTypes: IssueType[];
+}
+
+export interface IssueType {
+  id: string;
+  key: string;
+  name: string;
+}
+
+export interface JiraTracker {
+  connected: boolean;
+  id: number;
+  identity: Ref;
+  kind: "jira-cloud" | "jira-server" | "jira-datacenter";
+  message: string;
+  metadata: {
+    projects: Project[];
+  };
+  name: string;
+  url: string;
+}
