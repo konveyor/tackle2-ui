@@ -693,7 +693,13 @@ export const ApplicationsTable: React.FC = () => {
           isLoading={isFetching}
           loadingVariant="skeleton"
           fetchError={fetchError}
-          onAppClick={openDetailDrawer}
+          onAppClick={(application) => {
+            if (activeAppInDetailDrawer === application) {
+              closeDetailDrawer();
+            } else {
+              openDetailDrawer(application);
+            }
+          }}
           toolbarToggle={
             <FilterToolbar<Application>
               filterCategories={filterCategories}
