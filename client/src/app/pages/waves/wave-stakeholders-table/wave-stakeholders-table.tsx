@@ -57,6 +57,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
       hasActionsColumn
       paginationProps={paginationProps}
       withoutBottomPagination={true}
+      isNoData={stakeholders.length === 0}
       renderTableBody={() => (
         <>
           {currentPageItems?.map((stakeholder) => (

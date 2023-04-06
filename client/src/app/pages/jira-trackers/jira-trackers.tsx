@@ -119,6 +119,7 @@ export const JiraTrackers: React.FC = () => {
             columnNames={columnNames}
             isLoading={isFetching}
             fetchError={fetchError}
+            isNoData={jiraTrackers.length === 0}
             paginationProps={paginationProps}
             toolbarToggle={
               <FilterToolbar<JiraTracker>

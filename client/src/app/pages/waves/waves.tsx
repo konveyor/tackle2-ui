@@ -179,7 +179,7 @@ export const Waves: React.FC = () => {
             hasActionsColumn
             isLoading={isFetching}
             fetchError={fetchError}
-            isNoData={currentPageItems.length === 0}
+            isNoData={waves.length === 0}
             paginationProps={paginationProps}
             toolbarBulkSelector={
               <ToolbarBulkSelector

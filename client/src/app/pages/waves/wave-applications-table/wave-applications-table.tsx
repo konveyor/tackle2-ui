@@ -52,6 +52,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
       hasActionsColumn
       paginationProps={paginationProps}
       withoutBottomPagination={true}
+      isNoData={applications.length === 0}
       renderTableBody={() => (
         <Tbody>
           {currentPageItems?.map((app) => (
