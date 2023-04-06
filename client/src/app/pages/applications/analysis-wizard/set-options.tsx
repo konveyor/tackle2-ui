@@ -68,7 +68,6 @@ export const SetOptions: React.FC = () => {
         name="formTargets"
         label={t("wizard.terms.targets")}
         fieldId="targets"
-        isRequired
         renderInput={({
           field: { onChange, onBlur, value: selectedFormTargets },
           fieldState: { isTouched, error },
