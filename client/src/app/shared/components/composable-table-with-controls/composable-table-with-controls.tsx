@@ -135,8 +135,6 @@ export const ComposableTableWithControls = <
   // TODO we will need to adapt this to regular-expandable and not just compound-expandable
   // (probably just means the addition of a renderExpandToggleTd in renderTableBody)
 
-  console.log({ isLoading, fetchError, isNoData });
-
   return (
     <div style={{ backgroundColor: "var(--pf-global--BackgroundColor--100)" }}>
       <Toolbar

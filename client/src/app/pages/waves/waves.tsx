@@ -216,22 +216,18 @@ export const Waves: React.FC = () => {
                             rowIndex,
                           })}
                         />
-                        <Td
-                          width={25}
-                          dataLabel={
-                            columnNames.name
-                          } /* TODO put dataLabel on the other cells */
-                        >
+                        <Td width={25} dataLabel={columnNames.name}>
                           {wave.name}
                         </Td>
-                        <Td width={10}>
+                        <Td width={10} dataLabel={columnNames.startDate}>
                           {dayjs(wave.startDate).format("DD/MM/YYYY")}
                         </Td>
-                        <Td width={10}>
+                        <Td width={10} dataLabel={columnNames.endDate}>
                           {dayjs(wave.endDate).format("DD/MM/YYYY")}
                         </Td>
                         <Td
                           width={10}
+                          dataLabel={columnNames.applications}
                           {...getCompoundExpandTdProps({
                             item: wave,
                             rowIndex,
@@ -242,6 +238,7 @@ export const Waves: React.FC = () => {
                         </Td>
                         <Td
                           width={10}
+                          dataLabel={columnNames.stakeholders}
                           {...getCompoundExpandTdProps({
                             item: wave,
                             rowIndex,
@@ -250,8 +247,9 @@ export const Waves: React.FC = () => {
                         >
                           {wave?.stakeholders?.length.toString()}
                         </Td>
-
-                        <Td width={20}>Status</Td>
+                        <Td width={20} dataLabel={columnNames.status}>
+                          Status
+                        </Td>
                         <Td width={10}>
                           <KebabDropdown
                             dropdownItems={
