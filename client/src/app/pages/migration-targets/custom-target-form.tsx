@@ -385,7 +385,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         name="imageID"
         label={t("terms.image")}
         fieldId="custom-migration-target-upload-image"
-        helperText="Upload a png or jpeg file"
+        helperText="Upload a png or jpeg file (Max size: 1 MB)"
         renderInput={({ field: { onChange, name }, fieldState: { error } }) => (
           <FileUpload
             id="custom-migration-target-upload-image"
