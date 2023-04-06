@@ -6,7 +6,6 @@ import {
   Th,
   Tbody,
   Td,
-  ExpandableRowContent,
   TableComposableProps,
   TdProps,
 } from "@patternfly/react-table";
@@ -29,7 +28,7 @@ import { StateNoData } from "../app-table/state-no-data";
 export interface IComposableTableWithControlsProps<
   TItem extends { name: string },
   TColumnNames extends Record<string, string>
-> extends TableComposableProps {
+> extends Omit<TableComposableProps, "ref"> {
   withoutTopPagination?: boolean;
   withoutBottomPagination?: boolean;
   toolbarBulkSelector?: React.ReactNode;
@@ -89,9 +88,10 @@ export const ComposableTableWithControls = <
   isSelectable = false,
   isRowSelected = () => false,
   toggleRowSelected = () => {},
-  variant,
   noDataState,
   renderTableBody,
+  variant,
+  ...props
 }: React.PropsWithChildren<
   IComposableTableWithControlsProps<TItem, TColumnNames>
 >): JSX.Element | null => {
@@ -135,8 +135,7 @@ export const ComposableTableWithControls = <
   // TODO we will need to adapt this to regular-expandable and not just compound-expandable
   // (probably just means the addition of a renderExpandToggleTd in renderTableBody)
 
-  // TODO FIXME, this just prevents rendering tables we haven't converted to use render props yet
-  if (typeof renderTableBody !== "function") return null;
+  console.log({ isLoading, fetchError, isNoData });
 
   return (
     <div style={{ backgroundColor: "var(--pf-global--BackgroundColor--100)" }}>
@@ -164,9 +163,10 @@ export const ComposableTableWithControls = <
           )}
         </ToolbarContent>
       </Toolbar>
-      <TableComposable aria-label="waves-table" variant={variant}>
+      <TableComposable variant={variant} {...props}>
         <Thead>
           <Tr>
+            {/* TODO is this a problem if we have a table that needs modifier props on these Th elements? maybe we'll need an optional `tableHeader` prop that overrides this? */}
             {isSelectable ? <Th /> : null}
             {Object.keys(columnNames).map((columnKey: string) => (
               <Th key={columnKey}>{columnNames[columnKey]}</Th>

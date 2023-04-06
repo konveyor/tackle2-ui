@@ -95,6 +95,7 @@ export const Waves: React.FC = () => {
     "", // Action column
   ];
 
+  // TODO add sort stuff to ComposableTableWithControls
   const { sortBy, onSort, sortedItems } = useSortState(
     filteredItems,
     getSortValues
@@ -175,6 +176,7 @@ export const Waves: React.FC = () => {
               </ToolbarGroup>
             }
             columnNames={columnNames}
+            hasActionsColumn
             isLoading={isFetching}
             fetchError={fetchError}
             isNoData={currentPageItems.length === 0}
@@ -214,7 +216,14 @@ export const Waves: React.FC = () => {
                             rowIndex,
                           })}
                         />
-                        <Td width={25}>{wave.name}</Td>
+                        <Td
+                          width={25}
+                          dataLabel={
+                            columnNames.name
+                          } /* TODO put dataLabel on the other cells */
+                        >
+                          {wave.name}
+                        </Td>
                         <Td width={10}>
                           {dayjs(wave.startDate).format("DD/MM/YYYY")}
                         </Td>
@@ -275,25 +284,15 @@ export const Waves: React.FC = () => {
                           <Td {...getExpandedContentTdProps({ item: wave })}>
                             <ExpandableRowContent>
                               {isCellExpanded(wave, "applications") ? (
-                                // TODO restore this
-                                /*
-                                  <WaveApplicationsTable
-                                    applications={wave.applications}
-                                  />
-                                */
-                                <h1>
-                                  TODO expanded content here for Applications
-                                </h1>
+                                <WaveApplicationsTable
+                                  wave={wave}
+                                  applications={wave.applications}
+                                />
                               ) : isCellExpanded(wave, "stakeholders") ? (
-                                // TODO restore this
-                                /*
-                                  <WaveStakeholdersTable
-                                    stakeholders={wave.stakeholders}
-                                  />
-                                */
-                                <h1>
-                                  TODO expanded content here for Stakeholders
-                                </h1>
+                                <WaveStakeholdersTable
+                                  wave={wave}
+                                  stakeholders={wave.stakeholders}
+                                />
                               ) : null}
                             </ExpandableRowContent>
                           </Td>
