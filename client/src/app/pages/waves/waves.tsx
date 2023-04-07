@@ -21,7 +21,7 @@ import {
 } from "@app/shared/components";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
-import { Application, Wave } from "@app/api/models";
+import { Wave } from "@app/api/models";
 import {
   FilterCategory,
   FilterToolbar,
@@ -29,9 +29,8 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
 import { useSelectionState } from "@migtools/lib-ui";
-import { TdProps } from "@patternfly/react-table";
+import { ExpandableRowContent, Tbody, Td, Tr } from "@patternfly/react-table";
 import dayjs from "dayjs";
-import { IComposableRow } from "@app/shared/components/composable-table-with-controls/composable-table-with-controls";
 import { WaveApplicationsTable } from "./wave-applications-table/wave-applications-table";
 import { WaveStakeholdersTable } from "./wave-stakeholders-table/wave-stakeholders-table";
 import { CreateEditWaveModal } from "./components/create-edit-wave-modal";
@@ -96,6 +95,7 @@ export const Waves: React.FC = () => {
     "", // Action column
   ];
 
+  // TODO add sort stuff to ComposableTableWithControls
   const { sortBy, onSort, sortedItems } = useSortState(
     filteredItems,
     getSortValues
@@ -105,167 +105,14 @@ export const Waves: React.FC = () => {
     usePaginationState(sortedItems, 10);
 
   const columnNames = {
-    select: "",
     name: "Name",
     startDate: "Start date",
     endDate: "End date",
     applications: "Applications",
     stakeholders: "Stakeholders",
     status: "Status",
-    actions: "",
-  };
+  } as const;
 
-  //Compound expandable code
-  type ColumnKey = keyof typeof columnNames;
-
-  const [expandedCells, setExpandedCells] = React.useState<
-    Record<string, ColumnKey>
-  >({
-    wave1: "applications", // Default to the first cell of the first row being expanded
-  });
-  const setCellExpanded = (
-    application: Application,
-    columnKey: ColumnKey,
-    isExpanding = true
-  ) => {
-    const newExpandedCells = { ...expandedCells };
-    if (isExpanding) {
-      newExpandedCells[application.name] = columnKey;
-    } else {
-      delete newExpandedCells[application.name];
-    }
-    setExpandedCells(newExpandedCells);
-  };
-  const compoundExpandParams = (
-    application: Application,
-    columnKey: ColumnKey,
-    rowIndex: number,
-    columnIndex: number
-  ): TdProps["compoundExpand"] => ({
-    isExpanded: expandedCells[application.name] === columnKey,
-    onToggle: () =>
-      setCellExpanded(
-        application,
-        columnKey,
-        expandedCells[application.name] !== columnKey
-      ),
-    expandId: "composable-compound-expandable-example",
-    rowIndex,
-    columnIndex,
-  });
-  const handleIsRowSelected = (row: IComposableRow) => {
-    const matchingWave = waves.find((wave) => wave.name === row.name);
-    return matchingWave ? isRowSelected(matchingWave) : false;
-  };
-  const handleToggleRowSelected = (
-    row: IComposableRow,
-    isSelecting: boolean
-  ) => {
-    const matchingWave = waves.find((wave) => wave.name === row.name);
-    matchingWave && toggleRowSelected(matchingWave, isSelecting);
-  };
-  //RBAC
-  // xxxxWriteAccess = checkAccess(userScopes, waveWriteScopes);
-  const waveRowDropdownItems = true //TODO: Check RBAC access
-    ? [
-        <DropdownItem
-          key="bulk-export-to-issue-manager"
-          component="button"
-          // onClick={() => setExportIssueModalOpen(true)}
-        >
-          {t("actions.export")}
-        </DropdownItem>,
-        <DropdownItem
-          key="bulk-delete"
-          // onClick={() => {
-          // }}
-        >
-          {t("actions.delete")}
-        </DropdownItem>,
-      ]
-    : [];
-  //
-
-  const rows: IComposableRow[] = [];
-  currentPageItems?.forEach((item, index) => {
-    const expandedCellKey = expandedCells[item.name];
-    const isRowExpanded = !!expandedCellKey;
-    const isSelected = isRowSelected(item);
-    rows.push({
-      name: item.name,
-      isExpanded: isRowExpanded,
-      expandedCellKey: expandedCellKey,
-      isSelected: isSelected,
-      expandedContentMap: {
-        applications: (
-          <WaveApplicationsTable
-            applications={item.applications}
-          ></WaveApplicationsTable>
-        ),
-        stakeholders: (
-          <WaveStakeholdersTable
-            stakeholders={item.stakeholders}
-          ></WaveStakeholdersTable>
-        ),
-      },
-      cells: [
-        {
-          title: item.name,
-          width: 25,
-        },
-        {
-          title: dayjs(item.startDate).format("DD/MM/YYYY"),
-          width: 10,
-        },
-        {
-          title: dayjs(item.endDate).format("DD/MM/YYYY"),
-          width: 10,
-        },
-        {
-          title: item?.applications?.length.toString(),
-          compoundExpand: compoundExpandParams(item, "applications", index, 1),
-          width: 10,
-        },
-        {
-          title: item?.stakeholders?.length.toString(),
-          compoundExpand: compoundExpandParams(item, "stakeholders", index, 1),
-          width: 10,
-        },
-        {
-          title: "Status",
-          width: 20,
-        },
-        {
-          children: (
-            <KebabDropdown dropdownItems={waveRowDropdownItems}></KebabDropdown>
-          ),
-          width: 10,
-        },
-      ],
-    });
-  });
-
-  //RBAC
-  // xxxxWriteAccess = checkAccess(userScopes, waveWriteScopes);
-  const waveDropdownItems = true //TODO: Check RBAC access
-    ? [
-        <DropdownItem
-          key="bulk-export-to-issue-manager"
-          component="button"
-          // onClick={() => setExportIssueModalOpen(true)}
-        >
-          {t("actions.export")}
-        </DropdownItem>,
-        <DropdownItem
-          key="bulk-delete"
-          // onClick={() => {
-          // }}
-        >
-          {t("actions.delete")}
-        </DropdownItem>,
-      ]
-    : [];
-  //
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -278,45 +125,61 @@ export const Waves: React.FC = () => {
           when={isFetching && !(waves || fetchError)}
           then={<AppPlaceholder />}
         >
-          <ComposableTableWithControls
-            isSelectable={true}
-            handleToggleRowSelected={handleToggleRowSelected}
-            handleIsRowSelected={handleIsRowSelected}
+          <ComposableTableWithControls<Wave, typeof columnNames>
+            isSelectable
+            isRowSelected={isRowSelected}
+            toggleRowSelected={toggleRowSelected}
             toolbarActions={
-              <>
-                <ToolbarGroup variant="button-group">
-                  {/* <RBAC
-                  allowedPermissions={[]}
-                  rbacType={RBAC_TYPE.Scope}
-                > */}
-                  <ToolbarItem>
-                    <Button
-                      type="button"
-                      id="create-wave"
-                      aria-label="Create new wave"
-                      variant={ButtonVariant.primary}
-                      onClick={openCreateWaveModal}
-                    >
-                      {t("actions.createNew")}
-                    </Button>
-                  </ToolbarItem>
-                  {/* </RBAC> */}
-                  {waveDropdownItems.length ? (
+              <ToolbarGroup variant="button-group">
+                {/* <RBAC
+                allowedPermissions={[]}
+                rbacType={RBAC_TYPE.Scope}
+              > */}
+                <ToolbarItem>
+                  <Button
+                    type="button"
+                    id="create-wave"
+                    aria-label="Create new wave"
+                    variant={ButtonVariant.primary}
+                    onClick={openCreateWaveModal}
+                  >
+                    {t("actions.createNew")}
+                  </Button>
+                </ToolbarItem>
+                {/* </RBAC> */}
+                {
+                  //RBAC
+                  // xxxxWriteAccess = checkAccess(userScopes, waveWriteScopes);
+                  true ? ( //TODO: Check RBAC access
                     <ToolbarItem>
                       <KebabDropdown
-                        dropdownItems={waveDropdownItems}
-                      ></KebabDropdown>
+                        dropdownItems={[
+                          <DropdownItem
+                            key="bulk-export-to-issue-manager"
+                            component="button"
+                            // onClick={() => setExportIssueModalOpen(true)}
+                          >
+                            {t("actions.export")}
+                          </DropdownItem>,
+                          <DropdownItem
+                            key="bulk-delete"
+                            // onClick={() => {
+                            // }}
+                          >
+                            {t("actions.delete")}
+                          </DropdownItem>,
+                        ]}
+                      />
                     </ToolbarItem>
-                  ) : (
-                    <></>
-                  )}
-                </ToolbarGroup>
-              </>
+                  ) : null
+                }
+              </ToolbarGroup>
             }
-            rowItems={rows}
             columnNames={columnNames}
+            hasActionsColumn
             isLoading={isFetching}
             fetchError={fetchError}
+            isNoData={waves.length === 0}
             paginationProps={paginationProps}
             toolbarBulkSelector={
               <ToolbarBulkSelector
@@ -336,7 +199,109 @@ export const Waves: React.FC = () => {
               />
             }
             toolbarClearAllFilters={handleOnClearAllFilters}
-          ></ComposableTableWithControls>
+            renderTableBody={({
+              isCellExpanded,
+              getSelectCheckboxTdProps,
+              getCompoundExpandTdProps,
+              getExpandedContentTdProps,
+            }) => (
+              <>
+                {currentPageItems?.map((wave, rowIndex) => {
+                  return (
+                    <Tbody key={wave.id} isExpanded={isCellExpanded(wave)}>
+                      <Tr>
+                        <Td
+                          {...getSelectCheckboxTdProps({
+                            item: wave,
+                            rowIndex,
+                          })}
+                        />
+                        <Td width={25} dataLabel={columnNames.name}>
+                          {wave.name}
+                        </Td>
+                        <Td width={10} dataLabel={columnNames.startDate}>
+                          {dayjs(wave.startDate).format("DD/MM/YYYY")}
+                        </Td>
+                        <Td width={10} dataLabel={columnNames.endDate}>
+                          {dayjs(wave.endDate).format("DD/MM/YYYY")}
+                        </Td>
+                        <Td
+                          width={10}
+                          dataLabel={columnNames.applications}
+                          {...getCompoundExpandTdProps({
+                            item: wave,
+                            rowIndex,
+                            columnKey: "applications",
+                          })}
+                        >
+                          {wave?.applications?.length.toString()}
+                        </Td>
+                        <Td
+                          width={10}
+                          dataLabel={columnNames.stakeholders}
+                          {...getCompoundExpandTdProps({
+                            item: wave,
+                            rowIndex,
+                            columnKey: "stakeholders",
+                          })}
+                        >
+                          {wave?.stakeholders?.length.toString()}
+                        </Td>
+                        <Td width={20} dataLabel={columnNames.status}>
+                          Status
+                        </Td>
+                        <Td width={10}>
+                          <KebabDropdown
+                            dropdownItems={
+                              //RBAC
+                              // xxxxWriteAccess = checkAccess(userScopes, waveWriteScopes);
+                              true //TODO: Check RBAC access
+                                ? [
+                                    <DropdownItem
+                                      key="bulk-export-to-issue-manager"
+                                      component="button"
+                                      // onClick={() => setExportIssueModalOpen(true)}
+                                    >
+                                      {t("actions.export")}
+                                    </DropdownItem>,
+                                    <DropdownItem
+                                      key="bulk-delete"
+                                      // onClick={() => {
+                                      // }}
+                                    >
+                                      {t("actions.delete")}
+                                    </DropdownItem>,
+                                  ]
+                                : []
+                            }
+                          />
+                        </Td>
+                      </Tr>
+                      {isCellExpanded(wave) ? (
+                        <Tr isExpanded>
+                          <Td {...getExpandedContentTdProps({ item: wave })}>
+                            <ExpandableRowContent>
+                              {isCellExpanded(wave, "applications") ? (
+                                <WaveApplicationsTable
+                                  wave={wave}
+                                  applications={wave.applications}
+                                />
+                              ) : isCellExpanded(wave, "stakeholders") ? (
+                                <WaveStakeholdersTable
+                                  wave={wave}
+                                  stakeholders={wave.stakeholders}
+                                />
+                              ) : null}
+                            </ExpandableRowContent>
+                          </Td>
+                        </Tr>
+                      ) : null}
+                    </Tbody>
+                  );
+                })}
+              </>
+            )}
+          />
         </ConditionalRender>
       </PageSection>
       <CreateEditWaveModal

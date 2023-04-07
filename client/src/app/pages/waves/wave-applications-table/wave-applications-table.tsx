@@ -1,18 +1,21 @@
 import React from "react";
-import { Application } from "@app/api/models";
+import { Application, Wave } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { ComposableTableWithControls } from "@app/shared/components/composable-table-with-controls";
-import { IComposableRow } from "@app/shared/components/composable-table-with-controls/composable-table-with-controls";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import { Button } from "@patternfly/react-core";
+import { Tbody, Td, Tr } from "@patternfly/react-table";
+import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
 
 export interface IWaveApplicationsTableProps {
+  wave: Wave;
   applications: Application[];
 }
 
 export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
+  wave,
   applications,
 }) => {
   const { t } = useTranslation();
@@ -21,8 +24,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
     description: "Description",
     businessService: "Business service",
     owner: "Owner",
-    actions: "",
-  };
+  } as const;
 
   const getSortValues = (item: Application) => [
     item?.name || "",
@@ -33,6 +35,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
     "", // Action column
   ];
 
+  // TODO add sort stuff to ComposableTableWithControls
   const { sortBy, onSort, sortedItems } = useSortState(
     applications,
     getSortValues
@@ -41,51 +44,40 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState(sortedItems, 10);
 
-  const rows: IComposableRow[] = [];
-  currentPageItems?.forEach((item, index) => {
-    rows.push({
-      id: item.name,
-      cells: [
-        {
-          id: "appName",
-          title: item.name,
-          width: 25,
-        },
-        {
-          id: "description",
-          title: item.description,
-          width: 10,
-        },
-        {
-          id: "businessServiceName",
-          title: item?.businessService?.name,
-          width: 10,
-        },
-        {
-          id: "owner",
-          title: "TODO: Owner",
-          width: 10,
-        },
-        {
-          children: (
-            <Button type="button" variant="plain" onClick={() => {}}>
-              <TrashIcon />
-            </Button>
-          ),
-          width: 10,
-          style: { textAlign: "right" },
-        },
-      ],
-    });
-  });
-
   return (
     <ComposableTableWithControls
       variant="compact"
-      rowItems={rows}
+      aria-label={`Applications table for wave ${wave.name}`}
       columnNames={columnNames}
+      hasActionsColumn
       paginationProps={paginationProps}
       withoutBottomPagination={true}
-    ></ComposableTableWithControls>
+      isNoData={applications.length === 0}
+      renderTableBody={() => (
+        <Tbody>
+          {currentPageItems?.map((app) => (
+            <Tr key={app.name}>
+              <Td width={25} dataLabel={columnNames.appName}>
+                {app.name}
+              </Td>
+              <Td width={10} dataLabel={columnNames.description}>
+                {app.description}
+              </Td>
+              <Td width={10} dataLabel={columnNames.businessService}>
+                {app?.businessService?.name}
+              </Td>
+              <Td width={10} dataLabel={columnNames.owner}>
+                TODO: Owner
+              </Td>
+              <Td width={10} className={alignment.textAlignRight}>
+                <Button type="button" variant="plain" onClick={() => {}}>
+                  <TrashIcon />
+                </Button>
+              </Td>
+            </Tr>
+          ))}
+        </Tbody>
+      )}
+    />
   );
 };
