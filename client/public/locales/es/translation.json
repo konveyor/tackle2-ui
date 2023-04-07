@@ -345,7 +345,7 @@
       "noCustomRules": "No custom rules personalizadas disponibles",
       "notAllAnalyzable": "Algunas aplicaciones no se pueden analizar",
       "notAllAnalyzableDetails": "Algunas de las aplicaciones seleccionadas no se pueden analizar con la fuente seleccionada porque esos valores no se han definido. Si continúa, estas aplicaciones no se incluirán en el análisis.",
-      "ruleFileRequired": "Se requiere un archivo de destino o regla.",
+      "skipTargets": "La selección de destino se puede omitir si se utilizan archivos de reglas personalizadas",
       "ruleFileRequiredDetails": "Se requiere al menos un archivo de reglas personalizadas si no se seleccionan objetivos.",
       "packageToInclude": "Agregar un paquete para incluir",
       "packageIncluded": "Este paquete ya está incluido.",
