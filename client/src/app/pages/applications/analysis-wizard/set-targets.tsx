@@ -126,7 +126,7 @@ export const SetTargets: React.FC = () => {
           <Alert
             variant="warning"
             isInline
-            title={t("wizard.label.ruleFileRequiredDetails")}
+            title={t("wizard.label.skipTargets")}
           />
         )}
       <Gallery hasGutter>
