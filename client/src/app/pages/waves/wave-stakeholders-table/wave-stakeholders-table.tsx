@@ -1,18 +1,21 @@
 import React from "react";
-import { Application, Stakeholder, Wave } from "@app/api/models";
+import { Stakeholder, Wave } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import { usePaginationState } from "@app/shared/hooks/usePaginationState";
 import { useSortState } from "@app/shared/hooks/useSortState";
 import { ComposableTableWithControls } from "@app/shared/components/composable-table-with-controls";
-import { IComposableRow } from "@app/shared/components/composable-table-with-controls/composable-table-with-controls";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import { Button } from "@patternfly/react-core";
+import { Td, Tr } from "@patternfly/react-table";
+import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
 
 export interface IWaveStakeholdersTableProps {
+  wave: Wave;
   stakeholders: Stakeholder[];
 }
 
 export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
+  wave,
   stakeholders,
 }) => {
   const { t } = useTranslation();
@@ -22,8 +25,9 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
   const columnNames = {
     name: "Name",
     jobFunction: "Job Function",
-    role: "role",
-    owner: "Stakeholders",
+    role: "Role",
+    email: "Email",
+    groups: "Stakeholder groups",
     actions: "",
   };
 
@@ -36,6 +40,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
     "", // Action column
   ];
 
+  // TODO add sort stuff to ComposableTableWithControls
   const { sortBy, onSort, sortedItems } = useSortState(
     stakeholders,
     getSortValues
@@ -44,56 +49,43 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
   const { currentPageItems, setPageNumber, paginationProps } =
     usePaginationState(sortedItems, 10);
 
-  const rows: IComposableRow[] = [];
-  currentPageItems?.forEach((item, index) => {
-    rows.push({
-      id: item.name,
-      cells: [
-        {
-          id: "name",
-          title: item.name,
-          width: 25,
-        },
-        {
-          id: "jobFunction",
-          title: item.jobFunction?.name,
-          width: 10,
-        },
-        {
-          id: "role",
-          title: "TODO: Role",
-          width: 10,
-        },
-        {
-          id: "email",
-          title: item.email,
-          width: 10,
-        },
-        {
-          id: "groups",
-          title: item?.stakeholderGroups?.length?.toString(),
-          width: 10,
-        },
-        {
-          children: (
-            <Button type="button" variant="plain" onClick={() => {}}>
-              <TrashIcon />
-            </Button>
-          ),
-          width: 10,
-          style: { textAlign: "right" },
-        },
-      ],
-    });
-  });
-
   return (
     <ComposableTableWithControls
       variant="compact"
-      rowItems={rows}
+      aria-label={`Stakeholders table for wave ${wave.name}`}
       columnNames={columnNames}
+      hasActionsColumn
       paginationProps={paginationProps}
       withoutBottomPagination={true}
-    ></ComposableTableWithControls>
+      isNoData={stakeholders.length === 0}
+      renderTableBody={() => (
+        <>
+          {currentPageItems?.map((stakeholder) => (
+            <Tr key={stakeholder.name}>
+              <Td width={25} dataLabel={columnNames.name}>
+                {stakeholder.name}
+              </Td>
+              <Td width={10} dataLabel={columnNames.jobFunction}>
+                {stakeholder.jobFunction?.name}
+              </Td>
+              <Td width={10} dataLabel={columnNames.role}>
+                TODO: Role
+              </Td>
+              <Td width={10} dataLabel={columnNames.email}>
+                {stakeholder.email}
+              </Td>
+              <Td width={10} dataLabel={columnNames.groups}>
+                {stakeholder?.stakeholderGroups?.length?.toString()}
+              </Td>
+              <Td width={10} className={alignment.textAlignRight}>
+                <Button type="button" variant="plain" onClick={() => {}}>
+                  <TrashIcon />
+                </Button>
+              </Td>
+            </Tr>
+          ))}
+        </>
+      )}
+    />
   );
 };

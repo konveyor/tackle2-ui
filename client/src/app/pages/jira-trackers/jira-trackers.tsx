@@ -21,8 +21,8 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { IComposableRow } from "@app/shared/components/composable-table-with-controls/composable-table-with-controls";
 import { useFetchJiraTrackers } from "@app/queries/jiratrackers";
+import { Tbody, Tr, Td } from "@patternfly/react-table";
 
 export const JiraTrackers: React.FC = () => {
   const { t } = useTranslation();
@@ -68,27 +68,8 @@ export const JiraTrackers: React.FC = () => {
 
   const columnNames = {
     name: "Name",
-    url: "Start date",
-    type: "Type",
-    actions: "",
-  };
-
-  const rows: IComposableRow[] = [];
-  currentPageItems?.forEach((item, index) => {
-    rows.push({
-      name: item.name,
-      cells: [
-        {
-          title: item.name,
-          width: 25,
-        },
-        {
-          title: "url",
-          width: 10,
-        },
-      ],
-    });
-  });
+    url: "URL",
+  } as const;
 
   return (
     <>
@@ -103,7 +84,7 @@ export const JiraTrackers: React.FC = () => {
           then={<AppPlaceholder />}
         >
           <ComposableTableWithControls
-            isSelectable={true}
+            isSelectable
             toolbarActions={
               <>
                 <ToolbarGroup variant="button-group">
@@ -135,10 +116,10 @@ export const JiraTrackers: React.FC = () => {
                 </ToolbarGroup>
               </>
             }
-            rowItems={rows}
             columnNames={columnNames}
             isLoading={isFetching}
             fetchError={fetchError}
+            isNoData={jiraTrackers.length === 0}
             paginationProps={paginationProps}
             toolbarToggle={
               <FilterToolbar<JiraTracker>
@@ -148,7 +129,21 @@ export const JiraTrackers: React.FC = () => {
               />
             }
             toolbarClearAllFilters={handleOnClearAllFilters}
-          ></ComposableTableWithControls>
+            renderTableBody={() => (
+              <Tbody>
+                {currentPageItems?.map((jiraTracker) => (
+                  <Tr key={jiraTracker.name}>
+                    <Td width={25} dataLabel={columnNames.name}>
+                      {jiraTracker.name}
+                    </Td>
+                    <Td width={10} dataLabel={columnNames.url}>
+                      TODO: URL
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            )}
+          />
         </ConditionalRender>
       </PageSection>
     </>
