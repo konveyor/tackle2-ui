@@ -1,6 +1,6 @@
 import React from "react";
 
-export const useCompoundExpandableState = <
+export const useCompoundExpansionState = <
   TItem extends { name: string },
   TColumnNames extends Record<string, string>
 >() => {

@@ -95,7 +95,6 @@ export const Waves: React.FC = () => {
     "", // Action column
   ];
 
-  // TODO add sort stuff to ComposableTableWithControls
   const { sortBy, onSort, sortedItems } = useSortState(
     filteredItems,
     getSortValues
