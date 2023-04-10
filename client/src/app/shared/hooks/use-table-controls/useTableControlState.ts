@@ -17,7 +17,7 @@ export interface UseTableControlStateArgs<
   hasActionsColumn?: boolean;
   filterCategories?: FilterCategory<TItem>[];
   filterStorageKey?: string;
-  getSortValues?: (item: TItem) => Record<keyof TColumnNames, string>;
+  getSortValues?: (item: TItem) => Record<keyof TColumnNames, string | number>;
   hasPagination?: boolean;
   initialItemsPerPage?: number;
 }
@@ -25,17 +25,21 @@ export interface UseTableControlStateArgs<
 export const useTableControlState = <
   TItem extends { name: string },
   TColumnNames extends Record<string, string>
->({
-  items,
-  columnNames,
-  isSelectable = false,
-  hasActionsColumn = false,
-  filterCategories = [],
-  filterStorageKey,
-  getSortValues,
-  hasPagination = true,
-  initialItemsPerPage = 10,
-}: UseTableControlStateArgs<TItem, TColumnNames>) => {
+>(
+  args: UseTableControlStateArgs<TItem, TColumnNames>
+) => {
+  const {
+    items,
+    columnNames,
+    isSelectable = false,
+    hasActionsColumn = false,
+    filterCategories = [],
+    filterStorageKey,
+    getSortValues,
+    hasPagination = true,
+    initialItemsPerPage = 10,
+  } = args;
+
   const numRenderedColumns =
     Object.keys(columnNames).length +
     (isSelectable ? 1 : 0) +
@@ -79,7 +83,7 @@ export const useTableControlState = <
   );
 
   return {
-    columnNames,
+    ...args,
     numRenderedColumns,
     firstDataColumnIndex,
     filterState,

@@ -5,6 +5,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { useTableControlState } from "./useTableControlState";
 import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-selector/toolbar-bulk-selector";
+import { IFilterToolbarProps } from "@app/shared/components/FilterToolbar";
 
 export interface UseTableControlPropsAdditionalArgs {
   variant?: TableComposableProps["variant"];
@@ -26,7 +27,8 @@ export const useTableControlProps = <
 
   const {
     numRenderedColumns,
-    filterState: { setFilterValues },
+    filterCategories,
+    filterState: { filterValues, setFilterValues },
     expansionState: { isCellExpanded, setCellExpanded, expandedCells },
     selectionState: {
       selectAll,
@@ -42,21 +44,14 @@ export const useTableControlProps = <
     columnNames,
   } = args;
 
-  const toolbarProps: ToolbarProps = {
+  const toolbarProps: Omit<ToolbarProps, "ref"> = {
     className: variant === "compact" ? spacing.pt_0 : "",
     collapseListedFiltersBreakpoint: "xl",
     clearAllFilters: () => setFilterValues({}),
     clearFiltersButtonText: t("actions.clearAllFilters"),
   };
 
-  // TODO how to abstract the toolbarToggle, toolbarActions props?
-
-  const paginationToolbarItemProps: ToolbarItemProps = {
-    variant: "pagination",
-    alignment: { default: "alignRight" },
-  };
-
-  const tableProps: TableComposableProps = { variant };
+  const tableProps: Omit<TableComposableProps, "ref"> = { variant };
 
   const toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem> = {
     onSelectAll: selectAll,
@@ -67,6 +62,17 @@ export const useTableControlProps = <
     onSelectMultiple: selectMultiple,
   };
 
+  const filterToolbarProps: IFilterToolbarProps<TItem> = {
+    filterCategories: filterCategories!,
+    filterValues,
+    setFilterValues,
+  };
+
+  const paginationToolbarItemProps: ToolbarItemProps = {
+    variant: "pagination",
+    alignment: { default: "alignRight" },
+  };
+
   // TODO how to handle the Thead / column name headers?
 
   const getSelectCheckboxTdProps = ({
@@ -75,7 +81,7 @@ export const useTableControlProps = <
   }: {
     item: TItem;
     rowIndex: number;
-  }): TdProps => ({
+  }): Omit<TdProps, "ref"> => ({
     select: {
       rowIndex,
       onSelect: (_event, isSelecting) => {
@@ -93,7 +99,7 @@ export const useTableControlProps = <
     item: TItem;
     rowIndex: number;
     columnKey: keyof TColumnNames;
-  }): TdProps => ({
+  }): Omit<TdProps, "ref"> => ({
     compoundExpand: {
       isExpanded: isCellExpanded(item, columnKey),
       onToggle: () =>
@@ -108,7 +114,11 @@ export const useTableControlProps = <
     },
   });
 
-  const getExpandedContentTdProps = ({ item }: { item: TItem }): TdProps => {
+  const getExpandedContentTdProps = ({
+    item,
+  }: {
+    item: TItem;
+  }): Omit<TdProps, "ref"> => {
     const expandedColumnKey = expandedCells[item.name];
     return {
       dataLabel:
@@ -125,9 +135,10 @@ export const useTableControlProps = <
     ...args,
     propHelpers: {
       toolbarProps,
-      paginationToolbarItemProps,
       tableProps,
       toolbarBulkSelectorProps,
+      filterToolbarProps,
+      paginationToolbarItemProps,
       getSelectCheckboxTdProps,
       getCompoundExpandTdProps,
       getExpandedContentTdProps,

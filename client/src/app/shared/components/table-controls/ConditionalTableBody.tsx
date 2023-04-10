@@ -9,8 +9,8 @@ export interface IConditionalTableBodyProps {
   isError: boolean;
   isNoData: boolean;
   numRenderedColumns: number;
-  errorEmptyState: React.ReactNode;
-  noDataEmptyState: React.ReactNode;
+  errorEmptyState?: React.ReactNode;
+  noDataEmptyState?: React.ReactNode;
   children: React.ReactNode;
 }
 
