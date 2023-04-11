@@ -197,6 +197,7 @@ export const Waves: React.FC = () => {
             <TableComposable {...tableProps} aria-label="Migration waves table">
               <Thead>
                 {/* TODO is there any way we can abstract this Thead into a component? how do we make sure we can still put modifier props on the Th for each column? */}
+                {/* TODO implement sorting first so we can see how that fits into the abstraction */}
                 <Th /* Checkbox column */ />
                 {Object.keys(columnNames).map((columnKey) => (
                   <Th key={columnKey}>
