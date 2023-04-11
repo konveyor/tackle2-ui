@@ -42,17 +42,15 @@ export const useTableControlState = <
 
   // Some table controls rely on extra columns inserted before or after the ones included in columnNames.
   // We need to account for those when dealing with props based on column index and colSpan.
-  let numRenderedColumns = Object.keys(columnNames).length;
-  let firstDataColumnIndex = 0;
-  if (isSelectable) {
-    numRenderedColumns++;
-    firstDataColumnIndex++; // Select checkbox column goes on the left
-  }
-  if (expandableVariant === "single") {
-    numRenderedColumns++;
-    firstDataColumnIndex++; // Expand toggle column goes on the left
-  }
-  if (hasActionsColumn) numRenderedColumns++;
+  let numColumnsBeforeData = 0;
+  let numColumnsAfterData = 0;
+  if (isSelectable) numColumnsBeforeData++;
+  if (expandableVariant === "single") numColumnsBeforeData++;
+  if (hasActionsColumn) numColumnsAfterData++;
+  const numRenderedColumns =
+    Object.keys(columnNames).length +
+    numColumnsBeforeData +
+    numColumnsAfterData;
 
   const filterState = useFilterState(items, filterCategories, filterStorageKey);
 
@@ -72,8 +70,8 @@ export const useTableControlState = <
           // TODO rewrite or write an alternate useSortState to be based on columnKey instead.
           const sortValuesByColumnKey = getSortValues(item);
           return [
-            ...(firstDataColumnIndex > 0
-              ? new Array(firstDataColumnIndex).fill("")
+            ...(numColumnsBeforeData > 0
+              ? new Array(numColumnsBeforeData).fill("")
               : []),
             ...Object.keys(columnNames).map(
               (columnKey) => sortValuesByColumnKey[columnKey] || ""
@@ -91,7 +89,8 @@ export const useTableControlState = <
   return {
     ...args,
     numRenderedColumns,
-    firstDataColumnIndex,
+    numColumnsBeforeData,
+    numColumnsAfterData,
     filterState,
     expansionState,
     selectionState,

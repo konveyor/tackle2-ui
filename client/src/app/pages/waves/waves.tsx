@@ -40,7 +40,10 @@ import { WaveStakeholdersTable } from "./wave-stakeholders-table/wave-stakeholde
 import { CreateEditWaveModal } from "./components/create-edit-wave-modal";
 import { useTableControls } from "@app/shared/hooks/use-table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
-import { ConditionalTableBody } from "@app/shared/components/table-controls";
+import {
+  ConditionalTableBody,
+  TableHeaderRowContentWithControls,
+} from "@app/shared/components/table-controls";
 
 export const Waves: React.FC = () => {
   const { t } = useTranslation();
@@ -69,27 +72,7 @@ export const Waves: React.FC = () => {
     status: "Status",
   } as const;
 
-  const {
-    numRenderedColumns,
-    expansionState: { isCellExpanded },
-    selectionState: { selectedItems },
-    paginationState: {
-      paginationProps, // TODO maybe paginationProps should be in propHelpers and not part of the responsibility of usePaginationState
-      currentPageItems,
-    },
-    propHelpers: {
-      toolbarProps,
-      toolbarBulkSelectorProps,
-      filterToolbarProps,
-      paginationToolbarItemProps,
-      tableProps,
-      getThProps,
-      getTdProps,
-      getExpandedContentTdProps,
-      getSelectCheckboxTdProps,
-      getCompoundExpandTdProps,
-    },
-  } = useTableControls({
+  const tableControls = useTableControls({
     items: waves,
     columnNames,
     isSelectable: true,
@@ -119,6 +102,27 @@ export const Waves: React.FC = () => {
     }),
     hasPagination: true,
   });
+  const {
+    numRenderedColumns,
+    expansionState: { isCellExpanded },
+    selectionState: { selectedItems },
+    paginationState: {
+      paginationProps, // TODO maybe paginationProps should be in propHelpers and not part of the responsibility of usePaginationState
+      currentPageItems,
+    },
+    propHelpers: {
+      toolbarProps,
+      toolbarBulkSelectorProps,
+      filterToolbarProps,
+      paginationToolbarItemProps,
+      tableProps,
+      getThProps,
+      getTdProps,
+      getExpandedContentTdProps,
+      getSelectCheckboxTdProps,
+      getCompoundExpandTdProps,
+    },
+  } = tableControls;
 
   console.log({ selectedItems });
 
@@ -199,21 +203,14 @@ export const Waves: React.FC = () => {
             <TableComposable {...tableProps} aria-label="Migration waves table">
               <Thead>
                 <Tr>
-                  {/* TODO is there any way we can abstract this Thead into a component? how do we make sure we can still put modifier props on the Th for each column? */}
-                  {/* TODO implement sorting first so we can see how that fits into the abstraction */}
-                  <Th /* Checkbox column */ />
-                  <Th {...getThProps("name")} />
-                  <Th {...getThProps("startDate")} />
-                  <Th {...getThProps("endDate")} />
-                  <Th {...getThProps("applications")} />
-                  <Th {...getThProps("stakeholders")} />
-                  <Th {...getThProps("status")} />
-                  {Object.keys(columnNames).map((columnKey) => (
-                    <Th key={columnKey}>
-                      {columnNames[columnKey as keyof typeof columnNames]}
-                    </Th>
-                  ))}
-                  <Th /* Actions column */ />
+                  <TableHeaderRowContentWithControls {...tableControls}>
+                    <Th {...getThProps("name")} />
+                    <Th {...getThProps("startDate")} />
+                    <Th {...getThProps("endDate")} />
+                    <Th {...getThProps("applications")} />
+                    <Th {...getThProps("stakeholders")} />
+                    <Th {...getThProps("status")} />
+                  </TableHeaderRowContentWithControls>
                 </Tr>
               </Thead>
               <ConditionalTableBody
