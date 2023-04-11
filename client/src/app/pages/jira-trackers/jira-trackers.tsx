@@ -46,7 +46,6 @@ export const JiraTrackers: React.FC = () => {
 
   const {
     numRenderedColumns,
-    expansionState: { isCellExpanded },
     selectionState: { selectedItems },
     paginationState: {
       paginationProps, // TODO maybe paginationProps should be in propHelpers and not part of the responsibility of usePaginationState
@@ -58,9 +57,7 @@ export const JiraTrackers: React.FC = () => {
       filterToolbarProps,
       paginationToolbarItemProps,
       tableProps,
-      getExpandedContentTdProps,
       getSelectCheckboxTdProps,
-      getCompoundExpandTdProps,
     },
   } = useTableControls({
     items: jiraTrackers,
@@ -166,8 +163,14 @@ export const JiraTrackers: React.FC = () => {
                 numRenderedColumns={numRenderedColumns}
               >
                 <Tbody>
-                  {currentPageItems?.map((jiraTracker) => (
+                  {currentPageItems?.map((jiraTracker, rowIndex) => (
                     <Tr key={jiraTracker.name}>
+                      <Td
+                        {...getSelectCheckboxTdProps({
+                          item: jiraTracker,
+                          rowIndex,
+                        })}
+                      />
                       <Td width={25} dataLabel={columnNames.name}>
                         {jiraTracker.name}
                       </Td>
