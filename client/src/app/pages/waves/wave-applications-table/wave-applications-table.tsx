@@ -18,7 +18,10 @@ import {
 } from "@patternfly/react-table";
 import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
 import { useTableControls } from "@app/shared/hooks/use-table-controls";
-import { ConditionalTableBody } from "@app/shared/components/table-controls";
+import {
+  ConditionalTableBody,
+  TableHeaderContentWithControls,
+} from "@app/shared/components/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 
 export interface IWaveApplicationsTableProps {
@@ -38,14 +41,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
     owner: "Owner",
   } as const;
 
-  const {
-    numRenderedColumns,
-    paginationState: {
-      paginationProps, // TODO maybe paginationProps should be in propHelpers and not part of the responsibility of usePaginationState
-      currentPageItems,
-    },
-    propHelpers: { toolbarProps, paginationToolbarItemProps, tableProps },
-  } = useTableControls({
+  const tableControls = useTableControls({
     items: applications,
     columnNames,
     hasActionsColumn: true,
@@ -58,6 +54,22 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
     hasPagination: true,
     variant: "compact",
   });
+  const {
+    numRenderedColumns,
+    paginationState: {
+      paginationProps, // TODO maybe paginationProps should be in propHelpers and not part of the responsibility of usePaginationState
+      currentPageItems,
+    },
+    propHelpers: {
+      toolbarProps,
+      paginationToolbarItemProps,
+      tableProps,
+      getThProps,
+      getTdProps,
+    },
+  } = tableControls;
+
+  // TODO implement sorting below
 
   return (
     <>
@@ -78,13 +90,12 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
       >
         <Thead>
           <Tr>
-            {/* TODO is there any way we can abstract this Thead into a component? how do we make sure we can still put modifier props on the Th for each column? */}
-            {/* TODO implement sorting first so we can see how that fits into the abstraction */}
-            {Object.keys(columnNames).map((columnKey) => (
-              <Th key={columnKey}>
-                {columnNames[columnKey as keyof typeof columnNames]}
-              </Th>
-            ))}
+            <TableHeaderContentWithControls {...tableControls}>
+              <Th {...getThProps("appName")} />
+              <Th {...getThProps("description")} />
+              <Th {...getThProps("businessService")} />
+              <Th {...getThProps("owner")} />
+            </TableHeaderContentWithControls>
           </Tr>
         </Thead>
         <ConditionalTableBody

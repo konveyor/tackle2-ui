@@ -32,7 +32,10 @@ import {
 } from "@patternfly/react-table";
 import { useTableControls } from "@app/shared/hooks/use-table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
-import { ConditionalTableBody } from "@app/shared/components/table-controls";
+import {
+  ConditionalTableBody,
+  TableHeaderContentWithControls,
+} from "@app/shared/components/table-controls";
 
 export const JiraTrackers: React.FC = () => {
   const { t } = useTranslation();
@@ -44,22 +47,7 @@ export const JiraTrackers: React.FC = () => {
     url: "URL",
   } as const;
 
-  const {
-    numRenderedColumns,
-    selectionState: { selectedItems },
-    paginationState: {
-      paginationProps, // TODO maybe paginationProps should be in propHelpers and not part of the responsibility of usePaginationState
-      currentPageItems,
-    },
-    propHelpers: {
-      toolbarProps,
-      toolbarBulkSelectorProps,
-      filterToolbarProps,
-      paginationToolbarItemProps,
-      tableProps,
-      getSelectCheckboxTdProps,
-    },
-  } = useTableControls({
+  const tableControls = useTableControls({
     items: jiraTrackers,
     columnNames,
     isSelectable: true,
@@ -83,6 +71,26 @@ export const JiraTrackers: React.FC = () => {
     }),
     hasPagination: true,
   });
+  const {
+    numRenderedColumns,
+    selectionState: { selectedItems },
+    paginationState: {
+      paginationProps, // TODO maybe paginationProps should be in propHelpers and not part of the responsibility of usePaginationState
+      currentPageItems,
+    },
+    propHelpers: {
+      toolbarProps,
+      toolbarBulkSelectorProps,
+      filterToolbarProps,
+      paginationToolbarItemProps,
+      tableProps,
+      getThProps,
+      getTdProps,
+      getSelectCheckboxTdProps,
+    },
+  } = tableControls;
+
+  // TODO implement sorting below
 
   console.log({ selectedItems });
 
@@ -146,14 +154,10 @@ export const JiraTrackers: React.FC = () => {
             <TableComposable {...tableProps} aria-label="Jira trackers table">
               <Thead>
                 <Tr>
-                  {/* TODO is there any way we can abstract this Thead into a component? how do we make sure we can still put modifier props on the Th for each column? */}
-                  {/* TODO implement sorting first so we can see how that fits into the abstraction */}
-                  <Th /* Checkbox column */ />
-                  {Object.keys(columnNames).map((columnKey) => (
-                    <Th key={columnKey}>
-                      {columnNames[columnKey as keyof typeof columnNames]}
-                    </Th>
-                  ))}
+                  <TableHeaderContentWithControls {...tableControls}>
+                    <Th {...getThProps("name")} />
+                    <Th {...getThProps("url")} />
+                  </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
               <ConditionalTableBody
@@ -171,10 +175,10 @@ export const JiraTrackers: React.FC = () => {
                           rowIndex,
                         })}
                       />
-                      <Td width={25} dataLabel={columnNames.name}>
+                      <Td width={25} {...getTdProps("name")}>
                         {jiraTracker.name}
                       </Td>
-                      <Td width={10} dataLabel={columnNames.url}>
+                      <Td width={10} {...getTdProps("url")}>
                         TODO: URL
                       </Td>
                     </Tr>

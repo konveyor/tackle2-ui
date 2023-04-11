@@ -42,7 +42,7 @@ import { useTableControls } from "@app/shared/hooks/use-table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
   ConditionalTableBody,
-  TableHeaderRowContentWithControls,
+  TableHeaderContentWithControls,
 } from "@app/shared/components/table-controls";
 
 export const Waves: React.FC = () => {
@@ -124,6 +124,8 @@ export const Waves: React.FC = () => {
     },
   } = tableControls;
 
+  // TODO implement sorting below
+
   console.log({ selectedItems });
 
   return (
@@ -203,14 +205,14 @@ export const Waves: React.FC = () => {
             <TableComposable {...tableProps} aria-label="Migration waves table">
               <Thead>
                 <Tr>
-                  <TableHeaderRowContentWithControls {...tableControls}>
+                  <TableHeaderContentWithControls {...tableControls}>
                     <Th {...getThProps("name")} />
                     <Th {...getThProps("startDate")} />
                     <Th {...getThProps("endDate")} />
                     <Th {...getThProps("applications")} />
                     <Th {...getThProps("stakeholders")} />
                     <Th {...getThProps("status")} />
-                  </TableHeaderRowContentWithControls>
+                  </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
               <ConditionalTableBody

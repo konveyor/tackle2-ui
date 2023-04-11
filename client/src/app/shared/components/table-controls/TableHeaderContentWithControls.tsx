@@ -1,14 +1,14 @@
 import React from "react";
 import { Th } from "@patternfly/react-table";
 
-export interface ITableHeaderRowContentWithControlsProps {
+export interface ITableHeaderContentWithControlsProps {
   numColumnsBeforeData: number;
   numColumnsAfterData: number;
   children: React.ReactNode;
 }
 
-export const TableHeaderRowContentWithControls: React.FC<
-  ITableHeaderRowContentWithControlsProps
+export const TableHeaderContentWithControls: React.FC<
+  ITableHeaderContentWithControlsProps
 > = ({ numColumnsBeforeData, numColumnsAfterData, children }) => (
   <>
     {Array(numColumnsBeforeData).map((_, i) => (

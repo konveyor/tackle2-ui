@@ -1,2 +1,2 @@
 export * from "./ConditionalTableBody";
-export * from "./TheadWithControls";
+export * from "./TableHeaderContentWithControls";
