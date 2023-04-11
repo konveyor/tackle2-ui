@@ -1,11 +1,19 @@
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { ToolbarItemProps, ToolbarProps } from "@patternfly/react-core";
-import { TableComposableProps, TdProps } from "@patternfly/react-table";
+import {
+  TableComposableProps,
+  TdProps,
+  Td,
+  ThProps,
+  Th,
+} from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { useTableControlState } from "./useTableControlState";
 import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-selector/toolbar-bulk-selector";
 import { IFilterToolbarProps } from "@app/shared/components/FilterToolbar";
+import { objectKeys } from "@app/utils/utils";
 
 export interface UseTableControlPropsAdditionalArgs {
   variant?: TableComposableProps["variant"];
@@ -110,7 +118,7 @@ export const useTableControlProps = <
         }),
       expandId: `compound-expand-${item.name}-${columnKey as string}`,
       rowIndex,
-      columnIndex: Object.keys(columnNames).indexOf(columnKey as string),
+      columnIndex: objectKeys(columnNames).indexOf(columnKey),
     },
   });
 
@@ -131,6 +139,23 @@ export const useTableControlProps = <
     };
   };
 
+  const cellComponents = React.useMemo(
+    () =>
+      objectKeys(columnNames).reduce((newObj, columnKey) => {
+        const ThisColumnTh: typeof Th = React.forwardRef((props, ref) => {
+          return <Th children={columnNames[columnKey]} {...props} ref={ref} />;
+        });
+        const ThisColumnTd: typeof Td = React.forwardRef((props, ref) => {
+          return <Td dataLabel={columnNames[columnKey]} {...props} ref={ref} />;
+        });
+        return {
+          ...newObj,
+          [columnKey]: { Th: ThisColumnTh, Td: ThisColumnTd },
+        };
+      }, {} as Record<keyof TColumnNames, { Th: typeof Th; Td: typeof Td }>),
+    [columnNames]
+  );
+
   return {
     ...args,
     propHelpers: {
@@ -143,5 +168,6 @@ export const useTableControlProps = <
       getCompoundExpandTdProps,
       getExpandedContentTdProps,
     },
+    cellComponents,
   };
 };
