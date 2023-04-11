@@ -1,6 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { ToolbarItemProps, ToolbarProps } from "@patternfly/react-core";
-import { TableComposableProps, TdProps } from "@patternfly/react-table";
+import {
+  TableComposableProps,
+  TdProps,
+  ThProps,
+} from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { useTableControlState } from "./useTableControlState";
@@ -51,8 +55,6 @@ export const useTableControlProps = <
     clearFiltersButtonText: t("actions.clearAllFilters"),
   };
 
-  const tableProps: Omit<TableComposableProps, "ref"> = { variant };
-
   const toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem> = {
     onSelectAll: selectAll,
     areAllSelected,
@@ -73,7 +75,18 @@ export const useTableControlProps = <
     alignment: { default: "alignRight" },
   };
 
+  const tableProps: Omit<TableComposableProps, "ref"> = { variant };
+
   // TODO how to handle the Thead / column name headers?
+
+  // TODO do we want to add sorting to this? or maybe just remove it?
+  const getThProps = (columnKey: keyof TColumnNames): Omit<ThProps, "ref"> => ({
+    children: columnNames[columnKey],
+  });
+
+  const getTdProps = (columnKey: keyof TColumnNames): Omit<TdProps, "ref"> => ({
+    dataLabel: columnNames[columnKey],
+  });
 
   const getSelectCheckboxTdProps = ({
     item,
@@ -100,6 +113,7 @@ export const useTableControlProps = <
     rowIndex: number;
     columnKey: keyof TColumnNames;
   }): Omit<TdProps, "ref"> => ({
+    ...getTdProps(columnKey),
     compoundExpand: {
       isExpanded: isCellExpanded(item, columnKey),
       onToggle: () =>
@@ -135,10 +149,12 @@ export const useTableControlProps = <
     ...args,
     propHelpers: {
       toolbarProps,
-      tableProps,
       toolbarBulkSelectorProps,
       filterToolbarProps,
       paginationToolbarItemProps,
+      tableProps,
+      getThProps,
+      getTdProps,
       getSelectCheckboxTdProps,
       getCompoundExpandTdProps,
       getExpandedContentTdProps,

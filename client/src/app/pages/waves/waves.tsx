@@ -83,6 +83,8 @@ export const Waves: React.FC = () => {
       filterToolbarProps,
       paginationToolbarItemProps,
       tableProps,
+      getThProps,
+      getTdProps,
       getExpandedContentTdProps,
       getSelectCheckboxTdProps,
       getCompoundExpandTdProps,
@@ -200,6 +202,12 @@ export const Waves: React.FC = () => {
                   {/* TODO is there any way we can abstract this Thead into a component? how do we make sure we can still put modifier props on the Th for each column? */}
                   {/* TODO implement sorting first so we can see how that fits into the abstraction */}
                   <Th /* Checkbox column */ />
+                  <Th {...getThProps("name")} />
+                  <Th {...getThProps("startDate")} />
+                  <Th {...getThProps("endDate")} />
+                  <Th {...getThProps("applications")} />
+                  <Th {...getThProps("stakeholders")} />
+                  <Th {...getThProps("status")} />
                   {Object.keys(columnNames).map((columnKey) => (
                     <Th key={columnKey}>
                       {columnNames[columnKey as keyof typeof columnNames]}
@@ -224,18 +232,17 @@ export const Waves: React.FC = () => {
                             rowIndex,
                           })}
                         />
-                        <Td width={25} dataLabel={columnNames.name}>
+                        <Td width={25} {...getTdProps("name")}>
                           {wave.name}
                         </Td>
-                        <Td width={10} dataLabel={columnNames.startDate}>
+                        <Td width={10} {...getTdProps("startDate")}>
                           {dayjs(wave.startDate).format("DD/MM/YYYY")}
                         </Td>
-                        <Td width={10} dataLabel={columnNames.endDate}>
+                        <Td width={10} {...getTdProps("endDate")}>
                           {dayjs(wave.endDate).format("DD/MM/YYYY")}
                         </Td>
                         <Td
                           width={10}
-                          dataLabel={columnNames.applications}
                           {...getCompoundExpandTdProps({
                             item: wave,
                             rowIndex,
@@ -246,7 +253,6 @@ export const Waves: React.FC = () => {
                         </Td>
                         <Td
                           width={10}
-                          dataLabel={columnNames.stakeholders}
                           {...getCompoundExpandTdProps({
                             item: wave,
                             rowIndex,
@@ -255,7 +261,7 @@ export const Waves: React.FC = () => {
                         >
                           {wave?.stakeholders?.length.toString()}
                         </Td>
-                        <Td width={20} dataLabel={columnNames.status}>
+                        <Td width={20} {...getTdProps("status")}>
                           TODO: Status
                         </Td>
                         <Td width={10}>
