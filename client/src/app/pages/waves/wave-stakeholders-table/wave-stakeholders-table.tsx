@@ -22,6 +22,7 @@ import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
+  TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 
 export interface IWaveStakeholdersTableProps {
@@ -105,28 +106,34 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
           numRenderedColumns={numRenderedColumns}
         >
           <Tbody>
-            {currentPageItems?.map((stakeholder) => (
+            {currentPageItems?.map((stakeholder, rowIndex) => (
               <Tr key={stakeholder.name}>
-                <Td width={25} dataLabel={columnNames.name}>
-                  {stakeholder.name}
-                </Td>
-                <Td width={10} dataLabel={columnNames.jobFunction}>
-                  {stakeholder.jobFunction?.name}
-                </Td>
-                <Td width={10} dataLabel={columnNames.role}>
-                  TODO: Role
-                </Td>
-                <Td width={10} dataLabel={columnNames.email}>
-                  {stakeholder.email}
-                </Td>
-                <Td width={10} dataLabel={columnNames.groups}>
-                  {stakeholder?.stakeholderGroups?.length?.toString()}
-                </Td>
-                <Td width={10} className={alignment.textAlignRight}>
-                  <Button type="button" variant="plain" onClick={() => {}}>
-                    <TrashIcon />
-                  </Button>
-                </Td>
+                <TableRowContentWithControls
+                  {...tableControls}
+                  item={stakeholder}
+                  rowIndex={rowIndex}
+                >
+                  <Td width={25} {...getTdProps("name")}>
+                    {stakeholder.name}
+                  </Td>
+                  <Td width={10} {...getTdProps("jobFunction")}>
+                    {stakeholder.jobFunction?.name}
+                  </Td>
+                  <Td width={10} {...getTdProps("role")}>
+                    TODO: Role
+                  </Td>
+                  <Td width={10} {...getTdProps("email")}>
+                    {stakeholder.email}
+                  </Td>
+                  <Td width={10} {...getTdProps("groups")}>
+                    {stakeholder?.stakeholderGroups?.length?.toString()}
+                  </Td>
+                  <Td width={10} className={alignment.textAlignRight}>
+                    <Button type="button" variant="plain" onClick={() => {}}>
+                      <TrashIcon />
+                    </Button>
+                  </Td>
+                </TableRowContentWithControls>
               </Tr>
             ))}
           </Tbody>

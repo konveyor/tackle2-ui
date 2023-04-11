@@ -21,6 +21,7 @@ import { useTableControls } from "@app/shared/hooks/use-table-controls";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
+  TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 
@@ -103,25 +104,31 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
           numRenderedColumns={numRenderedColumns}
         >
           <Tbody>
-            {currentPageItems?.map((app) => (
+            {currentPageItems?.map((app, rowIndex) => (
               <Tr key={app.name}>
-                <Td width={25} dataLabel={columnNames.appName}>
-                  {app.name}
-                </Td>
-                <Td width={10} dataLabel={columnNames.description}>
-                  {app.description}
-                </Td>
-                <Td width={10} dataLabel={columnNames.businessService}>
-                  {app?.businessService?.name}
-                </Td>
-                <Td width={10} dataLabel={columnNames.owner}>
-                  TODO: Owner
-                </Td>
-                <Td width={10} className={alignment.textAlignRight}>
-                  <Button type="button" variant="plain" onClick={() => {}}>
-                    <TrashIcon />
-                  </Button>
-                </Td>
+                <TableRowContentWithControls
+                  {...tableControls}
+                  item={app}
+                  rowIndex={rowIndex}
+                >
+                  <Td width={25} {...getTdProps("appName")}>
+                    {app.name}
+                  </Td>
+                  <Td width={10} {...getTdProps("description")}>
+                    {app.description}
+                  </Td>
+                  <Td width={10} {...getTdProps("businessService")}>
+                    {app?.businessService?.name}
+                  </Td>
+                  <Td width={10} {...getTdProps("owner")}>
+                    TODO: Owner
+                  </Td>
+                  <Td width={10} className={alignment.textAlignRight}>
+                    <Button type="button" variant="plain" onClick={() => {}}>
+                      <TrashIcon />
+                    </Button>
+                  </Td>
+                </TableRowContentWithControls>
               </Tr>
             ))}
           </Tbody>

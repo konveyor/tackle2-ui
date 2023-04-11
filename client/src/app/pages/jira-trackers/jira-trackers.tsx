@@ -35,6 +35,7 @@ import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
+  TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 
 export const JiraTrackers: React.FC = () => {
@@ -169,18 +170,18 @@ export const JiraTrackers: React.FC = () => {
                 <Tbody>
                   {currentPageItems?.map((jiraTracker, rowIndex) => (
                     <Tr key={jiraTracker.name}>
-                      <Td
-                        {...getSelectCheckboxTdProps({
-                          item: jiraTracker,
-                          rowIndex,
-                        })}
-                      />
-                      <Td width={25} {...getTdProps("name")}>
-                        {jiraTracker.name}
-                      </Td>
-                      <Td width={10} {...getTdProps("url")}>
-                        TODO: URL
-                      </Td>
+                      <TableRowContentWithControls
+                        {...tableControls}
+                        item={jiraTracker}
+                        rowIndex={rowIndex}
+                      >
+                        <Td width={25} {...getTdProps("name")}>
+                          {jiraTracker.name}
+                        </Td>
+                        <Td width={10} {...getTdProps("url")}>
+                          TODO: URL
+                        </Td>
+                      </TableRowContentWithControls>
                     </Tr>
                   ))}
                 </Tbody>

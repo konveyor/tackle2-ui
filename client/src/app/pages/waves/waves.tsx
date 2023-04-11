@@ -43,6 +43,7 @@ import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
+  TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 
 export const Waves: React.FC = () => {
@@ -225,70 +226,70 @@ export const Waves: React.FC = () => {
                   return (
                     <Tbody key={wave.id} isExpanded={isCellExpanded(wave)}>
                       <Tr>
-                        <Td
-                          {...getSelectCheckboxTdProps({
-                            item: wave,
-                            rowIndex,
-                          })}
-                        />
-                        <Td width={25} {...getTdProps("name")}>
-                          {wave.name}
-                        </Td>
-                        <Td width={10} {...getTdProps("startDate")}>
-                          {dayjs(wave.startDate).format("DD/MM/YYYY")}
-                        </Td>
-                        <Td width={10} {...getTdProps("endDate")}>
-                          {dayjs(wave.endDate).format("DD/MM/YYYY")}
-                        </Td>
-                        <Td
-                          width={10}
-                          {...getCompoundExpandTdProps({
-                            item: wave,
-                            rowIndex,
-                            columnKey: "applications",
-                          })}
+                        <TableRowContentWithControls
+                          {...tableControls}
+                          item={wave}
+                          rowIndex={rowIndex}
                         >
-                          {wave?.applications?.length.toString()}
-                        </Td>
-                        <Td
-                          width={10}
-                          {...getCompoundExpandTdProps({
-                            item: wave,
-                            rowIndex,
-                            columnKey: "stakeholders",
-                          })}
-                        >
-                          {wave?.stakeholders?.length.toString()}
-                        </Td>
-                        <Td width={20} {...getTdProps("status")}>
-                          TODO: Status
-                        </Td>
-                        <Td width={10}>
-                          <KebabDropdown
-                            dropdownItems={
-                              //RBAC
-                              // xxxxWriteAccess = checkAccess(userScopes, waveWriteScopes);
-                              true //TODO: Check RBAC access
-                                ? [
-                                    <DropdownItem
-                                      key="bulk-export-to-issue-manager"
-                                      component="button"
-                                      // onClick={() => setExportIssueModalOpen(true)}
-                                    >
-                                      {t("actions.export")}
-                                    </DropdownItem>,
-                                    <DropdownItem
-                                      key="bulk-delete"
-                                      // onClick={() => {
-                                      // }}
-                                    >
-                                      {t("actions.delete")}
-                                    </DropdownItem>,
-                                  ]
-                                : []
-                            }
-                          />
-                        </Td>
+                          <Td width={25} {...getTdProps("name")}>
+                            {wave.name}
+                          </Td>
+                          <Td width={10} {...getTdProps("startDate")}>
+                            {dayjs(wave.startDate).format("DD/MM/YYYY")}
+                          </Td>
+                          <Td width={10} {...getTdProps("endDate")}>
+                            {dayjs(wave.endDate).format("DD/MM/YYYY")}
+                          </Td>
+                          <Td
+                            width={10}
+                            {...getCompoundExpandTdProps({
+                              item: wave,
+                              rowIndex,
+                              columnKey: "applications",
+                            })}
+                          >
+                            {wave?.applications?.length.toString()}
+                          </Td>
+                          <Td
+                            width={10}
+                            {...getCompoundExpandTdProps({
+                              item: wave,
+                              rowIndex,
+                              columnKey: "stakeholders",
+                            })}
+                          >
+                            {wave?.stakeholders?.length.toString()}
+                          </Td>
+                          <Td width={20} {...getTdProps("status")}>
+                            TODO: Status
+                          </Td>
+                          <Td width={10}>
+                            <KebabDropdown
+                              dropdownItems={
+                                //RBAC
+                                // xxxxWriteAccess = checkAccess(userScopes, waveWriteScopes);
+                                true //TODO: Check RBAC access
+                                  ? [
+                                      <DropdownItem
+                                        key="bulk-export-to-issue-manager"
+                                        component="button"
+                                        // onClick={() => setExportIssueModalOpen(true)}
+                                      >
+                                        {t("actions.export")}
+                                      </DropdownItem>,
+                                      <DropdownItem
+                                        key="bulk-delete"
+                                        // onClick={() => {
+                                        // }}
+                                      >
+                                        {t("actions.delete")}
+                                      </DropdownItem>,
+                                    ]
+                                  : []
+                              }
+                            />
+                          </Td>
+                        </TableRowContentWithControls>
                       </Tr>
                       {isCellExpanded(wave) ? (
                         <Tr isExpanded>
