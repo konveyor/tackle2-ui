@@ -87,7 +87,6 @@ export const Waves: React.FC = () => {
       getSelectCheckboxTdProps,
       getCompoundExpandTdProps,
     },
-    cellComponents,
   } = useTableControls({
     items: waves,
     columnNames,
@@ -201,8 +200,6 @@ export const Waves: React.FC = () => {
                   {/* TODO is there any way we can abstract this Thead into a component? how do we make sure we can still put modifier props on the Th for each column? */}
                   {/* TODO implement sorting first so we can see how that fits into the abstraction */}
                   <Th /* Checkbox column */ />
-                  <cellComponents.name.Th />
-                  <cellComponents.startDate.Th />
                   {Object.keys(columnNames).map((columnKey) => (
                     <Th key={columnKey}>
                       {columnNames[columnKey as keyof typeof columnNames]}
