@@ -304,7 +304,7 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
           areAllSelected={areAllApplicationsSelected}
           selectedRows={selectedApplications}
           paginationProps={paginationProps}
-          currentPageItems={currentPageItems}
+          currentPageItems={currentPageItems.map((item) => item.application)}
           onSelectMultiple={selectMultipleApplications}
         />
       }
