@@ -91,6 +91,7 @@ export const Waves: React.FC = () => {
     items: waves,
     columnNames,
     isSelectable: true,
+    expandableVariant: "compound",
     hasActionsColumn: true,
     filterCategories: [
       {
@@ -115,7 +116,6 @@ export const Waves: React.FC = () => {
       status: "TODO: Status",
     }),
     hasPagination: true,
-    initialItemsPerPage: 10,
   });
 
   console.log({ selectedItems });
@@ -194,7 +194,7 @@ export const Waves: React.FC = () => {
                 </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
-            <TableComposable {...tableProps}>
+            <TableComposable {...tableProps} aria-label="Migration waves table">
               <Thead>
                 {/* TODO is there any way we can abstract this Thead into a component? how do we make sure we can still put modifier props on the Th for each column? */}
                 <Th /* Checkbox column */ />

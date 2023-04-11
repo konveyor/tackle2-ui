@@ -5,8 +5,6 @@ import { useSelectionState } from "@migtools/lib-ui";
 import { useSortState } from "../useSortState";
 import { usePaginationState } from "../usePaginationState";
 
-// TODO add a prop for expandable mode? 'single' | 'compound' | null?
-
 export interface UseTableControlStateArgs<
   TItem extends { name: string },
   TColumnNames extends Record<string, string>
@@ -14,6 +12,7 @@ export interface UseTableControlStateArgs<
   items: TItem[]; // The objects represented by rows in this table
   columnNames: TColumnNames; // An ordered mapping of unique keys to human-readable column name strings
   isSelectable?: boolean;
+  expandableVariant?: "single" | "compound" | null;
   hasActionsColumn?: boolean;
   filterCategories?: FilterCategory<TItem>[];
   filterStorageKey?: string;
@@ -32,6 +31,7 @@ export const useTableControlState = <
     items,
     columnNames,
     isSelectable = false,
+    expandableVariant = null,
     hasActionsColumn = false,
     filterCategories = [],
     filterStorageKey,
@@ -40,13 +40,19 @@ export const useTableControlState = <
     initialItemsPerPage = 10,
   } = args;
 
-  const numRenderedColumns =
-    Object.keys(columnNames).length +
-    (isSelectable ? 1 : 0) +
-    (hasActionsColumn ? 1 : 0);
-
-  // TODO also if the table has a single-expand toggle (non-compound expandable rows), add 1 more here
-  const firstDataColumnIndex = 0 + (isSelectable ? 1 : 0);
+  // Some table controls rely on extra columns inserted before or after the ones included in columnNames.
+  // We need to account for those when dealing with props based on column index and colSpan.
+  let numRenderedColumns = Object.keys(columnNames).length;
+  let firstDataColumnIndex = 0;
+  if (isSelectable) {
+    numRenderedColumns++;
+    firstDataColumnIndex++; // Select checkbox column goes on the left
+  }
+  if (expandableVariant === "single") {
+    numRenderedColumns++;
+    firstDataColumnIndex++; // Expand toggle column goes on the left
+  }
+  if (hasActionsColumn) numRenderedColumns++;
 
   const filterState = useFilterState(items, filterCategories, filterStorageKey);
 
