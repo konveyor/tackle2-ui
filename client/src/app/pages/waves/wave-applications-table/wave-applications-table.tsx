@@ -77,13 +77,15 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
         aria-label={`Applications table for wave ${wave.name}`}
       >
         <Thead>
-          {/* TODO is there any way we can abstract this Thead into a component? how do we make sure we can still put modifier props on the Th for each column? */}
-          {/* TODO implement sorting first so we can see how that fits into the abstraction */}
-          {Object.keys(columnNames).map((columnKey) => (
-            <Th key={columnKey}>
-              {columnNames[columnKey as keyof typeof columnNames]}
-            </Th>
-          ))}
+          <Tr>
+            {/* TODO is there any way we can abstract this Thead into a component? how do we make sure we can still put modifier props on the Th for each column? */}
+            {/* TODO implement sorting first so we can see how that fits into the abstraction */}
+            {Object.keys(columnNames).map((columnKey) => (
+              <Th key={columnKey}>
+                {columnNames[columnKey as keyof typeof columnNames]}
+              </Th>
+            ))}
+          </Tr>
         </Thead>
         <ConditionalTableBody
           isNoData={applications.length === 0}
