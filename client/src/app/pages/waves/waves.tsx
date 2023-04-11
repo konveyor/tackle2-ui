@@ -107,7 +107,7 @@ export const Waves: React.FC = () => {
         },
       },
     ],
-    getSortValues: (wave: Wave) => ({
+    getSortValues: (wave) => ({
       name: wave.name || "",
       startDate: wave.startDate || "",
       endDate: wave.endDate || "",

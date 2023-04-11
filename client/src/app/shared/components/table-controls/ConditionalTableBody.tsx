@@ -5,20 +5,20 @@ import { StateError } from "../app-table";
 import { StateNoData } from "../app-table/state-no-data";
 
 export interface IConditionalTableBodyProps {
-  isLoading: boolean;
-  isError: boolean;
-  isNoData: boolean;
   numRenderedColumns: number;
+  isLoading?: boolean;
+  isError?: boolean;
+  isNoData?: boolean;
   errorEmptyState?: React.ReactNode;
   noDataEmptyState?: React.ReactNode;
   children: React.ReactNode;
 }
 
 export const ConditionalTableBody: React.FC<IConditionalTableBodyProps> = ({
-  isLoading,
-  isError,
-  isNoData,
   numRenderedColumns,
+  isLoading = false,
+  isError = false,
+  isNoData = false,
   errorEmptyState = null,
   noDataEmptyState = null,
   children,
