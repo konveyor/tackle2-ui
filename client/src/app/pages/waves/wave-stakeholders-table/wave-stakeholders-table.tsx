@@ -37,17 +37,15 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
   const { t } = useTranslation();
   console.log("what is going on here - stakeholders", stakeholders);
 
-  const columnNames = {
-    name: "Name",
-    jobFunction: "Job Function",
-    role: "Role",
-    email: "Email",
-    groups: "Stakeholder groups",
-  } as const;
-
   const tableControls = useTableControls({
     items: stakeholders,
-    columnNames,
+    columnNames: {
+      name: "Name",
+      jobFunction: "Job Function",
+      role: "Role",
+      email: "Email",
+      groups: "Stakeholder groups",
+    },
     hasActionsColumn: true,
     getSortValues: (stakeholder) => ({
       name: stakeholder.name || "",

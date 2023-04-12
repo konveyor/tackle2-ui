@@ -64,18 +64,16 @@ export const Waves: React.FC = () => {
   const openEditWaveModal = (wave: Wave) => setWaveModalState(wave);
   const closeWaveModal = () => setWaveModalState(null);
 
-  const columnNames = {
-    name: "Name",
-    startDate: "Start date",
-    endDate: "End date",
-    applications: "Applications",
-    stakeholders: "Stakeholders",
-    status: "Status",
-  } as const;
-
   const tableControls = useTableControls({
     items: waves,
-    columnNames,
+    columnNames: {
+      name: "Name",
+      startDate: "Start date",
+      endDate: "End date",
+      applications: "Applications",
+      stakeholders: "Stakeholders",
+      status: "Status",
+    },
     isSelectable: true,
     expandableVariant: "compound",
     hasActionsColumn: true,

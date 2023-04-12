@@ -35,16 +35,15 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
   applications,
 }) => {
   const { t } = useTranslation();
-  const columnNames = {
-    appName: "Name",
-    description: "Description",
-    businessService: "Business service",
-    owner: "Owner",
-  } as const;
 
   const tableControls = useTableControls({
     items: applications,
-    columnNames,
+    columnNames: {
+      appName: "Name",
+      description: "Description",
+      businessService: "Business service",
+      owner: "Owner",
+    },
     hasActionsColumn: true,
     getSortValues: (app) => ({
       appName: app.name || "",

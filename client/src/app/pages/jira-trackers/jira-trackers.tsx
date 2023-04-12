@@ -43,14 +43,12 @@ export const JiraTrackers: React.FC = () => {
 
   const { jiraTrackers, isFetching, fetchError } = useFetchJiraTrackers();
 
-  const columnNames = {
-    name: "Name",
-    url: "URL",
-  } as const;
-
   const tableControls = useTableControls({
     items: jiraTrackers,
-    columnNames,
+    columnNames: {
+      name: "Name",
+      url: "URL",
+    },
     isSelectable: true,
     filterCategories: [
       {
