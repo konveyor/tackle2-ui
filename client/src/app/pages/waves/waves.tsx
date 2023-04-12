@@ -207,12 +207,19 @@ export const Waves: React.FC = () => {
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
-                    <Th {...getThProps("name")} />
-                    <Th {...getThProps("startDate")} />
-                    <Th {...getThProps("endDate")} />
-                    <Th {...getThProps("applications")} />
-                    <Th {...getThProps("stakeholders")} />
-                    <Th {...getThProps("status")} />
+                    <Th
+                      {...getThProps({ columnKey: "name", isSortable: true })}
+                    />
+                    <Th
+                      {...getThProps({
+                        columnKey: "startDate",
+                        isSortable: true,
+                      })}
+                    />
+                    <Th {...getThProps({ columnKey: "endDate" })} />
+                    <Th {...getThProps({ columnKey: "applications" })} />
+                    <Th {...getThProps({ columnKey: "stakeholders" })} />
+                    <Th {...getThProps({ columnKey: "status" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -231,13 +238,19 @@ export const Waves: React.FC = () => {
                           item={wave}
                           rowIndex={rowIndex}
                         >
-                          <Td width={25} {...getTdProps("name")}>
+                          <Td width={25} {...getTdProps({ columnKey: "name" })}>
                             {wave.name}
                           </Td>
-                          <Td width={10} {...getTdProps("startDate")}>
+                          <Td
+                            width={10}
+                            {...getTdProps({ columnKey: "startDate" })}
+                          >
                             {dayjs(wave.startDate).format("DD/MM/YYYY")}
                           </Td>
-                          <Td width={10} {...getTdProps("endDate")}>
+                          <Td
+                            width={10}
+                            {...getTdProps({ columnKey: "endDate" })}
+                          >
                             {dayjs(wave.endDate).format("DD/MM/YYYY")}
                           </Td>
                           <Td
@@ -260,7 +273,10 @@ export const Waves: React.FC = () => {
                           >
                             {wave?.stakeholders?.length.toString()}
                           </Td>
-                          <Td width={20} {...getTdProps("status")}>
+                          <Td
+                            width={20}
+                            {...getTdProps({ columnKey: "status" })}
+                          >
                             TODO: Status
                           </Td>
                           <Td width={10}>

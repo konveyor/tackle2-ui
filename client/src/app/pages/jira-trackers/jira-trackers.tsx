@@ -156,8 +156,8 @@ export const JiraTrackers: React.FC = () => {
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
-                    <Th {...getThProps("name")} />
-                    <Th {...getThProps("url")} />
+                    <Th {...getThProps({ columnKey: "name" })} />
+                    <Th {...getThProps({ columnKey: "url" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -175,10 +175,10 @@ export const JiraTrackers: React.FC = () => {
                         item={jiraTracker}
                         rowIndex={rowIndex}
                       >
-                        <Td width={25} {...getTdProps("name")}>
+                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
                           {jiraTracker.name}
                         </Td>
-                        <Td width={10} {...getTdProps("url")}>
+                        <Td width={10} {...getTdProps({ columnKey: "url" })}>
                           TODO: URL
                         </Td>
                       </TableRowContentWithControls>

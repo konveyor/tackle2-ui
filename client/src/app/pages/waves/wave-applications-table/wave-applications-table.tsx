@@ -92,10 +92,10 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
-              <Th {...getThProps("appName")} />
-              <Th {...getThProps("description")} />
-              <Th {...getThProps("businessService")} />
-              <Th {...getThProps("owner")} />
+              <Th {...getThProps({ columnKey: "appName" })} />
+              <Th {...getThProps({ columnKey: "description" })} />
+              <Th {...getThProps({ columnKey: "businessService" })} />
+              <Th {...getThProps({ columnKey: "owner" })} />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
@@ -111,16 +111,19 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
                   item={app}
                   rowIndex={rowIndex}
                 >
-                  <Td width={25} {...getTdProps("appName")}>
+                  <Td width={25} {...getTdProps({ columnKey: "appName" })}>
                     {app.name}
                   </Td>
-                  <Td width={10} {...getTdProps("description")}>
+                  <Td width={10} {...getTdProps({ columnKey: "description" })}>
                     {app.description}
                   </Td>
-                  <Td width={10} {...getTdProps("businessService")}>
+                  <Td
+                    width={10}
+                    {...getTdProps({ columnKey: "businessService" })}
+                  >
                     {app?.businessService?.name}
                   </Td>
-                  <Td width={10} {...getTdProps("owner")}>
+                  <Td width={10} {...getTdProps({ columnKey: "owner" })}>
                     TODO: Owner
                   </Td>
                   <Td width={10} className={alignment.textAlignRight}>

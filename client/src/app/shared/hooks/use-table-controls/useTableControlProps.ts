@@ -10,6 +10,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTableControlState } from "./useTableControlState";
 import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-selector/toolbar-bulk-selector";
 import { IFilterToolbarProps } from "@app/shared/components/FilterToolbar";
+import { objectKeys } from "@app/utils/utils";
 
 export interface UseTableControlPropsAdditionalArgs {
   variant?: TableComposableProps["variant"];
@@ -31,6 +32,7 @@ export const useTableControlProps = <
 
   const {
     numRenderedColumns,
+    numColumnsBeforeData,
     filterCategories,
     filterState: { filterValues, setFilterValues },
     expansionState: { isCellExpanded, setCellExpanded, expandedCells },
@@ -42,7 +44,7 @@ export const useTableControlProps = <
       toggleItemSelected,
       isItemSelected,
     },
-    sortState, // TODO prop helpers for sorting stuff
+    sortState: { sortBy, onSort },
     paginationState: { paginationProps, currentPageItems },
     variant,
     columnNames,
@@ -77,14 +79,31 @@ export const useTableControlProps = <
 
   const tableProps: Omit<TableComposableProps, "ref"> = { variant };
 
-  // TODO how to handle the Thead / column name headers?
-
-  // TODO do we want to add sorting to this? or maybe just remove it?
-  const getThProps = (columnKey: keyof TColumnNames): Omit<ThProps, "ref"> => ({
+  const getThProps = ({
+    columnKey,
+    isSortable = false,
+  }: {
+    columnKey: keyof TColumnNames;
+    isSortable?: boolean;
+  }): Omit<ThProps, "ref"> => ({
+    ...(isSortable
+      ? {
+          sort: {
+            columnIndex:
+              numColumnsBeforeData + objectKeys(columnNames).indexOf(columnKey),
+            sortBy,
+            onSort,
+          },
+        }
+      : {}),
     children: columnNames[columnKey],
   });
 
-  const getTdProps = (columnKey: keyof TColumnNames): Omit<TdProps, "ref"> => ({
+  const getTdProps = ({
+    columnKey,
+  }: {
+    columnKey: keyof TColumnNames;
+  }): Omit<TdProps, "ref"> => ({
     dataLabel: columnNames[columnKey],
   });
 
@@ -113,7 +132,7 @@ export const useTableControlProps = <
     rowIndex: number;
     columnKey: keyof TColumnNames;
   }): Omit<TdProps, "ref"> => ({
-    ...getTdProps(columnKey),
+    ...getTdProps({ columnKey }),
     compoundExpand: {
       isExpanded: isCellExpanded(item, columnKey),
       onToggle: () =>

@@ -93,11 +93,11 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
-              <Th {...getThProps("name")} />
-              <Th {...getThProps("jobFunction")} />
-              <Th {...getThProps("role")} />
-              <Th {...getThProps("email")} />
-              <Th {...getThProps("groups")} />
+              <Th {...getThProps({ columnKey: "name" })} />
+              <Th {...getThProps({ columnKey: "jobFunction" })} />
+              <Th {...getThProps({ columnKey: "role" })} />
+              <Th {...getThProps({ columnKey: "email" })} />
+              <Th {...getThProps({ columnKey: "groups" })} />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
@@ -113,19 +113,19 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
                   item={stakeholder}
                   rowIndex={rowIndex}
                 >
-                  <Td width={25} {...getTdProps("name")}>
+                  <Td width={25} {...getTdProps({ columnKey: "name" })}>
                     {stakeholder.name}
                   </Td>
-                  <Td width={10} {...getTdProps("jobFunction")}>
+                  <Td width={10} {...getTdProps({ columnKey: "jobFunction" })}>
                     {stakeholder.jobFunction?.name}
                   </Td>
-                  <Td width={10} {...getTdProps("role")}>
+                  <Td width={10} {...getTdProps({ columnKey: "role" })}>
                     TODO: Role
                   </Td>
-                  <Td width={10} {...getTdProps("email")}>
+                  <Td width={10} {...getTdProps({ columnKey: "email" })}>
                     {stakeholder.email}
                   </Td>
-                  <Td width={10} {...getTdProps("groups")}>
+                  <Td width={10} {...getTdProps({ columnKey: "groups" })}>
                     {stakeholder?.stakeholderGroups?.length?.toString()}
                   </Td>
                   <Td width={10} className={alignment.textAlignRight}>
