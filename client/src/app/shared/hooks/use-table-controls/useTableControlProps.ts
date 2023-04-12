@@ -12,15 +12,18 @@ import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-s
 import { IFilterToolbarProps } from "@app/shared/components/FilterToolbar";
 import { objectKeys } from "@app/utils/utils";
 
-export interface UseTableControlPropsAdditionalArgs {
+export interface UseTableControlPropsAdditionalArgs<
+  TColumnNames extends Record<string, string>
+> {
   variant?: TableComposableProps["variant"];
+  sortableColumns?: (keyof TColumnNames)[];
 }
 
 export type UseTableControlPropsArgs<
   TItem extends { name: string },
   TColumnNames extends Record<string, string>
 > = ReturnType<typeof useTableControlState<TItem, TColumnNames>> &
-  UseTableControlPropsAdditionalArgs;
+  UseTableControlPropsAdditionalArgs<TColumnNames>;
 
 export const useTableControlProps = <
   TItem extends { name: string },
@@ -32,7 +35,7 @@ export const useTableControlProps = <
 
   const {
     numRenderedColumns,
-    numColumnsBeforeData,
+    numColumnsBeforeData, // TODO move the declaration of this into here from the state hook?
     filterCategories,
     filterState: { filterValues, setFilterValues },
     expansionState: { isCellExpanded, setCellExpanded, expandedCells },
@@ -46,8 +49,9 @@ export const useTableControlProps = <
     },
     sortState: { sortBy, onSort },
     paginationState: { paginationProps, currentPageItems },
-    variant,
     columnNames,
+    variant,
+    sortableColumns = [],
   } = args;
 
   const toolbarProps: Omit<ToolbarProps, "ref"> = {
@@ -81,12 +85,10 @@ export const useTableControlProps = <
 
   const getThProps = ({
     columnKey,
-    isSortable = false,
   }: {
     columnKey: keyof TColumnNames;
-    isSortable?: boolean;
   }): Omit<ThProps, "ref"> => ({
-    ...(isSortable
+    ...(sortableColumns.includes(columnKey)
       ? {
           sort: {
             columnIndex: objectKeys(columnNames).indexOf(columnKey),

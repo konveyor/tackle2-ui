@@ -99,6 +99,7 @@ export const Waves: React.FC = () => {
       stakeholders: wave.stakeholders.length,
       status: "TODO: Status",
     }),
+    sortableColumns: ["name", "startDate", "endDate"],
     initialSort: { columnKey: "startDate", direction: "asc" },
     hasPagination: true,
   });
@@ -203,36 +204,12 @@ export const Waves: React.FC = () => {
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
-                    <Th
-                      {...getThProps({ columnKey: "name", isSortable: true })}
-                    />
-                    <Th
-                      {...getThProps({
-                        columnKey: "startDate",
-                        isSortable: true,
-                      })}
-                    />
-                    <Th
-                      {...getThProps({
-                        columnKey: "endDate",
-                        isSortable: true,
-                      })}
-                    />
-                    <Th
-                      {...getThProps({
-                        columnKey: "applications",
-                        isSortable: true,
-                      })}
-                    />
-                    <Th
-                      {...getThProps({
-                        columnKey: "stakeholders",
-                        isSortable: true,
-                      })}
-                    />
-                    <Th
-                      {...getThProps({ columnKey: "status", isSortable: true })}
-                    />
+                    <Th {...getThProps({ columnKey: "name" })} />
+                    <Th {...getThProps({ columnKey: "startDate" })} />
+                    <Th {...getThProps({ columnKey: "endDate" })} />
+                    <Th {...getThProps({ columnKey: "applications" })} />
+                    <Th {...getThProps({ columnKey: "stakeholders" })} />
+                    <Th {...getThProps({ columnKey: "status" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
