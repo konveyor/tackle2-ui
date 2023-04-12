@@ -4,6 +4,7 @@ import { useCompoundExpansionState } from "../useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
 import { useSortState } from "../useSortState";
 import { usePaginationState } from "../usePaginationState";
+import { objectKeys } from "@app/utils/utils";
 
 export interface UseTableControlStateArgs<
   TItem extends { name: string },
@@ -17,6 +18,7 @@ export interface UseTableControlStateArgs<
   filterCategories?: FilterCategory<TItem>[];
   filterStorageKey?: string;
   getSortValues?: (item: TItem) => Record<keyof TColumnNames, string | number>;
+  initialSort?: { columnKey: keyof TColumnNames; direction: "asc" | "desc" };
   hasPagination?: boolean;
   initialItemsPerPage?: number;
 }
@@ -36,6 +38,7 @@ export const useTableControlState = <
     filterCategories = [],
     filterStorageKey,
     getSortValues,
+    initialSort,
     hasPagination = true,
     initialItemsPerPage = 10,
   } = args;
@@ -51,8 +54,6 @@ export const useTableControlState = <
     Object.keys(columnNames).length +
     numColumnsBeforeData +
     numColumnsAfterData;
-
-  console.log({ numColumnsBeforeData });
 
   const filterState = useFilterState(items, filterCategories, filterStorageKey);
 
@@ -72,13 +73,16 @@ export const useTableControlState = <
           // TODO rewrite or write an alternate useSortState to be based on columnKey instead.
           const sortValuesByColumnKey = getSortValues(item);
           return [
-            ...(numColumnsBeforeData > 0
-              ? new Array(numColumnsBeforeData).fill("")
-              : []),
-            ...Object.keys(columnNames).map(
+            ...objectKeys(columnNames).map(
               (columnKey) => sortValuesByColumnKey[columnKey] || ""
             ),
           ];
+        }
+      : undefined,
+    initialSort
+      ? {
+          index: objectKeys(columnNames).indexOf(initialSort.columnKey),
+          direction: initialSort.direction,
         }
       : undefined
   );

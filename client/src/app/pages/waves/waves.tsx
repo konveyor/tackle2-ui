@@ -101,6 +101,7 @@ export const Waves: React.FC = () => {
       stakeholders: wave.stakeholders.length,
       status: "TODO: Status",
     }),
+    initialSort: { columnKey: "startDate", direction: "asc" },
     hasPagination: true,
   });
   const {
@@ -120,7 +121,6 @@ export const Waves: React.FC = () => {
       getThProps,
       getTdProps,
       getExpandedContentTdProps,
-      getSelectCheckboxTdProps,
       getCompoundExpandTdProps,
     },
   } = tableControls;
@@ -216,10 +216,27 @@ export const Waves: React.FC = () => {
                         isSortable: true,
                       })}
                     />
-                    <Th {...getThProps({ columnKey: "endDate" })} />
-                    <Th {...getThProps({ columnKey: "applications" })} />
-                    <Th {...getThProps({ columnKey: "stakeholders" })} />
-                    <Th {...getThProps({ columnKey: "status" })} />
+                    <Th
+                      {...getThProps({
+                        columnKey: "endDate",
+                        isSortable: true,
+                      })}
+                    />
+                    <Th
+                      {...getThProps({
+                        columnKey: "applications",
+                        isSortable: true,
+                      })}
+                    />
+                    <Th
+                      {...getThProps({
+                        columnKey: "stakeholders",
+                        isSortable: true,
+                      })}
+                    />
+                    <Th
+                      {...getThProps({ columnKey: "status", isSortable: true })}
+                    />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>

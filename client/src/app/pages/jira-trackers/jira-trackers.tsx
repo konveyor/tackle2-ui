@@ -156,8 +156,12 @@ export const JiraTrackers: React.FC = () => {
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
-                    <Th {...getThProps({ columnKey: "name" })} />
-                    <Th {...getThProps({ columnKey: "url" })} />
+                    <Th
+                      {...getThProps({ columnKey: "name", isSortable: true })}
+                    />
+                    <Th
+                      {...getThProps({ columnKey: "url", isSortable: true })}
+                    />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>

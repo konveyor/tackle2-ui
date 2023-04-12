@@ -93,11 +93,13 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
-              <Th {...getThProps({ columnKey: "name" })} />
-              <Th {...getThProps({ columnKey: "jobFunction" })} />
-              <Th {...getThProps({ columnKey: "role" })} />
-              <Th {...getThProps({ columnKey: "email" })} />
-              <Th {...getThProps({ columnKey: "groups" })} />
+              <Th {...getThProps({ columnKey: "name", isSortable: true })} />
+              <Th
+                {...getThProps({ columnKey: "jobFunction", isSortable: true })}
+              />
+              <Th {...getThProps({ columnKey: "role", isSortable: true })} />
+              <Th {...getThProps({ columnKey: "email", isSortable: true })} />
+              <Th {...getThProps({ columnKey: "groups", isSortable: true })} />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>

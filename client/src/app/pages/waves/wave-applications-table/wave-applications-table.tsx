@@ -92,10 +92,17 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
-              <Th {...getThProps({ columnKey: "appName" })} />
-              <Th {...getThProps({ columnKey: "description" })} />
-              <Th {...getThProps({ columnKey: "businessService" })} />
-              <Th {...getThProps({ columnKey: "owner" })} />
+              <Th {...getThProps({ columnKey: "appName", isSortable: true })} />
+              <Th
+                {...getThProps({ columnKey: "description", isSortable: true })}
+              />
+              <Th
+                {...getThProps({
+                  columnKey: "businessService",
+                  isSortable: true,
+                })}
+              />
+              <Th {...getThProps({ columnKey: "owner", isSortable: true })} />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>

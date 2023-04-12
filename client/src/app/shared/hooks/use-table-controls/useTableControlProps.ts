@@ -89,8 +89,7 @@ export const useTableControlProps = <
     ...(isSortable
       ? {
           sort: {
-            columnIndex:
-              numColumnsBeforeData + objectKeys(columnNames).indexOf(columnKey),
+            columnIndex: objectKeys(columnNames).indexOf(columnKey),
             sortBy,
             onSort,
           },
