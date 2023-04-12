@@ -18,12 +18,16 @@ export const TableHeaderContentWithControls = <
   children,
 }: ITableHeaderContentWithControlsProps<TItem, TColumnNames>) => (
   <>
-    {Array(numColumnsBeforeData).map((_, i) => (
-      <Th key={i} />
-    ))}
+    {Array(numColumnsBeforeData)
+      .fill(null)
+      .map((_, i) => (
+        <Th key={i} />
+      ))}
     {children}
-    {Array(numColumnsAfterData).map((_, i) => (
-      <Th key={i} />
-    ))}
+    {Array(numColumnsAfterData)
+      .fill(null)
+      .map((_, i) => (
+        <Th key={i} />
+      ))}
   </>
 );

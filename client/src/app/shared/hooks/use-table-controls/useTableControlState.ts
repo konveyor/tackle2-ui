@@ -52,6 +52,8 @@ export const useTableControlState = <
     numColumnsBeforeData +
     numColumnsAfterData;
 
+  console.log({ numColumnsBeforeData });
+
   const filterState = useFilterState(items, filterCategories, filterStorageKey);
 
   const expansionState = useCompoundExpansionState<TItem, TColumnNames>();
