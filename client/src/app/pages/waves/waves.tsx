@@ -123,8 +123,6 @@ export const Waves: React.FC = () => {
     },
   } = tableControls;
 
-  // TODO implement sorting below
-
   console.log({ selectedItems });
 
   return (

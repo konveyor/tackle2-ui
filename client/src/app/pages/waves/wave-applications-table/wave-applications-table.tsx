@@ -69,8 +69,6 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
     },
   } = tableControls;
 
-  // TODO implement sorting below
-
   return (
     <>
       <Toolbar {...toolbarProps}>

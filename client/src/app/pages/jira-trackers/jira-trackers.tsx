@@ -89,8 +89,6 @@ export const JiraTrackers: React.FC = () => {
     },
   } = tableControls;
 
-  // TODO implement sorting below
-
   console.log({ selectedItems });
 
   return (

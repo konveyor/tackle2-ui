@@ -69,8 +69,6 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
     },
   } = tableControls;
 
-  // TODO implement sorting below
-
   return (
     <>
       <Toolbar {...toolbarProps}>
