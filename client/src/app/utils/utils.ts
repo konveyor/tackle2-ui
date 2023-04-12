@@ -92,3 +92,6 @@ export const numStr = (num: number | undefined): string => {
   if (num === undefined) return "";
   return String(num);
 };
+
+export const objectKeys = <T extends Object>(obj: T) =>
+  Object.keys(obj) as (keyof T)[];

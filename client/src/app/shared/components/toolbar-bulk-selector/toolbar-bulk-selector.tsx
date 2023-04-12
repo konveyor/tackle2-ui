@@ -5,28 +5,28 @@ import {
   Button,
   Dropdown,
   DropdownItem,
-  DropdownPosition,
   DropdownToggle,
   DropdownToggleCheckbox,
+  PaginationProps,
   ToolbarItem,
 } from "@patternfly/react-core";
 
 import AngleDownIcon from "@patternfly/react-icons/dist/esm/icons/angle-down-icon";
 import AngleRightIcon from "@patternfly/react-icons/dist/esm/icons/angle-right-icon";
 
-export interface IToolbarBulkSelectorProps {
+export interface IToolbarBulkSelectorProps<T> {
   areAllSelected: boolean;
   areAllExpanded?: boolean;
   onSelectAll: (flag: boolean) => void;
   onExpandAll?: (flag: boolean) => void;
-  selectedRows: any;
-  onSelectMultiple: any;
-  currentPageItems: any;
-  paginationProps: any;
+  selectedRows: T[];
+  onSelectMultiple: (items: T[], isSelecting: boolean) => void;
+  currentPageItems: T[];
+  paginationProps: PaginationProps;
   isExpandable?: boolean;
 }
 
-export const ToolbarBulkSelector: React.FC<IToolbarBulkSelectorProps> = ({
+export const ToolbarBulkSelector = <T,>({
   currentPageItems,
   areAllSelected,
   onSelectAll,
@@ -36,7 +36,9 @@ export const ToolbarBulkSelector: React.FC<IToolbarBulkSelectorProps> = ({
   onSelectMultiple,
   paginationProps,
   isExpandable,
-}) => {
+}: React.PropsWithChildren<
+  IToolbarBulkSelectorProps<T>
+>): JSX.Element | null => {
   // i18
   const { t } = useTranslation();
 
@@ -87,7 +89,7 @@ export const ToolbarBulkSelector: React.FC<IToolbarBulkSelectorProps> = ({
     <DropdownItem
       onClick={() => {
         onSelectMultiple(
-          currentPageItems.map((app: any) => app),
+          currentPageItems.map((item: T) => item),
           true
         );
       }}
@@ -118,7 +120,7 @@ export const ToolbarBulkSelector: React.FC<IToolbarBulkSelectorProps> = ({
             <DropdownToggle
               splitButtonItems={[
                 <DropdownToggleCheckbox
-                  id="bulk-selected-apps-checkbox"
+                  id="bulk-selected-items-checkbox"
                   key="bulk-select-checkbox"
                   aria-label="Select all"
                   onChange={() => {
