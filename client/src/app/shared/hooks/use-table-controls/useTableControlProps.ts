@@ -12,7 +12,13 @@ import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-s
 import { IFilterToolbarProps } from "@app/shared/components/FilterToolbar";
 import { objectKeys } from "@app/utils/utils";
 
-export interface UseTableControlPropsAdditionalArgs {
+export interface UseTableControlPropsAdditionalArgs<
+  TColumnNames extends Record<string, string>
+> {
+  sortableColumns?: (keyof TColumnNames)[];
+  isSelectable?: boolean;
+  expandableVariant?: "single" | "compound" | null;
+  hasActionsColumn?: boolean;
   variant?: TableComposableProps["variant"];
 }
 
@@ -20,7 +26,7 @@ export type UseTableControlPropsArgs<
   TItem extends { name: string },
   TColumnNames extends Record<string, string>
 > = ReturnType<typeof useTableControlState<TItem, TColumnNames>> &
-  UseTableControlPropsAdditionalArgs;
+  UseTableControlPropsAdditionalArgs<TColumnNames>;
 
 export const useTableControlProps = <
   TItem extends { name: string },
@@ -31,8 +37,6 @@ export const useTableControlProps = <
   const { t } = useTranslation();
 
   const {
-    numRenderedColumns,
-    numColumnsBeforeData,
     filterCategories,
     filterState: { filterValues, setFilterValues },
     expansionState: { isCellExpanded, setCellExpanded, expandedCells },
@@ -46,9 +50,25 @@ export const useTableControlProps = <
     },
     sortState: { sortBy, onSort },
     paginationState: { paginationProps, currentPageItems },
-    variant,
     columnNames,
+    sortableColumns = [],
+    isSelectable = false,
+    expandableVariant = null,
+    hasActionsColumn = false,
+    variant,
   } = args;
+
+  // Some table controls rely on extra columns inserted before or after the ones included in columnNames.
+  // We need to account for those when dealing with props based on column index and colSpan.
+  let numColumnsBeforeData = 0;
+  let numColumnsAfterData = 0;
+  if (isSelectable) numColumnsBeforeData++;
+  if (expandableVariant === "single") numColumnsBeforeData++;
+  if (hasActionsColumn) numColumnsAfterData++;
+  const numRenderedColumns =
+    Object.keys(columnNames).length +
+    numColumnsBeforeData +
+    numColumnsAfterData;
 
   const toolbarProps: Omit<ToolbarProps, "ref"> = {
     className: variant === "compact" ? spacing.pt_0 : "",
@@ -81,12 +101,10 @@ export const useTableControlProps = <
 
   const getThProps = ({
     columnKey,
-    isSortable = false,
   }: {
     columnKey: keyof TColumnNames;
-    isSortable?: boolean;
   }): Omit<ThProps, "ref"> => ({
-    ...(isSortable
+    ...(sortableColumns.includes(columnKey)
       ? {
           sort: {
             columnIndex: objectKeys(columnNames).indexOf(columnKey),
@@ -165,6 +183,9 @@ export const useTableControlProps = <
 
   return {
     ...args,
+    numColumnsBeforeData,
+    numColumnsAfterData,
+    numRenderedColumns,
     propHelpers: {
       toolbarProps,
       toolbarBulkSelectorProps,
