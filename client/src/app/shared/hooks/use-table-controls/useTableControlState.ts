@@ -12,9 +12,6 @@ export interface UseTableControlStateArgs<
 > {
   items: TItem[]; // The objects represented by rows in this table
   columnNames: TColumnNames; // An ordered mapping of unique keys to human-readable column name strings
-  isSelectable?: boolean;
-  expandableVariant?: "single" | "compound" | null;
-  hasActionsColumn?: boolean;
   filterCategories?: FilterCategory<TItem>[];
   filterStorageKey?: string;
   getSortValues?: (item: TItem) => Record<keyof TColumnNames, string | number>;
@@ -32,9 +29,6 @@ export const useTableControlState = <
   const {
     items,
     columnNames,
-    isSelectable = false,
-    expandableVariant = null,
-    hasActionsColumn = false,
     filterCategories = [],
     filterStorageKey,
     getSortValues,
@@ -42,18 +36,6 @@ export const useTableControlState = <
     hasPagination = true,
     initialItemsPerPage = 10,
   } = args;
-
-  // Some table controls rely on extra columns inserted before or after the ones included in columnNames.
-  // We need to account for those when dealing with props based on column index and colSpan.
-  let numColumnsBeforeData = 0;
-  let numColumnsAfterData = 0;
-  if (isSelectable) numColumnsBeforeData++;
-  if (expandableVariant === "single") numColumnsBeforeData++;
-  if (hasActionsColumn) numColumnsAfterData++;
-  const numRenderedColumns =
-    Object.keys(columnNames).length +
-    numColumnsBeforeData +
-    numColumnsAfterData;
 
   const filterState = useFilterState(items, filterCategories, filterStorageKey);
 
@@ -94,9 +76,6 @@ export const useTableControlState = <
 
   return {
     ...args,
-    numRenderedColumns,
-    numColumnsBeforeData,
-    numColumnsAfterData,
     filterState,
     expansionState,
     selectionState,

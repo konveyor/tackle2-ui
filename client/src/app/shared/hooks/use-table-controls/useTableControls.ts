@@ -11,7 +11,7 @@ export type UseTableControlsArgs<
   TItem extends { name: string },
   TColumnNames extends Record<string, string>
 > = UseTableControlStateArgs<TItem, TColumnNames> &
-  UseTableControlPropsAdditionalArgs;
+  UseTableControlPropsAdditionalArgs<TColumnNames>;
 
 export const useTableControls = <
   TItem extends { name: string },

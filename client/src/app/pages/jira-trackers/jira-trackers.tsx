@@ -68,6 +68,7 @@ export const JiraTrackers: React.FC = () => {
       name: jiraTracker.name || "",
       url: "", // TODO
     }),
+    sortableColumns: ["name", "url"],
     hasPagination: true,
   });
   const {
@@ -152,12 +153,8 @@ export const JiraTrackers: React.FC = () => {
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
-                    <Th
-                      {...getThProps({ columnKey: "name", isSortable: true })}
-                    />
-                    <Th
-                      {...getThProps({ columnKey: "url", isSortable: true })}
-                    />
+                    <Th {...getThProps({ columnKey: "name" })} />
+                    <Th {...getThProps({ columnKey: "url" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
