@@ -50,7 +50,10 @@ import {
   useFetchTagCategories,
 } from "@app/queries/tags";
 import { NotificationsContext } from "@app/shared/notifications-context";
-import { COLOR_NAMES_BY_HEX_VALUE } from "@app/Constants";
+import {
+  COLOR_HEX_VALUES_BY_NAME,
+  COLOR_NAMES_BY_HEX_VALUE,
+} from "@app/Constants";
 
 const ENTITY_FIELD = "entity";
 
@@ -60,6 +63,12 @@ const getRow = (rowData: IRowData): TagCategory => {
 
 export const Tags: React.FC = () => {
   const { t } = useTranslation();
+
+  const getCategoryFallbackColor = (category?: TagCategory) => {
+    if (!category?.id) return COLOR_HEX_VALUES_BY_NAME.gray;
+    const colorValues = Object.values(COLOR_HEX_VALUES_BY_NAME);
+    return colorValues[category?.id % colorValues.length];
+  };
 
   const [isTagToDeleteConfirmDialogOpen, setIsTagToDeleteConfirmDialogOpen] =
     React.useState<Boolean>(false);
@@ -276,6 +285,7 @@ export const Tags: React.FC = () => {
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {
     const isExpanded = isItemExpanded(item) && !!item?.tags?.length;
+
     rows.push({
       [ENTITY_FIELD]: item,
       isOpen: (item.tags || []).length > 0 ? isExpanded : undefined,
@@ -287,7 +297,9 @@ export const Tags: React.FC = () => {
           title: item.rank,
         },
         {
-          title: <>{item.colour && <Color hex={item.colour} />}</>,
+          title: (
+            <>{item.colour && <Color hex={getCategoryFallbackColor(item)} />}</>
+          ),
         },
         {
           title: item.tags ? item.tags.length : 0,
