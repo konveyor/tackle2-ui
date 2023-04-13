@@ -117,10 +117,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     openDetailDrawer,
     closeDetailDrawer,
     activeAppInDetailDrawer,
-  } = useApplicationsFilterValues(
-    applications ? applications : [],
-    ApplicationTableType.Analysis
-  );
+  } = useApplicationsFilterValues(ApplicationTableType.Analysis, applications);
 
   const { tasks } = useFetchTasks({ addon: "windup" });
 

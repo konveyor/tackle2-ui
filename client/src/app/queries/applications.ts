@@ -28,7 +28,7 @@ export const useFetchApplications = () => {
   return useQuery({
     queryKey: [ApplicationsQueryKey],
     queryFn: getApplications,
-    onSuccess: (data: Application[]) => {
+    onSuccess: () => {
       queryClient.invalidateQueries([reviewsQueryKey]);
       queryClient.invalidateQueries([assessmentsQueryKey]);
     },

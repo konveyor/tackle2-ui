@@ -162,8 +162,8 @@ export const ApplicationsTable: React.FC = () => {
     closeDetailDrawer,
     activeAppInDetailDrawer,
   } = useApplicationsFilterValues(
-    applications ? applications : [],
-    ApplicationTableType.Assessment
+    ApplicationTableType.Assessment,
+    applications
   );
 
   // Create and update modal
