@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import { useFormik, FormikProvider, FormikHelpers } from "formik";
 import { object, string } from "yup";
 
 import {
@@ -10,43 +9,33 @@ import {
   Button,
   ButtonVariant,
   Form,
-  FormGroup,
-  TextInput,
 } from "@patternfly/react-core";
 
-import {
-  SingleSelectFetchOptionValueFormikField,
-  MultiSelectFetchOptionValueFormikField,
-} from "@app/shared/components";
-
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createStakeholder, updateStakeholder } from "@app/api/rest";
-import { JobFunction, Stakeholder, StakeholderGroup } from "@app/api/models";
+import { JobFunction, Ref, Stakeholder } from "@app/api/models";
 import {
   duplicateFieldCheck,
   duplicateNameCheck,
   getAxiosErrorMessage,
-  getValidatedFromError,
-  getValidatedFromErrorTouched,
 } from "@app/utils/utils";
-import {
-  IJobFunctionDropdown,
-  toIJobFunctionDropdownOptionWithValue,
-  toIJobFunctionDropdown,
-  IStakeholderGroupDropdown,
-  toIStakeholderGroupDropdownOptionWithValue,
-  toIStakeholderGroupDropdown,
-  isIModelEqual,
-} from "@app/utils/model-utils";
+import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import { useFetchJobFunctions } from "@app/queries/jobfunctions";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  HookFormPFGroupController,
+  HookFormPFTextInput,
+} from "@app/shared/components/hook-form-pf-fields";
+import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { c_card_m_compact_child_PaddingLeft } from "@patternfly/react-tokens";
 
 export interface FormValues {
   email: string;
   name: string;
-  jobFunction: IJobFunctionDropdown | null;
-  stakeholderGroups: IStakeholderGroupDropdown[];
+  jobFunctionName?: string;
+  stakeholderGroupNames?: string[];
 }
 
 export interface StakeholderFormProps {
@@ -78,25 +67,18 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
     fetchError: fetchErrorGroups,
   } = useFetchStakeholderGroups();
 
-  const jobFunctionInitialValue: IJobFunctionDropdown | null = useMemo(() => {
-    return stakeholder && stakeholder.jobFunction
-      ? toIJobFunctionDropdown(stakeholder.jobFunction)
-      : null;
-  }, [stakeholder]);
-
-  const stakeholderGroupsInitialValue: IStakeholderGroupDropdown[] =
-    useMemo(() => {
-      return stakeholder && stakeholder.stakeholderGroups
-        ? stakeholder.stakeholderGroups.map(toIStakeholderGroupDropdown)
-        : [];
-    }, [stakeholder]);
-
-  const initialValues: FormValues = {
-    email: stakeholder?.email || "",
-    name: stakeholder?.name || "",
-    jobFunction: jobFunctionInitialValue,
-    stakeholderGroups: stakeholderGroupsInitialValue,
-  };
+  const jobFunctionOptions = jobFunctions.map((jobFunction) => {
+    return {
+      value: jobFunction.name,
+      toString: () => jobFunction.name,
+    };
+  });
+  const stakeholderGroupOptions = stakeholderGroups.map((stakeholderGroup) => {
+    return {
+      value: stakeholderGroup.name,
+      toString: () => stakeholderGroup.name,
+    };
+  });
 
   const validationSchema = object().shape({
     email: string()
@@ -129,15 +111,47 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
       ),
   });
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
+  const {
+    handleSubmit,
+    formState: { isSubmitting, isValidating, isValid, isDirty },
+    getValues,
+    setValue,
+    control,
+    watch,
+  } = useForm<FormValues>({
+    defaultValues: {
+      email: stakeholder?.email || "",
+      name: stakeholder?.name || "",
+      jobFunctionName: stakeholder?.jobFunction?.name,
+      stakeholderGroupNames: stakeholder?.stakeholderGroups?.map(
+        (stakeholderGroup) => stakeholderGroup.name
+      ),
+    },
+    resolver: yupResolver(validationSchema),
+    mode: "onChange",
+  });
+
+  const values = getValues();
+
+  const onSubmit = (formValues: FormValues) => {
+    const matchingStakeholderGroupRefs: Ref[] = stakeholderGroups
+      .filter((stakeholderGroup) =>
+        formValues?.stakeholderGroupNames?.includes(stakeholderGroup.name)
+      )
+      .map((stakeholderGroup) => {
+        return {
+          id: stakeholderGroup.id,
+          name: stakeholderGroup.name,
+        };
+      });
+
     const payload: Stakeholder = {
       email: formValues.email.trim(),
       name: formValues.name.trim(),
-      jobFunction: formValues.jobFunction as JobFunction,
-      stakeholderGroups: formValues.stakeholderGroups as StakeholderGroup[],
+      jobFunction: jobFunctions.find(
+        (jobFunction) => jobFunction.name === formValues.jobFunctionName
+      ),
+      stakeholderGroups: matchingStakeholderGroupRefs,
     };
 
     let promise: AxiosPromise<Stakeholder>;
@@ -152,171 +166,113 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
 
     promise
       .then((response) => {
-        formikHelpers.setSubmitting(false);
         onSaved(response);
       })
       .catch((error) => {
-        formikHelpers.setSubmitting(false);
         setError(error);
       });
   };
 
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: initialValues,
-    validationSchema: validationSchema,
-    onSubmit: onSubmit,
-  });
-
-  const onChangeField = (value: string, event: React.FormEvent<any>) => {
-    formik.handleChange(event);
-  };
-
   return (
-    <FormikProvider value={formik}>
-      <Form onSubmit={formik.handleSubmit}>
-        {error && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(error)}
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      {error && (
+        <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />
+      )}
+      <HookFormPFTextInput
+        control={control}
+        name="email"
+        label={t("terms.email")}
+        fieldId="email"
+        isRequired
+      />
+      <HookFormPFTextInput
+        control={control}
+        name="name"
+        label={t("terms.name")}
+        fieldId="name"
+        isRequired
+      />
+      <HookFormPFGroupController
+        control={control}
+        name="jobFunctionName"
+        label={t("terms.jobFunction")}
+        fieldId="jobFunction"
+        isRequired
+        renderInput={({ field: { value, name, onChange } }) => (
+          <SimpleSelect
+            variant="typeahead"
+            id="job-function"
+            toggleId="job-function-toggle"
+            toggleAriaLabel="Job function select dropdown toggle"
+            aria-label={name}
+            value={value ? toOptionLike(value, jobFunctionOptions) : undefined}
+            options={jobFunctionOptions}
+            onChange={(selection) => {
+              const selectionValue = selection as OptionWithValue<JobFunction>;
+              onChange(selectionValue.value);
+            }}
           />
         )}
-        <FormGroup
-          label={t("terms.email")}
-          fieldId="email"
-          isRequired={true}
-          validated={getValidatedFromError(formik.errors.email)}
-          helperTextInvalid={formik.errors.email}
-        >
-          <TextInput
-            type="text"
-            name="email"
-            id="email"
-            aria-label="email"
-            aria-describedby="email"
-            isRequired={true}
-            onChange={onChangeField}
-            onBlur={formik.handleBlur}
-            value={formik.values.email}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.email,
-              formik.touched.email
-            )}
-          />
-        </FormGroup>
-        <FormGroup
-          label={t("terms.name")}
-          fieldId="name"
-          isRequired={true}
-          validated={getValidatedFromError(formik.errors.name)}
-          helperTextInvalid={formik.errors.name}
-        >
-          <TextInput
-            type="text"
-            name="name"
-            id="stakeholder-name"
-            aria-label="name"
-            aria-describedby="name"
-            isRequired={true}
-            onChange={onChangeField}
-            onBlur={formik.handleBlur}
-            value={formik.values.name}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.name,
-              formik.touched.name
-            )}
-          />
-        </FormGroup>
-        <FormGroup
-          label={t("terms.jobFunction")}
-          fieldId="jobFunction"
-          isRequired={false}
-          validated={getValidatedFromError(formik.errors.jobFunction)}
-          helperTextInvalid={formik.errors.jobFunction}
-        >
-          <SingleSelectFetchOptionValueFormikField<JobFunction>
-            fieldConfig={{ name: "jobFunction" }}
-            selectConfig={{
-              variant: "typeahead",
-              toggleId: "job-function-toggle",
-              "aria-label": "Job function",
-              "aria-describedby": "job-function",
-              typeAheadAriaLabel: "job-function",
-              toggleAriaLabel: "job-function",
-              clearSelectionsAriaLabel: "job-function",
-              removeSelectionAriaLabel: "job-function",
-              placeholderText: t("composed.selectOne", {
-                what: t("terms.jobFunction").toLowerCase(),
-              }),
-              menuAppendTo: () => document.body,
-              maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-              isFetching: isFetchingJobFunctions,
-              fetchError: fetchErrorJobFunctions,
-            }}
-            options={(jobFunctions || []).map(toIJobFunctionDropdown)}
-            toOptionWithValue={toIJobFunctionDropdownOptionWithValue}
-          />
-        </FormGroup>
-        <FormGroup
-          label={t("terms.stakeholderGroup")}
-          fieldId="stakeholderGroups"
-          isRequired={false}
-          validated={getValidatedFromError(formik.errors.stakeholderGroups)}
-          helperTextInvalid={formik.errors.stakeholderGroups}
-        >
-          <MultiSelectFetchOptionValueFormikField<IStakeholderGroupDropdown>
-            fieldConfig={{ name: "stakeholderGroups" }}
-            selectConfig={{
-              variant: "typeaheadmulti",
-              toggleId: "stakeholder-groups-toggle",
-              "aria-label": "Stakeholder groups",
-              "aria-describedby": "stakeholder-groups",
-              typeAheadAriaLabel: "stakeholder-groups",
-              toggleAriaLabel: "stakeholder-groups",
-              clearSelectionsAriaLabel: "stakeholder-groups",
-              removeSelectionAriaLabel: "stakeholder-groups",
-              placeholderText: t("composed.selectOne", {
-                what: t("terms.stakeholderGroup").toLowerCase(),
-              }),
-              menuAppendTo: () => document.body,
-              maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-              isFetching: isFetchingGroups,
-              fetchError: fetchErrorGroups,
-            }}
-            options={(stakeholderGroups || []).map(toIStakeholderGroupDropdown)}
-            toOptionWithValue={toIStakeholderGroupDropdownOptionWithValue}
-            isEqual={isIModelEqual}
-          />
-        </FormGroup>
-
-        <ActionGroup>
-          <Button
-            type="submit"
-            aria-label="submit"
-            id="stakeholder-form-submit"
-            variant={ButtonVariant.primary}
-            isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
+      />
+      <HookFormPFGroupController
+        control={control}
+        name="stakeholderGroupNames"
+        label={t("terms.stakeholderGroup")}
+        fieldId="stakeholderGroups"
+        isRequired
+        renderInput={({ field: { value, name, onChange } }) => (
+          <SimpleSelect
+            variant="typeaheadmulti"
+            id="stakeholder-groups"
+            toggleId="stakeholder-groups-toggle"
+            toggleAriaLabel="Stakeholder groups select dropdown toggle"
+            aria-label={name}
+            value={
+              value
+                ? value.map((value) =>
+                    toOptionLike(value, stakeholderGroupOptions)
+                  )
+                : undefined
             }
-          >
-            {!stakeholder ? t("actions.create") : t("actions.save")}
-          </Button>
-          <Button
-            type="button"
-            id="cancel"
-            aria-label="cancel"
-            variant={ButtonVariant.link}
-            isDisabled={formik.isSubmitting || formik.isValidating}
-            onClick={onCancel}
-          >
-            {t("actions.cancel")}
-          </Button>
-        </ActionGroup>
-      </Form>
-    </FormikProvider>
+            options={stakeholderGroupOptions}
+            onChange={(selection) => {
+              const currentValue = value || [];
+              const selectionWithValue = selection as OptionWithValue<string>;
+              const e = currentValue.find(
+                (f) => f === selectionWithValue.value
+              );
+              if (e) {
+                onChange(
+                  currentValue.filter((f) => f !== selectionWithValue.value)
+                );
+              } else {
+                onChange([...currentValue, selectionWithValue.value]);
+              }
+            }}
+          />
+        )}
+      />
+      <ActionGroup>
+        <Button
+          type="submit"
+          aria-label="submit"
+          id="stakeholder-form-submit"
+          variant={ButtonVariant.primary}
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+        >
+          {!stakeholder ? t("actions.create") : t("actions.save")}
+        </Button>
+        <Button
+          type="button"
+          id="cancel"
+          aria-label="cancel"
+          variant={ButtonVariant.link}
+          isDisabled={isSubmitting || isValidating}
+          onClick={onCancel}
+        >
+          {t("actions.cancel")}
+        </Button>
+      </ActionGroup>
+    </Form>
   );
 };
