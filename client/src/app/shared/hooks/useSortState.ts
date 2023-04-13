@@ -12,12 +12,15 @@ export interface ISortStateHook<T> {
   sortedItems: T[];
 }
 
+// TODO change this to work by columnKeys instead of column index?
+
 export const useSortState = <T>(
   items: T[],
-  getSortValues: (item: T) => (string | number | boolean)[],
+  getSortValues?: (item: T) => (string | number | boolean)[],
   initialSort: ISortBy = { index: 0, direction: "asc" }
 ): ISortStateHook<T> => {
   const [sortBy, setSortBy] = React.useState<ISortBy>(initialSort);
+
   const onSort = (
     event: React.SyntheticEvent,
     index: number,
@@ -25,6 +28,8 @@ export const useSortState = <T>(
   ) => {
     setSortBy({ index, direction });
   };
+
+  if (!getSortValues) return { sortBy, onSort, sortedItems: items };
 
   let sortedItems = items;
   if (sortBy.index !== undefined && sortBy.direction !== undefined) {
