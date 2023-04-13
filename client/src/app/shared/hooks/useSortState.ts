@@ -2,12 +2,12 @@ import * as React from "react";
 import { ISortBy, SortByDirection } from "@patternfly/react-table";
 import i18n from "@app/i18n";
 
-// NOTE: This was refactored to expose an API based on columnKey instead of column index,
-//       and to return generic state data and decouple the PF props piece to another helper function.
-//       See useSortState for the new version, which should probably be used instead of this everywhere eventually.
-//       See useSortProps for the prop parts that were removed here (TODO ?)
+// TODO refactor to use columnIndex
+// TODO only return simple state
+// TODO separate the props stuff into useSortProps or getSortProps
+// TODO integrate that into useTableControlProps
 
-export interface ILegacySortStateHook<T> {
+export interface ISortStateHook<T> {
   sortBy: ISortBy;
   onSort: (
     event: React.SyntheticEvent,
@@ -17,11 +17,13 @@ export interface ILegacySortStateHook<T> {
   sortedItems: T[];
 }
 
-export const useLegacySortState = <T>(
+// TODO change this to work by columnKeys instead of column index?
+
+export const useSortState = <T>(
   items: T[],
   getSortValues?: (item: T) => (string | number | boolean)[],
   initialSort: ISortBy = { index: 0, direction: "asc" }
-): ILegacySortStateHook<T> => {
+): ISortStateHook<T> => {
   const [sortBy, setSortBy] = React.useState<ISortBy>(initialSort);
 
   const onSort = (
