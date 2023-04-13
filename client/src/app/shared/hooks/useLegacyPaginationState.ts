@@ -1,23 +1,21 @@
 import * as React from "react";
 import { PaginationProps } from "@patternfly/react-core";
 
-// TODO these could be given generic types to avoid using `any` (https://www.typescriptlang.org/docs/handbook/generics.html)
-
 export type PaginationStateProps = Pick<
   PaginationProps,
   "itemCount" | "perPage" | "page" | "onSetPage" | "onPerPageSelect"
 >;
 
-export interface IPaginationStateHook<T> {
+export interface ILegacyPaginationStateHook<T> {
   currentPageItems: T[];
   setPageNumber: (pageNumber: number) => void;
   paginationProps: PaginationStateProps;
 }
 
-export const usePaginationState = <T>(
+export const useLegacyPaginationState = <T>(
   items: T[],
   initialItemsPerPage: number
-): IPaginationStateHook<T> => {
+): ILegacyPaginationStateHook<T> => {
   const [pageNumber, baseSetPageNumber] = React.useState(1);
   const setPageNumber = (num: number) => baseSetPageNumber(num >= 1 ? num : 1);
   const [itemsPerPage, setItemsPerPage] = React.useState(initialItemsPerPage);

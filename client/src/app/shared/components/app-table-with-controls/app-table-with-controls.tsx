@@ -9,7 +9,7 @@ import {
 } from "@patternfly/react-core";
 
 import { AppTable, IAppTableProps } from "../app-table/app-table";
-import { PaginationStateProps } from "@app/shared/hooks/usePaginationState";
+import { PaginationStateProps } from "@app/shared/hooks/useLegacyPaginationState";
 import { SimplePagination } from "../simple-pagination";
 
 export interface IAppTableWithControlsProps extends IAppTableProps {

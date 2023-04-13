@@ -2,7 +2,7 @@ import React from "react";
 
 import { Pagination, PaginationVariant } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { PaginationStateProps } from "@app/shared/hooks/usePaginationState";
+import { PaginationStateProps } from "@app/shared/hooks/useLegacyPaginationState";
 
 export interface SimplePaginationProps {
   paginationProps: PaginationStateProps;

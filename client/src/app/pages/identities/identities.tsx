@@ -29,8 +29,8 @@ import {
 } from "@app/shared/components";
 import { Identity, ITypeOptions } from "@app/api/models";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import { useSortState } from "@app/shared/hooks/useSortState";
+import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
+import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { AxiosError, AxiosResponse } from "axios";
 import { NewIdentityModal } from "./components/new-identity-modal";
@@ -144,13 +144,13 @@ export const Identities: React.FC = () => {
     identity?.createUser || "",
     "", // Action column
   ];
-  const { sortBy, onSort, sortedItems } = useSortState(
+  const { sortBy, onSort, sortedItems } = useLegacySortState(
     filteredItems,
     getSortValues
   );
 
   const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+    useLegacyPaginationState(sortedItems, 10);
 
   const columns: ICell[] = [
     {

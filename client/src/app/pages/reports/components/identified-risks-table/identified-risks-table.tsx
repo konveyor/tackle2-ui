@@ -14,7 +14,7 @@ import { Application, AssessmentQuestionRisk } from "@app/api/models";
 import { getAssessmentIdentifiedRisks } from "@app/api/rest";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import {
   FilterCategory,
   FilterToolbar,
@@ -157,7 +157,7 @@ export const IdentifiedRisksTable: React.FC<
   );
 
   const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(filteredItems, 10);
+    useLegacyPaginationState(filteredItems, 10);
 
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {

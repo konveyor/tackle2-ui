@@ -2,7 +2,7 @@ import * as React from "react";
 import { ISortBy, SortByDirection } from "@patternfly/react-table";
 import i18n from "@app/i18n";
 
-export interface ISortStateHook<T> {
+export interface ILegacySortStateHook<T> {
   sortBy: ISortBy;
   onSort: (
     event: React.SyntheticEvent,
@@ -14,11 +14,11 @@ export interface ISortStateHook<T> {
 
 // TODO change this to work by columnKeys instead of column index?
 
-export const useSortState = <T>(
+export const useLegacySortState = <T>(
   items: T[],
   getSortValues?: (item: T) => (string | number | boolean)[],
   initialSort: ISortBy = { index: 0, direction: "asc" }
-): ISortStateHook<T> => {
+): ILegacySortStateHook<T> => {
   const [sortBy, setSortBy] = React.useState<ISortBy>(initialSort);
 
   const onSort = (

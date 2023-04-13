@@ -22,7 +22,7 @@ import { ImportSummaryRoute, Paths } from "@app/Paths";
 import { getApplicationSummaryCSV } from "@app/api/rest";
 import { ApplicationImport } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import {
   useFetchImports,
   useFetchImportSummaryByID,
@@ -32,7 +32,7 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useSortState } from "@app/shared/hooks/useSortState";
+import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
@@ -123,13 +123,13 @@ export const ManageImportsDetails: React.FC = () => {
     "", // Action column
   ];
 
-  const { sortBy, onSort, sortedItems } = useSortState(
+  const { sortBy, onSort, sortedItems } = useLegacySortState(
     filteredItems,
     getSortValues
   );
 
   const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+    useLegacyPaginationState(sortedItems, 10);
 
   return (
     <>

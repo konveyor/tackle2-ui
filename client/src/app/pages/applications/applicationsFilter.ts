@@ -10,8 +10,8 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import { useSortState } from "@app/shared/hooks/useSortState";
+import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
+import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { dedupeFunction } from "@app/utils/utils";
 import { useSelectionState } from "@migtools/lib-ui";
 export enum ApplicationTableType {
@@ -177,7 +177,7 @@ export const useApplicationsFilterValues = (
     "", // Action column
   ];
 
-  const { sortBy, onSort, sortedItems } = useSortState(
+  const { sortBy, onSort, sortedItems } = useLegacySortState(
     filteredItems,
     getSortValues
   );
@@ -196,7 +196,7 @@ export const useApplicationsFilterValues = (
   });
 
   const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+    useLegacyPaginationState(sortedItems, 10);
 
   const [activeAppInDetailDrawer, openDetailDrawer] =
     React.useState<Application | null>(null);

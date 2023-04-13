@@ -34,14 +34,14 @@ import { dedupeFunction } from "@app/utils/utils";
 
 import { ApplicationBusinessService } from "../application-business-service";
 import { ApplicationAssessment } from "../application-assessment";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useSortState } from "@app/shared/hooks/useSortState";
+import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { useSelectionState } from "@migtools/lib-ui";
 import { useFetchApplicationAssessments } from "@app/queries/assessments";
 import { useFetchApplications } from "@app/queries/applications";
@@ -164,13 +164,13 @@ export const BulkCopyAssessmentReviewForm: React.FC<
     item.businessService?.name || "",
   ];
 
-  const { sortBy, onSort, sortedItems } = useSortState(
+  const { sortBy, onSort, sortedItems } = useLegacySortState(
     filteredItems,
     getSortValues
   );
 
   const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+    useLegacyPaginationState(sortedItems, 10);
 
   //Bulk selection
   const {

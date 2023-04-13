@@ -2,8 +2,8 @@ import { FilterCategory } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "../useFilterState";
 import { useCompoundExpansionState } from "../useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
-import { useSortState } from "../useSortState";
-import { usePaginationState } from "../usePaginationState";
+import { useLegacySortState } from "../useLegacySortState";
+import { useLegacyPaginationState } from "../useLegacyPaginationState";
 import { objectKeys } from "@app/utils/utils";
 
 export interface UseTableControlStateArgs<
@@ -46,7 +46,7 @@ export const useTableControlState = <
     isEqual: (a, b) => a.name === b.name,
   });
 
-  const sortState = useSortState(
+  const sortState = useLegacySortState(
     filterState.filteredItems,
     getSortValues
       ? (item) => {
@@ -69,7 +69,7 @@ export const useTableControlState = <
       : undefined
   );
 
-  const paginationState = usePaginationState(
+  const paginationState = useLegacyPaginationState(
     sortState.sortedItems,
     initialItemsPerPage
   );
