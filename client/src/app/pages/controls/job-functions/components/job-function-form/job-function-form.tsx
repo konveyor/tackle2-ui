@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import { useFormik, FormikProvider, FormikHelpers } from "formik";
 import { object, string } from "yup";
 
 import {
@@ -10,19 +9,15 @@ import {
   Button,
   ButtonVariant,
   Form,
-  FormGroup,
-  TextInput,
 } from "@patternfly/react-core";
 
 import { createJobFunction, updateJobFunction } from "@app/api/rest";
 import { JobFunction } from "@app/api/models";
-import {
-  duplicateNameCheck,
-  getAxiosErrorMessage,
-  getValidatedFromError,
-  getValidatedFromErrorTouched,
-} from "@app/utils/utils";
+import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import { useFetchJobFunctions } from "@app/queries/jobfunctions";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+import { HookFormPFTextInput } from "@app/shared/components/hook-form-pf-fields";
 
 export interface FormValues {
   name: string;
@@ -41,12 +36,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const [error, setError] = useState<AxiosError>();
-  const { jobFunctions, isFetching, fetchError, refetch } =
-    useFetchJobFunctions();
-
-  const initialValues: FormValues = {
-    name: jobFunction?.name || "",
-  };
+  const { jobFunctions } = useFetchJobFunctions();
 
   const validationSchema = object().shape({
     name: string()
@@ -67,13 +57,21 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
       ),
   });
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
+  const {
+    handleSubmit,
+    formState: { isSubmitting, isValidating, isValid, isDirty },
+    control,
+  } = useForm<FormValues>({
+    defaultValues: {
+      name: jobFunction?.name || "",
+    },
+    resolver: yupResolver(validationSchema),
+    mode: "onChange",
+  });
+
+  const onSubmit = (formValues: FormValues) => {
     const payload: JobFunction = {
       name: formValues.name.trim(),
-      // stakeholders: [],
     };
 
     let promise: AxiosPromise<JobFunction>;
@@ -88,88 +86,46 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
 
     promise
       .then((response) => {
-        formikHelpers.setSubmitting(false);
         onSaved(response);
       })
       .catch((error) => {
-        formikHelpers.setSubmitting(false);
         setError(error);
       });
   };
 
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: initialValues,
-    validationSchema: validationSchema,
-    onSubmit: onSubmit,
-  });
-
-  const onChangeField = (value: string, event: React.FormEvent<any>) => {
-    formik.handleChange(event);
-  };
-
   return (
-    <FormikProvider value={formik}>
-      <Form onSubmit={formik.handleSubmit}>
-        {error && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(error)}
-          />
-        )}
-        <FormGroup
-          label={t("terms.name")}
-          fieldId="name"
-          isRequired={true}
-          validated={getValidatedFromError(formik.errors.name)}
-          helperTextInvalid={formik.errors.name}
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      {error && (
+        <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />
+      )}
+      <HookFormPFTextInput
+        control={control}
+        name="name"
+        label={t("terms.name")}
+        fieldId="name"
+        isRequired
+      />
+      <ActionGroup>
+        <Button
+          type="submit"
+          id="job-function-form-submit"
+          aria-label="submit"
+          variant={ButtonVariant.primary}
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
         >
-          <TextInput
-            type="text"
-            name="name"
-            id="job-function-name"
-            aria-label="name"
-            aria-describedby="name"
-            isRequired={true}
-            onChange={onChangeField}
-            onBlur={formik.handleBlur}
-            value={formik.values.name}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.name,
-              formik.touched.name
-            )}
-            autoComplete="off"
-          />
-        </FormGroup>
-
-        <ActionGroup>
-          <Button
-            type="submit"
-            id="job-function-form-submit"
-            aria-label="submit"
-            variant={ButtonVariant.primary}
-            isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
-            }
-          >
-            {!jobFunction ? t("actions.create") : t("actions.save")}
-          </Button>
-          <Button
-            type="button"
-            id="cancel"
-            aria-label="cancel"
-            variant={ButtonVariant.link}
-            isDisabled={formik.isSubmitting || formik.isValidating}
-            onClick={onCancel}
-          >
-            {t("actions.cancel")}
-          </Button>
-        </ActionGroup>
-      </Form>
-    </FormikProvider>
+          {!jobFunction ? t("actions.create") : t("actions.save")}
+        </Button>
+        <Button
+          type="button"
+          id="cancel"
+          aria-label="cancel"
+          variant={ButtonVariant.link}
+          isDisabled={isSubmitting || isValidating}
+          onClick={onCancel}
+        >
+          {t("actions.cancel")}
+        </Button>
+      </ActionGroup>
+    </Form>
   );
 };
