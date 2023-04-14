@@ -261,28 +261,8 @@ export const getTags = (): AxiosPromise<Tag[]> => {
 
 // App inventory
 
-export const getApplications = (): AxiosPromise<Array<Application>> => {
-  return APIClient.get(`${APPLICATIONS}`, jsonHeaders);
-};
-
-export const deleteApplication = (id: number): AxiosPromise => {
-  return APIClient.delete(`${APPLICATIONS}/${id}`);
-};
-
-export const createApplication = (
-  obj: Application
-): AxiosPromise<Application> => {
-  return APIClient.post(`${APPLICATIONS}`, obj);
-};
-
-export const updateApplication = (
-  obj: Application
-): AxiosPromise<Application> => {
-  return APIClient.put(`${APPLICATIONS}/${obj.id}`, obj);
-};
-
 export const updateAllApplications = (
-  updatePromises: AxiosPromise<Application>[]
+  updatePromises: Promise<Application>[]
 ) => {
   return Promise.all(updatePromises)
     .then((response) => {
@@ -470,33 +450,41 @@ export const deleteProxy = (id: number): AxiosPromise => {
 
 // Axios direct
 
-export const getApplicationsQuery = () =>
-  axios.get<Application[]>(APPLICATIONS).then((response) => response.data);
+export const createApplication = (obj: Application): Promise<Application> =>
+  axios.post(`${APPLICATIONS}`, obj);
 
-export const deleteBulkApplicationsQuery = (ids: number[]) =>
+export const deleteApplication = (id: number): Promise<Application> =>
+  axios.delete(`${APPLICATIONS}/${id}`);
+
+export const deleteBulkApplications = (ids: number[]): Promise<Application[]> =>
   axios.delete(APPLICATIONS, { data: ids });
 
-export const getApplicationsImportSummary = () =>
-  axios
-    .get<ApplicationImportSummary[]>(APP_IMPORT_SUMMARY)
-    .then((response) => response.data);
+export const getApplications = (): Promise<Application[]> =>
+  axios.get(APPLICATIONS).then((response) => response.data);
 
-export const getApplicationImportSummaryById = (id: number | string) =>
-  axios
-    .get<ApplicationImportSummary>(`${APP_IMPORT_SUMMARY}/${id}`)
-    .then((response) => response.data);
+export const updateApplication = (obj: Application): Promise<Application> =>
+  axios.put(`${APPLICATIONS}/${obj.id}`, obj);
 
-export const deleteApplicationImportSummary = (id: number) =>
-  axios.delete<APIClient>(`${APP_IMPORT_SUMMARY}/${id}`);
+export const getApplicationsImportSummary = (): Promise<
+  ApplicationImportSummary[]
+> => axios.get(APP_IMPORT_SUMMARY).then((response) => response.data);
+
+export const getApplicationImportSummaryById = (
+  id: number | string
+): Promise<ApplicationImportSummary> =>
+  axios.get(`${APP_IMPORT_SUMMARY}/${id}`).then((response) => response.data);
+
+export const deleteApplicationImportSummary = (
+  id: number
+): Promise<ApplicationImportSummary> =>
+  axios.delete(`${APP_IMPORT_SUMMARY}/${id}`);
 
 export const getApplicationImports = (
   importSummaryID: number,
   isValid: boolean | string
-) =>
+): Promise<ApplicationImport[]> =>
   axios
-    .get<ApplicationImport[]>(
-      `${APP_IMPORT}?importSummary.id=${importSummaryID}&isValid=${isValid}`
-    )
+    .get(`${APP_IMPORT}?importSummary.id=${importSummaryID}&isValid=${isValid}`)
     .then((response) => response.data);
 
 export const getTasks = () =>

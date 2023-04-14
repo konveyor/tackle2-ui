@@ -38,13 +38,8 @@ import {
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 
 import { formatPath, Paths } from "@app/Paths";
-
-
-import { Application, Assessment, Task, Review } from "@app/api/models";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-
+import { Application, Assessment, Task } from "@app/api/models";
 import { ApplicationForm } from "../components/application-form";
-
 import { ApplicationAssessment } from "../components/application-assessment";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
@@ -70,15 +65,8 @@ import {
   useApplicationsFilterValues,
 } from "../applicationsFilter";
 import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
+import { useDeleteReviewMutation, useFetchReviews } from "@app/queries/reviews";
 import {
-  IReviewMutation,
-  reviewsQueryKey,
-  useDeleteReviewMutation,
-  useFetchReviews,
-} from "@app/queries/reviews";
-import {
-  assessmentsQueryKey,
-  IAssessementMutation,
   useDeleteAssessmentMutation,
   useFetchApplicationAssessments,
 } from "@app/queries/assessments";
@@ -90,6 +78,7 @@ import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
 import { ApplicationDetailDrawerAssessment } from "../components/application-detail-drawer";
 import { useSetting } from "@app/queries/settings";
 import { useFetchTasks } from "@app/queries/tasks";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const ENTITY_FIELD = "entity";
 
@@ -140,9 +129,9 @@ export const ApplicationsTable: React.FC = () => {
 
   // Table data
   const {
-    applications,
+    data: applications,
     isFetching,
-    fetchError,
+    error: fetchError,
     refetch: fetchApplications,
   } = useFetchApplications();
 
@@ -173,8 +162,8 @@ export const ApplicationsTable: React.FC = () => {
     closeDetailDrawer,
     activeAppInDetailDrawer,
   } = useApplicationsFilterValues(
-    applications,
-    ApplicationTableType.Assessment
+    ApplicationTableType.Assessment,
+    applications
   );
 
   // Create and update modal
@@ -545,7 +534,7 @@ export const ApplicationsTable: React.FC = () => {
 
   const onDeleteError = (error: AxiosError) => {
     pushNotification({
-      title: `${error}`,
+      title: getAxiosErrorMessage(error),
       variant: "danger",
     });
   };
@@ -596,7 +585,7 @@ export const ApplicationsTable: React.FC = () => {
           );
         }
       },
-      (error) => {
+      (error: AxiosError) => {
         pushNotification({
           title: getAxiosErrorMessage(error),
           variant: "danger",

@@ -92,9 +92,9 @@ export const ApplicationDependenciesForm: React.FC<
   // Applications
 
   const {
-    applications,
+    data: applications,
     isFetching: isFetchingApplications,
-    fetchError: fetchErrorApplications,
+    error: fetchErrorApplications,
   } = useFetchApplications();
 
   // Initial value
