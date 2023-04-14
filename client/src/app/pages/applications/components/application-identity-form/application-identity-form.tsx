@@ -33,11 +33,7 @@ import {
 } from "./field-names";
 import validationSchema from "./validation-schema";
 import { updateApplication } from "@app/api/rest";
-import {
-  useFetchApplications,
-  useUpdateAllApplicationsMutation,
-  useUpdateApplicationMutation,
-} from "@app/queries/applications";
+import { useUpdateAllApplicationsMutation } from "@app/queries/applications";
 import { useFetchIdentities } from "@app/queries/identities";
 
 export interface FormValues {
@@ -60,8 +56,6 @@ export const ApplicationIdentityForm: React.FC<
 
   const { identities } = useFetchIdentities();
 
-  const { refetch: refetchApplications } = useFetchApplications();
-
   // Actions
   const onCreateUpdateApplicationSuccess = (response: any) => {
     if (response) {
@@ -81,7 +75,7 @@ export const ApplicationIdentityForm: React.FC<
   );
 
   const onSubmit = (formValues: FormValues) => {
-    let updatePromises: Array<AxiosPromise<Application>> = [];
+    let updatePromises: Array<Promise<Application>> = [];
     applications.forEach((application) => {
       let updatedIdentities: Ref[] = [];
       if (application.identities && identities) {
@@ -105,7 +99,7 @@ export const ApplicationIdentityForm: React.FC<
           id: application.id,
           businessService: application.businessService,
         };
-        let promise: AxiosPromise<Application>;
+        let promise: Promise<Application>;
         promise = updateApplication({
           ...application,
           ...payload,
@@ -188,6 +182,7 @@ export const ApplicationIdentityForm: React.FC<
     }
   }, [identities, formik.values]);
   const [existingIdentitiesError, setExistingIdentitiesError] = useState(false);
+
   return (
     <FormikProvider value={formik}>
       <Form>
