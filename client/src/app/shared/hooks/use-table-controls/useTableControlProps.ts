@@ -16,10 +16,7 @@ import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-s
 import { IFilterToolbarProps } from "@app/shared/components/FilterToolbar";
 import { objectKeys } from "@app/utils/utils";
 
-export interface UseTableControlPropsAdditionalArgs<
-  TColumnNames extends Record<string, string>
-> {
-  sortableColumns?: (keyof TColumnNames)[];
+export interface UseTableControlPropsAdditionalArgs {
   isSelectable?: boolean;
   expandableVariant?: "single" | "compound" | null;
   hasActionsColumn?: boolean;
@@ -30,7 +27,7 @@ export type UseTableControlPropsArgs<
   TItem extends { name: string },
   TColumnNames extends Record<string, string>
 > = ReturnType<typeof useTableControlState<TItem, TColumnNames>> &
-  UseTableControlPropsAdditionalArgs<TColumnNames>;
+  UseTableControlPropsAdditionalArgs;
 
 export const useTableControlProps = <
   TItem extends { name: string },
@@ -53,7 +50,7 @@ export const useTableControlProps = <
       toggleItemSelected,
       isItemSelected,
     },
-    sortState: { sortBy, onSort },
+    sortState: { activeSort, setActiveSort },
     paginationState: {
       currentPageItems,
       pageNumber,
@@ -125,18 +122,27 @@ export const useTableControlProps = <
     columnKey,
   }: {
     columnKey: keyof TColumnNames;
-  }): Omit<ThProps, "ref"> => ({
-    ...(sortableColumns.includes(columnKey)
-      ? {
-          sort: {
-            columnIndex: objectKeys(columnNames).indexOf(columnKey),
-            sortBy,
-            onSort,
-          },
-        }
-      : {}),
-    children: columnNames[columnKey],
-  });
+  }): Omit<ThProps, "ref"> => {
+    const columnKeys = objectKeys(columnNames);
+    return {
+      ...(sortableColumns.includes(columnKey)
+        ? {
+            sort: {
+              columnIndex: columnKeys.indexOf(columnKey),
+              sortBy: {
+                index: activeSort
+                  ? columnKeys.indexOf(activeSort.columnKey)
+                  : undefined,
+              },
+              onSort: (event, index, direction) => {
+                setActiveSort({ columnKey: columnKeys[index], direction });
+              },
+            },
+          }
+        : {}),
+      children: columnNames[columnKey],
+    };
+  };
 
   const getTdProps = ({
     columnKey,

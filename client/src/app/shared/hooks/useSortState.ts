@@ -1,69 +1,72 @@
 import * as React from "react";
-import { ISortBy, SortByDirection } from "@patternfly/react-table";
 import i18n from "@app/i18n";
-import { IGroupVersionKindPlural } from "@migtools/lib-ui";
 
-// TODO refactor to use columnIndex
-// TODO only return simple state
-// TODO separate the props stuff into useSortProps or getSortProps
-// TODO integrate that into useTableControlProps
+// TODO try to use TSortableColumnKey instead of TColumnNames, do that everywhere and try to enforce string keys
 
-export interface ISortStateHook<TItem, TSortableColumnKey extends string> {
-  activeSortColumn: TSortableColumnKey | null;
-  activeSortDirection: "asc" | "desc";
-  setSort: (column: TSortableColumnKey, direction: "asc" | "desc") => void;
+export interface IActiveSort<TColumnNames extends Record<string, string>> {
+  columnKey: keyof TColumnNames;
+  direction: "asc" | "desc";
+}
+
+export interface ISortStateArgs<
+  TItem,
+  TColumnNames extends Record<string, string>
+> {
+  items: TItem[];
+  sortableColumns: (keyof TColumnNames)[];
+  getSortValues?: (
+    item: TItem
+  ) => Record<keyof TColumnNames, string | number | boolean>;
+  initialSort: IActiveSort<TColumnNames> | null;
+}
+
+export interface ISortStateHook<
+  TItem,
+  TColumnNames extends Record<string, string>
+> {
+  activeSort: IActiveSort<TColumnNames> | null;
+  setActiveSort: (sort: IActiveSort<TColumnNames> | null) => void;
   sortedItems: TItem[];
 }
 
-// TODO change this to work by columnKeys instead of column index?
+export const useSortState = <
+  TItem,
+  TColumnNames extends Record<string, string>
+>({
+  items,
+  sortableColumns,
+  getSortValues,
+  initialSort = sortableColumns[0]
+    ? { columnKey: sortableColumns[0], direction: "asc" }
+    : null,
+}: ISortStateArgs<TItem, TColumnNames>): ISortStateHook<
+  TItem,
+  TColumnNames
+> => {
+  const [activeSort, setActiveSort] = React.useState(initialSort);
 
-export const useSortState = <TItem, TSortableColumnKey extends string>(
-  items: TItem[],
-  sortableColumns: TSortableColumnKey[],
-  getSortValues?: (
-    item: TItem
-  ) => Record<TSortableColumnKey, string | number | boolean>,
-  initialSortColumn: TSortableColumnKey | null = sortableColumns[0] || null,
-  initialSortDirection: "asc" | "desc" = "asc"
-): ISortStateHook<TItem, TSortableColumnKey> => {
-  const [activeSortColumn, setActiveSortColumn] =
-    React.useState<TSortableColumnKey | null>(initialSortColumn);
-  const [activeSortDirection, setActiveSortDirection] = React.useState<
-    "asc" | "desc"
-  >(initialSortDirection);
-
-  const setSort = (column: TSortableColumnKey, direction: "asc" | "desc") => {
-    setActiveSortColumn(column);
-    setActiveSortDirection(direction);
-  };
-
-  if (!getSortValues || !activeSortColumn)
-    return {
-      activeSortColumn,
-      activeSortDirection,
-      setSort,
-      sortedItems: items,
-    };
+  if (!getSortValues || !activeSort)
+    return { activeSort, setActiveSort, sortedItems: items };
 
   let sortedItems = items;
   sortedItems = [...items].sort((a: TItem, b: TItem) => {
-    let aValue = getSortValues(a)[activeSortColumn];
-    let bValue = getSortValues(b)[activeSortColumn];
+    let aValue = getSortValues(a)[activeSort.columnKey];
+    let bValue = getSortValues(b)[activeSort.columnKey];
     if (typeof aValue === "string" && typeof bValue === "string") {
       aValue = aValue.replace(/ +/g, "");
       bValue = bValue.replace(/ +/g, "");
       const aSortResult = aValue.localeCompare(bValue, i18n.language);
       const bSortResult = bValue.localeCompare(aValue, i18n.language);
-      return activeSortDirection === "asc" ? aSortResult : bSortResult;
+      return activeSort.direction === "asc" ? aSortResult : bSortResult;
     } else if (typeof aValue === "number" && typeof bValue === "number") {
-      return activeSortDirection === "asc" ? aValue - bValue : bValue - aValue;
+      return activeSort.direction === "asc" ? aValue - bValue : bValue - aValue;
     } else {
-      if (aValue > bValue) return activeSortDirection === "asc" ? -1 : 1;
-      if (aValue < bValue) return activeSortDirection === "asc" ? -1 : 1;
+      if (aValue > bValue) return activeSort.direction === "asc" ? -1 : 1;
+      if (aValue < bValue) return activeSort.direction === "asc" ? -1 : 1;
     }
 
     return 0;
   });
 
-  return { activeSortColumn, activeSortDirection, setSort, sortedItems };
+  return { activeSort, setActiveSort, sortedItems };
 };
