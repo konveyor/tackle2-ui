@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
-import { useFormik, FormikProvider, FormikHelpers } from "formik";
 import { object, string } from "yup";
 
 import {
@@ -10,34 +9,27 @@ import {
   Button,
   ButtonVariant,
   Form,
-  FormGroup,
-  TextArea,
-  TextInput,
 } from "@patternfly/react-core";
-
-import { SingleSelectFetchOptionValueFormikField } from "@app/shared/components";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createBusinessService, updateBusinessService } from "@app/api/rest";
 import { BusinessService, Stakeholder } from "@app/api/models";
-import {
-  duplicateNameCheck,
-  getAxiosErrorMessage,
-  getValidatedFromError,
-  getValidatedFromErrorTouched,
-} from "@app/utils/utils";
-import {
-  IStakeholderDropdown,
-  toIStakeholderDropdownOptionWithValue,
-  toIStakeholderDropdown,
-} from "@app/utils/model-utils";
+import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  HookFormPFGroupController,
+  HookFormPFTextArea,
+  HookFormPFTextInput,
+} from "@app/shared/components/hook-form-pf-fields";
+import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 
 export interface FormValues {
   name: string;
   description: string;
-  owner: IStakeholderDropdown | null;
+  owner: string;
 }
 
 export interface BusinessServiceFormProps {
@@ -55,29 +47,16 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
 
   const [error, setError] = useState<AxiosError>();
 
-  const {
-    businessServices,
-    isFetching: isFetchingBusinessServices,
-    fetchError: fetchErrorBusinessServices,
-  } = useFetchBusinessServices();
+  const { businessServices } = useFetchBusinessServices();
 
-  const {
-    stakeholders,
-    isFetching: isFetchingStakeholders,
-    fetchError: fetchErrorStakeholders,
-  } = useFetchStakeholders();
+  const { stakeholders } = useFetchStakeholders();
 
-  const ownerInitialValue: IStakeholderDropdown | null = useMemo(() => {
-    return businessService && businessService.owner
-      ? toIStakeholderDropdown(businessService.owner)
-      : null;
-  }, [businessService]);
-
-  const initialValues: FormValues = {
-    name: businessService?.name || "",
-    description: businessService?.description || "",
-    owner: ownerInitialValue,
-  };
+  const stakeholdersOptions = stakeholders.map((stakeholder) => {
+    return {
+      value: stakeholder.name,
+      toString: () => stakeholder.name,
+    };
+  });
 
   const validationSchema = object().shape({
     name: string()
@@ -101,14 +80,28 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
       .max(250, t("validation.maxLength", { length: 250 })),
   });
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
+  const {
+    handleSubmit,
+    formState: { isSubmitting, isValidating, isValid, isDirty },
+    control,
+  } = useForm<FormValues>({
+    defaultValues: {
+      name: businessService?.name || "",
+      description: businessService?.description || "",
+      owner: businessService?.owner?.name,
+    },
+    resolver: yupResolver(validationSchema),
+    mode: "onChange",
+  });
+
+  const onSubmit = (formValues: FormValues) => {
+    const matchingStakeholderRef = stakeholders.find(
+      (stakeholder) => stakeholder.name === formValues.owner
+    );
     const payload: BusinessService = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
-      owner: formValues.owner as Stakeholder,
+      owner: matchingStakeholderRef,
     };
 
     let promise: AxiosPromise<BusinessService>;
@@ -123,139 +116,74 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
 
     promise
       .then((response) => {
-        formikHelpers.setSubmitting(false);
         onSaved(response);
       })
       .catch((error) => {
-        formikHelpers.setSubmitting(false);
         setError(error);
       });
   };
 
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: initialValues,
-    validationSchema: validationSchema,
-    onSubmit: onSubmit,
-  });
-
-  const onChangeField = (value: string, event: React.FormEvent<any>) => {
-    formik.handleChange(event);
-  };
-
   return (
-    <FormikProvider value={formik}>
-      <Form onSubmit={formik.handleSubmit}>
-        {error && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(error)}
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      {error && (
+        <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />
+      )}
+      <HookFormPFTextInput
+        control={control}
+        name="name"
+        label={t("terms.name")}
+        fieldId="business-service-name"
+        isRequired
+      />
+      <HookFormPFTextArea
+        control={control}
+        name="description"
+        label={t("terms.description")}
+        fieldId="description"
+      />
+      <HookFormPFGroupController
+        control={control}
+        name="owner"
+        label={t("terms.owner")}
+        fieldId="owner"
+        renderInput={({ field: { value, name, onChange } }) => (
+          <SimpleSelect
+            variant="typeahead"
+            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+            id="action-select"
+            toggleId="action-select-toggle"
+            toggleAriaLabel="Action select dropdown toggle"
+            aria-label={name}
+            value={value}
+            options={stakeholdersOptions}
+            onChange={(selection) => {
+              const selectionValue = selection as OptionWithValue<string>;
+              onChange(selectionValue.value);
+            }}
           />
         )}
-        <FormGroup
-          label={t("terms.name")}
-          fieldId="name"
-          isRequired={true}
-          validated={getValidatedFromError(formik.errors.name)}
-          helperTextInvalid={formik.errors.name}
+      />
+      <ActionGroup>
+        <Button
+          type="submit"
+          id="business-service-form-submit"
+          aria-label="submit"
+          variant={ButtonVariant.primary}
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
         >
-          <TextInput
-            type="text"
-            name="name"
-            id="business-service-name"
-            aria-label="name"
-            aria-describedby="name"
-            isRequired={true}
-            onChange={onChangeField}
-            onBlur={formik.handleBlur}
-            value={formik.values.name}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.name,
-              formik.touched.name
-            )}
-            autoComplete="off"
-          />
-        </FormGroup>
-        <FormGroup
-          label={t("terms.description")}
-          fieldId="description"
-          isRequired={false}
-          validated={getValidatedFromError(formik.errors.description)}
-          helperTextInvalid={formik.errors.description}
+          {!businessService ? t("actions.create") : t("actions.save")}
+        </Button>
+        <Button
+          type="button"
+          id="cancel"
+          aria-label="cancel"
+          variant={ButtonVariant.link}
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+          onClick={onCancel}
         >
-          <TextArea
-            type="text"
-            name="description"
-            aria-label="description"
-            aria-describedby="description"
-            isRequired={false}
-            onChange={onChangeField}
-            onBlur={formik.handleBlur}
-            value={formik.values.description}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.description,
-              formik.touched.description
-            )}
-          />
-        </FormGroup>
-        <FormGroup
-          label={t("terms.owner")}
-          fieldId="owner"
-          isRequired={false}
-          validated={getValidatedFromError(formik.errors.owner)}
-          helperTextInvalid={formik.errors.owner}
-        >
-          <SingleSelectFetchOptionValueFormikField<IStakeholderDropdown>
-            fieldConfig={{ name: "owner" }}
-            selectConfig={{
-              variant: "typeahead",
-              toggleId: "owner-toggle",
-              "aria-label": "owner",
-              "aria-describedby": "owner",
-              typeAheadAriaLabel: "owner",
-              toggleAriaLabel: "owner",
-              clearSelectionsAriaLabel: "owner",
-              removeSelectionAriaLabel: "owner",
-              placeholderText: t("message.selectOwnerFromStakeholdersList"),
-              menuAppendTo: () => document.body,
-              maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-              fetchError: fetchErrorStakeholders,
-              isFetching: isFetchingStakeholders,
-            }}
-            options={(stakeholders || []).map(toIStakeholderDropdown)}
-            toOptionWithValue={toIStakeholderDropdownOptionWithValue}
-            isClearable={true}
-          />
-        </FormGroup>
-
-        <ActionGroup>
-          <Button
-            type="submit"
-            id="business-service-form-submit"
-            aria-label="submit"
-            variant={ButtonVariant.primary}
-            isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
-            }
-          >
-            {!businessService ? t("actions.create") : t("actions.save")}
-          </Button>
-          <Button
-            type="button"
-            id="cancel"
-            aria-label="cancel"
-            variant={ButtonVariant.link}
-            isDisabled={formik.isSubmitting || formik.isValidating}
-            onClick={onCancel}
-          >
-            {t("actions.cancel")}
-          </Button>
-        </ActionGroup>
-      </Form>
-    </FormikProvider>
+          {t("actions.cancel")}
+        </Button>
+      </ActionGroup>
+    </Form>
   );
 };
