@@ -1,23 +1,22 @@
 import * as React from "react";
-import { PaginationProps } from "@patternfly/react-core";
 
-export type PaginationStateProps = Pick<
-  PaginationProps,
-  "itemCount" | "perPage" | "page" | "onSetPage" | "onPerPageSelect"
->;
+export interface IPaginationStateArgs<TItem> {
+  items: TItem[];
+  initialItemsPerPage?: number;
+}
 
-export interface IPaginationStateHook<T> {
-  currentPageItems: T[];
+export interface IPaginationStateHook<TItem> {
+  currentPageItems: TItem[];
   pageNumber: number;
   setPageNumber: (pageNumber: number) => void;
   itemsPerPage: number;
   setItemsPerPage: (numItems: number) => void;
 }
 
-export const usePaginationState = <T>(
-  items: T[],
-  initialItemsPerPage: number
-): IPaginationStateHook<T> => {
+export const usePaginationState = <TItem>({
+  items,
+  initialItemsPerPage = 10,
+}: IPaginationStateArgs<TItem>): IPaginationStateHook<TItem> => {
   const [pageNumber, baseSetPageNumber] = React.useState(1);
   const setPageNumber = (num: number) => baseSetPageNumber(num >= 1 ? num : 1);
   const [itemsPerPage, setItemsPerPage] = React.useState(initialItemsPerPage);

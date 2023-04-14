@@ -53,10 +53,10 @@ export const useTableControlState = <
     initialSort,
   });
 
-  const paginationState = usePaginationState(
-    sortState.sortedItems,
-    initialItemsPerPage
-  );
+  const paginationState = usePaginationState({
+    items: sortState.sortedItems,
+    initialItemsPerPage,
+  });
 
   return {
     ...args,
