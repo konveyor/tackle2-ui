@@ -4,19 +4,27 @@ import { useTableControls } from "@app/shared/hooks/use-table-controls";
 
 export interface ITableHeaderContentWithControlsProps<
   TItem extends { name: string },
-  TColumnNames extends Record<string, string>
-> extends ReturnType<typeof useTableControls<TItem, TColumnNames>> {
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey
+> extends ReturnType<
+    typeof useTableControls<TItem, TColumnKey, TSortableColumnKey>
+  > {
   children: React.ReactNode;
 }
 
 export const TableHeaderContentWithControls = <
   TItem extends { name: string },
-  TColumnNames extends Record<string, string>
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey
 >({
   numColumnsBeforeData,
   numColumnsAfterData,
   children,
-}: ITableHeaderContentWithControlsProps<TItem, TColumnNames>) => (
+}: ITableHeaderContentWithControlsProps<
+  TItem,
+  TColumnKey,
+  TSortableColumnKey
+>) => (
   <>
     {Array(numColumnsBeforeData)
       .fill(null)

@@ -9,15 +9,17 @@ import {
 
 export type UseTableControlsArgs<
   TItem extends { name: string },
-  TColumnNames extends Record<string, string>
-> = UseTableControlStateArgs<TItem, TColumnNames> &
-  UseTableControlPropsAdditionalArgs<TColumnNames>;
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey // A subset of column keys as a separate narrower type
+> = UseTableControlStateArgs<TItem, TColumnKey, TSortableColumnKey> &
+  UseTableControlPropsAdditionalArgs;
 
 export const useTableControls = <
   TItem extends { name: string },
-  TColumnNames extends Record<string, string>
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey
 >(
-  args: UseTableControlsArgs<TItem, TColumnNames>
+  args: UseTableControlsArgs<TItem, TColumnKey, TSortableColumnKey>
 ) => {
   const stateReturnValues = useTableControlState(args);
   const propsReturnValues = useTableControlProps({

@@ -12,6 +12,8 @@ export interface IFilterStateHook<T> {
   filteredItems: T[];
 }
 
+// TODO refactor this to take an object of args for consistency with the other table state hooks
+
 export const useFilterState = <T>(
   items: T[],
   filterCategories: FilterCategory<T>[],

@@ -1,5 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { ToolbarItemProps, ToolbarProps } from "@patternfly/react-core";
+import {
+  PaginationProps,
+  ToolbarItemProps,
+  ToolbarProps,
+} from "@patternfly/react-core";
 import {
   TableComposableProps,
   TdProps,
@@ -12,10 +16,7 @@ import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-s
 import { IFilterToolbarProps } from "@app/shared/components/FilterToolbar";
 import { objectKeys } from "@app/utils/utils";
 
-export interface UseTableControlPropsAdditionalArgs<
-  TColumnNames extends Record<string, string>
-> {
-  sortableColumns?: (keyof TColumnNames)[];
+export interface UseTableControlPropsAdditionalArgs {
   isSelectable?: boolean;
   expandableVariant?: "single" | "compound" | null;
   hasActionsColumn?: boolean;
@@ -24,19 +25,24 @@ export interface UseTableControlPropsAdditionalArgs<
 
 export type UseTableControlPropsArgs<
   TItem extends { name: string },
-  TColumnNames extends Record<string, string>
-> = ReturnType<typeof useTableControlState<TItem, TColumnNames>> &
-  UseTableControlPropsAdditionalArgs<TColumnNames>;
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey // A subset of column keys as a separate narrower type
+> = ReturnType<
+  typeof useTableControlState<TItem, TColumnKey, TSortableColumnKey>
+> &
+  UseTableControlPropsAdditionalArgs;
 
 export const useTableControlProps = <
   TItem extends { name: string },
-  TColumnNames extends Record<string, string>
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey
 >(
-  args: UseTableControlPropsArgs<TItem, TColumnNames>
+  args: UseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey>
 ) => {
   const { t } = useTranslation();
 
   const {
+    totalItemCount,
     filterCategories,
     filterState: { filterValues, setFilterValues },
     expansionState: { isCellExpanded, setCellExpanded, expandedCells },
@@ -48,8 +54,14 @@ export const useTableControlProps = <
       toggleItemSelected,
       isItemSelected,
     },
-    sortState: { sortBy, onSort },
-    paginationState: { paginationProps, currentPageItems },
+    sortState: { activeSort, setActiveSort },
+    paginationState: {
+      currentPageItems,
+      pageNumber,
+      setPageNumber,
+      itemsPerPage,
+      setItemsPerPage,
+    },
     columnNames,
     sortableColumns = [],
     isSelectable = false,
@@ -57,6 +69,8 @@ export const useTableControlProps = <
     hasActionsColumn = false,
     variant,
   } = args;
+
+  const columnKeys = objectKeys(columnNames);
 
   // Some table controls rely on extra columns inserted before or after the ones included in columnNames.
   // We need to account for those when dealing with props based on column index and colSpan.
@@ -66,15 +80,24 @@ export const useTableControlProps = <
   if (expandableVariant === "single") numColumnsBeforeData++;
   if (hasActionsColumn) numColumnsAfterData++;
   const numRenderedColumns =
-    Object.keys(columnNames).length +
-    numColumnsBeforeData +
-    numColumnsAfterData;
+    columnKeys.length + numColumnsBeforeData + numColumnsAfterData;
 
   const toolbarProps: Omit<ToolbarProps, "ref"> = {
     className: variant === "compact" ? spacing.pt_0 : "",
     collapseListedFiltersBreakpoint: "xl",
     clearAllFilters: () => setFilterValues({}),
     clearFiltersButtonText: t("actions.clearAllFilters"),
+  };
+
+  const paginationProps: PaginationProps = {
+    itemCount: totalItemCount,
+    perPage: itemsPerPage,
+    page: pageNumber,
+    onSetPage: (event, pageNumber) => setPageNumber(pageNumber),
+    onPerPageSelect: (event, perPage) => {
+      setPageNumber(1);
+      setItemsPerPage(perPage);
+    },
   };
 
   const toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem> = {
@@ -102,14 +125,24 @@ export const useTableControlProps = <
   const getThProps = ({
     columnKey,
   }: {
-    columnKey: keyof TColumnNames;
+    columnKey: TColumnKey;
   }): Omit<ThProps, "ref"> => ({
-    ...(sortableColumns.includes(columnKey)
+    ...(sortableColumns.includes(columnKey as TSortableColumnKey)
       ? {
           sort: {
-            columnIndex: objectKeys(columnNames).indexOf(columnKey),
-            sortBy,
-            onSort,
+            columnIndex: columnKeys.indexOf(columnKey),
+            sortBy: {
+              index: activeSort
+                ? columnKeys.indexOf(activeSort.columnKey as TSortableColumnKey)
+                : undefined,
+              direction: activeSort?.direction,
+            },
+            onSort: (event, index, direction) => {
+              setActiveSort({
+                columnKey: columnKeys[index] as TSortableColumnKey,
+                direction,
+              });
+            },
           },
         }
       : {}),
@@ -119,7 +152,7 @@ export const useTableControlProps = <
   const getTdProps = ({
     columnKey,
   }: {
-    columnKey: keyof TColumnNames;
+    columnKey: TColumnKey;
   }): Omit<TdProps, "ref"> => ({
     dataLabel: columnNames[columnKey],
   });
@@ -147,7 +180,7 @@ export const useTableControlProps = <
   }: {
     item: TItem;
     rowIndex: number;
-    columnKey: keyof TColumnNames;
+    columnKey: TColumnKey;
   }): Omit<TdProps, "ref"> => ({
     ...getTdProps({ columnKey }),
     compoundExpand: {
@@ -160,7 +193,7 @@ export const useTableControlProps = <
         }),
       expandId: `compound-expand-${item.name}-${columnKey as string}`,
       rowIndex,
-      columnIndex: Object.keys(columnNames).indexOf(columnKey as string),
+      columnIndex: columnKeys.indexOf(columnKey),
     },
   });
 
@@ -190,6 +223,7 @@ export const useTableControlProps = <
       toolbarProps,
       toolbarBulkSelectorProps,
       filterToolbarProps,
+      paginationProps,
       paginationToolbarItemProps,
       tableProps,
       getThProps,

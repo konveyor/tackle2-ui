@@ -91,15 +91,12 @@ export const Waves: React.FC = () => {
         },
       },
     ],
+    sortableColumns: ["name", "startDate", "endDate"],
     getSortValues: (wave) => ({
       name: wave.name || "",
       startDate: wave.startDate || "",
       endDate: wave.endDate || "",
-      applications: wave.applications.length,
-      stakeholders: wave.stakeholders.length,
-      status: "TODO: Status",
     }),
-    sortableColumns: ["name", "startDate", "endDate"],
     initialSort: { columnKey: "startDate", direction: "asc" },
     hasPagination: true,
   });
@@ -107,15 +104,13 @@ export const Waves: React.FC = () => {
     numRenderedColumns,
     expansionState: { isCellExpanded },
     selectionState: { selectedItems },
-    paginationState: {
-      paginationProps, // TODO maybe paginationProps should be in propHelpers and not part of the responsibility of usePaginationState
-      currentPageItems,
-    },
+    paginationState: { currentPageItems },
     propHelpers: {
       toolbarProps,
       toolbarBulkSelectorProps,
       filterToolbarProps,
       paginationToolbarItemProps,
+      paginationProps,
       tableProps,
       getThProps,
       getTdProps,

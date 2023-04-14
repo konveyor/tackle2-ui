@@ -41,7 +41,7 @@ import { ApplicationImportSummary } from "@app/api/models";
 import { formatDate, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ImportApplicationsForm } from "../components/import-applications-form";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import { AxiosError } from "axios";
 import {
   useDeleteImportSummaryMutation,
@@ -53,7 +53,7 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useSortState } from "@app/shared/hooks/useSortState";
+import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import TooltipTitle from "@app/common/TooltipTitle";
 import { NotificationsContext } from "@app/shared/notifications-context";
 
@@ -132,13 +132,13 @@ export const ManageImports: React.FC = () => {
     "", // Action column
   ];
 
-  const { sortBy, onSort, sortedItems } = useSortState(
+  const { sortBy, onSort, sortedItems } = useLegacySortState(
     filteredItems,
     getSortValues
   );
 
   const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+    useLegacyPaginationState(sortedItems, 10);
 
   // Table
   const columns: ICell[] = [

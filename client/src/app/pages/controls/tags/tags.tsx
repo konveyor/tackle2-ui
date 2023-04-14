@@ -35,14 +35,14 @@ import { UpdateTagCategoryModal } from "./components/update-tag-category-modal";
 import { NewTagModal } from "./components/new-tag-modal";
 import { UpdateTagModal } from "./components/update-tag-modal";
 import { TagTable } from "./components/tag-table";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useSortState } from "@app/shared/hooks/useSortState";
+import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import {
   useDeleteTagMutation,
@@ -237,13 +237,13 @@ export const Tags: React.FC = () => {
     "", // Action column
   ];
 
-  const { sortBy, onSort, sortedItems } = useSortState(
+  const { sortBy, onSort, sortedItems } = useLegacySortState(
     filteredItems,
     getSortValues
   );
 
   const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+    useLegacyPaginationState(sortedItems, 10);
 
   const deleteTagFromTable = (row: Tag) => {
     setTagIdToDelete(row.id);

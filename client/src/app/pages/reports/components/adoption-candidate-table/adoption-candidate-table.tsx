@@ -31,8 +31,8 @@ import {
 import { getAssessmentConfidence } from "@app/api/rest";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import { useSortState } from "@app/shared/hooks/useSortState";
+import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
+import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { useSelectionState } from "@migtools/lib-ui";
 import {
   FilterCategory,
@@ -206,13 +206,13 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
     RISK_LIST[item?.risk].sortFactor || "",
     "",
   ];
-  const { sortBy, onSort, sortedItems } = useSortState(
+  const { sortBy, onSort, sortedItems } = useLegacySortState(
     filteredItems,
     getSortValues
   );
 
   const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+    useLegacyPaginationState(sortedItems, 10);
 
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {
