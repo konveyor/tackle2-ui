@@ -1,47 +1,36 @@
 import * as React from "react";
 import i18n from "@app/i18n";
 
-// TODO try to use TSortableColumnKey instead of TColumnNames, do that everywhere and try to enforce string keys
-
-export interface IActiveSort<TColumnNames extends Record<string, string>> {
-  columnKey: keyof TColumnNames;
+export interface IActiveSort<TSortableColumnKey extends string> {
+  columnKey: TSortableColumnKey;
   direction: "asc" | "desc";
 }
 
-export interface ISortStateArgs<
-  TItem,
-  TColumnNames extends Record<string, string>
-> {
+export interface ISortStateArgs<TItem, TSortableColumnKey extends string> {
   items: TItem[];
-  sortableColumns: (keyof TColumnNames)[];
+  sortableColumns: TSortableColumnKey[];
   getSortValues?: (
     item: TItem
-  ) => Record<keyof TColumnNames, string | number | boolean>;
-  initialSort: IActiveSort<TColumnNames> | null;
+  ) => Record<TSortableColumnKey, string | number | boolean>;
+  initialSort: IActiveSort<TSortableColumnKey> | null;
 }
 
-export interface ISortStateHook<
-  TItem,
-  TColumnNames extends Record<string, string>
-> {
-  activeSort: IActiveSort<TColumnNames> | null;
-  setActiveSort: (sort: IActiveSort<TColumnNames> | null) => void;
+export interface ISortStateHook<TItem, TSortableColumnKey extends string> {
+  activeSort: IActiveSort<TSortableColumnKey> | null;
+  setActiveSort: (sort: IActiveSort<TSortableColumnKey> | null) => void;
   sortedItems: TItem[];
 }
 
-export const useSortState = <
-  TItem,
-  TColumnNames extends Record<string, string>
->({
+export const useSortState = <TItem, TSortableColumnKey extends string>({
   items,
   sortableColumns,
   getSortValues,
   initialSort = sortableColumns[0]
     ? { columnKey: sortableColumns[0], direction: "asc" }
     : null,
-}: ISortStateArgs<TItem, TColumnNames>): ISortStateHook<
+}: ISortStateArgs<TItem, TSortableColumnKey>): ISortStateHook<
   TItem,
-  TColumnNames
+  TSortableColumnKey
 > => {
   const [activeSort, setActiveSort] = React.useState(initialSort);
 

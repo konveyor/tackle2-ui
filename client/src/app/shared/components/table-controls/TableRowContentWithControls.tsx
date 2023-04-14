@@ -4,8 +4,11 @@ import { useTableControls } from "@app/shared/hooks/use-table-controls";
 
 export interface ITableRowContentWithControlsProps<
   TItem extends { name: string },
-  TColumnNames extends Record<string, string>
-> extends ReturnType<typeof useTableControls<TItem, TColumnNames>> {
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey
+> extends ReturnType<
+    typeof useTableControls<TItem, TColumnKey, TSortableColumnKey>
+  > {
   item: TItem;
   rowIndex: number;
   children: React.ReactNode;
@@ -15,7 +18,8 @@ export interface ITableRowContentWithControlsProps<
 
 export const TableRowContentWithControls = <
   TItem extends { name: string },
-  TColumnNames extends Record<string, string>
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey
 >({
   isSelectable = false,
   propHelpers: { getSelectCheckboxTdProps },
@@ -23,7 +27,7 @@ export const TableRowContentWithControls = <
   rowIndex,
   children,
 }: React.PropsWithChildren<
-  ITableRowContentWithControlsProps<TItem, TColumnNames>
+  ITableRowContentWithControlsProps<TItem, TColumnKey, TSortableColumnKey>
 >) => (
   <>
     {/* TODO implement single-expandable toggle cell */}

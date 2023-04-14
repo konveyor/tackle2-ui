@@ -7,24 +7,26 @@ import { useSortState } from "../useSortState";
 
 export interface UseTableControlStateArgs<
   TItem extends { name: string },
-  TColumnNames extends Record<string, string>
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey // A subset of column keys as a separate narrower type
 > {
   items: TItem[]; // The objects represented by rows in this table
-  columnNames: TColumnNames; // An ordered mapping of unique keys to human-readable column name strings
+  columnNames: Record<TColumnKey, string>; // An ordered mapping of unique keys to human-readable column name strings
   filterCategories?: FilterCategory<TItem>[];
   filterStorageKey?: string;
-  sortableColumns?: (keyof TColumnNames)[]; // TODO can we limit this to a subset of sortable keys and have that enforced?
-  getSortValues?: (item: TItem) => Record<keyof TColumnNames, string | number>;
-  initialSort?: { columnKey: keyof TColumnNames; direction: "asc" | "desc" };
+  sortableColumns?: TSortableColumnKey[];
+  getSortValues?: (item: TItem) => Record<TSortableColumnKey, string | number>;
+  initialSort?: { columnKey: TSortableColumnKey; direction: "asc" | "desc" };
   hasPagination?: boolean;
   initialItemsPerPage?: number;
 }
 
 export const useTableControlState = <
   TItem extends { name: string },
-  TColumnNames extends Record<string, string>
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey
 >(
-  args: UseTableControlStateArgs<TItem, TColumnNames>
+  args: UseTableControlStateArgs<TItem, TColumnKey, TSortableColumnKey>
 ) => {
   const {
     items,
@@ -39,9 +41,9 @@ export const useTableControlState = <
 
   const filterState = useFilterState(items, filterCategories, filterStorageKey);
 
-  const expansionState = useCompoundExpansionState<TItem, TColumnNames>();
+  const expansionState = useCompoundExpansionState<TItem, TColumnKey>();
 
-  const selectionState = useSelectionState<TItem>({
+  const selectionState = useSelectionState({
     items: filterState.filteredItems,
     isEqual: (a, b) => a.name === b.name,
   });

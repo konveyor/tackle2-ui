@@ -91,15 +91,12 @@ export const Waves: React.FC = () => {
         },
       },
     ],
+    sortableColumns: ["name", "startDate", "endDate"],
     getSortValues: (wave) => ({
       name: wave.name || "",
       startDate: wave.startDate || "",
       endDate: wave.endDate || "",
-      applications: wave.applications.length,
-      stakeholders: wave.stakeholders.length,
-      status: "TODO: Status",
     }),
-    sortableColumns: ["name", "startDate", "endDate"],
     initialSort: { columnKey: "startDate", direction: "asc" },
     hasPagination: true,
   });

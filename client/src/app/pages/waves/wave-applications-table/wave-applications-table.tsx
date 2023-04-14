@@ -47,7 +47,6 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
     hasActionsColumn: true,
     getSortValues: (app) => ({
       appName: app.name || "",
-      description: "", // TODO
       businessService: app.businessService?.name || "",
       owner: "", // TODO
     }),
