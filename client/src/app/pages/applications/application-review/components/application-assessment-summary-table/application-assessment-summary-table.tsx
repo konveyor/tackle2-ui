@@ -18,8 +18,8 @@ import {
   Risk,
 } from "@app/api/models";
 
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import { useSortState } from "@app/shared/hooks/useSortState";
+import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
+import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import {
   FilterCategory,
   FilterToolbar,
@@ -101,7 +101,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
     RISK_LIST[tableItem.riskValue].sortFactor || "",
   ];
 
-  const { sortBy, onSort, sortedItems } = useSortState(
+  const { sortBy, onSort, sortedItems } = useLegacySortState(
     filteredItems,
     getSortValues
   );
@@ -110,7 +110,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
   };
 
   const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+    useLegacyPaginationState(sortedItems, 10);
 
   const columns: ICell[] = [
     {

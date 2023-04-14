@@ -52,7 +52,6 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
       jobFunction: stakeholder.jobFunction?.name || "",
       role: "", // TODO
       email: "", // TODO
-      groups: "", // TODO
     }),
     sortableColumns: ["name", "jobFunction", "role", "email"],
     hasPagination: true,
@@ -60,10 +59,11 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
   });
   const {
     numRenderedColumns,
-    paginationState: { paginationProps, currentPageItems },
+    paginationState: { currentPageItems },
     propHelpers: {
       toolbarProps,
       paginationToolbarItemProps,
+      paginationProps,
       tableProps,
       getThProps,
       getTdProps,

@@ -1,23 +1,22 @@
 import * as React from "react";
-import { PaginationProps } from "@patternfly/react-core";
 
-// TODO these could be given generic types to avoid using `any` (https://www.typescriptlang.org/docs/handbook/generics.html)
-
-export type PaginationStateProps = Pick<
-  PaginationProps,
-  "itemCount" | "perPage" | "page" | "onSetPage" | "onPerPageSelect"
->;
-
-export interface IPaginationStateHook<T> {
-  currentPageItems: T[];
-  setPageNumber: (pageNumber: number) => void;
-  paginationProps: PaginationStateProps;
+export interface IPaginationStateArgs<TItem> {
+  items: TItem[];
+  initialItemsPerPage?: number;
 }
 
-export const usePaginationState = <T>(
-  items: T[],
-  initialItemsPerPage: number
-): IPaginationStateHook<T> => {
+export interface IPaginationStateHook<TItem> {
+  currentPageItems: TItem[];
+  pageNumber: number;
+  setPageNumber: (pageNumber: number) => void;
+  itemsPerPage: number;
+  setItemsPerPage: (numItems: number) => void;
+}
+
+export const usePaginationState = <TItem>({
+  items,
+  initialItemsPerPage = 10,
+}: IPaginationStateArgs<TItem>): IPaginationStateHook<TItem> => {
   const [pageNumber, baseSetPageNumber] = React.useState(1);
   const setPageNumber = (num: number) => baseSetPageNumber(num >= 1 ? num : 1);
   const [itemsPerPage, setItemsPerPage] = React.useState(initialItemsPerPage);
@@ -36,20 +35,11 @@ export const usePaginationState = <T>(
     pageStartIndex + itemsPerPage
   );
 
-  const paginationProps: PaginationStateProps = {
-    itemCount: items.length,
-    perPage: itemsPerPage,
-    page: pageNumber,
-    onSetPage: (event, pageNumber) => setPageNumber(pageNumber),
-    onPerPageSelect: (event, perPage) => {
-      setPageNumber(1);
-      setItemsPerPage(perPage);
-    },
-  };
-
   return {
     currentPageItems,
+    pageNumber,
     setPageNumber,
-    paginationProps,
+    itemsPerPage,
+    setItemsPerPage,
   };
 };

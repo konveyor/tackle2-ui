@@ -47,7 +47,6 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
     hasActionsColumn: true,
     getSortValues: (app) => ({
       appName: app.name || "",
-      description: "", // TODO
       businessService: app.businessService?.name || "",
       owner: "", // TODO
     }),
@@ -57,13 +56,11 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
   });
   const {
     numRenderedColumns,
-    paginationState: {
-      paginationProps, // TODO maybe paginationProps should be in propHelpers and not part of the responsibility of usePaginationState
-      currentPageItems,
-    },
+    paginationState: { currentPageItems },
     propHelpers: {
       toolbarProps,
       paginationToolbarItemProps,
+      paginationProps,
       tableProps,
       getThProps,
       getTdProps,

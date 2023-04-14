@@ -2,12 +2,12 @@ import React from "react";
 
 export const useCompoundExpansionState = <
   TItem extends { name: string },
-  TColumnNames extends Record<string, string>
+  TColumnKey extends string
 >() => {
   // TExpandedCells maps item names to either:
   //  - The key of an expanded column in that row, if the table is compound-expandable
   //  - The `true` literal value (the entire row is expanded), if non-compound-expandable
-  type TExpandedCells = Record<string, keyof TColumnNames | boolean>;
+  type TExpandedCells = Record<string, TColumnKey | boolean>;
 
   const [expandedCells, setExpandedCells] = React.useState<TExpandedCells>({});
   const setCellExpanded = ({
@@ -17,7 +17,7 @@ export const useCompoundExpansionState = <
   }: {
     item: TItem;
     isExpanding?: boolean;
-    columnKey?: keyof TColumnNames;
+    columnKey?: TColumnKey;
   }) => {
     const newExpandedCells = { ...expandedCells };
     if (isExpanding) {
@@ -31,7 +31,7 @@ export const useCompoundExpansionState = <
   // isCellExpanded:
   //  - If called with a columnKey, returns whether that specific cell is expanded
   //  - If called without a columnKey, returns whether the row is expanded at all
-  const isCellExpanded = (item: TItem, columnKey?: keyof TColumnNames) =>
+  const isCellExpanded = (item: TItem, columnKey?: TColumnKey) =>
     columnKey
       ? expandedCells[item.name] === columnKey
       : !!expandedCells[item.name];

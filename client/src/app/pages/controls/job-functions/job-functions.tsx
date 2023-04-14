@@ -34,8 +34,8 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useSortState } from "@app/shared/hooks/useSortState";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
+import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
+import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import {
   useDeleteJobFunctionMutation,
@@ -85,13 +85,13 @@ export const JobFunctions: React.FC = () => {
     "", // Action column
   ];
 
-  const { sortBy, onSort, sortedItems } = useSortState(
+  const { sortBy, onSort, sortedItems } = useLegacySortState(
     filteredItems,
     getSortValues
   );
 
   const { currentPageItems, setPageNumber, paginationProps } =
-    usePaginationState(sortedItems, 10);
+    useLegacyPaginationState(sortedItems, 10);
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [rowToUpdate, setRowToUpdate] = useState<JobFunction>();
