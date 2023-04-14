@@ -50,6 +50,7 @@ import {
 import "./application-form.css";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTagCategories } from "@app/queries/tags";
+
 export interface FormValues {
   name: string;
   description: string;
@@ -203,7 +204,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     });
   };
 
-  const { applications } = useFetchApplications();
+  const { data: applications } = useFetchApplications();
 
   const validationSchema = object().shape(
     {
@@ -216,7 +217,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           "Duplicate name",
           "An application with this name already exists. Use a different name.",
           (value) =>
-            duplicateNameCheck(applications, application || null, value || "")
+            duplicateNameCheck(
+              applications ? applications : [],
+              application || null,
+              value || ""
+            )
         ),
       description: string()
         .trim()
