@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -80,7 +80,7 @@ export const Identities: React.FC = () => {
     onDeleteIdentitySuccess,
     onDeleteIdentityError
   );
-  const { applications } = useFetchApplications();
+  const { data: applications } = useFetchApplications();
 
   // Create and update modal
   const {
@@ -245,7 +245,7 @@ export const Identities: React.FC = () => {
   });
 
   const dependentApplications = React.useMemo(() => {
-    const res = applications.filter((app) =>
+    const res = applications?.filter((app) =>
       app?.identities?.map((id) => id.id).includes(identityIdToDelete)
     );
     return res;
@@ -328,7 +328,7 @@ export const Identities: React.FC = () => {
           })}
           titleIconVariant={"warning"}
           message={
-            dependentApplications.length
+            dependentApplications?.length
               ? `${`The credentials are being used by ${dependentApplications.length} application(s). Deleting these credentials will also remove them from the associated applications.`} 
           ${t("dialog.message.delete")}`
               : `${t("dialog.message.delete")}`

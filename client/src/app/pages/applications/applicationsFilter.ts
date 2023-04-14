@@ -19,8 +19,8 @@ export enum ApplicationTableType {
   Analysis = "analysis",
 }
 export const useApplicationsFilterValues = (
-  applications: Application[],
-  tableType: string
+  tableType: string,
+  applications: Application[] = []
 ) => {
   const { identities } = useFetchIdentities();
 

@@ -92,8 +92,12 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   // Router
   const history = useHistory();
 
-  const { applications, isFetching, fetchError, refetch } =
-    useFetchApplications();
+  const {
+    data: applications,
+    isFetching,
+    error: fetchError,
+    refetch,
+  } = useFetchApplications();
 
   const {
     paginationProps,
@@ -113,7 +117,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     openDetailDrawer,
     closeDetailDrawer,
     activeAppInDetailDrawer,
-  } = useApplicationsFilterValues(applications, ApplicationTableType.Analysis);
+  } = useApplicationsFilterValues(ApplicationTableType.Analysis, applications);
 
   const { tasks } = useFetchTasks({ addon: "windup" });
 

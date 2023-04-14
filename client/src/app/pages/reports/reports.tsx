@@ -11,7 +11,6 @@ import {
   CardTitle,
   PageSection,
   PageSectionVariants,
-  Pagination,
   Popover,
   Split,
   SplitItem,
@@ -21,9 +20,6 @@ import {
   TextContent,
   ToggleGroup,
   ToggleGroupItem,
-  Toolbar,
-  ToolbarContent,
-  ToolbarItem,
 } from "@patternfly/react-core";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
@@ -32,9 +28,6 @@ import {
   ConditionalRender,
   StateError,
 } from "@app/shared/components";
-
-import { Application, ApplicationPage, Identity } from "@app/api/models";
-
 import { ApplicationSelectionContextProvider } from "./application-selection-context";
 import { Landscape } from "./components/landscape";
 import { AdoptionCandidateTable } from "./components/adoption-candidate-table";
@@ -42,15 +35,6 @@ import { AdoptionPlan } from "./components/adoption-plan";
 import { IdentifiedRisksTable } from "./components/identified-risks-table";
 import { AdoptionCandidateGraph } from "./components/adoption-candidate-graph/adoption-candidate-graph";
 import { useFetchApplications } from "@app/queries/applications";
-import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { usePaginationState } from "@app/shared/hooks/usePaginationState";
-import { useSortState } from "@app/shared/hooks/useSortState";
-import { useSelectionState } from "@migtools/lib-ui";
 
 export const Reports: React.FC = () => {
   // i18
@@ -62,7 +46,11 @@ export const Reports: React.FC = () => {
   const [isAdoptionPlanOpen, setAdoptionPlanOpen] = useState(false);
   const [isRiskCardOpen, setIsRiskCardOpen] = useState(false);
 
-  const { applications, isFetching, fetchError } = useFetchApplications();
+  const {
+    data: applications,
+    isFetching,
+    error: fetchError,
+  } = useFetchApplications();
   const pageHeaderSection = (
     <PageSection variant={PageSectionVariants.light}>
       <TextContent>

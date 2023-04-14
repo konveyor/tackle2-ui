@@ -4,14 +4,14 @@ import { Application, ApplicationDependency } from "@app/api/models";
 import {
   createApplication,
   deleteApplication,
-  deleteBulkApplicationsQuery,
-  getApplicationsQuery,
+  deleteBulkApplications,
+  getApplications,
   updateAllApplications,
   updateApplication,
 } from "@app/api/rest";
-import { AxiosError } from "axios";
 import { reviewsQueryKey } from "./reviews";
 import { assessmentsQueryKey } from "./assessments";
+import { AxiosError } from "axios";
 
 export interface IApplicationDependencyFetchState {
   applicationDependencies: ApplicationDependency[];
@@ -23,26 +23,17 @@ export interface IApplicationDependencyFetchState {
 export const ApplicationDependencyQueryKey = "applicationdependencies";
 export const ApplicationsQueryKey = "applications";
 
-// TODO: this has the same name as useFetchApplications in src/app/shared/hooks, we should probably eliminate that one in favor of this one
 export const useFetchApplications = () => {
   const queryClient = useQueryClient();
-  const { data, isLoading, error, refetch } = useQuery(
-    [ApplicationsQueryKey],
-    getApplicationsQuery,
-    {
-      onSuccess: (data: Application[]) => {
-        queryClient.invalidateQueries([reviewsQueryKey]);
-        queryClient.invalidateQueries([assessmentsQueryKey]);
-      },
-      onError: (error: AxiosError) => console.log(error),
-    }
-  );
-  return {
-    applications: data || [],
-    isFetching: isLoading,
-    fetchError: error,
-    refetch,
-  };
+  return useQuery({
+    queryKey: [ApplicationsQueryKey],
+    queryFn: getApplications,
+    onSuccess: () => {
+      queryClient.invalidateQueries([reviewsQueryKey]);
+      queryClient.invalidateQueries([assessmentsQueryKey]);
+    },
+    onError: (error: AxiosError) => console.log(error),
+  });
 };
 
 export const useUpdateApplicationMutation = (
@@ -50,20 +41,14 @@ export const useUpdateApplicationMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(updateApplication, {
+  return useMutation({
+    mutationFn: updateApplication,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
-    onError: (err: AxiosError) => {
-      onError(err);
-    },
+    onError: onError,
   });
-  return {
-    mutate,
-    isLoading,
-    error,
-  };
 };
 
 export const useUpdateAllApplicationsMutation = (
@@ -71,20 +56,14 @@ export const useUpdateAllApplicationsMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(updateAllApplications, {
+  return useMutation({
+    mutationFn: updateAllApplications,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
-    onError: (err: AxiosError) => {
-      onError(err);
-    },
+    onError: onError,
   });
-  return {
-    mutate,
-    isLoading,
-    error,
-  };
 };
 
 export const useCreateApplicationMutation = (
@@ -92,20 +71,14 @@ export const useCreateApplicationMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(createApplication, {
+  return useMutation({
+    mutationFn: createApplication,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
-    onError: (err: AxiosError) => {
-      onError(err);
-    },
+    onError: onError,
   });
-  return {
-    mutate,
-    isLoading,
-    error,
-  };
 };
 
 export const useDeleteApplicationMutation = (
@@ -118,9 +91,7 @@ export const useDeleteApplicationMutation = (
       onSuccess(1);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
-    onError: (err: AxiosError) => {
-      onError(err);
-    },
+    onError: onError,
   });
 };
 
@@ -130,15 +101,13 @@ export const useBulkDeleteApplicationMutation = (
 ) => {
   const queryClient = useQueryClient();
   return useMutation(
-    ({ ids }: { ids: number[] }) => deleteBulkApplicationsQuery(ids),
+    ({ ids }: { ids: number[] }) => deleteBulkApplications(ids),
     {
       onSuccess: (res, vars) => {
         onSuccess(vars.ids.length);
         queryClient.invalidateQueries([ApplicationsQueryKey]);
       },
-      onError: (err: AxiosError) => {
-        onError(err);
-      },
+      onError: onError,
     }
   );
 };
