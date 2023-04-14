@@ -1,5 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { ToolbarItemProps, ToolbarProps } from "@patternfly/react-core";
+import {
+  PaginationProps,
+  ToolbarItemProps,
+  ToolbarProps,
+} from "@patternfly/react-core";
 import {
   TableComposableProps,
   TdProps,
@@ -37,6 +41,7 @@ export const useTableControlProps = <
   const { t } = useTranslation();
 
   const {
+    totalItemCount,
     filterCategories,
     filterState: { filterValues, setFilterValues },
     expansionState: { isCellExpanded, setCellExpanded, expandedCells },
@@ -49,7 +54,13 @@ export const useTableControlProps = <
       isItemSelected,
     },
     sortState: { sortBy, onSort },
-    paginationState: { paginationProps, currentPageItems },
+    paginationState: {
+      currentPageItems,
+      pageNumber,
+      setPageNumber,
+      itemsPerPage,
+      setItemsPerPage,
+    },
     columnNames,
     sortableColumns = [],
     isSelectable = false,
@@ -75,6 +86,17 @@ export const useTableControlProps = <
     collapseListedFiltersBreakpoint: "xl",
     clearAllFilters: () => setFilterValues({}),
     clearFiltersButtonText: t("actions.clearAllFilters"),
+  };
+
+  const paginationProps: PaginationProps = {
+    itemCount: totalItemCount,
+    perPage: itemsPerPage,
+    page: pageNumber,
+    onSetPage: (event, pageNumber) => setPageNumber(pageNumber),
+    onPerPageSelect: (event, perPage) => {
+      setPageNumber(1);
+      setItemsPerPage(perPage);
+    },
   };
 
   const toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem> = {
@@ -190,6 +212,7 @@ export const useTableControlProps = <
       toolbarProps,
       toolbarBulkSelectorProps,
       filterToolbarProps,
+      paginationProps,
       paginationToolbarItemProps,
       tableProps,
       getThProps,

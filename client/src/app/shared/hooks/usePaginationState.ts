@@ -1,10 +1,6 @@
 import * as React from "react";
 import { PaginationProps } from "@patternfly/react-core";
 
-// TODO only return simple state
-// TODO separate the props stuff to a usePaginationProps or getPaginationProps
-// TODO integrate that into useTableControlProps
-
 export type PaginationStateProps = Pick<
   PaginationProps,
   "itemCount" | "perPage" | "page" | "onSetPage" | "onPerPageSelect"
@@ -12,8 +8,10 @@ export type PaginationStateProps = Pick<
 
 export interface IPaginationStateHook<T> {
   currentPageItems: T[];
+  pageNumber: number;
   setPageNumber: (pageNumber: number) => void;
-  paginationProps: PaginationStateProps;
+  itemsPerPage: number;
+  setItemsPerPage: (numItems: number) => void;
 }
 
 export const usePaginationState = <T>(
@@ -38,20 +36,11 @@ export const usePaginationState = <T>(
     pageStartIndex + itemsPerPage
   );
 
-  const paginationProps: PaginationStateProps = {
-    itemCount: items.length,
-    perPage: itemsPerPage,
-    page: pageNumber,
-    onSetPage: (event, pageNumber) => setPageNumber(pageNumber),
-    onPerPageSelect: (event, perPage) => {
-      setPageNumber(1);
-      setItemsPerPage(perPage);
-    },
-  };
-
   return {
     currentPageItems,
+    pageNumber,
     setPageNumber,
-    paginationProps,
+    itemsPerPage,
+    setItemsPerPage,
   };
 };

@@ -3,7 +3,7 @@ import { useFilterState } from "../useFilterState";
 import { useCompoundExpansionState } from "../useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
 import { useLegacySortState } from "../useLegacySortState";
-import { useLegacyPaginationState } from "../useLegacyPaginationState";
+import { usePaginationState } from "../usePaginationState";
 import { objectKeys } from "@app/utils/utils";
 
 export interface UseTableControlStateArgs<
@@ -69,13 +69,14 @@ export const useTableControlState = <
       : undefined
   );
 
-  const paginationState = useLegacyPaginationState(
+  const paginationState = usePaginationState(
     sortState.sortedItems,
     initialItemsPerPage
   );
 
   return {
     ...args,
+    totalItemCount: items.length,
     filterState,
     expansionState,
     selectionState,
