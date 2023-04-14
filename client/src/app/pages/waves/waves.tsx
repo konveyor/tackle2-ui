@@ -107,15 +107,13 @@ export const Waves: React.FC = () => {
     numRenderedColumns,
     expansionState: { isCellExpanded },
     selectionState: { selectedItems },
-    paginationState: {
-      paginationProps, // TODO maybe paginationProps should be in propHelpers and not part of the responsibility of usePaginationState
-      currentPageItems,
-    },
+    paginationState: { currentPageItems },
     propHelpers: {
       toolbarProps,
       toolbarBulkSelectorProps,
       filterToolbarProps,
       paginationToolbarItemProps,
+      paginationProps,
       tableProps,
       getThProps,
       getTdProps,

@@ -60,10 +60,11 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
   });
   const {
     numRenderedColumns,
-    paginationState: { paginationProps, currentPageItems },
+    paginationState: { currentPageItems },
     propHelpers: {
       toolbarProps,
       paginationToolbarItemProps,
+      paginationProps,
       tableProps,
       getThProps,
       getTdProps,
