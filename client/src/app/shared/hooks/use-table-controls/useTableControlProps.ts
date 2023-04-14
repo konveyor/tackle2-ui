@@ -133,6 +133,7 @@ export const useTableControlProps = <
                 index: activeSort
                   ? columnKeys.indexOf(activeSort.columnKey)
                   : undefined,
+                direction: activeSort?.direction,
               },
               onSort: (event, index, direction) => {
                 setActiveSort({ columnKey: columnKeys[index], direction });
