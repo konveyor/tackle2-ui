@@ -29,7 +29,6 @@ import {
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import { c_card_m_compact_child_PaddingLeft } from "@patternfly/react-tokens";
 
 export interface FormValues {
   email: string;
@@ -55,17 +54,9 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
 
   const { stakeholders } = useFetchStakeholders();
 
-  const {
-    jobFunctions,
-    isFetching: isFetchingJobFunctions,
-    fetchError: fetchErrorJobFunctions,
-  } = useFetchJobFunctions();
+  const { jobFunctions } = useFetchJobFunctions();
 
-  const {
-    stakeholderGroups,
-    isFetching: isFetchingGroups,
-    fetchError: fetchErrorGroups,
-  } = useFetchStakeholderGroups();
+  const { stakeholderGroups } = useFetchStakeholderGroups();
 
   const jobFunctionOptions = jobFunctions.map((jobFunction) => {
     return {
@@ -115,9 +106,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
     getValues,
-    setValue,
     control,
-    watch,
   } = useForm<FormValues>({
     defaultValues: {
       email: stakeholder?.email || "",
@@ -197,7 +186,6 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
         name="jobFunctionName"
         label={t("terms.jobFunction")}
         fieldId="jobFunction"
-        isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
             variant="typeahead"
@@ -219,7 +207,6 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
         name="stakeholderGroupNames"
         label={t("terms.stakeholderGroup")}
         fieldId="stakeholderGroups"
-        isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
             variant="typeaheadmulti"

@@ -17,6 +17,7 @@ export interface BaseHookFormPFGroupControllerProps<
 > {
   control: Control<TFieldValues>;
   label?: React.ReactNode;
+  labelIcon?: React.ReactElement;
   name: TName;
   fieldId: string;
   isRequired?: boolean;
@@ -39,6 +40,7 @@ export const HookFormPFGroupController = <
 >({
   control,
   label,
+  labelIcon,
   name,
   fieldId,
   isRequired = false,
@@ -55,6 +57,7 @@ export const HookFormPFGroupController = <
       const { isTouched, error } = fieldState;
       return (
         <FormGroup
+          labelIcon={labelIcon}
           label={label}
           fieldId={fieldId}
           className={className}
@@ -93,6 +96,7 @@ export const extractGroupControllerProps = <
   const {
     control,
     label,
+    labelIcon,
     name,
     fieldId,
     isRequired,
@@ -105,6 +109,7 @@ export const extractGroupControllerProps = <
   return {
     extractedProps: {
       control,
+      labelIcon,
       label,
       name,
       fieldId,

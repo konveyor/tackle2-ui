@@ -151,8 +151,8 @@ export interface BulkCopyReview {
 export type IdentityKind = "source" | "maven" | "proxy";
 
 export interface Identity {
-  id?: number;
-  name?: string;
+  id: number;
+  name: string;
   description?: string;
   kind?: IdentityKind;
   createUser?: string;

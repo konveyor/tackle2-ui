@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosResponse } from "axios";
-import { useFormik, FormikProvider, FormikHelpers } from "formik";
 import { object, string, StringSchema } from "yup";
 import {
   ActionGroup,
@@ -10,38 +9,17 @@ import {
   ButtonVariant,
   ExpandableSection,
   Form,
-  FormGroup,
   Popover,
   PopoverPosition,
-  TextArea,
-  TextInput,
 } from "@patternfly/react-core";
-import QuestionCircleIcon from "@patternfly/react-icons/dist/js/icons/question-circle-icon";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
-import {
-  SingleSelectFetchOptionValueFormikField,
-  MultiSelectFetchOptionValueFormikField,
-  SimpleSelect,
-  OptionWithValue,
-} from "@app/shared/components";
+import { SimpleSelect, OptionWithValue } from "@app/shared/components";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { Application, Ref, TagRef } from "@app/api/models";
-import {
-  duplicateNameCheck,
-  getAxiosErrorMessage,
-  getValidatedFromError,
-  getValidatedFromErrorTouched,
-} from "@app/utils/utils";
-import {
-  IBusinessServiceDropdown,
-  isIModelEqual,
-  ITagDropdown,
-  toIBusinessServiceDropdown,
-  toIBusinessServiceDropdownOptionWithValue,
-  toITagDropdown,
-  toITagDropdownOptionWithValue,
-  toOptionLike,
-} from "@app/utils/model-utils";
+import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import { toOptionLike } from "@app/utils/model-utils";
 import {
   useCreateApplicationMutation,
   useFetchApplications,
@@ -50,13 +28,19 @@ import {
 import "./application-form.css";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTagCategories } from "@app/queries/tags";
+import {
+  HookFormPFGroupController,
+  HookFormPFTextArea,
+  HookFormPFTextInput,
+} from "@app/shared/components/hook-form-pf-fields";
+import { QuestionCircleIcon } from "@patternfly/react-icons";
 
 export interface FormValues {
   name: string;
   description: string;
   comments: string;
-  businessService: IBusinessServiceDropdown | null;
-  tags: ITagDropdown[];
+  businessServiceName: string;
+  tagNames: string[];
   kind: string;
   sourceRepository: string;
   branch: string;
@@ -83,22 +67,17 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
   const [axiosError, setAxiosError] = useState<AxiosError>();
 
-  // Business services
+  const { businessServices } = useFetchBusinessServices();
 
-  const {
-    businessServices,
-    isFetching: isFetchingBusinessServices,
-    fetchError: fetchErrorBusinessServices,
-  } = useFetchBusinessServices();
+  const { tagCategories: tagCategories, refetch: fetchTagCategories } =
+    useFetchTagCategories();
 
-  // TagCategories
-
-  const {
-    tagCategories: tagCategories,
-    isFetching: isFetchingTagCategories,
-    fetchError: fetchErrorTagCategories,
-    refetch: fetchTagCategories,
-  } = useFetchTagCategories();
+  const businessServiceOptions = businessServices.map((businessService) => {
+    return {
+      value: businessService.name,
+      toString: () => businessService.name,
+    };
+  });
 
   useEffect(() => {
     fetchTagCategories();
@@ -106,7 +85,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
   // Tags
 
-  const [tags, setTags] = useState<Ref[]>();
+  const [tags, setTags] = useState<TagRef[]>();
 
   useEffect(() => {
     if (tagCategories) {
@@ -114,41 +93,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     }
   }, []);
 
-  // Formik
-
-  const businessServiceInitialValue = useMemo(() => {
-    let result: IBusinessServiceDropdown | null = null;
-    if (application && application.businessService && businessServices) {
-      const businessServiceId = Number(application.businessService.id);
-      const businessService = businessServices.find(
-        (f) => f.id === businessServiceId
-      );
-
-      if (businessService) {
-        result = toIBusinessServiceDropdown({
-          id: businessServiceId,
-          name: businessService.name,
-        });
-      }
-    }
-
-    return result;
-  }, [application, businessServices]);
-
-  const tagsInitialValue = useMemo(() => {
-    let result: ITagDropdown[] = [];
-
-    if (application && application.tags && tags) {
-      result = application.tags.reduce((prev, current) => {
-        const tagExists = tags.find((tag) => {
-          return tag.id === current.id;
-        });
-        return tagExists ? [...prev, toITagDropdown(current)] : prev;
-      }, [] as ITagDropdown[]);
-    }
-
-    return result;
-  }, [application, tags]);
+  const tagOptions =
+    tags?.map((tag) => {
+      return {
+        value: tag.name,
+        toString: () => tag.name,
+      };
+    }) || [];
 
   const getBinaryInitialValue = (
     application: Application | undefined,
@@ -167,23 +118,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       default:
         return "";
     }
-  };
-
-  const initialValues: FormValues = {
-    name: application?.name || "",
-    description: application?.description || "",
-    id: application?.id || 0,
-    comments: application?.comments || "",
-    businessService: businessServiceInitialValue,
-    tags: tagsInitialValue,
-    kind: application?.repository?.kind || "git",
-    sourceRepository: application?.repository?.url || "",
-    branch: application?.repository?.branch || "",
-    rootPath: application?.repository?.path || "",
-    group: getBinaryInitialValue(application, "group"),
-    artifact: getBinaryInitialValue(application, "artifact"),
-    version: getBinaryInitialValue(application, "version"),
-    packaging: getBinaryInitialValue(application, "packaging"),
   };
 
   const customURLValidation = (schema: StringSchema) => {
@@ -301,6 +235,35 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       ["group", "version"],
     ]
   );
+
+  const {
+    handleSubmit,
+    formState: { isSubmitting, isValidating, isValid, isDirty },
+    getValues,
+    setValue,
+    control,
+    watch,
+  } = useForm<FormValues>({
+    defaultValues: {
+      name: application?.name || "",
+      description: application?.description || "",
+      id: application?.id || 0,
+      comments: application?.comments || "",
+      businessServiceName: application?.businessService?.name || "",
+      tagNames: application?.tags?.map((tag) => tag?.name) || [],
+      kind: application?.repository?.kind || "git",
+      sourceRepository: application?.repository?.url || "",
+      branch: application?.repository?.branch || "",
+      rootPath: application?.repository?.path || "",
+      group: getBinaryInitialValue(application, "group"),
+      artifact: getBinaryInitialValue(application, "artifact"),
+      version: getBinaryInitialValue(application, "version"),
+      packaging: getBinaryInitialValue(application, "packaging"),
+    },
+    resolver: yupResolver(validationSchema),
+    mode: "onChange",
+  });
+
   const buildBinaryFieldString = (
     group: string,
     artifact: string,
@@ -332,28 +295,25 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     onCreateUpdateApplicationError
   );
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
+  const onSubmit = (formValues: FormValues) => {
+    const matchingBusinessService = businessServices.find(
+      (businessService) =>
+        formValues?.businessServiceName === businessService.name
+    );
+    const matchingTagRefs = tags?.filter((tagRef) =>
+      formValues.tagNames.includes(tagRef.name)
+    );
     const payload: Application = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       comments: formValues.comments.trim(),
-      businessService: formValues?.businessService
+      businessService: matchingBusinessService
         ? {
-            id: formValues.businessService.id,
-            name: formValues.businessService.name,
+            id: matchingBusinessService.id,
+            name: matchingBusinessService.name,
           }
         : undefined,
-      tags: formValues.tags.map((tagRef): TagRef => {
-        const thisTag = {
-          id: tagRef.id,
-          name: tagRef.name,
-          source: tagRef.source,
-        };
-        return thisTag;
-      }),
+      tags: matchingTagRefs,
       ...(formValues.sourceRepository
         ? {
             repository: {
@@ -386,17 +346,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     }
   };
 
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: initialValues,
-    validationSchema: validationSchema,
-    onSubmit: onSubmit,
-  });
-
-  const onChangeField = (value: string, event: React.FormEvent<any>) => {
-    formik.handleChange(event);
-  };
-
   const [isBasicExpanded, setBasicExpanded] = React.useState(true);
   const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(false);
   const [isBinaryExpanded, setBinaryExpanded] = React.useState(false);
@@ -413,390 +362,236 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   ];
 
   return (
-    <FormikProvider value={formik}>
-      <Form onSubmit={formik.handleSubmit}>
-        {axiosError && (
-          <Alert
-            variant="danger"
-            isInline
-            title={getAxiosErrorMessage(axiosError)}
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      {axiosError && (
+        <Alert
+          variant="danger"
+          isInline
+          title={getAxiosErrorMessage(axiosError)}
+        />
+      )}
+      <ExpandableSection
+        toggleText={"Basic information"}
+        className="toggle"
+        onToggle={() => setBasicExpanded(!isBasicExpanded)}
+        isExpanded={isBasicExpanded}
+      >
+        <div className="pf-c-form">
+          <HookFormPFTextInput
+            control={control}
+            name="name"
+            label="Name"
+            fieldId="name"
+            isRequired
           />
-        )}
-        <ExpandableSection
-          toggleText={"Basic information"}
-          className="toggle"
-          onToggle={() => setBasicExpanded(!isBasicExpanded)}
-          isExpanded={isBasicExpanded}
-        >
-          <div className="pf-c-form">
-            <FormGroup
-              label={t("terms.name")}
-              fieldId="name"
-              isRequired={true}
-              validated={getValidatedFromError(formik.errors.name)}
-              helperTextInvalid={formik.errors.name}
-            >
-              <TextInput
-                type="text"
-                name="name"
-                data-testid="application-name"
-                id="application-name"
-                aria-label="name"
-                aria-describedby="name"
-                isRequired={true}
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.name}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.name,
-                  formik.touched.name
-                )}
-              />
-            </FormGroup>
-            <FormGroup
-              label={t("terms.description")}
-              fieldId="description"
-              isRequired={false}
-              validated={getValidatedFromError(formik.errors.description)}
-              helperTextInvalid={formik.errors.description}
-            >
-              <TextInput
-                type="text"
-                name="description"
-                data-testid="description"
-                aria-label="description"
-                aria-describedby="description"
-                isRequired={true}
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.description}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.description,
-                  formik.touched.description
-                )}
-              />
-            </FormGroup>
-            <FormGroup
-              label={t("terms.businessService")}
-              fieldId="businessService"
-              isRequired={false}
-              validated={getValidatedFromError(formik.errors.businessService)}
-              helperTextInvalid={formik.errors.businessService}
-            >
-              <SingleSelectFetchOptionValueFormikField<IBusinessServiceDropdown>
-                fieldConfig={{
-                  name: "businessService",
-                }}
-                data-testid="business-service-select"
-                selectConfig={{
-                  variant: "typeahead",
-                  toggleId: "business-service-toggle",
-                  "aria-label": "Select business service",
-                  "aria-describedby": "business-service-select-input",
-                  typeAheadAriaLabel: "business-service-dropdown",
-                  toggleAriaLabel: "business-service",
-                  clearSelectionsAriaLabel: "business-service",
-                  removeSelectionAriaLabel: "business-service",
-                  placeholderText: t("composed.selectOne", {
-                    what: t("terms.businessService").toLowerCase(),
-                  }),
-                  menuAppendTo: () => document.body,
-                  maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-                  isFetching: isFetchingBusinessServices,
-                  fetchError: fetchErrorBusinessServices,
-                }}
-                options={(businessServices || []).map(
-                  toIBusinessServiceDropdown
-                )}
-                toOptionWithValue={toIBusinessServiceDropdownOptionWithValue}
-                isClearable={true}
-              />
-            </FormGroup>
-            <FormGroup
-              label={t("terms.tags")}
-              fieldId="tags"
-              isRequired={false}
-              validated={getValidatedFromError(formik.errors.tags)}
-              helperTextInvalid={formik.errors.tags}
-            >
-              <MultiSelectFetchOptionValueFormikField<ITagDropdown>
-                fieldConfig={{
-                  name: "tags",
-                }}
-                selectConfig={{
-                  variant: "typeaheadmulti",
-                  toggleId: "tags",
-                  "aria-label": "tags",
-                  "aria-describedby": "tags",
-                  typeAheadAriaLabel: "tags",
-                  toggleAriaLabel: "tags",
-                  clearSelectionsAriaLabel: "tags",
-                  removeSelectionAriaLabel: "tags",
-                  placeholderText: t("composed.selectOne", {
-                    what: t("terms.tag(s)").toLowerCase(),
-                  }),
-                  menuAppendTo: () => document.body,
-                  maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-                  isFetching: isFetchingTagCategories,
-                  fetchError: fetchErrorTagCategories,
-                }}
-                options={(tags || []).map(toITagDropdown)}
-                toOptionWithValue={toITagDropdownOptionWithValue}
-                isEqual={isIModelEqual}
-              />
-            </FormGroup>
-            <FormGroup
-              label={t("terms.comments")}
-              fieldId="comments"
-              isRequired={false}
-              validated={getValidatedFromError(formik.errors.comments)}
-              helperTextInvalid={formik.errors.comments}
-            >
-              <TextArea
-                type="text"
-                name="comments"
-                aria-label="comments"
-                aria-describedby="comments"
-                isRequired={false}
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.comments}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.comments,
-                  formik.touched.comments
-                )}
-              />
-            </FormGroup>
-          </div>
-        </ExpandableSection>
-        <ExpandableSection
-          data-testid="source-code-toggle"
-          toggleText={t("terms.sourceCode")}
-          className="toggle"
-          onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
-          isExpanded={isSourceCodeExpanded}
-        >
-          <div className="pf-c-form">
-            <FormGroup
-              data-testid="repository-type"
-              label="Repository type"
-              fieldId="kind"
-              isRequired={true}
-              validated={getValidatedFromError(formik.errors.kind)}
-              helperTextInvalid={formik.errors.kind}
-            >
+          <HookFormPFTextInput
+            control={control}
+            name="description"
+            label="Description"
+            fieldId="description"
+          />
+          <HookFormPFGroupController
+            control={control}
+            name="businessServiceName"
+            label={t("terms.businessService")}
+            fieldId="businessService"
+            renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
-                toggleId="repo-type-toggle"
-                toggleAriaLabel="repo-type-toggle"
-                aria-label={formik.values.kind}
+                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                placeholderText={t("composed.selectOne", {
+                  what: t("terms.businessService").toLowerCase(),
+                })}
+                variant="typeahead"
+                toggleId="business-service-toggle"
+                id="business-service-select"
+                toggleAriaLabel="Business service select dropdown toggle"
+                aria-label={name}
                 value={
-                  formik.values.kind
-                    ? toOptionLike(formik.values.kind, kindOptions)
+                  value
+                    ? toOptionLike(value, businessServiceOptions)
                     : undefined
                 }
-                options={kindOptions}
+                options={businessServiceOptions}
                 onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<any>;
-                  formik.setFieldValue("kind", selectionValue.value);
+                  const selectionValue = selection as OptionWithValue<string>;
+                  onChange(selectionValue.value);
                 }}
               />
-            </FormGroup>
+            )}
+          />
 
-            <FormGroup
-              label={t("terms.sourceRepo")}
-              fieldId="sourceRepository"
-              validated={getValidatedFromError(formik.errors.sourceRepository)}
-              helperTextInvalid={"Must be a valid URL."}
-            >
-              <TextInput
-                data-testid="repository-url"
-                type="text"
-                name="sourceRepository"
-                aria-label="Source Repository"
-                aria-describedby="Source Repository URL"
-                isRequired={true}
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.sourceRepository}
+          <HookFormPFGroupController
+            control={control}
+            name="tagNames"
+            label={t("terms.tags")}
+            fieldId="tags"
+            renderInput={({ field: { value, name, onChange } }) => (
+              <SimpleSelect
+                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                id="tags-select"
+                variant="typeaheadmulti"
+                toggleId="tags-select-toggle"
+                toggleAriaLabel="tags dropdown toggle"
+                aria-label={name}
+                value={value
+                  .map((formTagName) =>
+                    tags?.find((tagRef) => tagRef.name === formTagName)
+                  )
+                  .map((matchingTag) =>
+                    matchingTag
+                      ? {
+                          value: matchingTag.name,
+                          toString: () => matchingTag.name,
+                        }
+                      : undefined
+                  )
+                  .filter((e) => e !== undefined)}
+                options={tagOptions}
+                onChange={(selection) => {
+                  const selectionWithValue =
+                    selection as OptionWithValue<string>;
+
+                  const currentValue = value || [];
+                  const e = currentValue.find(
+                    (f) => f === selectionWithValue.value
+                  );
+                  if (e) {
+                    onChange(
+                      currentValue.filter((f) => f !== selectionWithValue.value)
+                    );
+                  } else {
+                    onChange([...currentValue, selectionWithValue.value]);
+                  }
+                }}
+                onClear={() => onChange([])}
+                noResultsFoundText={t("message.noResultsFoundTitle")}
               />
-            </FormGroup>
-            <FormGroup
-              label={t("terms.sourceBranch")}
-              fieldId="branch"
-              validated={getValidatedFromError(formik.errors.branch)}
-              helperTextInvalid={formik.errors.branch}
-            >
-              <TextInput
-                data-testid="repository-branch"
-                type="text"
-                name="branch"
-                aria-label="Source Repository Branch"
-                aria-describedby="Source Repository Branch"
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.branch}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.branch,
-                  formik.touched.branch
-                )}
+            )}
+          />
+          <HookFormPFTextArea
+            control={control}
+            name="comments"
+            label={t("terms.comments")}
+            fieldId="comments"
+            resizeOrientation="vertical"
+          />
+        </div>
+      </ExpandableSection>
+      <ExpandableSection
+        toggleText={t("terms.sourceCode")}
+        className="toggle"
+        onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
+        isExpanded={isSourceCodeExpanded}
+      >
+        <div className="pf-c-form">
+          <HookFormPFGroupController
+            control={control}
+            name="kind"
+            label="Repository type"
+            fieldId="repository-type-select"
+            isRequired
+            renderInput={({ field: { value, name, onChange } }) => (
+              <SimpleSelect
+                toggleId="repo-type-toggle"
+                toggleAriaLabel="Type select dropdown toggle"
+                aria-label={name}
+                value={value ? toOptionLike(value, kindOptions) : undefined}
+                options={kindOptions}
+                onChange={(selection) => {
+                  const selectionValue = selection as OptionWithValue<string>;
+                  onChange(selectionValue.value);
+                }}
               />
-            </FormGroup>
-            <FormGroup
-              label={t("terms.sourceRootPath")}
-              fieldId="rootPath"
-              validated={getValidatedFromError(formik.errors.rootPath)}
-              helperTextInvalid={formik.errors.rootPath}
-            >
-              <TextInput
-                type="text"
-                name="rootPath"
-                data-testid="repository-root"
-                aria-label="Source Repository Root Path"
-                aria-describedby="Source Repository Root Path"
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.rootPath}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.rootPath,
-                  formik.touched.rootPath
-                )}
-              />
-            </FormGroup>
-          </div>
-        </ExpandableSection>
-        <ExpandableSection
-          data-testid="binary-toggle"
-          toggleText={t("terms.binary")}
-          className="toggle"
-          onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
-          isExpanded={isBinaryExpanded}
-        >
-          <div className="pf-c-form">
-            <FormGroup
-              label={t("terms.binaryGroup")}
-              fieldId="group"
-              validated={getValidatedFromError(formik.errors.group)}
-              helperTextInvalid={formik.errors.group}
-            >
-              <TextInput
-                data-testid="binary-group"
-                type="text"
-                name="group"
-                aria-label="Binary Group"
-                aria-describedby="Binary Group"
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.group}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.group,
-                  formik.touched.group
-                )}
-              />
-            </FormGroup>
-            <FormGroup
-              label={t("terms.binaryArtifact")}
-              fieldId="artifact"
-              validated={getValidatedFromError(formik.errors.artifact)}
-              helperTextInvalid={formik.errors.artifact}
-            >
-              <TextInput
-                data-testid="binary-artifact"
-                type="text"
-                name="artifact"
-                aria-label="Binary Artifact"
-                aria-describedby="Binary Artifact"
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.artifact}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.artifact,
-                  formik.touched.artifact
-                )}
-              />
-            </FormGroup>
-            <FormGroup
-              label={t("terms.binaryVersion")}
-              fieldId="version"
-              validated={getValidatedFromError(formik.errors.version)}
-              helperTextInvalid={formik.errors.version}
-            >
-              <TextInput
-                data-testid="binary-version"
-                type="text"
-                name="version"
-                aria-label="Binary version"
-                aria-describedby="Binary version"
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.version}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.version,
-                  formik.touched.version
-                )}
-              />
-            </FormGroup>
-            <FormGroup
-              data-testid="binary-packaging"
-              label={t("terms.binaryPackaging")}
-              labelIcon={
-                <Popover
-                  position={PopoverPosition.top}
-                  aria-label="binary packaging details"
-                  bodyContent={t("message.binaryPackaging")}
-                  className="popover"
-                >
-                  <span className="pf-c-icon pf-m-info">
-                    <QuestionCircleIcon />
-                  </span>
-                </Popover>
-              }
-              fieldId="packaging"
-              validated={getValidatedFromError(formik.errors.packaging)}
-              helperTextInvalid={formik.errors.packaging}
-            >
-              <TextInput
-                type="text"
-                name="packaging"
-                aria-label="Binary Packaging"
-                aria-describedby="Binary Packaging"
-                onChange={onChangeField}
-                onBlur={formik.handleBlur}
-                value={formik.values.packaging}
-                validated={getValidatedFromErrorTouched(
-                  formik.errors.packaging,
-                  formik.touched.packaging
-                )}
-              />
-            </FormGroup>
-          </div>
-        </ExpandableSection>
-        <ActionGroup>
-          <Button
-            type="submit"
-            id="application-form-submit"
-            aria-label="submit"
-            variant={ButtonVariant.primary}
-            isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
+            )}
+          />
+          <HookFormPFTextInput
+            control={control}
+            name="sourceRepository"
+            label={t("terms.sourceRepo")}
+            fieldId="sourceRepository"
+          />
+          <HookFormPFTextInput
+            control={control}
+            type="text"
+            aria-label="Repository branch"
+            name="branch"
+            label={t("terms.sourceBranch")}
+            fieldId="branch"
+          />
+          <HookFormPFTextInput
+            control={control}
+            name="rootPath"
+            label={t("terms.sourceRootPath")}
+            fieldId="rootPath"
+          />
+        </div>
+      </ExpandableSection>
+      <ExpandableSection
+        toggleText={t("terms.binary")}
+        className="toggle"
+        onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
+        isExpanded={isBinaryExpanded}
+      >
+        <div className="pf-c-form">
+          <HookFormPFTextInput
+            control={control}
+            name="group"
+            label={t("terms.binaryGroup")}
+            fieldId="group"
+          />
+          <HookFormPFTextInput
+            control={control}
+            name="artifact"
+            label={t("terms.binaryArtifact")}
+            fieldId="artifact"
+          />
+          <HookFormPFTextInput
+            control={control}
+            name="version"
+            label={t("terms.binaryVersion")}
+            fieldId="version"
+          />
+          <HookFormPFTextInput
+            control={control}
+            name="packaging"
+            fieldId="packaging"
+            label={t("terms.binaryPackaging")}
+            labelIcon={
+              <Popover
+                position={PopoverPosition.top}
+                aria-label="binary packaging details"
+                bodyContent={t("message.binaryPackaging")}
+                className="popover"
+              >
+                <span className="pf-c-icon pf-m-info">
+                  <QuestionCircleIcon />
+                </span>
+              </Popover>
             }
-          >
-            {!application ? t("actions.create") : t("actions.save")}
-          </Button>
-          <Button
-            type="button"
-            id="cancel"
-            aria-label="cancel"
-            variant={ButtonVariant.link}
-            isDisabled={formik.isSubmitting || formik.isValidating}
-            onClick={onCancel}
-          >
-            {t("actions.cancel")}
-          </Button>
-        </ActionGroup>
-      </Form>
-    </FormikProvider>
+          />
+        </div>
+      </ExpandableSection>
+      <ActionGroup>
+        <Button
+          type="submit"
+          id="application-form-submit"
+          aria-label="submit"
+          variant={ButtonVariant.primary}
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+        >
+          {!application ? t("actions.create") : t("actions.save")}
+        </Button>
+        <Button
+          type="button"
+          id="cancel"
+          aria-label="cancel"
+          variant={ButtonVariant.link}
+          isDisabled={isSubmitting || isValidating}
+          onClick={onCancel}
+        >
+          {t("actions.cancel")}
+        </Button>
+      </ActionGroup>
+    </Form>
   );
 };
