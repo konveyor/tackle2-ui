@@ -81,6 +81,7 @@
     "ofTotalApplications_plural": "Of {{count}} applications",
     "selectMany": "Select {{what}}",
     "selectOne": "Select a {{what}}",
+    "selectAn": "Select an {{what}}",
     "workPriority": "Work priority (1=low, 10=high)"
   },
   "dialog": {
@@ -209,6 +210,7 @@
     "comments": "Comments",
     "completed": "Completed",
     "confidence": "Confidence",
+    "contributors": "Contributors",
     "controls": "Controls",
     "createdBy": "Created By",
     "credential": "Credential",

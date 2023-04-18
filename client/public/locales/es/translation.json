@@ -70,7 +70,8 @@
     "ofTotalApplications": "De {{count}} aplicación",
     "ofTotalApplications_plural": "De {{count}} aplicaciones",
     "selectMany": "Seleccione {{what}}",
-    "selectOne": "Seleccione un(a) {{what}}",
+    "selectOne": "Seleccione un {{what}}",
+    "selectAn": "Seleccione una {{what}}",
     "workPriority": "Prioridad de trabajo (1=bajo, 10=alto)"
   },
   "dialog": {
@@ -198,6 +199,7 @@
     "comments": "Comentarios",
     "completed": "Completado",
     "confidence": "Confianza",
+    "contributors": "Colaboradores",
     "controls": "Controles",
     "createdBy": "Creado Por",
     "credentials": "Credenciales",
