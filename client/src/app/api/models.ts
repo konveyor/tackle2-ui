@@ -93,6 +93,8 @@ export interface Application {
   comments?: string;
   businessService?: Ref;
   tags?: TagRef[];
+  owner?: Ref;
+  contributors?: Ref[];
   review?: Ref;
   identities?: Ref[];
   repository?: Repository;
