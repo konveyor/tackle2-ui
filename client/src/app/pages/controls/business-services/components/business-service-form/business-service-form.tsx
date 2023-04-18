@@ -160,6 +160,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
               const selectionValue = selection as OptionWithValue<string>;
               onChange(selectionValue.value);
             }}
+            onClear={() => onChange([])}
           />
         )}
       />
@@ -178,7 +179,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
           id="cancel"
           aria-label="cancel"
           variant={ButtonVariant.link}
-          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+          isDisabled={isSubmitting || isValidating}
           onClick={onCancel}
         >
           {t("actions.cancel")}
