@@ -69,7 +69,7 @@ export const ASSESSMENTS = PATHFINDER + "/assessments";
 
 const jsonHeaders = { headers: { Accept: "application/json" } };
 const formHeaders = { headers: { Accept: "multipart/form-data" } };
-const fileHeaders = { headers: { Accept: "application/octet-stream" } };
+const fileHeaders = { headers: { Accept: "application/json" } };
 
 type Direction = "asc" | "desc";
 
