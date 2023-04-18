@@ -1,30 +1,22 @@
 import React, { useMemo } from "react";
 import { AxiosPromise, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
-import { useFormik, FormikProvider, FormikHelpers } from "formik";
 import { object, string, mixed } from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 import {
   ActionGroup,
   Button,
   ButtonVariant,
   Form,
-  FormGroup,
   NumberInput,
-  TextArea,
 } from "@patternfly/react-core";
-
-import { SingleSelectOptionValueFormikField } from "@app/shared/components";
 
 import {
   DEFAULT_SELECT_MAX_HEIGHT,
   PROPOSED_ACTION_LIST,
   EFFORT_ESTIMATE_LIST,
 } from "@app/Constants";
-import {
-  getValidatedFromError,
-  getValidatedFromErrorTouched,
-} from "@app/utils/utils";
 import { number } from "yup";
 import {
   Application,
@@ -33,19 +25,16 @@ import {
   Review,
 } from "@app/api/models";
 import { createReview, updateReview } from "@app/api/rest";
+import { FieldErrors, useForm } from "react-hook-form";
 import {
-  ISimpleOptionDropdown,
-  toISimpleOptionDropdownWithValue,
-} from "@app/utils/model-utils";
-
-interface SimpleOption<T> {
-  key: T;
-  name: string;
-}
+  HookFormPFGroupController,
+  HookFormPFTextArea,
+} from "@app/shared/components/hook-form-pf-fields";
+import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 
 export interface FormValues {
-  action: ISimpleOptionDropdown<ProposedAction> | null;
-  effort: ISimpleOptionDropdown<EffortEstimate> | null;
+  action: ProposedAction;
+  effort: EffortEstimate;
   criticality?: number;
   priority?: number;
   comments: string;
@@ -66,21 +55,19 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const actionOptions: SimpleOption<ProposedAction>[] = useMemo(() => {
+  const actionOptions: OptionWithValue<ProposedAction>[] = useMemo(() => {
     return Object.entries(PROPOSED_ACTION_LIST).map(([key, value]) => ({
-      key: key as ProposedAction,
-      name: t(value.i18Key),
+      value: key as ProposedAction,
+      toString: () => t(value.i18Key),
     }));
   }, [t]);
 
-  const effortOptions: SimpleOption<EffortEstimate>[] = useMemo(() => {
+  const effortOptions: OptionWithValue<EffortEstimate>[] = useMemo(() => {
     return Object.entries(EFFORT_ESTIMATE_LIST).map(([key, value]) => ({
-      key: key as EffortEstimate,
-      name: t(value.i18Key),
+      value: key as EffortEstimate,
+      toString: () => t(value.i18Key),
     }));
   }, [t]);
-
-  // Formik
 
   const validationSchema = object().shape({
     action: mixed().required(t("validation.required")),
@@ -98,19 +85,31 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
       .max(1024, t("validation.maxLength", { length: 1024 })),
   });
 
-  const onSubmit = (
-    formValues: FormValues,
-    formikHelpers: FormikHelpers<FormValues>
-  ) => {
-    if (!formValues.effort || !formValues.action) {
-      console.log("Invalid form");
-      return;
-    }
+  const {
+    handleSubmit,
+    formState: { isSubmitting, isValidating, isValid, isDirty },
+    control,
+  } = useForm<FormValues>({
+    defaultValues: {
+      action: review?.proposedAction,
+      effort: review?.effortEstimate,
+      criticality: review?.businessCriticality || 1,
+      priority: review?.workPriority || 1,
+      comments: review?.comments || "",
+    },
+    resolver: yupResolver(validationSchema),
+    mode: "onChange",
+  });
 
+  const onInvalid = (errors: FieldErrors<FormValues>) => {
+    console.log("Invalid form", errors);
+  };
+
+  const onSubmit = (formValues: FormValues) => {
     const payload: Review = {
       ...review,
-      proposedAction: formValues.action.key,
-      effortEstimate: formValues.effort.key,
+      proposedAction: formValues.action,
+      effortEstimate: formValues.effort,
       businessCriticality: formValues.criticality || 0,
       workPriority: formValues.priority || 0,
       comments: formValues.comments.trim(),
@@ -129,218 +128,138 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
 
     promise
       .then((response) => {
-        formikHelpers.setSubmitting(false);
         onSaved(response);
       })
-      .catch((error) => {
-        formikHelpers.setSubmitting(false);
-        // onError(error);
-      });
+      .catch((error) => {});
   };
 
-  const actionInitialValue: ISimpleOptionDropdown<ProposedAction> | null =
-    useMemo(() => {
-      let result: ISimpleOptionDropdown<ProposedAction> | null = null;
-      if (review) {
-        const exists = actionOptions.find(
-          (f) => f.key === review.proposedAction
-        );
-        result = exists || {
-          key: review.proposedAction,
-          name: t("terms.unknown"),
-        };
-      }
-      return result;
-    }, [review, actionOptions, t]);
-
-  const effortInitialValue: ISimpleOptionDropdown<EffortEstimate> | null =
-    useMemo(() => {
-      let result: ISimpleOptionDropdown<EffortEstimate> | null = null;
-      if (review) {
-        const exists = effortOptions.find(
-          (f) => f.key === review.effortEstimate
-        );
-        result = exists || {
-          key: review.effortEstimate,
-          name: t("terms.unknown"),
-        };
-      }
-      return result;
-    }, [review, effortOptions, t]);
-
-  const formik = useFormik<FormValues>({
-    enableReinitialize: true,
-    initialValues: {
-      action: actionInitialValue,
-      effort: effortInitialValue,
-      criticality: review?.businessCriticality || 1,
-      priority: review?.workPriority || 1,
-      comments: review?.comments || "",
-    },
-    validationSchema: validationSchema,
-    onSubmit: onSubmit,
-  });
-
   return (
-    <FormikProvider value={formik}>
-      <Form onSubmit={formik.handleSubmit}>
-        <FormGroup
-          label={t("terms.proposedAction")}
-          fieldId="action"
-          isRequired={true}
-          validated={getValidatedFromError(formik.errors.action)}
-          helperTextInvalid={formik.errors.action}
-        >
-          <SingleSelectOptionValueFormikField<
-            ISimpleOptionDropdown<ProposedAction>
-          >
-            fieldConfig={{ name: "action" }}
-            selectConfig={{
-              variant: "typeahead",
-              toggleId: "action-toggle",
-              "aria-label": "action",
-              "aria-describedby": "action",
-              placeholderText: t("terms.select"),
-              maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
-            }}
+    <Form onSubmit={handleSubmit(onSubmit, onInvalid)}>
+      <HookFormPFGroupController
+        control={control}
+        name="action"
+        label={t("terms.proposedAction")}
+        fieldId="action"
+        isRequired
+        renderInput={({ field: { value, name, onChange } }) => (
+          <SimpleSelect
+            variant="typeahead"
+            id="action-select"
+            toggleId="action-select-toggle"
+            toggleAriaLabel="Action select dropdown toggle"
+            aria-label={name}
+            value={value}
             options={actionOptions}
-            toOptionWithValue={toISimpleOptionDropdownWithValue}
-          />
-        </FormGroup>
-        <FormGroup
-          label={t("terms.effortEstimate")}
-          fieldId="effort"
-          isRequired={true}
-          validated={getValidatedFromError(formik.errors.effort)}
-          helperTextInvalid={formik.errors.effort}
-        >
-          <SingleSelectOptionValueFormikField<
-            ISimpleOptionDropdown<EffortEstimate>
-          >
-            fieldConfig={{ name: "effort" }}
-            selectConfig={{
-              variant: "typeahead",
-              toggleId: "effort-toggle",
-              "aria-label": "effort",
-              "aria-describedby": "effort",
-              placeholderText: t("terms.select"),
-              maxHeight: DEFAULT_SELECT_MAX_HEIGHT,
+            onChange={(selection) => {
+              const selectionValue =
+                selection as OptionWithValue<ProposedAction>;
+              onChange(selectionValue.value);
             }}
-            options={effortOptions}
-            toOptionWithValue={toISimpleOptionDropdownWithValue}
           />
-        </FormGroup>
-        <FormGroup
-          label={t("composed.businessCriticality")}
-          fieldId="criticality"
-          isRequired={true}
-          validated={getValidatedFromError(formik.errors.criticality)}
-          helperTextInvalid={formik.errors.criticality}
-        >
+        )}
+      />
+      <HookFormPFGroupController
+        control={control}
+        name="effort"
+        label={t("terms.effortEstimate")}
+        fieldId="effort"
+        isRequired
+        renderInput={({ field: { value, name, onChange } }) => (
+          <SimpleSelect
+            variant="typeahead"
+            id="effort-select"
+            toggleId="effort-select-toggle"
+            toggleAriaLabel="Effort select dropdown toggle"
+            aria-label={name}
+            value={value}
+            options={effortOptions}
+            onChange={(selection) => {
+              const selectionValue =
+                selection as OptionWithValue<EffortEstimate>;
+              onChange(selectionValue.value);
+            }}
+          />
+        )}
+      />
+      <HookFormPFGroupController
+        control={control}
+        name="criticality"
+        label={t("composed.businessCriticality")}
+        fieldId="criticality"
+        isRequired
+        renderInput={({ field: { value, name, onChange } }) => (
           <NumberInput
-            inputName="criticality"
+            inputName={name}
             inputAriaLabel="criticality"
             minusBtnAriaLabel="minus"
             plusBtnAriaLabel="plus"
-            value={formik.values.criticality}
+            value={value}
             min={1}
             max={10}
             onMinus={() => {
-              formik.setFieldValue(
-                "criticality",
-                (formik.values.criticality || 0) - 1
-              );
+              onChange((value || 0) - 1);
             }}
-            onChange={formik.handleChange}
+            onChange={onChange}
             onPlus={() => {
-              formik.setFieldValue(
-                "criticality",
-                (formik.values.criticality || 0) + 1
-              );
+              onChange((value || 0) + 1);
             }}
           />
-        </FormGroup>
-        <FormGroup
-          label={t("composed.workPriority")}
-          fieldId="priority"
-          isRequired={true}
-          validated={getValidatedFromError(formik.errors.priority)}
-          helperTextInvalid={formik.errors.priority}
-        >
+        )}
+      />
+      <HookFormPFGroupController
+        control={control}
+        name="priority"
+        label={t("composed.workPriority")}
+        fieldId="priority"
+        isRequired
+        renderInput={({ field: { value, name, onChange } }) => (
           <NumberInput
             inputName="priority"
             inputAriaLabel="priority"
             minusBtnAriaLabel="minus"
             plusBtnAriaLabel="plus"
-            value={formik.values.priority}
+            value={value}
             min={1}
             max={10}
             onMinus={() => {
-              formik.setFieldValue(
-                "priority",
-                (formik.values.priority || 0) - 1
-              );
+              onChange((value || 0) - 1);
             }}
-            onChange={formik.handleChange}
+            onChange={onChange}
             onPlus={() => {
-              formik.setFieldValue(
-                "priority",
-                (formik.values.priority || 0) + 1
-              );
+              onChange((value || 0) + 1);
             }}
           />
-        </FormGroup>
-        <FormGroup
-          label={t("terms.comments")}
-          fieldId="comments"
-          isRequired={false}
-          validated={getValidatedFromError(formik.errors.comments)}
-          helperTextInvalid={formik.errors.comments}
-        >
-          <TextArea
-            type="text"
-            name="comments"
-            aria-label="comments"
-            aria-describedby="comments"
-            isRequired={false}
-            onChange={(_, event) => formik.handleChange(event)}
-            onBlur={formik.handleBlur}
-            value={formik.values.comments}
-            validated={getValidatedFromErrorTouched(
-              formik.errors.comments,
-              formik.touched.comments
-            )}
-            resizeOrientation="vertical"
-          />
-        </FormGroup>
+        )}
+      />
+      <HookFormPFTextArea
+        control={control}
+        name="comments"
+        label={t("terms.comments")}
+        fieldId="comments"
+        resizeOrientation="vertical"
+      />
 
-        <ActionGroup>
-          <Button
-            type="submit"
-            id="review-form-submit"
-            aria-label="submit"
-            variant={ButtonVariant.primary}
-            isDisabled={
-              !formik.isValid ||
-              !formik.dirty ||
-              formik.isSubmitting ||
-              formik.isValidating
-            }
-          >
-            {t("actions.submitReview")}
-          </Button>
-          <Button
-            type="button"
-            id="cancel"
-            aria-label="cancel"
-            variant={ButtonVariant.link}
-            isDisabled={formik.isSubmitting || formik.isValidating}
-            onClick={onCancel}
-          >
-            {t("actions.cancel")}
-          </Button>
-        </ActionGroup>
-      </Form>
-    </FormikProvider>
+      <ActionGroup>
+        <Button
+          type="submit"
+          id="review-form-submit"
+          aria-label="submit"
+          variant={ButtonVariant.primary}
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+        >
+          {t("actions.submitReview")}
+        </Button>
+        <Button
+          type="button"
+          id="cancel"
+          aria-label="cancel"
+          variant={ButtonVariant.link}
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+          onClick={onCancel}
+        >
+          {t("actions.cancel")}
+        </Button>
+      </ActionGroup>
+    </Form>
   );
 };

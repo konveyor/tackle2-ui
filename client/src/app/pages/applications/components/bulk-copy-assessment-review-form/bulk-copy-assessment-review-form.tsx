@@ -33,8 +33,8 @@ import { Application, Assessment, Review } from "@app/api/models";
 import { dedupeFunction } from "@app/utils/utils";
 
 import { ApplicationBusinessService } from "../application-business-service";
-import { ApplicationAssessment } from "../application-assessment";
 import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
+import { ApplicationAssessmentStatus } from "../application-assessment-status";
 import {
   FilterCategory,
   FilterToolbar,
@@ -240,7 +240,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
         },
         {
           title: (
-            <ApplicationAssessment
+            <ApplicationAssessmentStatus
               assessment={getApplicationAssessment(app.id!)}
               isLoading={isLoadingApplicationAssessment(app.id!)}
               fetchError={fetchErrorApplicationAssessment(app.id!)}

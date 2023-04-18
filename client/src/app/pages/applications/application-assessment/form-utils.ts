@@ -9,19 +9,6 @@ export enum SAVE_ACTION_VALUE {
   SAVE_AND_REVIEW,
   SAVE_AS_DRAFT,
 }
-
-export interface IFormValues {
-  stakeholders: number[];
-  stakeholderGroups: number[];
-  [COMMENTS_KEY]: {
-    [key: string]: string; // <categoryId, commentValue>
-  };
-  [QUESTIONS_KEY]: {
-    [key: string]: number | undefined; // <questionId, optionId>
-  };
-  [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE;
-}
-
 export const getCommentFieldName = (
   category: QuestionnaireCategory,
   fullName: boolean

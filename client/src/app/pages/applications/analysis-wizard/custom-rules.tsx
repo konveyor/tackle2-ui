@@ -43,7 +43,7 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { Identity, IReadFile, Ref } from "@app/api/models";
+import { IReadFile, Ref } from "@app/api/models";
 import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
 
 import "./wizard.css";
@@ -54,11 +54,7 @@ import {
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import {
-  IdentityDropdown,
-  toIdentityDropdown,
-  toOptionLike,
-} from "@app/utils/model-utils";
+import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
 import useRuleFiles from "@app/common/CustomRules/useRuleFiles";
 interface CustomRulesProps {
@@ -108,21 +104,15 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
   ];
 
   const { identities } = useFetchIdentities();
-  const emptyIdentity: Identity = { id: 0, name: "None", createUser: "" };
 
-  let sourceIdentityOptions: Identity[] =
-    identities?.filter((i) => i.kind === "source") || [];
-  sourceIdentityOptions.unshift(emptyIdentity);
-  sourceIdentityOptions = sourceIdentityOptions.map((i) =>
-    toIdentityDropdown(i)
-  );
-
-  const toOptionWithValue = (
-    value: IdentityDropdown
-  ): OptionWithValue<IdentityDropdown> => ({
-    value,
-    toString: () => value?.name || "",
-  });
+  const sourceIdentityOptions = identities
+    .filter((identity) => identity.kind === "source")
+    .map((sourceIdentity) => {
+      return {
+        value: sourceIdentity.name,
+        toString: () => sourceIdentity.name,
+      };
+    });
 
   const filterCategories: FilterCategory<IReadFile>[] = [
     {
@@ -373,14 +363,18 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
               name="associatedCredentials"
               label="Associated credentials"
               fieldId="credentials-select"
-              renderInput={({ field: { value, name, onBlur, onChange } }) => (
+              renderInput={({ field: { value, name, onChange } }) => (
                 <SimpleSelect
                   id="associated-credentials-select"
                   toggleId="associated-credentials-select-toggle"
                   toggleAriaLabel="Associated credentials dropdown toggle"
                   aria-label={name}
-                  value={value ? toOptionWithValue(value) : undefined}
-                  options={sourceIdentityOptions.map(toOptionWithValue)}
+                  value={
+                    value
+                      ? toOptionLike(value, sourceIdentityOptions)
+                      : undefined
+                  }
+                  options={sourceIdentityOptions}
                   onChange={(selection) => {
                     const selectionValue = selection as OptionWithValue<Ref>;
                     onChange(selectionValue.value);

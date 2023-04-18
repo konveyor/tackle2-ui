@@ -63,7 +63,7 @@ export interface CustomTargetFormValues {
   sourceRepository?: string;
   branch?: string;
   rootPath?: string;
-  associatedCredentials?: Ref;
+  associatedCredentials?: string;
 }
 
 export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
@@ -107,14 +107,15 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   ];
 
   const { identities } = useFetchIdentities();
-  const emptyIdentity: Identity = { id: 0, name: "None", createUser: "" };
 
-  let sourceIdentityOptions: Identity[] =
-    identities?.filter((i) => i.kind === "source") || [];
-  sourceIdentityOptions.unshift(emptyIdentity);
-  sourceIdentityOptions = sourceIdentityOptions.map((i) =>
-    toIdentityDropdown(i)
-  );
+  const sourceIdentityOptions = identities
+    .filter((identity) => identity.kind === "source")
+    .map((sourceIdentity) => {
+      return {
+        value: sourceIdentity.name,
+        toString: () => sourceIdentity.name,
+      };
+    });
 
   const toOptionWithValue = (
     value: IdentityDropdown
@@ -122,16 +123,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     value,
     toString: () => value?.name || "",
   });
-
-  const sourceCredentialsInitialValue = useMemo(() => {
-    let result: IdentityDropdown = { id: 0, name: "" };
-    if (ruleBundle?.identity) {
-      result = toIdentityDropdown(ruleBundle.identity);
-    } else {
-      result = emptyIdentity;
-    }
-    return result;
-  }, [identities, ruleBundle]);
 
   const { ruleBundles } = useFetchRuleBundles();
 
@@ -216,7 +207,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         : !!ruleBundle?.rulesets?.length
         ? "manual"
         : "repository",
-      associatedCredentials: sourceCredentialsInitialValue,
+      associatedCredentials: ruleBundle?.identity?.name,
       repositoryType: ruleBundle?.repository?.kind,
       sourceRepository: ruleBundle?.repository?.url,
       branch: ruleBundle?.repository?.branch,
@@ -296,6 +287,9 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         }
       }
     });
+    const matchingSourceCredential = identities.find(
+      (identity) => identity.name === formValues.associatedCredentials
+    );
 
     const payload: RuleBundle = {
       id: formValues.id,
@@ -313,9 +307,12 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         },
       }),
       ...(formValues.associatedCredentials &&
-        !!formValues?.associatedCredentials?.id &&
+        matchingSourceCredential &&
         formValues.rulesKind === "repository" && {
-          identity: formValues.associatedCredentials,
+          identity: {
+            id: matchingSourceCredential.id,
+            name: matchingSourceCredential.name,
+          },
         }),
     };
     if (ruleBundle) {
@@ -563,16 +560,20 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             fieldId="credentials-select"
             renderInput={({ field: { value, name, onBlur, onChange } }) => (
               <SimpleSelect
+                variant="typeahead"
                 id="associated-credentials-select"
                 toggleId="associated-credentials-select-toggle"
                 toggleAriaLabel="Associated credentials dropdown toggle"
                 aria-label={name}
-                value={value ? toOptionWithValue(value) : undefined}
-                options={sourceIdentityOptions.map(toOptionWithValue)}
+                value={
+                  value ? toOptionLike(value, sourceIdentityOptions) : undefined
+                }
+                options={sourceIdentityOptions}
                 onChange={(selection) => {
                   const selectionValue = selection as OptionWithValue<Ref>;
                   onChange(selectionValue.value);
                 }}
+                onClear={() => onChange("")}
               />
             )}
           />

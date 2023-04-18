@@ -38,6 +38,7 @@ import { useAsyncYupValidation } from "@app/shared/hooks/useAsyncYupValidation";
 import { CustomRules } from "./custom-rules";
 import { useSetting } from "@app/queries/settings";
 import defaultSources from "./sources";
+import { useFetchIdentities } from "@app/queries/identities";
 
 interface IAnalysisWizard {
   applications: Application[];
@@ -93,6 +94,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const title = t("dialog.title.applicationAnalysis");
 
   const { data: isCSVDownloadEnabled } = useSetting("download.csv.enabled");
+  const { identities } = useFetchIdentities();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -180,7 +182,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       excludedRulesTags: [],
       diva: false,
       hasExcludedPackages: false,
-      associatedCredentials: { id: 0, name: "" },
+      associatedCredentials: "",
       rulesKind: "manual",
       repositoryType: "",
       sourceRepository: "",
@@ -228,6 +230,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     currentTaskgroup: Taskgroup,
     fieldValues: AnalysisWizardFormValues
   ): Taskgroup => {
+    const matchingSourceCredential = identities.find(
+      (identity) => identity.name === fieldValues.associatedCredentials
+    );
     return {
       ...currentTaskgroup,
       tasks: analyzableApplications.map((app: Application) => initTask(app)),
@@ -271,9 +276,12 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             },
           }),
           ...(fieldValues.associatedCredentials &&
-            !!fieldValues?.associatedCredentials?.id &&
+            matchingSourceCredential &&
             fieldValues.rulesKind === "repository" && {
-              identity: fieldValues.associatedCredentials,
+              identity: {
+                id: matchingSourceCredential.id,
+                name: matchingSourceCredential.name,
+              },
             }),
         },
       },

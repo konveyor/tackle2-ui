@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { Field } from "formik";
 import { useTranslation } from "react-i18next";
-
 import {
   Popover,
   Split,
@@ -9,18 +7,16 @@ import {
   Stack,
   StackItem,
   Text,
-  TextArea,
   TextContent,
 } from "@patternfly/react-core";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
-
 import { QuestionnaireCategory } from "@app/api/models";
-import { getValidatedFromError } from "@app/utils/utils";
-
 import { MultiInputSelection } from "./multi-input-selection";
 import { Question, QuestionHeader, QuestionBody } from "./question";
-
 import { getCommentFieldName } from "../../form-utils";
+import { HookFormPFTextInput } from "@app/shared/components/hook-form-pf-fields";
+import { useFormContext } from "react-hook-form";
+import { ApplicationAssessmentWizardValues } from "../application-assessment-wizard/application-assessment-wizard";
 
 export interface QuestionnaireFormProps {
   category: QuestionnaireCategory;
@@ -30,6 +26,8 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
   category,
 }) => {
   const { t } = useTranslation();
+  const { control, getValues } =
+    useFormContext<ApplicationAssessmentWizardValues>();
 
   // Force the wizard parent to reset the scroll
   useEffect(() => {
@@ -48,16 +46,6 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
   // Comments
 
   const commentFieldName = getCommentFieldName(category, true);
-
-  const validateComment = (val: string) => {
-    const maxLength = 1_000;
-
-    let error;
-    if (val && val.length > maxLength) {
-      error = t("validation.maxLength", { length: maxLength });
-    }
-    return error;
-  };
 
   return (
     <Stack hasGutter>
@@ -98,22 +86,15 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
             {t("terms.additionalNotesOrComments")}
           </QuestionHeader>
           <QuestionBody>
-            <Field name={commentFieldName} validate={validateComment}>
-              {({ field, form, meta }: any) => (
-                <TextArea
-                  rows={4}
-                  type="text"
-                  name={commentFieldName}
-                  aria-label="comments"
-                  aria-describedby="comments"
-                  isRequired={false}
-                  onChange={(_, event) => field.onChange(event)}
-                  onBlur={(event) => field.onBlur(event)}
-                  value={field.value}
-                  validated={getValidatedFromError(meta.error)}
-                />
-              )}
-            </Field>
+            <HookFormPFTextInput
+              rows={4}
+              control={control}
+              name={commentFieldName as `comments.${string}`}
+              fieldId="comments"
+              type="text"
+              aria-label="comments"
+              aria-describedby="comments"
+            ></HookFormPFTextInput>
           </QuestionBody>
         </Question>
       </StackItem>

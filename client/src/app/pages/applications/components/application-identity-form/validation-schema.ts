@@ -1,11 +1,5 @@
 import * as yup from "yup";
-import {
-  APPLICATION_NAME,
-  SOURCE_CREDENTIALS,
-  MAVEN_SETTINGS,
-} from "./field-names";
-
-const REQUIRED_MESSAGE = "This field is required";
+import { SOURCE_CREDENTIALS, MAVEN_SETTINGS } from "./field-names";
 
 export default function validationSchema(
   mandatoryFields = {
@@ -16,13 +10,11 @@ export default function validationSchema(
   return yup.object({
     [SOURCE_CREDENTIALS]: yup.lazy(() =>
       mandatoryFields[SOURCE_CREDENTIALS]
-        ? yup.object({ id: yup.string(), name: yup.string() }).required()
-        : yup.object({ id: yup.string(), name: yup.string() })
+        ? yup.string().required()
+        : yup.string()
     ),
     [MAVEN_SETTINGS]: yup.lazy(() =>
-      mandatoryFields[MAVEN_SETTINGS]
-        ? yup.object({ id: yup.string(), name: yup.string() }).required()
-        : yup.object({ id: yup.string(), name: yup.string() })
+      mandatoryFields[MAVEN_SETTINGS] ? yup.string().required() : yup.string()
     ),
   });
 }

@@ -40,7 +40,8 @@ import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 import { formatPath, Paths } from "@app/Paths";
 import { Application, Assessment, Task } from "@app/api/models";
 import { ApplicationForm } from "../components/application-form";
-import { ApplicationAssessment } from "../components/application-assessment";
+
+import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
@@ -350,7 +351,7 @@ export const ApplicationsTable: React.FC = () => {
         },
         {
           title: (
-            <ApplicationAssessment
+            <ApplicationAssessmentStatus
               assessment={getApplicationAssessment(item.id!)}
               isLoading={isLoadingApplicationAssessment(item.id!)}
               fetchError={fetchErrorApplicationAssessment(item.id!)}

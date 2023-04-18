@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
 
-import { OptionWithValue, SimpleSelectFetch } from "@app/shared/components";
+import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import {
@@ -68,7 +68,7 @@ export const SelectDependency: React.FC<SelectDependencyProps> = ({
   const { t } = useTranslation();
 
   return (
-    <SimpleSelectFetch
+    <SimpleSelect
       isDisabled={isSaving}
       value={value}
       onChange={(selection) => {
@@ -120,15 +120,12 @@ export const SelectDependency: React.FC<SelectDependencyProps> = ({
       variant="typeaheadmulti"
       aria-label={fieldId}
       aria-describedby={fieldId}
-      // t("terms.applications")
       placeholderText={t("composed.selectMany", {
         what: t("terms.applications").toLowerCase(),
       })}
       menuAppendTo={() => document.body}
       maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
       options={options}
-      isFetching={isFetching}
-      fetchError={fetchError}
       noResultsFoundText={t("message.noResultsFoundTitle")}
       toggleAriaLabel={toggleAriaLabel}
       toggleId={toggleId}

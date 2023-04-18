@@ -20,21 +20,6 @@ export const getAxiosErrorMessage = (axiosError: AxiosError) => {
   }
 };
 
-// Formik
-
-export const getValidatedFromError = (
-  error: unknown | undefined
-): FormGroupProps["validated"] => {
-  return error ? "error" : "default";
-};
-
-export const getValidatedFromErrorTouched = (
-  error: unknown | undefined,
-  touched: boolean | undefined
-): FormGroupProps["validated"] => {
-  return error && touched ? "error" : "default";
-};
-
 // ToolbarChip
 
 export const getToolbarChipKey = (value: string | ToolbarChip) => {
@@ -95,3 +80,16 @@ export const numStr = (num: number | undefined): string => {
 
 export const objectKeys = <T extends Object>(obj: T) =>
   Object.keys(obj) as (keyof T)[];
+
+export const getValidatedFromErrorTouched = (
+  error: unknown | undefined,
+  touched: boolean | undefined
+): FormGroupProps["validated"] => {
+  return error && touched ? "error" : "default";
+};
+
+export const getValidatedFromError = (
+  error: unknown | undefined
+): FormGroupProps["validated"] => {
+  return error ? "error" : "default";
+};
