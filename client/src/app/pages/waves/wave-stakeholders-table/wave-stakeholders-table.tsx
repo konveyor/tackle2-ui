@@ -35,7 +35,6 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
   stakeholders,
 }) => {
   const { t } = useTranslation();
-  console.log("what is going on here - stakeholders", stakeholders);
 
   const tableControls = useTableControls({
     items: stakeholders,

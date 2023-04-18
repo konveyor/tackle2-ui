@@ -441,6 +441,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   const selectionValue = selection as OptionWithValue<string>;
                   onChange(selectionValue.value);
                 }}
+                onClear={() => onChange([])}
               />
             )}
           />
@@ -516,6 +517,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   value ? toOptionLike(value, stakeholdersOptions) : undefined
                 }
                 options={stakeholdersOptions}
+                onClear={() => onChange([])}
                 onChange={(selection) => {
                   const selectionValue = selection as OptionWithValue<string>;
                   onChange(selectionValue.value);

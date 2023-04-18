@@ -199,6 +199,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
               const selectionValue = selection as OptionWithValue<JobFunction>;
               onChange(selectionValue.value);
             }}
+            onClear={() => onChange([])}
           />
         )}
       />
@@ -236,6 +237,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
                 onChange([...currentValue, selectionWithValue.value]);
               }
             }}
+            onClear={() => onChange([])}
           />
         )}
       />
