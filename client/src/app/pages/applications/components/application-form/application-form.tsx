@@ -34,6 +34,7 @@ import {
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
+import { useFetchStakeholders } from "@app/queries/stakeholders";
 
 export interface FormValues {
   name: string;
@@ -41,6 +42,8 @@ export interface FormValues {
   comments: string;
   businessServiceName: string;
   tagNames: string[];
+  owner: string | null;
+  contributors: string[];
   kind: string;
   sourceRepository: string;
   branch: string;
@@ -68,6 +71,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   const [axiosError, setAxiosError] = useState<AxiosError>();
 
   const { businessServices } = useFetchBusinessServices();
+  const { stakeholders } = useFetchStakeholders();
 
   const { tagCategories: tagCategories, refetch: fetchTagCategories } =
     useFetchTagCategories();
@@ -76,6 +80,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     return {
       value: businessService.name,
       toString: () => businessService.name,
+    };
+  });
+
+  const stakeholdersOptions = stakeholders.map((stakeholder) => {
+    return {
+      value: stakeholder.name,
+      toString: () => stakeholder.name,
     };
   });
 
@@ -239,10 +250,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
-    getValues,
-    setValue,
     control,
-    watch,
   } = useForm<FormValues>({
     defaultValues: {
       name: application?.name || "",
@@ -251,6 +259,9 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       comments: application?.comments || "",
       businessServiceName: application?.businessService?.name || "",
       tagNames: application?.tags?.map((tag) => tag?.name) || [],
+      owner: application?.owner?.name || undefined,
+      contributors:
+        application?.contributors?.map((contributor) => contributor.name) || [],
       kind: application?.repository?.kind || "git",
       sourceRepository: application?.repository?.url || "",
       branch: application?.repository?.branch || "",
@@ -300,9 +311,19 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       (businessService) =>
         formValues?.businessServiceName === businessService.name
     );
+
     const matchingTagRefs = tags?.filter((tagRef) =>
       formValues.tagNames.includes(tagRef.name)
     );
+
+    const matchingOwner = stakeholders.find(
+      (stakeholder) => formValues?.owner === stakeholder.name
+    );
+
+    const matchingContributors = stakeholders?.filter((stakeholder) =>
+      formValues.contributors.includes(stakeholder.name)
+    );
+
     const payload: Application = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
@@ -314,6 +335,10 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           }
         : undefined,
       tags: matchingTagRefs,
+      owner: matchingOwner
+        ? { id: matchingOwner.id, name: matchingOwner.name }
+        : undefined,
+      contributors: matchingContributors,
       ...(formValues.sourceRepository
         ? {
             repository: {
@@ -428,6 +453,9 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
                 maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                placeholderText={t("composed.selectMany", {
+                  what: t("terms.tags").toLowerCase(),
+                })}
                 id="tags-select"
                 variant="typeaheadmulti"
                 toggleId="tags-select-toggle"
@@ -447,6 +475,86 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   )
                   .filter((e) => e !== undefined)}
                 options={tagOptions}
+                onChange={(selection) => {
+                  const selectionWithValue =
+                    selection as OptionWithValue<string>;
+
+                  const currentValue = value || [];
+                  const e = currentValue.find(
+                    (f) => f === selectionWithValue.value
+                  );
+                  if (e) {
+                    onChange(
+                      currentValue.filter((f) => f !== selectionWithValue.value)
+                    );
+                  } else {
+                    onChange([...currentValue, selectionWithValue.value]);
+                  }
+                }}
+                onClear={() => onChange([])}
+                noResultsFoundText={t("message.noResultsFoundTitle")}
+              />
+            )}
+          />
+          <HookFormPFGroupController
+            control={control}
+            name="owner"
+            label={t("terms.owner")}
+            fieldId="owner"
+            renderInput={({ field: { value, name, onChange } }) => (
+              <SimpleSelect
+                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                placeholderText={t("composed.selectAn", {
+                  what: t("terms.owner").toLowerCase(),
+                })}
+                variant="typeahead"
+                toggleId="owner-toggle"
+                id="owner-select"
+                toggleAriaLabel="Owner select dropdown toggle"
+                aria-label={name}
+                value={
+                  value ? toOptionLike(value, stakeholdersOptions) : undefined
+                }
+                options={stakeholdersOptions}
+                onChange={(selection) => {
+                  const selectionValue = selection as OptionWithValue<string>;
+                  onChange(selectionValue.value);
+                }}
+              />
+            )}
+          />
+          <HookFormPFGroupController
+            control={control}
+            name="contributors"
+            label={t("terms.contributors")}
+            fieldId="contributors"
+            renderInput={({ field: { value, name, onChange } }) => (
+              <SimpleSelect
+                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                placeholderText={t("composed.selectMany", {
+                  what: t("terms.contributors").toLowerCase(),
+                })}
+                id="contributors-select"
+                variant="typeaheadmulti"
+                toggleId="contributors-select-toggle"
+                toggleAriaLabel="contributors dropdown toggle"
+                aria-label={name}
+                value={value
+                  .map((formContributor) =>
+                    stakeholders?.find(
+                      (stakeholder) => stakeholder.name === formContributor
+                    )
+                  )
+                  .map((matchingStakeholder) =>
+                    matchingStakeholder
+                      ? {
+                          value: matchingStakeholder.name,
+                          toString: () => matchingStakeholder.name,
+                        }
+                      : undefined
+                  )
+                  .filter((e) => e !== undefined)}
+                options={stakeholdersOptions}
                 onChange={(selection) => {
                   const selectionWithValue =
                     selection as OptionWithValue<string>;
