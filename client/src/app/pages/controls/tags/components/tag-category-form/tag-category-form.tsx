@@ -77,10 +77,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
-    getValues,
-    setValue,
     control,
-    watch,
   } = useForm<FormValues>({
     defaultValues: {
       name: tagCategory?.name || "",
@@ -116,6 +113,15 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
         setError(error);
       });
   };
+  const colorOptions = Object.values(COLOR_HEX_VALUES_BY_NAME).map((color) => {
+    return {
+      value: color.toUpperCase(),
+      toString: () => color,
+      props: {
+        children: <Color hex={color} />,
+      },
+    };
+  });
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -169,29 +175,10 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
             aria-label={name}
             value={
               value
-                ? toOptionLike(
-                    value,
-                    Object.values(COLOR_HEX_VALUES_BY_NAME).map((color) => {
-                      return {
-                        value: color,
-                        toString: () => color,
-                        props: {
-                          children: <Color hex={color} />,
-                        },
-                      };
-                    })
-                  )
+                ? toOptionLike(value.toUpperCase(), colorOptions)
                 : undefined
             }
-            options={Object.values(COLOR_HEX_VALUES_BY_NAME).map((color) => {
-              return {
-                value: color,
-                toString: () => color,
-                props: {
-                  children: <Color hex={color} />,
-                },
-              };
-            })}
+            options={colorOptions}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<string>;
               onChange(selectionValue.value);
@@ -214,7 +201,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
           id="cancel"
           aria-label="cancel"
           variant={ButtonVariant.link}
-          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+          isDisabled={isSubmitting || isValidating}
           onClick={onCancel}
         >
           {t("actions.cancel")}
