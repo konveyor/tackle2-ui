@@ -30,14 +30,20 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
+import { useFetchDependencies } from "@app/queries/dependencies";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
 
-  // TODO fetch dependencies from the API and remove these stubs
-  const dependencies: AnalysisDependency[] = [];
-  const isFetching = false;
-  const fetchError = null;
+  const {
+    result: { data: dependencies, total },
+    isFetching,
+    fetchError,
+  } = useFetchDependencies({
+    page: { itemsPerPage: 2, pageNum: 1 }, // TODO wire this up to state or react-router URL params (how?)
+  });
+
+  console.log({ total });
 
   const tableControls = useTableControls({
     items: dependencies,

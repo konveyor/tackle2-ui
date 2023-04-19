@@ -1,20 +1,30 @@
-export interface PageQuery {
-  page: number;
-  perPage: number;
+export interface HubFilter {
+  field: string;
+  operator?: "=" | "!=" | "~" | ">" | ">=" | "<" | "<=";
+  value:
+    | string
+    | {
+        list: string[];
+        operator?: "and" | "or";
+      };
 }
 
-export interface SortByQuery {
-  index: number;
-  direction: "asc" | "desc";
+export interface HubRequestParams {
+  filters?: HubFilter[];
+  sort?: {
+    field: string;
+    direction: "asc" | "desc";
+  };
+  page?: {
+    pageNum: number; // 1-indexed
+    itemsPerPage: number;
+  };
 }
 
-export interface PageRepresentation<T> {
-  meta: Meta;
+export interface HubPaginatedResult<T> {
   data: T[];
-}
-
-export interface Meta {
-  count: number;
+  total: number;
+  params: HubRequestParams;
 }
 
 // Controls
