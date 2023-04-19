@@ -120,8 +120,6 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
     mode: "onChange",
   });
 
-  const values = getValues();
-
   const onSubmit = (formValues: FormValues) => {
     const matchingStakeholderGroupRefs: Ref[] = stakeholderGroups
       .filter((stakeholderGroup) =>

@@ -1,7 +1,6 @@
 import * as React from "react";
 import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
-import { useSelectionState } from "@migtools/lib-ui";
 import {
   Button,
   ButtonVariant,
@@ -9,52 +8,49 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Toolbar,
+  ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
 import {
-  cellWidth,
-  expandable,
-  ICell,
-  IExtraData,
-  IRow,
-  IRowData,
-  sortable,
-  TableText,
+  ExpandableRowContent,
+  TableComposable,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
 } from "@patternfly/react-table";
+
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import {
   AppPlaceholder,
   AppTableActionButtons,
-  AppTableWithControls,
   ConditionalRender,
   ConfirmDialog,
-  NoDataEmptyState,
 } from "@app/shared/components";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Stakeholder } from "@app/api/models";
 import { NewStakeholderModal } from "./components/new-stakeholder-modal";
 import { UpdateStakeholderModal } from "./components/update-stakeholder-modal";
-import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import {
-  FilterCategory,
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
-import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
-import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import {
   useDeleteStakeholderMutation,
   useFetchStakeholders,
 } from "@app/queries/stakeholders";
 import { NotificationsContext } from "@app/shared/notifications-context";
-
-const ENTITY_FIELD = "entity";
-
-const getRow = (rowData: IRowData): Stakeholder => {
-  return rowData[ENTITY_FIELD];
-};
+import { useTableControls } from "@app/shared/hooks/use-table-controls";
+import { SimplePagination } from "@app/shared/components/simple-pagination";
+import {
+  ConditionalTableBody,
+  TableHeaderContentWithControls,
+  TableRowContentWithControls,
+} from "@app/shared/components/table-controls";
 
 export const Stakeholders: React.FC = () => {
   const { t } = useTranslation();
@@ -91,190 +87,6 @@ export const Stakeholders: React.FC = () => {
   const { stakeholders, isFetching, fetchError, refetch } =
     useFetchStakeholders();
 
-  const {
-    isItemSelected: isItemExpanded,
-    toggleItemSelected: toggleItemExpanded,
-  } = useSelectionState<Stakeholder>({
-    items: stakeholders || [],
-    isEqual: (a, b) => a.id === b.id,
-  });
-
-  const filterCategories: FilterCategory<Stakeholder>[] = [
-    {
-      key: "email",
-      title: t("terms.email"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.email").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item?.email || "";
-      },
-    },
-    {
-      key: "name",
-      title: t("terms.name"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.name").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item?.name || "";
-      },
-    },
-    {
-      key: "jobFunction",
-      title: t("terms.jobFunction"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.jobFunction").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item.jobFunction?.name || "";
-      },
-    },
-    {
-      key: "stakeholderGroups",
-      title: t("terms.stakeholderGroups"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.stakeholderGroups").toLowerCase(),
-        }) + "...",
-      getItemValue: (stakeholder) => {
-        const stakeholderGroups = stakeholder.stakeholderGroups?.map(
-          (stakeholderGroup) => stakeholderGroup.name
-        );
-        return stakeholderGroups?.join(" ; ") || "";
-      },
-    },
-  ];
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
-    stakeholders || [],
-    filterCategories
-  );
-  const getSortValues = (item: Stakeholder) => [
-    "",
-    item?.email || "",
-    item?.name || "",
-    item.jobFunction?.name || "",
-    item?.stakeholderGroups?.length || 0,
-    "", // Action column
-  ];
-
-  const { sortBy, onSort, sortedItems } = useLegacySortState(
-    filteredItems,
-    getSortValues
-  );
-
-  const { currentPageItems, setPageNumber, paginationProps } =
-    useLegacyPaginationState(sortedItems, 10);
-
-  const columns: ICell[] = [
-    {
-      title: t("terms.email"),
-      transforms: [sortable, cellWidth(20)],
-      cellFormatters: [expandable],
-    },
-    { title: t("terms.displayName"), transforms: [sortable, cellWidth(25)] },
-    { title: t("terms.jobFunction"), transforms: [sortable, cellWidth(20)] },
-    {
-      title: t("terms.groupCount"),
-      transforms: [sortable],
-    },
-    {
-      title: "",
-      props: {
-        className: "pf-u-text-align-right",
-      },
-    },
-  ];
-
-  const rows: IRow[] = [];
-  currentPageItems?.forEach((item) => {
-    const isExpanded = isItemExpanded(item);
-    rows.push({
-      [ENTITY_FIELD]: item,
-      isOpen: isExpanded,
-      cells: [
-        {
-          title: item.email,
-        },
-        {
-          title: <TableText wrapModifier="truncate">{item.name}</TableText>,
-        },
-        {
-          title: (
-            <TableText wrapModifier="truncate">
-              {item.jobFunction?.name}
-            </TableText>
-          ),
-        },
-        {
-          title: item.stakeholderGroups ? item.stakeholderGroups.length : 0,
-        },
-        {
-          title: (
-            <AppTableActionButtons
-              onEdit={() => editRow(item)}
-              onDelete={() => deleteRow(item)}
-            />
-          ),
-        },
-      ],
-    });
-
-    if (isExpanded) {
-      rows.push({
-        parent: rows.length - 1,
-        fullWidth: false,
-        cells: [
-          <div className="pf-c-table__expandable-row-content">
-            <DescriptionList>
-              <DescriptionListGroup>
-                <DescriptionListTerm>{t("terms.group(s)")}</DescriptionListTerm>
-                <DescriptionListDescription>
-                  {item.stakeholderGroups?.map((f) => f.name).join(", ")}
-                </DescriptionListDescription>
-              </DescriptionListGroup>
-            </DescriptionList>
-          </div>,
-        ],
-      });
-    }
-  });
-
-  // Rows
-
-  const collapseRow = (
-    event: React.MouseEvent,
-    rowIndex: number,
-    isOpen: boolean,
-    rowData: IRowData,
-    extraData: IExtraData
-  ) => {
-    const row = getRow(rowData);
-    toggleItemExpanded(row);
-  };
-
-  const editRow = (row: Stakeholder) => {
-    setRowToUpdate(row);
-  };
-
-  const deleteRow = (row: Stakeholder) => {
-    setStakeholderIdToDelete(row.id);
-    setIsConfirmDialogOpen(true);
-  };
-
-  // Advanced filters
-
-  const handleOnClearAllFilters = () => {
-    setFilterValues({});
-  };
-
   const handleOnOpenCreateNewModal = () => {
     setIsNewModalOpen(true);
   };
@@ -296,8 +108,6 @@ export const Stakeholders: React.FC = () => {
     setIsNewModalOpen(false);
   };
 
-  // Update Modal
-
   const handleOnUpdated = () => {
     setRowToUpdate(undefined);
     refetch();
@@ -306,6 +116,104 @@ export const Stakeholders: React.FC = () => {
   const handleOnUpdatedCancel = () => {
     setRowToUpdate(undefined);
   };
+  const tableControls = useTableControls({
+    items: stakeholders,
+    columnNames: {
+      name: "Email",
+      displayName: "Display name",
+      jobFunction: "Job function",
+      groupCount: "Group count",
+    },
+    expandableVariant: "single",
+    hasActionsColumn: true,
+    filterCategories: [
+      {
+        key: "email",
+        title: t("terms.email"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.email").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          return item?.email || "";
+        },
+      },
+      {
+        key: "name",
+        title: t("terms.name"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.name").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          return item?.name || "";
+        },
+      },
+      {
+        key: "jobFunction",
+        title: t("terms.jobFunction"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.jobFunction").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          return item.jobFunction?.name || "";
+        },
+      },
+      {
+        key: "stakeholderGroups",
+        title: t("terms.stakeholderGroups"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.stakeholderGroups").toLowerCase(),
+          }) + "...",
+        getItemValue: (stakeholder) => {
+          const stakeholderGroups = stakeholder.stakeholderGroups?.map(
+            (stakeholderGroup) => stakeholderGroup.name
+          );
+          return stakeholderGroups?.join(" ; ") || "";
+        },
+      },
+    ],
+    sortableColumns: ["name", "displayName", "jobFunction"],
+    getSortValues: (item) => ({
+      name: item?.email || "",
+      displayName: item?.name || "",
+      jobFunction: item.jobFunction?.name || "",
+    }),
+    initialSort: { columnKey: "name", direction: "asc" },
+    hasPagination: true,
+  });
+
+  const {
+    numRenderedColumns,
+    expansionState: { isCellExpanded, setCellExpanded },
+    paginationState: { currentPageItems },
+    propHelpers: {
+      toolbarProps,
+      filterToolbarProps,
+      paginationToolbarItemProps,
+      paginationProps,
+      tableProps,
+      getThProps,
+      getTdProps,
+      getSingleExpandTdProps,
+      getExpandedContentTdProps,
+    },
+  } = tableControls;
+
+  const editRow = (row: Stakeholder) => {
+    setRowToUpdate(row);
+  };
+
+  const deleteRow = (row: Stakeholder) => {
+    setStakeholderIdToDelete(row.id);
+    setIsConfirmDialogOpen(true);
+  };
 
   return (
     <>
@@ -313,61 +221,142 @@ export const Stakeholders: React.FC = () => {
         when={isFetching && !(stakeholders || fetchError)}
         then={<AppPlaceholder />}
       >
-        <AppTableWithControls
-          paginationProps={paginationProps}
-          paginationIdPrefix="stakeholders"
-          count={stakeholders ? stakeholders.length : 0}
-          sortBy={sortBy}
-          onSort={onSort}
-          onCollapse={collapseRow}
-          cells={columns}
-          rows={rows}
-          isLoading={isFetching}
-          loadingVariant="skeleton"
-          fetchError={fetchError}
-          toolbarClearAllFilters={handleOnClearAllFilters}
-          toolbarToggle={
-            <FilterToolbar<Stakeholder>
-              filterCategories={filterCategories}
-              filterValues={filterValues}
-              setFilterValues={setFilterValues}
-            />
-          }
-          toolbarActions={
-            <ToolbarGroup variant="button-group">
-              <ToolbarItem>
-                <RBAC
-                  allowedPermissions={controlsWriteScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
+        <div
+          style={{
+            backgroundColor: "var(--pf-global--BackgroundColor--100)",
+          }}
+        >
+          <Toolbar {...toolbarProps}>
+            <ToolbarContent>
+              <FilterToolbar {...filterToolbarProps} />
+              <ToolbarGroup variant="button-group">
+                <ToolbarItem>
                   <Button
                     type="button"
-                    id="create-stakeholder"
-                    aria-label="Create stakeholder"
+                    id="create-wave"
+                    aria-label="Create new wave"
                     variant={ButtonVariant.primary}
                     onClick={handleOnOpenCreateNewModal}
                   >
                     {t("actions.createNew")}
                   </Button>
-                </RBAC>
+                </ToolbarItem>
+              </ToolbarGroup>
+              <ToolbarItem {...paginationToolbarItemProps}>
+                <SimplePagination
+                  idPrefix="stakeholders-table"
+                  isTop
+                  paginationProps={paginationProps}
+                />
               </ToolbarItem>
-            </ToolbarGroup>
-          }
-          noDataState={
-            <NoDataEmptyState
-              // t('terms.stakeholders')
-              title={t("composed.noDataStateTitle", {
-                what: t("terms.stakeholders").toLowerCase(),
+            </ToolbarContent>
+          </Toolbar>
+          <TableComposable
+            {...tableProps}
+            isExpandable
+            aria-label="Stakeholders table"
+          >
+            <Thead>
+              <Tr>
+                <TableHeaderContentWithControls {...tableControls}>
+                  <Th {...getThProps({ columnKey: "name" })} />
+                  <Th {...getThProps({ columnKey: "displayName" })} />
+                  <Th {...getThProps({ columnKey: "jobFunction" })} />
+                  <Th {...getThProps({ columnKey: "groupCount" })} />
+                </TableHeaderContentWithControls>
+              </Tr>
+            </Thead>
+            <ConditionalTableBody
+              isLoading={isFetching}
+              isError={!!fetchError}
+              isNoData={stakeholders.length === 0}
+              numRenderedColumns={numRenderedColumns}
+            >
+              {currentPageItems?.map((stakeholder, rowIndex) => {
+                return (
+                  <Tbody
+                    key={stakeholder.id}
+                    isExpanded={isCellExpanded(stakeholder)}
+                  >
+                    <Tr>
+                      <TableRowContentWithControls
+                        {...tableControls}
+                        item={stakeholder}
+                        rowIndex={rowIndex}
+                      >
+                        <Td
+                          {...getSingleExpandTdProps({
+                            item: stakeholder,
+                            rowIndex,
+                          })}
+                        />
+
+                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                          {stakeholder.email}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "displayName" })}
+                        >
+                          {stakeholder.name}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "jobFunction" })}
+                        >
+                          {stakeholder.jobFunction?.name}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "groupCount" })}
+                        >
+                          {stakeholder.stakeholderGroups?.length}
+                        </Td>
+                        <Td width={20}>
+                          <AppTableActionButtons
+                            onEdit={() => editRow(stakeholder)}
+                            onDelete={() => deleteRow(stakeholder)}
+                          />
+                        </Td>
+                      </TableRowContentWithControls>
+                    </Tr>
+                    {isCellExpanded(stakeholder) ? (
+                      <Tr isExpanded>
+                        <Td />
+                        <Td
+                          {...getExpandedContentTdProps({ item: stakeholder })}
+                          className={spacing.pyLg}
+                        >
+                          <ExpandableRowContent>
+                            <DescriptionList>
+                              <DescriptionListGroup>
+                                <DescriptionListTerm>
+                                  {t("terms.group(s)")}
+                                </DescriptionListTerm>
+                                {!!stakeholder.stakeholderGroups?.length && (
+                                  <DescriptionListDescription>
+                                    {stakeholder.stakeholderGroups
+                                      ?.map((f) => f.name)
+                                      .join(", ")}
+                                  </DescriptionListDescription>
+                                )}
+                              </DescriptionListGroup>
+                            </DescriptionList>
+                          </ExpandableRowContent>
+                        </Td>
+                      </Tr>
+                    ) : null}
+                  </Tbody>
+                );
               })}
-              // t('terms.stakeholder')
-              description={
-                t("composed.noDataStateBody", {
-                  what: t("terms.stakeholder").toLowerCase(),
-                }) + "."
-              }
-            />
-          }
-        />
+            </ConditionalTableBody>
+          </TableComposable>
+          <SimplePagination
+            idPrefix="migration-waves-table"
+            isTop={false}
+            paginationProps={paginationProps}
+          />
+        </div>
       </ConditionalRender>
 
       <NewStakeholderModal
