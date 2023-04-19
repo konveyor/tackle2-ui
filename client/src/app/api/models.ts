@@ -522,3 +522,12 @@ export interface JiraTracker {
   name: string;
   url: string;
 }
+
+export interface AnalysisDependency {
+  id: string;
+  createTime: string;
+  name: string;
+  version: string;
+  indirect?: boolean;
+  applications: { id: number; name: string }[];
+}
