@@ -122,36 +122,35 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       description: formValues.description.trim(),
       id: formValues.id,
       kind: formValues.kind,
+      key: "",
+      settings: "",
+      user: "",
+      password: "",
       //proxy cred
       ...(formValues.kind === "proxy" && {
         password: formValues.password.trim(),
         user: formValues.user.trim(),
-        key: "",
-        settings: "",
       }),
       // mvn cred
       ...(formValues.kind === "maven" && {
         settings: formValues.settings.trim(),
-        key: "",
-        password: "",
-        user: "",
       }),
       //source credentials with key
       ...(formValues.kind === "source" &&
         formValues.userCredentials === "source" && {
           key: formValues.key,
           password: formValues.password.trim(),
-          settings: "",
-          user: "",
         }),
       //source credentials with unamepass
       ...(formValues.kind === "source" &&
         formValues.userCredentials === "userpass" && {
           password: formValues.password.trim(),
           user: formValues.user.trim(),
-          key: "",
-          settings: "",
         }),
+      ...(formValues.kind === "jira" && {
+        user: formValues.user.trim(),
+        password: formValues.password.trim(),
+      }),
     };
 
     if (identity) {
@@ -271,13 +270,12 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .string()
         .defined()
         .when("kind", {
-          is: "proxy",
+          is: (value: string) => value === "proxy" || value === "jira",
           then: yup
             .string()
             .required("This value is required")
             .min(3, t("validation.minLength", { length: 3 }))
             .max(120, t("validation.maxLength", { length: 120 })),
-
           otherwise: (schema) => schema.trim(),
         })
         .when(["kind", "userCredentials"], {
@@ -379,6 +377,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     {
       value: "proxy",
       toString: () => `Proxy`,
+    },
+    {
+      value: "jira",
+      toString: () => `Jira`,
     },
   ];
 
@@ -627,6 +629,35 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               labelIcon: !isPasswordEncrypted ? (
                 <KeyDisplayToggle
                   keyName="password"
+                  isKeyHidden={isPasswordHidden}
+                  onClick={toggleHidePassword}
+                />
+              ) : undefined,
+            }}
+            onFocus={() => setValue("password", "")}
+          />
+        </>
+      )}
+
+      {values?.kind === "jira" && (
+        <>
+          <HookFormPFTextInput
+            control={control}
+            name="user"
+            label="Username"
+            fieldId="user"
+            isRequired
+          />
+          <HookFormPFTextInput
+            control={control}
+            name="password"
+            label="Token"
+            fieldId="token"
+            type={isPasswordHidden ? "password" : "text"}
+            formGroupProps={{
+              labelIcon: !isPasswordEncrypted ? (
+                <KeyDisplayToggle
+                  keyName="token"
                   isKeyHidden={isPasswordHidden}
                   onClick={toggleHidePassword}
                 />
