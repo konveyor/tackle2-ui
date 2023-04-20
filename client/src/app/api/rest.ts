@@ -16,7 +16,6 @@ import {
   BulkCopyReview,
   BusinessService,
   Cache,
-  HubFilter,
   HubPaginatedResult,
   HubRequestParams,
   Identity,
@@ -36,7 +35,7 @@ import {
   Taskgroup,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
-import { serializeHubRequestParams } from "@app/utils/hub-request-utils";
+import { serializeRequestParamsForHub } from "@app/utils/hub-request-utils";
 
 // TACKLE_HUB
 export const HUB = "/hub";
@@ -599,7 +598,7 @@ export const getHubPaginatedResult = <T>(
 ): Promise<HubPaginatedResult<T>> =>
   axios
     .get<T[]>(url, {
-      params: serializeHubRequestParams(params),
+      params: serializeRequestParamsForHub(params),
     })
     .then((response) => ({
       data: response.data,
