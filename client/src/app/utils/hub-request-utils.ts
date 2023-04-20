@@ -3,10 +3,17 @@
 
 import { HubFilter, HubRequestParams } from "@app/api/models";
 
+// Filter/sort/pagination params come in 3 forms:
+// - The HubRequestParams object we use in business logic
+// - The URL-encoded version we store in our UI URL as state (can be whatever we want for convenience)
+// - The URL-encoded version we pass to the hub in API requests (requires a specific format)
+// For now, we just JSON-stringify the filters and toss them in our URL so we don't have to write a
+// parser for the hub's filter string format. We may want to make this more elegant in the future.
+
 export const wrapInQuotesAndEscape = (str: string): string =>
   `"${str.replace('"', '\\"')}"`;
 
-export const serializeHubFilter = (filter: HubFilter): string => {
+export const serializeFilterForHub = (filter: HubFilter): string => {
   const { field, operator, value } = filter;
   const joinedValue =
     typeof value === "string"
@@ -17,59 +24,71 @@ export const serializeHubFilter = (filter: HubFilter): string => {
   return `${field}${operator}${joinedValue}`;
 };
 
-export const deserializeHubFilter = (serializedFilter: string): HubFilter => {
-  return { field: "", operator: "=", value: "" }; // TODO
-};
-
-export const serializeHubRequestParams = (
+export const serializeRequestParamsForHub = (
   params: HubRequestParams
 ): URLSearchParams => {
-  const urlParams = new URLSearchParams();
+  const hubUrlParams = new URLSearchParams();
   if (params.filters) {
     params.filters.forEach((filter) =>
-      urlParams.append("filter", serializeHubFilter(filter))
+      hubUrlParams.append("filter", serializeFilterForHub(filter))
     );
   }
   if (params.sort) {
     const { field, direction } = params.sort;
-    urlParams.append("sort", `${direction}:${field}`);
+    hubUrlParams.append("sort", `${direction}:${field}`);
   }
   if (params.page) {
     const { pageNum, itemsPerPage } = params.page;
-    urlParams.append("limit", String(itemsPerPage));
-    urlParams.append("offset", String((pageNum - 1) * itemsPerPage));
+    hubUrlParams.append("limit", String(itemsPerPage));
+    hubUrlParams.append("offset", String((pageNum - 1) * itemsPerPage));
   }
-  return urlParams;
+  return hubUrlParams;
 };
 
-export const deserializeHubRequestParams = (
-  urlParams: URLSearchParams
+export const serializeRequestParamsForUI = (
+  params: HubRequestParams
+): URLSearchParams => {
+  const uiUrlParams = new URLSearchParams();
+  if (params.filters) {
+    uiUrlParams.append("filters", JSON.stringify(params.filters));
+  }
+  if (params.sort) {
+    uiUrlParams.append("sortField", params.sort.field);
+    uiUrlParams.append("sortDirection", params.sort.direction);
+  }
+  if (params.page) {
+    uiUrlParams.append("itemsPerPage", String(params.page.itemsPerPage));
+    uiUrlParams.append("pageNum", String(params.page.pageNum));
+  }
+  return uiUrlParams;
+};
+
+export const deserialzeRequestParamsForUI = (
+  uiUrlParams: URLSearchParams
 ): HubRequestParams => {
   const params: HubRequestParams = {};
-  const serializedFilters = urlParams.getAll("filter");
-  if (serializedFilters.length > 0) {
-    params.filters = serializedFilters.map(deserializeHubFilter);
-  }
-  const serializedSort = urlParams.get("sort");
-  if (serializedSort) {
-    let direction: string, field: string;
-    if (serializedSort.includes(":")) {
-      [direction, field] = serializedSort.split(":");
-    } else {
-      direction = "asc";
-      field = serializedSort;
+  const filtersJson = uiUrlParams.get("filters");
+  if (filtersJson) {
+    try {
+      params.filters = JSON.parse(filtersJson) as HubFilter[];
+    } catch (e) {
+      console.error("Unable to parse filters from JSON: ", filtersJson);
     }
+  }
+  const sortField = uiUrlParams.get("sortField");
+  const sortDirection = uiUrlParams.get("sortDirection");
+  if (sortField && (sortDirection === "asc" || sortDirection === "desc")) {
     params.sort = {
-      field,
-      direction: direction.startsWith("d") ? "desc" : "asc",
+      field: sortField,
+      direction: sortDirection,
     };
   }
-  const limit = urlParams.get("limit");
-  const offset = urlParams.get("offset");
-  if (limit) {
+  const itemsPerPageStr = uiUrlParams.get("itemsPerPage");
+  const pageNumStr = uiUrlParams.get("pageNum");
+  if (itemsPerPageStr && pageNumStr) {
     params.page = {
-      pageNum: offset ? Number(offset) / Number(limit) + 1 : 1,
-      itemsPerPage: Number(limit),
+      itemsPerPage: parseInt(itemsPerPageStr, 10),
+      pageNum: parseInt(pageNumStr, 10),
     };
   }
   return params;
