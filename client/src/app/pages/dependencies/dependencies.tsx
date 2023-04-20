@@ -10,7 +10,6 @@ import {
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { AppPlaceholder, ConditionalRender } from "@app/shared/components";
-import { AnalysisDependency } from "@app/api/models";
 import {
   FilterToolbar,
   FilterType,
@@ -23,7 +22,10 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { useTableControls } from "@app/shared/hooks/use-table-controls";
+import {
+  useTableControlProps,
+  useTableControls,
+} from "@app/shared/hooks/use-table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
   ConditionalTableBody,
@@ -31,21 +33,53 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { useFetchDependencies } from "@app/queries/dependencies";
+import { useTableControlUrlParams } from "@app/shared/hooks/use-table-controls/useTableControlURLParams";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
+
+  const { hubRequestParams, setFilters, setSort, setPagination } =
+    useTableControlUrlParams({
+      defaultParams: {
+        page: { pageNum: 1, itemsPerPage: 10 },
+        sort: { field: "name", direction: "asc" },
+      },
+    });
 
   const {
     result: { data: dependencies, total },
     isFetching,
     fetchError,
-  } = useFetchDependencies({
-    page: { itemsPerPage: 2, pageNum: 1 }, // TODO wire this up to state or react-router URL params (how?)
+  } = useFetchDependencies(hubRequestParams);
+
+  // TODO adjust the below to what we really need
+  const tableControls = useTableControlProps({
+    items: dependencies, // TODO rename to currentPageItems?
+    columnNames: {
+      name: "Dependency name",
+      foundIn: "Found in",
+      version: "Version",
+    },
+    filterCategories: [
+      {
+        key: "name",
+        title: t("terms.name"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.name").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          return item?.name || "";
+        },
+      },
+    ],
+    sortableColumns: ["name", "foundIn", "version"],
+    // TODO getServerSortKeys / getHubSortFields / whatever?
+    hasPagination: true,
   });
 
-  console.log({ total });
-
-  const tableControls = useTableControls({
+  /* const tableControls = useTableControls({
     items: dependencies,
     columnNames: {
       name: "Dependency name",
@@ -89,6 +123,7 @@ export const Dependencies: React.FC = () => {
       getTdProps,
     },
   } = tableControls;
+  */
 
   return (
     <>

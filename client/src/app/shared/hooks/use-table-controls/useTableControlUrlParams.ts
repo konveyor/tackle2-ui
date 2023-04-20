@@ -5,14 +5,20 @@ import {
   serializeRequestParamsForUI,
 } from "@app/utils/hub-request-utils";
 
+export interface TableControlUrlParamsArgs {
+  defaultParams?: HubRequestParams;
+}
+
 // TODO break this up into separate hooks that use their own slice of the URL params and compose them,
 //      similar to how useTableControlState combines the various state hooks
-export const useTableControlUrlParams = () => {
+export const useTableControlUrlParams = ({
+  defaultParams = {},
+}: TableControlUrlParamsArgs) => {
   const location = useLocation();
   const history = useHistory();
 
   const urlParams = new URLSearchParams(location.search);
-  const params = deserialzeRequestParamsForUI(urlParams);
+  const hubRequestParams = deserialzeRequestParamsForUI(urlParams);
 
   const setParams = (newParams: HubRequestParams) =>
     history.push({
@@ -24,16 +30,16 @@ export const useTableControlUrlParams = () => {
     });
 
   const setFilters = (filters: HubFilter[]) => {
-    setParams({ ...params, filters });
+    setParams({ ...hubRequestParams, filters });
   };
 
   const setSort = (sort: HubRequestParams["sort"]) => {
-    setParams({ ...params, sort });
+    setParams({ ...hubRequestParams, sort });
   };
 
   const setPagination = (page: HubRequestParams["page"]) => {
-    setParams({ ...params, page });
+    setParams({ ...hubRequestParams, page });
   };
 
-  return { params, setFilters, setSort, setPagination };
+  return { hubRequestParams, setFilters, setSort, setPagination };
 };

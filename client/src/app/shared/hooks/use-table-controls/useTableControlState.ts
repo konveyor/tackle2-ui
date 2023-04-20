@@ -39,6 +39,8 @@ export const useTableControlState = <
     initialItemsPerPage = 10,
   } = args;
 
+  // TODO may have to / want to separate the derived state for each of these from the raw state that will be the same as what's used in the URL params
+
   const filterState = useFilterState(items, filterCategories, filterStorageKey);
 
   const expansionState = useCompoundExpansionState<TItem, TColumnKey>();
