@@ -5,7 +5,7 @@ import {
   HubRequestParams,
 } from "@app/api/models";
 import { getDependencies } from "@app/api/rest";
-import { serializeHubRequestParams } from "@app/utils/hub-request-utils";
+import { serializeRequestParamsForHub } from "@app/utils/hub-request-utils";
 
 export interface IDependenciesFetchState {
   result: HubPaginatedResult<AnalysisDependency>;
@@ -20,7 +20,7 @@ export const useFetchDependencies = (
   params: HubRequestParams = {}
 ): IDependenciesFetchState => {
   const { data, isLoading, error, refetch } = useQuery(
-    [DependenciesQueryKey, serializeHubRequestParams(params)],
+    [DependenciesQueryKey, serializeRequestParamsForHub(params)],
     async () => await getDependencies(params),
     {
       onError: (error) => console.log("error, ", error),
