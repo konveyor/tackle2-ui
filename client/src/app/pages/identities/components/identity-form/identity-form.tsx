@@ -35,6 +35,7 @@ import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
+import { FEATURES_ENABLED } from "@app/FeatureFlags";
 
 type UserCredentials = "userpass" | "source";
 
@@ -378,11 +379,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       value: "proxy",
       toString: () => `Proxy`,
     },
-    {
+  ];
+
+  if (FEATURES_ENABLED.migrationWaves)
+    kindOptions.push({
       value: "jira",
       toString: () => `Jira`,
-    },
-  ];
+    });
 
   const isPasswordEncrypted = identity?.password === values.password;
 
