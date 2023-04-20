@@ -536,7 +536,6 @@ export interface JiraTracker {
 }
 
 export interface AnalysisDependency {
-  id: string;
   createTime: string;
   name: string;
   version: string;

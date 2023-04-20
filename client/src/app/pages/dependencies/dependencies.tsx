@@ -181,7 +181,7 @@ export const Dependencies: React.FC = () => {
               >
                 {currentPageItems?.map((dependency, rowIndex) => {
                   return (
-                    <Tbody key={dependency.id}>
+                    <Tbody key={dependency.name}>
                       <Tr>
                         <TableRowContentWithControls
                           {...tableControls}
