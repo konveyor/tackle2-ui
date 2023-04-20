@@ -10,6 +10,10 @@ import { HubFilter, HubRequestParams } from "@app/api/models";
 // For now, we just JSON-stringify the filters and toss them in our URL so we don't have to write a
 // parser for the hub's filter string format. We may want to make this more elegant in the future.
 
+// TODO we either need to make the FilterToolbar compatible with the HubFilter format (or a better name?)
+//      or we need to use a plain Record<string, string | string[]> as the filter format and then figure out
+//      how to have column-specific serializers (options like whether to use AND or OR will differ by column)
+
 export const wrapInQuotesAndEscape = (str: string): string =>
   `"${str.replace('"', '\\"')}"`;
 
