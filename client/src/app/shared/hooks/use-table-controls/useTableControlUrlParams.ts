@@ -12,13 +12,12 @@ export interface TableControlUrlParamsArgs {
 // TODO break this up into separate hooks that use their own slice of the URL params and compose them,
 //      similar to how useTableControlState combines the various state hooks
 export const useTableControlUrlParams = ({
-  defaultParams = {},
+  defaultParams = { page: { pageNum: 1, itemsPerPage: 10 } },
 }: TableControlUrlParamsArgs) => {
   const location = useLocation();
   const history = useHistory();
 
   const urlParams = new URLSearchParams(location.search);
-  const hubRequestParams = deserialzeRequestParamsForUI(urlParams);
 
   const setParams = (newParams: HubRequestParams) =>
     history.push({
@@ -28,6 +27,16 @@ export const useTableControlUrlParams = ({
         ...Object.fromEntries(serializeRequestParamsForUI(newParams)),
       }).toString(),
     });
+
+  const hubRequestParams = deserialzeRequestParamsForUI(urlParams);
+  if (
+    !hubRequestParams.filters &&
+    !hubRequestParams.sort &&
+    !hubRequestParams.page
+  ) {
+    console.log("SETTING");
+    setParams(defaultParams);
+  }
 
   const setFilters = (filters: HubFilter[]) => {
     setParams({ ...hubRequestParams, filters });

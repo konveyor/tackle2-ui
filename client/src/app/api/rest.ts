@@ -602,7 +602,7 @@ export const getHubPaginatedResult = <T>(
     })
     .then((response) => ({
       data: response.data,
-      total: response.headers["x-total"],
+      total: parseInt(response.headers["x-total"], 10),
       params,
     }));
 

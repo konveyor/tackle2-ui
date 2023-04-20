@@ -46,7 +46,7 @@ export const Dependencies: React.FC = () => {
     });
 
   const {
-    result: { data: dependencies, total },
+    result: { data: currentPageItems, total: totalItemCount },
     isFetching,
     fetchError,
   } = useFetchDependencies(hubRequestParams);
@@ -77,11 +77,11 @@ export const Dependencies: React.FC = () => {
     filterState: {
       filterValues: {}, // TODO figure out how to wire up filters from HubRequestParams and make them compatible
       setFilterValues: () => {}, // TODO,
-      filteredItems: dependencies, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
+      filteredItems: currentPageItems, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
     },
     expansionState: useCompoundExpansionState(), // TODO do we want to lift expand/select state to url params too?
     selectionState: useSelectionState({
-      items: dependencies,
+      items: currentPageItems,
       isEqual: (a, b) => a.name === b.name,
     }),
     sortState: {
@@ -101,7 +101,7 @@ export const Dependencies: React.FC = () => {
             : undefined
         );
       },
-      sortedItems: dependencies, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
+      sortedItems: currentPageItems, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
     },
     paginationState: {
       pageNumber: hubRequestParams.page?.pageNum || 1,
@@ -114,14 +114,13 @@ export const Dependencies: React.FC = () => {
         if (hubRequestParams.page)
           setPagination({ ...hubRequestParams.page, itemsPerPage });
       },
-      currentPageItems: dependencies, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
+      currentPageItems, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
     },
-    totalItemCount: total,
+    totalItemCount,
   });
 
   const {
     numRenderedColumns,
-    paginationState: { currentPageItems },
     propHelpers: {
       toolbarProps,
       filterToolbarProps,
@@ -133,6 +132,8 @@ export const Dependencies: React.FC = () => {
     },
   } = tableControls;
 
+  console.log({ currentPageItems, totalItemCount });
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -142,7 +143,7 @@ export const Dependencies: React.FC = () => {
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isFetching && !(dependencies || fetchError)}
+          when={isFetching && !(currentPageItems || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
@@ -175,7 +176,7 @@ export const Dependencies: React.FC = () => {
               <ConditionalTableBody
                 isLoading={isFetching}
                 isError={!!fetchError}
-                isNoData={dependencies.length === 0}
+                isNoData={totalItemCount === 0}
                 numRenderedColumns={numRenderedColumns}
               >
                 {currentPageItems?.map((dependency, rowIndex) => {
