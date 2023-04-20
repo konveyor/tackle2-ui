@@ -11,26 +11,45 @@ import {
 } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { useTableControlState } from "./useTableControlState";
 import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-selector/toolbar-bulk-selector";
-import { IFilterToolbarProps } from "@app/shared/components/FilterToolbar";
+import {
+  FilterCategory,
+  IFilterToolbarProps,
+} from "@app/shared/components/FilterToolbar";
 import { objectKeys } from "@app/utils/utils";
+import { useCompoundExpansionState } from "../useCompoundExpansionState";
+import { useSelectionState } from "@migtools/lib-ui";
+import { useFilterState } from "../useFilterState";
+import { usePaginationState } from "../usePaginationState";
+import { useSortState } from "../useSortState";
 
-export interface UseTableControlPropsAdditionalArgs {
+export interface UseTableControlPropsArgs<
+  TItem extends { name: string },
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey // A subset of column keys as a separate narrower type
+> {
+  // Params also required by useTableControlState:
+  columnNames: Record<TColumnKey, string>;
+  filterCategories?: FilterCategory<TItem>[];
+  sortableColumns?: TSortableColumnKey[];
+  // Params returned by useTableControlState:
+  // TODO maybe break these down explicitly too...
+  filterState: ReturnType<typeof useFilterState<TItem>>;
+  expansionState: ReturnType<
+    typeof useCompoundExpansionState<TItem, TColumnKey>
+  >;
+  selectionState: ReturnType<typeof useSelectionState<TItem>>;
+  sortState: ReturnType<typeof useSortState<TItem, TSortableColumnKey>>;
+  paginationState: ReturnType<typeof usePaginationState<TItem>>;
+  // Additional params only for useTableControlProps:
+  totalItemCount: number;
   isSelectable?: boolean;
   expandableVariant?: "single" | "compound" | null;
   hasActionsColumn?: boolean;
   variant?: TableComposableProps["variant"];
 }
 
-export type UseTableControlPropsArgs<
-  TItem extends { name: string },
-  TColumnKey extends string,
-  TSortableColumnKey extends TColumnKey // A subset of column keys as a separate narrower type
-> = ReturnType<
-  typeof useTableControlState<TItem, TColumnKey, TSortableColumnKey>
-> &
-  UseTableControlPropsAdditionalArgs;
+// TODO maybe break this up into multiple hooks that get composed together for props related to filters/sorting/pagination
 
 export const useTableControlProps = <
   TItem extends { name: string },

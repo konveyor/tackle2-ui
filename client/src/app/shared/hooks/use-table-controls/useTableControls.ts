@@ -3,7 +3,7 @@ import {
   useTableControlState,
 } from "./useTableControlState";
 import {
-  UseTableControlPropsAdditionalArgs,
+  UseTableControlPropsArgs,
   useTableControlProps,
 } from "./useTableControlProps";
 
@@ -12,7 +12,12 @@ export type UseTableControlsArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey // A subset of column keys as a separate narrower type
 > = UseTableControlStateArgs<TItem, TColumnKey, TSortableColumnKey> &
-  UseTableControlPropsAdditionalArgs;
+  Omit<
+    UseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey>,
+    keyof ReturnType<
+      typeof useTableControlState<TItem, TColumnKey, TSortableColumnKey>
+    >
+  >;
 
 export const useTableControls = <
   TItem extends { name: string },
