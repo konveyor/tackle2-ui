@@ -3,13 +3,17 @@
 
 import { HubFilter, HubRequestParams } from "@app/api/models";
 
-// TODO should we escape or remove invalid characters?
+export const wrapInQuotesAndEscape = (str: string): string =>
+  `"${str.replace('"', '\\"')}"`;
+
 export const serializeHubFilter = (filter: HubFilter): string => {
   const { field, operator, value } = filter;
   const joinedValue =
     typeof value === "string"
-      ? value
-      : `(${value.list.join(value.operator === "or" ? "|" : ",")})`;
+      ? wrapInQuotesAndEscape(value)
+      : `(${value.list
+          .map(wrapInQuotesAndEscape)
+          .join(value.operator === "or" ? "|" : ",")})`;
   return `${field}${operator}${joinedValue}`;
 };
 
