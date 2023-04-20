@@ -28,6 +28,7 @@ export const serializeFilterForHub = (filter: HubFilter): string => {
   return `${field}${operator}${joinedValue}`;
 };
 
+// TODO maybe separate the arguments here into one for filters, one for sort, one for pagination? combine?
 export const serializeRequestParamsForHub = (
   params: HubRequestParams
 ): URLSearchParams => {
@@ -49,6 +50,8 @@ export const serializeRequestParamsForHub = (
   return hubUrlParams;
 };
 
+// TODO maybe have a separate helper to serialize params for each of filters/sort/page so we can put them in separate hooks?
+// TODO can we merge multiple URLSearchParams objects? { ...Object.fromEntries(urlParams) }
 export const serializeRequestParamsForUI = (
   params: HubRequestParams
 ): URLSearchParams => {

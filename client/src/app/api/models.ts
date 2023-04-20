@@ -9,6 +9,8 @@ export interface HubFilter {
       };
 }
 
+// TODO maybe rename this to TableControlParams, maybe also include expand/collapse and selection??
+// TODO if renaming, rename all the helpers to match -- maybe move out of hub-request-utils
 export interface HubRequestParams {
   filters?: HubFilter[];
   sort?: {
