@@ -13,15 +13,16 @@ module.exports = function (app) {
         //
         // Note, on OpenShift, this works as the haproxy implementation
         // for the OpenShift route is setting these for us automatically
+        //
+        // We saw problems with including the below broke the OpenShift route
+        //  {"X-Forwarded-Proto", req.protocol} broke the OpenShift
+        //  {"X-Forwarded-Port", req.socket.localPort}
+        //  {"Forwarded", `for=${req.socket.remoteAddress};proto=${req.protocol};host=${req.headers.host}`}
+        // so we are not including even though they are customary
+        //
         proxyReq.setHeader("X-Forwarded-For", req.socket.remoteAddress);
-        proxyReq.setHeader("X-Forwarded-Proto", req.protocol);
-        proxyReq.setHeader("X-Forwarded-Port", req.socket.localPort);
         proxyReq.setHeader("X-Real-IP", req.socket.remoteAddress);
         proxyReq.setHeader("X-Forwarded-Host", req.headers.host);
-        proxyReq.setHeader(
-          "Forwarded",
-          `for=${req.socket.remoteAddress};proto=${req.protocol};host=${req.headers.host}`
-        );
       },
     })
   );
