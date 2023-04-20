@@ -1,14 +1,19 @@
 import React from "react";
 import { Td } from "@patternfly/react-table";
-import { useTableControls } from "@app/shared/hooks/use-table-controls";
+import {
+  useTableControlProps,
+  useTableControls,
+} from "@app/shared/hooks/use-table-controls";
 
 export interface ITableRowContentWithControlsProps<
   TItem extends { name: string },
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
-> extends ReturnType<
-    typeof useTableControls<TItem, TColumnKey, TSortableColumnKey>
-  > {
+> {
+  isSelectable?: boolean;
+  propHelpers: ReturnType<
+    typeof useTableControlProps<TItem, TColumnKey, TSortableColumnKey>
+  >["propHelpers"];
   item: TItem;
   rowIndex: number;
   children: React.ReactNode;

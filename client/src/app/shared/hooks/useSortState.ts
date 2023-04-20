@@ -15,6 +15,9 @@ export interface ISortStateArgs<TItem, TSortableColumnKey extends string> {
   initialSort: IActiveSort<TSortableColumnKey> | null;
 }
 
+// TODO set up a type that is ISortState (just activeSort, setActiveSort) and IDerivedSortState (sortedItems) and return them separately?
+// TODO do the same for pagination, filters, other hooks?
+
 export interface ISortStateHook<TItem, TSortableColumnKey extends string> {
   activeSort: IActiveSort<TSortableColumnKey> | null;
   setActiveSort: (sort: IActiveSort<TSortableColumnKey> | null) => void;

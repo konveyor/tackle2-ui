@@ -22,10 +22,8 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import {
-  useTableControlProps,
-  useTableControls,
-} from "@app/shared/hooks/use-table-controls";
+import { useTableControlProps } from "@app/shared/hooks/use-table-controls";
+import { useCompoundExpansionState } from "@app/shared/hooks/useCompoundExpansionState";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
   ConditionalTableBody,
@@ -34,6 +32,7 @@ import {
 } from "@app/shared/components/table-controls";
 import { useFetchDependencies } from "@app/queries/dependencies";
 import { useTableControlUrlParams } from "@app/shared/hooks/use-table-controls/useTableControlURLParams";
+import { useSelectionState } from "@migtools/lib-ui";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
@@ -54,7 +53,6 @@ export const Dependencies: React.FC = () => {
 
   // TODO adjust the below to what we really need
   const tableControls = useTableControlProps({
-    items: dependencies, // TODO rename to currentPageItems?
     columnNames: {
       name: "Dependency name",
       foundIn: "Found in",
@@ -75,41 +73,52 @@ export const Dependencies: React.FC = () => {
       },
     ],
     sortableColumns: ["name", "foundIn", "version"],
-    // TODO getServerSortKeys / getHubSortFields / whatever?
-    hasPagination: true,
+    // TODO simplify these? how do we make that play nice with the existing filter/sort/pagination hook return values?
+    filterState: {
+      filterValues: {}, // TODO figure out how to wire up filters from HubRequestParams and make them compatible
+      setFilterValues: () => {}, // TODO,
+      filteredItems: dependencies, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
+    },
+    expansionState: useCompoundExpansionState(), // TODO do we want to lift expand/select state to url params too?
+    selectionState: useSelectionState({
+      items: dependencies,
+      isEqual: (a, b) => a.name === b.name,
+    }),
+    sortState: {
+      activeSort: hubRequestParams.sort
+        ? {
+            columnKey: hubRequestParams.sort?.field, // TODO how to make conform to TColumnKeys? we need generics in useTableControlUrlParams
+            direction: hubRequestParams.sort?.direction,
+          }
+        : null,
+      setActiveSort: (sort) => {
+        setSort(
+          sort
+            ? {
+                field: sort.columnKey, // TODO don't assume columnKey and hub sort field are the same, we need a getServerSortFields or something. where does that go?
+                direction: sort.direction,
+              }
+            : undefined
+        );
+      },
+      sortedItems: dependencies, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
+    },
+    paginationState: {
+      pageNumber: hubRequestParams.page?.pageNum || 1,
+      itemsPerPage: hubRequestParams.page?.itemsPerPage || 10,
+      setPageNumber: (pageNumber) => {
+        if (hubRequestParams.page)
+          setPagination({ ...hubRequestParams.page, pageNum: pageNumber });
+      },
+      setItemsPerPage: (itemsPerPage) => {
+        if (hubRequestParams.page)
+          setPagination({ ...hubRequestParams.page, itemsPerPage });
+      },
+      currentPageItems: dependencies, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
+    },
+    totalItemCount: total,
   });
 
-  /* const tableControls = useTableControls({
-    items: dependencies,
-    columnNames: {
-      name: "Dependency name",
-      foundIn: "Found in",
-      version: "Version",
-    },
-    filterCategories: [
-      {
-        key: "name",
-        title: t("terms.name"),
-        type: FilterType.search,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.name").toLowerCase(),
-          }) + "...",
-        getItemValue: (item) => {
-          return item?.name || "";
-        },
-      },
-    ],
-    sortableColumns: ["name", "foundIn", "version"],
-    // TODO replace with something like getServerSortKeys?
-    getSortValues: (dependency) => ({
-      name: dependency.name || "",
-      foundIn: "", // TODO
-      version: dependency.version || "",
-    }),
-    initialSort: { columnKey: "name", direction: "asc" },
-    hasPagination: true,
-  });
   const {
     numRenderedColumns,
     paginationState: { currentPageItems },
@@ -123,7 +132,6 @@ export const Dependencies: React.FC = () => {
       getTdProps,
     },
   } = tableControls;
-  */
 
   return (
     <>
