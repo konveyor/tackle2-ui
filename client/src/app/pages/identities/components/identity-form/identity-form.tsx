@@ -291,7 +291,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .string()
         .defined()
         .when("kind", {
-          is: "proxy",
+          is: (value: string) => value === "proxy" || value === "jira",
           then: yup
             .string()
             .required("This value is required")
@@ -610,7 +610,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         />
       )}
 
-      {values?.kind === "proxy" && (
+      {(values?.kind === "proxy" || values?.kind === "jira") && (
         <>
           <HookFormPFTextInput
             control={control}
@@ -622,42 +622,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           <HookFormPFTextInput
             control={control}
             name="password"
-            label="Password"
+            label={values.kind === "proxy" ? "Password" : "Token"}
             fieldId="password"
             type={isPasswordHidden ? "password" : "text"}
             formGroupProps={{
               labelIcon: !isPasswordEncrypted ? (
                 <KeyDisplayToggle
                   keyName="password"
-                  isKeyHidden={isPasswordHidden}
-                  onClick={toggleHidePassword}
-                />
-              ) : undefined,
-            }}
-            onFocus={() => setValue("password", "")}
-          />
-        </>
-      )}
-
-      {values?.kind === "jira" && (
-        <>
-          <HookFormPFTextInput
-            control={control}
-            name="user"
-            label="Username"
-            fieldId="user"
-            isRequired
-          />
-          <HookFormPFTextInput
-            control={control}
-            name="password"
-            label="Token"
-            fieldId="token"
-            type={isPasswordHidden ? "password" : "text"}
-            formGroupProps={{
-              labelIcon: !isPasswordEncrypted ? (
-                <KeyDisplayToggle
-                  keyName="token"
                   isKeyHidden={isPasswordHidden}
                   onClick={toggleHidePassword}
                 />
