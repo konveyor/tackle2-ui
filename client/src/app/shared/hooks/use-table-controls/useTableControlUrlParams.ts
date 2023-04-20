@@ -28,13 +28,13 @@ export const useTableControlUrlParams = ({
       }).toString(),
     });
 
-  const hubRequestParams = deserialzeRequestParamsForUI(urlParams);
+  let hubRequestParams = deserialzeRequestParamsForUI(urlParams);
   if (
     !hubRequestParams.filters &&
     !hubRequestParams.sort &&
     !hubRequestParams.page
   ) {
-    console.log("SETTING");
+    hubRequestParams = defaultParams;
     setParams(defaultParams);
   }
 
