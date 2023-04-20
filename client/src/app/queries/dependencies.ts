@@ -20,7 +20,7 @@ export const useFetchDependencies = (
   params: HubRequestParams = {}
 ): IDependenciesFetchState => {
   const { data, isLoading, error, refetch } = useQuery(
-    [DependenciesQueryKey, serializeRequestParamsForHub(params)],
+    [DependenciesQueryKey, serializeRequestParamsForHub(params).toString()],
     async () => await getDependencies(params),
     {
       onError: (error) => console.log("error, ", error),
