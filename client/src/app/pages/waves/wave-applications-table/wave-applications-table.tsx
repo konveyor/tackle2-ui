@@ -55,8 +55,8 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
     variant: "compact",
   });
   const {
+    currentPageItems,
     numRenderedColumns,
-    paginationState: { currentPageItems },
     propHelpers: {
       toolbarProps,
       paginationToolbarItemProps,
