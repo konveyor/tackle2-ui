@@ -31,7 +31,7 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { useFetchDependencies } from "@app/queries/dependencies";
-import { useTableControlUrlParams } from "@app/shared/hooks/use-table-controls/useTableControlURLParams";
+import { useTableControlUrlParams } from "@app/shared/hooks/use-table-controls/useTableControlUrlParams";
 import { useSelectionState } from "@migtools/lib-ui";
 
 export const Dependencies: React.FC = () => {
