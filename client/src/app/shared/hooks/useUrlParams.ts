@@ -1,3 +1,4 @@
+import { objectKeys } from "@app/utils/utils";
 import React from "react";
 import { useLocation, useHistory } from "react-router-dom";
 
@@ -28,11 +29,18 @@ export const useUrlParams = <TUrlParamKey extends string, TDeserializedParams>({
     // we use document.location here as the current params so these calls never overwrite each other.
     // This also retains any unrelated params that might be present and allows newParams to be a partial update.
     const { pathname, search } = document.location;
+    const newSerializedParams = serialize(newParams);
+    // Returning undefined for a property from serialize should result in it being omitted (partial update).
+    objectKeys(newSerializedParams).forEach((key) => {
+      if (newSerializedParams[key] === undefined) {
+        delete newSerializedParams[key];
+      }
+    });
     history.replace({
       pathname,
       search: new URLSearchParams({
         ...Object.fromEntries(new URLSearchParams(search)),
-        ...serialize(newParams),
+        ...newSerializedParams,
       }).toString(),
     });
   };
