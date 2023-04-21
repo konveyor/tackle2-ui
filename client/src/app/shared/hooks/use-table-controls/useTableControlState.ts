@@ -2,8 +2,8 @@ import { FilterCategory } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "../useFilterState";
 import { useCompoundExpansionState } from "../useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
-import { usePaginationState } from "../usePaginationState";
-import { useSortState } from "../useSortState";
+import { usePaginationDerivedState, usePaginationState } from "./paginate";
+import { useSortState, useSortDerivedState } from "./sort";
 
 export interface UseTableControlStateArgs<
   TItem extends { name: string },
@@ -39,7 +39,7 @@ export const useTableControlState = <
     initialItemsPerPage = 10,
   } = args;
 
-  // TODO may have to / want to separate the derived state for each of these from the raw state that will be the same as what's used in the URL params
+  // TODO move the derived state stuff to the step between useTableControlState and useTableControlProps in useTableControls?
 
   const filterState = useFilterState(items, filterCategories, filterStorageKey);
 
@@ -50,30 +50,30 @@ export const useTableControlState = <
     isEqual: (a, b) => a.name === b.name,
   });
 
-  const sortState = useSortState({
+  const sortState = useSortState({ sortableColumns, initialSort });
+  const { sortedItems } = useSortDerivedState({
+    sortState,
     items: filterState.filteredItems,
-    sortableColumns,
     getSortValues,
-    initialSort,
   });
 
   const paginationState = usePaginationState({
-    items: sortState.sortedItems,
+    totalItemCount: items.length,
     initialItemsPerPage,
+  });
+  const { currentPageItems } = usePaginationDerivedState({
+    paginationState,
+    items,
   });
 
   return {
     ...args,
-    totalItemCount: items.length,
     filterState,
     expansionState,
     selectionState,
     sortState,
-    paginationState: {
-      ...paginationState,
-      currentPageItems: hasPagination
-        ? paginationState.currentPageItems
-        : sortState.sortedItems,
-    },
+    paginationState,
+    totalItemCount: items.length,
+    currentPageItems: hasPagination ? currentPageItems : sortedItems,
   };
 };

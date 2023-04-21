@@ -20,8 +20,11 @@ import { objectKeys } from "@app/utils/utils";
 import { useCompoundExpansionState } from "../useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
 import { useFilterState } from "../useFilterState";
-import { usePaginationState } from "../usePaginationState";
-import { useSortState } from "../useSortState";
+import {
+  IPaginationState,
+  usePaginationState,
+} from "./paginate/usePaginationState";
+import { ISortState } from "./sort/useSortState";
 
 // TODO step 1: clean up the params here so we pass in state setters/getters and derived state separately
 //     this will break the tables that use useTableControlState
@@ -54,8 +57,9 @@ export interface UseTableControlPropsArgs<
     typeof useCompoundExpansionState<TItem, TColumnKey>
   >;
   selectionState: ReturnType<typeof useSelectionState<TItem>>;
-  sortState: ReturnType<typeof useSortState<TItem, TSortableColumnKey>>;
-  paginationState: ReturnType<typeof usePaginationState<TItem>>;
+  sortState: ISortState<TSortableColumnKey>;
+  paginationState: IPaginationState;
+  currentPageItems: TItem[];
   // Additional params only for useTableControlProps:
   totalItemCount: number;
   isSelectable?: boolean;
@@ -76,6 +80,7 @@ export const useTableControlProps = <
   const { t } = useTranslation();
 
   const {
+    currentPageItems,
     totalItemCount,
     filterCategories,
     filterState: { filterValues, setFilterValues },
@@ -90,7 +95,6 @@ export const useTableControlProps = <
     },
     sortState: { activeSort, setActiveSort },
     paginationState: {
-      currentPageItems,
       pageNumber,
       setPageNumber,
       itemsPerPage,
