@@ -138,7 +138,7 @@ export const Dependencies: React.FC = () => {
     <>
       <PageSection variant={PageSectionVariants.light}>
         <TextContent>
-          <Text component="h1">{t("terms.migrationWaves")}</Text>
+          <Text component="h1">{t("terms.dependencies")}</Text>
         </TextContent>
       </PageSection>
       <PageSection>
