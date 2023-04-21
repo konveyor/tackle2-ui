@@ -101,6 +101,7 @@ export const Identities: React.FC = () => {
     { key: "source", value: "Source Control" },
     { key: "maven", value: "Maven Settings File" },
     { key: "proxy", value: "Proxy" },
+    { key: "jira", value: "Jira" },
   ];
   const filterCategories: FilterCategory<Identity>[] = [
     {

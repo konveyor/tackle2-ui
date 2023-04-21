@@ -35,6 +35,7 @@ import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
+import { FEATURES_ENABLED } from "@app/FeatureFlags";
 
 type UserCredentials = "userpass" | "source";
 
@@ -122,36 +123,35 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       description: formValues.description.trim(),
       id: formValues.id,
       kind: formValues.kind,
+      key: "",
+      settings: "",
+      user: "",
+      password: "",
       //proxy cred
       ...(formValues.kind === "proxy" && {
         password: formValues.password.trim(),
         user: formValues.user.trim(),
-        key: "",
-        settings: "",
       }),
       // mvn cred
       ...(formValues.kind === "maven" && {
         settings: formValues.settings.trim(),
-        key: "",
-        password: "",
-        user: "",
       }),
       //source credentials with key
       ...(formValues.kind === "source" &&
         formValues.userCredentials === "source" && {
           key: formValues.key,
           password: formValues.password.trim(),
-          settings: "",
-          user: "",
         }),
       //source credentials with unamepass
       ...(formValues.kind === "source" &&
         formValues.userCredentials === "userpass" && {
           password: formValues.password.trim(),
           user: formValues.user.trim(),
-          key: "",
-          settings: "",
         }),
+      ...(formValues.kind === "jira" && {
+        user: formValues.user.trim(),
+        password: formValues.password.trim(),
+      }),
     };
 
     if (identity) {
@@ -271,13 +271,12 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .string()
         .defined()
         .when("kind", {
-          is: "proxy",
+          is: (value: string) => value === "proxy" || value === "jira",
           then: yup
             .string()
             .required("This value is required")
             .min(3, t("validation.minLength", { length: 3 }))
             .max(120, t("validation.maxLength", { length: 120 })),
-
           otherwise: (schema) => schema.trim(),
         })
         .when(["kind", "userCredentials"], {
@@ -293,7 +292,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .string()
         .defined()
         .when("kind", {
-          is: "proxy",
+          is: (value: string) => value === "proxy" || value === "jira",
           then: yup
             .string()
             .required("This value is required")
@@ -381,6 +380,12 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       toString: () => `Proxy`,
     },
   ];
+
+  if (FEATURES_ENABLED.migrationWaves)
+    kindOptions.push({
+      value: "jira",
+      toString: () => `Jira`,
+    });
 
   const isPasswordEncrypted = identity?.password === values.password;
 
@@ -608,7 +613,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         />
       )}
 
-      {values?.kind === "proxy" && (
+      {(values?.kind === "proxy" || values?.kind === "jira") && (
         <>
           <HookFormPFTextInput
             control={control}
@@ -620,8 +625,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           <HookFormPFTextInput
             control={control}
             name="password"
-            label="Password"
+            label={values.kind === "jira" ? "Token" : "Password"}
             fieldId="password"
+            isRequired={values.kind === "jira"}
             type={isPasswordHidden ? "password" : "text"}
             formGroupProps={{
               labelIcon: !isPasswordEncrypted ? (
