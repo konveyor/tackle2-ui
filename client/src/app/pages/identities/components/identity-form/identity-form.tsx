@@ -627,6 +627,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             name="password"
             label={values.kind === "jira" ? "Token" : "Password"}
             fieldId="password"
+            isRequired={values.kind === "jira"}
             type={isPasswordHidden ? "password" : "text"}
             formGroupProps={{
               labelIcon: !isPasswordEncrypted ? (
