@@ -1,3 +1,3 @@
 export const FEATURES_ENABLED = {
-  migrationWaves: true,
+  migrationWaves: false,
 };
