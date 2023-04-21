@@ -625,7 +625,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           <HookFormPFTextInput
             control={control}
             name="password"
-            label={values.kind === "proxy" ? "Password" : "Token"}
+            label={values.kind === "jira" ? "Token" : "Password"}
             fieldId="password"
             type={isPasswordHidden ? "password" : "text"}
             formGroupProps={{
