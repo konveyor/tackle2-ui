@@ -58,7 +58,6 @@ export const useTableControlState = <
   });
 
   const paginationState = usePaginationState({
-    totalItemCount: items.length,
     initialItemsPerPage,
   });
   const { currentPageItems } = usePaginationDerivedState({

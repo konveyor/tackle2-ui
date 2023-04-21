@@ -1,3 +1,4 @@
+// TODO remove this, we're using our regular flat key/value object for the UI part of filter representation
 export interface HubFilter {
   field: string;
   operator?: "=" | "!=" | "~" | ">" | ">=" | "<" | "<=";
@@ -9,8 +10,6 @@ export interface HubFilter {
       };
 }
 
-// TODO maybe rename this to TableControlParams, maybe also include expand/collapse and selection??
-// TODO if renaming, rename all the helpers to match -- maybe move out of hub-request-utils
 export interface HubRequestParams {
   filters?: HubFilter[];
   sort?: {
@@ -18,7 +17,7 @@ export interface HubRequestParams {
     direction: "asc" | "desc";
   };
   page?: {
-    pageNum: number; // 1-indexed
+    pageNumber: number; // 1-indexed
     itemsPerPage: number;
   };
 }

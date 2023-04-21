@@ -33,26 +33,29 @@ import {
 import { useFetchDependencies } from "@app/queries/dependencies";
 import { useTableControlUrlParams } from "@app/shared/hooks/use-table-controls/useTableControlUrlParams";
 import { useSelectionState } from "@migtools/lib-ui";
+import { getHubRequestParams } from "@app/utils/hub-request-utils";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
 
-  const { hubRequestParams, setFilters, setSort, setPagination } =
-    useTableControlUrlParams({
-      defaultParams: {
-        page: { pageNum: 1, itemsPerPage: 10 },
-        sort: { field: "name", direction: "asc" },
-      },
-    });
+  const tableControlArgs = useTableControlUrlParams({
+    sortableColumns: ["name", "foundIn", "version"],
+    initialSort: {
+      columnKey: "name",
+      direction: "asc",
+    },
+    initialItemsPerPage: 10,
+  });
 
   const {
     result: { data: currentPageItems, total: totalItemCount },
     isFetching,
     fetchError,
-  } = useFetchDependencies(hubRequestParams);
+  } = useFetchDependencies(getHubRequestParams(tableControlArgs));
 
   // TODO adjust the below to what we really need
   const tableControls = useTableControlProps({
+    ...tableControlArgs,
     columnNames: {
       name: "Dependency name",
       foundIn: "Found in",
@@ -84,39 +87,9 @@ export const Dependencies: React.FC = () => {
       items: currentPageItems,
       isEqual: (a, b) => a.name === b.name,
     }),
-    sortState: {
-      activeSort: hubRequestParams.sort
-        ? {
-            columnKey: hubRequestParams.sort?.field, // TODO how to make conform to TColumnKeys? we need generics in useTableControlUrlParams
-            direction: hubRequestParams.sort?.direction,
-          }
-        : null,
-      setActiveSort: (sort) => {
-        setSort(
-          sort
-            ? {
-                field: sort.columnKey, // TODO don't assume columnKey and hub sort field are the same, we need a getServerSortFields or something. where does that go?
-                direction: sort.direction,
-              }
-            : undefined
-        );
-      },
-      sortedItems: currentPageItems, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
-    },
-    paginationState: {
-      pageNumber: hubRequestParams.page?.pageNum || 1,
-      itemsPerPage: hubRequestParams.page?.itemsPerPage || 10,
-      setPageNumber: (pageNumber) => {
-        if (hubRequestParams.page)
-          setPagination({ ...hubRequestParams.page, pageNum: pageNumber });
-      },
-      setItemsPerPage: (itemsPerPage) => {
-        if (hubRequestParams.page)
-          setPagination({ ...hubRequestParams.page, itemsPerPage });
-      },
-      currentPageItems, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
-    },
+    currentPageItems,
     totalItemCount,
+    isLoading: isFetching,
   });
 
   const {

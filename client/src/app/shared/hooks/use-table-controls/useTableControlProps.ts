@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   PaginationProps,
@@ -20,10 +21,7 @@ import { objectKeys } from "@app/utils/utils";
 import { useCompoundExpansionState } from "../useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
 import { useFilterState } from "../useFilterState";
-import {
-  IPaginationState,
-  usePaginationState,
-} from "./paginate/usePaginationState";
+import { IPaginationState } from "./paginate/usePaginationState";
 import { ISortState } from "./sort/useSortState";
 
 // TODO step 1: clean up the params here so we pass in state setters/getters and derived state separately
@@ -65,6 +63,7 @@ export interface UseTableControlPropsArgs<
   isSelectable?: boolean;
   expandableVariant?: "single" | "compound" | null;
   hasActionsColumn?: boolean;
+  isLoading?: boolean;
   variant?: TableComposableProps["variant"];
 }
 
@@ -105,6 +104,7 @@ export const useTableControlProps = <
     isSelectable = false,
     expandableVariant = null,
     hasActionsColumn = false,
+    isLoading = false,
     variant,
   } = args;
 
@@ -137,6 +137,14 @@ export const useTableControlProps = <
       setItemsPerPage(perPage);
     },
   };
+
+  // When items are removed, make sure the current page still exists
+  const lastPageNumber = Math.max(Math.ceil(totalItemCount / itemsPerPage), 1);
+  React.useEffect(() => {
+    if (pageNumber > lastPageNumber && !isLoading) {
+      setPageNumber(lastPageNumber);
+    }
+  });
 
   const toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem> = {
     onSelectAll: selectAll,
