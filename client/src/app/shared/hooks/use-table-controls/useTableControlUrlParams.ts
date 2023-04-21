@@ -14,20 +14,24 @@ export interface TableControlUrlParamsArgs {
 export const useTableControlUrlParams = ({
   defaultParams = { page: { pageNum: 1, itemsPerPage: 10 } },
 }: TableControlUrlParamsArgs) => {
-  const location = useLocation();
   const history = useHistory();
 
-  const urlParams = new URLSearchParams(location.search);
-
-  const setParams = (newParams: HubRequestParams) =>
-    history.push({
-      pathname: location.pathname,
+  const setParams = (newParams: HubRequestParams) => {
+    // In case setParams is called multiple times synchronously from the same rendered instance,
+    // we use document.location here as the current params so these calls never overwrite each other.
+    // This also retains any unrelated params that might be present and allows newParams to be a partial update.
+    const { pathname, search } = document.location;
+    history.replace({
+      pathname,
       search: new URLSearchParams({
-        ...Object.fromEntries(urlParams), // Don't remove any unrelated URL params we might have
+        ...Object.fromEntries(new URLSearchParams(search)),
         ...Object.fromEntries(serializeRequestParamsForUI(newParams)),
       }).toString(),
     });
+  };
 
+  // We use useLocation here so we are re-rendering when the params change
+  const urlParams = new URLSearchParams(useLocation().search);
   let hubRequestParams = deserialzeRequestParamsForUI(urlParams);
   if (
     !hubRequestParams.filters &&
@@ -38,17 +42,9 @@ export const useTableControlUrlParams = ({
     setParams(defaultParams);
   }
 
-  const setFilters = (filters: HubFilter[]) => {
-    setParams({ ...hubRequestParams, filters });
-  };
-
-  const setSort = (sort: HubRequestParams["sort"]) => {
-    setParams({ ...hubRequestParams, sort });
-  };
-
-  const setPagination = (page: HubRequestParams["page"]) => {
-    setParams({ ...hubRequestParams, page });
-  };
+  const setFilters = (filters: HubFilter[]) => setParams({ filters });
+  const setSort = (sort: HubRequestParams["sort"]) => setParams({ sort });
+  const setPagination = (page: HubRequestParams["page"]) => setParams({ page });
 
   return { hubRequestParams, setFilters, setSort, setPagination };
 };
