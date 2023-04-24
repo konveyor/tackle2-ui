@@ -55,7 +55,7 @@ export const Dependencies: React.FC = () => {
 
   // TODO adjust the below to what we really need
   const tableControls = useTableControlProps({
-    ...tableControlArgs,
+    ...tableControlArgs, // Includes sortState and paginationState
     columnNames: {
       name: "Dependency name",
       foundIn: "Found in",
@@ -76,7 +76,6 @@ export const Dependencies: React.FC = () => {
       },
     ],
     sortableColumns: ["name", "foundIn", "version"],
-    // TODO simplify these? how do we make that play nice with the existing filter/sort/pagination hook return values?
     filterState: {
       filterValues: {}, // TODO figure out how to wire up filters from HubRequestParams and make them compatible
       setFilterValues: () => {}, // TODO,

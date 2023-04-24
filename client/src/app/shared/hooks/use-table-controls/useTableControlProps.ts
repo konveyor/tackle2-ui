@@ -21,23 +21,8 @@ import { objectKeys } from "@app/utils/utils";
 import { useCompoundExpansionState } from "../useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
 import { useFilterState } from "../useFilterState";
-import { IPaginationState } from "./paginate/usePaginationState";
-import { ISortState } from "./sort/useSortState";
-
-// TODO step 1: clean up the params here so we pass in state setters/getters and derived state separately
-//     this will break the tables that use useTableControlState
-// TODO step 2: fix what we're passing in in the dependencies table, make sure it's good and what we want
-//     we may have to add generics for TColumnKey to useTableControlUrlParams
-// TODO step 3: fix the return values here in useTableControlProps so it makes sense with the separation of derived state
-// TODO step 4: change useTableControlState so it returns the new format (monkeypatch the return values of the individual hooks)
-//     make sure this fixes the tables that use useTableControlState via useTableControls -- rename to useClientTableControls?
-// TODO step 5: break apart useTableControlUrlParams into individual hooks for the slices of state -- how to avoid clobbering each other on batch updates?
-//     all updates are one setter with the whole params object that has optional fields? do we abstract that away? that's weird right? is there a way to atomically function-update them? maybe on setter call, reference document.location instead of the useLocation result? still need useLocation for the auto re-render
-//     test that by synchronously calling setSort and setPagination together or something
-// TODO step 5: break derived state out in the original use*State hooks? use common return types omitting the derived part?
-// TODO step 6: break apart the pieces of useTableControlProps into slices too? all consistent?
-// TODO step 7: add selectionState and expansionState to the URL params? need to convert to using id/name instead of reference for selection state, is that worth it?
-//     maybe rename useCompoundExpansionState to useExpandableState / useExpandableRowState
+import { IPaginationState } from "./pagination/usePaginationState";
+import { ISortState } from "./sorting/useSortState";
 
 export interface UseTableControlPropsArgs<
   TItem extends { name: string },
@@ -66,8 +51,6 @@ export interface UseTableControlPropsArgs<
   isLoading?: boolean;
   variant?: TableComposableProps["variant"];
 }
-
-// TODO maybe break this up into multiple hooks that get composed together for props related to filters/sorting/pagination
 
 export const useTableControlProps = <
   TItem extends { name: string },

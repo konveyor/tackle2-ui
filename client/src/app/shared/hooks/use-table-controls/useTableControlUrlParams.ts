@@ -1,5 +1,5 @@
-import { ISortStateArgs, useSortUrlParams } from "./sort";
-import { IPaginationStateArgs, usePaginationUrlParams } from "./paginate";
+import { ISortStateArgs, useSortUrlParams } from "./sorting";
+import { IPaginationStateArgs, usePaginationUrlParams } from "./pagination";
 
 export type TableControlUrlParamsArgs<
   TItem extends { name: string },

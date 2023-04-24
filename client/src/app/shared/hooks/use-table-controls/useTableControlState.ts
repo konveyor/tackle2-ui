@@ -2,8 +2,8 @@ import { FilterCategory } from "@app/shared/components/FilterToolbar";
 import { useFilterState } from "../useFilterState";
 import { useCompoundExpansionState } from "../useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
-import { usePaginationDerivedState, usePaginationState } from "./paginate";
-import { useSortState, useSortDerivedState } from "./sort";
+import { usePaginationDerivedState, usePaginationState } from "./pagination";
+import { useSortState, useSortDerivedState } from "./sorting";
 
 export interface UseTableControlStateArgs<
   TItem extends { name: string },

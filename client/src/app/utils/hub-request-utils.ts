@@ -2,8 +2,8 @@
 // TODO these could use some unit tests!
 
 import { HubFilter, HubRequestParams } from "@app/api/models";
-import { IPaginationState } from "@app/shared/hooks/use-table-controls/paginate";
-import { ISortState } from "@app/shared/hooks/use-table-controls/sort";
+import { IPaginationState } from "@app/shared/hooks/use-table-controls/pagination";
+import { ISortState } from "@app/shared/hooks/use-table-controls/sorting";
 
 // TODO we either need to make the FilterToolbar compatible with the HubFilter format (or a better name?)
 //      or we need to use a plain Record<string, string | string[]> as the filter format and then figure out
