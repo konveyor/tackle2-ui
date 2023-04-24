@@ -33,6 +33,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
+import { AnalysisDependency } from "@app/api/models";
 import { useFetchDependencies } from "@app/queries/dependencies";
 import { useSelectionState } from "@migtools/lib-ui";
 import { getHubRequestParams } from "@app/utils/hub-request-utils";
@@ -40,15 +41,34 @@ import { getHubRequestParams } from "@app/utils/hub-request-utils";
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
 
-  const tableControlArgs = useTableControlUrlParams({
+  const tableControlState = useTableControlUrlParams({
+    columnNames: {
+      name: "Dependency name",
+      foundIn: "Found in",
+      version: "Version",
+    },
     sortableColumns: ["name", "version"],
     initialSort: {
       columnKey: "name",
       direction: "asc",
     },
+    filterCategories: [
+      {
+        key: "name",
+        title: t("terms.name"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.name").toLowerCase(),
+          }) + "...",
+        getItemValue: (item: AnalysisDependency) => {
+          return item?.name || "";
+        },
+      },
+    ],
     initialItemsPerPage: 10,
   });
-  const { sortState, paginationState } = tableControlArgs;
+  const { sortState, paginationState } = tableControlState;
 
   const {
     result: { data: currentPageItems, total: totalItemCount },
@@ -65,28 +85,11 @@ export const Dependencies: React.FC = () => {
     })
   );
 
-  // TODO adjust the below to what we really need
   const tableControls = useTableControlProps({
-    ...tableControlArgs, // Includes sortState and paginationState
-    columnNames: {
-      name: "Dependency name",
-      foundIn: "Found in",
-      version: "Version",
-    },
-    filterCategories: [
-      {
-        key: "name",
-        title: t("terms.name"),
-        type: FilterType.search,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.name").toLowerCase(),
-          }) + "...",
-        getItemValue: (item) => {
-          return item?.name || "";
-        },
-      },
-    ],
+    ...tableControlState, // Includes sortState and paginationState
+    currentPageItems,
+    totalItemCount,
+    isLoading: isFetching,
     filterState: {
       filterValues: {}, // TODO figure out how to wire up filters from HubRequestParams and make them compatible
       setFilterValues: () => {}, // TODO,
@@ -97,9 +100,6 @@ export const Dependencies: React.FC = () => {
       items: currentPageItems,
       isEqual: (a, b) => a.name === b.name,
     }),
-    currentPageItems,
-    totalItemCount,
-    isLoading: isFetching,
   });
 
   const {

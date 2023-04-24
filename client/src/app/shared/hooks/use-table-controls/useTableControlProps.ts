@@ -13,51 +13,16 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-selector/toolbar-bulk-selector";
-import {
-  FilterCategory,
-  IFilterToolbarProps,
-} from "@app/shared/components/FilterToolbar";
+import { IFilterToolbarProps } from "@app/shared/components/FilterToolbar";
 import { objectKeys } from "@app/utils/utils";
-import { useCompoundExpansionState } from "../useCompoundExpansionState";
-import { useSelectionState } from "@migtools/lib-ui";
-import { useFilterState } from "../useFilterState";
-import { IPaginationState } from "./pagination/usePaginationState";
-import { ISortState } from "./sorting/useSortState";
-
-export interface UseTableControlPropsArgs<
-  TItem extends { name: string },
-  TColumnKey extends string,
-  TSortableColumnKey extends TColumnKey // A subset of column keys as a separate narrower type
-> {
-  // Params also required by useTableControlState:
-  columnNames: Record<TColumnKey, string>;
-  filterCategories?: FilterCategory<TItem>[];
-  sortableColumns?: TSortableColumnKey[];
-  // Params returned by useTableControlState:
-  // TODO maybe break these down explicitly too...
-  filterState: ReturnType<typeof useFilterState<TItem>>;
-  expansionState: ReturnType<
-    typeof useCompoundExpansionState<TItem, TColumnKey>
-  >;
-  selectionState: ReturnType<typeof useSelectionState<TItem>>;
-  sortState: ISortState<TSortableColumnKey>;
-  paginationState: IPaginationState;
-  currentPageItems: TItem[];
-  // Additional params only for useTableControlProps:
-  totalItemCount: number;
-  isSelectable?: boolean;
-  expandableVariant?: "single" | "compound" | null;
-  hasActionsColumn?: boolean;
-  isLoading?: boolean;
-  variant?: TableComposableProps["variant"];
-}
+import { IUseTableControlPropsArgs } from "./types";
 
 export const useTableControlProps = <
   TItem extends { name: string },
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 >(
-  args: UseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey>
+  args: IUseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey>
 ) => {
   const { t } = useTranslation();
 

@@ -5,7 +5,6 @@ export interface ISortDerivedStateArgs<
   TItem,
   TSortableColumnKey extends string
 > {
-  sortState: ISortState<TSortableColumnKey>;
   items: TItem[];
   getSortValues?: (
     item: TItem
@@ -16,7 +15,9 @@ export const useSortDerivedState = <TItem, TSortableColumnKey extends string>({
   sortState: { activeSort },
   items,
   getSortValues,
-}: ISortDerivedStateArgs<TItem, TSortableColumnKey>) => {
+}: ISortDerivedStateArgs<TItem, TSortableColumnKey> & {
+  sortState: ISortState<TSortableColumnKey>;
+}) => {
   if (!getSortValues || !activeSort) {
     return { sortedItems: items };
   }

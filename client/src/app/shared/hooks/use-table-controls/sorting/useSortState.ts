@@ -13,7 +13,7 @@ export interface ISortState<TSortableColumnKey extends string> {
 
 export interface ISortStateArgs<TSortableColumnKey extends string> {
   sortableColumns: TSortableColumnKey[];
-  initialSort: IActiveSort<TSortableColumnKey> | null;
+  initialSort?: IActiveSort<TSortableColumnKey> | null;
 }
 
 const getDefaultSort = <TSortableColumnKey extends string>(
