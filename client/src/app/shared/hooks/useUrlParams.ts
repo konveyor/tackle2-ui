@@ -7,7 +7,7 @@ export interface IUseUrlParamsArgs<
   TDeserializedParams
 > {
   keys: TUrlParamKey[];
-  defaultParams: TDeserializedParams;
+  defaultValue: TDeserializedParams;
   serialize: (
     params: Partial<TDeserializedParams>
   ) => Partial<Record<TUrlParamKey, string>>;
@@ -16,12 +16,20 @@ export interface IUseUrlParamsArgs<
   ) => TDeserializedParams;
 }
 
+export type TUrlParamStateTuple<TDeserializedParams> = readonly [
+  TDeserializedParams,
+  (newParams: Partial<TDeserializedParams>) => void
+];
+
 export const useUrlParams = <TUrlParamKey extends string, TDeserializedParams>({
   keys,
-  defaultParams,
+  defaultValue,
   serialize,
   deserialize,
-}: IUseUrlParamsArgs<TUrlParamKey, TDeserializedParams>) => {
+}: IUseUrlParamsArgs<
+  TUrlParamKey,
+  TDeserializedParams
+>): TUrlParamStateTuple<TDeserializedParams> => {
   const history = useHistory();
 
   const setParams = (newParams: Partial<TDeserializedParams>) => {
@@ -52,11 +60,11 @@ export const useUrlParams = <TUrlParamKey extends string, TDeserializedParams>({
     {} as Partial<Record<TUrlParamKey, string>>
   );
   const allParamsEmpty = keys.every((key) => !serializedParams[key]);
-  const params = allParamsEmpty ? defaultParams : deserialize(serializedParams);
+  const params = allParamsEmpty ? defaultValue : deserialize(serializedParams);
 
   React.useEffect(() => {
-    if (allParamsEmpty) setParams(defaultParams);
+    if (allParamsEmpty) setParams(defaultValue);
   }, [allParamsEmpty]);
 
-  return { params, setParams };
+  return [params, setParams];
 };

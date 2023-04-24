@@ -24,13 +24,10 @@ export const usePaginationState = ({
 export const usePaginationUrlParams = ({
   initialItemsPerPage = 10,
 }: IPaginationStateArgs): IPaginationState => {
-  const defaultParams = { pageNumber: 1, itemsPerPage: initialItemsPerPage };
-  const {
-    params: { pageNumber, itemsPerPage },
-    setParams,
-  } = useUrlParams({
+  const defaultValue = { pageNumber: 1, itemsPerPage: initialItemsPerPage };
+  const [paginationState, setPaginationState] = useUrlParams({
     keys: ["pageNumber", "itemsPerPage"],
-    defaultParams,
+    defaultValue,
     serialize: ({ pageNumber, itemsPerPage }) => ({
       pageNumber: pageNumber ? String(pageNumber) : undefined,
       itemsPerPage: itemsPerPage ? String(itemsPerPage) : undefined,
@@ -41,13 +38,15 @@ export const usePaginationUrlParams = ({
             pageNumber: parseInt(pageNumber, 10),
             itemsPerPage: parseInt(itemsPerPage, 10),
           }
-        : defaultParams,
+        : defaultValue,
   });
 
   const setPageNumber = (pageNumber: number) =>
-    setParams({ pageNumber: pageNumber >= 1 ? pageNumber : 1 });
-  const setItemsPerPage = (itemsPerPage: number) => setParams({ itemsPerPage });
+    setPaginationState({ pageNumber: pageNumber >= 1 ? pageNumber : 1 });
+  const setItemsPerPage = (itemsPerPage: number) =>
+    setPaginationState({ itemsPerPage });
 
+  const { pageNumber, itemsPerPage } = paginationState;
   return {
     pageNumber: pageNumber || 1,
     itemsPerPage: itemsPerPage || initialItemsPerPage,
