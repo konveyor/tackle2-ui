@@ -170,7 +170,7 @@ export const JiraTrackers: React.FC = () => {
                   </ToolbarItem>
                   {/* </RBAC> */}
                   {/* {jiraDropdownItems.length ? (
-                    <ToolbarItem>setInstanceToUpdate
+                    <ToolbarItem>
                       <KebabDropdown
                         dropdownItems={waveDropdownItems}
                       ></KebabDropdown>
