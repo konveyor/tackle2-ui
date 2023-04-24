@@ -22,7 +22,10 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { useTableControlProps } from "@app/shared/hooks/use-table-controls";
+import {
+  useTableControlUrlParams,
+  useTableControlProps,
+} from "@app/shared/hooks/use-table-controls";
 import { useCompoundExpansionState } from "@app/shared/hooks/useCompoundExpansionState";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
@@ -31,7 +34,6 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { useFetchDependencies } from "@app/queries/dependencies";
-import { useTableControlUrlParams } from "@app/shared/hooks/use-table-controls/useTableControlUrlParams";
 import { useSelectionState } from "@migtools/lib-ui";
 import { getHubRequestParams } from "@app/utils/hub-request-utils";
 
