@@ -44,18 +44,22 @@ export const serializeRequestParamsForHub = (
   return hubUrlParams;
 };
 
+export interface IGetHubRequestParamsArgs<TSortableColumnKey extends string> {
+  sortState: ISortState<TSortableColumnKey>;
+  paginationState: IPaginationState;
+  hubFieldKeys: Record<TSortableColumnKey, string>; // Include filter
+}
+
 export const getHubRequestParams = <TSortableColumnKey extends string>({
   sortState,
   paginationState,
-}: {
-  sortState: ISortState<TSortableColumnKey>;
-  paginationState: IPaginationState;
-}): HubRequestParams => {
+  hubFieldKeys,
+}: IGetHubRequestParamsArgs<TSortableColumnKey>): HubRequestParams => {
   const params: HubRequestParams = {};
   // TODO filters?
   if (sortState.activeSort) {
     params.sort = {
-      field: sortState.activeSort.columnKey, // TODO how to convert to a server-specific dot notation field?
+      field: hubFieldKeys[sortState.activeSort.columnKey],
       direction: sortState.activeSort.direction,
     };
   }

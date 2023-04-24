@@ -39,19 +39,29 @@ export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
 
   const tableControlArgs = useTableControlUrlParams({
-    sortableColumns: ["name", "foundIn", "version"],
+    sortableColumns: ["name", "version"],
     initialSort: {
       columnKey: "name",
       direction: "asc",
     },
     initialItemsPerPage: 10,
   });
+  const { sortState, paginationState } = tableControlArgs;
 
   const {
     result: { data: currentPageItems, total: totalItemCount },
     isFetching,
     fetchError,
-  } = useFetchDependencies(getHubRequestParams(tableControlArgs));
+  } = useFetchDependencies(
+    getHubRequestParams({
+      sortState,
+      paginationState,
+      hubFieldKeys: {
+        name: "name",
+        version: "version",
+      },
+    })
+  );
 
   // TODO adjust the below to what we really need
   const tableControls = useTableControlProps({
@@ -75,7 +85,6 @@ export const Dependencies: React.FC = () => {
         },
       },
     ],
-    sortableColumns: ["name", "foundIn", "version"],
     filterState: {
       filterValues: {}, // TODO figure out how to wire up filters from HubRequestParams and make them compatible
       setFilterValues: () => {}, // TODO,
