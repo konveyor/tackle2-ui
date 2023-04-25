@@ -2,6 +2,7 @@ import axios, { AxiosPromise } from "axios";
 import { APIClient } from "@app/axios-config";
 
 import {
+  AnalysisDependency,
   Application,
   ApplicationAdoptionPlan,
   ApplicationDependency,
@@ -15,6 +16,8 @@ import {
   BulkCopyReview,
   BusinessService,
   Cache,
+  HubPaginatedResult,
+  HubRequestParams,
   Identity,
   IReadFile,
   JiraTracker,
@@ -32,6 +35,7 @@ import {
   Taskgroup,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
+import { serializeRequestParamsForHub } from "@app/utils/hub-request-utils";
 
 // TACKLE_HUB
 export const HUB = "/hub";
@@ -62,6 +66,8 @@ export const JIRATRACKERS = HUB + "/trackers";
 export const RULEBUNDLES = HUB + "/rulebundles";
 export const FILES = HUB + "/files";
 export const CACHE = HUB + "/cache/m2";
+
+export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/dependencies";
 
 // PATHFINDER
 export const PATHFINDER = "/hub/pathfinder";
@@ -585,3 +591,20 @@ export const deleteCache = (): Promise<Cache> => axios.delete(CACHE);
 
 export const getJiraTrackers = () =>
   axios.get<JiraTracker[]>(JIRATRACKERS).then((response) => response.data);
+
+export const getHubPaginatedResult = <T>(
+  url: string,
+  params: HubRequestParams = {}
+): Promise<HubPaginatedResult<T>> =>
+  axios
+    .get<T[]>(url, {
+      params: serializeRequestParamsForHub(params),
+    })
+    .then((response) => ({
+      data: response.data,
+      total: parseInt(response.headers["x-total"], 10),
+      params,
+    }));
+
+export const getDependencies = (params: HubRequestParams = {}) =>
+  getHubPaginatedResult<AnalysisDependency>(ANALYSIS_DEPENDENCIES, params);

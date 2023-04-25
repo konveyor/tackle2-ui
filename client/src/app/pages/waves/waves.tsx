@@ -101,10 +101,10 @@ export const Waves: React.FC = () => {
     hasPagination: true,
   });
   const {
+    currentPageItems,
     numRenderedColumns,
     expansionState: { isCellExpanded },
     selectionState: { selectedItems },
-    paginationState: { currentPageItems },
     propHelpers: {
       toolbarProps,
       toolbarBulkSelectorProps,

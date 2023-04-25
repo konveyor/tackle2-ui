@@ -1,20 +1,31 @@
-export interface PageQuery {
-  page: number;
-  perPage: number;
+// TODO remove this, we're using our regular flat key/value object for the UI part of filter representation
+export interface HubFilter {
+  field: string;
+  operator?: "=" | "!=" | "~" | ">" | ">=" | "<" | "<=";
+  value:
+    | string
+    | {
+        list: string[];
+        operator?: "and" | "or";
+      };
 }
 
-export interface SortByQuery {
-  index: number;
-  direction: "asc" | "desc";
+export interface HubRequestParams {
+  filters?: HubFilter[];
+  sort?: {
+    field: string;
+    direction: "asc" | "desc";
+  };
+  page?: {
+    pageNumber: number; // 1-indexed
+    itemsPerPage: number;
+  };
 }
 
-export interface PageRepresentation<T> {
-  meta: Meta;
+export interface HubPaginatedResult<T> {
   data: T[];
-}
-
-export interface Meta {
-  count: number;
+  total: number;
+  params: HubRequestParams;
 }
 
 // Controls
@@ -521,4 +532,12 @@ export interface JiraTracker {
   };
   name: string;
   url: string;
+}
+
+export interface AnalysisDependency {
+  createTime: string;
+  name: string;
+  version: string;
+  indirect?: boolean;
+  applications: { id: number; name: string }[];
 }

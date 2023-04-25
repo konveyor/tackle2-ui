@@ -57,8 +57,8 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
     variant: "compact",
   });
   const {
+    currentPageItems,
     numRenderedColumns,
-    paginationState: { currentPageItems },
     propHelpers: {
       toolbarProps,
       paginationToolbarItemProps,

@@ -1,41 +1,26 @@
-import * as React from "react";
 import i18n from "@app/i18n";
+import { ISortState } from "./useSortState";
 
-export interface IActiveSort<TSortableColumnKey extends string> {
-  columnKey: TSortableColumnKey;
-  direction: "asc" | "desc";
-}
-
-export interface ISortStateArgs<TItem, TSortableColumnKey extends string> {
+export interface ISortDerivedStateArgs<
+  TItem,
+  TSortableColumnKey extends string
+> {
   items: TItem[];
-  sortableColumns: TSortableColumnKey[];
   getSortValues?: (
     item: TItem
   ) => Record<TSortableColumnKey, string | number | boolean>;
-  initialSort: IActiveSort<TSortableColumnKey> | null;
 }
 
-export interface ISortStateHook<TItem, TSortableColumnKey extends string> {
-  activeSort: IActiveSort<TSortableColumnKey> | null;
-  setActiveSort: (sort: IActiveSort<TSortableColumnKey> | null) => void;
-  sortedItems: TItem[];
-}
-
-export const useSortState = <TItem, TSortableColumnKey extends string>({
+export const useSortDerivedState = <TItem, TSortableColumnKey extends string>({
+  sortState: { activeSort },
   items,
-  sortableColumns,
   getSortValues,
-  initialSort = sortableColumns[0]
-    ? { columnKey: sortableColumns[0], direction: "asc" }
-    : null,
-}: ISortStateArgs<TItem, TSortableColumnKey>): ISortStateHook<
-  TItem,
-  TSortableColumnKey
-> => {
-  const [activeSort, setActiveSort] = React.useState(initialSort);
-
-  if (!getSortValues || !activeSort)
-    return { activeSort, setActiveSort, sortedItems: items };
+}: ISortDerivedStateArgs<TItem, TSortableColumnKey> & {
+  sortState: ISortState<TSortableColumnKey>;
+}) => {
+  if (!getSortValues || !activeSort) {
+    return { sortedItems: items };
+  }
 
   let sortedItems = items;
   sortedItems = [...items].sort((a: TItem, b: TItem) => {
@@ -57,5 +42,5 @@ export const useSortState = <TItem, TSortableColumnKey extends string>({
     return 0;
   });
 
-  return { activeSort, setActiveSort, sortedItems };
+  return { sortedItems };
 };

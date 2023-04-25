@@ -29,6 +29,8 @@ export enum Paths {
   controlsTags = "/controls/tags",
   reports = "/reports",
   waves = "/waves",
+  issues = "/issues",
+  dependencies = "/dependencies",
 
   // Administrator perspective
   general = "/general",
