@@ -190,9 +190,9 @@ export const Stakeholders: React.FC = () => {
   });
 
   const {
+    currentPageItems,
     numRenderedColumns,
-    expansionState: { isCellExpanded, setCellExpanded },
-    paginationState: { currentPageItems },
+    expansionState: { isCellExpanded },
     propHelpers: {
       toolbarProps,
       filterToolbarProps,
