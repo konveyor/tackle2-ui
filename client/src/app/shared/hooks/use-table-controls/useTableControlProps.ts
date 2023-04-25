@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   PaginationProps,
@@ -11,37 +12,22 @@ import {
 } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { useTableControlState } from "./useTableControlState";
 import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-selector/toolbar-bulk-selector";
 import { IFilterToolbarProps } from "@app/shared/components/FilterToolbar";
 import { objectKeys } from "@app/utils/utils";
-
-export interface UseTableControlPropsAdditionalArgs {
-  isSelectable?: boolean;
-  expandableVariant?: "single" | "compound" | null;
-  hasActionsColumn?: boolean;
-  variant?: TableComposableProps["variant"];
-}
-
-export type UseTableControlPropsArgs<
-  TItem extends { name: string },
-  TColumnKey extends string,
-  TSortableColumnKey extends TColumnKey // A subset of column keys as a separate narrower type
-> = ReturnType<
-  typeof useTableControlState<TItem, TColumnKey, TSortableColumnKey>
-> &
-  UseTableControlPropsAdditionalArgs;
+import { IUseTableControlPropsArgs } from "./types";
 
 export const useTableControlProps = <
   TItem extends { name: string },
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 >(
-  args: UseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey>
+  args: IUseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey>
 ) => {
   const { t } = useTranslation();
 
   const {
+    currentPageItems,
     totalItemCount,
     filterCategories,
     filterState: { filterValues, setFilterValues },
@@ -56,7 +42,6 @@ export const useTableControlProps = <
     },
     sortState: { activeSort, setActiveSort },
     paginationState: {
-      currentPageItems,
       pageNumber,
       setPageNumber,
       itemsPerPage,
@@ -67,6 +52,7 @@ export const useTableControlProps = <
     isSelectable = false,
     expandableVariant = null,
     hasActionsColumn = false,
+    isLoading = false,
     variant,
   } = args;
 
@@ -99,6 +85,14 @@ export const useTableControlProps = <
       setItemsPerPage(perPage);
     },
   };
+
+  // When items are removed, make sure the current page still exists
+  const lastPageNumber = Math.max(Math.ceil(totalItemCount / itemsPerPage), 1);
+  React.useEffect(() => {
+    if (pageNumber > lastPageNumber && !isLoading) {
+      setPageNumber(lastPageNumber);
+    }
+  });
 
   const toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem> = {
     onSelectAll: selectAll,

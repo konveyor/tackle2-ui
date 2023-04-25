@@ -9,12 +9,7 @@ import {
   global_palette_orange_300 as orange,
 } from "@patternfly/react-tokens";
 
-import {
-  EffortEstimate,
-  PageQuery,
-  ProposedAction,
-  Risk,
-} from "@app/api/models";
+import { EffortEstimate, ProposedAction, Risk } from "@app/api/models";
 import { ENV } from "./env";
 
 export enum BrandType {
@@ -26,11 +21,6 @@ export const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
 export const uploadLimit = ENV.UI_INGRESS_PROXY_BODY_SIZE || "500m";
 export const APP_BRAND = ENV.PROFILE as BrandType;
 export const isRWXSupported = ENV.RWX_SUPPORTED === "true";
-
-export const DEFAULT_PAGINATION: PageQuery = {
-  page: 1,
-  perPage: 10,
-};
 
 export const DEFAULT_SELECT_MAX_HEIGHT = 200;
 

@@ -72,9 +72,9 @@ export const JiraTrackers: React.FC = () => {
     hasPagination: true,
   });
   const {
+    currentPageItems,
     numRenderedColumns,
     selectionState: { selectedItems },
-    paginationState: { currentPageItems },
     propHelpers: {
       toolbarProps,
       toolbarBulkSelectorProps,

@@ -109,6 +109,21 @@ export const SidebarApp: React.FC = () => {
               </NavLink>
             </NavItem>
           ) : null}
+          {FEATURES_ENABLED.dynamicReports ? (
+            <>
+              {/* TODO
+              <NavItem>
+                <NavLink to={Paths.issues} activeClassName="pf-m-current">
+                  {t("sidebar.issues")}
+                </NavLink>
+              </NavItem>*/}
+              <NavItem>
+                <NavLink to={Paths.dependencies} activeClassName="pf-m-current">
+                  {t("sidebar.dependencies")}
+                </NavLink>
+              </NavItem>
+            </>
+          ) : null}
         </NavList>
       ) : (
         <NavList title="Admin">
