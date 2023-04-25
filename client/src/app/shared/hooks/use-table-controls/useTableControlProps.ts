@@ -173,6 +173,25 @@ export const useTableControlProps = <
     },
   });
 
+  const getSingleExpandTdProps = ({
+    item,
+    rowIndex,
+  }: {
+    item: TItem;
+    rowIndex: number;
+  }): Omit<TdProps, "ref"> => ({
+    expand: {
+      rowIndex,
+      isExpanded: isCellExpanded(item),
+      onToggle: () =>
+        setCellExpanded({
+          item,
+          isExpanding: !isCellExpanded(item),
+        }),
+      expandId: `expandable-row-${item.name}`,
+    },
+  });
+
   const getCompoundExpandTdProps = ({
     item,
     rowIndex,
@@ -230,6 +249,7 @@ export const useTableControlProps = <
       getTdProps,
       getSelectCheckboxTdProps,
       getCompoundExpandTdProps,
+      getSingleExpandTdProps,
       getExpandedContentTdProps,
     },
   };
