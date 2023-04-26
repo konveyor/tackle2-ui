@@ -65,6 +65,7 @@ export const Waves: React.FC = () => {
   const closeWaveModal = () => setWaveModalState(null);
 
   const tableControls = useTableControls({
+    idProperty: "name",
     items: waves,
     columnNames: {
       name: "Name",
