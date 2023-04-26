@@ -11,12 +11,12 @@ export interface IFilterPropsArgs<TItem, TFilterCategoryKey extends string> {
 
 export const getFilterProps = <TItem, TFilterCategoryKey extends string>({
   filterState: { filterValues, setFilterValues },
-  filterCategories,
+  filterCategories = [],
 }: IFilterPropsArgs<TItem, TFilterCategoryKey>): IFilterToolbarProps<
   TItem,
   TFilterCategoryKey
 > => ({
-  filterCategories: filterCategories!,
+  filterCategories,
   filterValues,
   setFilterValues,
 });
