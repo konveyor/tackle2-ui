@@ -5,7 +5,10 @@ import {
   usePaginationState,
 } from "./pagination";
 import { useSortState, getLocalSortDerivedState } from "./sorting";
-import { IUseTableControlStateArgs, IUseTableControlPropsArgs } from "./types";
+import {
+  IUseLocalTableControlStateArgs,
+  IUseTableControlPropsArgs,
+} from "./types";
 import { getLocalFilterDerivedState, useFilterState } from "./filtering";
 
 export const useLocalTableControlState = <
@@ -13,7 +16,7 @@ export const useLocalTableControlState = <
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 >(
-  args: IUseTableControlStateArgs<TItem, TColumnKey, TSortableColumnKey>
+  args: IUseLocalTableControlStateArgs<TItem, TColumnKey, TSortableColumnKey>
 ): IUseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey> => {
   const {
     items,

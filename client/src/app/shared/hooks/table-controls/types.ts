@@ -40,16 +40,16 @@ export interface ITableControlCommonArgs<
 }
 
 // Fetch-related args
-// - Used by both useTableControlState and useTableControlProps
+// - Used by both useLocalTableControlState and useTableControlProps
 // - Requires query values in scope but not state values
 export interface ITableControlFetchStatusArgs {
   isLoading?: boolean;
 }
 
 // Derived state option args
-// - Used by only useTableControlState (client-side filtering/sorting/pagination)
+// - Used by only useLocalTableControlState (client-side filtering/sorting/pagination)
 // - Requires state and query values in scope
-export type IUseTableControlStateArgs<
+export type IUseLocalTableControlStateArgs<
   TItem extends { name: string },
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
@@ -65,7 +65,7 @@ export type IUseTableControlStateArgs<
 // - Used by only useTableControlProps
 // - Requires state and query values in scope
 // - Combines all args above with either:
-//   - The return values of useTableControlState
+//   - The return values of useLocalTableControlState
 //   - The return values of useTableControlUrlParams and args derived from server-side filtering/sorting/pagination
 export interface IUseTableControlPropsArgs<
   TItem extends { name: string },
