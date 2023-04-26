@@ -5,8 +5,8 @@ export interface ILocalPaginationDerivedStateArgs<TItem> {
 }
 
 export const getLocalPaginationDerivedState = <TItem>({
-  paginationState: { pageNumber, itemsPerPage },
   items,
+  paginationState: { pageNumber, itemsPerPage },
 }: ILocalPaginationDerivedStateArgs<TItem> & {
   paginationState: IPaginationState;
 }) => {

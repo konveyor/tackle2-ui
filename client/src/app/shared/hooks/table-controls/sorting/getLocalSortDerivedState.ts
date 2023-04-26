@@ -15,9 +15,9 @@ export const getLocalSortDerivedState = <
   TItem,
   TSortableColumnKey extends string
 >({
-  sortState: { activeSort },
   items,
   getSortValues,
+  sortState: { activeSort },
 }: ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> & {
   sortState: ISortState<TSortableColumnKey>;
 }) => {
