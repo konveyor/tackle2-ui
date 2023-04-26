@@ -11,7 +11,7 @@ export interface IFilterState<TFilterCategoryKey extends string> {
 export const useFilterState = <TFilterCategoryKey extends string>({
   storageKey,
 }: {
-  storageKey: string;
+  storageKey?: string;
 }): IFilterState<TFilterCategoryKey> => {
   const state = React.useState<IFilterValues<TFilterCategoryKey>>({});
   const storage = useSessionStorage<IFilterValues<TFilterCategoryKey>>(
