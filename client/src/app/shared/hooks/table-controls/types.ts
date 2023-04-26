@@ -1,14 +1,20 @@
 import { TableComposableProps } from "@patternfly/react-table";
 import { FilterCategory } from "@app/shared/components/FilterToolbar";
 import { useLegacyFilterState } from "../useLegacyFilterState";
-import { ISortDerivedStateArgs, ISortState, ISortStateArgs } from "./sorting";
+import {
+  ILocalSortDerivedStateArgs,
+  ISortPropsArgs,
+  ISortState,
+  ISortStateArgs,
+} from "./sorting";
 import {
   IPaginationState,
   IPaginationStateArgs,
-  IPaginationDerivedStateArgs,
+  ILocalPaginationDerivedStateArgs,
 } from "./pagination";
 import { useCompoundExpansionState } from "../useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
+import { IPaginationPropsArgs } from "./pagination/getPaginationProps";
 
 // Common args
 // - Used by both useTableControlState and useTableControlUrlParams
@@ -36,8 +42,8 @@ export interface IUseTableControlStateArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 > extends ITableControlCommonArgs<TItem, TColumnKey, TSortableColumnKey>,
-    ISortDerivedStateArgs<TItem, TSortableColumnKey>,
-    IPaginationDerivedStateArgs<TItem> {
+    ILocalSortDerivedStateArgs<TItem, TSortableColumnKey>,
+    ILocalPaginationDerivedStateArgs<TItem> {
   filterStorageKey?: string; // TODO this shouldn't be included here if we split out IFilterStateArgs?
 }
 
@@ -50,15 +56,14 @@ export interface IUseTableControlPropsArgs<
   TItem extends { name: string },
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
-> extends ITableControlCommonArgs<TItem, TColumnKey, TSortableColumnKey> {
+> extends ITableControlCommonArgs<TItem, TColumnKey, TSortableColumnKey>,
+    ISortPropsArgs<TColumnKey, TSortableColumnKey>,
+    IPaginationPropsArgs {
   currentPageItems: TItem[];
-  totalItemCount: number;
   isLoading?: boolean;
   filterState: ReturnType<typeof useLegacyFilterState<TItem>>; // TODO adjust this for separation of concerns
   expansionState: ReturnType<
     typeof useCompoundExpansionState<TItem, TColumnKey>
   >;
   selectionState: ReturnType<typeof useSelectionState<TItem>>;
-  sortState: ISortState<TSortableColumnKey>;
-  paginationState: IPaginationState;
 }

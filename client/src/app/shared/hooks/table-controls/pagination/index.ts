@@ -1,2 +1,3 @@
 export * from "./usePaginationState";
-export * from "./useLocalPaginationDerivedState";
+export * from "./getLocalPaginationDerivedState";
+export * from "./getPaginationProps";

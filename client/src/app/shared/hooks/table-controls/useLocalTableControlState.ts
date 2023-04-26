@@ -2,10 +2,10 @@ import { useLegacyFilterState } from "../useLegacyFilterState";
 import { useCompoundExpansionState } from "../useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
 import {
-  useLocalPaginationDerivedState,
+  getLocalPaginationDerivedState,
   usePaginationState,
 } from "./pagination";
-import { useSortState, useLocalSortDerivedState } from "./sorting";
+import { useSortState, getLocalSortDerivedState } from "./sorting";
 import { IUseTableControlStateArgs, IUseTableControlPropsArgs } from "./types";
 
 export const useLocalTableControlState = <
@@ -40,7 +40,7 @@ export const useLocalTableControlState = <
   });
 
   const sortState = useSortState({ sortableColumns, initialSort });
-  const { sortedItems } = useLocalSortDerivedState({
+  const { sortedItems } = getLocalSortDerivedState({
     sortState,
     items: filterState.filteredItems,
     getSortValues,
@@ -49,7 +49,7 @@ export const useLocalTableControlState = <
   const paginationState = usePaginationState({
     initialItemsPerPage,
   });
-  const { currentPageItems } = useLocalPaginationDerivedState({
+  const { currentPageItems } = getLocalPaginationDerivedState({
     paginationState,
     items,
   });

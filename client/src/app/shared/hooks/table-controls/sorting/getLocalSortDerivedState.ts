@@ -1,7 +1,7 @@
 import i18n from "@app/i18n";
 import { ISortState } from "./useSortState";
 
-export interface ISortDerivedStateArgs<
+export interface ILocalSortDerivedStateArgs<
   TItem,
   TSortableColumnKey extends string
 > {
@@ -11,14 +11,14 @@ export interface ISortDerivedStateArgs<
   ) => Record<TSortableColumnKey, string | number | boolean>;
 }
 
-export const useLocalSortDerivedState = <
+export const getLocalSortDerivedState = <
   TItem,
   TSortableColumnKey extends string
 >({
   sortState: { activeSort },
   items,
   getSortValues,
-}: ISortDerivedStateArgs<TItem, TSortableColumnKey> & {
+}: ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> & {
   sortState: ISortState<TSortableColumnKey>;
 }) => {
   if (!getSortValues || !activeSort) {

@@ -5,7 +5,7 @@ import i18n from "@app/i18n";
 // NOTE: This was refactored to expose an API based on columnKey instead of column index,
 //       and to return generic state data and decouple the client-side-sorting piece to another helper function.
 //       See useSortState for the new version, which should probably be used instead of this everywhere eventually.
-//       See useLocalSortDerivedState and useTableControlProps for the parts that were removed here.
+//       See useLocalSortDerivedState and getSortProps for the parts that were removed here.
 
 export interface ILegacySortStateHook<T> {
   sortBy: ISortBy;

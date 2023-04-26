@@ -1,10 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  PaginationProps,
-  ToolbarItemProps,
-  ToolbarProps,
-} from "@patternfly/react-core";
+import { ToolbarItemProps, ToolbarProps } from "@patternfly/react-core";
 import {
   TableComposableProps,
   TdProps,
@@ -16,6 +12,8 @@ import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-s
 import { IFilterToolbarProps } from "@app/shared/components/FilterToolbar";
 import { objectKeys } from "@app/utils/utils";
 import { IUseTableControlPropsArgs } from "./types";
+import { getPaginationProps } from "./pagination";
+import { getSortProps } from "./sorting";
 
 export const useTableControlProps = <
   TItem extends { name: string },
@@ -75,16 +73,7 @@ export const useTableControlProps = <
     clearFiltersButtonText: t("actions.clearAllFilters"),
   };
 
-  const paginationProps: PaginationProps = {
-    itemCount: totalItemCount,
-    perPage: itemsPerPage,
-    page: pageNumber,
-    onSetPage: (event, pageNumber) => setPageNumber(pageNumber),
-    onPerPageSelect: (event, perPage) => {
-      setPageNumber(1);
-      setItemsPerPage(perPage);
-    },
-  };
+  const paginationProps = getPaginationProps(args);
 
   // When items are removed, make sure the current page still exists
   const lastPageNumber = Math.max(Math.ceil(totalItemCount / itemsPerPage), 1);
@@ -122,23 +111,11 @@ export const useTableControlProps = <
     columnKey: TColumnKey;
   }): Omit<ThProps, "ref"> => ({
     ...(sortableColumns.includes(columnKey as TSortableColumnKey)
-      ? {
-          sort: {
-            columnIndex: columnKeys.indexOf(columnKey),
-            sortBy: {
-              index: activeSort
-                ? columnKeys.indexOf(activeSort.columnKey as TSortableColumnKey)
-                : undefined,
-              direction: activeSort?.direction,
-            },
-            onSort: (event, index, direction) => {
-              setActiveSort({
-                columnKey: columnKeys[index] as TSortableColumnKey,
-                direction,
-              });
-            },
-          },
-        }
+      ? getSortProps({
+          ...args,
+          columnKeys,
+          columnKey: columnKey as TSortableColumnKey,
+        })
       : {}),
     children: columnNames[columnKey],
   });

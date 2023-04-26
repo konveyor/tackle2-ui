@@ -8,7 +8,7 @@ import {
 
 // NOTE: This was refactored to return generic state data and decouple the client-side-filtering piece to another helper function.
 //       See useFilterState for the new version, which should probably be used instead of this everywhere eventually.
-//       See useLocalFilterDerivedState and useTableControlProps for the pieces that were removed here.
+//       See useLocalFilterDerivedState and getFilterProps for the pieces that were removed here.
 
 export interface IFilterStateHook<T> {
   filterValues: IFilterValues;
