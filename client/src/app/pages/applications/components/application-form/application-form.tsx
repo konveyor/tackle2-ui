@@ -41,7 +41,7 @@ export interface FormValues {
   description: string;
   comments: string;
   businessServiceName: string;
-  tagNames: string[];
+  tags: TagRef[];
   owner: string | null;
   contributors: string[];
   kind: string;
@@ -258,7 +258,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       id: application?.id || 0,
       comments: application?.comments || "",
       businessServiceName: application?.businessService?.name || "",
-      tagNames: application?.tags?.map((tag) => tag?.name) || [],
+      tags: application?.tags || [],
       owner: application?.owner?.name || undefined,
       contributors:
         application?.contributors?.map((contributor) => contributor.name) || [],
@@ -312,10 +312,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         formValues?.businessServiceName === businessService.name
     );
 
-    const matchingTagRefs = tags?.filter((tagRef) =>
-      formValues.tagNames.includes(tagRef.name)
-    );
-
     const matchingOwner = stakeholders.find(
       (stakeholder) => formValues?.owner === stakeholder.name
     );
@@ -334,7 +330,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             name: matchingBusinessService.name,
           }
         : undefined,
-      tags: matchingTagRefs,
+      tags: formValues.tags,
       owner: matchingOwner
         ? { id: matchingOwner.id, name: matchingOwner.name }
         : undefined,
@@ -362,10 +358,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     };
 
     if (application) {
-      updateApplication({
-        ...application,
-        ...payload,
-      });
+      updateApplication(payload);
     } else {
       createApplication(payload);
     }
@@ -385,6 +378,9 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       toString: () => `Subversion`,
     },
   ];
+
+  const getTagRef = (tagName: string) =>
+    tags?.find((tag) => tag.name === tagName);
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -448,7 +444,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
           <HookFormPFGroupController
             control={control}
-            name="tagNames"
+            name="tags"
             label={t("terms.tags")}
             fieldId="tags"
             renderInput={({ field: { value, name, onChange } }) => (
@@ -463,8 +459,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 toggleAriaLabel="tags dropdown toggle"
                 aria-label={name}
                 value={value
-                  .map((formTagName) =>
-                    tags?.find((tagRef) => tagRef.name === formTagName)
+                  .map((formTag) =>
+                    tags?.find((tagRef) => tagRef.name === formTag.name)
                   )
                   .map((matchingTag) =>
                     matchingTag
@@ -482,14 +478,19 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
                   const currentValue = value || [];
                   const e = currentValue.find(
-                    (f) => f === selectionWithValue.value
+                    (f) => f.name === selectionWithValue.value
                   );
                   if (e) {
                     onChange(
-                      currentValue.filter((f) => f !== selectionWithValue.value)
+                      currentValue.filter(
+                        (f) => f.name !== selectionWithValue.value
+                      )
                     );
                   } else {
-                    onChange([...currentValue, selectionWithValue.value]);
+                    onChange([
+                      ...currentValue,
+                      getTagRef(selectionWithValue.value),
+                    ]);
                   }
                 }}
                 onClear={() => onChange([])}
