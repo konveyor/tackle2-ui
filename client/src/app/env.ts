@@ -1,7 +1,7 @@
 // NOTE: If you define another ENV_VAR here, you must also update the
 // TACKLE_ENV array in 'server/helpers.js'
 const ENV_VAR_DEFAULTS = {
-  AUTH_REQUIRED: "true",
+  AUTH_REQUIRED: "false",
   KEYCLOAK_REALM: "tackle",
   KEYCLOAK_CLIENT_ID: "tackle-ui",
   KEYCLOAK_SERVER_URL: "",

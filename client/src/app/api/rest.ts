@@ -34,6 +34,7 @@ import {
   TagCategory,
   Task,
   Taskgroup,
+  MigrationWave,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
@@ -47,6 +48,7 @@ export const STAKEHOLDER_GROUPS = HUB + "/stakeholdergroups";
 export const JOB_FUNCTIONS = HUB + "/jobfunctions";
 export const TAG_CATEGORIES = HUB + "/tagcategories";
 export const TAGS = HUB + "/tags";
+export const MIGRATION_WAVES = HUB + "/migrationwaves";
 
 export const APPLICATIONS = HUB + "/applications";
 export const APPLICATION_DEPENDENCY = HUB + "/dependencies";
@@ -544,6 +546,16 @@ export const removeFileTaskgroup = ({
     // formHeaders
   );
 };
+
+export const getMigrationWaves = (): Promise<MigrationWave[]> =>
+  axios.get(MIGRATION_WAVES).then((response) => response.data);
+
+export const createMigrationWave = (
+  obj: MigrationWave
+): Promise<MigrationWave> => axios.post(MIGRATION_WAVES, obj);
+
+export const deleteMigrationWave = (id: number): Promise<MigrationWave> =>
+  axios.delete(`${MIGRATION_WAVES}/${id}`);
 
 export const updateRuleBundle = (obj: RuleBundle) =>
   axios.put(`${RULEBUNDLES}/${obj.id}`, obj);
