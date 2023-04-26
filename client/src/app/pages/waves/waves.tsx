@@ -99,6 +99,7 @@ export const Waves: React.FC = () => {
     }),
     initialSort: { columnKey: "startDate", direction: "asc" },
     hasPagination: true,
+    isLoading: isFetching,
   });
   const {
     currentPageItems,

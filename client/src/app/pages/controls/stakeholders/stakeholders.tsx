@@ -187,6 +187,7 @@ export const Stakeholders: React.FC = () => {
     }),
     initialSort: { columnKey: "name", direction: "asc" },
     hasPagination: true,
+    isLoading: isFetching,
   });
 
   const {

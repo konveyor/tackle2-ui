@@ -114,6 +114,7 @@ export const JiraTrackers: React.FC = () => {
     }),
     sortableColumns: ["name", "url"],
     hasPagination: true,
+    isLoading: isFetching,
   });
   const {
     currentPageItems,

@@ -18,7 +18,7 @@ import { IPaginationPropsArgs } from "./pagination/getPaginationProps";
 
 // Common args
 // - Used by both useTableControlState and useTableControlUrlParams
-// - Can be defined without any state or query data in scope
+// - Does not require any state or query values in scope
 export interface ITableControlCommonArgs<
   TItem extends { name: string }, // The actual API objects represented by rows in the table
   TColumnKey extends string, // Unique identifiers for the columns in the table
@@ -35,20 +35,30 @@ export interface ITableControlCommonArgs<
   filterCategories?: FilterCategory<TItem>[]; // TODO this shouldn't be included here if we split out IFilterStateArgs
 }
 
+// Fetch-related args
+// - Used by both useTableControlState and useTableControlProps
+// - Requires query values in scope but not state values
+export interface ITableControlFetchStatusArgs {
+  isLoading?: boolean;
+}
+
 // Derived state option args
-// - Used for only useTableControlState (client-side filtering/sorting/pagination)
+// - Used by only useTableControlState (client-side filtering/sorting/pagination)
+// - Requires state and query values in scope
 export interface IUseTableControlStateArgs<
   TItem extends { name: string },
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 > extends ITableControlCommonArgs<TItem, TColumnKey, TSortableColumnKey>,
+    ITableControlFetchStatusArgs,
     ILocalSortDerivedStateArgs<TItem, TSortableColumnKey>,
     ILocalPaginationDerivedStateArgs<TItem> {
   filterStorageKey?: string; // TODO this shouldn't be included here if we split out IFilterStateArgs?
 }
 
 // Rendering args
-// - Used by useTableControlProps
+// - Used by only useTableControlProps
+// - Requires state and query values in scope
 // - Combines all args above with either:
 //   - The return values of useTableControlState
 //   - The return values of useTableControlUrlParams and args derived from server-side filtering/sorting/pagination
@@ -57,10 +67,10 @@ export interface IUseTableControlPropsArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 > extends ITableControlCommonArgs<TItem, TColumnKey, TSortableColumnKey>,
+    ITableControlFetchStatusArgs,
     ISortPropsArgs<TColumnKey, TSortableColumnKey>,
     IPaginationPropsArgs {
   currentPageItems: TItem[];
-  isLoading?: boolean;
   filterState: ReturnType<typeof useLegacyFilterState<TItem>>; // TODO adjust this for separation of concerns
   expansionState: ReturnType<
     typeof useCompoundExpansionState<TItem, TColumnKey>
