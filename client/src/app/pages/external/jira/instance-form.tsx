@@ -35,7 +35,7 @@ interface FormValues {
   name: string;
   url: string;
   kind: JiraKind;
-  credentialName: string;
+  credentials: string;
 }
 
 export interface InstanceFormProps {
@@ -86,7 +86,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
 
   const onSubmit = (formValues: FormValues) => {
     const matchingCredential = identities.find(
-      (identity) => formValues?.credentialName === identity.name
+      (identity) => formValues?.credentials === identity.name
     );
 
     const payload: JiraTracker = {
@@ -126,11 +126,11 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
       ),
     url: yup
       .string()
-      .defined()
       .trim()
+      .required(t("validation.required"))
       .max(250, t("validation.maxLength", { length: 250 })),
     kind: yup.mixed<JiraKind>().required(),
-    credentialName: yup.string().required(),
+    credentials: yup.string().required(),
   });
 
   const {
@@ -145,8 +145,8 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
       name: instance?.name || "",
       url: instance?.url || "",
       id: instance?.id || 0,
-      kind: instance?.kind,
-      credentialName: instance?.identity?.name || "",
+      kind: instance?.kind || undefined,
+      credentials: instance?.identity?.name || "",
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
@@ -222,21 +222,21 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
             options={kindOptions}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<JiraKind>;
-              setValue(name, selectionValue.value);
+              setValue("kind", selectionValue.value);
             }}
           />
         )}
       />
       <HookFormPFGroupController
         control={control}
-        name="credentialName"
+        name="credentials"
         label={t("terms.credentials")}
-        fieldId="Credentials"
+        fieldId="credentials-select"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
             id="credentials-select"
-            toggleId="credentials-toggle"
+            toggleId="credentials-select-toggle"
             maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
             variant="typeahead"
             placeholderText={t("composed.selectMany", {
@@ -244,13 +244,14 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
             })}
             toggleAriaLabel="Credentials select dropdown toggle"
             aria-label={name}
-            value={value ? toOptionLike(value, identityOptions) : undefined}
+            value={value ? toOptionLike(value, identityOptions) : ""}
             options={identityOptions}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<string>;
-              onChange(selectionValue.value);
+              setValue("credentials", selectionValue.value);
+              // onChange(selectionValue.value);
             }}
-            onClear={() => onChange([])}
+            onClear={() => onChange("")}
           />
         )}
       />

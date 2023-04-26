@@ -1,4 +1,4 @@
 export const FEATURES_ENABLED = {
-  migrationWaves: false,
+  migrationWaves: true,
   dynamicReports: false,
 };
