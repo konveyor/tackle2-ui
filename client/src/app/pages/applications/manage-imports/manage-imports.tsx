@@ -47,7 +47,7 @@ import {
   useDeleteImportSummaryMutation,
   useFetchImportSummaries,
 } from "@app/queries/imports";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import {
   FilterCategory,
   FilterToolbar,
@@ -119,7 +119,7 @@ export const ManageImports: React.FC = () => {
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     importSummaries || [],
     filterCategories
   );

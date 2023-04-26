@@ -33,7 +33,7 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
@@ -76,7 +76,7 @@ export const JobFunctions: React.FC = () => {
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     jobFunctions || [],
     filterCategories
   );

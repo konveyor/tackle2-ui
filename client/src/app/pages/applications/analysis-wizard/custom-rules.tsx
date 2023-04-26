@@ -42,7 +42,7 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { IReadFile, Ref } from "@app/api/models";
 import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
 
@@ -129,7 +129,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     values?.customRulesFiles || [],
     filterCategories
   );

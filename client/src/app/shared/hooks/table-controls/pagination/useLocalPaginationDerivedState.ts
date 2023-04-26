@@ -4,7 +4,7 @@ export interface IPaginationDerivedStateArgs<TItem> {
   items: TItem[];
 }
 
-export const usePaginationDerivedState = <TItem>({
+export const useLocalPaginationDerivedState = <TItem>({
   paginationState: { pageNumber, itemsPerPage },
   items,
 }: IPaginationDerivedStateArgs<TItem> & {

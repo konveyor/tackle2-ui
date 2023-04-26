@@ -1,11 +1,11 @@
-import { useTableControlState } from "./useTableControlState";
+import { useLocalTableControlState } from "./useLocalTableControlState";
 import { useTableControlProps } from "./useTableControlProps";
 import { IUseTableControlStateArgs } from "./types";
 
-export const useTableControls = <
+export const useLocalTableControls = <
   TItem extends { name: string },
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 >(
   args: IUseTableControlStateArgs<TItem, TColumnKey, TSortableColumnKey>
-) => useTableControlProps(useTableControlState(args));
+) => useTableControlProps(useLocalTableControlState(args));

@@ -1,6 +1,6 @@
 import { TableComposableProps } from "@patternfly/react-table";
 import { FilterCategory } from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "../useFilterState";
+import { useLegacyFilterState } from "../useLegacyFilterState";
 import { ISortDerivedStateArgs, ISortState, ISortStateArgs } from "./sorting";
 import {
   IPaginationState,
@@ -54,7 +54,7 @@ export interface IUseTableControlPropsArgs<
   currentPageItems: TItem[];
   totalItemCount: number;
   isLoading?: boolean;
-  filterState: ReturnType<typeof useFilterState<TItem>>; // TODO adjust this for separation of concerns
+  filterState: ReturnType<typeof useLegacyFilterState<TItem>>; // TODO adjust this for separation of concerns
   expansionState: ReturnType<
     typeof useCompoundExpansionState<TItem, TColumnKey>
   >;

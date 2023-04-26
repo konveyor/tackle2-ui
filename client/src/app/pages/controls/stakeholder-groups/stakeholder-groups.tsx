@@ -44,7 +44,7 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import {
@@ -163,7 +163,7 @@ export const StakeholderGroups: React.FC = () => {
       },
     },
   ];
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     stakeholderGroups || [],
     filterCategories
   );

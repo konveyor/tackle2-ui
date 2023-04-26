@@ -1,5 +1,5 @@
 export * from "./types";
-export * from "./useTableControlState";
+export * from "./useLocalTableControlState";
 export * from "./useTableControlProps";
-export * from "./useTableControls";
+export * from "./useLocalTableControls";
 export * from "./useTableControlUrlParams";

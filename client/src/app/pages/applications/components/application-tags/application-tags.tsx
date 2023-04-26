@@ -25,7 +25,7 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useHistory } from "react-router-dom";
 import { ApplicationTagLabel } from "./application-tag-label";
 
@@ -157,7 +157,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
     filterValues,
     setFilterValues,
     filteredItems: filteredTags,
-  } = useFilterState(tags, filterCategories);
+  } = useLegacyFilterState(tags, filterCategories);
 
   const tagsBySource = new Map<string, Tag[]>();
   filteredTags.forEach((tag) => {

@@ -6,6 +6,10 @@ import {
   IMultiselectFilterCategory,
 } from "../components/FilterToolbar";
 
+// NOTE: This was refactored to return generic state data and decouple the client-side-filtering piece to another helper function.
+//       See useFilterState for the new version, which should probably be used instead of this everywhere eventually.
+//       See useLocalFilterDerivedState and useTableControlProps for the pieces that were removed here.
+
 export interface IFilterStateHook<T> {
   filterValues: IFilterValues;
   setFilterValues: (values: IFilterValues) => void;
@@ -14,7 +18,7 @@ export interface IFilterStateHook<T> {
 
 // TODO refactor this to take an object of args for consistency with the other table state hooks
 
-export const useFilterState = <T>(
+export const useLegacyFilterState = <T>(
   items: T[],
   filterCategories: FilterCategory<T>[],
   storageKey?: string

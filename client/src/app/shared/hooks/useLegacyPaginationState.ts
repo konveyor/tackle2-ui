@@ -1,9 +1,9 @@
 import * as React from "react";
 import { PaginationProps } from "@patternfly/react-core";
 
-// NOTE: This was refactored to return generic state data and decouple the PF props piece to another helper function.
+// NOTE: This was refactored to return generic state data and decouple the client-side-pagination piece to another helper function.
 //       See usePaginationState for the new version, which should probably be used instead of this everywhere eventually.
-//       See usePaginationProps for the pieces that were removed here.
+//       See useLocalPaginationDerivedState and useTableControlProps for the pieces that were removed here.
 
 export type PaginationStateProps = Pick<
   PaginationProps,

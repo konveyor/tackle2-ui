@@ -1,11 +1,14 @@
-import { useFilterState } from "../useFilterState";
+import { useLegacyFilterState } from "../useLegacyFilterState";
 import { useCompoundExpansionState } from "../useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
-import { usePaginationDerivedState, usePaginationState } from "./pagination";
-import { useSortState, useSortDerivedState } from "./sorting";
+import {
+  useLocalPaginationDerivedState,
+  usePaginationState,
+} from "./pagination";
+import { useSortState, useLocalSortDerivedState } from "./sorting";
 import { IUseTableControlStateArgs, IUseTableControlPropsArgs } from "./types";
 
-export const useTableControlState = <
+export const useLocalTableControlState = <
   TItem extends { name: string },
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
@@ -23,7 +26,11 @@ export const useTableControlState = <
     initialItemsPerPage = 10,
   } = args;
 
-  const filterState = useFilterState(items, filterCategories, filterStorageKey);
+  const filterState = useLegacyFilterState(
+    items,
+    filterCategories,
+    filterStorageKey
+  );
 
   const expansionState = useCompoundExpansionState<TItem, TColumnKey>();
 
@@ -33,7 +40,7 @@ export const useTableControlState = <
   });
 
   const sortState = useSortState({ sortableColumns, initialSort });
-  const { sortedItems } = useSortDerivedState({
+  const { sortedItems } = useLocalSortDerivedState({
     sortState,
     items: filterState.filteredItems,
     getSortValues,
@@ -42,7 +49,7 @@ export const useTableControlState = <
   const paginationState = usePaginationState({
     initialItemsPerPage,
   });
-  const { currentPageItems } = usePaginationDerivedState({
+  const { currentPageItems } = useLocalPaginationDerivedState({
     paginationState,
     items,
   });

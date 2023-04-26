@@ -9,7 +9,7 @@ import {
   FilterCategory,
   FilterType,
 } from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { dedupeFunction } from "@app/utils/utils";
@@ -156,7 +156,7 @@ export const useApplicationsFilterValues = (
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     applications || [],
     filterCategories,
     "applicationsFilter"

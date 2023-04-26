@@ -20,7 +20,7 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useQuery } from "@tanstack/react-query";
 
 export interface ITableRowData {
@@ -151,7 +151,7 @@ export const IdentifiedRisksTable: React.FC<
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     tableData || [],
     filterCategories
   );

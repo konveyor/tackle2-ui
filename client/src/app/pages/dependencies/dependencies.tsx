@@ -25,7 +25,7 @@ import {
 import {
   useTableControlUrlParams,
   useTableControlProps,
-} from "@app/shared/hooks/use-table-controls";
+} from "@app/shared/hooks/table-controls";
 import { useCompoundExpansionState } from "@app/shared/hooks/useCompoundExpansionState";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {

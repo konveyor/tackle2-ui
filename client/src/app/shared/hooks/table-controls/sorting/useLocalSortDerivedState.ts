@@ -11,7 +11,10 @@ export interface ISortDerivedStateArgs<
   ) => Record<TSortableColumnKey, string | number | boolean>;
 }
 
-export const useSortDerivedState = <TItem, TSortableColumnKey extends string>({
+export const useLocalSortDerivedState = <
+  TItem,
+  TSortableColumnKey extends string
+>({
   sortState: { activeSort },
   items,
   getSortValues,
