@@ -61,7 +61,7 @@ export const JobFunctions: React.FC = () => {
   const { jobFunctions, isFetching, fetchError, refetch } =
     useFetchJobFunctions();
 
-  const filterCategories: FilterCategory<JobFunction>[] = [
+  const filterCategories: FilterCategory<JobFunction, "name">[] = [
     {
       key: "name",
       title: t("terms.name"),
@@ -213,7 +213,7 @@ export const JobFunctions: React.FC = () => {
           paginationProps={paginationProps}
           paginationIdPrefix="job-functions"
           toolbarToggle={
-            <FilterToolbar<JobFunction>
+            <FilterToolbar
               filterCategories={filterCategories}
               filterValues={filterValues}
               setFilterValues={setFilterValues}

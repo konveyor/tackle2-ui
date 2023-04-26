@@ -103,7 +103,10 @@ export const Identities: React.FC = () => {
     { key: "proxy", value: "Proxy" },
     { key: "jira", value: "Jira" },
   ];
-  const filterCategories: FilterCategory<Identity>[] = [
+  const filterCategories: FilterCategory<
+    Identity,
+    "name" | "type" | "createdBy"
+  >[] = [
     {
       key: "name",
       title: "Name",
@@ -303,7 +306,7 @@ export const Identities: React.FC = () => {
             paginationProps={paginationProps}
             paginationIdPrefix="identities"
             toolbarToggle={
-              <FilterToolbar<Identity>
+              <FilterToolbar
                 filterCategories={filterCategories}
                 filterValues={filterValues}
                 setFilterValues={setFilterValues}

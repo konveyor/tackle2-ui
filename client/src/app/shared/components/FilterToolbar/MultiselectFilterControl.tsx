@@ -16,18 +16,21 @@ import {
 
 export interface IMultiselectFilterControlProps<
   TItem,
-  TCategoryKey extends string
-> extends IFilterControlProps<TItem, TCategoryKey> {
-  category: IMultiselectFilterCategory<TItem, TCategoryKey>;
+  TFilterCategoryKey extends string
+> extends IFilterControlProps<TItem, TFilterCategoryKey> {
+  category: IMultiselectFilterCategory<TItem, TFilterCategoryKey>;
 }
 
-export const MultiselectFilterControl = <TItem, TCategoryKey extends string>({
+export const MultiselectFilterControl = <
+  TItem,
+  TFilterCategoryKey extends string
+>({
   category,
   filterValue,
   setFilterValue,
   showToolbarItem,
 }: React.PropsWithChildren<
-  IMultiselectFilterControlProps<TItem, TCategoryKey>
+  IMultiselectFilterControlProps<TItem, TFilterCategoryKey>
 >): JSX.Element | null => {
   const { t } = useTranslation();
 

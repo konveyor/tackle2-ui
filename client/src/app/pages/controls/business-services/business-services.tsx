@@ -86,7 +86,10 @@ export const BusinessServices: React.FC = () => {
 
   const { data: applications } = useFetchApplications();
 
-  const filterCategories: FilterCategory<BusinessService>[] = [
+  const filterCategories: FilterCategory<
+    BusinessService,
+    "name" | "description" | "owner"
+  >[] = [
     {
       key: "name",
       title: t("terms.name"),
@@ -260,7 +263,7 @@ export const BusinessServices: React.FC = () => {
           fetchError={fetchError}
           toolbarClearAllFilters={handleOnClearAllFilters}
           toolbarToggle={
-            <FilterToolbar<BusinessService>
+            <FilterToolbar
               filterCategories={filterCategories}
               filterValues={filterValues}
               setFilterValues={setFilterValues}

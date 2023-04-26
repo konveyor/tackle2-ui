@@ -122,7 +122,10 @@ export const StakeholderGroups: React.FC = () => {
     },
   ];
 
-  const filterCategories: FilterCategory<StakeholderGroup>[] = [
+  const filterCategories: FilterCategory<
+    StakeholderGroup,
+    "name" | "description" | "stakeholders"
+  >[] = [
     {
       key: "name",
       title: t("terms.name"),
@@ -315,7 +318,7 @@ export const StakeholderGroups: React.FC = () => {
           fetchError={fetchError}
           toolbarClearAllFilters={handleOnClearAllFilters}
           toolbarToggle={
-            <FilterToolbar<StakeholderGroup>
+            <FilterToolbar
               filterCategories={filterCategories}
               filterValues={filterValues}
               setFilterValues={setFilterValues}

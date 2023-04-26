@@ -157,7 +157,10 @@ export const Tags: React.FC = () => {
     isEqual: (a, b) => a.id === b.id,
   });
 
-  const filterCategories: FilterCategory<TagCategory>[] = [
+  const filterCategories: FilterCategory<
+    TagCategory,
+    "tags" | "rank" | "color"
+  >[] = [
     {
       key: "tags",
       title: t("terms.name"),
@@ -428,7 +431,7 @@ export const Tags: React.FC = () => {
           fetchError={fetchError}
           toolbarClearAllFilters={handleOnClearAllFilters}
           toolbarToggle={
-            <FilterToolbar<TagCategory>
+            <FilterToolbar
               filterCategories={filterCategories}
               filterValues={filterValues}
               setFilterValues={setFilterValues}

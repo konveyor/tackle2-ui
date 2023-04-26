@@ -20,7 +20,8 @@ import { IPaginationPropsArgs } from "./pagination/getPaginationProps";
 export interface ITableControlCommonArgs<
   TItem extends { name: string }, // The actual API objects represented by rows in the table
   TColumnKey extends string, // Unique identifiers for the columns in the table
-  TSortableColumnKey extends TColumnKey // A subset of column keys that have sorting enabled
+  TSortableColumnKey extends TColumnKey, // A subset of column keys that have sorting enabled
+  TFilterCategoryKey extends string = string // Unique identifiers for filters (do not have to be the same as column keys)
 > extends ISortStateArgs<TSortableColumnKey>,
     IPaginationStateArgs {
   columnNames: Record<TColumnKey, string>; // An ordered mapping of unique keys to human-readable column name strings
@@ -30,7 +31,7 @@ export interface ITableControlCommonArgs<
   hasActionsColumn?: boolean;
   variant?: TableComposableProps["variant"];
   ////
-  filterCategories?: FilterCategory<TItem>[]; // TODO this shouldn't be included here if we split out IFilterStateArgs
+  filterCategories?: FilterCategory<TItem, TFilterCategoryKey>[]; // TODO this shouldn't be included here if we split out IFilterStateArgs
 }
 
 // Fetch-related args
@@ -46,8 +47,14 @@ export interface ITableControlFetchStatusArgs {
 export interface IUseTableControlStateArgs<
   TItem extends { name: string },
   TColumnKey extends string,
-  TSortableColumnKey extends TColumnKey
-> extends ITableControlCommonArgs<TItem, TColumnKey, TSortableColumnKey>,
+  TSortableColumnKey extends TColumnKey,
+  TFilterCategoryKey extends string = string
+> extends ITableControlCommonArgs<
+      TItem,
+      TColumnKey,
+      TSortableColumnKey,
+      TFilterCategoryKey
+    >,
     ITableControlFetchStatusArgs,
     ILocalSortDerivedStateArgs<TItem, TSortableColumnKey>,
     ILocalPaginationDerivedStateArgs<TItem> {
@@ -63,13 +70,21 @@ export interface IUseTableControlStateArgs<
 export interface IUseTableControlPropsArgs<
   TItem extends { name: string },
   TColumnKey extends string,
-  TSortableColumnKey extends TColumnKey
-> extends ITableControlCommonArgs<TItem, TColumnKey, TSortableColumnKey>,
+  TSortableColumnKey extends TColumnKey,
+  TFilterCategoryKey extends string = string
+> extends ITableControlCommonArgs<
+      TItem,
+      TColumnKey,
+      TSortableColumnKey,
+      TFilterCategoryKey
+    >,
     ITableControlFetchStatusArgs,
     ISortPropsArgs<TColumnKey, TSortableColumnKey>,
     IPaginationPropsArgs {
   currentPageItems: TItem[];
-  filterState: ReturnType<typeof useLegacyFilterState<TItem>>; // TODO adjust this for separation of concerns
+  filterState: ReturnType<
+    typeof useLegacyFilterState<TItem, TFilterCategoryKey>
+  >; // TODO adjust this for separation of concerns
   expansionState: ReturnType<
     typeof useCompoundExpansionState<TItem, TColumnKey>
   >;

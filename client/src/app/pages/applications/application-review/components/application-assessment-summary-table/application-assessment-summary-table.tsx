@@ -77,7 +77,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
     { key: "UNKNOWN", value: "Unknown" },
   ];
 
-  const filterCategories: FilterCategory<ITableItem>[] = [
+  const filterCategories: FilterCategory<ITableItem, "riskValue">[] = [
     {
       key: "riskValue",
       title: "Risk",
@@ -175,7 +175,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
       paginationIdPrefix="app-assessment-summary"
       toolbarClearAllFilters={handleOnClearAllFilters}
       toolbarToggle={
-        <FilterToolbar<ITableItem>
+        <FilterToolbar
           filterCategories={filterCategories}
           filterValues={filterValues}
           setFilterValues={setFilterValues}

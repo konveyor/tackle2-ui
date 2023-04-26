@@ -695,7 +695,7 @@ export const ApplicationsTable: React.FC = () => {
             }
           }}
           toolbarToggle={
-            <FilterToolbar<Application>
+            <FilterToolbar
               filterCategories={filterCategories}
               filterValues={filterValues}
               setFilterValues={setFilterValues}

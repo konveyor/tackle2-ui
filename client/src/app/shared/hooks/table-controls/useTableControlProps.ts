@@ -19,9 +19,15 @@ import { usePaginationEffects } from "./pagination/usePaginationEffects";
 export const useTableControlProps = <
   TItem extends { name: string },
   TColumnKey extends string,
-  TSortableColumnKey extends TColumnKey
+  TSortableColumnKey extends TColumnKey,
+  TFilterCategoryKey extends string = string
 >(
-  args: IUseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey>
+  args: IUseTableControlPropsArgs<
+    TItem,
+    TColumnKey,
+    TSortableColumnKey,
+    TFilterCategoryKey
+  >
 ) => {
   const { t } = useTranslation();
 
@@ -80,7 +86,7 @@ export const useTableControlProps = <
     onSelectMultiple: selectMultiple,
   };
 
-  const filterToolbarProps: IFilterToolbarProps<TItem> = {
+  const filterToolbarProps: IFilterToolbarProps<TItem, TFilterCategoryKey> = {
     filterCategories: filterCategories!,
     filterValues,
     setFilterValues,

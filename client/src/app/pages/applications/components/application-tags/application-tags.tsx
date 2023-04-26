@@ -123,7 +123,10 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
   const sources = new Set<string>();
   tags.forEach((tag) => sources.add(tag.source || ""));
 
-  const filterCategories: FilterCategory<TagWithSource>[] = [
+  const filterCategories: FilterCategory<
+    TagWithSource,
+    "source" | "tagCategory"
+  >[] = [
     {
       key: "source",
       title: t("terms.source"),
@@ -185,7 +188,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
         <ToolbarContent className={spacing.p_0}>
           <ToolbarItem>Filter by:</ToolbarItem>
           <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
-            <FilterToolbar<TagWithSource>
+            <FilterToolbar
               filterCategories={filterCategories}
               filterValues={filterValues}
               setFilterValues={setFilterValues}

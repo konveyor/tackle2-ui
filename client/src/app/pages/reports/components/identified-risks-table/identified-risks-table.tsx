@@ -99,7 +99,10 @@ export const IdentifiedRisksTable: React.FC<
       cellFormatters: [],
     },
   ];
-  const filterCategories: FilterCategory<ITableRowData>[] = [
+  const filterCategories: FilterCategory<
+    ITableRowData,
+    "category" | "question" | "answer" | "applications"
+  >[] = [
     {
       key: "category",
       title: t("terms.category"),
@@ -195,7 +198,7 @@ export const IdentifiedRisksTable: React.FC<
       fetchError={fetchError}
       toolbarClearAllFilters={handleOnClearAllFilters}
       toolbarToggle={
-        <FilterToolbar<ITableRowData>
+        <FilterToolbar
           filterCategories={filterCategories}
           filterValues={filterValues}
           setFilterValues={setFilterValues}

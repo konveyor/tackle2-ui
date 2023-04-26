@@ -8,18 +8,20 @@ import {
 import { IFilterControlProps } from "./FilterControl";
 import { ISelectFilterCategory } from "./FilterToolbar";
 
-export interface ISelectFilterControlProps<TItem, TCategoryKey extends string>
-  extends IFilterControlProps<TItem, TCategoryKey> {
-  category: ISelectFilterCategory<TItem, TCategoryKey>;
+export interface ISelectFilterControlProps<
+  TItem,
+  TFilterCategoryKey extends string
+> extends IFilterControlProps<TItem, TFilterCategoryKey> {
+  category: ISelectFilterCategory<TItem, TFilterCategoryKey>;
 }
 
-export const SelectFilterControl = <TItem, TCategoryKey extends string>({
+export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
   category,
   filterValue,
   setFilterValue,
   showToolbarItem,
 }: React.PropsWithChildren<
-  ISelectFilterControlProps<TItem, TCategoryKey>
+  ISelectFilterControlProps<TItem, TFilterCategoryKey>
 >): JSX.Element | null => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
 

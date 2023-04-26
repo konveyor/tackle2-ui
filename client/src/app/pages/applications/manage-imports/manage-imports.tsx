@@ -107,7 +107,10 @@ export const ManageImports: React.FC = () => {
     onDeleteImportSummaryError
   );
 
-  const filterCategories: FilterCategory<ApplicationImportSummary>[] = [
+  const filterCategories: FilterCategory<
+    ApplicationImportSummary,
+    "filename"
+  >[] = [
     {
       key: "filename",
       title: "File Name",
@@ -347,7 +350,7 @@ export const ManageImports: React.FC = () => {
             fetchError={fetchError}
             toolbarClearAllFilters={handleOnClearAllFilters}
             toolbarToggle={
-              <FilterToolbar<ApplicationImportSummary>
+              <FilterToolbar
                 filterCategories={filterCategories}
                 filterValues={filterValues}
                 setFilterValues={setFilterValues}

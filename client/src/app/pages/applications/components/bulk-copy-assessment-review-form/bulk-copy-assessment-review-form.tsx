@@ -89,7 +89,10 @@ export const BulkCopyAssessmentReviewForm: React.FC<
 
   const { tagCategories: tagCategories } = useFetchTagCategories();
 
-  const filterCategories: FilterCategory<Application>[] = [
+  const filterCategories: FilterCategory<
+    Application,
+    "name" | "businessService" | "description" | "tags"
+  >[] = [
     {
       key: "name",
       title: "Name",
@@ -319,7 +322,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             fetchError={fetchError}
             toolbarClearAllFilters={handleOnClearAllFilters}
             toolbarToggle={
-              <FilterToolbar<Application>
+              <FilterToolbar
                 filterCategories={filterCategories}
                 filterValues={filterValues}
                 setFilterValues={setFilterValues}

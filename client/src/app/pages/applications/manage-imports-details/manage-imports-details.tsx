@@ -98,7 +98,10 @@ export const ManageImportsDetails: React.FC = () => {
       });
   };
 
-  const filterCategories: FilterCategory<ApplicationImport>[] = [
+  const filterCategories: FilterCategory<
+    ApplicationImport,
+    "Application Name"
+  >[] = [
     {
       key: "Application Name",
       title: "Application Name",

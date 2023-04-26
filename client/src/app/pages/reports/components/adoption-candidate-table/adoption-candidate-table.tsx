@@ -176,7 +176,7 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
     },
   ];
 
-  const filterCategories: FilterCategory<TableRowData>[] = [
+  const filterCategories: FilterCategory<TableRowData, "name">[] = [
     {
       key: "name",
       title: t("terms.name"),
@@ -292,7 +292,7 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
       filtersApplied={false}
       toolbarClearAllFilters={handleOnClearAllFilters}
       toolbarToggle={
-        <FilterToolbar<TableRowData>
+        <FilterToolbar
           filterCategories={filterCategories}
           filterValues={filterValues}
           setFilterValues={setFilterValues}

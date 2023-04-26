@@ -114,7 +114,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
       };
     });
 
-  const filterCategories: FilterCategory<IReadFile>[] = [
+  const filterCategories: FilterCategory<IReadFile, "name">[] = [
     {
       key: "name",
       title: t("terms.name"),
@@ -267,7 +267,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
             >
               <ToolbarContent>
                 <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
-                  <FilterToolbar<IReadFile>
+                  <FilterToolbar
                     filterCategories={filterCategories}
                     filterValues={filterValues}
                     setFilterValues={setFilterValues}
