@@ -14,6 +14,7 @@ import { objectKeys } from "@app/utils/utils";
 import { IUseTableControlPropsArgs } from "./types";
 import { getPaginationProps } from "./pagination";
 import { getSortProps } from "./sorting";
+import { usePaginationEffects } from "./pagination/usePaginationEffects";
 
 export const useTableControlProps = <
   TItem extends { name: string },
@@ -24,9 +25,11 @@ export const useTableControlProps = <
 ) => {
   const { t } = useTranslation();
 
+  // Note: To avoid repetition, not all args are destructured here since the entire
+  //       args object is passed to other other helpers which require other parts of it.
+  //       For future additions, inspect `args` to see if it has anything more you need.
   const {
     currentPageItems,
-    totalItemCount,
     filterCategories,
     filterState: { filterValues, setFilterValues },
     expansionState: { isCellExpanded, setCellExpanded, expandedCells },
@@ -38,19 +41,11 @@ export const useTableControlProps = <
       toggleItemSelected,
       isItemSelected,
     },
-    sortState: { activeSort, setActiveSort },
-    paginationState: {
-      pageNumber,
-      setPageNumber,
-      itemsPerPage,
-      setItemsPerPage,
-    },
     columnNames,
     sortableColumns = [],
     isSelectable = false,
     expandableVariant = null,
     hasActionsColumn = false,
-    isLoading = false,
     variant,
   } = args;
 
@@ -74,14 +69,7 @@ export const useTableControlProps = <
   };
 
   const paginationProps = getPaginationProps(args);
-
-  // When items are removed, make sure the current page still exists
-  const lastPageNumber = Math.max(Math.ceil(totalItemCount / itemsPerPage), 1);
-  React.useEffect(() => {
-    if (pageNumber > lastPageNumber && !isLoading) {
-      setPageNumber(lastPageNumber);
-    }
-  });
+  usePaginationEffects(args);
 
   const toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem> = {
     onSelectAll: selectAll,
