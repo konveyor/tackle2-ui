@@ -1,6 +1,9 @@
 import * as React from "react";
 import { useSessionStorage } from "@migtools/lib-ui";
-import { IFilterValues } from "@app/shared/components/FilterToolbar";
+import {
+  FilterCategory,
+  IFilterValues,
+} from "@app/shared/components/FilterToolbar";
 import { useUrlParams } from "../../useUrlParams";
 
 export interface IFilterState<TFilterCategoryKey extends string> {
@@ -8,13 +11,17 @@ export interface IFilterState<TFilterCategoryKey extends string> {
   setFilterValues: (values: IFilterValues<TFilterCategoryKey>) => void;
 }
 
-export interface IFilterStateArgs {
+export interface IFilterStateArgs<TItem, TFilterCategoryKey extends string> {
   filterStorageKey?: string;
+  filterCategories?: FilterCategory<TItem, TFilterCategoryKey>[];
 }
 
-export const useFilterState = <TFilterCategoryKey extends string>({
+export const useFilterState = <TItem, TFilterCategoryKey extends string>({
   filterStorageKey,
-}: IFilterStateArgs): IFilterState<TFilterCategoryKey> => {
+}: IFilterStateArgs<
+  TItem,
+  TFilterCategoryKey
+>): IFilterState<TFilterCategoryKey> => {
   const state = React.useState<IFilterValues<TFilterCategoryKey>>({});
   const storage = useSessionStorage<IFilterValues<TFilterCategoryKey>>(
     filterStorageKey || "",

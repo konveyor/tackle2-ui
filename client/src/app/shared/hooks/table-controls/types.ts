@@ -27,9 +27,12 @@ import { useSelectionState } from "@migtools/lib-ui";
 // - Used by both useLocalTableControlState and useTableControlUrlParams
 // - Does not require any state or query values in scope
 export interface ITableControlCommonArgs<
+  TItem extends { name: string },
   TColumnKey extends string,
-  TSortableColumnKey extends TColumnKey
-> extends ISortStateArgs<TSortableColumnKey>,
+  TSortableColumnKey extends TColumnKey,
+  TFilterCategoryKey extends string = string
+> extends IFilterStateArgs<TItem, TFilterCategoryKey>,
+    ISortStateArgs<TSortableColumnKey>,
     IPaginationStateArgs {
   columnNames: Record<TColumnKey, string>; // An ordered mapping of unique keys to human-readable column name strings
   isSelectable?: boolean;
@@ -54,10 +57,15 @@ export type IUseLocalTableControlStateArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string
-> = ITableControlCommonArgs<TColumnKey, TSortableColumnKey> &
+> = ITableControlCommonArgs<
+  TItem,
+  TColumnKey,
+  TSortableColumnKey,
+  TFilterCategoryKey
+> &
   ITableControlFetchStatusArgs &
   ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey> &
-  IFilterStateArgs &
+  IFilterStateArgs<TItem, TFilterCategoryKey> &
   ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> &
   ILocalPaginationDerivedStateArgs<TItem>;
 
@@ -72,7 +80,12 @@ export interface IUseTableControlPropsArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string
-> extends ITableControlCommonArgs<TColumnKey, TSortableColumnKey>,
+> extends ITableControlCommonArgs<
+      TItem,
+      TColumnKey,
+      TSortableColumnKey,
+      TFilterCategoryKey
+    >,
     ITableControlFetchStatusArgs,
     IFilterPropsArgs<TItem, TFilterCategoryKey>,
     ISortPropsArgs<TColumnKey, TSortableColumnKey>,

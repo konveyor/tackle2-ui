@@ -86,15 +86,10 @@ export const Dependencies: React.FC = () => {
   );
 
   const tableControls = useTableControlProps({
-    ...tableControlState, // Includes sortState and paginationState
+    ...tableControlState, // Includes filterState, sortState and paginationState
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
-    filterState: {
-      filterValues: {}, // TODO figure out how to wire up filters from HubRequestParams and make them compatible
-      setFilterValues: () => {}, // TODO,
-      filteredItems: currentPageItems, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
-    },
     expansionState: useCompoundExpansionState(), // TODO do we want to lift expand/select state to url params too?
     selectionState: useSelectionState({
       items: currentPageItems,
