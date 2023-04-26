@@ -4,33 +4,27 @@ import {
   IFilterValues,
   FilterCategory,
   IMultiselectFilterCategory,
-} from "../components/FilterToolbar";
-import { objectKeys } from "@app/utils/utils";
+} from "@app/shared/components/FilterToolbar";
 
-// NOTE: This was refactored to return generic state data and decouple the client-side-filtering piece to another helper function.
-//       See useFilterState for the new version, which should probably be used instead of this everywhere eventually.
-//       See useLocalFilterDerivedState and getFilterProps for the pieces that were removed here.
+///////////
 
-export interface IFilterStateHook<TItem, TCategoryKey extends string> {
-  filterValues: IFilterValues<TCategoryKey>;
-  setFilterValues: (values: IFilterValues<TCategoryKey>) => void;
-  filteredItems: TItem[];
+export interface IFilterStateHook<T> {
+  filterValues: IFilterValues;
+  setFilterValues: (values: IFilterValues) => void;
+  filteredItems: T[];
 }
 
-export const useLegacyFilterState = <TItem, TCategoryKey extends string>(
-  items: TItem[],
-  filterCategories: FilterCategory<TItem, TCategoryKey>[],
+export const useLegacyFilterState = <T>(
+  items: T[],
+  filterCategories: FilterCategory<T>[],
   storageKey?: string
-): IFilterStateHook<TItem, TCategoryKey> => {
-  const state = React.useState<IFilterValues<TCategoryKey>>({});
-  const storage = useSessionStorage<IFilterValues<TCategoryKey>>(
-    storageKey || "",
-    {}
-  );
+): IFilterStateHook<T> => {
+  const state = React.useState<IFilterValues>({});
+  const storage = useSessionStorage<IFilterValues>(storageKey || "", {});
   const [filterValues, setFilterValues] = storageKey ? storage : state;
 
   const filteredItems = items.filter((item) =>
-    objectKeys(filterValues).every((categoryKey) => {
+    Object.keys(filterValues).every((categoryKey) => {
       const values = filterValues[categoryKey];
       if (!values || values.length === 0) return true;
       const filterCategory = filterCategories.find(
@@ -42,8 +36,7 @@ export const useLegacyFilterState = <TItem, TCategoryKey extends string>(
       }
       const logicOperator =
         (filterCategory &&
-          (filterCategory as IMultiselectFilterCategory<TItem, TCategoryKey>)
-            .logicOperator) ||
+          (filterCategory as IMultiselectFilterCategory<T>).logicOperator) ||
         "AND";
       return values[logicOperator === "AND" ? "every" : "some"](
         (filterValue) => {

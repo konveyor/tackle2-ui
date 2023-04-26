@@ -14,18 +14,20 @@ import {
   OptionPropsWithKey,
 } from "./FilterToolbar";
 
-export interface IMultiselectFilterControlProps<T>
-  extends IFilterControlProps<T> {
-  category: IMultiselectFilterCategory<T>;
+export interface IMultiselectFilterControlProps<
+  TItem,
+  TCategoryKey extends string
+> extends IFilterControlProps<TItem, TCategoryKey> {
+  category: IMultiselectFilterCategory<TItem, TCategoryKey>;
 }
 
-export const MultiselectFilterControl = <T,>({
+export const MultiselectFilterControl = <TItem, TCategoryKey extends string>({
   category,
   filterValue,
   setFilterValue,
   showToolbarItem,
 }: React.PropsWithChildren<
-  IMultiselectFilterControlProps<T>
+  IMultiselectFilterControlProps<TItem, TCategoryKey>
 >): JSX.Element | null => {
   const { t } = useTranslation();
 

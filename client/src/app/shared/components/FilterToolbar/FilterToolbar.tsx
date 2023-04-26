@@ -23,66 +23,76 @@ export interface OptionPropsWithKey extends SelectOptionProps {
   key: string;
 }
 
-export interface IBasicFilterCategory<T> {
-  key: string;
+export interface IBasicFilterCategory<
+  TItem, // The actual API objects we're filtering
+  TCategoryKey extends string // Unique identifiers for each filter category (inferred from key properties if possible)
+> {
+  key: TCategoryKey;
   title: string;
   type: FilterType; // If we want to support arbitrary filter types, this could be a React node that consumes context instead of an enum
-  getItemValue?: (item: T) => string | boolean;
+  getItemValue?: (item: TItem) => string | boolean;
 }
 
-export interface IMultiselectFilterCategory<T> extends IBasicFilterCategory<T> {
+export interface IMultiselectFilterCategory<TItem, TCategoryKey extends string>
+  extends IBasicFilterCategory<TItem, TCategoryKey> {
   selectOptions: OptionPropsWithKey[];
   placeholderText?: string;
   logicOperator?: "AND" | "OR";
 }
 
-export interface ISelectFilterCategory<T> extends IBasicFilterCategory<T> {
+export interface ISelectFilterCategory<TItem, TCategoryKey extends string>
+  extends IBasicFilterCategory<TItem, TCategoryKey> {
   selectOptions: OptionPropsWithKey[];
 }
 
-export interface ISearchFilterCategory<T> extends IBasicFilterCategory<T> {
+export interface ISearchFilterCategory<TItem, TCategoryKey extends string>
+  extends IBasicFilterCategory<TItem, TCategoryKey> {
   placeholderText: string;
 }
 
-export type FilterCategory<T> =
-  | IMultiselectFilterCategory<T>
-  | ISelectFilterCategory<T>
-  | ISearchFilterCategory<T>;
+export type FilterCategory<TItem, TCategoryKey extends string> =
+  | IMultiselectFilterCategory<TItem, TCategoryKey>
+  | ISelectFilterCategory<TItem, TCategoryKey>
+  | ISearchFilterCategory<TItem, TCategoryKey>;
 
-export interface IFilterValues {
-  [categoryKey: string]: FilterValue;
-}
+export type IFilterValues<TCategoryKey extends string> = Partial<
+  Record<TCategoryKey, FilterValue>
+>;
 
-export interface IFilterToolbarProps<T> {
-  filterCategories: FilterCategory<T>[];
-  filterValues: IFilterValues;
-  setFilterValues: (values: IFilterValues) => void;
+export interface IFilterToolbarProps<TItem, TCategoryKey extends string> {
+  filterCategories: FilterCategory<TItem, TCategoryKey>[];
+  filterValues: IFilterValues<TCategoryKey>;
+  setFilterValues: (values: IFilterValues<TCategoryKey>) => void;
   beginToolbarItems?: JSX.Element;
   endToolbarItems?: JSX.Element;
   pagination?: JSX.Element;
   showFiltersSideBySide?: boolean;
 }
 
-export const FilterToolbar = <T,>({
+export const FilterToolbar = <TItem, TCategoryKey extends string>({
   filterCategories,
   filterValues,
   setFilterValues,
   pagination,
   showFiltersSideBySide = false,
-}: React.PropsWithChildren<IFilterToolbarProps<T>>): JSX.Element | null => {
+}: React.PropsWithChildren<
+  IFilterToolbarProps<TItem, TCategoryKey>
+>): JSX.Element | null => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] =
     React.useState(false);
   const [currentCategoryKey, setCurrentCategoryKey] = React.useState(
     filterCategories[0].key
   );
 
-  const onCategorySelect = (category: FilterCategory<T>) => {
+  const onCategorySelect = (category: FilterCategory<TItem, TCategoryKey>) => {
     setCurrentCategoryKey(category.key);
     setIsCategoryDropdownOpen(false);
   };
 
-  const setFilterValue = (category: FilterCategory<T>, newValue: FilterValue) =>
-    setFilterValues({ ...filterValues, [category.key]: newValue });
+  const setFilterValue = (
+    category: FilterCategory<TItem, TCategoryKey>,
+    newValue: FilterValue
+  ) => setFilterValues({ ...filterValues, [category.key]: newValue });
 
   const currentFilterCategory = filterCategories.find(
     (category) => category.key === currentCategoryKey
@@ -126,7 +136,7 @@ export const FilterToolbar = <T,>({
         )}
 
         {filterCategories.map((category) => (
-          <FilterControl<T>
+          <FilterControl<TItem>
             key={category.key}
             category={category}
             filterValue={filterValues[category.key]}

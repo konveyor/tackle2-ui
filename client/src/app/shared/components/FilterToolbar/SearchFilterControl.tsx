@@ -10,25 +10,24 @@ import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { IFilterControlProps } from "./FilterControl";
 import { ISearchFilterCategory } from "./FilterToolbar";
 
-export interface ISearchFilterControlProps<T> extends IFilterControlProps<T> {
-  category: ISearchFilterCategory<T>;
+export interface ISearchFilterControlProps<TItem, TCategoryKey extends string>
+  extends IFilterControlProps<TItem, TCategoryKey> {
+  category: ISearchFilterCategory<TItem, TCategoryKey>;
 }
 
-export const SearchFilterControl = <T,>({
+export const SearchFilterControl = <TItem, TCategoryKey extends string>({
   category,
   filterValue,
   setFilterValue,
   showToolbarItem,
 }: React.PropsWithChildren<
-  ISearchFilterControlProps<T>
+  ISearchFilterControlProps<TItem, TCategoryKey>
 >): JSX.Element | null => {
   // Keep internal copy of value until submitted by user
-  const [inputValue, setInputValue] = React.useState(
-    (filterValue && filterValue[0]) || ""
-  );
+  const [inputValue, setInputValue] = React.useState(filterValue?.[0] || "");
   // Update it if it changes externally
   React.useEffect(() => {
-    setInputValue((filterValue && filterValue[0]) || "");
+    setInputValue(filterValue?.[0] || "");
   }, [filterValue]);
 
   const onFilterSubmit = () => setFilterValue(inputValue ? [inputValue] : []);

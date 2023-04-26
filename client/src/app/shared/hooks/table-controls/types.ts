@@ -4,11 +4,9 @@ import { useLegacyFilterState } from "../useLegacyFilterState";
 import {
   ILocalSortDerivedStateArgs,
   ISortPropsArgs,
-  ISortState,
   ISortStateArgs,
 } from "./sorting";
 import {
-  IPaginationState,
   IPaginationStateArgs,
   ILocalPaginationDerivedStateArgs,
 } from "./pagination";
