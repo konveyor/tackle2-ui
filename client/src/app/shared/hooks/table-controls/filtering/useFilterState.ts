@@ -8,17 +8,19 @@ export interface IFilterState<TFilterCategoryKey extends string> {
   setFilterValues: (values: IFilterValues<TFilterCategoryKey>) => void;
 }
 
+export interface IFilterStateArgs {
+  filterStorageKey?: string;
+}
+
 export const useFilterState = <TFilterCategoryKey extends string>({
-  storageKey,
-}: {
-  storageKey?: string;
-}): IFilterState<TFilterCategoryKey> => {
+  filterStorageKey,
+}: IFilterStateArgs): IFilterState<TFilterCategoryKey> => {
   const state = React.useState<IFilterValues<TFilterCategoryKey>>({});
   const storage = useSessionStorage<IFilterValues<TFilterCategoryKey>>(
-    storageKey || "",
+    filterStorageKey || "",
     {}
   );
-  const [filterValues, setFilterValues] = storageKey ? storage : state;
+  const [filterValues, setFilterValues] = filterStorageKey ? storage : state;
   return { filterValues, setFilterValues };
 };
 

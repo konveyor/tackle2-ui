@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { ToolbarItemProps, ToolbarProps } from "@patternfly/react-core";
 import {
@@ -9,12 +8,11 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-selector/toolbar-bulk-selector";
-import { IFilterToolbarProps } from "@app/shared/components/FilterToolbar";
 import { objectKeys } from "@app/utils/utils";
 import { IUseTableControlPropsArgs } from "./types";
-import { getPaginationProps } from "./pagination";
+import { getFilterProps } from "./filtering";
 import { getSortProps } from "./sorting";
-import { usePaginationEffects } from "./pagination/usePaginationEffects";
+import { getPaginationProps, usePaginationEffects } from "./pagination";
 
 export const useTableControlProps = <
   TItem extends { name: string },
@@ -36,8 +34,7 @@ export const useTableControlProps = <
   //       For future additions, inspect `args` to see if it has anything more you need.
   const {
     currentPageItems,
-    filterCategories,
-    filterState: { filterValues, setFilterValues },
+    filterState: { setFilterValues },
     expansionState: { isCellExpanded, setCellExpanded, expandedCells },
     selectionState: {
       selectAll,
@@ -74,8 +71,15 @@ export const useTableControlProps = <
     clearFiltersButtonText: t("actions.clearAllFilters"),
   };
 
+  const filterToolbarProps = getFilterProps(args);
+
   const paginationProps = getPaginationProps(args);
   usePaginationEffects(args);
+
+  const paginationToolbarItemProps: ToolbarItemProps = {
+    variant: "pagination",
+    alignment: { default: "alignRight" },
+  };
 
   const toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem> = {
     onSelectAll: selectAll,
@@ -84,17 +88,6 @@ export const useTableControlProps = <
     paginationProps,
     currentPageItems,
     onSelectMultiple: selectMultiple,
-  };
-
-  const filterToolbarProps: IFilterToolbarProps<TItem, TFilterCategoryKey> = {
-    filterCategories: filterCategories!,
-    filterValues,
-    setFilterValues,
-  };
-
-  const paginationToolbarItemProps: ToolbarItemProps = {
-    variant: "pagination",
-    alignment: { default: "alignRight" },
   };
 
   const tableProps: Omit<TableComposableProps, "ref"> = { variant };

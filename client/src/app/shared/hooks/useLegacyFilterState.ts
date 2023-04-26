@@ -17,9 +17,11 @@ export interface IFilterStateHook<TItem, TFilterCategoryKey extends string> {
 export const useLegacyFilterState = <TItem, TFilterCategoryKey extends string>(
   items: TItem[],
   filterCategories: FilterCategory<TItem, TFilterCategoryKey>[],
-  storageKey?: string
+  filterStorageKey?: string
 ): IFilterStateHook<TItem, TFilterCategoryKey> => {
-  const { filterValues, setFilterValues } = useFilterState({ storageKey });
+  const { filterValues, setFilterValues } = useFilterState({
+    filterStorageKey,
+  });
   const { filteredItems } = getLocalFilterDerivedState({
     items,
     filterCategories,
