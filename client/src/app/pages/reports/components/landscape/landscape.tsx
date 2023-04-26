@@ -17,7 +17,7 @@ interface ILandscapeData {
   low: number;
   medium: number;
   high: number;
-  unassesed: number;
+  unassessed: number;
 }
 
 const extractLandscapeData = (
@@ -27,7 +27,7 @@ const extractLandscapeData = (
   let low = 0;
   let medium = 0;
   let high = 0;
-  let unassesed = 0;
+  let unassessed = 0;
 
   data.forEach((elem) => {
     switch (elem.risk) {
@@ -43,8 +43,8 @@ const extractLandscapeData = (
     }
   });
 
-  unassesed = totalApps - low - medium - high;
-  return { low, medium, high, unassesed };
+  unassessed = totalApps - low - medium - high;
+  return { low, medium, high, unassessed };
 };
 
 export const Landscape: React.FC = () => {
@@ -115,10 +115,10 @@ export const Landscape: React.FC = () => {
           </SplitItem>
           <SplitItem>
             <Donut
-              value={landscapeData.unassesed}
+              value={landscapeData.unassessed}
               total={applications.length}
               color={RISK_LIST["UNKNOWN"].hexColor}
-              riskLabel={t("terms.unassesed")}
+              riskLabel={t("terms.unassessed")}
               riskDescription={t("terms.notYetAssessed")}
             />
           </SplitItem>
