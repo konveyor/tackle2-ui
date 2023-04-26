@@ -256,6 +256,8 @@
     "instanceType": "Instance type",
     "instance": "Instance",
     "jiraConfig": "Jira configuration",
+    "jiraInstanceCreated": "Jira instance created",
+    "jiraInstanceUpdated": "Jira instance updated",
     "jobFunction": "Job function",
     "jobFunctionDeleted": "Job function deleted",
     "jobFunctions": "Job functions",
@@ -340,6 +342,7 @@
       "assessmentAndReviewCopied": "Success! Assessment and review copied to selected applications",
       "assessmentCopied": "Success! Assessment copied to selected applications",
       "assessmentDiscarded": "Success! Assessment discarded for {{application}}.",
+      "deleted": "{{type}} '{{what}}' was successfully deleted.",
       "fileSavedToBeProcessed": "Success! file saved to be processed.",
       "reviewDiscarded": "Success! Review discarded for {{application}}."
     }

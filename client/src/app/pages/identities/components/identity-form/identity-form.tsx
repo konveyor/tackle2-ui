@@ -297,7 +297,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             .string()
             .required("This value is required")
             .min(3, t("validation.minLength", { length: 3 }))
-            .max(120, t("validation.maxLength", { length: 120 })),
+            .max(220, t("validation.maxLength", { length: 220 })),
           otherwise: (schema) => schema.trim(),
         })
         .when(["kind", "userCredentials"], {

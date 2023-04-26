@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { JiraTracker } from "@app/api/models";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 
 import {
   createJiraTracker,
@@ -32,7 +31,10 @@ export const useCreateJiraTrackerMutation = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createJiraTracker,
-    onSuccess: onSuccess,
+    onSuccess: () => {
+      onSuccess;
+      queryClient.invalidateQueries([JiraTrackersQueryKey]);
+    },
     onError: onError,
   });
 };
@@ -44,7 +46,10 @@ export const useUpdateJiraTrackerMutation = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateJiraTracker,
-    onSuccess: onSuccess,
+    onSuccess: () => {
+      onSuccess;
+      queryClient.invalidateQueries([JiraTrackersQueryKey]);
+    },
     onError: onError,
   });
 };
@@ -56,9 +61,9 @@ export const useDeleteJiraTrackerMutation = (
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id }: { id: number }) => deleteJiraTracker(id),
-    onSuccess: (res) => {
-      onSuccess(res.name);
+    mutationFn: ({ id }: { id: number; name: string }) => deleteJiraTracker(id),
+    onSuccess: (_, vars) => {
+      onSuccess(vars.name);
       queryClient.invalidateQueries([JiraTrackersQueryKey]);
     },
     onError: onError,

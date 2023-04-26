@@ -56,21 +56,21 @@ export const JiraTrackers: React.FC = () => {
   const [isInstanceModalOpen, setInstanceModalOpen] = React.useState(false);
   const [instanceToUpdate, setInstanceToUpdate] = React.useState<JiraTracker>();
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
-  const [instanceToDeleteId, setInstanceToDeleteId] = React.useState<
-    number | undefined
+  const [instanceToDelete, setInstanceToDelete] = React.useState<
+    { id: number; name: string } | undefined
   >();
 
   const { jiraTrackers, isFetching, fetchError, refetch } =
     useFetchJiraTrackers();
 
-  const onDeleteInstanceSuccess = (instanceName: string) => {
+  const onDeleteInstanceSuccess = (name: string) => {
     pushNotification({
-      title: t("toastr.success.instanceDeleted", {
-        instanceName: instanceName,
+      title: t("toastr.success.deleted", {
+        what: name,
+        type: t("terms.instance"),
       }),
       variant: "success",
     });
-    refetch();
   };
 
   const onDeleteInstanceError = (error: AxiosError) => {
@@ -228,7 +228,10 @@ export const JiraTrackers: React.FC = () => {
                               setInstanceToUpdate(jiraTracker);
                             }}
                             onDelete={() => {
-                              setInstanceToDeleteId(jiraTracker.id);
+                              setInstanceToDelete({
+                                id: jiraTracker.id,
+                                name: jiraTracker.name,
+                              });
                               setIsConfirmDialogOpen(true);
                             }}
                           />
@@ -261,7 +264,10 @@ export const JiraTrackers: React.FC = () => {
       >
         <InstanceForm
           instance={instanceToUpdate ? instanceToUpdate : undefined}
-          onCancel={() => setInstanceModalOpen(false)}
+          onClose={() => {
+            setInstanceModalOpen(false);
+            setInstanceToUpdate(undefined);
+          }}
         />
       </Modal>
       <ConfirmDialog
@@ -277,9 +283,9 @@ export const JiraTrackers: React.FC = () => {
         onCancel={() => setIsConfirmDialogOpen(false)}
         onClose={() => setIsConfirmDialogOpen(false)}
         onConfirm={() => {
-          if (instanceToDeleteId) {
-            deleteInstance({ id: instanceToDeleteId });
-            setInstanceToDeleteId(undefined);
+          if (instanceToDelete) {
+            deleteInstance(instanceToDelete);
+            setInstanceToDelete(undefined);
           }
           setIsConfirmDialogOpen(false);
         }}

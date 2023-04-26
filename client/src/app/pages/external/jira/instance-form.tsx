@@ -28,6 +28,7 @@ import {
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 
 interface FormValues {
   id: number;
@@ -39,12 +40,12 @@ interface FormValues {
 
 export interface InstanceFormProps {
   instance?: JiraTracker;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
 export const InstanceForm: React.FC<InstanceFormProps> = ({
   instance,
-  onCancel,
+  onClose,
 }) => {
   const { t } = useTranslation();
 
@@ -59,7 +60,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
 
   const onCreateInstanceSuccess = (_: AxiosResponse<JiraTracker>) =>
     pushNotification({
-      title: t("terms.jiraTrackerCreated"),
+      title: t("terms.jiraInstanceCreated"),
       variant: "success",
     });
 
@@ -74,7 +75,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
 
   const onUpdateInstanceSuccess = (_: AxiosResponse<JiraTracker>) =>
     pushNotification({
-      title: t("terms.jiraTrackerUpdate"),
+      title: t("terms.jiraInstanceUpdated"),
       variant: "success",
     });
 
@@ -107,6 +108,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
     } else {
       createInstance(payload);
     }
+    onClose();
   };
 
   const validationSchema: yup.SchemaOf<FormValues> = yup.object().shape({
@@ -151,10 +153,6 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
   });
 
   const values = getValues();
-
-  const [isKeyFileRejected, setIsKeyFileRejected] = useState(false);
-  const [isSettingsFileRejected, setIsSettingsFileRejected] = useState(false);
-
   const watchAllFields = watch();
 
   const kindOptions: OptionWithValue<JiraKind>[] = [
@@ -204,7 +202,6 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
         fieldId="url"
         isRequired
       />
-
       <HookFormPFGroupController
         control={control}
         name="kind"
@@ -215,6 +212,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
           <SimpleSelect
             id="type-select"
             toggleId="type-select-toggle"
+            variant="typeahead"
             placeholderText={t("composed.selectMany", {
               what: t("terms.instanceType").toLowerCase(),
             })}
@@ -239,6 +237,8 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
           <SimpleSelect
             id="credentials-select"
             toggleId="credentials-toggle"
+            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+            variant="typeahead"
             placeholderText={t("composed.selectMany", {
               what: t("terms.credentials").toLowerCase(),
             })}
@@ -254,16 +254,15 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
           />
         )}
       />
-
       <Switch
         id="insecureCommunication"
         className="repo"
         label="Enable insecure communication"
         aria-label="Insecure Communication"
+        // TODO Handle field once hub support is ready
         isChecked={insecureCommunication}
         onChange={() => setInsecureCommunication(!insecureCommunication)}
       />
-
       <ActionGroup>
         <Button
           type="submit"
@@ -282,7 +281,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           Cancel
         </Button>
