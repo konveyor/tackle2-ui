@@ -6,17 +6,17 @@ import {
   IGetFilterHubRequestParamsArgs,
   getFilterHubRequestParams,
   serializeFilterRequestParamsForHub,
-} from "@app/shared/hooks/table-controls/filtering";
+} from "./filtering";
 import {
   IGetSortHubRequestParamsArgs,
   getSortHubRequestParams,
   serializeSortRequestParamsForHub,
-} from "@app/shared/hooks/table-controls/sorting";
+} from "./sorting";
 import {
   IGetPaginationHubRequestParamsArgs,
   getPaginationHubRequestParams,
   serializePaginationRequestParamsForHub,
-} from "@app/shared/hooks/table-controls/pagination";
+} from "./pagination";
 
 export const getHubRequestParams = <
   TItem,

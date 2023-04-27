@@ -4,7 +4,7 @@ import {
   getPaginationProps,
   usePaginationState,
   usePaginationEffects,
-} from "./table-controls/pagination";
+} from "./table-controls";
 
 // NOTE: This was refactored to return generic state data and decouple the client-side-pagination piece to another helper function.
 //       See usePaginationState for the new version, which should probably be used instead of this everywhere eventually.
