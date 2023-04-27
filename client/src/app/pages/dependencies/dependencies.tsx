@@ -33,7 +33,6 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
-import { AnalysisDependency } from "@app/api/models";
 import { useFetchDependencies } from "@app/queries/dependencies";
 import { useSelectionState } from "@migtools/lib-ui";
 import { getHubRequestParams } from "@app/shared/hooks/table-controls/getHubRequestParams";
@@ -61,14 +60,10 @@ export const Dependencies: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.name").toLowerCase(),
           }) + "...",
-        getItemValue: (item: AnalysisDependency) => {
-          return item?.name || "";
-        },
       },
     ],
     initialItemsPerPage: 10,
   });
-  const { sortState, paginationState } = tableControlState;
 
   const {
     result: { data: currentPageItems, total: totalItemCount },
@@ -76,9 +71,7 @@ export const Dependencies: React.FC = () => {
     fetchError,
   } = useFetchDependencies(
     getHubRequestParams({
-      // TODO pass filterCategories here
-      sortState,
-      paginationState,
+      ...tableControlState, // Includes filterState, sortState and paginationState
       hubSortFieldKeys: {
         name: "name",
         version: "version",
@@ -112,8 +105,6 @@ export const Dependencies: React.FC = () => {
   } = tableControls;
 
   console.log({ currentPageItems, totalItemCount });
-
-  // TODO render the FilterToolbar! make sure it's serializing correctly!
 
   return (
     <>
