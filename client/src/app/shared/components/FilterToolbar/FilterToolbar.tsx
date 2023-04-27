@@ -61,6 +61,18 @@ export type IFilterValues<TFilterCategoryKey extends string> = Partial<
   Record<TFilterCategoryKey, FilterValue>
 >;
 
+export const getFilterLogicOperator = <
+  TItem,
+  TFilterCategoryKey extends string
+>(
+  filterCategory?: FilterCategory<TItem, TFilterCategoryKey>,
+  defaultOperator: "AND" | "OR" = "OR"
+) =>
+  (filterCategory &&
+    (filterCategory as IMultiselectFilterCategory<TItem, TFilterCategoryKey>)
+      .logicOperator) ||
+  defaultOperator;
+
 export interface IFilterToolbarProps<TItem, TFilterCategoryKey extends string> {
   filterCategories: FilterCategory<TItem, TFilterCategoryKey>[];
   filterValues: IFilterValues<TFilterCategoryKey>;

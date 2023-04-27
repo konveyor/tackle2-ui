@@ -36,7 +36,7 @@ import {
 import { AnalysisDependency } from "@app/api/models";
 import { useFetchDependencies } from "@app/queries/dependencies";
 import { useSelectionState } from "@migtools/lib-ui";
-import { getHubRequestParams } from "@app/utils/hub-request-utils";
+import { getHubRequestParams } from "@app/shared/hooks/table-controls/getHubRequestParams";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
@@ -76,9 +76,10 @@ export const Dependencies: React.FC = () => {
     fetchError,
   } = useFetchDependencies(
     getHubRequestParams({
+      // TODO pass filterCategories here
       sortState,
       paginationState,
-      hubFieldKeys: {
+      hubSortFieldKeys: {
         name: "name",
         version: "version",
       },
@@ -111,6 +112,8 @@ export const Dependencies: React.FC = () => {
   } = tableControls;
 
   console.log({ currentPageItems, totalItemCount });
+
+  // TODO render the FilterToolbar! make sure it's serializing correctly!
 
   return (
     <>

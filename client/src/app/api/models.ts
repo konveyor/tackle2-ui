@@ -6,7 +6,7 @@ export interface HubFilter {
     | string
     | {
         list: string[];
-        operator?: "and" | "or";
+        operator?: "AND" | "OR";
       };
 }
 

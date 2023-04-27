@@ -1,6 +1,7 @@
 import {
   FilterCategory,
   IMultiselectFilterCategory,
+  getFilterLogicOperator,
 } from "@app/shared/components/FilterToolbar";
 import { objectKeys } from "@app/utils/utils";
 import { IFilterState } from "./useFilterState";
@@ -34,15 +35,7 @@ export const getLocalFilterDerivedState = <
       if (filterCategory?.getItemValue) {
         itemValue = filterCategory.getItemValue(item);
       }
-      const logicOperator =
-        (filterCategory &&
-          (
-            filterCategory as IMultiselectFilterCategory<
-              TItem,
-              TFilterCategoryKey
-            >
-          ).logicOperator) ||
-        "AND";
+      const logicOperator = getFilterLogicOperator(filterCategory);
       return values[logicOperator === "AND" ? "every" : "some"](
         (filterValue) => {
           if (!itemValue) return false;

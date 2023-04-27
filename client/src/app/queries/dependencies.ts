@@ -5,7 +5,7 @@ import {
   HubRequestParams,
 } from "@app/api/models";
 import { getDependencies } from "@app/api/rest";
-import { serializeRequestParamsForHub } from "@app/utils/hub-request-utils";
+import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls/getHubRequestParams";
 
 export interface IDependenciesFetchState {
   result: HubPaginatedResult<AnalysisDependency>;
