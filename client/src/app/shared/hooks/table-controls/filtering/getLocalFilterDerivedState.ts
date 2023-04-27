@@ -1,6 +1,5 @@
 import {
   FilterCategory,
-  IMultiselectFilterCategory,
   getFilterLogicOperator,
 } from "@app/shared/components/FilterToolbar";
 import { objectKeys } from "@app/utils/utils";
