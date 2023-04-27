@@ -609,9 +609,9 @@ export const getHubPaginatedResult = <T>(
     .get<T[]>(url, {
       params: serializeRequestParamsForHub(params),
     })
-    .then((response) => ({
-      data: response.data,
-      total: parseInt(response.headers["x-total"], 10),
+    .then(({ data, headers }) => ({
+      data,
+      total: headers["x-total"] ? parseInt(headers["x-total"], 10) : 0,
       params,
     }));
 

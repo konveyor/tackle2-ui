@@ -540,6 +540,7 @@ export interface AnalysisDependency {
   createTime: string;
   name: string;
   version: string;
-  indirect?: boolean;
-  applications: { id: number; name: string }[];
+  // TODO where did these properties go?
+  // indirect?: boolean;
+  // applications: { id: number; name: string }[];
 }

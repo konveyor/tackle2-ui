@@ -38,7 +38,7 @@ export const getFilterHubRequestParams = <
       (category) => category.key === categoryKey
     );
     const filterValue = filterValues[categoryKey];
-    if (!(filterCategory && filterValue)) return;
+    if (!filterCategory || !filterValue) return;
     // Note: If we need to support more of the logic operators in HubFilter in the future,
     //       we'll need to figure out how to express those on the FilterCategory objects
     //       and translate them here.

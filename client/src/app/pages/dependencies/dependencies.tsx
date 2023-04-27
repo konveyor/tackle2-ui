@@ -167,7 +167,9 @@ export const Dependencies: React.FC = () => {
                             width={10}
                             {...getTdProps({ columnKey: "foundIn" })}
                           >
-                            {dependency.applications.length} applications
+                            {/* TODO - the applications property disappeared in the API? */}
+                            {/*dependency.applications.length} applications*/}
+                            TODO
                           </Td>
                           <Td
                             width={10}

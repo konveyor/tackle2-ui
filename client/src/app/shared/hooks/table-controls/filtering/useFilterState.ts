@@ -5,6 +5,7 @@ import {
   IFilterValues,
 } from "@app/shared/components/FilterToolbar";
 import { useUrlParams } from "../../useUrlParams";
+import { objectKeys } from "@app/utils/utils";
 
 export interface IFilterState<TFilterCategoryKey extends string> {
   filterValues: IFilterValues<TFilterCategoryKey>;
@@ -40,7 +41,19 @@ export const useFilterUrlParams = <
   >({
     keys: ["filters"],
     defaultValue: {},
-    serialize: (filterValues) => ({ filters: JSON.stringify(filterValues) }),
+    serialize: (filterValues) => {
+      // If a filter value is empty/cleared, don't put it in URL params
+      const trimmedFilterValues = { ...filterValues };
+      objectKeys(trimmedFilterValues).forEach((filterCategoryKey) => {
+        if (
+          !trimmedFilterValues[filterCategoryKey] ||
+          trimmedFilterValues[filterCategoryKey]?.length === 0
+        ) {
+          delete trimmedFilterValues[filterCategoryKey];
+        }
+      });
+      return { filters: JSON.stringify(trimmedFilterValues) };
+    },
     deserialize: (urlParams) => {
       try {
         return JSON.parse(urlParams.filters || "{}");
