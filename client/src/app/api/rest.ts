@@ -35,7 +35,7 @@ import {
   Taskgroup,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
-import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls/getHubRequestParams";
+import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
 
 // TACKLE_HUB
 export const HUB = "/hub";
