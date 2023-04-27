@@ -35,7 +35,7 @@ import {
 } from "@app/shared/components/table-controls";
 import { useFetchDependencies } from "@app/queries/dependencies";
 import { useSelectionState } from "@migtools/lib-ui";
-import { getHubRequestParams } from "@app/shared/hooks/table-controls/getHubRequestParams";
+import { getHubRequestParams } from "@app/shared/hooks/table-controls";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
@@ -47,10 +47,7 @@ export const Dependencies: React.FC = () => {
       version: "Version",
     },
     sortableColumns: ["name", "version"],
-    initialSort: {
-      columnKey: "name",
-      direction: "asc",
-    },
+    initialSort: null,
     filterCategories: [
       {
         key: "name",
