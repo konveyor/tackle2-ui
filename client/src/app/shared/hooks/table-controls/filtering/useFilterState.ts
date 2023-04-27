@@ -42,7 +42,7 @@ export const useFilterUrlParams = <
     keys: ["filters"],
     defaultValue: {},
     serialize: (filterValues) => {
-      // If a filter value is empty/cleared, don't put it in URL params
+      // If a filter value is empty/cleared, don't put it in the object in URL params
       const trimmedFilterValues = { ...filterValues };
       objectKeys(trimmedFilterValues).forEach((filterCategoryKey) => {
         if (
@@ -52,7 +52,12 @@ export const useFilterUrlParams = <
           delete trimmedFilterValues[filterCategoryKey];
         }
       });
-      return { filters: JSON.stringify(trimmedFilterValues) };
+      return {
+        filters:
+          objectKeys(trimmedFilterValues).length > 0
+            ? JSON.stringify(trimmedFilterValues)
+            : null, // If there are no filters, remove the filters param from the URL entirely.
+      };
     },
     deserialize: (urlParams) => {
       try {
