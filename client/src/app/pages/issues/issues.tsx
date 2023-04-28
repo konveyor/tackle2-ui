@@ -1,5 +1,9 @@
 import * as React from "react";
 import {
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
   PageSection,
   PageSectionVariants,
   Text,
@@ -15,6 +19,7 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import {
+  ExpandableRowContent,
   TableComposable,
   Tbody,
   Td,
@@ -25,6 +30,7 @@ import {
 import {
   useTableControlUrlParams,
   useTableControlProps,
+  getHubRequestParams,
 } from "@app/shared/hooks/table-controls";
 import { useCompoundExpansionState } from "@app/shared/hooks/useCompoundExpansionState";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
@@ -33,24 +39,28 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
-import { useFetchDependencies } from "@app/queries/dependencies";
 import { useSelectionState } from "@migtools/lib-ui";
-import { getHubRequestParams } from "@app/shared/hooks/table-controls";
+import { useFetchIssues } from "@app/queries/issues";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-export const Dependencies: React.FC = () => {
+export const Issues: React.FC = () => {
   const { t } = useTranslation();
 
   const tableControlState = useTableControlUrlParams({
     columnNames: {
-      name: "Dependency name",
-      foundIn: "Found in",
-      version: "Version",
+      ruleID: "Rule ID",
+      category: "Category",
+      effort: "Effort",
+      affected: "Affected applications",
     },
-    sortableColumns: ["name", "version"],
-    initialSort: null,
+    sortableColumns: ["ruleID", "category", "effort"],
+    initialSort: {
+      columnKey: "ruleID",
+      direction: "asc",
+    },
     filterCategories: [
       {
-        key: "name",
+        key: "ruleId",
         title: t("terms.name"),
         type: FilterType.search,
         placeholderText:
@@ -66,12 +76,13 @@ export const Dependencies: React.FC = () => {
     result: { data: currentPageItems, total: totalItemCount },
     isFetching,
     fetchError,
-  } = useFetchDependencies(
+  } = useFetchIssues(
     getHubRequestParams({
       ...tableControlState, // Includes filterState, sortState and paginationState
       hubSortFieldKeys: {
-        name: "name",
-        version: "version",
+        ruleID: "ruleID",
+        category: "category",
+        effort: "effort",
       },
     })
   );
@@ -82,7 +93,7 @@ export const Dependencies: React.FC = () => {
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
-    expansionState: useCompoundExpansionState("name"), // TODO do we want to lift expand/select state to url params too?
+    expansionState: useCompoundExpansionState("name"),
     selectionState: useSelectionState({
       items: currentPageItems,
       isEqual: (a, b) => a.name === b.name,
@@ -91,6 +102,7 @@ export const Dependencies: React.FC = () => {
 
   const {
     numRenderedColumns,
+    expansionState: { isCellExpanded },
     propHelpers: {
       toolbarProps,
       filterToolbarProps,
@@ -99,16 +111,17 @@ export const Dependencies: React.FC = () => {
       tableProps,
       getThProps,
       getTdProps,
+      getSingleExpandTdProps,
+      getExpandedContentTdProps,
     },
   } = tableControls;
-
   console.log({ currentPageItems, totalItemCount });
 
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
         <TextContent>
-          <Text component="h1">{t("terms.dependencies")}</Text>
+          <Text component="h1">{t("terms.issues")}</Text>
         </TextContent>
       </PageSection>
       <PageSection>
@@ -133,13 +146,18 @@ export const Dependencies: React.FC = () => {
                 </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
-            <TableComposable {...tableProps} aria-label="Migration waves table">
+            <TableComposable
+              {...tableProps}
+              isExpandable
+              aria-label="Migration waves table"
+            >
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
-                    <Th {...getThProps({ columnKey: "name" })} />
-                    <Th {...getThProps({ columnKey: "foundIn" })} />
-                    <Th {...getThProps({ columnKey: "version" })} />
+                    <Th {...getThProps({ columnKey: "ruleId" })} />
+                    <Th {...getThProps({ columnKey: "category" })} />
+                    <Th {...getThProps({ columnKey: "effort" })} />
+                    <Th {...getThProps({ columnKey: "affected" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -149,34 +167,81 @@ export const Dependencies: React.FC = () => {
                 isNoData={totalItemCount === 0}
                 numRenderedColumns={numRenderedColumns}
               >
-                {currentPageItems?.map((dependency, rowIndex) => {
+                {currentPageItems?.map((issue, rowIndex) => {
                   return (
-                    <Tbody key={dependency.name}>
+                    <Tbody
+                      key={issue.ruleID}
+                      isExpanded={isCellExpanded(issue)}
+                    >
                       <Tr>
                         <TableRowContentWithControls
                           {...tableControls}
-                          item={dependency}
+                          item={issue}
                           rowIndex={rowIndex}
                         >
-                          <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                            {dependency.name}
+                          <Td
+                            {...getSingleExpandTdProps({
+                              item: issue,
+                              rowIndex,
+                            })}
+                          />
+                          <Td
+                            width={25}
+                            {...getTdProps({ columnKey: "ruleId" })}
+                          >
+                            {issue.ruleID}
                           </Td>
                           <Td
                             width={10}
-                            {...getTdProps({ columnKey: "foundIn" })}
+                            {...getTdProps({ columnKey: "category" })}
                           >
-                            {/* TODO - the applications property disappeared in the API? */}
-                            {/*dependency.applications.length} applications*/}
-                            TODO
+                            {issue.category}
                           </Td>
                           <Td
                             width={10}
-                            {...getTdProps({ columnKey: "version" })}
+                            {...getTdProps({ columnKey: "effort" })}
                           >
-                            {dependency.version}
+                            {issue.effort}
+                          </Td>
+                          <Td
+                            width={10}
+                            {...getTdProps({
+                              columnKey: "affected",
+                            })}
+                          >
+                            {issue.affected}
                           </Td>
                         </TableRowContentWithControls>
                       </Tr>
+                      {isCellExpanded(issue) ? (
+                        <Tr isExpanded>
+                          <Td />
+                          <Td
+                            {...getExpandedContentTdProps({
+                              item: issue,
+                            })}
+                            className={spacing.pyLg}
+                          >
+                            <ExpandableRowContent>
+                              <DescriptionList>
+                                <DescriptionListGroup>
+                                  <DescriptionListTerm>
+                                    {t("terms.group(s)")}
+                                  </DescriptionListTerm>
+                                  {!!issue.affected && (
+                                    <DescriptionListDescription>
+                                      {/* {issue} */}
+                                      {/* {issue.
+                                        ?.map((f) => f.name)
+                                        .join(", ")} */}
+                                    </DescriptionListDescription>
+                                  )}
+                                </DescriptionListGroup>
+                              </DescriptionList>
+                            </ExpandableRowContent>
+                          </Td>
+                        </Tr>
+                      ) : null}
                     </Tbody>
                   );
                 })}

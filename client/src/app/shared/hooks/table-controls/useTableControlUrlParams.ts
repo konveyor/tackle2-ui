@@ -4,7 +4,7 @@ import { ITableControlCommonArgs } from "./types";
 import { useFilterUrlParams } from "./filtering";
 
 export const useTableControlUrlParams = <
-  TItem extends { name: string },
+  TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string

@@ -3,7 +3,7 @@ import { Td } from "@patternfly/react-table";
 import { useTableControlProps } from "@app/shared/hooks/table-controls";
 
 export interface ITableRowContentWithControlsProps<
-  TItem extends { name: string },
+  TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 > {
@@ -19,7 +19,7 @@ export interface ITableRowContentWithControlsProps<
 // TODO implement single-expandable toggle cell
 
 export const TableRowContentWithControls = <
-  TItem extends { name: string },
+  TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 >({

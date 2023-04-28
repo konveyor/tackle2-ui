@@ -12,7 +12,7 @@ import {
 import { getLocalFilterDerivedState, useFilterState } from "./filtering";
 
 export const useLocalTableControlState = <
-  TItem extends { name: string },
+  TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 >(
@@ -26,6 +26,7 @@ export const useLocalTableControlState = <
     initialSort = null,
     hasPagination = true,
     initialItemsPerPage = 10,
+    idProperty,
   } = args;
 
   const filterState = useFilterState(args);
@@ -35,11 +36,13 @@ export const useLocalTableControlState = <
     filterState,
   });
 
-  const expansionState = useCompoundExpansionState<TItem, TColumnKey>();
+  const expansionState = useCompoundExpansionState<TItem, TColumnKey>(
+    idProperty
+  );
 
   const selectionState = useSelectionState({
     items: filteredItems,
-    isEqual: (a, b) => a.name === b.name,
+    isEqual: (a, b) => a[idProperty] === b[idProperty],
   });
 
   const sortState = useSortState({ sortableColumns, initialSort });

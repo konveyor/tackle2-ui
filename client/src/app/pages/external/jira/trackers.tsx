@@ -87,6 +87,7 @@ export const JiraTrackers: React.FC = () => {
   );
 
   const tableControls = useLocalTableControls({
+    idProperty: "name",
     items: jiraTrackers,
     columnNames: {
       name: "Instance name",

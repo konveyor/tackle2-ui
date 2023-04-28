@@ -29,7 +29,7 @@ const MigrationTargets = lazy(() => import("./pages/migration-targets"));
 const General = lazy(() => import("./pages/general"));
 const Waves = lazy(() => import("./pages/waves"));
 const Jira = lazy(() => import("./pages/external/jira"));
-// const Issues = lazy(() => import("./pages/issues")); // TODO
+const Issues = lazy(() => import("./pages/issues")); // TODO
 const Dependencies = lazy(() => import("./pages/dependencies"));
 
 export interface IRoute {
@@ -86,12 +86,11 @@ export const devRoutes: IRoute[] = [
     : []),
   ...(FEATURES_ENABLED.dynamicReports
     ? [
-        // TODO
-        // {
-        //   path: Paths.issues,
-        //   comp: Issues,
-        //   exact: false,
-        // },
+        {
+          path: Paths.issues,
+          comp: Issues,
+          exact: false,
+        },
         {
           path: Paths.dependencies,
           comp: Dependencies,

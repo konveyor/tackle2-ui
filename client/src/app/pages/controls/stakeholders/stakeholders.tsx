@@ -117,6 +117,7 @@ export const Stakeholders: React.FC = () => {
     setRowToUpdate(undefined);
   };
   const tableControls = useLocalTableControls({
+    idProperty: "name",
     items: stakeholders,
     columnNames: {
       name: "Email",

@@ -37,6 +37,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
   const { t } = useTranslation();
 
   const tableControls = useLocalTableControls({
+    idProperty: "name",
     items: applications,
     columnNames: {
       appName: "Name",

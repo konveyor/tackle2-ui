@@ -37,6 +37,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
   const { t } = useTranslation();
 
   const tableControls = useLocalTableControls({
+    idProperty: "name",
     items: stakeholders,
     columnNames: {
       name: "Name",
