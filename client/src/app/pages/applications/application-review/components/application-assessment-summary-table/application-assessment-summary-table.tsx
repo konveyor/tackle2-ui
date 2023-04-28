@@ -25,7 +25,7 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 
 interface ITableItem {
   answerValue: string;
@@ -77,7 +77,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
     { key: "UNKNOWN", value: "Unknown" },
   ];
 
-  const filterCategories: FilterCategory<ITableItem>[] = [
+  const filterCategories: FilterCategory<ITableItem, "riskValue">[] = [
     {
       key: "riskValue",
       title: "Risk",
@@ -90,7 +90,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     tableItems || [],
     filterCategories
   );
@@ -175,7 +175,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
       paginationIdPrefix="app-assessment-summary"
       toolbarClearAllFilters={handleOnClearAllFilters}
       toolbarToggle={
-        <FilterToolbar<ITableItem>
+        <FilterToolbar
           filterCategories={filterCategories}
           filterValues={filterValues}
           setFilterValues={setFilterValues}

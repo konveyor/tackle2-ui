@@ -31,7 +31,7 @@ import {
   FilterCategory,
   FilterType,
 } from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { NotificationsContext } from "@app/shared/notifications-context";
 
@@ -98,7 +98,10 @@ export const ManageImportsDetails: React.FC = () => {
       });
   };
 
-  const filterCategories: FilterCategory<ApplicationImport>[] = [
+  const filterCategories: FilterCategory<
+    ApplicationImport,
+    "Application Name"
+  >[] = [
     {
       key: "Application Name",
       title: "Application Name",
@@ -110,7 +113,7 @@ export const ManageImportsDetails: React.FC = () => {
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     imports || [],
     filterCategories
   );

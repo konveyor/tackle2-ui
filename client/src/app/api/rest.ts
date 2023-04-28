@@ -36,7 +36,7 @@ import {
   Taskgroup,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
-import { serializeRequestParamsForHub } from "@app/utils/hub-request-utils";
+import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
 
 // TACKLE_HUB
 export const HUB = "/hub";
@@ -611,9 +611,9 @@ export const getHubPaginatedResult = <T>(
     .get<T[]>(url, {
       params: serializeRequestParamsForHub(params),
     })
-    .then((response) => ({
-      data: response.data,
-      total: parseInt(response.headers["x-total"], 10),
+    .then(({ data, headers }) => ({
+      data,
+      total: headers["x-total"] ? parseInt(headers["x-total"], 10) : 0,
       params,
     }));
 

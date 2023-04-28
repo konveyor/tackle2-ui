@@ -20,7 +20,7 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useQuery } from "@tanstack/react-query";
 
 export interface ITableRowData {
@@ -99,7 +99,10 @@ export const IdentifiedRisksTable: React.FC<
       cellFormatters: [],
     },
   ];
-  const filterCategories: FilterCategory<ITableRowData>[] = [
+  const filterCategories: FilterCategory<
+    ITableRowData,
+    "category" | "question" | "answer" | "applications"
+  >[] = [
     {
       key: "category",
       title: t("terms.category"),
@@ -151,7 +154,7 @@ export const IdentifiedRisksTable: React.FC<
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     tableData || [],
     filterCategories
   );
@@ -195,7 +198,7 @@ export const IdentifiedRisksTable: React.FC<
       fetchError={fetchError}
       toolbarClearAllFilters={handleOnClearAllFilters}
       toolbarToggle={
-        <FilterToolbar<ITableRowData>
+        <FilterToolbar
           filterCategories={filterCategories}
           filterValues={filterValues}
           setFilterValues={setFilterValues}

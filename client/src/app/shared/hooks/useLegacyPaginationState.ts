@@ -1,9 +1,14 @@
-import * as React from "react";
 import { PaginationProps } from "@patternfly/react-core";
+import {
+  getLocalPaginationDerivedState,
+  getPaginationProps,
+  usePaginationState,
+  usePaginationEffects,
+} from "./table-controls";
 
-// NOTE: This was refactored to return generic state data and decouple the PF props piece to another helper function.
+// NOTE: This was refactored to return generic state data and decouple the client-side-pagination piece to another helper function.
 //       See usePaginationState for the new version, which should probably be used instead of this everywhere eventually.
-//       See usePaginationProps for the pieces that were removed here.
+//       See useLocalPaginationDerivedState and getPaginationProps for the pieces that were removed here.
 
 export type PaginationStateProps = Pick<
   PaginationProps,
@@ -20,35 +25,17 @@ export const useLegacyPaginationState = <T>(
   items: T[],
   initialItemsPerPage: number
 ): ILegacyPaginationStateHook<T> => {
-  const [pageNumber, baseSetPageNumber] = React.useState(1);
-  const setPageNumber = (num: number) => baseSetPageNumber(num >= 1 ? num : 1);
-  const [itemsPerPage, setItemsPerPage] = React.useState(initialItemsPerPage);
-
-  // When items are removed, make sure the current page still exists
-  const lastPageNumber = Math.max(Math.ceil(items.length / itemsPerPage), 1);
-  React.useEffect(() => {
-    if (pageNumber > lastPageNumber) {
-      setPageNumber(lastPageNumber);
-    }
+  const paginationState = usePaginationState({ initialItemsPerPage });
+  usePaginationEffects({ paginationState, totalItemCount: items.length });
+  const { currentPageItems } = getLocalPaginationDerivedState({
+    items,
+    paginationState,
   });
-
-  const pageStartIndex = (pageNumber - 1) * itemsPerPage;
-  const currentPageItems = items.slice(
-    pageStartIndex,
-    pageStartIndex + itemsPerPage
-  );
-
-  const paginationProps: PaginationStateProps = {
-    itemCount: items.length,
-    perPage: itemsPerPage,
-    page: pageNumber,
-    onSetPage: (event, pageNumber) => setPageNumber(pageNumber),
-    onPerPageSelect: (event, perPage) => {
-      setPageNumber(1);
-      setItemsPerPage(perPage);
-    },
-  };
-
+  const paginationProps = getPaginationProps({
+    totalItemCount: items.length,
+    paginationState,
+  });
+  const { setPageNumber } = paginationState;
   return {
     currentPageItems,
     setPageNumber,

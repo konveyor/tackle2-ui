@@ -1,10 +1,5 @@
-import * as React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  PaginationProps,
-  ToolbarItemProps,
-  ToolbarProps,
-} from "@patternfly/react-core";
+import { ToolbarItemProps, ToolbarProps } from "@patternfly/react-core";
 import {
   TableComposableProps,
   TdProps,
@@ -13,24 +8,33 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-selector/toolbar-bulk-selector";
-import { IFilterToolbarProps } from "@app/shared/components/FilterToolbar";
 import { objectKeys } from "@app/utils/utils";
 import { IUseTableControlPropsArgs } from "./types";
+import { getFilterProps } from "./filtering";
+import { getSortProps } from "./sorting";
+import { getPaginationProps, usePaginationEffects } from "./pagination";
 
 export const useTableControlProps = <
   TItem,
   TColumnKey extends string,
-  TSortableColumnKey extends TColumnKey
+  TSortableColumnKey extends TColumnKey,
+  TFilterCategoryKey extends string = string
 >(
-  args: IUseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey>
+  args: IUseTableControlPropsArgs<
+    TItem,
+    TColumnKey,
+    TSortableColumnKey,
+    TFilterCategoryKey
+  >
 ) => {
   const { t } = useTranslation();
 
+  // Note: To avoid repetition, not all args are destructured here since the entire
+  //       args object is passed to other other helpers which require other parts of it.
+  //       For future additions, inspect `args` to see if it has anything more you need.
   const {
     currentPageItems,
-    totalItemCount,
-    filterCategories,
-    filterState: { filterValues, setFilterValues },
+    filterState: { setFilterValues },
     expansionState: { isCellExpanded, setCellExpanded, expandedCells },
     selectionState: {
       selectAll,
@@ -40,19 +44,11 @@ export const useTableControlProps = <
       toggleItemSelected,
       isItemSelected,
     },
-    sortState: { activeSort, setActiveSort },
-    paginationState: {
-      pageNumber,
-      setPageNumber,
-      itemsPerPage,
-      setItemsPerPage,
-    },
     columnNames,
     sortableColumns = [],
     isSelectable = false,
     expandableVariant = null,
     hasActionsColumn = false,
-    isLoading = false,
     variant,
     idProperty,
   } = args;
@@ -76,24 +72,15 @@ export const useTableControlProps = <
     clearFiltersButtonText: t("actions.clearAllFilters"),
   };
 
-  const paginationProps: PaginationProps = {
-    itemCount: totalItemCount,
-    perPage: itemsPerPage,
-    page: pageNumber,
-    onSetPage: (event, pageNumber) => setPageNumber(pageNumber),
-    onPerPageSelect: (event, perPage) => {
-      setPageNumber(1);
-      setItemsPerPage(perPage);
-    },
-  };
+  const filterToolbarProps = getFilterProps(args);
 
-  // When items are removed, make sure the current page still exists
-  const lastPageNumber = Math.max(Math.ceil(totalItemCount / itemsPerPage), 1);
-  React.useEffect(() => {
-    if (pageNumber > lastPageNumber && !isLoading) {
-      setPageNumber(lastPageNumber);
-    }
-  });
+  const paginationProps = getPaginationProps(args);
+  usePaginationEffects(args);
+
+  const paginationToolbarItemProps: ToolbarItemProps = {
+    variant: "pagination",
+    alignment: { default: "alignRight" },
+  };
 
   const toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem> = {
     onSelectAll: selectAll,
@@ -104,17 +91,6 @@ export const useTableControlProps = <
     onSelectMultiple: selectMultiple,
   };
 
-  const filterToolbarProps: IFilterToolbarProps<TItem> = {
-    filterCategories: filterCategories!,
-    filterValues,
-    setFilterValues,
-  };
-
-  const paginationToolbarItemProps: ToolbarItemProps = {
-    variant: "pagination",
-    alignment: { default: "alignRight" },
-  };
-
   const tableProps: Omit<TableComposableProps, "ref"> = { variant };
 
   const getThProps = ({
@@ -123,23 +99,11 @@ export const useTableControlProps = <
     columnKey: TColumnKey;
   }): Omit<ThProps, "ref"> => ({
     ...(sortableColumns.includes(columnKey as TSortableColumnKey)
-      ? {
-          sort: {
-            columnIndex: columnKeys.indexOf(columnKey),
-            sortBy: {
-              index: activeSort
-                ? columnKeys.indexOf(activeSort.columnKey as TSortableColumnKey)
-                : undefined,
-              direction: activeSort?.direction,
-            },
-            onSort: (event, index, direction) => {
-              setActiveSort({
-                columnKey: columnKeys[index] as TSortableColumnKey,
-                direction,
-              });
-            },
-          },
-        }
+      ? getSortProps({
+          ...args,
+          columnKeys,
+          columnKey: columnKey as TSortableColumnKey,
+        })
       : {}),
     children: columnNames[columnKey],
   });

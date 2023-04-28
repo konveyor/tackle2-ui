@@ -17,7 +17,7 @@ import {
   Tr,
 } from "@patternfly/react-table";
 import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
-import { useTableControls } from "@app/shared/hooks/use-table-controls";
+import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
   ConditionalTableBody,
@@ -36,7 +36,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const tableControls = useTableControls({
+  const tableControls = useLocalTableControls({
     idProperty: "name",
     items: stakeholders,
     columnNames: {

@@ -40,7 +40,7 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { useSelectionState } from "@migtools/lib-ui";
 import { useFetchApplicationAssessments } from "@app/queries/assessments";
@@ -89,7 +89,10 @@ export const BulkCopyAssessmentReviewForm: React.FC<
 
   const { tagCategories: tagCategories } = useFetchTagCategories();
 
-  const filterCategories: FilterCategory<Application>[] = [
+  const filterCategories: FilterCategory<
+    Application,
+    "name" | "businessService" | "description" | "tags"
+  >[] = [
     {
       key: "name",
       title: "Name",
@@ -153,7 +156,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     applications || [],
     filterCategories
   );
@@ -319,7 +322,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             fetchError={fetchError}
             toolbarClearAllFilters={handleOnClearAllFilters}
             toolbarToggle={
-              <FilterToolbar<Application>
+              <FilterToolbar
                 filterCategories={filterCategories}
                 filterValues={filterValues}
                 setFilterValues={setFilterValues}

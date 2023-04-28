@@ -4,10 +4,10 @@ import {
   HubPaginatedResult,
   HubRequestParams,
 } from "@app/api/models";
-import { getDependencies, getCompositeIssues } from "@app/api/rest";
-import { serializeRequestParamsForHub } from "@app/utils/hub-request-utils";
+import { getCompositeIssues } from "@app/api/rest";
+import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
 
-export interface IDependenciesFetchState {
+export interface IIssuesFetchState {
   result: HubPaginatedResult<AnalysisCompositeIssue>;
   isFetching: boolean;
   fetchError: unknown;
@@ -18,14 +18,13 @@ export const IssuesQueryKey = "issues";
 
 export const useFetchIssues = (
   params: HubRequestParams = {}
-): IDependenciesFetchState => {
-  const { data, isLoading, error, refetch } = useQuery(
-    [IssuesQueryKey, serializeRequestParamsForHub(params).toString()],
-    async () => await getCompositeIssues(params),
-    {
-      onError: (error) => console.log("error, ", error),
-    }
-  );
+): IIssuesFetchState => {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [IssuesQueryKey, serializeRequestParamsForHub(params).toString()],
+    queryFn: async () => await getCompositeIssues(params),
+    onError: (error) => console.log("error, ", error),
+    keepPreviousData: true,
+  });
   return {
     result: data || { data: [], total: 0, params },
     isFetching: isLoading,

@@ -44,7 +44,7 @@ import {
   useFetchStakeholders,
 } from "@app/queries/stakeholders";
 import { NotificationsContext } from "@app/shared/notifications-context";
-import { useTableControls } from "@app/shared/hooks/use-table-controls";
+import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
   ConditionalTableBody,
@@ -116,7 +116,7 @@ export const Stakeholders: React.FC = () => {
   const handleOnUpdatedCancel = () => {
     setRowToUpdate(undefined);
   };
-  const tableControls = useTableControls({
+  const tableControls = useLocalTableControls({
     idProperty: "name",
     items: stakeholders,
     columnNames: {
@@ -188,6 +188,7 @@ export const Stakeholders: React.FC = () => {
     }),
     initialSort: { columnKey: "name", direction: "asc" },
     hasPagination: true,
+    isLoading: isFetching,
   });
 
   const {

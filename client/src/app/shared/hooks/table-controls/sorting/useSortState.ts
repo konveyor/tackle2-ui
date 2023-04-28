@@ -39,8 +39,8 @@ export const useSortUrlParams = <TSortableColumnKey extends string>({
     keys: ["sortColumn", "sortDirection"],
     defaultValue: initialSort,
     serialize: (activeSort) => ({
-      sortColumn: activeSort?.columnKey,
-      sortDirection: activeSort?.direction,
+      sortColumn: activeSort?.columnKey || null,
+      sortDirection: activeSort?.direction || null,
     }),
     deserialize: (urlParams) =>
       urlParams.sortColumn && urlParams.sortDirection

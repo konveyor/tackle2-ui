@@ -28,7 +28,7 @@ import {
   NoDataEmptyState,
 } from "@app/shared/components";
 import { Identity, ITypeOptions } from "@app/api/models";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
@@ -103,7 +103,10 @@ export const Identities: React.FC = () => {
     { key: "proxy", value: "Proxy" },
     { key: "jira", value: "Jira" },
   ];
-  const filterCategories: FilterCategory<Identity>[] = [
+  const filterCategories: FilterCategory<
+    Identity,
+    "name" | "type" | "createdBy"
+  >[] = [
     {
       key: "name",
       title: "Name",
@@ -134,7 +137,7 @@ export const Identities: React.FC = () => {
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     identities || [],
     filterCategories
   );
@@ -303,7 +306,7 @@ export const Identities: React.FC = () => {
             paginationProps={paginationProps}
             paginationIdPrefix="identities"
             toolbarToggle={
-              <FilterToolbar<Identity>
+              <FilterToolbar
                 filterCategories={filterCategories}
                 filterValues={filterValues}
                 setFilterValues={setFilterValues}

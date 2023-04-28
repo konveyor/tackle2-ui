@@ -39,7 +39,7 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useFetchReviews } from "@app/queries/reviews";
 import { useQuery } from "@tanstack/react-query";
 import { useFetchRisks } from "@app/queries/risks";
@@ -176,7 +176,7 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
     },
   ];
 
-  const filterCategories: FilterCategory<TableRowData>[] = [
+  const filterCategories: FilterCategory<TableRowData, "name">[] = [
     {
       key: "name",
       title: t("terms.name"),
@@ -191,7 +191,7 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     allRows || [],
     filterCategories
   );
@@ -292,7 +292,7 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
       filtersApplied={false}
       toolbarClearAllFilters={handleOnClearAllFilters}
       toolbarToggle={
-        <FilterToolbar<TableRowData>
+        <FilterToolbar
           filterCategories={filterCategories}
           filterValues={filterValues}
           setFilterValues={setFilterValues}
