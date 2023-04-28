@@ -36,6 +36,7 @@ interface FormValues {
   url: string;
   kind: JiraKind;
   credentialName: string;
+  insecure: boolean;
 }
 
 export interface InstanceFormProps {
@@ -51,7 +52,6 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
 
   const [axiosError, setAxiosError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
-  const [insecureCommunication, setInsecureCommunication] = useState(false);
 
   const { jiraTrackers: instances } = useFetchJiraTrackers();
   const { identities } = useFetchIdentities();
@@ -100,6 +100,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
       identity: matchingCredential
         ? { id: matchingCredential.id, name: matchingCredential.name }
         : undefined,
+      insecure: formValues.insecure,
     };
     if (instance) {
       updateInstance({
@@ -131,6 +132,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
       .max(250, t("validation.maxLength", { length: 250 })),
     kind: yup.mixed<JiraKind>().required(),
     credentialName: yup.string().required(),
+    insecure: yup.boolean().required(),
   });
 
   const {
@@ -147,6 +149,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
       id: instance?.id || 0,
       kind: instance?.kind,
       credentialName: instance?.identity?.name || "",
+      insecure: instance?.insecure || false,
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
@@ -254,14 +257,20 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
           />
         )}
       />
-      <Switch
-        id="insecureCommunication"
-        className="repo"
-        label="Enable insecure communication"
-        aria-label="Insecure Communication"
-        // TODO Handle field once hub support is ready
-        isChecked={insecureCommunication}
-        onChange={() => setInsecureCommunication(!insecureCommunication)}
+      <HookFormPFGroupController
+        control={control}
+        name="insecure"
+        fieldId="insecure-switch"
+        isRequired
+        renderInput={({ field: { value, onChange } }) => (
+          <Switch
+            id="insecure-switch"
+            label="Enable insecure communication"
+            aria-label="Insecure Communication"
+            isChecked={value}
+            onChange={onChange}
+          />
+        )}
       />
       <ActionGroup>
         <Button
