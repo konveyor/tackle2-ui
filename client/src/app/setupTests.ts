@@ -30,3 +30,21 @@ jest.mock("react-router-dom", () => ({
     pathname: "localhost:3000/example/path",
   }),
 }));
+
+jest.mock("react-i18next", () => ({
+  Trans: ({ children }: { children: any }) => {
+    return children;
+  },
+  useTranslation: () => {
+    return {
+      t: (str: any) => str,
+      i18n: {
+        changeLanguage: () => new Promise(() => {}),
+      },
+    };
+  },
+  initReactI18next: {
+    type: "3rdParty",
+    init: jest.fn(),
+  },
+}));
