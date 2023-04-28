@@ -1,6 +1,6 @@
 import { IFilterValues, FilterCategory } from "../components/FilterToolbar";
 import {
-  getLocalFilterDerivedState,
+  useLocalFilterDerivedState,
   useFilterState,
 } from "./table-controls/filtering";
 
@@ -22,7 +22,7 @@ export const useLegacyFilterState = <TItem, TFilterCategoryKey extends string>(
   const { filterValues, setFilterValues } = useFilterState({
     filterStorageKey,
   });
-  const { filteredItems } = getLocalFilterDerivedState({
+  const { filteredItems } = useLocalFilterDerivedState({
     items,
     filterCategories,
     filterState: { filterValues, setFilterValues },
