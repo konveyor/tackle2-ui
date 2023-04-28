@@ -82,7 +82,7 @@ export const useCreateApplicationMutation = (
 };
 
 export const useDeleteApplicationMutation = (
-  onSuccess: (numberOfApps: number) => void,
+  onSuccess: (id: number) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();

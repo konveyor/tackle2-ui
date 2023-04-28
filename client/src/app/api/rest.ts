@@ -589,8 +589,17 @@ export const getCache = (): Promise<Cache> =>
 
 export const deleteCache = (): Promise<Cache> => axios.delete(CACHE);
 
-export const getJiraTrackers = () =>
-  axios.get<JiraTracker[]>(JIRATRACKERS).then((response) => response.data);
+export const getJiraTrackers = (): Promise<JiraTracker[]> =>
+  axios.get(JIRATRACKERS).then((response) => response.data);
+
+export const createJiraTracker = (obj: JiraTracker): Promise<JiraTracker> =>
+  axios.post(JIRATRACKERS, obj);
+
+export const updateJiraTracker = (obj: JiraTracker): Promise<JiraTracker> =>
+  axios.put(`${JIRATRACKERS}/${obj.id}`, obj);
+
+export const deleteJiraTracker = (id: number): Promise<JiraTracker> =>
+  axios.delete(`${JIRATRACKERS}/${id}`);
 
 export const getHubPaginatedResult = <T>(
   url: string,

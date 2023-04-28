@@ -28,7 +28,7 @@ const Proxies = lazy(() => import("./pages/proxies"));
 const MigrationTargets = lazy(() => import("./pages/migration-targets"));
 const General = lazy(() => import("./pages/general"));
 const Waves = lazy(() => import("./pages/waves"));
-const Jira = lazy(() => import("./pages/jira-trackers"));
+const Jira = lazy(() => import("./pages/external/jira"));
 // const Issues = lazy(() => import("./pages/issues")); // TODO
 const Dependencies = lazy(() => import("./pages/dependencies"));
 
@@ -127,8 +127,8 @@ export const adminRoutes: IRoute[] = [
     path: Paths.repositoriesMvn,
     exact: false,
   },
-  { comp: Proxies, path: "/proxies", exact: false },
-  { comp: MigrationTargets, path: "/migration-targets", exact: false },
+  { comp: Proxies, path: Paths.proxies, exact: false },
+  { comp: MigrationTargets, path: Paths.migrationTargets, exact: false },
   ...(FEATURES_ENABLED.migrationWaves
     ? [
         {
