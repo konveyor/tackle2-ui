@@ -521,11 +521,13 @@ export interface IssueType {
   name: string;
 }
 
+export type JiraKind = "jira-cloud" | "jira-server" | "jira-datacenter";
+
 export interface JiraTracker {
   connected: boolean;
   id: number;
-  identity: Ref;
-  kind: "jira-cloud" | "jira-server" | "jira-datacenter";
+  identity?: Ref;
+  kind: JiraKind;
   message: string;
   metadata: {
     projects: Project[];

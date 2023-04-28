@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   Button,
   ButtonVariant,
+  Modal,
   PageSection,
   PageSectionVariants,
   Text,
@@ -14,14 +15,19 @@ import {
 import { useTranslation } from "react-i18next";
 import {
   AppPlaceholder,
+  AppTableActionButtons,
   ConditionalRender,
+  ConfirmDialog,
   ToolbarBulkSelector,
 } from "@app/shared/components";
 import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useFetchJiraTrackers } from "@app/queries/jiratrackers";
+import {
+  useDeleteJiraTrackerMutation,
+  useFetchJiraTrackers,
+} from "@app/queries/jiratrackers";
 import {
   Tbody,
   Tr,
@@ -37,17 +43,55 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
+import { InstanceForm } from "./instance-form";
+import { JiraTracker } from "@app/api/models";
+import { NotificationsContext } from "@app/shared/notifications-context";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+import { AxiosError } from "axios";
 
 export const JiraTrackers: React.FC = () => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
-  const { jiraTrackers, isFetching, fetchError } = useFetchJiraTrackers();
+  const [isInstanceModalOpen, setInstanceModalOpen] = React.useState(false);
+  const [instanceToUpdate, setInstanceToUpdate] = React.useState<JiraTracker>();
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
+  const [instanceToDelete, setInstanceToDelete] = React.useState<
+    { id: number; name: string } | undefined
+  >();
+
+  const { jiraTrackers, isFetching, fetchError, refetch } =
+    useFetchJiraTrackers();
+
+  const onDeleteInstanceSuccess = (name: string) => {
+    pushNotification({
+      title: t("toastr.success.deleted", {
+        what: name,
+        type: t("terms.instance"),
+      }),
+      variant: "success",
+    });
+  };
+
+  const onDeleteInstanceError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+    refetch();
+  };
+
+  const { mutate: deleteInstance } = useDeleteJiraTrackerMutation(
+    onDeleteInstanceSuccess,
+    onDeleteInstanceError
+  );
 
   const tableControls = useTableControls({
     items: jiraTrackers,
     columnNames: {
-      name: "Name",
+      name: "Instance name",
       url: "URL",
+      kind: "Instance type",
     },
     isSelectable: true,
     filterCategories: [
@@ -87,13 +131,11 @@ export const JiraTrackers: React.FC = () => {
     },
   } = tableControls;
 
-  console.log({ selectedItems });
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
         <TextContent>
-          <Text component="h1">{t("terms.jira")}</Text>
+          <Text component="h1">{t("terms.jiraConfig")}</Text>
         </TextContent>
       </PageSection>
       <PageSection>
@@ -118,10 +160,10 @@ export const JiraTrackers: React.FC = () => {
                   <ToolbarItem>
                     <Button
                       type="button"
-                      id="create-wave"
-                      aria-label="Create new tracker"
+                      id="create-instance"
+                      aria-label="Create new instance"
                       variant={ButtonVariant.primary}
-                      // onClick={openCreateTrackerModal}
+                      onClick={() => setInstanceModalOpen(true)}
                     >
                       {t("actions.createNew")}
                     </Button>
@@ -139,7 +181,7 @@ export const JiraTrackers: React.FC = () => {
                 </ToolbarGroup>
                 <ToolbarItem {...paginationToolbarItemProps}>
                   <SimplePagination
-                    idPrefix="migration-waves-table"
+                    idPrefix="jira-instance-table"
                     isTop
                     paginationProps={paginationProps}
                   />
@@ -152,6 +194,7 @@ export const JiraTrackers: React.FC = () => {
                   <TableHeaderContentWithControls {...tableControls}>
                     <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "url" })} />
+                    <Th {...getThProps({ columnKey: "kind" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -169,11 +212,29 @@ export const JiraTrackers: React.FC = () => {
                         item={jiraTracker}
                         rowIndex={rowIndex}
                       >
-                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                        <Td width={10} {...getTdProps({ columnKey: "name" })}>
                           {jiraTracker.name}
                         </Td>
-                        <Td width={10} {...getTdProps({ columnKey: "url" })}>
-                          TODO: URL
+                        <Td width={20} {...getTdProps({ columnKey: "url" })}>
+                          {jiraTracker.url}
+                        </Td>
+                        <Td width={10} {...getTdProps({ columnKey: "kind" })}>
+                          {jiraTracker.kind}
+                        </Td>
+                        <Td width={20}>
+                          <AppTableActionButtons
+                            onEdit={() => {
+                              setInstanceModalOpen(true);
+                              setInstanceToUpdate(jiraTracker);
+                            }}
+                            onDelete={() => {
+                              setInstanceToDelete({
+                                id: jiraTracker.id,
+                                name: jiraTracker.name,
+                              });
+                              setIsConfirmDialogOpen(true);
+                            }}
+                          />
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>
@@ -184,6 +245,51 @@ export const JiraTrackers: React.FC = () => {
           </div>
         </ConditionalRender>
       </PageSection>
+      <Modal
+        title={
+          instanceToUpdate
+            ? t("dialog.title.update", {
+                what: t("terms.instance").toLowerCase(),
+              })
+            : t("dialog.title.new", {
+                what: t("terms.instance").toLowerCase(),
+              })
+        }
+        variant="medium"
+        isOpen={isInstanceModalOpen}
+        onClose={() => {
+          setInstanceModalOpen(false);
+          setInstanceToUpdate(undefined);
+        }}
+      >
+        <InstanceForm
+          instance={instanceToUpdate ? instanceToUpdate : undefined}
+          onClose={() => {
+            setInstanceModalOpen(false);
+            setInstanceToUpdate(undefined);
+          }}
+        />
+      </Modal>
+      <ConfirmDialog
+        title={t("dialog.title.delete", {
+          what: t("terms.instance").toLowerCase(),
+        })}
+        isOpen={isConfirmDialogOpen}
+        titleIconVariant={"warning"}
+        message={t("dialog.message.delete")}
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.delete")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setIsConfirmDialogOpen(false)}
+        onClose={() => setIsConfirmDialogOpen(false)}
+        onConfirm={() => {
+          if (instanceToDelete) {
+            deleteInstance(instanceToDelete);
+            setInstanceToDelete(undefined);
+          }
+          setIsConfirmDialogOpen(false);
+        }}
+      />
     </>
   );
 };

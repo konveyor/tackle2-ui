@@ -1,21 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { JiraTracker } from "@app/api/models";
 import { AxiosError } from "axios";
-import { getJiraTrackers } from "@app/api/rest";
 
-//TODO: Integrate api
-let deleteWave: any;
+import {
+  createJiraTracker,
+  deleteJiraTracker,
+  getJiraTrackers,
+  updateJiraTracker,
+} from "@app/api/rest";
 
 export const JiraTrackersQueryKey = "jiratrackers";
 
 export const useFetchJiraTrackers = () => {
-  const { data, isLoading, error, refetch } = useQuery<JiraTracker[]>(
-    [JiraTrackersQueryKey],
-    async () => await getJiraTrackers(),
-    {
-      onError: (error) => console.log("error, ", error),
-    }
-  );
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [JiraTrackersQueryKey],
+    queryFn: getJiraTrackers,
+    onError: (error: AxiosError) => console.log("error, ", error),
+  });
   return {
     jiraTrackers: data || [],
     isFetching: isLoading,
@@ -24,24 +24,48 @@ export const useFetchJiraTrackers = () => {
   };
 };
 
-// export const useDeleteJiraTrackerMutation = (
-//   onSuccess: (res: any) => void,
-//   onError: (err: AxiosError) => void
-// ) => {
-//   const queryClient = useQueryClient();
+export const useCreateJiraTrackerMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createJiraTracker,
+    onSuccess: () => {
+      onSuccess;
+      queryClient.invalidateQueries([JiraTrackersQueryKey]);
+    },
+    onError: onError,
+  });
+};
 
-//   const { isLoading, mutate, error } = useMutation(deleteJiraTracker, {
-//     onSuccess: (res) => {
-//       onSuccess(res);
-//       queryClient.invalidateQueries([JiraTrackersQueryKey]);
-//     },
-//     onError: (err: AxiosError) => {
-//       onError(err);
-//     },
-//   });
-//   return {
-//     mutate,
-//     isLoading,
-//     error,
-//   };
-// };
+export const useUpdateJiraTrackerMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateJiraTracker,
+    onSuccess: () => {
+      onSuccess;
+      queryClient.invalidateQueries([JiraTrackersQueryKey]);
+    },
+    onError: onError,
+  });
+};
+
+export const useDeleteJiraTrackerMutation = (
+  onSuccess: (instanceName: string) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id }: { id: number; name: string }) => deleteJiraTracker(id),
+    onSuccess: (_, vars) => {
+      onSuccess(vars.name);
+      queryClient.invalidateQueries([JiraTrackersQueryKey]);
+    },
+    onError: onError,
+  });
+};
