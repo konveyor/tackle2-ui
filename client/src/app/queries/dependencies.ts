@@ -19,13 +19,15 @@ export const DependenciesQueryKey = "dependencies";
 export const useFetchDependencies = (
   params: HubRequestParams = {}
 ): IDependenciesFetchState => {
-  const { data, isLoading, error, refetch } = useQuery(
-    [DependenciesQueryKey, serializeRequestParamsForHub(params).toString()],
-    async () => await getDependencies(params),
-    {
-      onError: (error) => console.log("error, ", error),
-    }
-  );
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [
+      DependenciesQueryKey,
+      serializeRequestParamsForHub(params).toString(),
+    ],
+    queryFn: async () => await getDependencies(params),
+    onError: (error) => console.log("error, ", error),
+    keepPreviousData: true,
+  });
   return {
     result: data || { data: [], total: 0, params },
     isFetching: isLoading,
