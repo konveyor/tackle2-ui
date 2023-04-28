@@ -521,13 +521,13 @@ export interface IssueType {
   name: string;
 }
 
-export type JiraKind = "jira-cloud" | "jira-server" | "jira-datacenter";
+export type IssueManagerKind = "jira-cloud" | "jira-server" | "jira-datacenter";
 
 export interface JiraTracker {
   connected: boolean;
   id: number;
   identity?: Ref;
-  kind: JiraKind;
+  kind: IssueManagerKind;
   message: string;
   metadata: {
     projects: Project[];
@@ -563,4 +563,15 @@ export interface AnalysisCompositeIssue {
   technologies: Array<IssueTechnology>;
   labels: Array<string>;
   affected: number;
+}
+
+export interface Ticket {
+  application: Ref;
+  tracker: Ref;
+  kind: string;
+  parent: string;
+  fields?: Ref;
+  message?: string;
+  reference?: string;
+  status?: string;
 }

@@ -35,6 +35,7 @@ import {
   Task,
   Taskgroup,
   MigrationWave,
+  Ticket,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
@@ -65,6 +66,7 @@ export const SETTINGS = HUB + "/settings";
 export const TASKS = HUB + "/tasks";
 export const TASKGROUPS = HUB + "/taskgroups";
 export const JIRATRACKERS = HUB + "/trackers";
+export const TICKETS = HUB + "/tickets";
 
 export const RULEBUNDLES = HUB + "/rulebundles";
 export const FILES = HUB + "/files";
@@ -634,3 +636,6 @@ export const getDependencies = (params: HubRequestParams = {}) =>
 
 export const getCompositeIssues = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisCompositeIssue>(ANALYSIS_ISSUES, params);
+
+export const createTicket = (obj: Ticket): Promise<Ticket> =>
+  axios.post(TICKETS, obj);

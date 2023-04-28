@@ -13,8 +13,8 @@ import {
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import { JiraTracker, JiraKind } from "@app/api/models";
-import { toOptionLike } from "@app/utils/model-utils";
+import { IssueManagerKind, JiraTracker } from "@app/api/models";
+import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
 import {
   useCreateJiraTrackerMutation,
   useFetchJiraTrackers,
@@ -34,7 +34,7 @@ interface FormValues {
   id: number;
   name: string;
   url: string;
-  kind: JiraKind;
+  kind: IssueManagerKind;
   credentialName: string;
   insecure: boolean;
 }
@@ -130,7 +130,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
       .trim()
       .required(t("validation.required"))
       .max(250, t("validation.maxLength", { length: 250 })),
-    kind: yup.mixed<JiraKind>().required(),
+    kind: yup.mixed<IssueManagerKind>().required(),
     credentialName: yup.string().required(),
     insecure: yup.boolean().required(),
   });
@@ -157,21 +157,6 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
 
   const values = getValues();
   const watchAllFields = watch();
-
-  const kindOptions: OptionWithValue<JiraKind>[] = [
-    {
-      value: "jira-cloud",
-      toString: () => "Jira Cloud",
-    },
-    {
-      value: "jira-server",
-      toString: () => "Jira Server",
-    },
-    {
-      value: "jira-datacenter",
-      toString: () => "Jira Datacenter",
-    },
-  ];
 
   const identityOptions = identities
     .filter((identity) => identity.kind === "jira")
@@ -221,10 +206,11 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
             })}
             toggleAriaLabel="Type select dropdown toggle"
             aria-label={name}
-            value={value ? toOptionLike(value, kindOptions) : undefined}
-            options={kindOptions}
+            value={value ? toOptionLike(value, IssueManagerOptions) : undefined}
+            options={IssueManagerOptions}
             onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<JiraKind>;
+              const selectionValue =
+                selection as OptionWithValue<IssueManagerKind>;
               onChange(selectionValue.value);
             }}
           />
