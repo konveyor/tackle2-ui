@@ -18,7 +18,7 @@ import { objectKeys } from "@app/utils/utils";
 import { IUseTableControlPropsArgs } from "./types";
 
 export const useTableControlProps = <
-  TItem extends { name: string },
+  TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 >(
@@ -54,6 +54,7 @@ export const useTableControlProps = <
     hasActionsColumn = false,
     isLoading = false,
     variant,
+    idProperty,
   } = args;
 
   const columnKeys = objectKeys(columnNames);
@@ -182,7 +183,7 @@ export const useTableControlProps = <
           item,
           isExpanding: !isCellExpanded(item),
         }),
-      expandId: `expandable-row-${item.name}`,
+      expandId: `expandable-row-${item[idProperty]}`,
     },
   });
 
@@ -204,7 +205,7 @@ export const useTableControlProps = <
           isExpanding: !isCellExpanded(item, columnKey),
           columnKey,
         }),
-      expandId: `compound-expand-${item.name}-${columnKey as string}`,
+      expandId: `compound-expand-${item[idProperty]}-${columnKey as string}`,
       rowIndex,
       columnIndex: columnKeys.indexOf(columnKey),
     },
@@ -215,7 +216,7 @@ export const useTableControlProps = <
   }: {
     item: TItem;
   }): Omit<TdProps, "ref"> => {
-    const expandedColumnKey = expandedCells[item.name];
+    const expandedColumnKey = expandedCells[item[idProperty] as string];
     return {
       dataLabel:
         typeof expandedColumnKey === "string"

@@ -3,7 +3,7 @@ import { useTableControlProps } from "./useTableControlProps";
 import { IUseTableControlStateArgs } from "./types";
 
 export const useTableControls = <
-  TItem extends { name: string },
+  TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 >(

@@ -3,7 +3,7 @@ import { usePaginationUrlParams } from "./pagination";
 import { ITableControlCommonArgs } from "./types";
 
 export const useTableControlUrlParams = <
-  TItem extends { name: string },
+  TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 >(

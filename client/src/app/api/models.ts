@@ -543,3 +543,22 @@ export interface AnalysisDependency {
   indirect?: boolean;
   applications: { id: number; name: string }[];
 }
+
+export interface IssueTechnology {
+  createUser: string;
+  updateUser: string;
+  createTime: string;
+  name: string;
+  source: boolean;
+}
+
+export interface AnalysisCompositeIssue {
+  name: string;
+  ruleID: string; // ruleset+rule
+  description: string;
+  category: string;
+  effort: number;
+  technologies: Array<IssueTechnology>;
+  labels: Array<string>;
+  affected: number;
+}

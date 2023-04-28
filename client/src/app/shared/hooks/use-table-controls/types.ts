@@ -9,12 +9,13 @@ import {
 } from "./pagination";
 import { useCompoundExpansionState } from "../useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
+import { KeyWithValueType } from "@app/utils/type-utils";
 
 // Common args
 // - Used by both useTableControlState and useTableControlUrlParams
 // - Can be defined without any state or query data in scope
 export interface ITableControlCommonArgs<
-  TItem extends { name: string }, // The actual API objects represented by rows in the table
+  TItem, // The actual API objects represented by rows in the table
   TColumnKey extends string, // Unique identifiers for the columns in the table
   TSortableColumnKey extends TColumnKey // A subset of column keys that have sorting enabled
 > extends ISortStateArgs<TSortableColumnKey>,
@@ -32,13 +33,14 @@ export interface ITableControlCommonArgs<
 // Derived state option args
 // - Used for only useTableControlState (client-side filtering/sorting/pagination)
 export interface IUseTableControlStateArgs<
-  TItem extends { name: string },
+  TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 > extends ITableControlCommonArgs<TItem, TColumnKey, TSortableColumnKey>,
     ISortDerivedStateArgs<TItem, TSortableColumnKey>,
     IPaginationDerivedStateArgs<TItem> {
   filterStorageKey?: string; // TODO this shouldn't be included here if we split out IFilterStateArgs?
+  idProperty: KeyWithValueType<TItem, string>;
 }
 
 // Rendering args
@@ -47,7 +49,7 @@ export interface IUseTableControlStateArgs<
 //   - The return values of useTableControlState
 //   - The return values of useTableControlUrlParams and args derived from server-side filtering/sorting/pagination
 export interface IUseTableControlPropsArgs<
-  TItem extends { name: string },
+  TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 > extends ITableControlCommonArgs<TItem, TColumnKey, TSortableColumnKey> {
@@ -61,4 +63,5 @@ export interface IUseTableControlPropsArgs<
   selectionState: ReturnType<typeof useSelectionState<TItem>>;
   sortState: ISortState<TSortableColumnKey>;
   paginationState: IPaginationState;
+  idProperty: KeyWithValueType<TItem, string>;
 }

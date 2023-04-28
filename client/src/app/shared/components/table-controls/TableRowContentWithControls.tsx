@@ -6,7 +6,7 @@ import {
 } from "@app/shared/hooks/use-table-controls";
 
 export interface ITableRowContentWithControlsProps<
-  TItem extends { name: string },
+  TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 > {
@@ -22,7 +22,7 @@ export interface ITableRowContentWithControlsProps<
 // TODO implement single-expandable toggle cell
 
 export const TableRowContentWithControls = <
-  TItem extends { name: string },
+  TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 >({
