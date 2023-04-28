@@ -534,6 +534,7 @@ export interface JiraTracker {
   };
   name: string;
   url: string;
+  insecure: boolean;
 }
 
 export interface AnalysisDependency {
