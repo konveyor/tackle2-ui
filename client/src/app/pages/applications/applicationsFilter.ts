@@ -9,7 +9,7 @@ import {
   FilterCategory,
   FilterType,
 } from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { dedupeFunction } from "@app/utils/utils";
@@ -28,7 +28,16 @@ export const useApplicationsFilterValues = (
 
   const { tagCategories: tagCategories } = useFetchTagCategories();
 
-  const filterCategories: FilterCategory<Application>[] = [
+  const filterCategories: FilterCategory<
+    Application,
+    | "name"
+    | "description"
+    | "businessService"
+    | "identities"
+    | "repository"
+    | "binary"
+    | "tags"
+  >[] = [
     {
       key: "name",
       title: t("terms.name"),
@@ -156,7 +165,7 @@ export const useApplicationsFilterValues = (
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     applications || [],
     filterCategories,
     "applicationsFilter"

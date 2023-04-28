@@ -25,7 +25,7 @@ import {
 import {
   useTableControlUrlParams,
   useTableControlProps,
-} from "@app/shared/hooks/use-table-controls";
+} from "@app/shared/hooks/table-controls";
 import { useCompoundExpansionState } from "@app/shared/hooks/useCompoundExpansionState";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
@@ -33,10 +33,9 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
-import { AnalysisDependency } from "@app/api/models";
 import { useFetchDependencies } from "@app/queries/dependencies";
 import { useSelectionState } from "@migtools/lib-ui";
-import { getHubRequestParams } from "@app/utils/hub-request-utils";
+import { getHubRequestParams } from "@app/shared/hooks/table-controls";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
@@ -48,10 +47,7 @@ export const Dependencies: React.FC = () => {
       version: "Version",
     },
     sortableColumns: ["name", "version"],
-    initialSort: {
-      columnKey: "name",
-      direction: "asc",
-    },
+    initialSort: null,
     filterCategories: [
       {
         key: "name",
@@ -61,14 +57,10 @@ export const Dependencies: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.name").toLowerCase(),
           }) + "...",
-        getItemValue: (item: AnalysisDependency) => {
-          return item?.name || "";
-        },
       },
     ],
     initialItemsPerPage: 10,
   });
-  const { sortState, paginationState } = tableControlState;
 
   const {
     result: { data: currentPageItems, total: totalItemCount },
@@ -76,9 +68,8 @@ export const Dependencies: React.FC = () => {
     fetchError,
   } = useFetchDependencies(
     getHubRequestParams({
-      sortState,
-      paginationState,
-      hubFieldKeys: {
+      ...tableControlState, // Includes filterState, sortState and paginationState
+      hubSortFieldKeys: {
         name: "name",
         version: "version",
       },
@@ -86,16 +77,11 @@ export const Dependencies: React.FC = () => {
   );
 
   const tableControls = useTableControlProps({
-    ...tableControlState, // Includes sortState and paginationState
+    ...tableControlState, // Includes filterState, sortState and paginationState
     idProperty: "name",
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
-    filterState: {
-      filterValues: {}, // TODO figure out how to wire up filters from HubRequestParams and make them compatible
-      setFilterValues: () => {}, // TODO,
-      filteredItems: currentPageItems, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
-    },
     expansionState: useCompoundExpansionState("name"), // TODO do we want to lift expand/select state to url params too?
     selectionState: useSelectionState({
       items: currentPageItems,
@@ -179,7 +165,9 @@ export const Dependencies: React.FC = () => {
                             width={10}
                             {...getTdProps({ columnKey: "foundIn" })}
                           >
-                            {dependency?.applications?.length} applications
+                            {/* TODO - the applications property disappeared in the API? */}
+                            {/*dependency.applications.length} applications*/}
+                            TODO
                           </Td>
                           <Td
                             width={10}

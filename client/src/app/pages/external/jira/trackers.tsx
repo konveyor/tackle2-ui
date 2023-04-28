@@ -36,7 +36,7 @@ import {
   Th,
   TableComposable,
 } from "@patternfly/react-table";
-import { useTableControls } from "@app/shared/hooks/use-table-controls";
+import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
   ConditionalTableBody,
@@ -86,7 +86,7 @@ export const JiraTrackers: React.FC = () => {
     onDeleteInstanceError
   );
 
-  const tableControls = useTableControls({
+  const tableControls = useLocalTableControls({
     idProperty: "name",
     items: jiraTrackers,
     columnNames: {
@@ -115,6 +115,7 @@ export const JiraTrackers: React.FC = () => {
     }),
     sortableColumns: ["name", "url"],
     hasPagination: true,
+    isLoading: isFetching,
   });
   const {
     currentPageItems,

@@ -12,21 +12,23 @@ import { SelectFilterControl } from "./SelectFilterControl";
 import { SearchFilterControl } from "./SearchFilterControl";
 import { MultiselectFilterControl } from "./MultiselectFilterControl";
 
-export interface IFilterControlProps<T> {
-  category: FilterCategory<T>;
+export interface IFilterControlProps<TItem, TFilterCategoryKey extends string> {
+  category: FilterCategory<TItem, TFilterCategoryKey>;
   filterValue: FilterValue;
   setFilterValue: (newValue: FilterValue) => void;
   showToolbarItem: boolean;
 }
 
-export const FilterControl = <T,>({
+export const FilterControl = <TItem, TFilterCategoryKey extends string>({
   category,
   ...props
-}: React.PropsWithChildren<IFilterControlProps<T>>): JSX.Element | null => {
+}: React.PropsWithChildren<
+  IFilterControlProps<TItem, TFilterCategoryKey>
+>): JSX.Element | null => {
   if (category.type === FilterType.select) {
     return (
       <SelectFilterControl
-        category={category as ISelectFilterCategory<T>}
+        category={category as ISelectFilterCategory<TItem, TFilterCategoryKey>}
         {...props}
       />
     );
@@ -34,7 +36,7 @@ export const FilterControl = <T,>({
   if (category.type === FilterType.search) {
     return (
       <SearchFilterControl
-        category={category as ISearchFilterCategory<T>}
+        category={category as ISearchFilterCategory<TItem, TFilterCategoryKey>}
         {...props}
       />
     );
@@ -42,7 +44,9 @@ export const FilterControl = <T,>({
   if (category.type === FilterType.multiselect) {
     return (
       <MultiselectFilterControl
-        category={category as IMultiselectFilterCategory<T>}
+        category={
+          category as IMultiselectFilterCategory<TItem, TFilterCategoryKey>
+        }
         {...props}
       />
     );

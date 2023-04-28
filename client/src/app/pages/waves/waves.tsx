@@ -38,7 +38,7 @@ import dayjs from "dayjs";
 import { WaveApplicationsTable } from "./wave-applications-table/wave-applications-table";
 import { WaveStakeholdersTable } from "./wave-stakeholders-table/wave-stakeholders-table";
 import { CreateEditWaveModal } from "./components/create-edit-wave-modal";
-import { useTableControls } from "@app/shared/hooks/use-table-controls";
+import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
   ConditionalTableBody,
@@ -64,7 +64,7 @@ export const Waves: React.FC = () => {
   const openEditWaveModal = (wave: Wave) => setWaveModalState(wave);
   const closeWaveModal = () => setWaveModalState(null);
 
-  const tableControls = useTableControls({
+  const tableControls = useLocalTableControls({
     idProperty: "name",
     items: waves,
     columnNames: {
@@ -100,6 +100,7 @@ export const Waves: React.FC = () => {
     }),
     initialSort: { columnKey: "startDate", direction: "asc" },
     hasPagination: true,
+    isLoading: isFetching,
   });
   const {
     currentPageItems,

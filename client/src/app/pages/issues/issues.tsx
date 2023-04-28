@@ -30,7 +30,8 @@ import {
 import {
   useTableControlUrlParams,
   useTableControlProps,
-} from "@app/shared/hooks/use-table-controls";
+  getHubRequestParams,
+} from "@app/shared/hooks/table-controls";
 import { useCompoundExpansionState } from "@app/shared/hooks/useCompoundExpansionState";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
@@ -39,7 +40,6 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { useSelectionState } from "@migtools/lib-ui";
-import { getHubRequestParams } from "@app/utils/hub-request-utils";
 import { useFetchIssues } from "@app/queries/issues";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -67,14 +67,10 @@ export const Issues: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.name").toLowerCase(),
           }) + "...",
-        // getItemValue: (item: AnalysisCompositeIssue) => {
-        //   return item?.ruleId || "";
-        // },
       },
     ],
     initialItemsPerPage: 10,
   });
-  const { sortState, paginationState } = tableControlState;
 
   const {
     result: { data: currentPageItems, total: totalItemCount },
@@ -82,9 +78,8 @@ export const Issues: React.FC = () => {
     fetchError,
   } = useFetchIssues(
     getHubRequestParams({
-      sortState,
-      paginationState,
-      hubFieldKeys: {
+      ...tableControlState, // Includes filterState, sortState and paginationState
+      hubSortFieldKeys: {
         ruleID: "ruleID",
         category: "category",
         effort: "effort",
@@ -93,16 +88,11 @@ export const Issues: React.FC = () => {
   );
 
   const tableControls = useTableControlProps({
-    ...tableControlState, // Includes sortState and paginationState
+    ...tableControlState, // Includes filterState, sortState and paginationState
     idProperty: "name",
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
-    filterState: {
-      filterValues: {}, // TODO figure out how to wire up filters from HubRequestParams and make them compatible
-      setFilterValues: () => {}, // TODO,
-      filteredItems: currentPageItems, // TODO this isn't actually needed by useTableControlProps! It's just derived for rendering! Remove it???
-    },
     expansionState: useCompoundExpansionState("name"),
     selectionState: useSelectionState({
       items: currentPageItems,

@@ -10,7 +10,7 @@ export interface IUseUrlParamsArgs<
   defaultValue: TDeserializedParams;
   serialize: (
     params: Partial<TDeserializedParams>
-  ) => Partial<Record<TUrlParamKey, string>>;
+  ) => Partial<Record<TUrlParamKey, string | null>>;
   deserialize: (
     urlParams: Partial<Record<TUrlParamKey, string>>
   ) => TDeserializedParams;
@@ -37,17 +37,25 @@ export const useUrlParams = <TUrlParamKey extends string, TDeserializedParams>({
     // we use document.location here as the current params so these calls never overwrite each other.
     // This also retains any unrelated params that might be present and allows newParams to be a partial update.
     const { pathname, search } = document.location;
+    const existingSerializedParams = Object.fromEntries(
+      new URLSearchParams(search)
+    );
     const newSerializedParams = serialize(newParams);
-    // Returning undefined for a property from serialize should result in it being omitted (partial update).
     objectKeys(newSerializedParams).forEach((key) => {
+      // Returning undefined for a property from serialize should result in it being omitted from the partial update.
       if (newSerializedParams[key] === undefined) {
         delete newSerializedParams[key];
+      }
+      // Returning null for a property from serialize should result in it being removed from the URL.
+      if (newSerializedParams[key] === null) {
+        delete newSerializedParams[key];
+        delete existingSerializedParams[key];
       }
     });
     history.replace({
       pathname,
       search: new URLSearchParams({
-        ...Object.fromEntries(new URLSearchParams(search)),
+        ...existingSerializedParams,
         ...newSerializedParams,
       }).toString(),
     });

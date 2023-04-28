@@ -41,7 +41,7 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import {
@@ -157,7 +157,10 @@ export const Tags: React.FC = () => {
     isEqual: (a, b) => a.id === b.id,
   });
 
-  const filterCategories: FilterCategory<TagCategory>[] = [
+  const filterCategories: FilterCategory<
+    TagCategory,
+    "tags" | "rank" | "color"
+  >[] = [
     {
       key: "tags",
       title: t("terms.name"),
@@ -223,7 +226,7 @@ export const Tags: React.FC = () => {
       },
     },
   ];
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     tagCategories || [],
     filterCategories
   );
@@ -428,7 +431,7 @@ export const Tags: React.FC = () => {
           fetchError={fetchError}
           toolbarClearAllFilters={handleOnClearAllFilters}
           toolbarToggle={
-            <FilterToolbar<TagCategory>
+            <FilterToolbar
               filterCategories={filterCategories}
               filterValues={filterValues}
               setFilterValues={setFilterValues}

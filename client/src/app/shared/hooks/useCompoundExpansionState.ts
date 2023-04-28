@@ -38,7 +38,7 @@ export const useCompoundExpansionState = <TItem, TColumnKey extends string>(
   };
 
   // TODO we will need to adapt this to regular-expandable and not just compound-expandable
-  // (probably just means the addition of returned props to render an expandToggleTd in useTableControls)
+  // (probably just means the addition of returned props to render an expandToggleTd in useTableControlProps)
 
   return {
     expandedCells,

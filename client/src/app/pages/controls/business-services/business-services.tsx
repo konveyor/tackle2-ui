@@ -36,7 +36,7 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import { useFetchApplications } from "@app/queries/applications";
@@ -86,7 +86,10 @@ export const BusinessServices: React.FC = () => {
 
   const { data: applications } = useFetchApplications();
 
-  const filterCategories: FilterCategory<BusinessService>[] = [
+  const filterCategories: FilterCategory<
+    BusinessService,
+    "name" | "description" | "owner"
+  >[] = [
     {
       key: "name",
       title: t("terms.name"),
@@ -125,7 +128,7 @@ export const BusinessServices: React.FC = () => {
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     businessServices || [],
     filterCategories
   );
@@ -260,7 +263,7 @@ export const BusinessServices: React.FC = () => {
           fetchError={fetchError}
           toolbarClearAllFilters={handleOnClearAllFilters}
           toolbarToggle={
-            <FilterToolbar<BusinessService>
+            <FilterToolbar
               filterCategories={filterCategories}
               filterValues={filterValues}
               setFilterValues={setFilterValues}

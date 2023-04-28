@@ -47,7 +47,7 @@ import {
   useDeleteImportSummaryMutation,
   useFetchImportSummaries,
 } from "@app/queries/imports";
-import { useFilterState } from "@app/shared/hooks/useFilterState";
+import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import {
   FilterCategory,
   FilterToolbar,
@@ -107,7 +107,10 @@ export const ManageImports: React.FC = () => {
     onDeleteImportSummaryError
   );
 
-  const filterCategories: FilterCategory<ApplicationImportSummary>[] = [
+  const filterCategories: FilterCategory<
+    ApplicationImportSummary,
+    "filename"
+  >[] = [
     {
       key: "filename",
       title: "File Name",
@@ -119,7 +122,7 @@ export const ManageImports: React.FC = () => {
     },
   ];
 
-  const { filterValues, setFilterValues, filteredItems } = useFilterState(
+  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     importSummaries || [],
     filterCategories
   );
@@ -347,7 +350,7 @@ export const ManageImports: React.FC = () => {
             fetchError={fetchError}
             toolbarClearAllFilters={handleOnClearAllFilters}
             toolbarToggle={
-              <FilterToolbar<ApplicationImportSummary>
+              <FilterToolbar
                 filterCategories={filterCategories}
                 filterValues={filterValues}
                 setFilterValues={setFilterValues}
