@@ -5,7 +5,7 @@ import {
 import { objectKeys } from "@app/utils/utils";
 import { IFilterState } from "./useFilterState";
 
-export interface IUseLocalFilterDerivedStateArgs<
+export interface ILocalFilterDerivedStateArgs<
   TItem,
   TFilterCategoryKey extends string
 > {
@@ -13,14 +13,14 @@ export interface IUseLocalFilterDerivedStateArgs<
   filterCategories?: FilterCategory<TItem, TFilterCategoryKey>[];
 }
 
-export const useLocalFilterDerivedState = <
+export const getLocalFilterDerivedState = <
   TItem,
   TFilterCategoryKey extends string
 >({
   items,
   filterCategories = [],
   filterState: { filterValues },
-}: IUseLocalFilterDerivedStateArgs<TItem, TFilterCategoryKey> & {
+}: ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey> & {
   filterState: IFilterState<TFilterCategoryKey>;
 }) => {
   const filteredItems = items.filter((item) =>

@@ -1,13 +1,13 @@
 import { IPaginationState } from "./usePaginationState";
 
-export interface IUseLocalPaginationDerivedStateArgs<TItem> {
+export interface ILocalPaginationDerivedStateArgs<TItem> {
   items: TItem[];
 }
 
-export const useLocalPaginationDerivedState = <TItem>({
+export const getLocalPaginationDerivedState = <TItem>({
   items,
   paginationState: { pageNumber, itemsPerPage },
-}: IUseLocalPaginationDerivedStateArgs<TItem> & {
+}: ILocalPaginationDerivedStateArgs<TItem> & {
   paginationState: IPaginationState;
 }) => {
   const pageStartIndex = (pageNumber - 1) * itemsPerPage;

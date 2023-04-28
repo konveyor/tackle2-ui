@@ -1,17 +1,17 @@
 import { TableComposableProps } from "@patternfly/react-table";
 import {
   IFilterStateArgs,
-  IUseLocalFilterDerivedStateArgs,
+  ILocalFilterDerivedStateArgs,
   IFilterPropsArgs,
 } from "./filtering";
 import {
-  IUseLocalSortDerivedStateArgs,
+  ILocalSortDerivedStateArgs,
   ISortPropsArgs,
   ISortStateArgs,
 } from "./sorting";
 import {
   IPaginationStateArgs,
-  IUseLocalPaginationDerivedStateArgs,
+  ILocalPaginationDerivedStateArgs,
   IPaginationPropsArgs,
 } from "./pagination";
 import { useCompoundExpansionState } from "../useCompoundExpansionState";
@@ -71,10 +71,10 @@ export type IUseLocalTableControlStateArgs<
   TFilterCategoryKey
 > &
   ITableControlDataDependentArgs<TItem> &
-  IUseLocalFilterDerivedStateArgs<TItem, TFilterCategoryKey> &
+  ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey> &
   IFilterStateArgs<TItem, TFilterCategoryKey> &
-  IUseLocalSortDerivedStateArgs<TItem, TSortableColumnKey> &
-  IUseLocalPaginationDerivedStateArgs<TItem>;
+  ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> &
+  ILocalPaginationDerivedStateArgs<TItem>;
 
 // Rendering args
 // - Used by only useTableControlProps

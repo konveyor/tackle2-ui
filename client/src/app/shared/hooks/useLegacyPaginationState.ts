@@ -1,6 +1,6 @@
 import { PaginationProps } from "@patternfly/react-core";
 import {
-  useLocalPaginationDerivedState,
+  getLocalPaginationDerivedState,
   getPaginationProps,
   usePaginationState,
   usePaginationEffects,
@@ -27,7 +27,7 @@ export const useLegacyPaginationState = <T>(
 ): ILegacyPaginationStateHook<T> => {
   const paginationState = usePaginationState({ initialItemsPerPage });
   usePaginationEffects({ paginationState, totalItemCount: items.length });
-  const { currentPageItems } = useLocalPaginationDerivedState({
+  const { currentPageItems } = getLocalPaginationDerivedState({
     items,
     paginationState,
   });

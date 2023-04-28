@@ -1,4 +1,4 @@
 export * from "./useSortState";
-export * from "./useLocalSortDerivedState";
+export * from "./getLocalSortDerivedState";
 export * from "./getSortProps";
 export * from "./getSortHubRequestParams";
