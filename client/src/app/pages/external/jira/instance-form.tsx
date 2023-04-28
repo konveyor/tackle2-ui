@@ -268,9 +268,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
             label="Enable insecure communication"
             aria-label="Insecure Communication"
             isChecked={value}
-            onChange={(selection) => {
-              onChange(selection);
-            }}
+            onChange={onChange}
           />
         )}
       />
