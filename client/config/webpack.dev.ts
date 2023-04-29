@@ -19,7 +19,9 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
       "/auth": "http://localhost:8080",
       "/hub": "http://localhost:8080",
     },
-    historyApiFallback: true,
+    historyApiFallback: {
+      disableDotRule: true,
+    },
   },
   optimization: {
     runtimeChunk: "single",
