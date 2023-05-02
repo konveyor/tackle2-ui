@@ -17,10 +17,12 @@ import { LayoutTheme } from "../LayoutUtils";
 import { checkAccess } from "@app/common/rbac-utils";
 import keycloak from "@app/keycloak";
 
-import "./SidebarApp.css";
 import { useLocalStorage } from "@migtools/lib-ui";
 import { LocalStorageKey } from "@app/Constants";
 import { FEATURES_ENABLED } from "@app/FeatureFlags";
+import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { toOptionLike } from "@app/utils/model-utils";
+import "./SidebarApp.css";
 
 export const SidebarApp: React.FC = () => {
   const token = keycloak.tokenParsed || undefined;
@@ -30,59 +32,80 @@ export const SidebarApp: React.FC = () => {
   const { t } = useTranslation();
   const { search } = useLocation();
   const history = useHistory();
+  enum PersonaKey {
+    ADMINISTRATION = "Administration",
+    MIGRATION = "Migration",
+  }
 
   const options = [
-    <SelectOption key="dev" component="button" value="Developer" isPlaceholder>
-      {t("sidebar.developer")}
+    <SelectOption
+      key="dev"
+      component="button"
+      value={PersonaKey.MIGRATION}
+      isPlaceholder
+    >
+      {PersonaKey.MIGRATION}
     </SelectOption>,
     ...(adminAccess
       ? [
-          <SelectOption key="admin" component="button" value="Administrator">
-            {t("sidebar.administrator")}
+          <SelectOption
+            key="admin"
+            component="button"
+            value={PersonaKey.ADMINISTRATION}
+          >
+            {PersonaKey.ADMINISTRATION}
           </SelectOption>,
         ]
       : []),
   ];
 
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [selectedPersona, setSelectedPersona] = useLocalStorage<string | null>(
-    LocalStorageKey.selectedPersona,
-    null
-  );
+  const personaOptions: OptionWithValue<string>[] = [
+    {
+      value: PersonaKey.MIGRATION,
+      toString: () => PersonaKey.MIGRATION,
+    },
+    {
+      value: PersonaKey.ADMINISTRATION,
+      toString: () => PersonaKey.ADMINISTRATION,
+    },
+  ];
+
+  const [selectedPersona, setSelectedPersona] =
+    useLocalStorage<PersonaKey | null>(LocalStorageKey.selectedPersona, null);
 
   useEffect(() => {
     if (!selectedPersona) {
       history.push("/applications");
-      setSelectedPersona("Developer");
+      setSelectedPersona(PersonaKey.MIGRATION);
     }
   }, []);
 
   const Navigation = (
     <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
       <div className="perspective">
-        <Select
+        <SimpleSelect
           toggleId="sidebar-perspective-toggle"
           variant={SelectVariant.single}
           aria-label="Select user perspective"
-          selections={selectedPersona || undefined}
-          isOpen={isOpen}
-          onSelect={(_, selection) => {
-            setSelectedPersona(selection as string);
-            setIsOpen(!isOpen);
-            if (selection === "Administrator") {
+          id="sidebar-perspective"
+          value={
+            selectedPersona
+              ? toOptionLike(selectedPersona, personaOptions)
+              : undefined
+          }
+          options={personaOptions}
+          onChange={(selection) => {
+            const selectionValue = selection as OptionWithValue<PersonaKey>;
+            setSelectedPersona(selectionValue.value);
+            if (selectionValue.value === PersonaKey.ADMINISTRATION) {
               history.push(Paths.general);
             } else {
               history.push(Paths.applications);
             }
           }}
-          onToggle={() => {
-            setIsOpen(!isOpen);
-          }}
-        >
-          {options}
-        </Select>
+        />
       </div>
-      {selectedPersona === "Developer" ? (
+      {selectedPersona === PersonaKey.MIGRATION ? (
         <NavList title="Global">
           <NavItem>
             <NavLink
