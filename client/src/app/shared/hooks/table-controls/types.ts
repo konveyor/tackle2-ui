@@ -27,7 +27,8 @@ import { KeyWithValueType } from "@app/utils/type-utils";
 // TODO when calling useTableControlUrlParams, the TItem type is not inferred and some of the params have it inferred as `unknown`.
 //      this currently doesn't seem to matter since TItem becomes inferred later when currentPageItems is in scope,
 //      but we should see if we can fix that (maybe not depend on TItem in the extended types here, or find a way
-//      to pass TItem while still letting the rest of the generics be inferred -- newer TS 5.0 features?)
+//      to pass TItem while still letting the rest of the generics be inferred.
+//      This may be resolved in a newer TypeScript version after https://github.com/microsoft/TypeScript/pull/54047 is merged!
 
 // Common args
 // - Used by both useLocalTableControlState and useTableControlUrlParams
