@@ -94,13 +94,13 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
 >): JSX.Element | null => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] =
     React.useState(false);
-  const [currenTFilterCategoryKey, setCurrenTFilterCategoryKey] =
+  const [currentFilterCategoryKey, setCurrentFilterCategoryKey] =
     React.useState(filterCategories[0].key);
 
   const onCategorySelect = (
     category: FilterCategory<TItem, TFilterCategoryKey>
   ) => {
-    setCurrenTFilterCategoryKey(category.key);
+    setCurrentFilterCategoryKey(category.key);
     setIsCategoryDropdownOpen(false);
   };
 
@@ -110,7 +110,7 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
   ) => setFilterValues({ ...filterValues, [category.key]: newValue });
 
   const currentFilterCategory = filterCategories.find(
-    (category) => category.key === currenTFilterCategoryKey
+    (category) => category.key === currentFilterCategoryKey
   );
 
   return (
