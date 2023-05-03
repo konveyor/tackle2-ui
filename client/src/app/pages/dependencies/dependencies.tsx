@@ -36,6 +36,8 @@ import {
 import { useFetchDependencies } from "@app/queries/dependencies";
 import { useSelectionState } from "@migtools/lib-ui";
 import { getHubRequestParams } from "@app/shared/hooks/table-controls";
+import { AnalysisDependency } from "@app/api/models";
+import { PageDrawerContent } from "@app/shared/page-drawer-context";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
@@ -104,6 +106,11 @@ export const Dependencies: React.FC = () => {
     },
   } = tableControls;
 
+  // TODO lift this into URL params / managed state?
+  const [activeDependencyInDetailDrawer, openDetailDrawer] =
+    React.useState<AnalysisDependency | null>(null);
+  const closeDetailDrawer = () => openDetailDrawer(null);
+
   console.log({ currentPageItems, totalItemCount });
 
   return (
@@ -114,91 +121,104 @@ export const Dependencies: React.FC = () => {
         </TextContent>
       </PageSection>
       <PageSection>
-        <ConditionalRender
-          when={isFetching && !(currentPageItems || fetchError)}
-          then={<AppPlaceholder />}
+        <div
+          style={{
+            backgroundColor: "var(--pf-global--BackgroundColor--100)",
+          }}
         >
-          <div
-            style={{
-              backgroundColor: "var(--pf-global--BackgroundColor--100)",
-            }}
-          >
-            <Toolbar {...toolbarProps}>
-              <ToolbarContent>
-                <FilterToolbar {...filterToolbarProps} />
-                <ToolbarItem {...paginationToolbarItemProps}>
-                  <SimplePagination
-                    idPrefix="dependencies-table"
-                    isTop
-                    paginationProps={paginationProps}
-                  />
-                </ToolbarItem>
-              </ToolbarContent>
-            </Toolbar>
-            <TableComposable {...tableProps} aria-label="Migration waves table">
-              <Thead>
-                <Tr>
-                  <TableHeaderContentWithControls {...tableControls}>
-                    <Th {...getThProps({ columnKey: "name" })} />
-                    <Th {...getThProps({ columnKey: "foundIn" })} />
-                    <Th {...getThProps({ columnKey: "version" })} />
-                  </TableHeaderContentWithControls>
-                </Tr>
-              </Thead>
-              <ConditionalTableBody
-                isLoading={isFetching}
-                isError={!!fetchError}
-                isNoData={totalItemCount === 0}
-                numRenderedColumns={numRenderedColumns}
-              >
-                {currentPageItems?.map((dependency, rowIndex) => {
-                  return (
-                    <Tbody key={dependency.name}>
-                      <Tr
-                        {...getClickableTrProps({
-                          isRowSelected: false,
-                          onRowClick: () => {
-                            alert("TODO");
-                          },
-                        })}
+          <Toolbar {...toolbarProps}>
+            <ToolbarContent>
+              <FilterToolbar {...filterToolbarProps} />
+              <ToolbarItem {...paginationToolbarItemProps}>
+                <SimplePagination
+                  idPrefix="dependencies-table"
+                  isTop
+                  paginationProps={paginationProps}
+                />
+              </ToolbarItem>
+            </ToolbarContent>
+          </Toolbar>
+          <TableComposable {...tableProps} aria-label="Migration waves table">
+            <Thead>
+              <Tr>
+                <TableHeaderContentWithControls {...tableControls}>
+                  <Th {...getThProps({ columnKey: "name" })} />
+                  <Th {...getThProps({ columnKey: "foundIn" })} />
+                  <Th {...getThProps({ columnKey: "version" })} />
+                </TableHeaderContentWithControls>
+              </Tr>
+            </Thead>
+            <ConditionalTableBody
+              isLoading={isFetching}
+              isError={!!fetchError}
+              isNoData={totalItemCount === 0}
+              numRenderedColumns={numRenderedColumns}
+            >
+              {currentPageItems?.map((dependency, rowIndex) => {
+                return (
+                  <Tbody key={dependency.name}>
+                    <Tr
+                      // When this is lifted to managed state, do we take only the item/dependency as an arg here? should we still allow overriding with custom onRowClick?
+                      {...getClickableTrProps({
+                        isRowSelected:
+                          activeDependencyInDetailDrawer?.name ===
+                          dependency.name,
+                        onRowClick: () => {
+                          if (
+                            activeDependencyInDetailDrawer?.name ===
+                            dependency.name
+                          ) {
+                            closeDetailDrawer();
+                          } else {
+                            openDetailDrawer(dependency);
+                          }
+                        },
+                      })}
+                    >
+                      <TableRowContentWithControls
+                        {...tableControls}
+                        item={dependency}
+                        rowIndex={rowIndex}
                       >
-                        <TableRowContentWithControls
-                          {...tableControls}
-                          item={dependency}
-                          rowIndex={rowIndex}
+                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                          {dependency.name}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "foundIn" })}
                         >
-                          <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                            {dependency.name}
-                          </Td>
-                          <Td
-                            width={10}
-                            {...getTdProps({ columnKey: "foundIn" })}
-                          >
-                            {/* TODO - the applications property disappeared in the API? */}
-                            {/*dependency.applications.length} applications*/}
-                            TODO
-                          </Td>
-                          <Td
-                            width={10}
-                            {...getTdProps({ columnKey: "version" })}
-                          >
-                            {dependency.version}
-                          </Td>
-                        </TableRowContentWithControls>
-                      </Tr>
-                    </Tbody>
-                  );
-                })}
-              </ConditionalTableBody>
-            </TableComposable>
-            <SimplePagination
-              idPrefix="dependencies-table"
-              isTop={false}
-              paginationProps={paginationProps}
-            />
-          </div>
-        </ConditionalRender>
+                          {/* TODO - the applications property disappeared in the API? */}
+                          {/*dependency.applications.length} applications*/}
+                          TODO
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "version" })}
+                        >
+                          {dependency.version}
+                        </Td>
+                      </TableRowContentWithControls>
+                    </Tr>
+                  </Tbody>
+                );
+              })}
+            </ConditionalTableBody>
+          </TableComposable>
+          <SimplePagination
+            idPrefix="dependencies-table"
+            isTop={false}
+            paginationProps={paginationProps}
+          />
+        </div>
       </PageSection>
+      <PageDrawerContent
+        isExpanded={!!activeDependencyInDetailDrawer}
+        onCloseClick={closeDetailDrawer}
+        focusKey={activeDependencyInDetailDrawer?.name}
+      >
+        TODO details about dependency {activeDependencyInDetailDrawer?.name}{" "}
+        here!
+      </PageDrawerContent>
     </>
   );
 };
