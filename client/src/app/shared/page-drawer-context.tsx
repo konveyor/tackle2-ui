@@ -110,6 +110,7 @@ export const PageDrawerContent: React.FC<IPageDrawerContentProps> = ({
     setIsDrawerExpanded(localIsExpandedProp);
     return () => {
       setIsDrawerExpanded(false);
+      setDrawerChildren(null);
     };
   }, [localIsExpandedProp]);
 
