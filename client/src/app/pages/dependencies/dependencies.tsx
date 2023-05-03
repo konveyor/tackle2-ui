@@ -60,6 +60,7 @@ export const Dependencies: React.FC = () => {
       },
     ],
     initialItemsPerPage: 10,
+    hasClickableRows: true,
   });
 
   const {
@@ -99,6 +100,7 @@ export const Dependencies: React.FC = () => {
       tableProps,
       getThProps,
       getTdProps,
+      getClickableTrProps,
     },
   } = tableControls;
 
@@ -152,7 +154,14 @@ export const Dependencies: React.FC = () => {
                 {currentPageItems?.map((dependency, rowIndex) => {
                   return (
                     <Tbody key={dependency.name}>
-                      <Tr>
+                      <Tr
+                        {...getClickableTrProps({
+                          isRowSelected: false,
+                          onRowClick: () => {
+                            alert("TODO");
+                          },
+                        })}
+                      >
                         <TableRowContentWithControls
                           {...tableControls}
                           item={dependency}

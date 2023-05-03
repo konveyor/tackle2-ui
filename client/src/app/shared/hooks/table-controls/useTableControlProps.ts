@@ -4,6 +4,7 @@ import {
   TableComposableProps,
   TdProps,
   ThProps,
+  TrProps,
 } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -13,6 +14,8 @@ import { IUseTableControlPropsArgs } from "./types";
 import { getFilterProps } from "./filtering";
 import { getSortProps } from "./sorting";
 import { getPaginationProps, usePaginationEffects } from "./pagination";
+import React from "react";
+import { handlePropagatedRowClick } from "./utils";
 
 export const useTableControlProps = <
   TItem,
@@ -49,6 +52,7 @@ export const useTableControlProps = <
     isSelectable = false,
     expandableVariant = null,
     hasActionsColumn = false,
+    hasClickableRows = false,
     variant,
     idProperty,
   } = args;
@@ -91,7 +95,10 @@ export const useTableControlProps = <
     onSelectMultiple: selectMultiple,
   };
 
-  const tableProps: Omit<TableComposableProps, "ref"> = { variant };
+  const tableProps: Omit<TableComposableProps, "ref"> = {
+    variant,
+    hasSelectableRowCaption: hasClickableRows,
+  };
 
   const getThProps = ({
     columnKey,
@@ -106,6 +113,19 @@ export const useTableControlProps = <
         })
       : {}),
     children: columnNames[columnKey],
+  });
+
+  const getClickableTrProps = ({
+    isRowSelected = false,
+    onRowClick,
+  }: {
+    isRowSelected: boolean;
+    onRowClick: (event: React.MouseEvent | React.KeyboardEvent) => void;
+  }): Omit<TrProps, "ref"> => ({
+    isSelectable: true,
+    isHoverable: true,
+    isRowSelected,
+    onRowClick: (event) => handlePropagatedRowClick(event, onRowClick),
   });
 
   const getTdProps = ({
@@ -205,6 +225,7 @@ export const useTableControlProps = <
       paginationToolbarItemProps,
       tableProps,
       getThProps,
+      getClickableTrProps,
       getTdProps,
       getSelectCheckboxTdProps,
       getCompoundExpandTdProps,

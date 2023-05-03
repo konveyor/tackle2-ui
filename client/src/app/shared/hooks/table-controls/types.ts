@@ -47,6 +47,7 @@ export interface ITableControlCommonArgs<
   expandableVariant?: "single" | "compound" | null;
   hasActionsColumn?: boolean;
   variant?: TableComposableProps["variant"];
+  hasClickableRows?: boolean;
 }
 
 // Data-dependent args

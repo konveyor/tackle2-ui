@@ -13,6 +13,7 @@ import { StateNoResults } from "./state-no-results";
 import { StateError } from "./state-error";
 import "./app-table.css";
 import { Application } from "@app/api/models";
+import { handlePropagatedRowClick } from "@app/shared/hooks/table-controls";
 
 const ENTITY_FIELD = "entity";
 
@@ -142,30 +143,9 @@ export const AppTable: React.FC<IAppTableProps> = ({
       <TableHeader />
       <TableBody
         onRowClick={(event, row) => {
-          // Check if there is a clickable element between the event target and the row such as a
-          // checkbox, button or link. Don't trigger the row click if those are clicked.
-          // This recursive parent check is necessary because the event target could be,
-          // for example, the SVG icon inside a button rather than the button itself.
-          const isClickableElementInTheWay = (element: Element): boolean => {
-            if (
-              ["input", "button", "a"].includes(element.tagName.toLowerCase())
-            ) {
-              return true;
-            }
-            if (
-              !element.parentElement ||
-              element.parentElement?.tagName.toLowerCase() === "tr"
-            ) {
-              return false;
-            }
-            return isClickableElementInTheWay(element.parentElement);
-          };
-          if (
-            event.target instanceof Element &&
-            !isClickableElementInTheWay(event.target)
-          ) {
+          handlePropagatedRowClick(event, () => {
             onAppClick?.(row[ENTITY_FIELD] || null);
-          }
+          });
         }}
       />
     </Table>
