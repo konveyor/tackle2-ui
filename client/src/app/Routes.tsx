@@ -29,7 +29,7 @@ const MigrationTargets = lazy(() => import("./pages/migration-targets"));
 const General = lazy(() => import("./pages/general"));
 const Waves = lazy(() => import("./pages/waves"));
 const Jira = lazy(() => import("./pages/external/jira"));
-const Issues = lazy(() => import("./pages/issues")); // TODO
+const Issues = lazy(() => import("./pages/issues"));
 const Dependencies = lazy(() => import("./pages/dependencies"));
 
 export interface IRoute {
