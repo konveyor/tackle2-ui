@@ -230,48 +230,6 @@ Object {
                     sidebar.controls
                   </a>
                 </li>
-                <li
-                  class="pf-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-6"
-                  data-ouia-component-type="PF4/NavItem"
-                  data-ouia-safe="true"
-                >
-                  <a
-                    class="pf-c-nav__link"
-                    href="/waves"
-                    tabindex="-1"
-                  >
-                    sidebar.waves
-                  </a>
-                </li>
-                <li
-                  class="pf-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-2"
-                  data-ouia-component-type="PF4/NavItem"
-                  data-ouia-safe="true"
-                >
-                  <a
-                    class="pf-c-nav__link"
-                    href="/issues"
-                    tabindex="-1"
-                  >
-                    sidebar.issues
-                  </a>
-                </li>
-                <li
-                  class="pf-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-3"
-                  data-ouia-component-type="PF4/NavItem"
-                  data-ouia-safe="true"
-                >
-                  <a
-                    class="pf-c-nav__link"
-                    href="/dependencies"
-                    tabindex="-1"
-                  >
-                    sidebar.dependencies
-                  </a>
-                </li>
               </ul>
             </nav>
           </div>
@@ -280,7 +238,33 @@ Object {
           class="pf-c-page__main"
           id="main-content-page-layout-horizontal-nav"
           tabindex="-1"
-        />
+        >
+          <div
+            class="pf-c-page__drawer"
+          >
+            <div
+              class="pf-c-drawer"
+            >
+              <div
+                class="pf-c-drawer__main"
+              >
+                <div
+                  class="pf-c-drawer__content"
+                >
+                  <div
+                    class="pf-c-drawer__body"
+                  />
+                </div>
+                <div
+                  class="pf-c-drawer__panel pf-m-resizable"
+                  hidden=""
+                  id="page-drawer-content"
+                  style="--pf-c-drawer__panel--md--FlexBasis: 500px; --pf-c-drawer__panel--md--FlexBasis--min: 150px;"
+                />
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
     <div />
@@ -518,48 +502,6 @@ Object {
                   sidebar.controls
                 </a>
               </li>
-              <li
-                class="pf-c-nav__item"
-                data-ouia-component-id="OUIA-Generated-NavItem-6"
-                data-ouia-component-type="PF4/NavItem"
-                data-ouia-safe="true"
-              >
-                <a
-                  class="pf-c-nav__link"
-                  href="/waves"
-                  tabindex="-1"
-                >
-                  sidebar.waves
-                </a>
-              </li>
-              <li
-                class="pf-c-nav__item"
-                data-ouia-component-id="OUIA-Generated-NavItem-2"
-                data-ouia-component-type="PF4/NavItem"
-                data-ouia-safe="true"
-              >
-                <a
-                  class="pf-c-nav__link"
-                  href="/issues"
-                  tabindex="-1"
-                >
-                  sidebar.issues
-                </a>
-              </li>
-              <li
-                class="pf-c-nav__item"
-                data-ouia-component-id="OUIA-Generated-NavItem-3"
-                data-ouia-component-type="PF4/NavItem"
-                data-ouia-safe="true"
-              >
-                <a
-                  class="pf-c-nav__link"
-                  href="/dependencies"
-                  tabindex="-1"
-                >
-                  sidebar.dependencies
-                </a>
-              </li>
             </ul>
           </nav>
         </div>
@@ -568,7 +510,33 @@ Object {
         class="pf-c-page__main"
         id="main-content-page-layout-horizontal-nav"
         tabindex="-1"
-      />
+      >
+        <div
+          class="pf-c-page__drawer"
+        >
+          <div
+            class="pf-c-drawer"
+          >
+            <div
+              class="pf-c-drawer__main"
+            >
+              <div
+                class="pf-c-drawer__content"
+              >
+                <div
+                  class="pf-c-drawer__body"
+                />
+              </div>
+              <div
+                class="pf-c-drawer__panel pf-m-resizable"
+                hidden=""
+                id="page-drawer-content"
+                style="--pf-c-drawer__panel--md--FlexBasis: 500px; --pf-c-drawer__panel--md--FlexBasis--min: 150px;"
+              />
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   </div>,
   "debug": [Function],

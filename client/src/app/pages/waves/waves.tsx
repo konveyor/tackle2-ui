@@ -13,14 +13,14 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { useFetchWaves } from "@app/queries/waves";
+import { useFetchMigrationWaves } from "@app/queries/waves";
 import {
   AppPlaceholder,
   ConditionalRender,
   KebabDropdown,
   ToolbarBulkSelector,
 } from "@app/shared/components";
-import { Wave } from "@app/api/models";
+import { MigrationWave } from "@app/api/models";
 import {
   FilterToolbar,
   FilterType,
@@ -35,6 +35,7 @@ import {
   Tr,
 } from "@patternfly/react-table";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { WaveApplicationsTable } from "./wave-applications-table/wave-applications-table";
 import { WaveStakeholdersTable } from "./wave-stakeholders-table/wave-stakeholders-table";
 import { CreateEditWaveModal } from "./components/create-edit-wave-modal";
@@ -45,23 +46,20 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
+dayjs.extend(utc);
 
 export const Waves: React.FC = () => {
   const { t } = useTranslation();
 
-  const { waves, isFetching, fetchError } = useFetchWaves();
+  const { waves, isFetching, fetchError } = useFetchMigrationWaves();
 
-  // When waveModalState is:
-  //   'create': the modal is open for creating a new wave.
-  //   A Wave: the modal is open for editing that wave.
-  //   null: the modal is closed.
   const [waveModalState, setWaveModalState] = React.useState<
-    "create" | Wave | null
+    "create" | MigrationWave | null
   >(null);
   const isWaveModalOpen = waveModalState !== null;
   const waveBeingEdited = waveModalState !== "create" ? waveModalState : null;
   const openCreateWaveModal = () => setWaveModalState("create");
-  const openEditWaveModal = (wave: Wave) => setWaveModalState(wave);
+  const openEditWaveModal = (wave: MigrationWave) => setWaveModalState(wave);
   const closeWaveModal = () => setWaveModalState(null);
 
   const tableControls = useLocalTableControls({
@@ -232,13 +230,13 @@ export const Waves: React.FC = () => {
                             width={10}
                             {...getTdProps({ columnKey: "startDate" })}
                           >
-                            {dayjs(wave.startDate).format("DD/MM/YYYY")}
+                            {dayjs.utc(wave.startDate).format("MM/DD/YYYY")}
                           </Td>
                           <Td
                             width={10}
                             {...getTdProps({ columnKey: "endDate" })}
                           >
-                            {dayjs(wave.endDate).format("DD/MM/YYYY")}
+                            {dayjs.utc(wave.endDate).format("MM/DD/YYYY")}
                           </Td>
                           <Td
                             width={10}
@@ -329,7 +327,7 @@ export const Waves: React.FC = () => {
       <CreateEditWaveModal
         isOpen={isWaveModalOpen}
         waveBeingEdited={waveBeingEdited}
-        onSaved={() => {}}
+        onSaved={closeWaveModal}
         onCancel={closeWaveModal}
       />
     </>

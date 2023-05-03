@@ -1,5 +1,5 @@
 import React from "react";
-import { Stakeholder, Wave } from "@app/api/models";
+import { Stakeholder, MigrationWave } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import {
@@ -26,7 +26,7 @@ import {
 } from "@app/shared/components/table-controls";
 
 export interface IWaveStakeholdersTableProps {
-  wave: Wave;
+  wave: MigrationWave;
   stakeholders: Stakeholder[];
 }
 

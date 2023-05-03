@@ -270,6 +270,7 @@
     "memberCount": "Member count",
     "message": "Message",
     "modernizable": "Modernizable",
+    "migrationWave": "Migration wave",
     "migrationWaves": "Migration waves",
     "name": "Name",
     "northboundDependencies": "Northbound dependencies",
@@ -346,6 +347,9 @@
       "deleted": "{{type}} '{{what}}' was successfully deleted.",
       "fileSavedToBeProcessed": "Success! file saved to be processed.",
       "reviewDiscarded": "Success! Review discarded for {{application}}."
+    },
+    "failure": {
+      "added": "Failure to add {{type}}."
     }
   },
   "validation": {
