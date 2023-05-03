@@ -18,3 +18,6 @@ the case that projects using emojis for PR typing had to include the emoji
 directly because GitHub didn't render the alias. Given that `:warning:` is
 easy enough to read as text, easy to parse in release tooling, and rendered in
 GitHub well, we prefer to standardize on the alias.
+
+For more information, please see the Konveyor
+[Versioning Doc](https://github.com/konveyor/release-tools/blob/main/VERSIONING.md).
