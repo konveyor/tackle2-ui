@@ -51,6 +51,7 @@ export const ApplicationDetailDrawer: React.FC<
       isExpanded={!!application}
       onCloseClick={onCloseClick}
       focusKey={application?.id}
+      pageKey="app-inventory"
     >
       <TextContent>
         <Text component="small" className={spacing.mb_0}>
