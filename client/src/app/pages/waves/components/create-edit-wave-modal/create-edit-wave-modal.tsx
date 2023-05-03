@@ -3,11 +3,11 @@ import { AxiosResponse } from "axios";
 import { Modal, ModalVariant } from "@patternfly/react-core";
 
 import { WaveForm } from "./wave-form";
-import { Wave } from "@app/api/models";
+import { MigrationWave } from "@app/api/models";
 
 export interface CreateEditWaveModalProps {
   isOpen: boolean;
-  waveBeingEdited: Wave | null;
+  waveBeingEdited: MigrationWave | null;
   onSaved: (response: AxiosResponse<unknown>) => void;
   onCancel: () => void;
 }
@@ -21,12 +21,13 @@ export const CreateEditWaveModal: React.FC<CreateEditWaveModalProps> = ({
   if (!isOpen) return null;
   return (
     <Modal
+      id="create-edit-wave-modal"
       title={!waveBeingEdited ? "Create migration wave" : "Edit migration wave"}
       variant={ModalVariant.small}
       isOpen
       onClose={onCancel}
     >
-      <WaveForm onCancel={onCancel} />
+      <WaveForm onSaved={onSaved} onCancel={onCancel} />
     </Modal>
   );
 };
