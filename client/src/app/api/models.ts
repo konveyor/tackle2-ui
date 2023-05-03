@@ -1,4 +1,3 @@
-// TODO remove this, we're using our regular flat key/value object for the UI part of filter representation
 export interface HubFilter {
   field: string;
   operator?: "=" | "!=" | "~" | ">" | ">=" | "<" | "<=";
