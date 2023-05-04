@@ -9,7 +9,6 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { AppPlaceholder, ConditionalRender } from "@app/shared/components";
 import {
   FilterToolbar,
   FilterType,
@@ -36,7 +35,6 @@ import {
 import { useFetchDependencies } from "@app/queries/dependencies";
 import { useSelectionState } from "@migtools/lib-ui";
 import { getHubRequestParams } from "@app/shared/hooks/table-controls";
-import { AnalysisDependency } from "@app/api/models";
 import { PageDrawerContent } from "@app/shared/page-drawer-context";
 
 export const Dependencies: React.FC = () => {
@@ -104,14 +102,8 @@ export const Dependencies: React.FC = () => {
       getTdProps,
       getClickableTrProps,
     },
+    activeRowDerivedState: { activeRowItem, clearActiveRow },
   } = tableControls;
-
-  // TODO lift this into URL params / managed state?
-  const [activeDependencyInDetailDrawer, openDetailDrawer] =
-    React.useState<AnalysisDependency | null>(null);
-  const closeDetailDrawer = () => openDetailDrawer(null);
-
-  console.log({ currentPageItems, totalItemCount });
 
   return (
     <>
@@ -157,24 +149,7 @@ export const Dependencies: React.FC = () => {
               {currentPageItems?.map((dependency, rowIndex) => {
                 return (
                   <Tbody key={dependency.name}>
-                    <Tr
-                      // When this is lifted to managed state, do we take only the item/dependency as an arg here? should we still allow overriding with custom onRowClick?
-                      {...getClickableTrProps({
-                        isRowSelected:
-                          activeDependencyInDetailDrawer?.name ===
-                          dependency.name,
-                        onRowClick: () => {
-                          if (
-                            activeDependencyInDetailDrawer?.name ===
-                            dependency.name
-                          ) {
-                            closeDetailDrawer();
-                          } else {
-                            openDetailDrawer(dependency);
-                          }
-                        },
-                      })}
-                    >
+                    <Tr {...getClickableTrProps({ item: dependency })}>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={dependency}
@@ -212,13 +187,12 @@ export const Dependencies: React.FC = () => {
         </div>
       </PageSection>
       <PageDrawerContent
-        isExpanded={!!activeDependencyInDetailDrawer}
-        onCloseClick={closeDetailDrawer}
-        focusKey={activeDependencyInDetailDrawer?.name}
+        isExpanded={!!activeRowItem}
+        onCloseClick={clearActiveRow}
+        focusKey={activeRowItem?.name}
         pageKey="analysis-dependencies"
       >
-        TODO details about dependency {activeDependencyInDetailDrawer?.name}{" "}
-        here!
+        TODO details about dependency {activeRowItem?.name} here!
       </PageDrawerContent>
     </>
   );

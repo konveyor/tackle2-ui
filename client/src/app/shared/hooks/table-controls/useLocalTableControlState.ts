@@ -10,6 +10,7 @@ import {
   IUseTableControlPropsArgs,
 } from "./types";
 import { getLocalFilterDerivedState, useFilterState } from "./filtering";
+import { useActiveRowState } from "./active-row";
 
 export const useLocalTableControlState = <
   TItem,
@@ -59,6 +60,7 @@ export const useLocalTableControlState = <
     paginationState,
     items: sortedItems,
   });
+  const activeRowState = useActiveRowState();
 
   return {
     ...args,
@@ -67,6 +69,7 @@ export const useLocalTableControlState = <
     selectionState,
     sortState,
     paginationState,
+    activeRowState,
     totalItemCount: items.length,
     currentPageItems: hasPagination ? currentPageItems : sortedItems,
   };

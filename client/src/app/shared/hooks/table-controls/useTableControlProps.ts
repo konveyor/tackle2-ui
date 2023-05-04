@@ -14,7 +14,7 @@ import { IUseTableControlPropsArgs } from "./types";
 import { getFilterProps } from "./filtering";
 import { getSortProps } from "./sorting";
 import { getPaginationProps, usePaginationEffects } from "./pagination";
-import React from "react";
+import { getActiveRowDerivedState } from "./active-row";
 import { handlePropagatedRowClick } from "./utils";
 
 export const useTableControlProps = <
@@ -53,6 +53,7 @@ export const useTableControlProps = <
     expandableVariant = null,
     hasActionsColumn = false,
     hasClickableRows = false,
+    activeRowState: { activeRowId, setActiveRowId },
     variant,
     idProperty,
   } = args;
@@ -68,6 +69,10 @@ export const useTableControlProps = <
   if (hasActionsColumn) numColumnsAfterData++;
   const numRenderedColumns =
     columnKeys.length + numColumnsBeforeData + numColumnsAfterData;
+
+  const activeRowDerivedState = getActiveRowDerivedState(args);
+  const { activeRowItem, setActiveRowItem, clearActiveRow } =
+    activeRowDerivedState;
 
   const toolbarProps: Omit<ToolbarProps, "ref"> = {
     className: variant === "compact" ? spacing.pt_0 : "",
@@ -116,16 +121,24 @@ export const useTableControlProps = <
   });
 
   const getClickableTrProps = ({
-    isRowSelected = false,
     onRowClick,
+    item,
   }: {
-    isRowSelected: boolean;
-    onRowClick: (event: React.MouseEvent | React.KeyboardEvent) => void;
+    onRowClick?: TrProps["onRowClick"]; // Extra callback if necessary - setting the active row is built in
+    item?: TItem; // Can be omitted if using this just for the click handler and not for active rows
   }): Omit<TrProps, "ref"> => ({
     isSelectable: true,
     isHoverable: true,
-    isRowSelected,
-    onRowClick: (event) => handlePropagatedRowClick(event, onRowClick),
+    isRowSelected: item && item[idProperty] === activeRowId,
+    onRowClick: (event) =>
+      handlePropagatedRowClick(event, () => {
+        if (item && activeRowId !== item[idProperty]) {
+          setActiveRowItem(item);
+        } else {
+          clearActiveRow();
+        }
+        onRowClick?.(event);
+      }),
   });
 
   const getTdProps = ({
@@ -232,5 +245,6 @@ export const useTableControlProps = <
       getSingleExpandTdProps,
       getExpandedContentTdProps,
     },
+    activeRowDerivedState,
   };
 };
