@@ -215,6 +215,7 @@ export const Dependencies: React.FC = () => {
         isExpanded={!!activeDependencyInDetailDrawer}
         onCloseClick={closeDetailDrawer}
         focusKey={activeDependencyInDetailDrawer?.name}
+        pageKey="analysis-dependencies"
       >
         TODO details about dependency {activeDependencyInDetailDrawer?.name}{" "}
         here!
