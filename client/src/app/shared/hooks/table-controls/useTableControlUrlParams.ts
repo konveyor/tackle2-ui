@@ -1,7 +1,8 @@
-import { useSortUrlParams } from "./sorting";
-import { usePaginationUrlParams } from "./pagination";
 import { ITableControlCommonArgs } from "./types";
 import { useFilterUrlParams } from "./filtering";
+import { useSortUrlParams } from "./sorting";
+import { usePaginationUrlParams } from "./pagination";
+import { useActiveRowUrlParams } from "./active-row";
 
 export const useTableControlUrlParams = <
   TItem,
@@ -19,5 +20,6 @@ export const useTableControlUrlParams = <
   const filterState = useFilterUrlParams<TFilterCategoryKey>();
   const sortState = useSortUrlParams(args);
   const paginationState = usePaginationUrlParams(args);
-  return { ...args, filterState, sortState, paginationState };
+  const activeRowState = useActiveRowUrlParams();
+  return { ...args, filterState, sortState, paginationState, activeRowState };
 };

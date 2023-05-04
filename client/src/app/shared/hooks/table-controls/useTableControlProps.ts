@@ -4,6 +4,7 @@ import {
   TableComposableProps,
   TdProps,
   ThProps,
+  TrProps,
 } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -13,6 +14,8 @@ import { IUseTableControlPropsArgs } from "./types";
 import { getFilterProps } from "./filtering";
 import { getSortProps } from "./sorting";
 import { getPaginationProps, usePaginationEffects } from "./pagination";
+import { getActiveRowDerivedState, useActiveRowEffects } from "./active-row";
+import { handlePropagatedRowClick } from "./utils";
 
 export const useTableControlProps = <
   TItem,
@@ -49,6 +52,7 @@ export const useTableControlProps = <
     isSelectable = false,
     expandableVariant = null,
     hasActionsColumn = false,
+    hasClickableRows = false,
     variant,
     idProperty,
   } = args;
@@ -64,6 +68,11 @@ export const useTableControlProps = <
   if (hasActionsColumn) numColumnsAfterData++;
   const numRenderedColumns =
     columnKeys.length + numColumnsBeforeData + numColumnsAfterData;
+
+  const activeRowDerivedState = getActiveRowDerivedState(args);
+  useActiveRowEffects({ ...args, activeRowDerivedState });
+  const { activeRowItem, setActiveRowItem, clearActiveRow } =
+    activeRowDerivedState;
 
   const toolbarProps: Omit<ToolbarProps, "ref"> = {
     className: variant === "compact" ? spacing.pt_0 : "",
@@ -91,7 +100,10 @@ export const useTableControlProps = <
     onSelectMultiple: selectMultiple,
   };
 
-  const tableProps: Omit<TableComposableProps, "ref"> = { variant };
+  const tableProps: Omit<TableComposableProps, "ref"> = {
+    variant,
+    hasSelectableRowCaption: hasClickableRows,
+  };
 
   const getThProps = ({
     columnKey,
@@ -106,6 +118,27 @@ export const useTableControlProps = <
         })
       : {}),
     children: columnNames[columnKey],
+  });
+
+  const getClickableTrProps = ({
+    onRowClick,
+    item,
+  }: {
+    onRowClick?: TrProps["onRowClick"]; // Extra callback if necessary - setting the active row is built in
+    item?: TItem; // Can be omitted if using this just for the click handler and not for active rows
+  }): Omit<TrProps, "ref"> => ({
+    isSelectable: true,
+    isHoverable: true,
+    isRowSelected: item && item[idProperty] === activeRowItem?.[idProperty],
+    onRowClick: (event) =>
+      handlePropagatedRowClick(event, () => {
+        if (item && activeRowItem?.[idProperty] !== item[idProperty]) {
+          setActiveRowItem(item);
+        } else {
+          clearActiveRow();
+        }
+        onRowClick?.(event);
+      }),
   });
 
   const getTdProps = ({
@@ -205,11 +238,13 @@ export const useTableControlProps = <
       paginationToolbarItemProps,
       tableProps,
       getThProps,
+      getClickableTrProps,
       getTdProps,
       getSelectCheckboxTdProps,
       getCompoundExpandTdProps,
       getSingleExpandTdProps,
       getExpandedContentTdProps,
     },
+    activeRowDerivedState,
   };
 };
