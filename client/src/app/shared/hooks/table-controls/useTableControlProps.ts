@@ -14,7 +14,7 @@ import { IUseTableControlPropsArgs } from "./types";
 import { getFilterProps } from "./filtering";
 import { getSortProps } from "./sorting";
 import { getPaginationProps, usePaginationEffects } from "./pagination";
-import { getActiveRowDerivedState } from "./active-row";
+import { getActiveRowDerivedState, useActiveRowEffects } from "./active-row";
 import { handlePropagatedRowClick } from "./utils";
 
 export const useTableControlProps = <
@@ -53,7 +53,6 @@ export const useTableControlProps = <
     expandableVariant = null,
     hasActionsColumn = false,
     hasClickableRows = false,
-    activeRowState: { activeRowId, setActiveRowId },
     variant,
     idProperty,
   } = args;
@@ -71,6 +70,7 @@ export const useTableControlProps = <
     columnKeys.length + numColumnsBeforeData + numColumnsAfterData;
 
   const activeRowDerivedState = getActiveRowDerivedState(args);
+  useActiveRowEffects({ ...args, activeRowDerivedState });
   const { activeRowItem, setActiveRowItem, clearActiveRow } =
     activeRowDerivedState;
 
@@ -129,10 +129,10 @@ export const useTableControlProps = <
   }): Omit<TrProps, "ref"> => ({
     isSelectable: true,
     isHoverable: true,
-    isRowSelected: item && item[idProperty] === activeRowId,
+    isRowSelected: item && item[idProperty] === activeRowItem?.[idProperty],
     onRowClick: (event) =>
       handlePropagatedRowClick(event, () => {
-        if (item && activeRowId !== item[idProperty]) {
+        if (item && activeRowItem?.[idProperty] !== item[idProperty]) {
           setActiveRowItem(item);
         } else {
           clearActiveRow();
