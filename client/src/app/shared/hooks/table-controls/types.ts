@@ -1,4 +1,6 @@
 import { TableComposableProps } from "@patternfly/react-table";
+import { useSelectionState } from "@migtools/lib-ui";
+import { KeyWithValueType } from "@app/utils/type-utils";
 import {
   IFilterStateArgs,
   ILocalFilterDerivedStateArgs,
@@ -14,9 +16,8 @@ import {
   ILocalPaginationDerivedStateArgs,
   IPaginationPropsArgs,
 } from "./pagination";
+import { IActiveRowDerivedStateArgs } from "./active-row";
 import { useCompoundExpansionState } from "../useCompoundExpansionState";
-import { useSelectionState } from "@migtools/lib-ui";
-import { KeyWithValueType } from "@app/utils/type-utils";
 
 // Generic type params used here:
 //   TItem - The actual API objects represented by rows in the table. Can be any object.
@@ -47,6 +48,7 @@ export interface ITableControlCommonArgs<
   expandableVariant?: "single" | "compound" | null;
   hasActionsColumn?: boolean;
   variant?: TableComposableProps["variant"];
+  hasClickableRows?: boolean;
 }
 
 // Data-dependent args
@@ -97,7 +99,8 @@ export interface IUseTableControlPropsArgs<
     ITableControlDataDependentArgs<TItem>,
     IFilterPropsArgs<TItem, TFilterCategoryKey>,
     ISortPropsArgs<TColumnKey, TSortableColumnKey>,
-    IPaginationPropsArgs {
+    IPaginationPropsArgs,
+    IActiveRowDerivedStateArgs<TItem> {
   currentPageItems: TItem[];
   expansionState: ReturnType<
     typeof useCompoundExpansionState<TItem, TColumnKey>

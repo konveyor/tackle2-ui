@@ -9,7 +9,6 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { AppPlaceholder, ConditionalRender } from "@app/shared/components";
 import {
   FilterToolbar,
   FilterType,
@@ -36,6 +35,7 @@ import {
 import { useFetchDependencies } from "@app/queries/dependencies";
 import { useSelectionState } from "@migtools/lib-ui";
 import { getHubRequestParams } from "@app/shared/hooks/table-controls";
+import { PageDrawerContent } from "@app/shared/page-drawer-context";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
@@ -60,6 +60,7 @@ export const Dependencies: React.FC = () => {
       },
     ],
     initialItemsPerPage: 10,
+    hasClickableRows: true,
   });
 
   const {
@@ -99,10 +100,10 @@ export const Dependencies: React.FC = () => {
       tableProps,
       getThProps,
       getTdProps,
+      getClickableTrProps,
     },
+    activeRowDerivedState: { activeRowItem, clearActiveRow },
   } = tableControls;
-
-  console.log({ currentPageItems, totalItemCount });
 
   return (
     <>
@@ -112,84 +113,87 @@ export const Dependencies: React.FC = () => {
         </TextContent>
       </PageSection>
       <PageSection>
-        <ConditionalRender
-          when={isFetching && !(currentPageItems || fetchError)}
-          then={<AppPlaceholder />}
+        <div
+          style={{
+            backgroundColor: "var(--pf-global--BackgroundColor--100)",
+          }}
         >
-          <div
-            style={{
-              backgroundColor: "var(--pf-global--BackgroundColor--100)",
-            }}
-          >
-            <Toolbar {...toolbarProps}>
-              <ToolbarContent>
-                <FilterToolbar {...filterToolbarProps} />
-                <ToolbarItem {...paginationToolbarItemProps}>
-                  <SimplePagination
-                    idPrefix="dependencies-table"
-                    isTop
-                    paginationProps={paginationProps}
-                  />
-                </ToolbarItem>
-              </ToolbarContent>
-            </Toolbar>
-            <TableComposable {...tableProps} aria-label="Migration waves table">
-              <Thead>
-                <Tr>
-                  <TableHeaderContentWithControls {...tableControls}>
-                    <Th {...getThProps({ columnKey: "name" })} />
-                    <Th {...getThProps({ columnKey: "foundIn" })} />
-                    <Th {...getThProps({ columnKey: "version" })} />
-                  </TableHeaderContentWithControls>
-                </Tr>
-              </Thead>
-              <ConditionalTableBody
-                isLoading={isFetching}
-                isError={!!fetchError}
-                isNoData={totalItemCount === 0}
-                numRenderedColumns={numRenderedColumns}
-              >
-                {currentPageItems?.map((dependency, rowIndex) => {
-                  return (
-                    <Tbody key={dependency.name}>
-                      <Tr>
-                        <TableRowContentWithControls
-                          {...tableControls}
-                          item={dependency}
-                          rowIndex={rowIndex}
+          <Toolbar {...toolbarProps}>
+            <ToolbarContent>
+              <FilterToolbar {...filterToolbarProps} />
+              <ToolbarItem {...paginationToolbarItemProps}>
+                <SimplePagination
+                  idPrefix="dependencies-table"
+                  isTop
+                  paginationProps={paginationProps}
+                />
+              </ToolbarItem>
+            </ToolbarContent>
+          </Toolbar>
+          <TableComposable {...tableProps} aria-label="Migration waves table">
+            <Thead>
+              <Tr>
+                <TableHeaderContentWithControls {...tableControls}>
+                  <Th {...getThProps({ columnKey: "name" })} />
+                  <Th {...getThProps({ columnKey: "foundIn" })} />
+                  <Th {...getThProps({ columnKey: "version" })} />
+                </TableHeaderContentWithControls>
+              </Tr>
+            </Thead>
+            <ConditionalTableBody
+              isLoading={isFetching}
+              isError={!!fetchError}
+              isNoData={totalItemCount === 0}
+              numRenderedColumns={numRenderedColumns}
+            >
+              {currentPageItems?.map((dependency, rowIndex) => {
+                return (
+                  <Tbody key={dependency.name}>
+                    <Tr {...getClickableTrProps({ item: dependency })}>
+                      <TableRowContentWithControls
+                        {...tableControls}
+                        item={dependency}
+                        rowIndex={rowIndex}
+                      >
+                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                          {dependency.name}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "foundIn" })}
                         >
-                          <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                            {dependency.name}
-                          </Td>
-                          <Td
-                            width={10}
-                            {...getTdProps({ columnKey: "foundIn" })}
-                          >
-                            {/* TODO - the applications property disappeared in the API? */}
-                            {/*dependency.applications.length} applications*/}
-                            TODO
-                          </Td>
-                          <Td
-                            width={10}
-                            {...getTdProps({ columnKey: "version" })}
-                          >
-                            {dependency.version}
-                          </Td>
-                        </TableRowContentWithControls>
-                      </Tr>
-                    </Tbody>
-                  );
-                })}
-              </ConditionalTableBody>
-            </TableComposable>
-            <SimplePagination
-              idPrefix="dependencies-table"
-              isTop={false}
-              paginationProps={paginationProps}
-            />
-          </div>
-        </ConditionalRender>
+                          {/* TODO - the applications property disappeared in the API? */}
+                          {/*dependency.applications.length} applications*/}
+                          TODO
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "version" })}
+                        >
+                          {dependency.version}
+                        </Td>
+                      </TableRowContentWithControls>
+                    </Tr>
+                  </Tbody>
+                );
+              })}
+            </ConditionalTableBody>
+          </TableComposable>
+          <SimplePagination
+            idPrefix="dependencies-table"
+            isTop={false}
+            paginationProps={paginationProps}
+          />
+        </div>
       </PageSection>
+      <PageDrawerContent
+        isExpanded={!!activeRowItem}
+        onCloseClick={clearActiveRow}
+        focusKey={activeRowItem?.name}
+        pageKey="analysis-dependencies"
+      >
+        TODO details about dependency {activeRowItem?.name} here!
+      </PageDrawerContent>
     </>
   );
 };
