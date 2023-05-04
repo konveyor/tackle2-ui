@@ -1,3 +1,4 @@
+<!--
 ## PR Title Prefix
 
 Every **PR Title** should be prefixed with :text: to indicate its type.
@@ -21,3 +22,4 @@ GitHub well, we prefer to standardize on the alias.
 
 For more information, please see the Konveyor
 [Versioning Doc](https://github.com/konveyor/release-tools/blob/main/VERSIONING.md).
+-->
