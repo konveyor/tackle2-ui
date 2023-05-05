@@ -247,7 +247,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             options={instances
               .filter((instance) => instance.name === values.instance)
               .map((instance) =>
-                instance.metadata.projects
+                instance.metadata?.projects
                   .filter((project) => project.name === values.project)
                   .map((project) =>
                     project.issueTypes.map((issueType) => {
