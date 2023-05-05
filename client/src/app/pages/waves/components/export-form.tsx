@@ -84,7 +84,6 @@ export const ExportForm: React.FC<ExportFormProps> = ({
   });
 
   const values = getValues();
-  const watchAllFields = watch();
 
   const onSubmit = (formValues: FormValues) => {
     const matchingInstance = instances.find(
@@ -99,15 +98,15 @@ export const ExportForm: React.FC<ExportFormProps> = ({
         kind: formValues.kind,
       };
 
-      applications?.forEach((application) => {
+      applications?.forEach((application) =>
         createTicket({
           ...payload,
           application: {
             id: application.id,
             name: application.name,
           },
-        });
-      });
+        })
+      );
     }
     onClose();
   };
@@ -170,7 +169,9 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             value={value}
             options={instances
               .filter(
-                (instance) => instance.kind === values.issueManager?.toString()
+                (instance) =>
+                  instance.kind === values.issueManager?.toString() &&
+                  instance.connected
               )
               .map((instance) => {
                 return {

@@ -129,8 +129,6 @@ export const Waves: React.FC = () => {
     },
   } = tableControls;
 
-  console.log(selectedItems);
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
