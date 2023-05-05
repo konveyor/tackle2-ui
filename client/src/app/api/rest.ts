@@ -559,6 +559,10 @@ export const createMigrationWave = (
 export const deleteMigrationWave = (id: number): Promise<MigrationWave> =>
   axios.delete(`${MIGRATION_WAVES}/${id}`);
 
+export const updateMigrationWave = (
+  obj: MigrationWave
+): Promise<MigrationWave> => axios.put(`${MIGRATION_WAVES}/${obj.id}`, obj);
+
 export const updateRuleBundle = (obj: RuleBundle) =>
   axios.put(`${RULEBUNDLES}/${obj.id}`, obj);
 
