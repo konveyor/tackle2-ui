@@ -44,6 +44,11 @@ export interface InstanceFormProps {
   onClose: () => void;
 }
 
+const validURL =
+  /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+
+const containsURL = (string: string) => validURL.test(string);
+
 export const InstanceForm: React.FC<InstanceFormProps> = ({
   instance,
   onClose,
@@ -129,7 +134,10 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
       .string()
       .trim()
       .required(t("validation.required"))
-      .max(250, t("validation.maxLength", { length: 250 })),
+      .max(250, t("validation.maxLength", { length: 250 }))
+      .test("valid URL", "Enter a valid URL", (value) =>
+        value ? containsURL(value) : false
+      ),
     kind: yup.mixed<IssueManagerKind>().required(),
     credentialName: yup.string().required(),
     insecure: yup.boolean().required(),
