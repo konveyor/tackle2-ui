@@ -5,11 +5,10 @@ import {
   BusinessService,
   Identity,
   IdentityKind,
+  IssueManagerKind,
   JobFunction,
-  Ref,
   Stakeholder,
   StakeholderGroup,
-  Tag,
   TagCategory,
   TagRef,
 } from "@app/api/models";
@@ -200,3 +199,18 @@ export const getKindIDByRef = (
 export const toOptionLike = (value: string, options: OptionWithValue[]) => {
   return options.find((option) => option.value === value);
 };
+
+export const IssueManagerOptions: OptionWithValue<IssueManagerKind>[] = [
+  {
+    value: "jira-cloud",
+    toString: () => "Jira Cloud",
+  },
+  {
+    value: "jira-server",
+    toString: () => "Jira Server",
+  },
+  {
+    value: "jira-datacenter",
+    toString: () => "Jira Datacenter",
+  },
+];

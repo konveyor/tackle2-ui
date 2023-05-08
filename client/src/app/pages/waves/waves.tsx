@@ -3,6 +3,7 @@ import {
   Button,
   ButtonVariant,
   DropdownItem,
+  Modal,
   PageSection,
   PageSectionVariants,
   Text,
@@ -13,6 +14,9 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
 import { useFetchMigrationWaves } from "@app/queries/waves";
 import {
   AppPlaceholder,
@@ -20,7 +24,7 @@ import {
   KebabDropdown,
   ToolbarBulkSelector,
 } from "@app/shared/components";
-import { MigrationWave } from "@app/api/models";
+import { Application, MigrationWave } from "@app/api/models";
 import {
   FilterToolbar,
   FilterType,
@@ -34,8 +38,6 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import { WaveApplicationsTable } from "./wave-applications-table/wave-applications-table";
 import { WaveStakeholdersTable } from "./wave-stakeholders-table/wave-stakeholders-table";
 import { CreateEditWaveModal } from "./components/create-edit-wave-modal";
@@ -46,6 +48,8 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
+import { ExportForm } from "./components/export-form";
+
 dayjs.extend(utc);
 
 export const Waves: React.FC = () => {
@@ -60,6 +64,12 @@ export const Waves: React.FC = () => {
   const waveBeingEdited = waveModalState !== "create" ? waveModalState : null;
   const openCreateWaveModal = () => setWaveModalState("create");
   const openEditWaveModal = (wave: MigrationWave) => setWaveModalState(wave);
+
+  const [exportIssueModalOpen, setExportIssueModalOpen] = React.useState(false);
+  const [applicationsToExport, setApplicationsToExport] = React.useState<
+    Application[]
+  >([]);
+
   const closeWaveModal = () => setWaveModalState(null);
 
   const tableControls = useLocalTableControls({
@@ -119,8 +129,6 @@ export const Waves: React.FC = () => {
     },
   } = tableControls;
 
-  console.log({ selectedItems });
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -169,7 +177,14 @@ export const Waves: React.FC = () => {
                             <DropdownItem
                               key="bulk-export-to-issue-manager"
                               component="button"
-                              // onClick={() => setExportIssueModalOpen(true)}
+                              onClick={() => {
+                                setApplicationsToExport(
+                                  selectedItems
+                                    .map((item) => item.applications)
+                                    .flat()
+                                );
+                                setExportIssueModalOpen(true);
+                              }}
                             >
                               {t("actions.export")}
                             </DropdownItem>,
@@ -274,7 +289,12 @@ export const Waves: React.FC = () => {
                                       <DropdownItem
                                         key="bulk-export-to-issue-manager"
                                         component="button"
-                                        // onClick={() => setExportIssueModalOpen(true)}
+                                        onClick={() => {
+                                          setApplicationsToExport(
+                                            wave.applications
+                                          );
+                                          setExportIssueModalOpen(true);
+                                        }}
                                       >
                                         {t("actions.export")}
                                       </DropdownItem>,
@@ -330,6 +350,21 @@ export const Waves: React.FC = () => {
         onSaved={closeWaveModal}
         onCancel={closeWaveModal}
       />
+      <Modal
+        title={t("terms.exportToIssue")}
+        variant="medium"
+        isOpen={exportIssueModalOpen}
+        onClose={() => {
+          setExportIssueModalOpen(false);
+        }}
+      >
+        <ExportForm
+          applications={applicationsToExport}
+          onClose={() => {
+            setExportIssueModalOpen(false);
+          }}
+        />
+      </Modal>
     </>
   );
 };
