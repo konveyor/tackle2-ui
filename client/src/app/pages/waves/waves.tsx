@@ -4,6 +4,7 @@ import {
   ButtonVariant,
   DropdownItem,
   Modal,
+  ModalVariant,
   PageSection,
   PageSectionVariants,
   Text,
@@ -17,7 +18,10 @@ import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 
-import { useFetchMigrationWaves } from "@app/queries/waves";
+import {
+  useDeleteMigrationWaveMutation,
+  useFetchMigrationWaves,
+} from "@app/queries/waves";
 import {
   AppPlaceholder,
   ConditionalRender,
@@ -40,7 +44,6 @@ import {
 } from "@patternfly/react-table";
 import { WaveApplicationsTable } from "./wave-applications-table/wave-applications-table";
 import { WaveStakeholdersTable } from "./wave-stakeholders-table/wave-stakeholders-table";
-import { CreateEditWaveModal } from "./components/create-edit-wave-modal";
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
@@ -50,20 +53,47 @@ import {
 } from "@app/shared/components/table-controls";
 import { ExportForm } from "./components/export-form";
 
+import { NotificationsContext } from "@app/shared/notifications-context";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+import { AxiosError } from "axios";
+import { WaveForm } from "./wave-form";
 dayjs.extend(utc);
 
 export const Waves: React.FC = () => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
-  const { waves, isFetching, fetchError } = useFetchMigrationWaves();
+  const { waves, isFetching, fetchError, refetch } = useFetchMigrationWaves();
+
+  const onDeleteWaveSuccess = (name: string) => {
+    pushNotification({
+      title: t("toastr.success.deleted", {
+        what: name,
+        type: t("terms.migrationWave"),
+      }),
+      variant: "success",
+    });
+  };
+
+  const onDeleteWaveError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+    refetch();
+  };
+
+  const { mutate: deleteWave } = useDeleteMigrationWaveMutation(
+    onDeleteWaveSuccess,
+    onDeleteWaveError
+  );
 
   const [waveModalState, setWaveModalState] = React.useState<
     "create" | MigrationWave | null
   >(null);
   const isWaveModalOpen = waveModalState !== null;
-  const waveBeingEdited = waveModalState !== "create" ? waveModalState : null;
+  const waveToEdit = waveModalState !== "create" ? waveModalState : null;
   const openCreateWaveModal = () => setWaveModalState("create");
-  const openEditWaveModal = (wave: MigrationWave) => setWaveModalState(wave);
 
   const [exportIssueModalOpen, setExportIssueModalOpen] = React.useState(false);
   const [applicationsToExport, setApplicationsToExport] = React.useState<
@@ -190,8 +220,15 @@ export const Waves: React.FC = () => {
                             </DropdownItem>,
                             <DropdownItem
                               key="bulk-delete"
-                              // onClick={() => {
-                              // }}
+                              onClick={() => {
+                                selectedItems.map((wave) => {
+                                  if (wave.id)
+                                    deleteWave({
+                                      id: wave.id,
+                                      name: wave.name,
+                                    });
+                                });
+                              }}
                             >
                               {t("actions.delete")}
                             </DropdownItem>,
@@ -287,6 +324,13 @@ export const Waves: React.FC = () => {
                                 true //TODO: Check RBAC access
                                   ? [
                                       <DropdownItem
+                                        key="edit"
+                                        component="button"
+                                        onClick={() => setWaveModalState(wave)}
+                                      >
+                                        {t("actions.edit")}
+                                      </DropdownItem>,
+                                      <DropdownItem
                                         key="bulk-export-to-issue-manager"
                                         component="button"
                                         onClick={() => {
@@ -299,9 +343,14 @@ export const Waves: React.FC = () => {
                                         {t("actions.export")}
                                       </DropdownItem>,
                                       <DropdownItem
-                                        key="bulk-delete"
-                                        // onClick={() => {
-                                        // }}
+                                        key="delete"
+                                        onClick={() => {
+                                          if (wave.id)
+                                            deleteWave({
+                                              id: wave.id,
+                                              name: wave.name,
+                                            });
+                                        }}
                                       >
                                         {t("actions.delete")}
                                       </DropdownItem>,
@@ -344,12 +393,26 @@ export const Waves: React.FC = () => {
           </div>
         </ConditionalRender>
       </PageSection>
-      <CreateEditWaveModal
+      <Modal
+        id="create-edit-wave-modal"
+        title={
+          waveToEdit
+            ? t("dialog.title.update", {
+                what: t("terms.migrationWave").toLowerCase(),
+              })
+            : t("dialog.title.new", {
+                what: t("terms.migrationWave").toLowerCase(),
+              })
+        }
+        variant={ModalVariant.small}
         isOpen={isWaveModalOpen}
-        waveBeingEdited={waveBeingEdited}
-        onSaved={closeWaveModal}
-        onCancel={closeWaveModal}
-      />
+        onClose={closeWaveModal}
+      >
+        <WaveForm
+          wave={waveToEdit ? waveToEdit : undefined}
+          onClose={closeWaveModal}
+        />
+      </Modal>
       <Modal
         title={t("terms.exportToIssue")}
         variant="medium"
