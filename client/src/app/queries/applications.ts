@@ -25,7 +25,7 @@ export const ApplicationsQueryKey = "applications";
 
 export const useFetchApplications = () => {
   const queryClient = useQueryClient();
-  return useQuery({
+  const { isLoading, error, refetch, data } = useQuery({
     queryKey: [ApplicationsQueryKey],
     queryFn: getApplications,
     onSuccess: () => {
@@ -34,6 +34,12 @@ export const useFetchApplications = () => {
     },
     onError: (error: AxiosError) => console.log(error),
   });
+  return {
+    data: data || [],
+    isFetching: isLoading,
+    error,
+    refetch,
+  };
 };
 
 export const useUpdateApplicationMutation = (

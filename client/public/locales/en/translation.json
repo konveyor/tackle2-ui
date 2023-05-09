@@ -73,6 +73,7 @@
     "applicationInventory": "Application inventory",
     "businessCriticality": "Business criticality (1=low, 10=high)",
     "editQuestion": "Edit {{what}}?",
+    "manage": "Manage {{what}}",
     "manageDependenciesFor": "Manage dependencies for {{what}}",
     "noDataStateBody": "Create a new {{what}} to start seeing data here",
     "noDataStateTitle": "No {{what}} available",

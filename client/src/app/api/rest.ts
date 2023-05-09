@@ -49,7 +49,7 @@ export const STAKEHOLDER_GROUPS = HUB + "/stakeholdergroups";
 export const JOB_FUNCTIONS = HUB + "/jobfunctions";
 export const TAG_CATEGORIES = HUB + "/tagcategories";
 export const TAGS = HUB + "/tags";
-export const MIGRATION_WAVES = HUB + "/migration-waves";
+export const MIGRATION_WAVES = HUB + "/migrationwaves";
 
 export const APPLICATIONS = HUB + "/applications";
 export const APPLICATION_DEPENDENCY = HUB + "/dependencies";
