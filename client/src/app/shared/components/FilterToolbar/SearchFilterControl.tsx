@@ -28,7 +28,9 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
   // Keep internal copy of value until submitted by user
   const [inputValue, setInputValue] = React.useState(filterValue?.[0] || "");
   // Update it if it changes externally
-  React.useEffect(() => setInputValue(filterValue?.[0] || ""), [filterValue]);
+  React.useEffect(() => {
+    setInputValue(filterValue?.[0] || "");
+  }, [filterValue]);
 
   const onFilterSubmit = () =>
     // Ignore value with multiple spaces
