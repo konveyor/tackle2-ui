@@ -22,7 +22,11 @@ import {
 } from "@app/queries/jiratrackers";
 import { useFetchIdentities } from "@app/queries/identities";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import {
+  duplicateNameCheck,
+  getAxiosErrorMessage,
+  standardURLRegex,
+} from "@app/utils/utils";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
@@ -44,10 +48,7 @@ export interface InstanceFormProps {
   onClose: () => void;
 }
 
-const validURL =
-  /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
-
-const containsURL = (string: string) => validURL.test(string);
+const containsURL = (string: string) => standardURLRegex.test(string);
 
 export const InstanceForm: React.FC<InstanceFormProps> = ({
   instance,
