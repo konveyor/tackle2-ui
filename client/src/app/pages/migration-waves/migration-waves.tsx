@@ -52,6 +52,7 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { ExportForm } from "./components/export-form";
+import { ManageApplicationsForm } from "./manage-applications-form";
 
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -98,9 +99,13 @@ export const MigrationWaves: React.FC = () => {
   const openCreateWaveModal = () => setWaveModalState("create");
 
   const [exportIssueModalOpen, setExportIssueModalOpen] = React.useState(false);
+
   const [applicationsToExport, setApplicationsToExport] = React.useState<
     Application[]
   >([]);
+
+  const [waveToManageModalState, setWaveToManageModalState] =
+    React.useState<MigrationWave | null>(null);
 
   const closeWaveModal = () => setWaveModalState(null);
 
@@ -342,6 +347,18 @@ export const MigrationWaves: React.FC = () => {
                                         {t("actions.edit")}
                                       </DropdownItem>,
                                       <DropdownItem
+                                        key="manage-app"
+                                        onClick={() => {
+                                          setWaveToManageModalState(wave);
+                                        }}
+                                      >
+                                        {t("composed.manage", {
+                                          what: t(
+                                            "terms.applications"
+                                          ).toLowerCase(),
+                                        })}
+                                      </DropdownItem>,
+                                      <DropdownItem
                                         key="bulk-export-to-issue-manager"
                                         component="button"
                                         onClick={() => {
@@ -444,6 +461,19 @@ export const MigrationWaves: React.FC = () => {
           onClose={() => {
             setExportIssueModalOpen(false);
           }}
+        />
+      </Modal>
+      <Modal
+        title={t("composed.manage", {
+          what: t("terms.applications").toLowerCase(),
+        })}
+        width="50%"
+        isOpen={!!waveToManageModalState}
+        onClose={() => setWaveToManageModalState(null)}
+      >
+        <ManageApplicationsForm
+          wave={waveToManageModalState}
+          onClose={() => setWaveToManageModalState(null)}
         />
       </Modal>
     </>
