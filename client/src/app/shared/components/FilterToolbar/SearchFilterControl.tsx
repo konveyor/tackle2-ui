@@ -32,7 +32,9 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
     setInputValue(filterValue?.[0] || "");
   }, [filterValue]);
 
-  const onFilterSubmit = () => setFilterValue(inputValue ? [inputValue] : []);
+  const onFilterSubmit = () =>
+    // Ignore value with multiple spaces
+    setFilterValue(inputValue ? [inputValue.replace(/\s+/g, " ")] : []);
 
   const id = `${category.key}-input`;
   return (
