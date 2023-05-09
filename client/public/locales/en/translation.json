@@ -173,7 +173,7 @@
     "controls": "Controls",
     "developer": "Migration",
     "reports": "Reports",
-    "waves": "Migration waves",
+    "migrationWaves": "Migration waves",
     "issues": "Issues",
     "dependencies": "Dependencies"
   },

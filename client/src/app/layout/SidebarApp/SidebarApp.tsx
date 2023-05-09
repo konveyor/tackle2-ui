@@ -127,8 +127,8 @@ export const SidebarApp: React.FC = () => {
           </NavItem>
           {FEATURES_ENABLED.migrationWaves ? (
             <NavItem>
-              <NavLink to={Paths.waves} activeClassName="pf-m-current">
-                {t("sidebar.waves")}
+              <NavLink to={Paths.migrationWaves} activeClassName="pf-m-current">
+                {t("sidebar.migration-waves")}
               </NavLink>
             </NavItem>
           ) : null}

@@ -235,8 +235,8 @@ export const Stakeholders: React.FC = () => {
                 <ToolbarItem>
                   <Button
                     type="button"
-                    id="create-wave"
-                    aria-label="Create new wave"
+                    id="create-migration-wave"
+                    aria-label="Create new migration wave"
                     variant={ButtonVariant.primary}
                     onClick={handleOnOpenCreateNewModal}
                   >

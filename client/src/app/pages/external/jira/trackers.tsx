@@ -174,7 +174,7 @@ export const JiraTrackers: React.FC = () => {
                   {/* {jiraDropdownItems.length ? (
                     <ToolbarItem>
                       <KebabDropdown
-                        dropdownItems={waveDropdownItems}
+                        dropdownItems={migrationWaveDropdownItems}
                       ></KebabDropdown>
                     </ToolbarItem>
                   ) : (

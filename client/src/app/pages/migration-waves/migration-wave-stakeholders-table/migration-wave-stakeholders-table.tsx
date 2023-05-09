@@ -1,5 +1,5 @@
 import React from "react";
-import { Application, MigrationWave } from "@app/api/models";
+import { Stakeholder, MigrationWave } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import {
@@ -18,40 +18,42 @@ import {
 } from "@patternfly/react-table";
 import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
+import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
-import { SimplePagination } from "@app/shared/components/simple-pagination";
 
-export interface IWaveApplicationsTableProps {
-  wave: MigrationWave;
-  applications: Application[];
+export interface IWaveStakeholdersTableProps {
+  migrationWave: MigrationWave;
+  stakeholders: Stakeholder[];
 }
 
-export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
-  wave,
-  applications,
+export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
+  migrationWave,
+  stakeholders,
 }) => {
   const { t } = useTranslation();
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
-    items: applications,
+    items: stakeholders,
     columnNames: {
-      appName: "Name",
-      description: "Description",
-      businessService: "Business service",
-      owner: "Owner",
+      name: "Name",
+      jobFunction: "Job Function",
+      role: "Role",
+      email: "Email",
+      groups: "Stakeholder groups",
     },
     hasActionsColumn: true,
-    getSortValues: (app) => ({
-      appName: app.name || "",
-      businessService: app.businessService?.name || "",
-      owner: "", // TODO
+    getSortValues: (stakeholder) => ({
+      name: stakeholder.name || "",
+      jobFunction: stakeholder.jobFunction?.name || "",
+      role: "", // TODO
+      email: "", // TODO
     }),
-    sortableColumns: ["appName", "businessService", "owner"],
+    sortableColumns: ["name", "jobFunction", "role", "email"],
     hasPagination: true,
     variant: "compact",
   });
@@ -74,7 +76,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
         <ToolbarContent>
           <ToolbarItem {...paginationToolbarItemProps}>
             <SimplePagination
-              idPrefix={`expanded-wave-${wave.name}-apps-table`}
+              idPrefix={`expanded-migration-wave-${migrationWave.name}-apps-table`}
               isTop
               paginationProps={paginationProps}
             />
@@ -83,44 +85,45 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
       </Toolbar>
       <TableComposable
         {...tableProps}
-        aria-label={`Applications table for wave ${wave.name}`}
+        aria-label={`Stakeholders table for migration wave ${migrationWave.name}`}
       >
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
-              <Th {...getThProps({ columnKey: "appName" })} />
-              <Th {...getThProps({ columnKey: "description" })} />
-              <Th {...getThProps({ columnKey: "businessService" })} />
-              <Th {...getThProps({ columnKey: "owner" })} />
+              <Th {...getThProps({ columnKey: "name" })} />
+              <Th {...getThProps({ columnKey: "jobFunction" })} />
+              <Th {...getThProps({ columnKey: "role" })} />
+              <Th {...getThProps({ columnKey: "email" })} />
+              <Th {...getThProps({ columnKey: "groups" })} />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
         <ConditionalTableBody
-          isNoData={applications.length === 0}
+          isNoData={stakeholders.length === 0}
           numRenderedColumns={numRenderedColumns}
         >
           <Tbody>
-            {currentPageItems?.map((app, rowIndex) => (
-              <Tr key={app.name}>
+            {currentPageItems?.map((stakeholder, rowIndex) => (
+              <Tr key={stakeholder.name}>
                 <TableRowContentWithControls
                   {...tableControls}
-                  item={app}
+                  item={stakeholder}
                   rowIndex={rowIndex}
                 >
-                  <Td width={25} {...getTdProps({ columnKey: "appName" })}>
-                    {app.name}
+                  <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                    {stakeholder.name}
                   </Td>
-                  <Td width={10} {...getTdProps({ columnKey: "description" })}>
-                    {app.description}
+                  <Td width={10} {...getTdProps({ columnKey: "jobFunction" })}>
+                    {stakeholder.jobFunction?.name}
                   </Td>
-                  <Td
-                    width={10}
-                    {...getTdProps({ columnKey: "businessService" })}
-                  >
-                    {app?.businessService?.name}
+                  <Td width={10} {...getTdProps({ columnKey: "role" })}>
+                    TODO: Role
                   </Td>
-                  <Td width={10} {...getTdProps({ columnKey: "owner" })}>
-                    TODO: Owner
+                  <Td width={10} {...getTdProps({ columnKey: "email" })}>
+                    {stakeholder.email}
+                  </Td>
+                  <Td width={10} {...getTdProps({ columnKey: "groups" })}>
+                    {stakeholder?.stakeholderGroups?.length?.toString()}
                   </Td>
                   <Td width={10} className={alignment.textAlignRight}>
                     <Button type="button" variant="plain" onClick={() => {}}>
