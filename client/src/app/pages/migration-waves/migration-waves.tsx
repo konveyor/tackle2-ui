@@ -471,10 +471,13 @@ export const MigrationWaves: React.FC = () => {
         isOpen={!!waveToManageModalState}
         onClose={() => setWaveToManageModalState(null)}
       >
-        <ManageApplicationsForm
-          wave={waveToManageModalState}
-          onClose={() => setWaveToManageModalState(null)}
-        />
+        {waveToManageModalState && (
+          <ManageApplicationsForm
+            migrationWave={waveToManageModalState}
+            migrationWaves={waves}
+            onClose={() => setWaveToManageModalState(null)}
+          />
+        )}
       </Modal>
     </>
   );
