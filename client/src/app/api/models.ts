@@ -498,14 +498,14 @@ export interface TagRef extends Ref {
 }
 
 export interface MigrationWave {
-  name: string;
   id?: number;
+  name: string;
   startDate: string;
   endDate: string;
   applications: Application[];
   stakeholders: Stakeholder[];
   stakeholderGroups: StakeholderGroup[];
-  status: string;
+  status?: string;
 }
 
 export interface Project {

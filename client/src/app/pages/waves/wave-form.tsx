@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -20,6 +20,7 @@ import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import {
   useFetchMigrationWaves,
   useCreateMigrationWaveMutation,
+  useUpdateMigrationWaveMutation,
 } from "@app/queries/waves";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -59,44 +60,38 @@ interface WaveFormValues {
 }
 
 export interface WaveFormProps {
-  waveBeingEdited?: MigrationWave;
-  onSaved: (response: AxiosResponse<unknown>) => void;
-  onCancel: () => void;
+  wave?: MigrationWave;
+  onClose: () => void;
 }
 
-export const WaveForm: React.FC<WaveFormProps> = ({
-  waveBeingEdited,
-  onSaved,
-  onCancel,
-}) => {
+export const WaveForm: React.FC<WaveFormProps> = ({ wave, onClose }) => {
   const { t } = useTranslation();
 
   const { waves } = useFetchMigrationWaves();
   const isLoading = false; // TODO
   const { pushNotification } = React.useContext(NotificationsContext);
-  //
+
   const { stakeholders } = useFetchStakeholders();
   const { stakeholderGroups } = useFetchStakeholderGroups();
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  const onCreateMigrationWaveSuccess = (
+  const onCreateUpdateMigrationWaveSuccess = (
     response: AxiosResponse<MigrationWave>
   ) => {
     pushNotification({
-      title: t("toastr.success.added", {
+      title: t("toastr.success.save", {
         what: response.data.name,
-        type: t("terms.migrationWave").toLowerCase(),
+        type: t("terms.migrationWave"),
       }),
       variant: "success",
     });
-    onSaved(response);
   };
 
-  const onCreateMigrationWaveError = (error: Error | unknown) => {
+  const onCreateUpdateMigrationWaveError = (error: AxiosError) => {
     pushNotification({
-      title: t("toaster.failure.added", {
+      title: t("toastr.failure.save", {
         type: t("terms.migrationWave").toLowerCase(),
       }),
       variant: "danger",
@@ -104,8 +99,13 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   };
 
   const { mutate: createMigrationWave } = useCreateMigrationWaveMutation(
-    onCreateMigrationWaveSuccess,
-    onCreateMigrationWaveError
+    onCreateUpdateMigrationWaveSuccess,
+    onCreateUpdateMigrationWaveError
+  );
+
+  const { mutate: updateMigrationWave } = useUpdateMigrationWaveMutation(
+    onCreateUpdateMigrationWaveSuccess,
+    onCreateUpdateMigrationWaveError
   );
 
   const validationSchema: yup.SchemaOf<WaveFormValues> = yup.object().shape({
@@ -118,8 +118,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
       .test(
         "Duplicate name",
         "An identity with this name already exists. Use a different name.",
-        (value) =>
-          duplicateNameCheck(waves, waveBeingEdited || null, value || "")
+        (value) => duplicateNameCheck(waves, wave || null, value || "")
       ),
     startDate: yup
       .date()
@@ -135,6 +134,14 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     stakeholderGroups: yup.array(),
   });
 
+  const dateFormat = (date: Date) =>
+    `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date
+      .getDate()
+      .toString()
+      .padStart(2, "0")}/${date.getFullYear()}`;
+
+  const dateParse = (val: string) => new Date(val.slice(0, 10));
+
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
@@ -143,60 +150,43 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     watch,
   } = useForm<WaveFormValues>({
     defaultValues: {
-      name: "",
-      startDate: null,
-      endDate: null,
-      stakeholders: [],
-      stakeholderGroups: [],
+      name: wave?.name || "",
+      startDate: wave?.startDate ? dateParse(wave.startDate) : null,
+      endDate: wave?.endDate ? dateParse(wave.endDate) : null,
+      stakeholders: wave?.stakeholders || [],
+      stakeholderGroups: wave?.stakeholderGroups || [],
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
   });
 
   const startDate = watch("startDate");
+  const endDate = getValues("endDate");
 
   const onSubmit = (formValues: WaveFormValues) => {
     const payload: MigrationWave = {
+      id: wave?.id,
+      applications: wave?.applications || [],
       name: formValues.name.trim(),
       startDate: dayjs.utc(formValues.startDate).format(),
       endDate: dayjs.utc(formValues.endDate).format(),
-      applications: [],
       stakeholders: formValues.stakeholders,
       stakeholderGroups: formValues.stakeholderGroups,
-      status: "",
     };
-    createMigrationWave(payload);
+    if (wave)
+      updateMigrationWave({
+        ...payload,
+      });
+    else createMigrationWave(payload);
+
+    onClose();
   };
 
-  const dateFormat = (date: Date) => {
-    // TODO YYYY/MM/DD for not US?
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  };
   const startDateValidator = (date: Date) => {
     if (date < today) {
       return "Date is before allowable range.";
     }
     return "";
-  };
-
-  const dateParse = (date: string) => {
-    const split = date.split("/");
-    if (split.length !== 3) {
-      return new Date();
-    }
-    const month = split[0];
-    const day = split[1];
-    const year = split[2];
-    return new Date(
-      `${year.padStart(4, "0")}-${month.padStart(2, "0")}-${day.padStart(
-        2,
-        "0"
-      )}T00:00:00`
-    );
   };
 
   const endDateValidator = (date: Date) => {
@@ -234,6 +224,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                       onChange(date);
                     }}
                     placeholder="MM/DD/YYYY"
+                    value={startDate ? dateFormat(startDate) : ""}
                     validators={[startDateValidator]}
                     dateFormat={dateFormat}
                     dateParse={dateParse}
@@ -264,6 +255,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                       onChange(date);
                     }}
                     placeholder="MM/DD/YYYY"
+                    value={endDate ? dateFormat(endDate) : ""}
                     validators={[endDateValidator]}
                     dateFormat={dateFormat}
                     dateParse={dateParse}
@@ -364,7 +356,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
             !isValid || isSubmitting || isValidating || isLoading || !isDirty
           }
         >
-          {!waveBeingEdited ? "Create" : "Save"}
+          {!wave ? "Create" : "Save"}
         </Button>
         <Button
           type="button"
@@ -372,7 +364,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
           aria-label="cancel"
           variant="link"
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           Cancel
         </Button>

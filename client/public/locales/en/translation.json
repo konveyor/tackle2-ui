@@ -342,7 +342,7 @@
   },
   "toastr": {
     "success": {
-      "added": "Success! {{what}} was added as a(n) {{type}}.",
+      "save": "{{type}} {{what}} was successfully saved.",
       "applicationDeleted": "{{appIDCount}} application(s) successfully deleted.",
       "assessmentAndReviewCopied": "Success! Assessment and review copied to selected applications",
       "assessmentCopied": "Success! Assessment copied to selected applications",
@@ -352,7 +352,7 @@
       "reviewDiscarded": "Success! Review discarded for {{application}}."
     },
     "failure": {
-      "added": "Failure to add {{type}}."
+      "save": "Failed to save {{type}}."
     }
   },
   "validation": {
