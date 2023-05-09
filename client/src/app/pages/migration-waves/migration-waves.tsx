@@ -349,7 +349,9 @@ export const MigrationWaves: React.FC = () => {
                                       <DropdownItem
                                         key="manage-app"
                                         onClick={() => {
-                                          setWaveToManageModalState(wave);
+                                          setWaveToManageModalState(
+                                            migrationWave
+                                          );
                                         }}
                                       >
                                         {t("composed.manage", {
@@ -474,7 +476,7 @@ export const MigrationWaves: React.FC = () => {
         {waveToManageModalState && (
           <ManageApplicationsForm
             migrationWave={waveToManageModalState}
-            migrationWaves={waves}
+            migrationWaves={migrationWaves}
             onClose={() => setWaveToManageModalState(null)}
           />
         )}

@@ -38,7 +38,7 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { dedupeFunction } from "@app/utils/utils";
-import { useUpdateMigrationWaveMutation } from "@app/queries/waves";
+import { useUpdateMigrationWaveMutation } from "@app/queries/migration-waves";
 
 export interface ManageApplicationsFormProps {
   migrationWave: MigrationWave;
