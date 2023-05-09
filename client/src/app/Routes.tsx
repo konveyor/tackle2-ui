@@ -27,7 +27,7 @@ const Identities = lazy(() => import("./pages/identities"));
 const Proxies = lazy(() => import("./pages/proxies"));
 const MigrationTargets = lazy(() => import("./pages/migration-targets"));
 const General = lazy(() => import("./pages/general"));
-const Waves = lazy(() => import("./pages/waves"));
+const MigrationWaves = lazy(() => import("./pages/migration-waves"));
 const Jira = lazy(() => import("./pages/external/jira"));
 const Issues = lazy(() => import("./pages/issues"));
 const Dependencies = lazy(() => import("./pages/dependencies"));
@@ -78,8 +78,8 @@ export const devRoutes: IRoute[] = [
   ...(FEATURES_ENABLED.migrationWaves
     ? [
         {
-          path: Paths.waves,
-          comp: Waves,
+          path: Paths.migrationWaves,
+          comp: MigrationWaves,
           exact: false,
         },
       ]

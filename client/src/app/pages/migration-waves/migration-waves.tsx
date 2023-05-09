@@ -21,7 +21,7 @@ import utc from "dayjs/plugin/utc";
 import {
   useDeleteMigrationWaveMutation,
   useFetchMigrationWaves,
-} from "@app/queries/waves";
+} from "@app/queries/migration-waves";
 import {
   AppPlaceholder,
   ConditionalRender,
@@ -42,8 +42,8 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { WaveApplicationsTable } from "./wave-applications-table/wave-applications-table";
-import { WaveStakeholdersTable } from "./wave-stakeholders-table/wave-stakeholders-table";
+import { WaveApplicationsTable } from "./migration-wave-applications-table/migration-wave-applications-table";
+import { WaveStakeholdersTable } from "./migration-wave-stakeholders-table/migration-wave-stakeholders-table";
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
@@ -56,14 +56,15 @@ import { ExportForm } from "./components/export-form";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
-import { WaveForm } from "./wave-form";
+import { WaveForm } from "./migration-wave-form";
 dayjs.extend(utc);
 
-export const Waves: React.FC = () => {
+export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const { waves, isFetching, fetchError, refetch } = useFetchMigrationWaves();
+  const { migrationWaves, isFetching, fetchError, refetch } =
+    useFetchMigrationWaves();
 
   const onDeleteWaveSuccess = (name: string) => {
     pushNotification({
@@ -88,11 +89,12 @@ export const Waves: React.FC = () => {
     onDeleteWaveError
   );
 
-  const [waveModalState, setWaveModalState] = React.useState<
+  const [migrationWaveModalState, setWaveModalState] = React.useState<
     "create" | MigrationWave | null
   >(null);
-  const isWaveModalOpen = waveModalState !== null;
-  const waveToEdit = waveModalState !== "create" ? waveModalState : null;
+  const isWaveModalOpen = migrationWaveModalState !== null;
+  const migrationWaveToEdit =
+    migrationWaveModalState !== "create" ? migrationWaveModalState : null;
   const openCreateWaveModal = () => setWaveModalState("create");
 
   const [exportIssueModalOpen, setExportIssueModalOpen] = React.useState(false);
@@ -104,7 +106,7 @@ export const Waves: React.FC = () => {
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
-    items: waves,
+    items: migrationWaves,
     columnNames: {
       name: "Name",
       startDate: "Start date",
@@ -131,10 +133,10 @@ export const Waves: React.FC = () => {
       },
     ],
     sortableColumns: ["name", "startDate", "endDate"],
-    getSortValues: (wave) => ({
-      name: wave.name || "",
-      startDate: wave.startDate || "",
-      endDate: wave.endDate || "",
+    getSortValues: (migrationWave) => ({
+      name: migrationWave.name || "",
+      startDate: migrationWave.startDate || "",
+      endDate: migrationWave.endDate || "",
     }),
     initialSort: { columnKey: "startDate", direction: "asc" },
     hasPagination: true,
@@ -168,7 +170,7 @@ export const Waves: React.FC = () => {
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isFetching && !(waves || fetchError)}
+          when={isFetching && !(migrationWaves || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
@@ -188,8 +190,8 @@ export const Waves: React.FC = () => {
                   <ToolbarItem>
                     <Button
                       type="button"
-                      id="create-wave"
-                      aria-label="Create new wave"
+                      id="create-migration-wave"
+                      aria-label="Create new migration-wave"
                       variant={ButtonVariant.primary}
                       onClick={openCreateWaveModal}
                     >
@@ -199,7 +201,7 @@ export const Waves: React.FC = () => {
                   {/* </RBAC> */}
                   {
                     //RBAC
-                    // xxxxWriteAccess = checkAccess(userScopes, waveWriteScopes);
+                    // xxxxWriteAccess = checkAccess(userScopes, migrationWaveWriteScopes);
                     true ? ( //TODO: Check RBAC access
                       <ToolbarItem>
                         <KebabDropdown
@@ -221,11 +223,11 @@ export const Waves: React.FC = () => {
                             <DropdownItem
                               key="bulk-delete"
                               onClick={() => {
-                                selectedItems.map((wave) => {
-                                  if (wave.id)
+                                selectedItems.map((migrationWave) => {
+                                  if (migrationWave.id)
                                     deleteWave({
-                                      id: wave.id,
-                                      name: wave.name,
+                                      id: migrationWave.id,
+                                      name: migrationWave.name,
                                     });
                                 });
                               }}
@@ -240,7 +242,7 @@ export const Waves: React.FC = () => {
                 </ToolbarGroup>
                 <ToolbarItem {...paginationToolbarItemProps}>
                   <SimplePagination
-                    idPrefix="migration-waves-table"
+                    idPrefix="migration-migration-waves-table"
                     isTop
                     paginationProps={paginationProps}
                   />
@@ -263,52 +265,59 @@ export const Waves: React.FC = () => {
               <ConditionalTableBody
                 isLoading={isFetching}
                 isError={!!fetchError}
-                isNoData={waves.length === 0}
+                isNoData={migrationWaves.length === 0}
                 numRenderedColumns={numRenderedColumns}
               >
-                {currentPageItems?.map((wave, rowIndex) => {
+                {currentPageItems?.map((migrationWave, rowIndex) => {
                   return (
-                    <Tbody key={wave.id} isExpanded={isCellExpanded(wave)}>
+                    <Tbody
+                      key={migrationWave.id}
+                      isExpanded={isCellExpanded(migrationWave)}
+                    >
                       <Tr>
                         <TableRowContentWithControls
                           {...tableControls}
-                          item={wave}
+                          item={migrationWave}
                           rowIndex={rowIndex}
                         >
                           <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                            {wave.name}
+                            {migrationWave.name}
                           </Td>
                           <Td
                             width={10}
                             {...getTdProps({ columnKey: "startDate" })}
                           >
-                            {dayjs.utc(wave.startDate).format("MM/DD/YYYY")}
+                            {dayjs
+                              .utc(migrationWave.startDate)
+                              .format("MM/DD/YYYY")}
                           </Td>
                           <Td
                             width={10}
                             {...getTdProps({ columnKey: "endDate" })}
                           >
-                            {dayjs.utc(wave.endDate).format("MM/DD/YYYY")}
+                            {dayjs
+                              .utc(migrationWave.endDate)
+                              .format("MM/DD/YYYY")}
                           </Td>
                           <Td
                             width={10}
                             {...getCompoundExpandTdProps({
-                              item: wave,
+                              item: migrationWave,
                               rowIndex,
                               columnKey: "applications",
                             })}
                           >
-                            {wave?.applications?.length.toString()}
+                            {migrationWave?.applications?.length.toString()}
                           </Td>
                           <Td
                             width={10}
                             {...getCompoundExpandTdProps({
-                              item: wave,
+                              item: migrationWave,
                               rowIndex,
                               columnKey: "stakeholders",
                             })}
                           >
-                            {wave?.stakeholders?.length.toString()}
+                            {migrationWave?.stakeholders?.length.toString()}
                           </Td>
                           <Td
                             width={20}
@@ -320,13 +329,15 @@ export const Waves: React.FC = () => {
                             <KebabDropdown
                               dropdownItems={
                                 //RBAC
-                                // xxxxWriteAccess = checkAccess(userScopes, waveWriteScopes);
+                                // xxxxWriteAccess = checkAccess(userScopes, migration-waveWriteScopes);
                                 true //TODO: Check RBAC access
                                   ? [
                                       <DropdownItem
                                         key="edit"
                                         component="button"
-                                        onClick={() => setWaveModalState(wave)}
+                                        onClick={() =>
+                                          setWaveModalState(migrationWave)
+                                        }
                                       >
                                         {t("actions.edit")}
                                       </DropdownItem>,
@@ -335,7 +346,7 @@ export const Waves: React.FC = () => {
                                         component="button"
                                         onClick={() => {
                                           setApplicationsToExport(
-                                            wave.applications
+                                            migrationWave.applications
                                           );
                                           setExportIssueModalOpen(true);
                                         }}
@@ -345,10 +356,10 @@ export const Waves: React.FC = () => {
                                       <DropdownItem
                                         key="delete"
                                         onClick={() => {
-                                          if (wave.id)
+                                          if (migrationWave.id)
                                             deleteWave({
-                                              id: wave.id,
-                                              name: wave.name,
+                                              id: migrationWave.id,
+                                              name: migrationWave.name,
                                             });
                                         }}
                                       >
@@ -361,19 +372,26 @@ export const Waves: React.FC = () => {
                           </Td>
                         </TableRowContentWithControls>
                       </Tr>
-                      {isCellExpanded(wave) ? (
+                      {isCellExpanded(migrationWave) ? (
                         <Tr isExpanded>
-                          <Td {...getExpandedContentTdProps({ item: wave })}>
+                          <Td
+                            {...getExpandedContentTdProps({
+                              item: migrationWave,
+                            })}
+                          >
                             <ExpandableRowContent>
-                              {isCellExpanded(wave, "applications") ? (
+                              {isCellExpanded(migrationWave, "applications") ? (
                                 <WaveApplicationsTable
-                                  wave={wave}
-                                  applications={wave.applications}
+                                  migrationWave={migrationWave}
+                                  applications={migrationWave.applications}
                                 />
-                              ) : isCellExpanded(wave, "stakeholders") ? (
+                              ) : isCellExpanded(
+                                  migrationWave,
+                                  "stakeholders"
+                                ) ? (
                                 <WaveStakeholdersTable
-                                  wave={wave}
-                                  stakeholders={wave.stakeholders}
+                                  migrationWave={migrationWave}
+                                  stakeholders={migrationWave.stakeholders}
                                 />
                               ) : null}
                             </ExpandableRowContent>
@@ -386,7 +404,7 @@ export const Waves: React.FC = () => {
               </ConditionalTableBody>
             </TableComposable>
             <SimplePagination
-              idPrefix="migration-waves-table"
+              idPrefix="migration-migration-waves-table"
               isTop={false}
               paginationProps={paginationProps}
             />
@@ -394,9 +412,9 @@ export const Waves: React.FC = () => {
         </ConditionalRender>
       </PageSection>
       <Modal
-        id="create-edit-wave-modal"
+        id="create-edit-migration-wave-modal"
         title={
-          waveToEdit
+          migrationWaveToEdit
             ? t("dialog.title.update", {
                 what: t("terms.migrationWave").toLowerCase(),
               })
@@ -409,7 +427,7 @@ export const Waves: React.FC = () => {
         onClose={closeWaveModal}
       >
         <WaveForm
-          wave={waveToEdit ? waveToEdit : undefined}
+          migrationWave={migrationWaveToEdit ? migrationWaveToEdit : undefined}
           onClose={closeWaveModal}
         />
       </Modal>
