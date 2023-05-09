@@ -21,7 +21,7 @@ import {
   useFetchMigrationWaves,
   useCreateMigrationWaveMutation,
   useUpdateMigrationWaveMutation,
-} from "@app/queries/waves";
+} from "@app/queries/migration-waves";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { Stakeholder, StakeholderGroup, MigrationWave } from "@app/api/models";
@@ -60,14 +60,17 @@ interface WaveFormValues {
 }
 
 export interface WaveFormProps {
-  wave?: MigrationWave;
+  migrationWave?: MigrationWave;
   onClose: () => void;
 }
 
-export const WaveForm: React.FC<WaveFormProps> = ({ wave, onClose }) => {
+export const WaveForm: React.FC<WaveFormProps> = ({
+  migrationWave,
+  onClose,
+}) => {
   const { t } = useTranslation();
 
-  const { waves } = useFetchMigrationWaves();
+  const { migrationWaves } = useFetchMigrationWaves();
   const isLoading = false; // TODO
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -118,7 +121,8 @@ export const WaveForm: React.FC<WaveFormProps> = ({ wave, onClose }) => {
       .test(
         "Duplicate name",
         "An identity with this name already exists. Use a different name.",
-        (value) => duplicateNameCheck(waves, wave || null, value || "")
+        (value) =>
+          duplicateNameCheck(migrationWaves, migrationWave || null, value || "")
       ),
     startDate: yup
       .date()
@@ -150,11 +154,13 @@ export const WaveForm: React.FC<WaveFormProps> = ({ wave, onClose }) => {
     watch,
   } = useForm<WaveFormValues>({
     defaultValues: {
-      name: wave?.name || "",
-      startDate: wave?.startDate ? dateParse(wave.startDate) : null,
-      endDate: wave?.endDate ? dateParse(wave.endDate) : null,
-      stakeholders: wave?.stakeholders || [],
-      stakeholderGroups: wave?.stakeholderGroups || [],
+      name: migrationWave?.name || "",
+      startDate: migrationWave?.startDate
+        ? dateParse(migrationWave.startDate)
+        : null,
+      endDate: migrationWave?.endDate ? dateParse(migrationWave.endDate) : null,
+      stakeholders: migrationWave?.stakeholders || [],
+      stakeholderGroups: migrationWave?.stakeholderGroups || [],
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
@@ -165,15 +171,15 @@ export const WaveForm: React.FC<WaveFormProps> = ({ wave, onClose }) => {
 
   const onSubmit = (formValues: WaveFormValues) => {
     const payload: MigrationWave = {
-      id: wave?.id,
-      applications: wave?.applications || [],
+      id: migrationWave?.id,
+      applications: migrationWave?.applications || [],
       name: formValues.name.trim(),
       startDate: dayjs.utc(formValues.startDate).format(),
       endDate: dayjs.utc(formValues.endDate).format(),
       stakeholders: formValues.stakeholders,
       stakeholderGroups: formValues.stakeholderGroups,
     };
-    if (wave)
+    if (migrationWave)
       updateMigrationWave({
         ...payload,
       });
@@ -230,7 +236,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({ wave, onClose }) => {
                     dateParse={dateParse}
                     appendTo={() =>
                       document.getElementById(
-                        "create-edit-wave-modal"
+                        "create-edit-migration-wave-modal"
                       ) as HTMLElement
                     }
                   />
@@ -261,7 +267,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({ wave, onClose }) => {
                     dateParse={dateParse}
                     appendTo={() =>
                       document.getElementById(
-                        "create-edit-wave-modal"
+                        "create-edit-migration-wave-modal"
                       ) as HTMLElement
                     }
                     isDisabled={!startDate}
@@ -350,13 +356,13 @@ export const WaveForm: React.FC<WaveFormProps> = ({ wave, onClose }) => {
         <Button
           type="submit"
           aria-label="submit"
-          id="wave-form-submit"
+          id="migration-wave-form-submit"
           variant="primary"
           isDisabled={
             !isValid || isSubmitting || isValidating || isLoading || !isDirty
           }
         >
-          {!wave ? "Create" : "Save"}
+          {!migrationWave ? "Create" : "Save"}
         </Button>
         <Button
           type="button"

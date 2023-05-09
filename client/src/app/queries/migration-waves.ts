@@ -7,7 +7,7 @@ import {
   updateMigrationWave,
 } from "@app/api/rest";
 
-export const MigrationWavesQueryKey = "migrationwaves";
+export const MigrationWavesQueryKey = "migration-waves";
 
 export const useCreateMigrationWaveMutation = (
   onSuccess: (res: any) => void,
@@ -33,7 +33,7 @@ export const useFetchMigrationWaves = () => {
     onError: (error) => console.log("error, ", error),
   });
   return {
-    waves: data || [],
+    migrationWaves: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,
