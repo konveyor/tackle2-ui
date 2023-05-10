@@ -17,8 +17,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 import { SimpleSelect, OptionWithValue } from "@app/shared/components";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { Application, Ref, TagRef } from "@app/api/models";
-import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import { Application, TagRef } from "@app/api/models";
+import {
+  duplicateNameCheck,
+  getAxiosErrorMessage,
+  standardURLRegex,
+} from "@app/utils/utils";
 import { toOptionLike } from "@app/utils/model-utils";
 import {
   useCreateApplicationMutation,
@@ -134,11 +138,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   const customURLValidation = (schema: StringSchema) => {
     const gitUrlRegex =
       /(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/;
-    let standardUrlRegex =
-      /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
-    standardUrlRegex = new RegExp(standardUrlRegex);
     const containsURL = (string: string) =>
-      gitUrlRegex.test(string) || standardUrlRegex.test(string);
+      gitUrlRegex.test(string) || standardURLRegex.test(string);
 
     return schema.test("gitUrlTest", "Must be a valid URL.", (value) => {
       if (value) {
