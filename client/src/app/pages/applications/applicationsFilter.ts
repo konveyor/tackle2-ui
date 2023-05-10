@@ -37,9 +37,7 @@ export const useApplicationsFilterValues = (
         t("actions.filterBy", {
           what: t("terms.name").toLowerCase(),
         }) + "...",
-      getItemValue: (item) => {
-        return item?.name || "";
-      },
+      getItemValue: (item) => item?.name || "",
     },
     {
       key: "description",
@@ -49,9 +47,7 @@ export const useApplicationsFilterValues = (
         t("actions.filterBy", {
           what: t("terms.description").toLowerCase(),
         }) + "...",
-      getItemValue: (item) => {
-        return item.description || "";
-      },
+      getItemValue: (item) => item.description || "",
     },
     {
       key: "businessService",
@@ -67,9 +63,7 @@ export const useApplicationsFilterValues = (
           .map((app) => app.businessService?.name)
           .map((name) => ({ key: name, value: name }))
       ),
-      getItemValue: (item) => {
-        return item.businessService?.name || "";
-      },
+      getItemValue: (item) => item.businessService?.name || "",
     },
     {
       key: "identities",
@@ -108,10 +102,7 @@ export const useApplicationsFilterValues = (
         { key: "git", value: "Git" },
         { key: "subversion", value: "Subversion" },
       ],
-      getItemValue: (item) => {
-        const kind = item?.repository?.kind || "";
-        return kind;
-      },
+      getItemValue: (item) => item?.repository?.kind || "",
     },
     {
       key: "binary",
