@@ -51,9 +51,13 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationAssessmentPage } from "./components/application-assessment-page";
 import { WizardStepNavDescription } from "./components/wizard-step-nav-description";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import { useDeleteAssessmentMutation } from "@app/queries/assessments";
+import { useQueryClient } from "@tanstack/react-query";
+import { ApplicationsQueryKey } from "@app/queries/applications";
 
 export const ApplicationAssessment: React.FC = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
     React.useState<Boolean>(false);
@@ -66,6 +70,25 @@ export const ApplicationAssessment: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
 
   const [saveError, setSaveError] = useState<AxiosError>();
+
+  // Assessment
+
+  const onDeleteAssessmentSuccess = () => {
+    queryClient.invalidateQueries([ApplicationsQueryKey]);
+    redirectToApplications();
+  };
+
+  const onDeleteError = (error: AxiosError) => {
+    pushNotification({
+      title: `${error}`,
+      variant: "danger",
+    });
+  };
+
+  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
+    onDeleteAssessmentSuccess,
+    onDeleteError
+  );
 
   // Assessment
 
@@ -385,6 +408,9 @@ export const ApplicationAssessment: React.FC = () => {
           onCancel={() => setIsConfirmDialogOpen(false)}
           onClose={() => setIsConfirmDialogOpen(false)}
           onConfirm={() => {
+            if (assessment?.id) {
+              deleteAssessment({ id: assessment.id, name: "Application" });
+            }
             setIsConfirmDialogOpen(false);
             redirectToApplications();
           }}
