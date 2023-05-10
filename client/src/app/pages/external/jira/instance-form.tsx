@@ -22,7 +22,11 @@ import {
 } from "@app/queries/jiratrackers";
 import { useFetchIdentities } from "@app/queries/identities";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import {
+  duplicateNameCheck,
+  getAxiosErrorMessage,
+  standardURLRegex,
+} from "@app/utils/utils";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
@@ -43,6 +47,8 @@ export interface InstanceFormProps {
   instance?: JiraTracker;
   onClose: () => void;
 }
+
+const containsURL = (string: string) => standardURLRegex.test(string);
 
 export const InstanceForm: React.FC<InstanceFormProps> = ({
   instance,
@@ -129,7 +135,10 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
       .string()
       .trim()
       .required(t("validation.required"))
-      .max(250, t("validation.maxLength", { length: 250 })),
+      .max(250, t("validation.maxLength", { length: 250 }))
+      .test("valid URL", "Enter a valid URL", (value) =>
+        value ? containsURL(value) : false
+      ),
     kind: yup.mixed<IssueManagerKind>().required(),
     credentialName: yup.string().required(),
     insecure: yup.boolean().required(),
