@@ -85,17 +85,35 @@ export const ExportForm: React.FC<ExportFormProps> = ({
 
   const values = getValues();
 
+  const getProjects = (instanceName: string) =>
+    instances
+      .filter((instance) => instance.name === instanceName)
+      .map((instance) => instance.metadata?.projects.map((project) => project))
+      .flat();
+
+  const getTypes = (instanceName: string, projectName: string) =>
+    getProjects(instanceName)
+      .filter((project) => project.name === projectName)
+      .map((project) => project.issueTypes)
+      .flat();
+
   const onSubmit = (formValues: FormValues) => {
     const matchingInstance = instances.find(
       (instance) => formValues?.instance === instance.name
+    );
+    const matchingProject = getProjects(formValues.instance).find(
+      (project) => formValues.project === project.name
+    );
+    const matchingKind = getTypes(formValues.instance, formValues.project).find(
+      (type) => formValues.kind === type.name
     );
 
     if (matchingInstance) {
       const payload = {
         issueManager: formValues.issueManager?.trim(),
         tracker: { id: matchingInstance.id, name: matchingInstance.name },
-        parent: formValues.project,
-        kind: formValues.kind,
+        parent: matchingProject?.id || "",
+        kind: matchingKind?.id || "",
       };
 
       applications?.forEach((application) =>
@@ -207,17 +225,12 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             toggleAriaLabel="project select dropdown toggle"
             aria-label={name}
             value={value}
-            options={instances
-              .filter((instance) => instance.name === values.instance)
-              .map((instance) =>
-                instance.metadata?.projects.map((project) => {
-                  return {
-                    value: project.name,
-                    toString: () => project.name,
-                  };
-                })
-              )
-              .flat()}
+            options={getProjects(values.instance).map((project) => {
+              return {
+                value: project.name,
+                toString: () => project.name,
+              };
+            })}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<string>;
               setValue("kind", "");
@@ -245,22 +258,14 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             toggleAriaLabel="issue-type select dropdown toggle"
             aria-label={name}
             value={value}
-            options={instances
-              .filter((instance) => instance.name === values.instance)
-              .map((instance) =>
-                instance.metadata?.projects
-                  .filter((project) => project.name === values.project)
-                  .map((project) =>
-                    project.issueTypes.map((issueType) => {
-                      return {
-                        value: issueType.name,
-                        toString: () => issueType.name,
-                      };
-                    })
-                  )
-                  .flat()
-              )
-              .flat()}
+            options={getTypes(values.instance, values.project).map(
+              (issueType) => {
+                return {
+                  value: issueType.name,
+                  toString: () => issueType.name,
+                };
+              }
+            )}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<string>;
               onChange(selectionValue.value);
