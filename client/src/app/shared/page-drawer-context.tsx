@@ -11,18 +11,18 @@ import {
 import pageStyles from "@patternfly/react-styles/css/components/Page/page";
 
 const usePageDrawerState = () => {
-  const [isDrawerMounted, setIsDrawerMounted] = React.useState(false);
   const [isDrawerExpanded, setIsDrawerExpanded] = React.useState(false);
   const [drawerChildren, setDrawerChildren] =
     React.useState<React.ReactNode>(null);
+  const [drawerPageKey, setDrawerPageKey] = React.useState<string>("");
   const drawerFocusRef = React.useRef(document.createElement("span"));
   return {
-    isDrawerMounted,
-    setIsDrawerMounted,
     isDrawerExpanded,
     setIsDrawerExpanded,
     drawerChildren,
     setDrawerChildren,
+    drawerPageKey,
+    setDrawerPageKey,
     drawerFocusRef: drawerFocusRef as typeof drawerFocusRef | null,
   };
 };
@@ -30,12 +30,12 @@ const usePageDrawerState = () => {
 type PageDrawerState = ReturnType<typeof usePageDrawerState>;
 
 const PageDrawerContext = React.createContext<PageDrawerState>({
-  isDrawerMounted: false,
-  setIsDrawerMounted: () => {},
   isDrawerExpanded: false,
   setIsDrawerExpanded: () => {},
   drawerChildren: null,
   setDrawerChildren: () => {},
+  drawerPageKey: "",
+  setDrawerPageKey: () => {},
   drawerFocusRef: null,
 });
 
@@ -47,36 +47,33 @@ export const PageContentWithDrawerProvider: React.FC<
   IPageContentWithDrawerProviderProps
 > = ({ children }) => {
   const pageDrawerState = usePageDrawerState();
-  const { isDrawerMounted, isDrawerExpanded, drawerFocusRef, drawerChildren } =
+  const { isDrawerExpanded, drawerFocusRef, drawerChildren, drawerPageKey } =
     pageDrawerState;
   return (
     <PageDrawerContext.Provider value={pageDrawerState}>
-      {isDrawerMounted ? (
-        <div className={pageStyles.pageDrawer}>
-          <Drawer
-            isExpanded={isDrawerExpanded}
-            onExpand={() => drawerFocusRef?.current?.focus()}
-            position="right"
+      <div className={pageStyles.pageDrawer}>
+        <Drawer
+          isExpanded={isDrawerExpanded}
+          onExpand={() => drawerFocusRef?.current?.focus()}
+          position="right"
+        >
+          <DrawerContent
+            panelContent={
+              <DrawerPanelContent
+                isResizable
+                id="page-drawer-content"
+                defaultSize="500px"
+                minSize="150px"
+                key={drawerPageKey}
+              >
+                {drawerChildren}
+              </DrawerPanelContent>
+            }
           >
-            <DrawerContent
-              panelContent={
-                <DrawerPanelContent
-                  isResizable
-                  id="page-drawer-content"
-                  defaultSize="500px"
-                  minSize="150px"
-                >
-                  {drawerChildren}
-                </DrawerPanelContent>
-              }
-            >
-              <DrawerContentBody>{children}</DrawerContentBody>
-            </DrawerContent>
-          </Drawer>
-        </div>
-      ) : (
-        children
-      )}
+            <DrawerContentBody>{children}</DrawerContentBody>
+          </DrawerContent>
+        </Drawer>
+      </div>
     </PageDrawerContext.Provider>
   );
 };
@@ -89,6 +86,7 @@ export interface IPageDrawerContentProps {
   onCloseClick: () => void; // Should be used to update local state such that `isExpanded` becomes false.
   children: React.ReactNode; // The content to show in the drawer when `isExpanded` is true.
   focusKey?: string | number; // A unique key representing the object being described in the drawer. When this changes, the drawer will regain focus.
+  pageKey: string; // A unique key representing the page where the drawer is used. Causes the drawer to remount when changing pages.
 }
 
 export const PageDrawerContent: React.FC<IPageDrawerContentProps> = ({
@@ -96,22 +94,20 @@ export const PageDrawerContent: React.FC<IPageDrawerContentProps> = ({
   onCloseClick,
   children,
   focusKey,
+  pageKey: localPageKeyProp,
 }) => {
   const {
-    setIsDrawerMounted,
     setIsDrawerExpanded,
     drawerFocusRef,
     setDrawerChildren,
+    setDrawerPageKey,
   } = React.useContext(PageDrawerContext);
 
-  // Prevent Drawer boilerplate from being rendered in PageContentWithDrawerProvider if no PageDrawerContent exists.
-  // Also, warn if we are trying to render more than one PageDrawerContent (they'll fight over the same state).
+  // Warn if we are trying to render more than one PageDrawerContent (they'll fight over the same state).
   React.useEffect(() => {
     numPageDrawerContentInstances++;
-    setIsDrawerMounted(true);
     return () => {
       numPageDrawerContentInstances--;
-      setIsDrawerMounted(false);
     };
   }, []);
   if (numPageDrawerContentInstances > 1) {
@@ -127,8 +123,17 @@ export const PageDrawerContent: React.FC<IPageDrawerContentProps> = ({
     setIsDrawerExpanded(localIsExpandedProp);
     return () => {
       setIsDrawerExpanded(false);
+      setDrawerChildren(null);
     };
   }, [localIsExpandedProp]);
+
+  // Same deal with the page key, keep it in sync with the local prop on PageDrawerContent.
+  React.useEffect(() => {
+    setDrawerPageKey(localPageKeyProp);
+    return () => {
+      setDrawerPageKey("");
+    };
+  }, [localPageKeyProp]);
 
   // If the drawer is already expanded describing app A, then the user clicks app B, we want to send focus back to the drawer.
   React.useEffect(() => {
