@@ -40,5 +40,4 @@ if [ -f "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem" ]; then
     cat /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem >> ${NODE_EXTRA_CA_CERTS}
 fi
 
-cd server
-exec node index.js
+exec node --enable-source-maps server/dist/index.js

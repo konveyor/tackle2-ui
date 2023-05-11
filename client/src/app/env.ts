@@ -1,5 +1,7 @@
-// NOTE: If you define another ENV_VAR here, you must also update the
-// TACKLE_ENV array in 'server/helpers.js'
+/**
+ * The set of environment variables used by tackle2-ui.  This list
+ * needs to be kept in sync with `client/config/envLookup.js`.
+ */
 const ENV_VAR_DEFAULTS = {
   AUTH_REQUIRED: "false",
   KEYCLOAK_REALM: "tackle",
