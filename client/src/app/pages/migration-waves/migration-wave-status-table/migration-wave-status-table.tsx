@@ -2,6 +2,7 @@ import React from "react";
 import { Application, MigrationWave } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import {
+  Button,
   DropdownItem,
   Toolbar,
   ToolbarContent,
@@ -16,6 +17,7 @@ import {
   Tr,
 } from "@patternfly/react-table";
 import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
+import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import {
@@ -124,17 +126,9 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                     {getTicketByApplication(app.id)?.parent}
                   </Td>
                   <Td width={10} className={alignment.textAlignRight}>
-                    <KebabDropdown
-                      dropdownItems={[
-                        <DropdownItem
-                          key="edit"
-                          component="button"
-                          onClick={() => {}}
-                        >
-                          {t("actions.delete")}
-                        </DropdownItem>,
-                      ]}
-                    />
+                    <Button type="button" variant="plain" onClick={() => {}}>
+                      <TrashIcon />
+                    </Button>
                   </Td>
                 </TableRowContentWithControls>
               </Tr>
