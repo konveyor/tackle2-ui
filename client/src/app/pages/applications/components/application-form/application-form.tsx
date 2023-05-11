@@ -138,16 +138,10 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   const customURLValidation = (schema: StringSchema) => {
     const gitUrlRegex =
       /(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/;
-    const containsURL = (string: string) =>
-      gitUrlRegex.test(string) || standardURLRegex.test(string);
-
-    return schema.test("gitUrlTest", "Must be a valid URL.", (value) => {
-      if (value) {
-        return containsURL(value);
-      } else {
-        return true;
-      }
-    });
+    return schema.matches(
+      gitUrlRegex || standardURLRegex,
+      "Must be a valid URL."
+    );
   };
 
   const { data: applications } = useFetchApplications();
