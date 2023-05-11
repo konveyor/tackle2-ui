@@ -7,6 +7,7 @@ import {
   getJiraTrackers,
   updateJiraTracker,
 } from "@app/api/rest";
+import { JiraTracker } from "@app/api/models";
 
 export const JiraTrackersQueryKey = "jiratrackers";
 
@@ -69,3 +70,35 @@ export const useDeleteJiraTrackerMutation = (
     onError: onError,
   });
 };
+
+export const getInstancesByKind = (instances: JiraTracker[], kind: string) =>
+  instances.filter((instance) => instance.kind === kind && instance.connected);
+
+export const getProjectsByInstance = (
+  instances: JiraTracker[],
+  instanceName: string
+) =>
+  instances
+    .filter((instance) => instance.name === instanceName)
+    .map((instance) => instance.metadata?.projects.map((project) => project))
+    .flat();
+
+export const getTypesByProjectName = (
+  instances: JiraTracker[],
+  instanceName: string,
+  projectName: string
+) =>
+  getProjectsByInstance(instances, instanceName)
+    .filter((project) => project.name === projectName)
+    .map((project) => project.issueTypes)
+    .flat();
+
+export const getTypesByProjectId = (
+  instances: JiraTracker[],
+  instanceName: string,
+  projectId: string
+) =>
+  getProjectsByInstance(instances, instanceName)
+    .filter((project) => project.id === projectId)
+    .map((project) => project.issueTypes)
+    .flat();

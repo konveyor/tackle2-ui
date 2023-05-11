@@ -32,7 +32,7 @@ import {
   AggregateTicketStatus,
   Application,
   MigrationWave,
-  Ticket,
+  Ref,
   TicketStatus,
 } from "@app/api/models";
 import {
@@ -67,6 +67,7 @@ import { WaveForm } from "./migration-wave-form";
 import { WaveStatusTable } from "./migration-wave-status-table/migration-wave-status-table";
 import { useFetchJiraTrackers } from "@app/queries/jiratrackers";
 import { useFetchTickets } from "@app/queries/tickets";
+import { useFetchApplications } from "@app/queries/applications";
 dayjs.extend(utc);
 
 export const MigrationWaves: React.FC = () => {
@@ -77,6 +78,15 @@ export const MigrationWaves: React.FC = () => {
     useFetchMigrationWaves();
 
   const { jiraTrackers: instances } = useFetchJiraTrackers();
+
+  const { data: applications } = useFetchApplications();
+
+  const getApplications = (refs: Ref[]) => {
+    const ids = refs.map((ref) => ref.id);
+    return applications.filter((application: any) =>
+      ids.includes(application.id)
+    );
+  };
 
   const onDeleteWaveSuccess = (name: string) => {
     pushNotification({
@@ -111,9 +121,9 @@ export const MigrationWaves: React.FC = () => {
 
   const [exportIssueModalOpen, setExportIssueModalOpen] = React.useState(false);
 
-  const [applicationsToExport, setApplicationsToExport] = React.useState<
-    Application[]
-  >([]);
+  const [applicationsToExport, setApplicationsToExport] = React.useState<Ref[]>(
+    []
+  );
 
   const [waveToManageModalState, setWaveToManageModalState] =
     React.useState<MigrationWave | null>(null);
@@ -397,12 +407,9 @@ export const MigrationWaves: React.FC = () => {
                                       <DropdownItem
                                         key="edit"
                                         component="button"
-                                        onClick={() => {
-                                          console.log(
-                                            getTicketStatus(migrationWave)
-                                          );
-                                          setWaveModalState(migrationWave);
-                                        }}
+                                        onClick={() =>
+                                          setWaveModalState(migrationWave)
+                                        }
                                       >
                                         {t("actions.edit")}
                                       </DropdownItem>,
@@ -425,7 +432,9 @@ export const MigrationWaves: React.FC = () => {
                                         component="button"
                                         onClick={() => {
                                           setApplicationsToExport(
-                                            migrationWave.applications
+                                            getApplications(
+                                              migrationWave.applications
+                                            )
                                           );
                                           setExportIssueModalOpen(true);
                                         }}
@@ -459,10 +468,13 @@ export const MigrationWaves: React.FC = () => {
                             })}
                           >
                             <ExpandableRowContent>
-                              {isCellExpanded(migrationWave, "applications") ? (
+                              {isCellExpanded(migrationWave, "applications") &&
+                              migrationWave.applications ? (
                                 <WaveApplicationsTable
                                   migrationWave={migrationWave}
-                                  applications={migrationWave.applications}
+                                  applications={getApplications(
+                                    migrationWave.applications
+                                  )}
                                 />
                               ) : isCellExpanded(
                                   migrationWave,
@@ -476,7 +488,10 @@ export const MigrationWaves: React.FC = () => {
                                 instances.length > 0 ? (
                                 <WaveStatusTable
                                   migrationWave={migrationWave}
-                                  applications={migrationWave.applications}
+                                  applications={getApplications(
+                                    migrationWave.applications
+                                  )}
+                                  instances={instances}
                                 />
                               ) : null}
                             </ExpandableRowContent>
@@ -526,6 +541,7 @@ export const MigrationWaves: React.FC = () => {
       >
         <ExportForm
           applications={applicationsToExport}
+          instances={instances}
           onClose={() => {
             setExportIssueModalOpen(false);
           }}

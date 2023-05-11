@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { createTicket, getTickets } from "@app/api/rest";
 import { AxiosError } from "axios";
+import { Ticket } from "@app/api/models";
+import React from "react";
 
 export const TicketsQueryKey = "tickets";
 
@@ -31,3 +33,9 @@ export const useFetchTickets = () => {
     refetch,
   };
 };
+
+export const getTicketByApplication = (tickets: Ticket[], appId: number = 0) =>
+  React.useMemo(
+    () => tickets.find((ticket) => ticket.application.id === appId),
+    [tickets]
+  );

@@ -49,7 +49,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
     getSortValues: (app) => ({
       appName: app.name || "",
       businessService: app.businessService?.name || "",
-      owner: "", // TODO
+      owner: app.owner?.name || "",
     }),
     sortableColumns: ["appName", "businessService", "owner"],
     hasPagination: true,
@@ -120,7 +120,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
                     {app?.businessService?.name}
                   </Td>
                   <Td width={10} {...getTdProps({ columnKey: "owner" })}>
-                    TODO: Owner
+                    {app?.owner?.name}
                   </Td>
                   <Td width={10} className={alignment.textAlignRight}>
                     <Button type="button" variant="plain" onClick={() => {}}>

@@ -1,9 +1,13 @@
 import React from "react";
-import { Application, MigrationWave } from "@app/api/models";
+import {
+  Application,
+  IssueType,
+  JiraTracker,
+  MigrationWave,
+} from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import {
   Button,
-  DropdownItem,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -26,24 +30,23 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
-import { KebabDropdown } from "@app/shared/components";
-import { useFetchTickets } from "@app/queries/tickets";
+import { getTicketByApplication, useFetchTickets } from "@app/queries/tickets";
+import { getTypesByProjectId } from "@app/queries/jiratrackers";
 
 export interface IWaveStatusTableProps {
   migrationWave: MigrationWave;
   applications: Application[];
+  instances: JiraTracker[];
 }
 
 export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   migrationWave,
   applications,
+  instances,
 }) => {
   const { t } = useTranslation();
 
   const { tickets } = useFetchTickets();
-
-  const getTicketByApplication = (id: number = 0) =>
-    tickets.find((ticket) => ticket.application.id === id);
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
@@ -75,6 +78,22 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
       getTdProps,
     },
   } = tableControls;
+
+  const getStatus = (appId: number | undefined) => {
+    if (appId) {
+      const ticket = getTicketByApplication(tickets, appId);
+      if (ticket) {
+        const types = getTypesByProjectId(
+          instances,
+          ticket.tracker.name,
+          ticket.parent
+        );
+        const type = types.find((kind) => kind.id === ticket.kind);
+        if (type) return type.name;
+      }
+    }
+    return "";
+  };
 
   return (
     <>
@@ -118,12 +137,12 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                     {app.name}
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "status" })}>
-                    {getTicketByApplication(app.id)?.status === ""
+                    {getTicketByApplication(tickets, app.id)?.status === ""
                       ? "Creating issue"
-                      : getTicketByApplication(app.id)?.status}
+                      : getTicketByApplication(tickets, app.id)?.status}
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "issue" })}>
-                    {getTicketByApplication(app.id)?.parent}
+                    {getStatus(app.id)}
                   </Td>
                   <Td width={10} className={alignment.textAlignRight}>
                     <Button type="button" variant="plain" onClick={() => {}}>

@@ -98,7 +98,7 @@ export interface Repository {
 }
 
 export interface Application {
-  id?: number;
+  id: number;
   name: string;
   description?: string;
   comments?: string;
@@ -504,7 +504,7 @@ export interface MigrationWave {
   name: string;
   startDate: string;
   endDate: string;
-  applications: Application[];
+  applications: Ref[];
   stakeholders: Stakeholder[];
   stakeholderGroups: StakeholderGroup[];
   status?: string;
