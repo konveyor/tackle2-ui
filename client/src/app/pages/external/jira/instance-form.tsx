@@ -125,7 +125,6 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
       .string()
       .min(3, t("validation.minLength", { length: 3 }))
       .max(120, t("validation.maxLength", { length: 120 }))
-      .required(t("validation.required"))
       .test(
         "Duplicate name",
         "An identity with this name already exists. Use a different name.",
