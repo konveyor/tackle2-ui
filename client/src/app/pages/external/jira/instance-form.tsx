@@ -123,9 +123,9 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
     name: yup
       .string()
       .trim()
-      .required(t("validation.required"))
       .min(3, t("validation.minLength", { length: 3 }))
       .max(120, t("validation.maxLength", { length: 120 }))
+      .required(t("validation.required"))
       .test(
         "Duplicate name",
         "An identity with this name already exists. Use a different name.",
@@ -134,11 +134,12 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
     url: yup
       .string()
       .trim()
-      .required(t("validation.required"))
       .max(250, t("validation.maxLength", { length: 250 }))
-      .test("valid URL", "Enter a valid URL", (value) =>
-        value ? containsURL(value) : false
-      ),
+      .required(t("validation.required")),
+    // TODO
+    // .test("valid URL", "Enter a valid URL", (value) =>
+    //   value ? containsURL(value) : false
+    // ),
     kind: yup.mixed<IssueManagerKind>().required(),
     credentialName: yup.string().required(),
     insecure: yup.boolean().required(),

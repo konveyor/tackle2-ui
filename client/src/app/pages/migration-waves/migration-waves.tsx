@@ -28,7 +28,13 @@ import {
   KebabDropdown,
   ToolbarBulkSelector,
 } from "@app/shared/components";
-import { Application, MigrationWave } from "@app/api/models";
+import {
+  AggregateTicketStatus,
+  Application,
+  MigrationWave,
+  Ticket,
+  TicketStatus,
+} from "@app/api/models";
 import {
   FilterToolbar,
   FilterType,
@@ -58,6 +64,9 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
 import { WaveForm } from "./migration-wave-form";
+import { WaveStatusTable } from "./migration-wave-status-table/migration-wave-status-table";
+import { useFetchJiraTrackers } from "@app/queries/jiratrackers";
+import { useFetchTickets } from "@app/queries/tickets";
 dayjs.extend(utc);
 
 export const MigrationWaves: React.FC = () => {
@@ -66,6 +75,8 @@ export const MigrationWaves: React.FC = () => {
 
   const { migrationWaves, isFetching, fetchError, refetch } =
     useFetchMigrationWaves();
+
+  const { jiraTrackers: instances } = useFetchJiraTrackers();
 
   const onDeleteWaveSuccess = (name: string) => {
     pushNotification({
@@ -165,6 +176,48 @@ export const MigrationWaves: React.FC = () => {
       getCompoundExpandTdProps,
     },
   } = tableControls;
+
+  const { tickets } = useFetchTickets();
+
+  const ticketStatusToAggreaate: Map<TicketStatus, AggregateTicketStatus> =
+    new Map([
+      ["", "Creating Issues"],
+      ["New", "Issues Created"],
+      ["In Progress", "In Progress"],
+      ["Done", "Completed"],
+      ["Error", "Error"],
+    ]);
+
+  const getTicketByApplication = (id: number = 0) =>
+    tickets.find((ticket) => ticket.application.id === id);
+
+  const getTicketStatus = (wave: MigrationWave) => {
+    let tickets: string[] = [];
+    wave.applications.forEach((application) => {
+      const ticket = getTicketByApplication(application.id);
+      if (ticket?.id) tickets.push(ticket.status || "");
+    });
+    return tickets as TicketStatus[];
+  };
+
+  const aggregateTicketStatus = (val: TicketStatus) => {
+    const status = ticketStatusToAggreaate.get(val);
+    return status ? status : "Error";
+  };
+
+  const aggregatedTicketStatus = (
+    wave: MigrationWave
+  ): AggregateTicketStatus => {
+    const statuses = getTicketStatus(wave);
+    if (statuses.length === 0) return "Error";
+
+    const status = statuses.reduce(
+      (acc, val) => (acc === val ? acc : "Error"),
+      statuses[0]
+    );
+
+    return aggregateTicketStatus(status);
+  };
 
   return (
     <>
@@ -326,9 +379,13 @@ export const MigrationWaves: React.FC = () => {
                           </Td>
                           <Td
                             width={20}
-                            {...getTdProps({ columnKey: "status" })}
+                            {...getCompoundExpandTdProps({
+                              item: migrationWave,
+                              rowIndex,
+                              columnKey: "status",
+                            })}
                           >
-                            TODO: Status
+                            {aggregatedTicketStatus(migrationWave)}
                           </Td>
                           <Td width={10}>
                             <KebabDropdown
@@ -340,9 +397,12 @@ export const MigrationWaves: React.FC = () => {
                                       <DropdownItem
                                         key="edit"
                                         component="button"
-                                        onClick={() =>
-                                          setWaveModalState(migrationWave)
-                                        }
+                                        onClick={() => {
+                                          console.log(
+                                            getTicketStatus(migrationWave)
+                                          );
+                                          setWaveModalState(migrationWave);
+                                        }}
                                       >
                                         {t("actions.edit")}
                                       </DropdownItem>,
@@ -411,6 +471,12 @@ export const MigrationWaves: React.FC = () => {
                                 <WaveStakeholdersTable
                                   migrationWave={migrationWave}
                                   stakeholders={migrationWave.stakeholders}
+                                />
+                              ) : isCellExpanded(migrationWave, "status") &&
+                                instances.length > 0 ? (
+                                <WaveStatusTable
+                                  migrationWave={migrationWave}
+                                  applications={migrationWave.applications}
                                 />
                               ) : null}
                             </ExpandableRowContent>

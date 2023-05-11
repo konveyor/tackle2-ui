@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { createTicket } from "@app/api/rest";
+import { createTicket, getTickets } from "@app/api/rest";
 import { AxiosError } from "axios";
+
+export const TicketsQueryKey = "tickets";
 
 export const useCreateTicketMutation = (
   onSuccess: (res: any) => void,
@@ -13,4 +15,19 @@ export const useCreateTicketMutation = (
     onSuccess: onSuccess,
     onError: onError,
   });
+};
+
+export const useFetchTickets = () => {
+  const { isLoading, error, refetch, data } = useQuery({
+    queryKey: [TicketsQueryKey],
+    queryFn: getTickets,
+    refetchInterval: 5000,
+    onError: (error) => console.log("error, ", error),
+  });
+  return {
+    tickets: data || [],
+    isFetching: isLoading,
+    fetchError: error,
+    refetch,
+  };
 };
