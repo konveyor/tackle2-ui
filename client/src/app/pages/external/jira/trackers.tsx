@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+  Alert,
   Button,
   ButtonVariant,
   Modal,
@@ -36,6 +37,7 @@ import {
   Th,
   TableComposable,
 } from "@patternfly/react-table";
+
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
@@ -44,24 +46,36 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { InstanceForm } from "./instance-form";
-import { JiraTracker } from "@app/api/models";
+import { JiraTracker, Ref } from "@app/api/models";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
+import { useFetchTickets } from "@app/queries/tickets";
 
 export const JiraTrackers: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [isInstanceModalOpen, setInstanceModalOpen] = React.useState(false);
-  const [instanceToUpdate, setInstanceToUpdate] = React.useState<JiraTracker>();
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
-  const [instanceToDelete, setInstanceToDelete] = React.useState<
-    { id: number; name: string } | undefined
-  >();
+  const [instanceModalState, setInstanceModalState] = React.useState<
+    "create" | JiraTracker | null
+  >(null);
+  const isInstanceModalOpen = instanceModalState !== null;
+  const instanceToUpdate =
+    instanceModalState !== "create" ? instanceModalState : null;
+
+  const [instanceToDeleteState, setInstanceToDeleteState] =
+    React.useState<Ref | null>(null);
+  const isConfirmDialogOpen = instanceToDeleteState !== null;
 
   const { jiraTrackers, isFetching, fetchError, refetch } =
     useFetchJiraTrackers();
+
+  const [isAlertDelete, setIsAlertDelete] = React.useState(false);
+
+  const { tickets } = useFetchTickets();
+
+  const includesTracker = (id: number) =>
+    tickets.map((ticket) => ticket.tracker.id).includes(id);
 
   const onDeleteInstanceSuccess = (name: string) => {
     pushNotification({
@@ -165,7 +179,7 @@ export const JiraTrackers: React.FC = () => {
                       id="create-instance"
                       aria-label="Create new instance"
                       variant={ButtonVariant.primary}
-                      onClick={() => setInstanceModalOpen(true)}
+                      onClick={() => setInstanceModalState("create")}
                     >
                       {t("actions.createNew")}
                     </Button>
@@ -225,16 +239,14 @@ export const JiraTrackers: React.FC = () => {
                         </Td>
                         <Td width={20}>
                           <AppTableActionButtons
-                            onEdit={() => {
-                              setInstanceModalOpen(true);
-                              setInstanceToUpdate(jiraTracker);
-                            }}
+                            onEdit={() => setInstanceModalState(jiraTracker)}
                             onDelete={() => {
-                              setInstanceToDelete({
-                                id: jiraTracker.id,
-                                name: jiraTracker.name,
-                              });
-                              setIsConfirmDialogOpen(true);
+                              includesTracker(jiraTracker.id)
+                                ? setIsAlertDelete(true)
+                                : setInstanceToDeleteState({
+                                    id: jiraTracker.id,
+                                    name: jiraTracker.name,
+                                  });
                             }}
                           />
                         </Td>
@@ -260,36 +272,51 @@ export const JiraTrackers: React.FC = () => {
         variant="medium"
         isOpen={isInstanceModalOpen}
         onClose={() => {
-          setInstanceModalOpen(false);
-          setInstanceToUpdate(undefined);
+          setInstanceModalState(null);
         }}
       >
         <InstanceForm
           instance={instanceToUpdate ? instanceToUpdate : undefined}
           onClose={() => {
-            setInstanceModalOpen(false);
-            setInstanceToUpdate(undefined);
+            setInstanceModalState(null);
           }}
         />
       </Modal>
       <ConfirmDialog
-        title={t("dialog.title.delete", {
-          what: t("terms.instance").toLowerCase(),
-        })}
-        isOpen={isConfirmDialogOpen}
+        title={
+          isAlertDelete
+            ? "Cannot delete instance"
+            : t("dialog.title.delete", {
+                what: t("terms.instance").toLowerCase(),
+              })
+        }
+        isOpen={isConfirmDialogOpen || isAlertDelete}
         titleIconVariant={"warning"}
-        message={t("dialog.message.delete")}
+        message={
+          isAlertDelete
+            ? "This instance contains issues associated with applications and cannot be deleted"
+            : t("dialog.message.delete")
+        }
         confirmBtnVariant={ButtonVariant.danger}
-        confirmBtnLabel={t("actions.delete")}
+        confirmBtnLabel={isAlertDelete ? "" : t("actions.delete")}
         cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => setIsConfirmDialogOpen(false)}
-        onClose={() => setIsConfirmDialogOpen(false)}
+        onCancel={() =>
+          isAlertDelete
+            ? setIsAlertDelete(false)
+            : setInstanceToDeleteState(null)
+        }
+        onClose={() =>
+          isAlertDelete
+            ? setIsAlertDelete(false)
+            : setInstanceToDeleteState(null)
+        }
         onConfirm={() => {
-          if (instanceToDelete) {
-            deleteInstance(instanceToDelete);
-            setInstanceToDelete(undefined);
+          if (instanceToDeleteState) {
+            deleteInstance(
+              instanceToDeleteState as { id: number; name: string }
+            );
           }
-          setIsConfirmDialogOpen(false);
+          setInstanceToDeleteState(null);
         }}
       />
     </>
