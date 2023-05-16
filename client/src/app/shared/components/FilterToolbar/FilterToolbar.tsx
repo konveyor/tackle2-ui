@@ -6,6 +6,7 @@ import {
   Dropdown,
   DropdownToggle,
   DropdownItem,
+  DropdownGroup,
 } from "@patternfly/react-core";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 
@@ -15,6 +16,7 @@ export enum FilterType {
   select = "select",
   multiselect = "multiselect",
   search = "search",
+  numsearch = "numsearch",
 }
 
 export type FilterValue = string[] | undefined | null;
@@ -30,6 +32,7 @@ export interface IBasicFilterCategory<
   key: TFilterCategoryKey;
   title: string;
   type: FilterType; // If we want to support arbitrary filter types, this could be a React node that consumes context instead of an enum
+  filterGroup?: string;
   getItemValue?: (item: TItem) => string | boolean;
 }
 
@@ -113,6 +116,48 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
     (category) => category.key === currentFilterCategoryKey
   );
 
+  const filterGroups = filterCategories.reduce(
+    (groups, category) =>
+      !category.filterGroup || groups.includes(category.filterGroup)
+        ? groups
+        : [...groups, category.filterGroup],
+    [] as string[]
+  );
+
+  const renderDropdownItems = () => {
+    if (!!filterGroups.length) {
+      return filterGroups.map((filterGroup) => (
+        <DropdownGroup label={filterGroup} key={filterGroup}>
+          {filterCategories
+            .filter(
+              (filterCategory) => filterCategory.filterGroup === filterGroup
+            )
+            .map((filterCategory) => {
+              return (
+                <DropdownItem
+                  id={`filter-category-${filterCategory.key}`}
+                  key={filterCategory.key}
+                  onClick={() => onCategorySelect(filterCategory)}
+                >
+                  {filterCategory.title}
+                </DropdownItem>
+              );
+            })}
+        </DropdownGroup>
+      ));
+    } else {
+      return filterCategories.map((category) => (
+        <DropdownItem
+          id={`filter-category-${category.key}`}
+          key={category.key}
+          onClick={() => onCategorySelect(category)}
+        >
+          {category.title}
+        </DropdownItem>
+      ));
+    }
+  };
+
   return (
     <>
       <ToolbarToggleGroup
@@ -126,6 +171,7 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
         {!showFiltersSideBySide && (
           <ToolbarItem>
             <Dropdown
+              isGrouped={!!filterGroups.length}
               toggle={
                 <DropdownToggle
                   id="filtered-by"
@@ -137,15 +183,7 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
                 </DropdownToggle>
               }
               isOpen={isCategoryDropdownOpen}
-              dropdownItems={filterCategories.map((category) => (
-                <DropdownItem
-                  id={`filter-category-${category.key}`}
-                  key={category.key}
-                  onClick={() => onCategorySelect(category)}
-                >
-                  {category.title}
-                </DropdownItem>
-              ))}
+              dropdownItems={renderDropdownItems()}
             />
           </ToolbarItem>
         )}

@@ -30,6 +30,9 @@ const General = lazy(() => import("./pages/general"));
 const MigrationWaves = lazy(() => import("./pages/migration-waves"));
 const Jira = lazy(() => import("./pages/external/jira"));
 const Issues = lazy(() => import("./pages/issues"));
+const AffectedApplications = lazy(
+  () => import("./pages/issues/affected-applications")
+);
 const Dependencies = lazy(() => import("./pages/dependencies"));
 
 export interface IRoute {
@@ -87,8 +90,13 @@ export const devRoutes: IRoute[] = [
   ...(FEATURES_ENABLED.dynamicReports
     ? [
         {
-          path: Paths.issues,
+          path: Paths.compositeIssues,
           comp: Issues,
+          exact: false,
+        },
+        {
+          path: Paths.issuesRuleId,
+          comp: AffectedApplications,
           exact: false,
         },
         {

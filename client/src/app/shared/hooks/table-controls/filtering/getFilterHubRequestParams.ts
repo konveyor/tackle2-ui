@@ -42,6 +42,13 @@ export const getFilterHubRequestParams = <
     // Note: If we need to support more of the logic operators in HubFilter in the future,
     //       we'll need to figure out how to express those on the FilterCategory objects
     //       and translate them here.
+    if (filterCategory.type === "numsearch") {
+      params.filters?.push({
+        field: categoryKey,
+        operator: "=",
+        value: Number(filterValue[0]),
+      });
+    }
     if (filterCategory.type === "search") {
       params.filters?.push({
         field: categoryKey,
@@ -78,6 +85,8 @@ export const serializeFilterForHub = (filter: HubFilter): string => {
   const joinedValue =
     typeof value === "string"
       ? wrapInQuotesAndEscape(value)
+      : typeof value === "number"
+      ? `"${value}"`
       : `(${value.list
           .map(wrapInQuotesAndEscape)
           .join(value.operator === "OR" ? "|" : ",")})`;

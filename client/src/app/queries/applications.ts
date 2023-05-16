@@ -26,6 +26,7 @@ export const ApplicationsQueryKey = "applications";
 export const useFetchApplications = () => {
   const queryClient = useQueryClient();
   const { isLoading, error, refetch, data } = useQuery({
+    initialData: [],
     queryKey: [ApplicationsQueryKey],
     queryFn: getApplications,
     onSuccess: () => {
