@@ -21,6 +21,7 @@ import utc from "dayjs/plugin/utc";
 import {
   useDeleteMigrationWaveMutation,
   useFetchMigrationWaves,
+  useUpdateMigrationWaveMutation,
 } from "@app/queries/migration-waves";
 import {
   AppPlaceholder,
@@ -30,9 +31,9 @@ import {
 } from "@app/shared/components";
 import {
   AggregateTicketStatus,
-  Application,
   MigrationWave,
   Ref,
+  Ticket,
   TicketStatus,
 } from "@app/api/models";
 import {
@@ -62,13 +63,22 @@ import { ManageApplicationsForm } from "./manage-applications-form";
 
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { WaveForm } from "./migration-wave-form";
 import { WaveStatusTable } from "./migration-wave-status-table/migration-wave-status-table";
 import { useFetchJiraTrackers } from "@app/queries/jiratrackers";
 import { useFetchTickets } from "@app/queries/tickets";
 import { useFetchApplications } from "@app/queries/applications";
 dayjs.extend(utc);
+
+const ticketStatusToAggreaate: Map<TicketStatus, AggregateTicketStatus> =
+  new Map([
+    ["", "Creating Issues"],
+    ["New", "Issues Created"],
+    ["In Progress", "In Progress"],
+    ["Done", "Completed"],
+    ["Error", "Error"],
+  ]);
 
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
@@ -78,8 +88,27 @@ export const MigrationWaves: React.FC = () => {
     useFetchMigrationWaves();
 
   const { jiraTrackers: instances } = useFetchJiraTrackers();
-
   const { data: applications } = useFetchApplications();
+  const { tickets } = useFetchTickets();
+
+  const [migrationWaveModalState, setWaveModalState] = React.useState<
+    "create" | MigrationWave | null
+  >(null);
+  const isWaveModalOpen = migrationWaveModalState !== null;
+  const migrationWaveToEdit =
+    migrationWaveModalState !== "create" ? migrationWaveModalState : null;
+  const openCreateWaveModal = () => setWaveModalState("create");
+
+  const [exportIssueModalOpen, setExportIssueModalOpen] = React.useState(false);
+
+  const [applicationsToExport, setApplicationsToExport] = React.useState<Ref[]>(
+    []
+  );
+
+  const [waveToManageModalState, setWaveToManageModalState] =
+    React.useState<MigrationWave | null>(null);
+
+  const closeWaveModal = () => setWaveModalState(null);
 
   const getApplications = (refs: Ref[]) => {
     const ids = refs.map((ref) => ref.id);
@@ -111,24 +140,34 @@ export const MigrationWaves: React.FC = () => {
     onDeleteWaveError
   );
 
-  const [migrationWaveModalState, setWaveModalState] = React.useState<
-    "create" | MigrationWave | null
-  >(null);
-  const isWaveModalOpen = migrationWaveModalState !== null;
-  const migrationWaveToEdit =
-    migrationWaveModalState !== "create" ? migrationWaveModalState : null;
-  const openCreateWaveModal = () => setWaveModalState("create");
+  const onUpdateMigrationWaveSuccess = (_: AxiosResponse<MigrationWave>) =>
+    pushNotification({
+      title: t("toastr.success.save", {
+        type: t("terms.migrationWave").toLowerCase(),
+      }),
+      variant: "success",
+    });
 
-  const [exportIssueModalOpen, setExportIssueModalOpen] = React.useState(false);
+  const onUpdateMigrationWaveError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.failure.save", {
+        type: t("terms.migrationWave").toLowerCase(),
+      }),
+      variant: "danger",
+    });
+  };
 
-  const [applicationsToExport, setApplicationsToExport] = React.useState<Ref[]>(
-    []
+  const { mutate: updateMigrationWave } = useUpdateMigrationWaveMutation(
+    onUpdateMigrationWaveSuccess,
+    onUpdateMigrationWaveError
   );
 
-  const [waveToManageModalState, setWaveToManageModalState] =
-    React.useState<MigrationWave | null>(null);
-
-  const closeWaveModal = () => setWaveModalState(null);
+  const removeApplication = (migrationWave: MigrationWave, id: number) => {
+    migrationWave.applications = migrationWave.applications.filter(
+      (application) => application.id !== id
+    );
+    updateMigrationWave(migrationWave);
+  };
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
@@ -187,27 +226,16 @@ export const MigrationWaves: React.FC = () => {
     },
   } = tableControls;
 
-  const { tickets } = useFetchTickets();
-
-  const ticketStatusToAggreaate: Map<TicketStatus, AggregateTicketStatus> =
-    new Map([
-      ["", "Creating Issues"],
-      ["New", "Issues Created"],
-      ["In Progress", "In Progress"],
-      ["Done", "Completed"],
-      ["Error", "Error"],
-    ]);
-
-  const getTicketByApplication = (id: number = 0) =>
+  const getTicketByApplication = (tickets: Ticket[], id: number = 0) =>
     tickets.find((ticket) => ticket.application.id === id);
 
   const getTicketStatus = (wave: MigrationWave) => {
-    let tickets: string[] = [];
+    let statuses: string[] = [];
     wave.applications.forEach((application) => {
-      const ticket = getTicketByApplication(application.id);
-      if (ticket?.id) tickets.push(ticket.status || "");
+      const ticket = getTicketByApplication(tickets, application.id);
+      if (ticket?.id) statuses.push(ticket.status || "");
     });
-    return tickets as TicketStatus[];
+    return statuses as TicketStatus[];
   };
 
   const aggregateTicketStatus = (val: TicketStatus) => {
@@ -475,6 +503,7 @@ export const MigrationWaves: React.FC = () => {
                                   applications={getApplications(
                                     migrationWave.applications
                                   )}
+                                  removeApplication={removeApplication}
                                 />
                               ) : isCellExpanded(
                                   migrationWave,
@@ -492,6 +521,9 @@ export const MigrationWaves: React.FC = () => {
                                     migrationWave.applications
                                   )}
                                   instances={instances}
+                                  tickets={tickets}
+                                  getTicket={getTicketByApplication}
+                                  removeApplication={removeApplication}
                                 />
                               ) : null}
                             </ExpandableRowContent>

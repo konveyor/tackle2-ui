@@ -653,3 +653,5 @@ export const createTicket = (obj: Ticket): Promise<Ticket> =>
 
 export const getTickets = (): Promise<Ticket[]> =>
   axios.get(TICKETS).then((response) => response.data);
+
+export const deleteTicket = (id: number) => axios.delete(`${TICKETS}/${id}`);

@@ -1,9 +1,9 @@
 import React from "react";
 import {
   Application,
-  IssueType,
   JiraTracker,
   MigrationWave,
+  Ticket,
 } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import {
@@ -30,23 +30,26 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
-import { getTicketByApplication, useFetchTickets } from "@app/queries/tickets";
 import { getTypesByProjectId } from "@app/queries/jiratrackers";
 
 export interface IWaveStatusTableProps {
   migrationWave: MigrationWave;
   applications: Application[];
   instances: JiraTracker[];
+  tickets: Ticket[];
+  getTicket: (tickets: Ticket[], id: number) => Ticket | undefined;
+  removeApplication: (migrationWave: MigrationWave, id: number) => void;
 }
 
 export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   migrationWave,
   applications,
   instances,
+  tickets,
+  getTicket,
+  removeApplication,
 }) => {
   const { t } = useTranslation();
-
-  const { tickets } = useFetchTickets();
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
@@ -79,9 +82,14 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
     },
   } = tableControls;
 
-  const getStatus = (appId: number | undefined) => {
+  const getTicketStatus = (appId: number) => {
+    const status = getTicket(tickets, appId)?.status;
+    return status === "" ? "Creating issue" : status;
+  };
+
+  const getTicketIssue = (appId: number | undefined) => {
     if (appId) {
-      const ticket = getTicketByApplication(tickets, appId);
+      const ticket = getTicket(tickets, appId);
       if (ticket) {
         const types = getTypesByProjectId(
           instances,
@@ -137,15 +145,17 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                     {app.name}
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "status" })}>
-                    {getTicketByApplication(tickets, app.id)?.status === ""
-                      ? "Creating issue"
-                      : getTicketByApplication(tickets, app.id)?.status}
+                    {getTicketStatus(app.id)}
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "issue" })}>
-                    {getStatus(app.id)}
+                    {getTicketIssue(app.id)}
                   </Td>
-                  <Td width={10} className={alignment.textAlignRight}>
-                    <Button type="button" variant="plain" onClick={() => {}}>
+                  <Td className={alignment.textAlignRight}>
+                    <Button
+                      type="button"
+                      variant="plain"
+                      onClick={() => removeApplication(migrationWave, app.id)}
+                    >
                       <TrashIcon />
                     </Button>
                   </Td>

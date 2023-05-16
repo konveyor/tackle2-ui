@@ -28,11 +28,13 @@ import { SimplePagination } from "@app/shared/components/simple-pagination";
 export interface IWaveApplicationsTableProps {
   migrationWave: MigrationWave;
   applications: Application[];
+  removeApplication: (migrationWave: MigrationWave, id: number) => void;
 }
 
 export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
   migrationWave,
   applications,
+  removeApplication,
 }) => {
   const { t } = useTranslation();
 
@@ -107,23 +109,27 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
                   item={app}
                   rowIndex={rowIndex}
                 >
-                  <Td width={25} {...getTdProps({ columnKey: "appName" })}>
+                  <Td width={15} {...getTdProps({ columnKey: "appName" })}>
                     {app.name}
                   </Td>
-                  <Td width={10} {...getTdProps({ columnKey: "description" })}>
+                  <Td width={15} {...getTdProps({ columnKey: "description" })}>
                     {app.description}
                   </Td>
                   <Td
-                    width={10}
+                    width={15}
                     {...getTdProps({ columnKey: "businessService" })}
                   >
                     {app?.businessService?.name}
                   </Td>
-                  <Td width={10} {...getTdProps({ columnKey: "owner" })}>
+                  <Td width={15} {...getTdProps({ columnKey: "owner" })}>
                     {app?.owner?.name}
                   </Td>
-                  <Td width={10} className={alignment.textAlignRight}>
-                    <Button type="button" variant="plain" onClick={() => {}}>
+                  <Td className={alignment.textAlignRight}>
+                    <Button
+                      type="button"
+                      variant="plain"
+                      onClick={() => removeApplication(migrationWave, app.id)}
+                    >
                       <TrashIcon />
                     </Button>
                   </Td>

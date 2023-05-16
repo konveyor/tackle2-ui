@@ -47,8 +47,8 @@ export const useUpdateJiraTrackerMutation = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateJiraTracker,
-    onSuccess: () => {
-      onSuccess;
+    onSuccess: (res) => {
+      onSuccess(res);
       queryClient.invalidateQueries([JiraTrackersQueryKey]);
     },
     onError: onError,
