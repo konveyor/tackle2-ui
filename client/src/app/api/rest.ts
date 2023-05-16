@@ -22,7 +22,7 @@ import {
   HubRequestParams,
   Identity,
   IReadFile,
-  JiraTracker,
+  Tracker,
   JobFunction,
   Proxy,
   Review,
@@ -66,7 +66,7 @@ export const PROXIES = HUB + "/proxies";
 export const SETTINGS = HUB + "/settings";
 export const TASKS = HUB + "/tasks";
 export const TASKGROUPS = HUB + "/taskgroups";
-export const JIRATRACKERS = HUB + "/trackers";
+export const TRACKERS = HUB + "/trackers";
 export const TICKETS = HUB + "/tickets";
 
 export const RULESETS = HUB + "/rulesets";
@@ -610,17 +610,17 @@ export const getCache = (): Promise<Cache> =>
 
 export const deleteCache = (): Promise<Cache> => axios.delete(CACHE);
 
-export const getJiraTrackers = (): Promise<JiraTracker[]> =>
-  axios.get(JIRATRACKERS).then((response) => response.data);
+export const getTrackers = (): Promise<Tracker[]> =>
+  axios.get(TRACKERS).then((response) => response.data);
 
-export const createJiraTracker = (obj: JiraTracker): Promise<JiraTracker> =>
-  axios.post(JIRATRACKERS, obj);
+export const createTracker = (obj: Tracker): Promise<Tracker> =>
+  axios.post(TRACKERS, obj);
 
-export const updateJiraTracker = (obj: JiraTracker): Promise<JiraTracker> =>
-  axios.put(`${JIRATRACKERS}/${obj.id}`, obj);
+export const updateTracker = (obj: Tracker): Promise<Tracker> =>
+  axios.put(`${TRACKERS}/${obj.id}`, obj);
 
-export const deleteJiraTracker = (id: number): Promise<JiraTracker> =>
-  axios.delete(`${JIRATRACKERS}/${id}`);
+export const deleteTracker = (id: number): Promise<Tracker> =>
+  axios.delete(`${TRACKERS}/${id}`);
 
 export const getHubPaginatedResult = <T>(
   url: string,

@@ -12,18 +12,13 @@ import {
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import {
-  JiraTracker,
-  Application,
-  IssueManagerKind,
-  Ref,
-} from "@app/api/models";
+import { Tracker, Application, IssueManagerKind, Ref } from "@app/api/models";
 import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
 import {
-  getInstancesByKind,
-  getProjectsByInstance,
-  getTypesByProjectName,
-} from "@app/queries/jiratrackers";
+  getTrackersByKind,
+  getTrackerProjectsByInstance,
+  getTrackerTypesByProjectName,
+} from "@app/queries/trackers";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
@@ -40,7 +35,7 @@ interface FormValues {
 
 export interface ExportFormProps {
   applications: Ref[];
-  instances: JiraTracker[];
+  instances: Tracker[];
   onClose: () => void;
 }
 
@@ -53,7 +48,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
   const { pushNotification } = React.useContext(NotificationsContext);
   const [axiosError, setAxiosError] = useState<AxiosError>();
 
-  const onExportSuccess = (_: AxiosResponse<JiraTracker>) =>
+  const onExportSuccess = (_: AxiosResponse<Tracker>) =>
     pushNotification({
       title: t("terms.ticketCreated"),
       variant: "success",
@@ -99,11 +94,11 @@ export const ExportForm: React.FC<ExportFormProps> = ({
     const matchingInstance = instances.find(
       (instance) => formValues?.instance === instance.name
     );
-    const matchingProject = getProjectsByInstance(
+    const matchingProject = getTrackerProjectsByInstance(
       instances,
       formValues.instance
     ).find((project) => formValues.project === project.name);
-    const matchingKind = getTypesByProjectName(
+    const matchingKind = getTrackerTypesByProjectName(
       instances,
       formValues.instance,
       formValues.project
@@ -188,7 +183,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             value={value}
             options={
               values.issueManager
-                ? getInstancesByKind(
+                ? getTrackersByKind(
                     instances,
                     values.issueManager?.toString()
                   ).map((instance) => {
@@ -227,14 +222,15 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             toggleAriaLabel="project select dropdown toggle"
             aria-label={name}
             value={value}
-            options={getProjectsByInstance(instances, values.instance).map(
-              (project) => {
-                return {
-                  value: project.name,
-                  toString: () => project.name,
-                };
-              }
-            )}
+            options={getTrackerProjectsByInstance(
+              instances,
+              values.instance
+            ).map((project) => {
+              return {
+                value: project.name,
+                toString: () => project.name,
+              };
+            })}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<string>;
               setValue("kind", "");
@@ -262,7 +258,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             toggleAriaLabel="issue-type select dropdown toggle"
             aria-label={name}
             value={value}
-            options={getTypesByProjectName(
+            options={getTrackerTypesByProjectName(
               instances,
               values.instance,
               values.project

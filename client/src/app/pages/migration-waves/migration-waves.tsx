@@ -61,7 +61,7 @@ import { ExportForm } from "./components/export-form";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError, AxiosResponse } from "axios";
-import { useFetchJiraTrackers } from "@app/queries/jiratrackers";
+import { useFetchTrackers } from "@app/queries/trackers";
 import { useFetchTickets } from "@app/queries/tickets";
 import { useFetchApplications } from "@app/queries/applications";
 import { WaveStakeholdersTable } from "./components/stakeholders-table";
@@ -87,7 +87,7 @@ export const MigrationWaves: React.FC = () => {
   const { migrationWaves, isFetching, fetchError, refetch } =
     useFetchMigrationWaves();
 
-  const { jiraTrackers: instances } = useFetchJiraTrackers();
+  const { trackers: instances } = useFetchTrackers();
   const { data: applications } = useFetchApplications();
   const { tickets } = useFetchTickets();
 

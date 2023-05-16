@@ -525,7 +525,7 @@ export interface IssueType {
 
 export type IssueManagerKind = "jira-cloud" | "jira-server" | "jira-datacenter";
 
-export interface JiraTracker {
+export interface Tracker {
   connected: boolean;
   id: number;
   identity?: Ref;

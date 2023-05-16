@@ -26,9 +26,9 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import {
-  useDeleteJiraTrackerMutation,
-  useFetchJiraTrackers,
-} from "@app/queries/jiratrackers";
+  useDeleteTrackerMutation,
+  useFetchTrackers,
+} from "@app/queries/trackers";
 import {
   Tbody,
   Tr,
@@ -46,7 +46,7 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { InstanceForm } from "./instance-form";
-import { JiraTracker, Ref } from "@app/api/models";
+import { Tracker, Ref } from "@app/api/models";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
@@ -57,7 +57,7 @@ export const JiraTrackers: React.FC = () => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const [instanceModalState, setInstanceModalState] = React.useState<
-    "create" | JiraTracker | null
+    "create" | Tracker | null
   >(null);
   const isInstanceModalOpen = instanceModalState !== null;
   const instanceToUpdate =
@@ -67,8 +67,7 @@ export const JiraTrackers: React.FC = () => {
     React.useState<Ref | null>(null);
   const isConfirmDialogOpen = instanceToDeleteState !== null;
 
-  const { jiraTrackers, isFetching, fetchError, refetch } =
-    useFetchJiraTrackers();
+  const { trackers, isFetching, fetchError, refetch } = useFetchTrackers();
 
   const [isAlertDelete, setIsAlertDelete] = React.useState(false);
 
@@ -95,14 +94,14 @@ export const JiraTrackers: React.FC = () => {
     refetch();
   };
 
-  const { mutate: deleteInstance } = useDeleteJiraTrackerMutation(
+  const { mutate: deleteInstance } = useDeleteTrackerMutation(
     onDeleteInstanceSuccess,
     onDeleteInstanceError
   );
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
-    items: jiraTrackers,
+    items: trackers,
     columnNames: {
       name: "Instance name",
       url: "URL",
@@ -123,8 +122,8 @@ export const JiraTrackers: React.FC = () => {
         },
       },
     ],
-    getSortValues: (jiraTracker) => ({
-      name: jiraTracker.name || "",
+    getSortValues: (tracker) => ({
+      name: tracker.name || "",
       url: "", // TODO
     }),
     sortableColumns: ["name", "url"],
@@ -156,7 +155,7 @@ export const JiraTrackers: React.FC = () => {
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isFetching && !(jiraTrackers || fetchError)}
+          when={isFetching && !(trackers || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
@@ -217,35 +216,35 @@ export const JiraTrackers: React.FC = () => {
               <ConditionalTableBody
                 isLoading={isFetching}
                 isError={!!fetchError}
-                isNoData={jiraTrackers.length === 0}
+                isNoData={trackers.length === 0}
                 numRenderedColumns={numRenderedColumns}
               >
                 <Tbody>
-                  {currentPageItems?.map((jiraTracker, rowIndex) => (
-                    <Tr key={jiraTracker.name}>
+                  {currentPageItems?.map((tracker, rowIndex) => (
+                    <Tr key={tracker.name}>
                       <TableRowContentWithControls
                         {...tableControls}
-                        item={jiraTracker}
+                        item={tracker}
                         rowIndex={rowIndex}
                       >
                         <Td width={10} {...getTdProps({ columnKey: "name" })}>
-                          {jiraTracker.name}
+                          {tracker.name}
                         </Td>
                         <Td width={20} {...getTdProps({ columnKey: "url" })}>
-                          {jiraTracker.url}
+                          {tracker.url}
                         </Td>
                         <Td width={10} {...getTdProps({ columnKey: "kind" })}>
-                          {jiraTracker.kind}
+                          {tracker.kind}
                         </Td>
                         <Td width={20}>
                           <AppTableActionButtons
-                            onEdit={() => setInstanceModalState(jiraTracker)}
+                            onEdit={() => setInstanceModalState(tracker)}
                             onDelete={() => {
-                              includesTracker(jiraTracker.id)
+                              includesTracker(tracker.id)
                                 ? setIsAlertDelete(true)
                                 : setInstanceToDeleteState({
-                                    id: jiraTracker.id,
-                                    name: jiraTracker.name,
+                                    id: tracker.id,
+                                    name: tracker.name,
                                   });
                             }}
                           />

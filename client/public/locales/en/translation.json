@@ -259,8 +259,6 @@
     "instance": "Instance",
     "issueType": "Issue type",
     "jiraConfig": "Jira configuration",
-    "jiraInstanceCreated": "Jira instance created",
-    "jiraInstanceUpdated": "Jira instance updated",
     "issues": "Issues",
     "jobFunction": "Job function",
     "jobFunctionDeleted": "Job function deleted",

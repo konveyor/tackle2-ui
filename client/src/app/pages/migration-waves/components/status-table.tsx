@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Application,
-  JiraTracker,
-  MigrationWave,
-  Ticket,
-} from "@app/api/models";
+import { Application, Tracker, MigrationWave, Ticket } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -30,12 +25,12 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
-import { getTypesByProjectId } from "@app/queries/jiratrackers";
+import { getTrackerTypesByProjectId } from "@app/queries/trackers";
 
 export interface IWaveStatusTableProps {
   migrationWave: MigrationWave;
   applications: Application[];
-  instances: JiraTracker[];
+  instances: Tracker[];
   tickets: Ticket[];
   getTicket: (tickets: Ticket[], id: number) => Ticket | undefined;
   removeApplication: (migrationWave: MigrationWave, id: number) => void;
@@ -91,7 +86,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
     if (appId) {
       const ticket = getTicket(tickets, appId);
       if (ticket) {
-        const types = getTypesByProjectId(
+        const types = getTrackerTypesByProjectId(
           instances,
           ticket.tracker.name,
           ticket.parent
