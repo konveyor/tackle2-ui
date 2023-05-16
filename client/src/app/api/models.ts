@@ -581,7 +581,17 @@ export interface AnalysisIssue {
   createTime?: string;
 }
 
+export type TicketStatus = "" | "New" | "In Progress" | "Done" | "Error";
+
+export type AggregateTicketStatus =
+  | "Creating Issues"
+  | "Issues Created"
+  | "In Progress"
+  | "Completed"
+  | "Error";
+
 export interface Ticket {
+  id?: number;
   application: Ref;
   tracker: Ref;
   kind: string;

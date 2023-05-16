@@ -651,3 +651,6 @@ export const getIssues = (params: HubRequestParams = {}) =>
 
 export const createTicket = (obj: Ticket): Promise<Ticket> =>
   axios.post(TICKETS, obj);
+
+export const getTickets = (): Promise<Ticket[]> =>
+  axios.get(TICKETS).then((response) => response.data);
