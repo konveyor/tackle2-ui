@@ -39,14 +39,12 @@ export interface FormValues {
 
 export interface StakeholderGroupFormProps {
   stakeholderGroup?: StakeholderGroup;
-  onSaved: (response: AxiosResponse<StakeholderGroup>) => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
 export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
   stakeholderGroup,
-  onSaved,
-  onCancel,
+  onClose,
 }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
@@ -136,10 +134,11 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
   );
 
   const onUpdateStakeholderGroupSuccess = (
-    _: AxiosResponse<StakeholderGroup>
+    res: AxiosResponse<StakeholderGroup>
   ) =>
     pushNotification({
       title: t("toastr.success.save", {
+        what: res.data.name,
         type: t("terms.stakeholderGroup"),
       }),
       variant: "success",
@@ -182,6 +181,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
     } else {
       createStakeholderGroup(payload);
     }
+    onClose();
   };
 
   return (
@@ -253,7 +253,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>
