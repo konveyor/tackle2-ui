@@ -263,6 +263,29 @@ export const MigrationWaves: React.FC = () => {
     return aggregateTicketStatus(status);
   };
 
+  const getApplicationsOwners = (id: number) => {
+    const applicationOwnerIds = applications
+      .filter((application) => application.migrationWave?.id === id)
+      .map((application) => application.owner?.id);
+
+    return stakeholders.filter((stakeholder) =>
+      applicationOwnerIds.includes(stakeholder.id)
+    );
+  };
+
+  const getApplicationsContributors = (id: number) => {
+    const applicationContributorsIds = applications
+      .filter((application) => application.migrationWave?.id === id)
+      .map((application) =>
+        application.contributors?.map((contributor) => contributor.id)
+      )
+      .flat();
+
+    return stakeholders.filter((stakeholder) =>
+      applicationContributorsIds.includes(stakeholder.id)
+    );
+  };
+
   const getStakeholdersByMigrationWave = (migrationWave: MigrationWave) => {
     const holderIds = migrationWave.stakeholders.map(
       (stakeholder) => stakeholder.id
@@ -278,6 +301,7 @@ export const MigrationWaves: React.FC = () => {
     const groupIds = migrationWave.stakeholderGroups.map(
       (stakeholderGroup) => stakeholderGroup.id
     );
+
     return stakeholders.filter((stakeholder) =>
       stakeholder.stakeholderGroups?.find((stakeholderGroup) =>
         groupIds.includes(stakeholderGroup.id)
@@ -286,18 +310,30 @@ export const MigrationWaves: React.FC = () => {
   };
 
   const getAllStakeholders = (migrationWave: MigrationWave) => {
-    // allStakeholders.push(getOwnersByApplications());
-    // allStakeholders.push(getContributorsByApplications());
+    const migrationApplications = migrationWave.applications.map(
+      (application) => application.id
+    );
 
-    let allStakeholders: Stakeholder[] =
-      getStakeholdersByMigrationWave(migrationWave);
+    let allStakeholders: Stakeholder[] = getApplicationsOwners(
+      migrationWave.id
+    );
 
-    const stakeholdersFromGroups =
-      getStakeholderGroupsByMigrationWave(migrationWave);
-    stakeholdersFromGroups.forEach((stakeholder) => {
+    getApplicationsContributors(migrationWave.id).forEach((stakeholder) => {
       if (!allStakeholders.includes(stakeholder))
         allStakeholders.push(stakeholder);
     });
+
+    getStakeholdersByMigrationWave(migrationWave).forEach((stakeholder) => {
+      if (!allStakeholders.includes(stakeholder))
+        allStakeholders.push(stakeholder);
+    });
+
+    getStakeholderGroupsByMigrationWave(migrationWave).forEach(
+      (stakeholder) => {
+        if (!allStakeholders.includes(stakeholder))
+          allStakeholders.push(stakeholder);
+      }
+    );
 
     return allStakeholders;
   };
