@@ -118,17 +118,13 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
                   </Td>
                   <Td width={10} {...getTdProps({ columnKey: "role" })}>
                     TODO: Role
+                    {console.log(stakeholder)}
                   </Td>
                   <Td width={10} {...getTdProps({ columnKey: "email" })}>
                     {stakeholder.email}
                   </Td>
                   <Td width={10} {...getTdProps({ columnKey: "groups" })}>
                     {stakeholder?.stakeholderGroups?.length?.toString()}
-                  </Td>
-                  <Td width={10} className={alignment.textAlignRight}>
-                    <Button type="button" variant="plain" onClick={() => {}}>
-                      <TrashIcon />
-                    </Button>
                   </Td>
                 </TableRowContentWithControls>
               </Tr>

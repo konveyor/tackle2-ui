@@ -146,10 +146,19 @@ export const getBusinessServiceById = (
   return APIClient.get(`${BUSINESS_SERVICES}/${id}`);
 };
 
-// Stakeholders
+// Job functions
 
-export const getStakeholders = (): AxiosPromise<Array<Stakeholder>> => {
-  return APIClient.get(`${STAKEHOLDERS}`, jsonHeaders);
+export enum JobFunctionSortBy {
+  NAME,
+}
+
+export interface JobFunctionSortByQuery {
+  field: JobFunctionSortBy;
+  direction?: Direction;
+}
+
+export const getJobFunctions = (): AxiosPromise<JobFunction[]> => {
+  return APIClient.get(`${JOB_FUNCTIONS}`, jsonHeaders);
 };
 
 export const createJobFunction = (
@@ -166,22 +175,6 @@ export const updateJobFunction = (
 
 export const deleteJobFunction = (id: number): AxiosPromise => {
   return APIClient.delete(`${JOB_FUNCTIONS}/${id}`);
-};
-
-export const deleteStakeholder = (id: number): AxiosPromise => {
-  return APIClient.delete(`${STAKEHOLDERS}/${id}`);
-};
-
-export const createStakeholder = (
-  obj: Stakeholder
-): AxiosPromise<Stakeholder> => {
-  return APIClient.post(`${STAKEHOLDERS}`, obj);
-};
-
-export const updateStakeholder = (
-  obj: Stakeholder
-): AxiosPromise<Stakeholder> => {
-  return APIClient.put(`${STAKEHOLDERS}/${obj.id}`, obj);
 };
 
 // Stakeholder groups
@@ -211,20 +204,6 @@ export const updateStakeholderGroup = (
   obj: StakeholderGroup
 ): AxiosPromise<StakeholderGroup> => {
   return APIClient.put(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj);
-};
-
-// Job functions
-
-export enum JobFunctionSortBy {
-  NAME,
-}
-export interface JobFunctionSortByQuery {
-  field: JobFunctionSortBy;
-  direction?: Direction;
-}
-
-export const getJobFunctions = (): AxiosPromise<JobFunction[]> => {
-  return APIClient.get(`${JOB_FUNCTIONS}`, jsonHeaders);
 };
 
 // Tag categories
@@ -654,4 +633,19 @@ export const createTicket = (obj: Ticket): Promise<Ticket> =>
 export const getTickets = (): Promise<Ticket[]> =>
   axios.get(TICKETS).then((response) => response.data);
 
-export const deleteTicket = (id: number) => axios.delete(`${TICKETS}/${id}`);
+export const deleteTicket = (id: number): Promise<Ticket> =>
+  axios.delete(`${TICKETS}/${id}`);
+
+// Stakeholders
+
+export const getStakeholders = (): Promise<Stakeholder[]> =>
+  axios.get(`${STAKEHOLDERS}`).then((response) => response.data);
+
+export const deleteStakeholder = (id: number): Promise<Stakeholder> =>
+  axios.delete(`${STAKEHOLDERS}/${id}`);
+
+export const createStakeholder = (obj: Stakeholder): Promise<Stakeholder> =>
+  axios.post(`${STAKEHOLDERS}`, obj);
+
+export const updateStakeholder = (obj: Stakeholder): Promise<Stakeholder> =>
+  axios.put(`${STAKEHOLDERS}/${obj.id}`, obj);
