@@ -49,8 +49,6 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { WaveApplicationsTable } from "./migration-wave-applications-table/migration-wave-applications-table";
-import { WaveStakeholdersTable } from "./migration-wave-stakeholders-table/migration-wave-stakeholders-table";
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
@@ -59,16 +57,18 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { ExportForm } from "./components/export-form";
-import { ManageApplicationsForm } from "./manage-applications-form";
 
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError, AxiosResponse } from "axios";
-import { WaveForm } from "./migration-wave-form";
-import { WaveStatusTable } from "./migration-wave-status-table/migration-wave-status-table";
 import { useFetchJiraTrackers } from "@app/queries/jiratrackers";
 import { useFetchTickets } from "@app/queries/tickets";
 import { useFetchApplications } from "@app/queries/applications";
+import { WaveStakeholdersTable } from "./components/stakeholders-table";
+import { WaveApplicationsTable } from "./components/applications-table";
+import { WaveStatusTable } from "./components/status-table";
+import { WaveForm } from "./components/migration-wave-form";
+import { ManageApplicationsForm } from "./components/manage-applications-form";
 dayjs.extend(utc);
 
 const ticketStatusToAggreaate: Map<TicketStatus, AggregateTicketStatus> =
