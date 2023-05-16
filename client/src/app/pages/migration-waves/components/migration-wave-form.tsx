@@ -191,8 +191,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   const endDate = getValues("endDate");
 
   const onSubmit = (formValues: WaveFormValues) => {
-    const payload: MigrationWave = {
-      id: migrationWave?.id,
+    const payload: Omit<MigrationWave, "id"> = {
       applications: migrationWave?.applications || [],
       name: formValues.name.trim(),
       startDate: dayjs.utc(formValues.startDate).format(),
@@ -202,6 +201,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     };
     if (migrationWave)
       updateMigrationWave({
+        id: migrationWave.id,
         ...payload,
       });
     else createMigrationWave(payload);

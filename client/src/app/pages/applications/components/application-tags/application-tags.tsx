@@ -70,7 +70,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           const tagsWithSources = tags.reduce((prev, current, index) => {
             if (current) {
               const currentTagWithSource: TagWithSource = {
-                ...current.data,
+                ...current,
                 source: application.tags?.[index].source,
               };
               return [...prev, currentTagWithSource];
@@ -92,7 +92,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
             const tagCategoryValidResponses = tagCategories.reduce(
               (prev, current) => {
                 if (current) {
-                  return [...prev, current.data];
+                  return [...prev, current];
                 } else {
                   return prev;
                 }

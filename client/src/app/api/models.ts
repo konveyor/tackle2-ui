@@ -50,7 +50,7 @@ export interface Stakeholder {
 }
 
 export interface StakeholderGroup {
-  id?: number;
+  id: number;
   name: string;
   description?: string;
   stakeholders?: Ref[];
@@ -67,7 +67,7 @@ export interface JobFunction {
 }
 
 export interface TagCategory {
-  id?: number;
+  id: number;
   name: string;
   rank?: number;
   colour?: string;
@@ -597,7 +597,7 @@ export type AggregateTicketStatus =
   | "No Issues";
 
 export interface Ticket {
-  id?: number;
+  id: number;
   application: Ref;
   tracker: Ref;
   kind: string;

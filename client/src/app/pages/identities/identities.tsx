@@ -249,10 +249,13 @@ export const Identities: React.FC = () => {
   });
 
   const dependentApplications = React.useMemo(() => {
-    const res = applications?.filter((app) =>
-      app?.identities?.map((id) => id.id).includes(identityIdToDelete)
-    );
-    return res;
+    if (identityIdToDelete) {
+      const res = applications?.filter((app) =>
+        app?.identities?.map((id) => id.id).includes(identityIdToDelete)
+      );
+      return res;
+    }
+    return [];
   }, [applications, identityIdToDelete]);
 
   return (

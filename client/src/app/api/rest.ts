@@ -129,7 +129,7 @@ export const deleteBusinessService = (id: number | string): AxiosPromise => {
 };
 
 export const createBusinessService = (
-  obj: BusinessService
+  obj: Omit<BusinessService, "id">
 ): AxiosPromise<BusinessService> => {
   return APIClient.post(`${BUSINESS_SERVICES}`, obj);
 };
@@ -175,52 +175,6 @@ export const updateJobFunction = (
 
 export const deleteJobFunction = (id: number): AxiosPromise => {
   return APIClient.delete(`${JOB_FUNCTIONS}/${id}`);
-};
-
-// Tag categories
-
-export const getTagCategories = (): AxiosPromise<Array<TagCategory>> => {
-  return APIClient.get(`${TAG_CATEGORIES}`, jsonHeaders);
-};
-
-export const deleteTagCategory = (id: number): AxiosPromise => {
-  return APIClient.delete(`${TAG_CATEGORIES}/${id}`);
-};
-
-export const createTagCategory = (
-  obj: TagCategory
-): AxiosPromise<TagCategory> => {
-  return APIClient.post(`${TAG_CATEGORIES}`, obj);
-};
-
-export const updateTagCategory = (
-  obj: TagCategory
-): AxiosPromise<TagCategory> => {
-  return APIClient.put(`${TAG_CATEGORIES}/${obj.id}`, obj);
-};
-
-export const getTagCategoryById = (id: number): AxiosPromise<TagCategory> => {
-  return APIClient.get(`${TAG_CATEGORIES}/${id}`);
-};
-
-export const deleteTag = (id: number): AxiosPromise => {
-  return APIClient.delete(`${TAGS}/${id}`);
-};
-
-export const createTag = (obj: Tag): AxiosPromise<Tag> => {
-  return APIClient.post(`${TAGS}`, obj);
-};
-
-export const updateTag = (obj: Tag): AxiosPromise<Tag> => {
-  return APIClient.put(`${TAGS}/${obj.id}`, obj);
-};
-
-export const getTagById = (id: number | string): AxiosPromise<Tag> => {
-  return APIClient.get(`${TAGS}/${id}`);
-};
-
-export const getTags = (): AxiosPromise<Tag[]> => {
-  return APIClient.get(`${TAGS}`, jsonHeaders);
 };
 
 // App inventory
@@ -495,17 +449,14 @@ export const removeFileTaskgroup = ({
   id: number;
   path: string;
 }) => {
-  return axios.delete<Taskgroup>(
-    `${TASKGROUPS}/${id}/bucket/${path}`
-    // formHeaders
-  );
+  return axios.delete<Taskgroup>(`${TASKGROUPS}/${id}/bucket/${path}`);
 };
 
 export const getMigrationWaves = (): Promise<MigrationWave[]> =>
   axios.get(MIGRATION_WAVES).then((response) => response.data);
 
 export const createMigrationWave = (
-  obj: MigrationWave
+  obj: Omit<MigrationWave, "id">
 ): Promise<MigrationWave> => axios.post(MIGRATION_WAVES, obj);
 
 export const deleteMigrationWave = (id: number): Promise<MigrationWave> =>
@@ -560,6 +511,8 @@ export const getCache = (): Promise<Cache> =>
 
 export const deleteCache = (): Promise<Cache> => axios.delete(CACHE);
 
+// Trackers
+
 export const getTrackers = (): Promise<Tracker[]> =>
   axios.get(TRACKERS).then((response) => response.data);
 
@@ -598,7 +551,9 @@ export const getCompositeIssues = (params: HubRequestParams = {}) =>
 export const getIssues = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisIssue>(ANALYSIS_ISSUES, params);
 
-export const createTicket = (obj: Ticket): Promise<Ticket> =>
+// Tickets
+
+export const createTicket = (obj: Omit<Ticket, "id">): Promise<Ticket> =>
   axios.post(TICKETS, obj);
 
 export const getTickets = (): Promise<Ticket[]> =>
@@ -615,8 +570,9 @@ export const getStakeholders = (): Promise<Stakeholder[]> =>
 export const deleteStakeholder = (id: number): Promise<Stakeholder> =>
   axios.delete(`${STAKEHOLDERS}/${id}`);
 
-export const createStakeholder = (obj: Stakeholder): Promise<Stakeholder> =>
-  axios.post(STAKEHOLDERS, obj);
+export const createStakeholder = (
+  obj: Omit<Stakeholder, "id">
+): Promise<Stakeholder> => axios.post(STAKEHOLDERS, obj);
 
 export const updateStakeholder = (obj: Stakeholder): Promise<Stakeholder> =>
   axios.put(`${STAKEHOLDERS}/${obj.id}`, obj);
@@ -635,10 +591,45 @@ export const deleteStakeholderGroup = (id: number): Promise<StakeholderGroup> =>
   axios.delete(`${STAKEHOLDER_GROUPS}/${id}`);
 
 export const createStakeholderGroup = (
-  obj: StakeholderGroup
+  obj: Omit<StakeholderGroup, "id">
 ): Promise<StakeholderGroup> => axios.post(STAKEHOLDER_GROUPS, obj);
 
 export const updateStakeholderGroup = (
   obj: StakeholderGroup
 ): Promise<StakeholderGroup> =>
   axios.put(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj);
+
+// Tags
+
+export const getTags = (): Promise<Tag[]> =>
+  axios.get(TAGS).then((response) => response.data);
+
+export const getTagById = (id: number | string): Promise<Tag> =>
+  axios.get(`${TAGS}/${id}`);
+
+export const createTag = (obj: Omit<Tag, "id">): Promise<Tag> =>
+  axios.post(TAGS, obj);
+
+export const deleteTag = (id: number): Promise<Tag> =>
+  axios.delete(`${TAGS}/${id}`);
+
+export const updateTag = (obj: Tag): Promise<Tag> =>
+  axios.put(`${TAGS}/${obj.id}`, obj);
+
+// Tag categories
+
+export const getTagCategories = (): Promise<Array<TagCategory>> =>
+  axios.get(TAG_CATEGORIES).then((response) => response.data);
+
+export const getTagCategoryById = (id: number): Promise<TagCategory> =>
+  axios.get(`${TAG_CATEGORIES}/${id}`);
+
+export const deleteTagCategory = (id: number): Promise<TagCategory> =>
+  axios.delete(`${TAG_CATEGORIES}/${id}`);
+
+export const createTagCategory = (
+  obj: Omit<TagCategory, "id">
+): Promise<TagCategory> => axios.post(TAG_CATEGORIES, obj);
+
+export const updateTagCategory = (obj: TagCategory): Promise<TagCategory> =>
+  axios.put(`${TAG_CATEGORIES}/${obj.id}`, obj);

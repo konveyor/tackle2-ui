@@ -98,7 +98,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
     const matchingStakeholderRef = stakeholders.find(
       (stakeholder) => stakeholder.name === formValues.owner
     );
-    const payload: BusinessService = {
+    const payload: Omit<BusinessService, "id"> = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       owner: matchingStakeholderRef,
