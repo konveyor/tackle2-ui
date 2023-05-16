@@ -593,7 +593,8 @@ export type AggregateTicketStatus =
   | "Issues Created"
   | "In Progress"
   | "Completed"
-  | "Error";
+  | "Error"
+  | "No Issues";
 
 export interface Ticket {
   id?: number;

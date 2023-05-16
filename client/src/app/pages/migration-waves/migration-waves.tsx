@@ -253,7 +253,7 @@ export const MigrationWaves: React.FC = () => {
     wave: MigrationWave
   ): AggregateTicketStatus => {
     const statuses = getTicketStatus(wave);
-    if (statuses.length === 0) return "Error";
+    if (statuses.length === 0) return "No Issues";
 
     const status = statuses.reduce(
       (acc, val) => (acc === val ? acc : "Error"),
