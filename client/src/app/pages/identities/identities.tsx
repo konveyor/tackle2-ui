@@ -189,7 +189,7 @@ export const Identities: React.FC = () => {
   const handleOnIdentityCreated = (response: AxiosResponse<Identity>) => {
     if (!identityToUpdate) {
       pushNotification({
-        title: t("toastr.success.added", {
+        title: t("toastr.success.save", {
           what: response.data.name,
           type: t("terms.credential").toLowerCase(),
         }),

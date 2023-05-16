@@ -64,7 +64,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
 
   const onCreateInstanceSuccess = (_: AxiosResponse<Tracker>) =>
     pushNotification({
-      title: t("toastr.success.added", {
+      title: t("toastr.success.save", {
         type: t("terms.instance").toLocaleLowerCase(),
       }),
       variant: "success",

@@ -340,16 +340,17 @@
   },
   "toastr": {
     "success": {
-      "save": "{{type}} {{what}} was successfully saved.",
+      "save": "{{type}} '{{what}}' was successfully saved.",
       "applicationDeleted": "{{appIDCount}} application(s) successfully deleted.",
       "assessmentAndReviewCopied": "Success! Assessment and review copied to selected applications",
       "assessmentCopied": "Success! Assessment copied to selected applications",
       "assessmentDiscarded": "Success! Assessment discarded for {{application}}.",
+      "create": "{{type}} '{{what}}' was successfully created.",
       "deleted": "{{type}} '{{what}}' was successfully deleted.",
       "fileSavedToBeProcessed": "Success! file saved to be processed.",
       "reviewDiscarded": "Success! Review discarded for {{application}}."
     },
-    "failure": {
+    "fail": {
       "save": "Failed to save {{type}}."
     }
   },

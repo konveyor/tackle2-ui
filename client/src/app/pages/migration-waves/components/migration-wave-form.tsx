@@ -80,7 +80,33 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  const onCreateUpdateMigrationWaveSuccess = (
+  const onCreateMigrationWaveSuccess = (
+    response: AxiosResponse<MigrationWave>
+  ) => {
+    pushNotification({
+      title: t("toastr.success.create", {
+        what: response.data.name,
+        type: t("terms.migrationWave"),
+      }),
+      variant: "success",
+    });
+  };
+
+  const onCreateMigrationWaveError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.create", {
+        type: t("terms.migrationWave").toLowerCase(),
+      }),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: createMigrationWave } = useCreateMigrationWaveMutation(
+    onCreateMigrationWaveSuccess,
+    onCreateMigrationWaveError
+  );
+
+  const onUpdateMigrationWaveSuccess = (
     response: AxiosResponse<MigrationWave>
   ) => {
     pushNotification({
@@ -92,23 +118,18 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     });
   };
 
-  const onCreateUpdateMigrationWaveError = (error: AxiosError) => {
+  const onUpdateMigrationWaveError = (error: AxiosError) => {
     pushNotification({
-      title: t("toastr.failure.save", {
+      title: t("toastr.fail.save", {
         type: t("terms.migrationWave").toLowerCase(),
       }),
       variant: "danger",
     });
   };
 
-  const { mutate: createMigrationWave } = useCreateMigrationWaveMutation(
-    onCreateUpdateMigrationWaveSuccess,
-    onCreateUpdateMigrationWaveError
-  );
-
   const { mutate: updateMigrationWave } = useUpdateMigrationWaveMutation(
-    onCreateUpdateMigrationWaveSuccess,
-    onCreateUpdateMigrationWaveError
+    onUpdateMigrationWaveSuccess,
+    onUpdateMigrationWaveError
   );
 
   const validationSchema: yup.SchemaOf<WaveFormValues> = yup.object().shape({

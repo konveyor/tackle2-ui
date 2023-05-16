@@ -370,7 +370,7 @@ export const Tags: React.FC = () => {
     setIsNewTagCategoryModalOpen(false);
     refetch();
     pushNotification({
-      title: t("toastr.success.added", {
+      title: t("toastr.success.save", {
         what: response.data.name,
         type: "tag type",
       }),
@@ -382,7 +382,7 @@ export const Tags: React.FC = () => {
     setIsNewTagModalOpen(false);
     refetch();
     pushNotification({
-      title: t("toastr.success.added", {
+      title: t("toastr.success.save", {
         what: response.data.name,
         type: "tag",
       }),

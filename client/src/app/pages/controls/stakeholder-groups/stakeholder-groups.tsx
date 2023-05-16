@@ -274,7 +274,7 @@ export const StakeholderGroups: React.FC = () => {
     setIsNewModalOpen(false);
     refetch();
     pushNotification({
-      title: t("toastr.success.added", {
+      title: t("toastr.success.save", {
         what: response.data.name,
         type: "stakeholder group",
       }),
