@@ -177,35 +177,6 @@ export const deleteJobFunction = (id: number): AxiosPromise => {
   return APIClient.delete(`${JOB_FUNCTIONS}/${id}`);
 };
 
-// Stakeholder groups
-
-export enum StakeholderGroupSortBy {
-  NAME,
-  STAKEHOLDERS_COUNT,
-}
-
-export const getStakeholderGroups = (): AxiosPromise<
-  Array<StakeholderGroup>
-> => {
-  return APIClient.get(`${STAKEHOLDER_GROUPS}`, jsonHeaders);
-};
-
-export const deleteStakeholderGroup = (id: number): AxiosPromise => {
-  return APIClient.delete(`${STAKEHOLDER_GROUPS}/${id}`);
-};
-
-export const createStakeholderGroup = (
-  obj: StakeholderGroup
-): AxiosPromise<StakeholderGroup> => {
-  return APIClient.post(`${STAKEHOLDER_GROUPS}`, obj);
-};
-
-export const updateStakeholderGroup = (
-  obj: StakeholderGroup
-): AxiosPromise<StakeholderGroup> => {
-  return APIClient.put(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj);
-};
-
 // Tag categories
 
 export const getTagCategories = (): AxiosPromise<Array<TagCategory>> => {
@@ -639,13 +610,35 @@ export const deleteTicket = (id: number): Promise<Ticket> =>
 // Stakeholders
 
 export const getStakeholders = (): Promise<Stakeholder[]> =>
-  axios.get(`${STAKEHOLDERS}`).then((response) => response.data);
+  axios.get(STAKEHOLDERS).then((response) => response.data);
 
 export const deleteStakeholder = (id: number): Promise<Stakeholder> =>
   axios.delete(`${STAKEHOLDERS}/${id}`);
 
 export const createStakeholder = (obj: Stakeholder): Promise<Stakeholder> =>
-  axios.post(`${STAKEHOLDERS}`, obj);
+  axios.post(STAKEHOLDERS, obj);
 
 export const updateStakeholder = (obj: Stakeholder): Promise<Stakeholder> =>
   axios.put(`${STAKEHOLDERS}/${obj.id}`, obj);
+
+// Stakeholder groups
+
+export enum StakeholderGroupSortBy {
+  NAME,
+  STAKEHOLDERS_COUNT,
+}
+
+export const getStakeholderGroups = (): Promise<StakeholderGroup[]> =>
+  axios.get(STAKEHOLDER_GROUPS).then((response) => response.data);
+
+export const deleteStakeholderGroup = (id: number): Promise<StakeholderGroup> =>
+  axios.delete(`${STAKEHOLDER_GROUPS}/${id}`);
+
+export const createStakeholderGroup = (
+  obj: StakeholderGroup
+): Promise<StakeholderGroup> => axios.post(STAKEHOLDER_GROUPS, obj);
+
+export const updateStakeholderGroup = (
+  obj: StakeholderGroup
+): Promise<StakeholderGroup> =>
+  axios.put(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj);

@@ -33,6 +33,7 @@ import {
   AggregateTicketStatus,
   MigrationWave,
   Ref,
+  Stakeholder,
   Ticket,
   TicketStatus,
 } from "@app/api/models";
@@ -69,6 +70,9 @@ import { WaveApplicationsTable } from "./components/applications-table";
 import { WaveStatusTable } from "./components/status-table";
 import { WaveForm } from "./components/migration-wave-form";
 import { ManageApplicationsForm } from "./components/manage-applications-form";
+import { useFetchStakeholders } from "@app/queries/stakeholders";
+import { getStakeholders } from "@app/api/rest";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 dayjs.extend(utc);
 
 const ticketStatusToAggreaate: Map<TicketStatus, AggregateTicketStatus> =
@@ -90,6 +94,8 @@ export const MigrationWaves: React.FC = () => {
   const { trackers: instances } = useFetchTrackers();
   const { data: applications } = useFetchApplications();
   const { tickets } = useFetchTickets();
+  const { stakeholders } = useFetchStakeholders();
+  const { stakeholderGroups } = useFetchStakeholderGroups();
 
   const [migrationWaveModalState, setWaveModalState] = React.useState<
     "create" | MigrationWave | null
@@ -257,6 +263,45 @@ export const MigrationWaves: React.FC = () => {
     return aggregateTicketStatus(status);
   };
 
+  const getStakeholdersByMigrationWave = (migrationWave: MigrationWave) => {
+    const holderIds = migrationWave.stakeholders.map(
+      (stakeholder) => stakeholder.id
+    );
+    return stakeholders.filter((stakeholder) =>
+      holderIds.includes(stakeholder.id)
+    );
+  };
+
+  const getStakeholderGroupsByMigrationWave = (
+    migrationWave: MigrationWave
+  ) => {
+    const groupIds = migrationWave.stakeholderGroups.map(
+      (stakeholderGroup) => stakeholderGroup.id
+    );
+    return stakeholders.filter((stakeholder) =>
+      stakeholder.stakeholderGroups?.find((stakeholderGroup) =>
+        groupIds.includes(stakeholderGroup.id)
+      )
+    );
+  };
+
+  const getAllStakeholders = (migrationWave: MigrationWave) => {
+    // allStakeholders.push(getOwnersByApplications());
+    // allStakeholders.push(getContributorsByApplications());
+
+    let allStakeholders: Stakeholder[] =
+      getStakeholdersByMigrationWave(migrationWave);
+
+    const stakeholdersFromGroups =
+      getStakeholderGroupsByMigrationWave(migrationWave);
+    stakeholdersFromGroups.forEach((stakeholder) => {
+      if (!allStakeholders.includes(stakeholder))
+        allStakeholders.push(stakeholder);
+    });
+
+    return allStakeholders;
+  };
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -413,7 +458,9 @@ export const MigrationWaves: React.FC = () => {
                               columnKey: "stakeholders",
                             })}
                           >
-                            {migrationWave?.stakeholders?.length.toString()}
+                            {getAllStakeholders(
+                              migrationWave
+                            ).length.toString()}
                           </Td>
                           <Td
                             width={20}
@@ -497,7 +544,7 @@ export const MigrationWaves: React.FC = () => {
                           >
                             <ExpandableRowContent>
                               {isCellExpanded(migrationWave, "applications") &&
-                              migrationWave.applications ? (
+                              migrationWave.applications.length > 0 ? (
                                 <WaveApplicationsTable
                                   migrationWave={migrationWave}
                                   applications={getApplications(
@@ -511,7 +558,9 @@ export const MigrationWaves: React.FC = () => {
                                 ) ? (
                                 <WaveStakeholdersTable
                                   migrationWave={migrationWave}
-                                  stakeholders={migrationWave.stakeholders}
+                                  stakeholders={getAllStakeholders(
+                                    migrationWave
+                                  )}
                                 />
                               ) : isCellExpanded(migrationWave, "status") &&
                                 instances.length > 0 ? (

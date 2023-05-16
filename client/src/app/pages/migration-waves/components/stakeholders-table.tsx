@@ -1,13 +1,7 @@
 import React from "react";
 import { Stakeholder, MigrationWave } from "@app/api/models";
 import { useTranslation } from "react-i18next";
-import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-import {
-  Button,
-  Toolbar,
-  ToolbarContent,
-  ToolbarItem,
-} from "@patternfly/react-core";
+import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import {
   TableComposable,
   Tbody,
@@ -16,7 +10,6 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
@@ -30,11 +23,20 @@ export interface IWaveStakeholdersTableProps {
   stakeholders: Stakeholder[];
 }
 
+type Role = "Owner" | "Contributor" | null;
+
 export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
   migrationWave,
   stakeholders,
 }) => {
   const { t } = useTranslation();
+
+  const getRole = (stakeholder: Stakeholder): Role => {
+    if (stakeholder.owns && stakeholder.owns.length > 0) return "Owner";
+    if (stakeholder.contributes && stakeholder.contributes.length > 0)
+      return "Contributor";
+    return null;
+  };
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
@@ -50,8 +52,8 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
     getSortValues: (stakeholder) => ({
       name: stakeholder.name || "",
       jobFunction: stakeholder.jobFunction?.name || "",
-      role: "", // TODO
-      email: "", // TODO
+      role: getRole(stakeholder) as string,
+      email: stakeholder.email,
     }),
     sortableColumns: ["name", "jobFunction", "role", "email"],
     hasPagination: true,
@@ -117,14 +119,15 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
                     {stakeholder.jobFunction?.name}
                   </Td>
                   <Td width={10} {...getTdProps({ columnKey: "role" })}>
-                    TODO: Role
-                    {console.log(stakeholder)}
+                    {getRole(stakeholder)}
                   </Td>
                   <Td width={10} {...getTdProps({ columnKey: "email" })}>
                     {stakeholder.email}
                   </Td>
                   <Td width={10} {...getTdProps({ columnKey: "groups" })}>
-                    {stakeholder?.stakeholderGroups?.length?.toString()}
+                    {stakeholder?.stakeholderGroups
+                      ?.map((group) => group.name)
+                      .join(", ")}
                   </Td>
                 </TableRowContentWithControls>
               </Tr>

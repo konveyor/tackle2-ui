@@ -1,25 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { StakeholderGroup } from "@app/api/models";
 import { deleteStakeholderGroup, getStakeholderGroups } from "@app/api/rest";
 import { AxiosError } from "axios";
 
-export interface IStakeholderGroupFetchState {
-  stakeholderGroups: StakeholderGroup[];
-  isFetching: boolean;
-  fetchError: any;
-  refetch: any;
-}
-
 export const StakeholderGroupsQueryKey = "stakeholderGroups";
 
-export const useFetchStakeholderGroups = (): IStakeholderGroupFetchState => {
-  const { data, isLoading, error, refetch } = useQuery(
-    [StakeholderGroupsQueryKey],
-    async () => (await getStakeholderGroups()).data,
-    {
-      onError: (error) => console.log("error, ", error),
-    }
-  );
+export const useFetchStakeholderGroups = () => {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [StakeholderGroupsQueryKey],
+    queryFn: getStakeholderGroups,
+    onError: (error: AxiosError) => console.log("error, ", error),
+  });
   return {
     stakeholderGroups: data || [],
     isFetching: isLoading,
@@ -34,7 +24,8 @@ export const useDeleteStakeholderGroupMutation = (
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation(deleteStakeholderGroup, {
+  return useMutation({
+    mutationFn: deleteStakeholderGroup,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([StakeholderGroupsQueryKey]);
@@ -44,9 +35,4 @@ export const useDeleteStakeholderGroupMutation = (
       queryClient.invalidateQueries([StakeholderGroupsQueryKey]);
     },
   });
-  return {
-    mutate,
-    isLoading,
-    error,
-  };
 };

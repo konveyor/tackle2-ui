@@ -38,12 +38,15 @@ export interface BusinessService {
 }
 
 export interface Stakeholder {
-  id?: number;
+  id: number;
   name: string;
   email: string;
   jobFunction?: JobFunction;
   stakeholderGroups?: Ref[];
   businessServices?: Ref[];
+  migrationWaves?: Ref[];
+  owns?: Ref[];
+  contributes?: Ref[];
 }
 
 export interface StakeholderGroup {
