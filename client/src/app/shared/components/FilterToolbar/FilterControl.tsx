@@ -33,10 +33,14 @@ export const FilterControl = <TItem, TFilterCategoryKey extends string>({
       />
     );
   }
-  if (category.type === FilterType.search) {
+  if (
+    category.type === FilterType.search ||
+    category.type === FilterType.numsearch
+  ) {
     return (
       <SearchFilterControl
         category={category as ISearchFilterCategory<TItem, TFilterCategoryKey>}
+        isNumeric={category.type === FilterType.numsearch}
         {...props}
       />
     );

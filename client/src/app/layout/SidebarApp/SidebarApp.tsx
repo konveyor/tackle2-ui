@@ -135,7 +135,10 @@ export const SidebarApp: React.FC = () => {
           {FEATURES_ENABLED.dynamicReports ? (
             <>
               <NavItem>
-                <NavLink to={Paths.issues} activeClassName="pf-m-current">
+                <NavLink
+                  to={Paths.compositeIssues}
+                  activeClassName="pf-m-current"
+                >
                   {t("sidebar.issues")}
                 </NavLink>
               </NavItem>

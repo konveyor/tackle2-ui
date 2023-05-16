@@ -29,7 +29,10 @@ export enum Paths {
   controlsTags = "/controls/tags",
   reports = "/reports",
   migrationWaves = "/migration-waves",
-  issues = "/issues",
+  waves = "/waves",
+  compositeIssues = "/composite/issues",
+  issuesRuleId = "/issues/:ruleidparam",
+
   dependencies = "/dependencies",
 
   // Administrator perspective

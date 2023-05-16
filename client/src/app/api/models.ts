@@ -3,6 +3,7 @@ export interface HubFilter {
   operator?: "=" | "!=" | "~" | ">" | ">=" | "<" | "<=";
   value:
     | string
+    | number
     | {
         list: string[];
         operator?: "AND" | "OR";
@@ -563,6 +564,21 @@ export interface AnalysisCompositeIssue {
   technologies: Array<IssueTechnology>;
   labels: Array<string>;
   affected: number;
+  createTime?: string;
+}
+
+export interface AnalysisIssue {
+  id: number;
+  ruleID: string; // ruleset+rule
+  application: number;
+  name: string;
+  description: string;
+  category: string;
+  effort: number;
+  incidents: Array<any>;
+  labels: Array<string>;
+  affected: number;
+  createTime?: string;
 }
 
 export type TicketStatus = "" | "New" | "In Progress" | "Done" | "Error";

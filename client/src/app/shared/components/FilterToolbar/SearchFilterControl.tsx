@@ -9,12 +9,14 @@ import {
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { IFilterControlProps } from "./FilterControl";
 import { ISearchFilterCategory } from "./FilterToolbar";
+import { inflateSync } from "zlib";
 
 export interface ISearchFilterControlProps<
   TItem,
   TFilterCategoryKey extends string
 > extends IFilterControlProps<TItem, TFilterCategoryKey> {
   category: ISearchFilterCategory<TItem, TFilterCategoryKey>;
+  isNumeric: boolean;
 }
 
 export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
@@ -22,6 +24,7 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
   filterValue,
   setFilterValue,
   showToolbarItem,
+  isNumeric,
 }: React.PropsWithChildren<
   ISearchFilterControlProps<TItem, TFilterCategoryKey>
 >): JSX.Element | null => {
@@ -48,9 +51,9 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
         <TextInput
           name={id}
           id={id}
-          type="search"
-          aria-label={`${category.title} filter`}
+          type={isNumeric ? "number" : "search"}
           onChange={setInputValue}
+          aria-label={`${category.title} filter`}
           value={inputValue}
           placeholder={category.placeholderText}
           onKeyDown={(event: React.KeyboardEvent) => {

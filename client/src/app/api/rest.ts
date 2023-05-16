@@ -4,6 +4,7 @@ import { APIClient } from "@app/axios-config";
 import {
   AnalysisCompositeIssue,
   AnalysisDependency,
+  AnalysisIssue,
   Application,
   ApplicationAdoptionPlan,
   ApplicationDependency,
@@ -73,7 +74,8 @@ export const FILES = HUB + "/files";
 export const CACHE = HUB + "/cache/m2";
 
 export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/dependencies";
-export const ANALYSIS_ISSUES = HUB + "/analyses/composite/issues";
+export const ANALYSIS_COMPOSITE_ISSUES = HUB + "/analyses/composite/issues";
+export const ANALYSIS_ISSUES = HUB + "/analyses/issues";
 
 // PATHFINDER
 export const PATHFINDER = "/hub/pathfinder";
@@ -639,7 +641,13 @@ export const getDependencies = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisDependency>(ANALYSIS_DEPENDENCIES, params);
 
 export const getCompositeIssues = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<AnalysisCompositeIssue>(ANALYSIS_ISSUES, params);
+  getHubPaginatedResult<AnalysisCompositeIssue>(
+    ANALYSIS_COMPOSITE_ISSUES,
+    params
+  );
+
+export const getIssues = (params: HubRequestParams = {}) =>
+  getHubPaginatedResult<AnalysisIssue>(ANALYSIS_ISSUES, params);
 
 export const createTicket = (obj: Ticket): Promise<Ticket> =>
   axios.post(TICKETS, obj);

@@ -1,16 +1,18 @@
 import * as React from "react";
 import {
-  DescriptionList,
-  DescriptionListDescription,
-  DescriptionListGroup,
-  DescriptionListTerm,
+  Button,
+  Flex,
+  FlexItem,
+  Label,
   PageSection,
   PageSectionVariants,
   Text,
   TextContent,
+  TextVariants,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { AppPlaceholder, ConditionalRender } from "@app/shared/components";
@@ -40,9 +42,15 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { useSelectionState } from "@migtools/lib-ui";
-import { useFetchIssues } from "@app/queries/issues";
+import { useFetchCompositeIssues } from "@app/queries/issues";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
+import { Link } from "react-router-dom";
 
+enum IssueFilterGroups {
+  ApplicationInventory = "Application inventory",
+  Issues = "Issues",
+}
 export const Issues: React.FC = () => {
   const { t } = useTranslation();
 
@@ -53,21 +61,79 @@ export const Issues: React.FC = () => {
       effort: "Effort",
       affected: "Affected applications",
     },
-    sortableColumns: ["ruleID", "category", "effort"],
+    sortableColumns: ["ruleID", "category"],
     initialSort: {
       columnKey: "ruleID",
       direction: "asc",
     },
     filterCategories: [
+      //TODO: Should this be select filter type using apps available in memory?
       {
-        key: "ruleId",
-        title: t("terms.name"),
+        key: "application.name",
+        title: t("terms.applicationName"),
+        filterGroup: IssueFilterGroups.ApplicationInventory,
         type: FilterType.search,
         placeholderText:
           t("actions.filterBy", {
-            what: t("terms.name").toLowerCase(),
+            what: t("terms.applicationName").toLowerCase(),
           }) + "...",
       },
+      {
+        key: "tag.id",
+        title: t("terms.tag"),
+        filterGroup: IssueFilterGroups.ApplicationInventory,
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.tag").toLowerCase(),
+          }) + "...",
+      },
+      {
+        key: "category",
+        title: t("terms.category"),
+        filterGroup: IssueFilterGroups.Issues,
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.category").toLowerCase(),
+          }) + "...",
+      },
+
+      // TODO: Determine if we want to be able to filter by nested analysisIssue effort rather than the full sum which is displayed in this table.
+
+      // {
+      //   key: "effort",
+      //   title: t("terms.effort"),
+      //   filterGroup: IssueFilterGroups.Issues,
+      //   type: FilterType.numsearch,
+      //   placeholderText:
+      //     t("actions.filterBy", {
+      //       what: t("terms.effort").toLowerCase(),
+      //     }) + "...",
+      // },
+
+      // TODO: Determine how to parse source and target from composite issue label field.
+      // {
+      //   key: "tech.source",
+      //   title: t("terms.source"),
+      //   filterGroup: IssueFilterGroups.Issues,
+      //   type: FilterType.search,
+      //   placeholderText:
+      //     t("actions.filterBy", {
+      //       what: t("terms.source").toLowerCase(),
+      //     }) + "...",
+      // },
+      // TODO: Determine how to parse source and target from composite issue label field.
+      // {
+      //   key: "tech.target",
+      //   title: t("terms.target"),
+      //   filterGroup: IssueFilterGroups.Issues,
+      //   type: FilterType.search,
+      //   placeholderText:
+      //     t("actions.filterBy", {
+      //       what: t("terms.target").toLowerCase(),
+      //     }) + "...",
+      // },
     ],
     initialItemsPerPage: 10,
   });
@@ -76,24 +142,24 @@ export const Issues: React.FC = () => {
     result: { data: currentPageItems, total: totalItemCount },
     isFetching,
     fetchError,
-  } = useFetchIssues(
+  } = useFetchCompositeIssues(
     getHubRequestParams({
       ...tableControlState, // Includes filterState, sortState and paginationState
       hubSortFieldKeys: {
         ruleID: "ruleID",
         category: "category",
-        effort: "effort",
       },
     })
   );
 
   const tableControls = useTableControlProps({
     ...tableControlState, // Includes filterState, sortState and paginationState
-    idProperty: "name",
+    idProperty: "ruleID",
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
-    expansionState: useCompoundExpansionState("name"),
+    expandableVariant: "single",
+    expansionState: useCompoundExpansionState("ruleID"),
     selectionState: useSelectionState({
       items: currentPageItems,
       isEqual: (a, b) => a.name === b.name,
@@ -115,6 +181,7 @@ export const Issues: React.FC = () => {
       getExpandedContentTdProps,
     },
   } = tableControls;
+  console.log("%c Current page items", "color: blue;");
   console.log({ currentPageItems, totalItemCount });
 
   return (
@@ -154,7 +221,7 @@ export const Issues: React.FC = () => {
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
-                    <Th {...getThProps({ columnKey: "ruleId" })} />
+                    <Th {...getThProps({ columnKey: "ruleID" })} />
                     <Th {...getThProps({ columnKey: "category" })} />
                     <Th {...getThProps({ columnKey: "effort" })} />
                     <Th {...getThProps({ columnKey: "affected" })} />
@@ -223,21 +290,79 @@ export const Issues: React.FC = () => {
                             className={spacing.pyLg}
                           >
                             <ExpandableRowContent>
-                              <DescriptionList>
-                                <DescriptionListGroup>
-                                  <DescriptionListTerm>
-                                    {t("terms.group(s)")}
-                                  </DescriptionListTerm>
-                                  {!!issue.affected && (
-                                    <DescriptionListDescription>
-                                      {/* {issue} */}
-                                      {/* {issue.
-                                        ?.map((f) => f.name)
-                                        .join(", ")} */}
-                                    </DescriptionListDescription>
-                                  )}
-                                </DescriptionListGroup>
-                              </DescriptionList>
+                              <Flex>
+                                <FlexItem flex={{ default: "flex_1" }}>
+                                  <Text
+                                    component="h4"
+                                    className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
+                                  >
+                                    Total affected applications
+                                  </Text>
+
+                                  <Tooltip content="View Report">
+                                    <Button variant="link" isInline>
+                                      <Link
+                                        to={`/issues/${issue.ruleID}?filter=ruleid~*${issue.ruleID}*~&sort=asc:ruleID&limit=&offset=0`}
+                                      >
+                                        {issue.affected} - View affected
+                                        applications
+                                      </Link>
+                                    </Button>
+                                  </Tooltip>
+                                  <Text
+                                    component="h4"
+                                    className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
+                                  >
+                                    Target technologies
+                                  </Text>
+                                  <div>
+                                    {issue.technologies.map((tech) => {
+                                      return (
+                                        <Label className={spacing.mrSm}>
+                                          {tech?.name}
+                                        </Label>
+                                      );
+                                    })}
+                                  </div>
+                                  <Text
+                                    component="h4"
+                                    className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
+                                  >
+                                    Source technologies
+                                  </Text>
+                                  <div>None</div>
+                                  <Text
+                                    component="h4"
+                                    className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
+                                  >
+                                    Level of effort
+                                  </Text>
+                                  <div>
+                                    {issue.effort} - what do we show here?
+                                  </div>
+                                  <Text
+                                    component="h4"
+                                    className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
+                                  >
+                                    Labels
+                                  </Text>
+                                  <div>
+                                    {issue.labels.map((label) => {
+                                      return (
+                                        <Label className={spacing.mrSm}>
+                                          {label}
+                                        </Label>
+                                      );
+                                    })}
+                                  </div>
+                                </FlexItem>
+                                <FlexItem flex={{ default: "flex_1" }}>
+                                  <Text component={TextVariants.h4}>
+                                    TODO: Render validation rule description
+                                    here when available
+                                  </Text>
+                                </FlexItem>
+                              </Flex>
                             </ExpandableRowContent>
                           </Td>
                         </Tr>
