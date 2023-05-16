@@ -71,7 +71,7 @@ export const StakeholderGroups: React.FC = () => {
   const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
     "create" | StakeholderGroup | null
   >(null);
-  const iscreateUpdateModalOpen = createUpdateModalState !== null;
+  const isCreateUpdateModalOpen = createUpdateModalState !== null;
   const stakeholderGroupToUpdate =
     createUpdateModalState !== "create" ? createUpdateModalState : null;
 
@@ -343,7 +343,7 @@ export const StakeholderGroups: React.FC = () => {
               })
         }
         variant={ModalVariant.medium}
-        isOpen={iscreateUpdateModalOpen}
+        isOpen={isCreateUpdateModalOpen}
         onClose={closeCreateUpdateModal}
       >
         <StakeholderGroupForm

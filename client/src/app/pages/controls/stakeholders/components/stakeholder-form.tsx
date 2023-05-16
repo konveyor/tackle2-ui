@@ -5,7 +5,6 @@ import { object, string } from "yup";
 
 import {
   ActionGroup,
-  Alert,
   Button,
   ButtonVariant,
   Form,
@@ -39,14 +38,12 @@ export interface FormValues {
 
 export interface StakeholderFormProps {
   stakeholder?: Stakeholder;
-  onSaved: (response: AxiosResponse<Stakeholder>) => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
 export const StakeholderForm: React.FC<StakeholderFormProps> = ({
   stakeholder,
-  onSaved,
-  onCancel,
+  onClose,
 }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
@@ -186,6 +183,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
     } else {
       createStakeholder(payload);
     }
+    onClose();
   };
 
   return (
@@ -280,7 +278,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>
