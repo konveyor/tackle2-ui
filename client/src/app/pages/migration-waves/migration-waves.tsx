@@ -506,7 +506,9 @@ export const MigrationWaves: React.FC = () => {
                               columnKey: "status",
                             })}
                           >
-                            {aggregatedTicketStatus(migrationWave)}
+                            {migrationWave.applications.length > 0
+                              ? aggregatedTicketStatus(migrationWave)
+                              : null}
                           </Td>
                           <Td width={10}>
                             <KebabDropdown
@@ -591,7 +593,8 @@ export const MigrationWaves: React.FC = () => {
                               ) : isCellExpanded(
                                   migrationWave,
                                   "stakeholders"
-                                ) ? (
+                                ) &&
+                                getAllStakeholders(migrationWave).length > 0 ? (
                                 <WaveStakeholdersTable
                                   migrationWave={migrationWave}
                                   stakeholders={getAllStakeholders(
@@ -599,7 +602,8 @@ export const MigrationWaves: React.FC = () => {
                                   )}
                                 />
                               ) : isCellExpanded(migrationWave, "status") &&
-                                instances.length > 0 ? (
+                                instances.length > 0 &&
+                                migrationWave.applications.length > 0 ? (
                                 <WaveStatusTable
                                   migrationWave={migrationWave}
                                   applications={getApplications(
