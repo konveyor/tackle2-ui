@@ -31,7 +31,7 @@ export interface HubPaginatedResult<T> {
 // Controls
 
 export interface BusinessService {
-  id?: number;
+  id: number;
   name: string;
   description?: string;
   owner?: Stakeholder;
@@ -75,7 +75,7 @@ export interface TagCategory {
 }
 
 export interface Tag {
-  id?: number;
+  id: number;
   name: string;
   category?: Ref;
 }
