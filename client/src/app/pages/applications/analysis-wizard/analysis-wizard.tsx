@@ -47,7 +47,7 @@ interface IAnalysisWizard {
 }
 
 const defaultTaskData: TaskData = {
-  output: "/windup/report",
+  output: "/analyzer/report",
   tagger: {
     enabled: true,
   },
@@ -69,8 +69,8 @@ const defaultTaskData: TaskData = {
 };
 
 const defaultTaskgroup: Taskgroup = {
-  name: `taskgroup.windup`,
-  addon: "windup",
+  name: `taskgroup.analyzer`,
+  addon: "analyzer",
   data: {
     ...defaultTaskData,
   },
@@ -260,6 +260,10 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           },
         },
         rules: {
+          labels: [
+            ...fieldValues.formTargets,
+            ...fieldValues.selectedFormSources,
+          ],
           path: fieldValues.customRulesFiles.length > 0 ? "/rules" : "",
           tags: {
             excluded: fieldValues.excludedRulesTags,
@@ -303,7 +307,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     { id, name },
     { prevId, prevName }
   ) => {
-    if (id && stepIdReached < id) setStepIdReached(id as number);
+    if (id && stepIdReached < (id as number)) setStepIdReached(id as number);
   };
 
   const handleClose = () => {

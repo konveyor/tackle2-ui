@@ -61,7 +61,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   const prevSelectedTarget = formTargets?.find(
     (target) =>
       item.rulesets
-        .map((ruleset) => ruleset.metadata.target)
+        .map((ruleset) => ruleset?.metadata?.target)
         .indexOf(target) !== -1
   );
 
@@ -78,7 +78,9 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     if (eventTarget.type === "button") return;
 
     setCardSelected(!isCardSelected);
-    onCardClick && onCardClick(!isCardSelected, selectedRuleTarget);
+    onCardClick &&
+      selectedRuleTarget &&
+      onCardClick(!isCardSelected, selectedRuleTarget);
   };
 
   const handleRuleTargetSelection = (
@@ -178,9 +180,9 @@ export const TargetCard: React.FC<TargetCardProps> = ({
               {item.rulesets.map((ruleset) => (
                 <SelectOption
                   key={ruleset.name}
-                  value={ruleset.metadata.target}
+                  value={ruleset?.metadata?.target}
                 >
-                  {ruleset.metadata.target}
+                  {ruleset?.metadata?.target}
                 </SelectOption>
               ))}
             </Select>

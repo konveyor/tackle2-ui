@@ -479,14 +479,14 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
             <MultipleFileUpload
               onFileDrop={handleFileDrop}
               dropzoneProps={{
-                accept: ".xml",
+                accept: ".yml, .yaml",
               }}
             >
               <MultipleFileUploadMain
                 titleIcon={<UploadIcon />}
                 titleText="Drag and drop files here"
                 titleTextSeparator="or"
-                infoText="Accepted file types: XML with '.windup.xml' suffix."
+                infoText="Accepted file types: .yml, .yaml "
               />
               {showStatus && (
                 <MultipleFileUploadStatus
