@@ -3,6 +3,7 @@ const path = require("path");
 const app = express(),
   bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const { createHttpTerminator } = require("http-terminator");
 
 const setupProxy = require("./setupProxy");
 
@@ -36,6 +37,23 @@ app.get("*", (_, res) => {
   }
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server listening on port::${port}`);
 });
+
+const httpTerminator = createHttpTerminator({ server });
+
+const shutdown = async (signal) => {
+  if (!server) {
+    console.log(`${signal}, no server running.`);
+    return;
+  }
+
+  console.log(`${signal} - Stopping server on port::${port}`);
+  await httpTerminator.terminate();
+  console.log(`${signal} - Stopped server on port::${port}`);
+};
+
+// Handle shutdown signals Ctrl-C (SIGINT) and default podman/docker stop (SIGTERM)
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
