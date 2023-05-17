@@ -23,6 +23,7 @@ import {
 import {
   useTableControlUrlParams,
   getHubRequestParams,
+  useTableControlProps,
 } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
@@ -31,12 +32,12 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { useFetchIssues } from "@app/queries/issues";
-import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { useFetchApplications } from "@app/queries/applications";
-import { Application } from "@app/api/models";
 import { Link, useParams } from "react-router-dom";
 import { IssueFilterGroups } from "../issues";
 import { FilterType } from "@app/shared/components/FilterToolbar";
+import { useCompoundExpansionState } from "@app/shared/hooks/useCompoundExpansionState";
+import { useSelectionState } from "@migtools/lib-ui";
 interface IAffectedApplicationsRouteParams {
   ruleidparam: string;
 }
@@ -76,7 +77,7 @@ export const AffectedApplications: React.FC = () => {
   });
 
   const {
-    result: { data: issues, total: totalItemCount },
+    result: { data: currentPageIssues, total: totalItemCount },
     isFetching,
     fetchError,
   } = useFetchIssues(
@@ -97,32 +98,21 @@ export const AffectedApplications: React.FC = () => {
     })
   );
 
-  const { data: applications } = useFetchApplications();
-  const issueAppIds = issues.map((issue) => issue.application);
-  const affectedApplications: Application[] = applications.filter(
-    (app) => app.id && issueAppIds.includes(app.id)
-  );
-
-  const tableControls = useLocalTableControls({
-    idProperty: "name",
-    items: applications,
-    columnNames: {
-      name: "Name",
-      description: "Description",
-      businessService: "Business serice",
-      tags: "Tags",
-    },
-    sortableColumns: ["name"],
-    getSortValues: (item) => ({
-      name: item?.name || "",
-    }),
-    initialSort: { columnKey: "name", direction: "asc" },
-    hasPagination: true,
+  const tableControls = useTableControlProps({
+    ...tableControlState,
+    idProperty: "id",
+    currentPageItems: currentPageIssues,
+    totalItemCount,
     isLoading: isFetching,
+    // TODO FIXME - we don't need expansionState or selectionState but they are required by this hook?
+    expansionState: useCompoundExpansionState("id"),
+    selectionState: useSelectionState({
+      items: currentPageIssues,
+      isEqual: (a, b) => a.id === b.id,
+    }),
   });
 
   const {
-    currentPageItems,
     numRenderedColumns,
     propHelpers: {
       toolbarProps,
@@ -133,7 +123,10 @@ export const AffectedApplications: React.FC = () => {
       getTdProps,
     },
   } = tableControls;
-  console.log({ currentPageItems, totalItemCount });
+
+  console.log({ currentPageIssues, totalItemCount });
+
+  const { data: applications } = useFetchApplications();
 
   return (
     <>
@@ -152,7 +145,7 @@ export const AffectedApplications: React.FC = () => {
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isFetching && !(currentPageItems || fetchError)}
+          when={isFetching && !(currentPageIssues || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
@@ -188,13 +181,17 @@ export const AffectedApplications: React.FC = () => {
                 isNoData={totalItemCount === 0}
                 numRenderedColumns={numRenderedColumns}
               >
-                {affectedApplications?.map((application, rowIndex) => {
-                  return (
-                    <Tbody key={application.name}>
-                      <Tr>
+                <Tbody>
+                  {currentPageIssues?.map((issue, rowIndex) => {
+                    const application = applications.find(
+                      (app) => app.id === issue.application
+                    );
+                    if (!application) return null;
+                    return (
+                      <Tr key={application.name}>
                         <TableRowContentWithControls
                           {...tableControls}
-                          item={application}
+                          item={issue}
                           rowIndex={rowIndex}
                         >
                           <Td width={25} {...getTdProps({ columnKey: "name" })}>
@@ -222,13 +219,13 @@ export const AffectedApplications: React.FC = () => {
                           </Td>
                         </TableRowContentWithControls>
                       </Tr>
-                    </Tbody>
-                  );
-                })}
+                    );
+                  })}
+                </Tbody>
               </ConditionalTableBody>
             </TableComposable>
             <SimplePagination
-              idPrefix="dependencies-table"
+              idPrefix="affected-applications-table"
               isTop={false}
               paginationProps={paginationProps}
             />

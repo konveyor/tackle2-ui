@@ -56,7 +56,7 @@ export interface ITableControlCommonArgs<
 // - Requires query values and defined TItem type in scope but not state values
 export interface ITableControlDataDependentArgs<TItem> {
   isLoading?: boolean;
-  idProperty: KeyWithValueType<TItem, string>;
+  idProperty: KeyWithValueType<TItem, string | number>;
 }
 
 // Derived state option args
