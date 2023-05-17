@@ -50,7 +50,9 @@ export const ExportForm: React.FC<ExportFormProps> = ({
 
   const onExportSuccess = (_: AxiosResponse<Tracker>) =>
     pushNotification({
-      title: t("terms.ticketCreated"),
+      title: t("toastr.success.create", {
+        type: t("terms.ticket"),
+      }),
       variant: "success",
     });
 
