@@ -347,7 +347,7 @@ export const Issues: React.FC = () => {
                                     Labels
                                   </Text>
                                   <div>
-                                    {issue.labels.map((label) => {
+                                    {issue.labels?.map((label) => {
                                       return (
                                         <Label className={spacing.mrSm}>
                                           {label}
