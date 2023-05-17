@@ -110,6 +110,16 @@ export const ApplicationDetailDrawerAssessment: React.FC<
                 )}
               </DescriptionListDescription>
             </DescriptionListGroup>
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("terms.migrationWave")}
+              </DescriptionListTerm>
+              <DescriptionListDescription cy-data="migration-wave">
+                {application?.migrationWave
+                  ? application.migrationWave.name
+                  : t("terms.unassigned")}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
           </DescriptionList>
           <TextContent className={spacing.mtLg}>
             <Title headingLevel="h3" size="md">
