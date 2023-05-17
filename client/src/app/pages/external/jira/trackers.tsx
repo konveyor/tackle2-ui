@@ -1,6 +1,5 @@
 import * as React from "react";
 import {
-  Alert,
   Button,
   ButtonVariant,
   Modal,
@@ -68,8 +67,6 @@ export const JiraTrackers: React.FC = () => {
   const isConfirmDialogOpen = instanceToDeleteState !== null;
 
   const { trackers, isFetching, fetchError, refetch } = useFetchTrackers();
-
-  const [isAlertDelete, setIsAlertDelete] = React.useState(false);
 
   const { tickets } = useFetchTickets();
 
@@ -241,7 +238,12 @@ export const JiraTrackers: React.FC = () => {
                             onEdit={() => setInstanceModalState(tracker)}
                             onDelete={() => {
                               includesTracker(tracker.id)
-                                ? setIsAlertDelete(true)
+                                ? pushNotification({
+                                    title: t(
+                                      "This instance contains issues associated with applications and cannot be deleted"
+                                    ),
+                                    variant: "danger",
+                                  })
                                 : setInstanceToDeleteState({
                                     id: tracker.id,
                                     name: tracker.name,
@@ -282,33 +284,17 @@ export const JiraTrackers: React.FC = () => {
         />
       </Modal>
       <ConfirmDialog
-        title={
-          isAlertDelete
-            ? "Cannot delete instance"
-            : t("dialog.title.delete", {
-                what: t("terms.instance").toLowerCase(),
-              })
-        }
-        isOpen={isConfirmDialogOpen || isAlertDelete}
+        title={t("dialog.title.delete", {
+          what: t("terms.instance").toLowerCase(),
+        })}
+        isOpen={isConfirmDialogOpen}
         titleIconVariant={"warning"}
-        message={
-          isAlertDelete
-            ? "This instance contains issues associated with applications and cannot be deleted"
-            : t("dialog.message.delete")
-        }
+        message={t("dialog.message.delete")}
         confirmBtnVariant={ButtonVariant.danger}
-        confirmBtnLabel={isAlertDelete ? "" : t("actions.delete")}
+        confirmBtnLabel={t("actions.delete")}
         cancelBtnLabel={t("actions.cancel")}
-        onCancel={() =>
-          isAlertDelete
-            ? setIsAlertDelete(false)
-            : setInstanceToDeleteState(null)
-        }
-        onClose={() =>
-          isAlertDelete
-            ? setIsAlertDelete(false)
-            : setInstanceToDeleteState(null)
-        }
+        onCancel={() => setInstanceToDeleteState(null)}
+        onClose={() => setInstanceToDeleteState(null)}
         onConfirm={() => {
           if (instanceToDeleteState) {
             deleteInstance(

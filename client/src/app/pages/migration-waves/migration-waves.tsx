@@ -295,7 +295,7 @@ export const MigrationWaves: React.FC = () => {
     );
   };
 
-  const getStakeholderGroupsByMigrationWave = (
+  const getStakeholderFromGroupsByMigrationWave = (
     migrationWave: MigrationWave
   ) => {
     const groupIds = migrationWave.stakeholderGroups.map(
@@ -324,7 +324,7 @@ export const MigrationWaves: React.FC = () => {
         allStakeholders.push(stakeholder);
     });
 
-    getStakeholderGroupsByMigrationWave(migrationWave).forEach(
+    getStakeholderFromGroupsByMigrationWave(migrationWave).forEach(
       (stakeholder) => {
         if (!allStakeholders.includes(stakeholder))
           allStakeholders.push(stakeholder);
