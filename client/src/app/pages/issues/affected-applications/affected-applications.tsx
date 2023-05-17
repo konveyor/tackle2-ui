@@ -35,7 +35,10 @@ import { useFetchIssues } from "@app/queries/issues";
 import { useFetchApplications } from "@app/queries/applications";
 import { Link, useParams } from "react-router-dom";
 import { IssueFilterGroups } from "../issues";
-import { FilterType } from "@app/shared/components/FilterToolbar";
+import {
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
 import { useCompoundExpansionState } from "@app/shared/hooks/useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
 interface IAffectedApplicationsRouteParams {
@@ -116,6 +119,7 @@ export const AffectedApplications: React.FC = () => {
     numRenderedColumns,
     propHelpers: {
       toolbarProps,
+      filterToolbarProps,
       paginationToolbarItemProps,
       paginationProps,
       tableProps,
@@ -129,6 +133,8 @@ export const AffectedApplications: React.FC = () => {
   const { data: applications } = useFetchApplications();
 
   // TODO get the breadcrumb bar to take you back to the exact view you left - put a backTo param in the URL here?
+  // When going back, if we cleared the app name filter here should we clear it there too?
+  // special logic to filter it out of the backTo param? that feels weird
 
   return (
     <>
@@ -157,6 +163,7 @@ export const AffectedApplications: React.FC = () => {
           >
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
+                <FilterToolbar {...filterToolbarProps} />
                 <ToolbarItem {...paginationToolbarItemProps}>
                   <SimplePagination
                     idPrefix="affected-applications-table"
