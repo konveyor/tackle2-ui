@@ -39,14 +39,12 @@ export interface FormValues {
 
 export interface TagCategoryFormProps {
   tagCategory?: TagCategory;
-  onSaved: (response: AxiosResponse<TagCategory>) => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
 export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
   tagCategory: tagCategory,
-  onSaved,
-  onCancel,
+  onClose,
 }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
@@ -145,6 +143,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
 
     if (tagCategory) updateTagCategory({ id: tagCategory.id, ...payload });
     else createTagCategory(payload);
+    onClose();
   };
 
   const colorOptions = Object.values(COLOR_HEX_VALUES_BY_NAME).map((color) => {
@@ -236,7 +235,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>

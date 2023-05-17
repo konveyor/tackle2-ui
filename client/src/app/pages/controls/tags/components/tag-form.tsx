@@ -5,7 +5,6 @@ import { object, string, mixed } from "yup";
 
 import {
   ActionGroup,
-  Alert,
   Button,
   ButtonVariant,
   Form,
@@ -13,7 +12,7 @@ import {
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { Tag, TagCategory } from "@app/api/models";
-import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import { duplicateNameCheck } from "@app/utils/utils";
 import { ITagCategoryDropdown } from "@app/utils/model-utils";
 import {
   useFetchTags,
@@ -40,11 +39,10 @@ export interface FormValues {
 
 export interface TagFormProps {
   tag?: Tag;
-  onSaved: (response: AxiosResponse<Tag>) => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
-export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
+export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -146,6 +144,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
 
     if (tag) updateTag({ id: tag.id, ...payload });
     else createTag(payload);
+    onClose();
   };
 
   return (
@@ -196,7 +195,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>

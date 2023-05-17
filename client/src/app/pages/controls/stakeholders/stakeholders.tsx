@@ -340,17 +340,6 @@ export const Stakeholders: React.FC = () => {
         </div>
       </ConditionalRender>
 
-      {/* <NewStakeholderModal
-        isOpen={isNewModalOpen}
-        onSaved={handleOnCreatedNew}
-        onCancel={handleOnCreateNewCancel}
-      />
-      <UpdateStakeholderModal
-        stakeholder={rowToUpdate}
-        onSaved={handleOnUpdated}
-        onCancel={handleOnUpdatedCancel}
-      /> */}
-
       <Modal
         id="create-edit-stakeholder-modal"
         title={
