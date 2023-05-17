@@ -46,8 +46,9 @@ import { useFetchCompositeIssues } from "@app/queries/issues";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { Link } from "react-router-dom";
+import { getAffectedAppsUrl } from "./helpers";
 
-enum IssueFilterGroups {
+export enum IssueFilterGroups {
   ApplicationInventory = "Application inventory",
   Issues = "Issues",
 }
@@ -168,6 +169,7 @@ export const Issues: React.FC = () => {
 
   const {
     numRenderedColumns,
+    filterState: { filterValues },
     expansionState: { isCellExpanded },
     propHelpers: {
       toolbarProps,
@@ -302,7 +304,10 @@ export const Issues: React.FC = () => {
                                   <Tooltip content="View Report">
                                     <Button variant="link" isInline>
                                       <Link
-                                        to={`/issues/${issue.ruleID}?filter=ruleid~*${issue.ruleID}*~&sort=asc:ruleID&limit=&offset=0`}
+                                        to={getAffectedAppsUrl(
+                                          issue,
+                                          filterValues
+                                        )}
                                       >
                                         {issue.affected} - View affected
                                         applications

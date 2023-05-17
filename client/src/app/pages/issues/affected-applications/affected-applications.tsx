@@ -35,6 +35,8 @@ import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { useFetchApplications } from "@app/queries/applications";
 import { Application } from "@app/api/models";
 import { Link, useParams } from "react-router-dom";
+import { IssueFilterGroups } from "../issues";
+import { FilterType } from "@app/shared/components/FilterToolbar";
 interface IAffectedApplicationsRouteParams {
   ruleidparam: string;
 }
@@ -51,11 +53,25 @@ export const AffectedApplications: React.FC = () => {
       businessService: "Business serice",
       tags: "Tags",
     },
-    sortableColumns: ["name"],
-    initialSort: {
-      columnKey: "name",
-      direction: "asc",
-    },
+    // TODO this isn't working in the hub
+    // sortableColumns: ["name"],
+    // initialSort: {
+    //   columnKey: "name",
+    //   direction: "asc",
+    // },
+    filterCategories: [
+      //TODO: Should this be select filter type using apps available in memory?
+      {
+        key: "application.name",
+        title: t("terms.applicationName"),
+        filterGroup: IssueFilterGroups.ApplicationInventory,
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.applicationName").toLowerCase(),
+          }) + "...",
+      },
+    ],
     initialItemsPerPage: 10,
   });
 
@@ -65,12 +81,19 @@ export const AffectedApplications: React.FC = () => {
     fetchError,
   } = useFetchIssues(
     getHubRequestParams({
-      filterState: {
-        filterValues: {
-          ruleid: [ruleidparam || ""],
+      ...tableControlState,
+      implicitFilters: [
+        {
+          field: "ruleid",
+          operator: "=",
+          value: ruleidparam || "",
         },
-        setFilterValues: tableControlState.filterState.setFilterValues,
-      },
+      ],
+      /*
+      // TODO this isn't working in the hub
+      hubSortFieldKeys: {
+        name: "application.name",
+      },*/
     })
   );
 
@@ -116,11 +139,11 @@ export const AffectedApplications: React.FC = () => {
     <>
       <PageSection variant={PageSectionVariants.light}>
         <TextContent>
-          <Text component="h1">{t("terms.issues")}</Text>
+          <Text component="h1">{t("terms.affectedApplications")}</Text>
         </TextContent>
         <Breadcrumb>
           <BreadcrumbItem>
-            <Link to="/composite/issues">Issues</Link>
+            <Link to="/composite/issues">{t("terms.issues")}</Link>
           </BreadcrumbItem>
           <BreadcrumbItem to="#" isActive>
             {ruleidparam || "Active rule"}

@@ -32,6 +32,27 @@ export const useFilterState = <TItem, TFilterCategoryKey extends string>({
   return { filterValues, setFilterValues };
 };
 
+export const serializeFilterUrlParams = <TFilterCategoryKey extends string>(
+  filterValues: IFilterValues<TFilterCategoryKey>
+): Partial<Record<"filters", string | null>> => {
+  // If a filter value is empty/cleared, don't put it in the object in URL params
+  const trimmedFilterValues = { ...filterValues };
+  objectKeys(trimmedFilterValues).forEach((filterCategoryKey) => {
+    if (
+      !trimmedFilterValues[filterCategoryKey] ||
+      trimmedFilterValues[filterCategoryKey]?.length === 0
+    ) {
+      delete trimmedFilterValues[filterCategoryKey];
+    }
+  });
+  return {
+    filters:
+      objectKeys(trimmedFilterValues).length > 0
+        ? JSON.stringify(trimmedFilterValues)
+        : null, // If there are no filters, remove the filters param from the URL entirely.
+  };
+};
+
 export const useFilterUrlParams = <
   TFilterCategoryKey extends string
 >(): IFilterState<TFilterCategoryKey> => {
@@ -41,24 +62,7 @@ export const useFilterUrlParams = <
   >({
     keys: ["filters"],
     defaultValue: {},
-    serialize: (filterValues) => {
-      // If a filter value is empty/cleared, don't put it in the object in URL params
-      const trimmedFilterValues = { ...filterValues };
-      objectKeys(trimmedFilterValues).forEach((filterCategoryKey) => {
-        if (
-          !trimmedFilterValues[filterCategoryKey] ||
-          trimmedFilterValues[filterCategoryKey]?.length === 0
-        ) {
-          delete trimmedFilterValues[filterCategoryKey];
-        }
-      });
-      return {
-        filters:
-          objectKeys(trimmedFilterValues).length > 0
-            ? JSON.stringify(trimmedFilterValues)
-            : null, // If there are no filters, remove the filters param from the URL entirely.
-      };
-    },
+    serialize: serializeFilterUrlParams,
     deserialize: (urlParams) => {
       try {
         return JSON.parse(urlParams.filters || "{}");
