@@ -206,7 +206,7 @@ export const Issues: React.FC = () => {
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarItem {...paginationToolbarItemProps}>
                   <SimplePagination
-                    idPrefix="dependencies-table"
+                    idPrefix="issues-table"
                     isTop
                     paginationProps={paginationProps}
                   />
@@ -373,7 +373,7 @@ export const Issues: React.FC = () => {
               </ConditionalTableBody>
             </TableComposable>
             <SimplePagination
-              idPrefix="dependencies-table"
+              idPrefix="issues-table"
               isTop={false}
               paginationProps={paginationProps}
             />
