@@ -128,6 +128,8 @@ export const AffectedApplications: React.FC = () => {
 
   const { data: applications } = useFetchApplications();
 
+  // TODO get the breadcrumb bar to take you back to the exact view you left - put a backTo param in the URL here?
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
