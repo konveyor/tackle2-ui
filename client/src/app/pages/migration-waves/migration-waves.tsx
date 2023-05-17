@@ -310,10 +310,6 @@ export const MigrationWaves: React.FC = () => {
   };
 
   const getAllStakeholders = (migrationWave: MigrationWave) => {
-    const migrationApplications = migrationWave.applications.map(
-      (application) => application.id
-    );
-
     let allStakeholders: Stakeholder[] = getApplicationsOwners(
       migrationWave.id
     );
