@@ -247,9 +247,10 @@ export const MigrationWaves: React.FC = () => {
   const aggregateTicketStatus = (val: TicketStatus, startDate: string) => {
     const status = ticketStatusToAggreaate.get(val);
     if (status === "Issues Created") {
-      const now = new Date();
-      const start = new Date(startDate);
-      if (now.getTime() - start.getTime() > 0) return "In Progress";
+      const now = dayjs.utc();
+      const start = dayjs.utc(startDate);
+      var duration = now.diff(start);
+      if (duration > 0) return "In Progress";
     }
     return status ? status : "Error";
   };
