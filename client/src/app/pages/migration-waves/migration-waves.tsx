@@ -244,8 +244,13 @@ export const MigrationWaves: React.FC = () => {
     return statuses as TicketStatus[];
   };
 
-  const aggregateTicketStatus = (val: TicketStatus) => {
+  const aggregateTicketStatus = (val: TicketStatus, startDate: string) => {
     const status = ticketStatusToAggreaate.get(val);
+    if (status === "Issues Created") {
+      const now = new Date();
+      const start = new Date(startDate);
+      if (now.getTime() - start.getTime() > 0) return "In Progress";
+    }
     return status ? status : "Error";
   };
 
@@ -260,7 +265,7 @@ export const MigrationWaves: React.FC = () => {
       statuses[0]
     );
 
-    return aggregateTicketStatus(status);
+    return aggregateTicketStatus(status, wave.startDate);
   };
 
   const getApplicationsOwners = (id: number) => {
