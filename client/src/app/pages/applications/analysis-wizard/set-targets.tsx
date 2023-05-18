@@ -38,7 +38,7 @@ export const SetTargets: React.FC = () => {
     const otherSelectedRuleTargets = formTargets.filter(
       (formTarget) =>
         !selectedRuleBundle.rulesets
-          .map((rule) => rule.metadata.target)
+          .map((rule) => rule?.metadata?.target)
           .includes(formTarget)
     );
     const definedSelectedTargets: string[] =
@@ -62,13 +62,13 @@ export const SetTargets: React.FC = () => {
     const otherSelectedRuleSources = formSources.filter(
       (formSource) =>
         !selectedRuleBundle.rulesets
-          .map((rule) => rule.metadata.source)
+          .map((rule) => rule?.metadata?.source)
           .includes(formSource)
     );
     const otherSelectedRuleTargets = formTargets.filter(
       (formTarget) =>
         !selectedRuleBundle.rulesets
-          .map((rule) => rule.metadata.target)
+          .map((rule) => rule?.metadata?.target)
           .includes(formTarget)
     );
 

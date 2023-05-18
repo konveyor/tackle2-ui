@@ -21,6 +21,7 @@ import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-f
 import { StringListField } from "@app/shared/components/string-list-field";
 import { useFetchRuleBundles } from "@app/queries/rulebundles";
 import { getruleBundleTargetList } from "@app/common/CustomRules/rules-utils";
+import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
@@ -76,6 +77,7 @@ export const SetOptions: React.FC = () => {
             id="ruleBundles"
             toggleId="rule-bundles-toggle"
             variant={SelectVariant.typeaheadMulti}
+            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
             aria-label="Select targets"
             selections={formTargets}
             isOpen={isSelectTargetsOpen}
@@ -135,6 +137,7 @@ export const SetOptions: React.FC = () => {
         }) => (
           <Select
             id="formSources-id"
+            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
             toggleId="sources-toggle"
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select sources"

@@ -109,7 +109,11 @@ export const MigrationTargets: React.FC = () => {
     }
     // update bundle order
 
-    if (bundleOrderSetting.isSuccess) {
+    if (
+      bundleOrderSetting.isSuccess &&
+      response.data.id &&
+      bundleOrderSetting.data
+    ) {
       bundleOrderSettingMutation.mutate([
         ...bundleOrderSetting.data,
         response.data.id,
@@ -219,7 +223,7 @@ export const MigrationTargets: React.FC = () => {
                     const matchingRuleBundle = ruleBundles.find(
                       (ruleBundle) => ruleBundle.id === id
                     );
-                    if (matchingRuleBundle) {
+                    if (matchingRuleBundle?.id) {
                       deleteRuleBundle(matchingRuleBundle.id);
                     }
                   }}

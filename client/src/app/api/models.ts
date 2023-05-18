@@ -320,8 +320,6 @@ export interface ApplicationImportPage {
 }
 
 export type SettingTypes = {
-  "download.csv.enabled": boolean;
-  "download.html.enabled": boolean;
   "git.insecure.enabled": boolean;
   "mvn.dependencies.update.forced": boolean;
   "mvn.insecure.enabled": boolean;
@@ -369,7 +367,6 @@ export interface TaskData {
   tagger: {
     enabled: boolean;
   };
-  output: string;
   mode: {
     binary: boolean;
     withDeps: boolean;
@@ -377,8 +374,8 @@ export interface TaskData {
     diva: boolean;
     csv?: boolean;
   };
-  targets: string[];
-  sources: string[];
+  targets?: string[];
+  sources?: string[];
   scope: {
     withKnown: boolean;
     packages: {
@@ -394,6 +391,7 @@ export interface TaskData {
     bundles: Ref[];
     repository?: Repository;
     identity?: Ref;
+    labels: string[];
   };
 }
 
@@ -449,7 +447,7 @@ export interface RuleBundle {
   createTime?: string;
   createUser?: string;
   description?: string;
-  id: number;
+  id?: number;
   image?: RuleBundleImage;
   kind?: RuleBundleKind;
   name: string;
@@ -464,7 +462,8 @@ export interface Metadata {
 }
 export interface Ruleset {
   name: string;
-  metadata: Metadata;
+  metadata?: Metadata;
+  labels?: string[];
   file?: {
     id: number;
   };
@@ -474,6 +473,8 @@ export interface ParsedRule {
   source: string | null;
   target: string | null;
   total: number;
+  otherLabels?: string[];
+  allLabels?: string[];
   fileID?: number;
 }
 

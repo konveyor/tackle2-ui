@@ -47,7 +47,6 @@ interface IAnalysisWizard {
 }
 
 const defaultTaskData: TaskData = {
-  output: "/windup/report",
   tagger: {
     enabled: true,
   },
@@ -69,8 +68,8 @@ const defaultTaskData: TaskData = {
 };
 
 const defaultTaskgroup: Taskgroup = {
-  name: `taskgroup.windup`,
-  addon: "windup",
+  name: `taskgroup.analyzer`,
+  addon: "analyzer",
   data: {
     ...defaultTaskData,
   },
@@ -93,7 +92,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const { t } = useTranslation();
   const title = t("dialog.title.applicationAnalysis");
 
-  const { data: isCSVDownloadEnabled } = useSetting("download.csv.enabled");
   const { identities } = useFetchIdentities();
 
   const { pushNotification } = React.useContext(NotificationsContext);
@@ -248,7 +246,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             ? `/binary/${fieldValues.artifact.name}`
             : "",
           diva: fieldValues.diva,
-          ...(isCSVDownloadEnabled && { csv: isCSVDownloadEnabled }),
         },
         targets: fieldValues.formTargets,
         sources: fieldValues.selectedFormSources,
@@ -260,6 +257,10 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           },
         },
         rules: {
+          labels: [
+            ...fieldValues.formTargets,
+            ...fieldValues.selectedFormSources,
+          ],
           path: fieldValues.customRulesFiles.length > 0 ? "/rules" : "",
           tags: {
             excluded: fieldValues.excludedRulesTags,
@@ -303,7 +304,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     { id, name },
     { prevId, prevName }
   ) => {
-    if (id && stepIdReached < id) setStepIdReached(id as number);
+    if (id && stepIdReached < (id as number)) setStepIdReached(id as number);
   };
 
   const handleClose = () => {

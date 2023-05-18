@@ -274,8 +274,6 @@
     "scheduled": "Programado",
     "select": "Seleccione",
     "settingsAllowApps": "Permitir la revisión de aplicaciones sin ejecutar una evaluación primero",
-    "settingsCSVReports": "Habilitar descargas para informes CSV",
-    "settingsHTMLReports": "Habilitar descargas para informes HTML",
     "sourceBranch": "Rama",
     "sourceCode": "Código fuente.",
     "sourceRepo": "Repositorio",
