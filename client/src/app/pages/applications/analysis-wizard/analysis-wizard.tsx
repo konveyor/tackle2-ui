@@ -172,7 +172,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       formTargets: [],
       selectedFormSources: [],
       formSources: defaultSources,
-      formRuleBundles: [],
+      formRulesets: [],
       withKnown: "app",
       includedPackages: [],
       excludedPackages: [],
@@ -265,8 +265,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           tags: {
             excluded: fieldValues.excludedRulesTags,
           },
-          bundles: fieldValues.formRuleBundles.map((ruleBundle) => {
-            return { name: ruleBundle.name, id: ruleBundle.id };
+          rulesets: fieldValues.formRulesets.map((ruleset) => {
+            return { name: ruleset.name, id: ruleset.id };
           }),
           ...(fieldValues.rulesKind === "repository" && {
             repository: {

@@ -1,31 +1,30 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { IReadFile, Metadata, RuleBundle } from "@app/api/models";
+import { IReadFile, Metadata, Ruleset } from "@app/api/models";
 import {
   createFile,
-  createRuleBundle,
-  deleteRuleBundle,
-  getRuleBundles,
-  getSettingById,
-  updateRuleBundle,
+  createRuleset,
+  deleteRuleset,
+  getRulesets,
+  updateRuleset,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
 import { getLabels } from "@app/common/CustomRules/rules-utils";
 
-export const RuleBundlesQueryKey = "rulebundles";
+export const RulesetsQueryKey = "rulesets";
 
-export const useFetchRuleBundles = () => {
-  const { data, isLoading, error, refetch } = useQuery<RuleBundle[]>(
-    [RuleBundlesQueryKey],
-    async () => await getRuleBundles(),
+export const useFetchRulesets = () => {
+  const { data, isLoading, error, refetch } = useQuery<Ruleset[]>(
+    [RulesetsQueryKey],
+    async () => await getRulesets(),
     {
       onError: (err) => console.log(err),
       select: (data) => {
-        return data.map((ruleBundle) => {
-          const mappedRulesets = ruleBundle.rulesets.map((ruleset) => {
+        return data.map((ruleset) => {
+          const mappedRules = ruleset.rules.map((rule) => {
             if (ruleset?.name === "rule-example.yaml") {
               debugger;
             }
-            const labels = getLabels(ruleset.labels || []);
+            const labels = getLabels(rule.labels || []);
 
             const transformedMetadata: Metadata = {
               source: labels.sourceLabel,
@@ -36,28 +35,28 @@ export const useFetchRuleBundles = () => {
               metadata: transformedMetadata,
             };
           });
-          return { ...ruleBundle, rulesets: mappedRulesets };
+          return { ...ruleset, rules: mappedRules };
         });
       },
     }
   );
   return {
-    ruleBundles: data || [],
+    rulesets: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,
   };
 };
 
-export const useUpdateRuleBundleMutation = (
+export const useUpdateRulesetMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(updateRuleBundle, {
+  const { isLoading, mutate, error } = useMutation(updateRuleset, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([RuleBundlesQueryKey]);
+      queryClient.invalidateQueries([RulesetsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -70,20 +69,20 @@ export const useUpdateRuleBundleMutation = (
   };
 };
 
-export const useDeleteRuleBundleMutation = (
+export const useDeleteRulesetMutation = (
   onSuccess: (res: any, id: number) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation(deleteRuleBundle, {
+  const { isLoading, mutate, error } = useMutation(deleteRuleset, {
     onSuccess: (res, id) => {
       onSuccess(res, id);
-      queryClient.invalidateQueries([RuleBundlesQueryKey]);
+      queryClient.invalidateQueries([RulesetsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([RuleBundlesQueryKey]);
+      queryClient.invalidateQueries([RulesetsQueryKey]);
     },
   });
   return {
@@ -93,15 +92,15 @@ export const useDeleteRuleBundleMutation = (
   };
 };
 
-export const useCreateRuleBundleMutation = (
+export const useCreateRulesetMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(createRuleBundle, {
+  const { isLoading, mutate, error } = useMutation(createRuleset, {
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([RuleBundlesQueryKey]);
+      queryClient.invalidateQueries([RulesetsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
