@@ -24,11 +24,11 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { KebabDropdown } from "@app/shared/components";
 import { useTranslation } from "react-i18next";
 import "./target-card.css";
-import DefaultRuleBundleIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
-import { RuleBundle } from "@app/api/models";
+import DefaultRulesetIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
+import { Ruleset } from "@app/api/models";
 
 export interface TargetCardProps {
-  item: RuleBundle;
+  item: Ruleset;
   cardSelected?: boolean;
   isEditable?: boolean;
   onCardClick?: (isSelecting: boolean, value: string) => void;
@@ -60,16 +60,15 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 
   const prevSelectedTarget = formTargets?.find(
     (target) =>
-      item.rulesets
-        .map((ruleset) => ruleset?.metadata?.target)
-        .indexOf(target) !== -1
+      item.rules.map((ruleset) => ruleset?.metadata?.target).indexOf(target) !==
+      -1
   );
 
   const [isRuleTargetSelectOpen, setRuleTargetSelectOpen] =
     React.useState(false);
 
   const [selectedRuleTarget, setSelectedRuleTarget] = React.useState(
-    prevSelectedTarget || item.rulesets[0]?.metadata?.target
+    prevSelectedTarget || item.rules[0]?.metadata?.target
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
@@ -101,7 +100,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     let result: React.ComponentType<any> = CubesIcon;
     const imagePath = item?.image?.id
       ? `/hub/files/${item.image.id}`
-      : DefaultRuleBundleIcon;
+      : DefaultRulesetIcon;
     if (item.image) {
       result = () => (
         <img
@@ -167,7 +166,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
             {item.name}
           </Title>
           {item.kind === "category" &&
-          (item.rulesets.length > 1 || forceSelect.includes(item.name)) ? (
+          (item.rules.length > 1 || forceSelect.includes(item.name)) ? (
             <Select
               toggleId={`${item.name}-toggle`}
               variant={SelectVariant.single}
@@ -178,12 +177,9 @@ export const TargetCard: React.FC<TargetCardProps> = ({
               isOpen={isRuleTargetSelectOpen}
               width={250}
             >
-              {item.rulesets.map((ruleset) => (
-                <SelectOption
-                  key={ruleset.name}
-                  value={ruleset?.metadata?.target}
-                >
-                  {ruleset?.metadata?.target}
+              {item.rules.map((rule) => (
+                <SelectOption key={rule.name} value={rule?.metadata?.target}>
+                  {rule?.metadata?.target}
                 </SelectOption>
               ))}
             </Select>

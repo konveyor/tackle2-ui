@@ -19,8 +19,8 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisWizardFormValues } from "./schema";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 import { StringListField } from "@app/shared/components/string-list-field";
-import { useFetchRuleBundles } from "@app/queries/rulebundles";
-import { getruleBundleTargetList } from "@app/common/CustomRules/rules-utils";
+import { useFetchRulesets } from "@app/queries/rulesets";
+import { getRulesetTargetList } from "@app/common/CustomRules/rules-utils";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 
 export const SetOptions: React.FC = () => {
@@ -33,7 +33,7 @@ export const SetOptions: React.FC = () => {
     formSources,
     selectedFormSources,
     formTargets,
-    formRuleBundles,
+    formRulesets,
     diva,
     excludedRulesTags,
     autoTaggingEnabled,
@@ -41,14 +41,14 @@ export const SetOptions: React.FC = () => {
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
-  const { ruleBundles } = useFetchRuleBundles();
+  const { rulesets } = useFetchRulesets();
 
-  const allRuleBundleTargets = ruleBundles
-    .map((ruleBundle) => getruleBundleTargetList(ruleBundle))
+  const allRulesetTargets = rulesets
+    .map((Ruleset) => getRulesetTargetList(Ruleset))
     .flat();
 
-  const defaultTargetsAndBundleTargets = [
-    ...new Set(defaultTargets.concat(allRuleBundleTargets)),
+  const defaultTargetsAndRulesetTargets = [
+    ...new Set(defaultTargets.concat(allRulesetTargets)),
   ];
 
   return (
@@ -74,33 +74,27 @@ export const SetOptions: React.FC = () => {
           fieldState: { isTouched, error },
         }) => (
           <Select
-            id="ruleBundles"
-            toggleId="rule-bundles-toggle"
+            id="rulesets"
+            toggleId="rulesets-toggle"
             variant={SelectVariant.typeaheadMulti}
             maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
             aria-label="Select targets"
             selections={formTargets}
             isOpen={isSelectTargetsOpen}
             onSelect={(_, selection) => {
-              const matchingRuleBundle = ruleBundles.find((ruleBundle) =>
-                getruleBundleTargetList(ruleBundle).includes(
-                  selection as string
-                )
+              const matchingRuleset = rulesets.find((Ruleset) =>
+                getRulesetTargetList(Ruleset).includes(selection as string)
               );
               if (!formTargets.includes(selection as string)) {
                 onChange([...selectedFormTargets, selection]);
-                if (matchingRuleBundle)
-                  setValue("formRuleBundles", [
-                    ...formRuleBundles,
-                    matchingRuleBundle,
-                  ]);
+                if (matchingRuleset)
+                  setValue("formRulesets", [...formRulesets, matchingRuleset]);
               } else {
-                if (matchingRuleBundle)
+                if (matchingRuleset)
                   setValue(
-                    "formRuleBundles",
-                    formRuleBundles.filter(
-                      (formRuleBundle) =>
-                        formRuleBundle.name !== matchingRuleBundle.name
+                    "formRulesets",
+                    formRulesets.filter(
+                      (formRuleset) => formRuleset.name !== matchingRuleset.name
                     )
                   );
                 onChange(
@@ -120,7 +114,7 @@ export const SetOptions: React.FC = () => {
             }}
             validated={getValidatedFromErrorTouched(error, isTouched)}
           >
-            {defaultTargetsAndBundleTargets.map((targetName, index) => (
+            {defaultTargetsAndRulesetTargets.map((targetName, index) => (
               <SelectOption key={index} component="button" value={targetName} />
             ))}
           </Select>

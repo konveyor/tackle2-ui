@@ -4,7 +4,7 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 import { AxiosError } from "axios";
 import { useUploadFileMutation } from "@app/queries/taskgroups";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { useCreateFileMutation } from "@app/queries/rulebundles";
+import { useCreateFileMutation } from "@app/queries/rulesets";
 import { CustomTargetFormValues } from "@app/pages/migration-targets/custom-target-form";
 import { UseFormReturn } from "react-hook-form";
 

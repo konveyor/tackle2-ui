@@ -325,7 +325,7 @@ export type SettingTypes = {
   "mvn.insecure.enabled": boolean;
   "review.assessment.required": boolean;
   "svn.insecure.enabled": boolean;
-  "ui.bundle.order": number[];
+  "ui.ruleset.order": number[];
 };
 
 export type Setting<K extends keyof SettingTypes> = {
@@ -388,7 +388,7 @@ export interface TaskData {
     tags: {
       excluded: string[];
     };
-    bundles: Ref[];
+    rulesets: Ref[];
     repository?: Repository;
     identity?: Ref;
     labels: string[];
@@ -434,24 +434,24 @@ export interface ITypeOptions {
   value: string;
 }
 
-export interface RuleBundleImage {
+export interface RulesetImage {
   id: number;
   name?: string;
 }
 
-export enum RuleBundleKind {
+export enum RulesetKind {
   CATEGORY = "category",
 }
 
-export interface RuleBundle {
+export interface Ruleset {
   createTime?: string;
   createUser?: string;
   description?: string;
   id?: number;
-  image?: RuleBundleImage;
-  kind?: RuleBundleKind;
+  image?: RulesetImage;
+  kind?: RulesetKind;
   name: string;
-  rulesets: Ruleset[];
+  rules: Rule[];
   custom?: boolean;
   repository?: Repository;
   identity?: Ref;
@@ -460,7 +460,7 @@ export interface Metadata {
   target: string;
   source?: string;
 }
-export interface Ruleset {
+export interface Rule {
   name: string;
   metadata?: Metadata;
   labels?: string[];
