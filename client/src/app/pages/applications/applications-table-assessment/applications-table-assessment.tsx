@@ -136,7 +136,7 @@ export const ApplicationsTable: React.FC = () => {
     refetch: fetchApplications,
   } = useFetchApplications();
 
-  const { tasks } = useFetchTasks({ addon: "windup" });
+  const { tasks } = useFetchTasks({ addon: "analyzer" });
 
   const getTask = (application: Application) =>
     tasks.find((task: Task) => task.application?.id === application.id);

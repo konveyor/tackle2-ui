@@ -1,37 +1,21 @@
-import { IReadFile, ParsedRule, RuleBundle } from "@app/api/models";
+import { IReadFile, ParsedRule, RuleBundle, Ruleset } from "@app/api/models";
+import yaml from "js-yaml";
 
 export const parseRules = (file: IReadFile): ParsedRule => {
   if (file.data) {
-    let source: string | null = null;
-    let target: string | null = null;
-    let rulesCount = 0;
-
-    const payload = atob(file.data.substring(21));
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(payload, "text/xml");
-
-    const ruleSets = xml.getElementsByTagName("ruleset");
-
-    if (ruleSets && ruleSets.length > 0) {
-      const metadata = ruleSets[0].getElementsByTagName("metadata");
-
-      if (metadata && metadata.length > 0) {
-        const sources = metadata[0].getElementsByTagName("sourceTechnology");
-        if (sources && sources.length > 0) source = sources[0].id;
-
-        const targets = metadata[0].getElementsByTagName("targetTechnology");
-        if (targets && targets.length > 0) target = targets[0].id;
-      }
-
-      const rulesGroup = ruleSets[0].getElementsByTagName("rules");
-      if (rulesGroup && rulesGroup.length > 0)
-        rulesCount = rulesGroup[0].getElementsByTagName("rule").length;
-    }
-
+    const payload = atob(file.data.substring(31));
+    const yamlDoc = yaml.load(payload) as any[];
+    const yamlLabels = yamlDoc?.reduce((acc, parsedLine) => {
+      const newLabels = parsedLine?.labels ? parsedLine?.labels : [];
+      return [...acc, ...newLabels];
+    }, []);
+    const allLabels = getLabels(yamlLabels);
     return {
-      source,
-      target,
-      total: rulesCount,
+      source: allLabels?.sourceLabel,
+      target: allLabels?.targetLabel,
+      otherLabels: allLabels?.otherLabels,
+      allLabels: allLabels?.allLabels,
+      total: 0,
       ...(file.responseID && {
         fileID: file.responseID,
       }),
@@ -45,8 +29,38 @@ export const parseRules = (file: IReadFile): ParsedRule => {
   }
 };
 
+interface ILabelMap {
+  sourceLabel: string;
+  targetLabel: string;
+  otherLabels: string[];
+  allLabels: string[];
+}
+
+export const getLabels = (labels: string[]) =>
+  labels.reduce(
+    (map: ILabelMap, label) => {
+      const char1 = label.indexOf("/") + 1;
+      const char2 = label.lastIndexOf("=");
+      const type = label.substring(char1, char2);
+      const value = label.split("=").pop();
+      const sourceValue = type === "source" ? value : "";
+      const targetValue = type === "target" ? value : "";
+      return Object.assign(
+        { sourceLabel: "", targetLabel: "", otherLabels: [] },
+        map,
+        {
+          sourceLabel: sourceValue ? label : map.sourceLabel,
+          targetLabel: targetValue ? label : map.targetLabel,
+          otherLabels: [...map.otherLabels, label],
+          allLabels: [...map.allLabels, label],
+        }
+      );
+    },
+    { sourceLabel: "", targetLabel: "", otherLabels: [], allLabels: [] }
+  );
+
 export const getruleBundleTargetList = (ruleBundle: RuleBundle) => {
   return ruleBundle.rulesets.reduce((acc: string[], ruleset) => {
-    return [...acc, ruleset?.metadata?.target];
+    return [...acc, ruleset?.metadata?.target || ""];
   }, []);
 };

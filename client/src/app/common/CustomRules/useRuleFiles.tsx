@@ -1,6 +1,4 @@
 import { useContext, useState } from "react";
-import XSDSchema from "./windup-jboss-ruleset.xsd";
-import { XMLValidator } from "fast-xml-parser";
 import { FileLoadError, IReadFile } from "@app/api/models";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { AxiosError } from "axios";
@@ -9,7 +7,6 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useCreateFileMutation } from "@app/queries/rulebundles";
 import { CustomTargetFormValues } from "@app/pages/migration-targets/custom-target-form";
 import { UseFormReturn } from "react-hook-form";
-const xmllint = require("xmllint");
 
 export default function useRuleFiles(
   taskgroupID: number | null | undefined,
@@ -198,15 +195,10 @@ export default function useRuleFiles(
             handleReadFail(error, 100, file);
           } else {
             if (data) {
-              const validatedXMLResult = validateXMLFile(data);
-              if (validatedXMLResult.state === "valid")
-                handleReadSuccess(data, file);
-              else {
-                const error = new Error(
-                  `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
-                );
-                handleReadFail(error, 100, file);
-              }
+              handleReadSuccess(data, file);
+            } else {
+              const error = new Error("error");
+              handleReadFail(error, 100, file);
             }
           }
         }
@@ -273,40 +265,6 @@ export default function useRuleFiles(
   if (!showStatus && existingRuleFiles.length > 0) {
     setShowStatus(true);
   }
-
-  interface IParsedXMLFileStatus {
-    state: "valid" | "error";
-    message?: string;
-  }
-
-  const validateXMLFile = (data: string): IParsedXMLFileStatus => {
-    // Filter out "data:text/xml;base64," from data
-    const payload = atob(data.substring(21));
-    const validationObject = XMLValidator.validate(payload, {
-      allowBooleanAttributes: true,
-    });
-
-    // If xml is valid, check against schema
-    if (validationObject === true) {
-      const currentSchema = XSDSchema;
-
-      const validationResult = xmllint.xmllint.validateXML({
-        xml: payload,
-        schema: currentSchema,
-      });
-
-      if (validationResult.errors)
-        return {
-          state: "error",
-          message: validationResult?.errors?.toString(),
-        };
-      else return { state: "valid" };
-    } else
-      return {
-        state: "error",
-        message: validationObject?.err?.msg?.toString(),
-      };
-  };
 
   return {
     handleFileDrop,

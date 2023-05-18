@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { IReadFile, RuleBundle } from "@app/api/models";
+import { IReadFile, Metadata, RuleBundle } from "@app/api/models";
 import {
   createFile,
   createRuleBundle,
@@ -9,6 +9,7 @@ import {
   updateRuleBundle,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
+import { getLabels } from "@app/common/CustomRules/rules-utils";
 
 export const RuleBundlesQueryKey = "rulebundles";
 
@@ -18,6 +19,26 @@ export const useFetchRuleBundles = () => {
     async () => await getRuleBundles(),
     {
       onError: (err) => console.log(err),
+      select: (data) => {
+        return data.map((ruleBundle) => {
+          const mappedRulesets = ruleBundle.rulesets.map((ruleset) => {
+            if (ruleset?.name === "rule-example.yaml") {
+              debugger;
+            }
+            const labels = getLabels(ruleset.labels || []);
+
+            const transformedMetadata: Metadata = {
+              source: labels.sourceLabel,
+              target: labels.targetLabel,
+            };
+            return {
+              ...ruleset,
+              metadata: transformedMetadata,
+            };
+          });
+          return { ...ruleBundle, rulesets: mappedRulesets };
+        });
+      },
     }
   );
   return {
