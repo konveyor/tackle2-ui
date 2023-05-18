@@ -33,7 +33,7 @@ import {
 } from "@app/shared/components/table-controls";
 import { useFetchIssues } from "@app/queries/issues";
 import { useFetchApplications } from "@app/queries/applications";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { IssueFilterGroups } from "../issues";
 import {
   FilterToolbar,
@@ -41,6 +41,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useCompoundExpansionState } from "@app/shared/hooks/useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
+import { getBackToIssuesUrl } from "../helpers";
 interface IAffectedApplicationsRouteParams {
   ruleidparam: string;
 }
@@ -117,6 +118,7 @@ export const AffectedApplications: React.FC = () => {
 
   const {
     numRenderedColumns,
+    filterState: { filterValues },
     propHelpers: {
       toolbarProps,
       filterToolbarProps,
@@ -136,6 +138,9 @@ export const AffectedApplications: React.FC = () => {
   // When going back, if we cleared the app name filter here should we clear it there too?
   // special logic to filter it out of the backTo param? that feels weird
 
+  // using the location from Issues page, pass a full URL as "backTo" in the URL for affected apps.
+  // when clearing or applying the application.name filter, clear or apply it in the filters arg inside backTo as well?
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -144,7 +149,14 @@ export const AffectedApplications: React.FC = () => {
         </TextContent>
         <Breadcrumb>
           <BreadcrumbItem>
-            <Link to="/composite/issues">{t("terms.issues")}</Link>
+            <Link
+              to={getBackToIssuesUrl({
+                fromFilterValues: filterValues,
+                fromLocation: useLocation(),
+              })}
+            >
+              {t("terms.issues")}
+            </Link>
           </BreadcrumbItem>
           <BreadcrumbItem to="#" isActive>
             {ruleidparam || "Active rule"}

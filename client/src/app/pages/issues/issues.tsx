@@ -45,7 +45,7 @@ import { useSelectionState } from "@migtools/lib-ui";
 import { useFetchCompositeIssues } from "@app/queries/issues";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { getAffectedAppsUrl } from "./helpers";
 
 export enum IssueFilterGroups {
@@ -186,6 +186,8 @@ export const Issues: React.FC = () => {
   console.log("%c Current page items", "color: blue;");
   console.log({ currentPageItems, totalItemCount });
 
+  const location = useLocation();
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -218,12 +220,12 @@ export const Issues: React.FC = () => {
             <TableComposable
               {...tableProps}
               isExpandable
-              aria-label="Migration waves table"
+              aria-label="Issues table"
             >
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
-                    <Th {...getThProps({ columnKey: "ruleID" })} />
+                    <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "category" })} />
                     <Th {...getThProps({ columnKey: "effort" })} />
                     <Th {...getThProps({ columnKey: "affected" })} />
@@ -255,10 +257,7 @@ export const Issues: React.FC = () => {
                               rowIndex,
                             })}
                           />
-                          <Td
-                            width={25}
-                            {...getTdProps({ columnKey: "ruleId" })}
-                          >
+                          <Td width={25} {...getTdProps({ columnKey: "name" })}>
                             {compositeIssue.name}
                           </Td>
                           <Td
@@ -305,10 +304,11 @@ export const Issues: React.FC = () => {
                                   <Tooltip content="View Report">
                                     <Button variant="link" isInline>
                                       <Link
-                                        to={getAffectedAppsUrl(
+                                        to={getAffectedAppsUrl({
                                           compositeIssue,
-                                          filterValues
-                                        )}
+                                          fromFilterValues: filterValues,
+                                          fromLocation: location,
+                                        })}
                                       >
                                         {compositeIssue.affected} - View
                                         affected applications

@@ -2,6 +2,7 @@ import * as React from "react";
 import { useSessionStorage } from "@migtools/lib-ui";
 import {
   FilterCategory,
+  FilterValue,
   IFilterValues,
 } from "@app/shared/components/FilterToolbar";
 import { useUrlParams } from "../../useUrlParams";
@@ -34,7 +35,7 @@ export const useFilterState = <TItem, TFilterCategoryKey extends string>({
 
 export const serializeFilterUrlParams = <TFilterCategoryKey extends string>(
   filterValues: IFilterValues<TFilterCategoryKey>
-): Partial<Record<"filters", string | null>> => {
+): { filters?: string | null } => {
   // If a filter value is empty/cleared, don't put it in the object in URL params
   const trimmedFilterValues = { ...filterValues };
   objectKeys(trimmedFilterValues).forEach((filterCategoryKey) => {
@@ -53,6 +54,18 @@ export const serializeFilterUrlParams = <TFilterCategoryKey extends string>(
   };
 };
 
+export const deserializeFilterUrlParams = <
+  TFilterCategoryKey extends string
+>(urlParams: {
+  filters?: string;
+}): Partial<Record<TFilterCategoryKey, FilterValue>> => {
+  try {
+    return JSON.parse(urlParams.filters || "{}");
+  } catch (e) {
+    return {};
+  }
+};
+
 export const useFilterUrlParams = <
   TFilterCategoryKey extends string
 >(): IFilterState<TFilterCategoryKey> => {
@@ -63,13 +76,7 @@ export const useFilterUrlParams = <
     keys: ["filters"],
     defaultValue: {},
     serialize: serializeFilterUrlParams,
-    deserialize: (urlParams) => {
-      try {
-        return JSON.parse(urlParams.filters || "{}");
-      } catch (e) {
-        return {};
-      }
-    },
+    deserialize: deserializeFilterUrlParams,
   });
   return { filterValues, setFilterValues };
 };
