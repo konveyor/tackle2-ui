@@ -568,6 +568,8 @@ export interface IssueTechnology {
 
 export interface AnalysisCompositeIssue {
   name: string;
+  ruleSet: string;
+  rule: string;
   description: string;
   category: string;
   effort: number;

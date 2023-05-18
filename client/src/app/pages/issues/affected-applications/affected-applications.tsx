@@ -42,14 +42,16 @@ import {
 import { useCompoundExpansionState } from "@app/shared/hooks/useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
 import { getBackToIssuesUrl } from "../helpers";
+
 interface IAffectedApplicationsRouteParams {
-  ruleidparam: string;
+  ruleset: string;
+  rule: string;
 }
 
 export const AffectedApplications: React.FC = () => {
   const { t } = useTranslation();
 
-  const { ruleidparam } = useParams<IAffectedApplicationsRouteParams>();
+  const routeParams = useParams<IAffectedApplicationsRouteParams>();
 
   const tableControlState = useTableControlUrlParams({
     columnNames: {
@@ -89,9 +91,14 @@ export const AffectedApplications: React.FC = () => {
       ...tableControlState,
       implicitFilters: [
         {
-          field: "name", // Composite issue name = issue name = rule name/id
+          field: "ruleset",
           operator: "=",
-          value: ruleidparam || "",
+          value: routeParams.ruleset || "",
+        },
+        {
+          field: "rule",
+          operator: "=",
+          value: routeParams.rule || "",
         },
       ],
       /*
@@ -159,7 +166,9 @@ export const AffectedApplications: React.FC = () => {
             </Link>
           </BreadcrumbItem>
           <BreadcrumbItem to="#" isActive>
-            {ruleidparam || "Active rule"}
+            {routeParams.ruleset && routeParams.rule
+              ? `${routeParams.ruleset}/${routeParams.rule}`
+              : "Active rule"}
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>

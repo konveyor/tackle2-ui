@@ -32,7 +32,9 @@ export const getAffectedAppsUrl = ({
   filterKeysToCarry.forEach((key) => {
     if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
   });
-  return `/issues/${compositeIssue.name}?${trimAndStringifyUrlParams({
+  return `/issues/${compositeIssue.ruleSet}/${
+    compositeIssue.rule
+  }?${trimAndStringifyUrlParams({
     params: { ...serializeFilterUrlParams(toFilterValues), fromIssuesParams },
   })}`;
 };
