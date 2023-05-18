@@ -1,6 +1,6 @@
 import React, { forwardRef } from "react";
 import { TargetCard } from "@app/components/target-card";
-import { useFetchRuleBundles } from "@app/queries/rulebundles";
+import { useFetchRulesets } from "@app/queries/rulesets";
 
 interface ItemProps {
   id: number;
@@ -13,10 +13,8 @@ interface ItemProps {
 
 export const Item: React.FC<ItemProps> = forwardRef(
   ({ id, style, ...props }, ref) => {
-    const { ruleBundles } = useFetchRuleBundles();
-    const matchingRuleBundle = ruleBundles.find(
-      (ruleBundle) => ruleBundle.id === id
-    );
+    const { rulesets } = useFetchRulesets();
+    const matchingRuleset = rulesets.find((Ruleset) => Ruleset.id === id);
     const inlineStyles = {
       height: 400,
       width: "20em",
@@ -24,9 +22,9 @@ export const Item: React.FC<ItemProps> = forwardRef(
     } as React.CSSProperties;
     return (
       <div ref={ref} style={inlineStyles}>
-        {matchingRuleBundle && (
+        {matchingRuleset && (
           <TargetCard
-            item={matchingRuleBundle}
+            item={matchingRuleset}
             handleProps={props.handleProps}
             onEdit={props.onEdit}
             onDelete={props.onDelete}

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -28,12 +28,12 @@ import { useTranslation } from "react-i18next";
 
 import { Item } from "./components/dnd/item";
 import { DndGrid } from "./components/dnd/grid";
-import { RuleBundle, Setting } from "@app/api/models";
+import { Ruleset, Setting } from "@app/api/models";
 import { AxiosError, AxiosResponse } from "axios";
 import {
-  useDeleteRuleBundleMutation,
-  useFetchRuleBundles,
-} from "@app/queries/rulebundles";
+  useDeleteRulesetMutation,
+  useFetchRulesets,
+} from "@app/queries/rulesets";
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -46,13 +46,13 @@ export const MigrationTargets: React.FC = () => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const {
-    ruleBundles,
-    isFetching: isFetchingRuleBundles,
-    refetch: refetchRuleBundles,
-  } = useFetchRuleBundles();
+    rulesets,
+    isFetching: isFetchingrulesets,
+    refetch: refetchrulesets,
+  } = useFetchRulesets();
 
-  const bundleOrderSetting = useSetting("ui.bundle.order");
-  const bundleOrderSettingMutation = useSettingMutation("ui.bundle.order");
+  const rulesetOrderSetting = useSetting("ui.ruleset.order");
+  const rulesetOrderSettingMutation = useSettingMutation("ui.ruleset.order");
 
   const targetsEndRef = useRef<null | HTMLDivElement>(null);
 
@@ -62,34 +62,34 @@ export const MigrationTargets: React.FC = () => {
 
   const [activeId, setActiveId] = useState(null);
 
-  const onDeleteRuleBundleSuccess = (response: any, ruleBundleID: number) => {
+  const onDeleterulesetsuccess = (response: any, RulesetID: number) => {
     pushNotification({
       title: "Custom target deleted",
       variant: "success",
     });
 
-    if (bundleOrderSetting.isSuccess)
-      bundleOrderSettingMutation.mutate(
-        bundleOrderSetting.data.filter(
-          (bundleID: number) => bundleID !== ruleBundleID
+    if (rulesetOrderSetting.isSuccess)
+      rulesetOrderSettingMutation.mutate(
+        rulesetOrderSetting.data.filter(
+          (rulesetID: number) => rulesetID !== RulesetID
         )
       );
   };
 
-  const onDeleteRuleBundleError = (error: AxiosError) => {
+  const onDeleteRulesetError = (error: AxiosError) => {
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
     });
   };
 
-  const { mutate: deleteRuleBundle } = useDeleteRuleBundleMutation(
-    onDeleteRuleBundleSuccess,
-    onDeleteRuleBundleError
+  const { mutate: deleteRuleset } = useDeleteRulesetMutation(
+    onDeleterulesetsuccess,
+    onDeleteRulesetError
   );
 
-  const onCustomTargetModalSaved = (response: AxiosResponse<RuleBundle>) => {
-    if (!ruleBundleToUpdate) {
+  const onCustomTargetModalSaved = (response: AxiosResponse<Ruleset>) => {
+    if (!rulesetToUpdate) {
       pushNotification({
         title: t("toastr.success.added", {
           what: response.data.name,
@@ -107,47 +107,47 @@ export const MigrationTargets: React.FC = () => {
         ),
       });
     }
-    // update bundle order
+    // update ruleset order
 
     if (
-      bundleOrderSetting.isSuccess &&
+      rulesetOrderSetting.isSuccess &&
       response.data.id &&
-      bundleOrderSetting.data
+      rulesetOrderSetting.data
     ) {
-      bundleOrderSettingMutation.mutate([
-        ...bundleOrderSetting.data,
+      rulesetOrderSettingMutation.mutate([
+        ...rulesetOrderSetting.data,
         response.data.id,
       ]);
       closeMigrationTargetModal();
-      refetchRuleBundles();
+      refetchrulesets();
     }
   };
 
   // Create and update modal
   const {
     isOpen: isMigrationTargetModalOpen,
-    data: ruleBundleToUpdate,
+    data: rulesetToUpdate,
     create: openCreateMigrationTargetModal,
     update: openUpdateMigrationTargetModal,
     close: closeMigrationTargetModal,
-  } = useEntityModal<RuleBundle>();
+  } = useEntityModal<Ruleset>();
 
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
   function handleDragOver(event: any) {
-    if (bundleOrderSetting.isSuccess) {
+    if (rulesetOrderSetting.isSuccess) {
       const { active, over } = event;
 
       if (active.id !== over.id) {
-        const reorderBundle = (items: number[]) => {
+        const reorderRuleset = (items: number[]) => {
           const oldIndex = items.indexOf(active.id);
           const newIndex = items.indexOf(over.id);
 
           return arrayMove(items, oldIndex, newIndex);
         };
 
-        bundleOrderSettingMutation.mutate(
-          reorderBundle(bundleOrderSetting.data)
+        rulesetOrderSettingMutation.mutate(
+          reorderRuleset(rulesetOrderSetting.data)
         );
       }
     }
@@ -185,12 +185,12 @@ export const MigrationTargets: React.FC = () => {
           </GridItem>
         </Grid>
         <NewCustomTargetModal
-          isOpen={isMigrationTargetModalOpen && !!!ruleBundleToUpdate}
+          isOpen={isMigrationTargetModalOpen && !!!rulesetToUpdate}
           onSaved={onCustomTargetModalSaved}
           onCancel={closeMigrationTargetModal}
         />
         <UpdateCustomTargetModal
-          ruleBundle={ruleBundleToUpdate}
+          ruleset={rulesetToUpdate}
           onSaved={closeMigrationTargetModal}
           onCancel={closeMigrationTargetModal}
         />
@@ -202,29 +202,29 @@ export const MigrationTargets: React.FC = () => {
         onDragOver={handleDragOver}
       >
         <SortableContext
-          items={bundleOrderSetting.isSuccess ? bundleOrderSetting.data : []}
+          items={rulesetOrderSetting.isSuccess ? rulesetOrderSetting.data : []}
           strategy={rectSortingStrategy}
         >
           <DndGrid>
-            {bundleOrderSetting.isSuccess &&
-              bundleOrderSetting.data.map((id) => (
+            {rulesetOrderSetting.isSuccess &&
+              rulesetOrderSetting.data.map((id) => (
                 <SortableItem
                   key={id}
                   id={id}
                   onEdit={() => {
-                    const matchingRuleBundle = ruleBundles.find(
-                      (ruleBundle) => ruleBundle.id === id
+                    const matchingRuleset = rulesets.find(
+                      (Ruleset) => Ruleset.id === id
                     );
-                    if (matchingRuleBundle) {
-                      openUpdateMigrationTargetModal(matchingRuleBundle);
+                    if (matchingRuleset) {
+                      openUpdateMigrationTargetModal(matchingRuleset);
                     }
                   }}
                   onDelete={() => {
-                    const matchingRuleBundle = ruleBundles.find(
-                      (ruleBundle) => ruleBundle.id === id
+                    const matchingRuleset = rulesets.find(
+                      (Ruleset) => Ruleset.id === id
                     );
-                    if (matchingRuleBundle?.id) {
-                      deleteRuleBundle(matchingRuleBundle.id);
+                    if (matchingRuleset?.id) {
+                      deleteRuleset(matchingRuleset.id);
                     }
                   }}
                 />

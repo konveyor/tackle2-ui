@@ -4,9 +4,9 @@ import {
   IReadFile,
   Ref,
   Repository,
-  RuleBundle,
-  RuleBundleImage,
-  RuleBundleKind,
+  Ruleset,
+  RulesetImage,
+  RulesetKind,
   FileLoadError,
 } from "@app/api/models";
 import { useTranslation } from "react-i18next";
@@ -58,17 +58,17 @@ const useModeStepSchema = ({
 
 export interface TargetsStepValues {
   formTargets: string[];
-  formRuleBundles: RuleBundle[];
+  formRulesets: Ruleset[];
 }
-export const ruleBundleSchema: yup.SchemaOf<RuleBundle> = yup.object({
+export const rulesetSchema: yup.SchemaOf<Ruleset> = yup.object({
   createTime: yup.string(),
   createUser: yup.string(),
   description: yup.string(),
   id: yup.number().required(),
   name: yup.string().required(),
-  image: yup.mixed<RuleBundleImage>(),
-  kind: yup.mixed<RuleBundleKind>(),
-  rulesets: yup.array(),
+  image: yup.mixed<RulesetImage>(),
+  kind: yup.mixed<RulesetKind>(),
+  rules: yup.array(),
   custom: yup.boolean(),
   repository: yup.mixed<Repository>(),
   identity: yup.mixed<Ref>(),
@@ -79,7 +79,7 @@ const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     formTargets: yup.array(),
-    formRuleBundles: yup.array().of(ruleBundleSchema),
+    formRulesets: yup.array().of(rulesetSchema),
   });
 };
 
@@ -145,9 +145,9 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
         then: yup.array().of(customRulesFilesSchema),
         otherwise: (schema) => schema,
       })
-      .when(["formRuleBundles", "rulesKind"], {
-        is: (ruleBundles: RuleBundle[], rulesKind: string) =>
-          ruleBundles.length === 0 && rulesKind === "manual",
+      .when(["formRulesets", "rulesKind"], {
+        is: (rulesets: Ruleset[], rulesKind: string) =>
+          rulesets.length === 0 && rulesKind === "manual",
         then: (schema) => schema.min(1, "At least 1 Rule File is required"), // TODO translation here
       }),
     repositoryType: yup.mixed<string>().when("rulesKind", {

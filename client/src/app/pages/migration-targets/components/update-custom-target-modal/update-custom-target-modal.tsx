@@ -3,26 +3,26 @@ import { AxiosResponse } from "axios";
 
 import { Modal, ModalVariant } from "@patternfly/react-core";
 import { CustomTargetForm } from "../../custom-target-form";
-import { RuleBundle } from "@app/api/models";
+import { Ruleset } from "@app/api/models";
 
 export interface UpdateCustomTargetModalProps {
-  ruleBundle?: RuleBundle;
-  onSaved: (response: AxiosResponse<RuleBundle>) => void;
+  ruleset?: Ruleset;
+  onSaved: (response: AxiosResponse<Ruleset>) => void;
   onCancel: () => void;
 }
 
 export const UpdateCustomTargetModal: React.FC<
   UpdateCustomTargetModalProps
-> = ({ ruleBundle, onSaved, onCancel }) => {
+> = ({ ruleset, onSaved, onCancel }) => {
   return (
     <Modal
       title="Update custom target"
       variant={ModalVariant.medium}
-      isOpen={!!ruleBundle}
+      isOpen={!!ruleset}
       onClose={onCancel}
     >
       <CustomTargetForm
-        ruleBundle={ruleBundle}
+        ruleset={ruleset}
         onSaved={onSaved}
         onCancel={onCancel}
       />

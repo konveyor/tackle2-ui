@@ -25,14 +25,14 @@ import {
 } from "@app/shared/components/hook-form-pf-fields";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useMemo, useState } from "react";
-import { Identity, IReadFile, Ref, RuleBundle, Ruleset } from "@app/api/models";
+import { Identity, IReadFile, Ref, Ruleset, Rule } from "@app/api/models";
 import { parseRules } from "@app/common/CustomRules/rules-utils";
 import {
   useCreateFileMutation,
-  useCreateRuleBundleMutation,
-  useFetchRuleBundles,
-  useUpdateRuleBundleMutation,
-} from "@app/queries/rulebundles";
+  useCreateRulesetMutation,
+  useFetchRulesets,
+  useUpdateRulesetMutation,
+} from "@app/queries/rulesets";
 import { AxiosError, AxiosResponse } from "axios";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
@@ -47,8 +47,8 @@ import { duplicateNameCheck } from "@app/utils/utils";
 import { customRulesFilesSchema } from "../applications/analysis-wizard/schema";
 
 export interface CustomTargetFormProps {
-  ruleBundle?: RuleBundle;
-  onSaved: (response: AxiosResponse<RuleBundle>) => void;
+  ruleset?: Ruleset;
+  onSaved: (response: AxiosResponse<Ruleset>) => void;
   onCancel: () => void;
 }
 
@@ -67,12 +67,12 @@ export interface CustomTargetFormValues {
 }
 
 export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
-  ruleBundle: initialRuleBundle,
+  ruleset: initialRuleset,
   onSaved,
   onCancel,
 }) => {
   const { t } = useTranslation();
-  const [ruleBundle, setRuleBundle] = useState(initialRuleBundle);
+  const [ruleset, setRuleset] = useState(initialRuleset);
 
   const [filename, setFilename] = React.useState("default.png");
 
@@ -124,7 +124,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     toString: () => value?.name || "",
   });
 
-  const { ruleBundles } = useFetchRuleBundles();
+  const { rulesets } = useFetchRulesets();
 
   const validationSchema: yup.SchemaOf<CustomTargetFormValues> = yup
     .object()
@@ -139,8 +139,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         .test(
           "Duplicate name",
           "A custom target with this name already exists. Use a different name.",
-          (value) =>
-            duplicateNameCheck(ruleBundles, ruleBundle || null, value || "")
+          (value) => duplicateNameCheck(rulesets, ruleset || null, value || "")
         ),
       description: yup.string(),
       imageID: yup.number().defined(),
@@ -183,7 +182,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     });
 
   const getInitialCustomRulesFilesData = () =>
-    ruleBundle?.rulesets?.map((ruleset): IReadFile => {
+    ruleset?.rules?.map((ruleset): IReadFile => {
       const emptyFile = new File(["empty"], ruleset.name, {
         type: "placeholder",
       });
@@ -197,21 +196,21 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   const methods = useForm<CustomTargetFormValues>({
     defaultValues: {
-      id: ruleBundle?.id || 0,
-      name: ruleBundle?.name || "",
-      description: ruleBundle?.description || "",
-      imageID: ruleBundle?.image?.id || 1,
+      id: ruleset?.id || 0,
+      name: ruleset?.name || "",
+      description: ruleset?.description || "",
+      imageID: ruleset?.image?.id || 1,
       customRulesFiles: getInitialCustomRulesFilesData(),
-      rulesKind: !ruleBundle
+      rulesKind: !ruleset
         ? "manual"
-        : !!ruleBundle?.rulesets?.length
+        : !!ruleset?.rules?.length
         ? "manual"
         : "repository",
-      associatedCredentials: ruleBundle?.identity?.name,
-      repositoryType: ruleBundle?.repository?.kind,
-      sourceRepository: ruleBundle?.repository?.url,
-      branch: ruleBundle?.repository?.branch,
-      rootPath: ruleBundle?.repository?.path,
+      associatedCredentials: ruleset?.identity?.name,
+      repositoryType: ruleset?.repository?.kind,
+      sourceRepository: ruleset?.repository?.url,
+      branch: ruleset?.repository?.branch,
+      rootPath: ruleset?.repository?.path,
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
@@ -232,14 +231,14 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   } = methods;
 
   useEffect(() => {
-    setRuleBundle(initialRuleBundle);
-    if (initialRuleBundle?.image?.id === 1) {
+    setRuleset(initialRuleset);
+    if (initialRuleset?.image?.id === 1) {
       setFilename("default.png");
     } else {
-      setFilename(initialRuleBundle?.image?.name || "default.png");
+      setFilename(initialRuleset?.image?.name || "default.png");
     }
     return () => {
-      setRuleBundle(undefined);
+      setRuleset(undefined);
       setFilename("default.png");
     };
   }, []);
@@ -262,25 +261,25 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   } = useRuleFiles(null, values.customRulesFiles, methods);
 
   const onSubmit = (formValues: CustomTargetFormValues) => {
-    let rulesets: Ruleset[] = [];
+    let rules: Rule[] = [];
 
     ruleFiles.forEach((file) => {
       if (file.data && file?.fullFile?.type !== "placeholder") {
         const { source, target, fileID, allLabels } = parseRules(file);
-        const newRuleset: Ruleset = {
+        const newRule: Rule = {
           name: file.fileName,
           labels: allLabels,
           file: {
             id: fileID ? fileID : 0,
           },
         };
-        rulesets = [...rulesets, newRuleset];
+        rules = [...rules, newRule];
       } else {
-        const matchingExistingRuleset = ruleBundle?.rulesets.find(
+        const matchingExistingRule = ruleset?.rules.find(
           (ruleset) => ruleset.name === file.fileName
         );
-        if (matchingExistingRuleset) {
-          rulesets = [...rulesets, matchingExistingRuleset];
+        if (matchingExistingRule) {
+          rules = [...rules, matchingExistingRule];
         }
       }
     });
@@ -288,13 +287,13 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       (identity) => identity.name === formValues.associatedCredentials
     );
 
-    const payload: RuleBundle = {
+    const payload: Ruleset = {
       id: formValues.id ? formValues.id : undefined,
       name: formValues.name.trim(),
       description: formValues?.description?.trim() || "",
       image: { id: formValues.imageID ? formValues.imageID : 1 },
       custom: true,
-      rulesets: rulesets,
+      rules: rules,
       ...(formValues.rulesKind === "repository" && {
         repository: {
           kind: formValues?.repositoryType,
@@ -312,10 +311,10 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           },
         }),
     };
-    if (ruleBundle) {
-      updateRuleBundle({ ...payload });
+    if (ruleset) {
+      updateRuleset({ ...payload });
     } else {
-      createRuleBundle(payload);
+      createRuleset(payload);
     }
   };
 
@@ -335,28 +334,28 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     onCreateImageFileFailure
   );
 
-  const onCreateRuleBundleSuccess = (response: any) => {
+  const onCreaterulesuccess = (response: any) => {
     onSaved(response);
     reset();
   };
 
-  const onCreateRuleBundleFailure = (error: AxiosError) => {};
+  const onCreateRulesetFailure = (error: AxiosError) => {};
 
-  const { mutate: createRuleBundle } = useCreateRuleBundleMutation(
-    onCreateRuleBundleSuccess,
-    onCreateRuleBundleFailure
+  const { mutate: createRuleset } = useCreateRulesetMutation(
+    onCreaterulesuccess,
+    onCreateRulesetFailure
   );
 
-  const onUpdateRuleBundleSuccess = (response: any) => {
+  const onUpdaterulesuccess = (response: any) => {
     onSaved(response);
     reset();
   };
 
-  const onUpdateRuleBundleFailure = (error: AxiosError) => {};
+  const onUpdateRulesetFailure = (error: AxiosError) => {};
 
-  const { mutate: updateRuleBundle } = useUpdateRuleBundleMutation(
-    onUpdateRuleBundleSuccess,
-    onUpdateRuleBundleFailure
+  const { mutate: updateRuleset } = useUpdateRulesetMutation(
+    onUpdaterulesuccess,
+    onUpdateRulesetFailure
   );
 
   return (
@@ -585,7 +584,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           variant={ButtonVariant.primary}
           isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
         >
-          {!ruleBundle ? t("actions.create") : t("actions.save")}
+          {!ruleset ? t("actions.create") : t("actions.save")}
         </Button>
         <Button
           type="button"

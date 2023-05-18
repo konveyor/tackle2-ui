@@ -26,7 +26,7 @@ import {
   JobFunction,
   Proxy,
   Review,
-  RuleBundle,
+  Ruleset,
   Setting,
   SettingTypes,
   Stakeholder,
@@ -69,7 +69,7 @@ export const TASKGROUPS = HUB + "/taskgroups";
 export const JIRATRACKERS = HUB + "/trackers";
 export const TICKETS = HUB + "/tickets";
 
-export const RULEBUNDLES = HUB + "/rulebundles";
+export const RULESETS = HUB + "/rulesets";
 export const FILES = HUB + "/files";
 export const CACHE = HUB + "/cache/m2";
 
@@ -565,20 +565,19 @@ export const updateMigrationWave = (
   obj: MigrationWave
 ): Promise<MigrationWave> => axios.put(`${MIGRATION_WAVES}/${obj.id}`, obj);
 
-export const updateRuleBundle = (obj: RuleBundle) =>
-  axios.put(`${RULEBUNDLES}/${obj.id}`, obj);
+export const updateRuleset = (obj: Ruleset) =>
+  axios.put(`${RULESETS}/${obj.id}`, obj);
 
-export const createRuleBundle = (obj: RuleBundle) =>
-  axios.post<RuleBundle>(RULEBUNDLES, obj);
+export const createRuleset = (obj: Ruleset) =>
+  axios.post<Ruleset>(RULESETS, obj);
 
-export const deleteRuleBundle = (id: number) =>
-  axios.delete(`${RULEBUNDLES}/${id}`);
+export const deleteRuleset = (id: number) => axios.delete(`${RULESETS}/${id}`);
 
-export const getRuleBundles = () =>
-  axios.get<RuleBundle[]>(RULEBUNDLES).then((response) => response.data);
+export const getRulesets = () =>
+  axios.get<[]>(RULESETS).then((response) => response.data);
 
 export const getFileByID = (id: number) =>
-  axios.get<RuleBundle[]>(FILES).then((response) => response.data);
+  axios.get<Ruleset[]>(FILES).then((response) => response.data);
 
 export const createFile = ({
   formData,
@@ -588,7 +587,7 @@ export const createFile = ({
   file: IReadFile;
 }) =>
   axios
-    .post<RuleBundle>(`${FILES}/${file.fileName}`, formData, fileHeaders)
+    .post<Ruleset>(`${FILES}/${file.fileName}`, formData, fileHeaders)
     .then((response) => {
       return response.data;
     });
