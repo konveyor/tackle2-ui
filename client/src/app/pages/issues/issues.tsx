@@ -57,14 +57,14 @@ export const Issues: React.FC = () => {
 
   const tableControlState = useTableControlUrlParams({
     columnNames: {
-      ruleID: "Rule ID",
+      name: "Name",
       category: "Category",
       effort: "Effort",
       affected: "Affected applications",
     },
-    sortableColumns: ["ruleID", "category"],
+    sortableColumns: ["name", "category"],
     initialSort: {
-      columnKey: "ruleID",
+      columnKey: "name",
       direction: "asc",
     },
     filterCategories: [
@@ -147,7 +147,7 @@ export const Issues: React.FC = () => {
     getHubRequestParams({
       ...tableControlState, // Includes filterState, sortState and paginationState
       hubSortFieldKeys: {
-        ruleID: "ruleID",
+        name: "name",
         category: "category",
       },
     })
@@ -155,12 +155,12 @@ export const Issues: React.FC = () => {
 
   const tableControls = useTableControlProps({
     ...tableControlState, // Includes filterState, sortState and paginationState
-    idProperty: "ruleID",
+    idProperty: "name",
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
     expandableVariant: "single",
-    expansionState: useCompoundExpansionState("ruleID"),
+    expansionState: useCompoundExpansionState("name"),
     selectionState: useSelectionState({
       items: currentPageItems,
       isEqual: (a, b) => a.name === b.name,
@@ -236,21 +236,22 @@ export const Issues: React.FC = () => {
                 isNoData={totalItemCount === 0}
                 numRenderedColumns={numRenderedColumns}
               >
-                {currentPageItems?.map((issue, rowIndex) => {
+                {currentPageItems?.map((compositeIssue, rowIndex) => {
                   return (
                     <Tbody
-                      key={issue.ruleID}
-                      isExpanded={isCellExpanded(issue)}
+                      key={compositeIssue.name}
+                      isExpanded={isCellExpanded(compositeIssue)}
                     >
                       <Tr>
                         <TableRowContentWithControls
                           {...tableControls}
-                          item={issue}
+                          item={compositeIssue}
                           rowIndex={rowIndex}
                         >
                           <Td
+                            // TODO abstract this into TableRowContentWithControls for single-expand tables
                             {...getSingleExpandTdProps({
-                              item: issue,
+                              item: compositeIssue,
                               rowIndex,
                             })}
                           />
@@ -258,19 +259,19 @@ export const Issues: React.FC = () => {
                             width={25}
                             {...getTdProps({ columnKey: "ruleId" })}
                           >
-                            {issue.ruleID}
+                            {compositeIssue.name}
                           </Td>
                           <Td
                             width={10}
                             {...getTdProps({ columnKey: "category" })}
                           >
-                            {issue.category}
+                            {compositeIssue.category}
                           </Td>
                           <Td
                             width={10}
                             {...getTdProps({ columnKey: "effort" })}
                           >
-                            {issue.effort}
+                            {compositeIssue.effort}
                           </Td>
                           <Td
                             width={10}
@@ -278,16 +279,16 @@ export const Issues: React.FC = () => {
                               columnKey: "affected",
                             })}
                           >
-                            {issue.affected}
+                            {compositeIssue.affected}
                           </Td>
                         </TableRowContentWithControls>
                       </Tr>
-                      {isCellExpanded(issue) ? (
+                      {isCellExpanded(compositeIssue) ? (
                         <Tr isExpanded>
                           <Td />
                           <Td
                             {...getExpandedContentTdProps({
-                              item: issue,
+                              item: compositeIssue,
                             })}
                             className={spacing.pyLg}
                           >
@@ -305,12 +306,12 @@ export const Issues: React.FC = () => {
                                     <Button variant="link" isInline>
                                       <Link
                                         to={getAffectedAppsUrl(
-                                          issue,
+                                          compositeIssue,
                                           filterValues
                                         )}
                                       >
-                                        {issue.affected} - View affected
-                                        applications
+                                        {compositeIssue.affected} - View
+                                        affected applications
                                       </Link>
                                     </Button>
                                   </Tooltip>
@@ -321,6 +322,8 @@ export const Issues: React.FC = () => {
                                     Target technologies
                                   </Text>
                                   <div>
+                                    {/*
+                                    // TODO the technologies array is missing from latest data?
                                     {issue.technologies.map((tech) => {
                                       return (
                                         <Label className={spacing.mrSm}>
@@ -328,6 +331,7 @@ export const Issues: React.FC = () => {
                                         </Label>
                                       );
                                     })}
+                                    */}
                                   </div>
                                   <Text
                                     component="h4"
@@ -343,7 +347,8 @@ export const Issues: React.FC = () => {
                                     Level of effort
                                   </Text>
                                   <div>
-                                    {issue.effort} - what do we show here?
+                                    {compositeIssue.effort} - what do we show
+                                    here?
                                   </div>
                                   <Text
                                     component="h4"
@@ -352,7 +357,7 @@ export const Issues: React.FC = () => {
                                     Labels
                                   </Text>
                                   <div>
-                                    {issue.labels?.map((label) => {
+                                    {compositeIssue.labels.map((label) => {
                                       return (
                                         <Label className={spacing.mrSm}>
                                           {label}

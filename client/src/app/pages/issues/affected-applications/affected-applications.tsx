@@ -88,7 +88,7 @@ export const AffectedApplications: React.FC = () => {
       ...tableControlState,
       implicitFilters: [
         {
-          field: "ruleid",
+          field: "name", // Composite issue name = issue name = rule name/id
           operator: "=",
           value: ruleidparam || "",
         },

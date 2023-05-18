@@ -9,14 +9,14 @@ type FilterValuesToCarry = Partial<
 >;
 
 export const getAffectedAppsUrl = (
-  issue: AnalysisCompositeIssue,
+  compositeIssue: AnalysisCompositeIssue,
   fromFilterValues: FilterValuesToCarry
 ) => {
   const toFilterValues: FilterValuesToCarry = {};
   filterKeysToCarry.forEach((key) => {
     if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
   });
-  return `/issues/${issue.ruleID}?${trimAndStringifyUrlParams({
+  return `/issues/${compositeIssue.name}?${trimAndStringifyUrlParams({
     params: serializeFilterUrlParams(toFilterValues),
   })}`;
 };
