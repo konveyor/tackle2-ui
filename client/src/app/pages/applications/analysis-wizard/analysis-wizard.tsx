@@ -47,7 +47,6 @@ interface IAnalysisWizard {
 }
 
 const defaultTaskData: TaskData = {
-  output: "/analyzer/report",
   tagger: {
     enabled: true,
   },
@@ -93,7 +92,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const { t } = useTranslation();
   const title = t("dialog.title.applicationAnalysis");
 
-  const { data: isCSVDownloadEnabled } = useSetting("download.csv.enabled");
   const { identities } = useFetchIdentities();
 
   const { pushNotification } = React.useContext(NotificationsContext);
@@ -248,7 +246,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             ? `/binary/${fieldValues.artifact.name}`
             : "",
           diva: fieldValues.diva,
-          ...(isCSVDownloadEnabled && { csv: isCSVDownloadEnabled }),
         },
         targets: fieldValues.formTargets,
         sources: fieldValues.selectedFormSources,

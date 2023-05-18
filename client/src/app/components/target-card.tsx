@@ -176,6 +176,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
               onSelect={handleRuleTargetSelection}
               selections={selectedRuleTarget}
               isOpen={isRuleTargetSelectOpen}
+              width={250}
             >
               {item.rulesets.map((ruleset) => (
                 <SelectOption
