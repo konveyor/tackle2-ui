@@ -22,6 +22,7 @@ export const useFetchTrackers = () => {
     isFetching: isLoading,
     fetchError: error,
     refetch,
+    refetchInterval: 5000,
   };
 };
 
