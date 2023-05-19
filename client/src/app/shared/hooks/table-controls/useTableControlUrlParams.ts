@@ -3,6 +3,7 @@ import { useFilterUrlParams } from "./filtering";
 import { useSortUrlParams } from "./sorting";
 import { usePaginationUrlParams } from "./pagination";
 import { useActiveRowUrlParams } from "./active-row";
+import { useExpansionUrlParams } from "./expansion";
 
 export const useTableControlUrlParams = <
   TItem,
@@ -17,9 +18,17 @@ export const useTableControlUrlParams = <
     TFilterCategoryKey
   >
 ) => {
-  const filterState = useFilterUrlParams<TFilterCategoryKey>();
-  const sortState = useSortUrlParams(args);
-  const paginationState = usePaginationUrlParams(args);
-  const activeRowState = useActiveRowUrlParams();
-  return { ...args, filterState, sortState, paginationState, activeRowState };
+  const filterState = useFilterUrlParams<TFilterCategoryKey>(); // Must pass type param because no args to infer from
+  const sortState = useSortUrlParams(args); // Type params inferred from args
+  const paginationState = usePaginationUrlParams(args); // Type params inferred from args
+  const expansionState = useExpansionUrlParams<TColumnKey>(); // Must pass type param because no args to infer from
+  const activeRowState = useActiveRowUrlParams(); // No type params or args needed
+  return {
+    ...args,
+    filterState,
+    sortState,
+    paginationState,
+    expansionState,
+    activeRowState,
+  };
 };

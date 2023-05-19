@@ -34,7 +34,6 @@ import {
   useTableControlProps,
   getHubRequestParams,
 } from "@app/shared/hooks/table-controls";
-import { useExpansionState } from "@app/shared/hooks/table-controls/expansion";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
   ConditionalTableBody,
@@ -173,7 +172,6 @@ export const Issues: React.FC = () => {
     totalItemCount,
     isLoading: isFetching,
     expandableVariant: "single",
-    expansionState: useExpansionState("_ui_unique_id"),
     selectionState: useSelectionState({
       items: currentPageItems,
       isEqual: (a, b) => a.name === b.name,
@@ -183,7 +181,6 @@ export const Issues: React.FC = () => {
   const {
     numRenderedColumns,
     filterState: { filterValues },
-    expansionState: { isCellExpanded },
     propHelpers: {
       toolbarProps,
       filterToolbarProps,
@@ -194,6 +191,7 @@ export const Issues: React.FC = () => {
       getTdProps,
       getExpandedContentTdProps,
     },
+    expansionDerivedState: { isCellExpanded },
   } = tableControls;
   console.log("%c Current page items", "color: blue;");
   console.log({ currentPageItems, totalItemCount });

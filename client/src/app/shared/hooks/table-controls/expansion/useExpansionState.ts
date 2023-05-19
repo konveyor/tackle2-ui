@@ -1,45 +1,49 @@
-import { KeyWithValueType } from "@app/utils/type-utils";
 import React from "react";
+import { useUrlParams } from "../../useUrlParams";
+import { objectKeys } from "@app/utils/utils";
 
-export const useExpansionState = <TItem, TColumnKey extends string>(
-  idProperty: KeyWithValueType<TItem, string | number>
-) => {
-  // TExpandedCells maps item names to either:
-  //  - The key of an expanded column in that row, if the table is compound-expandable
-  //  - The `true` literal value (the entire row is expanded), if non-compound-expandable
-  type TExpandedCells = Record<string, TColumnKey | boolean>;
+// TExpandedCells maps item[idProperty] values to either:
+//  - The key of an expanded column in that row, if the table is compound-expandable
+//  - The `true` literal value (the entire row is expanded), if non-compound-expandable
+export type TExpandedCells<TColumnKey extends string> = Record<
+  string,
+  TColumnKey | boolean
+>;
 
-  const [expandedCells, setExpandedCells] = React.useState<TExpandedCells>({});
-  const setCellExpanded = ({
-    item,
-    isExpanding = true,
-    columnKey,
-  }: {
-    item: TItem;
-    isExpanding?: boolean;
-    columnKey?: TColumnKey; // Pass a columnKey for compound-expand, or omit it for single-expand
-  }) => {
-    const newExpandedCells = { ...expandedCells };
-    if (isExpanding) {
-      newExpandedCells[String(item[idProperty])] = columnKey || true;
-    } else {
-      delete newExpandedCells[String(item[idProperty])];
-    }
-    setExpandedCells(newExpandedCells);
-  };
+export interface IExpansionState<TColumnKey extends string> {
+  expandedCells: Record<string, boolean | TColumnKey>;
+  setExpandedCells: (
+    newExpandedCells: Record<string, boolean | TColumnKey>
+  ) => void;
+}
 
-  // isCellExpanded:
-  //  - If called with a columnKey, returns whether that specific cell is expanded
-  //  - If called without a columnKey, returns whether the row is expanded at all
-  const isCellExpanded = (item: TItem, columnKey?: TColumnKey) => {
-    return columnKey
-      ? expandedCells[String(item[idProperty])] === columnKey
-      : !!expandedCells[String(item[idProperty])];
-  };
+export const useExpansionState = <
+  TColumnKey extends string
+>(): IExpansionState<TColumnKey> => {
+  const [expandedCells, setExpandedCells] = React.useState<
+    TExpandedCells<TColumnKey>
+  >({});
+  return { expandedCells, setExpandedCells };
+};
 
-  return {
-    expandedCells,
-    setCellExpanded,
-    isCellExpanded,
-  };
+export const useExpansionUrlParams = <
+  TColumnKey extends string
+>(): IExpansionState<TColumnKey> => {
+  const [expandedCells, setExpandedCells] = useUrlParams({
+    keys: ["expandedCells"],
+    defaultValue: {} as TExpandedCells<TColumnKey>,
+    serialize: (expandedCellsObj) => {
+      if (objectKeys(expandedCellsObj).length === 0)
+        return { expandedCells: null };
+      return { expandedCells: JSON.stringify(expandedCellsObj) };
+    },
+    deserialize: ({ expandedCells: expandedCellsStr }) => {
+      try {
+        return JSON.parse(expandedCellsStr || "{}");
+      } catch (e) {
+        return {};
+      }
+    },
+  });
+  return { expandedCells, setExpandedCells };
 };

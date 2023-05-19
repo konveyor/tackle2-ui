@@ -175,7 +175,6 @@ export const Stakeholders: React.FC = () => {
   const {
     currentPageItems,
     numRenderedColumns,
-    expansionState: { isCellExpanded },
     propHelpers: {
       toolbarProps,
       filterToolbarProps,
@@ -186,6 +185,7 @@ export const Stakeholders: React.FC = () => {
       getTdProps,
       getExpandedContentTdProps,
     },
+    expansionDerivedState: { isCellExpanded },
   } = tableControls;
 
   const deleteRow = (row: Stakeholder) => {

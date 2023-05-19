@@ -16,7 +16,7 @@ import {
   ILocalPaginationDerivedStateArgs,
   IPaginationPropsArgs,
 } from "./pagination";
-import { useExpansionState } from "./expansion";
+import { IExpansionDerivedStateArgs } from "./expansion";
 import { IActiveRowDerivedStateArgs } from "./active-row";
 
 // Generic type params used here:
@@ -101,8 +101,8 @@ export interface IUseTableControlPropsArgs<
     IFilterPropsArgs<TItem, TFilterCategoryKey>,
     ISortPropsArgs<TColumnKey, TSortableColumnKey>,
     IPaginationPropsArgs,
+    IExpansionDerivedStateArgs<TItem, TColumnKey>,
     IActiveRowDerivedStateArgs<TItem> {
   currentPageItems: TItem[];
-  expansionState: ReturnType<typeof useExpansionState<TItem, TColumnKey>>;
-  selectionState: ReturnType<typeof useSelectionState<TItem>>;
+  selectionState: ReturnType<typeof useSelectionState<TItem>>; // TODO make this optional? fold it in?
 }

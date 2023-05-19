@@ -39,8 +39,6 @@ export const useLocalTableControlState = <
     filterState,
   });
 
-  const expansionState = useExpansionState<TItem, TColumnKey>(idProperty);
-
   const selectionState = useSelectionState({
     items: filteredItems,
     isEqual: (a, b) => a[idProperty] === b[idProperty],
@@ -62,6 +60,9 @@ export const useLocalTableControlState = <
     paginationState,
     items: sortedItems,
   });
+
+  const expansionState = useExpansionState<TColumnKey>();
+
   const activeRowState = useActiveRowState();
 
   return {

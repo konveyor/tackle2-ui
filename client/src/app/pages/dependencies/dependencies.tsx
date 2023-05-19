@@ -25,7 +25,6 @@ import {
   useTableControlUrlParams,
   useTableControlProps,
 } from "@app/shared/hooks/table-controls";
-import { useExpansionState } from "@app/shared/hooks/table-controls/expansion";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
   ConditionalTableBody,
@@ -83,7 +82,6 @@ export const Dependencies: React.FC = () => {
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
-    expansionState: useExpansionState("name"),
     selectionState: useSelectionState({
       items: currentPageItems,
       isEqual: (a, b) => a.name === b.name,
