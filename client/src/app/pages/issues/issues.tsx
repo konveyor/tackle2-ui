@@ -347,7 +347,7 @@ export const Issues: React.FC = () => {
                                   </Text>
                                   <div>
                                     {/*
-                                    // TODO the technologies array is missing from latest data?
+                                    // TODO the technologies array was replaced by labels, we need to parse them
                                     {issue.technologies.map((tech) => {
                                       return (
                                         <Label className={spacing.mrSm}>
