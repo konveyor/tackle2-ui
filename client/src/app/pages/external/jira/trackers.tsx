@@ -50,6 +50,7 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
 import { useFetchTickets } from "@app/queries/tickets";
+import TrackerStatus from "./components/tracker-status";
 
 export const JiraTrackers: React.FC = () => {
   const { t } = useTranslation();
@@ -103,6 +104,7 @@ export const JiraTrackers: React.FC = () => {
       name: "Instance name",
       url: "URL",
       kind: "Instance type",
+      connection: "Connection",
     },
     isSelectable: true,
     filterCategories: [
@@ -207,6 +209,7 @@ export const JiraTrackers: React.FC = () => {
                     <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "url" })} />
                     <Th {...getThProps({ columnKey: "kind" })} />
+                    <Th {...getThProps({ columnKey: "connection" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -232,6 +235,9 @@ export const JiraTrackers: React.FC = () => {
                         </Td>
                         <Td width={10} {...getTdProps({ columnKey: "kind" })}>
                           {tracker.kind}
+                        </Td>
+                        <Td width={10} {...getTdProps({ columnKey: "kind" })}>
+                          <TrackerStatus connected={tracker.connected} />
                         </Td>
                         <Td width={20}>
                           <AppTableActionButtons
