@@ -1,16 +1,16 @@
-import { useCompoundExpansionState } from "../useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
+import { getLocalFilterDerivedState, useFilterState } from "./filtering";
+import { useSortState, getLocalSortDerivedState } from "./sorting";
 import {
   getLocalPaginationDerivedState,
   usePaginationState,
 } from "./pagination";
-import { useSortState, getLocalSortDerivedState } from "./sorting";
+import { useExpansionState } from "./expansion";
+import { useActiveRowState } from "./active-row";
 import {
   IUseLocalTableControlStateArgs,
   IUseTableControlPropsArgs,
 } from "./types";
-import { getLocalFilterDerivedState, useFilterState } from "./filtering";
-import { useActiveRowState } from "./active-row";
 
 export const useLocalTableControlState = <
   TItem,
@@ -39,9 +39,7 @@ export const useLocalTableControlState = <
     filterState,
   });
 
-  const expansionState = useCompoundExpansionState<TItem, TColumnKey>(
-    idProperty
-  );
+  const expansionState = useExpansionState<TItem, TColumnKey>(idProperty);
 
   const selectionState = useSelectionState({
     items: filteredItems,

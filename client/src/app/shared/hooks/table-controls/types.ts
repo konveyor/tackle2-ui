@@ -16,8 +16,8 @@ import {
   ILocalPaginationDerivedStateArgs,
   IPaginationPropsArgs,
 } from "./pagination";
+import { useExpansionState } from "./expansion";
 import { IActiveRowDerivedStateArgs } from "./active-row";
-import { useCompoundExpansionState } from "../useCompoundExpansionState";
 
 // Generic type params used here:
 //   TItem - The actual API objects represented by rows in the table. Can be any object.
@@ -103,8 +103,6 @@ export interface IUseTableControlPropsArgs<
     IPaginationPropsArgs,
     IActiveRowDerivedStateArgs<TItem> {
   currentPageItems: TItem[];
-  expansionState: ReturnType<
-    typeof useCompoundExpansionState<TItem, TColumnKey>
-  >;
+  expansionState: ReturnType<typeof useExpansionState<TItem, TColumnKey>>;
   selectionState: ReturnType<typeof useSelectionState<TItem>>;
 }

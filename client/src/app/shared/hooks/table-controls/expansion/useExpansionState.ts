@@ -1,7 +1,7 @@
 import { KeyWithValueType } from "@app/utils/type-utils";
 import React from "react";
 
-export const useCompoundExpansionState = <TItem, TColumnKey extends string>(
+export const useExpansionState = <TItem, TColumnKey extends string>(
   idProperty: KeyWithValueType<TItem, string | number>
 ) => {
   // TExpandedCells maps item names to either:
@@ -17,7 +17,7 @@ export const useCompoundExpansionState = <TItem, TColumnKey extends string>(
   }: {
     item: TItem;
     isExpanding?: boolean;
-    columnKey?: TColumnKey;
+    columnKey?: TColumnKey; // Pass a columnKey for compound-expand, or omit it for single-expand
   }) => {
     const newExpandedCells = { ...expandedCells };
     if (isExpanding) {
@@ -36,9 +36,6 @@ export const useCompoundExpansionState = <TItem, TColumnKey extends string>(
       ? expandedCells[String(item[idProperty])] === columnKey
       : !!expandedCells[String(item[idProperty])];
   };
-
-  // TODO we will need to adapt this to regular-expandable and not just compound-expandable
-  // (probably just means the addition of returned props to render an expandToggleTd in useTableControlProps)
 
   return {
     expandedCells,
