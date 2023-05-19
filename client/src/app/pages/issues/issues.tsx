@@ -58,11 +58,20 @@ export const Issues: React.FC = () => {
   const tableControlState = useTableControlUrlParams({
     columnNames: {
       name: "Name",
+      ruleset: "Rule set",
+      rule: "Rule",
       category: "Category",
       effort: "Effort",
       affected: "Affected applications",
     },
-    sortableColumns: ["name", "category"],
+    sortableColumns: [
+      "name",
+      "ruleset",
+      "rule",
+      "category",
+      "effort",
+      "affected",
+    ],
     initialSort: {
       columnKey: "name",
       direction: "asc",
@@ -148,7 +157,11 @@ export const Issues: React.FC = () => {
       ...tableControlState, // Includes filterState, sortState and paginationState
       hubSortFieldKeys: {
         name: "name",
+        ruleset: "ruleset",
+        rule: "rule",
         category: "category",
+        effort: "effort",
+        affected: "affected",
       },
     })
   );
@@ -226,6 +239,8 @@ export const Issues: React.FC = () => {
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
                     <Th {...getThProps({ columnKey: "name" })} />
+                    <Th {...getThProps({ columnKey: "ruleset" })} />
+                    <Th {...getThProps({ columnKey: "rule" })} />
                     <Th {...getThProps({ columnKey: "category" })} />
                     <Th {...getThProps({ columnKey: "effort" })} />
                     <Th {...getThProps({ columnKey: "affected" })} />
@@ -257,9 +272,17 @@ export const Issues: React.FC = () => {
                               rowIndex,
                             })}
                           />
-                          <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                            {compositeIssue.name} ({compositeIssue.ruleSet},{" "}
-                            {compositeIssue.rule})
+                          <Td width={15} {...getTdProps({ columnKey: "name" })}>
+                            {compositeIssue.name}
+                          </Td>
+                          <Td
+                            width={15}
+                            {...getTdProps({ columnKey: "ruleset" })}
+                          >
+                            {compositeIssue.ruleSet}
+                          </Td>
+                          <Td width={15} {...getTdProps({ columnKey: "rule" })}>
+                            {compositeIssue.rule}
                           </Td>
                           <Td
                             width={10}
@@ -274,7 +297,7 @@ export const Issues: React.FC = () => {
                             {compositeIssue.effort}
                           </Td>
                           <Td
-                            width={10}
+                            width={15}
                             {...getTdProps({
                               columnKey: "affected",
                             })}
