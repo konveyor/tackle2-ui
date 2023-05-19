@@ -1,5 +1,7 @@
 import { BusinessServiceForm } from "@app/pages/controls/business-services/components/business-service-form";
 
+export type New<T extends { id: number }> = Omit<T, "id">;
+
 export interface HubFilter {
   field: string;
   operator?: "=" | "!=" | "~" | ">" | ">=" | "<" | "<=";
@@ -39,8 +41,6 @@ export interface BusinessService {
   owner?: Stakeholder;
 }
 
-export type BusinessServiceNew = Omit<BusinessService, "id">;
-
 export interface Stakeholder {
   id: number;
   name: string;
@@ -53,16 +53,12 @@ export interface Stakeholder {
   contributes?: Ref[];
 }
 
-export type StakeholderNew = Omit<Stakeholder, "id">;
-
 export interface StakeholderGroup {
   id: number;
   name: string;
   description?: string;
   stakeholders?: Ref[];
 }
-
-export type StakeholderGroupNew = Omit<StakeholderGroup, "id">;
 
 export interface Ref {
   id: number;
@@ -83,15 +79,11 @@ export interface TagCategory {
   tags?: Tag[];
 }
 
-export type TagCategoryNew = Omit<TagCategory, "id">;
-
 export interface Tag {
   id: number;
   name: string;
   category?: Ref;
 }
-
-export type TagNew = Omit<Tag, "id">;
 
 // Application inventory
 export type ProposedAction =
@@ -527,8 +519,6 @@ export interface MigrationWave {
   status?: string;
 }
 
-export type MigrationWaveNew = Omit<MigrationWave, "id">;
-
 export interface Project {
   id: string;
   key: string;
@@ -622,5 +612,3 @@ export interface Ticket {
   reference?: string;
   status?: string;
 }
-
-export type TicketNew = Omit<Ticket, "id">;

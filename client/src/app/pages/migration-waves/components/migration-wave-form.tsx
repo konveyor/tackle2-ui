@@ -28,7 +28,7 @@ import {
   Stakeholder,
   StakeholderGroup,
   MigrationWave,
-  MigrationWaveNew,
+  New,
 } from "@app/api/models";
 import { duplicateNameCheck } from "@app/utils/utils";
 import {
@@ -196,7 +196,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   const endDate = getValues("endDate");
 
   const onSubmit = (formValues: WaveFormValues) => {
-    const payload: MigrationWaveNew = {
+    const payload: New<MigrationWave> = {
       applications: migrationWave?.applications || [],
       name: formValues.name.trim(),
       startDate: dayjs.utc(formValues.startDate).format(),

@@ -10,7 +10,7 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import { JobFunction, Ref, Stakeholder, StakeholderNew } from "@app/api/models";
+import { JobFunction, New, Ref, Stakeholder } from "@app/api/models";
 import { duplicateFieldCheck, duplicateNameCheck } from "@app/utils/utils";
 import { toOptionLike } from "@app/utils/model-utils";
 import {
@@ -169,7 +169,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
         };
       });
 
-    const payload: StakeholderNew = {
+    const payload: New<Stakeholder> = {
       email: formValues.email.trim(),
       name: formValues.name.trim(),
       jobFunction: jobFunctions.find(

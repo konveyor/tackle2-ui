@@ -71,7 +71,6 @@ import { WaveStatusTable } from "./components/status-table";
 import { WaveForm } from "./components/migration-wave-form";
 import { ManageApplicationsForm } from "./components/manage-applications-form";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
-import { getStakeholders } from "@app/api/rest";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 dayjs.extend(utc);
 

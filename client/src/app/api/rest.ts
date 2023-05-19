@@ -37,13 +37,7 @@ import {
   Taskgroup,
   MigrationWave,
   Ticket,
-  BusinessServiceNew,
-  MigrationWaveNew,
-  TicketNew,
-  StakeholderNew,
-  StakeholderGroupNew,
-  TagNew,
-  TagCategoryNew,
+  New,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
@@ -136,7 +130,7 @@ export const deleteBusinessService = (id: number | string): AxiosPromise => {
 };
 
 export const createBusinessService = (
-  obj: BusinessServiceNew
+  obj: New<BusinessService>
 ): AxiosPromise<BusinessService> => {
   return APIClient.post(`${BUSINESS_SERVICES}`, obj);
 };
@@ -463,7 +457,7 @@ export const getMigrationWaves = (): Promise<MigrationWave[]> =>
   axios.get(MIGRATION_WAVES).then((response) => response.data);
 
 export const createMigrationWave = (
-  obj: MigrationWaveNew
+  obj: New<MigrationWave>
 ): Promise<MigrationWave> => axios.post(MIGRATION_WAVES, obj);
 
 export const deleteMigrationWave = (id: number): Promise<MigrationWave> =>
@@ -560,7 +554,7 @@ export const getIssues = (params: HubRequestParams = {}) =>
 
 // Tickets
 
-export const createTicket = (obj: TicketNew): Promise<Ticket> =>
+export const createTicket = (obj: New<Ticket>): Promise<Ticket> =>
   axios.post(TICKETS, obj);
 
 export const getTickets = (): Promise<Ticket[]> =>
@@ -577,8 +571,9 @@ export const getStakeholders = (): Promise<Stakeholder[]> =>
 export const deleteStakeholder = (id: number): Promise<Stakeholder> =>
   axios.delete(`${STAKEHOLDERS}/${id}`);
 
-export const createStakeholder = (obj: StakeholderNew): Promise<Stakeholder> =>
-  axios.post(STAKEHOLDERS, obj);
+export const createStakeholder = (
+  obj: New<Stakeholder>
+): Promise<Stakeholder> => axios.post(STAKEHOLDERS, obj);
 
 export const updateStakeholder = (obj: Stakeholder): Promise<Stakeholder> =>
   axios.put(`${STAKEHOLDERS}/${obj.id}`, obj);
@@ -597,7 +592,7 @@ export const deleteStakeholderGroup = (id: number): Promise<StakeholderGroup> =>
   axios.delete(`${STAKEHOLDER_GROUPS}/${id}`);
 
 export const createStakeholderGroup = (
-  obj: StakeholderGroupNew
+  obj: New<StakeholderGroup>
 ): Promise<StakeholderGroup> => axios.post(STAKEHOLDER_GROUPS, obj);
 
 export const updateStakeholderGroup = (
@@ -613,7 +608,7 @@ export const getTags = (): Promise<Tag[]> =>
 export const getTagById = (id: number | string): Promise<Tag> =>
   axios.get(`${TAGS}/${id}`);
 
-export const createTag = (obj: TagNew): Promise<Tag> => axios.post(TAGS, obj);
+export const createTag = (obj: New<Tag>): Promise<Tag> => axios.post(TAGS, obj);
 
 export const deleteTag = (id: number): Promise<Tag> =>
   axios.delete(`${TAGS}/${id}`);
@@ -632,8 +627,9 @@ export const getTagCategoryById = (id: number): Promise<TagCategory> =>
 export const deleteTagCategory = (id: number): Promise<TagCategory> =>
   axios.delete(`${TAG_CATEGORIES}/${id}`);
 
-export const createTagCategory = (obj: TagCategoryNew): Promise<TagCategory> =>
-  axios.post(TAG_CATEGORIES, obj);
+export const createTagCategory = (
+  obj: New<TagCategory>
+): Promise<TagCategory> => axios.post(TAG_CATEGORIES, obj);
 
 export const updateTagCategory = (obj: TagCategory): Promise<TagCategory> =>
   axios.put(`${TAG_CATEGORIES}/${obj.id}`, obj);

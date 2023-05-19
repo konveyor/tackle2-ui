@@ -11,7 +11,7 @@ import {
 } from "@patternfly/react-core";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { Tag, TagCategory, TagNew } from "@app/api/models";
+import { New, Tag, TagCategory } from "@app/api/models";
 import { duplicateNameCheck } from "@app/utils/utils";
 import { ITagCategoryDropdown } from "@app/utils/model-utils";
 import {
@@ -137,7 +137,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
     const matchingTagCategoryRef = tagCategories.find(
       (tagCategory) => tagCategory.name === formValues.tagCategory
     );
-    const payload: TagNew = {
+    const payload: New<Tag> = {
       name: formValues.name.trim(),
       category: matchingTagCategoryRef,
     };
