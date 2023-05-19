@@ -13,7 +13,7 @@ import {
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { Ref, StakeholderGroup } from "@app/api/models";
+import { Ref, StakeholderGroup, StakeholderGroupNew } from "@app/api/models";
 import { duplicateNameCheck } from "@app/utils/utils";
 import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
@@ -170,7 +170,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
         };
       });
 
-    const payload: Omit<StakeholderGroup, "id"> = {
+    const payload: StakeholderGroupNew = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       stakeholders: matchingStakeholderRefs,

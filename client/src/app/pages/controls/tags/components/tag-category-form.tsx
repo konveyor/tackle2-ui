@@ -15,7 +15,7 @@ import {
   DEFAULT_SELECT_MAX_HEIGHT,
   COLOR_HEX_VALUES_BY_NAME,
 } from "@app/Constants";
-import { TagCategory } from "@app/api/models";
+import { TagCategory, TagCategoryNew } from "@app/api/models";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import { toOptionLike } from "@app/utils/model-utils";
 import {
@@ -135,7 +135,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
   );
 
   const onSubmit = (formValues: FormValues) => {
-    const payload: Omit<TagCategory, "id"> = {
+    const payload: TagCategoryNew = {
       name: formValues.name.trim(),
       rank: formValues.rank,
       colour: formValues.color || undefined,

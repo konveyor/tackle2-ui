@@ -13,7 +13,11 @@ import {
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { createBusinessService, updateBusinessService } from "@app/api/rest";
-import { BusinessService, Stakeholder } from "@app/api/models";
+import {
+  BusinessService,
+  BusinessServiceNew,
+  Stakeholder,
+} from "@app/api/models";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
@@ -98,7 +102,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
     const matchingStakeholderRef = stakeholders.find(
       (stakeholder) => stakeholder.name === formValues.owner
     );
-    const payload: Omit<BusinessService, "id"> = {
+    const payload: BusinessServiceNew = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       owner: matchingStakeholderRef,

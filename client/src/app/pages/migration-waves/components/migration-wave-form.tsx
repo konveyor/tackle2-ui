@@ -24,7 +24,12 @@ import {
 } from "@app/queries/migration-waves";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { Stakeholder, StakeholderGroup, MigrationWave } from "@app/api/models";
+import {
+  Stakeholder,
+  StakeholderGroup,
+  MigrationWave,
+  MigrationWaveNew,
+} from "@app/api/models";
 import { duplicateNameCheck } from "@app/utils/utils";
 import {
   HookFormPFGroupController,
@@ -191,7 +196,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   const endDate = getValues("endDate");
 
   const onSubmit = (formValues: WaveFormValues) => {
-    const payload: Omit<MigrationWave, "id"> = {
+    const payload: MigrationWaveNew = {
       applications: migrationWave?.applications || [],
       name: formValues.name.trim(),
       startDate: dayjs.utc(formValues.startDate).format(),
