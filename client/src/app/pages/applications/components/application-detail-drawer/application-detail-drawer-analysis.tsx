@@ -13,6 +13,7 @@ import {
   ExclamationCircleIcon,
 } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { Identity, Task } from "@app/api/models";
 import { getKindIDByRef } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
@@ -21,6 +22,8 @@ import {
   IApplicationDetailDrawerProps,
 } from "./application-detail-drawer";
 import { EmptyTextMessage } from "@app/shared/components";
+import { useSetting } from "@app/queries/settings";
+import { APPLICATIONS } from "@app/api/rest";
 
 export interface IApplicationDetailDrawerAnalysisProps
   extends Pick<
@@ -36,6 +39,9 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
   const { t } = useTranslation();
 
   const { identities } = useFetchIdentities();
+
+  const { data: isCSVDownloadEnabled } = useSetting("download.csv.enabled");
+  const { data: isHTMLDownloadEnabled } = useSetting("download.html.enabled");
 
   let matchingSourceCredsRef: Identity | undefined;
   let matchingMavenCredsRef: Identity | undefined;
@@ -100,13 +106,64 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
               <Tooltip content="View Report">
                 <Button variant="link" isInline>
                   <Link
-                    to={`/hub/applications/${application.id}/analysis`}
+                    to={`/hub/applications/${application.id}/bucket${task?.data?.output}`}
                     target="_blank"
                   >
-                    View analysis
+                    Report
                   </Link>
                 </Button>
               </Tooltip>
+              {(isHTMLDownloadEnabled || isCSVDownloadEnabled) && (
+                <Text
+                  component="h4"
+                  className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightLight}`}
+                >
+                  Download report:
+                  {isHTMLDownloadEnabled && (
+                    <Tooltip content="Click to download Analysis report">
+                      <Button
+                        id="download-html"
+                        variant="link"
+                        isInline
+                        className={spacing.pXs}
+                      >
+                        <Link
+                          to={`${APPLICATIONS}/${application.id}/bucket${task?.data?.output}?filter=`}
+                          target="_blank"
+                          download
+                        >
+                          HTML
+                        </Link>
+                      </Button>
+                    </Tooltip>
+                  )}
+                  {isHTMLDownloadEnabled &&
+                    isCSVDownloadEnabled &&
+                    task?.data?.mode?.csv && (
+                      <span className={spacing.pXs}>|</span>
+                    )}
+                  {isCSVDownloadEnabled && task?.data?.mode?.csv && (
+                    <>
+                      <Tooltip content="Click to download Analysis report">
+                        <Button
+                          id="download-csv"
+                          variant="link"
+                          isInline
+                          className={spacing.pXs}
+                        >
+                          <Link
+                            to={`${APPLICATIONS}/${application.id}/bucket${task?.data?.output}?filter=*.csv`}
+                            target="_blank"
+                            download
+                          >
+                            CSV
+                          </Link>
+                        </Button>
+                      </Tooltip>
+                    </>
+                  )}
+                </Text>
+              )}
             </>
           ) : task?.state === "Failed" ? (
             <>
