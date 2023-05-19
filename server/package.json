@@ -11,6 +11,7 @@
     "http-terminator": "^3.2.0"
   },
   "scripts": {
+    "start:dev": "node index.js",
     "start": "node index.js"
   }
 }
