@@ -268,6 +268,10 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         const { source, target, fileID, allLabels } = parseRules(file);
         const newRule: Rule = {
           name: file.fileName,
+          // metadata: {
+          //   target: target ? target : "",
+          //   source: source ? source : "",
+          // },
           labels: allLabels,
           file: {
             id: fileID ? fileID : 0,
@@ -475,7 +479,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           <MultipleFileUpload
             onFileDrop={handleFileDrop}
             dropzoneProps={{
-              accept: ".yml, .yaml",
+              accept: ".xml",
             }}
             {...register("customRulesFiles")}
           >
@@ -483,7 +487,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
               titleIcon={<UploadIcon />}
               titleText="Drag and drop files here"
               titleTextSeparator="or"
-              infoText="Accepted file types: .yml, .yaml."
+              infoText="Accepted file types: XML with '.windup.xml' suffix."
             />
             {showStatus && (
               <MultipleFileUploadStatus
