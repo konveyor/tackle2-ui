@@ -141,13 +141,6 @@ export const AffectedApplications: React.FC = () => {
 
   const { data: applications } = useFetchApplications();
 
-  // TODO get the breadcrumb bar to take you back to the exact view you left - put a backTo param in the URL here?
-  // When going back, if we cleared the app name filter here should we clear it there too?
-  // special logic to filter it out of the backTo param? that feels weird
-
-  // using the location from Issues page, pass a full URL as "backTo" in the URL for affected apps.
-  // when clearing or applying the application.name filter, clear or apply it in the filters arg inside backTo as well?
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
