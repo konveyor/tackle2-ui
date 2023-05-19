@@ -21,7 +21,7 @@ export const useFetchRulesets = () => {
       select: (data) => {
         return data.map((ruleset) => {
           const mappedRules = ruleset.rules.map((rule) => {
-            if (ruleset?.name === "rule-example.yaml") {
+            if (ruleset?.name === "a45555") {
               debugger;
             }
             const labels = getLabels(rule.labels || []);

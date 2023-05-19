@@ -47,6 +47,7 @@ interface IAnalysisWizard {
 }
 
 const defaultTaskData: TaskData = {
+  output: "/windup/report",
   tagger: {
     enabled: true,
   },
@@ -56,8 +57,6 @@ const defaultTaskData: TaskData = {
     artifact: "",
     diva: false,
   },
-  targets: [],
-  sources: [],
   scope: {
     withKnown: false,
     packages: {
@@ -68,8 +67,8 @@ const defaultTaskData: TaskData = {
 };
 
 const defaultTaskgroup: Taskgroup = {
-  name: `taskgroup.analyzer`,
-  addon: "analyzer",
+  name: `taskgroup.windup`,
+  addon: "windup",
   data: {
     ...defaultTaskData,
   },
@@ -247,8 +246,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             : "",
           diva: fieldValues.diva,
         },
-        targets: fieldValues.formTargets,
-        sources: fieldValues.selectedFormSources,
         scope: {
           withKnown: fieldValues.withKnown.includes("oss") ? true : false,
           packages: {
