@@ -5,35 +5,22 @@ import {
   deleteTagCategory,
   getTags,
   getTagCategories,
+  createTag,
+  updateTag,
+  createTagCategory,
+  updateTagCategory,
 } from "@app/api/rest";
-import { Tag, TagCategory } from "@app/api/models";
 import { AxiosError } from "axios";
-
-export interface ITagFetchState {
-  tags: Tag[];
-  isFetching: boolean;
-  fetchError: any;
-  refetch: any;
-}
-
-export interface ITagCategoryFetchState {
-  tagCategories: TagCategory[];
-  isFetching: boolean;
-  fetchError: any;
-  refetch: any;
-}
 
 export const TagsQueryKey = "tags";
 export const TagCategoriesQueryKey = "tagcategories";
 
-export const useFetchTags = (): ITagFetchState => {
-  const { data, isLoading, error, refetch } = useQuery(
-    [TagsQueryKey],
-    async () => (await getTags()).data,
-    {
-      onError: (error) => console.log("error, ", error),
-    }
-  );
+export const useFetchTags = () => {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [TagsQueryKey],
+    queryFn: getTags,
+    onError: (error: AxiosError) => console.log("error, ", error),
+  });
   return {
     tags: data || [],
     isFetching: isLoading,
@@ -42,14 +29,12 @@ export const useFetchTags = (): ITagFetchState => {
   };
 };
 
-export const useFetchTagCategories = (): ITagCategoryFetchState => {
-  const { data, isLoading, error, refetch } = useQuery(
-    [TagCategoriesQueryKey],
-    async () => (await getTagCategories()).data,
-    {
-      onError: (error) => console.log("error, ", error),
-    }
-  );
+export const useFetchTagCategories = () => {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [TagCategoriesQueryKey],
+    queryFn: getTagCategories,
+    onError: (error: AxiosError) => console.log("error, ", error),
+  });
   return {
     tagCategories: data || [],
     isFetching: isLoading,
@@ -58,13 +43,89 @@ export const useFetchTagCategories = (): ITagCategoryFetchState => {
   };
 };
 
+export const useCreateTagMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createTag,
+    onSuccess: (res) => {
+      onSuccess(res);
+      queryClient.invalidateQueries([TagsQueryKey]);
+    },
+    onError: (err: AxiosError) => {
+      onError(err);
+      queryClient.invalidateQueries([TagsQueryKey]);
+    },
+  });
+};
+
+export const useCreateTagCategoryMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createTagCategory,
+    onSuccess: (res) => {
+      onSuccess(res);
+      queryClient.invalidateQueries([TagCategoriesQueryKey]);
+    },
+    onError: (err: AxiosError) => {
+      onError(err);
+      queryClient.invalidateQueries([TagCategoriesQueryKey]);
+    },
+  });
+};
+
+export const useUpdateTagMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateTag,
+    onSuccess: (res) => {
+      onSuccess(res);
+      queryClient.invalidateQueries([TagsQueryKey]);
+    },
+    onError: (err: AxiosError) => {
+      onError(err);
+      queryClient.invalidateQueries([TagsQueryKey]);
+    },
+  });
+};
+
+export const useUpdateTagCategoryMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateTagCategory,
+    onSuccess: (res) => {
+      onSuccess(res);
+      queryClient.invalidateQueries([TagCategoriesQueryKey]);
+    },
+    onError: (err: AxiosError) => {
+      onError(err);
+      queryClient.invalidateQueries([TagCategoriesQueryKey]);
+    },
+  });
+};
 export const useDeleteTagMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation(deleteTag, {
+  return useMutation({
+    mutationFn: deleteTag,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([TagsQueryKey]);
@@ -74,19 +135,16 @@ export const useDeleteTagMutation = (
       queryClient.invalidateQueries([TagsQueryKey]);
     },
   });
-  return {
-    mutate,
-    isLoading,
-    error,
-  };
 };
+
 export const useDeleteTagCategoryMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation(deleteTagCategory, {
+  return useMutation({
+    mutationFn: deleteTagCategory,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([TagCategoriesQueryKey]);
@@ -96,9 +154,4 @@ export const useDeleteTagCategoryMutation = (
       queryClient.invalidateQueries([TagCategoriesQueryKey]);
     },
   });
-  return {
-    mutate,
-    isLoading,
-    error,
-  };
 };

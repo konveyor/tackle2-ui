@@ -13,13 +13,13 @@ import {
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import { IssueManagerKind, JiraTracker } from "@app/api/models";
+import { IssueManagerKind, Tracker } from "@app/api/models";
 import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
 import {
-  useCreateJiraTrackerMutation,
-  useFetchJiraTrackers,
-  useUpdateJiraTrackerMutation,
-} from "@app/queries/jiratrackers";
+  useCreateTrackerMutation,
+  useFetchTrackers,
+  useUpdateTrackerMutation,
+} from "@app/queries/trackers";
 import { useFetchIdentities } from "@app/queries/identities";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import {
@@ -44,7 +44,7 @@ interface FormValues {
 }
 
 export interface InstanceFormProps {
-  instance?: JiraTracker;
+  instance?: Tracker;
   onClose: () => void;
 }
 
@@ -57,14 +57,16 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
   const [axiosError, setAxiosError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { jiraTrackers: instances } = useFetchJiraTrackers();
+  const { trackers: instances } = useFetchTrackers();
   const { identities } = useFetchIdentities();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const onCreateInstanceSuccess = (_: AxiosResponse<JiraTracker>) =>
+  const onCreateInstanceSuccess = (_: AxiosResponse<Tracker>) =>
     pushNotification({
-      title: t("terms.jiraInstanceCreated"),
+      title: t("toastr.success.save", {
+        type: t("terms.instance").toLocaleLowerCase(),
+      }),
       variant: "success",
     });
 
@@ -72,18 +74,20 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
     setAxiosError(error);
   };
 
-  const { mutate: createInstance } = useCreateJiraTrackerMutation(
+  const { mutate: createInstance } = useCreateTrackerMutation(
     onCreateInstanceSuccess,
     onCreateUpdateInstanceError
   );
 
-  const onUpdateInstanceSuccess = (_: AxiosResponse<JiraTracker>) =>
+  const onUpdateInstanceSuccess = (_: AxiosResponse<Tracker>) =>
     pushNotification({
-      title: t("terms.jiraInstanceUpdated"),
+      title: t("toastr.success.save", {
+        type: t("terms.instance").toLocaleLowerCase(),
+      }),
       variant: "success",
     });
 
-  const { mutate: updateInstance } = useUpdateJiraTrackerMutation(
+  const { mutate: updateInstance } = useUpdateTrackerMutation(
     onUpdateInstanceSuccess,
     onCreateUpdateInstanceError
   );
@@ -93,7 +97,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
       (identity) => formValues?.credentialName === identity.name
     );
 
-    const payload: JiraTracker = {
+    const payload: Tracker = {
       name: formValues.name.trim(),
       url: formValues.url.trim(),
       id: formValues.id,

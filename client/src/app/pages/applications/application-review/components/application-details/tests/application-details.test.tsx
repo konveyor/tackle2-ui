@@ -7,6 +7,7 @@ import { render } from "@app/test-config/test-utils";
 describe("AppTable", () => {
   it("Renders without crashing", () => {
     const application: Application = {
+      id: 1,
       name: "myApp",
       description: "myDescription",
     };

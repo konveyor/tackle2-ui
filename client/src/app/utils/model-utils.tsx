@@ -62,7 +62,7 @@ export interface IStakeholderDropdown
 export const toIStakeholderDropdown = (
   value: Stakeholder | undefined
 ): IStakeholderDropdown => ({
-  id: value?.id,
+  id: value?.id || 0,
   name: value?.name || "",
   email: value?.email || "",
 });

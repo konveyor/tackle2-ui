@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { AxiosError, AxiosResponse } from "axios";
+import React from "react";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@migtools/lib-ui";
 
@@ -10,6 +10,8 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Modal,
+  ModalVariant,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -32,12 +34,8 @@ import {
   ConfirmDialog,
   NoDataEmptyState,
 } from "@app/shared/components";
-
 import { getAxiosErrorMessage, numStr } from "@app/utils/utils";
 import { StakeholderGroup } from "@app/api/models";
-
-import { NewStakeholderGroupModal } from "./components/new-stakeholder-group-modal";
-import { UpdateStakeholderGroupModal } from "./components/update-stakeholder-group-modal";
 import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import {
   FilterCategory,
@@ -52,6 +50,7 @@ import {
   useFetchStakeholderGroups,
 } from "@app/queries/stakeholdergoups";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import { StakeholderGroupForm } from "./components/stakeholder-group-form";
 
 const ENTITY_FIELD = "entity";
 
@@ -61,6 +60,7 @@ const getRow = (rowData: IRowData): StakeholderGroup => {
 
 export const StakeholderGroups: React.FC = () => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
     React.useState<Boolean>(false);
@@ -68,10 +68,12 @@ export const StakeholderGroups: React.FC = () => {
   const [stakeholderGroupIdToDelete, setStakeholderGroupIdToDelete] =
     React.useState<number>();
 
-  const { pushNotification } = React.useContext(NotificationsContext);
-
-  const [isNewModalOpen, setIsNewModalOpen] = useState(false);
-  const [rowToUpdate, setRowToUpdate] = useState<StakeholderGroup>();
+  const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
+    "create" | StakeholderGroup | null
+  >(null);
+  const isCreateUpdateModalOpen = createUpdateModalState !== null;
+  const stakeholderGroupToUpdate =
+    createUpdateModalState !== "create" ? createUpdateModalState : null;
 
   const onDeleteStakeholderGroupSuccess = (response: any) => {
     pushNotification({
@@ -206,7 +208,7 @@ export const StakeholderGroups: React.FC = () => {
         {
           title: (
             <AppTableActionButtons
-              onEdit={() => editRow(item)}
+              onEdit={() => setCreateUpdateModalState(item)}
               onDelete={() => deleteRow(item)}
             />
           ),
@@ -249,10 +251,6 @@ export const StakeholderGroups: React.FC = () => {
     toggleItemExpanded(row);
   };
 
-  const editRow = (row: StakeholderGroup) => {
-    setRowToUpdate(row);
-  };
-
   const deleteRow = (row: StakeholderGroup) => {
     setStakeholderGroupIdToDelete(row.id);
     setIsConfirmDialogOpen(true);
@@ -264,37 +262,9 @@ export const StakeholderGroups: React.FC = () => {
     setFilterValues({});
   };
 
-  // Create Modal
-
-  const handleOnOpenCreateNewModal = () => {
-    setIsNewModalOpen(true);
-  };
-
-  const handleOnCreatedNew = (response: AxiosResponse<StakeholderGroup>) => {
-    setIsNewModalOpen(false);
-    refetch();
-    pushNotification({
-      title: t("toastr.success.added", {
-        what: response.data.name,
-        type: "stakeholder group",
-      }),
-      variant: "success",
-    });
-  };
-
-  const handleOnCreateNewCancel = () => {
-    setIsNewModalOpen(false);
-  };
-
-  // Update Modal
-
-  const handleOnUpdated = () => {
-    setRowToUpdate(undefined);
-    refetch();
-  };
-
-  const handleOnUpdatedCancel = () => {
-    setRowToUpdate(undefined);
+  const closeCreateUpdateModal = () => {
+    setCreateUpdateModalState(null);
+    refetch;
   };
 
   // t("terms.stakeholderGroup")
@@ -336,7 +306,7 @@ export const StakeholderGroups: React.FC = () => {
                     id="create-stakeholder-group"
                     aria-label="Create stakeholder group"
                     variant={ButtonVariant.primary}
-                    onClick={handleOnOpenCreateNewModal}
+                    onClick={() => setCreateUpdateModalState("create")}
                   >
                     {t("actions.createNew")}
                   </Button>
@@ -361,16 +331,29 @@ export const StakeholderGroups: React.FC = () => {
         />
       </ConditionalRender>
 
-      <NewStakeholderGroupModal
-        isOpen={isNewModalOpen}
-        onSaved={handleOnCreatedNew}
-        onCancel={handleOnCreateNewCancel}
-      />
-      <UpdateStakeholderGroupModal
-        stakeholderGroup={rowToUpdate}
-        onSaved={handleOnUpdated}
-        onCancel={handleOnUpdatedCancel}
-      />
+      <Modal
+        id="create-edit-stakeholder-group-modal"
+        title={
+          stakeholderGroupToUpdate
+            ? t("dialog.title.update", {
+                what: t("terms.stakeholderGroup").toLowerCase(),
+              })
+            : t("dialog.title.new", {
+                what: t("terms.stakeholderGroup").toLowerCase(),
+              })
+        }
+        variant={ModalVariant.medium}
+        isOpen={isCreateUpdateModalOpen}
+        onClose={closeCreateUpdateModal}
+      >
+        <StakeholderGroupForm
+          stakeholderGroup={
+            stakeholderGroupToUpdate ? stakeholderGroupToUpdate : undefined
+          }
+          onClose={closeCreateUpdateModal}
+        />
+      </Modal>
+
       {isConfirmDialogOpen && (
         <ConfirmDialog
           title={t("dialog.title.delete", {

@@ -266,7 +266,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             excluded: fieldValues.excludedRulesTags,
           },
           rulesets: fieldValues.formRulesets.map((ruleset) => {
-            return { name: ruleset.name, id: ruleset.id };
+            return { name: ruleset.name, id: ruleset.id || 0 };
           }),
           ...(fieldValues.rulesKind === "repository" && {
             repository: {

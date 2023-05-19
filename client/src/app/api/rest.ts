@@ -22,7 +22,7 @@ import {
   HubRequestParams,
   Identity,
   IReadFile,
-  JiraTracker,
+  Tracker,
   JobFunction,
   Proxy,
   Review,
@@ -37,6 +37,7 @@ import {
   Taskgroup,
   MigrationWave,
   Ticket,
+  New,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
@@ -66,7 +67,7 @@ export const PROXIES = HUB + "/proxies";
 export const SETTINGS = HUB + "/settings";
 export const TASKS = HUB + "/tasks";
 export const TASKGROUPS = HUB + "/taskgroups";
-export const JIRATRACKERS = HUB + "/trackers";
+export const TRACKERS = HUB + "/trackers";
 export const TICKETS = HUB + "/tickets";
 
 export const RULESETS = HUB + "/rulesets";
@@ -129,7 +130,7 @@ export const deleteBusinessService = (id: number | string): AxiosPromise => {
 };
 
 export const createBusinessService = (
-  obj: BusinessService
+  obj: New<BusinessService>
 ): AxiosPromise<BusinessService> => {
   return APIClient.post(`${BUSINESS_SERVICES}`, obj);
 };
@@ -146,10 +147,19 @@ export const getBusinessServiceById = (
   return APIClient.get(`${BUSINESS_SERVICES}/${id}`);
 };
 
-// Stakeholders
+// Job functions
 
-export const getStakeholders = (): AxiosPromise<Array<Stakeholder>> => {
-  return APIClient.get(`${STAKEHOLDERS}`, jsonHeaders);
+export enum JobFunctionSortBy {
+  NAME,
+}
+
+export interface JobFunctionSortByQuery {
+  field: JobFunctionSortBy;
+  direction?: Direction;
+}
+
+export const getJobFunctions = (): AxiosPromise<JobFunction[]> => {
+  return APIClient.get(`${JOB_FUNCTIONS}`, jsonHeaders);
 };
 
 export const createJobFunction = (
@@ -166,111 +176,6 @@ export const updateJobFunction = (
 
 export const deleteJobFunction = (id: number): AxiosPromise => {
   return APIClient.delete(`${JOB_FUNCTIONS}/${id}`);
-};
-
-export const deleteStakeholder = (id: number): AxiosPromise => {
-  return APIClient.delete(`${STAKEHOLDERS}/${id}`);
-};
-
-export const createStakeholder = (
-  obj: Stakeholder
-): AxiosPromise<Stakeholder> => {
-  return APIClient.post(`${STAKEHOLDERS}`, obj);
-};
-
-export const updateStakeholder = (
-  obj: Stakeholder
-): AxiosPromise<Stakeholder> => {
-  return APIClient.put(`${STAKEHOLDERS}/${obj.id}`, obj);
-};
-
-// Stakeholder groups
-
-export enum StakeholderGroupSortBy {
-  NAME,
-  STAKEHOLDERS_COUNT,
-}
-
-export const getStakeholderGroups = (): AxiosPromise<
-  Array<StakeholderGroup>
-> => {
-  return APIClient.get(`${STAKEHOLDER_GROUPS}`, jsonHeaders);
-};
-
-export const deleteStakeholderGroup = (id: number): AxiosPromise => {
-  return APIClient.delete(`${STAKEHOLDER_GROUPS}/${id}`);
-};
-
-export const createStakeholderGroup = (
-  obj: StakeholderGroup
-): AxiosPromise<StakeholderGroup> => {
-  return APIClient.post(`${STAKEHOLDER_GROUPS}`, obj);
-};
-
-export const updateStakeholderGroup = (
-  obj: StakeholderGroup
-): AxiosPromise<StakeholderGroup> => {
-  return APIClient.put(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj);
-};
-
-// Job functions
-
-export enum JobFunctionSortBy {
-  NAME,
-}
-export interface JobFunctionSortByQuery {
-  field: JobFunctionSortBy;
-  direction?: Direction;
-}
-
-export const getJobFunctions = (): AxiosPromise<JobFunction[]> => {
-  return APIClient.get(`${JOB_FUNCTIONS}`, jsonHeaders);
-};
-
-// Tag categories
-
-export const getTagCategories = (): AxiosPromise<Array<TagCategory>> => {
-  return APIClient.get(`${TAG_CATEGORIES}`, jsonHeaders);
-};
-
-export const deleteTagCategory = (id: number): AxiosPromise => {
-  return APIClient.delete(`${TAG_CATEGORIES}/${id}`);
-};
-
-export const createTagCategory = (
-  obj: TagCategory
-): AxiosPromise<TagCategory> => {
-  return APIClient.post(`${TAG_CATEGORIES}`, obj);
-};
-
-export const updateTagCategory = (
-  obj: TagCategory
-): AxiosPromise<TagCategory> => {
-  return APIClient.put(`${TAG_CATEGORIES}/${obj.id}`, obj);
-};
-
-export const getTagCategoryById = (id: number): AxiosPromise<TagCategory> => {
-  return APIClient.get(`${TAG_CATEGORIES}/${id}`);
-};
-
-export const deleteTag = (id: number): AxiosPromise => {
-  return APIClient.delete(`${TAGS}/${id}`);
-};
-
-export const createTag = (obj: Tag): AxiosPromise<Tag> => {
-  return APIClient.post(`${TAGS}`, obj);
-};
-
-export const updateTag = (obj: Tag): AxiosPromise<Tag> => {
-  return APIClient.put(`${TAGS}/${obj.id}`, obj);
-};
-
-export const getTagById = (id: number | string): AxiosPromise<Tag> => {
-  return APIClient.get(`${TAGS}/${id}`);
-};
-
-export const getTags = (): AxiosPromise<Tag[]> => {
-  return APIClient.get(`${TAGS}`, jsonHeaders);
 };
 
 // App inventory
@@ -545,17 +450,14 @@ export const removeFileTaskgroup = ({
   id: number;
   path: string;
 }) => {
-  return axios.delete<Taskgroup>(
-    `${TASKGROUPS}/${id}/bucket/${path}`
-    // formHeaders
-  );
+  return axios.delete<Taskgroup>(`${TASKGROUPS}/${id}/bucket/${path}`);
 };
 
 export const getMigrationWaves = (): Promise<MigrationWave[]> =>
   axios.get(MIGRATION_WAVES).then((response) => response.data);
 
 export const createMigrationWave = (
-  obj: MigrationWave
+  obj: New<MigrationWave>
 ): Promise<MigrationWave> => axios.post(MIGRATION_WAVES, obj);
 
 export const deleteMigrationWave = (id: number): Promise<MigrationWave> =>
@@ -610,17 +512,19 @@ export const getCache = (): Promise<Cache> =>
 
 export const deleteCache = (): Promise<Cache> => axios.delete(CACHE);
 
-export const getJiraTrackers = (): Promise<JiraTracker[]> =>
-  axios.get(JIRATRACKERS).then((response) => response.data);
+// Trackers
 
-export const createJiraTracker = (obj: JiraTracker): Promise<JiraTracker> =>
-  axios.post(JIRATRACKERS, obj);
+export const getTrackers = (): Promise<Tracker[]> =>
+  axios.get(TRACKERS).then((response) => response.data);
 
-export const updateJiraTracker = (obj: JiraTracker): Promise<JiraTracker> =>
-  axios.put(`${JIRATRACKERS}/${obj.id}`, obj);
+export const createTracker = (obj: Tracker): Promise<Tracker> =>
+  axios.post(TRACKERS, obj);
 
-export const deleteJiraTracker = (id: number): Promise<JiraTracker> =>
-  axios.delete(`${JIRATRACKERS}/${id}`);
+export const updateTracker = (obj: Tracker): Promise<Tracker> =>
+  axios.put(`${TRACKERS}/${obj.id}`, obj);
+
+export const deleteTracker = (id: number): Promise<Tracker> =>
+  axios.delete(`${TRACKERS}/${id}`);
 
 export const getHubPaginatedResult = <T>(
   url: string,
@@ -648,8 +552,84 @@ export const getCompositeIssues = (params: HubRequestParams = {}) =>
 export const getIssues = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisIssue>(ANALYSIS_ISSUES, params);
 
-export const createTicket = (obj: Ticket): Promise<Ticket> =>
+// Tickets
+
+export const createTicket = (obj: New<Ticket>): Promise<Ticket> =>
   axios.post(TICKETS, obj);
 
 export const getTickets = (): Promise<Ticket[]> =>
   axios.get(TICKETS).then((response) => response.data);
+
+export const deleteTicket = (id: number): Promise<Ticket> =>
+  axios.delete(`${TICKETS}/${id}`);
+
+// Stakeholders
+
+export const getStakeholders = (): Promise<Stakeholder[]> =>
+  axios.get(STAKEHOLDERS).then((response) => response.data);
+
+export const deleteStakeholder = (id: number): Promise<Stakeholder> =>
+  axios.delete(`${STAKEHOLDERS}/${id}`);
+
+export const createStakeholder = (
+  obj: New<Stakeholder>
+): Promise<Stakeholder> => axios.post(STAKEHOLDERS, obj);
+
+export const updateStakeholder = (obj: Stakeholder): Promise<Stakeholder> =>
+  axios.put(`${STAKEHOLDERS}/${obj.id}`, obj);
+
+// Stakeholder groups
+
+export enum StakeholderGroupSortBy {
+  NAME,
+  STAKEHOLDERS_COUNT,
+}
+
+export const getStakeholderGroups = (): Promise<StakeholderGroup[]> =>
+  axios.get(STAKEHOLDER_GROUPS).then((response) => response.data);
+
+export const deleteStakeholderGroup = (id: number): Promise<StakeholderGroup> =>
+  axios.delete(`${STAKEHOLDER_GROUPS}/${id}`);
+
+export const createStakeholderGroup = (
+  obj: New<StakeholderGroup>
+): Promise<StakeholderGroup> => axios.post(STAKEHOLDER_GROUPS, obj);
+
+export const updateStakeholderGroup = (
+  obj: StakeholderGroup
+): Promise<StakeholderGroup> =>
+  axios.put(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj);
+
+// Tags
+
+export const getTags = (): Promise<Tag[]> =>
+  axios.get(TAGS).then((response) => response.data);
+
+export const getTagById = (id: number | string): Promise<Tag> =>
+  axios.get(`${TAGS}/${id}`);
+
+export const createTag = (obj: New<Tag>): Promise<Tag> => axios.post(TAGS, obj);
+
+export const deleteTag = (id: number): Promise<Tag> =>
+  axios.delete(`${TAGS}/${id}`);
+
+export const updateTag = (obj: Tag): Promise<Tag> =>
+  axios.put(`${TAGS}/${obj.id}`, obj);
+
+// Tag categories
+
+export const getTagCategories = (): Promise<Array<TagCategory>> =>
+  axios.get(TAG_CATEGORIES).then((response) => response.data);
+
+export const getTagCategoryById = (id: number): Promise<TagCategory> =>
+  axios.get(`${TAG_CATEGORIES}/${id}`);
+
+export const deleteTagCategory = (id: number): Promise<TagCategory> =>
+  axios.delete(`${TAG_CATEGORIES}/${id}`);
+
+export const createTagCategory = (
+  obj: New<TagCategory>
+): Promise<TagCategory> => axios.post(TAG_CATEGORIES, obj);
+
+export const updateTagCategory = (obj: TagCategory): Promise<TagCategory> =>
+  axios.put(`${TAG_CATEGORIES}/${obj.id}`, obj);

@@ -14,21 +14,6 @@ describe("useAssessApplication", () => {
     expect(inProgress).toBe(false);
   });
 
-  it("getCurrentAssessment: application without ID", async () => {
-    const application: Application = {
-      name: "some",
-    };
-
-    // Use hook
-    const { result } = renderHook(() => useAssessApplication());
-
-    // Start call
-    const { getCurrentAssessment } = result.current;
-
-    act(() => getCurrentAssessment(application, jest.fn(), jest.fn()));
-    expect(result.current.inProgress).toBe(false);
-  });
-
   it("getCurrentAssessment: endpoint fails", async () => {
     const application: Application = {
       id: 1,
@@ -125,23 +110,6 @@ describe("useAssessApplication", () => {
     expect(onSuccessSpy).toHaveBeenCalledTimes(1);
     expect(onSuccessSpy).toHaveBeenCalledWith(response);
     expect(onErrorSpy).toHaveBeenCalledTimes(0);
-  });
-
-  //
-
-  it("assessApplication: application without ID", async () => {
-    const application: Application = {
-      name: "some",
-    };
-
-    // Use hook
-    const { result } = renderHook(() => useAssessApplication());
-
-    // Start call
-    const { assessApplication } = result.current;
-
-    act(() => assessApplication(application, jest.fn(), jest.fn()));
-    expect(result.current.inProgress).toBe(false);
   });
 
   it("assessApplication: fetchAssessment fails", async () => {

@@ -1,3 +1,7 @@
+import { BusinessServiceForm } from "@app/pages/controls/business-services/components/business-service-form";
+
+export type New<T extends { id: number }> = Omit<T, "id">;
+
 export interface HubFilter {
   field: string;
   operator?: "=" | "!=" | "~" | ">" | ">=" | "<" | "<=";
@@ -31,29 +35,33 @@ export interface HubPaginatedResult<T> {
 // Controls
 
 export interface BusinessService {
-  id?: number;
+  id: number;
   name: string;
   description?: string;
   owner?: Stakeholder;
 }
 
 export interface Stakeholder {
-  id?: number;
+  id: number;
   name: string;
   email: string;
   jobFunction?: JobFunction;
   stakeholderGroups?: Ref[];
   businessServices?: Ref[];
+  migrationWaves?: Ref[];
+  owns?: Ref[];
+  contributes?: Ref[];
 }
 
 export interface StakeholderGroup {
-  id?: number;
+  id: number;
   name: string;
   description?: string;
   stakeholders?: Ref[];
 }
+
 export interface Ref {
-  id?: number;
+  id: number;
   name: string;
 }
 
@@ -64,7 +72,7 @@ export interface JobFunction {
 }
 
 export interface TagCategory {
-  id?: number;
+  id: number;
   name: string;
   rank?: number;
   colour?: string;
@@ -72,7 +80,7 @@ export interface TagCategory {
 }
 
 export interface Tag {
-  id?: number;
+  id: number;
   name: string;
   category?: Ref;
 }
@@ -98,7 +106,7 @@ export interface Repository {
 }
 
 export interface Application {
-  id?: number;
+  id: number;
   name: string;
   description?: string;
   comments?: string;
@@ -110,6 +118,7 @@ export interface Application {
   identities?: Ref[];
   repository?: Repository;
   binary?: string;
+  migrationWave?: Ref;
 }
 
 export interface Review {
@@ -500,11 +509,11 @@ export interface TagRef extends Ref {
 }
 
 export interface MigrationWave {
-  id?: number;
+  id: number;
   name: string;
   startDate: string;
   endDate: string;
-  applications: Application[];
+  applications: Ref[];
   stakeholders: Stakeholder[];
   stakeholderGroups: StakeholderGroup[];
   status?: string;
@@ -525,7 +534,7 @@ export interface IssueType {
 
 export type IssueManagerKind = "jira-cloud" | "jira-server" | "jira-datacenter";
 
-export interface JiraTracker {
+export interface Tracker {
   connected: boolean;
   id: number;
   identity?: Ref;
@@ -589,10 +598,11 @@ export type AggregateTicketStatus =
   | "Issues Created"
   | "In Progress"
   | "Completed"
-  | "Error";
+  | "Error"
+  | "No Issues";
 
 export interface Ticket {
-  id?: number;
+  id: number;
   application: Ref;
   tracker: Ref;
   kind: string;

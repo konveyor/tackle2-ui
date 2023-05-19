@@ -79,7 +79,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
 
   const onUpdateMigrationWaveError = (error: AxiosError) => {
     pushNotification({
-      title: t("toastr.failure.save", {
+      title: t("toastr.fail.save", {
         type: t("terms.migrationWave").toLowerCase(),
       }),
       variant: "danger",

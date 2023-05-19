@@ -1,9 +1,8 @@
 import React from "react";
-import { Application, MigrationWave } from "@app/api/models";
+import { Application, Tracker, MigrationWave, Ticket } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import {
   Button,
-  DropdownItem,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -26,24 +25,26 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
-import { KebabDropdown } from "@app/shared/components";
-import { useFetchTickets } from "@app/queries/tickets";
+import { getTrackerTypesByProjectId } from "@app/queries/trackers";
 
 export interface IWaveStatusTableProps {
   migrationWave: MigrationWave;
   applications: Application[];
+  instances: Tracker[];
+  tickets: Ticket[];
+  getTicket: (tickets: Ticket[], id: number) => Ticket | undefined;
+  removeApplication: (migrationWave: MigrationWave, id: number) => void;
 }
 
 export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   migrationWave,
   applications,
+  instances,
+  tickets,
+  getTicket,
+  removeApplication,
 }) => {
   const { t } = useTranslation();
-
-  const { tickets } = useFetchTickets();
-
-  const getTicketByApplication = (id: number = 0) =>
-    tickets.find((ticket) => ticket.application.id === id);
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
@@ -75,6 +76,27 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
       getTdProps,
     },
   } = tableControls;
+
+  const getTicketStatus = (appId: number) => {
+    const status = getTicket(tickets, appId)?.status;
+    return status === "" ? "Creating issue" : status;
+  };
+
+  const getTicketIssue = (appId: number | undefined) => {
+    if (appId) {
+      const ticket = getTicket(tickets, appId);
+      if (ticket) {
+        const types = getTrackerTypesByProjectId(
+          instances,
+          ticket.tracker.name,
+          ticket.parent
+        );
+        const type = types.find((kind) => kind.id === ticket.kind);
+        if (type) return type.name;
+      }
+    }
+    return "";
+  };
 
   return (
     <>
@@ -118,15 +140,17 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                     {app.name}
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "status" })}>
-                    {getTicketByApplication(app.id)?.status === ""
-                      ? "Creating issue"
-                      : getTicketByApplication(app.id)?.status}
+                    {getTicketStatus(app.id)}
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "issue" })}>
-                    {getTicketByApplication(app.id)?.parent}
+                    {getTicketIssue(app.id)}
                   </Td>
-                  <Td width={10} className={alignment.textAlignRight}>
-                    <Button type="button" variant="plain" onClick={() => {}}>
+                  <Td className={alignment.textAlignRight}>
+                    <Button
+                      type="button"
+                      variant="plain"
+                      onClick={() => removeApplication(migrationWave, app.id)}
+                    >
                       <TrashIcon />
                     </Button>
                   </Td>

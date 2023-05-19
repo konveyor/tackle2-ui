@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { object, string, number } from "yup";
 import {
   ActionGroup,
@@ -15,11 +15,14 @@ import {
   DEFAULT_SELECT_MAX_HEIGHT,
   COLOR_HEX_VALUES_BY_NAME,
 } from "@app/Constants";
-import { createTagCategory, updateTagCategory } from "@app/api/rest";
-import { TagCategory } from "@app/api/models";
+import { New, TagCategory } from "@app/api/models";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import { toOptionLike } from "@app/utils/model-utils";
-import { useFetchTagCategories } from "@app/queries/tags";
+import {
+  useCreateTagCategoryMutation,
+  useFetchTagCategories,
+  useUpdateTagCategoryMutation,
+} from "@app/queries/tags";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -27,6 +30,7 @@ import {
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 import { Color, OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { NotificationsContext } from "@app/shared/notifications-context";
 export interface FormValues {
   name: string;
   rank?: number;
@@ -35,16 +39,15 @@ export interface FormValues {
 
 export interface TagCategoryFormProps {
   tagCategory?: TagCategory;
-  onSaved: (response: AxiosResponse<TagCategory>) => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
 export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
   tagCategory: tagCategory,
-  onSaved,
-  onCancel,
+  onClose,
 }) => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [error, setError] = useState<AxiosError>();
 
@@ -88,31 +91,61 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
     mode: "onChange",
   });
 
+  const onTagSuccess = (_: AxiosResponse<TagCategory>) =>
+    pushNotification({
+      title: t("toastr.success.create", {
+        type: t("terms.tagCategory"),
+      }),
+      variant: "success",
+    });
+
+  const onTagError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.create", {
+        type: t("terms.tagCategory"),
+      }),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: createTagCategory } = useCreateTagCategoryMutation(
+    onTagSuccess,
+    onTagError
+  );
+
+  const onUpdateTagCategorySuccess = (_: AxiosResponse<TagCategory>) =>
+    pushNotification({
+      title: t("toastr.success.save", {
+        type: t("terms.tagCategory"),
+      }),
+      variant: "success",
+    });
+
+  const onUpdateTagCategoryError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.save", {
+        type: t("terms.tagCategory"),
+      }),
+      variant: "danger",
+    });
+  };
+  const { mutate: updateTagCategory } = useUpdateTagCategoryMutation(
+    onUpdateTagCategorySuccess,
+    onUpdateTagCategoryError
+  );
+
   const onSubmit = (formValues: FormValues) => {
-    const payload: TagCategory = {
+    const payload: New<TagCategory> = {
       name: formValues.name.trim(),
       rank: formValues.rank,
       colour: formValues.color || undefined,
     };
 
-    let promise: AxiosPromise<TagCategory>;
-    if (tagCategory) {
-      promise = updateTagCategory({
-        ...tagCategory,
-        ...payload,
-      });
-    } else {
-      promise = createTagCategory(payload);
-    }
-
-    promise
-      .then((response) => {
-        onSaved(response);
-      })
-      .catch((error) => {
-        setError(error);
-      });
+    if (tagCategory) updateTagCategory({ id: tagCategory.id, ...payload });
+    else createTagCategory(payload);
+    onClose();
   };
+
   const colorOptions = Object.values(COLOR_HEX_VALUES_BY_NAME).map((color) => {
     return {
       value: color.toUpperCase(),
@@ -202,7 +235,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>

@@ -1,25 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { object, string } from "yup";
 
 import {
   ActionGroup,
-  Alert,
   Button,
   ButtonVariant,
   Form,
 } from "@patternfly/react-core";
 
-import { createStakeholder, updateStakeholder } from "@app/api/rest";
-import { JobFunction, Ref, Stakeholder } from "@app/api/models";
-import {
-  duplicateFieldCheck,
-  duplicateNameCheck,
-  getAxiosErrorMessage,
-} from "@app/utils/utils";
+import { JobFunction, New, Ref, Stakeholder } from "@app/api/models";
+import { duplicateFieldCheck, duplicateNameCheck } from "@app/utils/utils";
 import { toOptionLike } from "@app/utils/model-utils";
-import { useFetchStakeholders } from "@app/queries/stakeholders";
+import {
+  useCreateStakeholderMutation,
+  useFetchStakeholders,
+  useUpdateStakeholderMutation,
+} from "@app/queries/stakeholders";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import { useFetchJobFunctions } from "@app/queries/jobfunctions";
 import { useForm } from "react-hook-form";
@@ -29,6 +27,7 @@ import {
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export interface FormValues {
   email: string;
@@ -39,23 +38,18 @@ export interface FormValues {
 
 export interface StakeholderFormProps {
   stakeholder?: Stakeholder;
-  onSaved: (response: AxiosResponse<Stakeholder>) => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
 export const StakeholderForm: React.FC<StakeholderFormProps> = ({
   stakeholder,
-  onSaved,
-  onCancel,
+  onClose,
 }) => {
   const { t } = useTranslation();
-
-  const [error, setError] = useState<AxiosError>();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const { stakeholders } = useFetchStakeholders();
-
   const { jobFunctions } = useFetchJobFunctions();
-
   const { stakeholderGroups } = useFetchStakeholderGroups();
 
   const jobFunctionOptions = jobFunctions.map((jobFunction) => {
@@ -120,6 +114,49 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
     mode: "onChange",
   });
 
+  const onCreateStakeholderSuccess = (_: AxiosResponse<Stakeholder>) =>
+    pushNotification({
+      title: t("toastr.success.create", {
+        type: t("terms.stakeholder"),
+      }),
+      variant: "success",
+    });
+
+  const onCreateStakeholderError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.create", {
+        type: t("terms.stakeholder"),
+      }),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: createStakeholder } = useCreateStakeholderMutation(
+    onCreateStakeholderSuccess,
+    onCreateStakeholderError
+  );
+
+  const onUpdateStakeholderSuccess = (_: AxiosResponse<Stakeholder>) =>
+    pushNotification({
+      title: t("toastr.success.save", {
+        type: t("terms.stakeholder"),
+      }),
+      variant: "success",
+    });
+
+  const onUpdateStakeholderError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.save", {
+        type: t("terms.stakeholder"),
+      }),
+      variant: "danger",
+    });
+  };
+  const { mutate: updateStakeholder } = useUpdateStakeholderMutation(
+    onUpdateStakeholderSuccess,
+    onUpdateStakeholderError
+  );
+
   const onSubmit = (formValues: FormValues) => {
     const matchingStakeholderGroupRefs: Ref[] = stakeholderGroups
       .filter((stakeholderGroup) =>
@@ -132,7 +169,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
         };
       });
 
-    const payload: Stakeholder = {
+    const payload: New<Stakeholder> = {
       email: formValues.email.trim(),
       name: formValues.name.trim(),
       jobFunction: jobFunctions.find(
@@ -141,30 +178,16 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
       stakeholderGroups: matchingStakeholderGroupRefs,
     };
 
-    let promise: AxiosPromise<Stakeholder>;
     if (stakeholder) {
-      promise = updateStakeholder({
-        ...stakeholder,
-        ...payload,
-      });
+      updateStakeholder({ id: stakeholder.id, ...payload });
     } else {
-      promise = createStakeholder(payload);
+      createStakeholder(payload);
     }
-
-    promise
-      .then((response) => {
-        onSaved(response);
-      })
-      .catch((error) => {
-        setError(error);
-      });
+    onClose();
   };
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      {error && (
-        <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />
-      )}
       <HookFormPFTextInput
         control={control}
         name="email"
@@ -255,7 +278,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>

@@ -221,7 +221,7 @@ export const BusinessServices: React.FC = () => {
     setIsNewModalOpen(false);
     refetch();
     pushNotification({
-      title: t("toastr.success.added", {
+      title: t("toastr.success.save", {
         what: response.data.name,
         type: "business service",
       }),
