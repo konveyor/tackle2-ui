@@ -9,6 +9,7 @@
     "build": "npm run build -w client",
     "start:dev": "npm run start:dev -w client",
     "start": "npm run start -w client",
+    "test": "npm run test -ws --if-present --",
     "port-forward": "npm run port-forward -w client"
   },
   "workspaces": [

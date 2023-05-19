@@ -23,14 +23,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install
-        working-directory: client
-        run: npm install
+        run: npm clean-install
       - name: Build
-        working-directory: client
         run: npm run build
       - name: Test
-        working-directory: client
-        run: npm run test --coverage --watchAll=false
+        run: npm run test -- --coverage --watchAll=false
       - uses: codecov/codecov-action@v1
         with:
           flags: unitests
+          directory: ./*/coverage
