@@ -35,7 +35,11 @@ export const getAffectedAppsUrl = ({
   return `/issues/${compositeIssue.ruleSet}/${
     compositeIssue.rule
   }?${trimAndStringifyUrlParams({
-    params: { ...serializeFilterUrlParams(toFilterValues), fromIssuesParams },
+    params: {
+      ...serializeFilterUrlParams(toFilterValues),
+      fromIssuesParams,
+      compositeIssueName: compositeIssue.name,
+    },
   })}`;
 };
 
