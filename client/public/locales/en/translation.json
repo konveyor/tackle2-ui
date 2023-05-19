@@ -312,6 +312,8 @@
     "showLess": "Show less",
     "showMore": "Show more",
     "source": "Source",
+    "settingsCSVReports": "Enable downloads for CSV reports",
+    "settingsHTMLReports": "Enable downloads for HTML reports",
     "sourceBranch": "Branch",
     "sourceCode": "Source code",
     "sourceRepo": "Source Repository",
