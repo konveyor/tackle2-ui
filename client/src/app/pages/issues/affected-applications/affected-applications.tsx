@@ -51,7 +51,7 @@ interface IAffectedApplicationsRouteParams {
 export const AffectedApplications: React.FC = () => {
   const { t } = useTranslation();
 
-  const routeParams = useParams<IAffectedApplicationsRouteParams>();
+  const { ruleset, rule } = useParams<IAffectedApplicationsRouteParams>();
   const compositeIssueName =
     new URLSearchParams(useLocation().search).get("compositeIssueName") ||
     "Active rule";
@@ -96,12 +96,12 @@ export const AffectedApplications: React.FC = () => {
         {
           field: "ruleset",
           operator: "=",
-          value: routeParams.ruleset || "",
+          value: ruleset || "",
         },
         {
           field: "rule",
           operator: "=",
-          value: routeParams.rule || "",
+          value: rule || "",
         },
       ],
       /*
@@ -162,7 +162,7 @@ export const AffectedApplications: React.FC = () => {
             </Link>
           </BreadcrumbItem>
           <BreadcrumbItem to="#" isActive>
-            {compositeIssueName}
+            {compositeIssueName} ({ruleset}, {rule})
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>
