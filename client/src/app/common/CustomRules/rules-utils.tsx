@@ -1,21 +1,41 @@
-import { IReadFile, ParsedRule, Rule, Ruleset } from "@app/api/models";
-import yaml from "js-yaml";
+import { IReadFile, ParsedRule, Ruleset } from "@app/api/models";
 
 export const parseRules = (file: IReadFile): ParsedRule => {
   if (file.data) {
-    const payload = atob(file.data.substring(31));
-    const yamlDoc = yaml.load(payload) as any[];
-    const yamlLabels = yamlDoc?.reduce((acc, parsedLine) => {
-      const newLabels = parsedLine?.labels ? parsedLine?.labels : [];
-      return [...acc, ...newLabels];
-    }, []);
-    const allLabels = getLabels(yamlLabels);
+    let source: string | null = null;
+    let target: string | null = null;
+    let rulesCount = 0;
+
+    const payload = atob(file.data.substring(21));
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(payload, "text/xml");
+
+    const ruleSets = xml.getElementsByTagName("ruleset");
+
+    if (ruleSets && ruleSets.length > 0) {
+      const metadata = ruleSets[0].getElementsByTagName("metadata");
+
+      if (metadata && metadata.length > 0) {
+        const sources = metadata[0].getElementsByTagName("sourceTechnology");
+        if (sources && sources.length > 0) source = sources[0].id;
+
+        const targets = metadata[0].getElementsByTagName("targetTechnology");
+        if (targets && targets.length > 0) target = targets[0].id;
+      }
+
+      const rulesGroup = ruleSets[0].getElementsByTagName("rules");
+      if (rulesGroup && rulesGroup.length > 0)
+        rulesCount = rulesGroup[0].getElementsByTagName("rule").length;
+    }
+    const allLabels = [
+      ...(source ? [`konveyor.io/source=${source}`] : []),
+      ...(target ? [`konveyor.io/target=${target}`] : []),
+    ];
     return {
-      source: allLabels?.sourceLabel,
-      target: allLabels?.targetLabel,
-      otherLabels: allLabels?.otherLabels,
-      allLabels: allLabels?.allLabels,
-      total: 0,
+      source,
+      target,
+      total: rulesCount,
+      allLabels,
       ...(file.responseID && {
         fileID: file.responseID,
       }),
@@ -28,7 +48,6 @@ export const parseRules = (file: IReadFile): ParsedRule => {
     };
   }
 };
-
 interface ILabelMap {
   sourceLabel: string;
   targetLabel: string;
