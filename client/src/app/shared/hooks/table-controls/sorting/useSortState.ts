@@ -12,7 +12,7 @@ export interface ISortState<TSortableColumnKey extends string> {
 }
 
 export interface ISortStateArgs<TSortableColumnKey extends string> {
-  sortableColumns: TSortableColumnKey[];
+  sortableColumns?: TSortableColumnKey[];
   initialSort?: IActiveSort<TSortableColumnKey> | null;
 }
 
@@ -24,7 +24,7 @@ const getDefaultSort = <TSortableColumnKey extends string>(
     : null;
 
 export const useSortState = <TSortableColumnKey extends string>({
-  sortableColumns,
+  sortableColumns = [],
   initialSort = getDefaultSort(sortableColumns),
 }: ISortStateArgs<TSortableColumnKey>): ISortState<TSortableColumnKey> => {
   const [activeSort, setActiveSort] = React.useState(initialSort);
@@ -32,7 +32,7 @@ export const useSortState = <TSortableColumnKey extends string>({
 };
 
 export const useSortUrlParams = <TSortableColumnKey extends string>({
-  sortableColumns,
+  sortableColumns = [],
   initialSort = getDefaultSort(sortableColumns),
 }: ISortStateArgs<TSortableColumnKey>): ISortState<TSortableColumnKey> => {
   const [activeSort, setActiveSort] = useUrlParams({

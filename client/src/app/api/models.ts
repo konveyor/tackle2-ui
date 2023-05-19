@@ -557,6 +557,7 @@ export interface AnalysisDependency {
   // applications: { id: number; name: string }[];
 }
 
+// TODO this has been replaced by labels, which we need to parse in order to display separately.
 export interface IssueTechnology {
   createUser: string;
   updateUser: string;
@@ -565,16 +566,21 @@ export interface IssueTechnology {
   source: boolean;
 }
 
-export interface AnalysisCompositeIssue {
+export interface BaseAnalysisCompositeIssue {
   name: string;
-  ruleID: string; // ruleset+rule
+  ruleSet: string;
+  rule: string;
   description: string;
   category: string;
   effort: number;
-  technologies: Array<IssueTechnology>;
-  labels: Array<string>;
+  // technologies: Array<IssueTechnology>;
+  labels: string[];
   affected: number;
   createTime?: string;
+}
+
+export interface AnalysisCompositeIssue extends BaseAnalysisCompositeIssue {
+  _ui_unique_id: string;
 }
 
 export interface AnalysisIssue {

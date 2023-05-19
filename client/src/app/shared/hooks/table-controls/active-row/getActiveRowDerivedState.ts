@@ -3,7 +3,7 @@ import { IActiveRowState } from "./useActiveRowState";
 
 export interface IActiveRowDerivedStateArgs<TItem> {
   currentPageItems: TItem[];
-  idProperty: KeyWithValueType<TItem, string>;
+  idProperty: KeyWithValueType<TItem, string | number>;
   activeRowState: IActiveRowState;
 }
 

@@ -12,6 +12,7 @@ export interface IGetFilterHubRequestParamsArgs<
 > {
   filterState?: IFilterState<TFilterCategoryKey>;
   filterCategories?: FilterCategory<TItem, TFilterCategoryKey>[];
+  implicitFilters?: HubFilter[];
 }
 
 export const getFilterHubRequestParams = <
@@ -20,60 +21,67 @@ export const getFilterHubRequestParams = <
 >({
   filterState,
   filterCategories,
+  implicitFilters,
 }: IGetFilterHubRequestParamsArgs<
   TItem,
   TFilterCategoryKey
 >): Partial<HubRequestParams> => {
   if (
-    !filterState ||
-    !filterCategories ||
-    objectKeys(filterState.filterValues).length === 0
+    !implicitFilters?.length &&
+    (!filterState ||
+      !filterCategories ||
+      objectKeys(filterState.filterValues).length === 0)
   ) {
     return {};
   }
-  const { filterValues } = filterState;
   const params: HubRequestParams = { filters: [] };
-  objectKeys(filterValues).forEach((categoryKey) => {
-    const filterCategory = filterCategories?.find(
-      (category) => category.key === categoryKey
-    );
-    const filterValue = filterValues[categoryKey];
-    if (!filterCategory || !filterValue) return;
-    // Note: If we need to support more of the logic operators in HubFilter in the future,
-    //       we'll need to figure out how to express those on the FilterCategory objects
-    //       and translate them here.
-    if (filterCategory.type === "numsearch") {
-      params.filters?.push({
-        field: categoryKey,
-        operator: "=",
-        value: Number(filterValue[0]),
-      });
-    }
-    if (filterCategory.type === "search") {
-      params.filters?.push({
-        field: categoryKey,
-        operator: "~",
-        value: `*${filterValue[0]}*`,
-      });
-    }
-    if (filterCategory.type === "select") {
-      params.filters?.push({
-        field: categoryKey,
-        operator: "=",
-        value: filterValue[0],
-      });
-    }
-    if (filterCategory.type === "multiselect") {
-      params.filters?.push({
-        field: categoryKey,
-        operator: "=",
-        value: {
-          list: filterValue,
-          operator: getFilterLogicOperator(filterCategory, "OR"),
-        },
-      });
-    }
-  });
+  if (filterState) {
+    const { filterValues } = filterState;
+    objectKeys(filterValues).forEach((categoryKey) => {
+      const filterCategory = filterCategories?.find(
+        (category) => category.key === categoryKey
+      );
+      const filterValue = filterValues[categoryKey];
+      if (!filterCategory || !filterValue) return;
+      // Note: If we need to support more of the logic operators in HubFilter in the future,
+      //       we'll need to figure out how to express those on the FilterCategory objects
+      //       and translate them here.
+      if (filterCategory.type === "numsearch") {
+        params.filters?.push({
+          field: categoryKey,
+          operator: "=",
+          value: Number(filterValue[0]),
+        });
+      }
+      if (filterCategory.type === "search") {
+        params.filters?.push({
+          field: categoryKey,
+          operator: "~",
+          value: `*${filterValue[0]}*`,
+        });
+      }
+      if (filterCategory.type === "select") {
+        params.filters?.push({
+          field: categoryKey,
+          operator: "=",
+          value: filterValue[0],
+        });
+      }
+      if (filterCategory.type === "multiselect") {
+        params.filters?.push({
+          field: categoryKey,
+          operator: "=",
+          value: {
+            list: filterValue,
+            operator: getFilterLogicOperator(filterCategory, "OR"),
+          },
+        });
+      }
+    });
+  }
+  if (implicitFilters) {
+    implicitFilters.forEach((filter) => params.filters?.push(filter));
+  }
   return params;
 };
 

@@ -41,23 +41,12 @@ export const useUrlParams = <TUrlParamKey extends string, TDeserializedParams>({
       new URLSearchParams(search)
     );
     const newSerializedParams = serialize(newParams);
-    objectKeys(newSerializedParams).forEach((key) => {
-      // Returning undefined for a property from serialize should result in it being omitted from the partial update.
-      if (newSerializedParams[key] === undefined) {
-        delete newSerializedParams[key];
-      }
-      // Returning null for a property from serialize should result in it being removed from the URL.
-      if (newSerializedParams[key] === null) {
-        delete newSerializedParams[key];
-        delete existingSerializedParams[key];
-      }
-    });
     history.replace({
       pathname,
-      search: new URLSearchParams({
-        ...existingSerializedParams,
-        ...newSerializedParams,
-      }).toString(),
+      search: trimAndStringifyUrlParams({
+        existingParams: existingSerializedParams,
+        params: newSerializedParams,
+      }),
     });
   };
 
@@ -75,4 +64,25 @@ export const useUrlParams = <TUrlParamKey extends string, TDeserializedParams>({
   }, [allParamsEmpty]);
 
   return [params, setParams];
+};
+
+export const trimAndStringifyUrlParams = <TUrlParamKey extends string>({
+  existingParams = {},
+  params,
+}: {
+  existingParams?: Record<string, string>;
+  params: Partial<Record<TUrlParamKey, string | null>>;
+}) => {
+  objectKeys(params).forEach((key) => {
+    // Returning undefined for a property from serialize should result in it being omitted from the partial update.
+    if (params[key] === undefined) {
+      delete params[key];
+    }
+    // Returning null for a property from serialize should result in it being removed from the URL.
+    if (params[key] === null) {
+      delete params[key];
+      delete existingParams[key];
+    }
+  });
+  return new URLSearchParams({ ...existingParams, ...params }).toString();
 };

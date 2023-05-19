@@ -23,6 +23,7 @@ import {
 import {
   useTableControlUrlParams,
   getHubRequestParams,
+  useTableControlProps,
 } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
@@ -31,18 +32,29 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { useFetchIssues } from "@app/queries/issues";
-import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { useFetchApplications } from "@app/queries/applications";
-import { Application } from "@app/api/models";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { IssueFilterGroups } from "../issues";
+import {
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
+import { useCompoundExpansionState } from "@app/shared/hooks/useCompoundExpansionState";
+import { useSelectionState } from "@migtools/lib-ui";
+import { getBackToIssuesUrl } from "../helpers";
+
 interface IAffectedApplicationsRouteParams {
-  ruleidparam: string;
+  ruleset: string;
+  rule: string;
 }
 
 export const AffectedApplications: React.FC = () => {
   const { t } = useTranslation();
 
-  const { ruleidparam } = useParams<IAffectedApplicationsRouteParams>();
+  const { ruleset, rule } = useParams<IAffectedApplicationsRouteParams>();
+  const compositeIssueName =
+    new URLSearchParams(useLocation().search).get("compositeIssueName") ||
+    "Active rule";
 
   const tableControlState = useTableControlUrlParams({
     columnNames: {
@@ -51,58 +63,75 @@ export const AffectedApplications: React.FC = () => {
       businessService: "Business serice",
       tags: "Tags",
     },
-    sortableColumns: ["name"],
-    initialSort: {
-      columnKey: "name",
-      direction: "asc",
-    },
+    // TODO this isn't working in the hub
+    // sortableColumns: ["name"],
+    // initialSort: {
+    //   columnKey: "name",
+    //   direction: "asc",
+    // },
+    filterCategories: [
+      //TODO: Should this be select filter type using apps available in memory?
+      {
+        key: "application.name",
+        title: t("terms.applicationName"),
+        filterGroup: IssueFilterGroups.ApplicationInventory,
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.applicationName").toLowerCase(),
+          }) + "...",
+      },
+    ],
     initialItemsPerPage: 10,
   });
 
   const {
-    result: { data: issues, total: totalItemCount },
+    result: { data: currentPageIssues, total: totalItemCount },
     isFetching,
     fetchError,
   } = useFetchIssues(
     getHubRequestParams({
-      filterState: {
-        filterValues: {
-          ruleid: [ruleidparam || ""],
+      ...tableControlState,
+      implicitFilters: [
+        {
+          field: "ruleset",
+          operator: "=",
+          value: ruleset || "",
         },
-        setFilterValues: tableControlState.filterState.setFilterValues,
-      },
+        {
+          field: "rule",
+          operator: "=",
+          value: rule || "",
+        },
+      ],
+      /*
+      // TODO this isn't working in the hub
+      hubSortFieldKeys: {
+        name: "application.name",
+      },*/
     })
   );
 
-  const { data: applications } = useFetchApplications();
-  const issueAppIds = issues.map((issue) => issue.application);
-  const affectedApplications: Application[] = applications.filter(
-    (app) => app.id && issueAppIds.includes(app.id)
-  );
-
-  const tableControls = useLocalTableControls({
-    idProperty: "name",
-    items: applications,
-    columnNames: {
-      name: "Name",
-      description: "Description",
-      businessService: "Business serice",
-      tags: "Tags",
-    },
-    sortableColumns: ["name"],
-    getSortValues: (item) => ({
-      name: item?.name || "",
-    }),
-    initialSort: { columnKey: "name", direction: "asc" },
-    hasPagination: true,
+  const tableControls = useTableControlProps({
+    ...tableControlState,
+    idProperty: "id",
+    currentPageItems: currentPageIssues,
+    totalItemCount,
     isLoading: isFetching,
+    // TODO FIXME - we don't need expansionState or selectionState but they are required by this hook?
+    expansionState: useCompoundExpansionState("id"),
+    selectionState: useSelectionState({
+      items: currentPageIssues,
+      isEqual: (a, b) => a.id === b.id,
+    }),
   });
 
   const {
-    currentPageItems,
     numRenderedColumns,
+    filterState: { filterValues },
     propHelpers: {
       toolbarProps,
+      filterToolbarProps,
       paginationToolbarItemProps,
       paginationProps,
       tableProps,
@@ -110,26 +139,36 @@ export const AffectedApplications: React.FC = () => {
       getTdProps,
     },
   } = tableControls;
-  console.log({ currentPageItems, totalItemCount });
+
+  console.log({ currentPageIssues, totalItemCount });
+
+  const { data: applications } = useFetchApplications();
 
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
         <TextContent>
-          <Text component="h1">{t("terms.issues")}</Text>
+          <Text component="h1">{t("terms.affectedApplications")}</Text>
         </TextContent>
         <Breadcrumb>
           <BreadcrumbItem>
-            <Link to="/composite/issues">Issues</Link>
+            <Link
+              to={getBackToIssuesUrl({
+                fromFilterValues: filterValues,
+                fromLocation: useLocation(),
+              })}
+            >
+              {t("terms.issues")}
+            </Link>
           </BreadcrumbItem>
           <BreadcrumbItem to="#" isActive>
-            {ruleidparam || "Active rule"}
+            {compositeIssueName} ({ruleset}, {rule})
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isFetching && !(currentPageItems || fetchError)}
+          when={isFetching && !(currentPageIssues || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
@@ -139,6 +178,7 @@ export const AffectedApplications: React.FC = () => {
           >
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
+                <FilterToolbar {...filterToolbarProps} />
                 <ToolbarItem {...paginationToolbarItemProps}>
                   <SimplePagination
                     idPrefix="affected-applications-table"
@@ -165,13 +205,17 @@ export const AffectedApplications: React.FC = () => {
                 isNoData={totalItemCount === 0}
                 numRenderedColumns={numRenderedColumns}
               >
-                {affectedApplications?.map((application, rowIndex) => {
-                  return (
-                    <Tbody key={application.name}>
-                      <Tr>
+                <Tbody>
+                  {currentPageIssues?.map((issue, rowIndex) => {
+                    const application = applications.find(
+                      (app) => app.id === issue.application
+                    );
+                    if (!application) return null;
+                    return (
+                      <Tr key={application.name}>
                         <TableRowContentWithControls
                           {...tableControls}
-                          item={application}
+                          item={issue}
                           rowIndex={rowIndex}
                         >
                           <Td width={25} {...getTdProps({ columnKey: "name" })}>
@@ -199,13 +243,13 @@ export const AffectedApplications: React.FC = () => {
                           </Td>
                         </TableRowContentWithControls>
                       </Tr>
-                    </Tbody>
-                  );
-                })}
+                    );
+                  })}
+                </Tbody>
               </ConditionalTableBody>
             </TableComposable>
             <SimplePagination
-              idPrefix="dependencies-table"
+              idPrefix="affected-applications-table"
               isTop={false}
               paginationProps={paginationProps}
             />
