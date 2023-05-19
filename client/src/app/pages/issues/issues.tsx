@@ -192,7 +192,6 @@ export const Issues: React.FC = () => {
       tableProps,
       getThProps,
       getTdProps,
-      getSingleExpandTdProps,
       getExpandedContentTdProps,
     },
   } = tableControls;
@@ -265,13 +264,6 @@ export const Issues: React.FC = () => {
                           item={compositeIssue}
                           rowIndex={rowIndex}
                         >
-                          <Td
-                            // TODO abstract this into TableRowContentWithControls for single-expand tables
-                            {...getSingleExpandTdProps({
-                              item: compositeIssue,
-                              rowIndex,
-                            })}
-                          />
                           <Td width={15} {...getTdProps({ columnKey: "name" })}>
                             {compositeIssue.name}
                           </Td>
