@@ -155,12 +155,12 @@ export const Issues: React.FC = () => {
 
   const tableControls = useTableControlProps({
     ...tableControlState, // Includes filterState, sortState and paginationState
-    idProperty: "name",
+    idProperty: "_ui_unique_id",
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
     expandableVariant: "single",
-    expansionState: useCompoundExpansionState("name"),
+    expansionState: useCompoundExpansionState("_ui_unique_id"),
     selectionState: useSelectionState({
       items: currentPageItems,
       isEqual: (a, b) => a.name === b.name,
@@ -241,7 +241,7 @@ export const Issues: React.FC = () => {
                 {currentPageItems?.map((compositeIssue, rowIndex) => {
                   return (
                     <Tbody
-                      key={compositeIssue.name}
+                      key={compositeIssue._ui_unique_id}
                       isExpanded={isCellExpanded(compositeIssue)}
                     >
                       <Tr>
@@ -258,7 +258,8 @@ export const Issues: React.FC = () => {
                             })}
                           />
                           <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                            {compositeIssue.name}
+                            {compositeIssue.name} ({compositeIssue.ruleSet},{" "}
+                            {compositeIssue.rule})
                           </Td>
                           <Td
                             width={10}
