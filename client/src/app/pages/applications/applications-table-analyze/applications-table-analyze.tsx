@@ -131,7 +131,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     activeAppInDetailDrawer,
   } = useApplicationsFilterValues(ApplicationTableType.Analysis, applications);
 
-  const { tasks } = useFetchTasks({ addon: "analyzer" });
+  const { tasks } = useFetchTasks({ addon: "windup" });
 
   const queryClient = useQueryClient();
   const allTasksComplete = tasks.every((task) => task.state !== "Running");

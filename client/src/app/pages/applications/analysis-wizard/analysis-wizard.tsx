@@ -36,7 +36,6 @@ import {
 } from "./schema";
 import { useAsyncYupValidation } from "@app/shared/hooks/useAsyncYupValidation";
 import { CustomRules } from "./custom-rules";
-import { useSetting } from "@app/queries/settings";
 import defaultSources from "./sources";
 import { useFetchIdentities } from "@app/queries/identities";
 
@@ -47,6 +46,7 @@ interface IAnalysisWizard {
 }
 
 const defaultTaskData: TaskData = {
+  output: "/windup/report",
   tagger: {
     enabled: true,
   },
@@ -56,8 +56,6 @@ const defaultTaskData: TaskData = {
     artifact: "",
     diva: false,
   },
-  targets: [],
-  sources: [],
   scope: {
     withKnown: false,
     packages: {
@@ -68,8 +66,8 @@ const defaultTaskData: TaskData = {
 };
 
 const defaultTaskgroup: Taskgroup = {
-  name: `taskgroup.analyzer`,
-  addon: "analyzer",
+  name: `taskgroup.windup`,
+  addon: "windup",
   data: {
     ...defaultTaskData,
   },
@@ -256,16 +254,13 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           },
         },
         rules: {
-          labels: {
-            included: Array.from(
-              new Set<string>([
-                ...fieldValues.formTargets,
-                ...fieldValues.selectedFormSources,
-                ...fieldValues.formOtherLabels,
-              ])
-            ),
-            excluded: [],
-          },
+          labels: Array.from(
+            new Set<string>([
+              ...fieldValues.formTargets,
+              ...fieldValues.selectedFormSources,
+              ...fieldValues.formOtherLabels,
+            ])
+          ),
           path: fieldValues.customRulesFiles.length > 0 ? "/rules" : "",
           tags: {
             excluded: fieldValues.excludedRulesTags,
