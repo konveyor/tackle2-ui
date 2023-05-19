@@ -2,7 +2,7 @@ import axios, { AxiosPromise } from "axios";
 import { APIClient } from "@app/axios-config";
 
 import {
-  AnalysisCompositeIssue,
+  BaseAnalysisCompositeIssue,
   AnalysisDependency,
   AnalysisIssue,
   Application,
@@ -544,7 +544,7 @@ export const getDependencies = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisDependency>(ANALYSIS_DEPENDENCIES, params);
 
 export const getCompositeIssues = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<AnalysisCompositeIssue>(
+  getHubPaginatedResult<BaseAnalysisCompositeIssue>(
     ANALYSIS_COMPOSITE_ISSUES,
     params
   );

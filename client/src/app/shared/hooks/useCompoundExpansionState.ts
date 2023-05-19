@@ -2,7 +2,7 @@ import { KeyWithValueType } from "@app/utils/type-utils";
 import React from "react";
 
 export const useCompoundExpansionState = <TItem, TColumnKey extends string>(
-  idProperty: KeyWithValueType<TItem, string>
+  idProperty: KeyWithValueType<TItem, string | number>
 ) => {
   // TExpandedCells maps item names to either:
   //  - The key of an expanded column in that row, if the table is compound-expandable
@@ -21,9 +21,9 @@ export const useCompoundExpansionState = <TItem, TColumnKey extends string>(
   }) => {
     const newExpandedCells = { ...expandedCells };
     if (isExpanding) {
-      newExpandedCells[item[idProperty] as string] = columnKey || true;
+      newExpandedCells[String(item[idProperty])] = columnKey || true;
     } else {
-      delete newExpandedCells[item[idProperty] as string];
+      delete newExpandedCells[String(item[idProperty])];
     }
     setExpandedCells(newExpandedCells);
   };
@@ -33,8 +33,8 @@ export const useCompoundExpansionState = <TItem, TColumnKey extends string>(
   //  - If called without a columnKey, returns whether the row is expanded at all
   const isCellExpanded = (item: TItem, columnKey?: TColumnKey) => {
     return columnKey
-      ? expandedCells[item[idProperty] as string] === columnKey
-      : !!expandedCells[item[idProperty] as string];
+      ? expandedCells[String(item[idProperty])] === columnKey
+      : !!expandedCells[String(item[idProperty])];
   };
 
   // TODO we will need to adapt this to regular-expandable and not just compound-expandable

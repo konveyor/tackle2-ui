@@ -95,7 +95,7 @@ export const devRoutes: IRoute[] = [
           exact: false,
         },
         {
-          path: Paths.issuesRuleId,
+          path: Paths.issuesForRule,
           comp: AffectedApplications,
           exact: false,
         },
