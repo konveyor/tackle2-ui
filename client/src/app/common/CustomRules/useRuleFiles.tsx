@@ -1,4 +1,6 @@
 import { useContext, useState } from "react";
+import XSDSchema from "./windup-jboss-ruleset.xsd";
+import { XMLValidator } from "fast-xml-parser";
 import { FileLoadError, IReadFile } from "@app/api/models";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { AxiosError } from "axios";
@@ -7,9 +9,6 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useCreateFileMutation } from "@app/queries/rulesets";
 import { CustomTargetFormValues } from "@app/pages/migration-targets/custom-target-form";
 import { UseFormReturn } from "react-hook-form";
-import { XMLValidator } from "fast-xml-parser";
-import XSDSchema from "./windup-jboss-ruleset.xsd";
-import { checkRuleFileType } from "./rules-utils";
 const xmllint = require("xmllint");
 
 export default function useRuleFiles(
@@ -199,22 +198,15 @@ export default function useRuleFiles(
             handleReadFail(error, 100, file);
           } else {
             if (data) {
-              if (checkRuleFileType(file.name) === "XML") {
-                const validatedXMLResult = validateXMLFile(data);
-                if (validatedXMLResult.state === "valid") {
-                  handleReadSuccess(data, file);
-                } else {
-                  const error = new Error(
-                    `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
-                  );
-                  handleReadFail(error, 100, file);
-                }
-              } else {
+              const validatedXMLResult = validateXMLFile(data);
+              if (validatedXMLResult.state === "valid")
                 handleReadSuccess(data, file);
+              else {
+                const error = new Error(
+                  `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
+                );
+                handleReadFail(error, 100, file);
               }
-            } else {
-              const error = new Error("error");
-              handleReadFail(error, 100, file);
             }
           }
         }
@@ -313,6 +305,11 @@ export default function useRuleFiles(
         message: validationObject?.err?.msg?.toString(),
       };
   };
+
+  interface IParsedXMLFileStatus {
+    state: "valid" | "error";
+    message?: string;
+  }
 
   return {
     handleFileDrop,

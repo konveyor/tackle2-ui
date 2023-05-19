@@ -338,6 +338,8 @@ export interface ApplicationImportPage {
 }
 
 export type SettingTypes = {
+  "download.csv.enabled": boolean;
+  "download.html.enabled": boolean;
   "git.insecure.enabled": boolean;
   "mvn.dependencies.update.forced": boolean;
   "mvn.insecure.enabled": boolean;
@@ -385,6 +387,7 @@ export interface TaskData {
   tagger: {
     enabled: boolean;
   };
+  output: string;
   mode: {
     binary: boolean;
     withDeps: boolean;
@@ -409,10 +412,7 @@ export interface TaskData {
     rulesets: Ref[];
     repository?: Repository;
     identity?: Ref;
-    labels: {
-      included: string[];
-      excluded: string[];
-    };
+    labels: string[];
   };
 }
 
