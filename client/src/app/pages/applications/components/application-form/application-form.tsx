@@ -138,10 +138,16 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   const customURLValidation = (schema: StringSchema) => {
     const gitUrlRegex =
       /(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/;
-    return schema.matches(
-      gitUrlRegex || standardURLRegex,
-      "Must be a valid URL."
-    );
+    const containsURL = (string: string) =>
+      gitUrlRegex.test(string) || standardURLRegex.test(string);
+
+    return schema.test("gitUrlTest", "Must be a valid URL.", (value) => {
+      if (value) {
+        return containsURL(value);
+      } else {
+        return true;
+      }
+    });
   };
 
   const { data: applications } = useFetchApplications();
@@ -187,13 +193,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         .max(250, t("validation.maxLength", { length: 250 })),
       sourceRepository: string()
         .when("branch", {
-          is: (branch: any) => branch?.length > 0,
+          is: (branch: string) => branch?.length > 0,
           then: (schema) =>
             customURLValidation(schema).required("Enter repository url."),
           otherwise: (schema) => customURLValidation(schema),
         })
         .when("rootPath", {
-          is: (rootPath: any) => rootPath?.length > 0,
+          is: (rootPath: string) => rootPath?.length > 0,
           then: (schema) =>
             customURLValidation(schema).required("Enter repository url."),
           otherwise: (schema) => customURLValidation(schema),
@@ -350,6 +356,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       ),
       review: undefined, // The review should not updated through this form
       id: formValues.id,
+      migrationWave: application?.migrationWave,
     };
 
     if (application) {

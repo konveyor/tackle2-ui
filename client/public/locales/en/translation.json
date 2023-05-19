@@ -259,8 +259,6 @@
     "instance": "Instance",
     "issueType": "Issue type",
     "jiraConfig": "Jira configuration",
-    "jiraInstanceCreated": "Jira instance created",
-    "jiraInstanceUpdated": "Jira instance updated",
     "issues": "Issues",
     "jobFunction": "Job function",
     "jobFunctionDeleted": "Job function deleted",
@@ -330,8 +328,10 @@
     "tagCategoryDeleted": "Tag category deleted",
     "tagCategories": "Tag categories",
     "teamMember": "team member",
+    "ticket": "Ticket",
     "trivialButMigratable": "Trivial but migratable",
     "unassessed": "Unassessed",
+    "unassigned": "Not yet assigned",
     "unknown": "Unknown",
     "unsuitableForContainers": "Unsuitable for containers",
     "uploadApplicationFile": "Upload your application file",
@@ -347,11 +347,12 @@
       "assessmentAndReviewCopied": "Success! Assessment and review copied to selected applications",
       "assessmentCopied": "Success! Assessment copied to selected applications",
       "assessmentDiscarded": "Success! Assessment discarded for {{application}}.",
-      "deleted": "{{type}} '{{what}}' was successfully deleted.",
+      "create": "{{type}} {{what}} was successfully created.",
+      "deleted": "{{type}} {{what}} was successfully deleted.",
       "fileSavedToBeProcessed": "Success! file saved to be processed.",
       "reviewDiscarded": "Success! Review discarded for {{application}}."
     },
-    "failure": {
+    "fail": {
       "save": "Failed to save {{type}}."
     }
   },

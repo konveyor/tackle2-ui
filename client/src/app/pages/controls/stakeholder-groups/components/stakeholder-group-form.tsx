@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { object, string } from "yup";
 
 import {
   ActionGroup,
-  Alert,
   Button,
   ButtonVariant,
   Form,
@@ -14,12 +13,15 @@ import {
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { createStakeholderGroup, updateStakeholderGroup } from "@app/api/rest";
-import { Ref, StakeholderGroup } from "@app/api/models";
-import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import { New, Ref, StakeholderGroup } from "@app/api/models";
+import { duplicateNameCheck } from "@app/utils/utils";
 import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
-import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
+import {
+  useCreateStakeholderGroupMutation,
+  useFetchStakeholderGroups,
+  useUpdateStakeholderGroupMutation,
+} from "@app/queries/stakeholdergoups";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -27,6 +29,7 @@ import {
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export interface FormValues {
   name: string;
@@ -36,18 +39,15 @@ export interface FormValues {
 
 export interface StakeholderGroupFormProps {
   stakeholderGroup?: StakeholderGroup;
-  onSaved: (response: AxiosResponse<StakeholderGroup>) => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
 export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
   stakeholderGroup,
-  onSaved,
-  onCancel,
+  onClose,
 }) => {
   const { t } = useTranslation();
-
-  const [error, setError] = useState<AxiosError>();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const {
     stakeholders,
@@ -109,6 +109,55 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
     mode: "onChange",
   });
 
+  const onCreateStakeholderGroupSuccess = (
+    _: AxiosResponse<StakeholderGroup>
+  ) =>
+    pushNotification({
+      title: t("toastr.success.create", {
+        type: t("terms.stakeholderGroup"),
+      }),
+      variant: "success",
+    });
+
+  const onCreateStakeholderGroupError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.create", {
+        type: t("terms.stakeholderGroup"),
+      }),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: createStakeholderGroup } = useCreateStakeholderGroupMutation(
+    onCreateStakeholderGroupSuccess,
+    onCreateStakeholderGroupError
+  );
+
+  const onUpdateStakeholderGroupSuccess = (
+    res: AxiosResponse<StakeholderGroup>
+  ) =>
+    pushNotification({
+      title: t("toastr.success.save", {
+        what: res.data.name,
+        type: t("terms.stakeholderGroup"),
+      }),
+      variant: "success",
+    });
+
+  const onUpdateStakeholderGroupError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.save", {
+        type: t("terms.stakeholderGroup"),
+      }),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: updateStakeholderGroup } = useUpdateStakeholderGroupMutation(
+    onUpdateStakeholderGroupSuccess,
+    onUpdateStakeholderGroupError
+  );
+
   const onSubmit = (formValues: FormValues) => {
     const matchingStakeholderRefs: Ref[] = stakeholders
       .filter((stakeholder) =>
@@ -121,36 +170,22 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
         };
       });
 
-    const payload: StakeholderGroup = {
+    const payload: New<StakeholderGroup> = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       stakeholders: matchingStakeholderRefs,
     };
 
-    let promise: AxiosPromise<StakeholderGroup>;
     if (stakeholderGroup) {
-      promise = updateStakeholderGroup({
-        ...stakeholderGroup,
-        ...payload,
-      });
+      updateStakeholderGroup({ id: stakeholderGroup.id, ...payload });
     } else {
-      promise = createStakeholderGroup(payload);
+      createStakeholderGroup(payload);
     }
-
-    promise
-      .then((response) => {
-        onSaved(response);
-      })
-      .catch((error) => {
-        setError(error);
-      });
+    onClose();
   };
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      {error && (
-        <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />
-      )}
       <HookFormPFTextInput
         control={control}
         name="name"
@@ -218,7 +253,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>

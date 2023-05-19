@@ -1,22 +1,25 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { object, string, mixed } from "yup";
 
 import {
   ActionGroup,
-  Alert,
   Button,
   ButtonVariant,
   Form,
 } from "@patternfly/react-core";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { createTag, updateTag } from "@app/api/rest";
-import { Tag, TagCategory } from "@app/api/models";
-import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import { New, Tag, TagCategory } from "@app/api/models";
+import { duplicateNameCheck } from "@app/utils/utils";
 import { ITagCategoryDropdown } from "@app/utils/model-utils";
-import { useFetchTags, useFetchTagCategories } from "@app/queries/tags";
+import {
+  useFetchTags,
+  useFetchTagCategories,
+  useCreateTagMutation,
+  useUpdateTagMutation,
+} from "@app/queries/tags";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -27,6 +30,7 @@ import {
   OptionWithValue,
   SimpleSelect,
 } from "@app/shared/components/simple-select";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export interface FormValues {
   name: string;
@@ -35,19 +39,20 @@ export interface FormValues {
 
 export interface TagFormProps {
   tag?: Tag;
-  onSaved: (response: AxiosResponse<Tag>) => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
-export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
+export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
+
   const [error, setError] = useState<AxiosError>();
 
   const { tags } = useFetchTags();
 
   const { tagCategories } = useFetchTagCategories();
 
-  const tagCategoryOptions = tagCategories.map((tagCategory) => {
+  const tagCategoryOptions = tagCategories.map((tagCategory: TagCategory) => {
     return {
       value: tagCategory.name,
       toString: () => tagCategory.name,
@@ -88,39 +93,62 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
     mode: "onChange",
   });
 
+  const onTagSuccess = (_: AxiosResponse<Tag>) =>
+    pushNotification({
+      title: t("toastr.success.create", {
+        type: t("terms.tag"),
+      }),
+      variant: "success",
+    });
+
+  const onTagError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.create", {
+        type: t("terms.tag"),
+      }),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: createTag } = useCreateTagMutation(onTagSuccess, onTagError);
+
+  const onUpdateTagSuccess = (_: AxiosResponse<Tag>) =>
+    pushNotification({
+      title: t("toastr.success.save", {
+        type: t("terms.tag"),
+      }),
+      variant: "success",
+    });
+
+  const onUpdateTagError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.save", {
+        type: t("terms.tag"),
+      }),
+      variant: "danger",
+    });
+  };
+  const { mutate: updateTag } = useUpdateTagMutation(
+    onUpdateTagSuccess,
+    onUpdateTagError
+  );
+
   const onSubmit = (formValues: FormValues) => {
     const matchingTagCategoryRef = tagCategories.find(
       (tagCategory) => tagCategory.name === formValues.tagCategory
     );
-    const payload: Tag = {
+    const payload: New<Tag> = {
       name: formValues.name.trim(),
       category: matchingTagCategoryRef,
     };
 
-    let promise: AxiosPromise<Tag>;
-    if (tag) {
-      promise = updateTag({
-        ...tag,
-        ...payload,
-      });
-    } else {
-      promise = createTag(payload);
-    }
-
-    promise
-      .then((response) => {
-        onSaved(response);
-      })
-      .catch((error) => {
-        setError(error);
-      });
+    if (tag) updateTag({ id: tag.id, ...payload });
+    else createTag(payload);
+    onClose();
   };
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      {error && (
-        <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />
-      )}
       <HookFormPFTextInput
         control={control}
         name="name"
@@ -167,7 +195,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onSaved, onCancel }) => {
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>

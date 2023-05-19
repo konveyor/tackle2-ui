@@ -21,6 +21,7 @@ import utc from "dayjs/plugin/utc";
 import {
   useDeleteMigrationWaveMutation,
   useFetchMigrationWaves,
+  useUpdateMigrationWaveMutation,
 } from "@app/queries/migration-waves";
 import {
   AppPlaceholder,
@@ -30,8 +31,9 @@ import {
 } from "@app/shared/components";
 import {
   AggregateTicketStatus,
-  Application,
   MigrationWave,
+  Ref,
+  Stakeholder,
   Ticket,
   TicketStatus,
 } from "@app/api/models";
@@ -48,8 +50,6 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { WaveApplicationsTable } from "./migration-wave-applications-table/migration-wave-applications-table";
-import { WaveStakeholdersTable } from "./migration-wave-stakeholders-table/migration-wave-stakeholders-table";
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
@@ -58,16 +58,30 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { ExportForm } from "./components/export-form";
-import { ManageApplicationsForm } from "./manage-applications-form";
 
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { AxiosError } from "axios";
-import { WaveForm } from "./migration-wave-form";
-import { WaveStatusTable } from "./migration-wave-status-table/migration-wave-status-table";
-import { useFetchJiraTrackers } from "@app/queries/jiratrackers";
+import { AxiosError, AxiosResponse } from "axios";
+import { useFetchTrackers } from "@app/queries/trackers";
 import { useFetchTickets } from "@app/queries/tickets";
+import { useFetchApplications } from "@app/queries/applications";
+import { WaveStakeholdersTable } from "./components/stakeholders-table";
+import { WaveApplicationsTable } from "./components/applications-table";
+import { WaveStatusTable } from "./components/status-table";
+import { WaveForm } from "./components/migration-wave-form";
+import { ManageApplicationsForm } from "./components/manage-applications-form";
+import { useFetchStakeholders } from "@app/queries/stakeholders";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 dayjs.extend(utc);
+
+const ticketStatusToAggreaate: Map<TicketStatus, AggregateTicketStatus> =
+  new Map([
+    ["", "Creating Issues"],
+    ["New", "Issues Created"],
+    ["In Progress", "In Progress"],
+    ["Done", "Completed"],
+    ["Error", "Error"],
+  ]);
 
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
@@ -76,7 +90,37 @@ export const MigrationWaves: React.FC = () => {
   const { migrationWaves, isFetching, fetchError, refetch } =
     useFetchMigrationWaves();
 
-  const { jiraTrackers: instances } = useFetchJiraTrackers();
+  const { trackers: instances } = useFetchTrackers();
+  const { data: applications } = useFetchApplications();
+  const { tickets } = useFetchTickets();
+  const { stakeholders } = useFetchStakeholders();
+  const { stakeholderGroups } = useFetchStakeholderGroups();
+
+  const [migrationWaveModalState, setWaveModalState] = React.useState<
+    "create" | MigrationWave | null
+  >(null);
+  const isWaveModalOpen = migrationWaveModalState !== null;
+  const migrationWaveToEdit =
+    migrationWaveModalState !== "create" ? migrationWaveModalState : null;
+  const openCreateWaveModal = () => setWaveModalState("create");
+
+  const [exportIssueModalOpen, setExportIssueModalOpen] = React.useState(false);
+
+  const [applicationsToExport, setApplicationsToExport] = React.useState<Ref[]>(
+    []
+  );
+
+  const [waveToManageModalState, setWaveToManageModalState] =
+    React.useState<MigrationWave | null>(null);
+
+  const closeWaveModal = () => setWaveModalState(null);
+
+  const getApplications = (refs: Ref[]) => {
+    const ids = refs.map((ref) => ref.id);
+    return applications.filter((application: any) =>
+      ids.includes(application.id)
+    );
+  };
 
   const onDeleteWaveSuccess = (name: string) => {
     pushNotification({
@@ -101,24 +145,34 @@ export const MigrationWaves: React.FC = () => {
     onDeleteWaveError
   );
 
-  const [migrationWaveModalState, setWaveModalState] = React.useState<
-    "create" | MigrationWave | null
-  >(null);
-  const isWaveModalOpen = migrationWaveModalState !== null;
-  const migrationWaveToEdit =
-    migrationWaveModalState !== "create" ? migrationWaveModalState : null;
-  const openCreateWaveModal = () => setWaveModalState("create");
+  const onUpdateMigrationWaveSuccess = (_: AxiosResponse<MigrationWave>) =>
+    pushNotification({
+      title: t("toastr.success.save", {
+        type: t("terms.migrationWave").toLowerCase(),
+      }),
+      variant: "success",
+    });
 
-  const [exportIssueModalOpen, setExportIssueModalOpen] = React.useState(false);
+  const onUpdateMigrationWaveError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.save", {
+        type: t("terms.migrationWave").toLowerCase(),
+      }),
+      variant: "danger",
+    });
+  };
 
-  const [applicationsToExport, setApplicationsToExport] = React.useState<
-    Application[]
-  >([]);
+  const { mutate: updateMigrationWave } = useUpdateMigrationWaveMutation(
+    onUpdateMigrationWaveSuccess,
+    onUpdateMigrationWaveError
+  );
 
-  const [waveToManageModalState, setWaveToManageModalState] =
-    React.useState<MigrationWave | null>(null);
-
-  const closeWaveModal = () => setWaveModalState(null);
+  const removeApplication = (migrationWave: MigrationWave, id: number) => {
+    migrationWave.applications = migrationWave.applications.filter(
+      (application) => application.id !== id
+    );
+    updateMigrationWave(migrationWave);
+  };
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
@@ -177,31 +231,26 @@ export const MigrationWaves: React.FC = () => {
     },
   } = tableControls;
 
-  const { tickets } = useFetchTickets();
-
-  const ticketStatusToAggreaate: Map<TicketStatus, AggregateTicketStatus> =
-    new Map([
-      ["", "Creating Issues"],
-      ["New", "Issues Created"],
-      ["In Progress", "In Progress"],
-      ["Done", "Completed"],
-      ["Error", "Error"],
-    ]);
-
-  const getTicketByApplication = (id: number = 0) =>
+  const getTicketByApplication = (tickets: Ticket[], id: number = 0) =>
     tickets.find((ticket) => ticket.application.id === id);
 
   const getTicketStatus = (wave: MigrationWave) => {
-    let tickets: string[] = [];
+    let statuses: string[] = [];
     wave.applications.forEach((application) => {
-      const ticket = getTicketByApplication(application.id);
-      if (ticket?.id) tickets.push(ticket.status || "");
+      const ticket = getTicketByApplication(tickets, application.id);
+      if (ticket?.id) statuses.push(ticket.status || "");
     });
-    return tickets as TicketStatus[];
+    return statuses as TicketStatus[];
   };
 
-  const aggregateTicketStatus = (val: TicketStatus) => {
+  const aggregateTicketStatus = (val: TicketStatus, startDate: string) => {
     const status = ticketStatusToAggreaate.get(val);
+    if (status === "Issues Created") {
+      const now = dayjs.utc();
+      const start = dayjs.utc(startDate);
+      var duration = now.diff(start);
+      if (duration > 0) return "In Progress";
+    }
     return status ? status : "Error";
   };
 
@@ -209,14 +258,85 @@ export const MigrationWaves: React.FC = () => {
     wave: MigrationWave
   ): AggregateTicketStatus => {
     const statuses = getTicketStatus(wave);
-    if (statuses.length === 0) return "Error";
+    if (statuses.length === 0) return "No Issues";
 
     const status = statuses.reduce(
       (acc, val) => (acc === val ? acc : "Error"),
       statuses[0]
     );
 
-    return aggregateTicketStatus(status);
+    return aggregateTicketStatus(status, wave.startDate);
+  };
+
+  const getApplicationsOwners = (id: number) => {
+    const applicationOwnerIds = applications
+      .filter((application) => application.migrationWave?.id === id)
+      .map((application) => application.owner?.id);
+
+    return stakeholders.filter((stakeholder) =>
+      applicationOwnerIds.includes(stakeholder.id)
+    );
+  };
+
+  const getApplicationsContributors = (id: number) => {
+    const applicationContributorsIds = applications
+      .filter((application) => application.migrationWave?.id === id)
+      .map((application) =>
+        application.contributors?.map((contributor) => contributor.id)
+      )
+      .flat();
+
+    return stakeholders.filter((stakeholder) =>
+      applicationContributorsIds.includes(stakeholder.id)
+    );
+  };
+
+  const getStakeholdersByMigrationWave = (migrationWave: MigrationWave) => {
+    const holderIds = migrationWave.stakeholders.map(
+      (stakeholder) => stakeholder.id
+    );
+    return stakeholders.filter((stakeholder) =>
+      holderIds.includes(stakeholder.id)
+    );
+  };
+
+  const getStakeholderFromGroupsByMigrationWave = (
+    migrationWave: MigrationWave
+  ) => {
+    const groupIds = migrationWave.stakeholderGroups.map(
+      (stakeholderGroup) => stakeholderGroup.id
+    );
+
+    return stakeholders.filter((stakeholder) =>
+      stakeholder.stakeholderGroups?.find((stakeholderGroup) =>
+        groupIds.includes(stakeholderGroup.id)
+      )
+    );
+  };
+
+  const getAllStakeholders = (migrationWave: MigrationWave) => {
+    let allStakeholders: Stakeholder[] = getApplicationsOwners(
+      migrationWave.id
+    );
+
+    getApplicationsContributors(migrationWave.id).forEach((stakeholder) => {
+      if (!allStakeholders.includes(stakeholder))
+        allStakeholders.push(stakeholder);
+    });
+
+    getStakeholdersByMigrationWave(migrationWave).forEach((stakeholder) => {
+      if (!allStakeholders.includes(stakeholder))
+        allStakeholders.push(stakeholder);
+    });
+
+    getStakeholderFromGroupsByMigrationWave(migrationWave).forEach(
+      (stakeholder) => {
+        if (!allStakeholders.includes(stakeholder))
+          allStakeholders.push(stakeholder);
+      }
+    );
+
+    return allStakeholders;
   };
 
   return (
@@ -375,7 +495,9 @@ export const MigrationWaves: React.FC = () => {
                               columnKey: "stakeholders",
                             })}
                           >
-                            {migrationWave?.stakeholders?.length.toString()}
+                            {getAllStakeholders(
+                              migrationWave
+                            ).length.toString()}
                           </Td>
                           <Td
                             width={20}
@@ -385,7 +507,9 @@ export const MigrationWaves: React.FC = () => {
                               columnKey: "status",
                             })}
                           >
-                            {aggregatedTicketStatus(migrationWave)}
+                            {migrationWave.applications.length > 0
+                              ? aggregatedTicketStatus(migrationWave)
+                              : null}
                           </Td>
                           <Td width={10}>
                             <KebabDropdown
@@ -397,12 +521,9 @@ export const MigrationWaves: React.FC = () => {
                                       <DropdownItem
                                         key="edit"
                                         component="button"
-                                        onClick={() => {
-                                          console.log(
-                                            getTicketStatus(migrationWave)
-                                          );
-                                          setWaveModalState(migrationWave);
-                                        }}
+                                        onClick={() =>
+                                          setWaveModalState(migrationWave)
+                                        }
                                       >
                                         {t("actions.edit")}
                                       </DropdownItem>,
@@ -425,7 +546,9 @@ export const MigrationWaves: React.FC = () => {
                                         component="button"
                                         onClick={() => {
                                           setApplicationsToExport(
-                                            migrationWave.applications
+                                            getApplications(
+                                              migrationWave.applications
+                                            )
                                           );
                                           setExportIssueModalOpen(true);
                                         }}
@@ -459,24 +582,38 @@ export const MigrationWaves: React.FC = () => {
                             })}
                           >
                             <ExpandableRowContent>
-                              {isCellExpanded(migrationWave, "applications") ? (
+                              {isCellExpanded(migrationWave, "applications") &&
+                              migrationWave.applications.length > 0 ? (
                                 <WaveApplicationsTable
                                   migrationWave={migrationWave}
-                                  applications={migrationWave.applications}
+                                  applications={getApplications(
+                                    migrationWave.applications
+                                  )}
+                                  removeApplication={removeApplication}
                                 />
                               ) : isCellExpanded(
                                   migrationWave,
                                   "stakeholders"
-                                ) ? (
+                                ) &&
+                                getAllStakeholders(migrationWave).length > 0 ? (
                                 <WaveStakeholdersTable
                                   migrationWave={migrationWave}
-                                  stakeholders={migrationWave.stakeholders}
+                                  stakeholders={getAllStakeholders(
+                                    migrationWave
+                                  )}
                                 />
                               ) : isCellExpanded(migrationWave, "status") &&
-                                instances.length > 0 ? (
+                                instances.length > 0 &&
+                                migrationWave.applications.length > 0 ? (
                                 <WaveStatusTable
                                   migrationWave={migrationWave}
-                                  applications={migrationWave.applications}
+                                  applications={getApplications(
+                                    migrationWave.applications
+                                  )}
+                                  instances={instances}
+                                  tickets={tickets}
+                                  getTicket={getTicketByApplication}
+                                  removeApplication={removeApplication}
                                 />
                               ) : null}
                             </ExpandableRowContent>
@@ -526,6 +663,7 @@ export const MigrationWaves: React.FC = () => {
       >
         <ExportForm
           applications={applicationsToExport}
+          instances={instances}
           onClose={() => {
             setExportIssueModalOpen(false);
           }}

@@ -6,6 +6,8 @@ import { useSelectionState } from "@migtools/lib-ui";
 import {
   Button,
   ButtonVariant,
+  Modal,
+  ModalVariant,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -29,11 +31,6 @@ import {
 } from "@app/shared/components";
 import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
 import { Tag, TagCategory } from "@app/api/models";
-
-import { NewTagCategoryModal } from "./components/new-tag-type-modal";
-import { UpdateTagCategoryModal } from "./components/update-tag-category-modal";
-import { NewTagModal } from "./components/new-tag-modal";
-import { UpdateTagModal } from "./components/update-tag-modal";
 import { TagTable } from "./components/tag-table";
 import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import {
@@ -51,6 +48,8 @@ import {
 } from "@app/queries/tags";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { COLOR_NAMES_BY_HEX_VALUE } from "@app/Constants";
+import { TagForm } from "./components/tag-form";
+import { TagCategoryForm } from "./components/tag-category-form";
 
 const ENTITY_FIELD = "entity";
 
@@ -60,6 +59,7 @@ const getRow = (rowData: IRowData): TagCategory => {
 
 export const Tags: React.FC = () => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [isTagToDeleteConfirmDialogOpen, setIsTagToDeleteConfirmDialogOpen] =
     React.useState<Boolean>(false);
@@ -73,14 +73,22 @@ export const Tags: React.FC = () => {
   const [tagCategoryIdToDelete, setTagCategoryIdToDelete] =
     React.useState<number>();
 
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const [tagCategoryModalState, setTagCategoryModalState] = React.useState<
+    "create" | TagCategory | null
+  >(null);
+  const isTagCategoryModalOpen = tagCategoryModalState !== null;
+  const tagCategoryToUpdate =
+    tagCategoryModalState !== "create" ? tagCategoryModalState : null;
 
-  const [isNewTagCategoryModalOpen, setIsNewTagCategoryModalOpen] =
-    useState(false);
-  const [rowToUpdate, setRowToUpdate] = useState<TagCategory>();
+  // const [isNewTagCategoryModalOpen, setIsNewTagCategoryModalOpen] =
+  //   useState(false);
+  // const [rowToUpdate, setRowToUpdate] = useState<TagCategory>();
 
-  const [isNewTagModalOpen, setIsNewTagModalOpen] = useState(false);
-  const [tagToUpdate, setTagToUpdate] = useState<Tag>();
+  const [tagModalState, setTagModalState] = React.useState<
+    "create" | Tag | null
+  >(null);
+  const isTagModalOpen = tagModalState !== null;
+  const tagToUpdate = tagModalState !== "create" ? tagModalState : null;
 
   const onDeleteTagSuccess = (response: any) => {
     pushNotification({
@@ -141,6 +149,16 @@ export const Tags: React.FC = () => {
     onDeleteTagCategorySuccess,
     onDeleteTagCategoryError
   );
+
+  const closeTagCategoryModal = () => {
+    setTagCategoryModalState(null);
+    refetch;
+  };
+
+  const closeTagModal = () => {
+    setTagModalState(null);
+    refetch;
+  };
 
   const {
     tagCategories: tagCategories,
@@ -299,8 +317,8 @@ export const Tags: React.FC = () => {
           title: (
             <AppTableActionButtons
               isDeleteEnabled={!!item.tags?.length}
-              tooltipMessage="Cannot delete non empty tag type"
-              onEdit={() => setRowToUpdate(item)}
+              tooltipMessage="Cannot delete non empty tag category"
+              onEdit={() => setTagCategoryModalState(item)}
               onDelete={() => deleteRow(item)}
             />
           ),
@@ -319,7 +337,7 @@ export const Tags: React.FC = () => {
               <div>
                 <TagTable
                   tagCategory={item}
-                  onEdit={setTagToUpdate}
+                  onEdit={setTagModalState}
                   onDelete={deleteTagFromTable}
                 />
               </div>
@@ -354,63 +372,6 @@ export const Tags: React.FC = () => {
     setFilterValues({});
   };
 
-  // Create Modal
-
-  const handleOnOpenCreateNewTagCategoryModal = () => {
-    setIsNewTagCategoryModalOpen(true);
-  };
-
-  const handleOnOpenCreateNewTagModal = () => {
-    setIsNewTagModalOpen(true);
-  };
-
-  const handleOnCreatedNewTagCategory = (
-    response: AxiosResponse<TagCategory>
-  ) => {
-    setIsNewTagCategoryModalOpen(false);
-    refetch();
-    pushNotification({
-      title: t("toastr.success.added", {
-        what: response.data.name,
-        type: "tag type",
-      }),
-      variant: "success",
-    });
-  };
-
-  const handleOnCreatedNewTag = (response: AxiosResponse<Tag>) => {
-    setIsNewTagModalOpen(false);
-    refetch();
-    pushNotification({
-      title: t("toastr.success.added", {
-        what: response.data.name,
-        type: "tag",
-      }),
-      variant: "success",
-    });
-  };
-
-  const handleOnCreateNewCancel = () => {
-    setIsNewTagCategoryModalOpen(false);
-    setIsNewTagModalOpen(false);
-  };
-
-  // Update Modal
-
-  const handleOnTagCategoryUpdated = () => {
-    setRowToUpdate(undefined);
-    refetch();
-  };
-
-  const handleOnTagUpdated = () => {
-    setTagToUpdate(undefined);
-    refetch();
-  };
-
-  const handleOnUpdatedCancel = () => {
-    setRowToUpdate(undefined);
-    setTagToUpdate(undefined);
-  };
   return (
     <>
       <ConditionalRender
@@ -449,7 +410,7 @@ export const Tags: React.FC = () => {
                     id="create-tag"
                     aria-label="Create tag"
                     variant={ButtonVariant.primary}
-                    onClick={handleOnOpenCreateNewTagModal}
+                    onClick={() => setTagModalState("create")}
                   >
                     {t("actions.createTag")}
                   </Button>
@@ -457,10 +418,10 @@ export const Tags: React.FC = () => {
                 <ToolbarItem>
                   <Button
                     type="button"
-                    id="create-tag-type"
-                    aria-label="Create tag type"
+                    id="create-tag-category"
+                    aria-label="Create tag category"
                     variant={ButtonVariant.secondary}
-                    onClick={handleOnOpenCreateNewTagCategoryModal}
+                    onClick={() => setTagCategoryModalState("create")}
                   >
                     {t("actions.createTagCategory")}
                   </Button>
@@ -485,27 +446,48 @@ export const Tags: React.FC = () => {
         />
       </ConditionalRender>
 
-      <NewTagCategoryModal
-        isOpen={isNewTagCategoryModalOpen}
-        onSaved={handleOnCreatedNewTagCategory}
-        onCancel={handleOnCreateNewCancel}
-      />
-      <UpdateTagCategoryModal
-        tagCategory={rowToUpdate}
-        onSaved={handleOnTagCategoryUpdated}
-        onCancel={handleOnUpdatedCancel}
-      />
+      <Modal
+        id="create-edit-tag-category-modal"
+        title={
+          tagCategoryToUpdate
+            ? t("dialog.title.update", {
+                what: t("terms.tagCategory").toLowerCase(),
+              })
+            : t("dialog.title.new", {
+                what: t("terms.tagCategory").toLowerCase(),
+              })
+        }
+        variant={ModalVariant.medium}
+        isOpen={isTagCategoryModalOpen}
+        onClose={closeTagCategoryModal}
+      >
+        <TagCategoryForm
+          tagCategory={tagCategoryToUpdate ? tagCategoryToUpdate : undefined}
+          onClose={closeTagCategoryModal}
+        />
+      </Modal>
 
-      <NewTagModal
-        isOpen={isNewTagModalOpen}
-        onSaved={handleOnCreatedNewTag}
-        onCancel={handleOnCreateNewCancel}
-      />
-      <UpdateTagModal
-        tag={tagToUpdate}
-        onSaved={handleOnTagUpdated}
-        onCancel={handleOnUpdatedCancel}
-      />
+      <Modal
+        id="create-edit-tag-modal"
+        title={
+          tagToUpdate
+            ? t("dialog.title.update", {
+                what: t("terms.tag").toLowerCase(),
+              })
+            : t("dialog.title.new", {
+                what: t("terms.tag").toLowerCase(),
+              })
+        }
+        variant={ModalVariant.medium}
+        isOpen={isTagModalOpen}
+        onClose={closeTagModal}
+      >
+        <TagForm
+          tag={tagToUpdate ? tagToUpdate : undefined}
+          onClose={closeTagModal}
+        />
+      </Modal>
+
       {isTagToDeleteConfirmDialogOpen && (
         <ConfirmDialog
           title={t("dialog.title.delete", {

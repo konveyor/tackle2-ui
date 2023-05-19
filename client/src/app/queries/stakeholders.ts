@@ -1,25 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Stakeholder } from "@app/api/models";
-import { deleteStakeholder, getStakeholders } from "@app/api/rest";
+import {
+  createStakeholder,
+  deleteStakeholder,
+  getStakeholders,
+  updateStakeholder,
+} from "@app/api/rest";
 import { AxiosError } from "axios";
-
-export interface IStakeholderFetchState {
-  stakeholders: Stakeholder[];
-  isFetching: boolean;
-  fetchError: any;
-  refetch: any;
-}
 
 export const StakeholdersQueryKey = "stakeholders";
 
-export const useFetchStakeholders = (): IStakeholderFetchState => {
-  const { data, isLoading, error, refetch } = useQuery(
-    [StakeholdersQueryKey],
-    async () => (await getStakeholders()).data,
-    {
-      onError: (error) => console.log("error, ", error),
-    }
-  );
+export const useFetchStakeholders = () => {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [StakeholdersQueryKey],
+    queryFn: getStakeholders,
+    onError: (error: AxiosError) => console.log("error, ", error),
+  });
   return {
     stakeholders: data || [],
     isFetching: isLoading,
@@ -28,25 +23,49 @@ export const useFetchStakeholders = (): IStakeholderFetchState => {
   };
 };
 
+export const useCreateStakeholderMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createStakeholder,
+    onSuccess: (res) => {
+      onSuccess(res);
+      queryClient.invalidateQueries([StakeholdersQueryKey]);
+    },
+    onError,
+  });
+};
+
+export const useUpdateStakeholderMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateStakeholder,
+    onSuccess: (res) => {
+      onSuccess(res);
+      queryClient.invalidateQueries([StakeholdersQueryKey]);
+    },
+    onError: onError,
+  });
+};
+
 export const useDeleteStakeholderMutation = (
   onSuccess: (res: any) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation(deleteStakeholder, {
+  return useMutation({
+    mutationFn: deleteStakeholder,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([StakeholdersQueryKey]);
     },
-    onError: (err: AxiosError) => {
-      onError(err);
-      queryClient.invalidateQueries([StakeholdersQueryKey]);
-    },
+    onError: onError,
   });
-  return {
-    mutate,
-    isLoading,
-    error,
-  };
 };

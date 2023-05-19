@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -8,6 +8,8 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Modal,
+  ModalVariant,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -22,7 +24,6 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import {
@@ -33,8 +34,6 @@ import {
 } from "@app/shared/components";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Stakeholder } from "@app/api/models";
-import { NewStakeholderModal } from "./components/new-stakeholder-modal";
-import { UpdateStakeholderModal } from "./components/update-stakeholder-modal";
 import {
   FilterToolbar,
   FilterType,
@@ -51,6 +50,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
+import { StakeholderForm } from "./components/stakeholder-form";
 
 export const Stakeholders: React.FC = () => {
   const { t } = useTranslation();
@@ -61,8 +61,13 @@ export const Stakeholders: React.FC = () => {
   const [stakeholderIdToDelete, setStakeholderIdToDelete] =
     React.useState<number>();
 
-  const [isNewModalOpen, setIsNewModalOpen] = React.useState(false);
-  const [rowToUpdate, setRowToUpdate] = React.useState<Stakeholder>();
+  const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
+    "create" | Stakeholder | null
+  >(null);
+  const isCreateUpdateModalOpen = createUpdateModalState !== null;
+  const stakeholderToUpdate =
+    createUpdateModalState !== "create" ? createUpdateModalState : null;
+
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const onDeleteStakeholderSuccess = (response: any) => {
@@ -87,35 +92,11 @@ export const Stakeholders: React.FC = () => {
   const { stakeholders, isFetching, fetchError, refetch } =
     useFetchStakeholders();
 
-  const handleOnOpenCreateNewModal = () => {
-    setIsNewModalOpen(true);
+  const closeCreateUpdateModal = () => {
+    setCreateUpdateModalState(null);
+    refetch;
   };
 
-  const handleOnCreatedNew = (response: AxiosResponse<Stakeholder>) => {
-    setIsNewModalOpen(false);
-    refetch();
-
-    pushNotification({
-      title: t("toastr.success.added", {
-        what: response.data.name,
-        type: "stakeholder",
-      }),
-      variant: "success",
-    });
-  };
-
-  const handleOnCreateNewCancel = () => {
-    setIsNewModalOpen(false);
-  };
-
-  const handleOnUpdated = () => {
-    setRowToUpdate(undefined);
-    refetch();
-  };
-
-  const handleOnUpdatedCancel = () => {
-    setRowToUpdate(undefined);
-  };
   const tableControls = useLocalTableControls({
     idProperty: "name",
     items: stakeholders,
@@ -208,10 +189,6 @@ export const Stakeholders: React.FC = () => {
     },
   } = tableControls;
 
-  const editRow = (row: Stakeholder) => {
-    setRowToUpdate(row);
-  };
-
   const deleteRow = (row: Stakeholder) => {
     setStakeholderIdToDelete(row.id);
     setIsConfirmDialogOpen(true);
@@ -238,7 +215,7 @@ export const Stakeholders: React.FC = () => {
                     id="create-migration-wave"
                     aria-label="Create new migration wave"
                     variant={ButtonVariant.primary}
-                    onClick={handleOnOpenCreateNewModal}
+                    onClick={() => setCreateUpdateModalState("create")}
                   >
                     {t("actions.createNew")}
                   </Button>
@@ -316,7 +293,9 @@ export const Stakeholders: React.FC = () => {
                         </Td>
                         <Td width={20}>
                           <AppTableActionButtons
-                            onEdit={() => editRow(stakeholder)}
+                            onEdit={() =>
+                              setCreateUpdateModalState(stakeholder)
+                            }
                             onDelete={() => deleteRow(stakeholder)}
                           />
                         </Td>
@@ -361,16 +340,27 @@ export const Stakeholders: React.FC = () => {
         </div>
       </ConditionalRender>
 
-      <NewStakeholderModal
-        isOpen={isNewModalOpen}
-        onSaved={handleOnCreatedNew}
-        onCancel={handleOnCreateNewCancel}
-      />
-      <UpdateStakeholderModal
-        stakeholder={rowToUpdate}
-        onSaved={handleOnUpdated}
-        onCancel={handleOnUpdatedCancel}
-      />
+      <Modal
+        id="create-edit-stakeholder-modal"
+        title={
+          stakeholderToUpdate
+            ? t("dialog.title.update", {
+                what: t("terms.stakeholder").toLowerCase(),
+              })
+            : t("dialog.title.new", {
+                what: t("terms.stakeholder").toLowerCase(),
+              })
+        }
+        variant={ModalVariant.medium}
+        isOpen={isCreateUpdateModalOpen}
+        onClose={closeCreateUpdateModal}
+      >
+        <StakeholderForm
+          stakeholder={stakeholderToUpdate ? stakeholderToUpdate : undefined}
+          onClose={closeCreateUpdateModal}
+        />
+      </Modal>
+
       {isConfirmDialogOpen && (
         <ConfirmDialog
           title={t("dialog.title.delete", {
