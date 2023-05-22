@@ -28,6 +28,8 @@ export const useLocalTableControlState = <
     hasPagination = true,
     initialItemsPerPage = 10,
     idProperty,
+    initialSelected,
+    isItemSelectable,
   } = args;
 
   const filterState = useFilterState(args);
@@ -44,6 +46,8 @@ export const useLocalTableControlState = <
   const selectionState = useSelectionState({
     items: filteredItems,
     isEqual: (a, b) => a[idProperty] === b[idProperty],
+    initialSelected,
+    isItemSelectable,
   });
 
   const sortState = useSortState({ sortableColumns, initialSort });
