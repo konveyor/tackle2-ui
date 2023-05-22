@@ -73,12 +73,20 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
       !applicationsUsedByOtherMigrationsIds.includes(application.id)
   );
 
+  // const isNewerSelection = (): boolean => {
+  //   const selectedIds = selectedItems.map((application) => application.id);
+  //   return (
+  //     selectedIds.sort().toString() !==
+  //     initialApplicationUsedByMigrationIds.sort().toString()
+  //   );
+  // };
+
+  const isArrayDifferent = (a: number[], b: number[]): boolean =>
+    a.some((val) => !b.includes(val)) || b.some((val) => !a.includes(val));
+
   const isNewerSelection = (): boolean => {
     const selectedIds = selectedItems.map((application) => application.id);
-    return (
-      selectedIds.sort().toString() !==
-      initialApplicationUsedByMigrationIds.sort().toString()
-    );
+    return isArrayDifferent(selectedIds, initialApplicationUsedByMigrationIds);
   };
 
   const onUpdateMigrationWaveSuccess = (
