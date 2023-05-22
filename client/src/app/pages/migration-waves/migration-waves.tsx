@@ -679,6 +679,7 @@ export const MigrationWaves: React.FC = () => {
       >
         {waveToManageModalState && (
           <ManageApplicationsForm
+            applications={applications}
             migrationWave={waveToManageModalState}
             migrationWaves={migrationWaves}
             onClose={() => setWaveToManageModalState(null)}

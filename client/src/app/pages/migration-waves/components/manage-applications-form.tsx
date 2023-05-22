@@ -14,10 +14,9 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 
-import { MigrationWave } from "@app/api/models";
+import { Application, MigrationWave } from "@app/api/models";
 import { ToolbarBulkSelector } from "@app/shared/components";
 import { NotificationsContext } from "@app/shared/notifications-context";
-import { useFetchApplications } from "@app/queries/applications";
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import {
   FilterToolbar,
@@ -41,12 +40,14 @@ import { dedupeFunction } from "@app/utils/utils";
 import { useUpdateMigrationWaveMutation } from "@app/queries/migration-waves";
 
 export interface ManageApplicationsFormProps {
+  applications: Application[];
   migrationWave: MigrationWave;
   migrationWaves: MigrationWave[];
   onClose: () => void;
 }
 
 export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
+  applications,
   migrationWave,
   migrationWaves,
   onClose,
@@ -54,16 +55,39 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const { data: applications, isFetching } = useFetchApplications();
-
-  const assignedApplications = migrationWaves
+  const applicationsUsedByOtherMigrationsIds = migrationWaves
     .filter((wave) => wave.id !== migrationWave.id)
     .map((wave) => wave.applications.map((application) => application.id))
     .flat();
 
-  const availableApplications = applications.filter(
-    (application) => !assignedApplications.includes(application.id)
+  const initialApplicationUsedByMigrationIds = migrationWave.applications.map(
+    (application) => application.id
   );
+
+  const assignedApplications = applications.filter((application) =>
+    initialApplicationUsedByMigrationIds.includes(application.id)
+  );
+
+  const availableApplications = applications.filter(
+    (application) =>
+      !applicationsUsedByOtherMigrationsIds.includes(application.id)
+  );
+
+  // const isNewerSelection = (): boolean => {
+  //   const selectedIds = selectedItems.map((application) => application.id);
+  //   return (
+  //     selectedIds.sort().toString() !==
+  //     initialApplicationUsedByMigrationIds.sort().toString()
+  //   );
+  // };
+
+  const isArrayDifferent = (a: number[], b: number[]): boolean =>
+    a.some((val) => !b.includes(val)) || b.some((val) => !a.includes(val));
+
+  const isNewerSelection = (): boolean => {
+    const selectedIds = selectedItems.map((application) => application.id);
+    return isArrayDifferent(selectedIds, initialApplicationUsedByMigrationIds);
+  };
 
   const onUpdateMigrationWaveSuccess = (
     response: AxiosResponse<MigrationWave>
@@ -94,6 +118,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
   const tableControls = useLocalTableControls({
     idProperty: "name",
     items: availableApplications,
+    initialSelected: assignedApplications,
     columnNames: {
       name: "Application Name",
       description: "Description",
@@ -161,7 +186,6 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     }),
     initialSort: { columnKey: "name", direction: "asc" },
     hasPagination: true,
-    isLoading: isFetching,
   });
   const {
     currentPageItems,
@@ -236,8 +260,6 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
           </Tr>
         </Thead>
         <ConditionalTableBody
-          isLoading={isFetching}
-          //   isError={error}
           isNoData={applications.length === 0}
           numRenderedColumns={numRenderedColumns}
         >
@@ -284,7 +306,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
           aria-label="submit"
           id="wave-form-submit"
           variant="primary"
-          isDisabled={selectedItems.length < 1 || isFetching}
+          isDisabled={!isNewerSelection()}
         >
           Save
         </Button>
