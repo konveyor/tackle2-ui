@@ -16,6 +16,8 @@ type FilterValuesToCarry = Partial<
   Record<(typeof filterKeysToCarry)[number], FilterValue>
 >;
 
+const FROM_ISSUES_PARAMS_KEY = "~fromIssuesParams"; // ~ prefix sorts it at the end of the URL for readability
+
 // URL for Affected Apps page that includes carried filters and a snapshot of original URL params from the Issues page
 export const getAffectedAppsUrl = ({
   compositeIssue,
@@ -37,7 +39,7 @@ export const getAffectedAppsUrl = ({
   }?${trimAndStringifyUrlParams({
     params: {
       ...serializeFilterUrlParams(toFilterValues),
-      fromIssuesParams,
+      [FROM_ISSUES_PARAMS_KEY]: fromIssuesParams,
       compositeIssueName: compositeIssue.name,
     },
   })}`;
@@ -53,7 +55,7 @@ export const getBackToIssuesUrl = ({
 }) => {
   // Pull the fromIssuesParams param out of the current location's URLSearchParams
   const fromIssuesParams =
-    new URLSearchParams(fromLocation.search).get("fromIssuesParams") || "";
+    new URLSearchParams(fromLocation.search).get(FROM_ISSUES_PARAMS_KEY) || "";
   // Pull the params themselves out of fromIssuesParams
   const paramsToRestore = Object.fromEntries(
     new URLSearchParams(fromIssuesParams)

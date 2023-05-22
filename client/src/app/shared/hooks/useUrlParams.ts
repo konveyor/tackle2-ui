@@ -84,5 +84,7 @@ export const trimAndStringifyUrlParams = <TUrlParamKey extends string>({
       delete existingParams[key];
     }
   });
-  return new URLSearchParams({ ...existingParams, ...params }).toString();
+  const newParams = new URLSearchParams({ ...existingParams, ...params });
+  newParams.sort();
+  return newParams.toString();
 };
