@@ -41,6 +41,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useSelectionState } from "@migtools/lib-ui";
 import { getBackToIssuesUrl } from "../helpers";
+import { PageDrawerContent } from "@app/shared/page-drawer-context";
 
 interface IAffectedApplicationsRouteParams {
   ruleset: string;
@@ -82,6 +83,7 @@ export const AffectedApplications: React.FC = () => {
       },
     ],
     initialItemsPerPage: 10,
+    hasClickableRows: true,
   });
 
   const {
@@ -135,8 +137,12 @@ export const AffectedApplications: React.FC = () => {
       tableProps,
       getThProps,
       getTdProps,
+      getClickableTrProps,
     },
+    activeRowDerivedState: { activeRowItem, clearActiveRow },
   } = tableControls;
+
+  console.log({ activeRowItem });
 
   console.log({ currentPageIssues, totalItemCount });
 
@@ -210,7 +216,10 @@ export const AffectedApplications: React.FC = () => {
                     );
                     if (!application) return null;
                     return (
-                      <Tr key={application.name}>
+                      <Tr
+                        key={application.name}
+                        {...getClickableTrProps({ item: issue })}
+                      >
                         <TableRowContentWithControls
                           {...tableControls}
                           item={issue}
@@ -254,6 +263,14 @@ export const AffectedApplications: React.FC = () => {
           </div>
         </ConditionalRender>
       </PageSection>
+      <PageDrawerContent
+        isExpanded={!!activeRowItem}
+        onCloseClick={clearActiveRow}
+        focusKey={activeRowItem?.name}
+        pageKey="affected-applications"
+      >
+        TODO details about issue {activeRowItem?.name} here!
+      </PageDrawerContent>
     </>
   );
 };
