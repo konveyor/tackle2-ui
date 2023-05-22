@@ -9,8 +9,8 @@
     "prebuild": "npm run tsc && npm run clean",
     "build": "NODE_ENV=production webpack --config ./config/webpack.prod.ts",
     "extract": "i18next --config i18next-parser.config.js",
-    "start:dev": "GENERATE_SOURCEMAP=true webpack serve --config config/webpack.dev.ts",
-    "test": "jest --rootDir=. --config=config/jest.config.js",
+    "start:dev": "GENERATE_SOURCEMAP=true webpack serve --config ./config/webpack.dev.ts",
+    "test": "jest --rootDir=. --config=./config/jest.config.js",
     "tsc": "tsc -p ./tsconfig.json",
     "prepare": "cd .. && husky install client/.husky"
   },

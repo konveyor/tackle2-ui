@@ -4,8 +4,8 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "clean": "rm -rf ./dist && npm run clean -ws --if-present",
-    "dist": "rm -rf ./dist && mkdir -p ./dist/client && cp -r server dist/ && npm run build -w client && cp -r client/dist ./dist/client/",
+    "clean": "rimraf ./dist && npm run clean -ws --if-present",
+    "dist": "rimraf ./dist && copyfiles -e 'node_modules/**' entrypoint.sh '**/package.json' '*/dist/**/*' ./dist",
     "build": "npm run build -ws --if-present",
     "start:dev:server": "npm run start:dev -w server",
     "start:dev:client": "npm run start:dev -w client",
@@ -22,6 +22,7 @@
   ],
   "devDependencies": {
     "concurrently": "^8.0.1",
+    "copyfiles": "^2.4.1",
     "rimraf": "^5.0.1"
   }
 }

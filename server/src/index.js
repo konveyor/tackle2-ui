@@ -1,24 +1,31 @@
-const express = require("express");
-const path = require("path");
-const app = express(),
-  bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
-const { createHttpTerminator } = require("http-terminator");
+import path from "path";
+import { fileURLToPath } from "url";
 
-const setupProxy = require("./setupProxy");
+import express from "express";
+import ejs from "ejs";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import { createHttpTerminator } from "http-terminator";
+
+import setupProxy from "./setupProxy";
+import { getEncodedEnv } from "client/config/envLookup";
+
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
+const pathToClientDist = path.join(__dirname, "../../client/dist");
 
 const port = 8080;
 
-const helpers = require("./helpers");
+const app = express();
 app.use(cookieParser());
 
 setupProxy(app);
 
-app.engine("ejs", require("ejs").renderFile);
+app.engine("ejs", ejs.renderFile);
 
 app.use(bodyParser.json());
-app.set("views", path.join(__dirname, "../client/dist"));
-app.use(express.static(path.join(__dirname, "../client/dist")));
+app.set("views", pathToClientDist);
+app.use(express.static(pathToClientDist));
+
 const brandType = process.env["PROFILE"] || "konveyor";
 
 app.get("*", (_, res) => {
@@ -31,7 +38,7 @@ app.get("*", (_, res) => {
     `);
   } else {
     res.render("index.html.ejs", {
-      _env: helpers.getEncodedEnv(),
+      _env: getEncodedEnv(),
       brandType,
     });
   }
