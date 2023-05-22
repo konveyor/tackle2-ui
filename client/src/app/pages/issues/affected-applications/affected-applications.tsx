@@ -41,7 +41,6 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useSelectionState } from "@migtools/lib-ui";
 import { getBackToIssuesUrl } from "../helpers";
-import { PageDrawerContent } from "@app/shared/page-drawer-context";
 import { AffectedApplicationDetailDrawer } from "./affected-application-detail-drawer";
 
 interface IAffectedApplicationsRouteParams {
