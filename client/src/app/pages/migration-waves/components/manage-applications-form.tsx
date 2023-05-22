@@ -166,7 +166,6 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
   const {
     currentPageItems,
     numRenderedColumns,
-    expansionState: { isCellExpanded },
     selectionState: { selectedItems },
     propHelpers: {
       toolbarProps,
@@ -178,6 +177,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
       getThProps,
       getTdProps,
     },
+    expansionDerivedState: { isCellExpanded },
   } = tableControls;
 
   const onSubmit = () => {

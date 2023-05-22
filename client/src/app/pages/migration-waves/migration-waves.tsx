@@ -215,7 +215,6 @@ export const MigrationWaves: React.FC = () => {
   const {
     currentPageItems,
     numRenderedColumns,
-    expansionState: { isCellExpanded },
     selectionState: { selectedItems },
     propHelpers: {
       toolbarProps,
@@ -229,6 +228,7 @@ export const MigrationWaves: React.FC = () => {
       getExpandedContentTdProps,
       getCompoundExpandTdProps,
     },
+    expansionDerivedState: { isCellExpanded },
   } = tableControls;
 
   const getTicketByApplication = (tickets: Ticket[], id: number = 0) =>

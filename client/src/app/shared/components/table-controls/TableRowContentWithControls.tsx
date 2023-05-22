@@ -7,6 +7,7 @@ export interface ITableRowContentWithControlsProps<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 > {
+  expandableVariant?: "single" | "compound" | null;
   isSelectable?: boolean;
   propHelpers: ReturnType<
     typeof useTableControlProps<TItem, TColumnKey, TSortableColumnKey>
@@ -16,15 +17,14 @@ export interface ITableRowContentWithControlsProps<
   children: React.ReactNode;
 }
 
-// TODO implement single-expandable toggle cell
-
 export const TableRowContentWithControls = <
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey
 >({
+  expandableVariant = null,
   isSelectable = false,
-  propHelpers: { getSelectCheckboxTdProps },
+  propHelpers: { getSingleExpandTdProps, getSelectCheckboxTdProps },
   item,
   rowIndex,
   children,
@@ -32,7 +32,9 @@ export const TableRowContentWithControls = <
   ITableRowContentWithControlsProps<TItem, TColumnKey, TSortableColumnKey>
 >) => (
   <>
-    {/* TODO implement single-expandable toggle cell */}
+    {expandableVariant === "single" ? (
+      <Td {...getSingleExpandTdProps({ item, rowIndex })} />
+    ) : null}
     {isSelectable ? (
       <Td {...getSelectCheckboxTdProps({ item, rowIndex })} />
     ) : null}

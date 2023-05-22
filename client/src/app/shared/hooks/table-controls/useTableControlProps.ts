@@ -16,6 +16,7 @@ import { getSortProps } from "./sorting";
 import { getPaginationProps, usePaginationEffects } from "./pagination";
 import { getActiveRowDerivedState, useActiveRowEffects } from "./active-row";
 import { handlePropagatedRowClick } from "./utils";
+import { getExpansionDerivedState } from "./expansion";
 
 export const useTableControlProps = <
   TItem,
@@ -38,7 +39,7 @@ export const useTableControlProps = <
   const {
     currentPageItems,
     filterState: { setFilterValues },
-    expansionState: { isCellExpanded, setCellExpanded, expandedCells },
+    expansionState: { expandedCells },
     selectionState: {
       selectAll,
       areAllSelected,
@@ -68,6 +69,9 @@ export const useTableControlProps = <
   if (hasActionsColumn) numColumnsAfterData++;
   const numRenderedColumns =
     columnKeys.length + numColumnsBeforeData + numColumnsAfterData;
+
+  const expansionDerivedState = getExpansionDerivedState(args);
+  const { isCellExpanded, setCellExpanded } = expansionDerivedState;
 
   const activeRowDerivedState = getActiveRowDerivedState(args);
   useActiveRowEffects({ ...args, activeRowDerivedState });
@@ -245,6 +249,7 @@ export const useTableControlProps = <
       getSingleExpandTdProps,
       getExpandedContentTdProps,
     },
+    expansionDerivedState,
     activeRowDerivedState,
   };
 };
