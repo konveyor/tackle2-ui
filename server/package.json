@@ -3,15 +3,26 @@
   "version": "0.1.0",
   "license": "Apache-2.0",
   "private": true,
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "build": "NODE_ENV=production rollup -c",
+    "start:dev": "ROLLUP_RUN=true rollup -c -w",
+    "start": "npm run build && node --enable-source-maps dist/index.js"
+  },
   "dependencies": {
+    "client": "*",
     "cookie-parser": "^1.4.6",
     "ejs": "^3.1.7",
     "express": "^4.17.3",
     "http-proxy-middleware": "^2.0.2",
     "http-terminator": "^3.2.0"
   },
-  "scripts": {
-    "start:dev": "node index.js",
-    "start": "node index.js"
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.1.0",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-run": "^3.0.1",
+    "rollup": "^3.21.6"
   }
 }

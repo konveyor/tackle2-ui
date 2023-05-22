@@ -3,7 +3,7 @@ import merge from "webpack-merge";
 import commonWebpackConfiguration from "./webpack.common";
 import { stylePaths } from "./stylePaths";
 import HtmlWebpackPlugin from "html-webpack-plugin";
-import helpers from "../../server/helpers";
+import { getEncodedEnv } from "./envLookup";
 import { Configuration } from "webpack";
 import "webpack-dev-server";
 
@@ -15,7 +15,7 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
   devServer: {
     port: 9000,
     proxy: {
-      // NOTE: Any future non-UI paths handled by ../../server/index.js should be added here.
+      // NOTE: Any future non-UI paths handled by the server package should be added here.
       "/auth": "http://localhost:8080",
       "/hub": "http://localhost:8080",
     },
@@ -33,7 +33,7 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
       template: path.resolve(__dirname, "../public/index.html.ejs"),
       favicon: path.resolve(__dirname, `../public/${brandType}-favicon.ico`),
       templateParameters: {
-        _env: helpers.getEncodedEnv(),
+        _env: getEncodedEnv(),
         brandType,
       },
     }),

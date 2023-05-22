@@ -1,9 +1,8 @@
 # Builder image
 FROM registry.access.redhat.com/ubi9/nodejs-18 as builder
-USER 0
-COPY . .
-WORKDIR "/opt/app-root/src" 
-RUN npm install -w client && npm run build -w client && rm -rf node_modules && npm install -w server
+
+COPY --chown=default . .
+RUN npm clean-install && npm run build && npm run dist
 
 # Runner image
 FROM registry.access.redhat.com/ubi9/nodejs-18-minimal
@@ -31,11 +30,9 @@ LABEL name="konveyor/tackle2-ui" \
       io.openshift.min-cpu="100m" \
       io.openshift.min-memory="350Mi"
 
-COPY --from=builder /opt/app-root/src/client/dist /opt/app-root/src/client/dist
-COPY --from=builder /opt/app-root/src/server /opt/app-root/src/server
-COPY --from=builder /opt/app-root/src/node_modules /opt/app-root/src/node_modules
-COPY --from=builder /opt/app-root/src/entrypoint.sh /usr/bin/entrypoint.sh
+COPY --from=builder /opt/app-root/src/dist /opt/app-root/dist/
 
 ENV DEBUG=1
 
-ENTRYPOINT ["/usr/bin/entrypoint.sh"]
+WORKDIR /opt/app-root/dist
+ENTRYPOINT ["./entrypoint.sh"]
