@@ -1,5 +1,5 @@
 import { TableComposableProps } from "@patternfly/react-table";
-import { useSelectionState } from "@migtools/lib-ui";
+import { ISelectionStateArgs, useSelectionState } from "@migtools/lib-ui";
 import { KeyWithValueType } from "@app/utils/type-utils";
 import {
   IFilterStateArgs,
@@ -77,7 +77,8 @@ export type IUseLocalTableControlStateArgs<
   ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey> &
   IFilterStateArgs<TItem, TFilterCategoryKey> &
   ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> &
-  ILocalPaginationDerivedStateArgs<TItem>;
+  ILocalPaginationDerivedStateArgs<TItem> &
+  Pick<ISelectionStateArgs<TItem>, "initialSelected" | "isItemSelectable">;
 
 // Rendering args
 // - Used by only useTableControlProps
