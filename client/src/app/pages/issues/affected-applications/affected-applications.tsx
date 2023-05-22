@@ -39,7 +39,6 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import { useCompoundExpansionState } from "@app/shared/hooks/useCompoundExpansionState";
 import { useSelectionState } from "@migtools/lib-ui";
 import { getBackToIssuesUrl } from "../helpers";
 
@@ -118,8 +117,7 @@ export const AffectedApplications: React.FC = () => {
     currentPageItems: currentPageIssues,
     totalItemCount,
     isLoading: isFetching,
-    // TODO FIXME - we don't need expansionState or selectionState but they are required by this hook?
-    expansionState: useCompoundExpansionState("id"),
+    // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
       items: currentPageIssues,
       isEqual: (a, b) => a.id === b.id,
