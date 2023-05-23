@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { StatusIcon } from "@migtools/lib-ui";
 
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
