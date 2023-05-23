@@ -66,10 +66,12 @@ export const ExportForm: React.FC<ExportFormProps> = ({
   );
 
   const validationSchema: yup.SchemaOf<FormValues> = yup.object().shape({
-    issueManager: yup.mixed<IssueManagerKind>().required(),
-    instance: yup.string().required(),
-    project: yup.string().required(),
-    kind: yup.string().required(),
+    issueManager: yup
+      .mixed<IssueManagerKind>()
+      .required("Issue Manager is a required field"),
+    instance: yup.string().required("Instance is a required field"),
+    project: yup.string().required("Project is a required field"),
+    kind: yup.string().required("Issue type is a required field"),
   });
 
   const {
