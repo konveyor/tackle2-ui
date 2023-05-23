@@ -76,14 +76,10 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   const { t } = useTranslation();
 
   const { migrationWaves } = useFetchMigrationWaves();
-  const isLoading = false; // TODO
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const { stakeholders } = useFetchStakeholders();
   const { stakeholderGroups } = useFetchStakeholderGroups();
-
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const onCreateMigrationWaveSuccess = (
     response: AxiosResponse<MigrationWave>
@@ -141,7 +137,6 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     name: yup
       .string()
       .trim()
-      .required(t("validation.required"))
       .min(3, t("validation.minLength", { length: 3 }))
       .max(120, t("validation.maxLength", { length: 120 }))
       .test(
@@ -149,28 +144,32 @@ export const WaveForm: React.FC<WaveFormProps> = ({
         "An identity with this name already exists. Use a different name.",
         (value) =>
           duplicateNameCheck(migrationWaves, migrationWave || null, value || "")
-      ),
+      )
+      .required(t("validation.required")),
     startDate: yup
       .date()
-      .typeError("Start date is required")
-      .required(t("validation.required"))
-      .min(today, "Start date can be no sooner than today"),
+      .when([], {
+        is: () => !!!migrationWave?.startDate,
+        then: yup
+          .date()
+          .min(dayjs().toDate(), "Start date can be no sooner than today"),
+        otherwise: yup.date(),
+      })
+      .when([], {
+        is: () => !!migrationWave?.endDate,
+        then: yup
+          .date()
+          .max(yup.ref("endDate"), "Start date must be before end date"),
+        otherwise: yup.date(),
+      })
+      .required(t("validation.required")),
     endDate: yup
       .date()
-      .typeError("Start date is required")
-      .required(t("validation.required"))
-      .min(yup.ref("startDate"), "End Date must be after Start Date"),
+      .min(yup.ref("startDate"), "End date must be after start date")
+      .required(t("validation.required")),
     stakeholders: yup.array(),
     stakeholderGroups: yup.array(),
   });
-
-  const dateFormat = (date: Date) =>
-    `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date
-      .getDate()
-      .toString()
-      .padStart(2, "0")}/${date.getFullYear()}`;
-
-  const dateParse = (val: string) => new Date(val.slice(0, 10));
 
   const {
     handleSubmit,
@@ -179,17 +178,19 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     control,
     watch,
   } = useForm<WaveFormValues>({
+    mode: "onChange",
     defaultValues: {
       name: migrationWave?.name || "",
       startDate: migrationWave?.startDate
-        ? dateParse(migrationWave.startDate)
+        ? dayjs(migrationWave.startDate).toDate()
         : null,
-      endDate: migrationWave?.endDate ? dateParse(migrationWave.endDate) : null,
+      endDate: migrationWave?.endDate
+        ? dayjs(migrationWave.endDate).toDate()
+        : null,
       stakeholders: migrationWave?.stakeholders || [],
       stakeholderGroups: migrationWave?.stakeholderGroups || [],
     },
     resolver: yupResolver(validationSchema),
-    mode: "onChange",
   });
 
   const startDate = watch("startDate");
@@ -215,7 +216,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   };
 
   const startDateValidator = (date: Date) => {
-    if (date < today) {
+    if (date < dayjs().toDate()) {
       return "Date is before allowable range.";
     }
     return "";
@@ -249,24 +250,31 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                 name="startDate"
                 label="Potential Start Date"
                 fieldId="startDate"
-                renderInput={({ field: { value, name, onChange } }) => (
-                  <DatePicker
-                    aria-label={name}
-                    onChange={(e, val, date) => {
-                      onChange(date);
-                    }}
-                    placeholder="MM/DD/YYYY"
-                    value={startDate ? dateFormat(startDate) : ""}
-                    validators={[startDateValidator]}
-                    dateFormat={dateFormat}
-                    dateParse={dateParse}
-                    appendTo={() =>
-                      document.getElementById(
-                        "create-edit-migration-wave-modal"
-                      ) as HTMLElement
-                    }
-                  />
-                )}
+                isRequired
+                renderInput={({ field: { value, name, onChange } }) => {
+                  const startDateValue = value
+                    ? dayjs(value).format("MM/DD/YYYY")
+                    : "";
+                  return (
+                    <DatePicker
+                      aria-label={name}
+                      onChange={(e, val, date) => {
+                        onChange(date);
+                      }}
+                      placeholder="MM/DD/YYYY"
+                      value={startDateValue}
+                      dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
+                      dateParse={(val) => dayjs(val).toDate()}
+                      validators={[startDateValidator]}
+                      appendTo={() =>
+                        document.getElementById(
+                          "create-edit-migration-wave-modal"
+                        ) as HTMLElement
+                      }
+                      isDisabled={dayjs(value).isBefore(dayjs())}
+                    />
+                  );
+                }}
               />
             </GridItem>
           </LevelItem>
@@ -280,6 +288,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                 name="endDate"
                 label="Potential End Date"
                 fieldId="endDate"
+                isRequired
                 renderInput={({ field: { value, name, onChange } }) => (
                   <DatePicker
                     aria-label={name}
@@ -287,16 +296,18 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                       onChange(date);
                     }}
                     placeholder="MM/DD/YYYY"
-                    value={endDate ? dateFormat(endDate) : ""}
+                    value={endDate ? dayjs(endDate).format("MM/DD/YYYY") : ""}
+                    dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
+                    dateParse={(val) => dayjs(val).toDate()}
                     validators={[endDateValidator]}
-                    dateFormat={dateFormat}
-                    dateParse={dateParse}
                     appendTo={() =>
                       document.getElementById(
                         "create-edit-migration-wave-modal"
                       ) as HTMLElement
                     }
-                    isDisabled={!startDate}
+                    isDisabled={
+                      !startDate || dayjs(startDate).isBefore(dayjs())
+                    }
                   />
                 )}
               />
@@ -384,9 +395,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
           aria-label="submit"
           id="migration-wave-form-submit"
           variant="primary"
-          isDisabled={
-            !isValid || isSubmitting || isValidating || isLoading || !isDirty
-          }
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
         >
           {!migrationWave ? "Create" : "Save"}
         </Button>
