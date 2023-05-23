@@ -715,19 +715,25 @@ export const MigrationWaves: React.FC = () => {
         confirmBtnVariant={ButtonVariant.danger}
         confirmBtnLabel={t("actions.delete")}
         cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => setMigrationWaveToDelete(null)}
-        onClose={() => setMigrationWaveToDelete(null)}
+        onCancel={() => {
+          setMigrationWaveToDelete(null);
+          setMigrationWavesToDelete(null);
+        }}
+        onClose={() => {
+          setMigrationWaveToDelete(null);
+          setMigrationWavesToDelete(null);
+        }}
         onConfirm={() => {
           if (migrationWaveToDelete) {
             deleteWave(migrationWaveToDelete);
+            setMigrationWaveToDelete(null);
           }
-          setMigrationWaveToDelete(null);
           if (migrationWavesToDelete) {
             deleteAllMigrationWaves(
               migrationWavesToDelete.map((id) => deleteMigrationWave(id))
             );
+            setMigrationWavesToDelete(null);
           }
-          setMigrationWavesToDelete(null);
         }}
       />
     </>
