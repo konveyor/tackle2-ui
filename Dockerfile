@@ -1,11 +1,12 @@
 # Builder image
-FROM registry.access.redhat.com/ubi9/nodejs-18 as builder
+FROM registry.access.redhat.com/ubi9/nodejs-18:latest as builder
 
-COPY --chown=default . .
+USER 1001
+COPY --chown=1001 . .
 RUN npm clean-install && npm run build && npm run dist
 
 # Runner image
-FROM registry.access.redhat.com/ubi9/nodejs-18-minimal
+FROM registry.access.redhat.com/ubi9/nodejs-18-minimal:latest
 
 # Add ps package to allow liveness probe for k8s cluster
 # Add tar package to allow copying files with kubectl scp
