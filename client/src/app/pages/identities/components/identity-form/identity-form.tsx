@@ -288,12 +288,22 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           otherwise: (schema) => schema.trim(),
         })
         .when("kind", {
-          is: (value: string) => value === "proxy" || value === "jira",
+          is: (value: string) => value === "proxy",
           then: yup
             .string()
             .required("This value is required")
             .min(3, t("validation.minLength", { length: 3 }))
             .max(120, t("validation.maxLength", { length: 120 })),
+          otherwise: (schema) => schema.trim(),
+        })
+        .when("kind", {
+          is: (value: string) => value === "jira",
+          then: yup
+            .string()
+            .email("Username must be a valid email")
+            .min(3, t("validation.minLength", { length: 3 }))
+            .max(120, t("validation.maxLength", { length: 120 }))
+            .required("This value is required"),
           otherwise: (schema) => schema.trim(),
         })
         .when(["kind", "userCredentials"], {
