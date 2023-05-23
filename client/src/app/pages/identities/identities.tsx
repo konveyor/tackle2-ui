@@ -92,7 +92,6 @@ export const Identities: React.FC = () => {
     identities,
     isFetching,
     fetchError: fetchErrorIdentities,
-    refetch,
   } = useFetchIdentities();
 
   const typeOptions: Array<ITypeOptions> = [
@@ -170,11 +169,6 @@ export const Identities: React.FC = () => {
       },
     },
   ];
-
-  const closeCreateUpdateModal = () => {
-    setCreateUpdateModalState(null);
-    refetch;
-  };
 
   const handleOnClearAllFilters = () => {
     setFilterValues({});
@@ -305,11 +299,11 @@ export const Identities: React.FC = () => {
           }
           variant={ModalVariant.medium}
           isOpen={isCreateUpdateModalOpen}
-          onClose={closeCreateUpdateModal}
+          onClose={() => setCreateUpdateModalState(null)}
         >
           <IdentityForm
             identity={identityToUpdate ? identityToUpdate : undefined}
-            onClose={closeCreateUpdateModal}
+            onClose={() => setCreateUpdateModalState(null)}
             xmlValidator={validateXML}
           />
         </Modal>

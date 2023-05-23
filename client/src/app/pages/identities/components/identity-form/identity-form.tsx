@@ -104,7 +104,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     pushNotification({
       title: t("toastr.success.save", {
         what: response.data.name,
-        type: t("terms.credential").toLowerCase(),
+        type: t("terms.credential"),
       }),
       variant: "success",
     });
