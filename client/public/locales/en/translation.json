@@ -350,6 +350,7 @@
       "assessmentDiscarded": "Success! Assessment discarded for {{application}}.",
       "create": "{{type}} {{what}} was successfully created.",
       "deleted": "{{type}} {{what}} was successfully deleted.",
+      "deleteds": "{{type}} {{what}} were successfully deleted.",
       "fileSavedToBeProcessed": "Success! file saved to be processed.",
       "reviewDiscarded": "Success! Review discarded for {{application}}."
     },

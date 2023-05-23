@@ -126,9 +126,9 @@ export const MigrationWaves: React.FC = () => {
 
   const onDeleteWaveSuccess = (name: string) => {
     pushNotification({
-      title: t("toastr.success.deleted", {
+      title: t("toastr.success.deleteds", {
         what: name,
-        type: t("terms.migrationWave"),
+        type: t("terms.migrationWaves"),
       }),
       variant: "success",
     });
@@ -427,16 +427,14 @@ export const MigrationWaves: React.FC = () => {
                               key="bulk-delete"
                               isDisabled={selectedItems.length === 0}
                               onClick={() => {
-                                let deleteMigrationWaves: Promise<MigrationWave>[] =
+                                const deleteMigrationWaves: Promise<MigrationWave>[] =
                                   [];
                                 selectedItems.map((migrationWave) => {
-                                  if (migrationWave.id) {
-                                    let promise: Promise<MigrationWave>;
-                                    promise = deleteMigrationWave(
-                                      migrationWave.id
-                                    );
-                                    deleteMigrationWaves.push(promise);
-                                  }
+                                  return [
+                                    ...deleteMigrationWaves,
+                                    migrationWave.id &&
+                                      deleteMigrationWave(migrationWave.id),
+                                  ];
                                 });
                                 deleteAllMigrationWaves(deleteMigrationWaves);
                               }}
