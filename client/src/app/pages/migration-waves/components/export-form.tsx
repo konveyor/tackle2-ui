@@ -180,6 +180,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             placeholderText={t("composed.selectAn", {
               what: t("terms.instance").toLowerCase(),
             })}
+            isDisabled={!values.issueManager}
             toggleAriaLabel="Instance select dropdown toggle"
             aria-label={name}
             value={value}
@@ -221,6 +222,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             placeholderText={t("composed.selectOne", {
               what: t("terms.project").toLowerCase(),
             })}
+            isDisabled={!values.instance}
             toggleAriaLabel="project select dropdown toggle"
             aria-label={name}
             value={value}
@@ -257,6 +259,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             placeholderText={t("composed.selectAn", {
               what: t("terms.issueType").toLowerCase(),
             })}
+            isDisabled={!values.project}
             toggleAriaLabel="issue-type select dropdown toggle"
             aria-label={name}
             value={value}
