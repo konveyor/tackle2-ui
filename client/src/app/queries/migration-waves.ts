@@ -5,6 +5,7 @@ import {
   createMigrationWave,
   deleteMigrationWave,
   updateMigrationWave,
+  deleteAllMigrationWaves,
 } from "@app/api/rest";
 
 export const MigrationWavesQueryKey = "migration-waves";
@@ -69,5 +70,20 @@ export const useDeleteMigrationWaveMutation = (
       queryClient.invalidateQueries([MigrationWavesQueryKey]);
     },
     onError,
+  });
+};
+
+export const useDeleteAllMigrationWavesMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteAllMigrationWaves,
+    onSuccess: (res) => {
+      onSuccess(res);
+      queryClient.invalidateQueries([MigrationWavesQueryKey]);
+    },
+    onError: onError,
   });
 };

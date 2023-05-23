@@ -19,6 +19,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 
 import {
+  useDeleteAllMigrationWavesMutation,
   useDeleteMigrationWaveMutation,
   useFetchMigrationWaves,
   useUpdateMigrationWaveMutation,
@@ -72,6 +73,7 @@ import { WaveForm } from "./components/migration-wave-form";
 import { ManageApplicationsForm } from "./components/manage-applications-form";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
+import { deleteMigrationWave } from "@app/api/rest";
 dayjs.extend(utc);
 
 const ticketStatusToAggreaate: Map<TicketStatus, AggregateTicketStatus> =
@@ -137,13 +139,36 @@ export const MigrationWaves: React.FC = () => {
       title: getAxiosErrorMessage(error),
       variant: "danger",
     });
-    refetch();
   };
 
   const { mutate: deleteWave } = useDeleteMigrationWaveMutation(
     onDeleteWaveSuccess,
     onDeleteWaveError
   );
+
+  const onDeleteAllMigrationWavesSuccess = (response: any) => {
+    pushNotification({
+      title: t("toastr.success.deleted", {
+        type: t("terms.migrationWaves"),
+      }),
+      variant: "success",
+    });
+  };
+
+  const onDeleteAllMigrationWavesError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.deleted", {
+        type: t("terms.migrationWaves"),
+      }),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: deleteAllMigrationWaves } =
+    useDeleteAllMigrationWavesMutation(
+      onDeleteAllMigrationWavesSuccess,
+      onDeleteAllMigrationWavesError
+    );
 
   const onUpdateMigrationWaveSuccess = (_: AxiosResponse<MigrationWave>) =>
     pushNotification({
@@ -400,14 +425,20 @@ export const MigrationWaves: React.FC = () => {
                             </DropdownItem>,
                             <DropdownItem
                               key="bulk-delete"
+                              isDisabled={selectedItems.length === 0}
                               onClick={() => {
+                                let deleteMigrationWaves: Promise<MigrationWave>[] =
+                                  [];
                                 selectedItems.map((migrationWave) => {
-                                  if (migrationWave.id)
-                                    deleteWave({
-                                      id: migrationWave.id,
-                                      name: migrationWave.name,
-                                    });
+                                  if (migrationWave.id) {
+                                    let promise: Promise<MigrationWave>;
+                                    promise = deleteMigrationWave(
+                                      migrationWave.id
+                                    );
+                                    deleteMigrationWaves.push(promise);
+                                  }
                                 });
+                                deleteAllMigrationWaves(deleteMigrationWaves);
                               }}
                             >
                               {t("actions.delete")}
