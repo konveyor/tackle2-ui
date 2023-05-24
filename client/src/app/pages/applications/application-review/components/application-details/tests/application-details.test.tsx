@@ -10,6 +10,7 @@ describe("AppTable", () => {
       id: 1,
       name: "myApp",
       description: "myDescription",
+      migrationWave: null,
     };
 
     const assessment: Assessment = {

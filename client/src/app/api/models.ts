@@ -118,7 +118,7 @@ export interface Application {
   identities?: Ref[];
   repository?: Repository;
   binary?: string;
-  migrationWave?: Ref;
+  migrationWave: Ref | null;
 }
 
 export interface Review {

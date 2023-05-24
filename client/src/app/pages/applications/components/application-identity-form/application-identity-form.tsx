@@ -12,7 +12,7 @@ import {
 } from "@patternfly/react-core";
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { Application, Identity, Ref } from "@app/api/models";
+import { Application, Ref } from "@app/api/models";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { getKindIDByRef, toOptionLike } from "@app/utils/model-utils";
@@ -116,6 +116,7 @@ export const ApplicationIdentityForm: React.FC<
           identities: updatedIdentities,
           id: application.id,
           businessService: application.businessService,
+          migrationWave: application.migrationWave,
         };
         let promise: Promise<Application>;
         promise = updateApplication({
