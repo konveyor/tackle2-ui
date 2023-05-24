@@ -565,7 +565,7 @@ export interface IssueTechnology {
   source: boolean;
 }
 
-export interface BaseAnalysisCompositeIssue {
+export interface BaseAnalysisRuleReport {
   name: string;
   ruleSet: string;
   rule: string;
@@ -574,14 +574,14 @@ export interface BaseAnalysisCompositeIssue {
   effort: number;
   // technologies: Array<IssueTechnology>;
   labels: string[];
-  affected: number;
-  createTime?: string;
+  applications: number;
 }
 
-export interface AnalysisCompositeIssue extends BaseAnalysisCompositeIssue {
+export interface AnalysisRuleReport extends BaseAnalysisRuleReport {
   _ui_unique_id: string;
 }
 
+// TODO update this from new changes
 export interface AnalysisIssue {
   id: number;
   ruleID: string; // ruleset+rule

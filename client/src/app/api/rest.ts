@@ -2,7 +2,7 @@ import axios, { AxiosPromise } from "axios";
 import { APIClient } from "@app/axios-config";
 
 import {
-  BaseAnalysisCompositeIssue,
+  BaseAnalysisRuleReport,
   AnalysisDependency,
   AnalysisIssue,
   Application,
@@ -75,7 +75,7 @@ export const FILES = HUB + "/files";
 export const CACHE = HUB + "/cache/m2";
 
 export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/dependencies";
-export const ANALYSIS_COMPOSITE_ISSUES = HUB + "/analyses/report/issues";
+export const ANALYSIS_REPORT_RULES = HUB + "/analyses/report/rules";
 export const ANALYSIS_ISSUES = HUB + "/analyses/issues";
 
 // PATHFINDER
@@ -551,11 +551,8 @@ export const getHubPaginatedResult = <T>(
 export const getDependencies = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisDependency>(ANALYSIS_DEPENDENCIES, params);
 
-export const getCompositeIssues = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<BaseAnalysisCompositeIssue>(
-    ANALYSIS_COMPOSITE_ISSUES,
-    params
-  );
+export const getRuleReports = (params: HubRequestParams = {}) =>
+  getHubPaginatedResult<BaseAnalysisRuleReport>(ANALYSIS_REPORT_RULES, params);
 
 export const getIssues = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisIssue>(ANALYSIS_ISSUES, params);

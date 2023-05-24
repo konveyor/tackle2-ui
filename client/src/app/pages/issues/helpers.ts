@@ -1,11 +1,12 @@
 import { Location } from "history";
-import { AnalysisCompositeIssue } from "@app/api/models";
+import { AnalysisRuleReport } from "@app/api/models";
 import { FilterValue } from "@app/shared/components/FilterToolbar";
 import {
   deserializeFilterUrlParams,
   serializeFilterUrlParams,
 } from "@app/shared/hooks/table-controls";
 import { trimAndStringifyUrlParams } from "@app/shared/hooks/useUrlParams";
+import { Paths } from "@app/Paths";
 
 // Certain filters are shared between the Issues page and the Affected Applications Page.
 // We carry these filter values between the two pages when determining the URLs to navigate between them.
@@ -20,11 +21,11 @@ const FROM_ISSUES_PARAMS_KEY = "~fromIssuesParams"; // ~ prefix sorts it at the 
 
 // URL for Affected Apps page that includes carried filters and a snapshot of original URL params from the Issues page
 export const getAffectedAppsUrl = ({
-  compositeIssue,
+  ruleReport,
   fromFilterValues,
   fromLocation,
 }: {
-  compositeIssue: AnalysisCompositeIssue;
+  ruleReport: AnalysisRuleReport;
   fromFilterValues: FilterValuesToCarry;
   fromLocation: Location;
 }) => {
@@ -34,13 +35,14 @@ export const getAffectedAppsUrl = ({
   filterKeysToCarry.forEach((key) => {
     if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
   });
-  return `/issues/${compositeIssue.ruleSet}/${
-    compositeIssue.rule
-  }?${trimAndStringifyUrlParams({
+  const baseUrl = Paths.issuesRuleAffectedApplications
+    .replace("/:ruleset/", `/${ruleReport.ruleSet}/`)
+    .replace("/:rule/", `/${ruleReport.rule}/`);
+  return `${baseUrl}?${trimAndStringifyUrlParams({
     params: {
       ...serializeFilterUrlParams(toFilterValues),
       [FROM_ISSUES_PARAMS_KEY]: fromIssuesParams,
-      compositeIssueName: compositeIssue.name,
+      ruleReportName: ruleReport.name,
     },
   })}`;
 };
@@ -70,7 +72,7 @@ export const getBackToIssuesUrl = ({
     filterValuesToRestore[key] = fromFilterValues[key] || null;
   });
   // Put it all back together
-  return `/issues?${trimAndStringifyUrlParams({
+  return `${Paths.issues}?${trimAndStringifyUrlParams({
     params: {
       ...paramsToRestore,
       ...serializeFilterUrlParams(filterValuesToRestore),

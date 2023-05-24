@@ -52,8 +52,8 @@ export const AffectedApplications: React.FC = () => {
   const { t } = useTranslation();
 
   const { ruleset, rule } = useParams<IAffectedApplicationsRouteParams>();
-  const compositeIssueName =
-    new URLSearchParams(useLocation().search).get("compositeIssueName") ||
+  const ruleReportName =
+    new URLSearchParams(useLocation().search).get("ruleReportName") ||
     "Active rule";
 
   const tableControlState = useTableControlUrlParams({
@@ -164,7 +164,7 @@ export const AffectedApplications: React.FC = () => {
             </Link>
           </BreadcrumbItem>
           <BreadcrumbItem to="#" isActive>
-            {compositeIssueName} ({ruleset}, {rule})
+            {ruleReportName} ({ruleset}, {rule})
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>

@@ -1,31 +1,31 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-  AnalysisCompositeIssue,
+  AnalysisRuleReport,
   HubPaginatedResult,
   HubRequestParams,
 } from "@app/api/models";
-import { getCompositeIssues, getIssues } from "@app/api/rest";
+import { getRuleReports, getIssues } from "@app/api/rest";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
 
-export const CompositeIssuesQueryKey = "compositeissues";
+export const RuleReportsQueryKey = "rulereports";
 export const IssuesQueryKey = "issues";
 
-export const useFetchCompositeIssues = (params: HubRequestParams = {}) => {
+export const useFetchRuleReports = (params: HubRequestParams = {}) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [
-      CompositeIssuesQueryKey,
+      RuleReportsQueryKey,
       serializeRequestParamsForHub(params).toString(),
     ],
-    queryFn: async () => await getCompositeIssues(params),
+    queryFn: async () => await getRuleReports(params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
-    select: (result): HubPaginatedResult<AnalysisCompositeIssue> => {
-      // There is no single unique id property on the hub's composite issue objects.
+    select: (result): HubPaginatedResult<AnalysisRuleReport> => {
+      // There is no single unique id property on the hub's composite report objects.
       // We need to create one for table hooks to work.
       const processedData = result.data.map(
-        (baseCompositeIssue): AnalysisCompositeIssue => ({
-          ...baseCompositeIssue,
-          _ui_unique_id: `${baseCompositeIssue.ruleSet}/${baseCompositeIssue.rule}`,
+        (baseRuleReport): AnalysisRuleReport => ({
+          ...baseRuleReport,
+          _ui_unique_id: `${baseRuleReport.ruleSet}/${baseRuleReport.rule}`,
         })
       );
       return { ...result, data: processedData };

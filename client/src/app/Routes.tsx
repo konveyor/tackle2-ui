@@ -92,10 +92,10 @@ export const devRoutes: IRoute[] = [
         {
           path: Paths.issues,
           comp: Issues,
-          exact: false,
+          exact: true,
         },
         {
-          path: Paths.issueAffectedApplications,
+          path: Paths.issuesRuleAffectedApplications,
           comp: AffectedApplications,
           exact: false,
         },
