@@ -274,6 +274,7 @@
     "modernizable": "Modernizable",
     "migrationWave": "Migration wave",
     "migrationWaves": "Migration waves",
+    "migrationWave(s)": "Migration wave(s)",
     "name": "Name",
     "northboundDependencies": "Northbound dependencies",
     "notAvailable": "Not available",
@@ -350,6 +351,7 @@
       "assessmentDiscarded": "Success! Assessment discarded for {{application}}.",
       "create": "{{type}} {{what}} was successfully created.",
       "deleted": "{{type}} {{what}} was successfully deleted.",
+      "deletedAll": "{{type}} {{what}} were successfully deleted.",
       "fileSavedToBeProcessed": "Success! file saved to be processed.",
       "reviewDiscarded": "Success! Review discarded for {{application}}."
     },
