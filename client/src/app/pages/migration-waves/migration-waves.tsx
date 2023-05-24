@@ -58,7 +58,6 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { ExportForm } from "./components/export-form";
-
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError, AxiosResponse } from "axios";
@@ -71,7 +70,6 @@ import { WaveStatusTable } from "./components/status-table";
 import { WaveForm } from "./components/migration-wave-form";
 import { ManageApplicationsForm } from "./components/manage-applications-form";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
-import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 dayjs.extend(utc);
 
 const ticketStatusToAggreaate: Map<TicketStatus, AggregateTicketStatus> =
@@ -94,7 +92,6 @@ export const MigrationWaves: React.FC = () => {
   const { data: applications } = useFetchApplications();
   const { tickets } = useFetchTickets();
   const { stakeholders } = useFetchStakeholders();
-  const { stakeholderGroups } = useFetchStakeholderGroups();
 
   const [migrationWaveModalState, setWaveModalState] = React.useState<
     "create" | MigrationWave | null
@@ -104,11 +101,9 @@ export const MigrationWaves: React.FC = () => {
     migrationWaveModalState !== "create" ? migrationWaveModalState : null;
   const openCreateWaveModal = () => setWaveModalState("create");
 
-  const [exportIssueModalOpen, setExportIssueModalOpen] = React.useState(false);
-
-  const [applicationsToExport, setApplicationsToExport] = React.useState<Ref[]>(
-    []
-  );
+  const [applicationsToExport, setApplicationsToExport] = React.useState<
+    Ref[] | null
+  >(null);
 
   const [waveToManageModalState, setWaveToManageModalState] =
     React.useState<MigrationWave | null>(null);
@@ -385,18 +380,23 @@ export const MigrationWaves: React.FC = () => {
                         <KebabDropdown
                           dropdownItems={[
                             <DropdownItem
+                              isDisabled={
+                                selectedItems.filter(
+                                  (migrationWave) =>
+                                    migrationWave.applications.length > 0
+                                ).length < 1
+                              }
                               key="bulk-export-to-issue-manager"
                               component="button"
-                              onClick={() => {
+                              onClick={() =>
                                 setApplicationsToExport(
-                                  selectedItems
-                                    .map((item) => item.applications)
-                                    .flat()
-                                );
-                                setExportIssueModalOpen(true);
-                              }}
+                                  selectedItems.flatMap(
+                                    (item) => item.applications
+                                  )
+                                )
+                              }
                             >
-                              {t("actions.export")}
+                              {t("terms.exportToIssue")}
                             </DropdownItem>,
                             <DropdownItem
                               key="bulk-delete"
@@ -542,18 +542,20 @@ export const MigrationWaves: React.FC = () => {
                                         })}
                                       </DropdownItem>,
                                       <DropdownItem
-                                        key="bulk-export-to-issue-manager"
+                                        key="export-to-issue-manager"
                                         component="button"
-                                        onClick={() => {
+                                        isDisabled={
+                                          migrationWave.applications.length < 1
+                                        }
+                                        onClick={() =>
                                           setApplicationsToExport(
                                             getApplications(
                                               migrationWave.applications
                                             )
-                                          );
-                                          setExportIssueModalOpen(true);
-                                        }}
+                                          )
+                                        }
                                       >
-                                        {t("actions.export")}
+                                        {t("terms.exportToIssue")}
                                       </DropdownItem>,
                                       <DropdownItem
                                         key="delete"
@@ -653,22 +655,20 @@ export const MigrationWaves: React.FC = () => {
           onClose={closeWaveModal}
         />
       </Modal>
-      <Modal
-        title={t("terms.exportToIssue")}
-        variant="medium"
-        isOpen={exportIssueModalOpen}
-        onClose={() => {
-          setExportIssueModalOpen(false);
-        }}
-      >
-        <ExportForm
-          applications={applicationsToExport}
-          instances={instances}
-          onClose={() => {
-            setExportIssueModalOpen(false);
-          }}
-        />
-      </Modal>
+      {applicationsToExport !== null && (
+        <Modal
+          title={t("terms.exportToIssue")}
+          variant="medium"
+          isOpen={true}
+          onClose={() => setApplicationsToExport(null)}
+        >
+          <ExportForm
+            applications={applicationsToExport}
+            instances={instances}
+            onClose={() => setApplicationsToExport(null)}
+          />
+        </Modal>
+      )}
       <Modal
         title={t("composed.manage", {
           what: t("terms.applications").toLowerCase(),
