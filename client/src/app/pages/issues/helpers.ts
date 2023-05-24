@@ -70,7 +70,7 @@ export const getBackToIssuesUrl = ({
     filterValuesToRestore[key] = fromFilterValues[key] || null;
   });
   // Put it all back together
-  return `/composite/issues?${trimAndStringifyUrlParams({
+  return `/issues?${trimAndStringifyUrlParams({
     params: {
       ...paramsToRestore,
       ...serializeFilterUrlParams(filterValuesToRestore),
