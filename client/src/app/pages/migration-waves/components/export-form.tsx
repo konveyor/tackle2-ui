@@ -66,10 +66,12 @@ export const ExportForm: React.FC<ExportFormProps> = ({
   );
 
   const validationSchema: yup.SchemaOf<FormValues> = yup.object().shape({
-    issueManager: yup.mixed<IssueManagerKind>().required(),
-    instance: yup.string().required(),
-    project: yup.string().required(),
-    kind: yup.string().required(),
+    issueManager: yup
+      .mixed<IssueManagerKind>()
+      .required("Issue Manager is a required field"),
+    instance: yup.string().required("Instance is a required field"),
+    project: yup.string().required("Project is a required field"),
+    kind: yup.string().required("Issue type is a required field"),
   });
 
   const {
@@ -180,6 +182,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             placeholderText={t("composed.selectAn", {
               what: t("terms.instance").toLowerCase(),
             })}
+            isDisabled={!values.issueManager}
             toggleAriaLabel="Instance select dropdown toggle"
             aria-label={name}
             value={value}
@@ -221,6 +224,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             placeholderText={t("composed.selectOne", {
               what: t("terms.project").toLowerCase(),
             })}
+            isDisabled={!values.instance}
             toggleAriaLabel="project select dropdown toggle"
             aria-label={name}
             value={value}
@@ -257,6 +261,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             placeholderText={t("composed.selectAn", {
               what: t("terms.issueType").toLowerCase(),
             })}
+            isDisabled={!values.project}
             toggleAriaLabel="issue-type select dropdown toggle"
             aria-label={name}
             value={value}
