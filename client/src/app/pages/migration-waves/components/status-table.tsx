@@ -33,7 +33,7 @@ import { getTrackerTypesByProjectId } from "@app/queries/trackers";
 export interface IWaveStatusTableProps {
   migrationWave: MigrationWave;
   applications: Application[];
-  instances: Tracker[];
+  trackers: Tracker[];
   tickets: Ticket[];
   getTicket: (tickets: Ticket[], id: number) => Ticket | undefined;
   removeApplication: (migrationWave: MigrationWave, id: number) => void;
@@ -42,7 +42,7 @@ export interface IWaveStatusTableProps {
 export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   migrationWave,
   applications,
-  instances,
+  trackers,
   tickets,
   getTicket,
   removeApplication,
@@ -93,7 +93,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
       const ticket = getTicket(tickets, appId);
       if (ticket) {
         const types = getTrackerTypesByProjectId(
-          instances,
+          trackers,
           ticket.tracker.name,
           ticket.parent
         );
