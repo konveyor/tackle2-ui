@@ -75,7 +75,7 @@ export const FILES = HUB + "/files";
 export const CACHE = HUB + "/cache/m2";
 
 export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/dependencies";
-export const ANALYSIS_COMPOSITE_ISSUES = HUB + "/analyses/composite/issues";
+export const ANALYSIS_COMPOSITE_ISSUES = HUB + "/analyses/report/issues";
 export const ANALYSIS_ISSUES = HUB + "/analyses/issues";
 
 // PATHFINDER
