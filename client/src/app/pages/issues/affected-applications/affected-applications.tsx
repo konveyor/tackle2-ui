@@ -41,7 +41,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useSelectionState } from "@migtools/lib-ui";
 import { getBackToIssuesUrl } from "../helpers";
-import { AffectedApplicationDetailDrawer } from "./affected-application-detail-drawer";
+import { IssueFilesDetailDrawer } from "./issue-files-detail-drawer";
 
 interface IAffectedApplicationsRouteParams {
   ruleset: string;
@@ -261,7 +261,7 @@ export const AffectedApplications: React.FC = () => {
           </div>
         </ConditionalRender>
       </PageSection>
-      <AffectedApplicationDetailDrawer
+      <IssueFilesDetailDrawer
         issue={activeRowItem}
         application={
           (activeRowItem &&

@@ -5,15 +5,17 @@ import {
   PageDrawerContent,
 } from "@app/shared/page-drawer-context";
 
-export interface IAffectedApplicationDetailDrawerProps
+export interface IIssueFilesDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
   issue: AnalysisIssue | null;
   application: Application | null;
 }
 
-export const AffectedApplicationDetailDrawer: React.FC<
-  IAffectedApplicationDetailDrawerProps
-> = ({ issue, application, onCloseClick }) => {
+export const IssueFilesDetailDrawer: React.FC<IIssueFilesDetailDrawerProps> = ({
+  issue,
+  application,
+  onCloseClick,
+}) => {
   return (
     <PageDrawerContent
       isExpanded={!!issue && !!application}
