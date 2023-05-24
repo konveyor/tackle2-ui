@@ -148,7 +148,7 @@ export const MigrationWaves: React.FC = () => {
   const onUpdateMigrationWaveSuccess = (_: AxiosResponse<MigrationWave>) =>
     pushNotification({
       title: t("toastr.success.save", {
-        type: t("terms.migrationWave").toLowerCase(),
+        type: t("terms.migrationWave"),
       }),
       variant: "success",
     });
