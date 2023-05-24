@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosResponse } from "axios";
 import * as yup from "yup";
@@ -12,7 +12,7 @@ import {
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import { Tracker, Application, IssueManagerKind, Ref } from "@app/api/models";
+import { Tracker, IssueManagerKind, Ref } from "@app/api/models";
 import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
 import {
   getTrackersByKind,
@@ -46,19 +46,20 @@ export const ExportForm: React.FC<ExportFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
-  const [axiosError, setAxiosError] = useState<AxiosError>();
 
   const onExportSuccess = (_: AxiosResponse<Tracker>) =>
     pushNotification({
       title: t("toastr.success.create", {
-        type: t("terms.ticket"),
+        type: t("terms.exportToIssue"),
       }),
       variant: "success",
     });
 
-  const onExportError = (error: AxiosError) => {
-    setAxiosError(error);
-  };
+  const onExportError = (error: AxiosError) =>
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
 
   const { mutate: createTicket } = useCreateTicketMutation(
     onExportSuccess,
@@ -80,7 +81,6 @@ export const ExportForm: React.FC<ExportFormProps> = ({
     getValues,
     setValue,
     control,
-    watch,
   } = useForm<FormValues>({
     defaultValues: {
       issueManager: undefined,
@@ -131,13 +131,6 @@ export const ExportForm: React.FC<ExportFormProps> = ({
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      {axiosError && (
-        <Alert
-          variant="danger"
-          isInline
-          title={getAxiosErrorMessage(axiosError)}
-        />
-      )}
       <HookFormPFGroupController
         control={control}
         name="issueManager"
