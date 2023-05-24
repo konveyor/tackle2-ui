@@ -467,6 +467,14 @@ export const updateMigrationWave = (
   obj: MigrationWave
 ): Promise<MigrationWave> => axios.put(`${MIGRATION_WAVES}/${obj.id}`, obj);
 
+export const deleteAllMigrationWaves = (
+  deletePromises: Promise<MigrationWave>[]
+) => {
+  return Promise.all(deletePromises)
+    .then((response) => response)
+    .catch((error) => error);
+};
+
 export const updateRuleset = (obj: Ruleset) =>
   axios.put(`${RULESETS}/${obj.id}`, obj);
 
