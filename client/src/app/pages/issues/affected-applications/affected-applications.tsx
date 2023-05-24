@@ -31,7 +31,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
-import { useFetchIssues } from "@app/queries/issues";
+import { useFetchIssueReports } from "@app/queries/issues";
 import { useFetchApplications } from "@app/queries/applications";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { IssueFilterGroups } from "../issues";
@@ -87,10 +87,10 @@ export const AffectedApplications: React.FC = () => {
   });
 
   const {
-    result: { data: currentPageIssues, total: totalItemCount },
+    result: { data: currentPageIssueReports, total: totalItemCount },
     isFetching,
     fetchError,
-  } = useFetchIssues(
+  } = useFetchIssueReports(
     getHubRequestParams({
       ...tableControlState,
       implicitFilters: [
@@ -116,12 +116,12 @@ export const AffectedApplications: React.FC = () => {
   const tableControls = useTableControlProps({
     ...tableControlState,
     idProperty: "id",
-    currentPageItems: currentPageIssues,
+    currentPageItems: currentPageIssueReports,
     totalItemCount,
     isLoading: isFetching,
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
-      items: currentPageIssues,
+      items: currentPageIssueReports,
       isEqual: (a, b) => a.id === b.id,
     }),
   });
@@ -142,7 +142,7 @@ export const AffectedApplications: React.FC = () => {
     activeRowDerivedState: { activeRowItem, clearActiveRow },
   } = tableControls;
 
-  console.log({ currentPageIssues, totalItemCount });
+  console.log({ currentPageIssueReports, totalItemCount });
 
   const { data: applications } = useFetchApplications();
 
@@ -170,7 +170,7 @@ export const AffectedApplications: React.FC = () => {
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isFetching && !(currentPageIssues || fetchError)}
+          when={isFetching && !(currentPageIssueReports || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
@@ -208,19 +208,19 @@ export const AffectedApplications: React.FC = () => {
                 numRenderedColumns={numRenderedColumns}
               >
                 <Tbody>
-                  {currentPageIssues?.map((issue, rowIndex) => {
+                  {currentPageIssueReports?.map((issueReport, rowIndex) => {
                     const application = applications.find(
-                      (app) => app.id === issue.application
+                      (app) => app.id === issueReport.application.id
                     );
                     if (!application) return null;
                     return (
                       <Tr
                         key={application.name}
-                        {...getClickableTrProps({ item: issue })}
+                        {...getClickableTrProps({ item: issueReport })}
                       >
                         <TableRowContentWithControls
                           {...tableControls}
-                          item={issue}
+                          item={issueReport}
                           rowIndex={rowIndex}
                         >
                           <Td width={25} {...getTdProps({ columnKey: "name" })}>
@@ -261,7 +261,8 @@ export const AffectedApplications: React.FC = () => {
           </div>
         </ConditionalRender>
       </PageSection>
-      <IssueFilesDetailDrawer
+      {/* TODO restore this and use the right type -- pass in issuereport and look up issue and app (if needed) in the drawer? */}
+      {/*<IssueFilesDetailDrawer
         issue={activeRowItem}
         application={
           (activeRowItem &&
@@ -269,7 +270,7 @@ export const AffectedApplications: React.FC = () => {
           null
         }
         onCloseClick={clearActiveRow}
-      />
+      />*/}
     </>
   );
 };

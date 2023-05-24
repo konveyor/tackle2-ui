@@ -556,44 +556,38 @@ export interface AnalysisDependency {
   // applications: { id: number; name: string }[];
 }
 
-// TODO this has been replaced by labels, which we need to parse in order to display separately.
-export interface IssueTechnology {
-  createUser: string;
-  updateUser: string;
-  createTime: string;
+interface AnalysisIssuesCommonFields {
   name: string;
-  source: boolean;
-}
-
-export interface BaseAnalysisRuleReport {
-  name: string;
-  ruleSet: string;
-  rule: string;
   description: string;
+  ruleset: string;
+  rule: string;
   category: string;
   effort: number;
-  // technologies: Array<IssueTechnology>;
   labels: string[];
+}
+
+// Hub type: Issue
+export interface AnalysisIssue extends AnalysisIssuesCommonFields {
+  id: number;
+  createTime?: string; // ISO-8601 timestamp
+  createUser?: string;
+  updateUser?: string;
+}
+
+// Hub type: IssueReport - Issues collated by application (but filtered by ruleset/rule)
+export interface AnalysisIssueReport extends AnalysisIssue {
+  application: { id: number; name: string };
+  files: number;
+  incidents: number;
+}
+
+// Hub type: RuleReport - Issues collated by ruleset/rule
+export interface BaseAnalysisRuleReport extends AnalysisIssuesCommonFields {
   applications: number;
 }
-
+// After fetching from the hub, we inject a unique id composed of ruleset+rule for convenience
 export interface AnalysisRuleReport extends BaseAnalysisRuleReport {
   _ui_unique_id: string;
-}
-
-// TODO update this from new changes
-export interface AnalysisIssue {
-  id: number;
-  ruleID: string; // ruleset+rule
-  application: number;
-  name: string;
-  description: string;
-  category: string;
-  effort: number;
-  incidents: Array<any>;
-  labels: Array<string>;
-  affected: number;
-  createTime?: string;
 }
 
 export type TicketStatus = "" | "New" | "In Progress" | "Done" | "Error";

@@ -4,10 +4,11 @@ import {
   HubPaginatedResult,
   HubRequestParams,
 } from "@app/api/models";
-import { getRuleReports, getIssues } from "@app/api/rest";
+import { getRuleReports, getIssues, getIssueReports } from "@app/api/rest";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
 
 export const RuleReportsQueryKey = "rulereports";
+export const IssueReportsQueryKey = "issuereports";
 export const IssuesQueryKey = "issues";
 
 export const useFetchRuleReports = (params: HubRequestParams = {}) => {
@@ -25,11 +26,29 @@ export const useFetchRuleReports = (params: HubRequestParams = {}) => {
       const processedData = result.data.map(
         (baseRuleReport): AnalysisRuleReport => ({
           ...baseRuleReport,
-          _ui_unique_id: `${baseRuleReport.ruleSet}/${baseRuleReport.rule}`,
+          _ui_unique_id: `${baseRuleReport.ruleset}/${baseRuleReport.rule}`,
         })
       );
       return { ...result, data: processedData };
     },
+  });
+  return {
+    result: data || { data: [], total: 0, params },
+    isFetching: isLoading,
+    fetchError: error,
+    refetch,
+  };
+};
+
+export const useFetchIssueReports = (params: HubRequestParams = {}) => {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [
+      IssueReportsQueryKey,
+      serializeRequestParamsForHub(params).toString(),
+    ],
+    queryFn: async () => await getIssueReports(params),
+    onError: (error) => console.log("error, ", error),
+    keepPreviousData: true,
   });
   return {
     result: data || { data: [], total: 0, params },

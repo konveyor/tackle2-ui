@@ -36,7 +36,7 @@ export const getAffectedAppsUrl = ({
     if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
   });
   const baseUrl = Paths.issuesRuleAffectedApplications
-    .replace("/:ruleset/", `/${ruleReport.ruleSet}/`)
+    .replace("/:ruleset/", `/${ruleReport.ruleset}/`)
     .replace("/:rule/", `/${ruleReport.rule}/`);
   return `${baseUrl}?${trimAndStringifyUrlParams({
     params: {

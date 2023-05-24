@@ -172,9 +172,10 @@ export const Issues: React.FC = () => {
     totalItemCount,
     isLoading: isFetching,
     expandableVariant: "single",
+    // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
       items: currentPageItems,
-      isEqual: (a, b) => a.name === b.name,
+      isEqual: (a, b) => a._ui_unique_id === b._ui_unique_id,
     }),
   });
 
@@ -269,7 +270,7 @@ export const Issues: React.FC = () => {
                             width={15}
                             {...getTdProps({ columnKey: "ruleset" })}
                           >
-                            {ruleReport.ruleSet}
+                            {ruleReport.ruleset}
                           </Td>
                           <Td width={15} {...getTdProps({ columnKey: "rule" })}>
                             {ruleReport.rule}
