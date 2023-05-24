@@ -122,7 +122,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
   const onCreateStakeholderGroupError = (error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.create", {
-        type: t("terms.stakeholderGroup"),
+        type: t("terms.stakeholderGroup").toLowerCase(),
       }),
       variant: "danger",
     });
@@ -147,7 +147,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
   const onUpdateStakeholderGroupError = (error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.save", {
-        type: t("terms.stakeholderGroup"),
+        type: t("terms.stakeholderGroup").toLowerCase(),
       }),
       variant: "danger",
     });

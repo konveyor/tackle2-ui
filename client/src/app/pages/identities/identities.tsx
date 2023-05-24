@@ -191,7 +191,7 @@ export const Identities: React.FC = () => {
       pushNotification({
         title: t("toastr.success.save", {
           what: response.data.name,
-          type: t("terms.credential").toLowerCase(),
+          type: t("terms.credential"),
         }),
         variant: "success",
       });

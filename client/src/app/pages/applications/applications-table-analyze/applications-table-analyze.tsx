@@ -172,7 +172,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       pushNotification({
         title: t("toastr.success.save", {
           what: response.data.name,
-          type: t("terms.application").toLowerCase(),
+          type: t("terms.application"),
         }),
         variant: "success",
       });
