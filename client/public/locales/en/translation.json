@@ -354,6 +354,7 @@
       "reviewDiscarded": "Success! Review discarded for {{application}}."
     },
     "fail": {
+      "create": "Failed to create {{type}}.",
       "save": "Failed to save {{type}}."
     }
   },
