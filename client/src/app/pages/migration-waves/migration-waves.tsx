@@ -92,7 +92,7 @@ export const MigrationWaves: React.FC = () => {
   const { migrationWaves, isFetching, fetchError, refetch } =
     useFetchMigrationWaves();
 
-  const { trackers: instances } = useFetchTrackers();
+  const { trackers: trackers } = useFetchTrackers();
   const { data: applications } = useFetchApplications();
   const { tickets } = useFetchTickets();
   const { stakeholders } = useFetchStakeholders();
@@ -620,14 +620,14 @@ export const MigrationWaves: React.FC = () => {
                                   )}
                                 />
                               ) : isCellExpanded(migrationWave, "status") &&
-                                instances.length > 0 &&
+                                trackers.length > 0 &&
                                 migrationWave.applications.length > 0 ? (
                                 <WaveStatusTable
                                   migrationWave={migrationWave}
                                   applications={getApplications(
                                     migrationWave.applications
                                   )}
-                                  instances={instances}
+                                  trackers={trackers}
                                   tickets={tickets}
                                   getTicket={getTicketByApplication}
                                   removeApplication={removeApplication}
@@ -679,7 +679,7 @@ export const MigrationWaves: React.FC = () => {
         >
           <ExportForm
             applications={applicationsToExport}
-            instances={instances}
+            trackers={trackers}
             onClose={() => setApplicationsToExport(null)}
           />
         </Modal>
