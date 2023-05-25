@@ -463,6 +463,7 @@ export const ApplicationsTable: React.FC = () => {
     if (applicationWriteAccess) {
       actions.push({
         title: t("actions.delete"),
+        isDisabled: row.migrationWave !== null,
         onClick: (
           event: React.MouseEvent,
           rowIndex: number,
@@ -656,7 +657,12 @@ export const ApplicationsTable: React.FC = () => {
     ? [
         <DropdownItem
           key="manage-applications-bulk-delete"
-          isDisabled={selectedRows.length < 1}
+          isDisabled={
+            selectedRows.length < 1 ||
+            selectedRows.filter(
+              (application) => application.migrationWave !== null
+            ).length > 0
+          }
           onClick={() => {
             openBulkDeleteModal(selectedRows);
           }}
