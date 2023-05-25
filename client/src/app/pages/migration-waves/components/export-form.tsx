@@ -16,7 +16,7 @@ import { Tracker, IssueManagerKind, Ref } from "@app/api/models";
 import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
 import {
   getTrackersByKind,
-  getTrackerProjectsByInstance,
+  getTrackerProjectsByTracker,
   getTrackerTypesByProjectName,
 } from "@app/queries/trackers";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
@@ -28,20 +28,20 @@ import { useCreateTicketMutation } from "@app/queries/tickets";
 
 interface FormValues {
   issueManager: IssueManagerKind | undefined;
-  instance: string;
+  tracker: string;
   project: string;
   kind: string;
 }
 
 export interface ExportFormProps {
   applications: Ref[];
-  instances: Tracker[];
+  trackers: Tracker[];
   onClose: () => void;
 }
 
 export const ExportForm: React.FC<ExportFormProps> = ({
   applications,
-  instances,
+  trackers,
   onClose,
 }) => {
   const { t } = useTranslation();
@@ -70,7 +70,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
     issueManager: yup
       .mixed<IssueManagerKind>()
       .required("Issue Manager is a required field"),
-    instance: yup.string().required("Instance is a required field"),
+    tracker: yup.string().required("Instance is a required field"),
     project: yup.string().required("Project is a required field"),
     kind: yup.string().required("Issue type is a required field"),
   });
@@ -84,7 +84,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
   } = useForm<FormValues>({
     defaultValues: {
       issueManager: undefined,
-      instance: "",
+      tracker: "",
       project: "",
       kind: "",
     },
@@ -95,23 +95,23 @@ export const ExportForm: React.FC<ExportFormProps> = ({
   const values = getValues();
 
   const onSubmit = (formValues: FormValues) => {
-    const matchingInstance = instances.find(
-      (instance) => formValues?.instance === instance.name
+    const matchingtracker = trackers.find(
+      (tracker) => formValues?.tracker === tracker.name
     );
-    const matchingProject = getTrackerProjectsByInstance(
-      instances,
-      formValues.instance
+    const matchingProject = getTrackerProjectsByTracker(
+      trackers,
+      formValues.tracker
     ).find((project) => formValues.project === project.name);
     const matchingKind = getTrackerTypesByProjectName(
-      instances,
-      formValues.instance,
+      trackers,
+      formValues.tracker,
       formValues.project
     ).find((type) => formValues.kind === type.name);
 
-    if (matchingInstance) {
+    if (matchingtracker) {
       const payload = {
         issueManager: formValues.issueManager?.trim(),
-        tracker: { id: matchingInstance.id, name: matchingInstance.name },
+        tracker: { id: matchingtracker.id, name: matchingtracker.name },
         parent: matchingProject?.id || "",
         kind: matchingKind?.id || "",
       };
@@ -152,7 +152,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             onChange={(selection) => {
               const selectionValue =
                 selection as OptionWithValue<IssueManagerKind>;
-              setValue("instance", "");
+              setValue("tracker", "");
               setValue("project", "");
               setValue("kind", "");
               onChange(selectionValue.value);
@@ -162,32 +162,32 @@ export const ExportForm: React.FC<ExportFormProps> = ({
       />
       <HookFormPFGroupController
         control={control}
-        name="instance"
+        name="tracker"
         label={t("terms.instance")}
-        fieldId="instance-select"
+        fieldId="tracker-select"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
-            id="instance-select"
-            toggleId="instance-select-toggle"
+            id="tracker-select"
+            toggleId="tracker-select-toggle"
             maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
             variant="typeahead"
             placeholderText={t("composed.selectAn", {
               what: t("terms.instance").toLowerCase(),
             })}
             isDisabled={!values.issueManager}
-            toggleAriaLabel="Instance select dropdown toggle"
+            toggleAriaLabel="tracker select dropdown toggle"
             aria-label={name}
             value={value}
             options={
               values.issueManager
                 ? getTrackersByKind(
-                    instances,
+                    trackers,
                     values.issueManager?.toString()
-                  ).map((instance) => {
+                  ).map((tracker) => {
                     return {
-                      value: instance.name,
-                      toString: () => instance.name,
+                      value: tracker.name,
+                      toString: () => tracker.name,
                     };
                   })
                 : []
@@ -217,19 +217,18 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             placeholderText={t("composed.selectOne", {
               what: t("terms.project").toLowerCase(),
             })}
-            isDisabled={!values.instance}
+            isDisabled={!values.tracker}
             toggleAriaLabel="project select dropdown toggle"
             aria-label={name}
             value={value}
-            options={getTrackerProjectsByInstance(
-              instances,
-              values.instance
-            ).map((project) => {
-              return {
-                value: project.name,
-                toString: () => project.name,
-              };
-            })}
+            options={getTrackerProjectsByTracker(trackers, values.tracker).map(
+              (project) => {
+                return {
+                  value: project.name,
+                  toString: () => project.name,
+                };
+              }
+            )}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<string>;
               setValue("kind", "");
@@ -259,8 +258,8 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             aria-label={name}
             value={value}
             options={getTrackerTypesByProjectName(
-              instances,
-              values.instance,
+              trackers,
+              values.tracker,
               values.project
             ).map((issueType) => {
               return {

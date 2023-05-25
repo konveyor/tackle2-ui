@@ -43,13 +43,13 @@ interface FormValues {
   insecure: boolean;
 }
 
-export interface InstanceFormProps {
-  instance?: Tracker;
+export interface TrackerFormProps {
+  tracker?: Tracker;
   onClose: () => void;
 }
 
-export const InstanceForm: React.FC<InstanceFormProps> = ({
-  instance,
+export const TrackerForm: React.FC<TrackerFormProps> = ({
+  tracker,
   onClose,
 }) => {
   const { t } = useTranslation();
@@ -57,12 +57,12 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
   const [axiosError, setAxiosError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { trackers: instances } = useFetchTrackers();
+  const { trackers: trackers } = useFetchTrackers();
   const { identities } = useFetchIdentities();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const onCreateInstanceSuccess = (_: AxiosResponse<Tracker>) =>
+  const onCreateTrackerSuccess = (_: AxiosResponse<Tracker>) =>
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.instance").toLocaleLowerCase(),
@@ -70,16 +70,16 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
       variant: "success",
     });
 
-  const onCreateUpdateInstanceError = (error: AxiosError) => {
+  const onCreateUpdatetrackerError = (error: AxiosError) => {
     setAxiosError(error);
   };
 
-  const { mutate: createInstance } = useCreateTrackerMutation(
-    onCreateInstanceSuccess,
-    onCreateUpdateInstanceError
+  const { mutate: createTracker } = useCreateTrackerMutation(
+    onCreateTrackerSuccess,
+    onCreateUpdatetrackerError
   );
 
-  const onUpdateInstanceSuccess = (_: AxiosResponse<Tracker>) =>
+  const onUpdateTrackerSuccess = (_: AxiosResponse<Tracker>) =>
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.instance").toLocaleLowerCase(),
@@ -87,9 +87,9 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
       variant: "success",
     });
 
-  const { mutate: updateInstance } = useUpdateTrackerMutation(
-    onUpdateInstanceSuccess,
-    onCreateUpdateInstanceError
+  const { mutate: updateTracker } = useUpdateTrackerMutation(
+    onUpdateTrackerSuccess,
+    onCreateUpdatetrackerError
   );
 
   const onSubmit = (formValues: FormValues) => {
@@ -110,12 +110,12 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
         : undefined,
       insecure: formValues.insecure,
     };
-    if (instance) {
-      updateInstance({
+    if (tracker) {
+      updateTracker({
         ...payload,
       });
     } else {
-      createInstance(payload);
+      createTracker(payload);
     }
     onClose();
   };
@@ -132,7 +132,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
       .test(
         "Duplicate name",
         "An identity with this name already exists. Use a different name.",
-        (value) => duplicateNameCheck(instances, instance || null, value || "")
+        (value) => duplicateNameCheck(trackers, tracker || null, value || "")
       )
       .required(t("validation.required")),
     url: yup
@@ -154,12 +154,12 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
     watch,
   } = useForm<FormValues>({
     defaultValues: {
-      name: instance?.name || "",
-      url: instance?.url || "",
-      id: instance?.id || 0,
-      kind: instance?.kind,
-      credentialName: instance?.identity?.name || "",
-      insecure: instance?.insecure || false,
+      name: tracker?.name || "",
+      url: tracker?.url || "",
+      id: tracker?.id || 0,
+      kind: tracker?.kind,
+      credentialName: tracker?.identity?.name || "",
+      insecure: tracker?.insecure || false,
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
@@ -277,7 +277,7 @@ export const InstanceForm: React.FC<InstanceFormProps> = ({
             !isValid || isSubmitting || isValidating || isLoading || !isDirty
           }
         >
-          {!instance ? "Create" : "Save"}
+          {!tracker ? "Create" : "Save"}
         </Button>
         <Button
           type="button"
