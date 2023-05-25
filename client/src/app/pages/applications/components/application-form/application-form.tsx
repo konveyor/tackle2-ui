@@ -356,7 +356,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       ),
       review: undefined, // The review should not updated through this form
       id: formValues.id,
-      migrationWave: application?.migrationWave,
+      migrationWave: application ? application.migrationWave : null,
     };
 
     if (application) {
