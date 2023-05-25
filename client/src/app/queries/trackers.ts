@@ -57,49 +57,50 @@ export const useUpdateTrackerMutation = (
 };
 
 export const useDeleteTrackerMutation = (
-  onSuccess: (instanceName: string) => void,
+  onSuccess: (trackerName: string) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id }: { id: number; name: string }) => deleteTracker(id),
+    mutationFn: ({ tracker }: { tracker: Tracker }) =>
+      deleteTracker(tracker.id),
     onSuccess: (_, vars) => {
-      onSuccess(vars.name);
+      onSuccess(vars.tracker.name);
       queryClient.invalidateQueries([TrackersQueryKey]);
     },
     onError: onError,
   });
 };
 
-export const getTrackersByKind = (instances: Tracker[], kind: string) =>
-  instances.filter((instance) => instance.kind === kind && instance.connected);
+export const getTrackersByKind = (trackers: Tracker[], kind: string) =>
+  trackers.filter((tracker) => tracker.kind === kind && tracker.connected);
 
-export const getTrackerProjectsByInstance = (
-  instances: Tracker[],
-  instanceName: string
+export const getTrackerProjectsByTracker = (
+  trackers: Tracker[],
+  trackerName: string
 ) =>
-  instances
-    .filter((instance) => instance.name === instanceName)
-    .map((instance) => instance.metadata?.projects.map((project) => project))
+  trackers
+    .filter((tracker) => tracker.name === trackerName)
+    .map((tracker) => tracker.metadata?.projects.map((project) => project))
     .flat();
 
 export const getTrackerTypesByProjectName = (
-  instances: Tracker[],
-  instanceName: string,
+  trackers: Tracker[],
+  trackerName: string,
   projectName: string
 ) =>
-  getTrackerProjectsByInstance(instances, instanceName)
+  getTrackerProjectsByTracker(trackers, trackerName)
     .filter((project) => project.name === projectName)
     .map((project) => project.issueTypes)
     .flat();
 
 export const getTrackerTypesByProjectId = (
-  instances: Tracker[],
-  instanceName: string,
+  trackers: Tracker[],
+  trackerName: string,
   projectId: string
 ) =>
-  getTrackerProjectsByInstance(instances, instanceName)
+  getTrackerProjectsByTracker(trackers, trackerName)
     .filter((project) => project.id === projectId)
     .map((project) => project.issueTypes)
     .flat();

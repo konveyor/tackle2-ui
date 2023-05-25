@@ -44,7 +44,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
-import { InstanceForm } from "./instance-form";
+import { TrackerForm } from "./tracker-form";
 import { Tracker, Ref } from "@app/api/models";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -56,16 +56,17 @@ export const JiraTrackers: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [instanceModalState, setInstanceModalState] = React.useState<
+  const [trackerModalState, setTrackerModalState] = React.useState<
     "create" | Tracker | null
   >(null);
-  const isInstanceModalOpen = instanceModalState !== null;
-  const instanceToUpdate =
-    instanceModalState !== "create" ? instanceModalState : null;
+  const isTrackerModalOpen = trackerModalState !== null;
+  const trackerToUpdate =
+    trackerModalState !== "create" ? trackerModalState : null;
 
-  const [instanceToDeleteState, setInstanceToDeleteState] =
-    React.useState<Ref | null>(null);
-  const isConfirmDialogOpen = instanceToDeleteState !== null;
+  const [trackerToDeleteState, setTrackerToDeleteState] =
+    React.useState<Tracker | null>(null);
+
+  const isConfirmDialogOpen = trackerToDeleteState !== null;
 
   const { trackers, isFetching, fetchError, refetch } = useFetchTrackers();
 
@@ -74,7 +75,7 @@ export const JiraTrackers: React.FC = () => {
   const includesTracker = (id: number) =>
     tickets.map((ticket) => ticket.tracker.id).includes(id);
 
-  const onDeleteInstanceSuccess = (name: string) => {
+  const onDeleteTrackerSuccess = (name: string) => {
     pushNotification({
       title: t("toastr.success.deleted", {
         what: name,
@@ -84,7 +85,7 @@ export const JiraTrackers: React.FC = () => {
     });
   };
 
-  const onDeleteInstanceError = (error: AxiosError) => {
+  const onDeleteTrackerError = (error: AxiosError) => {
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
@@ -92,18 +93,18 @@ export const JiraTrackers: React.FC = () => {
     refetch();
   };
 
-  const { mutate: deleteInstance } = useDeleteTrackerMutation(
-    onDeleteInstanceSuccess,
-    onDeleteInstanceError
+  const { mutate: deleteTracker } = useDeleteTrackerMutation(
+    onDeleteTrackerSuccess,
+    onDeleteTrackerError
   );
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
     items: trackers,
     columnNames: {
-      name: "Instance name",
+      name: `${t("terms.instance")} name`,
       url: "URL",
-      kind: "Instance type",
+      kind: `${t("terms.instance")} type`,
       connection: "Connection",
     },
     isSelectable: true,
@@ -174,10 +175,10 @@ export const JiraTrackers: React.FC = () => {
                   <ToolbarItem>
                     <Button
                       type="button"
-                      id="create-instance"
-                      aria-label="Create new instance"
+                      id="create-Tracker"
+                      aria-label="Create new tracker"
                       variant={ButtonVariant.primary}
-                      onClick={() => setInstanceModalState("create")}
+                      onClick={() => setTrackerModalState("create")}
                     >
                       {t("actions.createNew")}
                     </Button>
@@ -195,7 +196,7 @@ export const JiraTrackers: React.FC = () => {
                 </ToolbarGroup>
                 <ToolbarItem {...paginationToolbarItemProps}>
                   <SimplePagination
-                    idPrefix="jira-instance-table"
+                    idPrefix="jira-Tracker-table"
                     isTop
                     paginationProps={paginationProps}
                   />
@@ -241,7 +242,7 @@ export const JiraTrackers: React.FC = () => {
                         </Td>
                         <Td width={20}>
                           <AppTableActionButtons
-                            onEdit={() => setInstanceModalState(tracker)}
+                            onEdit={() => setTrackerModalState(tracker)}
                             onDelete={() => {
                               includesTracker(tracker.id)
                                 ? pushNotification({
@@ -250,10 +251,7 @@ export const JiraTrackers: React.FC = () => {
                                     ),
                                     variant: "danger",
                                   })
-                                : setInstanceToDeleteState({
-                                    id: tracker.id,
-                                    name: tracker.name,
-                                  });
+                                : setTrackerToDeleteState(tracker);
                             }}
                           />
                         </Td>
@@ -268,7 +266,7 @@ export const JiraTrackers: React.FC = () => {
       </PageSection>
       <Modal
         title={
-          instanceToUpdate
+          trackerToUpdate
             ? t("dialog.title.update", {
                 what: t("terms.instance").toLowerCase(),
               })
@@ -277,16 +275,14 @@ export const JiraTrackers: React.FC = () => {
               })
         }
         variant="medium"
-        isOpen={isInstanceModalOpen}
+        isOpen={isTrackerModalOpen}
         onClose={() => {
-          setInstanceModalState(null);
+          setTrackerModalState(null);
         }}
       >
-        <InstanceForm
-          instance={instanceToUpdate ? instanceToUpdate : undefined}
-          onClose={() => {
-            setInstanceModalState(null);
-          }}
+        <TrackerForm
+          tracker={trackerToUpdate ? trackerToUpdate : undefined}
+          onClose={() => setTrackerModalState(null)}
         />
       </Modal>
       <ConfirmDialog
@@ -299,15 +295,13 @@ export const JiraTrackers: React.FC = () => {
         confirmBtnVariant={ButtonVariant.danger}
         confirmBtnLabel={t("actions.delete")}
         cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => setInstanceToDeleteState(null)}
-        onClose={() => setInstanceToDeleteState(null)}
+        onCancel={() => setTrackerToDeleteState(null)}
+        onClose={() => setTrackerToDeleteState(null)}
         onConfirm={() => {
-          if (instanceToDeleteState) {
-            deleteInstance(
-              instanceToDeleteState as { id: number; name: string }
-            );
+          if (trackerToDeleteState) {
+            deleteTracker({ tracker: trackerToDeleteState });
           }
-          setInstanceToDeleteState(null);
+          setTrackerToDeleteState(null);
         }}
       />
     </>
