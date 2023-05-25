@@ -1,6 +1,7 @@
 import * as React from "react";
 import { AnalysisIssueReport } from "@app/api/models";
-import { useLocalTableControls } from "@app/shared/hooks/table-controls";
+import { getHubRequestParams } from "@app/shared/hooks/table-controls";
+import { useFetchFileReports } from "@app/queries/issues";
 
 export interface IIssueAffectedFilesTableProps {
   issueReport: AnalysisIssueReport;
@@ -9,17 +10,17 @@ export interface IIssueAffectedFilesTableProps {
 export const IssueAffectedFilesTable: React.FC<
   IIssueAffectedFilesTableProps
 > = ({ issueReport }) => {
-  // TODO load files!
+  // TODO useTableControlUrlParams
+  // TODO do we need to put these in the URL namespaced/prefixed so they can coexist with the main page table? (yes)
+  const {
+    result: { data: currentPageFileReports, total: totalItemCount },
+    isFetching,
+    fetchError,
+  } = useFetchFileReports(issueReport.id, getHubRequestParams({})); // TODO pass params from above
 
-  // TODO do we want to be able to put these in the URL, namespaced so they can coexist with the main page table?
-  // TODO should we just do that by defualt for anywhere we're using useLocalTableControls?
-  /*
-  const tableControls = useLocalTableControls({
-    idProperty: "id",
-    items: [], // TODO files
-    // TODO
-  });
-  */
+  // TODO useTableControlProps
+
+  // TODO search toolbar at the top
 
   return <>TODO</>;
 };

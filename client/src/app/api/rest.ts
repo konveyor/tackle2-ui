@@ -6,6 +6,7 @@ import {
   BaseAnalysisRuleReport,
   AnalysisIssueReport,
   AnalysisIssue,
+  AnalysisFileReport,
   Application,
   ApplicationAdoptionPlan,
   ApplicationDependency,
@@ -78,6 +79,7 @@ export const CACHE = HUB + "/cache/m2";
 export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/dependencies";
 export const ANALYSIS_REPORT_RULES = HUB + "/analyses/report/rules";
 export const ANALYSIS_REPORT_ISSUES = HUB + "/analyses/report/issues";
+export const ANALYSIS_REPORT_FILES = HUB + "/analyses/report/issues/:id/files";
 export const ANALYSIS_ISSUES = HUB + "/analyses/issues";
 
 // PATHFINDER
@@ -536,6 +538,8 @@ export const updateTracker = (obj: Tracker): Promise<Tracker> =>
 export const deleteTracker = (id: number): Promise<Tracker> =>
   axios.delete(`${TRACKERS}/${id}`);
 
+// Issues and Dependencies
+
 export const getHubPaginatedResult = <T>(
   url: string,
   params: HubRequestParams = {}
@@ -550,9 +554,6 @@ export const getHubPaginatedResult = <T>(
       params,
     }));
 
-export const getDependencies = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<AnalysisDependency>(ANALYSIS_DEPENDENCIES, params);
-
 export const getRuleReports = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<BaseAnalysisRuleReport>(ANALYSIS_REPORT_RULES, params);
 
@@ -561,6 +562,20 @@ export const getIssueReports = (params: HubRequestParams = {}) =>
 
 export const getIssues = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisIssue>(ANALYSIS_ISSUES, params);
+
+export const getFileReports = (
+  issueId?: number,
+  params: HubRequestParams = {}
+) =>
+  issueId
+    ? getHubPaginatedResult<AnalysisFileReport>(
+        ANALYSIS_REPORT_FILES.replace("/:id/", String(issueId)),
+        params
+      )
+    : Promise.reject();
+
+export const getDependencies = (params: HubRequestParams = {}) =>
+  getHubPaginatedResult<AnalysisDependency>(ANALYSIS_DEPENDENCIES, params);
 
 // Tickets
 

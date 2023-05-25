@@ -263,14 +263,6 @@ export const AffectedApplications: React.FC = () => {
       </PageSection>
       <IssueDetailDrawer
         issueReport={activeRowItem}
-        // TODO we may not even need to pass the application at all?
-        application={
-          (activeRowItem &&
-            applications.find(
-              (app) => app.id === activeRowItem.application.id
-            )) ||
-          null
-        }
         onCloseClick={clearActiveRow}
       />
     </>

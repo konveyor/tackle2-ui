@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AnalysisIssueReport, Application } from "@app/api/models";
+import { AnalysisIssueReport } from "@app/api/models";
 import {
   IPageDrawerContentProps,
   PageDrawerContent,
@@ -18,7 +18,6 @@ import { IssueAffectedFilesTable } from "./issue-affected-files-table";
 export interface IIssueDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
   issueReport: AnalysisIssueReport | null;
-  application: Application | null;
 }
 
 enum TabKey {
@@ -27,7 +26,6 @@ enum TabKey {
 
 export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
   issueReport,
-  application,
   onCloseClick,
 }) => {
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
@@ -37,14 +35,14 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
   // TODO should we also show the application name at the top?
   return (
     <PageDrawerContent
-      isExpanded={!!issueReport && !!application}
+      isExpanded={!!issueReport}
       onCloseClick={onCloseClick}
       focusKey={issueReport?.name}
       pageKey="affected-applications"
     >
       <TextContent>
         <Text component="small" className={spacing.mb_0}>
-          {application?.name}
+          {issueReport?.application.name}
         </Text>
         <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
           {issueReport?.name}
@@ -60,10 +58,7 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
           title={<TabTitleText>Affected files</TabTitleText>}
         >
           {issueReport ? (
-            <>
-              TODO: Toolbar here
-              <IssueAffectedFilesTable issueReport={issueReport} />
-            </>
+            <IssueAffectedFilesTable issueReport={issueReport} />
           ) : null}
         </Tab>
       </Tabs>

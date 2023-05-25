@@ -590,6 +590,14 @@ export interface AnalysisRuleReport extends BaseAnalysisRuleReport {
   _ui_unique_id: string;
 }
 
+// Hub type: FileReport - Incidents collated by file
+// TODO verify this structure from observed data
+export interface AnalysisFileReport {
+  issueId: string;
+  file: string;
+  incidents: number;
+}
+
 export type TicketStatus = "" | "New" | "In Progress" | "Done" | "Error";
 
 export type AggregateTicketStatus =
