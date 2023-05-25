@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -9,6 +9,8 @@ import {
   ToolbarGroup,
   ToolbarItem,
   Text,
+  Modal,
+  ModalVariant,
 } from "@patternfly/react-core";
 import {
   cellWidth,
@@ -31,10 +33,7 @@ import { Identity, ITypeOptions } from "@app/api/models";
 import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
-import { useEntityModal } from "@app/shared/hooks/useEntityModal";
-import { AxiosError, AxiosResponse } from "axios";
-import { NewIdentityModal } from "./components/new-identity-modal";
-import { UpdateIdentityModal } from "./components/update-identity-modal";
+import { AxiosError } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import {
   FilterCategory,
@@ -47,6 +46,8 @@ import {
 } from "@app/queries/identities";
 import { useFetchApplications } from "@app/queries/applications";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import { IdentityForm } from "./components/identity-form";
+import { validateXML } from "./components/identity-form/validateXML";
 
 const ENTITY_FIELD = "entity";
 
@@ -60,7 +61,12 @@ export const Identities: React.FC = () => {
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [rowToUpdate, setRowToUpdate] = useState<Identity>();
+  const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
+    "create" | Identity | null
+  >(null);
+  const isCreateUpdateModalOpen = createUpdateModalState !== null;
+  const identityToUpdate =
+    createUpdateModalState !== "create" ? createUpdateModalState : null;
 
   const onDeleteIdentitySuccess = (response: any) => {
     pushNotification({
@@ -81,15 +87,6 @@ export const Identities: React.FC = () => {
     onDeleteIdentityError
   );
   const { data: applications } = useFetchApplications();
-
-  // Create and update modal
-  const {
-    isOpen: isIdentityModalOpen,
-    data: identityToUpdate,
-    create: openCreateIdentityModal,
-    update: openUpdateIdentityModal,
-    close: closeIdentityModal,
-  } = useEntityModal<Identity>();
 
   const {
     identities,
@@ -173,37 +170,6 @@ export const Identities: React.FC = () => {
     },
   ];
 
-  const handleOnCancelUpdateIdentity = () => {
-    setRowToUpdate(undefined);
-  };
-
-  const editRow = (row: Identity) => {
-    setRowToUpdate(row);
-  };
-
-  const deleteRow = (row: Identity) => {
-    setIdentityIdToDelete(row.id);
-    setIsConfirmDialogOpen(true);
-  };
-
-  const handleOnIdentityCreated = (response: AxiosResponse<Identity>) => {
-    if (!identityToUpdate) {
-      pushNotification({
-        title: t("toastr.success.save", {
-          what: response.data.name,
-          type: t("terms.credential"),
-        }),
-        variant: "success",
-      });
-    }
-
-    closeIdentityModal();
-  };
-
-  const handleOnIdentityUpdated = () => {
-    setRowToUpdate(undefined);
-  };
-
   const handleOnClearAllFilters = () => {
     setFilterValues({});
   };
@@ -239,8 +205,11 @@ export const Identities: React.FC = () => {
         {
           title: (
             <AppTableActionButtons
-              onEdit={() => editRow(item)}
-              onDelete={() => deleteRow(item)}
+              onEdit={() => setCreateUpdateModalState(item)}
+              onDelete={() => {
+                setIdentityIdToDelete(item.id);
+                setIsConfirmDialogOpen(true);
+              }}
             />
           ),
         },
@@ -285,7 +254,7 @@ export const Identities: React.FC = () => {
                 <ToolbarItem>
                   <Button
                     isSmall
-                    onClick={openCreateIdentityModal}
+                    onClick={() => setCreateUpdateModalState("create")}
                     variant="primary"
                     id="create-credential-button"
                   >
@@ -317,16 +286,27 @@ export const Identities: React.FC = () => {
             }
           />
         </ConditionalRender>
-        <NewIdentityModal
-          isOpen={isIdentityModalOpen}
-          onSaved={handleOnIdentityCreated}
-          onCancel={closeIdentityModal}
-        />
-        <UpdateIdentityModal
-          identity={rowToUpdate}
-          onSaved={handleOnIdentityUpdated}
-          onCancel={handleOnCancelUpdateIdentity}
-        />
+
+        <Modal
+          title={
+            identityToUpdate
+              ? t("dialog.title.update", {
+                  what: t("terms.credential").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.credential").toLowerCase(),
+                })
+          }
+          variant={ModalVariant.medium}
+          isOpen={isCreateUpdateModalOpen}
+          onClose={() => setCreateUpdateModalState(null)}
+        >
+          <IdentityForm
+            identity={identityToUpdate ? identityToUpdate : undefined}
+            onClose={() => setCreateUpdateModalState(null)}
+            xmlValidator={validateXML}
+          />
+        </Modal>
       </PageSection>
       {isConfirmDialogOpen && (
         <ConfirmDialog

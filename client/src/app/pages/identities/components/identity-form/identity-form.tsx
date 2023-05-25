@@ -36,6 +36,7 @@ import {
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 import { FEATURES_ENABLED } from "@app/FeatureFlags";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 type UserCredentials = "userpass" | "source";
 
@@ -55,8 +56,7 @@ interface IdentityFormValues {
 
 export interface IdentityFormProps {
   identity?: Identity;
-  onSaved: (response: AxiosResponse<Identity>) => void;
-  onCancel: () => void;
+  onClose: () => void;
   xmlValidator?: (
     value: string,
     currentSchema: string
@@ -65,11 +65,11 @@ export interface IdentityFormProps {
 
 export const IdentityForm: React.FC<IdentityFormProps> = ({
   identity: initialIdentity,
-  onSaved,
-  onCancel,
+  onClose,
   xmlValidator,
 }) => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [axiosError, setAxiosError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
@@ -99,8 +99,15 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       return undefined;
     }
   };
+
   const onCreateUpdateIdentitySuccess = (response: AxiosResponse<Identity>) => {
-    onSaved(response);
+    pushNotification({
+      title: t("toastr.success.save", {
+        what: response.data.name,
+        type: t("terms.credential"),
+      }),
+      variant: "success",
+    });
   };
 
   const onCreateUpdateIdentityError = (error: AxiosError) => {
@@ -161,6 +168,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     } else {
       createIdentity(payload);
     }
+    onClose();
   };
 
   const { identities } = useFetchIdentities();
@@ -277,6 +285,25 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             .required("This value is required")
             .min(3, t("validation.minLength", { length: 3 }))
             .max(120, t("validation.maxLength", { length: 120 })),
+          otherwise: (schema) => schema.trim(),
+        })
+        .when("kind", {
+          is: (value: string) => value === "proxy",
+          then: yup
+            .string()
+            .required("This value is required")
+            .min(3, t("validation.minLength", { length: 3 }))
+            .max(120, t("validation.maxLength", { length: 120 })),
+          otherwise: (schema) => schema.trim(),
+        })
+        .when("kind", {
+          is: (value: string) => value === "jira",
+          then: yup
+            .string()
+            .email("Username must be a valid email")
+            .min(3, t("validation.minLength", { length: 3 }))
+            .max(120, t("validation.maxLength", { length: 120 }))
+            .required("This value is required"),
           otherwise: (schema) => schema.trim(),
         })
         .when(["kind", "userCredentials"], {
@@ -618,7 +645,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           <HookFormPFTextInput
             control={control}
             name="user"
-            label="Username"
+            label={
+              values.kind === "jira" ? "Jira username or email" : "Username"
+            }
             fieldId="user"
             isRequired
           />
@@ -661,7 +690,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           Cancel
         </Button>

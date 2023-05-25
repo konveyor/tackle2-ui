@@ -6,14 +6,7 @@ import {
   getIdentities,
   updateIdentity,
 } from "@app/api/rest";
-import { Identity } from "@app/api/models";
 import { AxiosError } from "axios";
-
-export interface IIdentityFetchState {
-  identities: Identity[];
-  isFetching: boolean;
-  fetchError: any;
-}
 
 export const IdentitiesQueryKey = "identities";
 
@@ -59,8 +52,8 @@ export const useCreateIdentityMutation = (
   };
 };
 
-export const useFetchIdentities = (): IIdentityFetchState => {
-  const { data, isLoading, error } = useQuery(
+export const useFetchIdentities = () => {
+  const { data, isLoading, error, refetch } = useQuery(
     [IdentitiesQueryKey],
     async () => (await getIdentities()).data,
     {
@@ -71,6 +64,7 @@ export const useFetchIdentities = (): IIdentityFetchState => {
     identities: data || [],
     isFetching: isLoading,
     fetchError: error,
+    refetch,
   };
 };
 
