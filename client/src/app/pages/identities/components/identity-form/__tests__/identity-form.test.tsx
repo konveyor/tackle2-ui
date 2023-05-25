@@ -4,12 +4,10 @@ import {
   waitFor,
   screen,
   fireEvent,
-  within,
 } from "@app/test-config/test-utils";
 
 import { IDENTITIES } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
-import userEvent from "@testing-library/user-event";
 
 import { IdentityForm } from "..";
 import "@testing-library/jest-dom/extend-expect";
@@ -23,9 +21,7 @@ describe("Component: identity-form", () => {
   const mockChangeValue = jest.fn();
 
   it("Display form on initial load", async () => {
-    render(
-      <IdentityForm onCancel={mockChangeValue} onSaved={mockChangeValue} />
-    );
+    render(<IdentityForm onClose={mockChangeValue} />);
     const identityNameInput = await screen.findByLabelText("Name *");
     expect(identityNameInput).toBeInTheDocument();
 
@@ -39,9 +35,7 @@ describe("Component: identity-form", () => {
   });
 
   it("Check dynamic form rendering", async () => {
-    render(
-      <IdentityForm onCancel={mockChangeValue} onSaved={mockChangeValue} />
-    );
+    render(<IdentityForm onClose={mockChangeValue} />);
     const typeSelector = await screen.findByLabelText(
       "Type select dropdown toggle"
     );
@@ -112,9 +106,7 @@ describe("Component: identity-form", () => {
   });
 
   it("Identity form validation test - source - username/password", async () => {
-    render(
-      <IdentityForm onCancel={mockChangeValue} onSaved={mockChangeValue} />
-    );
+    render(<IdentityForm onClose={mockChangeValue} />);
 
     const identityNameInput = await screen.findByLabelText("Name *");
 
@@ -176,9 +168,7 @@ describe("Component: identity-form", () => {
   });
 
   it("Identity form validation test - source - key upload", async () => {
-    render(
-      <IdentityForm onCancel={mockChangeValue} onSaved={mockChangeValue} />
-    );
+    render(<IdentityForm onClose={mockChangeValue} />);
 
     const identityNameInput = await screen.findByLabelText("Name *");
 
@@ -233,13 +223,7 @@ describe("Component: identity-form", () => {
   });
 
   it("Identity form validation test - maven", async () => {
-    render(
-      <IdentityForm
-        onCancel={mockChangeValue}
-        onSaved={mockChangeValue}
-        xmlValidator={jest.fn()}
-      />
-    );
+    render(<IdentityForm onClose={mockChangeValue} xmlValidator={jest.fn()} />);
 
     const identityNameInput = await screen.findByLabelText("Name *");
 
@@ -286,13 +270,7 @@ describe("Component: identity-form", () => {
   });
 
   it("Identity form validation test - proxy", async () => {
-    render(
-      <IdentityForm
-        onCancel={mockChangeValue}
-        onSaved={mockChangeValue}
-        xmlValidator={jest.fn()}
-      />
-    );
+    render(<IdentityForm onClose={mockChangeValue} xmlValidator={jest.fn()} />);
 
     const identityNameInput = await screen.findByLabelText("Name *");
 
