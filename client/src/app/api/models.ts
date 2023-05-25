@@ -576,7 +576,7 @@ export interface AnalysisIssue extends AnalysisIssuesCommonFields {
 
 // Hub type: IssueReport - Issues collated by application (but filtered by ruleset/rule)
 export interface AnalysisIssueReport extends AnalysisIssue {
-  application: { id: number; name: string };
+  application: { id: number; name: string; effort: number };
   files: number;
   incidents: number;
 }

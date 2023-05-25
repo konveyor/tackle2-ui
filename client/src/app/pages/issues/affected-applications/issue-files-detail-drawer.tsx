@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AnalysisIssue, Application } from "@app/api/models";
+import { AnalysisIssueReport, Application } from "@app/api/models";
 import {
   IPageDrawerContentProps,
   PageDrawerContent,
@@ -7,24 +7,24 @@ import {
 
 export interface IIssueFilesDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
-  issue: AnalysisIssue | null;
+  issueReport: AnalysisIssueReport | null;
   application: Application | null;
 }
 
 export const IssueFilesDetailDrawer: React.FC<IIssueFilesDetailDrawerProps> = ({
-  issue,
+  issueReport,
   application,
   onCloseClick,
 }) => {
   return (
     <PageDrawerContent
-      isExpanded={!!issue && !!application}
+      isExpanded={!!issueReport && !!application}
       onCloseClick={onCloseClick}
-      focusKey={issue?.name}
+      focusKey={issueReport?.name}
       pageKey="affected-applications"
     >
-      TODO details about issue {issue?.name} for application {application?.name}{" "}
-      here!
+      TODO details about issue {issueReport?.name} for application{" "}
+      {application?.name} here!
     </PageDrawerContent>
   );
 };

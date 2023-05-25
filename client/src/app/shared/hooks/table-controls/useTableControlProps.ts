@@ -137,10 +137,8 @@ export const useTableControlProps = <
     onRowClick: (event) =>
       handlePropagatedRowClick(event, () => {
         if (item && activeRowItem?.[idProperty] !== item[idProperty]) {
-          console.log("Active!", item);
           setActiveRowItem(item);
         } else {
-          console.log("Clear!");
           clearActiveRow();
         }
         onRowClick?.(event);

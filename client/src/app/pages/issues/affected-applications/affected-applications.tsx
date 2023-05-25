@@ -261,16 +261,18 @@ export const AffectedApplications: React.FC = () => {
           </div>
         </ConditionalRender>
       </PageSection>
-      {/* TODO restore this and use the right type -- pass in issuereport and look up issue and app (if needed) in the drawer? */}
-      {/*<IssueFilesDetailDrawer
-        issue={activeRowItem}
+      <IssueFilesDetailDrawer
+        issueReport={activeRowItem}
+        // TODO we may not even need to pass the application at all?
         application={
           (activeRowItem &&
-            applications.find((app) => app.id === activeRowItem.application)) ||
+            applications.find(
+              (app) => app.id === activeRowItem.application.id
+            )) ||
           null
         }
         onCloseClick={clearActiveRow}
-      />*/}
+      />
     </>
   );
 };
