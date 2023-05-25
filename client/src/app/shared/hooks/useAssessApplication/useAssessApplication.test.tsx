@@ -18,6 +18,7 @@ describe("useAssessApplication", () => {
     const application: Application = {
       id: 1,
       name: "some",
+      migrationWave: null,
     };
 
     new MockAdapter(axios)
@@ -49,6 +50,7 @@ describe("useAssessApplication", () => {
     const application: Application = {
       id: 1,
       name: "some",
+      migrationWave: null,
     };
 
     // Mock REST API
@@ -82,6 +84,7 @@ describe("useAssessApplication", () => {
     const application: Application = {
       id: 1,
       name: "some",
+      migrationWave: null,
     };
 
     const response = { id: 123 };
@@ -116,6 +119,7 @@ describe("useAssessApplication", () => {
     const application: Application = {
       id: 1,
       name: "some",
+      migrationWave: null,
     };
 
     new MockAdapter(axios)
@@ -147,6 +151,7 @@ describe("useAssessApplication", () => {
     const application: Application = {
       id: 1,
       name: "some",
+      migrationWave: null,
     };
 
     new MockAdapter(axios)
@@ -178,6 +183,7 @@ describe("useAssessApplication", () => {
     const application: Application = {
       id: 1,
       name: "some",
+      migrationWave: null,
     };
 
     // Mock REST API
@@ -212,6 +218,7 @@ describe("useAssessApplication", () => {
     const application: Application = {
       id: 1,
       name: "some",
+      migrationWave: null,
     };
 
     // Mock REST API
