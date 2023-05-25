@@ -9,11 +9,13 @@ import userEvent from "@testing-library/user-event";
 const applicationData1 = {
   id: 1,
   name: "App1",
+  migrationWave: null,
 };
 
 const applicationData2 = {
   id: 2,
   name: "App2",
+  migrationWave: null,
 };
 
 const taskgroupData = {

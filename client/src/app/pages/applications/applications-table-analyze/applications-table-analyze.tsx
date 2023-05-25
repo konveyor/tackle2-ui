@@ -346,6 +346,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         },
         {
           title: t("actions.delete"),
+          isDisabled: row.migrationWave !== null,
           onClick: () => deleteRow(row),
         }
       );
@@ -439,7 +440,12 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     ? [
         <DropdownItem
           key="manage-applications-bulk-delete"
-          isDisabled={selectedRows.length < 1}
+          isDisabled={
+            selectedRows.length < 1 ||
+            selectedRows.filter(
+              (application) => application.migrationWave !== null
+            ).length > 0
+          }
           onClick={() => {
             openBulkDeleteModal(selectedRows);
           }}
