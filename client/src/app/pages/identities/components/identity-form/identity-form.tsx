@@ -645,7 +645,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           <HookFormPFTextInput
             control={control}
             name="user"
-            label="Username"
+            label={values.kind === "jira" ? "Username's email" : "Username"}
             fieldId="user"
             isRequired
           />
