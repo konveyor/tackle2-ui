@@ -12,6 +12,8 @@ import { Paths } from "@app/Paths";
 // We carry these filter values between the two pages when determining the URLs to navigate between them.
 // It is also important to restore any unrelated params when returning to the Issues page.
 
+// TODO import the issues and apps keyPrefixes from a constant in those pages instead of duplicating them here
+
 const filterKeysToCarry = ["application.name"] as const;
 type FilterValuesToCarry = Partial<
   Record<(typeof filterKeysToCarry)[number], FilterValue>
@@ -39,10 +41,10 @@ export const getAffectedAppsUrl = ({
     .replace("/:ruleset/", `/${ruleReport.ruleset}/`)
     .replace("/:rule/", `/${ruleReport.rule}/`);
   return `${baseUrl}?${trimAndStringifyUrlParams({
-    params: {
-      ...serializeFilterUrlParams(toFilterValues),
-      [FROM_ISSUES_PARAMS_KEY]: fromIssuesParams,
-      ruleReportName: ruleReport.name,
+    newPrefixedSerializedParams: {
+      ["apps:filters"]: serializeFilterUrlParams(toFilterValues).filters,
+      [`apps:${FROM_ISSUES_PARAMS_KEY}`]: fromIssuesParams,
+      "apps:ruleReportName": ruleReport.name,
     },
   })}`;
 };
@@ -59,13 +61,13 @@ export const getBackToIssuesUrl = ({
   const fromIssuesParams =
     new URLSearchParams(fromLocation.search).get(FROM_ISSUES_PARAMS_KEY) || "";
   // Pull the params themselves out of fromIssuesParams
-  const paramsToRestore = Object.fromEntries(
+  const prefixedParamsToRestore = Object.fromEntries(
     new URLSearchParams(fromIssuesParams)
   );
   // Pull the filters param out of that
-  const filterValuesToRestore = deserializeFilterUrlParams(
-    paramsToRestore || {}
-  );
+  const filterValuesToRestore = deserializeFilterUrlParams({
+    filters: prefixedParamsToRestore["issues:filters"],
+  });
   // For each of the filters we care about, override the original value with the one from the affected apps page.
   // This will carry over changes including the filter having been cleared.
   filterKeysToCarry.forEach((key) => {
@@ -73,9 +75,10 @@ export const getBackToIssuesUrl = ({
   });
   // Put it all back together
   return `${Paths.issues}?${trimAndStringifyUrlParams({
-    params: {
-      ...paramsToRestore,
-      ...serializeFilterUrlParams(filterValuesToRestore),
+    newPrefixedSerializedParams: {
+      ...prefixedParamsToRestore,
+      ["issues:filters"]: serializeFilterUrlParams(filterValuesToRestore)
+        .filters,
     },
   })}`;
 };
