@@ -204,7 +204,6 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
         name="stakeholderNames"
         label={t("terms.member(s)")}
         fieldId="stakeholders"
-        isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
             variant="typeaheadmulti"
