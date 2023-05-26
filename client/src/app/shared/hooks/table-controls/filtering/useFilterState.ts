@@ -56,25 +56,28 @@ export const serializeFilterUrlParams = <TFilterCategoryKey extends string>(
 
 export const deserializeFilterUrlParams = <
   TFilterCategoryKey extends string
->(urlParams: {
-  filters?: string;
+>(serializedParams: {
+  filters?: string | null;
 }): Partial<Record<TFilterCategoryKey, FilterValue>> => {
   try {
-    return JSON.parse(urlParams.filters || "{}");
+    return JSON.parse(serializedParams.filters || "{}");
   } catch (e) {
     return {};
   }
 };
 
 export const useFilterUrlParams = <
-  TFilterCategoryKey extends string
->(): IFilterState<TFilterCategoryKey> => {
-  const [filterValues, setFilterValues] = useUrlParams<
-    "filters",
-    IFilterValues<TFilterCategoryKey>
-  >({
+  TFilterCategoryKey extends string,
+  TURLParamKeyPrefix extends string
+>({
+  urlParamKeyPrefix,
+}: {
+  urlParamKeyPrefix?: TURLParamKeyPrefix;
+}): IFilterState<TFilterCategoryKey> => {
+  const [filterValues, setFilterValues] = useUrlParams({
+    keyPrefix: urlParamKeyPrefix,
     keys: ["filters"],
-    defaultValue: {},
+    defaultValue: {} as IFilterValues<TFilterCategoryKey>,
     serialize: serializeFilterUrlParams,
     deserialize: deserializeFilterUrlParams,
   });
