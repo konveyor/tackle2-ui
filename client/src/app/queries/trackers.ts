@@ -22,19 +22,20 @@ export const useFetchTrackers = () => {
     isFetching: isLoading,
     fetchError: error,
     refetch,
-    refetchInterval: 5000,
+    refetchInterval: 1000,
   };
 };
 
 export const useCreateTrackerMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (tracker: Tracker) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createTracker,
-    onSuccess: () => {
-      onSuccess;
+    // mutationFn: createTracker,
+    mutationFn: ({ tracker }: { tracker: Tracker }) => createTracker(tracker),
+    onSuccess: (_, vars) => {
+      onSuccess(vars.tracker);
       queryClient.invalidateQueries([TrackersQueryKey]);
     },
     onError: onError,

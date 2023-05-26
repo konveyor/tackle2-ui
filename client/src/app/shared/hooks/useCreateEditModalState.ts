@@ -8,11 +8,9 @@ type ModalState<T> =
 
 export default function useCreateEditModalState<T>() {
   const [modalState, setModalState] = React.useState<ModalState<T>>(null);
-  const isModalOpen = modalState !== null;
 
   return {
     modalState,
     setModalState,
-    isModalOpen,
   };
 }

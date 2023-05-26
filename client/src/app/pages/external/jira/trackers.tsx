@@ -51,20 +51,20 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
 import { useFetchTickets } from "@app/queries/tickets";
 import TrackerStatus from "./components/tracker-status";
+import useCreateEditModalState from "@app/shared/hooks/useCreateEditModalState";
 
 export const JiraTrackers: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [trackerModalState, setTrackerModalState] = React.useState<
-    "create" | Tracker | null
-  >(null);
-  const isTrackerModalOpen = trackerModalState !== null;
-  const trackerToUpdate =
-    trackerModalState !== "create" ? trackerModalState : null;
-
-  const [trackerToDeleteState, setTrackerToDeleteState] =
-    React.useState<Tracker | null>(null);
+  const {
+    isModalOpen: isTrackerModalOpen,
+    modalState: trackerModalState,
+    setModalState: setTrackerModalState,
+    resourceToDelete: trackerToDeleteState,
+    setResourceToDelete: setTrackerToDeleteState,
+    resourceToUpdate: trackerToUpdate,
+  } = useCreateEditModalState<Tracker>();
 
   const isConfirmDialogOpen = trackerToDeleteState !== null;
 
@@ -178,7 +178,9 @@ export const JiraTrackers: React.FC = () => {
                       id="create-Tracker"
                       aria-label="Create new tracker"
                       variant={ButtonVariant.primary}
-                      onClick={() => setTrackerModalState("create")}
+                      onClick={() =>
+                        setTrackerModalState({ mode: "create", resource: null })
+                      }
                     >
                       {t("actions.createNew")}
                     </Button>
@@ -242,7 +244,12 @@ export const JiraTrackers: React.FC = () => {
                         </Td>
                         <Td width={20}>
                           <AppTableActionButtons
-                            onEdit={() => setTrackerModalState(tracker)}
+                            onEdit={() =>
+                              setTrackerModalState({
+                                mode: "edit",
+                                resource: tracker,
+                              })
+                            }
                             onDelete={() => {
                               includesTracker(tracker.id)
                                 ? pushNotification({
@@ -281,8 +288,10 @@ export const JiraTrackers: React.FC = () => {
         }}
       >
         <TrackerForm
-          tracker={trackerToUpdate ? trackerToUpdate : undefined}
-          onClose={() => setTrackerModalState(null)}
+          tracker={
+            trackerToUpdate?.resource ? trackerToUpdate.resource : undefined
+          }
+          modalState={{ setTrackerModalState, trackerModalState }}
         />
       </Modal>
       <ConfirmDialog

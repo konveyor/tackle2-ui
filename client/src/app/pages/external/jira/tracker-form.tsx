@@ -33,6 +33,7 @@ import {
 } from "@app/shared/components/hook-form-pf-fields";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import TrackerStatus from "./components/tracker-status";
 
 interface FormValues {
   id: number;
@@ -45,12 +46,16 @@ interface FormValues {
 
 export interface TrackerFormProps {
   tracker?: Tracker;
-  onClose: () => void;
+  modalState: {
+    //TODO: How would I extract the modal state type right here for usage when it is a generic type?
+    setTrackerModalState: (value: any) => void;
+    trackerModalState: any;
+  };
 }
 
 export const TrackerForm: React.FC<TrackerFormProps> = ({
   tracker,
-  onClose,
+  modalState,
 }) => {
   const { t } = useTranslation();
 
@@ -59,16 +64,21 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
 
   const { trackers: trackers } = useFetchTrackers();
   const { identities } = useFetchIdentities();
-
+  const matchingTracker = trackers.find((updatedTracker) => {
+    return updatedTracker.name === tracker?.name;
+  });
+  console.log("matchingTracker", matchingTracker);
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const onCreateTrackerSuccess = (_: AxiosResponse<Tracker>) =>
+  const onCreateTrackerSuccess = (createdTracker: Tracker) => {
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.instance").toLocaleLowerCase(),
       }),
       variant: "success",
     });
+    modalState.setTrackerModalState({ mode: "edit", resource: createdTracker });
+  };
 
   const onCreateUpdatetrackerError = (error: AxiosError) => {
     setAxiosError(error);
@@ -115,13 +125,12 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
         ...payload,
       });
     } else {
-      createTracker(payload);
+      createTracker({ tracker: payload });
     }
-    onClose();
+    // onClose();
   };
 
   const standardURL = new RegExp(standardURLRegex);
-  const containsURL = (string: string) => standardURL.test(string);
 
   const validationSchema: yup.SchemaOf<FormValues> = yup.object().shape({
     id: yup.number().defined(),
@@ -192,6 +201,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
         label="Instance name"
         fieldId="name"
         isRequired
+        isDisabled={!!matchingTracker}
       />
       <HookFormPFTextInput
         control={control}
@@ -267,6 +277,17 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
           />
         )}
       />
+      <div>
+        {matchingTracker ? (
+          matchingTracker.connected ? (
+            <TrackerStatus connected={true} />
+          ) : (
+            <TrackerStatus connected={false} />
+          )
+        ) : (
+          <div />
+        )}
+      </div>
       <ActionGroup>
         <Button
           type="submit"
@@ -285,7 +306,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onClose}
+          onClick={() => modalState.setTrackerModalState(null)}
         >
           Cancel
         </Button>
