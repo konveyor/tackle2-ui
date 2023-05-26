@@ -505,7 +505,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             name="owner"
             label={t("terms.owner")}
             fieldId="owner"
-            renderInput={({ field: { value, name, onChange } }) => (
+            renderInput={({ field: { value, name, onChange, onBlur } }) => (
               <SimpleSelect
                 maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
                 placeholderText={t("composed.selectAn", {
@@ -525,6 +525,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   const selectionValue = selection as OptionWithValue<string>;
                   onChange(selectionValue.value);
                 }}
+                onBlur={onChange}
               />
             )}
           />
