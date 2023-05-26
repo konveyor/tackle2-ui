@@ -137,7 +137,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
   const customURLValidation = (schema: StringSchema) => {
     const gitUrlRegex =
-      /(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\/?|\#[-\d\w._]+?)$/;
+      /(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/;
     const containsURL = (string: string) =>
       gitUrlRegex.test(string) || standardURLRegex.test(string);
 
@@ -505,7 +505,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             name="owner"
             label={t("terms.owner")}
             fieldId="owner"
-            renderInput={({ field: { value, name, onChange, onBlur } }) => (
+            renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
                 maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
                 placeholderText={t("composed.selectAn", {
