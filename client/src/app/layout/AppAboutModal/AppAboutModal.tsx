@@ -65,7 +65,7 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
             component={TextVariants.a}
             href={
               APP_BRAND === BrandType.Konveyor
-                ? "https://konveyor-docs.konveyor.io/"
+                ? "https://konveyor.github.io/konveyor/"
                 : "https://access.redhat.com/documentation/en-us/migration_toolkit_for_applications"
             }
             target="_blank"
