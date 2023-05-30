@@ -74,6 +74,7 @@ import { WaveForm } from "./components/migration-wave-form";
 import { ManageApplicationsForm } from "./components/manage-applications-form";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { deleteMigrationWave } from "@app/api/rest";
+import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 dayjs.extend(utc);
 
 const ticketStatusToAggreaate: Map<TicketStatus, AggregateTicketStatus> =
@@ -517,15 +518,18 @@ export const MigrationWaves: React.FC = () => {
                           </Td>
                           <Td
                             width={20}
-                            {...getCompoundExpandTdProps({
-                              item: migrationWave,
-                              rowIndex,
-                              columnKey: "status",
-                            })}
+                            {...((migrationWave.applications.length > 0 ||
+                              aggregatedTicketStatus(migrationWave) ==
+                                "No Issues") &&
+                              getCompoundExpandTdProps({
+                                item: migrationWave,
+                                rowIndex,
+                                columnKey: "status",
+                              }))}
                           >
                             {migrationWave.applications.length > 0
                               ? aggregatedTicketStatus(migrationWave)
-                              : null}
+                              : "N/A"}
                           </Td>
                           <Td width={10}>
                             <KebabDropdown
@@ -543,20 +547,30 @@ export const MigrationWaves: React.FC = () => {
                                       >
                                         {t("actions.edit")}
                                       </DropdownItem>,
-                                      <DropdownItem
-                                        key="manage-app"
-                                        onClick={() => {
-                                          setWaveToManageModalState(
-                                            migrationWave
-                                          );
-                                        }}
+                                      <ConditionalTooltip
+                                        isTooltipEnabled={
+                                          applications.length === 0
+                                        }
+                                        content={
+                                          "No applications are available for assignment."
+                                        }
                                       >
-                                        {t("composed.manage", {
-                                          what: t(
-                                            "terms.applications"
-                                          ).toLowerCase(),
-                                        })}
-                                      </DropdownItem>,
+                                        <DropdownItem
+                                          key="manage-app"
+                                          isDisabled={applications.length === 0}
+                                          onClick={() => {
+                                            setWaveToManageModalState(
+                                              migrationWave
+                                            );
+                                          }}
+                                        >
+                                          {t("composed.manage", {
+                                            what: t(
+                                              "terms.applications"
+                                            ).toLowerCase(),
+                                          })}
+                                        </DropdownItem>
+                                      </ConditionalTooltip>,
                                       <DropdownItem
                                         key="export-to-issue-manager"
                                         component="button"
