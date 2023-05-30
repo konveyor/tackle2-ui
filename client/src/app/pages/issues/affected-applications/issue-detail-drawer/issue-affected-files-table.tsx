@@ -69,14 +69,14 @@ export const IssueAffectedFilesTable: React.FC<
 
   const tableControls = useTableControlProps({
     ...tableControlState,
-    idProperty: "issueId",
+    idProperty: "file",
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
       items: currentPageItems,
-      isEqual: (a, b) => a.issueId === b.issueId,
+      isEqual: (a, b) => a.file === b.file,
     }),
   });
 
@@ -125,7 +125,7 @@ export const IssueAffectedFilesTable: React.FC<
         >
           <Tbody>
             {currentPageItems?.map((issueReport, rowIndex) => (
-              <Tr key={issueReport.issueId}>
+              <Tr key={issueReport.file}>
                 <TableRowContentWithControls
                   {...tableControls}
                   item={issueReport}
