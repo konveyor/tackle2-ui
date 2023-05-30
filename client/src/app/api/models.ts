@@ -53,6 +53,10 @@ export interface Stakeholder {
   contributes?: Ref[];
 }
 
+export interface StakeholderWithRole extends Stakeholder {
+  role: Role;
+}
+
 export interface StakeholderGroup {
   id: number;
   name: string;
@@ -621,8 +625,10 @@ export interface Ticket {
   error?: boolean;
 }
 
+export type Role = "Owner" | "Contributor" | null;
 export interface WaveWithStatus extends MigrationWave {
   ticketStatus: TicketStatus[];
   status: string;
   fullApplications: Application[];
+  allStakeholders: StakeholderWithRole[];
 }
