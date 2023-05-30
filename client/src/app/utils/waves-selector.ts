@@ -16,16 +16,14 @@ import dayjs from "dayjs";
 export const getWavesWithStatus = (waves: MigrationWave[]) => {
   const queryClient = useQueryClient();
 
-  const tickets =
-    (queryClient.getQueryData([TicketsQueryKey]) as Ticket[]) || [];
+  const tickets = queryClient.getQueryData<Ticket[]>([TicketsQueryKey]) || [];
 
   const stakeholders =
-    (queryClient.getQueryData([
-      StakeholdersQueryKey,
-    ]) as StakeholderWithRole[]) || [];
+    queryClient.getQueryData<StakeholderWithRole[]>([StakeholdersQueryKey]) ||
+    [];
 
   const applications =
-    (queryClient.getQueryData([ApplicationsQueryKey]) as Application[]) || [];
+    queryClient.getQueryData<Application[]>([ApplicationsQueryKey]) || [];
 
   const aggregateTicketStatus = (val: TicketStatus, startDate: string) => {
     const ticketStatusToAggregate: Map<TicketStatus, AggregateTicketStatus> =
