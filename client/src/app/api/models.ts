@@ -617,6 +617,12 @@ export interface Ticket {
   fields: Ref | null;
   message: string | null;
   reference: string | null;
-  status: string | null;
+  status: TicketStatus | null;
   error?: boolean;
+}
+
+export interface WaveWithStatus extends MigrationWave {
+  ticketStatus: TicketStatus[];
+  status: string;
+  fullApplications: Application[];
 }

@@ -31,14 +31,7 @@ import {
   KebabDropdown,
   ToolbarBulkSelector,
 } from "@app/shared/components";
-import {
-  AggregateTicketStatus,
-  MigrationWave,
-  Ref,
-  Stakeholder,
-  Ticket,
-  TicketStatus,
-} from "@app/api/models";
+import { MigrationWave, Ref, Stakeholder, Ticket } from "@app/api/models";
 import {
   FilterToolbar,
   FilterType,
@@ -77,15 +70,6 @@ import { deleteMigrationWave } from "@app/api/rest";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 dayjs.extend(utc);
 
-const ticketStatusToAggreaate: Map<TicketStatus, AggregateTicketStatus> =
-  new Map([
-    ["", "Creating Issues"],
-    ["New", "Issues Created"],
-    ["In Progress", "In Progress"],
-    ["Done", "Completed"],
-    ["Error", "Error"],
-  ]);
-
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
@@ -122,13 +106,6 @@ export const MigrationWaves: React.FC = () => {
   const [migrationWavesToDelete, setMigrationWavesToDelete] = React.useState<
     number[] | null
   >(null);
-
-  const getApplications = (refs: Ref[]) => {
-    const ids = refs.map((ref) => ref.id);
-    return applications.filter((application: any) =>
-      ids.includes(application.id)
-    );
-  };
 
   const onDeleteWaveSuccess = (name: string) => {
     pushNotification({
@@ -243,43 +220,6 @@ export const MigrationWaves: React.FC = () => {
     },
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
-
-  const getTicketByApplication = (tickets: Ticket[], id: number = 0) =>
-    tickets.find((ticket) => ticket.application?.id === id);
-
-  const getTicketStatus = (wave: MigrationWave) => {
-    let statuses: string[] = [];
-    wave.applications.forEach((application) => {
-      const ticket = getTicketByApplication(tickets, application.id);
-      if (ticket?.id) statuses.push(ticket.status || "");
-    });
-    return statuses as TicketStatus[];
-  };
-
-  const aggregateTicketStatus = (val: TicketStatus, startDate: string) => {
-    const status = ticketStatusToAggreaate.get(val);
-    if (status === "Issues Created") {
-      const now = dayjs.utc();
-      const start = dayjs.utc(startDate);
-      var duration = now.diff(start);
-      if (duration > 0) return "In Progress";
-    }
-    return status ? status : "Error";
-  };
-
-  const aggregatedTicketStatus = (
-    wave: MigrationWave
-  ): AggregateTicketStatus => {
-    const statuses = getTicketStatus(wave);
-    if (statuses.length === 0) return "No Issues";
-
-    const status = statuses.reduce(
-      (acc, val) => (acc === val ? acc : "Error"),
-      statuses[0]
-    );
-
-    return aggregateTicketStatus(status, wave.startDate);
-  };
 
   const getApplicationsOwners = (id: number) => {
     const applicationOwnerIds = applications
@@ -518,17 +458,16 @@ export const MigrationWaves: React.FC = () => {
                           </Td>
                           <Td
                             width={20}
-                            {...((migrationWave.applications.length > 0 ||
-                              aggregatedTicketStatus(migrationWave) ==
-                                "No Issues") &&
+                            {...((!!migrationWave.applications.length ||
+                              migrationWave.status === "No Issues") &&
                               getCompoundExpandTdProps({
                                 item: migrationWave,
                                 rowIndex,
                                 columnKey: "status",
                               }))}
                           >
-                            {migrationWave.applications.length > 0
-                              ? aggregatedTicketStatus(migrationWave)
+                            {!!migrationWave.applications.length
+                              ? migrationWave.status
                               : "N/A"}
                           </Td>
                           <Td width={10}>
@@ -579,9 +518,7 @@ export const MigrationWaves: React.FC = () => {
                                         }
                                         onClick={() =>
                                           setApplicationsToExport(
-                                            getApplications(
-                                              migrationWave.applications
-                                            )
+                                            migrationWave.fullApplications
                                           )
                                         }
                                       >
@@ -617,9 +554,6 @@ export const MigrationWaves: React.FC = () => {
                               migrationWave.applications.length > 0 ? (
                                 <WaveApplicationsTable
                                   migrationWave={migrationWave}
-                                  applications={getApplications(
-                                    migrationWave.applications
-                                  )}
                                   removeApplication={removeApplication}
                                 />
                               ) : isCellExpanded(
@@ -633,20 +567,16 @@ export const MigrationWaves: React.FC = () => {
                                     migrationWave
                                   )}
                                 />
-                              ) : isCellExpanded(migrationWave, "status") &&
-                                trackers.length > 0 &&
-                                migrationWave.applications.length > 0 ? (
-                                <WaveStatusTable
-                                  migrationWave={migrationWave}
-                                  applications={getApplications(
-                                    migrationWave.applications
-                                  )}
-                                  trackers={trackers}
-                                  tickets={tickets}
-                                  getTicket={getTicketByApplication}
-                                  removeApplication={removeApplication}
-                                />
-                              ) : null}
+                              ) : (
+                                isCellExpanded(migrationWave, "status") && (
+                                  // trackers.length > 0 &&
+                                  // migrationWave.applications.length > 0 ? (
+                                  <WaveStatusTable
+                                    migrationWave={migrationWave}
+                                    removeApplication={removeApplication}
+                                  />
+                                )
+                              )}
                             </ExpandableRowContent>
                           </Td>
                         </Tr>
