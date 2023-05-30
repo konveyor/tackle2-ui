@@ -16,7 +16,7 @@ export const useActiveRowUrlParams = <
   TURLParamKeyPrefix extends string = string
 >({
   urlParamKeyPrefix,
-  renderKey,
+  urlParamsEnabled,
 }: IExtraArgsForUrlParamHooks<TURLParamKeyPrefix> = {}): IActiveRowState => {
   const [activeRowId, setActiveRowId] = useUrlParams({
     urlParamKeyPrefix,
@@ -24,7 +24,7 @@ export const useActiveRowUrlParams = <
     defaultValue: null as string | null,
     serialize: (activeRowId) => ({ activeRow: activeRowId || null }),
     deserialize: ({ activeRow }) => activeRow || null,
-    renderKey,
+    urlParamsEnabled,
   });
   return { activeRowId, setActiveRowId };
 };

@@ -27,7 +27,7 @@ export const usePaginationUrlParams = <
 >({
   initialItemsPerPage = 10,
   urlParamKeyPrefix,
-  renderKey,
+  urlParamsEnabled,
 }: IPaginationStateArgs &
   IExtraArgsForUrlParamHooks<TURLParamKeyPrefix>): IPaginationState => {
   const defaultValue = { pageNumber: 1, itemsPerPage: initialItemsPerPage };
@@ -46,7 +46,7 @@ export const usePaginationUrlParams = <
             itemsPerPage: parseInt(itemsPerPage, 10),
           }
         : defaultValue,
-    renderKey,
+    urlParamsEnabled,
   });
 
   const setPageNumber = (pageNumber: number) =>

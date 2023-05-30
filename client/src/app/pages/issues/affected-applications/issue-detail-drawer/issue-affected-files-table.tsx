@@ -25,7 +25,7 @@ import { SimplePagination } from "@app/shared/components/simple-pagination";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 
 export interface IIssueAffectedFilesTableProps {
-  issueReport?: AnalysisIssueReport;
+  issueReport: AnalysisIssueReport | null;
 }
 
 export const IssueAffectedFilesTable: React.FC<
@@ -49,7 +49,7 @@ export const IssueAffectedFilesTable: React.FC<
     },
     initialItemsPerPage: 10,
     variant: "compact",
-    renderKey: issueReport ? issueReport.id : null,
+    urlParamsEnabled: !!issueReport,
   });
 
   const {

@@ -58,7 +58,7 @@ export interface IExtraArgsForUrlParamHooks<
   TURLParamKeyPrefix extends string = string
 > {
   urlParamKeyPrefix?: DisallowCharacters<TURLParamKeyPrefix, ":">;
-  renderKey?: string | number | null;
+  urlParamsEnabled?: boolean;
 }
 
 // Data-dependent args

@@ -72,7 +72,7 @@ export const useFilterUrlParams = <
   TURLParamKeyPrefix extends string = string
 >({
   urlParamKeyPrefix,
-  renderKey,
+  urlParamsEnabled,
 }: IExtraArgsForUrlParamHooks<TURLParamKeyPrefix> = {}): IFilterState<TFilterCategoryKey> => {
   const [filterValues, setFilterValues] = useUrlParams({
     urlParamKeyPrefix,
@@ -80,7 +80,7 @@ export const useFilterUrlParams = <
     defaultValue: {} as IFilterValues<TFilterCategoryKey>,
     serialize: serializeFilterUrlParams,
     deserialize: deserializeFilterUrlParams,
-    renderKey,
+    urlParamsEnabled,
   });
   return { filterValues, setFilterValues };
 };
