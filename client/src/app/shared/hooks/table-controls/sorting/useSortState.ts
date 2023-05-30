@@ -39,7 +39,7 @@ export const useSortUrlParams = <
   sortableColumns = [],
   initialSort = getDefaultSort(sortableColumns),
   urlParamKeyPrefix,
-  urlParamsEnabled,
+  renderKey,
 }: ISortStateArgs<TSortableColumnKey> &
   IExtraArgsForUrlParamHooks<TURLParamKeyPrefix>): ISortState<TSortableColumnKey> => {
   const [activeSort, setActiveSort] = useUrlParams({
@@ -57,7 +57,7 @@ export const useSortUrlParams = <
             direction: urlParams.sortDirection as "asc" | "desc",
           }
         : null,
-    urlParamsEnabled,
+    renderKey,
   });
   return { activeSort, setActiveSort };
 };

@@ -32,7 +32,7 @@ export const useExpansionUrlParams = <
   TURLParamKeyPrefix extends string = string
 >({
   urlParamKeyPrefix,
-  urlParamsEnabled,
+  renderKey,
 }: IExtraArgsForUrlParamHooks<TURLParamKeyPrefix> = {}): IExpansionState<TColumnKey> => {
   const [expandedCells, setExpandedCells] = useUrlParams({
     urlParamKeyPrefix,
@@ -50,7 +50,7 @@ export const useExpansionUrlParams = <
         return {};
       }
     },
-    urlParamsEnabled,
+    renderKey,
   });
   return { expandedCells, setExpandedCells };
 };

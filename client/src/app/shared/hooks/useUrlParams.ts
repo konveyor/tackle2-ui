@@ -11,7 +11,7 @@ import { IExtraArgsForUrlParamHooks } from "./table-controls";
 // - A `serialize` function to convert this type into an object with string values (`TSerializedParams`)
 // - A `deserialize` function to convert the serialized object back to your state's type
 // - An optional `urlParamKeyPrefix` to allow for multiple instances using the same keys on the same page.
-// - An optional `urlParamsEnabled` boolean. When false, all params will be excluded from the URL.
+// - An optional `renderKey`. When this changes, params will be reset to defaults. If null, all params will be removed.
 // The return value is the same [value, setValue] tuple returned by React.useState.
 
 // Note: You do not need to worry about the keyPrefix in your serialize and deserialize functions.
@@ -52,7 +52,7 @@ export const useUrlParams = <
   defaultValue,
   serialize,
   deserialize,
-  urlParamsEnabled = true,
+  renderKey,
 }: IUseUrlParamsArgs<
   TUrlParamKey,
   TKeyPrefix,
@@ -111,27 +111,24 @@ export const useUrlParams = <
   // On first render, all params will be empty and we want to reset to default params.
   const isInitializedRef = React.useRef(false);
   React.useEffect(() => {
-    if (allParamsEmpty && !isInitializedRef.current && urlParamsEnabled) {
-      console.log(urlParamKeyPrefix, "INITIAL SET TO DEFAULT!", defaultValue);
+    if (allParamsEmpty && !isInitializedRef.current && renderKey !== null) {
+      console.log("INITIAL SET TO DEFAULT!", defaultValue);
       setParams(defaultValue);
       isInitializedRef.current = true;
     }
-  }, [allParamsEmpty, urlParamsEnabled]);
+  }, [allParamsEmpty, renderKey]);
 
+  // If renderKey becomes null, we want to clear all params.
+  // If renderKey changes after first render and is non-null, we want to reset to default params.
   React.useEffect(() => {
-    if (!urlParamsEnabled) {
-      console.log(urlParamKeyPrefix, "SET TO EMPTY FROM DISABLED BOOL!");
-      setParams(
-        urlParamKeys.reduce((obj, key) => ({ ...obj, [key]: null }), {})
-      );
+    if (renderKey === null) {
+      console.log("SET TO EMPTY FROM NULL KEY!");
+      setParams({});
     } else if (isInitializedRef.current) {
-      console.log(
-        urlParamKeyPrefix,
-        "SET TO DEFAULT FROM DISABLED BECOMING FALSE!"
-      );
+      console.log("SET TO DEFAULT BECAUSE KEY CHANGED!");
       setParams(defaultValue);
     }
-  }, [urlParamsEnabled]);
+  }, [renderKey]);
 
   return [params, setParams];
 };
