@@ -1,3 +1,4 @@
+import { DisallowCharacters } from "@app/utils/type-utils";
 import { objectKeys } from "@app/utils/utils";
 import React from "react";
 import { useLocation, useHistory } from "react-router-dom";
@@ -5,7 +6,7 @@ import { useLocation, useHistory } from "react-router-dom";
 // useUrlParams is a generic hook similar to React.useState which stores its state in the URL search params string.
 // The state is retained on a page reload, when using the browser back/forward buttons, or when bookmarking the page.
 // It can be used to store a value of any type (`TDeserializedParams`) in one or more URL params by providing:
-// - A list of `keys` you want to use for the URL params
+// - A list of `keys` you want to use for the URL params (strings with any characters except colon ":")
 // - A `serialize` function to convert this type into an object with string values (`TSerializedParams`)
 // - A `deserialize` function to convert the serialized object back to your state's type
 // - An optional `keyPrefix` to allow for multiple instances using the same keys on the same page.
@@ -25,7 +26,7 @@ export interface IUseUrlParamsArgs<
   TDeserializedParams
 > {
   keyPrefix?: TKeyPrefix;
-  keys: TUrlParamKey[];
+  keys: DisallowCharacters<TUrlParamKey, ":">[];
   defaultValue: TDeserializedParams;
   serialize: (
     params: Partial<TDeserializedParams>
