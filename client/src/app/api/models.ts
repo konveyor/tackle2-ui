@@ -516,7 +516,6 @@ export interface MigrationWave {
   applications: Ref[];
   stakeholders: Stakeholder[];
   stakeholderGroups: StakeholderGroup[];
-  status?: string;
 }
 
 export interface Project {
@@ -609,12 +608,13 @@ export type AggregateTicketStatus =
 
 export interface Ticket {
   id: number;
-  application: Ref;
+  application: Ref | null;
   tracker: Ref;
   kind: string;
   parent: string;
-  fields?: Ref;
-  message?: string;
-  reference?: string;
-  status?: string;
+  fields: Ref | null;
+  message: string | null;
+  reference: string | null;
+  status: string | null;
+  error?: boolean;
 }
