@@ -244,7 +244,7 @@ export const MigrationWaves: React.FC = () => {
   } = tableControls;
 
   const getTicketByApplication = (tickets: Ticket[], id: number = 0) =>
-    tickets.find((ticket) => ticket.application.id === id);
+    tickets.find((ticket) => ticket.application?.id === id);
 
   const getTicketStatus = (wave: MigrationWave) => {
     let statuses: string[] = [];

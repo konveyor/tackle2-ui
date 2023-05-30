@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Application, Tracker, MigrationWave, Ticket } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import {
   Button,
+  CodeBlock,
+  CodeBlockCode,
+  Modal,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -45,6 +48,9 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   removeApplication,
 }) => {
   const { t } = useTranslation();
+  const [codeModalState, setCodeModalState] = useState<
+    string | null | undefined
+  >("");
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
@@ -140,7 +146,23 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                     {app.name}
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "status" })}>
-                    {getTicketStatus(app.id)}
+                    {getTicket(tickets, app.id)?.error ? (
+                      <Button
+                        type="button"
+                        variant="plain"
+                        onClick={() =>
+                          setCodeModalState(
+                            getTicket(tickets, app.id)
+                              ? getTicket(tickets, app.id)?.message
+                              : ""
+                          )
+                        }
+                      >
+                        Error
+                      </Button>
+                    ) : (
+                      getTicketStatus(app.id)
+                    )}
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "issue" })}>
                     {getTicketIssue(app.id)}
@@ -160,6 +182,18 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
           </Tbody>
         </ConditionalTableBody>
       </TableComposable>
+      <Modal
+        title={t("composed.error", {
+          what: t("terms.issue"),
+        })}
+        width="50%"
+        isOpen={!!codeModalState}
+        onClose={() => setCodeModalState(null)}
+      >
+        <CodeBlock>
+          <CodeBlockCode id="code-content">{codeModalState}</CodeBlockCode>
+        </CodeBlock>
+      </Modal>
     </>
   );
 };
