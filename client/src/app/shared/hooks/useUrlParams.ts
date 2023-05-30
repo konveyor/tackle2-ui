@@ -2,14 +2,16 @@ import { DisallowCharacters } from "@app/utils/type-utils";
 import { objectKeys } from "@app/utils/utils";
 import React from "react";
 import { useLocation, useHistory } from "react-router-dom";
+import { IExtraArgsForUrlParamHooks } from "./table-controls";
 
 // useUrlParams is a generic hook similar to React.useState which stores its state in the URL search params string.
 // The state is retained on a page reload, when using the browser back/forward buttons, or when bookmarking the page.
 // It can be used to store a value of any type (`TDeserializedParams`) in one or more URL params by providing:
-// - A list of `keys` you want to use for the URL params (strings with any characters except colon ":")
+// - A list of `urlParamKeys` you want to use for the URL params (strings with any characters except colon ":")
 // - A `serialize` function to convert this type into an object with string values (`TSerializedParams`)
 // - A `deserialize` function to convert the serialized object back to your state's type
-// - An optional `keyPrefix` to allow for multiple instances using the same keys on the same page.
+// - An optional `urlParamKeyPrefix` to allow for multiple instances using the same keys on the same page.
+// - An optional `renderKey`. When this changes, params will be reset to defaults. If null, all params will be removed.
 // The return value is the same [value, setValue] tuple returned by React.useState.
 
 // Note: You do not need to worry about the keyPrefix in your serialize and deserialize functions.
@@ -24,9 +26,8 @@ export interface IUseUrlParamsArgs<
   TUrlParamKey extends string,
   TKeyPrefix extends string,
   TDeserializedParams
-> {
-  keyPrefix?: DisallowCharacters<TKeyPrefix, ":">;
-  keys: DisallowCharacters<TUrlParamKey, ":">[];
+> extends IExtraArgsForUrlParamHooks<TKeyPrefix> {
+  urlParamKeys: DisallowCharacters<TUrlParamKey, ":">[];
   defaultValue: TDeserializedParams;
   serialize: (
     params: Partial<TDeserializedParams>
@@ -46,11 +47,12 @@ export const useUrlParams = <
   TKeyPrefix extends string,
   TDeserializedParams
 >({
-  keyPrefix,
-  keys,
+  urlParamKeyPrefix,
+  urlParamKeys,
   defaultValue,
   serialize,
   deserialize,
+  renderKey,
 }: IUseUrlParamsArgs<
   TUrlParamKey,
   TKeyPrefix,
@@ -61,12 +63,12 @@ export const useUrlParams = <
   const history = useHistory();
 
   const withPrefix = (key: TUrlParamKey): TPrefixedUrlParamKey =>
-    keyPrefix ? `${keyPrefix}:${key}` : key;
+    urlParamKeyPrefix ? `${urlParamKeyPrefix}:${key}` : key;
 
   const withPrefixes = (
     serializedParams: TSerializedParams<TUrlParamKey>
   ): TSerializedParams<TPrefixedUrlParamKey> =>
-    keyPrefix
+    urlParamKeyPrefix
       ? objectKeys(serializedParams).reduce(
           (obj, key) => ({
             ...obj,
@@ -96,19 +98,37 @@ export const useUrlParams = <
   // We use useLocation here so we are re-rendering when the params change.
   const urlParams = new URLSearchParams(useLocation().search);
   // We un-prefix the params object here so the deserialize function doesn't have to care about the keyPrefix.
-  const serializedParams = keys.reduce(
+  const serializedParams = urlParamKeys.reduce(
     (obj, key) => ({
       ...obj,
       [key]: urlParams.get(withPrefix(key)),
     }),
     {} as TSerializedParams<TUrlParamKey>
   );
-  const allParamsEmpty = keys.every((key) => !serializedParams[key]);
+  const allParamsEmpty = urlParamKeys.every((key) => !serializedParams[key]);
   const params = allParamsEmpty ? defaultValue : deserialize(serializedParams);
 
+  // On first render, all params will be empty and we want to reset to default params.
+  const isInitializedRef = React.useRef(false);
   React.useEffect(() => {
-    if (allParamsEmpty) setParams(defaultValue);
-  }, [allParamsEmpty]);
+    if (allParamsEmpty && !isInitializedRef.current && renderKey !== null) {
+      console.log("INITIAL SET TO DEFAULT!", defaultValue);
+      setParams(defaultValue);
+      isInitializedRef.current = true;
+    }
+  }, [allParamsEmpty, renderKey]);
+
+  // If renderKey becomes null, we want to clear all params.
+  // If renderKey changes after first render and is non-null, we want to reset to default params.
+  React.useEffect(() => {
+    if (renderKey === null) {
+      console.log("SET TO EMPTY FROM NULL KEY!");
+      setParams({});
+    } else if (isInitializedRef.current) {
+      console.log("SET TO DEFAULT BECAUSE KEY CHANGED!");
+      setParams(defaultValue);
+    }
+  }, [renderKey]);
 
   return [params, setParams];
 };

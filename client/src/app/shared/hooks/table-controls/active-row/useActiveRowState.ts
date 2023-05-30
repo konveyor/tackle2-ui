@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useUrlParams } from "../../useUrlParams";
-import { DisallowCharacters } from "@app/utils/type-utils";
+import { IExtraArgsForUrlParamHooks } from "../types";
 
 export interface IActiveRowState {
   activeRowId: string | null;
@@ -16,15 +16,15 @@ export const useActiveRowUrlParams = <
   TURLParamKeyPrefix extends string = string
 >({
   urlParamKeyPrefix,
-}: {
-  urlParamKeyPrefix?: DisallowCharacters<TURLParamKeyPrefix, ":">;
-} = {}): IActiveRowState => {
+  renderKey,
+}: IExtraArgsForUrlParamHooks<TURLParamKeyPrefix> = {}): IActiveRowState => {
   const [activeRowId, setActiveRowId] = useUrlParams({
-    keyPrefix: urlParamKeyPrefix,
-    keys: ["activeRow"],
+    urlParamKeyPrefix,
+    urlParamKeys: ["activeRow"],
     defaultValue: null as string | null,
     serialize: (activeRowId) => ({ activeRow: activeRowId || null }),
     deserialize: ({ activeRow }) => activeRow || null,
+    renderKey,
   });
   return { activeRowId, setActiveRowId };
 };

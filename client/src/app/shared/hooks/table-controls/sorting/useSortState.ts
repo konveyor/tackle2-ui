@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useUrlParams } from "../../useUrlParams";
-import { DisallowCharacters } from "@app/utils/type-utils";
+import { IExtraArgsForUrlParamHooks } from "../types";
 
 export interface IActiveSort<TSortableColumnKey extends string> {
   columnKey: TSortableColumnKey;
@@ -39,12 +39,12 @@ export const useSortUrlParams = <
   sortableColumns = [],
   initialSort = getDefaultSort(sortableColumns),
   urlParamKeyPrefix,
-}: ISortStateArgs<TSortableColumnKey> & {
-  urlParamKeyPrefix?: DisallowCharacters<TURLParamKeyPrefix, ":">;
-}): ISortState<TSortableColumnKey> => {
+  renderKey,
+}: ISortStateArgs<TSortableColumnKey> &
+  IExtraArgsForUrlParamHooks<TURLParamKeyPrefix>): ISortState<TSortableColumnKey> => {
   const [activeSort, setActiveSort] = useUrlParams({
-    keyPrefix: urlParamKeyPrefix,
-    keys: ["sortColumn", "sortDirection"],
+    urlParamKeyPrefix,
+    urlParamKeys: ["sortColumn", "sortDirection"],
     defaultValue: initialSort,
     serialize: (activeSort) => ({
       sortColumn: activeSort?.columnKey || null,
@@ -57,6 +57,7 @@ export const useSortUrlParams = <
             direction: urlParams.sortDirection as "asc" | "desc",
           }
         : null,
+    renderKey,
   });
   return { activeSort, setActiveSort };
 };
