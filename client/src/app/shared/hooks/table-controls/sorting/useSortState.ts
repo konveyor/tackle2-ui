@@ -31,11 +31,18 @@ export const useSortState = <TSortableColumnKey extends string>({
   return { activeSort, setActiveSort };
 };
 
-export const useSortUrlParams = <TSortableColumnKey extends string>({
+export const useSortUrlParams = <
+  TSortableColumnKey extends string,
+  TURLParamKeyPrefix extends string = string
+>({
   sortableColumns = [],
   initialSort = getDefaultSort(sortableColumns),
-}: ISortStateArgs<TSortableColumnKey>): ISortState<TSortableColumnKey> => {
+  urlParamKeyPrefix,
+}: ISortStateArgs<TSortableColumnKey> & {
+  urlParamKeyPrefix?: TURLParamKeyPrefix;
+}): ISortState<TSortableColumnKey> => {
   const [activeSort, setActiveSort] = useUrlParams({
+    keyPrefix: urlParamKeyPrefix,
     keys: ["sortColumn", "sortDirection"],
     defaultValue: initialSort,
     serialize: (activeSort) => ({

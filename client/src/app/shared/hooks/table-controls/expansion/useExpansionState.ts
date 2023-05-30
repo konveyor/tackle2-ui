@@ -27,9 +27,15 @@ export const useExpansionState = <
 };
 
 export const useExpansionUrlParams = <
-  TColumnKey extends string
->(): IExpansionState<TColumnKey> => {
+  TColumnKey extends string,
+  TURLParamKeyPrefix extends string = string
+>({
+  urlParamKeyPrefix,
+}: {
+  urlParamKeyPrefix?: TURLParamKeyPrefix;
+} = {}): IExpansionState<TColumnKey> => {
   const [expandedCells, setExpandedCells] = useUrlParams({
+    keyPrefix: urlParamKeyPrefix,
     keys: ["expandedCells"],
     defaultValue: {} as TExpandedCells<TColumnKey>,
     serialize: (expandedCellsObj) => {

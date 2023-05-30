@@ -11,8 +11,13 @@ export const useActiveRowState = (): IActiveRowState => {
   return { activeRowId, setActiveRowId };
 };
 
-export const useActiveRowUrlParams = (): IActiveRowState => {
+export const useActiveRowUrlParams = <
+  TURLParamKeyPrefix extends string = string
+>({
+  urlParamKeyPrefix,
+}: { urlParamKeyPrefix?: TURLParamKeyPrefix } = {}): IActiveRowState => {
   const [activeRowId, setActiveRowId] = useUrlParams({
+    keyPrefix: urlParamKeyPrefix,
     keys: ["activeRow"],
     defaultValue: null as string | null,
     serialize: (activeRowId) => ({ activeRow: activeRowId || null }),

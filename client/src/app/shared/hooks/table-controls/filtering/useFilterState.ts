@@ -68,12 +68,12 @@ export const deserializeFilterUrlParams = <
 
 export const useFilterUrlParams = <
   TFilterCategoryKey extends string,
-  TURLParamKeyPrefix extends string
+  TURLParamKeyPrefix extends string = string
 >({
   urlParamKeyPrefix,
 }: {
   urlParamKeyPrefix?: TURLParamKeyPrefix;
-}): IFilterState<TFilterCategoryKey> => {
+} = {}): IFilterState<TFilterCategoryKey> => {
   const [filterValues, setFilterValues] = useUrlParams({
     keyPrefix: urlParamKeyPrefix,
     keys: ["filters"],

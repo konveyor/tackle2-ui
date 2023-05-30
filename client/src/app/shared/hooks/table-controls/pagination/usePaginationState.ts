@@ -21,11 +21,17 @@ export const usePaginationState = ({
   return { pageNumber, setPageNumber, itemsPerPage, setItemsPerPage };
 };
 
-export const usePaginationUrlParams = ({
+export const usePaginationUrlParams = <
+  TURLParamKeyPrefix extends string = string
+>({
   initialItemsPerPage = 10,
-}: IPaginationStateArgs): IPaginationState => {
+  urlParamKeyPrefix,
+}: IPaginationStateArgs & {
+  urlParamKeyPrefix?: TURLParamKeyPrefix;
+}): IPaginationState => {
   const defaultValue = { pageNumber: 1, itemsPerPage: initialItemsPerPage };
   const [paginationState, setPaginationState] = useUrlParams({
+    keyPrefix: urlParamKeyPrefix,
     keys: ["pageNumber", "itemsPerPage"],
     defaultValue,
     serialize: ({ pageNumber, itemsPerPage }) => ({
