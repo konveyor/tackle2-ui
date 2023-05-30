@@ -25,7 +25,7 @@ export interface IUseUrlParamsArgs<
   TKeyPrefix extends string,
   TDeserializedParams
 > {
-  keyPrefix?: TKeyPrefix;
+  keyPrefix?: DisallowCharacters<TKeyPrefix, ":">;
   keys: DisallowCharacters<TUrlParamKey, ":">[];
   defaultValue: TDeserializedParams;
   serialize: (
