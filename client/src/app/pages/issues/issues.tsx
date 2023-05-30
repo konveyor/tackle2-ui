@@ -46,6 +46,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { Link, useLocation } from "react-router-dom";
 import { getAffectedAppsUrl } from "./helpers";
+import { TableURLParamKeyPrefix } from "@app/Constants";
 
 export enum IssueFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -55,6 +56,7 @@ export const Issues: React.FC = () => {
   const { t } = useTranslation();
 
   const tableControlState = useTableControlUrlParams({
+    urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
     columnNames: {
       name: "Name",
       ruleset: "Rule set",

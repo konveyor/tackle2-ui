@@ -42,6 +42,7 @@ import {
 import { useSelectionState } from "@migtools/lib-ui";
 import { getBackToIssuesUrl } from "../helpers";
 import { IssueDetailDrawer } from "./issue-detail-drawer";
+import { TableURLParamKeyPrefix } from "@app/Constants";
 
 interface IAffectedApplicationsRouteParams {
   ruleset: string;
@@ -57,6 +58,7 @@ export const AffectedApplications: React.FC = () => {
     "Active rule";
 
   const tableControlState = useTableControlUrlParams({
+    urlParamKeyPrefix: TableURLParamKeyPrefix.affectedApps,
     columnNames: {
       name: "Name",
       description: "Description",
