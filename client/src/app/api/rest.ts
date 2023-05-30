@@ -569,7 +569,7 @@ export const getFileReports = (
 ) =>
   issueId
     ? getHubPaginatedResult<AnalysisFileReport>(
-        ANALYSIS_REPORT_FILES.replace("/:id/", String(issueId)),
+        ANALYSIS_REPORT_FILES.replace("/:id/", `/${String(issueId)}/`),
         params
       )
     : Promise.reject();
