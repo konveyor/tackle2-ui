@@ -1,9 +1,10 @@
-import { IExtraArgsForUrlParamHooks, ITableControlCommonArgs } from "./types";
+import { ITableControlCommonArgs } from "./types";
 import { useFilterUrlParams } from "./filtering";
 import { useSortUrlParams } from "./sorting";
 import { usePaginationUrlParams } from "./pagination";
 import { useActiveRowUrlParams } from "./active-row";
 import { useExpansionUrlParams } from "./expansion";
+import { DisallowCharacters } from "@app/utils/type-utils";
 
 export const useTableControlUrlParams = <
   TItem,
@@ -17,8 +18,9 @@ export const useTableControlUrlParams = <
     TColumnKey,
     TSortableColumnKey,
     TFilterCategoryKey
-  > &
-    IExtraArgsForUrlParamHooks<TURLParamKeyPrefix>
+  > & {
+    urlParamKeyPrefix?: DisallowCharacters<TURLParamKeyPrefix, ":">;
+  }
 ) => {
   // Must pass type params because they can't all be inferred from the required args of useFilterUrlParams
   const filterState = useFilterUrlParams<

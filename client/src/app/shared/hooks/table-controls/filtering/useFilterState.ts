@@ -7,7 +7,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useUrlParams } from "../../useUrlParams";
 import { objectKeys } from "@app/utils/utils";
-import { IExtraArgsForUrlParamHooks } from "../types";
+import { DisallowCharacters } from "@app/utils/type-utils";
 
 export interface IFilterState<TFilterCategoryKey extends string> {
   filterValues: IFilterValues<TFilterCategoryKey>;
@@ -72,15 +72,15 @@ export const useFilterUrlParams = <
   TURLParamKeyPrefix extends string = string
 >({
   urlParamKeyPrefix,
-  renderKey,
-}: IExtraArgsForUrlParamHooks<TURLParamKeyPrefix> = {}): IFilterState<TFilterCategoryKey> => {
+}: {
+  urlParamKeyPrefix?: DisallowCharacters<TURLParamKeyPrefix, ":">;
+} = {}): IFilterState<TFilterCategoryKey> => {
   const [filterValues, setFilterValues] = useUrlParams({
-    urlParamKeyPrefix,
-    urlParamKeys: ["filters"],
+    keyPrefix: urlParamKeyPrefix,
+    keys: ["filters"],
     defaultValue: {} as IFilterValues<TFilterCategoryKey>,
     serialize: serializeFilterUrlParams,
     deserialize: deserializeFilterUrlParams,
-    renderKey,
   });
   return { filterValues, setFilterValues };
 };

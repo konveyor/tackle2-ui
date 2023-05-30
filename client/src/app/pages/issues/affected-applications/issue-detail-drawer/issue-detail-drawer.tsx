@@ -57,7 +57,9 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
           eventKey={TabKey.AffectedFiles}
           title={<TabTitleText>Affected files</TabTitleText>}
         >
-          <IssueAffectedFilesTable issueReport={issueReport} />
+          {issueReport ? (
+            <IssueAffectedFilesTable issueReport={issueReport} />
+          ) : null}
         </Tab>
       </Tabs>
     </PageDrawerContent>

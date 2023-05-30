@@ -1,7 +1,7 @@
 import React from "react";
 import { useUrlParams } from "../../useUrlParams";
 import { objectKeys } from "@app/utils/utils";
-import { IExtraArgsForUrlParamHooks } from "../types";
+import { DisallowCharacters } from "@app/utils/type-utils";
 
 // TExpandedCells maps item[idProperty] values to either:
 //  - The key of an expanded column in that row, if the table is compound-expandable
@@ -32,11 +32,12 @@ export const useExpansionUrlParams = <
   TURLParamKeyPrefix extends string = string
 >({
   urlParamKeyPrefix,
-  renderKey,
-}: IExtraArgsForUrlParamHooks<TURLParamKeyPrefix> = {}): IExpansionState<TColumnKey> => {
+}: {
+  urlParamKeyPrefix?: DisallowCharacters<TURLParamKeyPrefix, ":">;
+} = {}): IExpansionState<TColumnKey> => {
   const [expandedCells, setExpandedCells] = useUrlParams({
-    urlParamKeyPrefix,
-    urlParamKeys: ["expandedCells"],
+    keyPrefix: urlParamKeyPrefix,
+    keys: ["expandedCells"],
     defaultValue: {} as TExpandedCells<TColumnKey>,
     serialize: (expandedCellsObj) => {
       if (objectKeys(expandedCellsObj).length === 0)
@@ -50,7 +51,6 @@ export const useExpansionUrlParams = <
         return {};
       }
     },
-    renderKey,
   });
   return { expandedCells, setExpandedCells };
 };
