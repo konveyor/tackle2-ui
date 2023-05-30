@@ -112,8 +112,11 @@ export const IssueAffectedFilesTable: React.FC<
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
               <Th {...getThProps({ columnKey: "file" })} />
-              <Th {...getThProps({ columnKey: "incidents" })} />
-              <Th {...getThProps({ columnKey: "effort" })} />
+              <Th
+                {...getThProps({ columnKey: "incidents" })}
+                modifier="nowrap"
+              />
+              <Th {...getThProps({ columnKey: "effort" })} modifier="nowrap" />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
@@ -134,10 +137,18 @@ export const IssueAffectedFilesTable: React.FC<
                   <Td width={70} {...getTdProps({ columnKey: "file" })}>
                     TODO: link: {issueReport.file}
                   </Td>
-                  <Td width={10} {...getTdProps({ columnKey: "incidents" })}>
+                  <Td
+                    width={10}
+                    modifier="nowrap"
+                    {...getTdProps({ columnKey: "incidents" })}
+                  >
                     {issueReport.incidents}
                   </Td>
-                  <Td width={20} {...getTdProps({ columnKey: "effort" })}>
+                  <Td
+                    width={20}
+                    modifier="nowrap"
+                    {...getTdProps({ columnKey: "effort" })}
+                  >
                     TODO: effort
                   </Td>
                 </TableRowContentWithControls>
