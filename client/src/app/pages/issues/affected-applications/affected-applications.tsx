@@ -144,8 +144,6 @@ export const AffectedApplications: React.FC = () => {
     activeRowDerivedState: { activeRowItem, clearActiveRow },
   } = tableControls;
 
-  console.log({ currentPageIssueReports, totalItemCount });
-
   const { data: applications } = useFetchApplications();
 
   return (
