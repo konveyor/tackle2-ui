@@ -219,7 +219,6 @@ export const MigrationWaves: React.FC = () => {
     },
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -269,7 +268,7 @@ export const MigrationWaves: React.FC = () => {
                               isDisabled={
                                 selectedItems.filter(
                                   (migrationWave) =>
-                                    migrationWave.applications.length > 0
+                                    !!migrationWave.applications.length
                                 ).length < 1
                               }
                               key="bulk-export-to-issue-manager"
@@ -332,6 +331,18 @@ export const MigrationWaves: React.FC = () => {
                 numRenderedColumns={numRenderedColumns}
               >
                 {currentPageItems?.map((migrationWave, rowIndex) => {
+                  const matchingConfictingApplication = tickets.find(
+                    (ticket) => {
+                      const selectedItemsAppIds = migrationWaves
+                        .flatMap((item) => item.applications)
+                        .map((refs) => refs.id);
+                      return (
+                        ticket?.application?.id &&
+                        selectedItemsAppIds.includes(ticket.application.id)
+                      );
+                    }
+                  );
+
                   return (
                     <Tbody
                       key={migrationWave.id}
@@ -436,20 +447,29 @@ export const MigrationWaves: React.FC = () => {
                                           })}
                                         </DropdownItem>
                                       </ConditionalTooltip>,
-                                      <DropdownItem
-                                        key="export-to-issue-manager"
-                                        component="button"
-                                        isDisabled={
-                                          migrationWave.applications.length < 1
+                                      <ConditionalTooltip
+                                        isTooltipEnabled={
+                                          !!matchingConfictingApplication
                                         }
-                                        onClick={() =>
-                                          setApplicationsToExport(
-                                            migrationWave.fullApplications
-                                          )
-                                        }
+                                        content={`Application ${matchingConfictingApplication?.application?.id} has already been exported. Select a different application and try again. `}
                                       >
-                                        {t("terms.exportToIssue")}
-                                      </DropdownItem>,
+                                        <DropdownItem
+                                          key="export-to-issue-manager"
+                                          component="button"
+                                          isDisabled={
+                                            migrationWave.applications.length <
+                                              1 ||
+                                            !!matchingConfictingApplication
+                                          }
+                                          onClick={() =>
+                                            setApplicationsToExport(
+                                              migrationWave.fullApplications
+                                            )
+                                          }
+                                        >
+                                          {t("terms.exportToIssue")}
+                                        </DropdownItem>
+                                      </ConditionalTooltip>,
                                       <DropdownItem
                                         key="delete"
                                         onClick={() =>
@@ -491,8 +511,6 @@ export const MigrationWaves: React.FC = () => {
                                 />
                               ) : (
                                 isCellExpanded(migrationWave, "status") && (
-                                  // trackers.length > 0 &&
-                                  // migrationWave.applications.length > 0 ? (
                                   <WaveStatusTable
                                     migrationWave={migrationWave}
                                     removeApplication={removeApplication}
