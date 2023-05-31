@@ -104,7 +104,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
   const onTagError = (error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.create", {
-        type: t("terms.tag"),
+        type: t("terms.tag").toLowerCase(),
       }),
       variant: "danger",
     });
@@ -123,7 +123,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
   const onUpdateTagError = (error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.save", {
-        type: t("terms.tag"),
+        type: t("terms.tag").toLowerCase(),
       }),
       variant: "danger",
     });

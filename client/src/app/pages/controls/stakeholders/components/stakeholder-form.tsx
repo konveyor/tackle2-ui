@@ -125,7 +125,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
   const onCreateStakeholderError = (error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.create", {
-        type: t("terms.stakeholder"),
+        type: t("terms.stakeholder").toLowerCase(),
       }),
       variant: "danger",
     });
@@ -147,7 +147,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
   const onUpdateStakeholderError = (error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.save", {
-        type: t("terms.stakeholder"),
+        type: t("terms.stakeholder").toLowerCase(),
       }),
       variant: "danger",
     });
