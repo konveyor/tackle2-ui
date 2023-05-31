@@ -16,33 +16,33 @@ import { useLocation, useHistory } from "react-router-dom";
 //       The keys of TDeserializedParams and TSerializedParams have the prefixes omitted.
 //       Prefixes are only used at the very first/last step when reading/writing from/to the URLSearchParams object.
 
-type TSerializedParams<TUrlParamKey extends string> = Partial<
-  Record<TUrlParamKey, string | null>
+type TSerializedParams<TURLParamKey extends string> = Partial<
+  Record<TURLParamKey, string | null>
 >;
 
 export interface IUseUrlParamsArgs<
-  TUrlParamKey extends string,
+  TURLParamKey extends string,
   TKeyPrefix extends string,
   TDeserializedParams
 > {
   keyPrefix?: DisallowCharacters<TKeyPrefix, ":">;
-  keys: DisallowCharacters<TUrlParamKey, ":">[];
+  keys: DisallowCharacters<TURLParamKey, ":">[];
   defaultValue: TDeserializedParams;
   serialize: (
     params: Partial<TDeserializedParams>
-  ) => TSerializedParams<TUrlParamKey>;
+  ) => TSerializedParams<TURLParamKey>;
   deserialize: (
-    serializedParams: TSerializedParams<TUrlParamKey>
+    serializedParams: TSerializedParams<TURLParamKey>
   ) => TDeserializedParams;
 }
 
-export type TUrlParamStateTuple<TDeserializedParams> = readonly [
+export type TURLParamStateTuple<TDeserializedParams> = readonly [
   TDeserializedParams,
   (newParams: Partial<TDeserializedParams>) => void
 ];
 
 export const useUrlParams = <
-  TUrlParamKey extends string,
+  TURLParamKey extends string,
   TKeyPrefix extends string,
   TDeserializedParams
 >({
@@ -52,19 +52,19 @@ export const useUrlParams = <
   serialize,
   deserialize,
 }: IUseUrlParamsArgs<
-  TUrlParamKey,
+  TURLParamKey,
   TKeyPrefix,
   TDeserializedParams
->): TUrlParamStateTuple<TDeserializedParams> => {
-  type TPrefixedUrlParamKey = TUrlParamKey | `${TKeyPrefix}:${TUrlParamKey}`;
+>): TURLParamStateTuple<TDeserializedParams> => {
+  type TPrefixedUrlParamKey = TURLParamKey | `${TKeyPrefix}:${TURLParamKey}`;
 
   const history = useHistory();
 
-  const withPrefix = (key: TUrlParamKey): TPrefixedUrlParamKey =>
+  const withPrefix = (key: TURLParamKey): TPrefixedUrlParamKey =>
     keyPrefix ? `${keyPrefix}:${key}` : key;
 
   const withPrefixes = (
-    serializedParams: TSerializedParams<TUrlParamKey>
+    serializedParams: TSerializedParams<TURLParamKey>
   ): TSerializedParams<TPrefixedUrlParamKey> =>
     keyPrefix
       ? objectKeys(serializedParams).reduce(
@@ -101,7 +101,7 @@ export const useUrlParams = <
       ...obj,
       [key]: urlParams.get(withPrefix(key)),
     }),
-    {} as TSerializedParams<TUrlParamKey>
+    {} as TSerializedParams<TURLParamKey>
   );
   const allParamsEmpty = keys.every((key) => !serializedParams[key]);
   const params = allParamsEmpty ? defaultValue : deserialize(serializedParams);
