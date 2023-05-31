@@ -615,14 +615,14 @@ export type AggregateTicketStatus =
 
 export interface Ticket {
   id: number;
-  application: Ref | null;
+  application?: Ref | null;
   tracker: Ref;
   kind: string;
-  parent: string;
-  fields: Ref | null;
-  message: string | null;
-  reference: string | null;
-  status: TicketStatus | null;
+  parent?: string;
+  fields?: Ref | null;
+  message?: string | null;
+  reference?: string | null;
+  status?: TicketStatus | null;
   error?: boolean;
 }
 

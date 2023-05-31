@@ -28,16 +28,16 @@ export const useCreateMigrationWaveMutation = (
 };
 
 export const useFetchMigrationWaves = () => {
+  const queryClient = useQueryClient();
   const { isLoading, error, refetch, data } = useQuery({
     queryKey: [MigrationWavesQueryKey],
     queryFn: getMigrationWaves,
     refetchInterval: 5000,
     onError: (error) => console.log("error, ", error),
-    select: (waves) => getWavesWithStatus(waves),
+    select: (waves) => getWavesWithStatus(queryClient, waves),
   });
   return {
     migrationWaves: data || [],
-
     isFetching: isLoading,
     fetchError: error,
     refetch,

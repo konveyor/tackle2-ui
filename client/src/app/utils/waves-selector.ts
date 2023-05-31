@@ -11,12 +11,13 @@ import {
 import { ApplicationsQueryKey } from "@app/queries/applications";
 import { StakeholdersQueryKey } from "@app/queries/stakeholders";
 import { TicketsQueryKey } from "@app/queries/tickets";
-import { useQueryClient } from "@tanstack/react-query";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 
-export const getWavesWithStatus = (waves: MigrationWave[]) => {
-  const queryClient = useQueryClient();
-
+export const getWavesWithStatus = (
+  queryClient: QueryClient,
+  waves: MigrationWave[]
+) => {
   const tickets = queryClient.getQueryData<Ticket[]>([TicketsQueryKey]) || [];
 
   const stakeholders =
