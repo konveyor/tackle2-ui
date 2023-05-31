@@ -4,7 +4,6 @@ import { AxiosError, AxiosResponse } from "axios";
 import * as yup from "yup";
 import {
   ActionGroup,
-  Alert,
   Button,
   ButtonVariant,
   Form,
@@ -12,7 +11,7 @@ import {
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import { Tracker, IssueManagerKind, Ref } from "@app/api/models";
+import { Tracker, IssueManagerKind, Ref, Ticket, New } from "@app/api/models";
 import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
 import {
   getTrackersByKind,
@@ -95,7 +94,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
   const values = getValues();
 
   const onSubmit = (formValues: FormValues) => {
-    const matchingInstance = instances.find(
+    const matchingtracker = instances.find(
       (instance) => formValues?.instance === instance.name
     );
     const matchingProject = getTrackerProjectsByInstance(
@@ -108,12 +107,17 @@ export const ExportForm: React.FC<ExportFormProps> = ({
       formValues.project
     ).find((type) => formValues.kind === type.name);
 
-    if (matchingInstance) {
-      const payload = {
-        issueManager: formValues.issueManager?.trim(),
-        tracker: { id: matchingInstance.id, name: matchingInstance.name },
+    if (matchingtracker) {
+      const payload: New<Ticket> = {
+        tracker: { id: matchingtracker.id, name: matchingtracker.name },
         parent: matchingProject?.id || "",
         kind: matchingKind?.id || "",
+        // Hub managed fields
+        application: null,
+        reference: null,
+        message: null,
+        fields: null,
+        status: null,
       };
 
       applications?.forEach((application) =>
