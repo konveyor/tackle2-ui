@@ -1,5 +1,11 @@
 import * as React from "react";
-import { useSelectionState } from "@migtools/lib-ui";
+import { useTranslation } from "react-i18next";
+import {
+  Button,
+  Toolbar,
+  ToolbarContent,
+  ToolbarItem,
+} from "@patternfly/react-core";
 import {
   TableComposable,
   Tbody,
@@ -8,6 +14,8 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { useSelectionState } from "@migtools/lib-ui";
 import { AnalysisFileReport, AnalysisIssueReport } from "@app/api/models";
 import {
   getHubRequestParams,
@@ -22,13 +30,11 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
-import {
-  Button,
-  Toolbar,
-  ToolbarContent,
-  ToolbarItem,
-} from "@patternfly/react-core";
 import { IssueAffectedFileDetailModal } from "./issue-affected-file-detail-modal";
+import {
+  FilterToolbar,
+  FilterType,
+} from "@app/shared/components/FilterToolbar";
 
 export interface IIssueAffectedFilesTableProps {
   issueReport: AnalysisIssueReport;
@@ -37,6 +43,8 @@ export interface IIssueAffectedFilesTableProps {
 export const IssueAffectedFilesTable: React.FC<
   IIssueAffectedFilesTableProps
 > = ({ issueReport }) => {
+  const { t } = useTranslation();
+
   const tableControlState = useTableControlUrlParams({
     urlParamKeyPrefix: TableURLParamKeyPrefix.affectedFiles,
     columnNames: {
@@ -53,6 +61,17 @@ export const IssueAffectedFilesTable: React.FC<
       columnKey: "file",
       direction: "asc",
     },
+    filterCategories: [
+      {
+        key: "file",
+        title: "File",
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: "file", // TODO i18n
+          }) + "...",
+      },
+    ],
     initialItemsPerPage: 10,
     variant: "compact",
   });
@@ -90,6 +109,7 @@ export const IssueAffectedFilesTable: React.FC<
     numRenderedColumns,
     propHelpers: {
       toolbarProps,
+      filterToolbarProps,
       paginationToolbarItemProps,
       paginationProps,
       tableProps,
@@ -105,8 +125,9 @@ export const IssueAffectedFilesTable: React.FC<
 
   return (
     <>
-      <Toolbar {...toolbarProps}>
+      <Toolbar {...toolbarProps} className={spacing.mtSm}>
         <ToolbarContent>
+          <FilterToolbar {...filterToolbarProps} showFiltersSideBySide />
           <ToolbarItem {...paginationToolbarItemProps}>
             <SimplePagination
               idPrefix="affected-files-table"
