@@ -132,6 +132,7 @@ export const IssueAffectedFilesTable: React.FC<
             <SimplePagination
               idPrefix="affected-files-table"
               isTop
+              isCompact
               paginationProps={paginationProps}
             />
           </ToolbarItem>
@@ -196,6 +197,7 @@ export const IssueAffectedFilesTable: React.FC<
       <SimplePagination
         idPrefix="affected-files-table"
         isTop={false}
+        isCompact
         paginationProps={paginationProps}
       />
       {selectedFileForDetailModal ? (
