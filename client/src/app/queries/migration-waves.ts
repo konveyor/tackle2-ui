@@ -8,6 +8,7 @@ import {
   deleteAllMigrationWaves,
 } from "@app/api/rest";
 import { getWavesWithStatus } from "@app/utils/waves-selector";
+import { TicketsQueryKey } from "./tickets";
 
 export const MigrationWavesQueryKey = "migration-waves";
 
@@ -34,6 +35,7 @@ export const useFetchMigrationWaves = () => {
     queryFn: getMigrationWaves,
     refetchInterval: 5000,
     onError: (error) => console.log("error, ", error),
+    onSuccess: () => queryClient.invalidateQueries([TicketsQueryKey]),
     select: (waves) => getWavesWithStatus(queryClient, waves),
   });
   return {

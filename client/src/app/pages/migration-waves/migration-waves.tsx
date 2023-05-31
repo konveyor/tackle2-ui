@@ -66,6 +66,7 @@ import { WaveForm } from "./components/migration-wave-form";
 import { ManageApplicationsForm } from "./components/manage-applications-form";
 import { deleteMigrationWave } from "@app/api/rest";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
+import { useFetchTickets } from "@app/queries/tickets";
 
 dayjs.extend(utc);
 
@@ -77,6 +78,7 @@ export const MigrationWaves: React.FC = () => {
     useFetchMigrationWaves();
 
   const { trackers: trackers } = useFetchTrackers();
+  const { tickets: tickets } = useFetchTickets();
   const { data: applications } = useFetchApplications();
 
   const [migrationWaveModalState, setWaveModalState] = React.useState<

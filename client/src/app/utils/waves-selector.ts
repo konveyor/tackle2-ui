@@ -36,11 +36,8 @@ export const getWavesWithStatus = (
         ["Done", "Completed"],
         ["Error", "Error"],
       ]);
-    console.log("val", val);
 
     const status = ticketStatusToAggregate.get(val);
-
-    console.log("status", status);
 
     if (status === "Issues Created") {
       const now = dayjs.utc();

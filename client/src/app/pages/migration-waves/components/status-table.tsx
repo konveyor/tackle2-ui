@@ -95,7 +95,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
         const types = getTrackerTypesByProjectId(
           trackers,
           ticket.tracker.name,
-          ticket.parent
+          ticket?.parent
         );
         const type = types.find((kind) => kind.id === ticket.kind);
         if (type) return type.name;
