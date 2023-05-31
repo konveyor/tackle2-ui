@@ -27,39 +27,36 @@ export const getWavesWithStatus = (
   const applications =
     queryClient.getQueryData<Application[]>([ApplicationsQueryKey]) || [];
 
-  const aggregateTicketStatus = (val: TicketStatus, startDate: string) => {
-    const ticketStatusToAggregate: Map<TicketStatus, AggregateTicketStatus> =
-      new Map([
-        ["", "Not Started"],
-        ["New", "Issues Created"],
-        ["In Progress", "In Progress"],
-        ["Done", "Completed"],
-        ["Error", "Error"],
-      ]);
-
-    const status = ticketStatusToAggregate.get(val);
-
-    if (status === "Issues Created") {
-      const now = dayjs.utc();
-      const start = dayjs.utc(startDate);
-      var duration = now.diff(start);
-      if (duration > 0) return "In Progress";
-    }
-    return status ? status : "Error";
-  };
-
   const aggregatedTicketStatus = (
     wave: MigrationWave,
     tickets: Ticket[]
   ): AggregateTicketStatus => {
     const statuses = getTicketStatus(wave, tickets);
-    if (statuses.length === 0) return "No Issues";
+    // const ticketStatusToAggregate: Map<TicketStatus, AggregateTicketStatus> =
+    //   new Map([
+    //     ["", "Not Started"],
+    //     ["New", "Issues Created"],
+    //     ["In Progress", "In Progress"],
+    //     ["Done", "Completed"],
+    //     ["Error", "Error"],
+    //   ]);
 
-    const status = statuses.reduce(
-      (acc, val) => (acc === val ? acc : "Error"),
-      statuses[0]
-    );
-    return aggregateTicketStatus(status, wave.startDate);
+    if (statuses.includes("Error")) {
+      return "Error";
+    } else if (statuses.includes("")) {
+      const now = dayjs.utc();
+      const start = dayjs.utc(wave.startDate);
+      var duration = now.diff(start);
+      if (duration > 0) {
+        return "In Progress";
+      } else {
+        return "Not Started";
+      }
+    } else if (statuses.includes("New")) {
+      return "Issues Created";
+    } else {
+      return "Not Started";
+    }
   };
   const getTicketByApplication = (tickets: Ticket[], id: number = 0) =>
     tickets.find((ticket) => ticket.application?.id === id);
