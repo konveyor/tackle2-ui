@@ -2,6 +2,7 @@ import {
   AggregateTicketStatus,
   Application,
   MigrationWave,
+  Ref,
   StakeholderWithRole,
   Ticket,
   TicketStatus,
@@ -28,14 +29,18 @@ export const getWavesWithStatus = (waves: MigrationWave[]) => {
   const aggregateTicketStatus = (val: TicketStatus, startDate: string) => {
     const ticketStatusToAggregate: Map<TicketStatus, AggregateTicketStatus> =
       new Map([
-        ["", "Creating Issues"],
+        ["", "Not Started"],
         ["New", "Issues Created"],
         ["In Progress", "In Progress"],
         ["Done", "Completed"],
         ["Error", "Error"],
       ]);
+    console.log("val", val);
 
     const status = ticketStatusToAggregate.get(val);
+
+    console.log("status", status);
+
     if (status === "Issues Created") {
       const now = dayjs.utc();
       const start = dayjs.utc(startDate);
@@ -56,7 +61,6 @@ export const getWavesWithStatus = (waves: MigrationWave[]) => {
       (acc, val) => (acc === val ? acc : "Error"),
       statuses[0]
     );
-
     return aggregateTicketStatus(status, wave.startDate);
   };
   const getTicketByApplication = (tickets: Ticket[], id: number = 0) =>
@@ -66,10 +70,14 @@ export const getWavesWithStatus = (waves: MigrationWave[]) => {
     wave: MigrationWave,
     tickets: Ticket[]
   ): TicketStatus[] =>
-    wave.applications.map(
-      (application): TicketStatus =>
-        getTicketByApplication(tickets, application.id)?.status || ""
-    );
+    wave.applications.map((application): TicketStatus => {
+      const matchingTicket = getTicketByApplication(tickets, application.id);
+      if (matchingTicket?.error) {
+        return "Error";
+      } else if (matchingTicket?.status) {
+        return matchingTicket.status;
+      } else return "";
+    });
 
   const getApplicationsOwners = (id: number) => {
     const applicationOwnerIds = applications
@@ -141,14 +149,19 @@ export const getWavesWithStatus = (waves: MigrationWave[]) => {
 
     return allStakeholders;
   };
-
+  const getApplications = (refs: Ref[]) => {
+    const ids = refs.map((ref) => ref.id);
+    return applications.filter((application: any) =>
+      ids.includes(application.id)
+    );
+  };
   const wavesWithStatus: WaveWithStatus[] = waves.map(
     (wave): WaveWithStatus => {
       return {
         ...wave,
         ticketStatus: getTicketStatus(wave, tickets),
         status: aggregatedTicketStatus(wave, tickets),
-        fullApplications: applications,
+        fullApplications: getApplications(wave.applications),
         allStakeholders: getAllStakeholders(wave),
       };
     }

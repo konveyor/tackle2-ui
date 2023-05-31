@@ -31,7 +31,7 @@ import {
   KebabDropdown,
   ToolbarBulkSelector,
 } from "@app/shared/components";
-import { MigrationWave, Ref, Stakeholder, Ticket } from "@app/api/models";
+import { MigrationWave, Ref } from "@app/api/models";
 import {
   FilterToolbar,
   FilterType,
@@ -58,16 +58,15 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError, AxiosResponse } from "axios";
 import { useFetchTrackers } from "@app/queries/trackers";
-import { useFetchTickets } from "@app/queries/tickets";
 import { useFetchApplications } from "@app/queries/applications";
 import { WaveStakeholdersTable } from "./components/stakeholders-table";
 import { WaveApplicationsTable } from "./components/applications-table";
 import { WaveStatusTable } from "./components/status-table";
 import { WaveForm } from "./components/migration-wave-form";
 import { ManageApplicationsForm } from "./components/manage-applications-form";
-import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { deleteMigrationWave } from "@app/api/rest";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
+
 dayjs.extend(utc);
 
 export const MigrationWaves: React.FC = () => {

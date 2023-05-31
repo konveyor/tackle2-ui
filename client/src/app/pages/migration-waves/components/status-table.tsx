@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  Application,
-  Tracker,
-  MigrationWave,
-  Ticket,
-  WaveWithStatus,
-} from "@app/api/models";
+import { MigrationWave, Ticket, WaveWithStatus } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -40,6 +34,7 @@ import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
 import { useHistory } from "react-router-dom";
 import { useFetchTrackers } from "@app/queries/trackers";
 import { useFetchTickets } from "@app/queries/tickets";
+import { Paths } from "@app/Paths";
 
 export interface IWaveStatusTableProps {
   migrationWave: WaveWithStatus;
@@ -109,9 +104,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
     return "";
   };
 
-  return !!trackers.length ||
-    !!migrationWave.applications.length ||
-    migrationWave.status === "No Issues" ? (
+  return (
     <>
       <Toolbar {...toolbarProps}>
         <ToolbarContent>
@@ -140,6 +133,24 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
         <ConditionalTableBody
           isNoData={migrationWave.applications.length === 0}
           numRenderedColumns={numRenderedColumns}
+          noDataEmptyState={
+            <div>
+              <NoDataEmptyState title="Create a tracker and/or add applications to the migration wave." />
+              <div className="pf-u-text-align-center">
+                <Button
+                  type="button"
+                  id="create-tracker"
+                  aria-label="Create Tracker"
+                  variant={ButtonVariant.primary}
+                  onClick={() => {
+                    history.push(Paths.jira);
+                  }}
+                >
+                  Create Tracker
+                </Button>
+              </div>
+            </div>
+          }
         >
           <Tbody>
             {currentPageItems?.map((app, rowIndex) => (
@@ -201,28 +212,6 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
           <CodeBlockCode id="code-content">{codeModalState}</CodeBlockCode>
         </CodeBlock>
       </Modal>
-    </>
-  ) : (
-    <>
-      <NoDataEmptyState
-        title={t("composed.noDataStateTitle", {
-          what: "tags",
-        })}
-        description={t("message.toTagApplication")}
-      />
-      <div className="pf-u-text-align-center">
-        <Button
-          type="button"
-          id="create-tags"
-          aria-label="Create Tags"
-          variant={ButtonVariant.primary}
-          onClick={() => {
-            history.push("/controls/tags");
-          }}
-        >
-          {t("actions.createTag")}
-        </Button>
-      </div>
     </>
   );
 };
