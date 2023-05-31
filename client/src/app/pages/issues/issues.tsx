@@ -295,7 +295,19 @@ export const Issues: React.FC = () => {
                               columnKey: "applications",
                             })}
                           >
-                            {ruleReport.applications}
+                            <Tooltip content="View Report">
+                              <Button variant="link" isInline>
+                                <Link
+                                  to={getAffectedAppsUrl({
+                                    ruleReport,
+                                    fromFilterValues: filterValues,
+                                    fromLocation: location,
+                                  })}
+                                >
+                                  {ruleReport.applications}
+                                </Link>
+                              </Button>
+                            </Tooltip>
                           </Td>
                         </TableRowContentWithControls>
                       </Tr>
