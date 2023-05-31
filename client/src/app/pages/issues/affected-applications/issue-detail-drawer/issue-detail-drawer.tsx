@@ -39,6 +39,7 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
       onCloseClick={onCloseClick}
       focusKey={issueReport?.name}
       pageKey="affected-applications"
+      drawerPanelContentProps={{ defaultSize: "600px" }}
     >
       <TextContent>
         <Text component="small" className={spacing.mb_0}>
