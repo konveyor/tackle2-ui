@@ -41,7 +41,7 @@ export const IssueAffectedFilesTable: React.FC<
     sortableColumns: [
       "file",
       "incidents",
-      // "effort" // TODO this doesn't currently work in the hub
+      // "effort", // TODO this sort is not supported by the hub yet
     ],
     initialSort: {
       columnKey: "file",
@@ -62,7 +62,7 @@ export const IssueAffectedFilesTable: React.FC<
       hubSortFieldKeys: {
         file: "file",
         incidents: "incidents",
-        // effort: "effort", // TODO this doesn't currently work in the hub
+        // effort: "effort", // TODO this sort is not supported by the hub yet
       },
     })
   );
@@ -149,7 +149,7 @@ export const IssueAffectedFilesTable: React.FC<
                     modifier="nowrap"
                     {...getTdProps({ columnKey: "effort" })}
                   >
-                    TODO: effort
+                    {issueReport.effort}
                   </Td>
                 </TableRowContentWithControls>
               </Tr>
