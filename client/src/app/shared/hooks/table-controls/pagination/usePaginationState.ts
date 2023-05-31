@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useUrlParams } from "../../useUrlParams";
-import { DisallowCharacters } from "@app/utils/type-utils";
+import { IExtraArgsForURLParamHooks } from "../types";
 
 export interface IPaginationState {
   pageNumber: number;
@@ -27,9 +27,8 @@ export const usePaginationUrlParams = <
 >({
   initialItemsPerPage = 10,
   urlParamKeyPrefix,
-}: IPaginationStateArgs & {
-  urlParamKeyPrefix?: DisallowCharacters<TURLParamKeyPrefix, ":">;
-}): IPaginationState => {
+}: IPaginationStateArgs &
+  IExtraArgsForURLParamHooks<TURLParamKeyPrefix>): IPaginationState => {
   const defaultValue = { pageNumber: 1, itemsPerPage: initialItemsPerPage };
   const [paginationState, setPaginationState] = useUrlParams({
     keyPrefix: urlParamKeyPrefix,
