@@ -102,7 +102,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
   const onTagError = (error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.create", {
-        type: t("terms.tagCategory"),
+        type: t("terms.tagCategory").toLowerCase(),
       }),
       variant: "danger",
     });
@@ -124,7 +124,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
   const onUpdateTagCategoryError = (error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.save", {
-        type: t("terms.tagCategory"),
+        type: t("terms.tagCategory").toLowerCase(),
       }),
       variant: "danger",
     });
