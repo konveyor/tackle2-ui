@@ -93,7 +93,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
 
   const values = getValues();
 
-  const onSubmit = async (formValues: FormValues) => {
+  const onSubmit = (formValues: FormValues) => {
     const matchingtracker = trackers.find(
       (tracker) => formValues?.tracker === tracker.name
     );
