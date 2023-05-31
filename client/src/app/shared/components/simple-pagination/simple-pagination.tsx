@@ -23,7 +23,7 @@ export const SimplePagination: React.FC<SimplePaginationProps> = ({
         isTop ? "top" : "bottom"
       }`}
       variant={isTop ? PaginationVariant.top : PaginationVariant.bottom}
-      className={spacing.mtMd}
+      className={isTop ? "" : spacing.mtMd}
       isCompact={isCompact}
       {...paginationProps}
       widgetId="pagination-id"
