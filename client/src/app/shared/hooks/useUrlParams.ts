@@ -56,25 +56,25 @@ export const useUrlParams = <
   TKeyPrefix,
   TDeserializedParams
 >): TURLParamStateTuple<TDeserializedParams> => {
-  type TPrefixedUrlParamKey = TURLParamKey | `${TKeyPrefix}:${TURLParamKey}`;
+  type TPrefixedURLParamKey = TURLParamKey | `${TKeyPrefix}:${TURLParamKey}`;
 
   const history = useHistory();
 
-  const withPrefix = (key: TURLParamKey): TPrefixedUrlParamKey =>
+  const withPrefix = (key: TURLParamKey): TPrefixedURLParamKey =>
     keyPrefix ? `${keyPrefix}:${key}` : key;
 
   const withPrefixes = (
     serializedParams: TSerializedParams<TURLParamKey>
-  ): TSerializedParams<TPrefixedUrlParamKey> =>
+  ): TSerializedParams<TPrefixedURLParamKey> =>
     keyPrefix
       ? objectKeys(serializedParams).reduce(
           (obj, key) => ({
             ...obj,
             [withPrefix(key)]: serializedParams[key],
           }),
-          {} as TSerializedParams<TPrefixedUrlParamKey>
+          {} as TSerializedParams<TPrefixedURLParamKey>
         )
-      : (serializedParams as TSerializedParams<TPrefixedUrlParamKey>);
+      : (serializedParams as TSerializedParams<TPrefixedURLParamKey>);
 
   const setParams = (newParams: Partial<TDeserializedParams>) => {
     // In case setParams is called multiple times synchronously from the same rendered instance,
@@ -113,12 +113,12 @@ export const useUrlParams = <
   return [params, setParams];
 };
 
-export const trimAndStringifyUrlParams = <TPrefixedUrlParamKey extends string>({
+export const trimAndStringifyUrlParams = <TPrefixedURLParamKey extends string>({
   existingSearchParams = new URLSearchParams(),
   newPrefixedSerializedParams,
 }: {
   existingSearchParams?: URLSearchParams;
-  newPrefixedSerializedParams: TSerializedParams<TPrefixedUrlParamKey>;
+  newPrefixedSerializedParams: TSerializedParams<TPrefixedURLParamKey>;
 }) => {
   const existingPrefixedSerializedParams =
     Object.fromEntries(existingSearchParams);
