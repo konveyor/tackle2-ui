@@ -525,6 +525,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   const selectionValue = selection as OptionWithValue<string>;
                   onChange(selectionValue.value);
                 }}
+                onBlur={onChange}
               />
             )}
           />
