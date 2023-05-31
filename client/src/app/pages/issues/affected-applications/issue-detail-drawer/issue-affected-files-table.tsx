@@ -8,7 +8,7 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { AnalysisIssueReport } from "@app/api/models";
+import { AnalysisFileReport, AnalysisIssueReport } from "@app/api/models";
 import {
   getHubRequestParams,
   useTableControlProps,
@@ -22,7 +22,13 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
-import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
+import {
+  Button,
+  Toolbar,
+  ToolbarContent,
+  ToolbarItem,
+} from "@patternfly/react-core";
+import { IssueAffectedFileDetailModal } from "./issue-affected-file-detail-modal";
 
 export interface IIssueAffectedFilesTableProps {
   issueReport: AnalysisIssueReport;
@@ -92,6 +98,9 @@ export const IssueAffectedFilesTable: React.FC<
     },
   } = tableControls;
 
+  const [selectedFileForDetailModal, setSelectedFileForDetailModal] =
+    React.useState<AnalysisFileReport | null>(null);
+
   // TODO search toolbar at the top
 
   return (
@@ -127,29 +136,35 @@ export const IssueAffectedFilesTable: React.FC<
           numRenderedColumns={numRenderedColumns}
         >
           <Tbody>
-            {currentPageItems?.map((issueReport, rowIndex) => (
-              <Tr key={issueReport.file}>
+            {currentPageItems?.map((fileReport, rowIndex) => (
+              <Tr key={fileReport.file}>
                 <TableRowContentWithControls
                   {...tableControls}
-                  item={issueReport}
+                  item={fileReport}
                   rowIndex={rowIndex}
                 >
                   <Td width={70} {...getTdProps({ columnKey: "file" })}>
-                    TODO: link: {issueReport.file}
+                    <Button
+                      variant="link"
+                      isInline
+                      onClick={() => setSelectedFileForDetailModal(fileReport)}
+                    >
+                      {fileReport.file}
+                    </Button>
                   </Td>
                   <Td
                     width={10}
                     modifier="nowrap"
                     {...getTdProps({ columnKey: "incidents" })}
                   >
-                    {issueReport.incidents}
+                    {fileReport.incidents}
                   </Td>
                   <Td
                     width={20}
                     modifier="nowrap"
                     {...getTdProps({ columnKey: "effort" })}
                   >
-                    {issueReport.effort}
+                    {fileReport.effort}
                   </Td>
                 </TableRowContentWithControls>
               </Tr>
@@ -162,6 +177,12 @@ export const IssueAffectedFilesTable: React.FC<
         isTop={false}
         paginationProps={paginationProps}
       />
+      {selectedFileForDetailModal ? (
+        <IssueAffectedFileDetailModal
+          fileReport={selectedFileForDetailModal}
+          onClose={() => setSelectedFileForDetailModal(null)}
+        />
+      ) : null}
     </>
   );
 };
