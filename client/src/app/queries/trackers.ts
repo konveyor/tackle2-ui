@@ -19,13 +19,13 @@ export const useFetchTrackers = () => {
     queryFn: getTrackers,
     onError: (error: AxiosError) => console.log("error, ", error),
     onSuccess: () => queryClient.invalidateQueries([TicketsQueryKey]),
+    refetchInterval: 5000,
   });
   return {
     trackers: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,
-    refetchInterval: 5000,
   };
 };
 
