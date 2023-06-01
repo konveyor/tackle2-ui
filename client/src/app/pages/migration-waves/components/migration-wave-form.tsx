@@ -37,6 +37,7 @@ import {
 } from "@app/shared/components/hook-form-pf-fields";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 dayjs.extend(utc);
 
 const stakeholderGroupToOption = (
@@ -322,11 +323,15 @@ export const WaveForm: React.FC<WaveFormProps> = ({
             fieldId="stakeholders"
             renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
+                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
                 variant="typeaheadmulti"
                 id="stakeholders"
                 toggleId="stakeholders-toggle"
                 toggleAriaLabel="Stakeholders select dropdown toggle"
                 aria-label={name}
+                placeholderText={t("composed.selectMany", {
+                  what: t("terms.stakeholders").toLowerCase(),
+                })}
                 value={value.map(stakeholderToOption)}
                 options={stakeholders.map(stakeholderToOption)}
                 onChange={(selection) => {
@@ -355,15 +360,19 @@ export const WaveForm: React.FC<WaveFormProps> = ({
           <HookFormPFGroupController
             control={control}
             name="stakeholderGroups"
-            label={t("terms.stakeholderGroup")}
+            label={t("terms.stakeholderGroups")}
             fieldId="stakeholderGroups"
             renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
+                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
                 variant="typeaheadmulti"
                 id="stakeholder-groups"
                 toggleId="stakeholder-groups-toggle"
                 toggleAriaLabel="Stakeholder groups select dropdown toggle"
                 aria-label={name}
+                placeholderText={t("composed.selectMany", {
+                  what: t("terms.stakeholderGroups").toLowerCase(),
+                })}
                 value={value.map(stakeholderGroupToOption)}
                 options={stakeholderGroups.map(stakeholderGroupToOption)}
                 onChange={(selection) => {
