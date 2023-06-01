@@ -1,6 +1,6 @@
 import { TableComposableProps } from "@patternfly/react-table";
 import { ISelectionStateArgs, useSelectionState } from "@migtools/lib-ui";
-import { KeyWithValueType } from "@app/utils/type-utils";
+import { DisallowCharacters, KeyWithValueType } from "@app/utils/type-utils";
 import {
   IFilterStateArgs,
   ILocalFilterDerivedStateArgs,
@@ -49,6 +49,15 @@ export interface ITableControlCommonArgs<
   hasActionsColumn?: boolean;
   variant?: TableComposableProps["variant"];
   hasClickableRows?: boolean;
+}
+
+// URL-param-specific args
+// - Extra args needed for useTableControlUrlParams and each concern-specific use*UrlParams hook
+// - Does not require any state or query values in scope
+export interface IExtraArgsForURLParamHooks<
+  TURLParamKeyPrefix extends string = string
+> {
+  urlParamKeyPrefix?: DisallowCharacters<TURLParamKeyPrefix, ":">;
 }
 
 // Data-dependent args

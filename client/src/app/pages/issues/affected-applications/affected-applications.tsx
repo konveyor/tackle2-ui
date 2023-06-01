@@ -31,7 +31,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
-import { useFetchIssues } from "@app/queries/issues";
+import { useFetchIssueReports } from "@app/queries/issues";
 import { useFetchApplications } from "@app/queries/applications";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { IssueFilterGroups } from "../issues";
@@ -41,6 +41,8 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useSelectionState } from "@migtools/lib-ui";
 import { getBackToIssuesUrl } from "../helpers";
+import { IssueDetailDrawer } from "./issue-detail-drawer";
+import { TableURLParamKeyPrefix } from "@app/Constants";
 
 interface IAffectedApplicationsRouteParams {
   ruleset: string;
@@ -51,11 +53,12 @@ export const AffectedApplications: React.FC = () => {
   const { t } = useTranslation();
 
   const { ruleset, rule } = useParams<IAffectedApplicationsRouteParams>();
-  const compositeIssueName =
-    new URLSearchParams(useLocation().search).get("compositeIssueName") ||
+  const ruleReportName =
+    new URLSearchParams(useLocation().search).get("ruleReportName") ||
     "Active rule";
 
   const tableControlState = useTableControlUrlParams({
+    urlParamKeyPrefix: TableURLParamKeyPrefix.affectedApps,
     columnNames: {
       name: "Name",
       description: "Description",
@@ -82,13 +85,14 @@ export const AffectedApplications: React.FC = () => {
       },
     ],
     initialItemsPerPage: 10,
+    hasClickableRows: true,
   });
 
   const {
-    result: { data: currentPageIssues, total: totalItemCount },
+    result: { data: currentPageIssueReports, total: totalItemCount },
     isFetching,
     fetchError,
-  } = useFetchIssues(
+  } = useFetchIssueReports(
     getHubRequestParams({
       ...tableControlState,
       implicitFilters: [
@@ -114,12 +118,12 @@ export const AffectedApplications: React.FC = () => {
   const tableControls = useTableControlProps({
     ...tableControlState,
     idProperty: "id",
-    currentPageItems: currentPageIssues,
+    currentPageItems: currentPageIssueReports,
     totalItemCount,
     isLoading: isFetching,
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
-      items: currentPageIssues,
+      items: currentPageIssueReports,
       isEqual: (a, b) => a.id === b.id,
     }),
   });
@@ -135,10 +139,10 @@ export const AffectedApplications: React.FC = () => {
       tableProps,
       getThProps,
       getTdProps,
+      getClickableTrProps,
     },
+    activeRowDerivedState: { activeRowItem, clearActiveRow },
   } = tableControls;
-
-  console.log({ currentPageIssues, totalItemCount });
 
   const { data: applications } = useFetchApplications();
 
@@ -160,13 +164,13 @@ export const AffectedApplications: React.FC = () => {
             </Link>
           </BreadcrumbItem>
           <BreadcrumbItem to="#" isActive>
-            {compositeIssueName} ({ruleset}, {rule})
+            {ruleReportName} ({ruleset}, {rule})
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isFetching && !(currentPageIssues || fetchError)}
+          when={isFetching && !(currentPageIssueReports || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
@@ -204,16 +208,19 @@ export const AffectedApplications: React.FC = () => {
                 numRenderedColumns={numRenderedColumns}
               >
                 <Tbody>
-                  {currentPageIssues?.map((issue, rowIndex) => {
+                  {currentPageIssueReports?.map((issueReport, rowIndex) => {
                     const application = applications.find(
-                      (app) => app.id === issue.application
+                      (app) => app.id === issueReport.application.id
                     );
                     if (!application) return null;
                     return (
-                      <Tr key={application.name}>
+                      <Tr
+                        key={application.name}
+                        {...getClickableTrProps({ item: issueReport })}
+                      >
                         <TableRowContentWithControls
                           {...tableControls}
-                          item={issue}
+                          item={issueReport}
                           rowIndex={rowIndex}
                         >
                           <Td width={25} {...getTdProps({ columnKey: "name" })}>
@@ -254,6 +261,10 @@ export const AffectedApplications: React.FC = () => {
           </div>
         </ConditionalRender>
       </PageSection>
+      <IssueDetailDrawer
+        issueReport={activeRowItem}
+        onCloseClick={clearActiveRow}
+      />
     </>
   );
 };
