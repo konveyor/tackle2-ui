@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosResponse } from "axios";
 import * as yup from "yup";
@@ -8,6 +8,7 @@ import {
   Button,
   ButtonVariant,
   Form,
+  Spinner,
   Switch,
 } from "@patternfly/react-core";
 import { useForm } from "react-hook-form";
@@ -47,7 +48,6 @@ interface FormValues {
 export interface TrackerFormProps {
   tracker?: Tracker;
   modalState: {
-    //TODO: How would I extract the modal state type right here for usage when it is a generic type?
     setTrackerModalState: (value: any) => void;
     trackerModalState: any;
   };
@@ -61,13 +61,51 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
 
   const [axiosError, setAxiosError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
+  const [currentTracker, setCurrentTracker] = useState<Tracker | null>(
+    tracker || null
+  );
 
   const { trackers: trackers } = useFetchTrackers();
   const { identities } = useFetchIdentities();
-  const matchingTracker = trackers.find((updatedTracker) => {
-    return updatedTracker.name === tracker?.name;
-  });
-  console.log("matchingTracker", matchingTracker);
+  useEffect(() => {
+    reset({
+      name: tracker?.name || "",
+      url: tracker?.url || "",
+      id: tracker?.id || 0,
+      kind: tracker?.kind,
+      credentialName: tracker?.identity?.name || "",
+      insecure: tracker?.insecure || false,
+    });
+  }, []);
+  useEffect(() => {
+    if (currentTracker) {
+      const matchingTracker =
+        trackers.find((updatedTracker) => {
+          return updatedTracker.name === tracker?.name;
+        }) || currentTracker;
+      console.log("matchingTracker", matchingTracker?.lastUpdated);
+      console.log("tracker", tracker?.lastUpdated);
+      if (
+        matchingTracker &&
+        matchingTracker.lastUpdated !== "0001-01-01T00:00:00Z" &&
+        currentTracker.lastUpdated !== matchingTracker.lastUpdated
+      ) {
+        // update tracker
+        console.log("update tracker");
+        setCurrentTracker(matchingTracker);
+        reset({
+          name: matchingTracker?.name || "",
+          url: matchingTracker?.url || "",
+          id: matchingTracker?.id || 0,
+          kind: matchingTracker?.kind,
+          credentialName: matchingTracker?.identity?.name || "",
+          insecure: matchingTracker?.insecure || false,
+        });
+        setIsLoading(false);
+      }
+    }
+  }, [trackers]);
+
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const onCreateTrackerSuccess = (createdTracker: Tracker) => {
@@ -77,7 +115,9 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       }),
       variant: "success",
     });
+
     modalState.setTrackerModalState({ mode: "edit", resource: createdTracker });
+    setCurrentTracker(createdTracker);
   };
 
   const onCreateUpdatetrackerError = (error: AxiosError) => {
@@ -128,6 +168,8 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       createTracker({ tracker: payload });
     }
     // onClose();
+    setIsLoading(true);
+    reset();
   };
 
   const standardURL = new RegExp(standardURLRegex);
@@ -157,23 +199,30 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
+    formState,
     getValues,
     setValue,
     control,
     watch,
+    reset,
   } = useForm<FormValues>({
-    defaultValues: {
-      name: tracker?.name || "",
-      url: tracker?.url || "",
-      id: tracker?.id || 0,
-      kind: tracker?.kind,
-      credentialName: tracker?.identity?.name || "",
-      insecure: tracker?.insecure || false,
-    },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
   });
 
+  console.log(
+    "!isValid",
+    "isSubmitting",
+    "isValidating",
+    "isLoading",
+    "!isDirty",
+    !isValid,
+    isSubmitting,
+    isValidating,
+    isLoading,
+    !isDirty
+  );
+  console.log("dirtyFields", formState.dirtyFields);
   const values = getValues();
   const watchAllFields = watch();
 
@@ -201,7 +250,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
         label="Instance name"
         fieldId="name"
         isRequired
-        isDisabled={!!matchingTracker}
+        isDisabled={!!currentTracker}
       />
       <HookFormPFTextInput
         control={control}
@@ -209,6 +258,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
         label="URL"
         fieldId="url"
         isRequired
+        isDisabled={isLoading}
       />
       <HookFormPFGroupController
         control={control}
@@ -226,6 +276,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
             })}
             toggleAriaLabel="Type select dropdown toggle"
             aria-label={name}
+            isDisabled={isLoading}
             value={value ? toOptionLike(value, IssueManagerOptions) : undefined}
             options={IssueManagerOptions}
             onChange={(selection) => {
@@ -253,6 +304,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
             })}
             toggleAriaLabel="Credentials select dropdown toggle"
             aria-label={name}
+            isDisabled={isLoading}
             value={value ? toOptionLike(value, identityOptions) : undefined}
             options={identityOptions}
             onChange={(selection) => {
@@ -272,14 +324,15 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
             id="insecure-switch"
             label="Enable insecure communication"
             aria-label="Insecure Communication"
+            isDisabled={isLoading}
             isChecked={value}
             onChange={onChange}
           />
         )}
       />
       <div>
-        {matchingTracker ? (
-          matchingTracker.connected ? (
+        {currentTracker ? (
+          currentTracker.connected ? (
             <TrackerStatus connected={true} />
           ) : (
             <TrackerStatus connected={false} />
@@ -289,6 +342,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
         )}
       </div>
       <ActionGroup>
+        {isLoading && <Spinner />}
         <Button
           type="submit"
           aria-label="submit"
@@ -299,6 +353,16 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
           }
         >
           {!tracker ? "Create" : "Save"}
+        </Button>
+        <Button
+          type="button"
+          id="close"
+          aria-label="close"
+          variant={ButtonVariant.secondary}
+          isDisabled={isSubmitting || isValidating}
+          onClick={() => modalState.setTrackerModalState(null)}
+        >
+          Close
         </Button>
         <Button
           type="button"

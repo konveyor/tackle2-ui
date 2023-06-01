@@ -58,13 +58,16 @@ export const JiraTrackers: React.FC = () => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const {
-    isModalOpen: isTrackerModalOpen,
     modalState: trackerModalState,
     setModalState: setTrackerModalState,
-    resourceToDelete: trackerToDeleteState,
-    setResourceToDelete: setTrackerToDeleteState,
-    resourceToUpdate: trackerToUpdate,
+    isModalOpen: isTrackerModalOpen,
   } = useCreateEditModalState<Tracker>();
+
+  const trackerToUpdate =
+    trackerModalState?.mode !== "create" ? trackerModalState : null;
+
+  const [trackerToDeleteState, setTrackerToDeleteState] =
+    React.useState<Tracker | null>(null);
 
   const isConfirmDialogOpen = trackerToDeleteState !== null;
 

@@ -545,6 +545,7 @@ export interface Tracker {
   name: string;
   url: string;
   insecure: boolean;
+  lastUpdated?: any;
 }
 
 export interface AnalysisDependency {
