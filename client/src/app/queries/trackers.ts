@@ -16,13 +16,13 @@ export const useFetchTrackers = () => {
     queryKey: [TrackersQueryKey],
     queryFn: getTrackers,
     onError: (error: AxiosError) => console.log("error, ", error),
+    refetchInterval: 5000,
   });
   return {
     trackers: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,
-    refetchInterval: 5000,
   };
 };
 
