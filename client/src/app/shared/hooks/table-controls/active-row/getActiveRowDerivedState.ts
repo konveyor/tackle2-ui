@@ -15,8 +15,9 @@ export const getActiveRowDerivedState = <TItem>({
   activeRowState: { activeRowId, setActiveRowId },
 }: IActiveRowDerivedStateArgs<TItem>) => ({
   activeRowItem:
-    currentPageItems.find((item) => item[idProperty] === activeRowId) || null,
+    currentPageItems.find((item) => String(item[idProperty]) === activeRowId) ||
+    null,
   setActiveRowItem: (item: TItem | null) =>
-    setActiveRowId((item?.[idProperty] as string) || null),
+    setActiveRowId(item ? String(item[idProperty]) : null),
   clearActiveRow: () => setActiveRowId(null),
 });
