@@ -1,11 +1,13 @@
 import { Location } from "history";
-import { AnalysisCompositeIssue } from "@app/api/models";
+import { AnalysisRuleReport } from "@app/api/models";
 import { FilterValue } from "@app/shared/components/FilterToolbar";
 import {
   deserializeFilterUrlParams,
   serializeFilterUrlParams,
 } from "@app/shared/hooks/table-controls";
 import { trimAndStringifyUrlParams } from "@app/shared/hooks/useUrlParams";
+import { Paths } from "@app/Paths";
+import { TableURLParamKeyPrefix } from "@app/Constants";
 
 // Certain filters are shared between the Issues page and the Affected Applications Page.
 // We carry these filter values between the two pages when determining the URLs to navigate between them.
@@ -16,13 +18,15 @@ type FilterValuesToCarry = Partial<
   Record<(typeof filterKeysToCarry)[number], FilterValue>
 >;
 
+const FROM_ISSUES_PARAMS_KEY = "~fromIssuesParams"; // ~ prefix sorts it at the end of the URL for readability
+
 // URL for Affected Apps page that includes carried filters and a snapshot of original URL params from the Issues page
 export const getAffectedAppsUrl = ({
-  compositeIssue,
+  ruleReport,
   fromFilterValues,
   fromLocation,
 }: {
-  compositeIssue: AnalysisCompositeIssue;
+  ruleReport: AnalysisRuleReport;
   fromFilterValues: FilterValuesToCarry;
   fromLocation: Location;
 }) => {
@@ -32,13 +36,16 @@ export const getAffectedAppsUrl = ({
   filterKeysToCarry.forEach((key) => {
     if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
   });
-  return `/issues/${compositeIssue.ruleSet}/${
-    compositeIssue.rule
-  }?${trimAndStringifyUrlParams({
-    params: {
-      ...serializeFilterUrlParams(toFilterValues),
-      fromIssuesParams,
-      compositeIssueName: compositeIssue.name,
+  const baseUrl = Paths.issuesRuleAffectedApplications
+    .replace("/:ruleset/", `/${ruleReport.ruleset}/`)
+    .replace("/:rule/", `/${ruleReport.rule}/`);
+  const prefix = (key: string) =>
+    `${TableURLParamKeyPrefix.affectedApps}:${key}`;
+  return `${baseUrl}?${trimAndStringifyUrlParams({
+    newPrefixedSerializedParams: {
+      [prefix("filters")]: serializeFilterUrlParams(toFilterValues).filters,
+      [FROM_ISSUES_PARAMS_KEY]: fromIssuesParams,
+      ruleReportName: ruleReport.name,
     },
   })}`;
 };
@@ -53,25 +60,27 @@ export const getBackToIssuesUrl = ({
 }) => {
   // Pull the fromIssuesParams param out of the current location's URLSearchParams
   const fromIssuesParams =
-    new URLSearchParams(fromLocation.search).get("fromIssuesParams") || "";
+    new URLSearchParams(fromLocation.search).get(FROM_ISSUES_PARAMS_KEY) || "";
   // Pull the params themselves out of fromIssuesParams
-  const paramsToRestore = Object.fromEntries(
+  const prefixedParamsToRestore = Object.fromEntries(
     new URLSearchParams(fromIssuesParams)
   );
   // Pull the filters param out of that
-  const filterValuesToRestore = deserializeFilterUrlParams(
-    paramsToRestore || {}
-  );
+  const filterValuesToRestore = deserializeFilterUrlParams({
+    filters: prefixedParamsToRestore["issues:filters"],
+  });
   // For each of the filters we care about, override the original value with the one from the affected apps page.
   // This will carry over changes including the filter having been cleared.
   filterKeysToCarry.forEach((key) => {
     filterValuesToRestore[key] = fromFilterValues[key] || null;
   });
   // Put it all back together
-  return `/composite/issues?${trimAndStringifyUrlParams({
-    params: {
-      ...paramsToRestore,
-      ...serializeFilterUrlParams(filterValuesToRestore),
+  const prefix = (key: string) => `${TableURLParamKeyPrefix.issues}:${key}`;
+  return `${Paths.issues}?${trimAndStringifyUrlParams({
+    newPrefixedSerializedParams: {
+      ...prefixedParamsToRestore,
+      [prefix("filters")]: serializeFilterUrlParams(filterValuesToRestore)
+        .filters,
     },
   })}`;
 };

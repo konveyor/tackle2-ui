@@ -7,6 +7,7 @@ import {
   DrawerContentBody,
   DrawerHead,
   DrawerPanelContent,
+  DrawerPanelContentProps,
 } from "@patternfly/react-core";
 import pageStyles from "@patternfly/react-styles/css/components/Page/page";
 
@@ -14,6 +15,9 @@ const usePageDrawerState = () => {
   const [isDrawerExpanded, setIsDrawerExpanded] = React.useState(false);
   const [drawerChildren, setDrawerChildren] =
     React.useState<React.ReactNode>(null);
+  const [drawerPanelContentProps, setDrawerPanelContentProps] = React.useState<
+    Partial<DrawerPanelContentProps>
+  >({});
   const [drawerPageKey, setDrawerPageKey] = React.useState<string>("");
   const drawerFocusRef = React.useRef(document.createElement("span"));
   return {
@@ -21,6 +25,8 @@ const usePageDrawerState = () => {
     setIsDrawerExpanded,
     drawerChildren,
     setDrawerChildren,
+    drawerPanelContentProps,
+    setDrawerPanelContentProps,
     drawerPageKey,
     setDrawerPageKey,
     drawerFocusRef: drawerFocusRef as typeof drawerFocusRef | null,
@@ -34,6 +40,8 @@ const PageDrawerContext = React.createContext<PageDrawerState>({
   setIsDrawerExpanded: () => {},
   drawerChildren: null,
   setDrawerChildren: () => {},
+  drawerPanelContentProps: {},
+  setDrawerPanelContentProps: () => {},
   drawerPageKey: "",
   setDrawerPageKey: () => {},
   drawerFocusRef: null,
@@ -47,8 +55,13 @@ export const PageContentWithDrawerProvider: React.FC<
   IPageContentWithDrawerProviderProps
 > = ({ children }) => {
   const pageDrawerState = usePageDrawerState();
-  const { isDrawerExpanded, drawerFocusRef, drawerChildren, drawerPageKey } =
-    pageDrawerState;
+  const {
+    isDrawerExpanded,
+    drawerFocusRef,
+    drawerChildren,
+    drawerPanelContentProps,
+    drawerPageKey,
+  } = pageDrawerState;
   return (
     <PageDrawerContext.Provider value={pageDrawerState}>
       <div className={pageStyles.pageDrawer}>
@@ -65,6 +78,7 @@ export const PageContentWithDrawerProvider: React.FC<
                 defaultSize="500px"
                 minSize="150px"
                 key={drawerPageKey}
+                {...drawerPanelContentProps}
               >
                 {drawerChildren}
               </DrawerPanelContent>
@@ -85,6 +99,7 @@ export interface IPageDrawerContentProps {
   isExpanded: boolean;
   onCloseClick: () => void; // Should be used to update local state such that `isExpanded` becomes false.
   children: React.ReactNode; // The content to show in the drawer when `isExpanded` is true.
+  drawerPanelContentProps?: Partial<DrawerPanelContentProps>; // Additional props for the DrawerPanelContent component.
   focusKey?: string | number; // A unique key representing the object being described in the drawer. When this changes, the drawer will regain focus.
   pageKey: string; // A unique key representing the page where the drawer is used. Causes the drawer to remount when changing pages.
 }
@@ -93,6 +108,7 @@ export const PageDrawerContent: React.FC<IPageDrawerContentProps> = ({
   isExpanded: localIsExpandedProp,
   onCloseClick,
   children,
+  drawerPanelContentProps = {},
   focusKey,
   pageKey: localPageKeyProp,
 }) => {
@@ -100,6 +116,7 @@ export const PageDrawerContent: React.FC<IPageDrawerContentProps> = ({
     setIsDrawerExpanded,
     drawerFocusRef,
     setDrawerChildren,
+    setDrawerPanelContentProps,
     setDrawerPageKey,
   } = React.useContext(PageDrawerContext);
 
@@ -156,5 +173,10 @@ export const PageDrawerContent: React.FC<IPageDrawerContentProps> = ({
       </DrawerHead>
     );
   }, [children]);
+
+  React.useEffect(() => {
+    setDrawerPanelContentProps(drawerPanelContentProps);
+  }, [drawerPanelContentProps]);
+
   return null;
 };

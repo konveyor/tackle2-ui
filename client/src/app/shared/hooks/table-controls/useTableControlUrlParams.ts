@@ -1,4 +1,4 @@
-import { ITableControlCommonArgs } from "./types";
+import { IExtraArgsForURLParamHooks, ITableControlCommonArgs } from "./types";
 import { useFilterUrlParams } from "./filtering";
 import { useSortUrlParams } from "./sorting";
 import { usePaginationUrlParams } from "./pagination";
@@ -9,20 +9,29 @@ export const useTableControlUrlParams = <
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
-  TFilterCategoryKey extends string = string
+  TFilterCategoryKey extends string = string,
+  TURLParamKeyPrefix extends string = string
 >(
   args: ITableControlCommonArgs<
     TItem,
     TColumnKey,
     TSortableColumnKey,
     TFilterCategoryKey
-  >
+  > &
+    IExtraArgsForURLParamHooks<TURLParamKeyPrefix>
 ) => {
-  const filterState = useFilterUrlParams<TFilterCategoryKey>(); // Must pass type param because no args to infer from
+  // Must pass type params because they can't all be inferred from the required args of useFilterUrlParams
+  const filterState = useFilterUrlParams<
+    TFilterCategoryKey, // Must pass this because no required args here have categories to infer from
+    TURLParamKeyPrefix
+  >(args);
   const sortState = useSortUrlParams(args); // Type params inferred from args
   const paginationState = usePaginationUrlParams(args); // Type params inferred from args
-  const expansionState = useExpansionUrlParams<TColumnKey>(); // Must pass type param because no args to infer from
-  const activeRowState = useActiveRowUrlParams(); // No type params or args needed
+  // Must pass type params because they can't all be inferred from the required args of useExpansionUrlParams
+  const expansionState = useExpansionUrlParams<TColumnKey, TURLParamKeyPrefix>(
+    args
+  );
+  const activeRowState = useActiveRowUrlParams(args); // Type params inferred from args
   return {
     ...args,
     filterState,

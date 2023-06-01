@@ -7,12 +7,14 @@ import { PaginationStateProps } from "@app/shared/hooks/useLegacyPaginationState
 export interface SimplePaginationProps {
   paginationProps: PaginationStateProps;
   isTop: boolean;
+  isCompact?: boolean;
   idPrefix?: string;
 }
 
 export const SimplePagination: React.FC<SimplePaginationProps> = ({
   paginationProps,
   isTop,
+  isCompact = false,
   idPrefix = "",
 }) => {
   return (
@@ -21,7 +23,8 @@ export const SimplePagination: React.FC<SimplePaginationProps> = ({
         isTop ? "top" : "bottom"
       }`}
       variant={isTop ? PaginationVariant.top : PaginationVariant.bottom}
-      className={spacing.mtMd}
+      className={isTop ? "" : spacing.mtMd}
+      isCompact={isCompact}
       {...paginationProps}
       widgetId="pagination-id"
     />

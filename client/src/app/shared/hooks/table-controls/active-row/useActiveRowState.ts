@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useUrlParams } from "../../useUrlParams";
+import { IExtraArgsForURLParamHooks } from "../types";
 
 export interface IActiveRowState {
   activeRowId: string | null;
@@ -11,8 +12,13 @@ export const useActiveRowState = (): IActiveRowState => {
   return { activeRowId, setActiveRowId };
 };
 
-export const useActiveRowUrlParams = (): IActiveRowState => {
+export const useActiveRowUrlParams = <
+  TURLParamKeyPrefix extends string = string
+>({
+  urlParamKeyPrefix,
+}: IExtraArgsForURLParamHooks<TURLParamKeyPrefix> = {}): IActiveRowState => {
   const [activeRowId, setActiveRowId] = useUrlParams({
+    keyPrefix: urlParamKeyPrefix,
     keys: ["activeRow"],
     defaultValue: null as string | null,
     serialize: (activeRowId) => ({ activeRow: activeRowId || null }),

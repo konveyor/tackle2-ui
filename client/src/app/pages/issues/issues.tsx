@@ -41,11 +41,12 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { useSelectionState } from "@migtools/lib-ui";
-import { useFetchCompositeIssues } from "@app/queries/issues";
+import { useFetchRuleReports } from "@app/queries/issues";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { Link, useLocation } from "react-router-dom";
 import { getAffectedAppsUrl } from "./helpers";
+import { TableURLParamKeyPrefix } from "@app/Constants";
 
 export enum IssueFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -55,13 +56,14 @@ export const Issues: React.FC = () => {
   const { t } = useTranslation();
 
   const tableControlState = useTableControlUrlParams({
+    urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
     columnNames: {
       name: "Name",
       ruleset: "Rule set",
       rule: "Rule",
       category: "Category",
       effort: "Effort",
-      affected: "Affected applications",
+      applications: "Affected applications",
     },
     sortableColumns: [
       "name",
@@ -69,7 +71,7 @@ export const Issues: React.FC = () => {
       "rule",
       "category",
       "effort",
-      "affected",
+      "applications",
     ],
     initialSort: {
       columnKey: "name",
@@ -121,7 +123,7 @@ export const Issues: React.FC = () => {
       //     }) + "...",
       // },
 
-      // TODO: Determine how to parse source and target from composite issue label field.
+      // TODO: Determine how to parse source and target from ruleReport issue label field.
       // {
       //   key: "tech.source",
       //   title: t("terms.source"),
@@ -132,7 +134,7 @@ export const Issues: React.FC = () => {
       //       what: t("terms.source").toLowerCase(),
       //     }) + "...",
       // },
-      // TODO: Determine how to parse source and target from composite issue label field.
+      // TODO: Determine how to parse source and target from ruleReport issue label field.
       // {
       //   key: "tech.target",
       //   title: t("terms.target"),
@@ -151,7 +153,7 @@ export const Issues: React.FC = () => {
     result: { data: currentPageItems, total: totalItemCount },
     isFetching,
     fetchError,
-  } = useFetchCompositeIssues(
+  } = useFetchRuleReports(
     getHubRequestParams({
       ...tableControlState, // Includes filterState, sortState and paginationState
       hubSortFieldKeys: {
@@ -160,7 +162,7 @@ export const Issues: React.FC = () => {
         rule: "rule",
         category: "category",
         effort: "effort",
-        affected: "affected",
+        applications: "applications",
       },
     })
   );
@@ -172,9 +174,10 @@ export const Issues: React.FC = () => {
     totalItemCount,
     isLoading: isFetching,
     expandableVariant: "single",
+    // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
       items: currentPageItems,
-      isEqual: (a, b) => a.name === b.name,
+      isEqual: (a, b) => a._ui_unique_id === b._ui_unique_id,
     }),
   });
 
@@ -240,7 +243,7 @@ export const Issues: React.FC = () => {
                     <Th {...getThProps({ columnKey: "rule" })} />
                     <Th {...getThProps({ columnKey: "category" })} />
                     <Th {...getThProps({ columnKey: "effort" })} />
-                    <Th {...getThProps({ columnKey: "affected" })} />
+                    <Th {...getThProps({ columnKey: "applications" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -250,58 +253,70 @@ export const Issues: React.FC = () => {
                 isNoData={totalItemCount === 0}
                 numRenderedColumns={numRenderedColumns}
               >
-                {currentPageItems?.map((compositeIssue, rowIndex) => {
+                {currentPageItems?.map((ruleReport, rowIndex) => {
                   return (
                     <Tbody
-                      key={compositeIssue._ui_unique_id}
-                      isExpanded={isCellExpanded(compositeIssue)}
+                      key={ruleReport._ui_unique_id}
+                      isExpanded={isCellExpanded(ruleReport)}
                     >
                       <Tr>
                         <TableRowContentWithControls
                           {...tableControls}
-                          item={compositeIssue}
+                          item={ruleReport}
                           rowIndex={rowIndex}
                         >
                           <Td width={15} {...getTdProps({ columnKey: "name" })}>
-                            {compositeIssue.name}
+                            {ruleReport.name}
                           </Td>
                           <Td
                             width={15}
                             {...getTdProps({ columnKey: "ruleset" })}
                           >
-                            {compositeIssue.ruleSet}
+                            {ruleReport.ruleset}
                           </Td>
                           <Td width={15} {...getTdProps({ columnKey: "rule" })}>
-                            {compositeIssue.rule}
+                            {ruleReport.rule}
                           </Td>
                           <Td
                             width={10}
                             {...getTdProps({ columnKey: "category" })}
                           >
-                            {compositeIssue.category}
+                            {ruleReport.category}
                           </Td>
                           <Td
                             width={10}
                             {...getTdProps({ columnKey: "effort" })}
                           >
-                            {compositeIssue.effort}
+                            {ruleReport.effort}
                           </Td>
                           <Td
                             width={15}
                             {...getTdProps({
-                              columnKey: "affected",
+                              columnKey: "applications",
                             })}
                           >
-                            {compositeIssue.affected}
+                            <Tooltip content="View Report">
+                              <Button variant="link" isInline>
+                                <Link
+                                  to={getAffectedAppsUrl({
+                                    ruleReport,
+                                    fromFilterValues: filterValues,
+                                    fromLocation: location,
+                                  })}
+                                >
+                                  {ruleReport.applications}
+                                </Link>
+                              </Button>
+                            </Tooltip>
                           </Td>
                         </TableRowContentWithControls>
                       </Tr>
-                      {isCellExpanded(compositeIssue) ? (
+                      {isCellExpanded(ruleReport) ? (
                         <Tr isExpanded>
                           <Td />
                           <Td
                             {...getExpandedContentTdProps({
-                              item: compositeIssue,
+                              item: ruleReport,
                             })}
                             className={spacing.pyLg}
                           >
@@ -319,12 +334,12 @@ export const Issues: React.FC = () => {
                                     <Button variant="link" isInline>
                                       <Link
                                         to={getAffectedAppsUrl({
-                                          compositeIssue,
+                                          ruleReport,
                                           fromFilterValues: filterValues,
                                           fromLocation: location,
                                         })}
                                       >
-                                        {compositeIssue.affected} - View
+                                        {ruleReport.applications} - View
                                         affected applications
                                       </Link>
                                     </Button>
@@ -361,8 +376,7 @@ export const Issues: React.FC = () => {
                                     Level of effort
                                   </Text>
                                   <div>
-                                    {compositeIssue.effort} - what do we show
-                                    here?
+                                    {ruleReport.effort} - what do we show here?
                                   </div>
                                   <Text
                                     component="h4"
@@ -371,7 +385,7 @@ export const Issues: React.FC = () => {
                                     Labels
                                   </Text>
                                   <div>
-                                    {compositeIssue.labels.map((label) => {
+                                    {ruleReport.labels.map((label) => {
                                       return (
                                         <Label className={spacing.mrSm}>
                                           {label}
