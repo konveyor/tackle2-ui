@@ -206,7 +206,7 @@ export const useTableControlProps = <
           isExpanding: !isCellExpanded(item, columnKey),
           columnKey,
         }),
-      expandId: `compound-expand-${item[idProperty]}-${columnKey as string}`,
+      expandId: `compound-expand-${item[idProperty]}-${columnKey}`,
       rowIndex,
       columnIndex: columnKeys.indexOf(columnKey),
     },
@@ -217,7 +217,7 @@ export const useTableControlProps = <
   }: {
     item: TItem;
   }): Omit<TdProps, "ref"> => {
-    const expandedColumnKey = expandedCells[item[idProperty] as string];
+    const expandedColumnKey = expandedCells[String(item[idProperty])];
     return {
       dataLabel:
         typeof expandedColumnKey === "string"

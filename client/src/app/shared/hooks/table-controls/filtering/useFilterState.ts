@@ -7,6 +7,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { useUrlParams } from "../../useUrlParams";
 import { objectKeys } from "@app/utils/utils";
+import { IExtraArgsForURLParamHooks } from "../types";
 
 export interface IFilterState<TFilterCategoryKey extends string> {
   filterValues: IFilterValues<TFilterCategoryKey>;
@@ -56,25 +57,26 @@ export const serializeFilterUrlParams = <TFilterCategoryKey extends string>(
 
 export const deserializeFilterUrlParams = <
   TFilterCategoryKey extends string
->(urlParams: {
-  filters?: string;
+>(serializedParams: {
+  filters?: string | null;
 }): Partial<Record<TFilterCategoryKey, FilterValue>> => {
   try {
-    return JSON.parse(urlParams.filters || "{}");
+    return JSON.parse(serializedParams.filters || "{}");
   } catch (e) {
     return {};
   }
 };
 
 export const useFilterUrlParams = <
-  TFilterCategoryKey extends string
->(): IFilterState<TFilterCategoryKey> => {
-  const [filterValues, setFilterValues] = useUrlParams<
-    "filters",
-    IFilterValues<TFilterCategoryKey>
-  >({
+  TFilterCategoryKey extends string,
+  TURLParamKeyPrefix extends string = string
+>({
+  urlParamKeyPrefix,
+}: IExtraArgsForURLParamHooks<TURLParamKeyPrefix> = {}): IFilterState<TFilterCategoryKey> => {
+  const [filterValues, setFilterValues] = useUrlParams({
+    keyPrefix: urlParamKeyPrefix,
     keys: ["filters"],
-    defaultValue: {},
+    defaultValue: {} as IFilterValues<TFilterCategoryKey>,
     serialize: serializeFilterUrlParams,
     deserialize: deserializeFilterUrlParams,
   });
