@@ -7,7 +7,6 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useCreateFileMutation } from "@app/queries/rulesets";
 import { CustomTargetFormValues } from "@app/pages/migration-targets/custom-target-form";
 import { UseFormReturn } from "react-hook-form";
-import { validateXML } from "@app/pages/identities/components/identity-form/validateXML";
 import { XMLValidator } from "fast-xml-parser";
 import XSDSchema from "./windup-jboss-ruleset.xsd";
 import { checkRuleFileType } from "./rules-utils";
@@ -134,7 +133,7 @@ export default function useRuleFiles(
           // setLoadPercentage((data.loaded / data.total) * 100);
         }
       };
-      reader.readAsDataURL(file);
+      reader.readAsText(file);
     });
   };
 
@@ -289,8 +288,7 @@ export default function useRuleFiles(
 
   const validateXMLFile = (data: string): IParsedXMLFileStatus => {
     // Filter out "data:text/xml;base64," from data
-    const payload = atob(data.substring(21));
-    const validationObject = XMLValidator.validate(payload, {
+    const validationObject = XMLValidator.validate(data, {
       allowBooleanAttributes: true,
     });
 
@@ -299,7 +297,7 @@ export default function useRuleFiles(
       const currentSchema = XSDSchema;
 
       const validationResult = xmllint.xmllint.validateXML({
-        xml: payload,
+        xml: data,
         schema: currentSchema,
       });
 
