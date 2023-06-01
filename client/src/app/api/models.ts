@@ -599,10 +599,22 @@ export interface AnalysisRuleReport extends BaseAnalysisRuleReport {
 
 // Hub type: FileReport - Incidents collated by file
 export interface AnalysisFileReport {
-  issueId: string;
+  issueId: number;
   file: string;
   incidents: number;
   effort: number;
+}
+
+export interface AnalysisIssueIncident {
+  id: number;
+  file: string;
+  line: number;
+  message: string;
+  codeSnip: string;
+  facts: Record<string, string>; // TODO what's actually in here?
+  createTime?: string; // ISO-8601 timestamp
+  createUser?: string;
+  updateUser?: string;
 }
 
 export type TicketStatus = "" | "New" | "In Progress" | "Done" | "Error";

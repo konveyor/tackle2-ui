@@ -7,6 +7,7 @@ import {
   AnalysisIssueReport,
   AnalysisIssue,
   AnalysisFileReport,
+  AnalysisIssueIncident,
   Application,
   ApplicationAdoptionPlan,
   ApplicationDependency,
@@ -82,6 +83,7 @@ export const ANALYSIS_REPORT_RULES = HUB + "/analyses/report/rules";
 export const ANALYSIS_REPORT_ISSUES = HUB + "/analyses/report/issues";
 export const ANALYSIS_REPORT_FILES = HUB + "/analyses/report/issues/:id/files";
 export const ANALYSIS_ISSUES = HUB + "/analyses/issues";
+export const ANALYSIS_ISSUE_INCIDENTS = HUB + "/analyses/issues/:id/incidents";
 
 // PATHFINDER
 export const PATHFINDER = "/hub/pathfinder";
@@ -571,6 +573,17 @@ export const getFileReports = (
   issueId
     ? getHubPaginatedResult<AnalysisFileReport>(
         ANALYSIS_REPORT_FILES.replace("/:id/", `/${String(issueId)}/`),
+        params
+      )
+    : Promise.reject();
+
+export const getIssueIncidents = (
+  issueId?: number,
+  params: HubRequestParams = {}
+) =>
+  issueId
+    ? getHubPaginatedResult<AnalysisIssueIncident>(
+        ANALYSIS_ISSUE_INCIDENTS.replace("/:id/", `/${String(issueId)}/`),
         params
       )
     : Promise.reject();
