@@ -32,15 +32,6 @@ export const getWavesWithStatus = (
     tickets: Ticket[]
   ): AggregateTicketStatus => {
     const statuses = getTicketStatus(wave, tickets);
-    // const ticketStatusToAggregate: Map<TicketStatus, AggregateTicketStatus> =
-    //   new Map([
-    //     ["", "Not Started"],
-    //     ["New", "Issues Created"],
-    //     ["In Progress", "In Progress"],
-    //     ["Done", "Completed"],
-    //     ["Error", "Error"],
-    //   ]);
-
     if (statuses.includes("Error")) {
       return "Error";
     } else if (statuses.includes("")) {

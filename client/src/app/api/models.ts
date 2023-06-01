@@ -620,9 +620,9 @@ export interface Ticket {
   kind: string;
   parent?: string;
   fields?: Ref | null;
-  message?: string | null;
+  readonly message?: string | null;
   reference?: string | null;
-  status?: TicketStatus | null;
+  readonly status?: TicketStatus | null;
   error?: boolean;
 }
 
