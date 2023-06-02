@@ -34,17 +34,12 @@ export const getWavesWithStatus = (
     const statuses = getTicketStatus(wave, tickets);
     if (statuses.includes("Error")) {
       return "Error";
-    } else if (statuses.includes("")) {
-      const now = dayjs.utc();
-      const start = dayjs.utc(wave.startDate);
-      var duration = now.diff(start);
-      if (duration > 0) {
-        return "In Progress";
-      } else {
-        return "Not Started";
-      }
     } else if (statuses.includes("New")) {
       return "Issues Created";
+    } else if (statuses.includes("In Progress")) {
+      return "In Progress";
+    } else if (statuses.every((status) => status === "Done")) {
+      return "Completed";
     } else {
       return "Not Started";
     }
@@ -56,14 +51,16 @@ export const getWavesWithStatus = (
     wave: MigrationWave,
     tickets: Ticket[]
   ): TicketStatus[] =>
-    wave.applications.map((application): TicketStatus => {
-      const matchingTicket = getTicketByApplication(tickets, application.id);
-      if (matchingTicket?.error) {
-        return "Error";
-      } else if (matchingTicket?.status) {
-        return matchingTicket.status;
-      } else return "";
-    });
+    wave.applications
+      .map((application): TicketStatus => {
+        const matchingTicket = getTicketByApplication(tickets, application.id);
+        if (matchingTicket?.error) {
+          return "Error";
+        } else if (matchingTicket?.status) {
+          return matchingTicket.status;
+        } else return "";
+      })
+      .filter((ticketStatus) => ticketStatus !== "");
 
   const getApplicationsOwners = (id: number) => {
     const applicationOwnerIds = applications
