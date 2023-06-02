@@ -443,9 +443,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         <ConditionalTooltip
           isTooltipEnabled={
             selectedRows.length < 1 ||
-            selectedRows.filter(
+            selectedRows.some(
               (application) => application.migrationWave !== null
-            ).length > 0
+            )
           }
           content={
             "Cannot delete application(s) assigned to migration wave(s)."
@@ -455,9 +455,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             key="manage-applications-bulk-delete"
             isDisabled={
               selectedRows.length < 1 ||
-              selectedRows.filter(
+              selectedRows.some(
                 (application) => application.migrationWave !== null
-              ).length > 0
+              )
             }
             onClick={() => {
               openBulkDeleteModal(selectedRows);
