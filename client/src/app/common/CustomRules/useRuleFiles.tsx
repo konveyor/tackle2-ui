@@ -7,6 +7,10 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useCreateFileMutation } from "@app/queries/rulesets";
 import { CustomTargetFormValues } from "@app/pages/migration-targets/custom-target-form";
 import { UseFormReturn } from "react-hook-form";
+import { XMLValidator } from "fast-xml-parser";
+import XSDSchema from "./windup-jboss-ruleset.xsd";
+import { checkRuleFileType } from "./rules-utils";
+const xmllint = require("xmllint");
 
 export default function useRuleFiles(
   taskgroupID: number | null | undefined,
@@ -129,7 +133,7 @@ export default function useRuleFiles(
           // setLoadPercentage((data.loaded / data.total) * 100);
         }
       };
-      reader.readAsDataURL(file);
+      reader.readAsText(file);
     });
   };
 
@@ -195,7 +199,19 @@ export default function useRuleFiles(
             handleReadFail(error, 100, file);
           } else {
             if (data) {
-              handleReadSuccess(data, file);
+              if (checkRuleFileType(file.name) === "XML") {
+                const validatedXMLResult = validateXMLFile(data);
+                if (validatedXMLResult.state === "valid") {
+                  handleReadSuccess(data, file);
+                } else {
+                  const error = new Error(
+                    `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
+                  );
+                  handleReadFail(error, 100, file);
+                }
+              } else {
+                handleReadSuccess(data, file);
+              }
             } else {
               const error = new Error("error");
               handleReadFail(error, 100, file);
@@ -265,6 +281,38 @@ export default function useRuleFiles(
   if (!showStatus && existingRuleFiles.length > 0) {
     setShowStatus(true);
   }
+  interface IParsedXMLFileStatus {
+    state: "valid" | "error";
+    message?: string;
+  }
+
+  const validateXMLFile = (data: string): IParsedXMLFileStatus => {
+    // Filter out "data:text/xml;base64," from data
+    const validationObject = XMLValidator.validate(data, {
+      allowBooleanAttributes: true,
+    });
+
+    // If xml is valid, check against schema
+    if (validationObject === true) {
+      const currentSchema = XSDSchema;
+
+      const validationResult = xmllint.xmllint.validateXML({
+        xml: data,
+        schema: currentSchema,
+      });
+
+      if (validationResult.errors)
+        return {
+          state: "error",
+          message: validationResult?.errors?.toString(),
+        };
+      else return { state: "valid" };
+    } else
+      return {
+        state: "error",
+        message: validationObject?.err?.msg?.toString(),
+      };
+  };
 
   return {
     handleFileDrop,
