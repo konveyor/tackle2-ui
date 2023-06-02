@@ -20,7 +20,10 @@ import { AnalysisWizardFormValues } from "./schema";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 import { StringListField } from "@app/shared/components/string-list-field";
 import { useFetchRulesets } from "@app/queries/rulesets";
-import { getRulesetTargetList } from "@app/common/CustomRules/rules-utils";
+import {
+  getParsedLabel,
+  getRulesetTargetList,
+} from "@app/common/CustomRules/rules-utils";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 
 export const SetOptions: React.FC = () => {
@@ -79,14 +82,19 @@ export const SetOptions: React.FC = () => {
             variant={SelectVariant.typeaheadMulti}
             maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
             aria-label="Select targets"
-            selections={formTargets}
+            selections={formTargets.map(
+              (formTarget) => getParsedLabel(formTarget).labelValue
+            )}
             isOpen={isSelectTargetsOpen}
             onSelect={(_, selection) => {
+              const selectionWithLabelSelector = `konveyor.io/target=${selection}`;
               const matchingRuleset = rulesets.find((Ruleset) =>
-                getRulesetTargetList(Ruleset).includes(selection as string)
+                getRulesetTargetList(Ruleset).includes(
+                  selectionWithLabelSelector
+                )
               );
-              if (!formTargets.includes(selection as string)) {
-                onChange([...selectedFormTargets, selection]);
+              if (!formTargets.includes(selectionWithLabelSelector)) {
+                onChange([...selectedFormTargets, selectionWithLabelSelector]);
                 if (matchingRuleset)
                   setValue("formRulesets", [...formRulesets, matchingRuleset]);
               } else {
@@ -99,7 +107,7 @@ export const SetOptions: React.FC = () => {
                   );
                 onChange(
                   selectedFormTargets.filter(
-                    (formTarget) => formTarget !== selection
+                    (formTarget) => formTarget !== selectionWithLabelSelector
                   )
                 );
               }
@@ -115,7 +123,11 @@ export const SetOptions: React.FC = () => {
             validated={getValidatedFromErrorTouched(error, isTouched)}
           >
             {defaultTargetsAndRulesetTargets.map((targetName, index) => (
-              <SelectOption key={index} component="button" value={targetName} />
+              <SelectOption
+                key={index}
+                component="button"
+                value={getParsedLabel(targetName).labelValue}
+              />
             ))}
           </Select>
         )}
@@ -135,15 +147,16 @@ export const SetOptions: React.FC = () => {
             toggleId="sources-toggle"
             variant={SelectVariant.typeaheadMulti}
             aria-label="Select sources"
-            selections={value}
+            selections={value.map((val) => getParsedLabel(val).labelValue)}
             isOpen={isSelectSourcesOpen}
             onSelect={(_, selection) => {
-              if (!value.includes(selection as string)) {
-                onChange([...selectedFormSources, selection] as string[]);
+              const selectionWithLabelSelector = `konveyor.io/source=${selection}`;
+              if (!value.includes(selectionWithLabelSelector)) {
+                onChange([...selectedFormSources, selectionWithLabelSelector]);
               } else {
                 onChange(
                   selectedFormSources.filter(
-                    (source: string) => source !== selection
+                    (source: string) => source !== selectionWithLabelSelector
                   )
                 );
               }
@@ -159,7 +172,11 @@ export const SetOptions: React.FC = () => {
             validated={getValidatedFromErrorTouched(error, isTouched)}
           >
             {formSources.map((source, index) => (
-              <SelectOption key={index} component="button" value={source} />
+              <SelectOption
+                key={index}
+                component="button"
+                value={getParsedLabel(source).labelValue}
+              />
             ))}
           </Select>
         )}

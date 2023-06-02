@@ -475,7 +475,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           <MultipleFileUpload
             onFileDrop={handleFileDrop}
             dropzoneProps={{
-              accept: ".yml, .yaml",
+              accept: ".yml, .yaml, .xml",
             }}
             {...register("customRulesFiles")}
           >
@@ -483,7 +483,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
               titleIcon={<UploadIcon />}
               titleText="Drag and drop files here"
               titleTextSeparator="or"
-              infoText="Accepted file types: .yml, .yaml."
+              infoText="Accepted file types: .yml, .yaml, .xml"
             />
             {showStatus && (
               <MultipleFileUploadStatus
