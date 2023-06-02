@@ -347,6 +347,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         {
           title: t("actions.delete"),
           isDisabled: row.migrationWave !== null,
+          tooltip: "Cannot delete application assigned to a migration wave.",
+          tooltipProps: "position: 'top'",
           onClick: () => deleteRow(row),
         }
       );
@@ -438,20 +440,32 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     : [];
   const applicationDeleteDropdown = applicationWriteAccess
     ? [
-        <DropdownItem
-          key="manage-applications-bulk-delete"
-          isDisabled={
+        <ConditionalTooltip
+          isTooltipEnabled={
             selectedRows.length < 1 ||
             selectedRows.filter(
               (application) => application.migrationWave !== null
             ).length > 0
           }
-          onClick={() => {
-            openBulkDeleteModal(selectedRows);
-          }}
+          content={
+            "Cannot delete application(s) assigned to migration wave(s)."
+          }
         >
-          {t("actions.delete")}
-        </DropdownItem>,
+          <DropdownItem
+            key="manage-applications-bulk-delete"
+            isDisabled={
+              selectedRows.length < 1 ||
+              selectedRows.filter(
+                (application) => application.migrationWave !== null
+              ).length > 0
+            }
+            onClick={() => {
+              openBulkDeleteModal(selectedRows);
+            }}
+          >
+            {t("actions.delete")}
+          </DropdownItem>
+        </ConditionalTooltip>,
       ]
     : [];
   const dropdownItems = [
