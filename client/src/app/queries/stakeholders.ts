@@ -6,6 +6,7 @@ import {
   updateStakeholder,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
+import { Role, Stakeholder, StakeholderWithRole } from "@app/api/models";
 
 export const StakeholdersQueryKey = "stakeholders";
 
@@ -14,6 +15,18 @@ export const useFetchStakeholders = () => {
     queryKey: [StakeholdersQueryKey],
     queryFn: getStakeholders,
     onError: (error: AxiosError) => console.log("error, ", error),
+    select: (stakeholders): StakeholderWithRole[] => {
+      const getRole = (stakeholder: Stakeholder): Role => {
+        if (stakeholder.owns && stakeholder.owns.length > 0) return "Owner";
+        if (stakeholder.contributes && stakeholder.contributes.length > 0)
+          return "Contributor";
+        return null;
+      };
+      const stakeholdersWithRole = stakeholders.map((stakeholder) => {
+        return { ...stakeholder, role: getRole(stakeholder) };
+      });
+      return stakeholdersWithRole;
+    },
   });
   return {
     stakeholders: data || [],
