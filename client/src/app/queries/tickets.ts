@@ -1,19 +1,23 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { createTicket, deleteTicket, getTickets } from "@app/api/rest";
+import { createTickets, getTickets } from "@app/api/rest";
 import { AxiosError } from "axios";
-import { Ticket } from "@app/api/models";
-import React from "react";
+import { New, Ref, Ticket } from "@app/api/models";
 
 export const TicketsQueryKey = "tickets";
 
-export const useCreateTicketMutation = (
-  onSuccess: (res: any) => void,
+export const useCreateTicketsMutation = (
+  onSuccess: () => void,
   onError: (err: AxiosError) => void
 ) => {
-  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createTicket,
+    mutationFn: ({
+      payload,
+      applications,
+    }: {
+      payload: New<Ticket>;
+      applications: Ref[];
+    }) => createTickets(payload, applications),
     onSuccess: onSuccess,
     onError: onError,
   });
