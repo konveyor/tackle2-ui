@@ -80,6 +80,7 @@ import { ApplicationDetailDrawerAssessment } from "../components/application-det
 import { useSetting } from "@app/queries/settings";
 import { useFetchTasks } from "@app/queries/tasks";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 
 const ENTITY_FIELD = "entity";
 
@@ -463,7 +464,9 @@ export const ApplicationsTable: React.FC = () => {
     if (applicationWriteAccess) {
       actions.push({
         title: t("actions.delete"),
-        isDisabled: row.migrationWave !== null,
+        isAriaDisabled: row.migrationWave !== null,
+        tooltip: "Cannot delete application assigned to a migration wave.",
+        tooltipProps: "position: 'top'",
         onClick: (
           event: React.MouseEvent,
           rowIndex: number,
@@ -655,20 +658,32 @@ export const ApplicationsTable: React.FC = () => {
     : [];
   const applicationDeleteDropdown = applicationWriteAccess
     ? [
-        <DropdownItem
-          key="manage-applications-bulk-delete"
-          isDisabled={
+        <ConditionalTooltip
+          isTooltipEnabled={
             selectedRows.length < 1 ||
-            selectedRows.filter(
+            selectedRows.some(
               (application) => application.migrationWave !== null
-            ).length > 0
+            )
           }
-          onClick={() => {
-            openBulkDeleteModal(selectedRows);
-          }}
+          content={
+            "Cannot delete application(s) assigned to migration wave(s)."
+          }
         >
-          {t("actions.delete")}
-        </DropdownItem>,
+          <DropdownItem
+            key="manage-applications-bulk-delete"
+            isDisabled={
+              selectedRows.length < 1 ||
+              selectedRows.some(
+                (application) => application.migrationWave !== null
+              )
+            }
+            onClick={() => {
+              openBulkDeleteModal(selectedRows);
+            }}
+          >
+            {t("actions.delete")}
+          </DropdownItem>
+        </ConditionalTooltip>,
       ]
     : [];
   const dropdownItems = [...importDropdownItems, ...applicationDeleteDropdown];
