@@ -53,6 +53,10 @@ export interface Stakeholder {
   contributes?: Ref[];
 }
 
+export interface StakeholderWithRole extends Stakeholder {
+  role: Role;
+}
+
 export interface StakeholderGroup {
   id: number;
   name: string;
@@ -609,17 +613,26 @@ export type AggregateTicketStatus =
   | "In Progress"
   | "Completed"
   | "Error"
-  | "No Issues";
+  | "No Issues"
+  | "Not Started";
 
 export interface Ticket {
   id: number;
-  application: Ref | null;
+  application?: Ref | null;
   tracker: Ref;
   kind: string;
-  parent: string;
-  fields: Ref | null;
-  message: string | null;
-  reference: string | null;
-  status: string | null;
+  parent?: string;
+  fields?: Ref | null;
+  readonly message?: string | null;
+  reference?: string | null;
+  readonly status?: TicketStatus | null;
   error?: boolean;
+}
+
+export type Role = "Owner" | "Contributor" | null;
+export interface WaveWithStatus extends MigrationWave {
+  ticketStatus: TicketStatus[];
+  status: string;
+  fullApplications: Application[];
+  allStakeholders: StakeholderWithRole[];
 }

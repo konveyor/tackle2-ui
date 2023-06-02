@@ -8,15 +8,17 @@ import {
   updateTracker,
 } from "@app/api/rest";
 import { Tracker } from "@app/api/models";
+import { TicketsQueryKey } from "./tickets";
 
 export const TrackersQueryKey = "trackers";
 
 export const useFetchTrackers = () => {
+  const queryClient = useQueryClient();
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [TrackersQueryKey],
     queryFn: getTrackers,
     onError: (error: AxiosError) => console.log("error, ", error),
-    refetchInterval: 5000,
+    onSuccess: () => queryClient.invalidateQueries([TicketsQueryKey]),
   });
   return {
     trackers: data || [],
@@ -98,7 +100,7 @@ export const getTrackerTypesByProjectName = (
 export const getTrackerTypesByProjectId = (
   trackers: Tracker[],
   trackerName: string,
-  projectId: string
+  projectId?: string
 ) =>
   getTrackerProjectsByTracker(trackers, trackerName)
     .filter((project) => project.id === projectId)

@@ -1,6 +1,5 @@
 import React from "react";
-import { Stakeholder, MigrationWave } from "@app/api/models";
-import { useTranslation } from "react-i18next";
+import { WaveWithStatus, Role } from "@app/api/models";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import {
   TableComposable,
@@ -19,28 +18,15 @@ import {
 } from "@app/shared/components/table-controls";
 
 export interface IWaveStakeholdersTableProps {
-  migrationWave: MigrationWave;
-  stakeholders: Stakeholder[];
+  migrationWave: WaveWithStatus;
 }
-
-type Role = "Owner" | "Contributor" | null;
 
 export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
   migrationWave,
-  stakeholders,
 }) => {
-  const { t } = useTranslation();
-
-  const getRole = (stakeholder: Stakeholder): Role => {
-    if (stakeholder.owns && stakeholder.owns.length > 0) return "Owner";
-    if (stakeholder.contributes && stakeholder.contributes.length > 0)
-      return "Contributor";
-    return null;
-  };
-
   const tableControls = useLocalTableControls({
     idProperty: "name",
-    items: stakeholders,
+    items: migrationWave.allStakeholders,
     columnNames: {
       name: "Name",
       jobFunction: "Job Function",
@@ -52,7 +38,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
     getSortValues: (stakeholder) => ({
       name: stakeholder.name || "",
       jobFunction: stakeholder.jobFunction?.name || "",
-      role: getRole(stakeholder) as string,
+      role: stakeholder.role || "",
       email: stakeholder.email,
     }),
     sortableColumns: ["name", "jobFunction", "role", "email"],
@@ -101,7 +87,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
           </Tr>
         </Thead>
         <ConditionalTableBody
-          isNoData={stakeholders.length === 0}
+          isNoData={migrationWave.stakeholders.length === 0}
           numRenderedColumns={numRenderedColumns}
         >
           <Tbody>
@@ -119,7 +105,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
                     {stakeholder.jobFunction?.name}
                   </Td>
                   <Td width={10} {...getTdProps({ columnKey: "role" })}>
-                    {getRole(stakeholder)}
+                    {stakeholder.role}
                   </Td>
                   <Td width={10} {...getTdProps({ columnKey: "email" })}>
                     {stakeholder.email}

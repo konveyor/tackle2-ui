@@ -40,6 +40,7 @@ import {
   MigrationWave,
   Ticket,
   New,
+  Ref,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
@@ -578,9 +579,18 @@ export const getDependencies = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisDependency>(ANALYSIS_DEPENDENCIES, params);
 
 // Tickets
+export const createTickets = (payload: New<Ticket>, applications: Ref[]) => {
+  const promises: AxiosPromise[] = [];
 
-export const createTicket = (obj: New<Ticket>): Promise<Ticket> =>
-  axios.post(TICKETS, obj);
+  applications.map((app) => {
+    const appPayload: New<Ticket> = {
+      ...payload,
+      application: { id: app.id, name: app.name },
+    };
+    return [...promises, axios.post(TICKETS, appPayload)];
+  });
+  return Promise.all<AxiosPromise<Ticket>>(promises);
+};
 
 export const getTickets = (): Promise<Ticket[]> =>
   axios.get(TICKETS).then((response) => response.data);

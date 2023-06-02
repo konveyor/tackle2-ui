@@ -31,14 +31,7 @@ import {
   KebabDropdown,
   ToolbarBulkSelector,
 } from "@app/shared/components";
-import {
-  AggregateTicketStatus,
-  MigrationWave,
-  Ref,
-  Stakeholder,
-  Ticket,
-  TicketStatus,
-} from "@app/api/models";
+import { MigrationWave, Ref } from "@app/api/models";
 import {
   FilterToolbar,
   FilterType,
@@ -65,25 +58,17 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError, AxiosResponse } from "axios";
 import { useFetchTrackers } from "@app/queries/trackers";
-import { useFetchTickets } from "@app/queries/tickets";
 import { useFetchApplications } from "@app/queries/applications";
 import { WaveStakeholdersTable } from "./components/stakeholders-table";
 import { WaveApplicationsTable } from "./components/applications-table";
 import { WaveStatusTable } from "./components/status-table";
 import { WaveForm } from "./components/migration-wave-form";
 import { ManageApplicationsForm } from "./components/manage-applications-form";
-import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { deleteMigrationWave } from "@app/api/rest";
-dayjs.extend(utc);
+import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
+import { useFetchTickets } from "@app/queries/tickets";
 
-const ticketStatusToAggreaate: Map<TicketStatus, AggregateTicketStatus> =
-  new Map([
-    ["", "Creating Issues"],
-    ["New", "Issues Created"],
-    ["In Progress", "In Progress"],
-    ["Done", "Completed"],
-    ["Error", "Error"],
-  ]);
+dayjs.extend(utc);
 
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
@@ -93,9 +78,8 @@ export const MigrationWaves: React.FC = () => {
     useFetchMigrationWaves();
 
   const { trackers: trackers } = useFetchTrackers();
+  const { tickets: tickets } = useFetchTickets();
   const { data: applications } = useFetchApplications();
-  const { tickets } = useFetchTickets();
-  const { stakeholders } = useFetchStakeholders();
 
   const [migrationWaveModalState, setWaveModalState] = React.useState<
     "create" | MigrationWave | null
@@ -121,13 +105,6 @@ export const MigrationWaves: React.FC = () => {
   const [migrationWavesToDelete, setMigrationWavesToDelete] = React.useState<
     number[] | null
   >(null);
-
-  const getApplications = (refs: Ref[]) => {
-    const ids = refs.map((ref) => ref.id);
-    return applications.filter((application: any) =>
-      ids.includes(application.id)
-    );
-  };
 
   const onDeleteWaveSuccess = (name: string) => {
     pushNotification({
@@ -242,115 +219,6 @@ export const MigrationWaves: React.FC = () => {
     },
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
-
-  const getTicketByApplication = (tickets: Ticket[], id: number = 0) =>
-    tickets.find((ticket) => ticket.application?.id === id);
-
-  const getTicketStatus = (wave: MigrationWave) => {
-    let statuses: string[] = [];
-    wave.applications.forEach((application) => {
-      const ticket = getTicketByApplication(tickets, application.id);
-      if (ticket?.id) statuses.push(ticket.status || "");
-    });
-    return statuses as TicketStatus[];
-  };
-
-  const aggregateTicketStatus = (val: TicketStatus, startDate: string) => {
-    const status = ticketStatusToAggreaate.get(val);
-    if (status === "Issues Created") {
-      const now = dayjs.utc();
-      const start = dayjs.utc(startDate);
-      var duration = now.diff(start);
-      if (duration > 0) return "In Progress";
-    }
-    return status ? status : "Error";
-  };
-
-  const aggregatedTicketStatus = (
-    wave: MigrationWave
-  ): AggregateTicketStatus => {
-    const statuses = getTicketStatus(wave);
-    if (statuses.length === 0) return "No Issues";
-
-    const status = statuses.reduce(
-      (acc, val) => (acc === val ? acc : "Error"),
-      statuses[0]
-    );
-
-    return aggregateTicketStatus(status, wave.startDate);
-  };
-
-  const getApplicationsOwners = (id: number) => {
-    const applicationOwnerIds = applications
-      .filter((application) => application.migrationWave?.id === id)
-      .map((application) => application.owner?.id);
-
-    return stakeholders.filter((stakeholder) =>
-      applicationOwnerIds.includes(stakeholder.id)
-    );
-  };
-
-  const getApplicationsContributors = (id: number) => {
-    const applicationContributorsIds = applications
-      .filter((application) => application.migrationWave?.id === id)
-      .map((application) =>
-        application.contributors?.map((contributor) => contributor.id)
-      )
-      .flat();
-
-    return stakeholders.filter((stakeholder) =>
-      applicationContributorsIds.includes(stakeholder.id)
-    );
-  };
-
-  const getStakeholdersByMigrationWave = (migrationWave: MigrationWave) => {
-    const holderIds = migrationWave.stakeholders.map(
-      (stakeholder) => stakeholder.id
-    );
-    return stakeholders.filter((stakeholder) =>
-      holderIds.includes(stakeholder.id)
-    );
-  };
-
-  const getStakeholderFromGroupsByMigrationWave = (
-    migrationWave: MigrationWave
-  ) => {
-    const groupIds = migrationWave.stakeholderGroups.map(
-      (stakeholderGroup) => stakeholderGroup.id
-    );
-
-    return stakeholders.filter((stakeholder) =>
-      stakeholder.stakeholderGroups?.find((stakeholderGroup) =>
-        groupIds.includes(stakeholderGroup.id)
-      )
-    );
-  };
-
-  const getAllStakeholders = (migrationWave: MigrationWave) => {
-    let allStakeholders: Stakeholder[] = getApplicationsOwners(
-      migrationWave.id
-    );
-
-    getApplicationsContributors(migrationWave.id).forEach((stakeholder) => {
-      if (!allStakeholders.includes(stakeholder))
-        allStakeholders.push(stakeholder);
-    });
-
-    getStakeholdersByMigrationWave(migrationWave).forEach((stakeholder) => {
-      if (!allStakeholders.includes(stakeholder))
-        allStakeholders.push(stakeholder);
-    });
-
-    getStakeholderFromGroupsByMigrationWave(migrationWave).forEach(
-      (stakeholder) => {
-        if (!allStakeholders.includes(stakeholder))
-          allStakeholders.push(stakeholder);
-      }
-    );
-
-    return allStakeholders;
-  };
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -400,7 +268,7 @@ export const MigrationWaves: React.FC = () => {
                               isDisabled={
                                 selectedItems.filter(
                                   (migrationWave) =>
-                                    migrationWave.applications.length > 0
+                                    !!migrationWave.applications.length
                                 ).length < 1
                               }
                               key="bulk-export-to-issue-manager"
@@ -511,21 +379,21 @@ export const MigrationWaves: React.FC = () => {
                               columnKey: "stakeholders",
                             })}
                           >
-                            {getAllStakeholders(
-                              migrationWave
-                            ).length.toString()}
+                            {migrationWave.allStakeholders.length}
                           </Td>
                           <Td
                             width={20}
-                            {...getCompoundExpandTdProps({
-                              item: migrationWave,
-                              rowIndex,
-                              columnKey: "status",
-                            })}
+                            {...((!!migrationWave.applications.length ||
+                              migrationWave.status === "No Issues") &&
+                              getCompoundExpandTdProps({
+                                item: migrationWave,
+                                rowIndex,
+                                columnKey: "status",
+                              }))}
                           >
-                            {migrationWave.applications.length > 0
-                              ? aggregatedTicketStatus(migrationWave)
-                              : null}
+                            {!!migrationWave.applications.length
+                              ? migrationWave.status
+                              : "N/A"}
                           </Td>
                           <Td width={10}>
                             <KebabDropdown
@@ -543,20 +411,30 @@ export const MigrationWaves: React.FC = () => {
                                       >
                                         {t("actions.edit")}
                                       </DropdownItem>,
-                                      <DropdownItem
-                                        key="manage-app"
-                                        onClick={() => {
-                                          setWaveToManageModalState(
-                                            migrationWave
-                                          );
-                                        }}
+                                      <ConditionalTooltip
+                                        isTooltipEnabled={
+                                          applications.length === 0
+                                        }
+                                        content={
+                                          "No applications are available for assignment."
+                                        }
                                       >
-                                        {t("composed.manage", {
-                                          what: t(
-                                            "terms.applications"
-                                          ).toLowerCase(),
-                                        })}
-                                      </DropdownItem>,
+                                        <DropdownItem
+                                          key="manage-app"
+                                          isDisabled={applications.length === 0}
+                                          onClick={() => {
+                                            setWaveToManageModalState(
+                                              migrationWave
+                                            );
+                                          }}
+                                        >
+                                          {t("composed.manage", {
+                                            what: t(
+                                              "terms.applications"
+                                            ).toLowerCase(),
+                                          })}
+                                        </DropdownItem>
+                                      </ConditionalTooltip>,
                                       <DropdownItem
                                         key="export-to-issue-manager"
                                         component="button"
@@ -565,9 +443,7 @@ export const MigrationWaves: React.FC = () => {
                                         }
                                         onClick={() =>
                                           setApplicationsToExport(
-                                            getApplications(
-                                              migrationWave.applications
-                                            )
+                                            migrationWave.fullApplications
                                           )
                                         }
                                       >
@@ -600,39 +476,26 @@ export const MigrationWaves: React.FC = () => {
                           >
                             <ExpandableRowContent>
                               {isCellExpanded(migrationWave, "applications") &&
-                              migrationWave.applications.length > 0 ? (
+                              !!migrationWave.applications.length ? (
                                 <WaveApplicationsTable
                                   migrationWave={migrationWave}
-                                  applications={getApplications(
-                                    migrationWave.applications
-                                  )}
                                   removeApplication={removeApplication}
                                 />
                               ) : isCellExpanded(
                                   migrationWave,
                                   "stakeholders"
-                                ) &&
-                                getAllStakeholders(migrationWave).length > 0 ? (
+                                ) && !!migrationWave.allStakeholders.length ? (
                                 <WaveStakeholdersTable
                                   migrationWave={migrationWave}
-                                  stakeholders={getAllStakeholders(
-                                    migrationWave
-                                  )}
                                 />
-                              ) : isCellExpanded(migrationWave, "status") &&
-                                trackers.length > 0 &&
-                                migrationWave.applications.length > 0 ? (
-                                <WaveStatusTable
-                                  migrationWave={migrationWave}
-                                  applications={getApplications(
-                                    migrationWave.applications
-                                  )}
-                                  trackers={trackers}
-                                  tickets={tickets}
-                                  getTicket={getTicketByApplication}
-                                  removeApplication={removeApplication}
-                                />
-                              ) : null}
+                              ) : (
+                                isCellExpanded(migrationWave, "status") && (
+                                  <WaveStatusTable
+                                    migrationWave={migrationWave}
+                                    removeApplication={removeApplication}
+                                  />
+                                )
+                              )}
                             </ExpandableRowContent>
                           </Td>
                         </Tr>

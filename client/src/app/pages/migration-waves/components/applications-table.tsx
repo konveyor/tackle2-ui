@@ -1,5 +1,5 @@
 import React from "react";
-import { Application, MigrationWave } from "@app/api/models";
+import { Application, MigrationWave, WaveWithStatus } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import {
@@ -26,21 +26,17 @@ import {
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 
 export interface IWaveApplicationsTableProps {
-  migrationWave: MigrationWave;
-  applications: Application[];
+  migrationWave: WaveWithStatus;
   removeApplication: (migrationWave: MigrationWave, id: number) => void;
 }
 
 export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
   migrationWave,
-  applications,
   removeApplication,
 }) => {
-  const { t } = useTranslation();
-
   const tableControls = useLocalTableControls({
     idProperty: "name",
-    items: applications,
+    items: migrationWave.fullApplications,
     columnNames: {
       appName: "Name",
       description: "Description",
@@ -98,7 +94,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
           </Tr>
         </Thead>
         <ConditionalTableBody
-          isNoData={applications.length === 0}
+          isNoData={migrationWave.applications.length === 0}
           numRenderedColumns={numRenderedColumns}
         >
           <Tbody>
