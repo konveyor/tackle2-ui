@@ -346,7 +346,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         },
         {
           title: t("actions.delete"),
-          isDisabled: row.migrationWave !== null,
+          isAriaDisabled: row.migrationWave !== null,
           tooltip: "Cannot delete application assigned to a migration wave.",
           tooltipProps: "position: 'top'",
           onClick: () => deleteRow(row),
@@ -357,7 +357,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (tasksReadAccess) {
       actions.push({
         title: t("actions.analysisDetails"),
-        isDisabled: !getTask(row),
+        isAriaDisabled: !getTask(row),
         onClick: () => {
           const task = getTask(row);
           if (task) window.open(`/hub/tasks/${task.id}`, "_blank");
@@ -368,7 +368,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (tasksWriteAccess) {
       actions.push({
         title: "Cancel analysis",
-        isDisabled: !isTaskCancellable(row),
+        isAriaDisabled: !isTaskCancellable(row),
         onClick: () => cancelAnalysis(row),
       });
     }
