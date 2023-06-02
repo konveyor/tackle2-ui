@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MigrationWave, Ticket, WaveWithStatus } from "@app/api/models";
+import { Ticket, WaveWithStatus } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -19,8 +19,6 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
-import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import {
@@ -38,12 +36,10 @@ import { Paths } from "@app/Paths";
 
 export interface IWaveStatusTableProps {
   migrationWave: WaveWithStatus;
-  removeApplication: (migrationWave: MigrationWave, id: number) => void;
 }
 
 export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   migrationWave,
-  removeApplication,
 }) => {
   const { t } = useTranslation();
   const [codeModalState, setCodeModalState] = useState<
@@ -184,15 +180,6 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "issue" })}>
                     {getTicketIssue(app.id)}
-                  </Td>
-                  <Td className={alignment.textAlignRight}>
-                    <Button
-                      type="button"
-                      variant="plain"
-                      onClick={() => removeApplication(migrationWave, app.id)}
-                    >
-                      <TrashIcon />
-                    </Button>
                   </Td>
                 </TableRowContentWithControls>
               </Tr>

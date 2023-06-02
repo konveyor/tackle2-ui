@@ -492,7 +492,6 @@ export const MigrationWaves: React.FC = () => {
                                 isCellExpanded(migrationWave, "status") && (
                                   <WaveStatusTable
                                     migrationWave={migrationWave}
-                                    removeApplication={removeApplication}
                                   />
                                 )
                               )}
