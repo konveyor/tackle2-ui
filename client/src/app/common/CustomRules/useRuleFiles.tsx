@@ -1,6 +1,4 @@
 import { useContext, useState } from "react";
-import XSDSchema from "./windup-jboss-ruleset.xsd";
-import { XMLValidator } from "fast-xml-parser";
 import { FileLoadError, IReadFile } from "@app/api/models";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { AxiosError } from "axios";
@@ -9,6 +7,11 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useCreateFileMutation } from "@app/queries/rulesets";
 import { CustomTargetFormValues } from "@app/pages/migration-targets/custom-target-form";
 import { UseFormReturn } from "react-hook-form";
+import { XMLValidator } from "fast-xml-parser";
+import XSDSchema from "./windup-jboss-ruleset.xsd";
+
+import { checkRuleFileType } from "./rules-utils";
+
 const xmllint = require("xmllint");
 
 export default function useRuleFiles(
@@ -132,7 +135,7 @@ export default function useRuleFiles(
           // setLoadPercentage((data.loaded / data.total) * 100);
         }
       };
-      reader.readAsDataURL(file);
+      reader.readAsText(file);
     });
   };
 
@@ -198,15 +201,22 @@ export default function useRuleFiles(
             handleReadFail(error, 100, file);
           } else {
             if (data) {
-              const validatedXMLResult = validateXMLFile(data);
-              if (validatedXMLResult.state === "valid")
+              if (checkRuleFileType(file.name) === "XML") {
+                const validatedXMLResult = validateXMLFile(data);
+                if (validatedXMLResult.state === "valid") {
+                  handleReadSuccess(data, file);
+                } else {
+                  const error = new Error(
+                    `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
+                  );
+                  handleReadFail(error, 100, file);
+                }
+              } else {
                 handleReadSuccess(data, file);
-              else {
-                const error = new Error(
-                  `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
-                );
-                handleReadFail(error, 100, file);
               }
+            } else {
+              const error = new Error("error");
+              handleReadFail(error, 100, file);
             }
           }
         }
@@ -273,25 +283,21 @@ export default function useRuleFiles(
   if (!showStatus && existingRuleFiles.length > 0) {
     setShowStatus(true);
   }
-
   interface IParsedXMLFileStatus {
     state: "valid" | "error";
     message?: string;
   }
 
   const validateXMLFile = (data: string): IParsedXMLFileStatus => {
-    // Filter out "data:text/xml;base64," from data
-    const payload = atob(data.substring(21));
-    const validationObject = XMLValidator.validate(payload, {
+    const validationObject = XMLValidator.validate(data, {
       allowBooleanAttributes: true,
     });
-
     // If xml is valid, check against schema
     if (validationObject === true) {
       const currentSchema = XSDSchema;
 
       const validationResult = xmllint.xmllint.validateXML({
-        xml: payload,
+        xml: data,
         schema: currentSchema,
       });
 
@@ -307,6 +313,11 @@ export default function useRuleFiles(
         message: validationObject?.err?.msg?.toString(),
       };
   };
+
+  interface IParsedXMLFileStatus {
+    state: "valid" | "error";
+    message?: string;
+  }
 
   return {
     handleFileDrop,
