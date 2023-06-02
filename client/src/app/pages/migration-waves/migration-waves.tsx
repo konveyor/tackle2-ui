@@ -331,18 +331,6 @@ export const MigrationWaves: React.FC = () => {
                 numRenderedColumns={numRenderedColumns}
               >
                 {currentPageItems?.map((migrationWave, rowIndex) => {
-                  const matchingConfictingApplication = tickets.find(
-                    (ticket) => {
-                      const selectedItemsAppIds = migrationWaves
-                        .flatMap((item) => item.applications)
-                        .map((refs) => refs.id);
-                      return (
-                        ticket?.application?.id &&
-                        selectedItemsAppIds.includes(ticket.application.id)
-                      );
-                    }
-                  );
-
                   return (
                     <Tbody
                       key={migrationWave.id}
@@ -447,29 +435,20 @@ export const MigrationWaves: React.FC = () => {
                                           })}
                                         </DropdownItem>
                                       </ConditionalTooltip>,
-                                      <ConditionalTooltip
-                                        isTooltipEnabled={
-                                          !!matchingConfictingApplication
+                                      <DropdownItem
+                                        key="export-to-issue-manager"
+                                        component="button"
+                                        isDisabled={
+                                          migrationWave.applications.length < 1
                                         }
-                                        content={`Application ${matchingConfictingApplication?.application?.id} has already been exported. Select a different application and try again. `}
+                                        onClick={() =>
+                                          setApplicationsToExport(
+                                            migrationWave.fullApplications
+                                          )
+                                        }
                                       >
-                                        <DropdownItem
-                                          key="export-to-issue-manager"
-                                          component="button"
-                                          isDisabled={
-                                            migrationWave.applications.length <
-                                              1 ||
-                                            !!matchingConfictingApplication
-                                          }
-                                          onClick={() =>
-                                            setApplicationsToExport(
-                                              migrationWave.fullApplications
-                                            )
-                                          }
-                                        >
-                                          {t("terms.exportToIssue")}
-                                        </DropdownItem>
-                                      </ConditionalTooltip>,
+                                        {t("terms.exportToIssue")}
+                                      </DropdownItem>,
                                       <DropdownItem
                                         key="delete"
                                         onClick={() =>
