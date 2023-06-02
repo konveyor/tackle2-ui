@@ -581,11 +581,17 @@ export interface AnalysisIssue extends AnalysisIssuesCommonFields {
   updateUser?: string;
 }
 
-// Hub type: IssueReport - Issues collated by application (but filtered by ruleset/rule)
-export interface AnalysisIssueReport extends AnalysisIssue {
-  application: { id: number; name: string; effort: number };
-  files: number;
+// Hub type: AppReport - Issues collated by application (but filtered by ruleset/rule)
+export interface AnalysisAppReport extends AnalysisIssue {
+  id: number;
+  name: string;
+  description: string;
+  effort: number;
+  businessService: string;
   incidents: number;
+  files: number;
+  ruleset: string;
+  rule: string;
 }
 
 // Hub type: RuleReport - Issues collated by ruleset/rule

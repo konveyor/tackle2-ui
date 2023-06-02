@@ -31,8 +31,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
-import { useFetchIssueReports } from "@app/queries/issues";
-import { useFetchApplications } from "@app/queries/applications";
+import { useFetchAppReports } from "@app/queries/issues";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { IssueFilterGroups } from "../issues";
 import {
@@ -63,18 +62,16 @@ export const AffectedApplications: React.FC = () => {
       name: "Name",
       description: "Description",
       businessService: "Business serice",
-      tags: "Tags",
     },
-    // TODO this isn't working in the hub
-    // sortableColumns: ["name"],
-    // initialSort: {
-    //   columnKey: "name",
-    //   direction: "asc",
-    // },
+    sortableColumns: ["name"],
+    initialSort: {
+      columnKey: "name",
+      direction: "asc",
+    },
     filterCategories: [
       //TODO: Should this be select filter type using apps available in memory?
       {
-        key: "application.name",
+        key: "application.name", // Used for consistency with the RuleReport filters so they can be carried
         title: t("terms.applicationName"),
         filterGroup: IssueFilterGroups.ApplicationInventory,
         type: FilterType.search,
@@ -89,10 +86,10 @@ export const AffectedApplications: React.FC = () => {
   });
 
   const {
-    result: { data: currentPageIssueReports, total: totalItemCount },
+    result: { data: currentPageAppReports, total: totalItemCount },
     isFetching,
     fetchError,
-  } = useFetchIssueReports(
+  } = useFetchAppReports(
     getHubRequestParams({
       ...tableControlState,
       implicitFilters: [
@@ -107,23 +104,21 @@ export const AffectedApplications: React.FC = () => {
           value: rule || "",
         },
       ],
-      /*
-      // TODO this isn't working in the hub
       hubSortFieldKeys: {
-        name: "application.name",
-      },*/
+        name: "name",
+      },
     })
   );
 
   const tableControls = useTableControlProps({
     ...tableControlState,
     idProperty: "id",
-    currentPageItems: currentPageIssueReports,
+    currentPageItems: currentPageAppReports,
     totalItemCount,
     isLoading: isFetching,
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
-      items: currentPageIssueReports,
+      items: currentPageAppReports,
       isEqual: (a, b) => a.id === b.id,
     }),
   });
@@ -144,7 +139,7 @@ export const AffectedApplications: React.FC = () => {
     activeRowDerivedState: { activeRowItem, clearActiveRow },
   } = tableControls;
 
-  const { data: applications } = useFetchApplications();
+  console.log({ currentPageAppReports });
 
   return (
     <>
@@ -170,7 +165,7 @@ export const AffectedApplications: React.FC = () => {
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isFetching && !(currentPageIssueReports || fetchError)}
+          when={isFetching && !(currentPageAppReports || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
@@ -197,7 +192,6 @@ export const AffectedApplications: React.FC = () => {
                     <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "description" })} />
                     <Th {...getThProps({ columnKey: "businessService" })} />
-                    <Th {...getThProps({ columnKey: "tags" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -208,48 +202,34 @@ export const AffectedApplications: React.FC = () => {
                 numRenderedColumns={numRenderedColumns}
               >
                 <Tbody>
-                  {currentPageIssueReports?.map((issueReport, rowIndex) => {
-                    const application = applications.find(
-                      (app) => app.id === issueReport.application.id
-                    );
-                    if (!application) return null;
-                    return (
-                      <Tr
-                        key={application.name}
-                        {...getClickableTrProps({ item: issueReport })}
+                  {currentPageAppReports?.map((appReport, rowIndex) => (
+                    <Tr
+                      key={appReport.id}
+                      {...getClickableTrProps({ item: appReport })}
+                    >
+                      <TableRowContentWithControls
+                        {...tableControls}
+                        item={appReport}
+                        rowIndex={rowIndex}
                       >
-                        <TableRowContentWithControls
-                          {...tableControls}
-                          item={issueReport}
-                          rowIndex={rowIndex}
+                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                          {appReport.name}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "description" })}
                         >
-                          <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                            {application.name}
-                          </Td>
-                          <Td
-                            width={10}
-                            {...getTdProps({ columnKey: "description" })}
-                          >
-                            {application.description}
-                          </Td>
-                          <Td
-                            width={10}
-                            {...getTdProps({ columnKey: "businessService" })}
-                          >
-                            {application.businessService?.name}
-                          </Td>
-                          <Td
-                            width={10}
-                            {...getTdProps({
-                              columnKey: "tags",
-                            })}
-                          >
-                            {application?.tags?.length}
-                          </Td>
-                        </TableRowContentWithControls>
-                      </Tr>
-                    );
-                  })}
+                          {appReport.description}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "businessService" })}
+                        >
+                          {appReport.businessService}
+                        </Td>
+                      </TableRowContentWithControls>
+                    </Tr>
+                  ))}
                 </Tbody>
               </ConditionalTableBody>
             </TableComposable>
@@ -262,7 +242,7 @@ export const AffectedApplications: React.FC = () => {
         </ConditionalRender>
       </PageSection>
       <IssueDetailDrawer
-        issueReport={activeRowItem}
+        appReport={activeRowItem}
         onCloseClick={clearActiveRow}
       />
     </>
