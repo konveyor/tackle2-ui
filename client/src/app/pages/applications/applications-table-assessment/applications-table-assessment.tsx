@@ -670,7 +670,7 @@ export const ApplicationsTable: React.FC = () => {
           }
         >
           <DropdownItem
-            key="manage-applications-bulk-delete"
+            key="applications-bulk-delete"
             isDisabled={
               selectedRows.length < 1 ||
               selectedRows.some(
