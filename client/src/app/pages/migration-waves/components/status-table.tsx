@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Application, Tracker, MigrationWave, Ticket } from "@app/api/models";
+import { MigrationWave, Ticket, WaveWithStatus } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import {
   Button,
+  ButtonVariant,
   CodeBlock,
   CodeBlockCode,
   Modal,
@@ -29,32 +30,33 @@ import {
 } from "@app/shared/components/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import { getTrackerTypesByProjectId } from "@app/queries/trackers";
+import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
+import { useHistory } from "react-router-dom";
+import { useFetchTrackers } from "@app/queries/trackers";
+import { useFetchTickets } from "@app/queries/tickets";
+import { Paths } from "@app/Paths";
 
 export interface IWaveStatusTableProps {
-  migrationWave: MigrationWave;
-  applications: Application[];
-  trackers: Tracker[];
-  tickets: Ticket[];
-  getTicket: (tickets: Ticket[], id: number) => Ticket | undefined;
+  migrationWave: WaveWithStatus;
   removeApplication: (migrationWave: MigrationWave, id: number) => void;
 }
 
 export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   migrationWave,
-  applications,
-  trackers,
-  tickets,
-  getTicket,
   removeApplication,
 }) => {
   const { t } = useTranslation();
   const [codeModalState, setCodeModalState] = useState<
     string | null | undefined
   >("");
+  const history = useHistory();
+
+  const { tickets } = useFetchTickets();
+  const { trackers } = useFetchTrackers();
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
-    items: applications,
+    items: migrationWave.fullApplications,
     columnNames: {
       appName: "Application name",
       status: "Status",
@@ -82,20 +84,18 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
       getTdProps,
     },
   } = tableControls;
-
-  const getTicketStatus = (appId: number) => {
-    const status = getTicket(tickets, appId)?.status;
-    return status === "" ? "Creating issue" : status;
-  };
+  //
+  const getTicketByApplication = (tickets: Ticket[], id: number = 0) =>
+    tickets.find((ticket) => ticket.application?.id === id);
 
   const getTicketIssue = (appId: number | undefined) => {
     if (appId) {
-      const ticket = getTicket(tickets, appId);
+      const ticket = getTicketByApplication(tickets, appId);
       if (ticket) {
         const types = getTrackerTypesByProjectId(
           trackers,
           ticket.tracker.name,
-          ticket.parent
+          ticket?.parent
         );
         const type = types.find((kind) => kind.id === ticket.kind);
         if (type) return type.name;
@@ -131,8 +131,26 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
           </Tr>
         </Thead>
         <ConditionalTableBody
-          isNoData={applications.length === 0}
+          isNoData={migrationWave.applications.length === 0}
           numRenderedColumns={numRenderedColumns}
+          noDataEmptyState={
+            <div>
+              <NoDataEmptyState title="Create a tracker and/or add applications to the migration wave." />
+              <div className="pf-u-text-align-center">
+                <Button
+                  type="button"
+                  id="create-tracker"
+                  aria-label="Create Tracker"
+                  variant={ButtonVariant.primary}
+                  onClick={() => {
+                    history.push(Paths.jira);
+                  }}
+                >
+                  Create Tracker
+                </Button>
+              </div>
+            </div>
+          }
         >
           <Tbody>
             {currentPageItems?.map((app, rowIndex) => (
@@ -146,14 +164,14 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                     {app.name}
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "status" })}>
-                    {getTicket(tickets, app.id)?.error ? (
+                    {getTicketByApplication(tickets, app.id)?.error ? (
                       <Button
                         type="button"
                         variant="plain"
                         onClick={() =>
                           setCodeModalState(
-                            getTicket(tickets, app.id)
-                              ? getTicket(tickets, app.id)?.message
+                            getTicketByApplication(tickets, app.id)
+                              ? getTicketByApplication(tickets, app.id)?.message
                               : ""
                           )
                         }
@@ -161,7 +179,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                         Error
                       </Button>
                     ) : (
-                      getTicketStatus(app.id)
+                      getTicketByApplication(tickets, app?.id)?.status || ""
                     )}
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "issue" })}>

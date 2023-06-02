@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import * as yup from "yup";
 import {
   ActionGroup,
@@ -23,7 +23,7 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { useCreateTicketMutation } from "@app/queries/tickets";
+import { useCreateTicketsMutation } from "@app/queries/tickets";
 
 interface FormValues {
   issueManager: IssueManagerKind | undefined;
@@ -46,7 +46,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const onExportSuccess = (_: AxiosResponse<Tracker>) =>
+  const onExportSuccess = () =>
     pushNotification({
       title: t("toastr.success.create", {
         type: t("terms.exportToIssue"),
@@ -60,7 +60,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
       variant: "danger",
     });
 
-  const { mutate: createTicket } = useCreateTicketMutation(
+  const { mutate: createTickets } = useCreateTicketsMutation(
     onExportSuccess,
     onExportError
   );
@@ -112,23 +112,8 @@ export const ExportForm: React.FC<ExportFormProps> = ({
         tracker: { id: matchingtracker.id, name: matchingtracker.name },
         parent: matchingProject?.id || "",
         kind: matchingKind?.id || "",
-        // Hub managed fields
-        application: null,
-        reference: null,
-        message: null,
-        fields: null,
-        status: null,
       };
-
-      applications?.forEach((application) =>
-        createTicket({
-          ...payload,
-          application: {
-            id: application.id,
-            name: application.name,
-          },
-        })
-      );
+      createTickets({ payload, applications });
     }
     onClose();
   };
