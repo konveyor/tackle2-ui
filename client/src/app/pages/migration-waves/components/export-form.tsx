@@ -23,7 +23,10 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { useCreateTicketsMutation } from "@app/queries/tickets";
+import {
+  useCreateTicketsMutation,
+  useFetchTickets,
+} from "@app/queries/tickets";
 
 interface FormValues {
   issueManager: IssueManagerKind | undefined;
@@ -45,6 +48,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
+  const { tickets } = useFetchTickets();
 
   const onExportSuccess = () =>
     pushNotification({
@@ -113,7 +117,18 @@ export const ExportForm: React.FC<ExportFormProps> = ({
         parent: matchingProject?.id || "",
         kind: matchingKind?.id || "",
       };
-      createTickets({ payload, applications });
+      const applicationsWithNoAssociatedTickets = applications.filter(
+        (application) => {
+          const existingApplicationIDs = tickets.flatMap(
+            (ticket) => ticket?.application?.id
+          );
+          return !existingApplicationIDs.includes(application.id);
+        }
+      );
+      createTickets({
+        payload,
+        applications: applicationsWithNoAssociatedTickets,
+      });
     }
     onClose();
   };
