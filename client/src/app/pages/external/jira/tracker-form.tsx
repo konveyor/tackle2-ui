@@ -25,6 +25,7 @@ import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import {
   duplicateNameCheck,
   getAxiosErrorMessage,
+  standardStrictURLRegex,
   standardURLRegex,
 } from "@app/utils/utils";
 import {
@@ -120,8 +121,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     onClose();
   };
 
-  const standardURL = new RegExp(standardURLRegex);
-  const containsURL = (string: string) => standardURL.test(string);
+  const standardStrictURL = new RegExp(standardStrictURLRegex);
 
   const validationSchema: yup.SchemaOf<FormValues> = yup.object().shape({
     id: yup.number().defined(),
@@ -138,7 +138,10 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     url: yup
       .string()
       .max(250, t("validation.maxLength", { length: 250 }))
-      .matches(standardURL, "Enter a valid URL")
+      .matches(
+        standardStrictURL,
+        "Enter a valid URL. Note that a cloud instance or most public instances will require the use of HTTPS."
+      )
       .required(t("validation.required")),
     kind: yup.mixed<IssueManagerKind>().required(),
     credentialName: yup.string().required(),
