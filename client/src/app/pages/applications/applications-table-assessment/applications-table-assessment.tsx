@@ -464,9 +464,11 @@ export const ApplicationsTable: React.FC = () => {
     if (applicationWriteAccess) {
       actions.push({
         title: t("actions.delete"),
-        isAriaDisabled: row.migrationWave !== null,
-        tooltip: "Cannot delete application assigned to a migration wave.",
-        tooltipProps: "position: 'top'",
+        ...(row.migrationWave !== null && {
+          isAriaDisabled: true,
+          tooltip: "Cannot delete application assigned to a migration wave.",
+          tooltipProps: "position: 'top'",
+        }),
         onClick: (
           event: React.MouseEvent,
           rowIndex: number,
