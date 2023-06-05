@@ -43,10 +43,10 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
     >
       <TextContent>
         <Text component="small" className={spacing.mb_0}>
-          {appReport?.application.name}
+          {appReport?.name}
         </Text>
         <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
-          {appReport?.name}
+          {appReport?.issue.name}
         </Title>
       </TextContent>
       <Tabs

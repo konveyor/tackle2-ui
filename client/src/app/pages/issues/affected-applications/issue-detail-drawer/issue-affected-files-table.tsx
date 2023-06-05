@@ -81,7 +81,7 @@ export const IssueAffectedFilesTable: React.FC<
     isFetching,
     fetchError,
   } = useFetchFileReports(
-    appReport.id,
+    appReport.issue.id,
     getHubRequestParams({
       ...tableControlState,
       hubSortFieldKeys: {

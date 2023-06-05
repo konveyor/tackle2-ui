@@ -94,12 +94,12 @@ export const AffectedApplications: React.FC = () => {
       ...tableControlState,
       implicitFilters: [
         {
-          field: "ruleset",
+          field: "issue.ruleset",
           operator: "=",
           value: ruleset || "",
         },
         {
-          field: "rule",
+          field: "issue.rule",
           operator: "=",
           value: rule || "",
         },
@@ -140,6 +140,8 @@ export const AffectedApplications: React.FC = () => {
   } = tableControls;
 
   console.log({ currentPageAppReports });
+
+  // TODO add incidents column? fix widths?
 
   return (
     <>

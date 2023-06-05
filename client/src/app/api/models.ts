@@ -582,6 +582,7 @@ export interface AnalysisIssue extends AnalysisIssuesCommonFields {
 }
 
 // Hub type: AppReport - Issues collated by application (but filtered by ruleset/rule)
+// When filtered by ruleset/rule, this object matches exactly one issue and includes that issue's details
 export interface AnalysisAppReport extends AnalysisIssue {
   id: number;
   name: string;
@@ -590,8 +591,12 @@ export interface AnalysisAppReport extends AnalysisIssue {
   businessService: string;
   incidents: number;
   files: number;
-  ruleset: string;
-  rule: string;
+  issue: {
+    id: number;
+    name: string;
+    ruleset: string;
+    rule: string;
+  };
 }
 
 // Hub type: RuleReport - Issues collated by ruleset/rule
