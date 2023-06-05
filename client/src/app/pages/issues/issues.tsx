@@ -150,7 +150,7 @@ export const Issues: React.FC = () => {
   });
 
   const {
-    result: { data: currentPageItems, total: totalItemCount },
+    result: { data: currentPageRuleReports, total: totalItemCount },
     isFetching,
     fetchError,
   } = useFetchRuleReports(
@@ -170,13 +170,13 @@ export const Issues: React.FC = () => {
   const tableControls = useTableControlProps({
     ...tableControlState, // Includes filterState, sortState and paginationState
     idProperty: "_ui_unique_id",
-    currentPageItems,
+    currentPageItems: currentPageRuleReports,
     totalItemCount,
     isLoading: isFetching,
     expandableVariant: "single",
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
-      items: currentPageItems,
+      items: currentPageRuleReports,
       isEqual: (a, b) => a._ui_unique_id === b._ui_unique_id,
     }),
   });
@@ -197,7 +197,7 @@ export const Issues: React.FC = () => {
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
   console.log("%c Current page items", "color: blue;");
-  console.log({ currentPageItems, totalItemCount });
+  console.log({ currentPageRuleReports, totalItemCount });
 
   const location = useLocation();
 
@@ -210,7 +210,7 @@ export const Issues: React.FC = () => {
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isFetching && !(currentPageItems || fetchError)}
+          when={isFetching && !(currentPageRuleReports || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
@@ -253,7 +253,7 @@ export const Issues: React.FC = () => {
                 isNoData={totalItemCount === 0}
                 numRenderedColumns={numRenderedColumns}
               >
-                {currentPageItems?.map((ruleReport, rowIndex) => {
+                {currentPageRuleReports?.map((ruleReport, rowIndex) => {
                   return (
                     <Tbody
                       key={ruleReport._ui_unique_id}

@@ -77,7 +77,7 @@ export const IssueAffectedFilesTable: React.FC<
   });
 
   const {
-    result: { data: currentPageItems, total: totalItemCount },
+    result: { data: currentPageFileReports, total: totalItemCount },
     isFetching,
     fetchError,
   } = useFetchFileReports(
@@ -95,12 +95,12 @@ export const IssueAffectedFilesTable: React.FC<
   const tableControls = useTableControlProps({
     ...tableControlState,
     idProperty: "file",
-    currentPageItems,
+    currentPageItems: currentPageFileReports,
     totalItemCount,
     isLoading: isFetching,
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
-      items: currentPageItems,
+      items: currentPageFileReports,
       isEqual: (a, b) => a.file === b.file,
     }),
   });
@@ -158,7 +158,7 @@ export const IssueAffectedFilesTable: React.FC<
           numRenderedColumns={numRenderedColumns}
         >
           <Tbody>
-            {currentPageItems?.map((fileReport, rowIndex) => (
+            {currentPageFileReports?.map((fileReport, rowIndex) => (
               <Tr key={fileReport.file}>
                 <TableRowContentWithControls
                   {...tableControls}
