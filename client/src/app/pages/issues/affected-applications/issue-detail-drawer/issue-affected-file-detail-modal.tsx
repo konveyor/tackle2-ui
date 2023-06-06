@@ -7,10 +7,13 @@ import {
   Modal,
   Tab,
   Tabs,
+  TextContent,
+  Text,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
-import { AnalysisFileReport } from "@app/api/models";
+import { AnalysisAppReport, AnalysisFileReport } from "@app/api/models";
 import { useFetchIssueIncidents } from "@app/queries/issues";
 import {
   AppPlaceholder,
@@ -19,16 +22,15 @@ import {
 } from "@app/shared/components";
 
 export interface IIssueAffectedFileDetailModalProps {
+  appReport: AnalysisAppReport;
   fileReport: AnalysisFileReport;
   onClose: () => void;
 }
 
 export const IssueAffectedFileDetailModal: React.FC<
   IIssueAffectedFileDetailModalProps
-> = ({ fileReport, onClose }) => {
+> = ({ appReport, fileReport, onClose }) => {
   const { t } = useTranslation();
-
-  console.log({ fileReport });
 
   // Only fetch the first 5 incidents here, the rest are fetched in a separate query in IssueAffectedFileRemainingIncidentsTable
   // TODO add IssueAffectedFileRemainingIncidentsTable? Should it include all incidents?
@@ -41,8 +43,6 @@ export const IssueAffectedFileDetailModal: React.FC<
     page: { pageNumber: 1, itemsPerPage: 5 },
   });
 
-  console.log({ firstFiveIncidents, totalNumIncidents });
-
   // TODO should the last tab be "All incidents" or "Remaining incidents"? Need some hard-coded offset if the latter
 
   type TabKey = number | "all";
@@ -54,6 +54,9 @@ export const IssueAffectedFileDetailModal: React.FC<
       setActiveTabIncidentId(firstFiveIncidents[0].id);
     }
   }, [activeTabIncidentId, isFetching, firstFiveIncidents]);
+
+  // TODO render incident facts?
+  // TODO render documentation links? are those part of the markdown? where do we get them from the hub?
 
   return (
     <Modal
@@ -112,7 +115,25 @@ export const IssueAffectedFileDetailModal: React.FC<
                     // TODO see monaco-editor-webpack-plugin setup info for including only resources for supported languages in the build
                   />
                 </GridItem>
-                <GridItem span={6}>TODO</GridItem>
+                <GridItem span={6} className={spacing.plSm}>
+                  <TextContent>
+                    <Text
+                      className={`${textStyles.fontSizeLg} ${spacing.mbXs}`}
+                    >
+                      {appReport.issue.name}
+                    </Text>
+                    <Text
+                      className={`${textStyles.fontSizeMd} ${spacing.mbLg}`}
+                    >
+                      Line {incident.line}
+                    </Text>
+                    <Text>
+                      TODO: render markdown
+                      <br />
+                      {incident.message}
+                    </Text>
+                  </TextContent>
+                </GridItem>
               </Grid>
             </Tab>
           ))}

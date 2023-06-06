@@ -202,6 +202,7 @@ export const IssueAffectedFilesTable: React.FC<
       />
       {selectedFileForDetailModal ? (
         <IssueAffectedFileDetailModal
+          appReport={appReport}
           fileReport={selectedFileForDetailModal}
           onClose={() => setSelectedFileForDetailModal(null)}
         />
