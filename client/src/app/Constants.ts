@@ -234,3 +234,10 @@ export enum IdentityFilterKey {
 export enum LocalStorageKey {
   selectedPersona = "selectedPersona",
 }
+
+// URL param prefixes: should be short, must be unique for each table that uses one
+export enum TableURLParamKeyPrefix {
+  issues = "i",
+  affectedApps = "a",
+  affectedFiles = "f",
+}
