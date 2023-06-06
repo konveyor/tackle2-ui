@@ -10,6 +10,7 @@ import {
   Modal,
   ToolbarGroup,
   ToolbarItem,
+  TooltipPosition,
 } from "@patternfly/react-core";
 import {
   cellWidth,
@@ -467,7 +468,7 @@ export const ApplicationsTable: React.FC = () => {
         ...(row.migrationWave !== null && {
           isAriaDisabled: true,
           tooltip: "Cannot delete application assigned to a migration wave.",
-          tooltipProps: "position: 'top'",
+          tooltipProps: { postition: TooltipPosition.top },
         }),
         onClick: (
           event: React.MouseEvent,
