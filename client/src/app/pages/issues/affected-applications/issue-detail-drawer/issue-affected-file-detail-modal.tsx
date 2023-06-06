@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import ReactMarkdown, { Components } from "react-markdown";
 import {
   Button,
   Grid,
@@ -20,6 +21,7 @@ import {
   NoDataEmptyState,
   StateError,
 } from "@app/shared/components";
+import { markdownPFComponents } from "@app/components/markdown-pf-components";
 
 export interface IIssueAffectedFileDetailModalProps {
   appReport: AnalysisAppReport;
@@ -57,6 +59,8 @@ export const IssueAffectedFileDetailModal: React.FC<
 
   // TODO render incident facts?
   // TODO render documentation links? are those part of the markdown? where do we get them from the hub?
+
+  console.log({ firstFiveIncidents });
 
   return (
     <Modal
@@ -122,16 +126,14 @@ export const IssueAffectedFileDetailModal: React.FC<
                     >
                       {appReport.issue.name}
                     </Text>
-                    <Text
-                      className={`${textStyles.fontSizeMd} ${spacing.mbLg}`}
-                    >
+                    <Text className={`${textStyles.fontSizeMd}`}>
                       Line {incident.line}
                     </Text>
-                    <Text>
-                      TODO: render markdown
-                      <br />
+                  </TextContent>
+                  <TextContent className={spacing.mtLg}>
+                    <ReactMarkdown components={markdownPFComponents}>
                       {incident.message}
-                    </Text>
+                    </ReactMarkdown>
                   </TextContent>
                 </GridItem>
               </Grid>
