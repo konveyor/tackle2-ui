@@ -347,9 +347,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         },
         {
           title: t("actions.delete"),
-          isAriaDisabled: row.migrationWave !== null,
-          tooltip: "Cannot delete application assigned to a migration wave.",
-          tooltipProps: { postition: TooltipPosition.top },
+          ...(row.migrationWave !== null && {
+            isAriaDisabled: true,
+            tooltip: "Cannot delete application assigned to a migration wave.",
+            tooltipProps: { postition: TooltipPosition.top },
+          }),
           onClick: () => deleteRow(row),
         }
       );
