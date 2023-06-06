@@ -10,6 +10,7 @@ import {
   Modal,
   ToolbarGroup,
   ToolbarItem,
+  TooltipPosition,
 } from "@patternfly/react-core";
 import {
   cellWidth,
@@ -346,7 +347,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         },
         {
           title: t("actions.delete"),
-          isDisabled: row.migrationWave !== null,
+          ...(row.migrationWave !== null && {
+            isAriaDisabled: true,
+            tooltip: "Cannot delete application assigned to a migration wave.",
+            tooltipProps: { postition: TooltipPosition.top },
+          }),
           onClick: () => deleteRow(row),
         }
       );
@@ -355,7 +360,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (tasksReadAccess) {
       actions.push({
         title: t("actions.analysisDetails"),
-        isDisabled: !getTask(row),
+        isAriaDisabled: !getTask(row),
         onClick: () => {
           const task = getTask(row);
           if (task) window.open(`/hub/tasks/${task.id}`, "_blank");
@@ -366,7 +371,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (tasksWriteAccess) {
       actions.push({
         title: "Cancel analysis",
-        isDisabled: !isTaskCancellable(row),
+        isAriaDisabled: !isTaskCancellable(row),
         onClick: () => cancelAnalysis(row),
       });
     }
@@ -438,20 +443,32 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     : [];
   const applicationDeleteDropdown = applicationWriteAccess
     ? [
-        <DropdownItem
-          key="manage-applications-bulk-delete"
-          isDisabled={
+        <ConditionalTooltip
+          isTooltipEnabled={
             selectedRows.length < 1 ||
-            selectedRows.filter(
+            selectedRows.some(
               (application) => application.migrationWave !== null
-            ).length > 0
+            )
           }
-          onClick={() => {
-            openBulkDeleteModal(selectedRows);
-          }}
+          content={
+            "Cannot delete application(s) assigned to migration wave(s)."
+          }
         >
-          {t("actions.delete")}
-        </DropdownItem>,
+          <DropdownItem
+            key="applications-bulk-delete"
+            isDisabled={
+              selectedRows.length < 1 ||
+              selectedRows.some(
+                (application) => application.migrationWave !== null
+              )
+            }
+            onClick={() => {
+              openBulkDeleteModal(selectedRows);
+            }}
+          >
+            {t("actions.delete")}
+          </DropdownItem>
+        </ConditionalTooltip>,
       ]
     : [];
   const dropdownItems = [

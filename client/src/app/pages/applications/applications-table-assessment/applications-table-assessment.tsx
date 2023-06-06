@@ -10,12 +10,12 @@ import {
   Modal,
   ToolbarGroup,
   ToolbarItem,
+  TooltipPosition,
 } from "@patternfly/react-core";
 import {
   cellWidth,
   IAction,
   ICell,
-  IExtraData,
   IRow,
   IRowData,
   ISeparator,
@@ -80,6 +80,7 @@ import { ApplicationDetailDrawerAssessment } from "../components/application-det
 import { useSetting } from "@app/queries/settings";
 import { useFetchTasks } from "@app/queries/tasks";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 
 const ENTITY_FIELD = "entity";
 
@@ -90,7 +91,6 @@ const getRow = (rowData: IRowData): Application => {
 export const ApplicationsTable: React.FC = () => {
   //RBAC
   const token = keycloak.tokenParsed;
-  // i18
   const { t } = useTranslation();
 
   const [
@@ -416,14 +416,7 @@ export const ApplicationsTable: React.FC = () => {
     ) {
       actions.push({
         title: t("actions.copyAssessment"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: Application = getRow(rowData);
-          openCopyAssessmentModal(row);
-        },
+        onClick: () => openCopyAssessmentModal(row),
       });
     }
     if (
@@ -433,14 +426,7 @@ export const ApplicationsTable: React.FC = () => {
     ) {
       actions.push({
         title: t("actions.copyAssessmentAndReview"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: Application = getRow(rowData);
-          openCopyAssessmentAndReviewModal(row);
-        },
+        onClick: () => openCopyAssessmentAndReviewModal(row),
       });
     }
     if (
@@ -449,12 +435,7 @@ export const ApplicationsTable: React.FC = () => {
     ) {
       actions.push({
         title: t("actions.discardAssessment"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: Application = getRow(rowData);
+        onClick: () => {
           discardAssessmentRow(row);
           fetchApplications();
         },
@@ -463,29 +444,19 @@ export const ApplicationsTable: React.FC = () => {
     if (applicationWriteAccess) {
       actions.push({
         title: t("actions.delete"),
-        isDisabled: row.migrationWave !== null,
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: Application = getRow(rowData);
-          deleteRow(row);
-        },
+        ...(row.migrationWave !== null && {
+          isAriaDisabled: true,
+          tooltip: "Cannot delete application assigned to a migration wave.",
+          tooltipProps: { postition: TooltipPosition.top },
+        }),
+        onClick: () => deleteRow(row),
       });
     }
 
     if (dependenciesWriteAccess) {
       actions.push({
         title: t("actions.manageDependencies"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: Application = getRow(rowData);
-          openDependenciesModal(row);
-        },
+        onClick: () => openDependenciesModal(row),
       });
     }
 
@@ -493,13 +464,7 @@ export const ApplicationsTable: React.FC = () => {
   };
 
   // Row actions
-  const selectRow = (
-    event: React.FormEvent<HTMLInputElement>,
-    isSelected: boolean,
-    rowIndex: number,
-    rowData: IRowData,
-    extraData: IExtraData
-  ) => {
+  const selectRow = (rowData: IRowData) => {
     const row = getRow(rowData);
     toggleRowSelected(row);
   };
@@ -655,20 +620,32 @@ export const ApplicationsTable: React.FC = () => {
     : [];
   const applicationDeleteDropdown = applicationWriteAccess
     ? [
-        <DropdownItem
-          key="manage-applications-bulk-delete"
-          isDisabled={
+        <ConditionalTooltip
+          isTooltipEnabled={
             selectedRows.length < 1 ||
-            selectedRows.filter(
+            selectedRows.some(
               (application) => application.migrationWave !== null
-            ).length > 0
+            )
           }
-          onClick={() => {
-            openBulkDeleteModal(selectedRows);
-          }}
+          content={
+            "Cannot delete application(s) assigned to migration wave(s)."
+          }
         >
-          {t("actions.delete")}
-        </DropdownItem>,
+          <DropdownItem
+            key="applications-bulk-delete"
+            isDisabled={
+              selectedRows.length < 1 ||
+              selectedRows.some(
+                (application) => application.migrationWave !== null
+              )
+            }
+            onClick={() => {
+              openBulkDeleteModal(selectedRows);
+            }}
+          >
+            {t("actions.delete")}
+          </DropdownItem>
+        </ConditionalTooltip>,
       ]
     : [];
   const dropdownItems = [...importDropdownItems, ...applicationDeleteDropdown];
