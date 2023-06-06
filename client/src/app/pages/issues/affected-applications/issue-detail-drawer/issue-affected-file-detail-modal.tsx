@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, Modal } from "@patternfly/react-core";
+import { Button, Modal, Tab, Tabs } from "@patternfly/react-core";
 import { AnalysisFileReport } from "@app/api/models";
 import { useFetchIssueIncidents } from "@app/queries/issues";
 import {
@@ -25,7 +25,7 @@ export const IssueAffectedFileDetailModal: React.FC<
   // Only fetch the first 5 incidents here, the rest are fetched in a separate query in IssueAffectedFileRemainingIncidentsTable
   // TODO add IssueAffectedFileRemainingIncidentsTable? Should it include all incidents?
   const {
-    result: { data: firstFiveIncidents },
+    result: { data: firstFiveIncidents, total: totalNumIncidents },
     isFetching,
     fetchError,
   } = useFetchIssueIncidents(fileReport.issueId, {
@@ -33,9 +33,19 @@ export const IssueAffectedFileDetailModal: React.FC<
     page: { pageNumber: 1, itemsPerPage: 5 },
   });
 
-  console.log({ firstFiveIncidents });
+  console.log({ firstFiveIncidents, totalNumIncidents });
 
-  // TODO dynamic tab state and logic, useEffect to select the first tab if data is present and current tab is null
+  // TODO should the last tab be "All incidents" or "Remaining incidents"? Need some hard-coded offset if the latter
+
+  type TabKey = number | "all";
+  const [activeTabIncidentId, setActiveTabIncidentId] =
+    React.useState<TabKey>();
+  // Auto-select the first tab once incidents are loaded
+  React.useEffect(() => {
+    if (!activeTabIncidentId && !isFetching && firstFiveIncidents.length > 0) {
+      setActiveTabIncidentId(firstFiveIncidents[0].id);
+    }
+  }, [activeTabIncidentId, isFetching, firstFiveIncidents]);
 
   return (
     <Modal
@@ -60,10 +70,27 @@ export const IssueAffectedFileDetailModal: React.FC<
           })}
         />
       ) : (
-        <>
-          TODO: incidents for file {fileReport.file}
-          {JSON.stringify(firstFiveIncidents, undefined, 2)}
-        </>
+        <Tabs
+          activeKey={activeTabIncidentId}
+          onSelect={(_event, tabKey) =>
+            setActiveTabIncidentId(tabKey as number | "all")
+          }
+        >
+          {firstFiveIncidents.map((incident, index) => (
+            <Tab
+              key={incident.id}
+              eventKey={incident.id}
+              title={`Incident #${index + 1}: Line ${incident.line}`} // TODO i18n
+            >
+              TODO
+            </Tab>
+          ))}
+          {totalNumIncidents > 5 ? (
+            <Tab eventKey="all" title="All incidents">
+              TODO: All
+            </Tab>
+          ) : null}
+        </Tabs>
       )}
     </Modal>
   );
