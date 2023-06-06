@@ -108,7 +108,7 @@ export const PageDrawerContent: React.FC<IPageDrawerContentProps> = ({
   isExpanded: localIsExpandedProp,
   onCloseClick,
   children,
-  drawerPanelContentProps = {},
+  drawerPanelContentProps: localDrawerPanelContentProps,
   focusKey,
   pageKey: localPageKeyProp,
 }) => {
@@ -144,13 +144,17 @@ export const PageDrawerContent: React.FC<IPageDrawerContentProps> = ({
     };
   }, [localIsExpandedProp]);
 
-  // Same deal with the page key, keep it in sync with the local prop on PageDrawerContent.
+  // Same with pageKey and drawerPanelContentProps, keep them in sync with the local prop on PageDrawerContent.
   React.useEffect(() => {
     setDrawerPageKey(localPageKeyProp);
     return () => {
       setDrawerPageKey("");
     };
   }, [localPageKeyProp]);
+
+  React.useEffect(() => {
+    setDrawerPanelContentProps(localDrawerPanelContentProps || {});
+  }, [localDrawerPanelContentProps]);
 
   // If the drawer is already expanded describing app A, then the user clicks app B, we want to send focus back to the drawer.
   React.useEffect(() => {
@@ -173,10 +177,6 @@ export const PageDrawerContent: React.FC<IPageDrawerContentProps> = ({
       </DrawerHead>
     );
   }, [children]);
-
-  React.useEffect(() => {
-    setDrawerPanelContentProps(drawerPanelContentProps);
-  }, [drawerPanelContentProps]);
 
   return null;
 };
