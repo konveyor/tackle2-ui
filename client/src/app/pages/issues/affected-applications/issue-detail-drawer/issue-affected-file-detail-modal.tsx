@@ -22,6 +22,9 @@ import {
   StateError,
 } from "@app/shared/components";
 import { markdownPFComponents } from "@app/components/markdown-pf-components";
+import { getOnEditorDidMountWithLineMarker } from "./utils";
+
+import "./issue-affected-file-detail-modal.css";
 
 export interface IIssueAffectedFileDetailModalProps {
   appReport: AnalysisAppReport;
@@ -47,9 +50,9 @@ export const IssueAffectedFileDetailModal: React.FC<
 
   // TODO should the last tab be "All incidents" or "Remaining incidents"? Need some hard-coded offset if the latter
 
-  type TabKey = number | "all";
+  type IncidentIdOrAll = number | "all";
   const [activeTabIncidentId, setActiveTabIncidentId] =
-    React.useState<TabKey>();
+    React.useState<IncidentIdOrAll>();
   // Auto-select the first tab once incidents are loaded
   React.useEffect(() => {
     if (!activeTabIncidentId && !isFetching && firstFiveIncidents.length > 0) {
@@ -88,57 +91,63 @@ export const IssueAffectedFileDetailModal: React.FC<
         <Tabs
           activeKey={activeTabIncidentId}
           onSelect={(_event, tabKey) =>
-            setActiveTabIncidentId(tabKey as TabKey)
+            setActiveTabIncidentId(tabKey as IncidentIdOrAll)
           }
         >
-          {firstFiveIncidents.map((incident, index) => (
-            <Tab
-              key={incident.id}
-              eventKey={incident.id}
-              title={`Incident #${index + 1}: Line ${incident.line}`} // TODO i18n
-            >
-              <Grid hasGutter className={spacing.mtLg}>
-                <GridItem span={6}>
-                  <CodeEditor
-                    isDarkTheme
-                    isLineNumbersVisible
-                    isReadOnly
-                    code={incident.codeSnip}
-                    options={
-                      {
-                        // TODO figure out magic numbers here and make this accurate - use hub codeSnipStartLine once it exists?
-                        // lineNumbers: (lineNumber) =>
-                        //  String(incident.line + lineNumber - 1 - 10), // -1 because lineNumber is 1-indexed, - 10 because codeSnip starts 10 lines early
-                      }
-                    }
-                    height="450px"
-                    onEditorDidMount={(editor) => {
-                      editor.layout();
-                    }}
-                    // language={Language.java} // TODO can we determine the language from the hub?
-                    // TODO see monaco-editor-webpack-plugin setup info for including only resources for supported languages in the build
-                  />
-                </GridItem>
-                <GridItem span={6} className={spacing.plSm}>
-                  <TextContent>
-                    <Text
-                      className={`${textStyles.fontSizeLg} ${spacing.mbXs}`}
-                    >
-                      {appReport.issue.name}
-                    </Text>
-                    <Text className={`${textStyles.fontSizeMd}`}>
-                      Line {incident.line}
-                    </Text>
-                  </TextContent>
-                  <TextContent className={spacing.mtLg}>
-                    <ReactMarkdown components={markdownPFComponents}>
-                      {incident.message}
-                    </ReactMarkdown>
-                  </TextContent>
-                </GridItem>
-              </Grid>
-            </Tab>
-          ))}
+          {firstFiveIncidents.map((incident, index) => {
+            const incidentRelativeLine = 10; // TODO magic number?
+            const incidentMessage = appReport.issue.name;
+            return (
+              <Tab
+                key={incident.id}
+                eventKey={incident.id}
+                title={`Incident #${index + 1}: Line ${incident.line}`} // TODO i18n
+              >
+                {activeTabIncidentId === incident.id ? ( // Only mount CodeEditor for the active tab
+                  <Grid hasGutter className={spacing.mtLg}>
+                    <GridItem span={6}>
+                      <CodeEditor
+                        isReadOnly
+                        isDarkTheme
+                        isLineNumbersVisible
+                        code={incident.codeSnip}
+                        options={{
+                          renderValidationDecorations: "on", // See https://github.com/microsoft/monaco-editor/issues/311#issuecomment-578026465
+                          // TODO figure out magic numbers here and make this accurate - use hub codeSnipStartLine once it exists?
+                          // lineNumbers: (lineNumber) =>
+                          //  String(incident.line + lineNumber - 1 - 10), // -1 because lineNumber is 1-indexed, - 10 because codeSnip starts 10 lines early
+                        }}
+                        height="450px"
+                        onEditorDidMount={getOnEditorDidMountWithLineMarker(
+                          incidentRelativeLine,
+                          incidentMessage
+                        )}
+                        // language={Language.java} // TODO can we determine the language from the hub?
+                        // TODO see monaco-editor-webpack-plugin setup info for including only resources for supported languages in the build
+                      />
+                    </GridItem>
+                    <GridItem span={6} className={spacing.plSm}>
+                      <TextContent>
+                        <Text
+                          className={`${textStyles.fontSizeLg} ${spacing.mbXs}`}
+                        >
+                          {appReport.issue.name}
+                        </Text>
+                        <Text className={`${textStyles.fontSizeMd}`}>
+                          Line {incident.line}
+                        </Text>
+                      </TextContent>
+                      <TextContent className={spacing.mtLg}>
+                        <ReactMarkdown components={markdownPFComponents}>
+                          {incident.message}
+                        </ReactMarkdown>
+                      </TextContent>
+                    </GridItem>
+                  </Grid>
+                ) : null}
+              </Tab>
+            );
+          })}
           {totalNumIncidents > 5 ? (
             <Tab
               eventKey="all"
