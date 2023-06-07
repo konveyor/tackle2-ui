@@ -7,7 +7,7 @@ import {
   AnalysisIssue,
   AnalysisAppReport,
   AnalysisFileReport,
-  AnalysisIssueIncident,
+  AnalysisIncident,
   Application,
   ApplicationAdoptionPlan,
   ApplicationDependency,
@@ -582,7 +582,7 @@ export const getIssueIncidents = (
   params: HubRequestParams = {}
 ) =>
   issueId
-    ? getHubPaginatedResult<AnalysisIssueIncident>(
+    ? getHubPaginatedResult<AnalysisIncident>(
         ANALYSIS_ISSUE_INCIDENTS.replace("/:id/", `/${String(issueId)}/`),
         params
       )

@@ -616,7 +616,7 @@ export interface AnalysisFileReport {
   effort: number;
 }
 
-export interface AnalysisIssueIncident {
+export interface AnalysisIncident {
   id: number;
   file: string;
   line: number;
