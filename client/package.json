@@ -46,6 +46,7 @@
     "react-hot-loader": "^4.13.1",
     "react-i18next": "^11.8.5",
     "react-image-file-resizer": "^0.4.8",
+    "react-markdown": "^8.0.7",
     "react-measure": "^2.5.2",
     "react-monaco-editor": "^0.52.0",
     "react-router-dom": "^5.2.0",
