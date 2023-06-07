@@ -10,6 +10,7 @@ import {
   Tabs,
   TextContent,
   Text,
+  Alert,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
@@ -129,6 +130,12 @@ export const FileIncidentsDetailModal: React.FC<
               eventKey="all"
               title={`All incidents (${totalNumIncidents})`} // TODO i18n
             >
+              <Alert
+                isInline
+                variant="info"
+                className={spacing.mtMd}
+                title="TODO"
+              />
               <FileAllIncidentsTable fileReport={fileReport} />
             </Tab>
           ) : null}
