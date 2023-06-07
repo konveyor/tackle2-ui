@@ -21,21 +21,21 @@ import {
   StateError,
 } from "@app/shared/components";
 import { markdownPFComponents } from "@app/components/markdown-pf-components";
-import { IssueIncidentCodeSnipViewer } from "./issue-incident-code-snip-viewer";
+import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
 
-export interface IIssueAffectedFileDetailModalProps {
+export interface IFileIncidentsDetailModalProps {
   appReport: AnalysisAppReport;
   fileReport: AnalysisFileReport;
   onClose: () => void;
 }
 
-export const IssueAffectedFileDetailModal: React.FC<
-  IIssueAffectedFileDetailModalProps
+export const FileIncidentsDetailModal: React.FC<
+  IFileIncidentsDetailModalProps
 > = ({ appReport, fileReport, onClose }) => {
   const { t } = useTranslation();
 
   // Only fetch the first 5 incidents here, the rest are fetched in a separate query in IssueAffectedFileRemainingIncidentsTable
-  // TODO add IssueAffectedFileRemainingIncidentsTable? Should it include all incidents?
+  // TODO add IssueFileAllIncidentsTable? Should it include all incidents?
   const {
     result: { data: firstFiveIncidents, total: totalNumIncidents },
     isFetching,
@@ -101,7 +101,7 @@ export const IssueAffectedFileDetailModal: React.FC<
               {activeTabIncidentId === incident.id ? (
                 <Grid hasGutter className={spacing.mtLg}>
                   <GridItem span={6}>
-                    <IssueIncidentCodeSnipViewer
+                    <IncidentCodeSnipViewer
                       appReport={appReport}
                       incident={incident}
                     />

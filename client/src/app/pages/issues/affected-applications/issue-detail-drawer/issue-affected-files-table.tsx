@@ -30,7 +30,7 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
-import { IssueAffectedFileDetailModal } from "./issue-affected-file-detail-modal";
+import { FileIncidentsDetailModal } from "./file-incidents-detail-modal";
 import {
   FilterToolbar,
   FilterType,
@@ -201,7 +201,7 @@ export const IssueAffectedFilesTable: React.FC<
         paginationProps={paginationProps}
       />
       {selectedFileForDetailModal ? (
-        <IssueAffectedFileDetailModal
+        <FileIncidentsDetailModal
           appReport={appReport}
           fileReport={selectedFileForDetailModal}
           onClose={() => setSelectedFileForDetailModal(null)}

@@ -2,16 +2,17 @@ import * as React from "react";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import { AnalysisAppReport, AnalysisIncident } from "@app/api/models";
 
-import "./issue-incident-code-snip-viewer.css";
+import "./incident-code-snip-viewer.css";
 
-export interface IIssueIncidentCodeSnipViewerProps {
+export interface IIncidentCodeSnipViewerProps {
   appReport: AnalysisAppReport;
   incident: AnalysisIncident;
 }
 
-export const IssueIncidentCodeSnipViewer: React.FC<
-  IIssueIncidentCodeSnipViewerProps
-> = ({ appReport, incident }) => {
+export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
+  appReport,
+  incident,
+}) => {
   const relativeLine = 10; // TODO magic number?
   return (
     <CodeEditor
