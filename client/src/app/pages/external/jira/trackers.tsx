@@ -238,7 +238,10 @@ export const JiraTrackers: React.FC = () => {
                           {tracker.kind}
                         </Td>
                         <Td width={10} {...getTdProps({ columnKey: "kind" })}>
-                          <TrackerStatus connected={tracker.connected} />
+                          <TrackerStatus
+                            connected={tracker.connected}
+                            message={tracker.message}
+                          />
                         </Td>
                         <Td width={20}>
                           <AppTableActionButtons
