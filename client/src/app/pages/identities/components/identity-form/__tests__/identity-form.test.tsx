@@ -164,7 +164,17 @@ describe("Component: identity-form", () => {
       }
     );
 
+    expect(passwordInput).toHaveValue("password");
     expect(createButton).toBeEnabled();
+
+    // focus off password then focus back on should 1. clear the password and 2. disable the create button
+    await waitFor(() => {
+      fireEvent.focus(createButton);
+      fireEvent.focus(passwordInput);
+    });
+
+    expect(passwordInput).toHaveValue("");
+    expect(createButton).toBeDisabled();
   });
 
   it("Identity form validation test - source - key upload", async () => {
