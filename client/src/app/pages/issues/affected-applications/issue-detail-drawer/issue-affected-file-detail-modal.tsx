@@ -21,7 +21,6 @@ import {
   StateError,
 } from "@app/shared/components";
 import { markdownPFComponents } from "@app/components/markdown-pf-components";
-import { getOnEditorDidMountWithLineMarker } from "./utils";
 import { IssueIncidentCodeSnipViewer } from "./issue-incident-code-snip-viewer";
 
 export interface IIssueAffectedFileDetailModalProps {
