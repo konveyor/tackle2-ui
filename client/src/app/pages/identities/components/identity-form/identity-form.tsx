@@ -355,6 +355,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     setValue,
     control,
     watch,
+    resetField,
   } = useForm<IdentityFormValues>({
     defaultValues: {
       description: identity?.description || "",
@@ -457,8 +458,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               const selectionValue = selection as OptionWithValue<IdentityKind>;
               setValue(name, selectionValue.value);
               // So we don't retain the values from the wrong type of credential
-              setValue("user", "");
-              setValue("password", "");
+              resetField("user");
+              resetField("password");
             }}
           />
         )}
@@ -489,8 +490,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     selection as OptionWithValue<UserCredentials>;
                   setValue(name, selectionValue.value);
                   // So we don't retain the values from the wrong type of credential
-                  setValue("user", "");
-                  setValue("password", "");
+                  resetField("user");
+                  resetField("password");
                 }}
               />
             )}
@@ -520,7 +521,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   ) : undefined,
                 }}
                 type={isPasswordHidden ? "password" : "text"}
-                onFocus={() => setValue("password", "")}
+                onFocus={() => resetField("password")}
               />
             </>
           )}
@@ -563,7 +564,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     filenamePlaceholder="Drag and drop a file or upload one"
                     onClearClick={() => {
                       onChange("");
-                      setValue("keyFilename", "");
+                      resetField("keyFilename");
                       setIsKeyFileRejected(false);
                     }}
                     allowEditingUploadedText
@@ -586,12 +587,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     />
                   ) : undefined,
                 }}
-                onFocus={() => setValue("password", "")}
+                onFocus={() => resetField("password")}
               />
             </>
           )}
         </>
       )}
+
       {values?.kind === "maven" && (
         <HookFormPFGroupController
           control={control}
@@ -627,7 +629,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               filenamePlaceholder="Drag and drop a file or upload one"
               onClearClick={() => {
                 onChange("");
-                setValue("settingsFilename", "");
+                resetField("settingsFilename");
                 setIsSettingsFileRejected(false);
               }}
               onReadStarted={() => setIsLoading(true)}
@@ -667,7 +669,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 />
               ) : undefined,
             }}
-            onFocus={() => setValue("password", "")}
+            onFocus={() => resetField("password")}
           />
         </>
       )}
