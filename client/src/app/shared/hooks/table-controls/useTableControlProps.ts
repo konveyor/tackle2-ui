@@ -38,6 +38,7 @@ export const useTableControlProps = <
   //       For future additions, inspect `args` to see if it has anything more you need.
   const {
     currentPageItems,
+    forceNumRenderedColumns,
     filterState: { setFilterValues },
     expansionState: { expandedCells },
     selectionState: {
@@ -68,6 +69,7 @@ export const useTableControlProps = <
   if (expandableVariant === "single") numColumnsBeforeData++;
   if (hasActionsColumn) numColumnsAfterData++;
   const numRenderedColumns =
+    forceNumRenderedColumns ||
     columnKeys.length + numColumnsBeforeData + numColumnsAfterData;
 
   const expansionDerivedState = getExpansionDerivedState(args);

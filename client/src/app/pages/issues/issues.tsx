@@ -73,10 +73,7 @@ export const Issues: React.FC = () => {
       "effort",
       "applications",
     ],
-    initialSort: {
-      columnKey: "name",
-      direction: "asc",
-    },
+    initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
       //TODO: Should this be select filter type using apps available in memory?
       {

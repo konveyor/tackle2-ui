@@ -57,10 +57,7 @@ export const IssueAffectedFilesTable: React.FC<
       "incidents",
       // "effort", // TODO this sort is not supported by the hub yet
     ],
-    initialSort: {
-      columnKey: "file",
-      direction: "asc",
-    },
+    initialSort: { columnKey: "file", direction: "asc" },
     filterCategories: [
       {
         key: "file",

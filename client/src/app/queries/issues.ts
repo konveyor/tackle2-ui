@@ -9,7 +9,7 @@ import {
   getIssues,
   getAppReports,
   getFileReports,
-  getIssueIncidents,
+  getIncidents,
 } from "@app/api/rest";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
 
@@ -104,7 +104,7 @@ export const useFetchFileReports = (
   };
 };
 
-export const useFetchIssueIncidents = (
+export const useFetchIncidents = (
   issueId?: number,
   params: HubRequestParams = {}
 ) => {
@@ -115,7 +115,7 @@ export const useFetchIssueIncidents = (
       issueId,
       serializeRequestParamsForHub(params).toString(),
     ],
-    queryFn: async () => await getIssueIncidents(issueId, params),
+    queryFn: async () => await getIncidents(issueId, params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
   });

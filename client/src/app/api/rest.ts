@@ -577,10 +577,7 @@ export const getFileReports = (
       )
     : Promise.reject();
 
-export const getIssueIncidents = (
-  issueId?: number,
-  params: HubRequestParams = {}
-) =>
+export const getIncidents = (issueId?: number, params: HubRequestParams = {}) =>
   issueId
     ? getHubPaginatedResult<AnalysisIncident>(
         ANALYSIS_ISSUE_INCIDENTS.replace("/:id/", `/${String(issueId)}/`),

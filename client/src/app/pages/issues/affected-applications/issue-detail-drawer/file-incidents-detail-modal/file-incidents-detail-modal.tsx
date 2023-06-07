@@ -14,7 +14,7 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { AnalysisAppReport, AnalysisFileReport } from "@app/api/models";
-import { useFetchIssueIncidents } from "@app/queries/issues";
+import { useFetchIncidents } from "@app/queries/issues";
 import {
   AppPlaceholder,
   NoDataEmptyState,
@@ -22,6 +22,7 @@ import {
 } from "@app/shared/components";
 import { markdownPFComponents } from "@app/components/markdown-pf-components";
 import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
+import { FileAllIncidentsTable } from "./file-all-incidents-table";
 
 export interface IFileIncidentsDetailModalProps {
   appReport: AnalysisAppReport;
@@ -40,7 +41,7 @@ export const FileIncidentsDetailModal: React.FC<
     result: { data: firstFiveIncidents, total: totalNumIncidents },
     isFetching,
     fetchError,
-  } = useFetchIssueIncidents(fileReport.issueId, {
+  } = useFetchIncidents(fileReport.issueId, {
     filters: [{ field: "file", operator: "=", value: fileReport.file }],
     page: { pageNumber: 1, itemsPerPage: 5 },
   });
@@ -128,7 +129,7 @@ export const FileIncidentsDetailModal: React.FC<
               eventKey="all"
               title={`All incidents (${totalNumIncidents})`} // TODO i18n
             >
-              TODO: All
+              <FileAllIncidentsTable fileReport={fileReport} />
             </Tab>
           ) : null}
         </Tabs>

@@ -64,10 +64,7 @@ export const AffectedApplications: React.FC = () => {
       businessService: "Business serice",
     },
     sortableColumns: ["name"],
-    initialSort: {
-      columnKey: "name",
-      direction: "asc",
-    },
+    initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
       //TODO: Should this be select filter type using apps available in memory?
       {
