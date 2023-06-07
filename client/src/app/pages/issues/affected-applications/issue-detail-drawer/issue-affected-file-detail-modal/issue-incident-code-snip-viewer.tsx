@@ -20,6 +20,8 @@ export const IssueIncidentCodeSnipViewer: React.FC<
       isLineNumbersVisible
       height="450px"
       code={incident.codeSnip}
+      // language={Language.java} // TODO can we determine the language from the hub?
+      // TODO see monaco-editor-webpack-plugin setup info for including only resources for supported languages in the build
       options={{
         renderValidationDecorations: "on", // See https://github.com/microsoft/monaco-editor/issues/311#issuecomment-578026465
         // TODO figure out magic numbers here and make this accurate - use hub codeSnipStartLine once it exists?
@@ -62,8 +64,6 @@ export const IssueIncidentCodeSnipViewer: React.FC<
         }
         editor.layout();
       }}
-      // language={Language.java} // TODO can we determine the language from the hub?
-      // TODO see monaco-editor-webpack-plugin setup info for including only resources for supported languages in the build
     />
   );
 };
