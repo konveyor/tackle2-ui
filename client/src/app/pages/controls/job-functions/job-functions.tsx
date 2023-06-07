@@ -135,7 +135,7 @@ export const JobFunctions: React.FC = () => {
   const rows: IRow[] = [];
   currentPageItems?.forEach((item) => {
     const isAssignedToStakeholders = stakeholders?.some(
-      (stakeholder) => stakeholder.jobFunction?.id === item.id
+      (stakeholder) => stakeholder.jobFunction?.id !== item.id
     );
     rows.push({
       [ENTITY_FIELD]: item,
@@ -146,7 +146,7 @@ export const JobFunctions: React.FC = () => {
         {
           title: (
             <AppTableActionButtons
-              isDeleteEnabled={isAssignedToStakeholders}
+              isDeleteEnabled={!isAssignedToStakeholders}
               tooltipMessage="Cannot remove a Job function associated with stakeholder(s)"
               onEdit={() => setRowToUpdate(item)}
               onDelete={() => deleteRow(item)}
