@@ -29,6 +29,7 @@ export const useFetchApplications = () => {
     initialData: [],
     queryKey: [ApplicationsQueryKey],
     queryFn: getApplications,
+    refetchInterval: 5000,
     onSuccess: () => {
       queryClient.invalidateQueries([reviewsQueryKey]);
       queryClient.invalidateQueries([assessmentsQueryKey]);
