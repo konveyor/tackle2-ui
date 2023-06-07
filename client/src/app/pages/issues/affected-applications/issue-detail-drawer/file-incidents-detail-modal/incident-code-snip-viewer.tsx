@@ -29,7 +29,8 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
       height="450px"
       code={incident.codeSnip} // TODO replace this with line numbers stripped out
       // language={Language.java} // TODO can we determine the language from the hub?
-      // TODO see monaco-editor-webpack-plugin setup info for including only resources for supported languages in the build
+      // TODO Configure monaco-editor-webpack-plugin to only include resources for supported languages in the build
+      //      (See https://github.com/microsoft/monaco-editor/tree/main/webpack-plugin#options)
       options={{
         renderValidationDecorations: "on", // See https://github.com/microsoft/monaco-editor/issues/311#issuecomment-578026465
         lineNumbers: (lineNumber) =>
