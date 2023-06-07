@@ -14,10 +14,10 @@ import {
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
 
 export const RuleReportsQueryKey = "rulereports";
-export const AppReportsQueryKey = "issuereports";
+export const AppReportsQueryKey = "appreports";
 export const FileReportsQueryKey = "filereports";
 export const IssuesQueryKey = "issues";
-export const IssueIncidentsQueryKey = "incidents";
+export const IncidentsQueryKey = "incidents";
 
 export const useFetchRuleReports = (params: HubRequestParams = {}) => {
   const { data, isLoading, error, refetch } = useQuery({
@@ -111,7 +111,7 @@ export const useFetchIncidents = (
   const { data, isLoading, error, refetch } = useQuery({
     enabled: issueId !== undefined,
     queryKey: [
-      IssueIncidentsQueryKey,
+      IncidentsQueryKey,
       issueId,
       serializeRequestParamsForHub(params).toString(),
     ],

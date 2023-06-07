@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import {
   TableComposable,
   Thead,
@@ -8,7 +7,6 @@ import {
   Tbody,
   Td,
 } from "@patternfly/react-table";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useSelectionState } from "@migtools/lib-ui";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import { AnalysisFileReport } from "@app/api/models";

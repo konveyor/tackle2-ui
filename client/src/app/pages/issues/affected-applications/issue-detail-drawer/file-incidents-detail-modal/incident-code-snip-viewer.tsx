@@ -13,42 +13,50 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
   appReport,
   incident,
 }) => {
-  const relativeLine = 10; // TODO magic number?
+  // TODO once hub includes line numbers in the codeSnip string, we'll need to parse that and strip those numbers out.
+  const codeSnipStartLine = 1; // TODO replace this based on parsed line numbers from the codeSnip
+
+  const absoluteToRelativeLineNum = (lineNum: number) =>
+    lineNum - (codeSnipStartLine - 1);
+  const relativeToAbsoluteLineNum = (lineNum: number) =>
+    lineNum + (codeSnipStartLine - 1);
+
   return (
     <CodeEditor
       isReadOnly
       isDarkTheme
       isLineNumbersVisible
       height="450px"
-      code={incident.codeSnip}
+      code={incident.codeSnip} // TODO replace this with line numbers stripped out
       // language={Language.java} // TODO can we determine the language from the hub?
       // TODO see monaco-editor-webpack-plugin setup info for including only resources for supported languages in the build
       options={{
         renderValidationDecorations: "on", // See https://github.com/microsoft/monaco-editor/issues/311#issuecomment-578026465
-        // TODO figure out magic numbers here and make this accurate - use hub codeSnipStartLine once it exists?
-        // lineNumbers: (lineNumber) =>
-        //  String(incident.line + lineNumber - 1 - 10), // -1 because lineNumber is 1-indexed, - 10 because codeSnip starts 10 lines early
+        lineNumbers: (lineNumber) =>
+          String(relativeToAbsoluteLineNum(lineNumber)),
       }}
       onEditorDidMount={(editor, monaco) => {
         try {
           const model = editor.getModel();
           if (model) {
+            const relativeLineNum = absoluteToRelativeLineNum(incident.line);
             // Red squiggly under the affected line
             monaco.editor.setModelMarkers(model, "my-markers", [
               {
                 message: appReport.issue.name,
                 severity: monaco.MarkerSeverity.Error,
-                startLineNumber: relativeLine,
+                startLineNumber: relativeLineNum,
                 startColumn:
-                  model?.getLineFirstNonWhitespaceColumn(relativeLine),
-                endLineNumber: relativeLine,
-                endColumn: model?.getLineLastNonWhitespaceColumn(relativeLine),
+                  model?.getLineFirstNonWhitespaceColumn(relativeLineNum),
+                endLineNumber: relativeLineNum,
+                endColumn:
+                  model?.getLineLastNonWhitespaceColumn(relativeLineNum),
               },
             ]);
             // Red exclamation icon in the gutter next to the affected line
             editor.createDecorationsCollection([
               {
-                range: new monaco.Range(relativeLine, 1, relativeLine, 1),
+                range: new monaco.Range(relativeLineNum, 1, relativeLineNum, 1),
                 options: {
                   isWholeLine: true,
                   linesDecorationsClassName:

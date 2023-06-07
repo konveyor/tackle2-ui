@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import ReactMarkdown, { Components } from "react-markdown";
+import ReactMarkdown from "react-markdown";
 import {
   Button,
   Grid,
@@ -36,8 +36,7 @@ export const FileIncidentsDetailModal: React.FC<
 > = ({ appReport, fileReport, onClose }) => {
   const { t } = useTranslation();
 
-  // Only fetch the first 5 incidents here, the rest are fetched in a separate query in IssueAffectedFileRemainingIncidentsTable
-  // TODO add IssueFileAllIncidentsTable? Should it include all incidents?
+  // Only fetch the first 5 incidents here, the rest are fetched in a separate query in FileAllIncidentsTable
   const {
     result: { data: firstFiveIncidents, total: totalNumIncidents },
     isFetching,
@@ -46,8 +45,6 @@ export const FileIncidentsDetailModal: React.FC<
     filters: [{ field: "file", operator: "=", value: fileReport.file }],
     page: { pageNumber: 1, itemsPerPage: 5 },
   });
-
-  // TODO should the last tab be "All incidents" or "Remaining incidents"? Need some hard-coded offset if the latter
 
   type IncidentIdOrAll = number | "all";
   const [activeTabIncidentId, setActiveTabIncidentId] =
