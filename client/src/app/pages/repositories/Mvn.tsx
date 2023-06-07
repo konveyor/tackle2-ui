@@ -9,6 +9,7 @@ import {
   FormGroup,
   PageSection,
   PageSectionVariants,
+  Spinner,
   Switch,
   Text,
   TextContent,
@@ -79,7 +80,7 @@ export const RepositoriesMvn: React.FC = () => {
             <Form>
               <FormGroup label="Local artifact repository" fieldId="name">
                 <TextInput
-                  value={storageValue}
+                  value={isFetching ? "" : storageValue}
                   className="repo"
                   type="text"
                   aria-label="Maven Repository Size"
@@ -100,7 +101,19 @@ export const RepositoriesMvn: React.FC = () => {
                     isAriaDisabled={!isRWXSupported || isFetching || isDeleting}
                     onClick={() => setIsConfirmDialogOpen(true)}
                   >
-                    Clear repository
+                    {isFetching ? (
+                      <Text>
+                        Loading...
+                        <Spinner
+                          className={spacing.mlMd}
+                          isInline
+                          isSVG
+                          aria-label="Spinner of clear repository button"
+                        />
+                      </Text>
+                    ) : (
+                      "Clear repository"
+                    )}
                   </Button>
                 </ConditionalTooltip>
               </FormGroup>
