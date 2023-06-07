@@ -59,6 +59,7 @@ import {
   useDeleteApplicationMutation,
   useFetchApplications,
   useBulkDeleteApplicationMutation,
+  ApplicationsQueryKey,
 } from "@app/queries/applications";
 import {
   ApplicationTableType,
@@ -89,6 +90,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const [applicationToDeleteId, setApplicationToDeleteId] =
     React.useState<number>();
+
+  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
+    React.useState(false);
 
   // Router
   const history = useHistory();
@@ -124,8 +128,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const queryClient = useQueryClient();
   const allTasksComplete = tasks.every((task) => task.state !== "Running");
+
   React.useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: ["applications"] });
+    queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
   }, [allTasksComplete]);
 
   const completedCancelTask = () => {
@@ -230,10 +235,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     update: openBulkDeleteModal,
     close: closeBulkDeleteModal,
   } = useEntityModal<Application[]>();
-
-  // Application import modal
-  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    React.useState(false);
 
   // Table
   const columns: ICell[] = [
@@ -655,11 +656,12 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         isOpen={isApplicationImportModalOpen}
         variant="medium"
         title={t("dialog.title.importApplicationFile")}
-        onClose={() => setIsApplicationImportModalOpen((current) => !current)}
+        onClose={() => setIsApplicationImportModalOpen(false)}
       >
         <ImportApplicationsForm
           onSaved={() => {
             setIsApplicationImportModalOpen(false);
+            selectAll(false);
           }}
         />
       </Modal>
@@ -706,6 +708,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                   });
               }
               closeBulkDeleteModal();
+              selectAll(false);
             }}
           >
             {t("actions.delete")}
