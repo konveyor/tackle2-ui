@@ -288,6 +288,7 @@ export const Identities: React.FC = () => {
         </ConditionalRender>
 
         <Modal
+          id="credential.modal"
           title={
             identityToUpdate
               ? t("dialog.title.update", {
@@ -316,7 +317,7 @@ export const Identities: React.FC = () => {
           titleIconVariant={"warning"}
           message={
             dependentApplications?.length
-              ? `${`The credentials are being used by ${dependentApplications.length} application(s). Deleting these credentials will also remove them from the associated applications.`} 
+              ? `${`The credentials are being used by ${dependentApplications.length} application(s). Deleting these credentials will also remove them from the associated applications.`}
           ${t("dialog.message.delete")}`
               : `${t("dialog.message.delete")}`
           }
