@@ -41,6 +41,7 @@ import {
   useDeleteJobFunctionMutation,
   useFetchJobFunctions,
 } from "@app/queries/jobfunctions";
+import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { NotificationsContext } from "@app/shared/notifications-context";
 
 const ENTITY_FIELD = "entity";
@@ -60,6 +61,8 @@ export const JobFunctions: React.FC = () => {
 
   const { jobFunctions, isFetching, fetchError, refetch } =
     useFetchJobFunctions();
+
+  const { stakeholders } = useFetchStakeholders();
 
   const filterCategories: FilterCategory<JobFunction, "name">[] = [
     {
@@ -131,6 +134,9 @@ export const JobFunctions: React.FC = () => {
 
   const rows: IRow[] = [];
   currentPageItems?.forEach((item) => {
+    const isAssignedToStakeholders = stakeholders?.some(
+      (stakeholder) => stakeholder.jobFunction?.id !== item.id
+    );
     rows.push({
       [ENTITY_FIELD]: item,
       cells: [
@@ -140,6 +146,8 @@ export const JobFunctions: React.FC = () => {
         {
           title: (
             <AppTableActionButtons
+              isDeleteEnabled={!isAssignedToStakeholders}
+              tooltipMessage="Cannot remove a Job function associated with stakeholder(s)"
               onEdit={() => setRowToUpdate(item)}
               onDelete={() => deleteRow(item)}
             />
