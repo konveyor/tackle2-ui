@@ -18,6 +18,7 @@ export const IssueIncidentCodeSnipViewer: React.FC<
       isReadOnly
       isDarkTheme
       isLineNumbersVisible
+      height="450px"
       code={incident.codeSnip}
       options={{
         renderValidationDecorations: "on", // See https://github.com/microsoft/monaco-editor/issues/311#issuecomment-578026465
@@ -25,30 +26,39 @@ export const IssueIncidentCodeSnipViewer: React.FC<
         // lineNumbers: (lineNumber) =>
         //  String(incident.line + lineNumber - 1 - 10), // -1 because lineNumber is 1-indexed, - 10 because codeSnip starts 10 lines early
       }}
-      height="450px"
       onEditorDidMount={(editor, monaco) => {
-        const model = editor.getModel();
-        if (model) {
-          monaco.editor.setModelMarkers(model, "my-markers", [
-            {
-              message: appReport.issue.name,
-              severity: monaco.MarkerSeverity.Error,
-              startLineNumber: relativeLine,
-              startColumn: model?.getLineFirstNonWhitespaceColumn(relativeLine),
-              endLineNumber: relativeLine,
-              endColumn: model?.getLineLastNonWhitespaceColumn(relativeLine),
-            },
-          ]);
-          editor.createDecorationsCollection([
-            {
-              range: new monaco.Range(relativeLine, 1, relativeLine, 1),
-              options: {
-                isWholeLine: true,
-                linesDecorationsClassName:
-                  "incident-line-error fas fa-exclamation-circle",
+        try {
+          const model = editor.getModel();
+          if (model) {
+            // Red squiggly under the affected line
+            monaco.editor.setModelMarkers(model, "my-markers", [
+              {
+                message: appReport.issue.name,
+                severity: monaco.MarkerSeverity.Error,
+                startLineNumber: relativeLine,
+                startColumn:
+                  model?.getLineFirstNonWhitespaceColumn(relativeLine),
+                endLineNumber: relativeLine,
+                endColumn: model?.getLineLastNonWhitespaceColumn(relativeLine),
               },
-            },
-          ]);
+            ]);
+            // Red exclamation icon in the gutter next to the affected line
+            editor.createDecorationsCollection([
+              {
+                range: new monaco.Range(relativeLine, 1, relativeLine, 1),
+                options: {
+                  isWholeLine: true,
+                  linesDecorationsClassName:
+                    "incident-line-error fas fa-exclamation-circle",
+                },
+              },
+            ]);
+          }
+        } catch (error) {
+          console.warn(
+            "Failed to render error marking in code snip viewer:",
+            error
+          );
         }
         editor.layout();
       }}
