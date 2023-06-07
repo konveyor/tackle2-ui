@@ -122,17 +122,13 @@ export const IssueAffectedFileDetailModal: React.FC<
                           incidentRelativeLine,
                           incidentMessage
                         )}
-                        // language={Language.java} // TODO can we determine the language from the hub?
+                        language={Language.java} // TODO can we determine the language from the hub?
                         // TODO see monaco-editor-webpack-plugin setup info for including only resources for supported languages in the build
                       />
                     </GridItem>
                     <GridItem span={6} className={spacing.plSm}>
                       <TextContent>
-                        <Text
-                          className={`${textStyles.fontSizeLg} ${spacing.mbXs}`}
-                        >
-                          {appReport.issue.name}
-                        </Text>
+                        <Text component="h2">{appReport.issue.name}</Text>
                         <Text className={`${textStyles.fontSizeMd}`}>
                           Line {incident.line}
                         </Text>
