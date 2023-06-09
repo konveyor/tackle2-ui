@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AnalysisIssueReport } from "@app/api/models";
+import { AnalysisAppReport } from "@app/api/models";
 import {
   IPageDrawerContentProps,
   PageDrawerContent,
@@ -17,7 +17,7 @@ import { IssueAffectedFilesTable } from "./issue-affected-files-table";
 
 export interface IIssueDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
-  issueReport: AnalysisIssueReport | null;
+  appReport: AnalysisAppReport | null;
 }
 
 enum TabKey {
@@ -25,7 +25,7 @@ enum TabKey {
 }
 
 export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
-  issueReport,
+  appReport,
   onCloseClick,
 }) => {
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
@@ -35,18 +35,18 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
   // TODO should we also show the application name at the top?
   return (
     <PageDrawerContent
-      isExpanded={!!issueReport}
+      isExpanded={!!appReport}
       onCloseClick={onCloseClick}
-      focusKey={issueReport?.name}
+      focusKey={appReport?.name}
       pageKey="affected-applications"
       drawerPanelContentProps={{ defaultSize: "600px" }}
     >
       <TextContent>
         <Text component="small" className={spacing.mb_0}>
-          {issueReport?.application.name}
+          {appReport?.name}
         </Text>
         <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
-          {issueReport?.name}
+          {appReport?.issue.name}
         </Title>
       </TextContent>
       <Tabs
@@ -58,9 +58,7 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
           eventKey={TabKey.AffectedFiles}
           title={<TabTitleText>Affected files</TabTitleText>}
         >
-          {issueReport ? (
-            <IssueAffectedFilesTable issueReport={issueReport} />
-          ) : null}
+          {appReport ? <IssueAffectedFilesTable appReport={appReport} /> : null}
         </Tab>
       </Tabs>
     </PageDrawerContent>
