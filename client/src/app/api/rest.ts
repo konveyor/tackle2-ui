@@ -4,9 +4,10 @@ import { APIClient } from "@app/axios-config";
 import {
   AnalysisDependency,
   BaseAnalysisRuleReport,
-  AnalysisIssueReport,
   AnalysisIssue,
+  AnalysisAppReport,
   AnalysisFileReport,
+  AnalysisIncident,
   Application,
   ApplicationAdoptionPlan,
   ApplicationDependency,
@@ -79,9 +80,10 @@ export const CACHE = HUB + "/cache/m2";
 
 export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/dependencies";
 export const ANALYSIS_REPORT_RULES = HUB + "/analyses/report/rules";
-export const ANALYSIS_REPORT_ISSUES = HUB + "/analyses/report/issues";
+export const ANALYSIS_REPORT_APPS = HUB + "/analyses/report/applications";
 export const ANALYSIS_REPORT_FILES = HUB + "/analyses/report/issues/:id/files";
 export const ANALYSIS_ISSUES = HUB + "/analyses/issues";
+export const ANALYSIS_ISSUE_INCIDENTS = HUB + "/analyses/issues/:id/incidents";
 
 // PATHFINDER
 export const PATHFINDER = "/hub/pathfinder";
@@ -558,8 +560,8 @@ export const getHubPaginatedResult = <T>(
 export const getRuleReports = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<BaseAnalysisRuleReport>(ANALYSIS_REPORT_RULES, params);
 
-export const getIssueReports = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<AnalysisIssueReport>(ANALYSIS_REPORT_ISSUES, params);
+export const getAppReports = (params: HubRequestParams = {}) =>
+  getHubPaginatedResult<AnalysisAppReport>(ANALYSIS_REPORT_APPS, params);
 
 export const getIssues = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisIssue>(ANALYSIS_ISSUES, params);
@@ -571,6 +573,14 @@ export const getFileReports = (
   issueId
     ? getHubPaginatedResult<AnalysisFileReport>(
         ANALYSIS_REPORT_FILES.replace("/:id/", `/${String(issueId)}/`),
+        params
+      )
+    : Promise.reject();
+
+export const getIncidents = (issueId?: number, params: HubRequestParams = {}) =>
+  issueId
+    ? getHubPaginatedResult<AnalysisIncident>(
+        ANALYSIS_ISSUE_INCIDENTS.replace("/:id/", `/${String(issueId)}/`),
         params
       )
     : Promise.reject();

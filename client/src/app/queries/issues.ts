@@ -7,15 +7,17 @@ import {
 import {
   getRuleReports,
   getIssues,
-  getIssueReports,
+  getAppReports,
   getFileReports,
+  getIncidents,
 } from "@app/api/rest";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
 
 export const RuleReportsQueryKey = "rulereports";
-export const IssueReportsQueryKey = "issuereports";
+export const AppReportsQueryKey = "appreports";
 export const FileReportsQueryKey = "filereports";
 export const IssuesQueryKey = "issues";
+export const IncidentsQueryKey = "incidents";
 
 export const useFetchRuleReports = (params: HubRequestParams = {}) => {
   const { data, isLoading, error, refetch } = useQuery({
@@ -46,13 +48,13 @@ export const useFetchRuleReports = (params: HubRequestParams = {}) => {
   };
 };
 
-export const useFetchIssueReports = (params: HubRequestParams = {}) => {
+export const useFetchAppReports = (params: HubRequestParams = {}) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [
-      IssueReportsQueryKey,
+      AppReportsQueryKey,
       serializeRequestParamsForHub(params).toString(),
     ],
-    queryFn: async () => await getIssueReports(params),
+    queryFn: async () => await getAppReports(params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
   });
@@ -91,6 +93,29 @@ export const useFetchFileReports = (
       serializeRequestParamsForHub(params).toString(),
     ],
     queryFn: async () => await getFileReports(issueId, params),
+    onError: (error) => console.log("error, ", error),
+    keepPreviousData: true,
+  });
+  return {
+    result: data || { data: [], total: 0, params },
+    isFetching: isLoading,
+    fetchError: error,
+    refetch,
+  };
+};
+
+export const useFetchIncidents = (
+  issueId?: number,
+  params: HubRequestParams = {}
+) => {
+  const { data, isLoading, error, refetch } = useQuery({
+    enabled: issueId !== undefined,
+    queryKey: [
+      IncidentsQueryKey,
+      issueId,
+      serializeRequestParamsForHub(params).toString(),
+    ],
+    queryFn: async () => await getIncidents(issueId, params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
   });

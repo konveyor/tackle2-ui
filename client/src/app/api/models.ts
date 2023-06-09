@@ -576,16 +576,24 @@ interface AnalysisIssuesCommonFields {
 // Hub type: Issue
 export interface AnalysisIssue extends AnalysisIssuesCommonFields {
   id: number;
-  createTime?: string; // ISO-8601 timestamp
-  createUser?: string;
-  updateUser?: string;
 }
 
-// Hub type: IssueReport - Issues collated by application (but filtered by ruleset/rule)
-export interface AnalysisIssueReport extends AnalysisIssue {
-  application: { id: number; name: string; effort: number };
-  files: number;
+// Hub type: AppReport - Issues collated by application (but filtered by ruleset/rule)
+// When filtered by ruleset/rule, this object matches exactly one issue and includes that issue's details
+export interface AnalysisAppReport extends AnalysisIssue {
+  id: number;
+  name: string;
+  description: string;
+  effort: number;
+  businessService: string;
   incidents: number;
+  files: number;
+  issue: {
+    id: number;
+    name: string;
+    ruleset: string;
+    rule: string;
+  };
 }
 
 // Hub type: RuleReport - Issues collated by ruleset/rule
@@ -599,10 +607,19 @@ export interface AnalysisRuleReport extends BaseAnalysisRuleReport {
 
 // Hub type: FileReport - Incidents collated by file
 export interface AnalysisFileReport {
-  issueId: string;
+  issueId: number;
   file: string;
   incidents: number;
   effort: number;
+}
+
+export interface AnalysisIncident {
+  id: number;
+  file: string;
+  line: number;
+  message: string;
+  codeSnip: string;
+  facts: Record<string, string>; // TODO what's actually in here?
 }
 
 export type TicketStatus = "" | "New" | "In Progress" | "Done" | "Error";

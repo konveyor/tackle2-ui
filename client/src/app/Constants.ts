@@ -240,4 +240,5 @@ export enum TableURLParamKeyPrefix {
   issues = "i",
   affectedApps = "a",
   affectedFiles = "f",
+  remainingIncidents = "r",
 }

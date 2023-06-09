@@ -8,6 +8,7 @@ export interface SimplePaginationProps {
   paginationProps: PaginationStateProps;
   isTop: boolean;
   isCompact?: boolean;
+  noMargin?: boolean;
   idPrefix?: string;
 }
 
@@ -15,6 +16,7 @@ export const SimplePagination: React.FC<SimplePaginationProps> = ({
   paginationProps,
   isTop,
   isCompact = false,
+  noMargin = false,
   idPrefix = "",
 }) => {
   return (
@@ -23,7 +25,7 @@ export const SimplePagination: React.FC<SimplePaginationProps> = ({
         isTop ? "top" : "bottom"
       }`}
       variant={isTop ? PaginationVariant.top : PaginationVariant.bottom}
-      className={isTop ? "" : spacing.mtMd}
+      className={isTop || noMargin ? "" : spacing.mtMd}
       isCompact={isCompact}
       {...paginationProps}
       widgetId="pagination-id"
