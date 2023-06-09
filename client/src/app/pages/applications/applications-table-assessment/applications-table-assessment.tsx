@@ -16,6 +16,7 @@ import {
   cellWidth,
   IAction,
   ICell,
+  IExtraData,
   IRow,
   IRowData,
   ISeparator,
@@ -464,7 +465,13 @@ export const ApplicationsTable: React.FC = () => {
   };
 
   // Row actions
-  const selectRow = (rowData: IRowData) => {
+  const selectRow = (
+    event: React.FormEvent<HTMLInputElement>,
+    isSelected: boolean,
+    rowIndex: number,
+    rowData: IRowData,
+    extraData: IExtraData
+  ) => {
     const row = getRow(rowData);
     toggleRowSelected(row);
   };

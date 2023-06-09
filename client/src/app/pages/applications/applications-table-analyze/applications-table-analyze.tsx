@@ -382,11 +382,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   // Row actions
   const selectRow = (
-    event: React.FormEvent<HTMLInputElement>,
-    isSelected: boolean,
-    rowIndex: number,
+    _event: React.FormEvent<HTMLInputElement>,
+    _isSelected: boolean,
+    _rowIndex: number,
     rowData: IRowData,
-    extraData: IExtraData
+    _extraData: IExtraData
   ) => {
     const row = getRow(rowData);
     toggleRowSelected(row);
