@@ -576,9 +576,6 @@ interface AnalysisIssuesCommonFields {
 // Hub type: Issue
 export interface AnalysisIssue extends AnalysisIssuesCommonFields {
   id: number;
-  createTime?: string; // ISO-8601 timestamp
-  createUser?: string;
-  updateUser?: string;
 }
 
 // Hub type: AppReport - Issues collated by application (but filtered by ruleset/rule)
@@ -623,9 +620,6 @@ export interface AnalysisIncident {
   message: string;
   codeSnip: string;
   facts: Record<string, string>; // TODO what's actually in here?
-  createTime?: string; // ISO-8601 timestamp
-  createUser?: string;
-  updateUser?: string;
 }
 
 export type TicketStatus = "" | "New" | "In Progress" | "Done" | "Error";
