@@ -74,7 +74,7 @@ export const SetOptions: React.FC = () => {
         fieldId="targets"
         renderInput={({
           field: { onChange, onBlur, value: selectedFormTargets },
-          fieldState: { isTouched, error },
+          fieldState: { isDirty, error },
         }) => (
           <Select
             id="rulesets"
@@ -120,7 +120,7 @@ export const SetOptions: React.FC = () => {
             onClear={() => {
               onChange([]);
             }}
-            validated={getValidatedFromErrorTouched(error, isTouched)}
+            validated={getValidatedFromErrorTouched(error, isDirty)}
           >
             {defaultTargetsAndRulesetTargets.map((targetName, index) => (
               <SelectOption
@@ -139,7 +139,7 @@ export const SetOptions: React.FC = () => {
         fieldId="sources"
         renderInput={({
           field: { onChange, onBlur, value },
-          fieldState: { isTouched, error },
+          fieldState: { isDirty, error },
         }) => (
           <Select
             id="formSources-id"
@@ -169,7 +169,7 @@ export const SetOptions: React.FC = () => {
             onClear={() => {
               onChange([]);
             }}
-            validated={getValidatedFromErrorTouched(error, isTouched)}
+            validated={getValidatedFromErrorTouched(error, isDirty)}
           >
             {formSources.map((source, index) => (
               <SelectOption

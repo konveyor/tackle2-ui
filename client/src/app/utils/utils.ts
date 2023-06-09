@@ -83,9 +83,9 @@ export const objectKeys = <T extends Object>(obj: T) =>
 
 export const getValidatedFromErrorTouched = (
   error: unknown | undefined,
-  touched: boolean | undefined
+  dirty: boolean | undefined
 ): FormGroupProps["validated"] => {
-  return error && touched ? "error" : "default";
+  return error && dirty ? "error" : "default";
 };
 
 export const getValidatedFromError = (

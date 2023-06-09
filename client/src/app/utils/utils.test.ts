@@ -64,17 +64,17 @@ describe("utils", () => {
 
   it("getValidatedFromErrorTouched: given 'error' and 'touched' return 'error'", () => {
     const error = "Any value";
-    const touched = true;
+    const dirty = true;
 
-    const status = getValidatedFromErrorTouched(error, touched);
+    const status = getValidatedFromErrorTouched(error, dirty);
     expect(status).toBe("error");
   });
 
   it("getValidatedFromErrorTouched: given 'error' but not 'touched' return 'default'", () => {
     const error = "Any value";
-    const touched = false;
+    const dirty = false;
 
-    const status = getValidatedFromErrorTouched(error, touched);
+    const status = getValidatedFromErrorTouched(error, dirty);
     expect(status).toBe("default");
   });
 

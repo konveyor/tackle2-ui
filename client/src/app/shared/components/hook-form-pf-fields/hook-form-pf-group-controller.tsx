@@ -54,7 +54,7 @@ export const HookFormPFGroupController = <
     control={control}
     name={name}
     render={({ field, fieldState, formState }) => {
-      const { isTouched, error } = fieldState;
+      const { isDirty, error } = fieldState;
       return (
         <FormGroup
           labelIcon={labelIcon}
@@ -66,7 +66,7 @@ export const HookFormPFGroupController = <
           validated={
             errorsSuppressed
               ? "default"
-              : getValidatedFromErrorTouched(error, isTouched)
+              : getValidatedFromErrorTouched(error, isDirty)
           }
           helperText={helperText}
           helperTextInvalid={errorsSuppressed ? null : error?.message}

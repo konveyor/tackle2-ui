@@ -263,7 +263,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
               isRequired
               renderInput={({
                 field: { onChange, value },
-                fieldState: { isTouched, error },
+                fieldState: { isDirty, error },
               }) => (
                 <SimpleSelect
                   id="httpIdentity"
@@ -276,7 +276,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     const selectionValue = selection as OptionWithValue<string>;
                     onChange(selectionValue.value);
                   }}
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                  validated={getValidatedFromErrorTouched(error, isDirty)}
                 />
               )}
             />
@@ -349,7 +349,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
               className={spacing.mMd}
               renderInput={({
                 field: { onChange, value },
-                fieldState: { isTouched, error },
+                fieldState: { isDirty, error },
               }) => (
                 <SimpleSelect
                   toggleId="https-proxy-credentials-select-toggle"
@@ -361,7 +361,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     const selectionValue = selection as OptionWithValue<string>;
                     onChange(selectionValue.value);
                   }}
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                  validated={getValidatedFromErrorTouched(error, isDirty)}
                 />
               )}
             />

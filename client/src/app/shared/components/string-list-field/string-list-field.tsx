@@ -62,7 +62,7 @@ export const StringListField: React.FC<StringListFieldProps> = ({
         label={itemToAddLabel}
         renderInput={({
           field: { onChange, onBlur, value, ref },
-          fieldState: { isTouched, error },
+          fieldState: { isDirty, error },
         }) => {
           const isValid = !!value && !error;
           const addItem = () => {
@@ -75,7 +75,7 @@ export const StringListField: React.FC<StringListFieldProps> = ({
                 ref={ref}
                 id={itemToAddFieldId}
                 aria-label={itemToAddAriaLabel}
-                validated={getValidatedFromErrorTouched(error, isTouched)}
+                validated={getValidatedFromErrorTouched(error, isDirty)}
                 value={value}
                 onChange={onChange}
                 onBlur={onBlur}
