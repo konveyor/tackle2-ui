@@ -3,7 +3,7 @@ import { Tag, TagCategory } from "@app/api/models";
 import { LabelCustomColor } from "@migtools/lib-ui";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 
-const getCategoryFallbackColor = (category?: TagCategory) => {
+export const getTagCategoryFallbackColor = (category?: TagCategory) => {
   if (!category?.id) return COLOR_HEX_VALUES_BY_NAME.gray;
   const colorValues = Object.values(COLOR_HEX_VALUES_BY_NAME);
   return colorValues[category?.id % colorValues.length];
@@ -21,7 +21,7 @@ export const ApplicationTagLabel: React.FC<ApplicationTagLabelProps> = ({
   className,
 }) => (
   <LabelCustomColor
-    color={category?.colour || getCategoryFallbackColor(category)}
+    color={category?.colour || getTagCategoryFallbackColor(category)}
     className={className}
   >
     {tag.name}
