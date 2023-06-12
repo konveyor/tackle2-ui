@@ -112,7 +112,8 @@ export const ExportForm: React.FC<ExportFormProps> = ({
     ).find((type) => formValues.kind === type.name);
 
     if (matchingtracker) {
-      const payload: New<Ticket> = {
+      const payload = {
+        issueManager: formValues.issueManager?.trim(),
         tracker: { id: matchingtracker.id, name: matchingtracker.name },
         parent: matchingProject?.id || "",
         kind: matchingKind?.id || "",

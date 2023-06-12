@@ -67,13 +67,8 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
     useFormContext<AnalysisWizardFormValues>();
   const values = getValues();
 
-  const { formSources, formTargets, customRulesFiles, rulesKind } = watch();
-  const initialActiveTabKeyValue = (value: string): number =>
-    value === "manual" ? 0 : value === "repository" ? 1 : 0;
-
-  const [activeTabKey, setActiveTabKey] = React.useState(
-    initialActiveTabKeyValue(rulesKind)
-  );
+  const { formSources, formTargets, customRulesFiles } = watch();
+  const [activeTabKey, setActiveTabKey] = React.useState(0);
 
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
@@ -246,7 +241,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
         control={control}
         name="rulesKind"
         fieldId="type-select"
-        renderInput={({ field: { onChange } }) => (
+        renderInput={({ field: { value, name, onChange } }) => (
           <Tabs
             className={spacing.mtSm}
             activeKey={activeTabKey}
@@ -484,14 +479,14 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
             <MultipleFileUpload
               onFileDrop={handleFileDrop}
               dropzoneProps={{
-                accept: ".yml, .yaml",
+                accept: ".xml",
               }}
             >
               <MultipleFileUploadMain
                 titleIcon={<UploadIcon />}
                 titleText="Drag and drop files here"
                 titleTextSeparator="or"
-                infoText="Accepted file types: .yml, .yaml "
+                infoText="Accepted file types: XML with '.windup.xml' suffix."
               />
               {showStatus && (
                 <MultipleFileUploadStatus

@@ -31,7 +31,6 @@ import {
 } from "@app/shared/components/hook-form-pf-fields";
 import { Color, OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { NotificationsContext } from "@app/shared/notifications-context";
-import { getTagCategoryFallbackColor } from "@app/pages/applications/components/application-tags/application-tag-label";
 export interface FormValues {
   name: string;
   rank?: number;
@@ -86,9 +85,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
     defaultValues: {
       name: tagCategory?.name || "",
       rank: tagCategory?.rank || 1,
-      color: tagCategory
-        ? tagCategory.colour || getTagCategoryFallbackColor(tagCategory)
-        : null,
+      color: tagCategory?.colour || null,
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",

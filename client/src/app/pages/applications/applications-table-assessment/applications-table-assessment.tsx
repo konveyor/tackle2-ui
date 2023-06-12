@@ -137,7 +137,7 @@ export const ApplicationsTable: React.FC = () => {
     refetch: fetchApplications,
   } = useFetchApplications();
 
-  const { tasks } = useFetchTasks({ addon: "analyzer" });
+  const { tasks } = useFetchTasks({ addon: "windup" });
 
   const getTask = (application: Application) =>
     tasks.find((task: Task) => task.application?.id === application.id);
@@ -180,7 +180,7 @@ export const ApplicationsTable: React.FC = () => {
   const onApplicationModalSaved = (response: AxiosResponse<Application>) => {
     if (!applicationToUpdate) {
       pushNotification({
-        title: t("toastr.success.save", {
+        title: t("toastr.success.added", {
           what: response.data.name,
           type: t("terms.application").toLowerCase(),
         }),
