@@ -68,7 +68,9 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     React.useState(false);
 
   const [selectedRuleTarget, setSelectedRuleTarget] = React.useState(
-    prevSelectedTarget || item.rules[0]?.metadata?.target
+    prevSelectedTarget ||
+      item.rules[0]?.metadata?.target ||
+      `${item.name}-Empty`
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
