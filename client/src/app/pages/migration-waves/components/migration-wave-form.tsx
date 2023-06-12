@@ -58,7 +58,7 @@ const stakeholderToOption = (
 });
 
 interface WaveFormValues {
-  name: string | undefined;
+  name?: string;
   startDate: Date | null;
   endDate: Date | null;
   stakeholders: Stakeholder[];
@@ -190,8 +190,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   const onSubmit = (formValues: WaveFormValues) => {
     const payload: New<MigrationWave> = {
       applications: migrationWave?.applications || [],
-      name:
-        formValues.name && formValues.name !== "" ? formValues.name.trim() : "",
+      name: formValues.name?.trim() || "",
       startDate: dayjs.utc(formValues.startDate).format(),
       endDate: dayjs.utc(formValues.endDate).format(),
       stakeholders: formValues.stakeholders,

@@ -203,7 +203,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
       applications: selectedItems.map((application) => {
         return { id: application.id, name: application.name };
       }),
-      name: migrationWave?.name ? migrationWave.name.trim() : "",
+      name: migrationWave?.name?.trim() || "",
       startDate: migrationWave?.startDate || "",
       endDate: migrationWave?.endDate || "",
       stakeholders: migrationWave?.stakeholders || [],
@@ -216,8 +216,6 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
 
     onClose();
   };
-
-  console.log(migrationWave);
 
   return (
     <Form onSubmit={onSubmit}>
