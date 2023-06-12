@@ -486,7 +486,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                 titleIcon={<UploadIcon />}
                 titleText="Drag and drop files here"
                 titleTextSeparator="or"
-                infoText="Accepted file types: .xml "
+                infoText="Accepted file types: XML with '.windup.xml' suffix."
               />
               {showStatus && (
                 <MultipleFileUploadStatus
