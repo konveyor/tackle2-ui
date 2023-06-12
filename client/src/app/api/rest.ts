@@ -651,7 +651,7 @@ export const getTags = (): Promise<Tag[]> =>
   axios.get(TAGS).then((response) => response.data);
 
 export const getTagById = (id: number | string): Promise<Tag> =>
-  axios.get(`${TAGS}/${id}`);
+  axios.get(`${TAGS}/${id}`).then((response) => response.data);
 
 export const createTag = (obj: New<Tag>): Promise<Tag> => axios.post(TAGS, obj);
 
@@ -667,7 +667,7 @@ export const getTagCategories = (): Promise<Array<TagCategory>> =>
   axios.get(TAG_CATEGORIES).then((response) => response.data);
 
 export const getTagCategoryById = (id: number): Promise<TagCategory> =>
-  axios.get(`${TAG_CATEGORIES}/${id}`);
+  axios.get(`${TAG_CATEGORIES}/${id}`).then((response) => response.data);
 
 export const deleteTagCategory = (id: number): Promise<TagCategory> =>
   axios.delete(`${TAG_CATEGORIES}/${id}`);
