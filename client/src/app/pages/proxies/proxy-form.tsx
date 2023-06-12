@@ -10,7 +10,7 @@ import {
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import {
   getAxiosErrorMessage,
-  getValidatedFromErrorTouched,
+  getValidatedFromErrorDirty,
 } from "@app/utils/utils";
 import { useProxyFormValidationSchema } from "./proxies-validation-schema";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -276,7 +276,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     const selectionValue = selection as OptionWithValue<string>;
                     onChange(selectionValue.value);
                   }}
-                  validated={getValidatedFromErrorTouched(error, isDirty)}
+                  validated={getValidatedFromErrorDirty(error, isDirty)}
                 />
               )}
             />
@@ -361,7 +361,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     const selectionValue = selection as OptionWithValue<string>;
                     onChange(selectionValue.value);
                   }}
-                  validated={getValidatedFromErrorTouched(error, isDirty)}
+                  validated={getValidatedFromErrorDirty(error, isDirty)}
                 />
               )}
             />

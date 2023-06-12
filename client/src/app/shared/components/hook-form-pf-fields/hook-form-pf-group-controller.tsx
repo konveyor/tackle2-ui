@@ -7,7 +7,7 @@ import {
   FieldValues,
   Path,
 } from "react-hook-form";
-import { getValidatedFromErrorTouched } from "@app/utils/utils";
+import { getValidatedFromErrorDirty } from "@app/utils/utils";
 
 // We have separate interfaces for these props with and without `renderInput` for convenience.
 // Generic type params here are the same as the ones used by react-hook-form's <Controller>.
@@ -66,7 +66,7 @@ export const HookFormPFGroupController = <
           validated={
             errorsSuppressed
               ? "default"
-              : getValidatedFromErrorTouched(error, isDirty)
+              : getValidatedFromErrorDirty(error, isDirty)
           }
           helperText={helperText}
           helperTextInvalid={errorsSuppressed ? null : error?.message}
