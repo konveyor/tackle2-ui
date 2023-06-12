@@ -407,10 +407,7 @@ export interface TaskData {
     rulesets: Ref[];
     repository?: Repository;
     identity?: Ref;
-    labels: {
-      included: string[];
-      excluded: string[];
-    };
+    labels: string[];
   };
 }
 

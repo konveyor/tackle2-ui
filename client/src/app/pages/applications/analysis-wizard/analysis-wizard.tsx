@@ -254,13 +254,10 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           },
         },
         rules: {
-          labels: {
-            included: [
-              ...fieldValues.formTargets,
-              ...fieldValues.selectedFormSources,
-            ],
-            excluded: [],
-          },
+          labels: [
+            ...fieldValues.formTargets,
+            ...fieldValues.selectedFormSources,
+          ],
           path: fieldValues.customRulesFiles.length > 0 ? "/rules" : "",
           tags: {
             excluded: fieldValues.excludedRulesTags,
