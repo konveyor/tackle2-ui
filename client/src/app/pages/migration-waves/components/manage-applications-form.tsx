@@ -223,7 +223,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
         <Text component={TextVariants.h5}>Selected wave</Text>
         <TextInput
           value={
-            migrationWave?.name === ""
+            !migrationWave?.name
               ? `${dayjs(migrationWave.startDate).format(
                   "MM/DD/YYYY"
                 )} - ${dayjs(migrationWave.endDate).format("MM/DD/YYYY")}`

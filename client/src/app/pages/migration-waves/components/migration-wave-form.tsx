@@ -170,8 +170,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   } = useForm<WaveFormValues>({
     mode: "onChange",
     defaultValues: {
-      name:
-        migrationWave && migrationWave.name !== null ? migrationWave.name : "",
+      name: migrationWave?.name || "",
       startDate: migrationWave?.startDate
         ? dayjs(migrationWave.startDate).toDate()
         : null,
