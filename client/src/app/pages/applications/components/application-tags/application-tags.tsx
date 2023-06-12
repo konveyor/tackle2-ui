@@ -59,7 +59,6 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
 
   useEffect(() => {
     if (application.tags) {
-      console.log({ application, tags });
       setIsFetching(true);
 
       Promise.all(
@@ -69,7 +68,6 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
       )
         .then((tags) => {
           const tagsWithSources = tags.reduce((prev, current, index) => {
-            console.log({ prev, current });
             if (current) {
               const currentTagWithSource: TagWithSource = {
                 ...current,
