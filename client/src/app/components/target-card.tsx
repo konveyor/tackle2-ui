@@ -26,6 +26,7 @@ import { useTranslation } from "react-i18next";
 import "./target-card.css";
 import DefaultRulesetIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 import { Ruleset } from "@app/api/models";
+import { getParsedLabel } from "@app/common/CustomRules/rules-utils";
 
 export interface TargetCardProps {
   item: Ruleset;
@@ -68,7 +69,9 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     React.useState(false);
 
   const [selectedRuleTarget, setSelectedRuleTarget] = React.useState(
-    prevSelectedTarget || item.rules[0]?.metadata?.target
+    prevSelectedTarget ||
+      item.rules[0]?.metadata?.target ||
+      `${item.name}-Empty`
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
@@ -179,7 +182,9 @@ export const TargetCard: React.FC<TargetCardProps> = ({
             >
               {item.rules.map((rule) => (
                 <SelectOption key={rule.name} value={rule?.metadata?.target}>
-                  {rule?.metadata?.target}
+                  {rule?.metadata?.target
+                    ? getParsedLabel(rule.metadata.target)?.labelValue
+                    : "Empty"}
                 </SelectOption>
               ))}
             </Select>
