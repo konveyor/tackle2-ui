@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 
 import { Application } from "@app/api/models";
 import { AnalysisWizardFormValues } from "./schema";
+import { getParsedLabel } from "@app/common/CustomRules/rules-utils";
 
 interface IReview {
   applications: Application[];
@@ -89,7 +90,9 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           <DescriptionListDescription id="targets">
             <List isPlain>
               {formTargets.map((target, index) => (
-                <ListItem key={index}>{target}</ListItem>
+                <ListItem key={index}>
+                  {getParsedLabel(target).labelValue}
+                </ListItem>
               ))}
             </List>
           </DescriptionListDescription>
@@ -103,7 +106,9 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           <DescriptionListDescription id="sources">
             <List isPlain>
               {selectedFormSources.map((source, index) => (
-                <ListItem key={index}>{source}</ListItem>
+                <ListItem key={index}>
+                  {getParsedLabel(source).labelValue}
+                </ListItem>
               ))}
             </List>
           </DescriptionListDescription>

@@ -1,14 +1,15 @@
 import { IReadFile, ParsedRule, Ruleset } from "@app/api/models";
 
+type RuleFileType = "YAML" | "XML" | null;
+
 export const parseRules = (file: IReadFile): ParsedRule => {
   if (file.data) {
     let source: string | null = null;
     let target: string | null = null;
     let rulesCount = 0;
 
-    const payload = atob(file.data.substring(21));
     const parser = new DOMParser();
-    const xml = parser.parseFromString(payload, "text/xml");
+    const xml = parser.parseFromString(file.data, "text/xml");
 
     const ruleSets = xml.getElementsByTagName("ruleset");
 
@@ -32,10 +33,11 @@ export const parseRules = (file: IReadFile): ParsedRule => {
       ...(target ? [`konveyor.io/target=${target}`] : []),
     ];
     return {
-      source,
-      target,
+      source: source,
+      target: target,
+      otherLabels: allLabels,
+      allLabels: allLabels,
       total: rulesCount,
-      allLabels,
       ...(file.responseID && {
         fileID: file.responseID,
       }),
@@ -55,15 +57,27 @@ interface ILabelMap {
   allLabels: string[];
 }
 
+interface ParsedLabel {
+  labelType: string;
+  labelValue: string;
+}
+
+export const getParsedLabel = (label: string): ParsedLabel => {
+  const char1 = label.indexOf("/") + 1;
+  const char2 = label.lastIndexOf("=");
+  const type = label.substring(char1, char2);
+  const value = label.split("=").pop();
+  return {
+    labelType: type || "",
+    labelValue: value || "",
+  };
+};
 export const getLabels = (labels: string[]) =>
   labels.reduce(
     (map: ILabelMap, label) => {
-      const char1 = label.indexOf("/") + 1;
-      const char2 = label.lastIndexOf("=");
-      const type = label.substring(char1, char2);
-      const value = label.split("=").pop();
-      const sourceValue = type === "source" ? value : "";
-      const targetValue = type === "target" ? value : "";
+      const { labelType, labelValue } = getParsedLabel(label);
+      const sourceValue = labelType === "source" ? labelValue : "";
+      const targetValue = labelType === "target" ? labelValue : "";
       return Object.assign(
         { sourceLabel: "", targetLabel: "", otherLabels: [] },
         map,
