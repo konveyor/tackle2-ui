@@ -62,10 +62,10 @@ export const AffectedApplications: React.FC = () => {
       name: "Name",
       description: "Description",
       businessService: "Business serice",
-      incidents: "Incidents",
       effort: "Effort",
+      incidents: "Incidents",
     },
-    sortableColumns: ["name", "businessService", "incidents", "effort"],
+    sortableColumns: ["name", "businessService", "effort", "incidents"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
       //TODO: Should this be select filter type using apps available in memory?
@@ -106,8 +106,8 @@ export const AffectedApplications: React.FC = () => {
       hubSortFieldKeys: {
         name: "name",
         businessService: "businessService",
-        incidents: "incidents",
         effort: "effort",
+        incidents: "incidents",
       },
     })
   );
@@ -192,8 +192,8 @@ export const AffectedApplications: React.FC = () => {
                     <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "description" })} />
                     <Th {...getThProps({ columnKey: "businessService" })} />
-                    <Th {...getThProps({ columnKey: "incidents" })} />
                     <Th {...getThProps({ columnKey: "effort" })} />
+                    <Th {...getThProps({ columnKey: "incidents" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -229,14 +229,14 @@ export const AffectedApplications: React.FC = () => {
                         >
                           {appReport.businessService}
                         </Td>
+                        <Td width={15} {...getTdProps({ columnKey: "effort" })}>
+                          {appReport.effort}
+                        </Td>
                         <Td
                           width={15}
                           {...getTdProps({ columnKey: "incidents" })}
                         >
                           {appReport.incidents}
-                        </Td>
-                        <Td width={15} {...getTdProps({ columnKey: "effort" })}>
-                          {appReport.effort}
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>

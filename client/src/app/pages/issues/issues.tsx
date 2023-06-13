@@ -58,21 +58,14 @@ export const Issues: React.FC = () => {
   const tableControlState = useTableControlUrlParams({
     urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
     columnNames: {
-      name: "Name",
-      ruleset: "Rule set",
-      rule: "Rule",
+      name: "Issue",
       category: "Category",
+      source: "Source",
+      target: "Target(s)",
       effort: "Effort",
       applications: "Affected applications",
     },
-    sortableColumns: [
-      "name",
-      "ruleset",
-      "rule",
-      "category",
-      "effort",
-      "applications",
-    ],
+    sortableColumns: ["name", "category", "effort", "applications"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
       //TODO: Should this be select filter type using apps available in memory?
@@ -155,8 +148,6 @@ export const Issues: React.FC = () => {
       ...tableControlState, // Includes filterState, sortState and paginationState
       hubSortFieldKeys: {
         name: "name",
-        ruleset: "ruleset",
-        rule: "rule",
         category: "category",
         effort: "effort",
         applications: "applications",
@@ -236,9 +227,9 @@ export const Issues: React.FC = () => {
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
                     <Th {...getThProps({ columnKey: "name" })} />
-                    <Th {...getThProps({ columnKey: "ruleset" })} />
-                    <Th {...getThProps({ columnKey: "rule" })} />
                     <Th {...getThProps({ columnKey: "category" })} />
+                    <Th {...getThProps({ columnKey: "source" })} />
+                    <Th {...getThProps({ columnKey: "target" })} />
                     <Th {...getThProps({ columnKey: "effort" })} />
                     <Th {...getThProps({ columnKey: "applications" })} />
                   </TableHeaderContentWithControls>
@@ -262,23 +253,26 @@ export const Issues: React.FC = () => {
                           item={ruleReport}
                           rowIndex={rowIndex}
                         >
-                          <Td width={15} {...getTdProps({ columnKey: "name" })}>
+                          <Td width={25} {...getTdProps({ columnKey: "name" })}>
                             {ruleReport.name}
                           </Td>
                           <Td
                             width={15}
-                            {...getTdProps({ columnKey: "ruleset" })}
-                          >
-                            {ruleReport.ruleset}
-                          </Td>
-                          <Td width={15} {...getTdProps({ columnKey: "rule" })}>
-                            {ruleReport.rule}
-                          </Td>
-                          <Td
-                            width={10}
                             {...getTdProps({ columnKey: "category" })}
                           >
                             {ruleReport.category}
+                          </Td>
+                          <Td
+                            width={15}
+                            {...getTdProps({ columnKey: "source" })}
+                          >
+                            TODO
+                          </Td>
+                          <Td
+                            width={15}
+                            {...getTdProps({ columnKey: "target" })}
+                          >
+                            TODO
                           </Td>
                           <Td
                             width={10}
@@ -287,7 +281,7 @@ export const Issues: React.FC = () => {
                             {ruleReport.effort}
                           </Td>
                           <Td
-                            width={15}
+                            width={20}
                             {...getTdProps({
                               columnKey: "applications",
                             })}
