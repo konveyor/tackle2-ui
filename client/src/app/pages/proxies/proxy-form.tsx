@@ -8,10 +8,7 @@ import {
   Switch,
 } from "@patternfly/react-core";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import {
-  getAxiosErrorMessage,
-  getValidatedFromErrorTouched,
-} from "@app/utils/utils";
+import { getAxiosErrorMessage, getValidatedFromErrors } from "@app/utils/utils";
 import { useProxyFormValidationSchema } from "./proxies-validation-schema";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Proxy } from "@app/api/models";
@@ -263,7 +260,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
               isRequired
               renderInput={({
                 field: { onChange, value },
-                fieldState: { isTouched, error },
+                fieldState: { isDirty, error },
               }) => (
                 <SimpleSelect
                   id="httpIdentity"
@@ -276,7 +273,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     const selectionValue = selection as OptionWithValue<string>;
                     onChange(selectionValue.value);
                   }}
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                  validated={getValidatedFromErrors(error, isDirty)}
                 />
               )}
             />
@@ -349,7 +346,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
               className={spacing.mMd}
               renderInput={({
                 field: { onChange, value },
-                fieldState: { isTouched, error },
+                fieldState: { isDirty, error },
               }) => (
                 <SimpleSelect
                   toggleId="https-proxy-credentials-select-toggle"
@@ -361,7 +358,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                     const selectionValue = selection as OptionWithValue<string>;
                     onChange(selectionValue.value);
                   }}
-                  validated={getValidatedFromErrorTouched(error, isTouched)}
+                  validated={getValidatedFromErrors(error, isDirty)}
                 />
               )}
             />
