@@ -174,7 +174,12 @@ export interface BulkCopyReview {
   completed?: boolean;
 }
 
-export type IdentityKind = "source" | "maven" | "proxy" | "jira";
+export type IdentityKind =
+  | "source"
+  | "maven"
+  | "proxy"
+  | "basic-auth"
+  | "bearer";
 
 export interface Identity {
   id: number;
@@ -538,7 +543,7 @@ export interface IssueType {
   name: string;
 }
 
-export type IssueManagerKind = "jira-cloud" | "jira-server" | "jira-datacenter";
+export type IssueManagerKind = "jira-cloud" | "jira-onprem";
 
 export interface Tracker {
   connected: boolean;
