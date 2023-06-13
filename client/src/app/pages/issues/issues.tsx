@@ -6,9 +6,13 @@ import {
   Label,
   PageSection,
   PageSectionVariants,
+  Tab,
+  TabTitleText,
+  Tabs,
   Text,
   TextContent,
   TextVariants,
+  Title,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -52,8 +56,18 @@ export enum IssueFilterGroups {
   ApplicationInventory = "Application inventory",
   Issues = "Issues",
 }
+
+enum TabKey {
+  allIssues = 0,
+  singleApp,
+}
+
 export const Issues: React.FC = () => {
   const { t } = useTranslation();
+
+  const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
+    TabKey.allIssues
+  );
 
   const tableControlState = useTableControlUrlParams({
     urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
@@ -184,165 +198,186 @@ export const Issues: React.FC = () => {
     },
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
-  console.log("%c Current page items", "color: blue;");
-  console.log({ currentPageRuleReports, totalItemCount });
 
   const location = useLocation();
 
+  // TODO move the contents of each tab to their own components
+
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection variant={PageSectionVariants.light} className={spacing.pb_0}>
         <TextContent>
-          <Text component="h1">{t("terms.issues")}</Text>
+          <Title headingLevel="h1">{t("terms.issues")}</Title>
+          <Text component="small">
+            This report provides a concise summary of all issues identified.
+          </Text>
         </TextContent>
+        <Tabs
+          className={spacing.mtSm}
+          activeKey={activeTabKey}
+          onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
+        >
+          <Tab
+            eventKey={TabKey.allIssues}
+            title={<TabTitleText>All issues</TabTitleText>}
+          />
+          <Tab
+            eventKey={TabKey.singleApp}
+            title={<TabTitleText>Single application</TabTitleText>}
+          />
+        </Tabs>
       </PageSection>
       <PageSection>
-        <ConditionalRender
-          when={isFetching && !(currentPageRuleReports || fetchError)}
-          then={<AppPlaceholder />}
-        >
-          <div
-            style={{
-              backgroundColor: "var(--pf-global--BackgroundColor--100)",
-            }}
+        {activeTabKey === TabKey.allIssues ? (
+          <ConditionalRender
+            when={isFetching && !(currentPageRuleReports || fetchError)}
+            then={<AppPlaceholder />}
           >
-            <Toolbar {...toolbarProps}>
-              <ToolbarContent>
-                <FilterToolbar {...filterToolbarProps} />
-                <ToolbarItem {...paginationToolbarItemProps}>
-                  <SimplePagination
-                    idPrefix="issues-table"
-                    isTop
-                    paginationProps={paginationProps}
-                  />
-                </ToolbarItem>
-              </ToolbarContent>
-            </Toolbar>
-            <TableComposable
-              {...tableProps}
-              isExpandable
-              aria-label="Issues table"
+            <div
+              style={{
+                backgroundColor: "var(--pf-global--BackgroundColor--100)",
+              }}
             >
-              <Thead>
-                <Tr>
-                  <TableHeaderContentWithControls {...tableControls}>
-                    <Th {...getThProps({ columnKey: "name" })} />
-                    <Th {...getThProps({ columnKey: "category" })} />
-                    <Th {...getThProps({ columnKey: "source" })} />
-                    <Th {...getThProps({ columnKey: "target" })} />
-                    <Th {...getThProps({ columnKey: "effort" })} />
-                    <Th {...getThProps({ columnKey: "applications" })} />
-                  </TableHeaderContentWithControls>
-                </Tr>
-              </Thead>
-              <ConditionalTableBody
-                isLoading={isFetching}
-                isError={!!fetchError}
-                isNoData={totalItemCount === 0}
-                numRenderedColumns={numRenderedColumns}
+              <Toolbar {...toolbarProps}>
+                <ToolbarContent>
+                  <FilterToolbar {...filterToolbarProps} />
+                  <ToolbarItem {...paginationToolbarItemProps}>
+                    <SimplePagination
+                      idPrefix="issues-table"
+                      isTop
+                      paginationProps={paginationProps}
+                    />
+                  </ToolbarItem>
+                </ToolbarContent>
+              </Toolbar>
+              <TableComposable
+                {...tableProps}
+                isExpandable
+                aria-label="Issues table"
               >
-                {currentPageRuleReports?.map((ruleReport, rowIndex) => {
-                  return (
-                    <Tbody
-                      key={ruleReport._ui_unique_id}
-                      isExpanded={isCellExpanded(ruleReport)}
-                    >
-                      <Tr>
-                        <TableRowContentWithControls
-                          {...tableControls}
-                          item={ruleReport}
-                          rowIndex={rowIndex}
-                        >
-                          <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                            {ruleReport.name}
-                          </Td>
-                          <Td
-                            width={15}
-                            {...getTdProps({ columnKey: "category" })}
+                <Thead>
+                  <Tr>
+                    <TableHeaderContentWithControls {...tableControls}>
+                      <Th {...getThProps({ columnKey: "name" })} />
+                      <Th {...getThProps({ columnKey: "category" })} />
+                      <Th {...getThProps({ columnKey: "source" })} />
+                      <Th {...getThProps({ columnKey: "target" })} />
+                      <Th {...getThProps({ columnKey: "effort" })} />
+                      <Th {...getThProps({ columnKey: "applications" })} />
+                    </TableHeaderContentWithControls>
+                  </Tr>
+                </Thead>
+                <ConditionalTableBody
+                  isLoading={isFetching}
+                  isError={!!fetchError}
+                  isNoData={totalItemCount === 0}
+                  numRenderedColumns={numRenderedColumns}
+                >
+                  {currentPageRuleReports?.map((ruleReport, rowIndex) => {
+                    return (
+                      <Tbody
+                        key={ruleReport._ui_unique_id}
+                        isExpanded={isCellExpanded(ruleReport)}
+                      >
+                        <Tr>
+                          <TableRowContentWithControls
+                            {...tableControls}
+                            item={ruleReport}
+                            rowIndex={rowIndex}
                           >
-                            {ruleReport.category}
-                          </Td>
-                          <Td
-                            width={15}
-                            {...getTdProps({ columnKey: "source" })}
-                          >
-                            TODO
-                          </Td>
-                          <Td
-                            width={15}
-                            {...getTdProps({ columnKey: "target" })}
-                          >
-                            TODO
-                          </Td>
-                          <Td
-                            width={10}
-                            {...getTdProps({ columnKey: "effort" })}
-                          >
-                            {ruleReport.effort}
-                          </Td>
-                          <Td
-                            width={20}
-                            {...getTdProps({
-                              columnKey: "applications",
-                            })}
-                          >
-                            <Tooltip content="View Report">
-                              <Button variant="link" isInline>
-                                <Link
-                                  to={getAffectedAppsUrl({
-                                    ruleReport,
-                                    fromFilterValues: filterValues,
-                                    fromLocation: location,
-                                  })}
-                                >
-                                  {ruleReport.applications}
-                                </Link>
-                              </Button>
-                            </Tooltip>
-                          </Td>
-                        </TableRowContentWithControls>
-                      </Tr>
-                      {isCellExpanded(ruleReport) ? (
-                        <Tr isExpanded>
-                          <Td />
-                          <Td
-                            {...getExpandedContentTdProps({
-                              item: ruleReport,
-                            })}
-                            className={spacing.pyLg}
-                          >
-                            <ExpandableRowContent>
-                              <Flex>
-                                <FlexItem flex={{ default: "flex_1" }}>
-                                  <Text
-                                    component="h4"
-                                    className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
+                            <Td
+                              width={25}
+                              {...getTdProps({ columnKey: "name" })}
+                            >
+                              {ruleReport.name}
+                            </Td>
+                            <Td
+                              width={15}
+                              {...getTdProps({ columnKey: "category" })}
+                            >
+                              {ruleReport.category}
+                            </Td>
+                            <Td
+                              width={15}
+                              {...getTdProps({ columnKey: "source" })}
+                            >
+                              TODO
+                            </Td>
+                            <Td
+                              width={15}
+                              {...getTdProps({ columnKey: "target" })}
+                            >
+                              TODO
+                            </Td>
+                            <Td
+                              width={10}
+                              {...getTdProps({ columnKey: "effort" })}
+                            >
+                              {ruleReport.effort}
+                            </Td>
+                            <Td
+                              width={20}
+                              {...getTdProps({
+                                columnKey: "applications",
+                              })}
+                            >
+                              <Tooltip content="View Report">
+                                <Button variant="link" isInline>
+                                  <Link
+                                    to={getAffectedAppsUrl({
+                                      ruleReport,
+                                      fromFilterValues: filterValues,
+                                      fromLocation: location,
+                                    })}
                                   >
-                                    Total affected applications
-                                  </Text>
+                                    {ruleReport.applications}
+                                  </Link>
+                                </Button>
+                              </Tooltip>
+                            </Td>
+                          </TableRowContentWithControls>
+                        </Tr>
+                        {isCellExpanded(ruleReport) ? (
+                          <Tr isExpanded>
+                            <Td />
+                            <Td
+                              {...getExpandedContentTdProps({
+                                item: ruleReport,
+                              })}
+                              className={spacing.pyLg}
+                            >
+                              <ExpandableRowContent>
+                                <Flex>
+                                  <FlexItem flex={{ default: "flex_1" }}>
+                                    <Text
+                                      component="h4"
+                                      className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
+                                    >
+                                      Total affected applications
+                                    </Text>
 
-                                  <Tooltip content="View Report">
-                                    <Button variant="link" isInline>
-                                      <Link
-                                        to={getAffectedAppsUrl({
-                                          ruleReport,
-                                          fromFilterValues: filterValues,
-                                          fromLocation: location,
-                                        })}
-                                      >
-                                        {ruleReport.applications} - View
-                                        affected applications
-                                      </Link>
-                                    </Button>
-                                  </Tooltip>
-                                  <Text
-                                    component="h4"
-                                    className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
-                                  >
-                                    Target technologies
-                                  </Text>
-                                  <div>
-                                    {/*
+                                    <Tooltip content="View Report">
+                                      <Button variant="link" isInline>
+                                        <Link
+                                          to={getAffectedAppsUrl({
+                                            ruleReport,
+                                            fromFilterValues: filterValues,
+                                            fromLocation: location,
+                                          })}
+                                        >
+                                          {ruleReport.applications} - View
+                                          affected applications
+                                        </Link>
+                                      </Button>
+                                    </Tooltip>
+                                    <Text
+                                      component="h4"
+                                      className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
+                                    >
+                                      Target technologies
+                                    </Text>
+                                    <div>
+                                      {/*
                                     // TODO the technologies array was replaced by labels, we need to parse them
                                     {issue.technologies.map((tech) => {
                                       return (
@@ -352,62 +387,66 @@ export const Issues: React.FC = () => {
                                       );
                                     })}
                                     */}
-                                  </div>
-                                  <Text
-                                    component="h4"
-                                    className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
-                                  >
-                                    Source technologies
-                                  </Text>
-                                  <div>None</div>
-                                  <Text
-                                    component="h4"
-                                    className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
-                                  >
-                                    Level of effort
-                                  </Text>
-                                  <div>
-                                    {ruleReport.effort} - what do we show here?
-                                  </div>
-                                  <Text
-                                    component="h4"
-                                    className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
-                                  >
-                                    Labels
-                                  </Text>
-                                  <div>
-                                    {ruleReport.labels.map((label) => {
-                                      return (
-                                        <Label className={spacing.mrSm}>
-                                          {label}
-                                        </Label>
-                                      );
-                                    })}
-                                  </div>
-                                </FlexItem>
-                                <FlexItem flex={{ default: "flex_1" }}>
-                                  <Text component={TextVariants.h4}>
-                                    TODO: Render validation rule description
-                                    here when available
-                                  </Text>
-                                </FlexItem>
-                              </Flex>
-                            </ExpandableRowContent>
-                          </Td>
-                        </Tr>
-                      ) : null}
-                    </Tbody>
-                  );
-                })}
-              </ConditionalTableBody>
-            </TableComposable>
-            <SimplePagination
-              idPrefix="issues-table"
-              isTop={false}
-              paginationProps={paginationProps}
-            />
-          </div>
-        </ConditionalRender>
+                                    </div>
+                                    <Text
+                                      component="h4"
+                                      className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
+                                    >
+                                      Source technologies
+                                    </Text>
+                                    <div>None</div>
+                                    <Text
+                                      component="h4"
+                                      className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
+                                    >
+                                      Level of effort
+                                    </Text>
+                                    <div>
+                                      {ruleReport.effort} - what do we show
+                                      here?
+                                    </div>
+                                    <Text
+                                      component="h4"
+                                      className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
+                                    >
+                                      Labels
+                                    </Text>
+                                    <div>
+                                      {ruleReport.labels.map((label) => {
+                                        return (
+                                          <Label className={spacing.mrSm}>
+                                            {label}
+                                          </Label>
+                                        );
+                                      })}
+                                    </div>
+                                  </FlexItem>
+                                  <FlexItem flex={{ default: "flex_1" }}>
+                                    <Text component={TextVariants.h4}>
+                                      TODO: Render validation rule description
+                                      here when available
+                                    </Text>
+                                  </FlexItem>
+                                </Flex>
+                              </ExpandableRowContent>
+                            </Td>
+                          </Tr>
+                        ) : null}
+                      </Tbody>
+                    );
+                  })}
+                </ConditionalTableBody>
+              </TableComposable>
+              <SimplePagination
+                idPrefix="issues-table"
+                isTop={false}
+                paginationProps={paginationProps}
+              />
+            </div>
+          </ConditionalRender>
+        ) : activeTabKey === TabKey.singleApp ? (
+          <>TODO</>
+        ) : null}
       </PageSection>
     </>
   );
