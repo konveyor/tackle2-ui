@@ -6,7 +6,7 @@ import * as yup from "yup";
 import { InputGroup, TextInput, Button } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import { getValidatedFromErrorTouched } from "@app/utils/utils";
+import { getValidatedFromErrors } from "@app/utils/utils";
 import { HookFormPFGroupController } from "../hook-form-pf-fields";
 
 import { TableComposable, Tbody, Td, Tr } from "@patternfly/react-table";
@@ -62,7 +62,7 @@ export const StringListField: React.FC<StringListFieldProps> = ({
         label={itemToAddLabel}
         renderInput={({
           field: { onChange, onBlur, value, ref },
-          fieldState: { isTouched, error },
+          fieldState: { isDirty, error },
         }) => {
           const isValid = !!value && !error;
           const addItem = () => {
@@ -75,7 +75,7 @@ export const StringListField: React.FC<StringListFieldProps> = ({
                 ref={ref}
                 id={itemToAddFieldId}
                 aria-label={itemToAddAriaLabel}
-                validated={getValidatedFromErrorTouched(error, isTouched)}
+                validated={getValidatedFromErrors(error, isDirty)}
                 value={value}
                 onChange={onChange}
                 onBlur={onBlur}
