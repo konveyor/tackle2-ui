@@ -1,7 +1,7 @@
 import * as React from "react";
 import { FieldValues, Path } from "react-hook-form";
 import { TextInput, TextInputProps } from "@patternfly/react-core";
-import { getValidatedFromErrorTouched } from "@app/utils/utils";
+import { getValidatedFromErrors } from "@app/utils/utils";
 import {
   extractGroupControllerProps,
   HookFormPFGroupController,
@@ -31,7 +31,7 @@ export const HookFormPFTextInput = <
       {...extractedProps}
       renderInput={({
         field: { onChange, onBlur, value, name, ref },
-        fieldState: { isTouched, error },
+        fieldState: { isDirty, error },
       }) => (
         <TextInput
           ref={ref}
@@ -51,7 +51,7 @@ export const HookFormPFTextInput = <
           validated={
             errorsSuppressed
               ? "default"
-              : getValidatedFromErrorTouched(error, isTouched)
+              : getValidatedFromErrors(error, isDirty)
           }
           {...remainingProps}
         />
