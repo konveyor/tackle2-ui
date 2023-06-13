@@ -159,7 +159,7 @@ export const AffectedApplications: React.FC = () => {
             </Link>
           </BreadcrumbItem>
           <BreadcrumbItem to="#" isActive>
-            {ruleReportName} ({ruleset}, {rule})
+            {ruleReportName}
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>
