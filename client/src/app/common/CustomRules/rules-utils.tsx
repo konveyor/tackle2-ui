@@ -65,7 +65,7 @@ export const parseRules = (file: IReadFile): ParsedRule => {
         target: target,
         otherLabels: allLabels,
         allLabels: allLabels,
-        total: 0,
+        total: rulesCount,
         ...(file.responseID && {
           fileID: file.responseID,
         }),
