@@ -13,7 +13,7 @@ import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 
-import { getValidatedFromErrorTouched } from "@app/utils/utils";
+import { getValidatedFromErrors } from "@app/utils/utils";
 import { defaultTargets } from "../../../data/targets";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisWizardFormValues } from "./schema";
@@ -74,7 +74,7 @@ export const SetOptions: React.FC = () => {
         fieldId="targets"
         renderInput={({
           field: { onChange, onBlur, value: selectedFormTargets },
-          fieldState: { isTouched, error },
+          fieldState: { isDirty, error },
         }) => (
           <Select
             id="rulesets"
@@ -120,7 +120,7 @@ export const SetOptions: React.FC = () => {
             onClear={() => {
               onChange([]);
             }}
-            validated={getValidatedFromErrorTouched(error, isTouched)}
+            validated={getValidatedFromErrors(error, isDirty)}
           >
             {defaultTargetsAndRulesetTargets.map((targetName, index) => (
               <SelectOption
@@ -139,7 +139,7 @@ export const SetOptions: React.FC = () => {
         fieldId="sources"
         renderInput={({
           field: { onChange, onBlur, value },
-          fieldState: { isTouched, error },
+          fieldState: { isDirty, error },
         }) => (
           <Select
             id="formSources-id"
@@ -169,7 +169,7 @@ export const SetOptions: React.FC = () => {
             onClear={() => {
               onChange([]);
             }}
-            validated={getValidatedFromErrorTouched(error, isTouched)}
+            validated={getValidatedFromErrors(error, isDirty)}
           >
             {formSources.map((source, index) => (
               <SelectOption
