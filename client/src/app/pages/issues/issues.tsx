@@ -19,6 +19,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
+import { Paths } from "@app/Paths";
 import { AppPlaceholder, ConditionalRender } from "@app/shared/components";
 import {
   FilterToolbar,
@@ -48,7 +49,7 @@ import { useSelectionState } from "@migtools/lib-ui";
 import { useFetchRuleReports } from "@app/queries/issues";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { getAffectedAppsUrl } from "./helpers";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 
@@ -57,17 +58,17 @@ export enum IssueFilterGroups {
   Issues = "Issues",
 }
 
-enum TabKey {
-  allIssues = 0,
-  singleApp,
-}
+const TAB_PATHS = [Paths.issuesAllTab, Paths.issuesSingleAppTab] as const;
 
 export const Issues: React.FC = () => {
   const { t } = useTranslation();
+  const location = useLocation();
+  const history = useHistory();
 
-  const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
-    TabKey.allIssues
-  );
+  const activeTabPath = TAB_PATHS.find((path) => location.pathname === path);
+  React.useEffect(() => {
+    if (!activeTabPath) history.push(Paths.issuesAllTab);
+  }, [activeTabPath]);
 
   const tableControlState = useTableControlUrlParams({
     urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
@@ -199,8 +200,6 @@ export const Issues: React.FC = () => {
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
 
-  const location = useLocation();
-
   // TODO move the contents of each tab to their own components
 
   return (
@@ -214,21 +213,21 @@ export const Issues: React.FC = () => {
         </TextContent>
         <Tabs
           className={spacing.mtSm}
-          activeKey={activeTabKey}
-          onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
+          activeKey={activeTabPath}
+          onSelect={(_event, tabPath) => history.push(tabPath as string)}
         >
           <Tab
-            eventKey={TabKey.allIssues}
+            eventKey={Paths.issuesAllTab}
             title={<TabTitleText>All issues</TabTitleText>}
           />
           <Tab
-            eventKey={TabKey.singleApp}
+            eventKey={Paths.issuesSingleAppTab}
             title={<TabTitleText>Single application</TabTitleText>}
           />
         </Tabs>
       </PageSection>
       <PageSection>
-        {activeTabKey === TabKey.allIssues ? (
+        {activeTabPath === Paths.issuesAllTab ? (
           <ConditionalRender
             when={isFetching && !(currentPageRuleReports || fetchError)}
             then={<AppPlaceholder />}
@@ -444,7 +443,7 @@ export const Issues: React.FC = () => {
               />
             </div>
           </ConditionalRender>
-        ) : activeTabKey === TabKey.singleApp ? (
+        ) : activeTabPath === Paths.issuesSingleAppTab ? (
           <>TODO</>
         ) : null}
       </PageSection>

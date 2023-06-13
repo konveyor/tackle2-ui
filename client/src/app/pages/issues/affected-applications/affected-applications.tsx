@@ -39,7 +39,7 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useSelectionState } from "@migtools/lib-ui";
-import { getBackToIssuesUrl } from "../helpers";
+import { getBackToAllIssuesUrl } from "../helpers";
 import { IssueDetailDrawer } from "./issue-detail-drawer";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 
@@ -150,7 +150,7 @@ export const AffectedApplications: React.FC = () => {
         <Breadcrumb>
           <BreadcrumbItem>
             <Link
-              to={getBackToIssuesUrl({
+              to={getBackToAllIssuesUrl({
                 fromFilterValues: filterValues,
                 fromLocation: useLocation(),
               })}
