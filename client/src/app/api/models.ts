@@ -174,7 +174,12 @@ export interface BulkCopyReview {
   completed?: boolean;
 }
 
-export type IdentityKind = "source" | "maven" | "proxy" | "jira";
+export type IdentityKind =
+  | "source"
+  | "maven"
+  | "proxy"
+  | "basic-auth"
+  | "bearer";
 
 export interface Identity {
   id: number;
