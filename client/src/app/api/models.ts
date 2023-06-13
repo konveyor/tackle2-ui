@@ -543,7 +543,7 @@ export interface IssueType {
   name: string;
 }
 
-export type IssueManagerKind = "jira-cloud" | "jira-server" | "jira-datacenter";
+export type IssueManagerKind = "jira-cloud" | "jira-onprem";
 
 export interface Tracker {
   connected: boolean;
