@@ -13,7 +13,7 @@ import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 
-import { getValidatedFromErrorDirty } from "@app/utils/utils";
+import { getValidatedFromErrors } from "@app/utils/utils";
 import { defaultTargets } from "../../../data/targets";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisWizardFormValues } from "./schema";
@@ -120,7 +120,7 @@ export const SetOptions: React.FC = () => {
             onClear={() => {
               onChange([]);
             }}
-            validated={getValidatedFromErrorDirty(error, isDirty)}
+            validated={getValidatedFromErrors(error, isDirty)}
           >
             {defaultTargetsAndRulesetTargets.map((targetName, index) => (
               <SelectOption
@@ -169,7 +169,7 @@ export const SetOptions: React.FC = () => {
             onClear={() => {
               onChange([]);
             }}
-            validated={getValidatedFromErrorDirty(error, isDirty)}
+            validated={getValidatedFromErrors(error, isDirty)}
           >
             {formSources.map((source, index) => (
               <SelectOption

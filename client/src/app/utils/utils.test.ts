@@ -2,7 +2,7 @@ import { AxiosError } from "axios";
 import {
   getAxiosErrorMessage,
   getValidatedFromError,
-  getValidatedFromErrorDirty,
+  getValidatedFromErrors,
   getToolbarChipKey,
 } from "./utils";
 
@@ -62,19 +62,19 @@ describe("utils", () => {
     expect(status).toBe("default");
   });
 
-  it("getValidatedFromErrorDirty: given 'error' and 'touched' return 'error'", () => {
+  it("getValidatedFromErrors: given 'error' and 'touched' return 'error'", () => {
     const error = "Any value";
     const dirty = true;
 
-    const status = getValidatedFromErrorDirty(error, dirty);
+    const status = getValidatedFromErrors(error, dirty);
     expect(status).toBe("error");
   });
 
-  it("getValidatedFromErrorDirty: given 'error' but not 'touched' return 'default'", () => {
+  it("getValidatedFromErrors: given 'error' but not 'touched' return 'default'", () => {
     const error = "Any value";
     const dirty = false;
 
-    const status = getValidatedFromErrorDirty(error, dirty);
+    const status = getValidatedFromErrors(error, dirty);
     expect(status).toBe("default");
   });
 
