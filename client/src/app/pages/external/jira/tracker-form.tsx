@@ -13,7 +13,7 @@ import {
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import { IssueManagerKind, Tracker } from "@app/api/models";
+import { IdentityKind, IssueManagerKind, Tracker } from "@app/api/models";
 import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
 import {
   useCreateTrackerMutation,
@@ -33,6 +33,14 @@ import {
 } from "@app/shared/components/hook-form-pf-fields";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+
+const supportedIdentityKindByIssueManagerKind: Record<
+  IssueManagerKind,
+  IdentityKind[]
+> = {
+  "jira-cloud": ["basic-auth"],
+  "jira-onprem": ["basic-auth", "bearer"],
+};
 
 interface FormValues {
   id: number;
@@ -170,14 +178,19 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
   const values = getValues();
   const watchAllFields = watch();
 
-  const identityOptions = identities
-    .filter((identity) => identity.kind === "basic-auth")
-    .map((identity) => {
-      return {
-        value: identity.name,
-        toString: () => identity.name,
-      };
-    });
+  const identityOptions = (kind: IssueManagerKind) => {
+    const identityKinds = supportedIdentityKindByIssueManagerKind[kind];
+    return identities
+      .filter((identity) =>
+        identity.kind ? identityKinds.includes(identity.kind) : false
+      )
+      .map((identity) => {
+        return {
+          value: identity.name,
+          toString: () => identity.name,
+        };
+      });
+  };
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -245,8 +258,12 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
             })}
             toggleAriaLabel="Credentials select dropdown toggle"
             aria-label={name}
-            value={value ? toOptionLike(value, identityOptions) : undefined}
-            options={identityOptions}
+            value={
+              value
+                ? toOptionLike(value, identityOptions(values.kind))
+                : undefined
+            }
+            options={identityOptions(values.kind)}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<string>;
               onChange(selectionValue.value);
