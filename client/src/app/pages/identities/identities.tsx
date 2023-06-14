@@ -98,7 +98,8 @@ export const Identities: React.FC = () => {
     { key: "source", value: "Source Control" },
     { key: "maven", value: "Maven Settings File" },
     { key: "proxy", value: "Proxy" },
-    { key: "jira", value: "Jira" },
+    { key: "basic-auth", value: "JIRA Basic Auth" },
+    { key: "bearer", value: "JIRA Bearer Token" },
   ];
   const filterCategories: FilterCategory<
     Identity,
