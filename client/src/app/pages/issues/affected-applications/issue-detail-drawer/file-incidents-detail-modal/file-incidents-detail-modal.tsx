@@ -108,9 +108,7 @@ export const FileIncidentsDetailModal: React.FC<
                   <GridItem span={6} className={spacing.plSm}>
                     <TextContent>
                       <Text component="h2">{appReport.issue.name}</Text>
-                      <Text className={`${textStyles.fontSizeMd}`}>
-                        Line {incident.line}
-                      </Text>
+                      <Text component="small">Line {incident.line}</Text>
                     </TextContent>
                     <TextContent className={spacing.mtLg}>
                       <ReactMarkdown components={markdownPFComponents}>
