@@ -58,7 +58,7 @@ const stakeholderToOption = (
 });
 
 interface WaveFormValues {
-  name: string;
+  name?: string;
   startDate: Date | null;
   endDate: Date | null;
   stakeholders: Stakeholder[];
@@ -135,15 +135,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     name: yup
       .string()
       .trim()
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 }))
-      .test(
-        "Duplicate name",
-        "An identity with this name already exists. Use a different name.",
-        (value) =>
-          duplicateNameCheck(migrationWaves, migrationWave || null, value || "")
-      )
-      .required(t("validation.required")),
+      .max(120, t("validation.maxLength", { length: 120 })),
     startDate: yup
       .date()
       .when([], {
@@ -197,7 +189,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   const onSubmit = (formValues: WaveFormValues) => {
     const payload: New<MigrationWave> = {
       applications: migrationWave?.applications || [],
-      name: formValues.name.trim(),
+      name: formValues.name?.trim() || "",
       startDate: dayjs.utc(formValues.startDate).format(),
       endDate: dayjs.utc(formValues.endDate).format(),
       stakeholders: formValues.stakeholders,
@@ -237,7 +229,6 @@ export const WaveForm: React.FC<WaveFormProps> = ({
             name="name"
             label="Name"
             fieldId="name"
-            isRequired
           />
         </GridItem>
         <Level>
