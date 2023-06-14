@@ -48,6 +48,7 @@ import { useFetchApplications } from "@app/queries/applications";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { IdentityForm } from "./components/identity-form";
 import { validateXML } from "./components/identity-form/validateXML";
+import { useFetchTrackers } from "@app/queries/trackers";
 
 const ENTITY_FIELD = "entity";
 
@@ -87,6 +88,7 @@ export const Identities: React.FC = () => {
     onDeleteIdentityError
   );
   const { data: applications } = useFetchApplications();
+  const { trackers } = useFetchTrackers();
 
   const {
     identities,
@@ -206,6 +208,12 @@ export const Identities: React.FC = () => {
         {
           title: (
             <AppTableActionButtons
+              isDeleteEnabled={trackers.some(
+                (tracker) => tracker?.identity?.id === item.id
+              )}
+              tooltipMessage={
+                "Cannot delete credential assigned to a JIRA tracker."
+              }
               onEdit={() => setCreateUpdateModalState(item)}
               onDelete={() => {
                 setIdentityIdToDelete(item.id);
