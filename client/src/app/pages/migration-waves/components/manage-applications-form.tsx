@@ -13,6 +13,7 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
+import dayjs from "dayjs";
 
 import { Application, MigrationWave } from "@app/api/models";
 import { ToolbarBulkSelector } from "@app/shared/components";
@@ -202,7 +203,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
       applications: selectedItems.map((application) => {
         return { id: application.id, name: application.name };
       }),
-      name: migrationWave?.name.trim() || "",
+      name: migrationWave?.name?.trim() || "",
       startDate: migrationWave?.startDate || "",
       endDate: migrationWave?.endDate || "",
       stakeholders: migrationWave?.stakeholders || [],
@@ -221,7 +222,13 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
       <TextContent>
         <Text component={TextVariants.h5}>Selected wave</Text>
         <TextInput
-          value={migrationWave.name}
+          value={
+            !migrationWave?.name
+              ? `${dayjs(migrationWave.startDate).format(
+                  "MM/DD/YYYY"
+                )} - ${dayjs(migrationWave.endDate).format("MM/DD/YYYY")}`
+              : migrationWave.name
+          }
           type="text"
           aria-label="wave-name"
           isDisabled={true}
