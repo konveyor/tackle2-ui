@@ -155,7 +155,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           password: formValues.password.trim(),
           user: formValues.user.trim(),
         }),
-      ...(formValues.kind === "jira" && {
+      ...(formValues.kind === "basic-auth" && {
         user: formValues.user.trim(),
         password: formValues.password.trim(),
       }),
@@ -319,7 +319,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .string()
         .defined()
         .when("kind", {
-          is: (value: string) => value === "proxy" || value === "jira",
+          is: (value: string) => value === "proxy" || value === "basic-auth",
           then: yup
             .string()
             .required("This value is required")
@@ -342,6 +342,11 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .when(["kind", "userCredentials"], {
           is: (kind: string, userCredentials: string) =>
             kind === "source" && userCredentials === "source",
+          then: (schema) => schema.required("This field is required."),
+          otherwise: (schema) => schema.trim(),
+        })
+        .when("kind", {
+          is: (kind: string) => kind === "bearer",
           then: (schema) => schema.required("This field is required."),
           otherwise: (schema) => schema.trim(),
         }),
@@ -393,6 +398,16 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       toString: () => `Source Private Key/Passphrase`,
     },
   ];
+  const jiraKindOptions: OptionWithValue<IdentityKind>[] = [
+    {
+      value: "basic-auth",
+      toString: () => `JIRA Basic Auth`,
+    },
+    {
+      value: "bearer",
+      toString: () => `JIRA Bearer Token`,
+    },
+  ];
 
   const kindOptions: OptionWithValue<IdentityKind>[] = [
     {
@@ -407,13 +422,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       value: "proxy",
       toString: () => `Proxy`,
     },
+    ...(FEATURES_ENABLED.migrationWaves ? jiraKindOptions : []),
   ];
-
-  if (FEATURES_ENABLED.migrationWaves)
-    kindOptions.push({
-      value: "jira",
-      toString: () => `Jira`,
-    });
 
   const isPasswordEncrypted = identity?.password === values.password;
 
@@ -642,13 +652,15 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         />
       )}
 
-      {(values?.kind === "proxy" || values?.kind === "jira") && (
+      {(values?.kind === "proxy" || values?.kind === "basic-auth") && (
         <>
           <HookFormPFTextInput
             control={control}
             name="user"
             label={
-              values.kind === "jira" ? "Jira username or email" : "Username"
+              values.kind === "basic-auth"
+                ? "Jira username or email"
+                : "Username"
             }
             fieldId="user"
             isRequired
@@ -656,9 +668,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           <HookFormPFTextInput
             control={control}
             name="password"
-            label={values.kind === "jira" ? "Token" : "Password"}
+            label={values.kind === "basic-auth" ? "Token" : "Password"}
             fieldId="password"
-            isRequired={values.kind === "jira"}
+            isRequired={values.kind === "basic-auth"}
             type={isPasswordHidden ? "password" : "text"}
             formGroupProps={{
               labelIcon: !isPasswordEncrypted ? (
@@ -674,6 +686,28 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         </>
       )}
 
+      {values?.kind === "bearer" && (
+        <>
+          <HookFormPFTextInput
+            control={control}
+            name="key"
+            label={"key"}
+            fieldId="key"
+            isRequired={true}
+            type={"password"}
+            formGroupProps={{
+              labelIcon: !isPasswordEncrypted ? (
+                <KeyDisplayToggle
+                  keyName="key"
+                  isKeyHidden={isPasswordHidden}
+                  onClick={toggleHidePassword}
+                />
+              ) : undefined,
+            }}
+            onFocus={() => resetField("key")}
+          />
+        </>
+      )}
       <ActionGroup>
         <Button
           type="submit"

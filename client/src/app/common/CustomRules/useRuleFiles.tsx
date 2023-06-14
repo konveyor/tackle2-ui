@@ -9,7 +9,6 @@ import { CustomTargetFormValues } from "@app/pages/migration-targets/custom-targ
 import { UseFormReturn } from "react-hook-form";
 import { XMLValidator } from "fast-xml-parser";
 import XSDSchema from "./windup-jboss-ruleset.xsd";
-
 const xmllint = require("xmllint");
 
 export default function useRuleFiles(

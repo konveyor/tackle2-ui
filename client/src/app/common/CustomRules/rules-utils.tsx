@@ -2,6 +2,15 @@ import { IReadFile, ParsedRule, Ruleset } from "@app/api/models";
 
 type RuleFileType = "YAML" | "XML" | null;
 
+export const checkRuleFileType = (filename: string): RuleFileType => {
+  const fileExtension = filename.split(".").pop()?.toLowerCase();
+  if (fileExtension === ("yaml" || "yml")) {
+    return "YAML";
+  } else if (fileExtension === "xml") {
+    return "XML";
+  } else return null;
+};
+
 export const parseRules = (file: IReadFile): ParsedRule => {
   if (file.data) {
     let source: string | null = null;

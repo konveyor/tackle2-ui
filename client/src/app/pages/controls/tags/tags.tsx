@@ -50,6 +50,7 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 import { COLOR_NAMES_BY_HEX_VALUE } from "@app/Constants";
 import { TagForm } from "./components/tag-form";
 import { TagCategoryForm } from "./components/tag-category-form";
+import { getTagCategoryFallbackColor } from "@app/pages/applications/components/application-tags/application-tag-label";
 
 const ENTITY_FIELD = "entity";
 
@@ -297,6 +298,7 @@ export const Tags: React.FC = () => {
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {
     const isExpanded = isItemExpanded(item) && !!item?.tags?.length;
+    const categoryColor = item.colour || getTagCategoryFallbackColor(item);
     rows.push({
       [ENTITY_FIELD]: item,
       isOpen: (item.tags || []).length > 0 ? isExpanded : undefined,
@@ -308,7 +310,7 @@ export const Tags: React.FC = () => {
           title: item.rank,
         },
         {
-          title: <>{item.colour && <Color hex={item.colour} />}</>,
+          title: <Color hex={categoryColor} />,
         },
         {
           title: item.tags ? item.tags.length : 0,

@@ -193,6 +193,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { handleSubmit, watch, reset } = methods;
   const values = watch();
+  console.log("values", values);
 
   enum StepId {
     AnalysisMode = 1,
@@ -254,10 +255,13 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           },
         },
         rules: {
-          labels: [
-            ...fieldValues.formTargets,
-            ...fieldValues.selectedFormSources,
-          ],
+          labels: {
+            included: [
+              ...fieldValues.formTargets,
+              ...fieldValues.selectedFormSources,
+            ],
+            excluded: [],
+          },
           path: fieldValues.customRulesFiles.length > 0 ? "/rules" : "",
           tags: {
             excluded: fieldValues.excludedRulesTags,

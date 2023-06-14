@@ -67,8 +67,13 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
     useFormContext<AnalysisWizardFormValues>();
   const values = getValues();
 
-  const { formSources, formTargets, customRulesFiles } = watch();
-  const [activeTabKey, setActiveTabKey] = React.useState(0);
+  const { formSources, formTargets, customRulesFiles, rulesKind } = watch();
+  const initialActiveTabKeyValue = (value: string): number =>
+    value === "manual" ? 0 : value === "repository" ? 1 : 0;
+
+  const [activeTabKey, setActiveTabKey] = React.useState(
+    initialActiveTabKeyValue(rulesKind)
+  );
 
   const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
     React.useState(false);
@@ -241,7 +246,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
         control={control}
         name="rulesKind"
         fieldId="type-select"
-        renderInput={({ field: { value, name, onChange } }) => (
+        renderInput={({ field: { onChange } }) => (
           <Tabs
             className={spacing.mtSm}
             activeKey={activeTabKey}
