@@ -4,6 +4,7 @@ import {
   Flex,
   FlexItem,
   Label,
+  LabelGroup,
   PageSection,
   PageSectionVariants,
   Tab,
@@ -432,16 +433,20 @@ export const Issues: React.FC = () => {
                                       Labels
                                     </Text>
                                     <div>
-                                      {otherLabels.length > 0
-                                        ? otherLabels.map((label) => (
+                                      {otherLabels.length > 0 ? (
+                                        <LabelGroup>
+                                          {otherLabels.map((label) => (
                                             <Label
                                               key={label}
                                               className={spacing.mrSm}
                                             >
                                               {label}
                                             </Label>
-                                          ))
-                                        : "None"}
+                                          ))}
+                                        </LabelGroup>
+                                      ) : (
+                                        "None"
+                                      )}
                                     </div>
                                   </FlexItem>
                                   <FlexItem flex={{ default: "flex_1" }}>
