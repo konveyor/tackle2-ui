@@ -258,7 +258,11 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
             })}
             toggleAriaLabel="Credentials select dropdown toggle"
             aria-label={name}
-            value={value ? toOptionLike(value, identityOptions) : undefined}
+            value={
+              value
+                ? toOptionLike(value, identityOptions(values.kind))
+                : undefined
+            }
             options={identityOptions(values.kind)}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<string>;
