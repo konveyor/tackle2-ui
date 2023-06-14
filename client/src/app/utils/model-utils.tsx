@@ -206,11 +206,7 @@ export const IssueManagerOptions: OptionWithValue<IssueManagerKind>[] = [
     toString: () => "Jira Cloud",
   },
   {
-    value: "jira-server",
-    toString: () => "Jira Server",
-  },
-  {
-    value: "jira-datacenter",
-    toString: () => "Jira Datacenter",
+    value: "jira-onprem",
+    toString: () => "Jira Server/Datacenter",
   },
 ];
