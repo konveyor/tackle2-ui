@@ -178,7 +178,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
       name: formValues.name.trim(),
       jobFunction: matchingJobFunction
         ? { id: matchingJobFunction.id, name: matchingJobFunction.name }
-        : undefined,
+        : null,
       stakeholderGroups: matchingStakeholderGroupRefs,
     };
 
