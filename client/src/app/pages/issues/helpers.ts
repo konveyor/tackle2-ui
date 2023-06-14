@@ -84,3 +84,19 @@ export const getBackToAllIssuesUrl = ({
     },
   })}`;
 };
+
+export const parseRuleReportLabels = (ruleReport: AnalysisRuleReport) => {
+  const sources: string[] = [];
+  const targets: string[] = [];
+  const otherLabels: string[] = [];
+  ruleReport.labels.forEach((label) => {
+    if (label.startsWith("konveyor.io/source=")) {
+      sources.push(label.split("konveyor.io/source=")[1]);
+    } else if (label.startsWith("konveyor.io/target=")) {
+      targets.push(label.split("konveyor.io/target=")[1]);
+    } else {
+      otherLabels.push(label);
+    }
+  });
+  return { sources, targets, otherLabels };
+};

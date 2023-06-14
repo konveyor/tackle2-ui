@@ -50,8 +50,9 @@ import { useFetchRuleReports } from "@app/queries/issues";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { getAffectedAppsUrl } from "./helpers";
+import { getAffectedAppsUrl, parseRuleReportLabels } from "./helpers";
 import { TableURLParamKeyPrefix } from "@app/Constants";
+import { SingleLabelWithOverflow } from "@app/shared/components/SingleLabelWithOverflow";
 
 export enum IssueFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -273,6 +274,8 @@ export const Issues: React.FC = () => {
                   numRenderedColumns={numRenderedColumns}
                 >
                   {currentPageRuleReports?.map((ruleReport, rowIndex) => {
+                    const { sources, targets, otherLabels } =
+                      parseRuleReportLabels(ruleReport);
                     return (
                       <Tbody
                         key={ruleReport._ui_unique_id}
@@ -297,16 +300,26 @@ export const Issues: React.FC = () => {
                               {ruleReport.category}
                             </Td>
                             <Td
-                              width={15}
+                              width={10}
+                              modifier="nowrap"
+                              noPadding
                               {...getTdProps({ columnKey: "source" })}
                             >
-                              TODO
+                              <SingleLabelWithOverflow
+                                labels={sources}
+                                popoverAriaLabel="More sources"
+                              />
                             </Td>
                             <Td
-                              width={15}
+                              width={20}
+                              modifier="nowrap"
+                              noPadding
                               {...getTdProps({ columnKey: "target" })}
                             >
-                              TODO
+                              <SingleLabelWithOverflow
+                                labels={targets}
+                                popoverAriaLabel="More sources"
+                              />
                             </Td>
                             <Td
                               width={10}
@@ -376,16 +389,16 @@ export const Issues: React.FC = () => {
                                       Target technologies
                                     </Text>
                                     <div>
-                                      {/*
-                                    // TODO the technologies array was replaced by labels, we need to parse them
-                                    {issue.technologies.map((tech) => {
-                                      return (
-                                        <Label className={spacing.mrSm}>
-                                          {tech?.name}
-                                        </Label>
-                                      );
-                                    })}
-                                    */}
+                                      {targets.length > 0
+                                        ? targets.map((target) => (
+                                            <Label
+                                              key={target}
+                                              className={spacing.mrSm}
+                                            >
+                                              {target}
+                                            </Label>
+                                          ))
+                                        : "None"}
                                     </div>
                                     <Text
                                       component="h4"
@@ -393,17 +406,25 @@ export const Issues: React.FC = () => {
                                     >
                                       Source technologies
                                     </Text>
-                                    <div>None</div>
+                                    <div>
+                                      {sources.length > 0
+                                        ? sources.map((source) => (
+                                            <Label
+                                              key={source}
+                                              className={spacing.mrSm}
+                                            >
+                                              {source}
+                                            </Label>
+                                          ))
+                                        : "None"}
+                                    </div>
                                     <Text
                                       component="h4"
                                       className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
                                     >
                                       Level of effort
                                     </Text>
-                                    <div>
-                                      {ruleReport.effort} - what do we show
-                                      here?
-                                    </div>
+                                    <div>{ruleReport.effort}</div>
                                     <Text
                                       component="h4"
                                       className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
@@ -411,13 +432,16 @@ export const Issues: React.FC = () => {
                                       Labels
                                     </Text>
                                     <div>
-                                      {ruleReport.labels.map((label) => {
-                                        return (
-                                          <Label className={spacing.mrSm}>
-                                            {label}
-                                          </Label>
-                                        );
-                                      })}
+                                      {otherLabels.length > 0
+                                        ? otherLabels.map((label) => (
+                                            <Label
+                                              key={label}
+                                              className={spacing.mrSm}
+                                            >
+                                              {label}
+                                            </Label>
+                                          ))
+                                        : "None"}
                                     </div>
                                   </FlexItem>
                                   <FlexItem flex={{ default: "flex_1" }}>
