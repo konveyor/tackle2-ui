@@ -446,8 +446,7 @@ export const Issues: React.FC = () => {
                                   </FlexItem>
                                   <FlexItem flex={{ default: "flex_1" }}>
                                     <Text component={TextVariants.h4}>
-                                      TODO: Render validation rule description
-                                      here when available
+                                      {ruleReport.description}
                                     </Text>
                                   </FlexItem>
                                 </Flex>
