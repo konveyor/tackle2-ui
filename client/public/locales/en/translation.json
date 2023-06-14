@@ -355,7 +355,8 @@
       "deleted": "{{type}} {{what}} was successfully deleted.",
       "deletedAll": "{{type}} {{what}} were successfully deleted.",
       "fileSavedToBeProcessed": "Success! file saved to be processed.",
-      "reviewDiscarded": "Success! Review discarded for {{application}}."
+      "reviewDiscarded": "Success! Review discarded for {{application}}.",
+      "waveSaved": "Migration wave was successfully saved."
     },
     "fail": {
       "create": "Failed to create {{type}}.",

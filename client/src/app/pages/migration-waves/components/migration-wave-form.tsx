@@ -112,10 +112,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     response: AxiosResponse<MigrationWave>
   ) => {
     pushNotification({
-      title: t("toastr.success.save", {
-        what: response.data.name,
-        type: t("terms.migrationWave"),
-      }),
+      title: t("toastr.success.waveSaved"),
       variant: "success",
     });
   };
