@@ -398,6 +398,16 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       toString: () => `Source Private Key/Passphrase`,
     },
   ];
+  const jiraKindOptions: OptionWithValue<IdentityKind>[] = [
+    {
+      value: "basic-auth",
+      toString: () => `JIRA Basic Auth`,
+    },
+    {
+      value: "bearer",
+      toString: () => `JIRA Bearer Token`,
+    },
+  ];
 
   const kindOptions: OptionWithValue<IdentityKind>[] = [
     {
@@ -412,18 +422,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       value: "proxy",
       toString: () => `Proxy`,
     },
+    ...(FEATURES_ENABLED.migrationWaves ? jiraKindOptions : []),
   ];
-
-  if (FEATURES_ENABLED.migrationWaves) {
-    kindOptions.push({
-      value: "basic-auth",
-      toString: () => `Basic auth`,
-    });
-    kindOptions.push({
-      value: "bearer",
-      toString: () => `Bearer`,
-    });
-  }
 
   const isPasswordEncrypted = identity?.password === values.password;
 
