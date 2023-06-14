@@ -63,7 +63,7 @@ export const FileIncidentsDetailModal: React.FC<
   // TODO render incident facts?
   // TODO render documentation links? are those part of the markdown? where do we get them from the hub?
 
-  console.log({ firstFiveIncidents });
+  // TODO syntax highlighting based on filename extension? what are the languages? see Pranav's slack message
 
   return (
     <Modal
