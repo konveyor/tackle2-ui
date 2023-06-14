@@ -56,6 +56,10 @@ export const FileIncidentsDetailModal: React.FC<
     }
   }, [activeTabIncidentId, isFetching, firstFiveIncidents]);
 
+  const isLoadingState =
+    isFetching ||
+    (firstFiveIncidents.length > 0 && activeTabIncidentId === undefined);
+
   // TODO render incident facts?
   // TODO render documentation links? are those part of the markdown? where do we get them from the hub?
 
@@ -73,7 +77,7 @@ export const FileIncidentsDetailModal: React.FC<
         </Button>,
       ]}
     >
-      {isFetching ? (
+      {isLoadingState ? (
         <AppPlaceholder />
       ) : fetchError ? (
         <StateError />
