@@ -26,7 +26,6 @@ import {
   duplicateNameCheck,
   getAxiosErrorMessage,
   standardStrictURLRegex,
-  standardURLRegex,
 } from "@app/utils/utils";
 import {
   HookFormPFGroupController,
@@ -172,7 +171,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
   const watchAllFields = watch();
 
   const identityOptions = identities
-    .filter((identity) => identity.kind === "jira")
+    .filter((identity) => identity.kind === "basic-auth")
     .map((identity) => {
       return {
         value: identity.name,
