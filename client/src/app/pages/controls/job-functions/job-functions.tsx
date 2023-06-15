@@ -173,7 +173,7 @@ export const JobFunctions: React.FC = () => {
     refetch();
 
     pushNotification({
-      title: t("toastr.success.save", {
+      title: t("toastr.success.saveWhat", {
         what: response.data.name,
         type: "job function",
       }),

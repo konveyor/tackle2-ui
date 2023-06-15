@@ -137,7 +137,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
     res: AxiosResponse<StakeholderGroup>
   ) =>
     pushNotification({
-      title: t("toastr.success.save", {
+      title: t("toastr.success.saveWhat", {
         what: res.data.name,
         type: t("terms.stakeholderGroup"),
       }),

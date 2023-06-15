@@ -32,7 +32,6 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
     TabKey.AffectedFiles
   );
 
-  // TODO should we also show the application name at the top?
   return (
     <PageDrawerContent
       isExpanded={!!appReport}

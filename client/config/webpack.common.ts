@@ -4,6 +4,7 @@ import Dotenv from "dotenv-webpack";
 import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 import { Configuration, WatchIgnorePlugin } from "webpack";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
+import { LANGUAGES_BY_FILE_EXTENSION } from "./monacoConstants";
 
 const BG_IMAGES_DIRNAME = "images";
 
@@ -207,7 +208,9 @@ const config: Configuration = {
     new WatchIgnorePlugin({
       paths: [/\.js$/, /\.d\.ts$/],
     }),
-    new MonacoWebpackPlugin(),
+    new MonacoWebpackPlugin({
+      languages: Object.values(LANGUAGES_BY_FILE_EXTENSION),
+    }),
   ],
   resolve: {
     alias: {
