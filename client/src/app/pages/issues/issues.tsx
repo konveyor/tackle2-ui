@@ -423,6 +423,20 @@ export const Issues: React.FC = () => {
                                       component="h4"
                                       className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
                                     >
+                                      Rule set
+                                    </Text>
+                                    <div>{ruleReport.ruleset}</div>
+                                    <Text
+                                      component="h4"
+                                      className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
+                                    >
+                                      Rule
+                                    </Text>
+                                    <div>{ruleReport.rule}</div>
+                                    <Text
+                                      component="h4"
+                                      className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
+                                    >
                                       Labels
                                     </Text>
                                     <div>
