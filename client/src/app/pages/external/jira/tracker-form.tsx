@@ -8,11 +8,15 @@ import {
   Button,
   ButtonVariant,
   Form,
+  Popover,
+  PopoverPosition,
   Switch,
 } from "@patternfly/react-core";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
+import "./tracker-form.css";
 import { IdentityKind, IssueManagerKind, Tracker } from "@app/api/models";
 import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
 import {
@@ -33,6 +37,7 @@ import {
 } from "@app/shared/components/hook-form-pf-fields";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import { QuestionCircleIcon } from "@patternfly/react-icons";
 
 const supportedIdentityKindByIssueManagerKind: Record<
   IssueManagerKind,
@@ -279,15 +284,28 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
         name="insecure"
         fieldId="insecure-switch"
         renderInput={({ field: { value, onChange } }) => (
-          <Switch
-            id="insecure-switch"
-            label="Enable insecure communication"
-            aria-label="Insecure Communication"
-            isChecked={value}
-            onChange={onChange}
-          />
+          <span>
+            <Switch
+              id="insecure-switch"
+              label="Enable insecure communication"
+              aria-label="Insecure Communication"
+              isChecked={value}
+              onChange={onChange}
+            />
+            <Popover
+              position={PopoverPosition.top}
+              aria-label="insecure details"
+              bodyContent={t("message.insecureTracker")}
+              className="popover"
+            >
+              <span className={`${spacing.mlSm} pf-c-icon pf-m-info`}>
+                <QuestionCircleIcon />
+              </span>
+            </Popover>
+          </span>
         )}
       />
+
       <ActionGroup>
         <Button
           type="submit"
