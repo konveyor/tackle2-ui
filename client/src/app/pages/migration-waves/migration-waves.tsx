@@ -108,7 +108,7 @@ export const MigrationWaves: React.FC = () => {
 
   const onDeleteWaveSuccess = (name: string) => {
     pushNotification({
-      title: t("toastr.success.deleted", {
+      title: t("toastr.success.deletedWhat", {
         what: name,
         type: t("terms.migrationWave"),
       }),
