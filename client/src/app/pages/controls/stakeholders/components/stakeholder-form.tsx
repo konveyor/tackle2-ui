@@ -169,12 +169,16 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
         };
       });
 
+    const matchingJobFunction = jobFunctions.find(
+      (jobFunction) => jobFunction.name === formValues.jobFunctionName
+    );
+
     const payload: New<Stakeholder> = {
       email: formValues.email.trim(),
       name: formValues.name.trim(),
-      jobFunction: jobFunctions.find(
-        (jobFunction) => jobFunction.name === formValues.jobFunctionName
-      ),
+      jobFunction: matchingJobFunction
+        ? { id: matchingJobFunction.id, name: matchingJobFunction.name }
+        : null,
       stakeholderGroups: matchingStakeholderGroupRefs,
     };
 
