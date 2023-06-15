@@ -12,24 +12,22 @@ import {
 } from "@patternfly/react-core";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { XMLValidator } from "fast-xml-parser";
 
+import "./identity-form.css";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import { Identity, IdentityKind } from "@app/api/models";
+import { Identity, IdentityKind, New } from "@app/api/models";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import schema0 from "./schema-1.0.0.xsd";
 import schema1 from "./schema-1.1.0.xsd";
 import schema2 from "./schema-1.2.0.xsd";
 import { toOptionLike } from "@app/utils/model-utils";
-
-import "./identity-form.css";
 import {
   useCreateIdentityMutation,
   useFetchIdentities,
   useUpdateIdentityMutation,
 } from "@app/queries/identities";
 import KeyDisplayToggle from "@app/common/KeyDisplayToggle";
-
-import { XMLValidator } from "fast-xml-parser";
 import { XMLLintValidationResult } from "./validateXML";
 import {
   HookFormPFGroupController,
@@ -41,7 +39,6 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 type UserCredentials = "userpass" | "source";
 
 interface IdentityFormValues {
-  id: number;
   name: string;
   description: string;
   kind?: IdentityKind;
@@ -125,10 +122,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   );
 
   const onSubmit = (formValues: IdentityFormValues) => {
-    const payload: Identity = {
+    const payload: New<Identity> = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
-      id: formValues.id,
       kind: formValues.kind,
       key: "",
       settings: "",
@@ -155,16 +151,19 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           password: formValues.password.trim(),
           user: formValues.user.trim(),
         }),
+      // jira-cloud or jira-onprem (Jira Server/Datacenter)
       ...(formValues.kind === "basic-auth" && {
         user: formValues.user.trim(),
         password: formValues.password.trim(),
       }),
+      // Jira-onprem
+      ...(formValues.kind === "bearer" && {
+        key: formValues.key.trim(),
+      }),
     };
 
     if (identity) {
-      updateIdentity({
-        ...payload,
-      });
+      updateIdentity({ id: identity.id, ...payload });
     } else {
       createIdentity(payload);
     }
@@ -176,7 +175,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const validationSchema: yup.SchemaOf<IdentityFormValues> = yup
     .object()
     .shape({
-      id: yup.number().defined(),
       name: yup
         .string()
         .trim()
@@ -364,7 +362,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   } = useForm<IdentityFormValues>({
     defaultValues: {
       description: identity?.description || "",
-      id: identity?.id || 0,
       key: identity?.key || "",
       keyFilename: "",
       kind: identity?.kind,
@@ -398,14 +395,15 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       toString: () => `Source Private Key/Passphrase`,
     },
   ];
+
   const jiraKindOptions: OptionWithValue<IdentityKind>[] = [
     {
       value: "basic-auth",
-      toString: () => `JIRA Basic Auth`,
+      toString: () => `Basic Auth (Jira)`,
     },
     {
       value: "bearer",
-      toString: () => `JIRA Bearer Token`,
+      toString: () => `Bearer Token (Jira)`,
     },
   ];
 
