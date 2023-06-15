@@ -46,7 +46,7 @@ interface FormValues {
   id: number;
   name: string;
   url: string;
-  kind: IssueManagerKind;
+  kind?: IssueManagerKind;
   credentialName: string;
   insecure: boolean;
 }
@@ -109,7 +109,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       name: formValues.name.trim(),
       url: formValues.url.trim(),
       id: formValues.id,
-      kind: formValues.kind,
+      kind: formValues.kind!,
       metadata: { projects: [] },
       message: "",
       connected: false,
@@ -178,11 +178,13 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
   const values = getValues();
   const watchAllFields = watch();
 
-  const identityOptions = (kind: IssueManagerKind) => {
-    const identityKinds = supportedIdentityKindByIssueManagerKind[kind];
+  const identityOptions = (kind?: IssueManagerKind) => {
+    const identityKinds = kind
+      ? supportedIdentityKindByIssueManagerKind[kind]
+      : [];
     return identities
       .filter((identity) =>
-        identity.kind ? identityKinds?.includes(identity.kind) : false
+        identity.kind ? identityKinds.includes(identity.kind) : false
       )
       .map((identity) => {
         return {
