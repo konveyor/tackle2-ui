@@ -346,7 +346,7 @@ export const getIdentities = (): AxiosPromise<Array<Identity>> => {
   return APIClient.get(`${IDENTITIES}`, jsonHeaders);
 };
 
-export const createIdentity = (obj: Identity): AxiosPromise<Identity> => {
+export const createIdentity = (obj: New<Identity>): AxiosPromise<Identity> => {
   return APIClient.post(`${IDENTITIES}`, obj);
 };
 
