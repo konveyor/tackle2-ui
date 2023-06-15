@@ -109,7 +109,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       name: formValues.name.trim(),
       url: formValues.url.trim(),
       id: formValues.id,
-      kind: formValues.kind,
+      kind: formValues.kind!,
       metadata: { projects: [] },
       message: "",
       connected: false,
@@ -184,7 +184,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       : [];
     return identities
       .filter((identity) =>
-        identity.kind ? identityKinds?.includes(identity.kind) : false
+        identity.kind ? identityKinds.includes(identity.kind) : false
       )
       .map((identity) => {
         return {
