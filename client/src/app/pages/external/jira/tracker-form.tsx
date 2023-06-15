@@ -46,7 +46,7 @@ interface FormValues {
   id: number;
   name: string;
   url: string;
-  kind: IssueManagerKind;
+  kind?: IssueManagerKind;
   credentialName: string;
   insecure: boolean;
 }
