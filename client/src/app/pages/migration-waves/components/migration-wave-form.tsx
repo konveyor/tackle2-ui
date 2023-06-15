@@ -108,11 +108,11 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     onCreateMigrationWaveError
   );
 
-  const onUpdateMigrationWaveSuccess = (
-    response: AxiosResponse<MigrationWave>
-  ) => {
+  const onUpdateMigrationWaveSuccess = () => {
     pushNotification({
-      title: t("toastr.success.waveSaved"),
+      title: t("toastr.success.save", {
+        type: t("terms.migrationWave"),
+      }),
       variant: "success",
     });
   };

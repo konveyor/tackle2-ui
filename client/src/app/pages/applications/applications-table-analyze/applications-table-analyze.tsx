@@ -176,9 +176,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const onApplicationModalSaved = (response: AxiosResponse<Application>) => {
     if (!applicationToUpdate) {
       pushNotification({
-        title: t("toastr.success.save", {
+        title: t("toastr.success.saveWhat", {
           what: response.data.name,
-          type: t("terms.application"),
+          type: t("terms.application").toLowerCase(),
         }),
         variant: "success",
       });

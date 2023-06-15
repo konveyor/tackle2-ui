@@ -99,7 +99,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
   const onCreateUpdateIdentitySuccess = (response: AxiosResponse<Identity>) => {
     pushNotification({
-      title: t("toastr.success.save", {
+      title: t("toastr.success.saveWhat", {
         what: response.data.name,
         type: t("terms.credential"),
       }),

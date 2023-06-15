@@ -86,7 +86,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     response: AxiosResponse<MigrationWave>
   ) => {
     pushNotification({
-      title: t("toastr.success.save", {
+      title: t("toastr.success.saveWhat", {
         what: response.data.name,
         type: t("terms.migrationWave"),
       }),
