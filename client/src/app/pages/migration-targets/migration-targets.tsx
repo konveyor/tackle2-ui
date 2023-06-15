@@ -91,7 +91,7 @@ export const MigrationTargets: React.FC = () => {
   const onCustomTargetModalSaved = (response: AxiosResponse<Ruleset>) => {
     if (!rulesetToUpdate) {
       pushNotification({
-        title: t("toastr.success.save", {
+        title: t("toastr.success.saveWhat", {
           what: response.data.name,
           type: "custom target",
         }),
