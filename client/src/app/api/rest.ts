@@ -170,7 +170,7 @@ export const getJobFunctions = (): AxiosPromise<JobFunction[]> => {
 };
 
 export const createJobFunction = (
-  obj: JobFunction
+  obj: New<JobFunction>
 ): AxiosPromise<JobFunction> => {
   return APIClient.post(`${JOB_FUNCTIONS}`, obj);
 };
@@ -346,7 +346,7 @@ export const getIdentities = (): AxiosPromise<Array<Identity>> => {
   return APIClient.get(`${IDENTITIES}`, jsonHeaders);
 };
 
-export const createIdentity = (obj: Identity): AxiosPromise<Identity> => {
+export const createIdentity = (obj: New<Identity>): AxiosPromise<Identity> => {
   return APIClient.post(`${IDENTITIES}`, obj);
 };
 
