@@ -36,7 +36,7 @@ export const getAffectedAppsUrl = ({
   filterKeysToCarry.forEach((key) => {
     if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
   });
-  const baseUrl = Paths.issuesRuleAffectedApplications
+  const baseUrl = Paths.issuesAllAffectedApplications
     .replace("/:ruleset/", `/${ruleReport.ruleset}/`)
     .replace("/:rule/", `/${ruleReport.rule}/`);
   const prefix = (key: string) =>
@@ -51,7 +51,7 @@ export const getAffectedAppsUrl = ({
 };
 
 // URL for Issues page that restores original URL params and overrides them with any changes to the carried filters.
-export const getBackToIssuesUrl = ({
+export const getBackToAllIssuesUrl = ({
   fromFilterValues,
   fromLocation,
 }: {
@@ -76,11 +76,27 @@ export const getBackToIssuesUrl = ({
   });
   // Put it all back together
   const prefix = (key: string) => `${TableURLParamKeyPrefix.issues}:${key}`;
-  return `${Paths.issues}?${trimAndStringifyUrlParams({
+  return `${Paths.issuesAllTab}?${trimAndStringifyUrlParams({
     newPrefixedSerializedParams: {
       ...prefixedParamsToRestore,
       [prefix("filters")]: serializeFilterUrlParams(filterValuesToRestore)
         .filters,
     },
   })}`;
+};
+
+export const parseRuleReportLabels = (ruleReport: AnalysisRuleReport) => {
+  const sources: string[] = [];
+  const targets: string[] = [];
+  const otherLabels: string[] = [];
+  ruleReport.labels.forEach((label) => {
+    if (label.startsWith("konveyor.io/source=")) {
+      sources.push(label.split("konveyor.io/source=")[1]);
+    } else if (label.startsWith("konveyor.io/target=")) {
+      targets.push(label.split("konveyor.io/target=")[1]);
+    } else {
+      otherLabels.push(label);
+    }
+  });
+  return { sources, targets, otherLabels };
 };

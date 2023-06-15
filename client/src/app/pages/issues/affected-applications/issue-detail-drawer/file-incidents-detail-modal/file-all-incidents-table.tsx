@@ -22,6 +22,8 @@ import {
   useTableControlProps,
   useTableControlUrlParams,
 } from "@app/shared/hooks/table-controls";
+import ReactMarkdown from "react-markdown";
+import { markdownPFComponents } from "@app/components/markdown-pf-components";
 
 export interface IFileRemainingIncidentsTableProps {
   fileReport: AnalysisFileReport;
@@ -118,7 +120,9 @@ export const FileAllIncidentsTable: React.FC<
                     colSpan={2}
                     {...getTdProps({ columnKey: "message" })}
                   >
-                    {incident.message}
+                    <ReactMarkdown components={markdownPFComponents}>
+                      {`${incident.message.split("\n")[0]} ...`}
+                    </ReactMarkdown>
                   </Td>
                 </TableRowContentWithControls>
               </Tr>

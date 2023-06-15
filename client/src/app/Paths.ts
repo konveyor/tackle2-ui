@@ -31,7 +31,9 @@ export enum Paths {
   migrationWaves = "/migration-waves",
   waves = "/waves",
   issues = "/issues",
-  issuesRuleAffectedApplications = "/issues/:ruleset/:rule/affected-applications",
+  issuesAllTab = "/issues/all",
+  issuesAllAffectedApplications = "/issues/all/:ruleset/:rule/affected-applications",
+  issuesSingleAppTab = "/issues/single-app",
 
   dependencies = "/dependencies",
 

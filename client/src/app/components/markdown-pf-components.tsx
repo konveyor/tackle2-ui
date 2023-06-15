@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Components } from "react-markdown";
-import { Text } from "@patternfly/react-core";
+import { CodeBlock, CodeBlockCode, Text } from "@patternfly/react-core";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 export const markdownPFComponents: Components = {
   h1: (props) => <Text component="h1" {...props} />,
@@ -13,5 +14,9 @@ export const markdownPFComponents: Components = {
   a: (props) => <Text component="a" {...props} />,
   small: (props) => <Text component="small" {...props} />,
   blockquote: (props) => <Text component="blockquote" {...props} />,
-  pre: (props) => <Text component="pre" {...props} />,
+  pre: (props) => (
+    <CodeBlock className={spacing.mbMd}>
+      <CodeBlockCode {...props} />
+    </CodeBlock>
+  ),
 };
