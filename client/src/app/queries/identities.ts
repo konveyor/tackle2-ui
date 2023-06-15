@@ -7,6 +7,7 @@ import {
   updateIdentity,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
+import { Identity } from "@app/api/models";
 
 export const IdentitiesQueryKey = "identities";
 
@@ -69,14 +70,16 @@ export const useFetchIdentities = () => {
 };
 
 export const useDeleteIdentityMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (identityName: string) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation(deleteIdentity, {
-    onSuccess: (res) => {
-      onSuccess(res);
+  const { isLoading, mutate, error } = useMutation({
+    mutationFn: ({ identity }: { identity: Identity }) =>
+      deleteIdentity(identity),
+    onSuccess: (_, vars) => {
+      onSuccess(vars.identity.name);
       queryClient.invalidateQueries([IdentitiesQueryKey]);
     },
     onError: (err: AxiosError) => {
