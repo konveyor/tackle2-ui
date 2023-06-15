@@ -170,7 +170,7 @@ export const getJobFunctions = (): AxiosPromise<JobFunction[]> => {
 };
 
 export const createJobFunction = (
-  obj: JobFunction
+  obj: New<JobFunction>
 ): AxiosPromise<JobFunction> => {
   return APIClient.post(`${JOB_FUNCTIONS}`, obj);
 };
