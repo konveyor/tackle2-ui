@@ -90,13 +90,13 @@ export const devRoutes: IRoute[] = [
   ...(FEATURES_ENABLED.dynamicReports
     ? [
         {
-          path: Paths.issues,
-          comp: Issues,
-          exact: true,
+          path: Paths.issuesAllAffectedApplications,
+          comp: AffectedApplications,
+          exact: false,
         },
         {
-          path: Paths.issuesRuleAffectedApplications,
-          comp: AffectedApplications,
+          path: Paths.issues,
+          comp: Issues,
           exact: false,
         },
         {
