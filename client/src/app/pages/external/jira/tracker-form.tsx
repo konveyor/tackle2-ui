@@ -182,7 +182,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     const identityKinds = supportedIdentityKindByIssueManagerKind[kind];
     return identities
       .filter((identity) =>
-        identity.kind ? identityKinds.includes(identity.kind) : false
+        identity.kind ? identityKinds?.includes(identity.kind) : false
       )
       .map((identity) => {
         return {
