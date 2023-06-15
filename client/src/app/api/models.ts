@@ -45,7 +45,7 @@ export interface Stakeholder {
   id: number;
   name: string;
   email: string;
-  jobFunction?: JobFunction;
+  jobFunction: Ref | null;
   stakeholderGroups?: Ref[];
   businessServices?: Ref[];
   migrationWaves?: Ref[];
@@ -70,7 +70,7 @@ export interface Ref {
 }
 
 export interface JobFunction {
-  id?: number;
+  id: number;
   name: string;
   stakeholders?: Array<Ref>;
 }

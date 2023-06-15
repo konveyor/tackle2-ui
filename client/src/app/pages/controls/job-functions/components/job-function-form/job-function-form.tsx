@@ -12,7 +12,7 @@ import {
 } from "@patternfly/react-core";
 
 import { createJobFunction, updateJobFunction } from "@app/api/rest";
-import { JobFunction } from "@app/api/models";
+import { JobFunction, New } from "@app/api/models";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import { useFetchJobFunctions } from "@app/queries/jobfunctions";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -70,14 +70,14 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
   });
 
   const onSubmit = (formValues: FormValues) => {
-    const payload: JobFunction = {
+    const payload: New<JobFunction> = {
       name: formValues.name.trim(),
     };
 
     let promise: AxiosPromise<JobFunction>;
     if (jobFunction) {
       promise = updateJobFunction({
-        ...jobFunction,
+        id: jobFunction.id,
         ...payload,
       });
     } else {
