@@ -58,7 +58,7 @@ export const Identities: React.FC = () => {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
     React.useState<Boolean>(false);
 
-  const [identityIdToDelete, setIdentityIdToDelete] = React.useState<number>();
+  const [identityToDelete, setIdentityToDelete] = React.useState<Identity>();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -69,9 +69,12 @@ export const Identities: React.FC = () => {
   const identityToUpdate =
     createUpdateModalState !== "create" ? createUpdateModalState : null;
 
-  const onDeleteIdentitySuccess = (response: any) => {
+  const onDeleteIdentitySuccess = (identityName: string) => {
     pushNotification({
-      title: t("terms.credentialsDeleted"),
+      title: t("toastr.success.deleted", {
+        what: identityName,
+        type: t("terms.credential"),
+      }),
       variant: "success",
     });
   };
@@ -216,7 +219,7 @@ export const Identities: React.FC = () => {
               }
               onEdit={() => setCreateUpdateModalState(item)}
               onDelete={() => {
-                setIdentityIdToDelete(item.id);
+                setIdentityToDelete(item);
                 setIsConfirmDialogOpen(true);
               }}
             />
@@ -227,14 +230,14 @@ export const Identities: React.FC = () => {
   });
 
   const dependentApplications = React.useMemo(() => {
-    if (identityIdToDelete) {
+    if (identityToDelete) {
       const res = applications?.filter((app) =>
-        app?.identities?.map((id) => id.id).includes(identityIdToDelete)
+        app?.identities?.map((id) => id.id).includes(identityToDelete.id)
       );
       return res;
     }
     return [];
-  }, [applications, identityIdToDelete]);
+  }, [applications, identityToDelete]);
 
   return (
     <>
@@ -337,9 +340,9 @@ export const Identities: React.FC = () => {
           onCancel={() => setIsConfirmDialogOpen(false)}
           onClose={() => setIsConfirmDialogOpen(false)}
           onConfirm={() => {
-            if (identityIdToDelete) {
-              deleteIdentity(identityIdToDelete);
-              setIdentityIdToDelete(undefined);
+            if (identityToDelete) {
+              deleteIdentity({ identity: identityToDelete });
+              setIdentityToDelete(undefined);
             }
             setIsConfirmDialogOpen(false);
           }}

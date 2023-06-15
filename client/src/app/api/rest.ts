@@ -354,8 +354,8 @@ export const updateIdentity = (obj: Identity): AxiosPromise<Identity> => {
   return APIClient.put(`${IDENTITIES}/${obj.id}`, obj);
 };
 
-export const deleteIdentity = (id: number): AxiosPromise => {
-  return APIClient.delete(`${IDENTITIES}/${id}`);
+export const deleteIdentity = (identity: Identity): AxiosPromise => {
+  return APIClient.delete(`${IDENTITIES}/${identity.id}`);
 };
 
 export const getProxies = (): AxiosPromise<Array<Proxy>> => {
