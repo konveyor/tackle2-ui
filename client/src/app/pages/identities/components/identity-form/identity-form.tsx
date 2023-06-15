@@ -72,10 +72,17 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [identity, setIdentity] = useState(initialIdentity);
   const [isPasswordHidden, setIsPasswordHidden] = useState(true);
+  const [isKeyHidden, setIsKeyHidden] = useState(true);
   const toggleHidePassword = (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsPasswordHidden(!isPasswordHidden);
+  };
+
+  const toggleHideKey = (e: React.FormEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsKeyHidden(!isKeyHidden);
   };
 
   useEffect(() => {
@@ -433,6 +440,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   ];
 
   const isPasswordEncrypted = identity?.password === values.password;
+  const isKeyEncrypted = identity?.key === values.key;
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -701,13 +709,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             label={"key"}
             fieldId="key"
             isRequired={true}
-            type={"password"}
+            type={isKeyHidden ? "password" : "text"}
             formGroupProps={{
-              labelIcon: !isPasswordEncrypted ? (
+              labelIcon: !isKeyEncrypted ? (
                 <KeyDisplayToggle
                   keyName="key"
-                  isKeyHidden={isPasswordHidden}
-                  onClick={toggleHidePassword}
+                  isKeyHidden={isKeyHidden}
+                  onClick={toggleHideKey}
                 />
               ) : undefined,
             }}
