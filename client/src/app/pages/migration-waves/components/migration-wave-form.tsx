@@ -86,7 +86,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     response: AxiosResponse<MigrationWave>
   ) => {
     pushNotification({
-      title: t("toastr.success.create", {
+      title: t("toastr.success.createWhat", {
         what: response.data.name,
         type: t("terms.migrationWave"),
       }),

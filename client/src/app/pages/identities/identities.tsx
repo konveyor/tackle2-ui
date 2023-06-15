@@ -71,7 +71,7 @@ export const Identities: React.FC = () => {
 
   const onDeleteIdentitySuccess = (identityName: string) => {
     pushNotification({
-      title: t("toastr.success.deleted", {
+      title: t("toastr.success.deletedWhat", {
         what: identityName,
         type: t("terms.credential"),
       }),
