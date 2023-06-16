@@ -103,9 +103,34 @@ export const Issues: React.FC = () => {
             what: t("terms.category").toLowerCase(),
           }) + "...",
       },
-
+      {
+        key: "source",
+        title: t("terms.source"),
+        filterGroup: IssueFilterGroups.Issues,
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.source").toLowerCase(),
+          }) + "...",
+        serverFilterField: "labels",
+        getServerFilterValue: (value) =>
+          value?.length === 1 ? [`konveyor.io/source=${value}`] : undefined,
+      },
+      {
+        key: "target",
+        title: t("terms.target"),
+        filterGroup: IssueFilterGroups.Issues,
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.target").toLowerCase(),
+          }) + "...",
+        serverFilterField: "labels",
+        getServerFilterValue: (value) =>
+          value?.length === 1 ? [`konveyor.io/target=${value}`] : undefined,
+      },
       // TODO: Determine if we want to be able to filter by nested analysisIssue effort rather than the full sum which is displayed in this table.
-
+      // TODO: Determine if we want to filter by effort at all without having a numeric range filter control
       // {
       //   key: "effort",
       //   title: t("terms.effort"),
@@ -114,29 +139,6 @@ export const Issues: React.FC = () => {
       //   placeholderText:
       //     t("actions.filterBy", {
       //       what: t("terms.effort").toLowerCase(),
-      //     }) + "...",
-      // },
-
-      // TODO: Determine how to parse source and target from ruleReport issue label field.
-      // {
-      //   key: "tech.source",
-      //   title: t("terms.source"),
-      //   filterGroup: IssueFilterGroups.Issues,
-      //   type: FilterType.search,
-      //   placeholderText:
-      //     t("actions.filterBy", {
-      //       what: t("terms.source").toLowerCase(),
-      //     }) + "...",
-      // },
-      // TODO: Determine how to parse source and target from ruleReport issue label field.
-      // {
-      //   key: "tech.target",
-      //   title: t("terms.target"),
-      //   filterGroup: IssueFilterGroups.Issues,
-      //   type: FilterType.search,
-      //   placeholderText:
-      //     t("actions.filterBy", {
-      //       what: t("terms.target").toLowerCase(),
       //     }) + "...",
       // },
     ],

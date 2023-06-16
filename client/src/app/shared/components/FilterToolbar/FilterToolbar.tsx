@@ -34,6 +34,7 @@ export interface IBasicFilterCategory<
   type: FilterType; // If we want to support arbitrary filter types, this could be a React node that consumes context instead of an enum
   filterGroup?: string;
   getItemValue?: (item: TItem) => string | boolean; // Used for client-side filtering
+  serverFilterField?: string; // Used for server-side filtering, defaults to `key` if omitted
   getServerFilterValue?: (filterValue: FilterValue) => FilterValue; // Used for server-side filtering
 }
 
