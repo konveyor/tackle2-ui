@@ -39,7 +39,7 @@ export const useTableControlProps = <
   const {
     currentPageItems,
     forceNumRenderedColumns,
-    filterState: { filterValues, setFilterValues },
+    filterState: { setFilterValues },
     expansionState: { expandedCells },
     selectionState: {
       selectAll,
@@ -81,7 +81,6 @@ export const useTableControlProps = <
     activeRowDerivedState;
 
   const toolbarProps: Omit<ToolbarProps, "ref"> = {
-    key: Object.keys(filterValues).join(","), // Force full re-render when new filters are added to reset order of chip group portals
     className: variant === "compact" ? spacing.pt_0 : "",
     collapseListedFiltersBreakpoint: "xl",
     clearAllFilters: () => setFilterValues({}),
