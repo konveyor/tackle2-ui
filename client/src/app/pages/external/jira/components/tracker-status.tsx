@@ -7,16 +7,19 @@ import {
   Button,
   CodeBlock,
   CodeBlockCode,
-  Modal,
+  Popover,
+  Text,
+  TextContent,
 } from "@patternfly/react-core";
+import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 
 interface ITrackerStatusProps {
+  name: string;
   connected: boolean;
   message: string;
 }
-const TrackerStatus = ({ connected, message }: ITrackerStatusProps) => {
+const TrackerStatus = ({ name, connected, message }: ITrackerStatusProps) => {
   const { t } = useTranslation();
-  const [codeModalState, setCodeModalState] = useState<string | null>(null);
   return (
     <>
       <StatusIcon
@@ -26,28 +29,28 @@ const TrackerStatus = ({ connected, message }: ITrackerStatusProps) => {
           connected ? (
             "Connected"
           ) : (
-            <Button
-              isInline
-              variant="link"
-              onClick={() => setCodeModalState(message)}
+            <Popover
+              aria-label="More information about no connection"
+              alertSeverityVariant="danger"
+              headerIcon={<ExclamationCircleIcon />}
+              headerContent={t("composed.error", { what: t("terms.instance") })}
+              bodyContent={
+                <TextContent>
+                  <Text>Jira instance {name} is not connected.</Text>
+                  <Text>The reported reason for the error:</Text>
+                  <CodeBlock>
+                    <CodeBlockCode id="code-content">{message}</CodeBlockCode>
+                  </CodeBlock>
+                </TextContent>
+              }
             >
-              Not connected
-            </Button>
+              <Button isInline variant="link">
+                Not connected
+              </Button>
+            </Popover>
           )
         }
       />
-      <Modal
-        title={t("composed.error", {
-          what: t("terms.instance"),
-        })}
-        width="50%"
-        isOpen={!!codeModalState}
-        onClose={() => setCodeModalState(null)}
-      >
-        <CodeBlock>
-          <CodeBlockCode id="code-content">{codeModalState}</CodeBlockCode>
-        </CodeBlock>
-      </Modal>
     </>
   );
 };
