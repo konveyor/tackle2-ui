@@ -49,6 +49,7 @@ import {
 import { useSelectionState } from "@migtools/lib-ui";
 import { useFetchRuleReports } from "@app/queries/issues";
 import { useFetchTags } from "@app/queries/tags";
+import { useFetchBusinessServices } from "@app/queries/businessservices";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { Link, useHistory, useLocation } from "react-router-dom";
@@ -75,6 +76,7 @@ export const Issues: React.FC = () => {
   }, [activeTabPath]);
 
   const { tags } = useFetchTags();
+  const { businessServices } = useFetchBusinessServices();
 
   const tableControlState = useTableControlUrlParams({
     urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
@@ -89,7 +91,6 @@ export const Issues: React.FC = () => {
     sortableColumns: ["name", "category", "effort", "applications"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
-      //TODO: Should this be select filter type using apps available in memory?
       {
         key: "application.name",
         title: t("terms.applicationName"),
@@ -99,6 +100,19 @@ export const Issues: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.applicationName").toLowerCase(),
           }) + "...",
+      },
+      {
+        key: "businessService.name",
+        title: t("terms.businessService"),
+        filterGroup: IssueFilterGroups.ApplicationInventory,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.businessService").toLowerCase(),
+          }) + "...",
+        type: FilterType.select,
+        selectOptions: businessServices
+          .map((businessService) => businessService.name)
+          .map((name) => ({ key: name, value: name })),
       },
       {
         key: "tag.id",
