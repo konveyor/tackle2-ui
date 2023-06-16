@@ -34,6 +34,7 @@ export const getFilterHubRequestParams = <
   ) {
     return {};
   }
+  console.log({ filterState });
   const params: HubRequestParams = { filters: [] };
   if (filterState) {
     const { filterValues } = filterState;

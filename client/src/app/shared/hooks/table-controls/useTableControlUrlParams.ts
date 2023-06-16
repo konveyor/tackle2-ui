@@ -22,6 +22,7 @@ export const useTableControlUrlParams = <
 ) => {
   // Must pass type params because they can't all be inferred from the required args of useFilterUrlParams
   const filterState = useFilterUrlParams<
+    TItem,
     TFilterCategoryKey, // Must pass this because no required args here have categories to infer from
     TURLParamKeyPrefix
   >(args);

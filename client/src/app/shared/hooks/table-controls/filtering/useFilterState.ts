@@ -19,8 +19,26 @@ export interface IFilterStateArgs<TItem, TFilterCategoryKey extends string> {
   filterCategories?: FilterCategory<TItem, TFilterCategoryKey>[];
 }
 
+// When setting filter values, always sort the keys by the order they appear in filterCategories
+// in order to retain order when carrying filters from page to page.
+const sortAndSetFilterValues = <TItem, TFilterCategoryKey extends string>(
+  newFilterValues: IFilterValues<TFilterCategoryKey>,
+  baseSetFilterValues: (values: IFilterValues<TFilterCategoryKey>) => void,
+  filterCategories?: FilterCategory<TItem, TFilterCategoryKey>[]
+) => {
+  if (!filterCategories) return;
+  const newSortedValues: IFilterValues<TFilterCategoryKey> = {};
+  filterCategories.forEach((category) => {
+    if (newFilterValues[category.key]) {
+      newSortedValues[category.key] = newFilterValues[category.key];
+    }
+  });
+  baseSetFilterValues(newSortedValues);
+};
+
 export const useFilterState = <TItem, TFilterCategoryKey extends string>({
   filterStorageKey,
+  filterCategories,
 }: IFilterStateArgs<
   TItem,
   TFilterCategoryKey
@@ -30,8 +48,14 @@ export const useFilterState = <TItem, TFilterCategoryKey extends string>({
     filterStorageKey || "",
     {}
   );
-  const [filterValues, setFilterValues] = filterStorageKey ? storage : state;
-  return { filterValues, setFilterValues };
+  const [filterValues, baseSetFilterValues] = filterStorageKey
+    ? storage
+    : state;
+  return {
+    filterValues,
+    setFilterValues: (values) =>
+      sortAndSetFilterValues(values, baseSetFilterValues, filterCategories),
+  };
 };
 
 export const serializeFilterUrlParams = <TFilterCategoryKey extends string>(
@@ -68,17 +92,24 @@ export const deserializeFilterUrlParams = <
 };
 
 export const useFilterUrlParams = <
+  TItem,
   TFilterCategoryKey extends string,
   TURLParamKeyPrefix extends string = string
 >({
   urlParamKeyPrefix,
-}: IExtraArgsForURLParamHooks<TURLParamKeyPrefix> = {}): IFilterState<TFilterCategoryKey> => {
-  const [filterValues, setFilterValues] = useUrlParams({
+  filterCategories,
+}: IFilterStateArgs<TItem, TFilterCategoryKey> &
+  IExtraArgsForURLParamHooks<TURLParamKeyPrefix> = {}): IFilterState<TFilterCategoryKey> => {
+  const [filterValues, baseSetFilterValues] = useUrlParams({
     keyPrefix: urlParamKeyPrefix,
     keys: ["filters"],
     defaultValue: {} as IFilterValues<TFilterCategoryKey>,
     serialize: serializeFilterUrlParams,
     deserialize: deserializeFilterUrlParams,
   });
-  return { filterValues, setFilterValues };
+  return {
+    filterValues,
+    setFilterValues: (values) =>
+      sortAndSetFilterValues(values, baseSetFilterValues, filterCategories),
+  };
 };
