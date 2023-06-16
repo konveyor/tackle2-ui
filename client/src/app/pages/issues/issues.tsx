@@ -53,10 +53,14 @@ import { useFetchBusinessServices } from "@app/queries/businessservices";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { getAffectedAppsUrl, parseRuleReportLabels } from "./helpers";
+import {
+  getAffectedAppsUrl,
+  parseRuleReportLabels,
+  useSharedFilterCategoriesForIssuesAndAffectedApps,
+} from "./helpers";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import { SingleLabelWithOverflow } from "@app/shared/components/SingleLabelWithOverflow";
-import { dedupeFunction } from "@app/utils/utils";
+import { AnalysisRuleReport } from "@app/api/models";
 
 export enum IssueFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -75,9 +79,6 @@ export const Issues: React.FC = () => {
     if (!activeTabPath) history.push(Paths.issuesAllTab);
   }, [activeTabPath]);
 
-  const { tags } = useFetchTags();
-  const { businessServices } = useFetchBusinessServices();
-
   const tableControlState = useTableControlUrlParams({
     urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
     columnNames: {
@@ -91,52 +92,7 @@ export const Issues: React.FC = () => {
     sortableColumns: ["name", "category", "effort", "applications"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
-      {
-        key: "application.name",
-        title: t("terms.applicationName"),
-        filterGroup: IssueFilterGroups.ApplicationInventory,
-        type: FilterType.search,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.applicationName").toLowerCase(),
-          }) + "...",
-      },
-      {
-        key: "businessService.name",
-        title: t("terms.businessService"),
-        filterGroup: IssueFilterGroups.ApplicationInventory,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.businessService").toLowerCase(),
-          }) + "...",
-        type: FilterType.select,
-        selectOptions: businessServices
-          .map((businessService) => businessService.name)
-          .map((name) => ({ key: name, value: name })),
-      },
-      {
-        key: "tag.id",
-        title: t("terms.tags"),
-        filterGroup: IssueFilterGroups.ApplicationInventory,
-        type: FilterType.multiselect,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.tagName").toLowerCase(),
-          }) + "...",
-        selectOptions: [...new Set(tags.map((tag) => tag.name))].map(
-          (tagName) => ({ key: tagName, value: tagName })
-        ),
-        // NOTE: The same tag name can appear in multiple tag categories.
-        //       To replicate the behavior of the app inventory page, selecting a tag name
-        //       will perform an OR filter matching all tags with that name across tag categories.
-        //       In the future we may instead want to present the tag select options to the user in category sections.
-        getServerFilterValue: (tagNames) =>
-          tagNames?.flatMap((tagName) =>
-            tags
-              .filter((tag) => tag.name === tagName)
-              .map((tag) => String(tag.id))
-          ),
-      },
+      ...useSharedFilterCategoriesForIssuesAndAffectedApps(),
       {
         key: "category",
         title: t("terms.category"),
