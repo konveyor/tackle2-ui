@@ -48,12 +48,14 @@ import {
 } from "@app/shared/components/table-controls";
 import { useSelectionState } from "@migtools/lib-ui";
 import { useFetchRuleReports } from "@app/queries/issues";
+import { useFetchTags } from "@app/queries/tags";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { getAffectedAppsUrl, parseRuleReportLabels } from "./helpers";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import { SingleLabelWithOverflow } from "@app/shared/components/SingleLabelWithOverflow";
+import { dedupeFunction } from "@app/utils/utils";
 
 export enum IssueFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -71,6 +73,8 @@ export const Issues: React.FC = () => {
   React.useEffect(() => {
     if (!activeTabPath) history.push(Paths.issuesAllTab);
   }, [activeTabPath]);
+
+  const { tags } = useFetchTags();
 
   const tableControlState = useTableControlUrlParams({
     urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
@@ -98,13 +102,26 @@ export const Issues: React.FC = () => {
       },
       {
         key: "tag.id",
-        title: t("terms.tag"),
+        title: t("terms.tags"),
         filterGroup: IssueFilterGroups.ApplicationInventory,
-        type: FilterType.search,
+        type: FilterType.multiselect,
         placeholderText:
           t("actions.filterBy", {
-            what: t("terms.tag").toLowerCase(),
+            what: t("terms.tagName").toLowerCase(),
           }) + "...",
+        selectOptions: [...new Set(tags.map((tag) => tag.name))].map(
+          (tagName) => ({ key: tagName, value: tagName })
+        ),
+        // NOTE: The same tag name can appear in multiple tag categories.
+        //       To replicate the behavior of the app inventory page, selecting a tag name
+        //       will perform an OR filter matching all tags with that name across tag categories.
+        //       In the future we may instead want to present the tag select options to the user in category sections.
+        getServerFilterValue: (tagNames) =>
+          tagNames?.flatMap((tagName) =>
+            tags
+              .filter((tag) => tag.name === tagName)
+              .map((tag) => String(tag.id))
+          ),
       },
       {
         key: "category",

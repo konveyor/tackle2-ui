@@ -43,6 +43,8 @@ export const getFilterHubRequestParams = <
       );
       const filterValue = filterValues[categoryKey];
       if (!filterCategory || !filterValue) return;
+      const serverFilterValue =
+        filterCategory.getServerFilterValue?.(filterValue) || filterValue;
       // Note: If we need to support more of the logic operators in HubFilter in the future,
       //       we'll need to figure out how to express those on the FilterCategory objects
       //       and translate them here.
@@ -50,21 +52,21 @@ export const getFilterHubRequestParams = <
         params.filters?.push({
           field: categoryKey,
           operator: "=",
-          value: Number(filterValue[0]),
+          value: Number(serverFilterValue[0]),
         });
       }
       if (filterCategory.type === "search") {
         params.filters?.push({
           field: categoryKey,
           operator: "~",
-          value: `*${filterValue[0]}*`,
+          value: `*${serverFilterValue[0]}*`,
         });
       }
       if (filterCategory.type === "select") {
         params.filters?.push({
           field: categoryKey,
           operator: "=",
-          value: filterValue[0],
+          value: serverFilterValue[0],
         });
       }
       if (filterCategory.type === "multiselect") {
@@ -72,7 +74,7 @@ export const getFilterHubRequestParams = <
           field: categoryKey,
           operator: "=",
           value: {
-            list: filterValue,
+            list: serverFilterValue,
             operator: getFilterLogicOperator(filterCategory, "OR"),
           },
         });
