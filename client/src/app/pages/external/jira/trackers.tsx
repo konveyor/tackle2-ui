@@ -51,6 +51,7 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
 import { useFetchTickets } from "@app/queries/tickets";
 import TrackerStatus from "./components/tracker-status";
+import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
 
 export const JiraTrackers: React.FC = () => {
   const { t } = useTranslation();
@@ -235,7 +236,10 @@ export const JiraTrackers: React.FC = () => {
                           {tracker.url}
                         </Td>
                         <Td width={10} {...getTdProps({ columnKey: "kind" })}>
-                          {tracker.kind}
+                          {toOptionLike(
+                            tracker.kind,
+                            IssueManagerOptions
+                          )?.toString()}
                         </Td>
                         <Td
                           width={10}
