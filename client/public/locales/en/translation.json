@@ -142,6 +142,7 @@
     "couldNotFetchTitle": "Not available",
     "duplicateTag": "A tag with this name already exists. Use a different name.",
     "importErrorCheckDocumentation": "For status Error imports, check the documentation to ensure your file is structured correctly.",
+    "insecureTracker": "Insecure mode deactivates certificate verification. Use insecure mode for instances that have self-signed certificates.",
     "manageDependenciesInstructions": "Add northbound and southbound dependencies for the selected application here. Note that any selections made will be saved automatically. To undo any changes, you must manually delete the applications from the dropdowns.",
     "noDataAvailableBody": "No data available to be shown here.",
     "noDataAvailableTitle": "No data available",
