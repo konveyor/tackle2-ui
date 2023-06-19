@@ -1,0 +1,5 @@
+.popover.pf-c-popover {
+  --pf-c-popover__content--BackgroundColor: #000;
+  --pf-c-popover__arrow--BackgroundColor: #000;
+  color: #fff;
+}
