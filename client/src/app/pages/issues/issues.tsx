@@ -48,8 +48,6 @@ import {
 } from "@app/shared/components/table-controls";
 import { useSelectionState } from "@migtools/lib-ui";
 import { useFetchRuleReports } from "@app/queries/issues";
-import { useFetchTags } from "@app/queries/tags";
-import { useFetchBusinessServices } from "@app/queries/businessservices";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { Link, useHistory, useLocation } from "react-router-dom";
@@ -103,35 +101,32 @@ export const Issues: React.FC = () => {
             what: t("terms.category").toLowerCase(),
           }) + "...",
       },
-      // TODO FIXME: currently the hub cannot handle an AND on two filters of the same field (source and target are both labels).
-      //             so if the user tried to filter on both, the second would always be dropped.
-      //             need to follow up with Jeff and see if we can add hub support for this.
-      // {
-      //   key: "source",
-      //   title: t("terms.source"),
-      //   filterGroup: IssueFilterGroups.Issues,
-      //   type: FilterType.search,
-      //   placeholderText:
-      //     t("actions.filterBy", {
-      //       what: t("terms.source").toLowerCase(),
-      //     }) + "...",
-      //   serverFilterField: "labels",
-      //   getServerFilterValue: (value) =>
-      //     value?.length === 1 ? [`konveyor.io/source=${value}`] : undefined,
-      // },
-      // {
-      //   key: "target",
-      //   title: t("terms.target"),
-      //   filterGroup: IssueFilterGroups.Issues,
-      //   type: FilterType.search,
-      //   placeholderText:
-      //     t("actions.filterBy", {
-      //       what: t("terms.target").toLowerCase(),
-      //     }) + "...",
-      //   serverFilterField: "labels",
-      //   getServerFilterValue: (value) =>
-      //     value?.length === 1 ? [`konveyor.io/target=${value}`] : undefined,
-      // },
+      {
+        key: "source",
+        title: t("terms.source"),
+        filterGroup: IssueFilterGroups.Issues,
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.source").toLowerCase(),
+          }) + "...",
+        serverFilterField: "labels",
+        getServerFilterValue: (value) =>
+          value?.length === 1 ? [`konveyor.io/source=${value}`] : undefined,
+      },
+      {
+        key: "target",
+        title: t("terms.target"),
+        filterGroup: IssueFilterGroups.Issues,
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.target").toLowerCase(),
+          }) + "...",
+        serverFilterField: "labels",
+        getServerFilterValue: (value) =>
+          value?.length === 1 ? [`konveyor.io/target=${value}`] : undefined,
+      },
       // TODO: Determine if we want to be able to filter by nested analysisIssue effort rather than the full sum which is displayed in this table.
       // TODO: Determine if we want to filter by effort at all without having a numeric range filter control
       // {

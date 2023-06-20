@@ -110,8 +110,9 @@ export const serializeFilterRequestParamsForHub = (
 ) => {
   const { filters } = deserializedParams;
   if (filters) {
-    filters.forEach((filter) =>
-      serializedParams.append("filter", serializeFilterForHub(filter))
+    serializedParams.append(
+      "filter",
+      filters.map(serializeFilterForHub).join(",")
     );
   }
 };
