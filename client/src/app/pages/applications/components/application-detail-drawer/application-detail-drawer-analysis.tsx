@@ -21,6 +21,7 @@ import {
   IApplicationDetailDrawerProps,
 } from "./application-detail-drawer";
 import { EmptyTextMessage } from "@app/shared/components";
+import { useFetchFacts } from "@app/queries/facts";
 
 export interface IApplicationDetailDrawerAnalysisProps
   extends Pick<
@@ -36,6 +37,13 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
   const { t } = useTranslation();
 
   const { identities } = useFetchIdentities();
+  console.log("application.id", application?.id);
+  const { facts, isFetching, refetch } = useFetchFacts(application?.id || "");
+  console.log("facts", facts);
+  console.log("isFetching", isFetching);
+  React.useEffect(() => {
+    refetch();
+  }, [application?.id]);
 
   let matchingSourceCredsRef: Identity | undefined;
   let matchingMavenCredsRef: Identity | undefined;
@@ -136,6 +144,14 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
             notAvailable
           )}
         </TextContent>
+      }
+      factsTabContent={
+        <div>
+          {Object.keys(facts).map((fact) => {
+            console.log("fact", fact);
+            return <div>{fact}</div>;
+          })}
+        </div>
       }
     />
   );

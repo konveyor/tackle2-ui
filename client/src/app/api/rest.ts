@@ -44,6 +44,7 @@ import {
   Ref,
   TrackerProject,
   TrackerProjectIssuetype,
+  Fact,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
@@ -77,6 +78,7 @@ export const TRACKERS = HUB + "/trackers";
 export const TRACKER_PROJECTS = "projects";
 export const TRACKER_PROJECT_ISSUETYPES = "issuetypes";
 export const TICKETS = HUB + "/tickets";
+export const FACTS = HUB + "/facts";
 
 export const RULESETS = HUB + "/rulesets";
 export const FILES = HUB + "/files";
@@ -697,3 +699,8 @@ export const createTagCategory = (
 
 export const updateTagCategory = (obj: TagCategory): Promise<TagCategory> =>
   axios.put(`${TAG_CATEGORIES}/${obj.id}`, obj);
+
+// Facts
+export const getFacts = (id: number | string): AxiosPromise<Fact> => {
+  return APIClient.get(`${APPLICATIONS}/${id}/facts`, jsonHeaders);
+};
