@@ -1,5 +1,6 @@
 import { AxiosError } from "axios";
 import { FormGroupProps, ToolbarChip } from "@patternfly/react-core";
+import { StringSchema } from "yup";
 
 // Axios error
 
@@ -99,3 +100,18 @@ export const standardURLRegex =
 
 export const standardStrictURLRegex =
   /https:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi;
+
+export const customURLValidation = (schema: StringSchema) => {
+  const gitUrlRegex =
+    /(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\/?|\#[-\d\w._]+?)$/;
+  const containsURL = (string: string) =>
+    gitUrlRegex.test(string) || standardURLRegex.test(string);
+
+  return schema.test("gitUrlTest", "Must be a valid URL.", (value) => {
+    if (value) {
+      return containsURL(value);
+    } else {
+      return true;
+    }
+  });
+};
