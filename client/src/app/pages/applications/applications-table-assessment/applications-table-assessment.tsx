@@ -211,6 +211,11 @@ export const ApplicationsTable: React.FC = () => {
     });
   };
 
+  const { tickets } = useFetchTickets();
+
+  const ticketByApplication = (id: number) =>
+    tickets.some((ticket) => ticket.id === id);
+
   // Copy assessment modal
   const {
     isOpen: isCopyAssessmentModalOpen,
@@ -232,8 +237,6 @@ export const ApplicationsTable: React.FC = () => {
     isFetching: isFetchingReviews,
     fetchError: fetchErrorReviews,
   } = useFetchReviews();
-
-  const { tickets } = useFetchTickets();
 
   const appReview = reviews?.find(
     (review) =>
@@ -303,9 +306,6 @@ export const ApplicationsTable: React.FC = () => {
   // Create assessment
   const { assessApplication, inProgress: isApplicationAssessInProgress } =
     useAssessApplication();
-
-  const ticketByApplication = (id: number) =>
-    tickets.some((ticket) => ticket.id === id);
 
   // Table
   const columns: ICell[] = [

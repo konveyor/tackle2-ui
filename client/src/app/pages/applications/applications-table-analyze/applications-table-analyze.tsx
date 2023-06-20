@@ -71,6 +71,7 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 import { ConfirmDialog } from "@app/shared/components/confirm-dialog/confirm-dialog";
 import { ApplicationDetailDrawerAnalysis } from "../components/application-detail-drawer";
 import { useQueryClient } from "@tanstack/react-query";
+import { useFetchTickets } from "@app/queries/tickets";
 
 const ENTITY_FIELD = "entity";
 
@@ -218,6 +219,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     onDeleteApplicationError
   );
 
+  const { tickets } = useFetchTickets();
+
+  const ticketByApplication = (id: number) =>
+    tickets.some((ticket) => ticket.id === id);
+
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
 
   // Credentials modal
@@ -348,9 +354,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         },
         {
           title: t("actions.delete"),
-          ...(row.migrationWave !== null && {
+          ...((row.migrationWave !== null || ticketByApplication(row.id)) && {
             isAriaDisabled: true,
-            tooltip: "Cannot delete application assigned to a migration wave.",
+            tooltip: ticketByApplication(row.id)
+              ? t("message.deleteApplicationWithTicket")
+              : t("message.deleteApplicationWithMigration"),
             tooltipProps: { postition: TooltipPosition.top },
           }),
           onClick: () => deleteRow(row),
