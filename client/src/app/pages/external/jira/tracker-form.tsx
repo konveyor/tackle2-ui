@@ -115,7 +115,6 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       url: formValues.url.trim(),
       id: formValues.id,
       kind: formValues.kind!,
-      metadata: { projects: [] },
       message: "",
       connected: false,
       identity: matchingCredential
