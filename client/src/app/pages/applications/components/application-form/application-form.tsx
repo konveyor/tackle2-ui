@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosResponse } from "axios";
-import { object, string, StringSchema } from "yup";
+import { object, string } from "yup";
 import {
   ActionGroup,
   Alert,
@@ -19,9 +19,9 @@ import { SimpleSelect, OptionWithValue } from "@app/shared/components";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { Application, TagRef } from "@app/api/models";
 import {
+  customURLValidation,
   duplicateNameCheck,
   getAxiosErrorMessage,
-  standardURLRegex,
 } from "@app/utils/utils";
 import { toOptionLike } from "@app/utils/model-utils";
 import {
@@ -133,21 +133,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       default:
         return "";
     }
-  };
-
-  const customURLValidation = (schema: StringSchema) => {
-    const gitUrlRegex =
-      /(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\/?|\#[-\d\w._]+?)$/;
-    const containsURL = (string: string) =>
-      gitUrlRegex.test(string) || standardURLRegex.test(string);
-
-    return schema.test("gitUrlTest", "Must be a valid URL.", (value) => {
-      if (value) {
-        return containsURL(value);
-      } else {
-        return true;
-      }
-    });
   };
 
   const { data: applications } = useFetchApplications();
