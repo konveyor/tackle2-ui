@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { Dropdown, DropdownItem, KebabToggle } from "@patternfly/react-core";
+import {
+  Dropdown,
+  DropdownItem,
+  KebabToggle,
+} from "@patternfly/react-core/deprecated";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 import { AppAboutModal } from "../AppAboutModal";
 
@@ -7,9 +11,9 @@ export const MobileDropdown: React.FC = () => {
   const [isKebabDropdownOpen, setIsKebabDropdownOpen] = useState(false);
   const [isAboutModalOpen, setAboutModalOpen] = useState(false);
 
-  const onKebabDropdownToggle = (isOpen: boolean) => {
+  const onKebabDropdownToggle = (isOpen: boolean) =>
     setIsKebabDropdownOpen(isOpen);
-  };
+
   const onKebabDropdownSelect = () => {
     setIsKebabDropdownOpen((current) => !current);
   };
@@ -24,7 +28,11 @@ export const MobileDropdown: React.FC = () => {
         isPlain
         position="right"
         onSelect={onKebabDropdownSelect}
-        toggle={<KebabToggle onToggle={onKebabDropdownToggle} />}
+        toggle={
+          <KebabToggle
+            onToggle={(_, isOpen) => onKebabDropdownToggle(isOpen)}
+          />
+        }
         isOpen={isKebabDropdownOpen}
         dropdownItems={[
           <DropdownItem key="about" onClick={toggleAboutModal}>

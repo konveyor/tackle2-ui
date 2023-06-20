@@ -1,6 +1,7 @@
 import * as React from "react";
 import {
   Alert,
+  DropEvent,
   MultipleFileUpload,
   MultipleFileUploadMain,
   MultipleFileUploadStatusItem,
@@ -90,7 +91,7 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
     failedRemove
   );
 
-  const handleFileDrop = (droppedFiles: File[]) => {
+  const handleFileDrop = (_: DropEvent, droppedFiles: File[]) => {
     if (droppedFiles[0]) {
       setError(undefined);
       setFileUploadProgress(0);
@@ -146,7 +147,9 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
       <MultipleFileUpload
         onFileDrop={handleFileDrop}
         dropzoneProps={{
-          accept: ".war, .ear, .jar, .zip",
+          accept: {
+            "application/java-archive": [".war", ".ear", ".jar", ".zip"],
+          },
           maxSize: uploadLimitInBytes,
         }}
       >

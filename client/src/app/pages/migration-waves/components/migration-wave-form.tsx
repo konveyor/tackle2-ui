@@ -13,6 +13,7 @@ import {
   DatePicker,
   Level,
   LevelItem,
+  Weekday,
 } from "@patternfly/react-core";
 
 import { useFetchStakeholders } from "@app/queries/stakeholders";
@@ -30,7 +31,6 @@ import {
   MigrationWave,
   New,
 } from "@app/api/models";
-import { duplicateNameCheck } from "@app/utils/utils";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
@@ -142,7 +142,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
         is: () => !!!migrationWave?.startDate,
         then: yup
           .date()
-          .min(dayjs().toDate(), "Start date can be no sooner than today"),
+          .min(dayjs().toDate(), "Start date cannot be sooner than today"),
         otherwise: yup.date(),
       })
       .when([], {
@@ -219,7 +219,19 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     }
     return "";
   };
+  const dateFormat = (date: Date) =>
+    `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date
+      .getDate()
+      .toString()
+      .padStart(2, "0")}/${date.getFullYear()}`;
+  const dateParse = (val: string) => new Date(val.slice(0, 10));
+  React.useEffect(() => {
+    // console.log(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    console.log(startDate);
+  }, [startDate]);
 
+  //"2023-06-19T22:00:00.000Z"
+  // Tue Jun 20 2023 00:00:00 GMT+0200 (Central European Summer Time)
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <Grid hasGutter>
@@ -241,9 +253,6 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                 fieldId="startDate"
                 isRequired
                 renderInput={({ field: { value, name, onChange } }) => {
-                  const startDateValue = value
-                    ? dayjs(value).format("MM/DD/YYYY")
-                    : "";
                   return (
                     <DatePicker
                       aria-label={name}
@@ -251,16 +260,21 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                         onChange(date);
                       }}
                       placeholder="MM/DD/YYYY"
-                      value={startDateValue}
-                      dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
-                      dateParse={(val) => dayjs(val).toDate()}
-                      validators={[startDateValidator]}
+                      value={
+                        startDate ? dayjs(startDate).format("MM/DD/YYYY") : ""
+                      }
+                      // dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
+                      // dateParse={(val) => dayjs(val).toDate()}
+                      // dateFormat={dateFormat}
+                      // dateParse={dateParse}
+                      // validators={[startDateValidator]}
                       appendTo={() =>
                         document.getElementById(
                           "create-edit-migration-wave-modal"
                         ) as HTMLElement
                       }
-                      isDisabled={dayjs(value).isBefore(dayjs())}
+                      weekStart={Weekday.Monday}
+                      // isDisabled={dayjs(value).isBefore(dayjs())}
                     />
                   );
                 }}
@@ -286,17 +300,18 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                     }}
                     placeholder="MM/DD/YYYY"
                     value={endDate ? dayjs(endDate).format("MM/DD/YYYY") : ""}
-                    dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
-                    dateParse={(val) => dayjs(val).toDate()}
+                    // dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
+                    // dateParse={(val) => dayjs(val).toDate()}
                     validators={[endDateValidator]}
                     appendTo={() =>
                       document.getElementById(
                         "create-edit-migration-wave-modal"
                       ) as HTMLElement
                     }
-                    isDisabled={
-                      !startDate || dayjs(startDate).isBefore(dayjs())
-                    }
+                    weekStart={Weekday.Monday}
+                    // isDisabled={
+                    //   !startDate || dayjs(startDate).isBefore(dayjs())
+                    // }
                   />
                 )}
               />

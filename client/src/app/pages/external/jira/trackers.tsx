@@ -31,15 +31,7 @@ import {
   useDeleteTrackerMutation,
   useFetchTrackers,
 } from "@app/queries/trackers";
-import {
-  Tbody,
-  Tr,
-  Td,
-  Thead,
-  Th,
-  TableComposable,
-} from "@patternfly/react-table";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import { Tbody, Tr, Td, Thead, Th, Table } from "@patternfly/react-table";
 
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
@@ -204,7 +196,7 @@ export const JiraTrackers: React.FC = () => {
                 </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
-            <TableComposable {...tableProps} aria-label="Jira trackers table">
+            <Table {...tableProps} aria-label="Jira trackers table">
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
@@ -286,7 +278,7 @@ export const JiraTrackers: React.FC = () => {
                   </Tbody>
                 ))}
               </ConditionalTableBody>
-            </TableComposable>
+            </Table>
           </div>
         </ConditionalRender>
       </PageSection>

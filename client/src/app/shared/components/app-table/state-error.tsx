@@ -11,7 +11,7 @@ import { global_danger_color_200 as globalDangerColor200 } from "@patternfly/rea
 
 export const StateError: React.FC = () => {
   return (
-    <EmptyState variant={EmptyStateVariant.small}>
+    <EmptyState variant={EmptyStateVariant.sm}>
       <EmptyStateIcon
         icon={ExclamationCircleIcon}
         color={globalDangerColor200.value}

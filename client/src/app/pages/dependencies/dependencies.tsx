@@ -13,14 +13,7 @@ import {
   FilterToolbar,
   FilterType,
 } from "@app/shared/components/FilterToolbar";
-import {
-  TableComposable,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import {
   useTableControlUrlParams,
   useTableControlProps,
@@ -129,7 +122,7 @@ export const Dependencies: React.FC = () => {
               </ToolbarItem>
             </ToolbarContent>
           </Toolbar>
-          <TableComposable {...tableProps} aria-label="Migration waves table">
+          <Table {...tableProps} aria-label="Migration waves table">
             <Thead>
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
@@ -177,7 +170,7 @@ export const Dependencies: React.FC = () => {
                 );
               })}
             </ConditionalTableBody>
-          </TableComposable>
+          </Table>
           <SimplePagination
             idPrefix="dependencies-table"
             isTop={false}

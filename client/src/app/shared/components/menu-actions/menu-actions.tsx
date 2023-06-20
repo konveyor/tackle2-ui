@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { Dropdown, DropdownItem, DropdownToggle } from "@patternfly/react-core";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownToggle,
+} from "@patternfly/react-core/deprecated";
 import CaretDownIcon from "@patternfly/react-icons/dist/esm/icons/caret-down-icon";
 
 export interface MenuActionsProps {
@@ -17,7 +21,7 @@ export const MenuActions: React.FC<MenuActionsProps> = ({ actions }) => {
       }}
       toggle={
         <DropdownToggle
-          onToggle={(isOpen: boolean) => {
+          onToggle={(_, isOpen) => {
             setIsOpen(isOpen);
           }}
           toggleIndicator={CaretDownIcon}

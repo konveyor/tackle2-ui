@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
-import { ButtonVariant, Wizard, WizardStep } from "@patternfly/react-core";
-import { AxiosError } from "axios";
+import { ButtonVariant } from "@patternfly/react-core";
+import { Wizard, WizardStep } from "@patternfly/react-core/deprecated";
 
 import {
   Assessment,

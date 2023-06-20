@@ -1,5 +1,11 @@
 import * as React from "react";
-import { FormGroup, FormGroupProps } from "@patternfly/react-core";
+import {
+  FormGroup,
+  FormGroupProps,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+} from "@patternfly/react-core";
 import {
   Control,
   Controller,
@@ -63,16 +69,18 @@ export const HookFormPFGroupController = <
           className={className}
           isRequired={isRequired}
           onBlur={field.onBlur}
-          validated={
-            errorsSuppressed
-              ? "default"
-              : getValidatedFromErrors(error, isDirty)
-          }
-          helperText={helperText}
-          helperTextInvalid={errorsSuppressed ? null : error?.message}
           {...formGroupProps}
         >
           {renderInput({ field, fieldState, formState })}
+          {error && isDirty && (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem variant="error">
+                  {helperText && error.message}
+                </HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          )}
         </FormGroup>
       );
     }}

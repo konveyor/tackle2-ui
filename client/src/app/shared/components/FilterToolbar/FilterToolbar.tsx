@@ -3,11 +3,13 @@ import {
   SelectOptionProps,
   ToolbarToggleGroup,
   ToolbarItem,
+} from "@patternfly/react-core";
+import {
   Dropdown,
-  DropdownToggle,
   DropdownItem,
   DropdownGroup,
-} from "@patternfly/react-core";
+  DropdownToggle,
+} from "@patternfly/react-core/deprecated";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 
 import { FilterControl } from "./FilterControl";

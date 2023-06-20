@@ -39,7 +39,7 @@ export const HookFormPFTextInput = <
           id={fieldId}
           aria-describedby={helperText ? `${fieldId}-helper` : undefined}
           isRequired={isRequired}
-          onChange={(value) => {
+          onChange={(_, value) => {
             if (type === "number") {
               onChange((value && parseInt(value, 10)) || "");
             } else {

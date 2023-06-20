@@ -21,7 +21,7 @@ import {
 } from "@patternfly/react-core";
 import {
   ExpandableRowContent,
-  TableComposable,
+  Table,
   Tbody,
   Td,
   Th,
@@ -234,11 +234,7 @@ export const Stakeholders: React.FC = () => {
               </ToolbarItem>
             </ToolbarContent>
           </Toolbar>
-          <TableComposable
-            {...tableProps}
-            isExpandable
-            aria-label="Stakeholders table"
-          >
+          <Table {...tableProps} isExpandable aria-label="Stakeholders table">
             <Thead>
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
@@ -343,7 +339,7 @@ export const Stakeholders: React.FC = () => {
                 );
               })}
             </ConditionalTableBody>
-          </TableComposable>
+          </Table>
           <SimplePagination
             idPrefix="migration-waves-table"
             isTop={false}

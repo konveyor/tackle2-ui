@@ -1,11 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { ToolbarItemProps, ToolbarProps } from "@patternfly/react-core";
-import {
-  TableComposableProps,
-  TdProps,
-  ThProps,
-  TrProps,
-} from "@patternfly/react-table";
+import { TableProps, TdProps, ThProps, TrProps } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-selector/toolbar-bulk-selector";
@@ -106,7 +101,7 @@ export const useTableControlProps = <
     onSelectMultiple: selectMultiple,
   };
 
-  const tableProps: Omit<TableComposableProps, "ref"> = {
+  const tableProps: Omit<TableProps, "ref"> = {
     variant,
     hasSelectableRowCaption: hasClickableRows,
   };

@@ -43,7 +43,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import {
   ExpandableRowContent,
-  TableComposable,
+  Table,
   Tbody,
   Td,
   Th,
@@ -314,7 +314,7 @@ export const MigrationWaves: React.FC = () => {
                 </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
-            <TableComposable {...tableProps} aria-label="Migration waves table">
+            <Table {...tableProps} aria-label="Migration waves table">
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
@@ -519,7 +519,7 @@ export const MigrationWaves: React.FC = () => {
                   );
                 })}
               </ConditionalTableBody>
-            </TableComposable>
+            </Table>
             <SimplePagination
               idPrefix="migration-migration-waves-table"
               isTop={false}

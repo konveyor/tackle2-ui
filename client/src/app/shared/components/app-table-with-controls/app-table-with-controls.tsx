@@ -57,7 +57,7 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
           {!withoutTopPagination && (
             <ToolbarItem
               variant={ToolbarItemVariant.pagination}
-              alignment={{ default: "alignRight" }}
+              align={{ default: "alignRight" }}
             >
               <SimplePagination
                 idPrefix={paginationIdPrefix}

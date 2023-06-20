@@ -1,4 +1,4 @@
-import { TableComposableProps } from "@patternfly/react-table";
+import { TableProps } from "@patternfly/react-table";
 import { ISelectionStateArgs, useSelectionState } from "@migtools/lib-ui";
 import { DisallowCharacters, KeyWithValueType } from "@app/utils/type-utils";
 import {
@@ -47,7 +47,7 @@ export interface ITableControlCommonArgs<
   hasPagination?: boolean;
   expandableVariant?: "single" | "compound" | null;
   hasActionsColumn?: boolean;
-  variant?: TableComposableProps["variant"];
+  variant?: TableProps["variant"];
   hasClickableRows?: boolean;
 }
 

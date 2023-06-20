@@ -348,7 +348,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
           label={
             <>
               <span id="warning-icon">
-                <ExclamationTriangleIcon noVerticalAlign color={gold.value} />
+                <ExclamationTriangleIcon color={gold.value} />
               </span>
               &nbsp;&nbsp;
               {review
@@ -368,7 +368,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             aria-label="Confirm"
             isDisabled={isCopying}
             isChecked={confirmationAccepted}
-            onChange={(isChecked) => setConfirmationAccepted(isChecked)}
+            onChange={(_, isChecked) => setConfirmationAccepted(isChecked)}
           />
         </FormGroup>
       )}

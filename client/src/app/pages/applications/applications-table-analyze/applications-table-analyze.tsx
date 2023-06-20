@@ -368,7 +368,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (tasksReadAccess) {
       actions.push({
         title: t("actions.analysisDetails"),
-        isAriaDisabled: !getTask(row),
+        "aria-disabled": !getTask(row),
         onClick: () => {
           const task = getTask(row);
           if (task) setTaskToView({ name: row.name, task: task.id });
@@ -379,7 +379,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (tasksWriteAccess) {
       actions.push({
         title: "Cancel analysis",
-        isAriaDisabled: !isTaskCancellable(row),
+        "aria-disabled": !isTaskCancellable(row),
         onClick: () => cancelAnalysis(row),
       });
     }

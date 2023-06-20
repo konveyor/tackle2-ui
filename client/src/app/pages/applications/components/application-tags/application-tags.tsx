@@ -225,10 +225,11 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
                   ) || [];
                 return (
                   <React.Fragment key={tagCategory.id}>
+                    // TODO PF V5 - Verify fontWeight change
                     <TextContent>
                       <Text
                         component="h4"
-                        className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightLight}`}
+                        className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightNormal}`}
                       >
                         {tagCategory.name}
                       </Text>

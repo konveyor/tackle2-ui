@@ -6,10 +6,6 @@ import {
   EmptyStateVariant,
   Card,
   CardBody,
-  Select,
-  SelectOption,
-  SelectVariant,
-  SelectOptionObject,
   Text,
   DropdownItem,
   Flex,
@@ -18,6 +14,12 @@ import {
   ButtonVariant,
   Label,
 } from "@patternfly/react-core";
+import {
+  Select,
+  SelectOption,
+  SelectVariant,
+  SelectOptionObject,
+} from "@patternfly/react-core/deprecated";
 import { CubesIcon, GripVerticalIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -161,7 +163,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
           </FlexItem>
         </Flex>
         <EmptyState
-          variant={EmptyStateVariant.small}
+          variant={EmptyStateVariant.sm}
           className="select-card__component__empty-state"
         >
           <EmptyStateIcon icon={getImage()} />
@@ -174,7 +176,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
               toggleId={`${item.name}-toggle`}
               variant={SelectVariant.single}
               aria-label="Select Input"
-              onToggle={(isExpanded) => setRuleTargetSelectOpen(isExpanded)}
+              onToggle={(_, isExpanded) => setRuleTargetSelectOpen(isExpanded)}
               onSelect={handleRuleTargetSelection}
               selections={selectedRuleTarget}
               isOpen={isRuleTargetSelectOpen}

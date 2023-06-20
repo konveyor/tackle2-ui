@@ -373,11 +373,14 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             filename={filename}
             filenamePlaceholder="Drag and drop a file or upload one"
             dropzoneProps={{
-              accept: ".png, .jpeg, .jpg",
+              accept: {
+                "image/png": [".png"],
+                "image/jpeg": [".jpeg", ".jpg"],
+              },
               maxSize: 1000000,
               onDropRejected: (event) => {
                 const currentFile = event[0];
-                if (currentFile.size > 1000000) {
+                if (currentFile.file.size > 1000000) {
                   methods.setError("imageID", {
                     type: "custom",
                     message: "Max image file size of 1 MB exceeded.",
@@ -387,15 +390,15 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
               },
             }}
             validated={isImageFileRejected || error ? "error" : "default"}
-            onChange={async (fileContents, fileName, event) => {
-              const image = await resizeFile(fileContents as File);
+            onFileInputChange={async (_, file) => {
+              const image = await resizeFile(file);
               setFilename(image.name);
               const formFile = new FormData();
-              formFile.append("file", fileContents);
+              formFile.append("file", file);
 
               const newImageFile: IReadFile = {
-                fileName: fileName,
-                fullFile: fileContents as File,
+                fileName: file.name,
+                fullFile: file,
               };
 
               createImageFile({
@@ -461,7 +464,10 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           <MultipleFileUpload
             onFileDrop={handleFileDrop}
             dropzoneProps={{
-              accept: ".yml, .yaml, .xml",
+              accept: {
+                "text/xml": [".xml"],
+                "text/yaml": [".yml", ".yaml"],
+              },
             }}
           >
             <MultipleFileUploadMain

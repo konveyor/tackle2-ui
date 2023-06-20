@@ -6,11 +6,9 @@ import {
   NavItem,
   PageSidebar,
   NavList,
-  Select,
-  SelectOption,
-  SelectVariant,
   NavExpandable,
 } from "@patternfly/react-core";
+import { SelectOption, SelectVariant } from "@patternfly/react-core/deprecated";
 
 import { Paths } from "@app/Paths";
 import { LayoutTheme } from "../LayoutUtils";
@@ -80,144 +78,156 @@ export const SidebarApp: React.FC = () => {
     }
   }, []);
 
-  const Navigation = (
-    <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
-      <div className="perspective">
-        <SimpleSelect
-          toggleId="sidebar-perspective-toggle"
-          variant={SelectVariant.single}
-          aria-label="Select user perspective"
-          id="sidebar-perspective"
-          value={
-            selectedPersona
-              ? toOptionLike(selectedPersona, personaOptions)
-              : undefined
-          }
-          options={personaOptions}
-          onChange={(selection) => {
-            const selectionValue = selection as OptionWithValue<PersonaKey>;
-            setSelectedPersona(selectionValue.value);
-            if (selectionValue.value === PersonaKey.ADMINISTRATION) {
-              history.push(Paths.general);
-            } else {
-              history.push(Paths.applications);
+  return (
+    <PageSidebar theme={LayoutTheme}>
+      <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
+        <div className="perspective">
+          <SimpleSelect
+            toggleId="sidebar-perspective-toggle"
+            variant={SelectVariant.single}
+            aria-label="Select user perspective"
+            id="sidebar-perspective"
+            value={
+              selectedPersona
+                ? toOptionLike(selectedPersona, personaOptions)
+                : undefined
             }
-          }}
-        />
-      </div>
-      {selectedPersona === PersonaKey.MIGRATION ? (
-        <NavList title="Global">
-          <NavItem>
-            <NavLink
-              to={Paths.applications + search}
-              activeClassName="pf-m-current"
-            >
-              {t("sidebar.applicationInventory")}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to={Paths.reports + search} activeClassName="pf-m-current">
-              {t("sidebar.reports")}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to={Paths.controls} activeClassName="pf-m-current">
-              {t("sidebar.controls")}
-            </NavLink>
-          </NavItem>
-          {FEATURES_ENABLED.migrationWaves ? (
+            options={personaOptions}
+            onChange={(selection) => {
+              const selectionValue = selection as OptionWithValue<PersonaKey>;
+              setSelectedPersona(selectionValue.value);
+              if (selectionValue.value === PersonaKey.ADMINISTRATION) {
+                history.push(Paths.general);
+              } else {
+                history.push(Paths.applications);
+              }
+            }}
+          />
+        </div>
+        {selectedPersona === PersonaKey.MIGRATION ? (
+          <NavList title="Global">
             <NavItem>
-              <NavLink to={Paths.migrationWaves} activeClassName="pf-m-current">
-                {t("sidebar.migrationWaves")}
+              <NavLink
+                to={Paths.applications + search}
+                activeClassName="pf-m-current"
+              >
+                {t("sidebar.applicationInventory")}
               </NavLink>
             </NavItem>
-          ) : null}
-          {FEATURES_ENABLED.dynamicReports ? (
-            <>
+            <NavItem>
+              <NavLink
+                to={Paths.reports + search}
+                activeClassName="pf-m-current"
+              >
+                {t("sidebar.reports")}
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink to={Paths.controls} activeClassName="pf-m-current">
+                {t("sidebar.controls")}
+              </NavLink>
+            </NavItem>
+            {FEATURES_ENABLED.migrationWaves ? (
               <NavItem>
-                <NavLink to={Paths.issues} activeClassName="pf-m-current">
-                  {t("sidebar.issues")}
+                <NavLink
+                  to={Paths.migrationWaves}
+                  activeClassName="pf-m-current"
+                >
+                  {t("sidebar.migrationWaves")}
                 </NavLink>
               </NavItem>
-              <NavItem>
-                <NavLink to={Paths.dependencies} activeClassName="pf-m-current">
-                  {t("sidebar.dependencies")}
-                </NavLink>
-              </NavItem>
-            </>
-          ) : null}
-        </NavList>
-      ) : (
-        <NavList title="Admin">
-          <NavItem>
-            <NavLink to={Paths.general} activeClassName="pf-m-current">
-              {t("terms.general")}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to={Paths.identities} activeClassName="pf-m-current">
-              {t("terms.credentials")}
-            </NavLink>
-          </NavItem>
-          <NavExpandable
-            title="Repositories"
-            srText="SR Link"
-            groupId="admin-repos"
-            isExpanded
-          >
+            ) : null}
+            {FEATURES_ENABLED.dynamicReports ? (
+              <>
+                <NavItem>
+                  <NavLink to={Paths.issues} activeClassName="pf-m-current">
+                    {t("sidebar.issues")}
+                  </NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink
+                    to={Paths.dependencies}
+                    activeClassName="pf-m-current"
+                  >
+                    {t("sidebar.dependencies")}
+                  </NavLink>
+                </NavItem>
+              </>
+            ) : null}
+          </NavList>
+        ) : (
+          <NavList title="Admin">
             <NavItem>
-              <NavLink
-                to={Paths.repositoriesGit}
-                activeClassName="pf-m-current"
-              >
-                Git
+              <NavLink to={Paths.general} activeClassName="pf-m-current">
+                {t("terms.general")}
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink
-                to={Paths.repositoriesSvn}
-                activeClassName="pf-m-current"
-              >
-                Subversion
+              <NavLink to={Paths.identities} activeClassName="pf-m-current">
+                {t("terms.credentials")}
               </NavLink>
             </NavItem>
-            <NavItem>
-              <NavLink
-                to={Paths.repositoriesMvn}
-                activeClassName="pf-m-current"
-              >
-                Maven
-              </NavLink>
-            </NavItem>
-          </NavExpandable>
-          <NavItem>
-            <NavLink to={Paths.proxies} activeClassName="pf-m-current">
-              Proxy
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to={Paths.migrationTargets} activeClassName="pf-m-current">
-              Custom migration targets
-            </NavLink>
-          </NavItem>
-          {FEATURES_ENABLED.migrationWaves ? (
             <NavExpandable
-              title="Issue management"
+              title="Repositories"
               srText="SR Link"
-              groupId="admin-issue-management"
+              groupId="admin-repos"
               isExpanded
             >
               <NavItem>
-                <NavLink to={Paths.jira} activeClassName="pf-m-current">
-                  Jira
+                <NavLink
+                  to={Paths.repositoriesGit}
+                  activeClassName="pf-m-current"
+                >
+                  Git
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink
+                  to={Paths.repositoriesSvn}
+                  activeClassName="pf-m-current"
+                >
+                  Subversion
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink
+                  to={Paths.repositoriesMvn}
+                  activeClassName="pf-m-current"
+                >
+                  Maven
                 </NavLink>
               </NavItem>
             </NavExpandable>
-          ) : null}
-        </NavList>
-      )}
-    </Nav>
+            <NavItem>
+              <NavLink to={Paths.proxies} activeClassName="pf-m-current">
+                Proxy
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                to={Paths.migrationTargets}
+                activeClassName="pf-m-current"
+              >
+                Custom migration targets
+              </NavLink>
+            </NavItem>
+            {FEATURES_ENABLED.migrationWaves ? (
+              <NavExpandable
+                title="Issue management"
+                srText="SR Link"
+                groupId="admin-issue-management"
+                isExpanded
+              >
+                <NavItem>
+                  <NavLink to={Paths.jira} activeClassName="pf-m-current">
+                    Jira
+                  </NavLink>
+                </NavItem>
+              </NavExpandable>
+            ) : null}
+          </NavList>
+        )}
+      </Nav>
+    </PageSidebar>
   );
-
-  return <PageSidebar nav={Navigation} theme={LayoutTheme} />;
 };

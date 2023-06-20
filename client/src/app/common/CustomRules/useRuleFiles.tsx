@@ -10,6 +10,7 @@ import { UseFormReturn } from "react-hook-form";
 import { XMLValidator } from "fast-xml-parser";
 import XSDSchema from "./windup-jboss-ruleset.xsd";
 import { checkRuleFileType } from "./rules-utils";
+import { DropEvent } from "@patternfly/react-core";
 const xmllint = require("xmllint");
 
 export default function useRuleFiles(
@@ -138,7 +139,7 @@ export default function useRuleFiles(
   };
 
   // callback that will be called by the react dropzone with the newly dropped file objects
-  const handleFileDrop = (droppedFiles: File[]) => {
+  const handleFileDrop = (event: DropEvent, droppedFiles: File[]) => {
     // identify what, if any, files are re-uploads of already uploaded files
     const currentFileNames = ruleFiles.map((file) => file.fileName);
     const reUploads = droppedFiles.filter((droppedFile) =>

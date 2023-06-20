@@ -21,15 +21,12 @@ import {
   ToolbarItem,
   ToolbarToggleGroup,
 } from "@patternfly/react-core";
+import { cellWidth, ICell, IRow, TableText } from "@patternfly/react-table";
 import {
-  cellWidth,
-  ICell,
-  IRow,
   Table,
   TableBody,
   TableHeader,
-  TableText,
-} from "@patternfly/react-table";
+} from "@patternfly/react-table/deprecated";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
@@ -505,7 +502,10 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
             <MultipleFileUpload
               onFileDrop={handleFileDrop}
               dropzoneProps={{
-                accept: ".yml, .yaml, .xml",
+                accept: {
+                  "text/yaml": [".yml", ".yaml"],
+                  "text/xml": [".xml"],
+                },
               }}
             >
               <MultipleFileUploadMain

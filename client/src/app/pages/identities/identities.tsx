@@ -265,7 +265,7 @@ export const Identities: React.FC = () => {
               <ToolbarGroup variant="button-group">
                 <ToolbarItem>
                   <Button
-                    isSmall
+                    size="sm"
                     onClick={() => setCreateUpdateModalState("create")}
                     variant="primary"
                     id="create-credential-button"

@@ -9,6 +9,9 @@ import {
   FileUpload,
   Form,
   FormGroup,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
 } from "@patternfly/react-core";
 
 import { UPLOAD_FILE } from "@app/api/rest";
@@ -77,37 +80,40 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
   };
   return (
     <Form>
-      <FormGroup
-        fieldId="file"
-        label={t("terms.uploadApplicationFile")}
-        helperTextInvalid="You should select a CSV file."
-        validated={isFileRejected ? "error" : "default"}
-      >
+      <FormGroup fieldId="file" label={t("terms.uploadApplicationFile")}>
         <FileUpload
           id="file"
           name="file"
           value={file}
           filename={file?.name}
-          onChange={(value, filename) => {
-            if (filename && typeof value !== "string") {
-              setFile(value);
+          onFileInputChange={(_, file) => {
+            if (file) {
+              setFile(file);
               setIsFileRejected(false);
-            } else if (!filename) {
+            } else if (!file) {
               setFile(undefined);
             }
           }}
           dropzoneProps={{
-            accept: ".csv",
+            accept: { "text/csv": [".csv"] },
             onDropRejected: handleFileRejected,
           }}
-          validated={isFileRejected ? "error" : "default"}
         />
+        {isFileRejected && (
+          <FormHelperText>
+            <HelperText>
+              <HelperTextItem variant="error">
+                You should select a CSV file.
+              </HelperTextItem>
+            </HelperText>
+          </FormHelperText>
+        )}
       </FormGroup>
       <FormGroup fieldId="create-entities">
         <Checkbox
           label="Enable automatic creation of missing entities"
           isChecked={isCreateEntitiesChecked}
-          onChange={(checked, _) => setIsCreateEntitiesChecked(checked)}
+          onChange={(_, checked) => setIsCreateEntitiesChecked(checked)}
           id="create-entities-checkbox"
           name="createEntities"
         />

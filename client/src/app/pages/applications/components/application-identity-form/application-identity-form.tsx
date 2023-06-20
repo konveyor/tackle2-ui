@@ -177,7 +177,7 @@ export const ApplicationIdentityForm: React.FC<
         name="applicationName"
         fieldId="application-name"
         aria-label="Manage credentials selected applications"
-        isReadOnly
+        readOnly
       />
       <HookFormPFGroupController
         control={control}
