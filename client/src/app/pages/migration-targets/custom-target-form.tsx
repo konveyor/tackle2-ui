@@ -17,15 +17,17 @@ import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 import Resizer from "react-image-file-resizer";
+import { AxiosError, AxiosResponse } from "axios";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useMemo, useState } from "react";
-import { Identity, IReadFile, Ref, Ruleset, Rule } from "@app/api/models";
+import { useEffect, useState } from "react";
+import { IReadFile, Ref, Ruleset, Rule } from "@app/api/models";
 import { parseRules } from "@app/common/CustomRules/rules-utils";
 import {
   useCreateFileMutation,
@@ -33,17 +35,11 @@ import {
   useFetchRulesets,
   useUpdateRulesetMutation,
 } from "@app/queries/rulesets";
-import { AxiosError, AxiosResponse } from "axios";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import {
-  IdentityDropdown,
-  toIdentityDropdown,
-  toOptionLike,
-} from "@app/utils/model-utils";
+import { IdentityDropdown, toOptionLike } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
 import useRuleFiles from "@app/common/CustomRules/useRuleFiles";
-import { duplicateNameCheck } from "@app/utils/utils";
+import { customURLValidation, duplicateNameCheck } from "@app/utils/utils";
 import { customRulesFilesSchema } from "../applications/analysis-wizard/schema";
 
 export interface CustomTargetFormProps {
@@ -159,13 +155,10 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         is: "repository",
         then: yup.mixed<string>().required(),
       }),
-      sourceRepository: yup.mixed<string>().when("rulesKind", {
+      sourceRepository: yup.string().when("rulesKind", {
         is: "repository",
-        then: yup
-          .string()
-          .required("This value is required")
-          .min(3, t("validation.minLength", { length: 3 }))
-          .max(120, t("validation.maxLength", { length: 120 })),
+        then: (schema) =>
+          customURLValidation(schema).required("Enter repository url."),
       }),
       branch: yup.mixed<string>().when("rulesKind", {
         is: "repository",
