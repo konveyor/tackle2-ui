@@ -140,6 +140,8 @@
     "copyAssessmentQuestion": "Copy assessment?",
     "couldNotFetchBody": "Resource doesn't exists or you don't have access to it",
     "couldNotFetchTitle": "Not available",
+    "deleteApplicationWithMigration": "Cannot delete application assigned to a migration wave.",
+    "deleteApplicationWithTicket": "Cannot delete application associated with a ticket. Remove ticket from issue manager first.",
     "duplicateTag": "A tag with this name already exists. Use a different name.",
     "importErrorCheckDocumentation": "For status Error imports, check the documentation to ensure your file is structured correctly.",
     "insecureTracker": "Insecure mode deactivates certificate verification. Use insecure mode for instances that have self-signed certificates.",

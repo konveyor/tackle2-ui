@@ -82,6 +82,7 @@ import { useSetting } from "@app/queries/settings";
 import { useFetchTasks } from "@app/queries/tasks";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
+import { useFetchTickets } from "@app/queries/tickets";
 
 const ENTITY_FIELD = "entity";
 
@@ -232,6 +233,8 @@ export const ApplicationsTable: React.FC = () => {
     fetchError: fetchErrorReviews,
   } = useFetchReviews();
 
+  const { tickets } = useFetchTickets();
+
   const appReview = reviews?.find(
     (review) =>
       review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
@@ -300,6 +303,9 @@ export const ApplicationsTable: React.FC = () => {
   // Create assessment
   const { assessApplication, inProgress: isApplicationAssessInProgress } =
     useAssessApplication();
+
+  const ticketByApplication = (id: number) =>
+    tickets.some((ticket) => ticket.id === id);
 
   // Table
   const columns: ICell[] = [
@@ -445,9 +451,11 @@ export const ApplicationsTable: React.FC = () => {
     if (applicationWriteAccess) {
       actions.push({
         title: t("actions.delete"),
-        ...(row.migrationWave !== null && {
+        ...((row.migrationWave !== null || ticketByApplication(row.id)) && {
           isAriaDisabled: true,
-          tooltip: "Cannot delete application assigned to a migration wave.",
+          tooltip: ticketByApplication(row.id)
+            ? t("message.deleteApplicationWithTicket")
+            : t("message.deleteApplicationWithMigration"),
           tooltipProps: { postition: TooltipPosition.top },
         }),
         onClick: () => deleteRow(row),
