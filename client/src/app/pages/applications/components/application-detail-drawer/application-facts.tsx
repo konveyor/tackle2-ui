@@ -4,6 +4,7 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import {
+  Button,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -15,6 +16,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
 import { Fact } from "@app/api/models";
+import { FactDetailModal } from "./fact-detail-modal/fact-detail-modal";
 
 export interface IApplicationRiskProps {
   facts: Fact[];
@@ -55,7 +57,9 @@ export const ApplicationFacts: React.FC<IApplicationRiskProps> = ({
     filteredItems: filteredFacts,
   } = useLegacyFilterState(facts, filterCategories);
 
-  console.log("facts", facts);
+  const [selectedFactForDetailModal, setSelectedFactForDetailModal] =
+    React.useState<Fact | null>(null);
+
   return (
     <>
       <Toolbar
@@ -75,9 +79,24 @@ export const ApplicationFacts: React.FC<IApplicationRiskProps> = ({
         </ToolbarContent>
       </Toolbar>
       {filteredFacts.map((fact) => {
-        console.log("fact", fact);
-        return <div>{fact.name}</div>;
+        return (
+          <div>
+            <Button
+              variant="link"
+              isInline
+              onClick={() => setSelectedFactForDetailModal(fact)}
+            >
+              {fact.name}
+            </Button>
+          </div>
+        );
       })}
+      {selectedFactForDetailModal ? (
+        <FactDetailModal
+          fact={selectedFactForDetailModal}
+          onClose={() => setSelectedFactForDetailModal(null)}
+        />
+      ) : null}
     </>
   );
 };
