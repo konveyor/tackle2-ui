@@ -27,14 +27,9 @@ export const ApplicationFacts: React.FC<IApplicationRiskProps> = ({
 }) => {
   const { t } = useTranslation();
   const sources = new Set<string>();
+
   // TODO: work through how to store sources for facts in the ui for sorting
   //   facts.forEach((fact) => sources.add(fact.source || ""));
-  const compareSources = (a: string, b: string) => {
-    // Always put user selected (source === "") first
-    if (a === "") return -1;
-    if (b === "") return 1;
-    return a.localeCompare(b);
-  };
 
   const filterCategories: FilterCategory<Fact, "source">[] = [
     {
@@ -44,7 +39,8 @@ export const ApplicationFacts: React.FC<IApplicationRiskProps> = ({
       placeholderText: t("terms.source"),
       //   getItemValue: (fact) => fact.source || "Source default name",
       selectOptions: Array.from(sources)
-        .sort(compareSources)
+        //TODO: Custom sorting for facts may be required
+        // .sort(compareSources)
         .map((source) => source || "Source default name")
         .map((source) => ({ key: source, value: source })),
       logicOperator: "OR",

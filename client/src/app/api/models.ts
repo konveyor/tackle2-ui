@@ -653,19 +653,6 @@ export interface WaveWithStatus extends MigrationWave {
   allStakeholders: StakeholderWithRole[];
 }
 
-export interface Ticket {
-  id: number;
-  application?: Ref | null;
-  tracker: Ref;
-  kind: string;
-  parent?: string;
-  fields?: Ref | null;
-  readonly message?: string | null;
-  reference?: string | null;
-  readonly status?: TicketStatus | null;
-  error?: boolean;
-}
-
 export type Fact = {
   name: string;
   data: any;

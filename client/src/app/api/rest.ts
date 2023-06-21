@@ -701,6 +701,7 @@ export const updateTagCategory = (obj: TagCategory): Promise<TagCategory> =>
   axios.put(`${TAG_CATEGORIES}/${obj.id}`, obj);
 
 // Facts
+
 export const getFacts = (id: number | string | undefined) =>
   id
     ? axios.get(`${APPLICATIONS}/${id}/facts`).then((response) => response.data)
