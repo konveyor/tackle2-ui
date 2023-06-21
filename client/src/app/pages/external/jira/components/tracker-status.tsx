@@ -23,7 +23,7 @@ const TrackerStatus = ({ name, connected, message }: ITrackerStatusProps) => {
   return (
     <>
       <StatusIcon
-        status={connected ? t("terms.ok") : t("terms.error")}
+        status={connected ? "Ok" : "Error"}
         className={spacing.mlSm}
         label={
           connected ? (
