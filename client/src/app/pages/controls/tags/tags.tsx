@@ -240,7 +240,7 @@ export const Tags: React.FC = () => {
         }) + "...",
       getItemValue: (item) => {
         const hex = item?.colour || "";
-        const colorLabel = COLOR_NAMES_BY_HEX_VALUE[hex];
+        const colorLabel = COLOR_NAMES_BY_HEX_VALUE[hex.toLowerCase()];
         return colorLabel || hex;
       },
     },
