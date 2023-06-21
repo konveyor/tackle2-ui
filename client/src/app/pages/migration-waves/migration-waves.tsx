@@ -60,8 +60,8 @@ import { AxiosError, AxiosResponse } from "axios";
 import { useFetchTrackers } from "@app/queries/trackers";
 import { useFetchApplications } from "@app/queries/applications";
 import { WaveStakeholdersTable } from "./components/stakeholders-table";
-import { WaveApplicationsTable } from "./components/applications-table";
-import { WaveStatusTable } from "./components/status-table";
+import { WaveApplicationsTable } from "./components/wave-applications-table";
+import { WaveStatusTable } from "./components/wave-status-table";
 import { WaveForm } from "./components/migration-wave-form";
 import { ManageApplicationsForm } from "./components/manage-applications-form";
 import { deleteMigrationWave } from "@app/api/rest";
@@ -412,6 +412,7 @@ export const MigrationWaves: React.FC = () => {
                                         {t("actions.edit")}
                                       </DropdownItem>,
                                       <ConditionalTooltip
+                                        key="no-applications"
                                         isTooltipEnabled={
                                           applications.length === 0
                                         }
