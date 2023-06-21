@@ -412,6 +412,7 @@ export const MigrationWaves: React.FC = () => {
                                         {t("actions.edit")}
                                       </DropdownItem>,
                                       <ConditionalTooltip
+                                        key="no-applications"
                                         isTooltipEnabled={
                                           applications.length === 0
                                         }

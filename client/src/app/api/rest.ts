@@ -42,6 +42,8 @@ import {
   Ticket,
   New,
   Ref,
+  TrackerProject,
+  TrackerProjectIssuetype,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
@@ -72,6 +74,8 @@ export const SETTINGS = HUB + "/settings";
 export const TASKS = HUB + "/tasks";
 export const TASKGROUPS = HUB + "/taskgroups";
 export const TRACKERS = HUB + "/trackers";
+export const TRACKER_PROJECTS = "projects";
+export const TRACKER_PROJECT_ISSUETYPES = "issuetypes";
 export const TICKETS = HUB + "/tickets";
 
 export const RULESETS = HUB + "/rulesets";
@@ -540,6 +544,21 @@ export const updateTracker = (obj: Tracker): Promise<Tracker> =>
 
 export const deleteTracker = (id: number): Promise<Tracker> =>
   axios.delete(`${TRACKERS}/${id}`);
+
+export const getTrackerProjects = (id: number): Promise<TrackerProject[]> =>
+  axios
+    .get(`${TRACKERS}/${id}/${TRACKER_PROJECTS}`)
+    .then((response) => response.data);
+
+export const getTrackerProjectIssuetypes = (
+  trackerId: number,
+  projectId: string
+): Promise<TrackerProjectIssuetype[]> =>
+  axios
+    .get(
+      `${TRACKERS}/${trackerId}/${TRACKER_PROJECTS}/${projectId}/${TRACKER_PROJECT_ISSUETYPES}`
+    )
+    .then((response) => response.data);
 
 // Issues and Dependencies
 
