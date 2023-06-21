@@ -23,11 +23,11 @@ const TrackerStatus = ({ name, connected, message }: ITrackerStatusProps) => {
   return (
     <>
       <StatusIcon
-        status={connected ? "Ok" : "Error"}
+        status={connected ? t("terms.ok") : t("terms.error")}
         className={spacing.mlSm}
         label={
           connected ? (
-            "Connected"
+            t("terms.connected")
           ) : (
             <Popover
               aria-label="More information about no connection"
@@ -36,8 +36,8 @@ const TrackerStatus = ({ name, connected, message }: ITrackerStatusProps) => {
               headerContent={t("composed.error", { what: t("terms.instance") })}
               bodyContent={
                 <TextContent>
-                  <Text>Jira instance {name} is not connected.</Text>
-                  <Text>The reported reason for the error:</Text>
+                  <Text>{t("message.jiraInstanceNotConnected", { name })}</Text>
+                  <Text>{t("message.reasonForError")}</Text>
                   <CodeBlock>
                     <CodeBlockCode id="code-content">{message}</CodeBlockCode>
                   </CodeBlock>
@@ -45,7 +45,7 @@ const TrackerStatus = ({ name, connected, message }: ITrackerStatusProps) => {
               }
             >
               <Button isInline variant="link">
-                Not connected
+                {t("terms.notConnected")}
               </Button>
             </Popover>
           )
