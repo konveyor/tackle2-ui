@@ -34,6 +34,7 @@ import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
 import { useHistory } from "react-router-dom";
 import { useFetchTickets } from "@app/queries/tickets";
 import { Paths } from "@app/Paths";
+import { TicketIssue } from "./ticket-issue";
 
 export interface IWaveStatusTableProps {
   migrationWave: WaveWithStatus;
@@ -85,17 +86,6 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
 
   const getTicketByApplication = (tickets: Ticket[], id: number = 0) =>
     tickets.find((ticket) => ticket.application?.id === id);
-
-  const useTicketIssue = (appId: number) => {
-    const ticket = getTicketByApplication(tickets, appId);
-    const types = useTrackerTypesByProjectId(
-      ticket?.tracker?.name,
-      ticket?.parent
-    );
-    const type = types.find((kind) => kind.id === ticket?.kind);
-    if (type) return type.name;
-    return "";
-  };
 
   return (
     <>
@@ -176,7 +166,9 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                     )}
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "issue" })}>
-                    {useTicketIssue(app.id)}
+                    <TicketIssue
+                      ticket={getTicketByApplication(tickets, app.id)}
+                    />
                   </Td>
                   <Td className={alignment.textAlignRight}>
                     <Button
