@@ -32,7 +32,6 @@ import { SimplePagination } from "@app/shared/components/simple-pagination";
 import { useTrackerTypesByProjectId } from "@app/queries/trackers";
 import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
 import { useHistory } from "react-router-dom";
-import { useFetchTrackers } from "@app/queries/trackers";
 import { useFetchTickets } from "@app/queries/tickets";
 import { Paths } from "@app/Paths";
 
@@ -52,7 +51,6 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   const history = useHistory();
 
   const { tickets } = useFetchTickets();
-  const { trackers } = useFetchTrackers();
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
