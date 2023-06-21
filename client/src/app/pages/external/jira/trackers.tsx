@@ -246,6 +246,7 @@ export const JiraTrackers: React.FC = () => {
                           {...getTdProps({ columnKey: "connection" })}
                         >
                           <TrackerStatus
+                            name={tracker.name}
                             connected={tracker.connected}
                             message={tracker.message}
                           />
