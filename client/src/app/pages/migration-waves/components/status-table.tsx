@@ -88,18 +88,14 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   const getTicketByApplication = (tickets: Ticket[], id: number = 0) =>
     tickets.find((ticket) => ticket.application?.id === id);
 
-  const getTicketIssue = (appId?: number) => {
-    if (appId) {
-      const ticket = getTicketByApplication(tickets, appId);
-      if (ticket) {
-        const types = useTrackerTypesByProjectId(
-          ticket.tracker.name,
-          ticket.parent
-        );
-        const type = types.find((kind) => kind.id === ticket.kind);
-        if (type) return type.name;
-      }
-    }
+  const getTicketIssue = (appId: number) => {
+    const ticket = getTicketByApplication(tickets, appId);
+    const types = useTrackerTypesByProjectId(
+      ticket?.tracker?.name,
+      ticket?.parent
+    );
+    const type = types.find((kind) => kind.id === ticket?.kind);
+    if (type) return type.name;
     return "";
   };
 

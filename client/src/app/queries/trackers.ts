@@ -147,8 +147,8 @@ export const useTrackerTypesByProjectName = (
 };
 
 export const useTrackerTypesByProjectId = (
-  trackerName: string,
-  projectId: string
+  trackerName?: string,
+  projectId?: string
 ) => {
   const { trackers } = useFetchTrackers();
   const tracker = trackers.find((tracker) => tracker.name === trackerName);
