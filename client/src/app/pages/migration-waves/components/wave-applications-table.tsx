@@ -1,6 +1,4 @@
 import React from "react";
-import { Application, MigrationWave, WaveWithStatus } from "@app/api/models";
-import { useTranslation } from "react-i18next";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import {
   Button,
@@ -24,6 +22,7 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
+import { MigrationWave, WaveWithStatus } from "@app/api/models";
 
 export interface IWaveApplicationsTableProps {
   migrationWave: WaveWithStatus;
