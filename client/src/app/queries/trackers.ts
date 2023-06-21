@@ -4,6 +4,8 @@ import { AxiosError } from "axios";
 import {
   createTracker,
   deleteTracker,
+  getTrackerProjectIssuetypes,
+  getTrackerProjects,
   getTrackers,
   updateTracker,
 } from "@app/api/rest";
@@ -11,6 +13,8 @@ import { Tracker } from "@app/api/models";
 import { TicketsQueryKey } from "./tickets";
 
 export const TrackersQueryKey = "trackers";
+export const TrackerProjectsQueryKey = "trackerProjects";
+export const TrackerProjectIssuetypesQueryKey = "trackerProjectIssuetypes";
 
 export const useFetchTrackers = () => {
   const queryClient = useQueryClient();
@@ -76,34 +80,84 @@ export const useDeleteTrackerMutation = (
   });
 };
 
+export const useFetchTrackerProjects = (trackerId?: number) => {
+  const queryClient = useQueryClient();
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [TrackerProjectsQueryKey, { id: trackerId }],
+    queryFn: () => getTrackerProjects(trackerId!),
+    onError: (error: AxiosError) => console.log("error, ", error),
+    onSuccess: () => queryClient.invalidateQueries([TicketsQueryKey]),
+    enabled: !!trackerId,
+  });
+  return {
+    projects: data || [],
+    isFetching: isLoading,
+    fetchError: error,
+    refetch,
+  };
+};
+
+export const useFetchTrackerProjectIssuetypes = (
+  trackerId?: number,
+  projectId?: string
+) => {
+  const queryClient = useQueryClient();
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [
+      TrackerProjectIssuetypesQueryKey,
+      { id: trackerId, projectId: projectId },
+    ],
+    queryFn: () => getTrackerProjectIssuetypes(trackerId!, projectId!),
+    onError: (error: AxiosError) => console.log("error, ", error),
+    onSuccess: () => queryClient.invalidateQueries([TicketsQueryKey]),
+    enabled: !!trackerId && !!projectId,
+  });
+  return {
+    issuetypes: data || [],
+    isFetching: isLoading,
+    fetchError: error,
+    refetch,
+  };
+};
+
 export const getTrackersByKind = (trackers: Tracker[], kind: string) =>
   trackers.filter((tracker) => tracker.kind === kind && tracker.connected);
 
-export const getTrackerProjectsByTracker = (
-  trackers: Tracker[],
-  trackerName: string
-) =>
-  trackers
-    .filter((tracker) => tracker.name === trackerName)
-    .map((tracker) => tracker.metadata?.projects.map((project) => project))
-    .flat();
+export const useTrackerProjectsByTracker = (trackerName: string) => {
+  const { trackers } = useFetchTrackers();
+  const tracker = trackers.find((tracker) => tracker.name === trackerName);
+  const { projects } = useFetchTrackerProjects(tracker?.id);
+  return projects;
+};
 
-export const getTrackerTypesByProjectName = (
-  trackers: Tracker[],
+export const useTrackerTypesByProjectName = (
   trackerName: string,
   projectName: string
-) =>
-  getTrackerProjectsByTracker(trackers, trackerName)
-    .filter((project) => project.name === projectName)
-    .map((project) => project.issueTypes)
-    .flat();
+) => {
+  const { trackers } = useFetchTrackers();
+  const tracker = trackers.find((tracker) => tracker.name === trackerName);
+  const { projects } = useFetchTrackerProjects(tracker?.id);
+  const project = projects.find((project) => project.name === projectName);
 
-export const getTrackerTypesByProjectId = (
-  trackers: Tracker[],
-  trackerName: string,
+  const { issuetypes } = useFetchTrackerProjectIssuetypes(
+    tracker?.id,
+    project?.id
+  );
+  return issuetypes;
+};
+
+export const useTrackerTypesByProjectId = (
+  trackerName?: string,
   projectId?: string
-) =>
-  getTrackerProjectsByTracker(trackers, trackerName)
-    .filter((project) => project.id === projectId)
-    .map((project) => project.issueTypes)
-    .flat();
+) => {
+  const { trackers } = useFetchTrackers();
+  const tracker = trackers.find((tracker) => tracker.name === trackerName);
+  const { projects } = useFetchTrackerProjects(tracker?.id);
+  const project = projects.find((project) => project.id === projectId);
+
+  const { issuetypes } = useFetchTrackerProjectIssuetypes(
+    tracker?.id,
+    project?.id
+  );
+  return issuetypes;
+};

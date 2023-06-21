@@ -29,7 +29,7 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
-import { getTrackerTypesByProjectId } from "@app/queries/trackers";
+import { useTrackerTypesByProjectId } from "@app/queries/trackers";
 import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
 import { useHistory } from "react-router-dom";
 import { useFetchTrackers } from "@app/queries/trackers";
@@ -84,23 +84,18 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
       getTdProps,
     },
   } = tableControls;
-  //
+
   const getTicketByApplication = (tickets: Ticket[], id: number = 0) =>
     tickets.find((ticket) => ticket.application?.id === id);
 
-  const getTicketIssue = (appId: number | undefined) => {
-    if (appId) {
-      const ticket = getTicketByApplication(tickets, appId);
-      if (ticket) {
-        const types = getTrackerTypesByProjectId(
-          trackers,
-          ticket.tracker.name,
-          ticket?.parent
-        );
-        const type = types.find((kind) => kind.id === ticket.kind);
-        if (type) return type.name;
-      }
-    }
+  const useTicketIssue = (appId: number) => {
+    const ticket = getTicketByApplication(tickets, appId);
+    const types = useTrackerTypesByProjectId(
+      ticket?.tracker?.name,
+      ticket?.parent
+    );
+    const type = types.find((kind) => kind.id === ticket?.kind);
+    if (type) return type.name;
     return "";
   };
 
@@ -183,7 +178,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                     )}
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "issue" })}>
-                    {getTicketIssue(app.id)}
+                    {useTicketIssue(app.id)}
                   </Td>
                   <Td className={alignment.textAlignRight}>
                     <Button

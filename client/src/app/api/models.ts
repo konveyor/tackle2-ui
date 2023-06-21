@@ -530,19 +530,6 @@ export interface MigrationWave {
   stakeholderGroups: StakeholderGroup[];
 }
 
-export interface Project {
-  id: string;
-  key: string;
-  name: string;
-  issueTypes: IssueType[];
-}
-
-export interface IssueType {
-  id: string;
-  key: string;
-  name: string;
-}
-
 export type IssueManagerKind = "jira-cloud" | "jira-onprem";
 
 export interface Tracker {
@@ -551,12 +538,19 @@ export interface Tracker {
   identity?: Ref;
   kind: IssueManagerKind;
   message: string;
-  metadata: {
-    projects: Project[];
-  };
   name: string;
   url: string;
   insecure: boolean;
+}
+
+export interface TrackerProject {
+  id: string;
+  name: string;
+}
+
+export interface TrackerProjectIssuetype {
+  id: string;
+  name: string;
 }
 
 export interface AnalysisDependency {
@@ -643,7 +637,7 @@ export interface Ticket {
   application?: Ref | null;
   tracker: Ref;
   kind: string;
-  parent?: string;
+  parent: string;
   fields?: Ref | null;
   readonly message?: string | null;
   reference?: string | null;

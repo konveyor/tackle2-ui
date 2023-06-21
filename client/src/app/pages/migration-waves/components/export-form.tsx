@@ -14,9 +14,9 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Tracker, IssueManagerKind, Ref, Ticket, New } from "@app/api/models";
 import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
 import {
+  useTrackerTypesByProjectName,
+  useTrackerProjectsByTracker,
   getTrackersByKind,
-  getTrackerProjectsByTracker,
-  getTrackerTypesByProjectName,
 } from "@app/queries/trackers";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -81,7 +81,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
-    getValues,
+    watch,
     setValue,
     control,
   } = useForm<FormValues>({
@@ -95,21 +95,21 @@ export const ExportForm: React.FC<ExportFormProps> = ({
     mode: "onChange",
   });
 
-  const values = getValues();
+  const values = watch();
+
+  const matchingProject = useTrackerProjectsByTracker(values.tracker).find(
+    (project) => values.project === project.name
+  );
+
+  const matchingKind = useTrackerTypesByProjectName(
+    values.tracker,
+    values.project
+  ).find((type) => values.kind === type.name);
 
   const onSubmit = (formValues: FormValues) => {
     const matchingtracker = trackers.find(
       (tracker) => formValues?.tracker === tracker.name
     );
-    const matchingProject = getTrackerProjectsByTracker(
-      trackers,
-      formValues.tracker
-    ).find((project) => formValues.project === project.name);
-    const matchingKind = getTrackerTypesByProjectName(
-      trackers,
-      formValues.tracker,
-      formValues.project
-    ).find((type) => formValues.kind === type.name);
 
     if (matchingtracker) {
       const payload: New<Ticket> = {
@@ -225,7 +225,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             toggleAriaLabel="project select dropdown toggle"
             aria-label={name}
             value={value}
-            options={getTrackerProjectsByTracker(trackers, values.tracker).map(
+            options={useTrackerProjectsByTracker(values.tracker).map(
               (project) => {
                 return {
                   value: project.name,
@@ -261,8 +261,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             toggleAriaLabel="issue-type select dropdown toggle"
             aria-label={name}
             value={value}
-            options={getTrackerTypesByProjectName(
-              trackers,
+            options={useTrackerTypesByProjectName(
               values.tracker,
               values.project
             ).map((issueType) => {
