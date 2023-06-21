@@ -88,7 +88,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   const getTicketByApplication = (tickets: Ticket[], id: number = 0) =>
     tickets.find((ticket) => ticket.application?.id === id);
 
-  const getTicketIssue = (appId: number) => {
+  const useTicketIssue = (appId: number) => {
     const ticket = getTicketByApplication(tickets, appId);
     const types = useTrackerTypesByProjectId(
       ticket?.tracker?.name,
@@ -178,7 +178,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                     )}
                   </Td>
                   <Td width={20} {...getTdProps({ columnKey: "issue" })}>
-                    {getTicketIssue(app.id)}
+                    {useTicketIssue(app.id)}
                   </Td>
                   <Td className={alignment.textAlignRight}>
                     <Button
