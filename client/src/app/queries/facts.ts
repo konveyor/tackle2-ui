@@ -1,9 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { getFacts } from "@app/api/rest";
 import { AxiosError } from "axios";
-import { Application, Fact } from "@app/api/models";
-import { ApplicationsQueryKey } from "./applications";
+import { Fact } from "@app/api/models";
 
 export const FactsQueryKey = "facts";
 
@@ -11,17 +10,11 @@ export const useFetchFacts = (applicationID: number | string | undefined) => {
   const { data, isLoading, error, refetch } = useQuery(
     [FactsQueryKey, applicationID],
     {
-      queryFn: async () => await getFacts(applicationID),
+      queryFn: () => getFacts(applicationID),
       enabled: !!applicationID,
       onError: (error: AxiosError) => console.log("error, ", error),
-      select: (facts): Fact[] => {
-        return Object.keys(facts).map((fact) => {
-          return {
-            name: fact,
-            data: facts[fact],
-          };
-        });
-      },
+      select: (facts): Fact[] =>
+        Object.keys(facts).map((fact) => ({ name: fact, data: facts[fact] })),
     }
   );
 

@@ -45,6 +45,7 @@ import {
   TrackerProject,
   TrackerProjectIssuetype,
   Fact,
+  UnstructuredFact,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
@@ -702,7 +703,10 @@ export const updateTagCategory = (obj: TagCategory): Promise<TagCategory> =>
 
 // Facts
 
-export const getFacts = (id: number | string | undefined) =>
+export const getFacts = (
+  id: number | string | undefined
+): Promise<UnstructuredFact> =>
+  //TODO: Address this when moving to structured facts api
   id
     ? axios.get(`${APPLICATIONS}/${id}/facts`).then((response) => response.data)
     : Promise.reject();
