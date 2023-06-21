@@ -45,6 +45,7 @@ export const useSharedFilterCategoriesForIssuesAndAffectedApps =
           t("actions.filterBy", {
             what: t("terms.applicationName").toLowerCase(),
           }) + "...",
+        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
       {
         key: "businessService.name",

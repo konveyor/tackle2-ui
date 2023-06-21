@@ -100,6 +100,7 @@ export const Issues: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.category").toLowerCase(),
           }) + "...",
+        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
       {
         key: "source",
@@ -112,7 +113,7 @@ export const Issues: React.FC = () => {
           }) + "...",
         serverFilterField: "labels",
         getServerFilterValue: (value) =>
-          value?.length === 1 ? [`konveyor.io/source=${value}`] : undefined,
+          value?.length === 1 ? [`konveyor.io/source=*${value}*`] : undefined,
       },
       {
         key: "target",
@@ -125,7 +126,7 @@ export const Issues: React.FC = () => {
           }) + "...",
         serverFilterField: "labels",
         getServerFilterValue: (value) =>
-          value?.length === 1 ? [`konveyor.io/target=${value}`] : undefined,
+          value?.length === 1 ? [`konveyor.io/target=*${value}*`] : undefined,
       },
       // TODO: Determine if we want to be able to filter by nested analysisIssue effort rather than the full sum which is displayed in this table.
       // TODO: Determine if we want to filter by effort at all without having a numeric range filter control

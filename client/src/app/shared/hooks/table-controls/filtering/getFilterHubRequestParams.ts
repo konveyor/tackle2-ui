@@ -100,7 +100,7 @@ export const getFilterHubRequestParams = <
         pushOrMergeFilter(filters, {
           field: serverFilterField,
           operator: "~",
-          value: `*${serverFilterValue[0]}*`,
+          value: serverFilterValue[0],
         });
       }
       if (filterCategory.type === "select") {
