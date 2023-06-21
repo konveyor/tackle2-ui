@@ -5,6 +5,8 @@ import { AnalysisAppReport, AnalysisIncident } from "@app/api/models";
 import "./incident-code-snip-viewer.css";
 import { LANGUAGES_BY_FILE_EXTENSION } from "config/monacoConstants";
 
+const codeLineRegex = /^\s*([0-9]+)( {2})?(.*)$/; // Pattern: leading whitespace (line number) (2 spaces)? (code)
+
 export interface IIncidentCodeSnipViewerProps {
   appReport: AnalysisAppReport;
   incident: AnalysisIncident;
@@ -14,8 +16,19 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
   appReport,
   incident,
 }) => {
-  // TODO once hub includes line numbers in the codeSnip string, we'll need to parse that and strip those numbers out.
-  const codeSnipStartLine = 1; // TODO replace this based on parsed line numbers from the codeSnip
+  const codeSnipNumberedLines = incident.codeSnip.split("\n");
+  const codeSnipTrimmedLines: string[] = [];
+  let codeSnipStartLine = 1;
+  codeSnipNumberedLines.forEach((numberedLine, index) => {
+    const match = numberedLine.match(codeLineRegex);
+    if (match && !isNaN(Number(match[1]))) {
+      const lineNum = Number(match[1]);
+      if (index === 0) codeSnipStartLine = lineNum;
+      const lineCode = match[3] || "";
+      codeSnipTrimmedLines.push(lineCode);
+    }
+  });
+  const trimmedCodeSnip = codeSnipTrimmedLines.join("\n");
 
   const absoluteToRelativeLineNum = (lineNum: number) =>
     lineNum - (codeSnipStartLine - 1);
@@ -35,7 +48,7 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
       isDarkTheme
       isLineNumbersVisible
       height="450px"
-      code={incident.codeSnip} // TODO replace this with line numbers stripped out
+      code={trimmedCodeSnip}
       language={language}
       options={{
         renderValidationDecorations: "on", // See https://github.com/microsoft/monaco-editor/issues/311#issuecomment-578026465
