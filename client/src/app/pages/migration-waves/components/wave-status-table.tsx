@@ -29,7 +29,6 @@ import {
   TableRowContentWithControls,
 } from "@app/shared/components/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
-import { useTrackerTypesByProjectId } from "@app/queries/trackers";
 import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
 import { useHistory } from "react-router-dom";
 import { useFetchTickets } from "@app/queries/tickets";
