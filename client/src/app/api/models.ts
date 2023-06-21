@@ -666,4 +666,7 @@ export interface Ticket {
   error?: boolean;
 }
 
-export type Fact = any;
+export type Fact = {
+  name: string;
+  data: any;
+};

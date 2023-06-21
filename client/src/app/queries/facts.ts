@@ -14,11 +14,19 @@ export const useFetchFacts = (applicationID: number | string | undefined) => {
       queryFn: async () => await getFacts(applicationID),
       enabled: !!applicationID,
       onError: (error: AxiosError) => console.log("error, ", error),
+      select: (facts): Fact[] => {
+        return Object.keys(facts).map((fact) => {
+          return {
+            name: fact,
+            data: facts[fact],
+          };
+        });
+      },
     }
   );
 
   return {
-    facts: data || {},
+    facts: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,
