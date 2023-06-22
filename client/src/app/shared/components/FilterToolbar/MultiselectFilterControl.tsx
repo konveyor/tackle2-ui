@@ -94,10 +94,7 @@ export const MultiselectFilterControl = <
       category.selectOptions.filter((optionProps) => {
         // Note: The in-dropdown filter can match the option's key or value. This may not be desirable?
         if (!textInput) return false;
-        const optionValue =
-          typeof optionProps?.value === "string"
-            ? optionProps.value
-            : optionProps.value.toString();
+        const optionValue = optionProps?.value?.toString();
         return (
           optionProps?.key?.toLowerCase().includes(textInput.toLowerCase()) ||
           optionValue.toLowerCase().includes(textInput.toLowerCase())
