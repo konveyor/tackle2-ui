@@ -652,3 +652,10 @@ export interface WaveWithStatus extends MigrationWave {
   fullApplications: Application[];
   allStakeholders: StakeholderWithRole[];
 }
+export type UnstructuredFact = any;
+
+export type Fact = {
+  name: string;
+  //TODO: Address this when moving to structured facts api
+  data: any;
+};

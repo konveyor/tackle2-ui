@@ -25,12 +25,14 @@ export interface IApplicationDetailDrawerProps
   applications?: Application[];
   detailsTabMainContent: React.ReactNode;
   reportsTabContent?: React.ReactNode;
+  factsTabContent?: React.ReactNode;
 }
 
 enum TabKey {
   Details = 0,
   Tags,
   Reports,
+  Facts,
 }
 
 export const ApplicationDetailDrawer: React.FC<
@@ -41,6 +43,7 @@ export const ApplicationDetailDrawer: React.FC<
   task,
   detailsTabMainContent,
   reportsTabContent = null,
+  factsTabContent = null,
 }) => {
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
@@ -106,6 +109,14 @@ export const ApplicationDetailDrawer: React.FC<
             ) : (
               reportsTabContent
             )}
+          </Tab>
+        )}
+        {factsTabContent && (
+          <Tab
+            eventKey={TabKey.Facts}
+            title={<TabTitleText>Facts</TabTitleText>}
+          >
+            {factsTabContent}
           </Tab>
         )}
       </Tabs>

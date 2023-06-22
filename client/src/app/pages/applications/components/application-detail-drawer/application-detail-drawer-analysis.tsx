@@ -13,7 +13,7 @@ import {
   ExclamationCircleIcon,
 } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Identity, Task } from "@app/api/models";
+import { Fact, Identity, Task } from "@app/api/models";
 import { getKindIDByRef } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
 import {
@@ -21,6 +21,8 @@ import {
   IApplicationDetailDrawerProps,
 } from "./application-detail-drawer";
 import { EmptyTextMessage } from "@app/shared/components";
+import { useFetchFacts } from "@app/queries/facts";
+import { ApplicationFacts } from "./application-facts";
 
 export interface IApplicationDetailDrawerAnalysisProps
   extends Pick<
@@ -36,6 +38,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
   const { t } = useTranslation();
 
   const { identities } = useFetchIdentities();
+  const { facts, isFetching } = useFetchFacts(application?.id);
 
   let matchingSourceCredsRef: Identity | undefined;
   let matchingMavenCredsRef: Identity | undefined;
@@ -137,6 +140,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
           )}
         </TextContent>
       }
+      factsTabContent={!isFetching && <ApplicationFacts facts={facts} />}
     />
   );
 };
