@@ -29,11 +29,13 @@ export interface IBasicFilterCategory<
   TItem, // The actual API objects we're filtering
   TFilterCategoryKey extends string // Unique identifiers for each filter category (inferred from key properties if possible)
 > {
-  key: TFilterCategoryKey;
+  key: TFilterCategoryKey; // For use in the filterValues state object. Must be unique per category.
   title: string;
   type: FilterType; // If we want to support arbitrary filter types, this could be a React node that consumes context instead of an enum
   filterGroup?: string;
-  getItemValue?: (item: TItem) => string | boolean;
+  getItemValue?: (item: TItem) => string | boolean; // For client-side filtering
+  serverFilterField?: string; // For server-side filtering, defaults to `key` if omitted. Does not need to be unique if the server supports joining repeated filters.
+  getServerFilterValue?: (filterValue: FilterValue) => FilterValue; // For server-side filtering. Defaults to using the UI state's value if omitted.
 }
 
 export interface IMultiselectFilterCategory<

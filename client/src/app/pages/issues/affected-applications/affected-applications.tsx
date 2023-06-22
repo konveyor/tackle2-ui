@@ -39,7 +39,10 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useSelectionState } from "@migtools/lib-ui";
-import { getBackToAllIssuesUrl } from "../helpers";
+import {
+  getBackToAllIssuesUrl,
+  useSharedFilterCategoriesForIssuesAndAffectedApps,
+} from "../helpers";
 import { IssueDetailDrawer } from "./issue-detail-drawer";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 
@@ -67,19 +70,7 @@ export const AffectedApplications: React.FC = () => {
     },
     sortableColumns: ["name", "businessService", "effort", "incidents"],
     initialSort: { columnKey: "name", direction: "asc" },
-    filterCategories: [
-      //TODO: Should this be select filter type using apps available in memory?
-      {
-        key: "application.name", // Used for consistency with the RuleReport filters so they can be carried
-        title: t("terms.applicationName"),
-        filterGroup: IssueFilterGroups.ApplicationInventory,
-        type: FilterType.search,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.applicationName").toLowerCase(),
-          }) + "...",
-      },
-    ],
+    filterCategories: useSharedFilterCategoriesForIssuesAndAffectedApps(),
     initialItemsPerPage: 10,
     hasClickableRows: true,
   });

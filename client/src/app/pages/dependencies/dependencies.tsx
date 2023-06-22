@@ -56,6 +56,7 @@ export const Dependencies: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.name").toLowerCase(),
           }) + "...",
+        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
     ],
     initialItemsPerPage: 10,

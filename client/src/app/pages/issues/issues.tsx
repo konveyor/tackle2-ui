@@ -51,9 +51,14 @@ import { useFetchRuleReports } from "@app/queries/issues";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { getAffectedAppsUrl, parseRuleReportLabels } from "./helpers";
+import {
+  getAffectedAppsUrl,
+  parseRuleReportLabels,
+  useSharedFilterCategoriesForIssuesAndAffectedApps,
+} from "./helpers";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import { SingleLabelWithOverflow } from "@app/shared/components/SingleLabelWithOverflow";
+import { AnalysisRuleReport } from "@app/api/models";
 
 export enum IssueFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -85,27 +90,7 @@ export const Issues: React.FC = () => {
     sortableColumns: ["name", "category", "effort", "applications"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
-      //TODO: Should this be select filter type using apps available in memory?
-      {
-        key: "application.name",
-        title: t("terms.applicationName"),
-        filterGroup: IssueFilterGroups.ApplicationInventory,
-        type: FilterType.search,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.applicationName").toLowerCase(),
-          }) + "...",
-      },
-      {
-        key: "tag.id",
-        title: t("terms.tag"),
-        filterGroup: IssueFilterGroups.ApplicationInventory,
-        type: FilterType.search,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.tag").toLowerCase(),
-          }) + "...",
-      },
+      ...useSharedFilterCategoriesForIssuesAndAffectedApps(),
       {
         key: "category",
         title: t("terms.category"),
@@ -115,10 +100,36 @@ export const Issues: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.category").toLowerCase(),
           }) + "...",
+        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
-
+      {
+        key: "source",
+        title: t("terms.source"),
+        filterGroup: IssueFilterGroups.Issues,
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.source").toLowerCase(),
+          }) + "...",
+        serverFilterField: "labels",
+        getServerFilterValue: (value) =>
+          value?.length === 1 ? [`konveyor.io/source=*${value}*`] : undefined,
+      },
+      {
+        key: "target",
+        title: t("terms.target"),
+        filterGroup: IssueFilterGroups.Issues,
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.target").toLowerCase(),
+          }) + "...",
+        serverFilterField: "labels",
+        getServerFilterValue: (value) =>
+          value?.length === 1 ? [`konveyor.io/target=*${value}*`] : undefined,
+      },
       // TODO: Determine if we want to be able to filter by nested analysisIssue effort rather than the full sum which is displayed in this table.
-
+      // TODO: Determine if we want to filter by effort at all without having a numeric range filter control
       // {
       //   key: "effort",
       //   title: t("terms.effort"),
@@ -127,29 +138,6 @@ export const Issues: React.FC = () => {
       //   placeholderText:
       //     t("actions.filterBy", {
       //       what: t("terms.effort").toLowerCase(),
-      //     }) + "...",
-      // },
-
-      // TODO: Determine how to parse source and target from ruleReport issue label field.
-      // {
-      //   key: "tech.source",
-      //   title: t("terms.source"),
-      //   filterGroup: IssueFilterGroups.Issues,
-      //   type: FilterType.search,
-      //   placeholderText:
-      //     t("actions.filterBy", {
-      //       what: t("terms.source").toLowerCase(),
-      //     }) + "...",
-      // },
-      // TODO: Determine how to parse source and target from ruleReport issue label field.
-      // {
-      //   key: "tech.target",
-      //   title: t("terms.target"),
-      //   filterGroup: IssueFilterGroups.Issues,
-      //   type: FilterType.search,
-      //   placeholderText:
-      //     t("actions.filterBy", {
-      //       what: t("terms.target").toLowerCase(),
       //     }) + "...",
       // },
     ],
