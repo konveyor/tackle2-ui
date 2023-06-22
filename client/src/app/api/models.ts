@@ -9,7 +9,7 @@ export interface HubFilter {
     | string
     | number
     | {
-        list: string[];
+        list: (string | number)[];
         operator?: "AND" | "OR";
       };
 }
