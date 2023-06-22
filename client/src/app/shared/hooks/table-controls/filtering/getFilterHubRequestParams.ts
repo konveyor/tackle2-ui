@@ -6,6 +6,46 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import { IFilterState } from "./useFilterState";
 
+// If we have multiple UI filters using the same hub field, we need to AND them and pass them to the hub as one filter.
+const pushOrMergeFilter = (
+  existingFilters: HubFilter[],
+  newFilter: HubFilter
+) => {
+  const existingFilterIndex = existingFilters.findIndex(
+    (f) => f.field === newFilter.field
+  );
+  const existingFilter =
+    existingFilterIndex === -1 ? null : existingFilters[existingFilterIndex];
+  // We only want to merge filters in specific conditions:
+  if (
+    existingFilter && // There is a filter to merge with
+    existingFilter.operator === newFilter.operator && // It is using the same comparison operator as the new filter (=, ~)
+    typeof newFilter.value !== "object" && // The new filter isn't already a list (nested lists are not supported)
+    (typeof existingFilter.value !== "object" || // The existing filter isn't already a list, or...
+      existingFilter.value.operator === "AND") // ...it is and it's an AND list (already merged once)
+  ) {
+    const mergedFilter: HubFilter =
+      typeof existingFilter.value === "object"
+        ? {
+            ...existingFilter,
+            value: {
+              ...existingFilter.value,
+              list: [...existingFilter.value.list, newFilter.value],
+            },
+          }
+        : {
+            ...existingFilter,
+            value: {
+              list: [existingFilter.value, newFilter.value],
+              operator: "AND",
+            },
+          };
+    existingFilters[existingFilterIndex] = mergedFilter;
+  } else {
+    existingFilters.push(newFilter);
+  }
+};
+
 export interface IGetFilterHubRequestParamsArgs<
   TItem,
   TFilterCategoryKey extends string = string
@@ -34,7 +74,7 @@ export const getFilterHubRequestParams = <
   ) {
     return {};
   }
-  const params: HubRequestParams = { filters: [] };
+  const filters: HubFilter[] = [];
   if (filterState) {
     const { filterValues } = filterState;
     objectKeys(filterValues).forEach((categoryKey) => {
@@ -43,36 +83,39 @@ export const getFilterHubRequestParams = <
       );
       const filterValue = filterValues[categoryKey];
       if (!filterCategory || !filterValue) return;
+      const serverFilterField = filterCategory.serverFilterField || categoryKey;
+      const serverFilterValue =
+        filterCategory.getServerFilterValue?.(filterValue) || filterValue;
       // Note: If we need to support more of the logic operators in HubFilter in the future,
       //       we'll need to figure out how to express those on the FilterCategory objects
       //       and translate them here.
       if (filterCategory.type === "numsearch") {
-        params.filters?.push({
-          field: categoryKey,
+        pushOrMergeFilter(filters, {
+          field: serverFilterField,
           operator: "=",
-          value: Number(filterValue[0]),
+          value: Number(serverFilterValue[0]),
         });
       }
       if (filterCategory.type === "search") {
-        params.filters?.push({
-          field: categoryKey,
+        pushOrMergeFilter(filters, {
+          field: serverFilterField,
           operator: "~",
-          value: `*${filterValue[0]}*`,
+          value: serverFilterValue[0],
         });
       }
       if (filterCategory.type === "select") {
-        params.filters?.push({
-          field: categoryKey,
+        pushOrMergeFilter(filters, {
+          field: serverFilterField,
           operator: "=",
-          value: filterValue[0],
+          value: serverFilterValue[0],
         });
       }
       if (filterCategory.type === "multiselect") {
-        params.filters?.push({
-          field: categoryKey,
+        pushOrMergeFilter(filters, {
+          field: serverFilterField,
           operator: "=",
           value: {
-            list: filterValue,
+            list: serverFilterValue,
             operator: getFilterLogicOperator(filterCategory, "OR"),
           },
         });
@@ -80,13 +123,13 @@ export const getFilterHubRequestParams = <
     });
   }
   if (implicitFilters) {
-    implicitFilters.forEach((filter) => params.filters?.push(filter));
+    implicitFilters.forEach((filter) => filters.push(filter));
   }
-  return params;
+  return { filters };
 };
 
-export const wrapInQuotesAndEscape = (str: string): string =>
-  `"${str.replace('"', '\\"')}"`;
+export const wrapInQuotesAndEscape = (value: string | number): string =>
+  `"${String(value).replace('"', '\\"')}"`;
 
 export const serializeFilterForHub = (filter: HubFilter): string => {
   const { field, operator, value } = filter;
@@ -107,8 +150,9 @@ export const serializeFilterRequestParamsForHub = (
 ) => {
   const { filters } = deserializedParams;
   if (filters) {
-    filters.forEach((filter) =>
-      serializedParams.append("filter", serializeFilterForHub(filter))
+    serializedParams.append(
+      "filter",
+      filters.map(serializeFilterForHub).join(",")
     );
   }
 };

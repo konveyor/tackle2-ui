@@ -92,12 +92,13 @@ export const MultiselectFilterControl = <
   const onOptionsFilter: SelectProps["onFilter"] = (_event, textInput) =>
     renderSelectOptions(
       category.selectOptions.filter((optionProps) => {
-        // Note: This is filtering on the `key`, not the `value`, since the `value` isn't necessarily a string.
-        // So that assumes your key is an actual string representation of what's shown on screen (usually matching the value)
-        // which could become a problem maybe?
-        return optionProps?.key
-          ?.toLowerCase()
-          .includes(textInput?.toLowerCase());
+        // Note: The in-dropdown filter can match the option's key or value. This may not be desirable?
+        if (!textInput) return false;
+        const optionValue = optionProps?.value?.toString();
+        return (
+          optionProps?.key?.toLowerCase().includes(textInput.toLowerCase()) ||
+          optionValue.toLowerCase().includes(textInput.toLowerCase())
+        );
       })
     );
 

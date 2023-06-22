@@ -67,6 +67,7 @@ export const IssueAffectedFilesTable: React.FC<
           t("actions.filterBy", {
             what: "file", // TODO i18n
           }) + "...",
+        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
     ],
     initialItemsPerPage: 10,
