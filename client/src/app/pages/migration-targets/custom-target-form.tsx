@@ -220,7 +220,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     clearErrors,
     trigger,
     reset,
-    register,
   } = methods;
 
   useEffect(() => {
@@ -470,7 +469,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             dropzoneProps={{
               accept: ".yml, .yaml, .xml",
             }}
-            {...register("customRulesFiles")}
           >
             <MultipleFileUploadMain
               titleIcon={<UploadIcon />}
