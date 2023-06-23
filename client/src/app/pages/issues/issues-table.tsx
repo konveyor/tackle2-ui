@@ -88,6 +88,9 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     history.replace(getSingleAppSelectedLocation(applicationId, location));
   };
 
+  const allIssuesSpecificFilterCategories =
+    useSharedFilterCategoriesForIssuesAndAffectedApps();
+
   const tableControlState = useTableControlUrlParams({
     urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
     columnNames: {
@@ -102,11 +105,12 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     sortableColumns: ["name", "category", "effort", "affected"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
-      ...useSharedFilterCategoriesForIssuesAndAffectedApps(),
+      ...(mode === "allIssues" ? allIssuesSpecificFilterCategories : []),
       {
         key: "category",
         title: t("terms.category"),
-        filterGroup: IssueFilterGroups.Issues,
+        filterGroup:
+          mode === "allIssues" ? IssueFilterGroups.Issues : undefined,
         type: FilterType.search,
         placeholderText:
           t("actions.filterBy", {
@@ -117,7 +121,8 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
       {
         key: "source",
         title: t("terms.source"),
-        filterGroup: IssueFilterGroups.Issues,
+        filterGroup:
+          mode === "allIssues" ? IssueFilterGroups.Issues : undefined,
         type: FilterType.search,
         placeholderText:
           t("actions.filterBy", {
@@ -130,7 +135,8 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
       {
         key: "target",
         title: t("terms.target"),
-        filterGroup: IssueFilterGroups.Issues,
+        filterGroup:
+          mode === "allIssues" ? IssueFilterGroups.Issues : undefined,
         type: FilterType.search,
         placeholderText:
           t("actions.filterBy", {
