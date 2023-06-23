@@ -16,7 +16,7 @@ import { AppAboutModalState } from "../AppAboutModalState";
 import { SSOMenu } from "./SSOMenu";
 import { MobileDropdown } from "./MobileDropdown";
 
-import navBrandImage from "@app/images/konveyor-logo-white-text.png";
+import konveyorBrandImage from "@app/images/Konveyor-white-logo.svg";
 import { APP_BRAND, BrandType, isAuthRequired } from "@app/Constants";
 import logoRedHat from "@app/images/logoRedHat.svg";
 import "./header.css";
@@ -73,7 +73,7 @@ export const HeaderApp: React.FC = () => {
 
   const headerLogo =
     APP_BRAND === BrandType.Konveyor ? (
-      <Brand src={navBrandImage} alt="brand" />
+      <Brand src={konveyorBrandImage} alt="brand" />
     ) : (
       <Title className="logo-pointer" headingLevel="h1" size="2xl">
         Migration Toolkit for Applications
