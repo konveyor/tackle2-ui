@@ -606,7 +606,7 @@ export interface BaseAnalysisIssueReport extends AnalysisIssuesCommonFields {
 }
 
 // After fetching from the hub, we inject a unique id composed of ruleset+rule for convenience
-type WithUiId<T> = T & { _ui_unique_id: string };
+export type WithUiId<T> = T & { _ui_unique_id: string };
 export type AnalysisRuleReport = WithUiId<BaseAnalysisRuleReport>;
 export type AnalysisIssueReport = WithUiId<BaseAnalysisIssueReport>;
 

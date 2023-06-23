@@ -1,12 +1,11 @@
 import * as React from "react";
-import { Link, useHistory, useLocation, useRouteMatch } from "react-router-dom";
+import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
   Tooltip,
-  Button,
   Flex,
   FlexItem,
   Text,
@@ -37,7 +36,7 @@ import {
   SimpleSelect,
 } from "@app/shared/components";
 import { TableURLParamKeyPrefix } from "@app/Constants";
-import { useFetchRuleReports } from "@app/queries/issues";
+import { useFetchIssueReports, useFetchRuleReports } from "@app/queries/issues";
 import {
   FilterType,
   FilterToolbar,
@@ -57,14 +56,18 @@ import {
 
 import {
   useSharedFilterCategoriesForIssuesAndAffectedApps,
-  parseRuleReportLabels,
-  getAffectedAppsUrl,
+  parseReportLabels,
   getSingleAppSelectedLocation,
 } from "./helpers";
 import { IssueFilterGroups } from "./issues";
-import { Application } from "@app/api/models";
+import {
+  AnalysisIssueReport,
+  AnalysisRuleReport,
+  Application,
+} from "@app/api/models";
 import { useFetchApplications } from "@app/queries/applications";
 import { Paths } from "@app/Paths";
+import { AffectedAppsLink } from "./affected-apps-link";
 
 export interface IIssuesTableProps {
   mode: "allIssues" | "singleApp";
@@ -75,6 +78,16 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
   const location = useLocation();
   const history = useHistory();
 
+  const singleAppSelectedMatch = useRouteMatch<{
+    applicationId: string;
+  }>(Paths.issuesSingleAppSelected);
+  const selectedAppId = singleAppSelectedMatch
+    ? Number(singleAppSelectedMatch.params.applicationId)
+    : null;
+  const setSelectedAppId = (applicationId: number) => {
+    history.replace(getSingleAppSelectedLocation(applicationId, location));
+  };
+
   const tableControlState = useTableControlUrlParams({
     urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
     columnNames: {
@@ -83,9 +96,10 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
       source: "Source",
       target: "Target(s)",
       effort: "Effort",
-      applications: "Affected applications",
+      affected:
+        mode === "singleApp" ? "Affected files" : "Affected applications",
     },
-    sortableColumns: ["name", "category", "effort", "applications"],
+    sortableColumns: ["name", "category", "effort", "affected"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
       ...useSharedFilterCategoriesForIssuesAndAffectedApps(),
@@ -142,50 +156,58 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     initialItemsPerPage: 10,
   });
 
-  const {
-    result: { data: currentPageRuleReports, total: totalItemCount },
-    isFetching: isFetchingRuleReports,
-    fetchError,
-  } = useFetchRuleReports(
-    getHubRequestParams({
-      ...tableControlState, // Includes filterState, sortState and paginationState
-      hubSortFieldKeys: {
-        name: "name",
-        category: "category",
-        effort: "effort",
-        applications: "applications",
-      },
-    })
+  const hubRequestParams = getHubRequestParams({
+    ...tableControlState, // Includes filterState, sortState and paginationState
+    hubSortFieldKeys: {
+      name: "name",
+      category: "category",
+      effort: "effort",
+      affected: mode === "singleApp" ? "files" : "applications",
+    },
+  });
+
+  const issueReportsQuery = useFetchIssueReports(
+    selectedAppId || undefined,
+    hubRequestParams
   );
+  const ruleReportsQuery = useFetchRuleReports(
+    mode === "allIssues",
+    hubRequestParams
+  );
+  const {
+    result: { data, total: totalReportCount },
+    isFetching: isFetchingReports,
+    fetchError: reportsFetchError,
+  } = mode === "singleApp" ? issueReportsQuery : ruleReportsQuery;
+  const currentPageReports = data as (
+    | AnalysisRuleReport
+    | AnalysisIssueReport
+  )[];
 
-  const singleAppSelectedMatch = useRouteMatch<{
-    applicationId: string;
-  }>(Paths.issuesSingleAppSelected);
-  const selectedAppId = singleAppSelectedMatch
-    ? Number(singleAppSelectedMatch.params.applicationId)
-    : null;
-  const setSelectedAppId = (applicationId: number) => {
-    history.replace(getSingleAppSelectedLocation(applicationId, location));
-  };
+  console.log({ mode, data, totalReportCount });
 
-  console.log({ selectedAppId });
+  const {
+    data: applications,
+    isFetching: isFetchingApplications,
+    error: applicationsFetchError,
+  } = useFetchApplications();
 
-  const { data: applications, isFetching: isFetchingApplications } =
-    useFetchApplications();
-
+  const fetchError = reportsFetchError || applicationsFetchError;
   const isLoading =
-    mode === "allIssues" ? isFetchingRuleReports : isFetchingApplications;
+    mode === "allIssues"
+      ? isFetchingReports
+      : isFetchingReports || isFetchingApplications;
 
   const tableControls = useTableControlProps({
     ...tableControlState, // Includes filterState, sortState and paginationState
     idProperty: "_ui_unique_id",
-    currentPageItems: currentPageRuleReports,
-    totalItemCount,
+    currentPageItems: currentPageReports,
+    totalItemCount: totalReportCount,
     isLoading,
     expandableVariant: "single",
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
-      items: currentPageRuleReports,
+      items: currentPageReports,
       isEqual: (a, b) => a._ui_unique_id === b._ui_unique_id,
     }),
   });
@@ -213,8 +235,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     })
   );
 
-  if (isLoading && !(currentPageRuleReports || fetchError)) {
-    // TODO swap for currentPageItems
+  if (isLoading && !(currentPageReports || fetchError)) {
     return <AppPlaceholder />;
   }
 
@@ -271,18 +292,18 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
               <Th {...getThProps({ columnKey: "source" })} />
               <Th {...getThProps({ columnKey: "target" })} />
               <Th {...getThProps({ columnKey: "effort" })} />
-              <Th {...getThProps({ columnKey: "applications" })} />
+              <Th {...getThProps({ columnKey: "affected" })} />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
         <ConditionalTableBody
           isError={!!fetchError}
           isNoData={
-            totalItemCount === 0 ||
+            totalReportCount === 0 ||
             (mode === "singleApp" && selectedAppId === null)
           }
           noDataEmptyState={
-            mode === "singleApp" ? (
+            mode === "singleApp" && selectedAppId === null ? (
               <EmptyState variant="small">
                 <EmptyStateIcon icon={CubesIcon} />
                 <Title headingLevel="h2" size="lg">
@@ -296,25 +317,24 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
           }
           numRenderedColumns={numRenderedColumns}
         >
-          {currentPageRuleReports?.map((ruleReport, rowIndex) => {
-            const { sources, targets, otherLabels } =
-              parseRuleReportLabels(ruleReport);
+          {currentPageReports?.map((report, rowIndex) => {
+            const { sources, targets, otherLabels } = parseReportLabels(report);
             return (
               <Tbody
-                key={ruleReport._ui_unique_id}
-                isExpanded={isCellExpanded(ruleReport)}
+                key={report._ui_unique_id}
+                isExpanded={isCellExpanded(report)}
               >
                 <Tr>
                   <TableRowContentWithControls
                     {...tableControls}
-                    item={ruleReport}
+                    item={report}
                     rowIndex={rowIndex}
                   >
                     <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                      {ruleReport.name}
+                      {report.name}
                     </Td>
                     <Td width={15} {...getTdProps({ columnKey: "category" })}>
-                      {ruleReport.category}
+                      {report.category}
                     </Td>
                     <Td
                       width={10}
@@ -339,36 +359,35 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                       />
                     </Td>
                     <Td width={10} {...getTdProps({ columnKey: "effort" })}>
-                      {ruleReport.effort}
+                      {report.effort}
                     </Td>
                     <Td
                       width={20}
                       {...getTdProps({
-                        columnKey: "applications",
+                        columnKey: "affected",
                       })}
                     >
                       <Tooltip content="View Report">
-                        <Button variant="link" isInline>
-                          <Link
-                            to={getAffectedAppsUrl({
-                              ruleReport,
-                              fromFilterValues: filterValues,
-                              fromLocation: location,
-                            })}
-                          >
-                            {ruleReport.applications}
-                          </Link>
-                        </Button>
+                        {mode === "singleApp" ? (
+                          <>TODO</>
+                        ) : (
+                          <AffectedAppsLink
+                            ruleReport={report as AnalysisRuleReport}
+                            fromFilterValues={filterValues}
+                            fromLocation={location}
+                            showNumberOnly
+                          />
+                        )}
                       </Tooltip>
                     </Td>
                   </TableRowContentWithControls>
                 </Tr>
-                {isCellExpanded(ruleReport) ? (
+                {isCellExpanded(report) ? (
                   <Tr isExpanded>
                     <Td />
                     <Td
                       {...getExpandedContentTdProps({
-                        item: ruleReport,
+                        item: report,
                       })}
                       className={spacing.pyLg}
                     >
@@ -379,22 +398,21 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                               component="h4"
                               className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
                             >
-                              Total affected applications
+                              {mode === "singleApp"
+                                ? "Total affected files"
+                                : "Total affected applications"}
                             </Text>
 
                             <Tooltip content="View Report">
-                              <Button variant="link" isInline>
-                                <Link
-                                  to={getAffectedAppsUrl({
-                                    ruleReport,
-                                    fromFilterValues: filterValues,
-                                    fromLocation: location,
-                                  })}
-                                >
-                                  {ruleReport.applications} - View affected
-                                  applications
-                                </Link>
-                              </Button>
+                              {mode === "singleApp" ? (
+                                <>TODO</>
+                              ) : (
+                                <AffectedAppsLink
+                                  ruleReport={report as AnalysisRuleReport}
+                                  fromFilterValues={filterValues}
+                                  fromLocation={location}
+                                />
+                              )}
                             </Tooltip>
                             <Text
                               component="h4"
@@ -438,14 +456,14 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                             >
                               Rule set
                             </Text>
-                            <div>{ruleReport.ruleset}</div>
+                            <div>{report.ruleset}</div>
                             <Text
                               component="h4"
                               className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
                             >
                               Rule
                             </Text>
-                            <div>{ruleReport.rule}</div>
+                            <div>{report.rule}</div>
                             <Text
                               component="h4"
                               className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
@@ -468,7 +486,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                           </FlexItem>
                           <FlexItem flex={{ default: "flex_1" }}>
                             <Text component={TextVariants.h4}>
-                              {ruleReport.description}
+                              {report.description}
                             </Text>
                           </FlexItem>
                         </Flex>

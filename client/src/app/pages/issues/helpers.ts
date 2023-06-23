@@ -1,5 +1,5 @@
 import { Location, LocationDescriptor } from "history";
-import { AnalysisRuleReport } from "@app/api/models";
+import { AnalysisIssueReport, AnalysisRuleReport } from "@app/api/models";
 import {
   FilterCategory,
   FilterType,
@@ -26,11 +26,13 @@ const filterKeysToCarry = [
   "businessService.name",
   "tag.id",
 ] as const;
-type FilterKeyToCarry = (typeof filterKeysToCarry)[number];
-type FilterValuesToCarry = Partial<Record<FilterKeyToCarry, FilterValue>>;
+type IssuesFilterKeyToCarry = (typeof filterKeysToCarry)[number];
+export type IssuesFilterValuesToCarry = Partial<
+  Record<IssuesFilterKeyToCarry, FilterValue>
+>;
 
 export const useSharedFilterCategoriesForIssuesAndAffectedApps =
-  (): FilterCategory<unknown, FilterKeyToCarry>[] => {
+  (): FilterCategory<unknown, IssuesFilterKeyToCarry>[] => {
     const { t } = useTranslation();
     const { tags } = useFetchTags();
     const { businessServices } = useFetchBusinessServices();
@@ -95,12 +97,12 @@ export const getAffectedAppsUrl = ({
   fromLocation,
 }: {
   ruleReport: AnalysisRuleReport;
-  fromFilterValues: FilterValuesToCarry;
+  fromFilterValues: IssuesFilterValuesToCarry;
   fromLocation: Location;
 }) => {
   // The raw location.search string (already encoded) from the issues page is used as the fromIssuesParams param
   const fromIssuesParams = fromLocation.search;
-  const toFilterValues: FilterValuesToCarry = {};
+  const toFilterValues: IssuesFilterValuesToCarry = {};
   filterKeysToCarry.forEach((key) => {
     if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
   });
@@ -123,7 +125,7 @@ export const getBackToAllIssuesUrl = ({
   fromFilterValues,
   fromLocation,
 }: {
-  fromFilterValues: FilterValuesToCarry;
+  fromFilterValues: IssuesFilterValuesToCarry;
   fromLocation: Location;
 }) => {
   // Pull the fromIssuesParams param out of the current location's URLSearchParams
@@ -172,7 +174,9 @@ export const getSingleAppSelectedLocation = (
   };
 };
 
-export const parseRuleReportLabels = (ruleReport: AnalysisRuleReport) => {
+export const parseReportLabels = (
+  ruleReport: AnalysisRuleReport | AnalysisIssueReport
+) => {
   const sources: string[] = [];
   const targets: string[] = [];
   const otherLabels: string[] = [];

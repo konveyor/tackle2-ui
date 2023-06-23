@@ -596,7 +596,7 @@ export const getIssueReports = (
 ) =>
   getHubPaginatedResult<BaseAnalysisIssueReport>(
     ANALYSIS_REPORT_APP_ISSUES.replace(
-      "/:applicationId:/",
+      "/:applicationId/",
       `/${String(applicationId)}/`
     ),
     params

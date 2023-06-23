@@ -44,6 +44,8 @@ export const Issues: React.FC = () => {
   const [navConfirmPath, setNavConfirmPath] =
     React.useState<IssuesTabPath | null>(null);
 
+  // TODO add link directly to selected single app page from app inventory drawer
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light} className={spacing.pb_0}>
