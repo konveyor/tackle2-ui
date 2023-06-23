@@ -86,6 +86,7 @@ export interface IFilterToolbarProps<TItem, TFilterCategoryKey extends string> {
   endToolbarItems?: JSX.Element;
   pagination?: JSX.Element;
   showFiltersSideBySide?: boolean;
+  isDisabled?: boolean;
 }
 
 export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
@@ -94,6 +95,7 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
   setFilterValues,
   pagination,
   showFiltersSideBySide = false,
+  isDisabled = false,
 }: React.PropsWithChildren<
   IFilterToolbarProps<TItem, TFilterCategoryKey>
 >): JSX.Element | null => {
@@ -180,6 +182,7 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
                   onToggle={() =>
                     setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
                   }
+                  isDisabled={isDisabled}
                 >
                   <FilterIcon /> {currentFilterCategory?.title}
                 </DropdownToggle>
@@ -200,6 +203,7 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
               showFiltersSideBySide ||
               currentFilterCategory?.key === category.key
             }
+            isDisabled={isDisabled}
           />
         ))}
       </ToolbarToggleGroup>

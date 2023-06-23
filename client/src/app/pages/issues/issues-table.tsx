@@ -13,6 +13,10 @@ import {
   Label,
   LabelGroup,
   TextVariants,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateIcon,
+  Title,
 } from "@patternfly/react-core";
 import {
   TableComposable,
@@ -25,8 +29,13 @@ import {
 } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
+import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 import { useSelectionState } from "@migtools/lib-ui";
-import { AppPlaceholder } from "@app/shared/components";
+import {
+  AppPlaceholder,
+  OptionWithValue,
+  SimpleSelect,
+} from "@app/shared/components";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import { useFetchRuleReports } from "@app/queries/issues";
 import {
@@ -52,6 +61,8 @@ import {
   getAffectedAppsUrl,
 } from "./helpers";
 import { IssueFilterGroups } from "./issues";
+import { Application } from "@app/api/models";
+import { useFetchApplications } from "@app/queries/applications";
 
 export interface IIssuesTableProps {
   mode: "allIssues" | "singleApp";
@@ -130,7 +141,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
 
   const {
     result: { data: currentPageRuleReports, total: totalItemCount },
-    isFetching,
+    isFetching: isFetchingRuleReports,
     fetchError,
   } = useFetchRuleReports(
     getHubRequestParams({
@@ -144,12 +155,21 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     })
   );
 
+  // TODO move this to the URL
+  const [selectedAppId, setSelectedAppId] = React.useState<number | null>(null);
+
+  const { data: applications, isFetching: isFetchingApplications } =
+    useFetchApplications();
+
+  const isLoading =
+    mode === "allIssues" ? isFetchingRuleReports : isFetchingApplications;
+
   const tableControls = useTableControlProps({
     ...tableControlState, // Includes filterState, sortState and paginationState
     idProperty: "_ui_unique_id",
     currentPageItems: currentPageRuleReports,
     totalItemCount,
-    isLoading: isFetching,
+    isLoading,
     expandableVariant: "single",
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
@@ -174,7 +194,15 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
 
-  if (isFetching && !(currentPageRuleReports || fetchError)) {
+  const appOptions = applications.map(
+    (app): OptionWithValue<Application> => ({
+      value: app,
+      toString: () => app.name,
+    })
+  );
+
+  if (isLoading && !(currentPageRuleReports || fetchError)) {
+    // TODO swap for currentPageItems
     return <AppPlaceholder />;
   }
 
@@ -186,7 +214,33 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     >
       <Toolbar {...toolbarProps}>
         <ToolbarContent>
-          <FilterToolbar {...filterToolbarProps} />
+          {mode === "singleApp" ? (
+            <>
+              <ToolbarItem>Application:</ToolbarItem>
+              <SimpleSelect
+                toggleAriaLabel="application-select"
+                toggleId="application-select"
+                width={220}
+                aria-label="Select application"
+                placeholderText="Select application..."
+                hasInlineFilter
+                value={appOptions.find(
+                  (option) => option.value.id === selectedAppId
+                )}
+                options={appOptions}
+                onChange={(option) => {
+                  setSelectedAppId(
+                    (option as OptionWithValue<Application>).value.id
+                  );
+                }}
+                className={spacing.mrMd}
+              />
+            </>
+          ) : null}
+          <FilterToolbar
+            {...filterToolbarProps}
+            isDisabled={mode === "singleApp" && selectedAppId === null}
+          />
           <ToolbarItem {...paginationToolbarItemProps}>
             <SimplePagination
               idPrefix="issues-table"
@@ -210,9 +264,24 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
           </Tr>
         </Thead>
         <ConditionalTableBody
-          isLoading={isFetching}
           isError={!!fetchError}
-          isNoData={totalItemCount === 0}
+          isNoData={
+            totalItemCount === 0 ||
+            (mode === "singleApp" && selectedAppId === null)
+          }
+          noDataEmptyState={
+            mode === "singleApp" ? (
+              <EmptyState variant="small">
+                <EmptyStateIcon icon={CubesIcon} />
+                <Title headingLevel="h2" size="lg">
+                  Select application from filter menu
+                </Title>
+                <EmptyStateBody>
+                  Use the filter menu above to select your application.
+                </EmptyStateBody>
+              </EmptyState>
+            ) : null
+          }
           numRenderedColumns={numRenderedColumns}
         >
           {currentPageRuleReports?.map((ruleReport, rowIndex) => {
