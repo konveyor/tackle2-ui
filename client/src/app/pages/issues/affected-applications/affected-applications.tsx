@@ -60,7 +60,7 @@ export const AffectedApplications: React.FC = () => {
     "Active rule";
 
   const tableControlState = useTableControlUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.affectedApps,
+    urlParamKeyPrefix: TableURLParamKeyPrefix.issuesAffectedApps,
     columnNames: {
       name: "Name",
       description: "Description",

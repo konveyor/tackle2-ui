@@ -60,7 +60,7 @@ export const AllIssuesTab: React.FC<IAllIssuesTabProps> = () => {
   const location = useLocation();
 
   const tableControlState = useTableControlUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
+    urlParamKeyPrefix: TableURLParamKeyPrefix.issuesAll,
     columnNames: {
       name: "Issue",
       category: "Category",

@@ -237,8 +237,9 @@ export enum LocalStorageKey {
 
 // URL param prefixes: should be short, must be unique for each table that uses one
 export enum TableURLParamKeyPrefix {
-  issues = "i",
-  affectedApps = "a",
-  affectedFiles = "f",
-  remainingIncidents = "r",
+  issuesAll = "ia",
+  issuesSingleApp = "isa",
+  issuesAffectedApps = "iaa",
+  issuesAffectedFiles = "iaf",
+  issuesRemainingIncidents = "ira",
 }

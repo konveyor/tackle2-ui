@@ -108,7 +108,7 @@ export const getAffectedAppsUrl = ({
     .replace("/:ruleset/", `/${ruleReport.ruleset}/`)
     .replace("/:rule/", `/${ruleReport.rule}/`);
   const prefix = (key: string) =>
-    `${TableURLParamKeyPrefix.affectedApps}:${key}`;
+    `${TableURLParamKeyPrefix.issuesAffectedApps}:${key}`;
   return `${baseUrl}?${trimAndStringifyUrlParams({
     newPrefixedSerializedParams: {
       [prefix("filters")]: serializeFilterUrlParams(toFilterValues).filters,
@@ -143,7 +143,7 @@ export const getBackToAllIssuesUrl = ({
     filterValuesToRestore[key] = fromFilterValues[key] || null;
   });
   // Put it all back together
-  const prefix = (key: string) => `${TableURLParamKeyPrefix.issues}:${key}`;
+  const prefix = (key: string) => `${TableURLParamKeyPrefix.issuesAll}:${key}`;
   return `${Paths.issuesAllTab}?${trimAndStringifyUrlParams({
     newPrefixedSerializedParams: {
       ...prefixedParamsToRestore,

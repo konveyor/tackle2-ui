@@ -46,7 +46,7 @@ export const IssueAffectedFilesTable: React.FC<
   const { t } = useTranslation();
 
   const tableControlState = useTableControlUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.affectedFiles,
+    urlParamKeyPrefix: TableURLParamKeyPrefix.issuesAffectedFiles,
     columnNames: {
       file: "File",
       incidents: "Incidents",

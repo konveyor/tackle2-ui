@@ -2,6 +2,7 @@ import * as React from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
+  ButtonVariant,
   PageSection,
   PageSectionVariants,
   Tab,
@@ -15,6 +16,8 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Paths } from "@app/Paths";
 import { AllIssuesTab } from "./all-issues-tab";
 import { SingleAppIssuesTab } from "./single-app-issues-tab";
+import { ConfirmDialog } from "@app/shared/components";
+import { TableURLParamKeyPrefix } from "@app/Constants";
 
 export enum IssueFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -22,6 +25,7 @@ export enum IssueFilterGroups {
 }
 
 const TAB_PATHS = [Paths.issuesAllTab, Paths.issuesSingleAppTab] as const;
+export type IssuesTabPath = (typeof TAB_PATHS)[number];
 
 export const Issues: React.FC = () => {
   const { t } = useTranslation();
@@ -32,6 +36,14 @@ export const Issues: React.FC = () => {
   React.useEffect(() => {
     if (!activeTabPath) history.push(Paths.issuesAllTab);
   }, [activeTabPath]);
+
+  const [navConfirmPath, setNavConfirmPath] =
+    React.useState<IssuesTabPath | null>(null);
+
+  const urlParams = new URLSearchParams(location.search);
+  const pageHasFilters =
+    urlParams.has(`${TableURLParamKeyPrefix.issuesAll}:filters`) ||
+    urlParams.has(`${TableURLParamKeyPrefix.issuesSingleApp}:filters`);
 
   return (
     <>
@@ -45,7 +57,13 @@ export const Issues: React.FC = () => {
         <Tabs
           className={spacing.mtSm}
           activeKey={activeTabPath}
-          onSelect={(_event, tabPath) => history.push(tabPath as string)}
+          onSelect={(_event, tabPath) => {
+            if (pageHasFilters) {
+              setNavConfirmPath(tabPath as IssuesTabPath);
+            } else {
+              history.push(tabPath as IssuesTabPath);
+            }
+          }}
         >
           <Tab
             eventKey={Paths.issuesAllTab}
@@ -64,6 +82,29 @@ export const Issues: React.FC = () => {
           <SingleAppIssuesTab />
         ) : null}
       </PageSection>
+      <ConfirmDialog
+        isOpen={!!navConfirmPath}
+        title={`Navigating to ${
+          navConfirmPath === Paths.issuesSingleAppTab
+            ? "single application"
+            : "all issues"
+        }`}
+        titleIconVariant="info"
+        message={`When navigating to the ${
+          navConfirmPath === Paths.issuesSingleAppTab
+            ? "single application"
+            : "all issues"
+        } tab, all filtering settings will be reset.`}
+        confirmBtnLabel="Continue"
+        cancelBtnLabel="Cancel"
+        confirmBtnVariant={ButtonVariant.primary}
+        onConfirm={() => {
+          history.push(navConfirmPath!);
+          setNavConfirmPath(null);
+        }}
+        onCancel={() => setNavConfirmPath(null)}
+        onClose={() => setNavConfirmPath(null)}
+      />
     </>
   );
 };
