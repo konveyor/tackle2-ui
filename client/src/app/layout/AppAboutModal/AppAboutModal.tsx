@@ -10,7 +10,7 @@ import {
   TextListItem,
 } from "@patternfly/react-core";
 
-import konveyorBrandImage from "@app/images/konveyor-logo-white-text.png";
+import konveyorBrandImage from "@app/images/Konveyor-white-logo.svg";
 import mtaBrandImage from "@app/images/logoRedHat.svg";
 import { APP_BRAND, BrandType } from "@app/Constants";
 import { ENV } from "@app/env";
