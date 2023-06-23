@@ -134,8 +134,9 @@ export const getBackToAllIssuesUrl = ({
     new URLSearchParams(fromIssuesParams)
   );
   // Pull the filters param out of that
+  const prefix = (key: string) => `${TableURLParamKeyPrefix.issues}:${key}`;
   const filterValuesToRestore = deserializeFilterUrlParams({
-    filters: prefixedParamsToRestore["issues:filters"],
+    filters: prefixedParamsToRestore[prefix("filters")],
   });
   // For each of the filters we care about, override the original value with the one from the affected apps page.
   // This will carry over changes including the filter having been cleared.
@@ -143,7 +144,6 @@ export const getBackToAllIssuesUrl = ({
     filterValuesToRestore[key] = fromFilterValues[key] || null;
   });
   // Put it all back together
-  const prefix = (key: string) => `${TableURLParamKeyPrefix.issuesAll}:${key}`;
   return `${Paths.issuesAllTab}?${trimAndStringifyUrlParams({
     newPrefixedSerializedParams: {
       ...prefixedParamsToRestore,

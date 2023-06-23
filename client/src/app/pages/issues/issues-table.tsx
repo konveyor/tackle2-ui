@@ -53,14 +53,16 @@ import {
 } from "./helpers";
 import { IssueFilterGroups } from "./issues";
 
-export interface IAllIssuesTabProps {}
+export interface IIssuesTableProps {
+  mode: "allIssues" | "singleApp";
+}
 
-export const AllIssuesTab: React.FC<IAllIssuesTabProps> = () => {
+export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
   const { t } = useTranslation();
   const location = useLocation();
 
   const tableControlState = useTableControlUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.issuesAll,
+    urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
     columnNames: {
       name: "Issue",
       category: "Category",

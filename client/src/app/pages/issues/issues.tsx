@@ -14,8 +14,7 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Paths } from "@app/Paths";
-import { AllIssuesTab } from "./all-issues-tab";
-import { SingleAppIssuesTab } from "./single-app-issues-tab";
+import { IssuesTable } from "./issues-table";
 import { ConfirmDialog } from "@app/shared/components";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 
@@ -40,11 +39,6 @@ export const Issues: React.FC = () => {
   const [navConfirmPath, setNavConfirmPath] =
     React.useState<IssuesTabPath | null>(null);
 
-  const urlParams = new URLSearchParams(location.search);
-  const pageHasFilters =
-    urlParams.has(`${TableURLParamKeyPrefix.issuesAll}:filters`) ||
-    urlParams.has(`${TableURLParamKeyPrefix.issuesSingleApp}:filters`);
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light} className={spacing.pb_0}>
@@ -58,6 +52,9 @@ export const Issues: React.FC = () => {
           className={spacing.mtSm}
           activeKey={activeTabPath}
           onSelect={(_event, tabPath) => {
+            const pageHasFilters = new URLSearchParams(location.search).has(
+              `${TableURLParamKeyPrefix.issues}:filters`
+            );
             if (pageHasFilters) {
               setNavConfirmPath(tabPath as IssuesTabPath);
             } else {
@@ -77,9 +74,9 @@ export const Issues: React.FC = () => {
       </PageSection>
       <PageSection>
         {activeTabPath === Paths.issuesAllTab ? (
-          <AllIssuesTab />
+          <IssuesTable mode="allIssues" />
         ) : activeTabPath === Paths.issuesSingleAppTab ? (
-          <SingleAppIssuesTab />
+          <IssuesTable mode="singleApp" />
         ) : null}
       </PageSection>
       <ConfirmDialog
