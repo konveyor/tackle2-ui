@@ -52,11 +52,7 @@ export const IssueAffectedFilesTable: React.FC<
       incidents: "Incidents",
       effort: "Effort",
     },
-    sortableColumns: [
-      "file",
-      "incidents",
-      // "effort", // TODO this sort is not supported by the hub yet
-    ],
+    sortableColumns: ["file", "incidents", "effort"],
     initialSort: { columnKey: "file", direction: "asc" },
     filterCategories: [
       {
@@ -85,7 +81,7 @@ export const IssueAffectedFilesTable: React.FC<
       hubSortFieldKeys: {
         file: "file",
         incidents: "incidents",
-        // effort: "effort", // TODO this sort is not supported by the hub yet
+        effort: "effort",
       },
     })
   );
