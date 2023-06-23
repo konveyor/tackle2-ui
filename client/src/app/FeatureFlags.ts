@@ -1,6 +1,6 @@
 export const FEATURES_ENABLED = {
   migrationWaves: true,
-  dynamicReports: false,
+  dynamicReports: true,
 };
 
 if (process.env?.FEATURES_ENABLED) {
