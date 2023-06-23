@@ -599,10 +599,16 @@ export interface AnalysisAppReport extends AnalysisIssue {
 export interface BaseAnalysisRuleReport extends AnalysisIssuesCommonFields {
   applications: number;
 }
-// After fetching from the hub, we inject a unique id composed of ruleset+rule for convenience
-export interface AnalysisRuleReport extends BaseAnalysisRuleReport {
-  _ui_unique_id: string;
+
+// Hub type: IssueReport - Issues collated by ruleset/rule, filtered by one application
+export interface BaseAnalysisIssueReport extends AnalysisIssuesCommonFields {
+  files: number;
 }
+
+// After fetching from the hub, we inject a unique id composed of ruleset+rule for convenience
+type WithUiId<T> = T & { _ui_unique_id: string };
+export type AnalysisRuleReport = WithUiId<BaseAnalysisRuleReport>;
+export type AnalysisIssueReport = WithUiId<BaseAnalysisIssueReport>;
 
 // Hub type: FileReport - Incidents collated by file
 export interface AnalysisFileReport {

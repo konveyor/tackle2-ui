@@ -10,11 +10,13 @@ import {
   getAppReports,
   getFileReports,
   getIncidents,
+  getIssueReports,
 } from "@app/api/rest";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
 
 export const RuleReportsQueryKey = "rulereports";
 export const AppReportsQueryKey = "appreports";
+export const IssueReportsQueryKey = "issuereports";
 export const FileReportsQueryKey = "filereports";
 export const IssuesQueryKey = "issues";
 export const IncidentsQueryKey = "incidents";
@@ -25,7 +27,7 @@ export const useFetchRuleReports = (params: HubRequestParams = {}) => {
       RuleReportsQueryKey,
       serializeRequestParamsForHub(params).toString(),
     ],
-    queryFn: async () => await getRuleReports(params),
+    queryFn: () => getRuleReports(params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
     select: (result): HubPaginatedResult<AnalysisRuleReport> => {
@@ -54,7 +56,30 @@ export const useFetchAppReports = (params: HubRequestParams = {}) => {
       AppReportsQueryKey,
       serializeRequestParamsForHub(params).toString(),
     ],
-    queryFn: async () => await getAppReports(params),
+    queryFn: () => getAppReports(params),
+    onError: (error) => console.log("error, ", error),
+    keepPreviousData: true,
+  });
+  return {
+    result: data || { data: [], total: 0, params },
+    isFetching: isLoading,
+    fetchError: error,
+    refetch,
+  };
+};
+
+export const useFetchIssueReports = (
+  applicationId?: number,
+  params: HubRequestParams = {}
+) => {
+  const { data, isLoading, error, refetch } = useQuery({
+    enabled: applicationId !== undefined,
+    queryKey: [
+      IssueReportsQueryKey,
+      applicationId,
+      serializeRequestParamsForHub(params).toString(),
+    ],
+    queryFn: () => getIssueReports(applicationId, params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
   });
@@ -69,7 +94,7 @@ export const useFetchAppReports = (params: HubRequestParams = {}) => {
 export const useFetchIssues = (params: HubRequestParams = {}) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [IssuesQueryKey, serializeRequestParamsForHub(params).toString()],
-    queryFn: async () => await getIssues(params),
+    queryFn: () => getIssues(params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
   });
@@ -92,7 +117,7 @@ export const useFetchFileReports = (
       issueId,
       serializeRequestParamsForHub(params).toString(),
     ],
-    queryFn: async () => await getFileReports(issueId, params),
+    queryFn: () => getFileReports(issueId, params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
   });
@@ -115,7 +140,7 @@ export const useFetchIncidents = (
       issueId,
       serializeRequestParamsForHub(params).toString(),
     ],
-    queryFn: async () => await getIncidents(issueId, params),
+    queryFn: () => getIncidents(issueId, params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
   });
