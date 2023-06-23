@@ -95,6 +95,21 @@ export const devRoutes: IRoute[] = [
           exact: false,
         },
         {
+          path: Paths.issuesAllTab,
+          comp: Issues,
+          exact: false,
+        },
+        {
+          path: Paths.issuesSingleAppTab,
+          comp: Issues,
+          exact: false,
+        },
+        {
+          path: Paths.issuesSingleAppSelected,
+          comp: Issues,
+          exact: false,
+        },
+        {
           path: Paths.issues,
           comp: Issues,
           exact: false,

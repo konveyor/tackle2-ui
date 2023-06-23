@@ -1,4 +1,4 @@
-import { Location } from "history";
+import { Location, LocationDescriptor } from "history";
 import { AnalysisRuleReport } from "@app/api/models";
 import {
   FilterCategory,
@@ -151,6 +151,25 @@ export const getBackToAllIssuesUrl = ({
         .filters,
     },
   })}`;
+};
+
+// When selecting an application, we want to preserve any issue filters that might be present.
+export const getSingleAppSelectedLocation = (
+  applicationId: number,
+  fromLocation: Location
+): LocationDescriptor => {
+  const existingFiltersParam = new URLSearchParams(fromLocation.search).get(
+    `${TableURLParamKeyPrefix.issues}:filters`
+  );
+  return {
+    pathname: Paths.issuesSingleAppSelected.replace(
+      ":applicationId",
+      String(applicationId)
+    ),
+    search: existingFiltersParam
+      ? new URLSearchParams({ filters: existingFiltersParam }).toString()
+      : undefined,
+  };
 };
 
 export const parseRuleReportLabels = (ruleReport: AnalysisRuleReport) => {

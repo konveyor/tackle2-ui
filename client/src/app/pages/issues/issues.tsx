@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ButtonVariant,
@@ -23,15 +23,20 @@ export enum IssueFilterGroups {
   Issues = "Issues",
 }
 
-const TAB_PATHS = [Paths.issuesAllTab, Paths.issuesSingleAppTab] as const;
-export type IssuesTabPath = (typeof TAB_PATHS)[number];
+export type IssuesTabPath = Paths.issuesAllTab | Paths.issuesSingleAppTab;
 
 export const Issues: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const history = useHistory();
+  const singleAppTabMatch = useRouteMatch(Paths.issuesSingleAppTab);
+  const singleAppSelectedMatch = useRouteMatch(Paths.issuesSingleAppSelected);
 
-  const activeTabPath = TAB_PATHS.find((path) => location.pathname === path);
+  const activeTabPath =
+    singleAppTabMatch || singleAppSelectedMatch
+      ? Paths.issuesSingleAppTab
+      : Paths.issuesAllTab;
+
   React.useEffect(() => {
     if (!activeTabPath) history.push(Paths.issuesAllTab);
   }, [activeTabPath]);

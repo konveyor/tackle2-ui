@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   Toolbar,
@@ -59,10 +59,12 @@ import {
   useSharedFilterCategoriesForIssuesAndAffectedApps,
   parseRuleReportLabels,
   getAffectedAppsUrl,
+  getSingleAppSelectedLocation,
 } from "./helpers";
 import { IssueFilterGroups } from "./issues";
 import { Application } from "@app/api/models";
 import { useFetchApplications } from "@app/queries/applications";
+import { Paths } from "@app/Paths";
 
 export interface IIssuesTableProps {
   mode: "allIssues" | "singleApp";
@@ -71,6 +73,7 @@ export interface IIssuesTableProps {
 export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
   const { t } = useTranslation();
   const location = useLocation();
+  const history = useHistory();
 
   const tableControlState = useTableControlUrlParams({
     urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
@@ -155,8 +158,17 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     })
   );
 
-  // TODO move this to the URL
-  const [selectedAppId, setSelectedAppId] = React.useState<number | null>(null);
+  const singleAppSelectedMatch = useRouteMatch<{
+    applicationId: string;
+  }>(Paths.issuesSingleAppSelected);
+  const selectedAppId = singleAppSelectedMatch
+    ? Number(singleAppSelectedMatch.params.applicationId)
+    : null;
+  const setSelectedAppId = (applicationId: number) => {
+    history.replace(getSingleAppSelectedLocation(applicationId, location));
+  };
+
+  console.log({ selectedAppId });
 
   const { data: applications, isFetching: isFetchingApplications } =
     useFetchApplications();
