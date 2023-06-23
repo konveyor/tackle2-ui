@@ -194,7 +194,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { handleSubmit, watch, reset } = methods;
   const values = watch();
-  console.log("values", values);
 
   enum StepId {
     AnalysisMode = 1,

@@ -628,6 +628,7 @@ export const ApplicationsTable: React.FC = () => {
   const applicationDeleteDropdown = applicationWriteAccess
     ? [
         <ConditionalTooltip
+          key="delete-app-tooltip"
           isTooltipEnabled={
             selectedRows.length < 1 ||
             selectedRows.some(
