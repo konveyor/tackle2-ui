@@ -33,7 +33,7 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
     <AboutModal
       isOpen={isOpen}
       onClose={onClose}
-      trademark="COPYRIGHT © 2022."
+      trademark={`COPYRIGHT © ${new Date().getFullYear()}.`}
       brandImageSrc={
         APP_BRAND === BrandType.Konveyor ? konveyorBrandImage : mtaBrandImage
       }
