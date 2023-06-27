@@ -88,7 +88,8 @@ export const CACHE = HUB + "/cache/m2";
 
 export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/dependencies";
 export const ANALYSIS_REPORT_RULES = HUB + "/analyses/report/rules";
-export const ANALYSIS_REPORT_APPS = HUB + "/analyses/report/applications";
+export const ANALYSIS_REPORT_APPS =
+  HUB + "/analyses/report/issues/applications";
 export const ANALYSIS_REPORT_APP_ISSUES =
   HUB + "/analyses/report/applications/:applicationId/issues";
 export const ANALYSIS_REPORT_ISSUE_FILES =
