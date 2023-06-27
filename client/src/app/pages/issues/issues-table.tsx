@@ -68,6 +68,7 @@ import {
 import { useFetchApplications } from "@app/queries/applications";
 import { Paths } from "@app/Paths";
 import { AffectedAppsLink } from "./affected-apps-link";
+import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 
 export interface IIssuesTableProps {
   mode: "allIssues" | "singleApp";
@@ -256,24 +257,30 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
           {mode === "singleApp" ? (
             <>
               <ToolbarItem>Application:</ToolbarItem>
-              <SimpleSelect
-                toggleAriaLabel="application-select"
-                toggleId="application-select"
-                width={220}
-                aria-label="Select application"
-                placeholderText="Select application..."
-                hasInlineFilter
-                value={appOptions.find(
-                  (option) => option.value.id === selectedAppId
-                )}
-                options={appOptions}
-                onChange={(option) => {
-                  setSelectedAppId(
-                    (option as OptionWithValue<Application>).value.id
-                  );
-                }}
-                className={spacing.mrMd}
-              />
+              <ConditionalTooltip
+                isTooltipEnabled={appOptions.length === 0}
+                content="No applications available. Add an application on the application inventory page."
+              >
+                <SimpleSelect
+                  toggleAriaLabel="application-select"
+                  toggleId="application-select"
+                  width={220}
+                  aria-label="Select application"
+                  placeholderText="Select application..."
+                  hasInlineFilter
+                  value={appOptions.find(
+                    (option) => option.value.id === selectedAppId
+                  )}
+                  options={appOptions}
+                  onChange={(option) => {
+                    setSelectedAppId(
+                      (option as OptionWithValue<Application>).value.id
+                    );
+                  }}
+                  className={spacing.mrMd}
+                  isDisabled={appOptions.length === 0}
+                />
+              </ConditionalTooltip>
             </>
           ) : null}
           <FilterToolbar
