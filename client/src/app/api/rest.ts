@@ -88,7 +88,7 @@ export const CACHE = HUB + "/cache/m2";
 
 export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/dependencies";
 export const ANALYSIS_REPORT_RULES = HUB + "/analyses/report/rules";
-export const ANALYSIS_REPORT_APPS =
+export const ANALYSIS_REPORT_ISSUES_APPS =
   HUB + "/analyses/report/issues/applications";
 export const ANALYSIS_REPORT_APP_ISSUES =
   HUB + "/analyses/report/applications/:applicationId/issues";
@@ -589,7 +589,7 @@ export const getRuleReports = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<BaseAnalysisRuleReport>(ANALYSIS_REPORT_RULES, params);
 
 export const getAppReports = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<AnalysisAppReport>(ANALYSIS_REPORT_APPS, params);
+  getHubPaginatedResult<AnalysisAppReport>(ANALYSIS_REPORT_ISSUES_APPS, params);
 
 export const getIssueReports = (
   applicationId?: number,
