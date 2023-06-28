@@ -240,8 +240,7 @@ export const AffectedApplications: React.FC = () => {
         </ConditionalRender>
       </PageSection>
       <IssueDetailDrawer
-        mode="AppReport"
-        report={activeRowItem}
+        issueId={activeRowItem?.issue.id || null}
         applicationName={activeRowItem?.name || null}
         onCloseClick={clearActiveRow}
       />

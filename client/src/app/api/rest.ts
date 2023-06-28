@@ -606,6 +606,11 @@ export const getIssueReports = (
 export const getIssues = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisIssue>(ANALYSIS_ISSUES, params);
 
+export const getIssue = (issueId: number): Promise<AnalysisIssue> =>
+  axios
+    .get(`${ANALYSIS_ISSUES}/${String(issueId)}`)
+    .then((response) => response.data);
+
 export const getFileReports = (
   issueId?: number,
   params: HubRequestParams = {}

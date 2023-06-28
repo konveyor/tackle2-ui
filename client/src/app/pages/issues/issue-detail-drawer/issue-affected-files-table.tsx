@@ -16,7 +16,11 @@ import {
 } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useSelectionState } from "@migtools/lib-ui";
-import { AnalysisFileReport, AnalysisAppReport } from "@app/api/models";
+import {
+  AnalysisFileReport,
+  AnalysisAppReport,
+  AnalysisIssue,
+} from "@app/api/models";
 import {
   getHubRequestParams,
   useTableControlProps,
@@ -37,13 +41,12 @@ import {
 } from "@app/shared/components/FilterToolbar";
 
 export interface IIssueAffectedFilesTableProps {
-  issueId: number;
-  issueName: string;
+  issue: AnalysisIssue;
 }
 
 export const IssueAffectedFilesTable: React.FC<
   IIssueAffectedFilesTableProps
-> = ({ issueId, issueName }) => {
+> = ({ issue }) => {
   const { t } = useTranslation();
 
   const tableControlState = useTableControlUrlParams({
@@ -76,7 +79,7 @@ export const IssueAffectedFilesTable: React.FC<
     isFetching,
     fetchError,
   } = useFetchFileReports(
-    issueId,
+    issue.id,
     getHubRequestParams({
       ...tableControlState,
       hubSortFieldKeys: {
@@ -195,7 +198,7 @@ export const IssueAffectedFilesTable: React.FC<
       />
       {selectedFileForDetailModal ? (
         <FileIncidentsDetailModal
-          issueName={issueName}
+          issue={issue}
           fileReport={selectedFileForDetailModal}
           onClose={() => setSelectedFileForDetailModal(null)}
         />

@@ -15,6 +15,7 @@ import {
   getFileReports,
   getIncidents,
   getIssueReports,
+  getIssue,
 } from "@app/api/rest";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
 
@@ -23,6 +24,7 @@ export const AppReportsQueryKey = "appreports";
 export const IssueReportsQueryKey = "issuereports";
 export const FileReportsQueryKey = "filereports";
 export const IssuesQueryKey = "issues";
+export const IssueQueryKey = "issue";
 export const IncidentsQueryKey = "incidents";
 
 const injectUiUniqueIds = <
@@ -117,6 +119,21 @@ export const useFetchIssues = (params: HubRequestParams = {}) => {
   });
   return {
     result: data || { data: [], total: 0, params },
+    isFetching: isLoading,
+    fetchError: error,
+    refetch,
+  };
+};
+
+export const useFetchIssue = (issueId?: number) => {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [IssueQueryKey, issueId],
+    queryFn: () => getIssue(issueId!),
+    onError: (error) => console.log("error, ", error),
+    enabled: !!issueId,
+  });
+  return {
+    result: { data },
     isFetching: isLoading,
     fetchError: error,
     refetch,

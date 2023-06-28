@@ -13,7 +13,7 @@ import {
   Alert,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { AnalysisFileReport } from "@app/api/models";
+import { AnalysisFileReport, AnalysisIssue } from "@app/api/models";
 import { useFetchIncidents } from "@app/queries/issues";
 import {
   AppPlaceholder,
@@ -25,14 +25,14 @@ import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
 import { FileAllIncidentsTable } from "./file-all-incidents-table";
 
 export interface IFileIncidentsDetailModalProps {
-  issueName: string;
+  issue: AnalysisIssue;
   fileReport: AnalysisFileReport;
   onClose: () => void;
 }
 
 export const FileIncidentsDetailModal: React.FC<
   IFileIncidentsDetailModalProps
-> = ({ issueName, fileReport, onClose }) => {
+> = ({ issue, fileReport, onClose }) => {
   const { t } = useTranslation();
 
   // Only fetch the first 5 incidents here, the rest are fetched in a separate query in FileAllIncidentsTable
@@ -102,13 +102,13 @@ export const FileIncidentsDetailModal: React.FC<
                 <Grid hasGutter className={spacing.mtLg}>
                   <GridItem span={6}>
                     <IncidentCodeSnipViewer
-                      issueName={issueName}
+                      issueName={issue.name}
                       incident={incident}
                     />
                   </GridItem>
                   <GridItem span={6} className={spacing.plSm}>
                     <TextContent>
-                      <Text component="h2">{issueName}</Text>
+                      <Text component="h2">{issue.name}</Text>
                       <Text component="small">Line {incident.line}</Text>
                     </TextContent>
                     <TextContent className={spacing.mtLg}>

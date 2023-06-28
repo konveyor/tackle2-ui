@@ -545,8 +545,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
         paginationProps={paginationProps}
       />
       <IssueDetailDrawer
-        mode="IssueReport"
-        report={activeIssueReportInDetailDrawer}
+        issueId={activeIssueReportInDetailDrawer?.id || null}
         applicationName={selectedApp?.name || null}
         onCloseClick={() => setActiveIssueReportInDetailDrawer(null)}
       />
