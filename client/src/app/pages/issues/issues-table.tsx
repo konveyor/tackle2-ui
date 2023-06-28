@@ -58,7 +58,7 @@ import {
 import {
   useSharedFilterCategoriesForIssuesAndAffectedApps,
   parseReportLabels,
-  getSingleAppSelectedLocation,
+  getIssuesSingleAppSelectedLocation,
 } from "./helpers";
 import { IssueFilterGroups } from "./issues";
 import {
@@ -88,7 +88,9 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     ? Number(singleAppSelectedMatch.params.applicationId)
     : null;
   const setSelectedAppId = (applicationId: number) => {
-    history.replace(getSingleAppSelectedLocation(applicationId, location));
+    history.replace(
+      getIssuesSingleAppSelectedLocation(applicationId, location)
+    );
   };
 
   const allIssuesSpecificFilterCategories =

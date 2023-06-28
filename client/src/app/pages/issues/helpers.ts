@@ -156,13 +156,15 @@ export const getBackToAllIssuesUrl = ({
 };
 
 // When selecting an application, we want to preserve any issue filters that might be present.
-export const getSingleAppSelectedLocation = (
+export const getIssuesSingleAppSelectedLocation = (
   applicationId: number,
-  fromLocation: Location
+  fromLocation?: Location
 ): LocationDescriptor => {
-  const existingFiltersParam = new URLSearchParams(fromLocation.search).get(
-    `${TableURLParamKeyPrefix.issues}:filters`
-  );
+  const existingFiltersParam =
+    fromLocation &&
+    new URLSearchParams(fromLocation.search).get(
+      `${TableURLParamKeyPrefix.issues}:filters`
+    );
   return {
     pathname: Paths.issuesSingleAppSelected.replace(
       ":applicationId",
