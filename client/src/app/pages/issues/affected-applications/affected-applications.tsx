@@ -33,17 +33,13 @@ import {
 } from "@app/shared/components/table-controls";
 import { useFetchAppReports } from "@app/queries/issues";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { IssueFilterGroups } from "../issues";
-import {
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
+import { FilterToolbar } from "@app/shared/components/FilterToolbar";
 import { useSelectionState } from "@migtools/lib-ui";
 import {
   getBackToAllIssuesUrl,
   useSharedFilterCategoriesForIssuesAndAffectedApps,
 } from "../helpers";
-import { IssueDetailDrawer } from "./issue-detail-drawer";
+import { IssueDetailDrawer } from "../issue-detail-drawer";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 
 interface IAffectedApplicationsRouteParams {
@@ -60,7 +56,7 @@ export const AffectedApplications: React.FC = () => {
     "Active rule";
 
   const tableControlState = useTableControlUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.affectedApps,
+    urlParamKeyPrefix: TableURLParamKeyPrefix.issuesAffectedApps,
     columnNames: {
       name: "Name",
       description: "Description",
@@ -244,7 +240,8 @@ export const AffectedApplications: React.FC = () => {
         </ConditionalRender>
       </PageSection>
       <IssueDetailDrawer
-        appReport={activeRowItem}
+        issueId={activeRowItem?.issue.id || null}
+        applicationName={activeRowItem?.name || null}
         onCloseClick={clearActiveRow}
       />
     </>

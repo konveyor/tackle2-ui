@@ -17,6 +17,7 @@ export interface IFilterControlProps<TItem, TFilterCategoryKey extends string> {
   filterValue: FilterValue;
   setFilterValue: (newValue: FilterValue) => void;
   showToolbarItem: boolean;
+  isDisabled?: boolean;
 }
 
 export const FilterControl = <TItem, TFilterCategoryKey extends string>({

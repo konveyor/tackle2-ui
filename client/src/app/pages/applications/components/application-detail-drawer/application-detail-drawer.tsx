@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
 import {
   TextContent,
   Text,
@@ -8,6 +9,7 @@ import {
   TabTitleText,
   Spinner,
   Bullseye,
+  Button,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Application, Task } from "@app/api/models";
@@ -15,6 +17,7 @@ import {
   IPageDrawerContentProps,
   PageDrawerContent,
 } from "@app/shared/page-drawer-context";
+import { getIssuesSingleAppSelectedLocation } from "@app/pages/issues/helpers";
 import { ApplicationBusinessService } from "../application-business-service";
 import { ApplicationTags } from "../application-tags";
 
@@ -75,6 +78,11 @@ export const ApplicationDetailDrawer: React.FC<
         >
           <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
             <Text component="small">{application?.description}</Text>
+            {application ? (
+              <Link to={getIssuesSingleAppSelectedLocation(application.id)}>
+                Issues
+              </Link>
+            ) : null}
             <Title headingLevel="h3" size="md">
               Business service
             </Title>

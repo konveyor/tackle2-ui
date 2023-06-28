@@ -1,5 +1,5 @@
-import { Location } from "history";
-import { AnalysisRuleReport } from "@app/api/models";
+import { Location, LocationDescriptor } from "history";
+import { AnalysisIssueReport, AnalysisRuleReport } from "@app/api/models";
 import {
   FilterCategory,
   FilterType,
@@ -26,11 +26,13 @@ const filterKeysToCarry = [
   "businessService.name",
   "tag.id",
 ] as const;
-type FilterKeyToCarry = (typeof filterKeysToCarry)[number];
-type FilterValuesToCarry = Partial<Record<FilterKeyToCarry, FilterValue>>;
+type IssuesFilterKeyToCarry = (typeof filterKeysToCarry)[number];
+export type IssuesFilterValuesToCarry = Partial<
+  Record<IssuesFilterKeyToCarry, FilterValue>
+>;
 
 export const useSharedFilterCategoriesForIssuesAndAffectedApps =
-  (): FilterCategory<unknown, FilterKeyToCarry>[] => {
+  (): FilterCategory<unknown, IssuesFilterKeyToCarry>[] => {
     const { t } = useTranslation();
     const { tags } = useFetchTags();
     const { businessServices } = useFetchBusinessServices();
@@ -95,12 +97,12 @@ export const getAffectedAppsUrl = ({
   fromLocation,
 }: {
   ruleReport: AnalysisRuleReport;
-  fromFilterValues: FilterValuesToCarry;
+  fromFilterValues: IssuesFilterValuesToCarry;
   fromLocation: Location;
 }) => {
   // The raw location.search string (already encoded) from the issues page is used as the fromIssuesParams param
   const fromIssuesParams = fromLocation.search;
-  const toFilterValues: FilterValuesToCarry = {};
+  const toFilterValues: IssuesFilterValuesToCarry = {};
   filterKeysToCarry.forEach((key) => {
     if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
   });
@@ -108,7 +110,7 @@ export const getAffectedAppsUrl = ({
     .replace("/:ruleset/", `/${ruleReport.ruleset}/`)
     .replace("/:rule/", `/${ruleReport.rule}/`);
   const prefix = (key: string) =>
-    `${TableURLParamKeyPrefix.affectedApps}:${key}`;
+    `${TableURLParamKeyPrefix.issuesAffectedApps}:${key}`;
   return `${baseUrl}?${trimAndStringifyUrlParams({
     newPrefixedSerializedParams: {
       [prefix("filters")]: serializeFilterUrlParams(toFilterValues).filters,
@@ -123,7 +125,7 @@ export const getBackToAllIssuesUrl = ({
   fromFilterValues,
   fromLocation,
 }: {
-  fromFilterValues: FilterValuesToCarry;
+  fromFilterValues: IssuesFilterValuesToCarry;
   fromLocation: Location;
 }) => {
   // Pull the fromIssuesParams param out of the current location's URLSearchParams
@@ -134,8 +136,9 @@ export const getBackToAllIssuesUrl = ({
     new URLSearchParams(fromIssuesParams)
   );
   // Pull the filters param out of that
+  const prefix = (key: string) => `${TableURLParamKeyPrefix.issues}:${key}`;
   const filterValuesToRestore = deserializeFilterUrlParams({
-    filters: prefixedParamsToRestore["issues:filters"],
+    filters: prefixedParamsToRestore[prefix("filters")],
   });
   // For each of the filters we care about, override the original value with the one from the affected apps page.
   // This will carry over changes including the filter having been cleared.
@@ -143,7 +146,6 @@ export const getBackToAllIssuesUrl = ({
     filterValuesToRestore[key] = fromFilterValues[key] || null;
   });
   // Put it all back together
-  const prefix = (key: string) => `${TableURLParamKeyPrefix.issues}:${key}`;
   return `${Paths.issuesAllTab}?${trimAndStringifyUrlParams({
     newPrefixedSerializedParams: {
       ...prefixedParamsToRestore,
@@ -153,7 +155,30 @@ export const getBackToAllIssuesUrl = ({
   })}`;
 };
 
-export const parseRuleReportLabels = (ruleReport: AnalysisRuleReport) => {
+// When selecting an application, we want to preserve any issue filters that might be present.
+export const getIssuesSingleAppSelectedLocation = (
+  applicationId: number,
+  fromLocation?: Location
+): LocationDescriptor => {
+  const existingFiltersParam =
+    fromLocation &&
+    new URLSearchParams(fromLocation.search).get(
+      `${TableURLParamKeyPrefix.issues}:filters`
+    );
+  return {
+    pathname: Paths.issuesSingleAppSelected.replace(
+      ":applicationId",
+      String(applicationId)
+    ),
+    search: existingFiltersParam
+      ? new URLSearchParams({ filters: existingFiltersParam }).toString()
+      : undefined,
+  };
+};
+
+export const parseReportLabels = (
+  ruleReport: AnalysisRuleReport | AnalysisIssueReport
+) => {
   const sources: string[] = [];
   const targets: string[] = [];
   const otherLabels: string[] = [];
