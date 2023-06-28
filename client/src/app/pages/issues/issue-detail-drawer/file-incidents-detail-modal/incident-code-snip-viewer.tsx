@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
-import { AnalysisAppReport, AnalysisIncident } from "@app/api/models";
+import { AnalysisIncident } from "@app/api/models";
 
 import "./incident-code-snip-viewer.css";
 import { LANGUAGES_BY_FILE_EXTENSION } from "config/monacoConstants";
@@ -8,12 +8,12 @@ import { LANGUAGES_BY_FILE_EXTENSION } from "config/monacoConstants";
 const codeLineRegex = /^\s*([0-9]+)( {2})?(.*)$/; // Pattern: leading whitespace (line number) (2 spaces)? (code)
 
 export interface IIncidentCodeSnipViewerProps {
-  appReport: AnalysisAppReport;
+  issueName: string;
   incident: AnalysisIncident;
 }
 
 export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
-  appReport,
+  issueName,
   incident,
 }) => {
   const codeSnipNumberedLines = incident.codeSnip.split("\n");
@@ -63,7 +63,7 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
             // Red squiggly under the affected line
             monaco.editor.setModelMarkers(model, "my-markers", [
               {
-                message: appReport.issue.name,
+                message: issueName,
                 severity: monaco.MarkerSeverity.Error,
                 startLineNumber: relativeLineNum,
                 startColumn:

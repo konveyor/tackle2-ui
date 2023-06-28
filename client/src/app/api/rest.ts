@@ -4,6 +4,7 @@ import { APIClient } from "@app/axios-config";
 import {
   AnalysisDependency,
   BaseAnalysisRuleReport,
+  BaseAnalysisIssueReport,
   AnalysisIssue,
   AnalysisAppReport,
   AnalysisFileReport,
@@ -87,10 +88,15 @@ export const CACHE = HUB + "/cache/m2";
 
 export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/dependencies";
 export const ANALYSIS_REPORT_RULES = HUB + "/analyses/report/rules";
-export const ANALYSIS_REPORT_APPS = HUB + "/analyses/report/applications";
-export const ANALYSIS_REPORT_FILES = HUB + "/analyses/report/issues/:id/files";
+export const ANALYSIS_REPORT_ISSUES_APPS =
+  HUB + "/analyses/report/issues/applications";
+export const ANALYSIS_REPORT_APP_ISSUES =
+  HUB + "/analyses/report/applications/:applicationId/issues";
+export const ANALYSIS_REPORT_ISSUE_FILES =
+  HUB + "/analyses/report/issues/:issueId/files";
 export const ANALYSIS_ISSUES = HUB + "/analyses/issues";
-export const ANALYSIS_ISSUE_INCIDENTS = HUB + "/analyses/issues/:id/incidents";
+export const ANALYSIS_ISSUE_INCIDENTS =
+  HUB + "/analyses/issues/:issueId/incidents";
 
 // PATHFINDER
 export const PATHFINDER = "/hub/pathfinder";
@@ -583,10 +589,27 @@ export const getRuleReports = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<BaseAnalysisRuleReport>(ANALYSIS_REPORT_RULES, params);
 
 export const getAppReports = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<AnalysisAppReport>(ANALYSIS_REPORT_APPS, params);
+  getHubPaginatedResult<AnalysisAppReport>(ANALYSIS_REPORT_ISSUES_APPS, params);
+
+export const getIssueReports = (
+  applicationId?: number,
+  params: HubRequestParams = {}
+) =>
+  getHubPaginatedResult<BaseAnalysisIssueReport>(
+    ANALYSIS_REPORT_APP_ISSUES.replace(
+      "/:applicationId/",
+      `/${String(applicationId)}/`
+    ),
+    params
+  );
 
 export const getIssues = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisIssue>(ANALYSIS_ISSUES, params);
+
+export const getIssue = (issueId: number): Promise<AnalysisIssue> =>
+  axios
+    .get(`${ANALYSIS_ISSUES}/${String(issueId)}`)
+    .then((response) => response.data);
 
 export const getFileReports = (
   issueId?: number,
@@ -594,7 +617,10 @@ export const getFileReports = (
 ) =>
   issueId
     ? getHubPaginatedResult<AnalysisFileReport>(
-        ANALYSIS_REPORT_FILES.replace("/:id/", `/${String(issueId)}/`),
+        ANALYSIS_REPORT_ISSUE_FILES.replace(
+          "/:issueId/",
+          `/${String(issueId)}/`
+        ),
         params
       )
     : Promise.reject();
@@ -602,7 +628,7 @@ export const getFileReports = (
 export const getIncidents = (issueId?: number, params: HubRequestParams = {}) =>
   issueId
     ? getHubPaginatedResult<AnalysisIncident>(
-        ANALYSIS_ISSUE_INCIDENTS.replace("/:id/", `/${String(issueId)}/`),
+        ANALYSIS_ISSUE_INCIDENTS.replace("/:issueId/", `/${String(issueId)}/`),
         params
       )
     : Promise.reject();

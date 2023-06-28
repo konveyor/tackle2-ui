@@ -20,6 +20,7 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
   filterValue,
   setFilterValue,
   showToolbarItem,
+  isDisabled = false,
 }: React.PropsWithChildren<
   ISelectFilterControlProps<TItem, TFilterCategoryKey>
 >): JSX.Element | null => {
@@ -77,7 +78,7 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
         onSelect={(_, value) => onFilterSelect(value)}
         isOpen={isFilterDropdownOpen}
         placeholderText="Any"
-        isDisabled={category.selectOptions.length === 0}
+        isDisabled={isDisabled || category.selectOptions.length === 0}
       >
         {category.selectOptions.map((optionProps) => (
           <SelectOption {...optionProps} key={optionProps.key} />

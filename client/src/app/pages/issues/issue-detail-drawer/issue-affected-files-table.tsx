@@ -16,7 +16,11 @@ import {
 } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useSelectionState } from "@migtools/lib-ui";
-import { AnalysisFileReport, AnalysisAppReport } from "@app/api/models";
+import {
+  AnalysisFileReport,
+  AnalysisAppReport,
+  AnalysisIssue,
+} from "@app/api/models";
 import {
   getHubRequestParams,
   useTableControlProps,
@@ -37,26 +41,22 @@ import {
 } from "@app/shared/components/FilterToolbar";
 
 export interface IIssueAffectedFilesTableProps {
-  appReport: AnalysisAppReport;
+  issue: AnalysisIssue;
 }
 
 export const IssueAffectedFilesTable: React.FC<
   IIssueAffectedFilesTableProps
-> = ({ appReport }) => {
+> = ({ issue }) => {
   const { t } = useTranslation();
 
   const tableControlState = useTableControlUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.affectedFiles,
+    urlParamKeyPrefix: TableURLParamKeyPrefix.issuesAffectedFiles,
     columnNames: {
       file: "File",
       incidents: "Incidents",
       effort: "Effort",
     },
-    sortableColumns: [
-      "file",
-      "incidents",
-      // "effort", // TODO this sort is not supported by the hub yet
-    ],
+    sortableColumns: ["file", "incidents", "effort"],
     initialSort: { columnKey: "file", direction: "asc" },
     filterCategories: [
       {
@@ -79,13 +79,13 @@ export const IssueAffectedFilesTable: React.FC<
     isFetching,
     fetchError,
   } = useFetchFileReports(
-    appReport.issue.id,
+    issue.id,
     getHubRequestParams({
       ...tableControlState,
       hubSortFieldKeys: {
         file: "file",
         incidents: "incidents",
-        // effort: "effort", // TODO this sort is not supported by the hub yet
+        effort: "effort",
       },
     })
   );
@@ -118,8 +118,6 @@ export const IssueAffectedFilesTable: React.FC<
 
   const [selectedFileForDetailModal, setSelectedFileForDetailModal] =
     React.useState<AnalysisFileReport | null>(null);
-
-  // TODO search toolbar at the top
 
   return (
     <>
@@ -200,7 +198,7 @@ export const IssueAffectedFilesTable: React.FC<
       />
       {selectedFileForDetailModal ? (
         <FileIncidentsDetailModal
-          appReport={appReport}
+          issue={issue}
           fileReport={selectedFileForDetailModal}
           onClose={() => setSelectedFileForDetailModal(null)}
         />

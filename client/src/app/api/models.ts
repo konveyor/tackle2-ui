@@ -580,7 +580,7 @@ export interface AnalysisIssue extends AnalysisIssuesCommonFields {
 // Hub type: AppReport - Issues collated by application (but filtered by ruleset/rule)
 // When filtered by ruleset/rule, this object matches exactly one issue and includes that issue's details
 export interface AnalysisAppReport extends AnalysisIssue {
-  id: number;
+  id: number; // Application id
   name: string;
   description: string;
   effort: number;
@@ -599,10 +599,17 @@ export interface AnalysisAppReport extends AnalysisIssue {
 export interface BaseAnalysisRuleReport extends AnalysisIssuesCommonFields {
   applications: number;
 }
-// After fetching from the hub, we inject a unique id composed of ruleset+rule for convenience
-export interface AnalysisRuleReport extends BaseAnalysisRuleReport {
-  _ui_unique_id: string;
+
+// Hub type: IssueReport - Issues collated by ruleset/rule, filtered by one application
+export interface BaseAnalysisIssueReport extends AnalysisIssuesCommonFields {
+  id: number; // Issue id
+  files: number;
 }
+
+// After fetching from the hub, we inject a unique id composed of ruleset+rule for convenience
+export type WithUiId<T> = T & { _ui_unique_id: string };
+export type AnalysisRuleReport = WithUiId<BaseAnalysisRuleReport>;
+export type AnalysisIssueReport = WithUiId<BaseAnalysisIssueReport>;
 
 // Hub type: FileReport - Incidents collated by file
 export interface AnalysisFileReport {

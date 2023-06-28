@@ -25,6 +25,7 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
   setFilterValue,
   showToolbarItem,
   isNumeric,
+  isDisabled = false,
 }: React.PropsWithChildren<
   ISearchFilterControlProps<TItem, TFilterCategoryKey>
 >): JSX.Element | null => {
@@ -60,12 +61,14 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
             if (event.key && event.key !== "Enter") return;
             onFilterSubmit();
           }}
+          isDisabled={isDisabled}
         />
         <Button
           variant={ButtonVariant.control}
           id="search-button"
           aria-label="search button for search input"
           onClick={onFilterSubmit}
+          isDisabled={isDisabled}
         >
           <SearchIcon />
         </Button>

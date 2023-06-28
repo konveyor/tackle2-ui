@@ -29,6 +29,7 @@ export const MultiselectFilterControl = <
   filterValue,
   setFilterValue,
   showToolbarItem,
+  isDisabled = false,
 }: React.PropsWithChildren<
   IMultiselectFilterControlProps<TItem, TFilterCategoryKey>
 >): JSX.Element | null => {
@@ -126,7 +127,7 @@ export const MultiselectFilterControl = <
         placeholderText={category.placeholderText}
         hasInlineFilter
         onFilter={onOptionsFilter}
-        isDisabled={category.selectOptions.length === 0}
+        isDisabled={isDisabled || category.selectOptions.length === 0}
       >
         {renderSelectOptions(category.selectOptions)}
       </Select>

@@ -34,6 +34,7 @@ export enum Paths {
   issuesAllTab = "/issues/all",
   issuesAllAffectedApplications = "/issues/all/:ruleset/:rule/affected-applications",
   issuesSingleAppTab = "/issues/single-app",
+  issuesSingleAppSelected = "/issues/single-app/:applicationId",
 
   dependencies = "/dependencies",
 

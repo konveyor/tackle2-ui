@@ -33,7 +33,7 @@ export const FileAllIncidentsTable: React.FC<
   IFileRemainingIncidentsTableProps
 > = ({ fileReport }) => {
   const tableControlState = useTableControlUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.remainingIncidents,
+    urlParamKeyPrefix: TableURLParamKeyPrefix.issuesRemainingIncidents,
     columnNames: {
       line: "Line #",
       message: "Message",
