@@ -16,6 +16,7 @@ import {
   EmptyStateBody,
   EmptyStateIcon,
   Title,
+  Button,
 } from "@patternfly/react-core";
 import {
   TableComposable,
@@ -382,7 +383,13 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                     >
                       <Tooltip content="View Report">
                         {mode === "singleApp" ? (
-                          <>TODO</>
+                          <Button
+                            variant="link"
+                            isInline
+                            onClick={() => alert("TODO")}
+                          >
+                            {(report as AnalysisIssueReport).files}
+                          </Button>
                         ) : (
                           <AffectedAppsLink
                             ruleReport={report as AnalysisRuleReport}
@@ -418,7 +425,14 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
 
                             <Tooltip content="View Report">
                               {mode === "singleApp" ? (
-                                <>TODO</>
+                                <Button
+                                  variant="link"
+                                  isInline
+                                  onClick={() => alert("TODO")}
+                                >
+                                  {(report as AnalysisIssueReport).files} - View
+                                  affected files
+                                </Button>
                               ) : (
                                 <AffectedAppsLink
                                   ruleReport={report as AnalysisRuleReport}
