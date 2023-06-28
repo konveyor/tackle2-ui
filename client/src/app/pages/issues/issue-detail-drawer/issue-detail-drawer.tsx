@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AnalysisAppReport } from "@app/api/models";
+import { AnalysisAppReport, AnalysisIssueReport } from "@app/api/models";
 import {
   IPageDrawerContentProps,
   PageDrawerContent,
@@ -15,37 +15,54 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IssueAffectedFilesTable } from "./issue-affected-files-table";
 
-export interface IIssueDetailDrawerProps
-  extends Pick<IPageDrawerContentProps, "onCloseClick"> {
-  appReport: AnalysisAppReport | null;
-}
+export type IIssueDetailDrawerProps = Pick<
+  IPageDrawerContentProps,
+  "onCloseClick"
+> & {
+  applicationName: string | null;
+} & (
+    | {
+        mode: "AppReport";
+        report: AnalysisAppReport | null;
+      }
+    | {
+        mode: "IssueReport";
+        report: AnalysisIssueReport | null;
+      }
+  );
 
 enum TabKey {
   AffectedFiles = 0,
 }
 
 export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
-  appReport,
+  mode,
+  applicationName,
+  report,
   onCloseClick,
 }) => {
+  const issueRef: { id?: number; name?: string } =
+    (mode === "AppReport" ? report?.issue : report) || {};
+  const { id: issueId, name: issueName } = issueRef;
+
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.AffectedFiles
   );
 
   return (
     <PageDrawerContent
-      isExpanded={!!appReport}
+      isExpanded={!!report}
       onCloseClick={onCloseClick}
-      focusKey={appReport?.name}
+      focusKey={issueId}
       pageKey="affected-applications"
       drawerPanelContentProps={{ defaultSize: "600px" }}
     >
       <TextContent>
         <Text component="small" className={spacing.mb_0}>
-          {appReport?.name}
+          {applicationName}
         </Text>
         <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
-          {appReport?.issue.name}
+          {issueName}
         </Title>
       </TextContent>
       <Tabs
@@ -57,7 +74,9 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
           eventKey={TabKey.AffectedFiles}
           title={<TabTitleText>Affected files</TabTitleText>}
         >
-          {appReport ? <IssueAffectedFilesTable appReport={appReport} /> : null}
+          {issueId !== undefined && issueName !== undefined ? (
+            <IssueAffectedFilesTable issueId={issueId} issueName={issueName} />
+          ) : null}
         </Tab>
       </Tabs>
     </PageDrawerContent>

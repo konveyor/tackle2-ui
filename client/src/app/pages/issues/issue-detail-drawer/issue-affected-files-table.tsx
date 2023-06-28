@@ -37,12 +37,13 @@ import {
 } from "@app/shared/components/FilterToolbar";
 
 export interface IIssueAffectedFilesTableProps {
-  appReport: AnalysisAppReport;
+  issueId: number;
+  issueName: string;
 }
 
 export const IssueAffectedFilesTable: React.FC<
   IIssueAffectedFilesTableProps
-> = ({ appReport }) => {
+> = ({ issueId, issueName }) => {
   const { t } = useTranslation();
 
   const tableControlState = useTableControlUrlParams({
@@ -75,7 +76,7 @@ export const IssueAffectedFilesTable: React.FC<
     isFetching,
     fetchError,
   } = useFetchFileReports(
-    appReport.issue.id,
+    issueId,
     getHubRequestParams({
       ...tableControlState,
       hubSortFieldKeys: {
@@ -114,8 +115,6 @@ export const IssueAffectedFilesTable: React.FC<
 
   const [selectedFileForDetailModal, setSelectedFileForDetailModal] =
     React.useState<AnalysisFileReport | null>(null);
-
-  // TODO search toolbar at the top
 
   return (
     <>
@@ -196,7 +195,7 @@ export const IssueAffectedFilesTable: React.FC<
       />
       {selectedFileForDetailModal ? (
         <FileIncidentsDetailModal
-          appReport={appReport}
+          issueName={issueName}
           fileReport={selectedFileForDetailModal}
           onClose={() => setSelectedFileForDetailModal(null)}
         />

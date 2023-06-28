@@ -70,6 +70,7 @@ import { useFetchApplications } from "@app/queries/applications";
 import { Paths } from "@app/Paths";
 import { AffectedAppsLink } from "./affected-apps-link";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
+import { IssueDetailDrawer } from "./issue-detail-drawer";
 
 export interface IIssuesTableProps {
   mode: "allIssues" | "singleApp";
@@ -192,13 +193,13 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     | AnalysisIssueReport
   )[];
 
-  console.log({ mode, data, totalReportCount });
-
   const {
     data: applications,
     isFetching: isFetchingApplications,
     error: applicationsFetchError,
   } = useFetchApplications();
+  const selectedApp =
+    applications.find((app) => app.id === selectedAppId) || null;
 
   const fetchError = reportsFetchError || applicationsFetchError;
   const isLoading =
@@ -219,6 +220,10 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
       isEqual: (a, b) => a._ui_unique_id === b._ui_unique_id,
     }),
   });
+
+  // Only for singleApp mode
+  const [activeIssueReportInDetailDrawer, setActiveIssueReportInDetailDrawer] =
+    React.useState<AnalysisIssueReport | null>(null);
 
   const {
     numRenderedColumns,
@@ -290,7 +295,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
           />
           <ToolbarItem {...paginationToolbarItemProps}>
             <SimplePagination
-              idPrefix="issues-table"
+              idPrefix="s-table"
               isTop
               paginationProps={paginationProps}
             />
@@ -386,7 +391,11 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                           <Button
                             variant="link"
                             isInline
-                            onClick={() => alert("TODO")}
+                            onClick={() => {
+                              setActiveIssueReportInDetailDrawer(
+                                report as AnalysisIssueReport
+                              );
+                            }}
                           >
                             {(report as AnalysisIssueReport).files}
                           </Button>
@@ -428,7 +437,11 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                                 <Button
                                   variant="link"
                                   isInline
-                                  onClick={() => alert("TODO")}
+                                  onClick={() => {
+                                    setActiveIssueReportInDetailDrawer(
+                                      report as AnalysisIssueReport
+                                    );
+                                  }}
                                 >
                                   {(report as AnalysisIssueReport).files} - View
                                   affected files
@@ -530,6 +543,12 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
         idPrefix="issues-table"
         isTop={false}
         paginationProps={paginationProps}
+      />
+      <IssueDetailDrawer
+        mode="IssueReport"
+        report={activeIssueReportInDetailDrawer}
+        applicationName={selectedApp?.name || null}
+        onCloseClick={() => setActiveIssueReportInDetailDrawer(null)}
       />
     </div>
   );
