@@ -270,6 +270,8 @@
     "jobFunction": "Job function",
     "jobFunctionDeleted": "Job function deleted",
     "jobFunctions": "Job functions",
+    "language": "Language",
+    "label": "Label",
     "loading": "Loading",
     "lowRisk": "Low risk",
     "mavenConfig": "Maven configuration",
