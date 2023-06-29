@@ -23,6 +23,8 @@ import {
 import { EmptyTextMessage } from "@app/shared/components";
 import { useFetchFacts } from "@app/queries/facts";
 import { ApplicationFacts } from "./application-facts";
+import { SimpleDocumentViewerModal } from "@app/shared/components/simple-task-viewer";
+import { getApplicationAnalysis, getTaskById } from "@app/api/rest";
 
 export interface IApplicationDetailDrawerAnalysisProps
   extends Pick<
@@ -39,6 +41,8 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
 
   const { identities } = useFetchIdentities();
   const { facts, isFetching } = useFetchFacts(application?.id);
+  const [appAnalysisToView, setAppAnalysisToView] = React.useState<number>();
+  const [taskIdToView, setTaskIdToView] = React.useState<number>();
 
   let matchingSourceCredsRef: Identity | undefined;
   let matchingMavenCredsRef: Identity | undefined;
@@ -46,10 +50,6 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
     matchingSourceCredsRef = getKindIDByRef(identities, application, "source");
     matchingMavenCredsRef = getKindIDByRef(identities, application, "maven");
   }
-
-  const openAnalysisDetails = () => {
-    if (task) window.open(`/hub/tasks/${task.id}`, "_blank");
-  };
 
   const notAvailable = <EmptyTextMessage message={t("terms.notAvailable")} />;
 
@@ -101,19 +101,25 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
           {task?.state === "Succeeded" && application ? (
             <>
               <Tooltip content="View Report">
-                <Button variant="link" isInline>
-                  <Link
-                    to={`/hub/applications/${application.id}/analysis`}
-                    target="_blank"
-                  >
-                    View analysis
-                  </Link>
+                <Button
+                  type="button"
+                  variant="link"
+                  isInline
+                  onClick={() => setAppAnalysisToView(application.id)}
+                >
+                  View analysis
                 </Button>
               </Tooltip>
+              <SimpleDocumentViewerModal<string>
+                title={`Analysis for ${application?.name}`}
+                fetch={getApplicationAnalysis}
+                documentId={appAnalysisToView}
+                onClose={() => setAppAnalysisToView(undefined)}
+              />
             </>
           ) : task?.state === "Failed" ? (
-            <>
-              {task ? (
+            task ? (
+              <>
                 <Button
                   icon={
                     <span className={spacing.mrXs}>
@@ -122,19 +128,25 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                   }
                   type="button"
                   variant="link"
-                  onClick={openAnalysisDetails}
+                  onClick={() => setTaskIdToView(task.id)}
                   className={spacing.ml_0}
                   style={{ margin: "0", padding: "0" }}
                 >
                   Analysis details
                 </Button>
-              ) : (
-                <span className={spacing.mlSm}>
-                  <ExclamationCircleIcon color="#c9190b"></ExclamationCircleIcon>
-                  Failed
-                </span>
-              )}
-            </>
+                <SimpleDocumentViewerModal<Task | string>
+                  title={`Analysis details for ${application?.name}`}
+                  fetch={getTaskById}
+                  documentId={taskIdToView}
+                  onClose={() => setTaskIdToView(undefined)}
+                />
+              </>
+            ) : (
+              <span className={spacing.mlSm}>
+                <ExclamationCircleIcon color="#c9190b"></ExclamationCircleIcon>
+                Failed
+              </span>
+            )
           ) : (
             notAvailable
           )}

@@ -1,0 +1,76 @@
+/* Make our document viewer modal height the maximum height (assuming Modal position="top") */
+.simple-task-viewer.full-height-top {
+  height: var(--pf-c-modal-box--m-align-top--MaxHeight);
+}
+
+.simple-task-viewer.full-height {
+  height: var(--pf-c-modal-box--MaxHeight);
+}
+
+/* Match empty state layout to the editor layout so they take up exactly the same space */
+.simple-task-viewer .simple-task-viewer-empty-state {
+  padding: var(--pf-c-code-editor__code--PaddingTop)
+    var(--pf-c-code-editor__code--PaddingRight)
+    var(--pf-c-code-editor__code--PaddingBottom)
+    var(--pf-c-code-editor__code--PaddingLeft);
+}
+
+/*
+  Make all of the containers of the MonacoEditor component take the maximum height so the
+  editor can always be as tall as possible in the Modal.
+ */
+.simple-task-viewer[class*="full-height"] .pf-c-modal-box__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.simple-task-viewer[class*="full-height"]
+  .pf-c-modal-box__body
+  .pf-c-code-editor {
+  flex-grow: 1;
+}
+
+.simple-task-viewer[class*="full-height"]
+  .pf-c-modal-box__body
+  .pf-c-code-editor
+  .pf-c-file-upload {
+  height: 100%;
+}
+
+.simple-task-viewer[class*="full-height"]
+  .pf-c-modal-box__body
+  .pf-c-code-editor
+  .pf-c-file-upload
+  .pf-c-code-editor__main {
+  flex-grow: 1;
+}
+
+.simple-task-viewer[class*="full-height"]
+  .pf-c-modal-box__body
+  .pf-c-code-editor
+  .pf-c-file-upload
+  .pf-c-code-editor__main
+  .pf-c-code-editor__code {
+  height: 100%;
+}
+
+/*
+  Tweak the code editor so we can put the language selection toggle group in the
+  "Language Label" location
+*/
+.simple-task-viewer .pf-c-code-editor__controls {
+  flex-grow: 1;
+}
+
+.simple-task-viewer .pf-c-code-editor__header-main {
+  display: none;
+}
+
+.simple-task-viewer .pf-c-code-editor__tab.language-toggle-group-container {
+  padding: 0;
+  border: none;
+}
+
+.simple-task-viewer .language-toggle-group {
+  --pf-c-toggle-group__button--FontSize: var(--pf-global--FontSize--md);
+}

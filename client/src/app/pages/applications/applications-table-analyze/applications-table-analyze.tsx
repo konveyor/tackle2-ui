@@ -71,6 +71,8 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 import { ConfirmDialog } from "@app/shared/components/confirm-dialog/confirm-dialog";
 import { ApplicationDetailDrawerAnalysis } from "../components/application-detail-drawer";
 import { useQueryClient } from "@tanstack/react-query";
+import { SimpleDocumentViewerModal } from "@app/shared/components/simple-task-viewer";
+import { getTaskById } from "@app/api/rest";
 
 const ENTITY_FIELD = "entity";
 
@@ -93,6 +95,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     React.useState(false);
+
+  const [taskToView, setTaskToView] = React.useState<{
+    name: string;
+    task: number | undefined;
+  }>();
 
   // Router
   const history = useHistory();
@@ -364,7 +371,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         isAriaDisabled: !getTask(row),
         onClick: () => {
           const task = getTask(row);
-          if (task) window.open(`/hub/tasks/${task.id}`, "_blank");
+          if (task) setTaskToView({ name: row.name, task: task.id });
         },
       });
     }
@@ -727,6 +734,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           "dialog.message.delete"
         )}`}
       </Modal>
+
       {isConfirmDialogOpen && (
         <ConfirmDialog
           title={t("dialog.title.delete", {
@@ -749,6 +757,13 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           }}
         />
       )}
+
+      <SimpleDocumentViewerModal<Task | string>
+        title={`Analysis details for ${taskToView?.name}`}
+        fetch={getTaskById}
+        documentId={taskToView?.task}
+        onClose={() => setTaskToView(undefined)}
+      />
     </>
   );
 };

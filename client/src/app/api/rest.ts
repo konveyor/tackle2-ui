@@ -105,6 +105,7 @@ export const ASSESSMENTS = PATHFINDER + "/assessments";
 const jsonHeaders = { headers: { Accept: "application/json" } };
 const formHeaders = { headers: { Accept: "multipart/form-data" } };
 const fileHeaders = { headers: { Accept: "application/json" } };
+const yamlHeaders = { headers: { Accept: "application/x-yaml" } };
 
 type Direction = "asc" | "desc";
 
@@ -126,17 +127,6 @@ const buildQuery = (params: any) => {
   });
 
   return query;
-};
-
-//Volumes
-// poll clean task
-export const getTaskById = ({
-  queryKey,
-}: {
-  queryKey: QueryKey;
-}): AxiosPromise<Task> => {
-  const [_, processId] = queryKey;
-  return axios.get<Task>(`${TASKS}/${processId}`);
 };
 
 // Business services
@@ -425,6 +415,33 @@ export const getApplicationImports = (
   axios
     .get(`${APP_IMPORT}?importSummary.id=${importSummaryID}&isValid=${isValid}`)
     .then((response) => response.data);
+
+export const getApplicationAnalysis = (
+  applicationId: number,
+  format: "json" | "yaml"
+): Promise<string> => {
+  const headers = format === "yaml" ? yamlHeaders : jsonHeaders;
+  return axios
+    .get<string>(`${APPLICATIONS}/${applicationId}/analysis`, headers)
+    .then((response) => response.data);
+};
+
+export function getTaskById(id: number, format: "json"): Promise<Task>;
+export function getTaskById(id: number, format: "yaml"): Promise<string>;
+export function getTaskById(
+  id: number,
+  format: "json" | "yaml"
+): Promise<Task | string> {
+  if (format === "yaml") {
+    return axios
+      .get<Task>(`${TASKS}/${id}`, yamlHeaders)
+      .then((response) => response.data);
+  } else {
+    return axios
+      .get<string>(`${TASKS}/${id}`, jsonHeaders)
+      .then((response) => response.data);
+  }
+}
 
 export const getTasks = () =>
   axios.get<Task[]>(TASKS).then((response) => response.data);
