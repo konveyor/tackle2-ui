@@ -478,7 +478,13 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                   <MultipleFileUploadStatusItem
                     file={file.fullFile}
                     key={file.fileName}
-                    customFileHandler={(file) => handleFile(file)}
+                    customFileHandler={(file) => {
+                      if (file.type === "placeholder") {
+                        return null;
+                      } else {
+                        return handleFile(file);
+                      }
+                    }}
                     onClearClick={() => removeFiles([file.fileName])}
                     progressValue={getloadPercentage(file.fileName)}
                     progressVariant={getloadResult(file.fileName)}
