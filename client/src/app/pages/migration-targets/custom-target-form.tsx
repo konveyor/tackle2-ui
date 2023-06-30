@@ -113,13 +113,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       };
     });
 
-  const toOptionWithValue = (
-    value: IdentityDropdown
-  ): OptionWithValue<IdentityDropdown> => ({
-    value,
-    toString: () => value?.name || "",
-  });
-
   const { rulesets } = useFetchRulesets();
 
   const validationSchema: yup.SchemaOf<CustomTargetFormValues> = yup
@@ -175,12 +168,12 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     });
 
   const getInitialCustomRulesFilesData = () =>
-    ruleset?.rules?.map((ruleset): IReadFile => {
-      const emptyFile = new File(["empty"], ruleset.name, {
+    ruleset?.rules?.map((rule): IReadFile => {
+      const emptyFile = new File(["empty"], rule.name, {
         type: "placeholder",
       });
       return {
-        fileName: ruleset.name,
+        fileName: rule.name,
         fullFile: emptyFile,
         loadResult: "success",
         loadPercentage: 100,

@@ -11,15 +11,21 @@ export const checkRuleFileType = (filename: string): RuleFileType => {
     return "XML";
   } else return null;
 };
+type ParsedYamlElement = { labels?: string[] };
+type ParsedYaml = ParsedYamlElement[] | {};
 
 export const parseRules = (file: IReadFile): ParsedRule => {
   if (file.data) {
     if (checkRuleFileType(file.fileName) === "YAML") {
-      const yamlDoc = yaml.load(file.data) as any[];
-      const yamlLabels = yamlDoc?.reduce((acc, parsedLine) => {
-        const newLabels = parsedLine?.labels ? parsedLine?.labels : [];
-        return [...acc, ...newLabels];
-      }, []);
+      const yamlDoc: ParsedYaml = yaml.load(file.data) as ParsedYaml;
+      const yamlList = Array.isArray(yamlDoc) ? yamlDoc : [yamlDoc];
+      const yamlLabels = Array.from(
+        new Set(
+          yamlList?.flatMap((parsedLine) => {
+            return parsedLine?.labels ? parsedLine?.labels : [];
+          }) || []
+        )
+      );
       const allLabels = getLabels(yamlLabels);
       return {
         source: allLabels?.sourceLabel,
