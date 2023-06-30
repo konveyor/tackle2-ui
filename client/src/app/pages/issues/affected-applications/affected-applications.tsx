@@ -61,7 +61,8 @@ export const AffectedApplications: React.FC = () => {
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: useSharedFilterCategoriesForIssuesAndAffectedApps(),
     initialItemsPerPage: 10,
-    hasClickableRows: true,
+    // TODO PF V5 obsolete
+    // hasClickableRows: true,
   });
 
   const {

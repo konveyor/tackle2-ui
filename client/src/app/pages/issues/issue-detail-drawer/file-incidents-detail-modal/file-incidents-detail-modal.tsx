@@ -85,57 +85,66 @@ export const FileIncidentsDetailModal: React.FC<
           })}
         />
       ) : (
-        <Tabs
-          activeKey={activeTabIncidentId}
-          onSelect={(_event, tabKey) =>
-            setActiveTabIncidentId(tabKey as IncidentIdOrAll)
-          }
-        >
-          {firstFiveIncidents.map((incident, index) => (
-            <Tab
-              key={incident.id}
-              eventKey={incident.id}
-              title={`Incident #${index + 1}: Line ${incident.line}`} // TODO i18n
-            >
-              {/* Only mount CodeEditor and ReactMarkdown for the active tab for perf reasons */}
-              {activeTabIncidentId === incident.id ? (
-                <Grid hasGutter className={spacing.mtLg}>
-                  <GridItem span={6}>
-                    <IncidentCodeSnipViewer
-                      issueName={issue.name}
-                      incident={incident}
-                    />
-                  </GridItem>
-                  <GridItem span={6} className={spacing.plSm}>
-                    <TextContent>
-                      <Text component="h2">{issue.name}</Text>
-                      <Text component="small">Line {incident.line}</Text>
-                    </TextContent>
-                    <TextContent className={spacing.mtLg}>
-                      <ReactMarkdown components={markdownPFComponents}>
-                        {incident.message}
-                      </ReactMarkdown>
-                    </TextContent>
-                  </GridItem>
-                </Grid>
-              ) : null}
-            </Tab>
-          ))}
+        <>
+          <Tabs
+            activeKey={activeTabIncidentId}
+            onSelect={(_event, tabKey) =>
+              setActiveTabIncidentId(tabKey as IncidentIdOrAll)
+            }
+          >
+            {firstFiveIncidents.map((incident, index) => (
+              <Tab
+                key={incident.id}
+                eventKey={incident.id}
+                title={`Incident #${index + 1}: Line ${incident.line}`} // TODO i18n
+              >
+                {/* Only mount CodeEditor and ReactMarkdown for the active tab for perf reasons */}
+                {activeTabIncidentId === incident.id ? (
+                  <Grid hasGutter className={spacing.mtLg}>
+                    <GridItem span={6}>
+                      <IncidentCodeSnipViewer
+                        issueName={issue.name}
+                        incident={incident}
+                      />
+                    </GridItem>
+                    <GridItem span={6} className={spacing.plSm}>
+                      <TextContent>
+                        <Text component="h2">{issue.name}</Text>
+                        <Text component="small">Line {incident.line}</Text>
+                      </TextContent>
+                      <TextContent className={spacing.mtLg}>
+                        <ReactMarkdown components={markdownPFComponents}>
+                          {incident.message}
+                        </ReactMarkdown>
+                      </TextContent>
+                    </GridItem>
+                  </Grid>
+                ) : null}
+              </Tab>
+            ))}
+          </Tabs>
           {totalNumIncidents > 5 ? (
-            <Tab
-              eventKey="all"
-              title={`All incidents (${totalNumIncidents})`} // TODO i18n
+            <Tabs
+              activeKey="all"
+              onSelect={(_event, tabKey) =>
+                setActiveTabIncidentId(tabKey as IncidentIdOrAll)
+              }
             >
-              <Alert
-                isInline
-                variant="info"
-                className={spacing.mtMd}
-                title="TODO"
-              />
-              <FileAllIncidentsTable fileReport={fileReport} />
-            </Tab>
+              <Tab
+                eventKey="all"
+                title={`All incidents (${totalNumIncidents})`} // TODO i18n
+              >
+                <Alert
+                  isInline
+                  variant="info"
+                  className={spacing.mtMd}
+                  title="TODO"
+                />
+                <FileAllIncidentsTable fileReport={fileReport} />
+              </Tab>
+            </Tabs>
           ) : null}
-        </Tabs>
+        </>
       )}
     </Modal>
   );

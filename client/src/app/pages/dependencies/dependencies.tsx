@@ -53,7 +53,8 @@ export const Dependencies: React.FC = () => {
       },
     ],
     initialItemsPerPage: 10,
-    hasClickableRows: true,
+    // TODO PF V5 obsolete
+    // hasClickableRows: true,
   });
 
   const {
