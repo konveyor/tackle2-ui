@@ -480,6 +480,7 @@ export interface Ruleset {
 export interface Metadata {
   target: string;
   source?: string;
+  otherLabels?: string[];
 }
 export interface Rule {
   name: string;

@@ -126,7 +126,10 @@ export const getLabels = (labels: string[]) =>
         {
           sourceLabel: sourceValue ? label : map.sourceLabel,
           targetLabel: targetValue ? label : map.targetLabel,
-          otherLabels: [...map.otherLabels, label],
+          otherLabels:
+            !sourceValue && !targetValue
+              ? [...map.otherLabels, label]
+              : map.otherLabels,
           allLabels: [...map.allLabels, label],
         }
       );

@@ -250,7 +250,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
     ruleFiles.forEach((file) => {
       if (file.data && file?.fullFile?.type !== "placeholder") {
-        const { source, target, fileID, allLabels } = parseRules(file);
+        const { fileID, allLabels } = parseRules(file);
         const newRule: Rule = {
           name: file.fileName,
           labels: allLabels,
@@ -268,6 +268,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         }
       }
     });
+
     const matchingSourceCredential = identities.find(
       (identity) => identity.name === formValues.associatedCredentials
     );

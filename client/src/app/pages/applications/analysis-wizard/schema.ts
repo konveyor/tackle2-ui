@@ -58,6 +58,7 @@ const useModeStepSchema = ({
 
 export interface TargetsStepValues {
   formTargets: string[];
+  formOtherLabels: string[];
   formRulesets: Ruleset[];
 }
 export const rulesetSchema: yup.SchemaOf<Ruleset> = yup.object({
@@ -79,6 +80,7 @@ const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
   const { t } = useTranslation();
   return yup.object({
     formTargets: yup.array(),
+    formOtherLabels: yup.array(),
     formRulesets: yup.array().of(rulesetSchema),
   });
 };
