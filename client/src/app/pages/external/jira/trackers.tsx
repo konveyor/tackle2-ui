@@ -226,7 +226,7 @@ export const JiraTrackers: React.FC = () => {
                       No Jira instance connection available
                     </Title>
                     <EmptyStateBody>
-                      Use the filter menu above to select your jira instance.
+                      Use the filter menu above to select your Jira instance.
                     </EmptyStateBody>
                   </EmptyState>
                 }
