@@ -218,9 +218,7 @@ export const JiraTrackers: React.FC = () => {
               <ConditionalTableBody
                 isLoading={isFetching}
                 isError={!!fetchError}
-                isNoData={
-                  trackers.length === 0 || currentPageItems.length === 0
-                }
+                isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
                   <EmptyState variant="small">
                     <EmptyStateIcon icon={CubesIcon} />
