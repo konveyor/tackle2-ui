@@ -118,6 +118,18 @@ export const JiraTrackers: React.FC = () => {
           return item?.name || "";
         },
       },
+      {
+        key: "url",
+        title: t("terms.url"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.url").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          return item?.url || "";
+        },
+      },
     ],
     getSortValues: (tracker) => ({
       name: tracker.name || "",
