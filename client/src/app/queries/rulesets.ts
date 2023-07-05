@@ -29,6 +29,7 @@ export const useFetchRulesets = () => {
             const transformedMetadata: Metadata = {
               source: labels.sourceLabel,
               target: labels.targetLabel,
+              otherLabels: labels.otherLabels,
             };
             return {
               ...rule,
