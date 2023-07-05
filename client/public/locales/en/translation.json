@@ -309,6 +309,8 @@
     "scheduled": "Scheduled",
     "select": "Select",
     "settingsAllowApps": "Allow reviewing applications without running an assessment first",
+    "showLess": "Show less",
+    "showMore": "Show more",
     "source": "Source",
     "sourceBranch": "Branch",
     "sourceCode": "Source code",
