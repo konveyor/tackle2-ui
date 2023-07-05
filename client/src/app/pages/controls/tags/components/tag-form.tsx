@@ -166,6 +166,9 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
           <SimpleSelect
             variant="single"
             maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+            placeholderText={t("composed.selectOne", {
+              what: t("terms.tagCategory").toLowerCase(),
+            })}
             id="tag-type-select"
             toggleId="tag-type-select-toggle"
             toggleAriaLabel="Tag Type select dropdown toggle"
