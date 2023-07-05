@@ -64,7 +64,7 @@
     "businessCriticality": "Criticidad de negocio (1=bajo, 10=alto)",
     "editQuestion": "Editar {{what}}?",
     "manageDependenciesFor": "Administrar dependencias para {{what}}",
-    "noDataStateBody": "Cree un(a) nuevo(a) {{what}} para empezar a ver datos acá",
+    "noDataStateBody": "Cree un(a) nuevo(a) {{what}} para empezar a ver datos acá.",
     "noDataStateTitle": "No existen {{what}} disponibles",
     "Nquestions": "{{n}} preguntas",
     "ofTotalApplications": "De {{count}} aplicación",

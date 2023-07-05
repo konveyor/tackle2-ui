@@ -438,11 +438,9 @@ export const Tags: React.FC = () => {
                 what: t("terms.tagCategories").toLowerCase(),
               })}
               // t('terms.stakeholderGroup')
-              description={
-                t("composed.noDataStateBody", {
-                  what: t("terms.tagCategory").toLowerCase(),
-                }) + "."
-              }
+              description={t("composed.noDataStateBody", {
+                what: t("terms.tagCategory").toLowerCase(),
+              })}
             />
           }
         />

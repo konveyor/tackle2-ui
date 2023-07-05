@@ -8,8 +8,12 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateIcon,
   Modal,
   ModalVariant,
+  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -25,6 +29,7 @@ import {
   Tr,
 } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 
 import {
   AppPlaceholder,
@@ -247,7 +252,22 @@ export const Stakeholders: React.FC = () => {
             <ConditionalTableBody
               isLoading={isFetching}
               isError={!!fetchError}
-              isNoData={stakeholders.length === 0}
+              isNoData={currentPageItems.length === 0}
+              noDataEmptyState={
+                <EmptyState variant="small">
+                  <EmptyStateIcon icon={CubesIcon} />
+                  <Title headingLevel="h2" size="lg">
+                    {t("composed.noDataStateTitle", {
+                      what: t("terms.stakeholder").toLowerCase(),
+                    })}
+                  </Title>
+                  <EmptyStateBody>
+                    {t("composed.noDataStateBody", {
+                      what: t("terms.stakeholder").toLowerCase(),
+                    })}
+                  </EmptyStateBody>
+                </EmptyState>
+              }
               numRenderedColumns={numRenderedColumns}
             >
               {currentPageItems?.map((stakeholder, rowIndex) => {
