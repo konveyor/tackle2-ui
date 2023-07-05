@@ -19,7 +19,7 @@
     "@dnd-kit/sortable": "^7.0.2",
     "@hookform/resolvers": "^2.8.0",
     "@hot-loader/react-dom": "^17.0.2",
-    "@migtools/lib-ui": "^8.8.0",
+    "@migtools/lib-ui": "^9.0.0",
     "@patternfly/patternfly": "5.0.0-prerelease.11",
     "@patternfly/react-charts": "7.0.0-prerelease.7",
     "@patternfly/react-code-editor": "5.0.0-prerelease.15",
