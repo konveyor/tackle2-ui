@@ -30,6 +30,7 @@ export const SetTargets: React.FC = () => {
   const formTargets = watch("formTargets");
   const formRulesets = watch("formRulesets");
   const formSources = watch("formSources");
+  const formOtherLabels = watch("formOtherLabels");
 
   const handleOnSelectedCardTargetChange = (
     selectedRuleTarget: string,
@@ -72,37 +73,65 @@ export const SetTargets: React.FC = () => {
           .includes(formTarget)
     );
 
-    const otherSelectedrulesets = formRulesets.filter(
+    const otherSelectedRulesets = formRulesets.filter(
       (formRuleset) => selectedRuleset.id !== formRuleset.id
     );
 
+    const otherSelectedOtherLabels = formOtherLabels.filter(
+      (label) =>
+        !selectedRuleset.rules
+          .flatMap((rule) => rule?.metadata?.otherLabels)
+          .includes(label)
+    );
+
     if (isSelecting) {
-      const definedSelectedSources: string[] = selectedRuleset.rules
-        .map((rulesets) => rulesets?.metadata?.source || "")
-        .filter((source) => !!source);
+      const definedSelectedOtherLabels: string[] = Array.from(
+        new Set(
+          selectedRuleset.rules
+            .flatMap((rulesets) => rulesets?.metadata?.otherLabels || "")
+            .filter((otherLabel) => otherLabel!)
+        )
+      );
+
+      setValue("formOtherLabels", [
+        ...otherSelectedOtherLabels,
+        ...definedSelectedOtherLabels,
+      ]);
+
+      const definedSelectedSources: string[] = Array.from(
+        new Set(
+          selectedRuleset.rules
+            .map((rulesets) => rulesets?.metadata?.source || "")
+            .filter((source) => !!source)
+        )
+      );
 
       setValue("formSources", [
         ...otherSelectedRuleSources,
         ...definedSelectedSources,
       ]);
 
-      const definedSelectedTargets: string[] =
-        selectedRuleset.kind === "category"
-          ? [selectedRuleTarget]
-          : selectedRuleset.rules
-              .map((rulesets) => rulesets?.metadata?.target || "")
-              .filter((target) => !!target);
+      const definedSelectedTargets: string[] = Array.from(
+        new Set(
+          selectedRuleset.kind === "category"
+            ? [selectedRuleTarget]
+            : selectedRuleset.rules
+                .map((rulesets) => rulesets?.metadata?.target || "")
+                .filter((target) => !!target)
+        )
+      );
 
       setValue("formTargets", [
         ...otherSelectedRuleTargets,
         ...definedSelectedTargets,
       ]);
 
-      setValue("formRulesets", [...otherSelectedrulesets, selectedRuleset]);
+      setValue("formRulesets", [...otherSelectedRulesets, selectedRuleset]);
     } else {
       setValue("formSources", otherSelectedRuleSources);
       setValue("formTargets", otherSelectedRuleTargets);
-      setValue("formRulesets", otherSelectedrulesets);
+      setValue("formRulesets", otherSelectedRulesets);
+      setValue("formOtherLabels", otherSelectedOtherLabels);
     }
   };
   return (

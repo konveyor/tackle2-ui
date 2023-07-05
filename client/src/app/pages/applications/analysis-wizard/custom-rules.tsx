@@ -67,7 +67,13 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
     useFormContext<AnalysisWizardFormValues>();
   const values = getValues();
 
-  const { formSources, formTargets, customRulesFiles, rulesKind } = watch();
+  const {
+    formSources,
+    formTargets,
+    formOtherLabels,
+    customRulesFiles,
+    rulesKind,
+  } = watch();
   const initialActiveTabKeyValue = (value: string): number =>
     value === "manual" ? 0 : value === "repository" ? 1 : 0;
 
@@ -440,12 +446,27 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                     shouldDirty: true,
                   });
                   updatedCustomRulesFiles.forEach((file) => {
-                    const { source, target } = parseRules(file);
+                    const { source, target, otherLabels } = parseRules(file);
                     if (source && !formSources.includes(source)) {
                       setValue("formSources", [...formSources, source]);
                     }
                     if (target && !formTargets.includes(target)) {
                       setValue("formTargets", [...formTargets, target]);
+                    }
+                    if (
+                      otherLabels?.length &&
+                      formOtherLabels.some(
+                        (otherLabel) => !otherLabels.includes(otherLabel)
+                      )
+                    ) {
+                      const newOtherLabels = otherLabels.filter(
+                        (otherLabel) => !formOtherLabels.includes(otherLabel)
+                      );
+
+                      setValue("formOtherLabels", [
+                        ...formOtherLabels,
+                        ...newOtherLabels,
+                      ]);
                     }
                   });
                   setRuleFiles([]);

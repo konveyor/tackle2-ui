@@ -170,6 +170,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       artifact: null,
       mode: "binary",
       formTargets: [],
+      formOtherLabels: [],
       selectedFormSources: [],
       formSources: defaultSources,
       formRulesets: [],
@@ -256,10 +257,13 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
         },
         rules: {
           labels: {
-            included: [
-              ...fieldValues.formTargets,
-              ...fieldValues.selectedFormSources,
-            ],
+            included: Array.from(
+              new Set<string>([
+                ...fieldValues.formTargets,
+                ...fieldValues.selectedFormSources,
+                ...fieldValues.formOtherLabels,
+              ])
+            ),
             excluded: [],
           },
           path: fieldValues.customRulesFiles.length > 0 ? "/rules" : "",
