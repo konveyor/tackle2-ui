@@ -1,5 +1,9 @@
 import * as React from "react";
-import { CodeEditor, Language } from "@patternfly/react-code-editor";
+import {
+  CodeEditor,
+  CodeEditorControl,
+  Language,
+} from "@patternfly/react-code-editor";
 import {
   Button,
   EmptyState,
@@ -15,6 +19,7 @@ import {
 import { css } from "@patternfly/react-styles";
 import editorStyles from "@patternfly/react-styles/css/components/CodeEditor/code-editor";
 import CodeIcon from "@patternfly/react-icons/dist/esm/icons/code-icon";
+import UndoIcon from "@patternfly/react-icons/dist/esm/icons/undo-icon";
 
 import "./viewer.css";
 
@@ -75,20 +80,22 @@ export const SimpleDocumentViewer = <FetchType,>({
 
   React.useEffect(() => {
     setCode(undefined);
-    if (documentId) {
-      if (currentLanguage === Language.yaml) {
-        fetch(documentId, currentLanguage).then((yaml) => {
-          setCode(yaml.toString());
-          focusAndHomePosition();
-        });
-      } else {
-        fetch(documentId, currentLanguage).then((json) => {
-          setCode(JSON.stringify(json, undefined, 2));
-          focusAndHomePosition();
-        });
-      }
-    }
+    documentId && fetchDocument(documentId);
   }, [documentId, currentLanguage]);
+
+  const fetchDocument = (documentId: number) => {
+    if (currentLanguage === Language.yaml) {
+      fetch(documentId, currentLanguage).then((yaml) => {
+        setCode(yaml.toString());
+        focusAndHomePosition();
+      });
+    } else {
+      fetch(documentId, currentLanguage).then((json) => {
+        setCode(JSON.stringify(json, undefined, 2));
+        focusAndHomePosition();
+      });
+    }
+  };
 
   const focusAndHomePosition = () => {
     if (editorRef.current) {
@@ -96,6 +103,17 @@ export const SimpleDocumentViewer = <FetchType,>({
       editorRef.current.setPosition({ column: 0, lineNumber: 1 });
     }
   };
+  const refreshControl = (
+    <CodeEditorControl
+      icon={<UndoIcon />}
+      aria-label="refresh-task"
+      tooltipProps={{ content: "Refresh" }}
+      onClick={() => {
+        documentId && fetchDocument(documentId);
+      }}
+      isVisible={code !== ""}
+    />
+  );
 
   return (
     <CodeEditor
@@ -128,6 +146,7 @@ export const SimpleDocumentViewer = <FetchType,>({
         </div>
       }
       customControls={[
+        refreshControl,
         <div
           className={css(
             editorStyles.codeEditorTab,
