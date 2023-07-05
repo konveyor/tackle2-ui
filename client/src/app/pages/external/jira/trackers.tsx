@@ -223,10 +223,14 @@ export const JiraTrackers: React.FC = () => {
                   <EmptyState variant="small">
                     <EmptyStateIcon icon={CubesIcon} />
                     <Title headingLevel="h2" size="lg">
-                      No Jira instance connection available
+                      {t("composed.noDataStateTitle", {
+                        what: t("terms.jiraConfig").toLowerCase(),
+                      })}
                     </Title>
                     <EmptyStateBody>
-                      Use the filter menu above to select your Jira instance.
+                      {t("composed.noDataStateBody", {
+                        what: t("terms.jiraConfig").toLowerCase(),
+                      })}
                     </EmptyStateBody>
                   </EmptyState>
                 }
