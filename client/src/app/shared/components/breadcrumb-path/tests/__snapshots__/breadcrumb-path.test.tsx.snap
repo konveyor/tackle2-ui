@@ -7,29 +7,29 @@ Object {
     <div>
       <nav
         aria-label="Breadcrumb"
-        class="pf-c-breadcrumb"
+        class="pf-v5-c-breadcrumb"
         data-ouia-component-id="OUIA-Generated-Breadcrumb-1"
         data-ouia-component-type="PF4/Breadcrumb"
         data-ouia-safe="true"
       >
         <ol
-          class="pf-c-breadcrumb__list"
+          class="pf-v5-c-breadcrumb__list"
         >
           <li
-            class="pf-c-breadcrumb__item"
+            class="pf-v5-c-breadcrumb__item"
           >
             <a
-              class="pf-c-breadcrumb__link"
+              class="pf-v5-c-breadcrumb__link"
               href="/first"
             >
               first
             </a>
           </li>
           <li
-            class="pf-c-breadcrumb__item"
+            class="pf-v5-c-breadcrumb__item"
           >
             <span
-              class="pf-c-breadcrumb__item-divider"
+              class="pf-v5-c-breadcrumb__item-divider"
             >
               <svg
                 aria-hidden="true"
@@ -46,17 +46,17 @@ Object {
               </svg>
             </span>
             <a
-              class="pf-c-breadcrumb__link"
+              class="pf-v5-c-breadcrumb__link"
               href="/second"
             >
               second
             </a>
           </li>
           <li
-            class="pf-c-breadcrumb__item"
+            class="pf-v5-c-breadcrumb__item"
           >
             <span
-              class="pf-c-breadcrumb__item-divider"
+              class="pf-v5-c-breadcrumb__item-divider"
             >
               <svg
                 aria-hidden="true"
@@ -81,29 +81,29 @@ Object {
   "container": <div>
     <nav
       aria-label="Breadcrumb"
-      class="pf-c-breadcrumb"
+      class="pf-v5-c-breadcrumb"
       data-ouia-component-id="OUIA-Generated-Breadcrumb-1"
       data-ouia-component-type="PF4/Breadcrumb"
       data-ouia-safe="true"
     >
       <ol
-        class="pf-c-breadcrumb__list"
+        class="pf-v5-c-breadcrumb__list"
       >
         <li
-          class="pf-c-breadcrumb__item"
+          class="pf-v5-c-breadcrumb__item"
         >
           <a
-            class="pf-c-breadcrumb__link"
+            class="pf-v5-c-breadcrumb__link"
             href="/first"
           >
             first
           </a>
         </li>
         <li
-          class="pf-c-breadcrumb__item"
+          class="pf-v5-c-breadcrumb__item"
         >
           <span
-            class="pf-c-breadcrumb__item-divider"
+            class="pf-v5-c-breadcrumb__item-divider"
           >
             <svg
               aria-hidden="true"
@@ -120,17 +120,17 @@ Object {
             </svg>
           </span>
           <a
-            class="pf-c-breadcrumb__link"
+            class="pf-v5-c-breadcrumb__link"
             href="/second"
           >
             second
           </a>
         </li>
         <li
-          class="pf-c-breadcrumb__item"
+          class="pf-v5-c-breadcrumb__item"
         >
           <span
-            class="pf-c-breadcrumb__item-divider"
+            class="pf-v5-c-breadcrumb__item-divider"
           >
             <svg
               aria-hidden="true"

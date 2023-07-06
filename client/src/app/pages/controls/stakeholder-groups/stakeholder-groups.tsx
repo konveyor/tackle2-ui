@@ -221,7 +221,7 @@ export const StakeholderGroups: React.FC = () => {
         parent: rows.length - 1,
         fullWidth: false,
         cells: [
-          <div className="pf-c-table__expandable-row-content">
+          <div className="pf-v5-c-table__expandable-row-content">
             <DescriptionList>
               <DescriptionListGroup>
                 <DescriptionListTerm>

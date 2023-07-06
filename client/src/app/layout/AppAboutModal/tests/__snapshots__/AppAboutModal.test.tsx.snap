@@ -4,14 +4,14 @@ exports[`AppAboutModal 1`] = `
 Object {
   "asFragment": [Function],
   "baseElement": <body
-    class="pf-c-backdrop__open"
+    class="pf-v5-c-backdrop__open"
   >
     <div
       aria-hidden="true"
     />
     <div>
       <div
-        class="pf-c-backdrop"
+        class="pf-v5-c-backdrop"
       >
         <div
           class="pf-l-bullseye"
@@ -20,25 +20,25 @@ Object {
             aria-describedby="pf-about-modal-content-0"
             aria-labelledby="pf-about-modal-title-0"
             aria-modal="true"
-            class="pf-c-about-modal-box"
+            class="pf-v5-c-about-modal-box"
             role="dialog"
           >
             <div
-              class="pf-c-about-modal-box__brand"
+              class="pf-v5-c-about-modal-box__brand"
             >
               <img
                 alt="Logo"
-                class="pf-c-about-modal-box__brand-image"
+                class="pf-v5-c-about-modal-box__brand-image"
                 src="test-file-stub"
               />
             </div>
             <div
-              class="pf-c-about-modal-box__close"
+              class="pf-v5-c-about-modal-box__close"
             >
               <button
                 aria-disabled="false"
                 aria-label="Close Dialog"
-                class="pf-c-button pf-m-plain"
+                class="pf-v5-c-button pf-m-plain"
                 data-ouia-component-id="OUIA-Generated-Button-plain-1"
                 data-ouia-component-type="PF4/Button"
                 data-ouia-safe="true"
@@ -60,10 +60,10 @@ Object {
               </button>
             </div>
             <div
-              class="pf-c-about-modal-box__header"
+              class="pf-v5-c-about-modal-box__header"
             >
               <h1
-                class="pf-c-title pf-m-4xl"
+                class="pf-v5-c-title pf-m-4xl"
                 data-ouia-component-id="OUIA-Generated-Title-1"
                 data-ouia-component-type="PF4/Title"
                 data-ouia-safe="true"
@@ -73,17 +73,17 @@ Object {
               </h1>
             </div>
             <div
-              class="pf-c-about-modal-box__content"
+              class="pf-v5-c-about-modal-box__content"
               id="pf-about-modal-content-0"
             >
               <div
-                class="pf-c-about-modal-box__body"
+                class="pf-v5-c-about-modal-box__body"
               >
                 <div
-                  class="pf-c-content"
+                  class="pf-v5-c-content"
                 >
                   <div
-                    class="pf-c-content"
+                    class="pf-v5-c-content"
                   >
                     <h4
                       class=""
@@ -206,10 +206,10 @@ Object {
                     </p>
                   </div>
                   <div
-                    class="pf-c-content pf-u-py-xl"
+                    class="pf-v5-c-content pf-u-py-xl"
                   >
                     <div
-                      class="pf-c-content"
+                      class="pf-v5-c-content"
                     >
                       <dl
                         class=""
@@ -230,13 +230,13 @@ Object {
                 </div>
               </div>
               <p
-                class="pf-c-about-modal-box__strapline"
+                class="pf-v5-c-about-modal-box__strapline"
               >
                 COPYRIGHT © 2022.
               </p>
             </div>
             <div
-              class="pf-c-about-modal-box__hero"
+              class="pf-v5-c-about-modal-box__hero"
             />
           </div>
         </div>

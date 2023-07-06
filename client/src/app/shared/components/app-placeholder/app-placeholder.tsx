@@ -8,7 +8,7 @@ export const AppPlaceholder: React.FC = () => {
         <div>
           <Spinner />
         </div>
-        <div className="pf-c-content">
+        <div className="pf-v5-c-content">
           <h3>Loading...</h3>
         </div>
       </div>

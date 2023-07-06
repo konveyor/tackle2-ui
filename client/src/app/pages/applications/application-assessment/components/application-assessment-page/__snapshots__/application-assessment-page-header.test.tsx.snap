@@ -13,20 +13,20 @@ Object {
         >
           <nav
             aria-label="Breadcrumb"
-            class="pf-c-breadcrumb"
+            class="pf-v5-c-breadcrumb"
             data-ouia-component-id="OUIA-Generated-Breadcrumb-1"
             data-ouia-component-type="PF4/Breadcrumb"
             data-ouia-safe="true"
           >
             <ol
-              class="pf-c-breadcrumb__list"
+              class="pf-v5-c-breadcrumb__list"
             >
               <li
-                class="pf-c-breadcrumb__item"
+                class="pf-v5-c-breadcrumb__item"
               >
                 <button
                   aria-disabled="false"
-                  class="pf-c-button pf-m-link pf-m-inline"
+                  class="pf-v5-c-button pf-m-link pf-m-inline"
                   data-ouia-component-id="OUIA-Generated-Button-link-1"
                   data-ouia-component-type="PF4/Button"
                   data-ouia-safe="true"
@@ -36,10 +36,10 @@ Object {
                 </button>
               </li>
               <li
-                class="pf-c-breadcrumb__item"
+                class="pf-v5-c-breadcrumb__item"
               >
                 <span
-                  class="pf-c-breadcrumb__item-divider"
+                  class="pf-v5-c-breadcrumb__item-divider"
                 >
                   <svg
                     aria-hidden="true"
@@ -70,7 +70,7 @@ Object {
               class="pf-l-split__item pf-m-fill"
             >
               <div
-                class="pf-c-content"
+                class="pf-v5-c-content"
               >
                 <h1
                   class=""
@@ -108,20 +108,20 @@ Object {
       >
         <nav
           aria-label="Breadcrumb"
-          class="pf-c-breadcrumb"
+          class="pf-v5-c-breadcrumb"
           data-ouia-component-id="OUIA-Generated-Breadcrumb-1"
           data-ouia-component-type="PF4/Breadcrumb"
           data-ouia-safe="true"
         >
           <ol
-            class="pf-c-breadcrumb__list"
+            class="pf-v5-c-breadcrumb__list"
           >
             <li
-              class="pf-c-breadcrumb__item"
+              class="pf-v5-c-breadcrumb__item"
             >
               <button
                 aria-disabled="false"
-                class="pf-c-button pf-m-link pf-m-inline"
+                class="pf-v5-c-button pf-m-link pf-m-inline"
                 data-ouia-component-id="OUIA-Generated-Button-link-1"
                 data-ouia-component-type="PF4/Button"
                 data-ouia-safe="true"
@@ -131,10 +131,10 @@ Object {
               </button>
             </li>
             <li
-              class="pf-c-breadcrumb__item"
+              class="pf-v5-c-breadcrumb__item"
             >
               <span
-                class="pf-c-breadcrumb__item-divider"
+                class="pf-v5-c-breadcrumb__item-divider"
               >
                 <svg
                   aria-hidden="true"
@@ -165,7 +165,7 @@ Object {
             class="pf-l-split__item pf-m-fill"
           >
             <div
-              class="pf-c-content"
+              class="pf-v5-c-content"
             >
               <h1
                 class=""

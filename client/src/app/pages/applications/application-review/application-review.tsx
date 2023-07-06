@@ -188,7 +188,7 @@ export const ApplicationReview: React.FC = () => {
           <Grid hasGutter>
             {application && (
               <GridItem md={5}>
-                <div className="pf-c-form">
+                <div className="pf-v5-c-form">
                   <FormSection>
                     <ApplicationDetails
                       application={application}

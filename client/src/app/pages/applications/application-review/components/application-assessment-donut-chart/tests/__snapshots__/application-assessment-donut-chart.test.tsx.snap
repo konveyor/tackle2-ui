@@ -9,7 +9,7 @@ Object {
         style="height: 250px; width: 380px;"
       >
         <div
-          class="pf-c-chart"
+          class="pf-v5-c-chart"
           style="pointer-events: none; position: relative; width: 100%; height: 100%;"
         >
           <svg
@@ -195,7 +195,7 @@ Object {
       style="height: 250px; width: 380px;"
     >
       <div
-        class="pf-c-chart"
+        class="pf-v5-c-chart"
         style="pointer-events: none; position: relative; width: 100%; height: 100%;"
       >
         <svg

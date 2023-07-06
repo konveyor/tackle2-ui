@@ -15,22 +15,22 @@ Object {
             <span
               aria-label="Contents"
               aria-valuetext="Loading..."
-              class="pf-c-spinner pf-m-xl"
+              class="pf-v5-c-spinner pf-m-xl"
               role="progressbar"
             >
               <span
-                class="pf-c-spinner__clipper"
+                class="pf-v5-c-spinner__clipper"
               />
               <span
-                class="pf-c-spinner__lead-ball"
+                class="pf-v5-c-spinner__lead-ball"
               />
               <span
-                class="pf-c-spinner__tail-ball"
+                class="pf-v5-c-spinner__tail-ball"
               />
             </span>
           </div>
           <div
-            class="pf-c-content"
+            class="pf-v5-c-content"
           >
             <h3>
               Loading...
@@ -51,22 +51,22 @@ Object {
           <span
             aria-label="Contents"
             aria-valuetext="Loading..."
-            class="pf-c-spinner pf-m-xl"
+            class="pf-v5-c-spinner pf-m-xl"
             role="progressbar"
           >
             <span
-              class="pf-c-spinner__clipper"
+              class="pf-v5-c-spinner__clipper"
             />
             <span
-              class="pf-c-spinner__lead-ball"
+              class="pf-v5-c-spinner__lead-ball"
             />
             <span
-              class="pf-c-spinner__tail-ball"
+              class="pf-v5-c-spinner__tail-ball"
             />
           </span>
         </div>
         <div
-          class="pf-c-content"
+          class="pf-v5-c-content"
         >
           <h3>
             Loading...

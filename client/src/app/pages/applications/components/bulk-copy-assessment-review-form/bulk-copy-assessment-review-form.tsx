@@ -302,7 +302,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
   };
 
   return (
-    <div className="pf-c-form">
+    <div className="pf-v5-c-form">
       <Card>
         <CardBody style={{ padding: 0 }}>
           <AppTableWithControls

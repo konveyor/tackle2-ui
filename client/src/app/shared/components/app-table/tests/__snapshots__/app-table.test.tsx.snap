@@ -7,7 +7,7 @@ Object {
     <div>
       <table
         aria-label="main-table"
-        class="app-table pf-c-table pf-m-grid-md"
+        class="app-table pf-v5-c-table pf-m-grid-md"
         data-ouia-component-id="OUIA-Generated-Table-2"
         data-ouia-component-type="PF4/Table"
         data-ouia-safe="true"
@@ -24,25 +24,25 @@ Object {
           >
             <th
               aria-sort="none"
-              class="pf-c-table__sort"
+              class="pf-v5-c-table__sort"
               data-key="0"
               data-label="Col1"
               scope="col"
             >
               <button
-                class="pf-c-table__button"
+                class="pf-v5-c-table__button"
                 type="button"
               >
                 <div
-                  class="pf-c-table__button-content"
+                  class="pf-v5-c-table__button-content"
                 >
                   <span
-                    class="pf-c-table__text"
+                    class="pf-v5-c-table__text"
                   >
                     Col1
                   </span>
                   <span
-                    class="pf-c-table__sort-indicator"
+                    class="pf-v5-c-table__sort-indicator"
                   >
                     <svg
                       aria-hidden="true"
@@ -95,10 +95,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   0,0
@@ -111,10 +111,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   0,1
@@ -127,10 +127,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   0,2
@@ -150,10 +150,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   1,0
@@ -166,10 +166,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   1,1
@@ -182,10 +182,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   1,2
@@ -205,10 +205,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   2,0
@@ -221,10 +221,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   2,1
@@ -237,10 +237,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   2,2
@@ -260,10 +260,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   3,0
@@ -276,10 +276,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   3,1
@@ -292,10 +292,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   3,2
@@ -315,10 +315,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   4,0
@@ -331,10 +331,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   4,1
@@ -347,10 +347,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   4,2
@@ -370,10 +370,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   5,0
@@ -386,10 +386,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   5,1
@@ -402,10 +402,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   5,2
@@ -425,10 +425,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   6,0
@@ -441,10 +441,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   6,1
@@ -457,10 +457,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   6,2
@@ -480,10 +480,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   7,0
@@ -496,10 +496,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   7,1
@@ -512,10 +512,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   7,2
@@ -535,10 +535,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   8,0
@@ -551,10 +551,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   8,1
@@ -567,10 +567,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   8,2
@@ -590,10 +590,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   9,0
@@ -606,10 +606,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   9,1
@@ -622,10 +622,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   9,2
@@ -645,10 +645,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   10,0
@@ -661,10 +661,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   10,1
@@ -677,10 +677,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   10,2
@@ -700,10 +700,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   11,0
@@ -716,10 +716,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   11,1
@@ -732,10 +732,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   11,2
@@ -755,10 +755,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   12,0
@@ -771,10 +771,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   12,1
@@ -787,10 +787,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   12,2
@@ -810,10 +810,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   13,0
@@ -826,10 +826,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   13,1
@@ -842,10 +842,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   13,2
@@ -865,10 +865,10 @@ Object {
               data-label="Col1"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   14,0
@@ -881,10 +881,10 @@ Object {
               data-label="Col2"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   14,1
@@ -897,10 +897,10 @@ Object {
               data-label="Col3"
             >
               <span
-                class="pf-c-label"
+                class="pf-v5-c-label"
               >
                 <span
-                  class="pf-c-label__content"
+                  class="pf-v5-c-label__content"
                 >
                   $
                   14,2
@@ -915,7 +915,7 @@ Object {
   "container": <div>
     <table
       aria-label="main-table"
-      class="app-table pf-c-table pf-m-grid-md"
+      class="app-table pf-v5-c-table pf-m-grid-md"
       data-ouia-component-id="OUIA-Generated-Table-2"
       data-ouia-component-type="PF4/Table"
       data-ouia-safe="true"
@@ -932,25 +932,25 @@ Object {
         >
           <th
             aria-sort="none"
-            class="pf-c-table__sort"
+            class="pf-v5-c-table__sort"
             data-key="0"
             data-label="Col1"
             scope="col"
           >
             <button
-              class="pf-c-table__button"
+              class="pf-v5-c-table__button"
               type="button"
             >
               <div
-                class="pf-c-table__button-content"
+                class="pf-v5-c-table__button-content"
               >
                 <span
-                  class="pf-c-table__text"
+                  class="pf-v5-c-table__text"
                 >
                   Col1
                 </span>
                 <span
-                  class="pf-c-table__sort-indicator"
+                  class="pf-v5-c-table__sort-indicator"
                 >
                   <svg
                     aria-hidden="true"
@@ -1003,10 +1003,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 0,0
@@ -1019,10 +1019,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 0,1
@@ -1035,10 +1035,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 0,2
@@ -1058,10 +1058,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 1,0
@@ -1074,10 +1074,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 1,1
@@ -1090,10 +1090,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 1,2
@@ -1113,10 +1113,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 2,0
@@ -1129,10 +1129,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 2,1
@@ -1145,10 +1145,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 2,2
@@ -1168,10 +1168,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 3,0
@@ -1184,10 +1184,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 3,1
@@ -1200,10 +1200,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 3,2
@@ -1223,10 +1223,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 4,0
@@ -1239,10 +1239,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 4,1
@@ -1255,10 +1255,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 4,2
@@ -1278,10 +1278,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 5,0
@@ -1294,10 +1294,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 5,1
@@ -1310,10 +1310,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 5,2
@@ -1333,10 +1333,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 6,0
@@ -1349,10 +1349,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 6,1
@@ -1365,10 +1365,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 6,2
@@ -1388,10 +1388,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 7,0
@@ -1404,10 +1404,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 7,1
@@ -1420,10 +1420,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 7,2
@@ -1443,10 +1443,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 8,0
@@ -1459,10 +1459,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 8,1
@@ -1475,10 +1475,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 8,2
@@ -1498,10 +1498,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 9,0
@@ -1514,10 +1514,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 9,1
@@ -1530,10 +1530,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 9,2
@@ -1553,10 +1553,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 10,0
@@ -1569,10 +1569,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 10,1
@@ -1585,10 +1585,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 10,2
@@ -1608,10 +1608,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 11,0
@@ -1624,10 +1624,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 11,1
@@ -1640,10 +1640,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 11,2
@@ -1663,10 +1663,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 12,0
@@ -1679,10 +1679,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 12,1
@@ -1695,10 +1695,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 12,2
@@ -1718,10 +1718,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 13,0
@@ -1734,10 +1734,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 13,1
@@ -1750,10 +1750,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 13,2
@@ -1773,10 +1773,10 @@ Object {
             data-label="Col1"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 14,0
@@ -1789,10 +1789,10 @@ Object {
             data-label="Col2"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 14,1
@@ -1805,10 +1805,10 @@ Object {
             data-label="Col3"
           >
             <span
-              class="pf-c-label"
+              class="pf-v5-c-label"
             >
               <span
-                class="pf-c-label__content"
+                class="pf-v5-c-label__content"
               >
                 $
                 14,2

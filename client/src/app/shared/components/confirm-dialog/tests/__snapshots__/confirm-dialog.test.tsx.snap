@@ -4,14 +4,14 @@ exports[`ConfirmDialog Renders without crashing 1`] = `
 Object {
   "asFragment": [Function],
   "baseElement": <body
-    class="pf-c-backdrop__open"
+    class="pf-v5-c-backdrop__open"
   >
     <div
       aria-hidden="true"
     />
     <div>
       <div
-        class="pf-c-backdrop"
+        class="pf-v5-c-backdrop"
       >
         <div
           class="pf-l-bullseye"
@@ -21,7 +21,7 @@ Object {
             aria-label="Confirm dialog"
             aria-labelledby="confirm-dialog pf-modal-part-1"
             aria-modal="true"
-            class="pf-c-modal-box pf-m-sm"
+            class="pf-v5-c-modal-box pf-m-sm"
             data-ouia-component-id="OUIA-Generated-Modal-small-1"
             data-ouia-component-type="PF4/ModalContent"
             data-ouia-safe="true"
@@ -31,7 +31,7 @@ Object {
             <button
               aria-disabled="false"
               aria-label="Close"
-              class="pf-c-button pf-m-plain"
+              class="pf-v5-c-button pf-m-plain"
               data-ouia-component-id="OUIA-Generated-Modal-small-1-ModalBoxCloseButton"
               data-ouia-component-type="PF4/Button"
               data-ouia-safe="true"
@@ -52,33 +52,33 @@ Object {
               </svg>
             </button>
             <header
-              class="pf-c-modal-box__header"
+              class="pf-v5-c-modal-box__header"
             >
               <h1
-                class="pf-c-modal-box__title"
+                class="pf-v5-c-modal-box__title"
                 id="pf-modal-part-1"
               >
                 
                 <span
-                  class="pf-c-modal-box__title-text"
+                  class="pf-v5-c-modal-box__title-text"
                 >
                   My title
                 </span>
               </h1>
             </header>
             <div
-              class="pf-c-modal-box__body"
+              class="pf-v5-c-modal-box__body"
               id="pf-modal-part-2"
             >
               Are you sure you want to do this?
             </div>
             <footer
-              class="pf-c-modal-box__footer"
+              class="pf-v5-c-modal-box__footer"
             >
               <button
                 aria-disabled="false"
                 aria-label="confirm"
-                class="pf-c-button pf-m-danger"
+                class="pf-v5-c-button pf-m-danger"
                 data-ouia-component-id="OUIA-Generated-Button-danger-1"
                 data-ouia-component-type="PF4/Button"
                 data-ouia-safe="true"
@@ -90,7 +90,7 @@ Object {
               <button
                 aria-disabled="false"
                 aria-label="cancel"
-                class="pf-c-button pf-m-link"
+                class="pf-v5-c-button pf-m-link"
                 data-ouia-component-id="OUIA-Generated-Button-link-1"
                 data-ouia-component-type="PF4/Button"
                 data-ouia-safe="true"

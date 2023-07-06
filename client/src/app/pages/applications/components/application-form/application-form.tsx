@@ -384,7 +384,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         onToggle={() => setBasicExpanded(!isBasicExpanded)}
         isExpanded={isBasicExpanded}
       >
-        <div className="pf-c-form">
+        <div className="pf-v5-c-form">
           <HookFormPFTextInput
             control={control}
             name="name"
@@ -578,7 +578,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
         isExpanded={isSourceCodeExpanded}
       >
-        <div className="pf-c-form">
+        <div className="pf-v5-c-form">
           <HookFormPFGroupController
             control={control}
             name="kind"
@@ -627,7 +627,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
         isExpanded={isBinaryExpanded}
       >
-        <div className="pf-c-form">
+        <div className="pf-v5-c-form">
           <HookFormPFTextInput
             control={control}
             name="group"
@@ -658,7 +658,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 bodyContent={t("message.binaryPackaging")}
                 className="popover"
               >
-                <span className="pf-c-icon pf-m-info">
+                <span className="pf-v5-c-icon pf-m-info">
                   <QuestionCircleIcon />
                 </span>
               </Popover>

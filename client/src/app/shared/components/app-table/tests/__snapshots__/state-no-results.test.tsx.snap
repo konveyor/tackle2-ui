@@ -6,17 +6,17 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-c-empty-state pf-m-sm"
+        class="pf-v5-c-empty-state pf-m-sm"
       >
         <div
-          class="pf-c-empty-state__content"
+          class="pf-v5-c-empty-state__content"
         >
           <test-file-stub
             aria-hidden="true"
-            classname="pf-c-empty-state__icon"
+            classname="pf-v5-c-empty-state__icon"
           />
           <h2
-            class="pf-c-title pf-m-lg"
+            class="pf-v5-c-title pf-m-lg"
             data-ouia-component-id="OUIA-Generated-Title-1"
             data-ouia-component-type="PF4/Title"
             data-ouia-safe="true"
@@ -24,7 +24,7 @@ Object {
             message.noResultsFoundTitle
           </h2>
           <div
-            class="pf-c-empty-state__body"
+            class="pf-v5-c-empty-state__body"
           >
             message.noResultsFoundBody
           </div>
@@ -34,17 +34,17 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-c-empty-state pf-m-sm"
+      class="pf-v5-c-empty-state pf-m-sm"
     >
       <div
-        class="pf-c-empty-state__content"
+        class="pf-v5-c-empty-state__content"
       >
         <test-file-stub
           aria-hidden="true"
-          classname="pf-c-empty-state__icon"
+          classname="pf-v5-c-empty-state__icon"
         />
         <h2
-          class="pf-c-title pf-m-lg"
+          class="pf-v5-c-title pf-m-lg"
           data-ouia-component-id="OUIA-Generated-Title-1"
           data-ouia-component-type="PF4/Title"
           data-ouia-safe="true"
@@ -52,7 +52,7 @@ Object {
           message.noResultsFoundTitle
         </h2>
         <div
-          class="pf-c-empty-state__body"
+          class="pf-v5-c-empty-state__body"
         >
           message.noResultsFoundBody
         </div>

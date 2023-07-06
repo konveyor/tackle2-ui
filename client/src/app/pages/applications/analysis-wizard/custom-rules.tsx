@@ -160,7 +160,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
     {
       title: "",
       props: {
-        className: "pf-c-table__inline-edit-action",
+        className: "pf-v5-c-table__inline-edit-action",
       },
     },
   ];
@@ -187,7 +187,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
         },
         {
           title: (
-            <div className="pf-c-inline-edit__action pf-m-enable-editable">
+            <div className="pf-v5-c-inline-edit__action pf-m-enable-editable">
               <Button
                 id="remove-rule-button"
                 type="button"

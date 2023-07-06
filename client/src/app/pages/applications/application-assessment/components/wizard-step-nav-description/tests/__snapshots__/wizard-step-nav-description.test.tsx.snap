@@ -6,7 +6,7 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-c-content"
+        class="pf-v5-c-content"
       >
         <small
           class=""
@@ -22,7 +22,7 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-c-content"
+      class="pf-v5-c-content"
     >
       <small
         class=""
