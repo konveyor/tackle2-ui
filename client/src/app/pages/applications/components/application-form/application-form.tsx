@@ -424,7 +424,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   const selectionValue = selection as OptionWithValue<string>;
                   onChange(selectionValue.value);
                 }}
-                // TODO PF v5
                 onClear={() => onChange("")}
               />
             )}
@@ -461,26 +460,20 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   .filter((e) => e !== undefined)}
                 options={tagOptions}
                 onChange={(selection) => {
-                  const selectionWithValue =
-                    selection as OptionWithValue<string>;
+                  const selectionWithValue = selection.toString();
 
                   const currentValue = value || [];
                   const e = currentValue.find(
-                    (f) => f.name === selectionWithValue.value
+                    (f) => f.name === selectionWithValue
                   );
                   if (e) {
                     onChange(
-                      currentValue.filter(
-                        (f) => f.name !== selectionWithValue.value
-                      )
+                      currentValue.filter((f) => f.name !== selectionWithValue)
                     );
                   } else {
-                    // TODO PF V5 - FIX
-                    // if (currentValue)
-                    //   onChange([
-                    //     ...currentValue,
-                    //     getTagRef(selectionWithValue),
-                    //   ]);
+                    const tag = getTagRef(selectionWithValue);
+                    if (currentValue && typeof tag !== "undefined")
+                      onChange([...currentValue, tag]);
                   }
                 }}
                 onClear={() => onChange([])}
@@ -508,7 +501,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   value ? toOptionLike(value, stakeholdersOptions) : undefined
                 }
                 options={stakeholdersOptions}
-                // TODO PF V5
                 onClear={() => onChange("")}
                 onChange={(selection) => {
                   const selectionValue = selection as OptionWithValue<string>;
