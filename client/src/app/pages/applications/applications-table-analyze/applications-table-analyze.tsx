@@ -619,11 +619,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                 what: t("terms.applications").toLowerCase(),
               })}
               // t('terms.application')
-              description={
-                t("composed.noDataStateBody", {
-                  what: t("terms.application").toLowerCase(),
-                }) + "."
-              }
+              description={t("composed.noDataStateBody", {
+                what: t("terms.application").toLowerCase(),
+              })}
             />
           }
         />

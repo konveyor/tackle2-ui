@@ -321,11 +321,9 @@ export const StakeholderGroups: React.FC = () => {
                 what: t("terms.stakeholderGroups").toLowerCase(),
               })}
               // t('terms.stakeholderGroup')
-              description={
-                t("composed.noDataStateBody", {
-                  what: t("terms.stakeholderGroup").toLowerCase(),
-                }) + "."
-              }
+              description={t("composed.noDataStateBody", {
+                what: t("terms.stakeholderGroup").toLowerCase(),
+              })}
             />
           }
         />

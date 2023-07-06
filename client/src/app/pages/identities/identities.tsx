@@ -280,11 +280,9 @@ export const Identities: React.FC = () => {
                 title={t("composed.noDataStateTitle", {
                   what: "credentials",
                 })}
-                description={
-                  t("composed.noDataStateBody", {
-                    what: "credential",
-                  }) + "."
-                }
+                description={t("composed.noDataStateBody", {
+                  what: "credential",
+                })}
               />
             }
             paginationProps={paginationProps}
