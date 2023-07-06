@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 
 import {
   Bullseye,
+  Button,
+  ButtonVariant,
   Card,
   CardActions,
   CardBody,
@@ -22,6 +24,7 @@ import {
   ToggleGroupItem,
 } from "@patternfly/react-core";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import {
   AppPlaceholder,
@@ -138,18 +141,10 @@ export const Reports: React.FC = () => {
                   <CardHeader
                     onExpand={() => setAdoptionPlanOpen((current) => !current)}
                   >
-                    <CardTitle>
-                      <Split style={{ marginTop: -5 }}>
-                        <SplitItem>
-                          <Bullseye style={{ marginTop: -3 }}>
-                            <TextContent>
-                              <Text component="h3">
-                                {t("terms.suggestedAdoptionPlan")}
-                              </Text>
-                            </TextContent>
-                          </Bullseye>
-                        </SplitItem>
-                        <SplitItem>
+                    <CardTitle style={{ marginTop: -6 }}>
+                      <TextContent>
+                        <Text component="h3">
+                          {t("terms.suggestedAdoptionPlan")}
                           <Popover
                             bodyContent={
                               <div>
@@ -158,17 +153,18 @@ export const Reports: React.FC = () => {
                             }
                             position="right"
                           >
-                            <button
+                            <Button
                               type="button"
                               aria-label="More info"
                               onClick={(e) => e.preventDefault()}
-                              className="pf-c-button pf-m-plain"
+                              isInline
+                              variant={ButtonVariant.plain}
                             >
                               <HelpIcon />
-                            </button>
+                            </Button>
                           </Popover>
-                        </SplitItem>
-                      </Split>
+                        </Text>
+                      </TextContent>
                     </CardTitle>
                   </CardHeader>
                   <CardExpandableContent>
