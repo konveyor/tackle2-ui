@@ -11,14 +11,17 @@ Object {
         <div
           class="pf-v5-c-empty-state__content"
         >
-          <test-file-stub
-            aria-hidden="true"
-            classname="pf-v5-c-empty-state__icon"
-          />
+          <div
+            class="pf-v5-c-empty-state__icon"
+          >
+            <test-file-stub
+              aria-hidden="true"
+            />
+          </div>
           <h2
             class="pf-v5-c-title pf-m-lg"
             data-ouia-component-id="OUIA-Generated-Title-1"
-            data-ouia-component-type="PF4/Title"
+            data-ouia-component-type="PF5/Title"
             data-ouia-safe="true"
           >
             my title
@@ -39,14 +42,17 @@ Object {
       <div
         class="pf-v5-c-empty-state__content"
       >
-        <test-file-stub
-          aria-hidden="true"
-          classname="pf-v5-c-empty-state__icon"
-        />
+        <div
+          class="pf-v5-c-empty-state__icon"
+        >
+          <test-file-stub
+            aria-hidden="true"
+          />
+        </div>
         <h2
           class="pf-v5-c-title pf-m-lg"
           data-ouia-component-id="OUIA-Generated-Title-1"
-          data-ouia-component-type="PF4/Title"
+          data-ouia-component-type="PF5/Title"
           data-ouia-safe="true"
         >
           my title

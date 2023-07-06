@@ -9,11 +9,12 @@ Object {
         aria-label="Breadcrumb"
         class="pf-v5-c-breadcrumb"
         data-ouia-component-id="OUIA-Generated-Breadcrumb-1"
-        data-ouia-component-type="PF4/Breadcrumb"
+        data-ouia-component-type="PF5/Breadcrumb"
         data-ouia-safe="true"
       >
         <ol
           class="pf-v5-c-breadcrumb__list"
+          role="list"
         >
           <li
             class="pf-v5-c-breadcrumb__item"
@@ -33,10 +34,10 @@ Object {
             >
               <svg
                 aria-hidden="true"
+                class="pf-v5-svg"
                 fill="currentColor"
                 height="1em"
                 role="img"
-                style="vertical-align: -0.125em;"
                 viewBox="0 0 256 512"
                 width="1em"
               >
@@ -60,10 +61,10 @@ Object {
             >
               <svg
                 aria-hidden="true"
+                class="pf-v5-svg"
                 fill="currentColor"
                 height="1em"
                 role="img"
-                style="vertical-align: -0.125em;"
                 viewBox="0 0 256 512"
                 width="1em"
               >
@@ -83,11 +84,12 @@ Object {
       aria-label="Breadcrumb"
       class="pf-v5-c-breadcrumb"
       data-ouia-component-id="OUIA-Generated-Breadcrumb-1"
-      data-ouia-component-type="PF4/Breadcrumb"
+      data-ouia-component-type="PF5/Breadcrumb"
       data-ouia-safe="true"
     >
       <ol
         class="pf-v5-c-breadcrumb__list"
+        role="list"
       >
         <li
           class="pf-v5-c-breadcrumb__item"
@@ -107,10 +109,10 @@ Object {
           >
             <svg
               aria-hidden="true"
+              class="pf-v5-svg"
               fill="currentColor"
               height="1em"
               role="img"
-              style="vertical-align: -0.125em;"
               viewBox="0 0 256 512"
               width="1em"
             >
@@ -134,10 +136,10 @@ Object {
           >
             <svg
               aria-hidden="true"
+              class="pf-v5-svg"
               fill="currentColor"
               height="1em"
               role="img"
-              style="vertical-align: -0.125em;"
               viewBox="0 0 256 512"
               width="1em"
             >

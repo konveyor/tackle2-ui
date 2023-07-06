@@ -9,25 +9,26 @@ Object {
         aria-label="main-table"
         class="app-table pf-v5-c-table pf-m-grid-md"
         data-ouia-component-id="OUIA-Generated-Table-2"
-        data-ouia-component-type="PF4/Table"
+        data-ouia-component-type="PF5/Table"
         data-ouia-safe="true"
         role="grid"
       >
         <thead
-          class=""
+          class="pf-v5-c-table__thead"
         >
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-1"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <th
               aria-sort="none"
-              class="pf-v5-c-table__sort"
+              class="pf-v5-c-table__th pf-v5-c-table__sort"
               data-key="0"
               data-label="Col1"
               scope="col"
+              tabindex="-1"
             >
               <button
                 class="pf-v5-c-table__button"
@@ -46,10 +47,10 @@ Object {
                   >
                     <svg
                       aria-hidden="true"
+                      class="pf-v5-svg"
                       fill="currentColor"
                       height="1em"
                       role="img"
-                      style="vertical-align: -0.125em;"
                       viewBox="0 0 256 512"
                       width="1em"
                     >
@@ -62,37 +63,40 @@ Object {
               </button>
             </th>
             <th
-              class=""
+              class="pf-v5-c-table__th"
               data-key="1"
               data-label="Col2"
               scope="col"
+              tabindex="-1"
             >
               Col2
             </th>
             <th
-              class=""
+              class="pf-v5-c-table__th"
               data-key="2"
               data-label="Col3"
               scope="col"
+              tabindex="-1"
             >
               Col3
             </th>
           </tr>
         </thead>
         <tbody
-          class=""
+          class="pf-v5-c-table__tbody"
           role="rowgroup"
         >
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-2"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -100,15 +104,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  0,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    0,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -116,15 +125,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  0,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    0,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -132,22 +146,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  0,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    0,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-3"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -155,15 +174,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  1,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    1,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -171,15 +195,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  1,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    1,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -187,22 +216,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  1,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    1,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-4"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -210,15 +244,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  2,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    2,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -226,15 +265,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  2,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    2,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -242,22 +286,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  2,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    2,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-5"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -265,15 +314,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  3,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    3,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -281,15 +335,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  3,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    3,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -297,22 +356,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  3,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    3,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-6"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -320,15 +384,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  4,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    4,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -336,15 +405,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  4,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    4,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -352,22 +426,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  4,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    4,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-7"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -375,15 +454,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  5,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    5,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -391,15 +475,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  5,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    5,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -407,22 +496,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  5,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    5,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-8"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -430,15 +524,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  6,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    6,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -446,15 +545,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  6,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    6,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -462,22 +566,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  6,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    6,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-9"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -485,15 +594,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  7,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    7,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -501,15 +615,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  7,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    7,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -517,22 +636,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  7,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    7,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-10"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -540,15 +664,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  8,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    8,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -556,15 +685,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  8,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    8,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -572,22 +706,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  8,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    8,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-11"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -595,15 +734,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  9,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    9,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -611,15 +755,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  9,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    9,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -627,22 +776,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  9,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    9,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-12"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -650,15 +804,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  10,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    10,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -666,15 +825,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  10,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    10,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -682,22 +846,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  10,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    10,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-13"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -705,15 +874,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  11,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    11,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -721,15 +895,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  11,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    11,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -737,22 +916,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  11,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    11,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-14"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -760,15 +944,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  12,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    12,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -776,15 +965,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  12,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    12,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -792,22 +986,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  12,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    12,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-15"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -815,15 +1014,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  13,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    13,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -831,15 +1035,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  13,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    13,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -847,22 +1056,27 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  13,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    13,2
+                  </span>
                 </span>
               </span>
             </td>
           </tr>
           <tr
-            class=""
+            class="pf-v5-c-table__tr"
             data-ouia-component-id="OUIA-Generated-TableRow-16"
-            data-ouia-component-type="PF4/TableRow"
+            data-ouia-component-type="PF5/TableRow"
             data-ouia-safe="true"
           >
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="0"
               data-label="Col1"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -870,15 +1084,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  14,0
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    14,0
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="1"
               data-label="Col2"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -886,15 +1105,20 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  14,1
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    14,1
+                  </span>
                 </span>
               </span>
             </td>
             <td
-              class=""
+              class="pf-v5-c-table__td"
               data-key="2"
               data-label="Col3"
+              tabindex="-1"
             >
               <span
                 class="pf-v5-c-label"
@@ -902,8 +1126,12 @@ Object {
                 <span
                   class="pf-v5-c-label__content"
                 >
-                  $
-                  14,2
+                  <span
+                    class="pf-v5-c-label__text"
+                  >
+                    $
+                    14,2
+                  </span>
                 </span>
               </span>
             </td>
@@ -917,25 +1145,26 @@ Object {
       aria-label="main-table"
       class="app-table pf-v5-c-table pf-m-grid-md"
       data-ouia-component-id="OUIA-Generated-Table-2"
-      data-ouia-component-type="PF4/Table"
+      data-ouia-component-type="PF5/Table"
       data-ouia-safe="true"
       role="grid"
     >
       <thead
-        class=""
+        class="pf-v5-c-table__thead"
       >
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-1"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <th
             aria-sort="none"
-            class="pf-v5-c-table__sort"
+            class="pf-v5-c-table__th pf-v5-c-table__sort"
             data-key="0"
             data-label="Col1"
             scope="col"
+            tabindex="-1"
           >
             <button
               class="pf-v5-c-table__button"
@@ -954,10 +1183,10 @@ Object {
                 >
                   <svg
                     aria-hidden="true"
+                    class="pf-v5-svg"
                     fill="currentColor"
                     height="1em"
                     role="img"
-                    style="vertical-align: -0.125em;"
                     viewBox="0 0 256 512"
                     width="1em"
                   >
@@ -970,37 +1199,40 @@ Object {
             </button>
           </th>
           <th
-            class=""
+            class="pf-v5-c-table__th"
             data-key="1"
             data-label="Col2"
             scope="col"
+            tabindex="-1"
           >
             Col2
           </th>
           <th
-            class=""
+            class="pf-v5-c-table__th"
             data-key="2"
             data-label="Col3"
             scope="col"
+            tabindex="-1"
           >
             Col3
           </th>
         </tr>
       </thead>
       <tbody
-        class=""
+        class="pf-v5-c-table__tbody"
         role="rowgroup"
       >
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-2"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1008,15 +1240,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                0,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  0,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1024,15 +1261,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                0,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  0,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1040,22 +1282,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                0,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  0,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-3"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1063,15 +1310,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                1,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  1,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1079,15 +1331,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                1,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  1,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1095,22 +1352,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                1,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  1,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-4"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1118,15 +1380,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                2,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  2,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1134,15 +1401,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                2,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  2,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1150,22 +1422,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                2,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  2,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-5"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1173,15 +1450,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                3,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  3,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1189,15 +1471,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                3,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  3,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1205,22 +1492,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                3,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  3,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-6"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1228,15 +1520,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                4,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  4,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1244,15 +1541,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                4,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  4,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1260,22 +1562,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                4,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  4,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-7"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1283,15 +1590,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                5,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  5,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1299,15 +1611,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                5,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  5,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1315,22 +1632,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                5,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  5,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-8"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1338,15 +1660,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                6,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  6,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1354,15 +1681,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                6,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  6,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1370,22 +1702,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                6,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  6,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-9"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1393,15 +1730,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                7,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  7,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1409,15 +1751,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                7,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  7,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1425,22 +1772,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                7,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  7,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-10"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1448,15 +1800,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                8,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  8,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1464,15 +1821,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                8,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  8,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1480,22 +1842,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                8,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  8,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-11"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1503,15 +1870,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                9,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  9,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1519,15 +1891,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                9,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  9,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1535,22 +1912,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                9,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  9,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-12"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1558,15 +1940,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                10,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  10,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1574,15 +1961,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                10,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  10,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1590,22 +1982,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                10,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  10,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-13"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1613,15 +2010,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                11,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  11,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1629,15 +2031,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                11,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  11,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1645,22 +2052,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                11,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  11,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-14"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1668,15 +2080,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                12,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  12,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1684,15 +2101,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                12,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  12,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1700,22 +2122,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                12,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  12,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-15"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1723,15 +2150,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                13,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  13,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1739,15 +2171,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                13,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  13,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1755,22 +2192,27 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                13,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  13,2
+                </span>
               </span>
             </span>
           </td>
         </tr>
         <tr
-          class=""
+          class="pf-v5-c-table__tr"
           data-ouia-component-id="OUIA-Generated-TableRow-16"
-          data-ouia-component-type="PF4/TableRow"
+          data-ouia-component-type="PF5/TableRow"
           data-ouia-safe="true"
         >
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="0"
             data-label="Col1"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1778,15 +2220,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                14,0
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  14,0
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="1"
             data-label="Col2"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1794,15 +2241,20 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                14,1
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  14,1
+                </span>
               </span>
             </span>
           </td>
           <td
-            class=""
+            class="pf-v5-c-table__td"
             data-key="2"
             data-label="Col3"
+            tabindex="-1"
           >
             <span
               class="pf-v5-c-label"
@@ -1810,8 +2262,12 @@ Object {
               <span
                 class="pf-v5-c-label__content"
               >
-                $
-                14,2
+                <span
+                  class="pf-v5-c-label__text"
+                >
+                  $
+                  14,2
+                </span>
               </span>
             </span>
           </td>

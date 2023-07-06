@@ -8,7 +8,7 @@ Object {
       <div
         class="pf-v5-c-dropdown"
         data-ouia-component-id="OUIA-Generated-Dropdown-1"
-        data-ouia-component-type="PF4/Dropdown"
+        data-ouia-component-type="PF5/Dropdown"
         data-ouia-safe="true"
       >
         <button
@@ -16,7 +16,7 @@ Object {
           aria-haspopup="true"
           class="pf-v5-c-dropdown__toggle"
           data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-          data-ouia-component-type="PF4/DropdownToggle"
+          data-ouia-component-type="PF5/DropdownToggle"
           data-ouia-safe="true"
           id="pf-dropdown-toggle-id-0"
           type="button"
@@ -39,7 +39,7 @@ Object {
     <div
       class="pf-v5-c-dropdown"
       data-ouia-component-id="OUIA-Generated-Dropdown-1"
-      data-ouia-component-type="PF4/Dropdown"
+      data-ouia-component-type="PF5/Dropdown"
       data-ouia-safe="true"
     >
       <button
@@ -47,7 +47,7 @@ Object {
         aria-haspopup="true"
         class="pf-v5-c-dropdown__toggle"
         data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-        data-ouia-component-type="PF4/DropdownToggle"
+        data-ouia-component-type="PF5/DropdownToggle"
         data-ouia-safe="true"
         id="pf-dropdown-toggle-id-0"
         type="button"

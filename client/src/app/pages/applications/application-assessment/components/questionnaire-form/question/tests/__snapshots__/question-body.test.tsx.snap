@@ -6,7 +6,7 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-l-stack__item"
+        class="pf-v5-l-stack__item"
       >
         content
       </div>
@@ -14,7 +14,7 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-l-stack__item"
+      class="pf-v5-l-stack__item"
     >
       content
     </div>
