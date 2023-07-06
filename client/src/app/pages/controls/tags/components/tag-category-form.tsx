@@ -188,7 +188,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
             onMinus={() => {
               onChange((value || 0) - 1);
             }}
-            onChange={onChange}
+            onChange={() => onChange}
             onPlus={() => {
               onChange((value || 0) + 1);
             }}

@@ -77,7 +77,7 @@ export const StringListField: React.FC<StringListFieldProps> = ({
                 aria-label={itemToAddAriaLabel}
                 validated={getValidatedFromErrors(error, isDirty)}
                 value={value}
-                onChange={onChange}
+                onChange={(_, value) => onChange(value)}
                 onBlur={onBlur}
                 onKeyUp={(event) => {
                   if (event.key === "Enter") {

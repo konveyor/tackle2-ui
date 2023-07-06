@@ -256,7 +256,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                   return (
                     <DatePicker
                       aria-label={name}
-                      onChange={(e, val, date) => {
+                      onChange={(_e, _val, date) => {
                         onChange(date);
                       }}
                       placeholder="MM/DD/YYYY"

@@ -474,10 +474,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                       )
                     );
                   } else {
-                    onChange([
-                      ...currentValue,
-                      getTagRef(selectionWithValue.value),
-                    ]);
+                    if (currentValue)
+                      onChange([
+                        ...currentValue,
+                        getTagRef(selectionWithValue.value),
+                      ]);
                   }
                 }}
                 onClear={() => onChange([])}
