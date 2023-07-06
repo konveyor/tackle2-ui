@@ -225,7 +225,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
                   ) || [];
                 return (
                   <React.Fragment key={tagCategory.id}>
-                    // TODO PF V5 - Verify fontWeight change
+                    {/* TODO PF V5 - Verify fontWeight change */}
                     <TextContent>
                       <Text
                         component="h4"
