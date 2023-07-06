@@ -564,7 +564,8 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                 options={sourceIdentityOptions}
                 onChange={(selection) => {
                   const selectionValue = selection as OptionWithValue<Ref>;
-                  onChange(selectionValue.value);
+                  // TODO PF V5
+                  onChange(selectionValue.value.name);
                 }}
                 onClear={() => onChange("")}
               />

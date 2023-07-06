@@ -257,7 +257,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                     <DatePicker
                       aria-label={name}
                       onChange={(_e, _val, date) => {
-                        onChange(date);
+                        if (date) onChange(date);
                       }}
                       placeholder="MM/DD/YYYY"
                       value={
@@ -296,7 +296,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                   <DatePicker
                     aria-label={name}
                     onChange={(e, val, date) => {
-                      onChange(date);
+                      if (date) onChange(date);
                     }}
                     placeholder="MM/DD/YYYY"
                     value={endDate ? dayjs(endDate).format("MM/DD/YYYY") : ""}
