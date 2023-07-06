@@ -54,10 +54,12 @@ export const useCreateTagMutation = (
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([TagsQueryKey]);
+      queryClient.invalidateQueries([TagCategoriesQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
       queryClient.invalidateQueries([TagsQueryKey]);
+      queryClient.invalidateQueries([TagCategoriesQueryKey]);
     },
   });
 };
@@ -73,10 +75,12 @@ export const useCreateTagCategoryMutation = (
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([TagCategoriesQueryKey]);
+      queryClient.invalidateQueries([TagsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
       queryClient.invalidateQueries([TagCategoriesQueryKey]);
+      queryClient.invalidateQueries([TagsQueryKey]);
     },
   });
 };
@@ -92,10 +96,12 @@ export const useUpdateTagMutation = (
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([TagsQueryKey]);
+      queryClient.invalidateQueries([TagCategoriesQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
       queryClient.invalidateQueries([TagsQueryKey]);
+      queryClient.invalidateQueries([TagCategoriesQueryKey]);
     },
   });
 };
@@ -111,10 +117,12 @@ export const useUpdateTagCategoryMutation = (
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([TagCategoriesQueryKey]);
+      queryClient.invalidateQueries([TagsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
       queryClient.invalidateQueries([TagCategoriesQueryKey]);
+      queryClient.invalidateQueries([TagsQueryKey]);
     },
   });
 };
