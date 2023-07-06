@@ -205,6 +205,9 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
           <SimpleSelect
             variant="single"
             maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+            placeholderText={t("composed.selectOne", {
+              what: t("terms.color").toLowerCase(),
+            })}
             id="type-select"
             toggleId="type-select-toggle"
             toggleAriaLabel="Type select dropdown toggle"
