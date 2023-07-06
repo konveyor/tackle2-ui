@@ -151,7 +151,7 @@ export const AffectedApplications: React.FC = () => {
         >
           <div
             style={{
-              backgroundColor: "var(--pf-global--BackgroundColor--100)",
+              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
             }}
           >
             <Toolbar {...toolbarProps}>

@@ -108,7 +108,7 @@ export const Dependencies: React.FC = () => {
       <PageSection>
         <div
           style={{
-            backgroundColor: "var(--pf-global--BackgroundColor--100)",
+            backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
           }}
         >
           <Toolbar {...toolbarProps}>

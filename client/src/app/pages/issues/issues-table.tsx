@@ -257,7 +257,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
   return (
     <div
       style={{
-        backgroundColor: "var(--pf-global--BackgroundColor--100)",
+        backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
       }}
     >
       <Toolbar {...toolbarProps}>

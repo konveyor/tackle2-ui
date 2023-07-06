@@ -72,5 +72,5 @@
 }
 
 .simple-task-viewer .language-toggle-group {
-  --pf-v5-c-toggle-group__button--FontSize: var(--pf-global--FontSize--md);
+  --pf-v5-c-toggle-group__button--FontSize: var(--pf-v5-global--FontSize--md);
 }

@@ -1,17 +1,17 @@
 .pf-v5-c-icon {
-  --pf-v5-c-icon--FontSize: var(--pf-global--FontSize--md);
+  --pf-v5-c-icon--FontSize: var(--pf-v5-global--FontSize--md);
   --pf-v5-c-icon--Color: #72767b;
 
-  --pf-v5-c-icon--m-sm--FontSize: var(--pf-global--icon--FontSize--sm);
-  --pf-v5-c-icon--m-md--FontSize: var(--pf-global--icon--FontSize--md);
-  --pf-v5-c-icon--m-lg--FontSize: var(--pf-global--icon--FontSize--lg);
-  --pf-v5-c-icon--m-xl--FontSize: var(--pf-global--icon--FontSize--xl);
-  --pf-v5-c-icon--m-2xl--FontSize: var(--pf-global--icon--FontSize--2xl);
+  --pf-v5-c-icon--m-sm--FontSize: var(--pf-v5-global--icon--FontSize--sm);
+  --pf-v5-c-icon--m-md--FontSize: var(--pf-v5-global--icon--FontSize--md);
+  --pf-v5-c-icon--m-lg--FontSize: var(--pf-v5-global--icon--FontSize--lg);
+  --pf-v5-c-icon--m-xl--FontSize: var(--pf-v5-global--icon--FontSize--xl);
+  --pf-v5-c-icon--m-2xl--FontSize: var(--pf-v5-global--icon--FontSize--2xl);
 
-  --pf-v5-c-icon--m-info--Color: var(--pf-global--primary-color--100);
-  --pf-v5-c-icon--m-success--Color: var(--pf-global--success-color--100);
-  --pf-v5-c-icon--m-warning--Color: var(--pf-global--warning-color--100);
-  --pf-v5-c-icon--m-danger--Color: var(--pf-global--danger-color--100);
+  --pf-v5-c-icon--m-info--Color: var(--pf-v5-global--primary-color--100);
+  --pf-v5-c-icon--m-success--Color: var(--pf-v5-global--success-color--100);
+  --pf-v5-c-icon--m-warning--Color: var(--pf-v5-global--warning-color--100);
+  --pf-v5-c-icon--m-danger--Color: var(--pf-v5-global--danger-color--100);
 
   font-size: var(--pf-v5-c-icon--FontSize);
   color: var(--pf-v5-c-icon--Color);
