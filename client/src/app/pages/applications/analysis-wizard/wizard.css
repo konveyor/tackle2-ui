@@ -1,11 +1,11 @@
-.pf-c-wizard {
-  --pf-c-wizard__header--BackgroundColor: rgb(25, 25, 25);
+.pf-v5-c-wizard {
+  --pf-v5-c-wizard__header--BackgroundColor: rgb(25, 25, 25);
 }
 
 .line {
   border-bottom: 0.1em solid rgb(90, 90, 90);
 }
 
-.scope-select-radio-button .pf-c-radio__body {
+.scope-select-radio-button .pf-v5-c-radio__body {
   width: 100%;
 }

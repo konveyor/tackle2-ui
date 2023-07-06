@@ -301,7 +301,7 @@ Object {
                   class="pf-c-drawer__panel pf-m-resizable"
                   hidden=""
                   id="page-drawer-content"
-                  style="--pf-c-drawer__panel--md--FlexBasis: 500px; --pf-c-drawer__panel--md--FlexBasis--min: 150px;"
+                  style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 150px;"
                 />
               </div>
             </div>
@@ -615,7 +615,7 @@ Object {
                 class="pf-c-drawer__panel pf-m-resizable"
                 hidden=""
                 id="page-drawer-content"
-                style="--pf-c-drawer__panel--md--FlexBasis: 500px; --pf-c-drawer__panel--md--FlexBasis--min: 150px;"
+                style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 150px;"
               />
             </div>
           </div>

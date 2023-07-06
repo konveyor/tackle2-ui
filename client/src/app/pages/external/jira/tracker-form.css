@@ -1,5 +1,5 @@
-.popover.pf-c-popover {
-  --pf-c-popover__content--BackgroundColor: #000;
-  --pf-c-popover__arrow--BackgroundColor: #000;
+.popover.pf-v5-c-popover {
+  --pf-v5-c-popover__content--BackgroundColor: #000;
+  --pf-v5-c-popover__arrow--BackgroundColor: #000;
   color: #fff;
 }

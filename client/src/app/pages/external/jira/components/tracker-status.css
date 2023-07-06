@@ -3,7 +3,7 @@
   max-width: 60em;
 }
 
-.tracker-status-code .pf-c-code-block__content {
+.tracker-status-code .pf-v5-c-code-block__content {
   max-height: 450px;
   overflow: auto;
 }
