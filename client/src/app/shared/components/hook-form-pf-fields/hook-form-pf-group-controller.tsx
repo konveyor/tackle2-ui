@@ -13,7 +13,6 @@ import {
   FieldValues,
   Path,
 } from "react-hook-form";
-import { getValidatedFromErrors } from "@app/utils/utils";
 
 // We have separate interfaces for these props with and without `renderInput` for convenience.
 // Generic type params here are the same as the ones used by react-hook-form's <Controller>.
@@ -61,6 +60,7 @@ export const HookFormPFGroupController = <
     name={name}
     render={({ field, fieldState, formState }) => {
       const { isDirty, error } = fieldState;
+      const shouldDisplayError = error?.message && isDirty && !errorsSuppressed;
       return (
         <FormGroup
           labelIcon={labelIcon}
@@ -72,15 +72,17 @@ export const HookFormPFGroupController = <
           {...formGroupProps}
         >
           {renderInput({ field, fieldState, formState })}
-          {error && isDirty && (
+          {helperText || shouldDisplayError ? (
             <FormHelperText>
               <HelperText>
-                <HelperTextItem variant="error">
-                  {helperText && error.message}
+                <HelperTextItem
+                  variant={shouldDisplayError ? "error" : "default"}
+                >
+                  {shouldDisplayError ? error.message : helperText}
                 </HelperTextItem>
               </HelperText>
             </FormHelperText>
-          )}
+          ) : null}
         </FormGroup>
       );
     }}

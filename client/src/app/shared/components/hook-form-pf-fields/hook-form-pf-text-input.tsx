@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FieldValues, Path } from "react-hook-form";
+import { FieldValues, Path, PathValue } from "react-hook-form";
 import { TextInput, TextInputProps } from "@patternfly/react-core";
 import { getValidatedFromErrors } from "@app/utils/utils";
 import {
@@ -41,9 +41,14 @@ export const HookFormPFTextInput = <
           isRequired={isRequired}
           onChange={(_, value) => {
             if (type === "number") {
-              onChange((value && parseInt(value, 10)) || "");
+              onChange(
+                ((value && parseInt(value, 10)) || "") as PathValue<
+                  TFieldValues,
+                  TName
+                >
+              );
             } else {
-              onChange(value);
+              onChange(value as PathValue<TFieldValues, TName>);
             }
           }}
           onBlur={onBlur}

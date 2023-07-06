@@ -160,7 +160,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
               const selectionValue = selection as OptionWithValue<string>;
               onChange(selectionValue.value);
             }}
-            onClear={() => onChange([])}
+            onClear={() => onChange("")}
           />
         )}
       />
