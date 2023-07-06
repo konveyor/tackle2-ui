@@ -7,8 +7,13 @@ import {
   PageSidebar,
   NavList,
   NavExpandable,
+  MenuToggle,
+  MenuToggleElement,
+  Select,
+  SelectOption,
+  SelectList,
 } from "@patternfly/react-core";
-import { SelectOption, SelectVariant } from "@patternfly/react-core/deprecated";
+import "./SidebarApp.css";
 
 import { Paths } from "@app/Paths";
 import { LayoutTheme } from "../LayoutUtils";
@@ -18,9 +23,11 @@ import keycloak from "@app/keycloak";
 import { useLocalStorage } from "@migtools/lib-ui";
 import { LocalStorageKey } from "@app/Constants";
 import { FEATURES_ENABLED } from "@app/FeatureFlags";
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import { toOptionLike } from "@app/utils/model-utils";
-import "./SidebarApp.css";
+
+enum PersonaKey {
+  ADMINISTRATION = "Administration",
+  MIGRATION = "Migration",
+}
 
 export const SidebarApp: React.FC = () => {
   const token = keycloak.tokenParsed || undefined;
@@ -30,46 +37,6 @@ export const SidebarApp: React.FC = () => {
   const { t } = useTranslation();
   const { search } = useLocation();
   const history = useHistory();
-  enum PersonaKey {
-    ADMINISTRATION = "Administration",
-    MIGRATION = "Migration",
-  }
-
-  const options = [
-    <SelectOption
-      key="dev"
-      component="button"
-      value={PersonaKey.MIGRATION}
-      isPlaceholder
-    >
-      {PersonaKey.MIGRATION}
-    </SelectOption>,
-    ...(adminAccess
-      ? [
-          <SelectOption
-            key="admin"
-            component="button"
-            value={PersonaKey.ADMINISTRATION}
-          >
-            {PersonaKey.ADMINISTRATION}
-          </SelectOption>,
-        ]
-      : []),
-  ];
-
-  const personaOptions: OptionWithValue<string>[] = [
-    {
-      value: PersonaKey.MIGRATION,
-      toString: () => PersonaKey.MIGRATION,
-    },
-    {
-      value: PersonaKey.ADMINISTRATION,
-      toString: () => PersonaKey.ADMINISTRATION,
-    },
-  ];
-
-  const [selectedPersona, setSelectedPersona] =
-    useLocalStorage<PersonaKey | null>(LocalStorageKey.selectedPersona, null);
 
   useEffect(() => {
     if (!selectedPersona) {
@@ -78,31 +45,66 @@ export const SidebarApp: React.FC = () => {
     }
   }, []);
 
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [selectedPersona, setSelectedPersona] = useLocalStorage<string | null>(
+    LocalStorageKey.selectedPersona,
+    null
+  );
+
+  const onToggleClick = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const onSelect = (
+    _event: React.MouseEvent<Element, MouseEvent> | undefined,
+    itemId: string | number | undefined
+  ) => {
+    setSelectedPersona(itemId as string);
+    if (itemId === PersonaKey.ADMINISTRATION) {
+      history.push(Paths.general);
+    } else {
+      history.push(Paths.applications);
+    }
+    setIsOpen(false);
+  };
+
+  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+    <MenuToggle
+      ref={toggleRef}
+      onClick={onToggleClick}
+      isExpanded={isOpen}
+      style={
+        {
+          width: "200px",
+        } as React.CSSProperties
+      }
+    >
+      {selectedPersona}
+    </MenuToggle>
+  );
+
   return (
     <PageSidebar theme={LayoutTheme}>
       <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
         <div className="perspective">
-          <SimpleSelect
-            toggleId="sidebar-perspective-toggle"
-            variant={SelectVariant.single}
-            aria-label="Select user perspective"
+          <Select
             id="sidebar-perspective"
-            value={
-              selectedPersona
-                ? toOptionLike(selectedPersona, personaOptions)
-                : undefined
-            }
-            options={personaOptions}
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<PersonaKey>;
-              setSelectedPersona(selectionValue.value);
-              if (selectionValue.value === PersonaKey.ADMINISTRATION) {
-                history.push(Paths.general);
-              } else {
-                history.push(Paths.applications);
-              }
-            }}
-          />
+            aria-label="Select user perspective"
+            isOpen={isOpen}
+            selected={selectedPersona}
+            onSelect={onSelect}
+            onOpenChange={(isOpen) => setIsOpen(isOpen)}
+            toggle={toggle}
+          >
+            <SelectList>
+              <SelectOption itemId={PersonaKey.MIGRATION}>
+                {PersonaKey.MIGRATION}
+              </SelectOption>
+              <SelectOption itemId={PersonaKey.ADMINISTRATION}>
+                {PersonaKey.ADMINISTRATION}
+              </SelectOption>
+            </SelectList>
+          </Select>
         </div>
         {selectedPersona === PersonaKey.MIGRATION ? (
           <NavList title="Global">
