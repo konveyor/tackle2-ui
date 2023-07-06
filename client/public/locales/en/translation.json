@@ -76,7 +76,7 @@
     "error": "{{what}} error",
     "manage": "Manage {{what}}",
     "manageDependenciesFor": "Manage dependencies for {{what}}",
-    "noDataStateBody": "Create a new {{what}} to start seeing data here",
+    "noDataStateBody": "Create a new {{what}} to start seeing data here.",
     "noDataStateTitle": "No {{what}} available",
     "Nquestions": "{{n}} questions",
     "ofTotalApplications": "Of {{count}} application",

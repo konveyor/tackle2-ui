@@ -296,11 +296,9 @@ export const BusinessServices: React.FC = () => {
                 what: t("terms.businessServices").toLowerCase(),
               })}
               // t('terms.businessService')
-              description={
-                t("composed.noDataStateBody", {
-                  what: t("terms.businessService").toLowerCase(),
-                }) + "."
-              }
+              description={t("composed.noDataStateBody", {
+                what: t("terms.businessService").toLowerCase(),
+              })}
             />
           }
         />

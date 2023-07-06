@@ -248,11 +248,9 @@ export const JobFunctions: React.FC = () => {
                 what: t("terms.jobFunctions").toLowerCase(),
               })}
               // t('terms.jobFunction')
-              description={
-                t("composed.noDataStateBody", {
-                  what: t("terms.jobFunction").toLowerCase(),
-                }) + "."
-              }
+              description={t("composed.noDataStateBody", {
+                what: t("terms.jobFunction").toLowerCase(),
+              })}
             />
           }
         />
