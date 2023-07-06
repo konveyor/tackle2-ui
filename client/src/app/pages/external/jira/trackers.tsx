@@ -133,7 +133,7 @@ export const JiraTrackers: React.FC = () => {
     ],
     getSortValues: (tracker) => ({
       name: tracker.name || "",
-      url: "", // TODO
+      url: tracker.url || "",
     }),
     sortableColumns: ["name", "url"],
     hasPagination: true,
