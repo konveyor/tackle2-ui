@@ -2,11 +2,15 @@ import * as React from "react";
 import {
   Button,
   ButtonVariant,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateIcon,
   Modal,
   PageSection,
   PageSectionVariants,
   Text,
   TextContent,
+  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -18,7 +22,6 @@ import {
   AppTableActionButtons,
   ConditionalRender,
   ConfirmDialog,
-  ToolbarBulkSelector,
 } from "@app/shared/components";
 import {
   FilterToolbar,
@@ -36,6 +39,7 @@ import {
   Th,
   TableComposable,
 } from "@patternfly/react-table";
+import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
@@ -108,7 +112,6 @@ export const JiraTrackers: React.FC = () => {
       kind: `${t("terms.instance")} type`,
       connection: "Connection",
     },
-    isSelectable: true,
     filterCategories: [
       {
         key: "name",
@@ -134,10 +137,8 @@ export const JiraTrackers: React.FC = () => {
   const {
     currentPageItems,
     numRenderedColumns,
-    selectionState: { selectedItems },
     propHelpers: {
       toolbarProps,
-      toolbarBulkSelectorProps,
       filterToolbarProps,
       paginationToolbarItemProps,
       paginationProps,
@@ -166,7 +167,6 @@ export const JiraTrackers: React.FC = () => {
           >
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
-                <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
                   {/* <RBAC
@@ -218,12 +218,27 @@ export const JiraTrackers: React.FC = () => {
               <ConditionalTableBody
                 isLoading={isFetching}
                 isError={!!fetchError}
-                isNoData={trackers.length === 0}
+                isNoData={currentPageItems.length === 0}
+                noDataEmptyState={
+                  <EmptyState variant="small">
+                    <EmptyStateIcon icon={CubesIcon} />
+                    <Title headingLevel="h2" size="lg">
+                      {t("composed.noDataStateTitle", {
+                        what: t("terms.jiraConfig").toLowerCase(),
+                      })}
+                    </Title>
+                    <EmptyStateBody>
+                      {t("composed.noDataStateBody", {
+                        what: t("terms.jiraConfig").toLowerCase(),
+                      })}
+                    </EmptyStateBody>
+                  </EmptyState>
+                }
                 numRenderedColumns={numRenderedColumns}
               >
-                <Tbody>
-                  {currentPageItems?.map((tracker, rowIndex) => (
-                    <Tr key={tracker.name}>
+                {currentPageItems?.map((tracker, rowIndex) => (
+                  <Tbody key={tracker.name}>
+                    <Tr>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={tracker}
@@ -268,8 +283,8 @@ export const JiraTrackers: React.FC = () => {
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>
-                  ))}
-                </Tbody>
+                  </Tbody>
+                ))}
               </ConditionalTableBody>
             </TableComposable>
           </div>

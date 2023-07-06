@@ -3,12 +3,16 @@ import {
   Button,
   ButtonVariant,
   DropdownItem,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateIcon,
   Modal,
   ModalVariant,
   PageSection,
   PageSectionVariants,
   Text,
   TextContent,
+  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -17,6 +21,7 @@ import {
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 
 import {
   useDeleteAllMigrationWavesMutation,
@@ -325,7 +330,18 @@ export const MigrationWaves: React.FC = () => {
               <ConditionalTableBody
                 isLoading={isFetching}
                 isError={!!fetchError}
-                isNoData={migrationWaves.length === 0}
+                isNoData={currentPageItems.length === 0}
+                noDataEmptyState={
+                  <EmptyState variant="small">
+                    <EmptyStateIcon icon={CubesIcon} />
+                    <Title headingLevel="h2" size="lg">
+                      No migration waves available
+                    </Title>
+                    <EmptyStateBody>
+                      Use the filter menu above to select your migration wave.
+                    </EmptyStateBody>
+                  </EmptyState>
+                }
                 numRenderedColumns={numRenderedColumns}
               >
                 {currentPageItems?.map((migrationWave, rowIndex) => {
