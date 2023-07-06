@@ -384,9 +384,9 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                   }
                   options={sourceIdentityOptions}
                   onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<Ref>;
+                    const selectionValue = selection as OptionWithValue<string>;
                     // TODO PF v5
-                    onChange(selectionValue.value.name);
+                    onChange(selectionValue.value);
                   }}
                 />
               )}

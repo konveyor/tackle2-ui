@@ -221,9 +221,9 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
             value={value ? toOptionLike(value, jobFunctionOptions) : undefined}
             options={jobFunctionOptions}
             onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<JobFunction>;
+              const selectionValue = selection as OptionWithValue<string>;
               // TODO PF V5
-              onChange(selectionValue.value.name);
+              onChange(selectionValue.value);
             }}
             // TODO PF V5
             onClear={() => onChange("")}
