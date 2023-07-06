@@ -475,11 +475,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                       )
                     );
                   } else {
-                    if (currentValue)
-                      onChange([
-                        ...currentValue,
-                        getTagRef(selectionWithValue.value),
-                      ]);
+                    // TODO PF V5 - FIX
+                    // if (currentValue)
+                    //   onChange([
+                    //     ...currentValue,
+                    //     getTagRef(selectionWithValue),
+                    //   ]);
                   }
                 }}
                 onClear={() => onChange([])}
