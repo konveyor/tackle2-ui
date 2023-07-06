@@ -332,7 +332,7 @@ export const MigrationWaves: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="small">
+                  <EmptyState variant="sm">
                     <EmptyStateIcon icon={CubesIcon} />
                     <Title headingLevel="h2" size="lg">
                       No migration waves available

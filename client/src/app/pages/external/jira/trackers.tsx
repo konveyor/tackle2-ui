@@ -32,6 +32,7 @@ import {
   useFetchTrackers,
 } from "@app/queries/trackers";
 import { Tbody, Tr, Td, Thead, Th, Table } from "@patternfly/react-table";
+import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
@@ -212,7 +213,7 @@ export const JiraTrackers: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="small">
+                  <EmptyState variant="sm">
                     <EmptyStateIcon icon={CubesIcon} />
                     <Title headingLevel="h2" size="lg">
                       {t("composed.noDataStateTitle", {

@@ -250,7 +250,7 @@ export const Stakeholders: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState variant="small">
+                <EmptyState variant="sm">
                   <EmptyStateIcon icon={CubesIcon} />
                   <Title headingLevel="h2" size="lg">
                     {t("composed.noDataStateTitle", {
