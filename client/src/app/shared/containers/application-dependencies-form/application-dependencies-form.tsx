@@ -121,7 +121,7 @@ export const ApplicationDependenciesForm: React.FC<
   }, [application, southDependencies]);
 
   const savingMsg = (
-    <div className="pf-u-font-size-sm">
+    <div className="pf-v5-u-font-size-sm">
       <Spinner size="sm" /> {`${t("message.savingSelection")}...`}
     </div>
   );

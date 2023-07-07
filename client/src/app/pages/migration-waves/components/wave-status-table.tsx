@@ -111,7 +111,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
           noDataEmptyState={
             <div>
               <NoDataEmptyState title="Create a tracker and/or add applications to the migration wave." />
-              <div className="pf-u-text-align-center">
+              <div className="pf-v5-u-text-align-center">
                 <Button
                   type="button"
                   id="create-tracker"

@@ -9,7 +9,7 @@ Object {
         class="pf-v5-l-bullseye"
       >
         <div
-          class="pf-u-display-flex pf-u-flex-direction-column"
+          class="pf-v5-u-display-flex pf-u-flex-direction-column"
         >
           <div>
             <svg
@@ -44,7 +44,7 @@ Object {
       class="pf-v5-l-bullseye"
     >
       <div
-        class="pf-u-display-flex pf-u-flex-direction-column"
+        class="pf-v5-u-display-flex pf-u-flex-direction-column"
       >
         <div>
           <svg
