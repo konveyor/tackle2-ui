@@ -377,7 +377,7 @@ export const ApplicationsTable: React.FC = () => {
         },
         {
           title: (
-            <div className="pf-v5-c-inline-edit__action pf-m-enable-editable">
+            <div className="pf-v5-c-inline-edit__action pf-v5-m-enable-editable">
               <RBAC
                 allowedPermissions={applicationsWriteScopes}
                 rbacType={RBAC_TYPE.Scope}

@@ -7,7 +7,7 @@ Object {
     <div>
       <table
         aria-label="main-table"
-        class="app-table pf-v5-c-table pf-m-grid-md"
+        class="app-table pf-v5-c-table pf-v5-m-grid-md"
         data-ouia-component-id="OUIA-Generated-Table-2"
         data-ouia-component-type="PF5/Table"
         data-ouia-safe="true"
@@ -1143,7 +1143,7 @@ Object {
   "container": <div>
     <table
       aria-label="main-table"
-      class="app-table pf-v5-c-table pf-m-grid-md"
+      class="app-table pf-v5-c-table pf-v5-m-grid-md"
       data-ouia-component-id="OUIA-Generated-Table-2"
       data-ouia-component-type="PF5/Table"
       data-ouia-safe="true"

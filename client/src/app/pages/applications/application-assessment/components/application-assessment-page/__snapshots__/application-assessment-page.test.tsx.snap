@@ -6,10 +6,10 @@ Object {
   "baseElement": <body>
     <div>
       <section
-        class="pf-v5-c-page__main-section pf-m-light"
+        class="pf-v5-c-page__main-section pf-v5-m-light"
       >
         <div
-          class="pf-v5-l-stack pf-m-gutter"
+          class="pf-v5-l-stack pf-v5-m-gutter"
         >
           <div
             class="pf-v5-l-stack__item"
@@ -30,7 +30,7 @@ Object {
                 >
                   <button
                     aria-disabled="false"
-                    class="pf-v5-c-button pf-m-link pf-m-inline"
+                    class="pf-v5-c-button pf-v5-m-link pf-v5-m-inline"
                     data-ouia-component-id="OUIA-Generated-Button-link-1"
                     data-ouia-component-type="PF5/Button"
                     data-ouia-safe="true"
@@ -71,7 +71,7 @@ Object {
               class="pf-v5-l-split"
             >
               <div
-                class="pf-v5-l-split__item pf-m-fill"
+                class="pf-v5-l-split__item pf-v5-m-fill"
               >
                 <div
                   class="pf-v5-c-content"
@@ -102,7 +102,7 @@ Object {
         </div>
       </section>
       <section
-        class="pf-v5-c-page__main-wizard pf-m-light"
+        class="pf-v5-c-page__main-wizard pf-v5-m-light"
       >
         Body of page
       </section>
@@ -111,10 +111,10 @@ Object {
   </body>,
   "container": <div>
     <section
-      class="pf-v5-c-page__main-section pf-m-light"
+      class="pf-v5-c-page__main-section pf-v5-m-light"
     >
       <div
-        class="pf-v5-l-stack pf-m-gutter"
+        class="pf-v5-l-stack pf-v5-m-gutter"
       >
         <div
           class="pf-v5-l-stack__item"
@@ -135,7 +135,7 @@ Object {
               >
                 <button
                   aria-disabled="false"
-                  class="pf-v5-c-button pf-m-link pf-m-inline"
+                  class="pf-v5-c-button pf-v5-m-link pf-v5-m-inline"
                   data-ouia-component-id="OUIA-Generated-Button-link-1"
                   data-ouia-component-type="PF5/Button"
                   data-ouia-safe="true"
@@ -176,7 +176,7 @@ Object {
             class="pf-v5-l-split"
           >
             <div
-              class="pf-v5-l-split__item pf-m-fill"
+              class="pf-v5-l-split__item pf-v5-m-fill"
             >
               <div
                 class="pf-v5-c-content"
@@ -207,7 +207,7 @@ Object {
       </div>
     </section>
     <section
-      class="pf-v5-c-page__main-wizard pf-m-light"
+      class="pf-v5-c-page__main-wizard pf-v5-m-light"
     >
       Body of page
     </section>

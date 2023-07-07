@@ -45,7 +45,7 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
       }}
     >
       <Toolbar
-        className="pf-m-toggle-group-container"
+        className="pf-v5-m-toggle-group-container"
         collapseListedFiltersBreakpoint="xl"
         clearAllFilters={toolbarClearAllFilters}
         clearFiltersButtonText={t("actions.clearAllFilters")}

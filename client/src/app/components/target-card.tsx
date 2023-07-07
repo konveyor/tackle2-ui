@@ -124,7 +124,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       onClick={handleCardClick}
       isSelectable={!!cardSelected}
       isSelected={isCardSelected}
-      className="pf-l-stack pf-l-stack__item pf-m-fill"
+      className="pf-v5-l-stack pf-v5-l-stack__item pf-v5-m-fill"
     >
       <CardBody>
         <Flex>
@@ -191,7 +191,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
               ))}
             </Select>
           ) : null}
-          <Text className={`${spacing.pMd} pf-u-text-align-left`}>
+          <Text className={`${spacing.pMd} pf-v5-u-text-align-left`}>
             {item.description}
           </Text>
         </EmptyState>

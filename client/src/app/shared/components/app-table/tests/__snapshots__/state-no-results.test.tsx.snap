@@ -6,7 +6,7 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-c-empty-state pf-m-sm"
+        class="pf-v5-c-empty-state pf-v5-m-sm"
       >
         <div
           class="pf-v5-c-empty-state__content"
@@ -19,7 +19,7 @@ Object {
             />
           </div>
           <h2
-            class="pf-v5-c-title pf-m-lg"
+            class="pf-v5-c-title pf-v5-m-lg"
             data-ouia-component-id="OUIA-Generated-Title-1"
             data-ouia-component-type="PF5/Title"
             data-ouia-safe="true"
@@ -37,7 +37,7 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-v5-c-empty-state pf-m-sm"
+      class="pf-v5-c-empty-state pf-v5-m-sm"
     >
       <div
         class="pf-v5-c-empty-state__content"
@@ -50,7 +50,7 @@ Object {
           />
         </div>
         <h2
-          class="pf-v5-c-title pf-m-lg"
+          class="pf-v5-c-title pf-v5-m-lg"
           data-ouia-component-id="OUIA-Generated-Title-1"
           data-ouia-component-type="PF5/Title"
           data-ouia-safe="true"

@@ -4,7 +4,7 @@ import { Bullseye, Spinner } from "@patternfly/react-core";
 export const AppPlaceholder: React.FC = () => {
   return (
     <Bullseye>
-      <div className="pf-v5-u-display-flex pf-u-flex-direction-column">
+      <div className="pf-v5-u-display-flex pf-v5-u-flex-direction-column">
         <div>
           <Spinner />
         </div>
