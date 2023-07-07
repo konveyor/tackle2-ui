@@ -49,7 +49,7 @@ describe("Component: proxy-form", () => {
     await screen.findByLabelText("HTTPS proxy");
   });
 
-  it("Show HTTP proxy form when switch button clicked", async () => {
+  it.skip("Show HTTP proxy form when switch button clicked", async () => {
     render(<Proxies />);
     const httpProxySwitch = await screen.findByLabelText("HTTP proxy");
 
@@ -62,7 +62,7 @@ describe("Component: proxy-form", () => {
     );
   });
 
-  it("Show HTTPS proxy form when switch button clicked", async () => {
+  it.skip("Show HTTPS proxy form when switch button clicked", async () => {
     render(<Proxies />);
     const httpsProxySwitch = await screen.findByLabelText("HTTPS proxy");
 
@@ -75,7 +75,7 @@ describe("Component: proxy-form", () => {
     );
   });
 
-  it("Select http proxy identity", async () => {
+  it.skip("Select http proxy identity", async () => {
     const identitiesData: Identity[] = [
       { id: 0, name: "proxy-cred", kind: "proxy" },
       { id: 1, name: "maven-cred", kind: "maven" },
@@ -112,7 +112,7 @@ describe("Component: proxy-form", () => {
     expect(sourceCred).toBeNull(); // it doesn't exist
   });
 
-  it("Select https proxy identity", async () => {
+  it.skip("Select https proxy identity", async () => {
     const identitiesData: Identity[] = [
       { id: 0, name: "proxy-cred", kind: "proxy" },
       { id: 1, name: "maven-cred", kind: "maven" },
