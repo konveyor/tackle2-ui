@@ -15,7 +15,7 @@ Object {
             <svg
               aria-label="Contents"
               aria-valuetext="Loading..."
-              class="pf-v5-c-spinner pf-v5-m-xl"
+              class="pf-v5-c-spinner pf-m-xl"
               role="progressbar"
               viewBox="0 0 100 100"
             >
@@ -50,7 +50,7 @@ Object {
           <svg
             aria-label="Contents"
             aria-valuetext="Loading..."
-            class="pf-v5-c-spinner pf-v5-m-xl"
+            class="pf-v5-c-spinner pf-m-xl"
             role="progressbar"
             viewBox="0 0 100 100"
           >

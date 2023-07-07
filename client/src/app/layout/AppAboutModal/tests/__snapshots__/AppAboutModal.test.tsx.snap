@@ -17,9 +17,9 @@ Object {
           class="pf-v5-l-bullseye"
         >
           <div
-            aria-labelledby="pf-v5-about-modal-title-0"
+            aria-labelledby="pf-about-modal-title-0"
             aria-modal="true"
-            class="pf-v5-c-modal-box pf-v5-m-lg"
+            class="pf-v5-c-modal-box pf-m-lg"
             data-ouia-component-id="OUIA-Generated-Modal-large-1"
             data-ouia-component-type="PF5/ModalContent"
             data-ouia-safe="true"
@@ -45,7 +45,7 @@ Object {
                 <button
                   aria-disabled="false"
                   aria-label="Close Dialog"
-                  class="pf-v5-c-button pf-v5-m-plain"
+                  class="pf-v5-c-button pf-m-plain"
                   data-ouia-component-id="OUIA-Generated-Button-plain-1"
                   data-ouia-component-type="PF5/Button"
                   data-ouia-safe="true"
@@ -70,11 +70,11 @@ Object {
                 class="pf-v5-c-about-modal-box__header"
               >
                 <h1
-                  class="pf-v5-c-title pf-v5-m-4xl"
+                  class="pf-v5-c-title pf-m-4xl"
                   data-ouia-component-id="OUIA-Generated-Title-1"
                   data-ouia-component-type="PF5/Title"
                   data-ouia-safe="true"
-                  id="pf-v5-about-modal-title-0"
+                  id="pf-about-modal-title-0"
                 >
                   Konveyor
                 </h1>
