@@ -62,6 +62,8 @@ export const FileIncidentsDetailModal: React.FC<
   // TODO render incident facts?
   // TODO render documentation links? are those part of the markdown? where do we get them from the hub?
 
+  console.log({ activeTabIncidentId });
+
   return (
     <Modal
       title={fileReport.file}
@@ -85,14 +87,14 @@ export const FileIncidentsDetailModal: React.FC<
           })}
         />
       ) : (
-        <>
-          <Tabs
-            activeKey={activeTabIncidentId}
-            onSelect={(_event, tabKey) =>
-              setActiveTabIncidentId(tabKey as IncidentIdOrAll)
-            }
-          >
-            {firstFiveIncidents.map((incident, index) => (
+        <Tabs
+          activeKey={activeTabIncidentId}
+          onSelect={(_event, tabKey) =>
+            setActiveTabIncidentId(tabKey as IncidentIdOrAll)
+          }
+        >
+          {[
+            ...firstFiveIncidents.map((incident, index) => (
               <Tab
                 key={incident.id}
                 eventKey={incident.id}
@@ -121,30 +123,26 @@ export const FileIncidentsDetailModal: React.FC<
                   </Grid>
                 ) : null}
               </Tab>
-            ))}
-          </Tabs>
-          {totalNumIncidents > 5 ? (
-            <Tabs
-              activeKey="all"
-              onSelect={(_event, tabKey) =>
-                setActiveTabIncidentId(tabKey as IncidentIdOrAll)
-              }
-            >
-              <Tab
-                eventKey="all"
-                title={`All incidents (${totalNumIncidents})`} // TODO i18n
-              >
-                <Alert
-                  isInline
-                  variant="info"
-                  className={spacing.mtMd}
-                  title="TODO"
-                />
-                <FileAllIncidentsTable fileReport={fileReport} />
-              </Tab>
-            </Tabs>
-          ) : null}
-        </>
+            )),
+            ...(totalNumIncidents > 5
+              ? [
+                  <Tab
+                    key="all"
+                    eventKey="all"
+                    title={`All incidents (${totalNumIncidents})`} // TODO i18n
+                  >
+                    <Alert
+                      isInline
+                      variant="info"
+                      className={spacing.mtMd}
+                      title="TODO"
+                    />
+                    <FileAllIncidentsTable fileReport={fileReport} />
+                  </Tab>,
+                ]
+              : []),
+          ]}
+        </Tabs>
       )}
     </Modal>
   );
