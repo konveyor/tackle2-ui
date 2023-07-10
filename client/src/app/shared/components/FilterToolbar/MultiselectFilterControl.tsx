@@ -13,12 +13,16 @@ import {
   IMultiselectFilterCategory,
   OptionPropsWithKey,
 } from "./FilterToolbar";
+import { css } from "@patternfly/react-styles";
+
+import "./select-overrides.css";
 
 export interface IMultiselectFilterControlProps<
   TItem,
   TFilterCategoryKey extends string
 > extends IFilterControlProps<TItem, TFilterCategoryKey> {
   category: IMultiselectFilterCategory<TItem, TFilterCategoryKey>;
+  isScrollable?: boolean;
 }
 
 export const MultiselectFilterControl = <
@@ -30,6 +34,7 @@ export const MultiselectFilterControl = <
   setFilterValue,
   showToolbarItem,
   isDisabled = false,
+  isScrollable = false,
 }: React.PropsWithChildren<
   IMultiselectFilterControlProps<TItem, TFilterCategoryKey>
 >): JSX.Element | null => {
@@ -47,10 +52,12 @@ export const MultiselectFilterControl = <
   const getChipFromOptionValue = (
     optionValue: string | SelectOptionObject | undefined
   ) => (optionValue ? optionValue.toString() : "");
+
   const getOptionKeyFromChip = (chip: string) =>
     category.selectOptions.find(
       (optionProps) => optionProps.value.toString() === chip
     )?.key;
+
   const getOptionValueFromOptionKey = (optionKey: string) =>
     category.selectOptions.find((optionProps) => optionProps.key === optionKey)
       ?.value;
@@ -71,6 +78,7 @@ export const MultiselectFilterControl = <
       }
     }
   };
+
   const onFilterClear = (chip: string) => {
     const optionKey = getOptionKeyFromChip(chip);
     const newValue = filterValue
@@ -83,6 +91,7 @@ export const MultiselectFilterControl = <
   const selections = filterValue
     ? filterValue.map(getOptionValueFromOptionKey)
     : null;
+
   const chips = selections ? selections.map(getChipFromOptionValue) : [];
 
   const renderSelectOptions = (options: OptionPropsWithKey[]) =>
@@ -111,13 +120,14 @@ export const MultiselectFilterControl = <
 
   return (
     <ToolbarFilter
+      id={`filter-control-${category.key}`}
       chips={chips}
       deleteChip={(_, chip) => onFilterClear(chip as string)}
       categoryName={category.title}
       showToolbarItem={showToolbarItem}
     >
       <Select
-        variant={SelectVariant.checkbox}
+        className={css(isScrollable && "isScrollable")}
         aria-label={category.title}
         toggleId={`${category.key}-filter-value-select`}
         onToggle={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
@@ -125,9 +135,10 @@ export const MultiselectFilterControl = <
         onSelect={(_, value) => onFilterSelect(value)}
         isOpen={isFilterDropdownOpen}
         placeholderText={category.placeholderText}
+        isDisabled={isDisabled || category.selectOptions.length === 0}
+        variant={SelectVariant.checkbox}
         hasInlineFilter
         onFilter={onOptionsFilter}
-        isDisabled={isDisabled || category.selectOptions.length === 0}
       >
         {renderSelectOptions(category.selectOptions)}
       </Select>
