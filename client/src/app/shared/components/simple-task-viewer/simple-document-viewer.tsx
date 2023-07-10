@@ -134,11 +134,11 @@ export const SimpleDocumentViewer = <FetchType,>({
       emptyState={
         <div className="simple-task-viewer-empty-state">
           <EmptyState
-            variant={EmptyStateVariant.small}
+            variant={EmptyStateVariant.sm}
             isFullHeight
             style={{ height: height === "full" ? "auto" : height }}
           >
-            <EmptyStateIcon variant="container" component={Spinner} />
+            <EmptyStateIcon icon={Spinner} />
             <Title size="lg" headingLevel="h4">
               Loading {currentLanguage}
             </Title>

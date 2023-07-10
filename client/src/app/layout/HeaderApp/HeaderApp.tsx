@@ -1,15 +1,11 @@
 import React from "react";
+import { Brand, Button, ButtonVariant, Title } from "@patternfly/react-core";
 import {
   PageHeader,
-  Brand,
   PageHeaderTools,
-  Avatar,
   PageHeaderToolsGroup,
   PageHeaderToolsItem,
-  Button,
-  ButtonVariant,
-  Title,
-} from "@patternfly/react-core";
+} from "@patternfly/react-core/deprecated";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
 import { AppAboutModalState } from "../AppAboutModalState";

@@ -2,13 +2,15 @@ import * as React from "react";
 import {
   Checkbox,
   Form,
-  Select,
-  SelectOption,
-  SelectVariant,
   Text,
   TextContent,
   Title,
 } from "@patternfly/react-core";
+import {
+  SelectVariant,
+  Select,
+  SelectOption,
+} from "@patternfly/react-core/deprecated";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";

@@ -25,26 +25,24 @@ export const Donut: React.FC<IDonutProps> = ({
 
   return (
     <Stack>
-      <StackItem>
-        <div style={{ height: "200px", width: "200px" }}>
-          <ChartDonut
-            ariaDesc="risk-donut-chart"
-            title={value.toString()}
-            subTitle={t("composed.ofTotalApplications", {
-              count: total,
-            }).toLocaleLowerCase()}
-            constrainToVisibleArea={true}
-            data={[
-              { x: riskLabel, y: value },
-              { x: t("terms.other"), y: total - value },
-            ]}
-            labels={({ datum }) => `${datum.x}: ${datum.y}`}
-            colorScale={[color, black.value]}
-          />
-        </div>
+      <StackItem style={{ height: "200px", width: "200px" }}>
+        <ChartDonut
+          ariaDesc="risk-donut-chart"
+          title={value.toString()}
+          subTitle={t("composed.ofTotalApplications", {
+            count: total,
+          }).toLocaleLowerCase()}
+          constrainToVisibleArea={true}
+          data={[
+            { x: riskLabel, y: value },
+            { x: t("terms.other"), y: total - value },
+          ]}
+          labels={({ datum }) => `${datum.x}: ${datum.y}`}
+          colorScale={[color, black.value]}
+        />
       </StackItem>
       <StackItem>
-        <TextContent className="pf-u-text-align-center">
+        <TextContent className="pf-v5-u-text-align-center">
           <Text component="h3">{riskLabel}</Text>
           <Text component="small">{riskDescription}</Text>
         </TextContent>

@@ -9,7 +9,7 @@ Object {
         style="height: 250px; width: 380px;"
       >
         <div
-          class="pf-c-chart"
+          class="pf-v5-c-chart"
           style="pointer-events: none; position: relative; width: 100%; height: 100%;"
         >
           <svg
@@ -30,44 +30,44 @@ Object {
                 d="M0.9368333156413089,-94.99538064210651A95,95,0,0,1,90.0564783621841,-30.246168435050876L47.25498065575035,-16.339118801962986A50,50,0,0,0,0.9368333156413149,-49.99122266297059Z"
                 role="presentation"
                 shape-rendering="auto"
-                style="fill: #68b240; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+                style="fill: #68b240; padding: 8px; stroke: var(--pf-v5-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
                 transform="translate(130, 115)"
               />
               <path
                 d="M90.63547319304368,-28.464205576004755A95,95,0,0,1,56.59479785059054,76.30222051979085L30.142017498613814,39.893091897135A50,50,0,0,0,47.83397548660994,-14.55715594291687Z"
                 role="presentation"
                 shape-rendering="auto"
-                style="fill: #f0ab0b; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+                style="fill: #f0ab0b; padding: 8px; stroke: var(--pf-v5-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
                 transform="translate(130, 115)"
               />
               <path
                 d="M55.078969704089644,77.4035341333713A95,95,0,0,1,-55.07896970408963,77.4035341333713L-28.626189352112924,40.994405510715445A50,50,0,0,0,28.626189352112924,40.994405510715445Z"
                 role="presentation"
                 shape-rendering="auto"
-                style="fill: #cb440d; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+                style="fill: #cb440d; padding: 8px; stroke: var(--pf-v5-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
                 transform="translate(130, 115)"
               />
               <path
                 d="M-56.59479785059055,76.30222051979085A95,95,0,0,1,-0.9368333156413414,-94.99538064210651L-0.9368333156413101,-49.99122266297059A50,50,0,0,0,-30.14201749861381,39.89309189713501Z"
                 role="presentation"
                 shape-rendering="auto"
-                style="fill: #030303; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+                style="fill: #030303; padding: 8px; stroke: var(--pf-v5-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
                 transform="translate(130, 115)"
               />
             </g>
             <g>
               <rect
-                height="123.61999999999999"
+                height="56"
                 role="presentation"
                 shape-rendering="auto"
                 style="fill: none;"
                 vector-effect="non-scaling-stroke"
-                width="140.05"
+                width="39.6"
                 x="233"
-                y="55.190000000000005"
+                y="89"
               />
               <path
-                d="M 242.128, 74.062
+                d="M 242.128, 107.872
       h9.744000000000028
       v-9.744000000000028
       h-9.744000000000028
@@ -77,7 +77,7 @@ Object {
                 style="fill: #68b240;"
               />
               <path
-                d="M 242.128, 104.967
+                d="M 242.128, 121.872
       h9.744000000000028
       v-9.744000000000028
       h-9.744000000000028
@@ -97,7 +97,7 @@ Object {
                 style="fill: #cb440d;"
               />
               <path
-                d="M 242.128, 166.777
+                d="M 242.128, 149.872
       h9.744000000000028
       v-9.744000000000028
       h-9.744000000000028
@@ -111,12 +111,12 @@ Object {
                 dx="0"
                 id="legend-labels-0"
                 x="263.8"
-                y="74.16"
+                y="107.97"
               >
                 <tspan
                   dx="0"
                   dy="0"
-                  style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                  style="font-family: \\"RedHatText\\",helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-v5-chart-global--label--stroke, transparent); fill: var(--pf-v5-chart-global--label--Fill, #151515);"
                   text-anchor="start"
                   x="263.8"
                 >
@@ -128,12 +128,12 @@ Object {
                 dx="0"
                 id="legend-labels-1"
                 x="263.8"
-                y="105.065"
+                y="121.97"
               >
                 <tspan
                   dx="0"
                   dy="0"
-                  style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                  style="font-family: \\"RedHatText\\",helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-v5-chart-global--label--stroke, transparent); fill: var(--pf-v5-chart-global--label--Fill, #151515);"
                   text-anchor="start"
                   x="263.8"
                 >
@@ -150,7 +150,7 @@ Object {
                 <tspan
                   dx="0"
                   dy="0"
-                  style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                  style="font-family: \\"RedHatText\\",helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-v5-chart-global--label--stroke, transparent); fill: var(--pf-v5-chart-global--label--Fill, #151515);"
                   text-anchor="start"
                   x="263.8"
                 >
@@ -162,12 +162,12 @@ Object {
                 dx="0"
                 id="legend-labels-3"
                 x="263.8"
-                y="166.87499999999997"
+                y="149.97"
               >
                 <tspan
                   dx="0"
                   dy="0"
-                  style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                  style="font-family: \\"RedHatText\\",helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-v5-chart-global--label--stroke, transparent); fill: var(--pf-v5-chart-global--label--Fill, #151515);"
                   text-anchor="start"
                   x="263.8"
                 >
@@ -189,13 +189,22 @@ Object {
         </div>
       </div>
     </div>
+    <svg
+      height="300"
+      style="position: fixed; top: -9999px; left: -9999px;"
+      viewBox="0 0 300 300"
+      width="300"
+      xlink="http://www.w3.org/1999/xlink"
+    >
+      <text />
+    </svg>
   </body>,
   "container": <div>
     <div
       style="height: 250px; width: 380px;"
     >
       <div
-        class="pf-c-chart"
+        class="pf-v5-c-chart"
         style="pointer-events: none; position: relative; width: 100%; height: 100%;"
       >
         <svg
@@ -216,44 +225,44 @@ Object {
               d="M0.9368333156413089,-94.99538064210651A95,95,0,0,1,90.0564783621841,-30.246168435050876L47.25498065575035,-16.339118801962986A50,50,0,0,0,0.9368333156413149,-49.99122266297059Z"
               role="presentation"
               shape-rendering="auto"
-              style="fill: #68b240; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+              style="fill: #68b240; padding: 8px; stroke: var(--pf-v5-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
               transform="translate(130, 115)"
             />
             <path
               d="M90.63547319304368,-28.464205576004755A95,95,0,0,1,56.59479785059054,76.30222051979085L30.142017498613814,39.893091897135A50,50,0,0,0,47.83397548660994,-14.55715594291687Z"
               role="presentation"
               shape-rendering="auto"
-              style="fill: #f0ab0b; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+              style="fill: #f0ab0b; padding: 8px; stroke: var(--pf-v5-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
               transform="translate(130, 115)"
             />
             <path
               d="M55.078969704089644,77.4035341333713A95,95,0,0,1,-55.07896970408963,77.4035341333713L-28.626189352112924,40.994405510715445A50,50,0,0,0,28.626189352112924,40.994405510715445Z"
               role="presentation"
               shape-rendering="auto"
-              style="fill: #cb440d; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+              style="fill: #cb440d; padding: 8px; stroke: var(--pf-v5-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
               transform="translate(130, 115)"
             />
             <path
               d="M-56.59479785059055,76.30222051979085A95,95,0,0,1,-0.9368333156413414,-94.99538064210651L-0.9368333156413101,-49.99122266297059A50,50,0,0,0,-30.14201749861381,39.89309189713501Z"
               role="presentation"
               shape-rendering="auto"
-              style="fill: #030303; padding: 8px; stroke: var(--pf-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
+              style="fill: #030303; padding: 8px; stroke: var(--pf-v5-chart-pie--data--stroke--Color, transparent); stroke-width: 1;"
               transform="translate(130, 115)"
             />
           </g>
           <g>
             <rect
-              height="123.61999999999999"
+              height="56"
               role="presentation"
               shape-rendering="auto"
               style="fill: none;"
               vector-effect="non-scaling-stroke"
-              width="140.05"
+              width="39.6"
               x="233"
-              y="55.190000000000005"
+              y="89"
             />
             <path
-              d="M 242.128, 74.062
+              d="M 242.128, 107.872
       h9.744000000000028
       v-9.744000000000028
       h-9.744000000000028
@@ -263,7 +272,7 @@ Object {
               style="fill: #68b240;"
             />
             <path
-              d="M 242.128, 104.967
+              d="M 242.128, 121.872
       h9.744000000000028
       v-9.744000000000028
       h-9.744000000000028
@@ -283,7 +292,7 @@ Object {
               style="fill: #cb440d;"
             />
             <path
-              d="M 242.128, 166.777
+              d="M 242.128, 149.872
       h9.744000000000028
       v-9.744000000000028
       h-9.744000000000028
@@ -297,12 +306,12 @@ Object {
               dx="0"
               id="legend-labels-0"
               x="263.8"
-              y="74.16"
+              y="107.97"
             >
               <tspan
                 dx="0"
                 dy="0"
-                style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                style="font-family: \\"RedHatText\\",helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-v5-chart-global--label--stroke, transparent); fill: var(--pf-v5-chart-global--label--Fill, #151515);"
                 text-anchor="start"
                 x="263.8"
               >
@@ -314,12 +323,12 @@ Object {
               dx="0"
               id="legend-labels-1"
               x="263.8"
-              y="105.065"
+              y="121.97"
             >
               <tspan
                 dx="0"
                 dy="0"
-                style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                style="font-family: \\"RedHatText\\",helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-v5-chart-global--label--stroke, transparent); fill: var(--pf-v5-chart-global--label--Fill, #151515);"
                 text-anchor="start"
                 x="263.8"
               >
@@ -336,7 +345,7 @@ Object {
               <tspan
                 dx="0"
                 dy="0"
-                style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                style="font-family: \\"RedHatText\\",helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-v5-chart-global--label--stroke, transparent); fill: var(--pf-v5-chart-global--label--Fill, #151515);"
                 text-anchor="start"
                 x="263.8"
               >
@@ -348,12 +357,12 @@ Object {
               dx="0"
               id="legend-labels-3"
               x="263.8"
-              y="166.87499999999997"
+              y="149.97"
             >
               <tspan
                 dx="0"
                 dy="0"
-                style="font-family: \\"RedHatText\\",\\"Overpass\\",overpass,helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-chart-global--label--stroke, transparent); fill: var(--pf-chart-global--label--Fill, #151515);"
+                style="font-family: \\"RedHatText\\",helvetica,arial,sans-serif; font-size: 14px; letter-spacing: normal; padding: 10px; stroke: var(--pf-v5-chart-global--label--stroke, transparent); fill: var(--pf-v5-chart-global--label--Fill, #151515);"
                 text-anchor="start"
                 x="263.8"
               >

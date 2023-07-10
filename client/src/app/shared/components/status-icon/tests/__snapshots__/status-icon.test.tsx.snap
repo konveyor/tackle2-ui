@@ -6,7 +6,7 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-l-flex pf-m-space-items-sm pf-m-align-items-center pf-m-nowrap"
+        class="pf-v5-l-flex pf-m-space-items-sm pf-m-align-items-center pf-m-nowrap"
         style="white-space: nowrap;"
       >
         <div
@@ -27,7 +27,7 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-l-flex pf-m-space-items-sm pf-m-align-items-center pf-m-nowrap"
+      class="pf-v5-l-flex pf-m-space-items-sm pf-m-align-items-center pf-m-nowrap"
       style="white-space: nowrap;"
     >
       <div

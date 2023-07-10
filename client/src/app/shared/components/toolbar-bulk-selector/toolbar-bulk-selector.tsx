@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-
+import { Button, PaginationProps, ToolbarItem } from "@patternfly/react-core";
 import {
-  Button,
   Dropdown,
   DropdownItem,
   DropdownToggle,
   DropdownToggleCheckbox,
-  PaginationProps,
-  ToolbarItem,
-} from "@patternfly/react-core";
+} from "@patternfly/react-core/deprecated";
 
 import AngleDownIcon from "@patternfly/react-icons/dist/esm/icons/angle-down-icon";
 import AngleRightIcon from "@patternfly/react-icons/dist/esm/icons/angle-right-icon";
@@ -133,7 +130,7 @@ export const ToolbarBulkSelector = <T,>({
                   isChecked={getBulkSelectState()}
                 />,
               ]}
-              onToggle={(isOpen) => {
+              onToggle={(_, isOpen) => {
                 setBulkSelectOpen(isOpen);
               }}
             />

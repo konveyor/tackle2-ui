@@ -6,9 +6,9 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-c-select"
+        class="pf-v5-c-select"
         data-ouia-component-id="OUIA-Generated-Select-single-1"
-        data-ouia-component-type="PF4/Select"
+        data-ouia-component-type="PF5/Select"
         data-ouia-safe="true"
       >
         <button
@@ -16,28 +16,28 @@ Object {
           aria-haspopup="listbox"
           aria-label="Options menu"
           aria-labelledby=" pf-select-toggle-id-0"
-          class="pf-c-select__toggle"
+          class="pf-v5-c-select__toggle"
           id="pf-select-toggle-id-0"
           type="button"
         >
           <div
-            class="pf-c-select__toggle-wrapper"
+            class="pf-v5-c-select__toggle-wrapper"
           >
             <span
-              class="pf-c-select__toggle-text"
+              class="pf-v5-c-select__toggle-text"
             >
               Select...
             </span>
           </div>
           <span
-            class="pf-c-select__toggle-arrow"
+            class="pf-v5-c-select__toggle-arrow"
           >
             <svg
               aria-hidden="true"
+              class="pf-v5-svg"
               fill="currentColor"
               height="1em"
               role="img"
-              style="vertical-align: -0.125em;"
               viewBox="0 0 320 512"
               width="1em"
             >
@@ -52,9 +52,9 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-c-select"
+      class="pf-v5-c-select"
       data-ouia-component-id="OUIA-Generated-Select-single-1"
-      data-ouia-component-type="PF4/Select"
+      data-ouia-component-type="PF5/Select"
       data-ouia-safe="true"
     >
       <button
@@ -62,28 +62,28 @@ Object {
         aria-haspopup="listbox"
         aria-label="Options menu"
         aria-labelledby=" pf-select-toggle-id-0"
-        class="pf-c-select__toggle"
+        class="pf-v5-c-select__toggle"
         id="pf-select-toggle-id-0"
         type="button"
       >
         <div
-          class="pf-c-select__toggle-wrapper"
+          class="pf-v5-c-select__toggle-wrapper"
         >
           <span
-            class="pf-c-select__toggle-text"
+            class="pf-v5-c-select__toggle-text"
           >
             Select...
           </span>
         </div>
         <span
-          class="pf-c-select__toggle-arrow"
+          class="pf-v5-c-select__toggle-arrow"
         >
           <svg
             aria-hidden="true"
+            class="pf-v5-svg"
             fill="currentColor"
             height="1em"
             role="img"
-            style="vertical-align: -0.125em;"
             viewBox="0 0 320 512"
             width="1em"
           >

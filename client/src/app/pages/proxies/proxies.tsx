@@ -40,7 +40,7 @@ export const Proxies: React.FC = () => {
           <CardBody>
             {isFetching ? (
               <EmptyState className={spacing.mtXl}>
-                <EmptyStateIcon variant="container" component={Spinner} />
+                <EmptyStateIcon icon={Spinner} />
                 <Title size="lg" headingLevel="h4">
                   Loading
                 </Title>

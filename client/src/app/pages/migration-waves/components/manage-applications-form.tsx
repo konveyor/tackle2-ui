@@ -24,14 +24,7 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
-import {
-  TableComposable,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -247,7 +240,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-      <TableComposable {...tableProps} aria-label="Migration waves table">
+      <Table {...tableProps} aria-label="Migration waves table">
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
@@ -298,7 +291,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
             );
           })}
         </ConditionalTableBody>
-      </TableComposable>
+      </Table>
       <ActionGroup>
         <Button
           type="submit"

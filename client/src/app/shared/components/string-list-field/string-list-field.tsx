@@ -9,7 +9,7 @@ import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle
 import { getValidatedFromErrors } from "@app/utils/utils";
 import { HookFormPFGroupController } from "../hook-form-pf-fields";
 
-import { TableComposable, Tbody, Td, Tr } from "@patternfly/react-table";
+import { Table, Tbody, Td, Tr } from "@patternfly/react-table";
 
 export interface StringListFieldProps {
   listItems: string[];
@@ -77,7 +77,7 @@ export const StringListField: React.FC<StringListFieldProps> = ({
                 aria-label={itemToAddAriaLabel}
                 validated={getValidatedFromErrors(error, isDirty)}
                 value={value}
-                onChange={onChange}
+                onChange={(_, value) => onChange(value)}
                 onBlur={onBlur}
                 onKeyUp={(event) => {
                   if (event.key === "Enter") {
@@ -100,7 +100,7 @@ export const StringListField: React.FC<StringListFieldProps> = ({
       />
       {listItems.length > 0 && (
         <div className={spacing.mtMd}>
-          <TableComposable variant="compact">
+          <Table variant="compact">
             <Tbody>
               {listItems.map((item) =>
                 item ? (
@@ -122,7 +122,7 @@ export const StringListField: React.FC<StringListFieldProps> = ({
                 ) : null
               )}
             </Tbody>
-          </TableComposable>
+          </Table>
         </div>
       )}
     </div>

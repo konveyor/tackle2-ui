@@ -1,13 +1,13 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { ToolbarFilter } from "@patternfly/react-core";
 import {
-  ToolbarFilter,
   Select,
   SelectOption,
   SelectOptionObject,
   SelectVariant,
   SelectProps,
-} from "@patternfly/react-core";
+} from "@patternfly/react-core/deprecated";
 import { IFilterControlProps } from "./FilterControl";
 import {
   IMultiselectFilterCategory,

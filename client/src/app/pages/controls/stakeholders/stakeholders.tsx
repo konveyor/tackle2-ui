@@ -21,7 +21,7 @@ import {
 } from "@patternfly/react-core";
 import {
   ExpandableRowContent,
-  TableComposable,
+  Table,
   Tbody,
   Td,
   Th,
@@ -206,7 +206,7 @@ export const Stakeholders: React.FC = () => {
       >
         <div
           style={{
-            backgroundColor: "var(--pf-global--BackgroundColor--100)",
+            backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
           }}
         >
           <Toolbar {...toolbarProps}>
@@ -234,11 +234,7 @@ export const Stakeholders: React.FC = () => {
               </ToolbarItem>
             </ToolbarContent>
           </Toolbar>
-          <TableComposable
-            {...tableProps}
-            isExpandable
-            aria-label="Stakeholders table"
-          >
+          <Table {...tableProps} isExpandable aria-label="Stakeholders table">
             <Thead>
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
@@ -254,7 +250,7 @@ export const Stakeholders: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState variant="small">
+                <EmptyState variant="sm">
                   <EmptyStateIcon icon={CubesIcon} />
                   <Title headingLevel="h2" size="lg">
                     {t("composed.noDataStateTitle", {
@@ -343,7 +339,7 @@ export const Stakeholders: React.FC = () => {
                 );
               })}
             </ConditionalTableBody>
-          </TableComposable>
+          </Table>
           <SimplePagination
             idPrefix="migration-waves-table"
             isTop={false}

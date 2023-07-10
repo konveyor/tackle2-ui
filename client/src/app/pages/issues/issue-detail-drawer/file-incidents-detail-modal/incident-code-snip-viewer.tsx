@@ -52,7 +52,7 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
       language={language}
       options={{
         renderValidationDecorations: "on", // See https://github.com/microsoft/monaco-editor/issues/311#issuecomment-578026465
-        lineNumbers: (lineNumber) =>
+        lineNumbers: (lineNumber: number) =>
           String(relativeToAbsoluteLineNum(lineNumber)),
       }}
       onEditorDidMount={(editor, monaco) => {

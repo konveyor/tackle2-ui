@@ -199,7 +199,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
             onMinus={() => {
               onChange((value || 0) - 1);
             }}
-            onChange={onChange}
+            onChange={() => onChange}
             onPlus={() => {
               onChange((value || 0) + 1);
             }}
@@ -224,7 +224,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
             onMinus={() => {
               onChange((value || 0) - 1);
             }}
-            onChange={onChange}
+            onChange={() => onChange}
             onPlus={() => {
               onChange((value || 0) + 1);
             }}

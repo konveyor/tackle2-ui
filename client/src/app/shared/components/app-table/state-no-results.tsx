@@ -14,7 +14,7 @@ export const StateNoResults: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <EmptyState variant={EmptyStateVariant.small}>
+    <EmptyState variant={EmptyStateVariant.sm}>
       <EmptyStateIcon icon={SearchIcon} />
       <Title headingLevel="h2" size="lg">
         {t("message.noResultsFoundTitle")}

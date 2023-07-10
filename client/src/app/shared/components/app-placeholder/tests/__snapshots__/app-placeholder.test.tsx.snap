@@ -6,31 +6,30 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-l-bullseye"
+        class="pf-v5-l-bullseye"
       >
         <div
-          class="pf-u-display-flex pf-u-flex-direction-column"
+          class="pf-v5-u-display-flex pf-v5-u-flex-direction-column"
         >
           <div>
-            <span
+            <svg
               aria-label="Contents"
               aria-valuetext="Loading..."
-              class="pf-c-spinner pf-m-xl"
+              class="pf-v5-c-spinner pf-m-xl"
               role="progressbar"
+              viewBox="0 0 100 100"
             >
-              <span
-                class="pf-c-spinner__clipper"
+              <circle
+                class="pf-v5-c-spinner__path"
+                cx="50"
+                cy="50"
+                fill="none"
+                r="45"
               />
-              <span
-                class="pf-c-spinner__lead-ball"
-              />
-              <span
-                class="pf-c-spinner__tail-ball"
-              />
-            </span>
+            </svg>
           </div>
           <div
-            class="pf-c-content"
+            class="pf-v5-c-content"
           >
             <h3>
               Loading...
@@ -42,31 +41,30 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-l-bullseye"
+      class="pf-v5-l-bullseye"
     >
       <div
-        class="pf-u-display-flex pf-u-flex-direction-column"
+        class="pf-v5-u-display-flex pf-v5-u-flex-direction-column"
       >
         <div>
-          <span
+          <svg
             aria-label="Contents"
             aria-valuetext="Loading..."
-            class="pf-c-spinner pf-m-xl"
+            class="pf-v5-c-spinner pf-m-xl"
             role="progressbar"
+            viewBox="0 0 100 100"
           >
-            <span
-              class="pf-c-spinner__clipper"
+            <circle
+              class="pf-v5-c-spinner__path"
+              cx="50"
+              cy="50"
+              fill="none"
+              r="45"
             />
-            <span
-              class="pf-c-spinner__lead-ball"
-            />
-            <span
-              class="pf-c-spinner__tail-ball"
-            />
-          </span>
+          </svg>
         </div>
         <div
-          class="pf-c-content"
+          class="pf-v5-c-content"
         >
           <h3>
             Loading...

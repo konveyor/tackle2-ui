@@ -2,11 +2,9 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { StatusIcon } from "@migtools/lib-ui";
-
 import {
   Button,
   ButtonVariant,
-  DropdownItem,
   Flex,
   FlexItem,
   Modal,
@@ -15,6 +13,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { DropdownItem } from "@patternfly/react-core/deprecated";
 import {
   cellWidth,
   IAction,

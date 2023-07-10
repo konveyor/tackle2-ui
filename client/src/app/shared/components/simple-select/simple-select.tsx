@@ -6,7 +6,7 @@ import {
   SelectOptionObject,
   SelectOptionProps,
   SelectProps,
-} from "@patternfly/react-core";
+} from "@patternfly/react-core/deprecated";
 
 export interface OptionWithValue<T = string> extends SelectOptionObject {
   value: T;
@@ -43,7 +43,7 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
       placeholderText={placeholderText}
       toggleAriaLabel={toggleAriaLabel}
       isOpen={isOpen}
-      onToggle={setIsOpen}
+      onToggle={(_, isOpen) => setIsOpen(isOpen)}
       onSelect={(_, selection) => {
         onChange(selection);
         if (props.variant !== "checkbox") {

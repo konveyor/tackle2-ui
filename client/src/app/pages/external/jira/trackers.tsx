@@ -31,14 +31,7 @@ import {
   useDeleteTrackerMutation,
   useFetchTrackers,
 } from "@app/queries/trackers";
-import {
-  Tbody,
-  Tr,
-  Td,
-  Thead,
-  Th,
-  TableComposable,
-} from "@patternfly/react-table";
+import { Tbody, Tr, Td, Thead, Th, Table } from "@patternfly/react-table";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
@@ -162,7 +155,7 @@ export const JiraTrackers: React.FC = () => {
         >
           <div
             style={{
-              backgroundColor: "var(--pf-global--BackgroundColor--100)",
+              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
             }}
           >
             <Toolbar {...toolbarProps}>
@@ -204,7 +197,7 @@ export const JiraTrackers: React.FC = () => {
                 </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
-            <TableComposable {...tableProps} aria-label="Jira trackers table">
+            <Table {...tableProps} aria-label="Jira trackers table">
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
@@ -220,7 +213,7 @@ export const JiraTrackers: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="small">
+                  <EmptyState variant="sm">
                     <EmptyStateIcon icon={CubesIcon} />
                     <Title headingLevel="h2" size="lg">
                       {t("composed.noDataStateTitle", {
@@ -286,7 +279,7 @@ export const JiraTrackers: React.FC = () => {
                   </Tbody>
                 ))}
               </ConditionalTableBody>
-            </TableComposable>
+            </Table>
           </div>
         </ConditionalRender>
       </PageSection>

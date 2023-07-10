@@ -16,7 +16,7 @@ const KeyDisplayToggle: React.FC<IKeyDisplayToggleProps> = ({
   onClick,
 }: IKeyDisplayToggleProps) => (
   <Button variant="link" aria-label={`Show/hide ${keyName}`} onClick={onClick}>
-    <span className="pf-c-icon pf-m-info">
+    <span className="pf-v5-c-icon pf-v5-m-info">
       {isKeyHidden ? <EyeSlashIcon /> : <EyeIcon />}
     </span>
   </Button>

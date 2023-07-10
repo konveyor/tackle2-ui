@@ -1,11 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { ToolbarItemProps, ToolbarProps } from "@patternfly/react-core";
-import {
-  TableComposableProps,
-  TdProps,
-  ThProps,
-  TrProps,
-} from "@patternfly/react-table";
+import { TableProps, TdProps, ThProps, TrProps } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { IToolbarBulkSelectorProps } from "@app/shared/components/toolbar-bulk-selector/toolbar-bulk-selector";
@@ -54,7 +49,8 @@ export const useTableControlProps = <
     isSelectable = false,
     expandableVariant = null,
     hasActionsColumn = false,
-    hasClickableRows = false,
+    // TODO PF V5 obsolete
+    // hasClickableRows = false,
     variant,
     idProperty,
   } = args;
@@ -94,7 +90,7 @@ export const useTableControlProps = <
 
   const paginationToolbarItemProps: ToolbarItemProps = {
     variant: "pagination",
-    alignment: { default: "alignRight" },
+    align: { default: "alignRight" },
   };
 
   const toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem> = {
@@ -106,9 +102,10 @@ export const useTableControlProps = <
     onSelectMultiple: selectMultiple,
   };
 
-  const tableProps: Omit<TableComposableProps, "ref"> = {
+  const tableProps: Omit<TableProps, "ref"> = {
     variant,
-    hasSelectableRowCaption: hasClickableRows,
+    // TODO PF V5 obsolete
+    // hasSelectableRowCaption: hasClickableRows,
   };
 
   const getThProps = ({
@@ -134,7 +131,7 @@ export const useTableControlProps = <
     item?: TItem; // Can be omitted if using this just for the click handler and not for active rows
   }): Omit<TrProps, "ref"> => ({
     isSelectable: true,
-    isHoverable: true,
+    isClickable: true,
     isRowSelected: item && item[idProperty] === activeRowItem?.[idProperty],
     onRowClick: (event) =>
       handlePropagatedRowClick(event, () => {

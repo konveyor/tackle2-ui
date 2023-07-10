@@ -6,72 +6,72 @@ Object {
   "baseElement": <body>
     <div>
       <dl
-        class="pf-c-description-list"
+        class="pf-v5-c-description-list"
       >
         <div
-          class="pf-c-description-list__group"
+          class="pf-v5-c-description-list__group"
         >
           <dt
-            class="pf-c-description-list__term"
+            class="pf-v5-c-description-list__term"
           >
             <span
-              class="pf-c-description-list__text"
+              class="pf-v5-c-description-list__text"
             >
               terms.applicationName
             </span>
           </dt>
           <dd
-            class="pf-c-description-list__description"
+            class="pf-v5-c-description-list__description"
           >
             <div
-              class="pf-c-description-list__text"
+              class="pf-v5-c-description-list__text"
             >
               myApp
             </div>
           </dd>
         </div>
         <div
-          class="pf-c-description-list__group"
+          class="pf-v5-c-description-list__group"
         >
           <dt
-            class="pf-c-description-list__term"
+            class="pf-v5-c-description-list__term"
           >
             <span
-              class="pf-c-description-list__text"
+              class="pf-v5-c-description-list__text"
             >
               terms.description
             </span>
           </dt>
           <dd
-            class="pf-c-description-list__description"
+            class="pf-v5-c-description-list__description"
           >
             <div
-              class="pf-c-description-list__text"
+              class="pf-v5-c-description-list__text"
             >
               myDescription
             </div>
           </dd>
         </div>
         <div
-          class="pf-c-description-list__group"
+          class="pf-v5-c-description-list__group"
         >
           <dt
-            class="pf-c-description-list__term"
+            class="pf-v5-c-description-list__term"
           >
             <span
-              class="pf-c-description-list__text"
+              class="pf-v5-c-description-list__text"
             >
               terms.assessmentNotes
             </span>
           </dt>
           <dd
-            class="pf-c-description-list__description"
+            class="pf-v5-c-description-list__description"
           >
             <div
-              class="pf-c-description-list__text"
+              class="pf-v5-c-description-list__text"
             >
               <ul
-                class="pf-c-list"
+                class="pf-v5-c-list"
               >
                 <li
                   class=""
@@ -103,72 +103,72 @@ Object {
   </body>,
   "container": <div>
     <dl
-      class="pf-c-description-list"
+      class="pf-v5-c-description-list"
     >
       <div
-        class="pf-c-description-list__group"
+        class="pf-v5-c-description-list__group"
       >
         <dt
-          class="pf-c-description-list__term"
+          class="pf-v5-c-description-list__term"
         >
           <span
-            class="pf-c-description-list__text"
+            class="pf-v5-c-description-list__text"
           >
             terms.applicationName
           </span>
         </dt>
         <dd
-          class="pf-c-description-list__description"
+          class="pf-v5-c-description-list__description"
         >
           <div
-            class="pf-c-description-list__text"
+            class="pf-v5-c-description-list__text"
           >
             myApp
           </div>
         </dd>
       </div>
       <div
-        class="pf-c-description-list__group"
+        class="pf-v5-c-description-list__group"
       >
         <dt
-          class="pf-c-description-list__term"
+          class="pf-v5-c-description-list__term"
         >
           <span
-            class="pf-c-description-list__text"
+            class="pf-v5-c-description-list__text"
           >
             terms.description
           </span>
         </dt>
         <dd
-          class="pf-c-description-list__description"
+          class="pf-v5-c-description-list__description"
         >
           <div
-            class="pf-c-description-list__text"
+            class="pf-v5-c-description-list__text"
           >
             myDescription
           </div>
         </dd>
       </div>
       <div
-        class="pf-c-description-list__group"
+        class="pf-v5-c-description-list__group"
       >
         <dt
-          class="pf-c-description-list__term"
+          class="pf-v5-c-description-list__term"
         >
           <span
-            class="pf-c-description-list__text"
+            class="pf-v5-c-description-list__text"
           >
             terms.assessmentNotes
           </span>
         </dt>
         <dd
-          class="pf-c-description-list__description"
+          class="pf-v5-c-description-list__description"
         >
           <div
-            class="pf-c-description-list__text"
+            class="pf-v5-c-description-list__text"
           >
             <ul
-              class="pf-c-list"
+              class="pf-v5-c-list"
             >
               <li
                 class=""

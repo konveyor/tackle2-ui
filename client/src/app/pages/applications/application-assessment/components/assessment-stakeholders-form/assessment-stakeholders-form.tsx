@@ -45,7 +45,7 @@ export const AssessmentStakeholdersForm: React.FC = () => {
 
   // Identity dropdown
   return (
-    <div className="pf-c-form">
+    <div className="pf-v5-c-form">
       <FormSection>
         <TextContent>
           <Text component="h1">
@@ -57,8 +57,8 @@ export const AssessmentStakeholdersForm: React.FC = () => {
         </TextContent>
       </FormSection>
 
-      <Grid className="pf-c-form__section">
-        <GridItem md={6} className="pf-c-form">
+      <Grid className="pf-v5-c-form__section">
+        <GridItem md={6} className="pf-v5-c-form">
           <FormSection>
             <HookFormPFGroupController
               control={control}

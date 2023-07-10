@@ -1,10 +1,10 @@
 import * as React from "react";
+import { ToolbarFilter } from "@patternfly/react-core";
 import {
-  ToolbarFilter,
   Select,
   SelectOption,
   SelectOptionObject,
-} from "@patternfly/react-core";
+} from "@patternfly/react-core/deprecated";
 import { IFilterControlProps } from "./FilterControl";
 import { ISelectFilterCategory } from "./FilterToolbar";
 

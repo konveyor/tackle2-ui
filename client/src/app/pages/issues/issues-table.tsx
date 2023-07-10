@@ -19,7 +19,7 @@ import {
   Button,
 } from "@patternfly/react-core";
 import {
-  TableComposable,
+  Table,
   Thead,
   Tr,
   Th,
@@ -257,7 +257,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
   return (
     <div
       style={{
-        backgroundColor: "var(--pf-global--BackgroundColor--100)",
+        backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
       }}
     >
       <Toolbar {...toolbarProps}>
@@ -304,7 +304,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-      <TableComposable {...tableProps} isExpandable aria-label="Issues table">
+      <Table {...tableProps} isExpandable aria-label="Issues table">
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
@@ -325,7 +325,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
           }
           noDataEmptyState={
             mode === "singleApp" && selectedAppId === null ? (
-              <EmptyState variant="small">
+              <EmptyState variant="sm">
                 <EmptyStateIcon icon={CubesIcon} />
                 <Title headingLevel="h2" size="lg">
                   Select application from filter menu
@@ -540,7 +540,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
             );
           })}
         </ConditionalTableBody>
-      </TableComposable>
+      </Table>
       <SimplePagination
         idPrefix="issues-table"
         isTop={false}

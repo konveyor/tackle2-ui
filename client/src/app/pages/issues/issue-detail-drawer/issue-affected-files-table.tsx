@@ -6,14 +6,7 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import {
-  TableComposable,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useSelectionState } from "@migtools/lib-ui";
 import {
@@ -134,7 +127,7 @@ export const IssueAffectedFilesTable: React.FC<
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-      <TableComposable {...tableProps} aria-label="Affected files table">
+      <Table {...tableProps} aria-label="Affected files table">
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
@@ -189,7 +182,7 @@ export const IssueAffectedFilesTable: React.FC<
             ))}
           </Tbody>
         </ConditionalTableBody>
-      </TableComposable>
+      </Table>
       <SimplePagination
         idPrefix="affected-files-table"
         isTop={false}

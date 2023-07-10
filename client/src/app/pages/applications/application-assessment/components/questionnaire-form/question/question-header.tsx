@@ -8,5 +8,5 @@ export interface QuestionHeaderProps {
 export const QuestionHeader: React.FC<QuestionHeaderProps> = ({
   children = null,
 }) => {
-  return <StackItem className="pf-u-pb-sm">{children}</StackItem>;
+  return <StackItem className="pf-v5-u-pb-sm">{children}</StackItem>;
 };

@@ -24,7 +24,7 @@ export const MultiInputSelection: React.FC<MultiInputSelectionProps> = ({
   return (
     <Stack>
       {sortedOptions.map((option, i) => (
-        <StackItem key={option.id} className="pf-u-pb-xs">
+        <StackItem key={option.id} className="pf-v5-u-pb-xs">
           <HookFormPFGroupController
             control={control}
             name={questionFieldName as `questions.${string}`}

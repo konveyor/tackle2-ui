@@ -575,9 +575,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                         : ""
                     }
                     filename={values.keyFilename}
-                    onChange={(value, filename) => {
+                    onFileInputChange={(_, file) => {
                       onChange(value);
-                      setValue("keyFilename", filename);
+                      setValue("keyFilename", file.name);
                       setIsKeyFileRejected(false);
                     }}
                     dropzoneProps={{
@@ -641,13 +641,14 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   : ""
               }
               filename={values.settingsFilename}
-              onChange={(fileContents, fileName, event) => {
-                onChange(fileContents);
-                setValue("settingsFilename", fileName);
+              // TODO PF V5 - Validate change
+              onFileInputChange={(_, file) => {
+                onChange(value);
+                setValue("settingsFilename", file.name);
                 setIsSettingsFileRejected(false);
               }}
               dropzoneProps={{
-                accept: ".xml",
+                accept: { "text/xml": [".xml"] },
                 onDropRejected: () => setIsSettingsFileRejected(true),
               }}
               validated={isSettingsFileRejected ? "error" : "default"}

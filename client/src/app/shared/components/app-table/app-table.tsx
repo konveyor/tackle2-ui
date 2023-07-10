@@ -1,12 +1,12 @@
 import React from "react";
 import { Bullseye, Spinner, Skeleton } from "@patternfly/react-core";
+import { IRow } from "@patternfly/react-table";
 import {
   Table,
   TableHeader,
   TableBody,
-  IRow,
   TableProps,
-} from "@patternfly/react-table";
+} from "@patternfly/react-table/deprecated";
 
 import { StateNoData } from "./state-no-data";
 import { StateNoResults } from "./state-no-results";

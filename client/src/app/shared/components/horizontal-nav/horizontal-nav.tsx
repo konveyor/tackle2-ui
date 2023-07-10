@@ -7,18 +7,18 @@ export interface HorizontalNavProps {
 
 export const HorizontalNav: React.FC<HorizontalNavProps> = ({ navItems }) => {
   return (
-    <div className="pf-c-tabs">
-      <ul className="pf-c-tabs__list">
+    <div className="pf-v5-c-tabs">
+      <ul className="pf-v5-c-tabs__list">
         {navItems.map((f, index) => (
           <NavLink
             key={index}
             to={f.path}
-            className="pf-c-tabs__item"
-            activeClassName="pf-m-current"
+            className="pf-v5-c-tabs__item"
+            activeClassName="pf-v5-m-current"
           >
-            <li key={index} className="pf-c-tabs__item">
-              <button className="pf-c-tabs__link">
-                <span className="pf-c-tabs__item-text">{f.title}</span>
+            <li key={index} className="pf-v5-c-tabs__item">
+              <button className="pf-v5-c-tabs__link">
+                <span className="pf-v5-c-tabs__item-text">{f.title}</span>
               </button>
             </li>
           </NavLink>

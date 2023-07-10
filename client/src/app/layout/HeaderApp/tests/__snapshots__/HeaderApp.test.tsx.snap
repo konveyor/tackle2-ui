@@ -6,31 +6,31 @@ Object {
   "baseElement": <body>
     <div>
       <header
-        class="pf-c-page__header"
+        class="pf-v5-c-page__header"
       >
         <div
-          class="pf-c-page__header-brand"
+          class="pf-v5-c-page__header-brand"
         >
           <div
-            class="pf-c-page__header-brand-toggle"
+            class="pf-v5-c-page__header-brand-toggle"
           >
             <button
               aria-disabled="false"
               aria-expanded="true"
               aria-label="Global navigation"
-              class="pf-c-button pf-m-plain"
+              class="pf-v5-c-button pf-m-plain"
               data-ouia-component-id="OUIA-Generated-Button-plain-1"
-              data-ouia-component-type="PF4/Button"
+              data-ouia-component-type="PF5/Button"
               data-ouia-safe="true"
               id="nav-toggle"
               type="button"
             >
               <svg
                 aria-hidden="true"
+                class="pf-v5-svg"
                 fill="currentColor"
                 height="1em"
                 role="img"
-                style="vertical-align: -0.125em;"
                 viewBox="0 0 448 512"
                 width="1em"
               >
@@ -40,31 +40,31 @@ Object {
               </svg>
             </button>
           </div>
-          <a
-            class="pf-c-page__header-brand-link"
+          <span
+            class="pf-v5-c-page__header-brand-link"
           >
             <img
               alt="brand"
-              class="pf-c-brand"
+              class="pf-v5-c-brand"
               src="test-file-stub"
             />
-          </a>
+          </span>
         </div>
         <div
-          class="pf-c-page__header-tools"
+          class="pf-v5-c-page__header-tools"
         >
           <div
-            class="pf-c-page__header-tools-group pf-m-hidden pf-m-visible-on-2xl pf-m-visible-on-xl pf-m-visible-on-lg pf-m-hidden-on-md pf-m-hidden-on-sm"
+            class="pf-v5-c-page__header-tools-group pf-m-hidden pf-m-visible-on-2xl pf-m-visible-on-xl pf-m-visible-on-lg pf-m-hidden-on-md pf-m-hidden-on-sm"
           >
             <div
-              class="pf-c-page__header-tools-item"
+              class="pf-v5-c-page__header-tools-item"
             >
               <button
                 aria-disabled="false"
                 aria-label="about button"
-                class="pf-c-button pf-m-plain"
+                class="pf-v5-c-button pf-m-plain"
                 data-ouia-component-id="OUIA-Generated-Button-plain-2"
-                data-ouia-component-type="PF4/Button"
+                data-ouia-component-type="PF5/Button"
                 data-ouia-safe="true"
                 id="about-button"
                 type="button"
@@ -74,31 +74,31 @@ Object {
             </div>
           </div>
           <div
-            class="pf-c-page__header-tools-group"
+            class="pf-v5-c-page__header-tools-group"
           >
             <div
-              class="pf-c-page__header-tools-item pf-m-hidden-on-lg"
+              class="pf-v5-c-page__header-tools-item pf-m-hidden-on-lg"
             >
               <div
-                class="pf-c-dropdown pf-m-align-right"
+                class="pf-v5-c-dropdown pf-m-align-right"
                 data-ouia-component-id="OUIA-Generated-Dropdown-1"
-                data-ouia-component-type="PF4/Dropdown"
+                data-ouia-component-type="PF5/Dropdown"
                 data-ouia-safe="true"
               >
                 <button
                   aria-expanded="false"
                   aria-haspopup="true"
                   aria-label="Actions"
-                  class="pf-c-dropdown__toggle pf-m-plain"
+                  class="pf-v5-c-dropdown__toggle pf-m-plain"
                   id="pf-dropdown-toggle-id-0"
                   type="button"
                 >
                   <svg
                     aria-hidden="true"
+                    class="pf-v5-svg"
                     fill="currentColor"
                     height="1em"
                     role="img"
-                    style="vertical-align: -0.125em;"
                     viewBox="0 0 192 512"
                     width="1em"
                   >
@@ -113,36 +113,34 @@ Object {
         </div>
       </header>
     </div>
-    <div />
-    <div />
   </body>,
   "container": <div>
     <header
-      class="pf-c-page__header"
+      class="pf-v5-c-page__header"
     >
       <div
-        class="pf-c-page__header-brand"
+        class="pf-v5-c-page__header-brand"
       >
         <div
-          class="pf-c-page__header-brand-toggle"
+          class="pf-v5-c-page__header-brand-toggle"
         >
           <button
             aria-disabled="false"
             aria-expanded="true"
             aria-label="Global navigation"
-            class="pf-c-button pf-m-plain"
+            class="pf-v5-c-button pf-m-plain"
             data-ouia-component-id="OUIA-Generated-Button-plain-1"
-            data-ouia-component-type="PF4/Button"
+            data-ouia-component-type="PF5/Button"
             data-ouia-safe="true"
             id="nav-toggle"
             type="button"
           >
             <svg
               aria-hidden="true"
+              class="pf-v5-svg"
               fill="currentColor"
               height="1em"
               role="img"
-              style="vertical-align: -0.125em;"
               viewBox="0 0 448 512"
               width="1em"
             >
@@ -152,31 +150,31 @@ Object {
             </svg>
           </button>
         </div>
-        <a
-          class="pf-c-page__header-brand-link"
+        <span
+          class="pf-v5-c-page__header-brand-link"
         >
           <img
             alt="brand"
-            class="pf-c-brand"
+            class="pf-v5-c-brand"
             src="test-file-stub"
           />
-        </a>
+        </span>
       </div>
       <div
-        class="pf-c-page__header-tools"
+        class="pf-v5-c-page__header-tools"
       >
         <div
-          class="pf-c-page__header-tools-group pf-m-hidden pf-m-visible-on-2xl pf-m-visible-on-xl pf-m-visible-on-lg pf-m-hidden-on-md pf-m-hidden-on-sm"
+          class="pf-v5-c-page__header-tools-group pf-m-hidden pf-m-visible-on-2xl pf-m-visible-on-xl pf-m-visible-on-lg pf-m-hidden-on-md pf-m-hidden-on-sm"
         >
           <div
-            class="pf-c-page__header-tools-item"
+            class="pf-v5-c-page__header-tools-item"
           >
             <button
               aria-disabled="false"
               aria-label="about button"
-              class="pf-c-button pf-m-plain"
+              class="pf-v5-c-button pf-m-plain"
               data-ouia-component-id="OUIA-Generated-Button-plain-2"
-              data-ouia-component-type="PF4/Button"
+              data-ouia-component-type="PF5/Button"
               data-ouia-safe="true"
               id="about-button"
               type="button"
@@ -186,31 +184,31 @@ Object {
           </div>
         </div>
         <div
-          class="pf-c-page__header-tools-group"
+          class="pf-v5-c-page__header-tools-group"
         >
           <div
-            class="pf-c-page__header-tools-item pf-m-hidden-on-lg"
+            class="pf-v5-c-page__header-tools-item pf-m-hidden-on-lg"
           >
             <div
-              class="pf-c-dropdown pf-m-align-right"
+              class="pf-v5-c-dropdown pf-m-align-right"
               data-ouia-component-id="OUIA-Generated-Dropdown-1"
-              data-ouia-component-type="PF4/Dropdown"
+              data-ouia-component-type="PF5/Dropdown"
               data-ouia-safe="true"
             >
               <button
                 aria-expanded="false"
                 aria-haspopup="true"
                 aria-label="Actions"
-                class="pf-c-dropdown__toggle pf-m-plain"
+                class="pf-v5-c-dropdown__toggle pf-m-plain"
                 id="pf-dropdown-toggle-id-0"
                 type="button"
               >
                 <svg
                   aria-hidden="true"
+                  class="pf-v5-svg"
                   fill="currentColor"
                   height="1em"
                   role="img"
-                  style="vertical-align: -0.125em;"
                   viewBox="0 0 192 512"
                   width="1em"
                 >

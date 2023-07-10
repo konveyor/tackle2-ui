@@ -16,7 +16,7 @@ export const BreadCrumbPath: React.FC<BreadCrumbPathProps> = ({
 
         const link =
           typeof crumb.path === "string" ? (
-            <Link className="pf-c-breadcrumb__link" to={crumb.path}>
+            <Link className="pf-v5-c-breadcrumb__link" to={crumb.path}>
               {crumb.title}
             </Link>
           ) : (

@@ -12,14 +12,7 @@ import {
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { AppPlaceholder, ConditionalRender } from "@app/shared/components";
-import {
-  TableComposable,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import {
   useTableControlUrlParams,
   getHubRequestParams,
@@ -68,7 +61,8 @@ export const AffectedApplications: React.FC = () => {
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: useSharedFilterCategoriesForIssuesAndAffectedApps(),
     initialItemsPerPage: 10,
-    hasClickableRows: true,
+    // TODO PF V5 obsolete
+    // hasClickableRows: true,
   });
 
   const {
@@ -157,7 +151,7 @@ export const AffectedApplications: React.FC = () => {
         >
           <div
             style={{
-              backgroundColor: "var(--pf-global--BackgroundColor--100)",
+              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
             }}
           >
             <Toolbar {...toolbarProps}>
@@ -172,7 +166,7 @@ export const AffectedApplications: React.FC = () => {
                 </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
-            <TableComposable {...tableProps} aria-label="Migration waves table">
+            <Table {...tableProps} aria-label="Migration waves table">
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
@@ -230,7 +224,7 @@ export const AffectedApplications: React.FC = () => {
                   ))}
                 </Tbody>
               </ConditionalTableBody>
-            </TableComposable>
+            </Table>
             <SimplePagination
               idPrefix="affected-applications-table"
               isTop={false}

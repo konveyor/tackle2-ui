@@ -107,7 +107,6 @@ export const RepositoriesMvn: React.FC = () => {
                         <Spinner
                           className={spacing.mlMd}
                           isInline
-                          isSVG
                           aria-label="Spinner of clear repository button"
                         />
                       </Text>

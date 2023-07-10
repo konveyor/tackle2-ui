@@ -1,14 +1,7 @@
 import React from "react";
 import { WaveWithStatus, Role } from "@app/api/models";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
-import {
-  TableComposable,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import { SimplePagination } from "@app/shared/components/simple-pagination";
 import {
@@ -71,7 +64,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-      <TableComposable
+      <Table
         {...tableProps}
         aria-label={`Stakeholders table for migration wave ${migrationWave.name}`}
       >
@@ -120,7 +113,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
             ))}
           </Tbody>
         </ConditionalTableBody>
-      </TableComposable>
+      </Table>
     </>
   );
 };

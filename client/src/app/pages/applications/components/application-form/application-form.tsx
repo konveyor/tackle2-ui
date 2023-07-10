@@ -384,7 +384,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         onToggle={() => setBasicExpanded(!isBasicExpanded)}
         isExpanded={isBasicExpanded}
       >
-        <div className="pf-c-form">
+        <div className="pf-v5-c-form">
           <HookFormPFTextInput
             control={control}
             name="name"
@@ -424,7 +424,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   const selectionValue = selection as OptionWithValue<string>;
                   onChange(selectionValue.value);
                 }}
-                onClear={() => onChange([])}
+                onClear={() => onChange("")}
               />
             )}
           />
@@ -460,24 +460,20 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   .filter((e) => e !== undefined)}
                 options={tagOptions}
                 onChange={(selection) => {
-                  const selectionWithValue =
-                    selection as OptionWithValue<string>;
+                  const selectionWithValue = selection.toString();
 
                   const currentValue = value || [];
                   const e = currentValue.find(
-                    (f) => f.name === selectionWithValue.value
+                    (f) => f.name === selectionWithValue
                   );
                   if (e) {
                     onChange(
-                      currentValue.filter(
-                        (f) => f.name !== selectionWithValue.value
-                      )
+                      currentValue.filter((f) => f.name !== selectionWithValue)
                     );
                   } else {
-                    onChange([
-                      ...currentValue,
-                      getTagRef(selectionWithValue.value),
-                    ]);
+                    const tag = getTagRef(selectionWithValue);
+                    if (currentValue && typeof tag !== "undefined")
+                      onChange([...currentValue, tag]);
                   }
                 }}
                 onClear={() => onChange([])}
@@ -505,7 +501,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   value ? toOptionLike(value, stakeholdersOptions) : undefined
                 }
                 options={stakeholdersOptions}
-                onClear={() => onChange([])}
+                onClear={() => onChange("")}
                 onChange={(selection) => {
                   const selectionValue = selection as OptionWithValue<string>;
                   onChange(selectionValue.value);
@@ -582,7 +578,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
         isExpanded={isSourceCodeExpanded}
       >
-        <div className="pf-c-form">
+        <div className="pf-v5-c-form">
           <HookFormPFGroupController
             control={control}
             name="kind"
@@ -631,7 +627,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
         isExpanded={isBinaryExpanded}
       >
-        <div className="pf-c-form">
+        <div className="pf-v5-c-form">
           <HookFormPFTextInput
             control={control}
             name="group"
@@ -662,7 +658,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 bodyContent={t("message.binaryPackaging")}
                 className="popover"
               >
-                <span className="pf-c-icon pf-m-info">
+                <span className="pf-v5-c-icon pf-v5-m-info">
                   <QuestionCircleIcon />
                 </span>
               </Popover>

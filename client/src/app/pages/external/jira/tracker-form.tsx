@@ -289,7 +289,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
               label="Enable insecure communication"
               aria-label="Insecure Communication"
               isChecked={value}
-              onChange={onChange}
+              onChange={() => onChange}
             />
             <Popover
               position={PopoverPosition.top}
@@ -297,7 +297,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
               bodyContent={t("message.insecureTracker")}
               className="popover"
             >
-              <span className={`${spacing.mlSm} pf-c-icon pf-m-info`}>
+              <span className={`${spacing.mlSm} pf-v5-c-icon pf-v5-m-info`}>
                 <QuestionCircleIcon />
               </span>
             </Popover>

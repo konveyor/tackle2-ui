@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-
 import {
   Bullseye,
   Button,
   ButtonVariant,
   Card,
-  CardActions,
   CardBody,
   CardExpandableContent,
   CardHeader,
@@ -98,27 +96,30 @@ export const Reports: React.FC = () => {
               </StackItem>
               <StackItem>
                 <Card>
-                  <CardHeader>
-                    <CardActions>
-                      <ToggleGroup>
-                        <ToggleGroupItem
-                          key={0}
-                          text={t("terms.tableView")}
-                          isSelected={isAdoptionCandidateTable}
-                          onChange={() => {
-                            setIsAdoptionCandidateTable(true);
-                          }}
-                        />
-                        <ToggleGroupItem
-                          key={1}
-                          text={t("terms.graphView")}
-                          isSelected={!isAdoptionCandidateTable}
-                          onChange={() => {
-                            setIsAdoptionCandidateTable(false);
-                          }}
-                        />
-                      </ToggleGroup>
-                    </CardActions>
+                  <CardHeader
+                    actions={{
+                      actions: (
+                        <ToggleGroup>
+                          <ToggleGroupItem
+                            key={0}
+                            text={t("terms.tableView")}
+                            isSelected={isAdoptionCandidateTable}
+                            onChange={() => {
+                              setIsAdoptionCandidateTable(true);
+                            }}
+                          />
+                          <ToggleGroupItem
+                            key={1}
+                            text={t("terms.graphView")}
+                            isSelected={!isAdoptionCandidateTable}
+                            onChange={() => {
+                              setIsAdoptionCandidateTable(false);
+                            }}
+                          />
+                        </ToggleGroup>
+                      ),
+                    }}
+                  >
                     <CardTitle>
                       <TextContent>
                         <Text component="h3">

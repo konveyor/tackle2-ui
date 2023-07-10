@@ -53,7 +53,7 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
           name={id}
           id={id}
           type={isNumeric ? "number" : "search"}
-          onChange={setInputValue}
+          onChange={(_, value) => setInputValue(value)}
           aria-label={`${category.title} filter`}
           value={inputValue}
           placeholder={category.placeholderText}

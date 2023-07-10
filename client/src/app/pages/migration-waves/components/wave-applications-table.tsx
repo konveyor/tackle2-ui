@@ -6,14 +6,7 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import {
-  TableComposable,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
 import { useLocalTableControls } from "@app/shared/hooks/table-controls";
 import {
@@ -78,7 +71,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-      <TableComposable
+      <Table
         {...tableProps}
         aria-label={`Applications table for migration wave ${migrationWave.name}`}
       >
@@ -133,7 +126,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
             ))}
           </Tbody>
         </ConditionalTableBody>
-      </TableComposable>
+      </Table>
     </>
   );
 };

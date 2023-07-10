@@ -6,9 +6,9 @@ Object {
   "baseElement": <body>
     <div>
       <p
-        class="pf-u-color-200 pf-u-font-weight-light"
+        class="pf-v5-u-color-200 pf-v5-u-font-weight-light"
         data-ouia-component-id="OUIA-Generated-Text-1"
-        data-ouia-component-type="PF4/Text"
+        data-ouia-component-type="PF5/Text"
         data-ouia-safe="true"
         data-pf-content="true"
       >
@@ -20,9 +20,9 @@ Object {
   </body>,
   "container": <div>
     <p
-      class="pf-u-color-200 pf-u-font-weight-light"
+      class="pf-v5-u-color-200 pf-v5-u-font-weight-light"
       data-ouia-component-id="OUIA-Generated-Text-1"
-      data-ouia-component-type="PF4/Text"
+      data-ouia-component-type="PF5/Text"
       data-ouia-safe="true"
       data-pf-content="true"
     >

@@ -11,14 +11,7 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import {
-  TableComposable,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 
@@ -99,7 +92,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-      <TableComposable
+      <Table
         {...tableProps}
         aria-label={`Applications table for migration wave ${migrationWave.name}`}
       >
@@ -118,7 +111,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
           noDataEmptyState={
             <div>
               <NoDataEmptyState title="Create a tracker and/or add applications to the migration wave." />
-              <div className="pf-u-text-align-center">
+              <div className="pf-v5-u-text-align-center">
                 <Button
                   type="button"
                   id="create-tracker"
@@ -183,7 +176,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
             ))}
           </Tbody>
         </ConditionalTableBody>
-      </TableComposable>
+      </Table>
       <Modal
         title={t("composed.error", {
           what: t("terms.issue"),

@@ -1,11 +1,11 @@
 import * as React from "react";
 import { useIsMutating } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
+import { Truncate } from "@patternfly/react-core";
 import {
-  Truncate,
   Wizard,
   WizardStepFunctionType,
-} from "@patternfly/react-core";
+} from "@patternfly/react-core/deprecated";
 import { useTranslation } from "react-i18next";
 
 import {

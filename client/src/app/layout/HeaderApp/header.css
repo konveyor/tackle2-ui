@@ -1,10 +1,10 @@
-.logo-pointer{
-    cursor: default !important
+.logo-pointer {
+  cursor: default !important;
 }
-.pf-c-page__header-brand-link {
-    all: unset !important
+.pf-v5-c-page__header-brand-link {
+  all: unset !important;
 }
 .redhat-logo-style {
-    height: 30px;
-    vertical-align: middle;
-  }
+  height: 30px;
+  vertical-align: middle;
+}

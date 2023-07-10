@@ -318,7 +318,7 @@ export const ApplicationsTable: React.FC = () => {
     {
       title: "",
       props: {
-        className: "pf-c-table__inline-edit-action",
+        className: "pf-v5-c-table__inline-edit-action",
       },
     },
   ];
@@ -330,7 +330,9 @@ export const ApplicationsTable: React.FC = () => {
     rows.push({
       [ENTITY_FIELD]: item,
       selected: isSelected,
-      isHoverable: true,
+      // TODO PF v5 - IsHoverable replaced with isClickable
+      // isHoverable: true,
+      isClickable: true,
       isRowSelected: activeAppInDetailDrawer?.id === item.id,
       cells: [
         {
@@ -375,7 +377,7 @@ export const ApplicationsTable: React.FC = () => {
         },
         {
           title: (
-            <div className="pf-c-inline-edit__action pf-m-enable-editable">
+            <div className="pf-v5-c-inline-edit__action pf-v5-m-enable-editable">
               <RBAC
                 allowedPermissions={applicationsWriteScopes}
                 rbacType={RBAC_TYPE.Scope}

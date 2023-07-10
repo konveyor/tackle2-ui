@@ -204,7 +204,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             className={value ? "http-proxy-checked" : "http-proxy-unchecked"}
             label="HTTP proxy"
             isChecked={value}
-            onChange={onChange}
+            onChange={() => onChange}
             ref={ref}
           />
         )}
@@ -240,7 +240,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 }`}
                 label="HTTP proxy credentials"
                 isChecked={value}
-                onChange={(checked) => {
+                onChange={(_, checked) => {
                   onChange(checked);
                   if (!checked) {
                     setValue("httpIdentity", null, { shouldDirty: true });
@@ -290,7 +290,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             className={value ? "https-proxy-checked" : "https-proxy-unchecked"}
             label="HTTPS proxy"
             isChecked={value}
-            onChange={onChange}
+            onChange={() => onChange}
             ref={ref}
           />
         )}
@@ -326,7 +326,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 }`}
                 label="HTTPS proxy credentials"
                 isChecked={value}
-                onChange={(checked) => {
+                onChange={(_, checked) => {
                   onChange(checked);
                   if (!checked) {
                     setValue("httpsIdentity", null, { shouldDirty: true });
