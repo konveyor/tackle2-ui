@@ -140,6 +140,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     name: yup
       .string()
       .trim()
+      .min(3, t("validation.minLength", { length: 3 }))
       .max(120, t("validation.maxLength", { length: 120 })),
     startDateStr: yup
       .string()
