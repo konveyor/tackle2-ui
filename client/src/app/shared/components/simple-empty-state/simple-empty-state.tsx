@@ -21,7 +21,7 @@ export const SimpleEmptyState: React.FC<SimpleEmptyStateProps> = ({
   primaryAction,
 }) => {
   return (
-    <EmptyState variant={EmptyStateVariant.small}>
+    <EmptyState variant={EmptyStateVariant.sm}>
       {icon && <EmptyStateIcon icon={icon} />}
       <Title headingLevel="h2" size="lg">
         {title}

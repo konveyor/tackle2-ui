@@ -1,63 +1,14 @@
-.pf-c-icon {
-  --pf-c-icon--FontSize: var(--pf-global--FontSize--md);
-  --pf-c-icon--Color: #72767b;
-
-  --pf-c-icon--m-sm--FontSize: var(--pf-global--icon--FontSize--sm);
-  --pf-c-icon--m-md--FontSize: var(--pf-global--icon--FontSize--md);
-  --pf-c-icon--m-lg--FontSize: var(--pf-global--icon--FontSize--lg);
-  --pf-c-icon--m-xl--FontSize: var(--pf-global--icon--FontSize--xl);
-  --pf-c-icon--m-2xl--FontSize: var(--pf-global--icon--FontSize--2xl);
-
-  --pf-c-icon--m-info--Color: var(--pf-global--primary-color--100);
-  --pf-c-icon--m-success--Color: var(--pf-global--success-color--100);
-  --pf-c-icon--m-warning--Color: var(--pf-global--warning-color--100);
-  --pf-c-icon--m-danger--Color: var(--pf-global--danger-color--100);
-
-  font-size: var(--pf-c-icon--FontSize);
-  color: var(--pf-c-icon--Color);
-}
-.pf-c-icon .pf-m-sm {
-  font-size: var(--pf-c-icon--m-sm--FontSize);
-}
-
-.pf-c-icon .pf-m-lg {
-  font-size: var(--pf-c-icon--m-lg--FontSize);
-}
-
-.pf-c-icon .pf-m-xl {
-  font-size: var(--pf-c-icon--m-xl--FontSize);
-}
-
-.pf-c-icon .pf-m-default {
-  color: var(--pf-c-icon--Color);
-}
-
-.pf-c-icon.pf-m-info {
-  color: var(--pf-c-icon--m-info--Color);
-}
-
-.pf-c-icon .pf-m-success {
-  color: var(--pf-c-icon--m-success--Color);
-}
-
-.pf-c-icon .pf-m-warning {
-  color: var(--pf-c-icon--m-warning--Color);
-}
-
-.pf-c-icon .pf-m-danger {
-  color: var(--pf-c-icon--m-danger--Color);
-}
-
 /*
   Hacks necessary for the drawer to always use full page height
-  This is because the structure of the HTML for pf-c-page__drawer does not match the HTML demo at https://www.patternfly.org/v4/components/drawer/html-demos/expanded/
+  This is because the structure of the HTML for pf-v5-c-page__drawer does not match the HTML demo at https://www.patternfly.org/v4/components/drawer/html-demos/expanded/
   We could fix that by using the `notificationDrawer` prop of the Page component, but it doesn't support passing the props we need to `DrawerPanelContent`.
   TODO: Open this as a bug in PF, add a prop to allow that, and switch to that structure in order to remove this hack.
 */
-.pf-c-page__drawer {
+/* TODO PF V5 - Obsolete ? */
+.pf-v5-c-page__drawer {
   min-height: 100%;
 }
-.pf-c-drawer__body:last-child {
+.pf-v5-c-drawer__body:last-child {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;

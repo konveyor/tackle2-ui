@@ -6,28 +6,28 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-c-dropdown"
+        class="pf-v5-c-dropdown"
         data-ouia-component-id="OUIA-Generated-Dropdown-1"
-        data-ouia-component-type="PF4/Dropdown"
+        data-ouia-component-type="PF5/Dropdown"
         data-ouia-safe="true"
       >
         <button
           aria-expanded="false"
           aria-haspopup="true"
-          class="pf-c-dropdown__toggle"
+          class="pf-v5-c-dropdown__toggle"
           data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-          data-ouia-component-type="PF4/DropdownToggle"
+          data-ouia-component-type="PF5/DropdownToggle"
           data-ouia-safe="true"
           id="pf-dropdown-toggle-id-0"
           type="button"
         >
           <span
-            class="pf-c-dropdown__toggle-text"
+            class="pf-v5-c-dropdown__toggle-text"
           >
             Actions
           </span>
           <span
-            class="pf-c-dropdown__toggle-icon"
+            class="pf-v5-c-dropdown__toggle-icon"
           >
             <test-file-stub />
           </span>
@@ -37,28 +37,28 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-c-dropdown"
+      class="pf-v5-c-dropdown"
       data-ouia-component-id="OUIA-Generated-Dropdown-1"
-      data-ouia-component-type="PF4/Dropdown"
+      data-ouia-component-type="PF5/Dropdown"
       data-ouia-safe="true"
     >
       <button
         aria-expanded="false"
         aria-haspopup="true"
-        class="pf-c-dropdown__toggle"
+        class="pf-v5-c-dropdown__toggle"
         data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-        data-ouia-component-type="PF4/DropdownToggle"
+        data-ouia-component-type="PF5/DropdownToggle"
         data-ouia-safe="true"
         id="pf-dropdown-toggle-id-0"
         type="button"
       >
         <span
-          class="pf-c-dropdown__toggle-text"
+          class="pf-v5-c-dropdown__toggle-text"
         >
           Actions
         </span>
         <span
-          class="pf-c-dropdown__toggle-icon"
+          class="pf-v5-c-dropdown__toggle-icon"
         >
           <test-file-stub />
         </span>

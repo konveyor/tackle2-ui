@@ -6,43 +6,44 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-l-stack pf-m-gutter"
+        class="pf-v5-l-stack pf-m-gutter"
       >
         <div
-          class="pf-l-stack__item"
+          class="pf-v5-l-stack__item"
         >
           <nav
             aria-label="Breadcrumb"
-            class="pf-c-breadcrumb"
+            class="pf-v5-c-breadcrumb"
             data-ouia-component-id="OUIA-Generated-Breadcrumb-1"
-            data-ouia-component-type="PF4/Breadcrumb"
+            data-ouia-component-type="PF5/Breadcrumb"
             data-ouia-safe="true"
           >
             <ol
-              class="pf-c-breadcrumb__list"
+              class="pf-v5-c-breadcrumb__list"
+              role="list"
             >
               <li
-                class="pf-c-breadcrumb__item"
+                class="pf-v5-c-breadcrumb__item"
               >
                 <a
-                  class="pf-c-breadcrumb__link"
+                  class="pf-v5-c-breadcrumb__link"
                   href="/companies"
                 >
                   Companies
                 </a>
               </li>
               <li
-                class="pf-c-breadcrumb__item"
+                class="pf-v5-c-breadcrumb__item"
               >
                 <span
-                  class="pf-c-breadcrumb__item-divider"
+                  class="pf-v5-c-breadcrumb__item-divider"
                 >
                   <svg
                     aria-hidden="true"
+                    class="pf-v5-svg"
                     fill="currentColor"
                     height="1em"
                     role="img"
-                    style="vertical-align: -0.125em;"
                     viewBox="0 0 256 512"
                     width="1em"
                   >
@@ -57,21 +58,21 @@ Object {
           </nav>
         </div>
         <div
-          class="pf-l-stack__item"
+          class="pf-v5-l-stack__item"
         >
           <div
-            class="pf-l-split"
+            class="pf-v5-l-split"
           >
             <div
-              class="pf-l-split__item pf-m-fill"
+              class="pf-v5-l-split__item pf-m-fill"
             >
               <div
-                class="pf-c-content"
+                class="pf-v5-c-content"
               >
                 <h1
                   class=""
                   data-ouia-component-id="OUIA-Generated-Text-1"
-                  data-ouia-component-type="PF4/Text"
+                  data-ouia-component-type="PF5/Text"
                   data-ouia-safe="true"
                   data-pf-content="true"
                 >
@@ -80,13 +81,13 @@ Object {
               </div>
             </div>
             <div
-              class="pf-l-split__item"
+              class="pf-v5-l-split__item"
             >
               <button
                 aria-disabled="false"
-                class="pf-c-button pf-m-primary"
+                class="pf-v5-c-button pf-m-primary"
                 data-ouia-component-id="OUIA-Generated-Button-primary-1"
-                data-ouia-component-type="PF4/Button"
+                data-ouia-component-type="PF5/Button"
                 data-ouia-safe="true"
                 type="button"
               >
@@ -94,31 +95,31 @@ Object {
               </button>
             </div>
             <div
-              class="pf-l-split__item"
+              class="pf-v5-l-split__item"
             >
               <div
-                class="pf-c-dropdown"
+                class="pf-v5-c-dropdown"
                 data-ouia-component-id="OUIA-Generated-Dropdown-1"
-                data-ouia-component-type="PF4/Dropdown"
+                data-ouia-component-type="PF5/Dropdown"
                 data-ouia-safe="true"
               >
                 <button
                   aria-expanded="false"
                   aria-haspopup="true"
-                  class="pf-c-dropdown__toggle"
+                  class="pf-v5-c-dropdown__toggle"
                   data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-                  data-ouia-component-type="PF4/DropdownToggle"
+                  data-ouia-component-type="PF5/DropdownToggle"
                   data-ouia-safe="true"
                   id="pf-dropdown-toggle-id-0"
                   type="button"
                 >
                   <span
-                    class="pf-c-dropdown__toggle-text"
+                    class="pf-v5-c-dropdown__toggle-text"
                   >
                     Actions
                   </span>
                   <span
-                    class="pf-c-dropdown__toggle-icon"
+                    class="pf-v5-c-dropdown__toggle-icon"
                   >
                     <test-file-stub />
                   </span>
@@ -128,26 +129,26 @@ Object {
           </div>
         </div>
         <div
-          class="pf-l-stack__item"
+          class="pf-v5-l-stack__item"
         >
           <div
-            class="pf-c-tabs"
+            class="pf-v5-c-tabs"
           >
             <ul
-              class="pf-c-tabs__list"
+              class="pf-v5-c-tabs__list"
             >
               <a
-                class="pf-c-tabs__item"
+                class="pf-v5-c-tabs__item"
                 href="/companies/1/overview"
               >
                 <li
-                  class="pf-c-tabs__item"
+                  class="pf-v5-c-tabs__item"
                 >
                   <button
-                    class="pf-c-tabs__link"
+                    class="pf-v5-c-tabs__link"
                   >
                     <span
-                      class="pf-c-tabs__item-text"
+                      class="pf-v5-c-tabs__item-text"
                     >
                       Overview
                     </span>
@@ -155,17 +156,17 @@ Object {
                 </li>
               </a>
               <a
-                class="pf-c-tabs__item"
+                class="pf-v5-c-tabs__item"
                 href="/companies/1/yaml"
               >
                 <li
-                  class="pf-c-tabs__item"
+                  class="pf-v5-c-tabs__item"
                 >
                   <button
-                    class="pf-c-tabs__link"
+                    class="pf-v5-c-tabs__link"
                   >
                     <span
-                      class="pf-c-tabs__item-text"
+                      class="pf-v5-c-tabs__item-text"
                     >
                       YAML
                     </span>
@@ -173,17 +174,17 @@ Object {
                 </li>
               </a>
               <a
-                class="pf-c-tabs__item"
+                class="pf-v5-c-tabs__item"
                 href="/companies/1/sunat"
               >
                 <li
-                  class="pf-c-tabs__item"
+                  class="pf-v5-c-tabs__item"
                 >
                   <button
-                    class="pf-c-tabs__link"
+                    class="pf-v5-c-tabs__link"
                   >
                     <span
-                      class="pf-c-tabs__item-text"
+                      class="pf-v5-c-tabs__item-text"
                     >
                       SUNAT
                     </span>
@@ -198,43 +199,44 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-l-stack pf-m-gutter"
+      class="pf-v5-l-stack pf-m-gutter"
     >
       <div
-        class="pf-l-stack__item"
+        class="pf-v5-l-stack__item"
       >
         <nav
           aria-label="Breadcrumb"
-          class="pf-c-breadcrumb"
+          class="pf-v5-c-breadcrumb"
           data-ouia-component-id="OUIA-Generated-Breadcrumb-1"
-          data-ouia-component-type="PF4/Breadcrumb"
+          data-ouia-component-type="PF5/Breadcrumb"
           data-ouia-safe="true"
         >
           <ol
-            class="pf-c-breadcrumb__list"
+            class="pf-v5-c-breadcrumb__list"
+            role="list"
           >
             <li
-              class="pf-c-breadcrumb__item"
+              class="pf-v5-c-breadcrumb__item"
             >
               <a
-                class="pf-c-breadcrumb__link"
+                class="pf-v5-c-breadcrumb__link"
                 href="/companies"
               >
                 Companies
               </a>
             </li>
             <li
-              class="pf-c-breadcrumb__item"
+              class="pf-v5-c-breadcrumb__item"
             >
               <span
-                class="pf-c-breadcrumb__item-divider"
+                class="pf-v5-c-breadcrumb__item-divider"
               >
                 <svg
                   aria-hidden="true"
+                  class="pf-v5-svg"
                   fill="currentColor"
                   height="1em"
                   role="img"
-                  style="vertical-align: -0.125em;"
                   viewBox="0 0 256 512"
                   width="1em"
                 >
@@ -249,21 +251,21 @@ Object {
         </nav>
       </div>
       <div
-        class="pf-l-stack__item"
+        class="pf-v5-l-stack__item"
       >
         <div
-          class="pf-l-split"
+          class="pf-v5-l-split"
         >
           <div
-            class="pf-l-split__item pf-m-fill"
+            class="pf-v5-l-split__item pf-m-fill"
           >
             <div
-              class="pf-c-content"
+              class="pf-v5-c-content"
             >
               <h1
                 class=""
                 data-ouia-component-id="OUIA-Generated-Text-1"
-                data-ouia-component-type="PF4/Text"
+                data-ouia-component-type="PF5/Text"
                 data-ouia-safe="true"
                 data-pf-content="true"
               >
@@ -272,13 +274,13 @@ Object {
             </div>
           </div>
           <div
-            class="pf-l-split__item"
+            class="pf-v5-l-split__item"
           >
             <button
               aria-disabled="false"
-              class="pf-c-button pf-m-primary"
+              class="pf-v5-c-button pf-m-primary"
               data-ouia-component-id="OUIA-Generated-Button-primary-1"
-              data-ouia-component-type="PF4/Button"
+              data-ouia-component-type="PF5/Button"
               data-ouia-safe="true"
               type="button"
             >
@@ -286,31 +288,31 @@ Object {
             </button>
           </div>
           <div
-            class="pf-l-split__item"
+            class="pf-v5-l-split__item"
           >
             <div
-              class="pf-c-dropdown"
+              class="pf-v5-c-dropdown"
               data-ouia-component-id="OUIA-Generated-Dropdown-1"
-              data-ouia-component-type="PF4/Dropdown"
+              data-ouia-component-type="PF5/Dropdown"
               data-ouia-safe="true"
             >
               <button
                 aria-expanded="false"
                 aria-haspopup="true"
-                class="pf-c-dropdown__toggle"
+                class="pf-v5-c-dropdown__toggle"
                 data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-                data-ouia-component-type="PF4/DropdownToggle"
+                data-ouia-component-type="PF5/DropdownToggle"
                 data-ouia-safe="true"
                 id="pf-dropdown-toggle-id-0"
                 type="button"
               >
                 <span
-                  class="pf-c-dropdown__toggle-text"
+                  class="pf-v5-c-dropdown__toggle-text"
                 >
                   Actions
                 </span>
                 <span
-                  class="pf-c-dropdown__toggle-icon"
+                  class="pf-v5-c-dropdown__toggle-icon"
                 >
                   <test-file-stub />
                 </span>
@@ -320,26 +322,26 @@ Object {
         </div>
       </div>
       <div
-        class="pf-l-stack__item"
+        class="pf-v5-l-stack__item"
       >
         <div
-          class="pf-c-tabs"
+          class="pf-v5-c-tabs"
         >
           <ul
-            class="pf-c-tabs__list"
+            class="pf-v5-c-tabs__list"
           >
             <a
-              class="pf-c-tabs__item"
+              class="pf-v5-c-tabs__item"
               href="/companies/1/overview"
             >
               <li
-                class="pf-c-tabs__item"
+                class="pf-v5-c-tabs__item"
               >
                 <button
-                  class="pf-c-tabs__link"
+                  class="pf-v5-c-tabs__link"
                 >
                   <span
-                    class="pf-c-tabs__item-text"
+                    class="pf-v5-c-tabs__item-text"
                   >
                     Overview
                   </span>
@@ -347,17 +349,17 @@ Object {
               </li>
             </a>
             <a
-              class="pf-c-tabs__item"
+              class="pf-v5-c-tabs__item"
               href="/companies/1/yaml"
             >
               <li
-                class="pf-c-tabs__item"
+                class="pf-v5-c-tabs__item"
               >
                 <button
-                  class="pf-c-tabs__link"
+                  class="pf-v5-c-tabs__link"
                 >
                   <span
-                    class="pf-c-tabs__item-text"
+                    class="pf-v5-c-tabs__item-text"
                   >
                     YAML
                   </span>
@@ -365,17 +367,17 @@ Object {
               </li>
             </a>
             <a
-              class="pf-c-tabs__item"
+              class="pf-v5-c-tabs__item"
               href="/companies/1/sunat"
             >
               <li
-                class="pf-c-tabs__item"
+                class="pf-v5-c-tabs__item"
               >
                 <button
-                  class="pf-c-tabs__link"
+                  class="pf-v5-c-tabs__link"
                 >
                   <span
-                    class="pf-c-tabs__item-text"
+                    class="pf-v5-c-tabs__item-text"
                   >
                     SUNAT
                   </span>

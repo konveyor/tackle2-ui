@@ -1,12 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
+import { Button } from "@patternfly/react-core";
+
 import {
-  Button,
   WizardContextConsumer,
   WizardFooter,
-} from "@patternfly/react-core";
-
+} from "@patternfly/react-core/deprecated";
 export interface CustomWizardFooterProps {
   isFirstStep: boolean;
   isLastStep: boolean;

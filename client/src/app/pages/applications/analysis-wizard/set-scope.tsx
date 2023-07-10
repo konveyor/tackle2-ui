@@ -82,7 +82,7 @@ export const SetScope: React.FC = () => {
         id="excludedPackages"
         label={t("wizard.label.excludePackages")}
         isChecked={hasExcludedPackages}
-        onChange={(checked) => {
+        onChange={(_event, checked) => {
           setValue("hasExcludedPackages", checked);
         }}
         className={spacing.mtMd}

@@ -6,12 +6,12 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-c-content"
+        class="pf-v5-c-content"
       >
         <small
           class=""
           data-ouia-component-id="OUIA-Generated-Text-1"
-          data-ouia-component-type="PF4/Text"
+          data-ouia-component-type="PF5/Text"
           data-ouia-safe="true"
           data-pf-content="true"
         >
@@ -22,12 +22,12 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-c-content"
+      class="pf-v5-c-content"
     >
       <small
         class=""
         data-ouia-component-id="OUIA-Generated-Text-1"
-        data-ouia-component-type="PF4/Text"
+        data-ouia-component-type="PF5/Text"
         data-ouia-safe="true"
         data-pf-content="true"
       >

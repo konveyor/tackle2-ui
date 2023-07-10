@@ -6,10 +6,12 @@ import {
   ICell,
   IRow,
   IRowData,
+} from "@patternfly/react-table";
+import {
   Table,
   TableBody,
   TableHeader,
-} from "@patternfly/react-table";
+} from "@patternfly/react-table/deprecated";
 
 import { Tag, TagCategory } from "@app/api/models";
 import "./tag-table.css";

@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useKeycloak } from "@react-keycloak/web";
+import { DropdownGroup, DropdownItem } from "@patternfly/react-core";
 import {
   Dropdown,
-  DropdownGroup,
-  DropdownItem,
   DropdownToggle,
   PageHeaderToolsItem,
-} from "@patternfly/react-core";
+} from "@patternfly/react-core/deprecated";
 import { isAuthRequired, LocalStorageKey } from "@app/Constants";
 import { useHistory } from "react-router-dom";
 
@@ -42,7 +41,7 @@ export const SSOMenu: React.FC = () => {
             toggle={
               <DropdownToggle
                 id="sso-actions-toggle"
-                onToggle={onDropdownToggle}
+                onToggle={(_, isOpen) => onDropdownToggle(isOpen)}
               >
                 {(keycloak?.idTokenParsed as any)["preferred_username"]}
               </DropdownToggle>

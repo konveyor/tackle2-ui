@@ -6,23 +6,23 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-c-tabs"
+        class="pf-v5-c-tabs"
       >
         <ul
-          class="pf-c-tabs__list"
+          class="pf-v5-c-tabs__list"
         >
           <a
-            class="pf-c-tabs__item"
+            class="pf-v5-c-tabs__item"
             href="/first"
           >
             <li
-              class="pf-c-tabs__item"
+              class="pf-v5-c-tabs__item"
             >
               <button
-                class="pf-c-tabs__link"
+                class="pf-v5-c-tabs__link"
               >
                 <span
-                  class="pf-c-tabs__item-text"
+                  class="pf-v5-c-tabs__item-text"
                 >
                   first
                 </span>
@@ -30,17 +30,17 @@ Object {
             </li>
           </a>
           <a
-            class="pf-c-tabs__item"
+            class="pf-v5-c-tabs__item"
             href="/second"
           >
             <li
-              class="pf-c-tabs__item"
+              class="pf-v5-c-tabs__item"
             >
               <button
-                class="pf-c-tabs__link"
+                class="pf-v5-c-tabs__link"
               >
                 <span
-                  class="pf-c-tabs__item-text"
+                  class="pf-v5-c-tabs__item-text"
                 >
                   second
                 </span>
@@ -48,17 +48,17 @@ Object {
             </li>
           </a>
           <a
-            class="pf-c-tabs__item"
+            class="pf-v5-c-tabs__item"
             href="/thrid"
           >
             <li
-              class="pf-c-tabs__item"
+              class="pf-v5-c-tabs__item"
             >
               <button
-                class="pf-c-tabs__link"
+                class="pf-v5-c-tabs__link"
               >
                 <span
-                  class="pf-c-tabs__item-text"
+                  class="pf-v5-c-tabs__item-text"
                 >
                   thrid
                 </span>
@@ -71,23 +71,23 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-c-tabs"
+      class="pf-v5-c-tabs"
     >
       <ul
-        class="pf-c-tabs__list"
+        class="pf-v5-c-tabs__list"
       >
         <a
-          class="pf-c-tabs__item"
+          class="pf-v5-c-tabs__item"
           href="/first"
         >
           <li
-            class="pf-c-tabs__item"
+            class="pf-v5-c-tabs__item"
           >
             <button
-              class="pf-c-tabs__link"
+              class="pf-v5-c-tabs__link"
             >
               <span
-                class="pf-c-tabs__item-text"
+                class="pf-v5-c-tabs__item-text"
               >
                 first
               </span>
@@ -95,17 +95,17 @@ Object {
           </li>
         </a>
         <a
-          class="pf-c-tabs__item"
+          class="pf-v5-c-tabs__item"
           href="/second"
         >
           <li
-            class="pf-c-tabs__item"
+            class="pf-v5-c-tabs__item"
           >
             <button
-              class="pf-c-tabs__link"
+              class="pf-v5-c-tabs__link"
             >
               <span
-                class="pf-c-tabs__item-text"
+                class="pf-v5-c-tabs__item-text"
               >
                 second
               </span>
@@ -113,17 +113,17 @@ Object {
           </li>
         </a>
         <a
-          class="pf-c-tabs__item"
+          class="pf-v5-c-tabs__item"
           href="/thrid"
         >
           <li
-            class="pf-c-tabs__item"
+            class="pf-v5-c-tabs__item"
           >
             <button
-              class="pf-c-tabs__link"
+              class="pf-v5-c-tabs__link"
             >
               <span
-                class="pf-c-tabs__item-text"
+                class="pf-v5-c-tabs__item-text"
               >
                 thrid
               </span>

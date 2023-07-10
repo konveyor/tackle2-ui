@@ -259,7 +259,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     {
       title: "",
       props: {
-        className: "pf-c-table__inline-edit-action",
+        className: "pf-v5-c-table__inline-edit-action",
       },
     },
   ];
@@ -277,7 +277,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     rows.push({
       [ENTITY_FIELD]: item,
       selected: isSelected,
-      isHoverable: true,
+      // TODO PF v5 - IsHoverable replaced with isClickable
+      // isHoverable: true,
+      isClickable: true,
       isRowSelected: activeAppInDetailDrawer?.id === item.id,
       cells: [
         {
@@ -315,7 +317,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         },
         {
           title: (
-            <div className="pf-c-inline-edit__action pf-m-enable-editable">
+            <div className="pf-v5-c-inline-edit__action pf-v5-m-enable-editable">
               <RBAC
                 allowedPermissions={applicationsWriteScopes}
                 rbacType={RBAC_TYPE.Scope}
@@ -368,7 +370,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (tasksReadAccess) {
       actions.push({
         title: t("actions.analysisDetails"),
-        isAriaDisabled: !getTask(row),
+        "aria-disabled": !getTask(row),
         onClick: () => {
           const task = getTask(row);
           if (task) setTaskToView({ name: row.name, task: task.id });
@@ -379,7 +381,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (tasksWriteAccess) {
       actions.push({
         title: "Cancel analysis",
-        isAriaDisabled: !isTaskCancellable(row),
+        "aria-disabled": !isTaskCancellable(row),
         onClick: () => cancelAnalysis(row),
       });
     }

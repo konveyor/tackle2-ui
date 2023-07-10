@@ -1,5 +1,11 @@
 import * as React from "react";
-import { FormGroup, FormGroupProps } from "@patternfly/react-core";
+import {
+  FormGroup,
+  FormGroupProps,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+} from "@patternfly/react-core";
 import {
   Control,
   Controller,
@@ -7,7 +13,6 @@ import {
   FieldValues,
   Path,
 } from "react-hook-form";
-import { getValidatedFromErrors } from "@app/utils/utils";
 
 // We have separate interfaces for these props with and without `renderInput` for convenience.
 // Generic type params here are the same as the ones used by react-hook-form's <Controller>.
@@ -55,6 +60,7 @@ export const HookFormPFGroupController = <
     name={name}
     render={({ field, fieldState, formState }) => {
       const { isDirty, error } = fieldState;
+      const shouldDisplayError = error?.message && isDirty && !errorsSuppressed;
       return (
         <FormGroup
           labelIcon={labelIcon}
@@ -63,16 +69,20 @@ export const HookFormPFGroupController = <
           className={className}
           isRequired={isRequired}
           onBlur={field.onBlur}
-          validated={
-            errorsSuppressed
-              ? "default"
-              : getValidatedFromErrors(error, isDirty)
-          }
-          helperText={helperText}
-          helperTextInvalid={errorsSuppressed ? null : error?.message}
           {...formGroupProps}
         >
           {renderInput({ field, fieldState, formState })}
+          {helperText || shouldDisplayError ? (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem
+                  variant={shouldDisplayError ? "error" : "default"}
+                >
+                  {shouldDisplayError ? error.message : helperText}
+                </HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          ) : null}
         </FormGroup>
       );
     }}

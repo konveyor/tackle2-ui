@@ -302,7 +302,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
   };
 
   return (
-    <div className="pf-c-form">
+    <div className="pf-v5-c-form">
       <Card>
         <CardBody style={{ padding: 0 }}>
           <AppTableWithControls
@@ -348,7 +348,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
           label={
             <>
               <span id="warning-icon">
-                <ExclamationTriangleIcon noVerticalAlign color={gold.value} />
+                <ExclamationTriangleIcon color={gold.value} />
               </span>
               &nbsp;&nbsp;
               {review
@@ -368,7 +368,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
             aria-label="Confirm"
             isDisabled={isCopying}
             isChecked={confirmationAccepted}
-            onChange={(isChecked) => setConfirmationAccepted(isChecked)}
+            onChange={(_, isChecked) => setConfirmationAccepted(isChecked)}
           />
         </FormGroup>
       )}

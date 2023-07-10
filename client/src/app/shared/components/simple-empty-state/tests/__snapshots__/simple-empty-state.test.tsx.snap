@@ -6,21 +6,21 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-c-empty-state pf-m-sm"
+        class="pf-v5-c-empty-state pf-m-sm"
       >
         <div
-          class="pf-c-empty-state__content"
+          class="pf-v5-c-empty-state__content"
         >
           <h2
-            class="pf-c-title pf-m-lg"
+            class="pf-v5-c-title pf-m-lg"
             data-ouia-component-id="OUIA-Generated-Title-3"
-            data-ouia-component-type="PF4/Title"
+            data-ouia-component-type="PF5/Title"
             data-ouia-safe="true"
           >
             my title
           </h2>
           <div
-            class="pf-c-empty-state__body"
+            class="pf-v5-c-empty-state__body"
           >
             my description
           </div>
@@ -30,21 +30,21 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-c-empty-state pf-m-sm"
+      class="pf-v5-c-empty-state pf-m-sm"
     >
       <div
-        class="pf-c-empty-state__content"
+        class="pf-v5-c-empty-state__content"
       >
         <h2
-          class="pf-c-title pf-m-lg"
+          class="pf-v5-c-title pf-m-lg"
           data-ouia-component-id="OUIA-Generated-Title-3"
-          data-ouia-component-type="PF4/Title"
+          data-ouia-component-type="PF5/Title"
           data-ouia-safe="true"
         >
           my title
         </h2>
         <div
-          class="pf-c-empty-state__body"
+          class="pf-v5-c-empty-state__body"
         >
           my description
         </div>
@@ -111,19 +111,22 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-c-empty-state pf-m-sm"
+        class="pf-v5-c-empty-state pf-m-sm"
       >
         <div
-          class="pf-c-empty-state__content"
+          class="pf-v5-c-empty-state__content"
         >
-          <test-file-stub
-            aria-hidden="true"
-            classname="pf-c-empty-state__icon"
-          />
+          <div
+            class="pf-v5-c-empty-state__icon"
+          >
+            <test-file-stub
+              aria-hidden="true"
+            />
+          </div>
           <h2
-            class="pf-c-title pf-m-lg"
+            class="pf-v5-c-title pf-m-lg"
             data-ouia-component-id="OUIA-Generated-Title-2"
-            data-ouia-component-type="PF4/Title"
+            data-ouia-component-type="PF5/Title"
             data-ouia-safe="true"
           >
             my title
@@ -134,19 +137,22 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-c-empty-state pf-m-sm"
+      class="pf-v5-c-empty-state pf-m-sm"
     >
       <div
-        class="pf-c-empty-state__content"
+        class="pf-v5-c-empty-state__content"
       >
-        <test-file-stub
-          aria-hidden="true"
-          classname="pf-c-empty-state__icon"
-        />
+        <div
+          class="pf-v5-c-empty-state__icon"
+        >
+          <test-file-stub
+            aria-hidden="true"
+          />
+        </div>
         <h2
-          class="pf-c-title pf-m-lg"
+          class="pf-v5-c-title pf-m-lg"
           data-ouia-component-id="OUIA-Generated-Title-2"
-          data-ouia-component-type="PF4/Title"
+          data-ouia-component-type="PF5/Title"
           data-ouia-safe="true"
         >
           my title
@@ -214,21 +220,21 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-c-empty-state pf-m-sm"
+        class="pf-v5-c-empty-state pf-m-sm"
       >
         <div
-          class="pf-c-empty-state__content"
+          class="pf-v5-c-empty-state__content"
         >
           <h2
-            class="pf-c-title pf-m-lg"
+            class="pf-v5-c-title pf-m-lg"
             data-ouia-component-id="OUIA-Generated-Title-4"
-            data-ouia-component-type="PF4/Title"
+            data-ouia-component-type="PF5/Title"
             data-ouia-safe="true"
           >
             my title
           </h2>
           <div
-            class="pf-c-empty-state__body"
+            class="pf-v5-c-empty-state__body"
           >
             my description
           </div>
@@ -241,21 +247,21 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-c-empty-state pf-m-sm"
+      class="pf-v5-c-empty-state pf-m-sm"
     >
       <div
-        class="pf-c-empty-state__content"
+        class="pf-v5-c-empty-state__content"
       >
         <h2
-          class="pf-c-title pf-m-lg"
+          class="pf-v5-c-title pf-m-lg"
           data-ouia-component-id="OUIA-Generated-Title-4"
-          data-ouia-component-type="PF4/Title"
+          data-ouia-component-type="PF5/Title"
           data-ouia-safe="true"
         >
           my title
         </h2>
         <div
-          class="pf-c-empty-state__body"
+          class="pf-v5-c-empty-state__body"
         >
           my description
         </div>
@@ -325,15 +331,15 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-c-empty-state pf-m-sm"
+        class="pf-v5-c-empty-state pf-m-sm"
       >
         <div
-          class="pf-c-empty-state__content"
+          class="pf-v5-c-empty-state__content"
         >
           <h2
-            class="pf-c-title pf-m-lg"
+            class="pf-v5-c-title pf-m-lg"
             data-ouia-component-id="OUIA-Generated-Title-1"
-            data-ouia-component-type="PF4/Title"
+            data-ouia-component-type="PF5/Title"
             data-ouia-safe="true"
           >
             my title
@@ -344,15 +350,15 @@ Object {
   </body>,
   "container": <div>
     <div
-      class="pf-c-empty-state pf-m-sm"
+      class="pf-v5-c-empty-state pf-m-sm"
     >
       <div
-        class="pf-c-empty-state__content"
+        class="pf-v5-c-empty-state__content"
       >
         <h2
-          class="pf-c-title pf-m-lg"
+          class="pf-v5-c-title pf-m-lg"
           data-ouia-component-id="OUIA-Generated-Title-1"
-          data-ouia-component-type="PF4/Title"
+          data-ouia-component-type="PF5/Title"
           data-ouia-safe="true"
         >
           my title

@@ -1,12 +1,5 @@
 import * as React from "react";
-import {
-  TableComposable,
-  Thead,
-  Tr,
-  Th,
-  Tbody,
-  Td,
-} from "@patternfly/react-table";
+import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
 import { useSelectionState } from "@migtools/lib-ui";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import { AnalysisFileReport } from "@app/api/models";
@@ -80,7 +73,7 @@ export const FileAllIncidentsTable: React.FC<
 
   return (
     <>
-      <TableComposable {...tableProps} aria-label="Affected files table">
+      <Table {...tableProps} aria-label="Affected files table">
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
@@ -129,7 +122,7 @@ export const FileAllIncidentsTable: React.FC<
             ))}
           </Tbody>
         </ConditionalTableBody>
-      </TableComposable>
+      </Table>
       <SimplePagination
         idPrefix="file-all-incidents-table"
         isTop={false}

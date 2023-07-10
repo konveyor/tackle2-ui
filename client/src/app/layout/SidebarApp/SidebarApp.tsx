@@ -6,11 +6,14 @@ import {
   NavItem,
   PageSidebar,
   NavList,
+  NavExpandable,
+  MenuToggle,
+  MenuToggleElement,
   Select,
   SelectOption,
-  SelectVariant,
-  NavExpandable,
+  SelectList,
 } from "@patternfly/react-core";
+import "./SidebarApp.css";
 
 import { Paths } from "@app/Paths";
 import { LayoutTheme } from "../LayoutUtils";
@@ -20,9 +23,11 @@ import keycloak from "@app/keycloak";
 import { useLocalStorage } from "@migtools/lib-ui";
 import { LocalStorageKey } from "@app/Constants";
 import { FEATURES_ENABLED } from "@app/FeatureFlags";
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import { toOptionLike } from "@app/utils/model-utils";
-import "./SidebarApp.css";
+
+enum PersonaKey {
+  ADMINISTRATION = "Administration",
+  MIGRATION = "Migration",
+}
 
 export const SidebarApp: React.FC = () => {
   const token = keycloak.tokenParsed || undefined;
@@ -32,46 +37,6 @@ export const SidebarApp: React.FC = () => {
   const { t } = useTranslation();
   const { search } = useLocation();
   const history = useHistory();
-  enum PersonaKey {
-    ADMINISTRATION = "Administration",
-    MIGRATION = "Migration",
-  }
-
-  const options = [
-    <SelectOption
-      key="dev"
-      component="button"
-      value={PersonaKey.MIGRATION}
-      isPlaceholder
-    >
-      {PersonaKey.MIGRATION}
-    </SelectOption>,
-    ...(adminAccess
-      ? [
-          <SelectOption
-            key="admin"
-            component="button"
-            value={PersonaKey.ADMINISTRATION}
-          >
-            {PersonaKey.ADMINISTRATION}
-          </SelectOption>,
-        ]
-      : []),
-  ];
-
-  const personaOptions: OptionWithValue<string>[] = [
-    {
-      value: PersonaKey.MIGRATION,
-      toString: () => PersonaKey.MIGRATION,
-    },
-    {
-      value: PersonaKey.ADMINISTRATION,
-      toString: () => PersonaKey.ADMINISTRATION,
-    },
-  ];
-
-  const [selectedPersona, setSelectedPersona] =
-    useLocalStorage<PersonaKey | null>(LocalStorageKey.selectedPersona, null);
 
   useEffect(() => {
     if (!selectedPersona) {
@@ -80,144 +45,191 @@ export const SidebarApp: React.FC = () => {
     }
   }, []);
 
-  const Navigation = (
-    <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
-      <div className="perspective">
-        <SimpleSelect
-          toggleId="sidebar-perspective-toggle"
-          variant={SelectVariant.single}
-          aria-label="Select user perspective"
-          id="sidebar-perspective"
-          value={
-            selectedPersona
-              ? toOptionLike(selectedPersona, personaOptions)
-              : undefined
-          }
-          options={personaOptions}
-          onChange={(selection) => {
-            const selectionValue = selection as OptionWithValue<PersonaKey>;
-            setSelectedPersona(selectionValue.value);
-            if (selectionValue.value === PersonaKey.ADMINISTRATION) {
-              history.push(Paths.general);
-            } else {
-              history.push(Paths.applications);
-            }
-          }}
-        />
-      </div>
-      {selectedPersona === PersonaKey.MIGRATION ? (
-        <NavList title="Global">
-          <NavItem>
-            <NavLink
-              to={Paths.applications + search}
-              activeClassName="pf-m-current"
-            >
-              {t("sidebar.applicationInventory")}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to={Paths.reports + search} activeClassName="pf-m-current">
-              {t("sidebar.reports")}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to={Paths.controls} activeClassName="pf-m-current">
-              {t("sidebar.controls")}
-            </NavLink>
-          </NavItem>
-          {FEATURES_ENABLED.migrationWaves ? (
-            <NavItem>
-              <NavLink to={Paths.migrationWaves} activeClassName="pf-m-current">
-                {t("sidebar.migrationWaves")}
-              </NavLink>
-            </NavItem>
-          ) : null}
-          {FEATURES_ENABLED.dynamicReports ? (
-            <>
-              <NavItem>
-                <NavLink to={Paths.issues} activeClassName="pf-m-current">
-                  {t("sidebar.issues")}
-                </NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink to={Paths.dependencies} activeClassName="pf-m-current">
-                  {t("sidebar.dependencies")}
-                </NavLink>
-              </NavItem>
-            </>
-          ) : null}
-        </NavList>
-      ) : (
-        <NavList title="Admin">
-          <NavItem>
-            <NavLink to={Paths.general} activeClassName="pf-m-current">
-              {t("terms.general")}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to={Paths.identities} activeClassName="pf-m-current">
-              {t("terms.credentials")}
-            </NavLink>
-          </NavItem>
-          <NavExpandable
-            title="Repositories"
-            srText="SR Link"
-            groupId="admin-repos"
-            isExpanded
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [selectedPersona, setSelectedPersona] = useLocalStorage<string | null>(
+    LocalStorageKey.selectedPersona,
+    null
+  );
+
+  const onToggleClick = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const onSelect = (
+    _event: React.MouseEvent<Element, MouseEvent> | undefined,
+    itemId: string | number | undefined
+  ) => {
+    setSelectedPersona(itemId as string);
+    if (itemId === PersonaKey.ADMINISTRATION) {
+      history.push(Paths.general);
+    } else {
+      history.push(Paths.applications);
+    }
+    setIsOpen(false);
+  };
+
+  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+    <MenuToggle
+      ref={toggleRef}
+      onClick={onToggleClick}
+      isExpanded={isOpen}
+      style={
+        {
+          width: "200px",
+        } as React.CSSProperties
+      }
+    >
+      {selectedPersona}
+    </MenuToggle>
+  );
+
+  return (
+    <PageSidebar theme={LayoutTheme}>
+      <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
+        <div className="perspective">
+          <Select
+            id="sidebar-perspective"
+            aria-label="Select user perspective"
+            isOpen={isOpen}
+            selected={selectedPersona}
+            onSelect={onSelect}
+            onOpenChange={(isOpen) => setIsOpen(isOpen)}
+            toggle={toggle}
           >
+            <SelectList>
+              <SelectOption itemId={PersonaKey.MIGRATION}>
+                {PersonaKey.MIGRATION}
+              </SelectOption>
+              <SelectOption itemId={PersonaKey.ADMINISTRATION}>
+                {PersonaKey.ADMINISTRATION}
+              </SelectOption>
+            </SelectList>
+          </Select>
+        </div>
+        {selectedPersona === PersonaKey.MIGRATION ? (
+          <NavList title="Global">
             <NavItem>
               <NavLink
-                to={Paths.repositoriesGit}
-                activeClassName="pf-m-current"
+                to={Paths.applications + search}
+                activeClassName="pf-v5-m-current"
               >
-                Git
+                {t("sidebar.applicationInventory")}
               </NavLink>
             </NavItem>
             <NavItem>
               <NavLink
-                to={Paths.repositoriesSvn}
-                activeClassName="pf-m-current"
+                to={Paths.reports + search}
+                activeClassName="pf-v5-m-current"
               >
-                Subversion
+                {t("sidebar.reports")}
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink
-                to={Paths.repositoriesMvn}
-                activeClassName="pf-m-current"
-              >
-                Maven
+              <NavLink to={Paths.controls} activeClassName="pf-v5-m-current">
+                {t("sidebar.controls")}
               </NavLink>
             </NavItem>
-          </NavExpandable>
-          <NavItem>
-            <NavLink to={Paths.proxies} activeClassName="pf-m-current">
-              Proxy
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to={Paths.migrationTargets} activeClassName="pf-m-current">
-              Custom migration targets
-            </NavLink>
-          </NavItem>
-          {FEATURES_ENABLED.migrationWaves ? (
+            {FEATURES_ENABLED.migrationWaves ? (
+              <NavItem>
+                <NavLink
+                  to={Paths.migrationWaves}
+                  activeClassName="pf-v5-m-current"
+                >
+                  {t("sidebar.migrationWaves")}
+                </NavLink>
+              </NavItem>
+            ) : null}
+            {FEATURES_ENABLED.dynamicReports ? (
+              <>
+                <NavItem>
+                  <NavLink to={Paths.issues} activeClassName="pf-v5-m-current">
+                    {t("sidebar.issues")}
+                  </NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink
+                    to={Paths.dependencies}
+                    activeClassName="pf-v5-m-current"
+                  >
+                    {t("sidebar.dependencies")}
+                  </NavLink>
+                </NavItem>
+              </>
+            ) : null}
+          </NavList>
+        ) : (
+          <NavList title="Admin">
+            <NavItem>
+              <NavLink to={Paths.general} activeClassName="pf-v5-m-current">
+                {t("terms.general")}
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink to={Paths.identities} activeClassName="pf-v5-m-current">
+                {t("terms.credentials")}
+              </NavLink>
+            </NavItem>
             <NavExpandable
-              title="Issue management"
+              title="Repositories"
               srText="SR Link"
-              groupId="admin-issue-management"
+              groupId="admin-repos"
               isExpanded
             >
               <NavItem>
-                <NavLink to={Paths.jira} activeClassName="pf-m-current">
-                  Jira
+                <NavLink
+                  to={Paths.repositoriesGit}
+                  activeClassName="pf-v5-m-current"
+                >
+                  Git
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink
+                  to={Paths.repositoriesSvn}
+                  activeClassName="pf-v5-m-current"
+                >
+                  Subversion
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink
+                  to={Paths.repositoriesMvn}
+                  activeClassName="pf-v5-m-current"
+                >
+                  Maven
                 </NavLink>
               </NavItem>
             </NavExpandable>
-          ) : null}
-        </NavList>
-      )}
-    </Nav>
+            <NavItem>
+              <NavLink to={Paths.proxies} activeClassName="pf-v5-m-current">
+                Proxy
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                to={Paths.migrationTargets}
+                activeClassName="pf-v5-m-current"
+              >
+                Custom migration targets
+              </NavLink>
+            </NavItem>
+            {FEATURES_ENABLED.migrationWaves ? (
+              <NavExpandable
+                title="Issue management"
+                srText="SR Link"
+                groupId="admin-issue-management"
+                isExpanded
+              >
+                <NavItem>
+                  <NavLink to={Paths.jira} activeClassName="pf-v5-m-current">
+                    Jira
+                  </NavLink>
+                </NavItem>
+              </NavExpandable>
+            ) : null}
+          </NavList>
+        )}
+      </Nav>
+    </PageSidebar>
   );
-
-  return <PageSidebar nav={Navigation} theme={LayoutTheme} />;
 };

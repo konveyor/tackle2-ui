@@ -7,6 +7,9 @@ import {
   ButtonVariant,
   Form,
   FormGroup,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
   Spinner,
   Text,
   TextContent,
@@ -118,8 +121,8 @@ export const ApplicationDependenciesForm: React.FC<
   }, [application, southDependencies]);
 
   const savingMsg = (
-    <div className="pf-u-font-size-sm">
-      <Spinner isSVG size="sm" /> {`${t("message.savingSelection")}...`}
+    <div className="pf-v5-u-font-size-sm">
+      <Spinner size="sm" /> {`${t("message.savingSelection")}...`}
     </div>
   );
   const existingDependencyMappings = southboundDependencies
@@ -139,11 +142,6 @@ export const ApplicationDependenciesForm: React.FC<
         })}
         fieldId="northbound-dependencies"
         isRequired={false}
-        validated={northSaveError ? "error" : "default"}
-        helperTextInvalid={
-          northSaveError ? getAxiosErrorMessage(northSaveError) : ""
-        }
-        helperText={isNorthBeingSaved ? savingMsg : ""}
       >
         <SelectDependency
           toggleAriaLabel="northbound-dependencies-toggle"
@@ -167,6 +165,14 @@ export const ApplicationDependenciesForm: React.FC<
           saveError={northSaveError}
           setSaveError={setNorthSaveError}
         />
+        {northSaveError &&
+          isNorthBeingSaved === getAxiosErrorMessage(northSaveError) && (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem>{savingMsg}</HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          )}
       </FormGroup>
       <FormGroup
         // t("terms.southboundDependencies")
@@ -175,11 +181,6 @@ export const ApplicationDependenciesForm: React.FC<
         })}
         fieldId="southbound-dependencies"
         isRequired={false}
-        validated={southSaveError ? "error" : "default"}
-        helperTextInvalid={
-          southSaveError ? getAxiosErrorMessage(southSaveError) : ""
-        }
-        helperText={isSouthBeingSaved ? savingMsg : ""}
       >
         <SelectDependency
           toggleAriaLabel="southbound-dependencies-toggle"
@@ -203,6 +204,14 @@ export const ApplicationDependenciesForm: React.FC<
           saveError={southSaveError}
           setSaveError={setSouthSaveError}
         />
+        {southSaveError &&
+          isSouthBeingSaved === getAxiosErrorMessage(southSaveError) && (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem>{savingMsg}</HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          )}
       </FormGroup>
 
       <ActionGroup>

@@ -171,7 +171,7 @@ export const Identities: React.FC = () => {
     {
       title: "",
       props: {
-        className: "pf-u-text-align-right",
+        className: "pf-v5-u-text-align-right",
       },
     },
   ];
@@ -265,7 +265,7 @@ export const Identities: React.FC = () => {
               <ToolbarGroup variant="button-group">
                 <ToolbarItem>
                   <Button
-                    isSmall
+                    size="sm"
                     onClick={() => setCreateUpdateModalState("create")}
                     variant="primary"
                     id="create-credential-button"

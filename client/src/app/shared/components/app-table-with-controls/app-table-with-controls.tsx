@@ -41,11 +41,11 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
   return (
     <div
       style={{
-        backgroundColor: "var(--pf-global--BackgroundColor--100)",
+        backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
       }}
     >
       <Toolbar
-        className="pf-m-toggle-group-container"
+        className="pf-v5-m-toggle-group-container"
         collapseListedFiltersBreakpoint="xl"
         clearAllFilters={toolbarClearAllFilters}
         clearFiltersButtonText={t("actions.clearAllFilters")}
@@ -57,7 +57,7 @@ export const AppTableWithControls: React.FC<IAppTableWithControlsProps> = ({
           {!withoutTopPagination && (
             <ToolbarItem
               variant={ToolbarItemVariant.pagination}
-              alignment={{ default: "alignRight" }}
+              align={{ default: "alignRight" }}
             >
               <SimplePagination
                 idPrefix={paginationIdPrefix}

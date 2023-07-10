@@ -43,7 +43,7 @@ import {
 } from "@app/shared/components/FilterToolbar";
 import {
   ExpandableRowContent,
-  TableComposable,
+  Table,
   Tbody,
   Td,
   Th,
@@ -236,7 +236,7 @@ export const MigrationWaves: React.FC = () => {
         >
           <div
             style={{
-              backgroundColor: "var(--pf-global--BackgroundColor--100)",
+              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
             }}
           >
             <Toolbar {...toolbarProps}>
@@ -314,7 +314,7 @@ export const MigrationWaves: React.FC = () => {
                 </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
-            <TableComposable {...tableProps} aria-label="Migration waves table">
+            <Table {...tableProps} aria-label="Migration waves table">
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
@@ -332,7 +332,7 @@ export const MigrationWaves: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="small">
+                  <EmptyState variant="sm">
                     <EmptyStateIcon icon={CubesIcon} />
                     <Title headingLevel="h2" size="lg">
                       No migration waves available
@@ -519,7 +519,7 @@ export const MigrationWaves: React.FC = () => {
                   );
                 })}
               </ConditionalTableBody>
-            </TableComposable>
+            </Table>
             <SimplePagination
               idPrefix="migration-migration-waves-table"
               isTop={false}

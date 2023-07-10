@@ -154,7 +154,7 @@ export const BusinessServices: React.FC = () => {
     {
       title: "",
       props: {
-        className: "pf-u-text-align-right",
+        className: "pf-v5-u-text-align-right",
       },
     },
   ];

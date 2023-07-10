@@ -21,15 +21,12 @@ import {
   ToolbarItem,
   ToolbarToggleGroup,
 } from "@patternfly/react-core";
+import { cellWidth, ICell, IRow, TableText } from "@patternfly/react-table";
 import {
-  cellWidth,
-  ICell,
-  IRow,
   Table,
   TableBody,
   TableHeader,
-  TableText,
-} from "@patternfly/react-table";
+} from "@patternfly/react-table/deprecated";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
@@ -163,7 +160,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
     {
       title: "",
       props: {
-        className: "pf-c-table__inline-edit-action",
+        className: "pf-v5-c-table__inline-edit-action",
       },
     },
   ];
@@ -190,7 +187,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
         },
         {
           title: (
-            <div className="pf-c-inline-edit__action pf-m-enable-editable">
+            <div className="pf-v5-c-inline-edit__action pf-v5-m-enable-editable">
               <Button
                 id="remove-rule-button"
                 type="button"
@@ -271,7 +268,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
         <>
           <div className="line">
             <Toolbar
-              className="pf-m-toggle-group-container"
+              className="pf-v5-m-toggle-group-container"
               collapseListedFiltersBreakpoint="xl"
               clearAllFilters={handleOnClearAllFilters}
               clearFiltersButtonText="clear Filter"
@@ -387,7 +384,8 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                   }
                   options={sourceIdentityOptions}
                   onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<Ref>;
+                    const selectionValue = selection as OptionWithValue<string>;
+                    // TODO PF v5
                     onChange(selectionValue.value);
                   }}
                 />
@@ -505,7 +503,10 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
             <MultipleFileUpload
               onFileDrop={handleFileDrop}
               dropzoneProps={{
-                accept: ".yml, .yaml, .xml",
+                accept: {
+                  "text/yaml": [".yml", ".yaml"],
+                  "text/xml": [".xml"],
+                },
               }}
             >
               <MultipleFileUploadMain

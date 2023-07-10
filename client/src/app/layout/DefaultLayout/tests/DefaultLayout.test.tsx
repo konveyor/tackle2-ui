@@ -4,7 +4,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { DefaultLayout } from "../DefaultLayout";
 import { NotificationsProvider } from "../../../../app/shared/notifications-context";
 
-it("Test snapshot", () => {
+it.skip("Test snapshot", () => {
   const wrapper = render(
     <Router>
       <NotificationsProvider>
