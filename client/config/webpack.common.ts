@@ -1,26 +1,27 @@
 import path from "path";
+import { Configuration, WatchIgnorePlugin } from "webpack";
+import CaseSensitivePathsPlugin from "case-sensitive-paths-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
 import Dotenv from "dotenv-webpack";
 import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
-import { Configuration, WatchIgnorePlugin } from "webpack";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
+
 import { LANGUAGES_BY_FILE_EXTENSION } from "./monacoConstants";
 
 const BG_IMAGES_DIRNAME = "images";
+const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
 
 const config: Configuration = {
   entry: {
-    app: [
-      "react-hot-loader/patch",
-      path.resolve(__dirname, "../src/index.tsx"),
-    ],
+    app: ["react-hot-loader/patch", pathTo("../src/index.tsx")],
   },
+
   output: {
-    filename: "[name].bundle.js",
-    path: path.resolve(__dirname, "../dist"),
+    path: pathTo("../dist"),
     publicPath: "auto",
     clean: true,
   },
+
   module: {
     rules: [
       {
@@ -37,23 +38,15 @@ const config: Configuration = {
         // only process modules with this loader
         // if they live under a 'fonts' or 'pficon' directory
         include: [
-          path.resolve(__dirname, "../../node_modules/patternfly/dist/fonts"),
-          path.resolve(
-            __dirname,
+          pathTo("../../node_modules/patternfly/dist/fonts"),
+          pathTo(
             "../../node_modules/@patternfly/react-core/dist/styles/assets/fonts"
           ),
-          path.resolve(
-            __dirname,
+          pathTo(
             "../../node_modules/@patternfly/react-core/dist/styles/assets/pficon"
           ),
-          path.resolve(
-            __dirname,
-            "../../node_modules/@patternfly/patternfly/assets/fonts"
-          ),
-          path.resolve(
-            __dirname,
-            "../../node_modules/@patternfly/patternfly/assets/pficon"
-          ),
+          pathTo("../../node_modules/@patternfly/patternfly/assets/fonts"),
+          pathTo("../../node_modules/@patternfly/patternfly/assets/pficon"),
         ],
         use: {
           loader: "file-loader",
@@ -67,7 +60,7 @@ const config: Configuration = {
       },
       {
         test: /\.(xsd)$/,
-        include: [path.resolve(__dirname, "../src")],
+        include: [pathTo("../src")],
         use: {
           loader: "raw-loader",
           options: {
@@ -118,30 +111,22 @@ const config: Configuration = {
       {
         test: /\.(jpg|jpeg|png|gif)$/i,
         include: [
-          path.resolve(__dirname, "../src"),
-          path.resolve(__dirname, "../../node_modules/patternfly"),
-          path.resolve(
-            __dirname,
-            "../../node_modules/@patternfly/patternfly/assets/images"
-          ),
-          path.resolve(
-            __dirname,
+          pathTo("../src"),
+          pathTo("../../node_modules/patternfly"),
+          pathTo("../../node_modules/@patternfly/patternfly/assets/images"),
+          pathTo(
             "../../node_modules/@patternfly/react-styles/css/assets/images"
           ),
-          path.resolve(
-            __dirname,
+          pathTo(
             "../../node_modules/@patternfly/react-core/dist/styles/assets/images"
           ),
-          path.resolve(
-            __dirname,
+          pathTo(
             "../../node_modules/@patternfly/react-core/node_modules/@patternfly/react-styles/css/assets/images"
           ),
-          path.resolve(
-            __dirname,
+          pathTo(
             "../../node_modules/@patternfly/react-table/node_modules/@patternfly/react-styles/css/assets/images"
           ),
-          path.resolve(
-            __dirname,
+          pathTo(
             "../../node_modules/@patternfly/react-inline-edit-extension/node_modules/@patternfly/react-styles/css/assets/images"
           ),
         ],
@@ -158,7 +143,7 @@ const config: Configuration = {
         type: "javascript/auto",
       },
       {
-        test: path.resolve(__dirname, "../../node_modules/xmllint/xmllint.js"),
+        test: pathTo("../../node_modules/xmllint/xmllint.js"),
         loader: "exports-loader",
         options: {
           exports: "xmllint",
@@ -167,7 +152,7 @@ const config: Configuration = {
       // For monaco-editor-webpack-plugin
       {
         test: /\.css$/,
-        include: [path.resolve(__dirname, "../../node_modules/monaco-editor")],
+        include: [pathTo("../../node_modules/monaco-editor")],
         use: ["style-loader", "css-loader"],
       },
       // For monaco-editor-webpack-plugin
@@ -177,7 +162,9 @@ const config: Configuration = {
       },
     ],
   },
+
   plugins: [
+    new CaseSensitivePathsPlugin(),
     new Dotenv({
       systemvars: true,
       silent: true,
@@ -185,23 +172,16 @@ const config: Configuration = {
     new CopyPlugin({
       patterns: [
         {
-          from: path.resolve(__dirname, "../public/locales"),
-          to: path.resolve(__dirname, "../dist/locales"),
-        },
-        // TODO revisit to optimize ?
-        {
-          from: path.resolve(__dirname, "../public/manifest.json"),
-          to: path.resolve(__dirname, "../dist/manifest.json"),
+          from: pathTo("../public/locales"),
+          to: pathTo("../dist/locales"),
         },
         {
-          from: path.resolve(
-            __dirname,
-            "../public/template_application_import.csv"
-          ),
-          to: path.resolve(
-            __dirname,
-            "../dist/template_application_import.csv"
-          ),
+          from: pathTo("../public/manifest.json"),
+          to: pathTo("../dist/manifest.json"),
+        },
+        {
+          from: pathTo("../public/template_application_import.csv"),
+          to: pathTo("../dist/template_application_import.csv"),
         },
       ],
     }),
@@ -209,9 +189,11 @@ const config: Configuration = {
       paths: [/\.js$/, /\.d\.ts$/],
     }),
     new MonacoWebpackPlugin({
+      filename: "monaco/[name].worker.js",
       languages: Object.values(LANGUAGES_BY_FILE_EXTENSION),
     }),
   ],
+
   resolve: {
     alias: {
       "react-dom": "@hot-loader/react-dom",
@@ -219,13 +201,14 @@ const config: Configuration = {
     extensions: [".js", ".ts", ".tsx", ".jsx"],
     plugins: [
       new TsconfigPathsPlugin({
-        configFile: path.resolve(__dirname, "../tsconfig.json"),
+        configFile: pathTo("../tsconfig.json"),
       }),
     ],
     symlinks: false,
     cacheWithContext: false,
     fallback: { crypto: false, fs: false, path: false },
   },
+
   externals: {
     // required by xmllint (but not really used in the browser)
     ws: "{}",

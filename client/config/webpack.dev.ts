@@ -1,17 +1,25 @@
 import path from "path";
 import merge from "webpack-merge";
-import commonWebpackConfiguration from "./webpack.common";
-import { stylePaths } from "./stylePaths";
-import HtmlWebpackPlugin from "html-webpack-plugin";
-import { getEncodedEnv } from "./envLookup";
 import { Configuration } from "webpack";
+import HtmlWebpackPlugin from "html-webpack-plugin";
 import "webpack-dev-server";
 
+import { getEncodedEnv } from "./envLookup";
+import { stylePaths } from "./stylePaths";
+import commonWebpackConfiguration from "./webpack.common";
+
 const brandType = process.env["PROFILE"] || "konveyor";
+const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
 
 const config = merge<Configuration>(commonWebpackConfiguration, {
   mode: "development",
   devtool: "eval-source-map",
+  output: {
+    filename: "[name].js",
+    chunkFilename: "js/[name].js",
+    assetModuleFilename: "assets/[name][ext]",
+  },
+
   devServer: {
     port: 9000,
     proxy: {
@@ -23,15 +31,13 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
       disableDotRule: true,
     },
   },
-  optimization: {
-    runtimeChunk: "single",
-  },
+
   plugins: [
     new HtmlWebpackPlugin({
       // In dev mode, populate window._env at build time
       filename: "index.html",
-      template: path.resolve(__dirname, "../public/index.html.ejs"),
-      favicon: path.resolve(__dirname, `../public/${brandType}-favicon.ico`),
+      template: pathTo("../public/index.html.ejs"),
+      favicon: pathTo(`../public/${brandType}-favicon.ico`),
       templateParameters: {
         _env: getEncodedEnv(),
         brandType,

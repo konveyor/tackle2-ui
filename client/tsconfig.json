@@ -1,37 +1,43 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+
   "include": ["src/**/*"],
+
   "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
     "outDir": "dist",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "sourceMap": true,
-    "allowJs": true,
-    "checkJs": true,
-    "downlevelIteration": true,
-    "importHelpers": true,
-    "noEmitHelpers": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "jsx": "react",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noImplicitAny": true,
-    "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
       "@app/*": ["src/app/*"],
-      "@assets/*": ["../node_modules/@patternfly/react-core/dist/styles/assets/*"]
+      "@assets/*": [
+        "../node_modules/@patternfly/react-core/dist/styles/assets/*"
+      ]
     },
+
+    "target": "es2020",
+    "module": "es2020",
+    "moduleResolution": "node",
+
+    "allowJs": true,
+    "checkJs": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react",
+    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strict": true, // Includes alwaysStrict and noImplicitAny
-    "noUnusedParameters": false, // TODO: activate when fixed
+    "sourceMap": true,
+    "strict": true,
+
     "noUnusedLocals": false, // TODO: activate when fixed
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
+    "noUnusedParameters": false, // TODO: activate when fixed
+
     "noEmit": true
   },
+
+  "ts-node": {
+    "files": true,
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "commonjs" // allow webpack config to be typescript
+    }
+  }
 }
