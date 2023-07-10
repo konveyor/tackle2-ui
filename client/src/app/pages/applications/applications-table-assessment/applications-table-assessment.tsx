@@ -631,24 +631,18 @@ export const ApplicationsTable: React.FC = () => {
     ? [
         <ConditionalTooltip
           key="delete-app-tooltip"
-          isTooltipEnabled={
-            selectedRows.length < 1 ||
-            selectedRows.some(
-              (application) => application.migrationWave !== null
-            )
-          }
+          isTooltipEnabled={selectedRows.some(
+            (application) => application.migrationWave !== null
+          )}
           content={
             "Cannot delete application(s) assigned to migration wave(s)."
           }
         >
           <DropdownItem
             key="applications-bulk-delete"
-            isDisabled={
-              selectedRows.length < 1 ||
-              selectedRows.some(
-                (application) => application.migrationWave !== null
-              )
-            }
+            isDisabled={selectedRows.some(
+              (application) => application.migrationWave !== null
+            )}
             onClick={() => {
               openBulkDeleteModal(selectedRows);
             }}
