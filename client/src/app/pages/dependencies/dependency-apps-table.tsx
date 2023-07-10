@@ -1,14 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
-import {
-  TableComposable,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useSelectionState } from "@migtools/lib-ui";
 import { AnalysisDependency } from "@app/api/models";
@@ -52,7 +45,6 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
       relationship: "Relationship",
     },
     sortableColumns: ["name", "version"],
-    // sortableColumns: ["application", "version", "relationship"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
       {
@@ -153,7 +145,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-      <TableComposable {...tableProps} aria-label="Affected files table">
+      <Table {...tableProps} aria-label="Dependency applications table">
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
@@ -215,9 +207,9 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
             ))}
           </Tbody>
         </ConditionalTableBody>
-      </TableComposable>
+      </Table>
       <SimplePagination
-        idPrefix="affected-files-table"
+        idPrefix="dependency-apps-table"
         isTop={false}
         isCompact
         paginationProps={paginationProps}
