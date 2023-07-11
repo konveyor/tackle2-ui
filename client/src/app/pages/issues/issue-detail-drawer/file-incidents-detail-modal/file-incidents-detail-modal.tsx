@@ -94,7 +94,7 @@ export const FileIncidentsDetailModal: React.FC<
           }
         >
           {[
-            ...firstFiveIncidents.map((incident, index) => (
+            firstFiveIncidents.map((incident, index) => (
               <Tab
                 key={incident.id}
                 eventKey={incident.id}
@@ -124,24 +124,24 @@ export const FileIncidentsDetailModal: React.FC<
                 ) : null}
               </Tab>
             )),
-            ...(totalNumIncidents > 5
-              ? [
-                  <Tab
-                    key="all"
-                    eventKey="all"
-                    title={`All incidents (${totalNumIncidents})`} // TODO i18n
-                  >
-                    <Alert
-                      isInline
-                      variant="info"
-                      className={spacing.mtMd}
-                      title="TODO"
-                    />
-                    <FileAllIncidentsTable fileReport={fileReport} />
-                  </Tab>,
-                ]
-              : []),
-          ]}
+            totalNumIncidents > 5 && [
+              <Tab
+                key="all"
+                eventKey="all"
+                title={`All incidents (${totalNumIncidents})`} // TODO i18n
+              >
+                <Alert
+                  isInline
+                  variant="info"
+                  className={spacing.mtMd}
+                  title="TODO"
+                />
+                <FileAllIncidentsTable fileReport={fileReport} />
+              </Tab>,
+            ],
+          ]
+            .flat(1)
+            .filter(Boolean)}
         </Tabs>
       )}
     </Modal>
