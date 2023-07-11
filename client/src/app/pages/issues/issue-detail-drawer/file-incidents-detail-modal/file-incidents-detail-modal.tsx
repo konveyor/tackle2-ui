@@ -58,11 +58,6 @@ export const FileIncidentsDetailModal: React.FC<
     isFetching ||
     (firstFiveIncidents.length > 0 && activeTabIncidentId === undefined);
 
-  // TODO render incident facts?
-  // TODO render documentation links? are those part of the markdown? where do we get them from the hub?
-
-  console.log({ activeTabIncidentId });
-
   return (
     <Modal
       title={fileReport.file}
@@ -133,7 +128,7 @@ export const FileIncidentsDetailModal: React.FC<
                   isInline
                   variant="info"
                   className={spacing.mtMd}
-                  title="TODO"
+                  title="Full details are only available for the first 5 incidents per file due to performance constraints." // TODO i18n
                 />
                 <FileAllIncidentsTable fileReport={fileReport} />
               </Tab>,
