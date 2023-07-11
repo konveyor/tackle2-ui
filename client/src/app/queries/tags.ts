@@ -31,7 +31,7 @@ export const useFetchTags = () => {
 
 export const useFetchTagCategories = () => {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: [TagCategoriesQueryKey],
+    queryKey: [TagCategoriesQueryKey, TagsQueryKey],
     queryFn: getTagCategories,
     onError: (error: AxiosError) => console.log("error, ", error),
   });
@@ -53,11 +53,11 @@ export const useCreateTagMutation = (
     mutationFn: createTag,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TagsQueryKey]);
+      queryClient.invalidateQueries([TagCategoriesQueryKey, TagsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([TagsQueryKey]);
+      queryClient.invalidateQueries([TagCategoriesQueryKey, TagsQueryKey]);
     },
   });
 };
@@ -91,11 +91,11 @@ export const useUpdateTagMutation = (
     mutationFn: updateTag,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TagsQueryKey]);
+      queryClient.invalidateQueries([TagCategoriesQueryKey, TagsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([TagsQueryKey]);
+      queryClient.invalidateQueries([TagCategoriesQueryKey, TagsQueryKey]);
     },
   });
 };
@@ -128,11 +128,11 @@ export const useDeleteTagMutation = (
     mutationFn: deleteTag,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TagsQueryKey]);
+      queryClient.invalidateQueries([TagCategoriesQueryKey, TagsQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([TagsQueryKey]);
+      queryClient.invalidateQueries([TagCategoriesQueryKey, TagsQueryKey]);
     },
   });
 };
