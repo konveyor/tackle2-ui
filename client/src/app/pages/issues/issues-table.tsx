@@ -17,6 +17,7 @@ import {
   EmptyStateIcon,
   Title,
   Button,
+  TextContent,
 } from "@patternfly/react-core";
 import {
   Table,
@@ -71,6 +72,8 @@ import { Paths } from "@app/Paths";
 import { AffectedAppsLink } from "./affected-apps-link";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 import { IssueDetailDrawer } from "./issue-detail-drawer";
+import { markdownPFComponents } from "@app/components/markdown-pf-components";
+import ReactMarkdown from "react-markdown";
 
 export interface IIssuesTableProps {
   mode: "allIssues" | "singleApp";
@@ -527,9 +530,11 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                             </div>
                           </FlexItem>
                           <FlexItem flex={{ default: "flex_1" }}>
-                            <Text component={TextVariants.h4}>
-                              {report.description}
-                            </Text>
+                            <TextContent className={spacing.mrLg}>
+                              <ReactMarkdown components={markdownPFComponents}>
+                                {report.description}
+                              </ReactMarkdown>
+                            </TextContent>
                           </FlexItem>
                         </Flex>
                       </ExpandableRowContent>
