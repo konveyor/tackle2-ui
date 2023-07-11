@@ -173,7 +173,7 @@ export const useApplicationsFilterValues = (
     item.businessService?.name || "",
     "",
     ...(tableType === ApplicationTableType.Assessment ? [""] : []),
-    item.tags?.length || "",
+    item.tags?.length || 0,
     "", // Action column
   ];
 
