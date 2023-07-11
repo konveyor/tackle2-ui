@@ -23,7 +23,7 @@
     "@migtools/lib-ui": "^9.0.1",
     "@patternfly/patternfly": "5.0.0-prerelease.13",
     "@patternfly/react-charts": "7.0.0-prerelease.9",
-    "@patternfly/react-code-editor": "5.0.0-prerelease.18",
+    "@patternfly/react-code-editor": "5.0.0-prerelease.19",
     "@patternfly/react-core": "5.0.0-prerelease.18",
     "@patternfly/react-table": "5.0.0-prerelease.18",
     "@patternfly/react-tokens": "5.0.0-prerelease.6",
