@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import ReactMarkdown from "react-markdown";
 import {
   Button,
   Grid,
@@ -20,9 +19,9 @@ import {
   NoDataEmptyState,
   StateError,
 } from "@app/shared/components";
-import { markdownPFComponents } from "@app/components/markdown-pf-components";
 import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
 import { FileAllIncidentsTable } from "./file-all-incidents-table";
+import { IssueDescriptionAndLinks } from "../../components/issue-description-and-links";
 
 export interface IFileIncidentsDetailModalProps {
   issue: AnalysisIssue;
@@ -114,11 +113,11 @@ export const FileIncidentsDetailModal: React.FC<
                         <Text component="h2">{issue.name}</Text>
                         <Text component="small">Line {incident.line}</Text>
                       </TextContent>
-                      <TextContent className={spacing.mtLg}>
-                        <ReactMarkdown components={markdownPFComponents}>
-                          {incident.message}
-                        </ReactMarkdown>
-                      </TextContent>
+                      <IssueDescriptionAndLinks
+                        className={spacing.mtLg}
+                        description={incident.message}
+                        links={issue.links}
+                      />
                     </GridItem>
                   </Grid>
                 ) : null}

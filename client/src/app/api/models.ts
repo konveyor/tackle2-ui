@@ -563,6 +563,11 @@ export interface AnalysisDependency {
   // applications: { id: number; name: string }[];
 }
 
+export interface AnalysisIssueLink {
+  url: string;
+  title: string;
+}
+
 interface AnalysisIssuesCommonFields {
   name: string;
   description: string;
@@ -571,6 +576,7 @@ interface AnalysisIssuesCommonFields {
   category: string;
   effort: number;
   labels: string[];
+  links?: AnalysisIssueLink[];
 }
 
 // Hub type: Issue
