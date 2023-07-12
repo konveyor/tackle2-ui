@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import {
   TextContent,
   Text,
@@ -24,8 +23,8 @@ import { EmptyTextMessage } from "@app/shared/components";
 import { useFetchFacts } from "@app/queries/facts";
 import { ApplicationFacts } from "./application-facts";
 import { SimpleDocumentViewerModal } from "@app/shared/components/simple-task-viewer";
-import { getApplicationAnalysis, getTaskById } from "@app/api/rest";
-import { COLOR_NAMES_BY_HEX_VALUE } from "@app/Constants";
+import { getTaskById } from "@app/api/rest";
+import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 
 export interface IApplicationDetailDrawerAnalysisProps
   extends Pick<
@@ -119,7 +118,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                   icon={
                     <span className={spacing.mrXs}>
                       <ExclamationCircleIcon
-                        color={COLOR_NAMES_BY_HEX_VALUE.red}
+                        color={COLOR_HEX_VALUES_BY_NAME.red}
                       ></ExclamationCircleIcon>
                     </span>
                   }
@@ -135,7 +134,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
             ) : (
               <span className={spacing.mlSm}>
                 <ExclamationCircleIcon
-                  color={COLOR_NAMES_BY_HEX_VALUE.red}
+                  color={COLOR_HEX_VALUES_BY_NAME.red}
                 ></ExclamationCircleIcon>
                 Failed
               </span>
@@ -147,7 +146,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                   icon={
                     <span className={spacing.mrXs}>
                       <ExclamationCircleIcon
-                        color={COLOR_NAMES_BY_HEX_VALUE.blue}
+                        color={COLOR_HEX_VALUES_BY_NAME.blue}
                       ></ExclamationCircleIcon>
                     </span>
                   }
