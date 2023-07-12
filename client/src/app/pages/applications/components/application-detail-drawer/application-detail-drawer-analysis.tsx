@@ -25,6 +25,7 @@ import { useFetchFacts } from "@app/queries/facts";
 import { ApplicationFacts } from "./application-facts";
 import { SimpleDocumentViewerModal } from "@app/shared/components/simple-task-viewer";
 import { getApplicationAnalysis, getTaskById } from "@app/api/rest";
+import { COLOR_NAMES_BY_HEX_VALUE } from "@app/Constants";
 
 export interface IApplicationDetailDrawerAnalysisProps
   extends Pick<
@@ -110,12 +111,6 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                   View analysis
                 </Button>
               </Tooltip>
-              <SimpleDocumentViewerModal<string>
-                title={`Analysis for ${application?.name}`}
-                fetch={getApplicationAnalysis}
-                documentId={appAnalysisToView}
-                onClose={() => setAppAnalysisToView(undefined)}
-              />
             </>
           ) : task?.state === "Failed" ? (
             task ? (
@@ -123,7 +118,9 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                 <Button
                   icon={
                     <span className={spacing.mrXs}>
-                      <ExclamationCircleIcon color="#c9190b"></ExclamationCircleIcon>
+                      <ExclamationCircleIcon
+                        color={COLOR_NAMES_BY_HEX_VALUE.red}
+                      ></ExclamationCircleIcon>
                     </span>
                   }
                   type="button"
@@ -134,25 +131,50 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                 >
                   Analysis details
                 </Button>
-                <SimpleDocumentViewerModal<Task | string>
-                  title={`Analysis details for ${application?.name}`}
-                  fetch={getTaskById}
-                  documentId={taskIdToView}
-                  onClose={() => setTaskIdToView(undefined)}
-                />
               </>
             ) : (
               <span className={spacing.mlSm}>
-                <ExclamationCircleIcon color="#c9190b"></ExclamationCircleIcon>
+                <ExclamationCircleIcon
+                  color={COLOR_NAMES_BY_HEX_VALUE.red}
+                ></ExclamationCircleIcon>
                 Failed
               </span>
             )
           ) : (
-            notAvailable
+            <>
+              {task ? (
+                <Button
+                  icon={
+                    <span className={spacing.mrXs}>
+                      <ExclamationCircleIcon
+                        color={COLOR_NAMES_BY_HEX_VALUE.blue}
+                      ></ExclamationCircleIcon>
+                    </span>
+                  }
+                  type="button"
+                  variant="link"
+                  onClick={() => setTaskIdToView(task?.id)}
+                  className={spacing.ml_0}
+                  style={{ margin: "0", padding: "0" }}
+                >
+                  Analysis details
+                </Button>
+              ) : (
+                notAvailable
+              )}
+            </>
           )}
+          <SimpleDocumentViewerModal<Task | string>
+            title={`Analysis details for ${application?.name}`}
+            fetch={getTaskById}
+            documentId={taskIdToView}
+            onClose={() => setTaskIdToView(undefined)}
+          />
         </TextContent>
       }
-      factsTabContent={!isFetching && <ApplicationFacts facts={facts} />}
+      factsTabContent={
+        !isFetching && !!facts.length && <ApplicationFacts facts={facts} />
+      }
     />
   );
 };
