@@ -128,7 +128,7 @@ export const FileIncidentsDetailModal: React.FC<
                   isInline
                   variant="info"
                   className={spacing.mtMd}
-                  title="Full details are only available for the first 5 incidents per file due to performance constraints." // TODO i18n
+                  title="Highlights available for the first 5 incidents per file to enhance system performance." // TODO i18n
                 />
                 <FileAllIncidentsTable fileReport={fileReport} />
               </Tab>,
