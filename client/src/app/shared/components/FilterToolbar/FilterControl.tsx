@@ -29,6 +29,7 @@ export const FilterControl = <TItem, TFilterCategoryKey extends string>({
   if (category.type === FilterType.select) {
     return (
       <SelectFilterControl
+        isScrollable
         category={category as ISelectFilterCategory<TItem, TFilterCategoryKey>}
         {...props}
       />
@@ -49,6 +50,7 @@ export const FilterControl = <TItem, TFilterCategoryKey extends string>({
   if (category.type === FilterType.multiselect) {
     return (
       <MultiselectFilterControl
+        isScrollable
         category={
           category as IMultiselectFilterCategory<TItem, TFilterCategoryKey>
         }
