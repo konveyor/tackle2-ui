@@ -1,5 +1,8 @@
 import * as React from "react";
 import {
+  Button,
+  Label,
+  LabelGroup,
   PageSection,
   PageSectionVariants,
   Text,
@@ -27,24 +30,67 @@ import {
 import { useFetchDependencies } from "@app/queries/dependencies";
 import { useSelectionState } from "@migtools/lib-ui";
 import { getHubRequestParams } from "@app/shared/hooks/table-controls";
-import { PageDrawerContent } from "@app/shared/page-drawer-context";
+import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
+import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
+
+  const allAffectedApplicationsFilterCategories =
+    useSharedAffectedApplicationFilterCategories();
 
   const tableControlState = useTableControlUrlParams({
     columnNames: {
       name: "Dependency name",
       foundIn: "Found in",
+      provider: "Language",
+      labels: "Labels",
+      sha: "SHA",
       version: "Version",
     },
-    sortableColumns: ["name", "version"],
-    initialSort: null,
+    sortableColumns: ["name", "foundIn", "labels"],
+    initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
+      ...allAffectedApplicationsFilterCategories,
       {
         key: "name",
         title: t("terms.name"),
         type: FilterType.search,
+        filterGroup: "Dependency",
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.name").toLowerCase(),
+          }) + "...",
+        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
+      },
+      {
+        key: "provider",
+        title: t("terms.language"),
+        type: FilterType.search,
+        filterGroup: "Dependency",
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.language").toLowerCase(),
+          }) + "...",
+        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
+      },
+      {
+        key: "version",
+        title: t("terms.version"),
+        type: FilterType.search,
+        filterGroup: "Dependency",
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.label").toLowerCase(),
+          }) + "...",
+        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
+      },
+      {
+        key: "sha",
+        title: "SHA",
+        type: FilterType.search,
+        filterGroup: "Dependency",
         placeholderText:
           t("actions.filterBy", {
             what: t("terms.name").toLowerCase(),
@@ -66,7 +112,8 @@ export const Dependencies: React.FC = () => {
       ...tableControlState, // Includes filterState, sortState and paginationState
       hubSortFieldKeys: {
         name: "name",
-        version: "version",
+        foundIn: "applications",
+        labels: "labels",
       },
     })
   );
@@ -95,7 +142,7 @@ export const Dependencies: React.FC = () => {
       getTdProps,
       getClickableTrProps,
     },
-    activeRowDerivedState: { activeRowItem, clearActiveRow },
+    activeRowDerivedState: { activeRowItem, clearActiveRow, setActiveRowItem },
   } = tableControls;
 
   return (
@@ -129,7 +176,10 @@ export const Dependencies: React.FC = () => {
                 <TableHeaderContentWithControls {...tableControls}>
                   <Th {...getThProps({ columnKey: "name" })} />
                   <Th {...getThProps({ columnKey: "foundIn" })} />
+                  <Th {...getThProps({ columnKey: "provider" })} />
+                  <Th {...getThProps({ columnKey: "labels" })} />
                   <Th {...getThProps({ columnKey: "version" })} />
+                  <Th {...getThProps({ columnKey: "sha" })} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -155,15 +205,44 @@ export const Dependencies: React.FC = () => {
                           width={10}
                           {...getTdProps({ columnKey: "foundIn" })}
                         >
-                          {/* TODO - the applications property disappeared in the API? */}
-                          {/*dependency.applications.length} applications*/}
-                          TODO
+                          <Button
+                            className={spacing.pl_0}
+                            variant="link"
+                            onClick={(_) => {
+                              if (
+                                activeRowItem &&
+                                activeRowItem === dependency
+                              ) {
+                                clearActiveRow();
+                              } else {
+                                setActiveRowItem(dependency);
+                              }
+                            }}
+                          >
+                            {`${dependency.applications} application(s)`}
+                          </Button>
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "provider" })}
+                        >
+                          {dependency.provider}
+                        </Td>
+                        <Td width={10} {...getTdProps({ columnKey: "labels" })}>
+                          <LabelGroup>
+                            {dependency?.labels?.map((label) => {
+                              return <Label>{label}</Label>;
+                            })}
+                          </LabelGroup>
                         </Td>
                         <Td
                           width={10}
                           {...getTdProps({ columnKey: "version" })}
                         >
                           {dependency.version}
+                        </Td>
+                        <Td width={10} {...getTdProps({ columnKey: "sha" })}>
+                          {dependency.sha}
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>
@@ -179,14 +258,10 @@ export const Dependencies: React.FC = () => {
           />
         </div>
       </PageSection>
-      <PageDrawerContent
-        isExpanded={!!activeRowItem}
-        onCloseClick={clearActiveRow}
-        focusKey={activeRowItem?.name}
-        pageKey="analysis-dependencies"
-      >
-        TODO details about dependency {activeRowItem?.name} here!
-      </PageDrawerContent>
+      <DependencyAppsDetailDrawer
+        dependency={activeRowItem || null}
+        onCloseClick={() => setActiveRowItem(null)}
+      ></DependencyAppsDetailDrawer>
     </>
   );
 };

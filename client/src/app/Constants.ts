@@ -241,4 +241,5 @@ export enum TableURLParamKeyPrefix {
   issuesAffectedApps = "ia",
   issuesAffectedFiles = "if",
   issuesRemainingIncidents = "ii",
+  dependencyApplications = "da",
 }

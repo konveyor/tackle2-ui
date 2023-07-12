@@ -557,10 +557,27 @@ export interface TrackerProjectIssuetype {
 export interface AnalysisDependency {
   createTime: string;
   name: string;
+  provider: string;
   version: string;
-  // TODO where did these properties go?
-  // indirect?: boolean;
-  // applications: { id: number; name: string }[];
+  sha: string;
+  applications: number;
+  labels: string[];
+}
+
+export interface AnalysisAppDependency {
+  id: number;
+  name: string;
+  description: string;
+  businessService: string;
+  dependency: {
+    id: number;
+    name: string;
+    version: string;
+    provider: string;
+    indirect: boolean;
+    //TODO: Glean from labels somehow
+    // management?: string;
+  };
 }
 
 interface AnalysisIssuesCommonFields {
