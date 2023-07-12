@@ -30,7 +30,7 @@ import { FilterToolbar } from "@app/shared/components/FilterToolbar";
 import { useSelectionState } from "@migtools/lib-ui";
 import {
   getBackToAllIssuesUrl,
-  useSharedFilterCategoriesForIssuesAndAffectedApps,
+  useSharedAffectedApplicationFilterCategories,
 } from "../helpers";
 import { IssueDetailDrawer } from "../issue-detail-drawer";
 import { TableURLParamKeyPrefix } from "@app/Constants";
@@ -59,7 +59,7 @@ export const AffectedApplications: React.FC = () => {
     },
     sortableColumns: ["name", "businessService", "effort", "incidents"],
     initialSort: { columnKey: "name", direction: "asc" },
-    filterCategories: useSharedFilterCategoriesForIssuesAndAffectedApps(),
+    filterCategories: useSharedAffectedApplicationFilterCategories(),
     initialItemsPerPage: 10,
     // TODO PF V5 obsolete
     // hasClickableRows: true,
