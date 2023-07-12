@@ -11,7 +11,6 @@ import {
   Text,
   Label,
   LabelGroup,
-  TextVariants,
   EmptyState,
   EmptyStateBody,
   EmptyStateIcon,
@@ -71,6 +70,7 @@ import { Paths } from "@app/Paths";
 import { AffectedAppsLink } from "./affected-apps-link";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 import { IssueDetailDrawer } from "./issue-detail-drawer";
+import { IssueDescriptionAndLinks } from "./components/issue-description-and-links";
 
 export interface IIssuesTableProps {
   mode: "allIssues" | "singleApp";
@@ -100,6 +100,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
     columnNames: {
       name: "Issue",
+      description: "Description",
       category: "Category",
       source: "Source",
       target: "Target(s)",
@@ -309,6 +310,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
               <Th {...getThProps({ columnKey: "name" })} />
+              <Th {...getThProps({ columnKey: "description" })} />
               <Th {...getThProps({ columnKey: "category" })} />
               <Th {...getThProps({ columnKey: "source" })} />
               <Th {...getThProps({ columnKey: "target" })} />
@@ -351,10 +353,21 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                     item={report}
                     rowIndex={rowIndex}
                   >
-                    <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                    <Td
+                      width={15}
+                      {...getTdProps({ columnKey: "name" })}
+                      modifier="truncate"
+                    >
                       {report.name}
                     </Td>
-                    <Td width={15} {...getTdProps({ columnKey: "category" })}>
+                    <Td
+                      width={25}
+                      {...getTdProps({ columnKey: "description" })}
+                      modifier="truncate"
+                    >
+                      {report.description.split("\n")[0]}
+                    </Td>
+                    <Td width={10} {...getTdProps({ columnKey: "category" })}>
                       {report.category}
                     </Td>
                     <Td
@@ -369,7 +382,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                       />
                     </Td>
                     <Td
-                      width={20}
+                      width={10}
                       modifier="nowrap"
                       noPadding
                       {...getTdProps({ columnKey: "target" })}
@@ -527,9 +540,11 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                             </div>
                           </FlexItem>
                           <FlexItem flex={{ default: "flex_1" }}>
-                            <Text component={TextVariants.h4}>
-                              {report.description}
-                            </Text>
+                            <IssueDescriptionAndLinks
+                              className={spacing.mrLg}
+                              description={report.description}
+                              links={report.links}
+                            />
                           </FlexItem>
                         </Flex>
                       </ExpandableRowContent>
