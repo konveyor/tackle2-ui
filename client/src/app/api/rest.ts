@@ -6,7 +6,6 @@ import {
   BaseAnalysisRuleReport,
   BaseAnalysisIssueReport,
   AnalysisIssue,
-  AnalysisAppReport,
   AnalysisFileReport,
   AnalysisIncident,
   Application,
@@ -47,6 +46,8 @@ import {
   TrackerProjectIssuetype,
   Fact,
   UnstructuredFact,
+  AnalysisAppDependency,
+  AnalysisAppReport,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
@@ -86,7 +87,7 @@ export const RULESETS = HUB + "/rulesets";
 export const FILES = HUB + "/files";
 export const CACHE = HUB + "/cache/m2";
 
-export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/dependencies";
+export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/report/dependencies";
 export const ANALYSIS_REPORT_RULES = HUB + "/analyses/report/rules";
 export const ANALYSIS_REPORT_ISSUES_APPS =
   HUB + "/analyses/report/issues/applications";
@@ -94,6 +95,11 @@ export const ANALYSIS_REPORT_APP_ISSUES =
   HUB + "/analyses/report/applications/:applicationId/issues";
 export const ANALYSIS_REPORT_ISSUE_FILES =
   HUB + "/analyses/report/issues/:issueId/files";
+
+export const ANALYSIS_REPORT_APP_DEPENDENCIES =
+  HUB + "/analyses/report/dependencies/applications";
+
+export const ANALYSIS_REPORT_FILES = HUB + "/analyses/report/issues/:id/files";
 export const ANALYSIS_ISSUES = HUB + "/analyses/issues";
 export const ANALYSIS_ISSUE_INCIDENTS =
   HUB + "/analyses/issues/:issueId/incidents";
@@ -616,8 +622,7 @@ export const getIssueReports = (
     ANALYSIS_REPORT_APP_ISSUES.replace(
       "/:applicationId/",
       `/${String(applicationId)}/`
-    ),
-    params
+    )
   );
 
 export const getIssues = (params: HubRequestParams = {}) =>
@@ -652,6 +657,12 @@ export const getIncidents = (issueId?: number, params: HubRequestParams = {}) =>
 
 export const getDependencies = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisDependency>(ANALYSIS_DEPENDENCIES, params);
+
+export const getAppDependencies = (params: HubRequestParams = {}) =>
+  getHubPaginatedResult<AnalysisAppDependency>(
+    ANALYSIS_REPORT_APP_DEPENDENCIES,
+    params
+  );
 
 // Tickets
 export const createTickets = (payload: New<Ticket>, applications: Ref[]) => {

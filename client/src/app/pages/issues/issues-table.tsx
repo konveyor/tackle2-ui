@@ -56,9 +56,9 @@ import {
 } from "@app/shared/hooks/table-controls";
 
 import {
-  useSharedFilterCategoriesForIssuesAndAffectedApps,
   parseReportLabels,
   getIssuesSingleAppSelectedLocation,
+  useSharedAffectedApplicationFilterCategories,
 } from "./helpers";
 import { IssueFilterGroups } from "./issues";
 import {
@@ -94,7 +94,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
   };
 
   const allIssuesSpecificFilterCategories =
-    useSharedFilterCategoriesForIssuesAndAffectedApps();
+    useSharedAffectedApplicationFilterCategories();
 
   const tableControlState = useTableControlUrlParams({
     urlParamKeyPrefix: TableURLParamKeyPrefix.issues,

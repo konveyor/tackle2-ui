@@ -31,62 +31,64 @@ export type IssuesFilterValuesToCarry = Partial<
   Record<IssuesFilterKeyToCarry, FilterValue>
 >;
 
-export const useSharedFilterCategoriesForIssuesAndAffectedApps =
-  (): FilterCategory<unknown, IssuesFilterKeyToCarry>[] => {
-    const { t } = useTranslation();
-    const { tags } = useFetchTags();
-    const { businessServices } = useFetchBusinessServices();
+export const useSharedAffectedApplicationFilterCategories = (): FilterCategory<
+  unknown,
+  IssuesFilterKeyToCarry
+>[] => {
+  const { t } = useTranslation();
+  const { tags } = useFetchTags();
+  const { businessServices } = useFetchBusinessServices();
 
-    return [
-      {
-        key: "application.name",
-        title: t("terms.applicationName"),
-        filterGroup: IssueFilterGroups.ApplicationInventory,
-        type: FilterType.search,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.applicationName").toLowerCase(),
-          }) + "...",
-        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
-      },
-      {
-        key: "businessService.name",
-        title: t("terms.businessService"),
-        filterGroup: IssueFilterGroups.ApplicationInventory,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.businessService").toLowerCase(),
-          }) + "...",
-        type: FilterType.select,
-        selectOptions: businessServices
-          .map((businessService) => businessService.name)
-          .map((name) => ({ key: name, value: name })),
-      },
-      {
-        key: "tag.id",
-        title: t("terms.tags"),
-        filterGroup: IssueFilterGroups.ApplicationInventory,
-        type: FilterType.multiselect,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.tagName").toLowerCase(),
-          }) + "...",
-        selectOptions: [...new Set(tags.map((tag) => tag.name))].map(
-          (tagName) => ({ key: tagName, value: tagName })
+  return [
+    {
+      key: "application.name",
+      title: t("terms.applicationName"),
+      filterGroup: IssueFilterGroups.ApplicationInventory,
+      type: FilterType.search,
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.applicationName").toLowerCase(),
+        }) + "...",
+      getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
+    },
+    {
+      key: "businessService.name",
+      title: t("terms.businessService"),
+      filterGroup: IssueFilterGroups.ApplicationInventory,
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.businessService").toLowerCase(),
+        }) + "...",
+      type: FilterType.select,
+      selectOptions: businessServices
+        .map((businessService) => businessService.name)
+        .map((name) => ({ key: name, value: name })),
+    },
+    {
+      key: "tag.id",
+      title: t("terms.tags"),
+      filterGroup: IssueFilterGroups.ApplicationInventory,
+      type: FilterType.multiselect,
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.tagName").toLowerCase(),
+        }) + "...",
+      selectOptions: [...new Set(tags.map((tag) => tag.name))].map(
+        (tagName) => ({ key: tagName, value: tagName })
+      ),
+      // NOTE: The same tag name can appear in multiple tag categories.
+      //       To replicate the behavior of the app inventory page, selecting a tag name
+      //       will perform an OR filter matching all tags with that name across tag categories.
+      //       In the future we may instead want to present the tag select options to the user in category sections.
+      getServerFilterValue: (tagNames) =>
+        tagNames?.flatMap((tagName) =>
+          tags
+            .filter((tag) => tag.name === tagName)
+            .map((tag) => String(tag.id))
         ),
-        // NOTE: The same tag name can appear in multiple tag categories.
-        //       To replicate the behavior of the app inventory page, selecting a tag name
-        //       will perform an OR filter matching all tags with that name across tag categories.
-        //       In the future we may instead want to present the tag select options to the user in category sections.
-        getServerFilterValue: (tagNames) =>
-          tagNames?.flatMap((tagName) =>
-            tags
-              .filter((tag) => tag.name === tagName)
-              .map((tag) => String(tag.id))
-          ),
-      },
-    ];
-  };
+    },
+  ];
+};
 
 const FROM_ISSUES_PARAMS_KEY = "~fromIssuesParams"; // ~ prefix sorts it at the end of the URL for readability
 
