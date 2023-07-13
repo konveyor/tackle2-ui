@@ -129,15 +129,6 @@ export const Identities: React.FC = () => {
         return item.kind || "";
       },
     },
-    {
-      key: "createdBy",
-      title: "Created By",
-      type: FilterType.search,
-      placeholderText: "Filter by created by User...",
-      getItemValue: (item) => {
-        return item.createUser || "";
-      },
-    },
   ];
 
   const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
@@ -148,7 +139,6 @@ export const Identities: React.FC = () => {
     identity?.name || "",
     "", // description column
     identity?.kind || "",
-    identity?.createUser || "",
     "", // Action column
   ];
   const { sortBy, onSort, sortedItems } = useLegacySortState(
@@ -167,7 +157,6 @@ export const Identities: React.FC = () => {
     },
     { title: "Description", transforms: [cellWidth(25)] },
     { title: "Type", transforms: [sortable, cellWidth(20)] },
-    { title: "Created by", transforms: [sortable, cellWidth(10)] },
     {
       title: "",
       props: {
@@ -201,11 +190,6 @@ export const Identities: React.FC = () => {
             <TableText wrapModifier="truncate">
               {typeFormattedString?.value}
             </TableText>
-          ),
-        },
-        {
-          title: (
-            <TableText wrapModifier="truncate">{item.createUser}</TableText>
           ),
         },
         {
