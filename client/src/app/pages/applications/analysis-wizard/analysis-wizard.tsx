@@ -38,6 +38,7 @@ import { useAsyncYupValidation } from "@app/shared/hooks/useAsyncYupValidation";
 import { CustomRules } from "./custom-rules";
 import defaultSources from "./sources";
 import { useFetchIdentities } from "@app/queries/identities";
+import { useSetting } from "@app/queries/settings";
 
 interface IAnalysisWizard {
   applications: Application[];
@@ -91,6 +92,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const title = t("dialog.title.applicationAnalysis");
 
   const { identities } = useFetchIdentities();
+
+  const { data: isCSVDownloadEnabled } = useSetting("download.csv.enabled");
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -245,6 +248,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             ? `/binary/${fieldValues.artifact.name}`
             : "",
           diva: fieldValues.diva,
+          ...(isCSVDownloadEnabled && { csv: isCSVDownloadEnabled }),
         },
         scope: {
           withKnown: fieldValues.withKnown.includes("oss") ? true : false,
