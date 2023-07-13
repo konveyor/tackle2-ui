@@ -105,18 +105,12 @@ export const ApplicationDetailDrawer: React.FC<
             application && <ApplicationTags application={application} />
           )}
         </Tab>
-        {reportsTabContent && (
+        {reportsTabContent && task && (
           <Tab
             eventKey={TabKey.Reports}
             title={<TabTitleText>Reports</TabTitleText>}
           >
-            {task?.state === "Running" ? (
-              <Bullseye className={spacing.mtLg}>
-                <Spinner size="xl">Loading...</Spinner>
-              </Bullseye>
-            ) : (
-              reportsTabContent
-            )}
+            {reportsTabContent}
           </Tab>
         )}
         {factsTabContent && (
