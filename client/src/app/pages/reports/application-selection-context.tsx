@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelectionState, ISelectionState } from "@migtools/lib-ui";
 import { Application } from "@app/api/models";
-import { AppContainer } from "react-hot-loader";
 
 interface IApplicationSelectionContext extends ISelectionState<Application> {
   allItems: Application[];

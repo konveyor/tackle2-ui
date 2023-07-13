@@ -13,7 +13,7 @@ const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
 
 const config: Configuration = {
   entry: {
-    app: ["react-hot-loader/patch", pathTo("../src/index.tsx")],
+    app: [pathTo("../src/index.tsx")],
   },
 
   output: {
