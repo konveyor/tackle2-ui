@@ -25,12 +25,13 @@ const config: Configuration = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        loader: "ts-loader",
+        test: /\.[jt]sx?$/,
         exclude: /node_modules/,
-        options: {
-          // disable type checker for fork-ts-checker-webpack-plugin
-          transpileOnly: true,
+        use: {
+          loader: "ts-loader",
+          options: {
+            transpileOnly: true,
+          },
         },
       },
       {
