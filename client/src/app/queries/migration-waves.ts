@@ -8,7 +8,10 @@ import {
   deleteAllMigrationWaves,
 } from "@app/api/rest";
 import { getWavesWithStatus } from "@app/utils/waves-selector";
-import { TicketsQueryKey } from "./tickets";
+import { useFetchTickets } from "./tickets";
+import { TrackersQueryKey } from "./trackers";
+import { useFetchApplications } from "./applications";
+import { useFetchStakeholders } from "./stakeholders";
 
 export const MigrationWavesQueryKey = "migration-waves";
 
@@ -29,14 +32,19 @@ export const useCreateMigrationWaveMutation = (
 };
 
 export const useFetchMigrationWaves = () => {
+  const { tickets } = useFetchTickets();
+  const { stakeholders } = useFetchStakeholders();
+  const { data: applications } = useFetchApplications();
+
   const queryClient = useQueryClient();
   const { isLoading, error, refetch, data } = useQuery({
     queryKey: [MigrationWavesQueryKey],
     queryFn: getMigrationWaves,
     refetchInterval: 5000,
     onError: (error) => console.log("error, ", error),
-    onSuccess: () => queryClient.invalidateQueries([TicketsQueryKey]),
-    select: (waves) => getWavesWithStatus(queryClient, waves),
+    onSuccess: () => queryClient.invalidateQueries([TrackersQueryKey]),
+    select: (waves) =>
+      getWavesWithStatus(waves, tickets, stakeholders, applications),
   });
   return {
     migrationWaves: data || [],

@@ -78,9 +78,7 @@ export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const { migrationWaves, isFetching, fetchError, refetch } =
-    useFetchMigrationWaves();
-
+  const { migrationWaves, isFetching, fetchError } = useFetchMigrationWaves();
   const { trackers: trackers } = useFetchTrackers();
   const { data: applications } = useFetchApplications();
 

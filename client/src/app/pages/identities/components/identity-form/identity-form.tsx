@@ -690,6 +690,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             type={isPasswordHidden ? "password" : "text"}
             formGroupProps={{
               labelIcon: !isPasswordEncrypted ? (
+                // TODO: add info icon for auth text explanation
                 <KeyDisplayToggle
                   keyName="password"
                   isKeyHidden={isPasswordHidden}
@@ -707,12 +708,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           <HookFormPFTextInput
             control={control}
             name="key"
-            label={"key"}
+            label={"Token"}
             fieldId="key"
             isRequired={true}
             type={isKeyHidden ? "password" : "text"}
             formGroupProps={{
               labelIcon: !isKeyEncrypted ? (
+                // TODO: add info icon for auth text explanation
                 <KeyDisplayToggle
                   keyName="key"
                   isKeyHidden={isKeyHidden}

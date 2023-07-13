@@ -8,25 +8,14 @@ import {
   TicketStatus,
   WaveWithStatus,
 } from "@app/api/models";
-import { ApplicationsQueryKey } from "@app/queries/applications";
-import { StakeholdersQueryKey } from "@app/queries/stakeholders";
-import { TicketsQueryKey } from "@app/queries/tickets";
-import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 
 export const getWavesWithStatus = (
-  queryClient: QueryClient,
-  waves: MigrationWave[]
+  waves: MigrationWave[],
+  tickets: Ticket[],
+  stakeholders: StakeholderWithRole[],
+  applications: Application[]
 ) => {
-  const tickets = queryClient.getQueryData<Ticket[]>([TicketsQueryKey]) || [];
-
-  const stakeholders =
-    queryClient.getQueryData<StakeholderWithRole[]>([StakeholdersQueryKey]) ||
-    [];
-
-  const applications =
-    queryClient.getQueryData<Application[]>([ApplicationsQueryKey]) || [];
-
   const aggregatedTicketStatus = (
     wave: MigrationWave,
     tickets: Ticket[]
@@ -45,6 +34,13 @@ export const getWavesWithStatus = (
       }
     } else if (statuses.includes("New")) {
       return "Issues Created";
+    } else if (statuses.includes("In Progress")) {
+      return "In Progress";
+    } else if (
+      !!statuses.length &&
+      statuses.every((status) => status === "Done")
+    ) {
+      return "Completed";
     } else {
       return "Not Started";
     }
@@ -56,14 +52,16 @@ export const getWavesWithStatus = (
     wave: MigrationWave,
     tickets: Ticket[]
   ): TicketStatus[] =>
-    wave.applications.map((application): TicketStatus => {
-      const matchingTicket = getTicketByApplication(tickets, application.id);
-      if (matchingTicket?.error) {
-        return "Error";
-      } else if (matchingTicket?.status) {
-        return matchingTicket.status;
-      } else return "";
-    });
+    wave.applications
+      .map((application): TicketStatus => {
+        const matchingTicket = getTicketByApplication(tickets, application.id);
+        if (matchingTicket?.error) {
+          return "Error";
+        } else if (matchingTicket?.status) {
+          return matchingTicket.status;
+        } else return "";
+      })
+      .filter(Boolean);
 
   const getApplicationsOwners = (id: number) => {
     const applicationOwnerIds = applications

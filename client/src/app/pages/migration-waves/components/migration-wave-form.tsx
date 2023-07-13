@@ -78,7 +78,6 @@ export const WaveForm: React.FC<WaveFormProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const { migrationWaves } = useFetchMigrationWaves();
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const { stakeholders } = useFetchStakeholders();
