@@ -43,7 +43,6 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.43.1",
-    "react-hot-loader": "^4.13.1",
     "react-i18next": "^11.8.5",
     "react-image-file-resizer": "^0.4.8",
     "react-markdown": "^8.0.7",
@@ -57,6 +56,7 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
     "@testing-library/dom": "^8.14.0",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.2",
@@ -85,7 +85,7 @@
     "eslint-webpack-plugin": "^3.1.1",
     "exports-loader": "^3.1.0",
     "file-loader": "^6.2.0",
-    "fork-ts-checker-webpack-plugin": "^7.2.1",
+    "fork-ts-checker-webpack-plugin": "^8.0.0",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^8.0.3",
     "i18next-parser": "^0.13.0",
@@ -97,6 +97,8 @@
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.3",
     "raw-loader": "^4.0.2",
+    "react-refresh": "^0.14.0",
+    "react-refresh-typescript": "^2.0.9",
     "sass-loader": "^12.4.0",
     "source-map-explorer": "^2.5.2",
     "style-loader": "^3.3.1",
@@ -106,12 +108,13 @@
     "ts-loader": "^9.4.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths-webpack-plugin": "^4.0.0",
+    "type-fest": "^3.13.0",
     "typescript": "^4.8.4",
     "url-loader": "^4.1.1",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.11.1",
-    "webpack-merge": "^5.8.0"
+    "webpack-merge": "^5.9.0"
   },
   "eslintConfig": {
     "extends": [
