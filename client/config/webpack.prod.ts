@@ -28,6 +28,16 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
     ],
   },
 
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        include: [...stylePaths],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
+      },
+    ],
+  },
+
   plugins: [
     new MiniCssExtractPlugin({
       filename: "[name].[contenthash:8].css",
@@ -48,16 +58,6 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
       NODE_ENV: "production",
     }),
   ],
-
-  module: {
-    rules: [
-      {
-        test: /\.css$/,
-        include: [...stylePaths],
-        use: [MiniCssExtractPlugin.loader, "css-loader"],
-      },
-    ],
-  },
 });
 
 export default config;

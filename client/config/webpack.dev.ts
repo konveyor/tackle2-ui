@@ -1,9 +1,11 @@
 import path from "path";
-import merge from "webpack-merge";
-import { Configuration } from "webpack";
+import { mergeWithRules } from "webpack-merge";
 import HtmlWebpackPlugin from "html-webpack-plugin";
-import "webpack-dev-server";
+import ReactRefreshTypeScript from "react-refresh-typescript";
+import ReactRefreshWebpackPlugin from "@pmmmwh/react-refresh-webpack-plugin";
+import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 
+import "webpack-dev-server";
 import { getEncodedEnv } from "./envLookup";
 import { stylePaths } from "./stylePaths";
 import commonWebpackConfiguration from "./webpack.common";
@@ -11,7 +13,17 @@ import commonWebpackConfiguration from "./webpack.common";
 const brandType = process.env["PROFILE"] || "konveyor";
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
 
-const config = merge<Configuration>(commonWebpackConfiguration, {
+const config = mergeWithRules({
+  module: {
+    rules: {
+      test: "match",
+      use: {
+        loader: "match",
+        options: "replace",
+      },
+    },
+  },
+})(commonWebpackConfiguration, {
   mode: "development",
   devtool: "eval-source-map",
   output: {
@@ -30,9 +42,39 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
     historyApiFallback: {
       disableDotRule: true,
     },
+    hot: true,
+  },
+
+  module: {
+    rules: [
+      {
+        test: /\.[jt]sx?$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "ts-loader",
+          options: {
+            transpileOnly: true, // HMR in webpack-dev-server requires transpileOnly
+            getCustomTransformers: () => ({
+              before: [ReactRefreshTypeScript()],
+            }),
+          },
+        },
+      },
+      {
+        test: /\.css$/,
+        include: [...stylePaths],
+        use: ["style-loader", "css-loader"],
+      },
+    ],
   },
 
   plugins: [
+    new ReactRefreshWebpackPlugin(),
+    new ForkTsCheckerWebpackPlugin({
+      typescript: {
+        mode: "readonly",
+      },
+    }),
     new HtmlWebpackPlugin({
       // In dev mode, populate window._env at build time
       filename: "index.html",
@@ -45,14 +87,8 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
     }),
   ],
 
-  module: {
-    rules: [
-      {
-        test: /\.css$/,
-        include: [...stylePaths],
-        use: ["style-loader", "css-loader"],
-      },
-    ],
+  watchOptions: {
+    ignored: /node_modules/, // adjust this pattern if using monorepo linked packages
   },
 });
 export default config;
