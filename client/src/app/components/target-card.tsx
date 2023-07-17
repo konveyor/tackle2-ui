@@ -7,13 +7,13 @@ import {
   Card,
   CardBody,
   Text,
-  DropdownItem,
   Flex,
   FlexItem,
   Button,
   ButtonVariant,
   Label,
 } from "@patternfly/react-core";
+import { DropdownItem } from "@patternfly/react-core/deprecated";
 import {
   Select,
   SelectOption,

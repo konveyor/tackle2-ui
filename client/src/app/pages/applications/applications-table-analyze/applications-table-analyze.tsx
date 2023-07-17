@@ -6,12 +6,12 @@ import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-
 import {
   Button,
   ButtonVariant,
-  DropdownItem,
   Modal,
   ToolbarGroup,
   ToolbarItem,
   TooltipPosition,
 } from "@patternfly/react-core";
+import { DropdownItem } from "@patternfly/react-core/deprecated";
 import {
   cellWidth,
   IAction,
