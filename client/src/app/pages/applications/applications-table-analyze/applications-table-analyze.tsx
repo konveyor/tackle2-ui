@@ -464,7 +464,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         >
           <DropdownItem
             key="applications-bulk-delete"
-            isDisabled={selectedRows.some(
+            isAriaDisabled={selectedRows.some(
               (application) => application.migrationWave !== null
             )}
             onClick={() => {

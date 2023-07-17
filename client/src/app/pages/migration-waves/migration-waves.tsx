@@ -434,7 +434,9 @@ export const MigrationWaves: React.FC = () => {
                                       >
                                         <DropdownItem
                                           key="manage-app"
-                                          isDisabled={applications.length === 0}
+                                          isAriaDisabled={
+                                            applications.length === 0
+                                          }
                                           onClick={() => {
                                             setWaveToManageModalState(
                                               migrationWave
