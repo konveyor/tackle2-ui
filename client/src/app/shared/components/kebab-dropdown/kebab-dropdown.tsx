@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Dropdown, KebabToggle } from "@patternfly/react-core/deprecated";
 
 export interface IKebabDropdownProps {
-  dropdownItems?: any[];
+  dropdownItems?: React.ReactNode[];
 }
 
 export const KebabDropdown: React.FC<IKebabDropdownProps> = ({
