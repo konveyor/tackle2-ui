@@ -2,7 +2,6 @@ import * as React from "react";
 import {
   Button,
   ButtonVariant,
-  DropdownItem,
   EmptyState,
   EmptyStateBody,
   EmptyStateIcon,
@@ -18,6 +17,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { DropdownItem } from "@patternfly/react-core/deprecated";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -434,7 +434,9 @@ export const MigrationWaves: React.FC = () => {
                                       >
                                         <DropdownItem
                                           key="manage-app"
-                                          isDisabled={applications.length === 0}
+                                          isAriaDisabled={
+                                            applications.length === 0
+                                          }
                                           onClick={() => {
                                             setWaveToManageModalState(
                                               migrationWave

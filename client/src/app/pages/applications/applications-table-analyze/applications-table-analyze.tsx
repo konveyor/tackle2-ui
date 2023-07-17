@@ -6,12 +6,12 @@ import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-
 import {
   Button,
   ButtonVariant,
-  DropdownItem,
   Modal,
   ToolbarGroup,
   ToolbarItem,
   TooltipPosition,
 } from "@patternfly/react-core";
+import { DropdownItem } from "@patternfly/react-core/deprecated";
 import {
   cellWidth,
   IAction,
@@ -464,7 +464,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         >
           <DropdownItem
             key="applications-bulk-delete"
-            isDisabled={selectedRows.some(
+            isAriaDisabled={selectedRows.some(
               (application) => application.migrationWave !== null
             )}
             onClick={() => {
