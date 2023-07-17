@@ -1,14 +1,9 @@
 import React, { useState } from "react";
-import {
-  Dropdown,
-  DropdownList,
-  MenuToggle,
-  MenuToggleElement,
-} from "@patternfly/react-core";
-import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
+
+import { Dropdown, KebabToggle } from "@patternfly/react-core/deprecated";
 
 export interface IKebabDropdownProps {
-  dropdownItems?: React.ReactNode[];
+  dropdownItems?: any[];
 }
 
 export const KebabDropdown: React.FC<IKebabDropdownProps> = ({
@@ -16,25 +11,17 @@ export const KebabDropdown: React.FC<IKebabDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const onKebabToggle = (isOpen: boolean) => {
+    setIsOpen(isOpen);
+  };
+
   return (
     <Dropdown
-      popperProps={{ position: "right" }}
+      toggle={<KebabToggle onToggle={(_, isOpen) => onKebabToggle(isOpen)} />}
       isOpen={isOpen}
-      onOpenChange={(isOpen) => setIsOpen(isOpen)}
-      toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-        <MenuToggle
-          ref={toggleRef}
-          isExpanded={isOpen}
-          onClick={() => setIsOpen(!isOpen)}
-          variant="plain"
-          aria-label="Table toolbar actions kebab toggle"
-          isDisabled={!dropdownItems || dropdownItems.length === 0}
-        >
-          <EllipsisVIcon aria-hidden="true" />
-        </MenuToggle>
-      )}
-    >
-      <DropdownList>{dropdownItems}</DropdownList>
-    </Dropdown>
+      isPlain
+      position="right"
+      dropdownItems={dropdownItems}
+    />
   );
 };
