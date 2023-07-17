@@ -99,8 +99,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
   const tableControlState = useTableControlUrlParams({
     urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
     columnNames: {
-      name: "Issue",
-      description: "Description",
+      description: "Issue",
       category: "Category",
       source: "Source",
       target: "Target(s)",
@@ -108,8 +107,8 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
       affected:
         mode === "singleApp" ? "Affected files" : "Affected applications",
     },
-    sortableColumns: ["name", "category", "effort", "affected"],
-    initialSort: { columnKey: "name", direction: "asc" },
+    sortableColumns: ["description", "category", "effort", "affected"],
+    initialSort: { columnKey: "description", direction: "asc" },
     filterCategories: [
       ...(mode === "allIssues" ? allIssuesSpecificFilterCategories : []),
       {
@@ -171,7 +170,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
   const hubRequestParams = getHubRequestParams({
     ...tableControlState, // Includes filterState, sortState and paginationState
     hubSortFieldKeys: {
-      name: "name",
+      description: "description",
       category: "category",
       effort: "effort",
       affected: mode === "singleApp" ? "files" : "applications",
@@ -309,7 +308,6 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
-              <Th {...getThProps({ columnKey: "name" })} />
               <Th {...getThProps({ columnKey: "description" })} />
               <Th {...getThProps({ columnKey: "category" })} />
               <Th {...getThProps({ columnKey: "source" })} />
@@ -354,20 +352,13 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                     rowIndex={rowIndex}
                   >
                     <Td
-                      width={15}
-                      {...getTdProps({ columnKey: "name" })}
-                      modifier="truncate"
-                    >
-                      {report.name}
-                    </Td>
-                    <Td
-                      width={25}
+                      width={30}
                       {...getTdProps({ columnKey: "description" })}
                       modifier="truncate"
                     >
                       {report.description.split("\n")[0]}
                     </Td>
-                    <Td width={10} {...getTdProps({ columnKey: "category" })}>
+                    <Td width={20} {...getTdProps({ columnKey: "category" })}>
                       {report.category}
                     </Td>
                     <Td
