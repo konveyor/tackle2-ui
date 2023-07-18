@@ -30,7 +30,7 @@ const ApplicationsTableAnalyze = lazy(
   () => import("./applications-table-analyze")
 );
 
-const tabs: string[] = ["applicationsAssessmentTab", "applicationsAnalysisTab"];
+const tabs: string[] = ["applicationsAnalysisTab", "applicationsAssessmentTab"];
 
 export const Applications: React.FC = () => {
   const { t } = useTranslation();
@@ -40,11 +40,13 @@ export const Applications: React.FC = () => {
 
   useEffect(() => {
     if (
-      location.pathname === "/applications/assessment-tab" ||
+      location.pathname === "/applications/analysis-tab" ||
       location.pathname === "/applications"
-    )
+    ) {
       setActiveTabKey(0);
-    else setActiveTabKey(1);
+    } else {
+      setActiveTabKey(1);
+    }
   }, [location.key, location.pathname]);
 
   return (
@@ -67,11 +69,11 @@ export const Applications: React.FC = () => {
         >
           <Tab
             eventKey={0}
-            title={<TabTitleText>{t("terms.assessment")}</TabTitleText>}
+            title={<TabTitleText>{t("terms.analysis")}</TabTitleText>}
           />
           <Tab
             eventKey={1}
-            title={<TabTitleText>{t("terms.analysis")}</TabTitleText>}
+            title={<TabTitleText>{t("terms.assessment")}</TabTitleText>}
           />
         </Tabs>
       </PageSection>
@@ -79,16 +81,16 @@ export const Applications: React.FC = () => {
         <Suspense fallback={<AppPlaceholder />}>
           <Switch>
             <Route
-              path={Paths.applicationsAssessmentTab}
-              component={ApplicationsTableAssessment}
-            />
-            <Route
               path={Paths.applicationsAnalysisTab}
               component={ApplicationsTableAnalyze}
             />
+            <Route
+              path={Paths.applicationsAssessmentTab}
+              component={ApplicationsTableAssessment}
+            />
             <Redirect
               from={Paths.applications}
-              to={Paths.applicationsAssessmentTab}
+              to={Paths.applicationsAnalysisTab}
               exact
             />
           </Switch>
