@@ -153,7 +153,6 @@ export const WaveForm: React.FC<WaveFormProps> = ({
           return true;
         }
       ),
-    }),
     startDateStr: yup
       .string()
       .required(t("validation.required"))
