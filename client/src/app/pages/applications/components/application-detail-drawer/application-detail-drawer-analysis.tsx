@@ -28,6 +28,7 @@ import { SimpleDocumentViewerModal } from "@app/shared/components/simple-task-vi
 import { getApplicationAnalysis, getTaskById } from "@app/api/rest";
 import { useSetting } from "@app/queries/settings";
 import { APPLICATIONS } from "@app/api/rest";
+import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 
 export interface IApplicationDetailDrawerAnalysisProps
   extends Pick<
@@ -107,13 +108,20 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
           {task?.state === "Succeeded" && application ? (
             <>
               <Tooltip content="View Report">
-                <Button variant="link" isInline>
-                  <Link
-                    to={`/hub/applications/${application.id}/bucket${task?.data?.output}`}
-                    target="_blank"
-                  >
-                    Report
-                  </Link>
+                <Button
+                  icon={
+                    <span className={spacing.mrXs}>
+                      <ExclamationCircleIcon
+                        color={COLOR_HEX_VALUES_BY_NAME.blue}
+                      ></ExclamationCircleIcon>
+                    </span>
+                  }
+                  type="button"
+                  variant="link"
+                  isInline
+                  onClick={() => setAppAnalysisToView(application.id)}
+                >
+                  View analysis
                 </Button>
               </Tooltip>
               {(isHTMLDownloadEnabled || isCSVDownloadEnabled) && (
@@ -175,7 +183,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                   icon={
                     <span className={spacing.mrXs}>
                       <ExclamationCircleIcon
-                        color={COLOR_NAMES_BY_HEX_VALUE.red}
+                        color={COLOR_HEX_VALUES_BY_NAME.red}
                       ></ExclamationCircleIcon>
                     </span>
                   }
@@ -191,7 +199,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
             ) : (
               <span className={spacing.mlSm}>
                 <ExclamationCircleIcon
-                  color={COLOR_NAMES_BY_HEX_VALUE.red}
+                  color={COLOR_HEX_VALUES_BY_NAME.red}
                 ></ExclamationCircleIcon>
                 Failed
               </span>
@@ -203,7 +211,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                   icon={
                     <span className={spacing.mrXs}>
                       <ExclamationCircleIcon
-                        color={COLOR_NAMES_BY_HEX_VALUE.blue}
+                        color={COLOR_HEX_VALUES_BY_NAME.blue}
                       ></ExclamationCircleIcon>
                     </span>
                   }
@@ -223,8 +231,11 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
           <SimpleDocumentViewerModal<Task | string>
             title={`Analysis details for ${application?.name}`}
             fetch={getTaskById}
-            documentId={taskIdToView}
-            onClose={() => setTaskIdToView(undefined)}
+            documentId={taskIdToView || appAnalysisToView}
+            onClose={() => {
+              setTaskIdToView(undefined);
+              setAppAnalysisToView(undefined);
+            }}
           />
         </TextContent>
       }
