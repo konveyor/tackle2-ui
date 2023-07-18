@@ -102,6 +102,13 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
             <>
               <Tooltip content="View Report">
                 <Button
+                  icon={
+                    <span className={spacing.mrXs}>
+                      <ExclamationCircleIcon
+                        color={COLOR_HEX_VALUES_BY_NAME.blue}
+                      ></ExclamationCircleIcon>
+                    </span>
+                  }
                   type="button"
                   variant="link"
                   isInline
@@ -166,8 +173,11 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
           <SimpleDocumentViewerModal<Task | string>
             title={`Analysis details for ${application?.name}`}
             fetch={getTaskById}
-            documentId={taskIdToView}
-            onClose={() => setTaskIdToView(undefined)}
+            documentId={taskIdToView || appAnalysisToView}
+            onClose={() => {
+              setTaskIdToView(undefined);
+              setAppAnalysisToView(undefined);
+            }}
           />
         </TextContent>
       }
