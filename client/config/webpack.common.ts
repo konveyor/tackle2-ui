@@ -13,7 +13,7 @@ const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
 
 const config: Configuration = {
   entry: {
-    app: ["react-hot-loader/patch", pathTo("../src/index.tsx")],
+    app: [pathTo("../src/index.tsx")],
   },
 
   output: {
@@ -25,12 +25,13 @@ const config: Configuration = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        loader: "ts-loader",
+        test: /\.[jt]sx?$/,
         exclude: /node_modules/,
-        options: {
-          // disable type checker for fork-ts-checker-webpack-plugin
-          transpileOnly: true,
+        use: {
+          loader: "ts-loader",
+          options: {
+            transpileOnly: true,
+          },
         },
       },
       {

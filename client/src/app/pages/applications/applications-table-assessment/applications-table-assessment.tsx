@@ -6,12 +6,12 @@ import { useTranslation, Trans } from "react-i18next";
 import {
   Button,
   ButtonVariant,
-  DropdownItem,
   Modal,
   ToolbarGroup,
   ToolbarItem,
   TooltipPosition,
 } from "@patternfly/react-core";
+import { DropdownItem } from "@patternfly/react-core/deprecated";
 import {
   cellWidth,
   IAction,
@@ -608,6 +608,10 @@ export const ApplicationsTable: React.FC = () => {
     importWriteAccess = checkAccess(userScopes, importsWriteScopes),
     applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes);
 
+  const areAppsInWaves = selectedRows.some(
+    (application) => application.migrationWave !== null
+  );
+
   const importDropdownItems = importWriteAccess
     ? [
         <DropdownItem
@@ -631,18 +635,14 @@ export const ApplicationsTable: React.FC = () => {
     ? [
         <ConditionalTooltip
           key="delete-app-tooltip"
-          isTooltipEnabled={selectedRows.some(
-            (application) => application.migrationWave !== null
-          )}
+          isTooltipEnabled={areAppsInWaves}
           content={
             "Cannot delete application(s) assigned to migration wave(s)."
           }
         >
           <DropdownItem
             key="applications-bulk-delete"
-            isDisabled={selectedRows.some(
-              (application) => application.migrationWave !== null
-            )}
+            isAriaDisabled={areAppsInWaves || selectedRows.length < 1}
             onClick={() => {
               openBulkDeleteModal(selectedRows);
             }}
