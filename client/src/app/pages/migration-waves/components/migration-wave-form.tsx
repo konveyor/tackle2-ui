@@ -138,9 +138,21 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   const validationSchema: yup.SchemaOf<WaveFormValues> = yup.object().shape({
     name: yup
       .string()
-      .trim()
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 })),
+      .defined()
+      .test(
+        "min-char-check",
+        "Name is invalid. The name must be between 3 and 120 characters ",
+        (value) => {
+          if (!!value) {
+            const schema = yup
+              .string()
+              .min(3, t("validation.minLength", { length: 3 }))
+              .max(120, t("validation.maxLength", { length: 120 }));
+            return schema.isValidSync(value);
+          }
+          return true;
+        }
+      ),
     startDateStr: yup
       .string()
       .required(t("validation.required"))
