@@ -78,7 +78,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
   const onCreateTrackerSuccess = (_: AxiosResponse<Tracker>) =>
     pushNotification({
       title: t("toastr.success.save", {
-        type: t("terms.instance").toLocaleLowerCase(),
+        type: t("terms.instance"),
       }),
       variant: "success",
     });
@@ -95,7 +95,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
   const onUpdateTrackerSuccess = (_: AxiosResponse<Tracker>) =>
     pushNotification({
       title: t("toastr.success.save", {
-        type: t("terms.instance").toLocaleLowerCase(),
+        type: t("terms.instance"),
       }),
       variant: "success",
     });
