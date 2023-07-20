@@ -40,8 +40,8 @@ export const useCreateTrackerMutation = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createTracker,
-    onSuccess: () => {
-      onSuccess;
+    onSuccess: (res) => {
+      onSuccess(res);
       queryClient.invalidateQueries([TrackersQueryKey]);
     },
     onError: onError,
