@@ -187,7 +187,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
         },
         {
           title: (
-            <div className="pf-v5-c-inline-edit__action pf-v5-m-enable-editable">
+            <div className="pf-v5-c-inline-edit__action pf-m-enable-editable">
               <Button
                 id="remove-rule-button"
                 type="button"
@@ -268,7 +268,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
         <>
           <div className="line">
             <Toolbar
-              className="pf-v5-m-toggle-group-container"
+              className="pf-m-toggle-group-container"
               collapseListedFiltersBreakpoint="xl"
               clearAllFilters={handleOnClearAllFilters}
               clearFiltersButtonText="clear Filter"
