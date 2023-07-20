@@ -42,10 +42,11 @@ Alternatively, for information on general Kubernetes installation refer to [Tack
 
 All you need to run minikube is [Docker](https://docs.docker.com/engine/install/) (or similarly compatible) container or a Virtual Machine environment.
 
-By default, Minikube uses a [driver](https://minikube.sigs.k8s.io/docs/drivers/) with 6,000 MB of memory. This is not enough to run all the services, so we need to increase the allocated memory. In our experience, 10 GB of memory is fine:
+By default, Minikube uses a [driver](https://minikube.sigs.k8s.io/docs/drivers/) with 6,000 MB of memory and 2 CPUs. This is not enough to run all the services, so we need to increase the allocated memory. In our experience, 10 GB of memory and 4 CPUs is fine:
 
 ```sh
 $ minikube config set memory 10240
+$ minikube config set cpus 4
 ```
 
 From a terminal with administrator access (but not logged in as root), run:
@@ -56,15 +57,16 @@ $ minikube start --addons=dashboard --addons=ingress --addons=olm
 
 Note: We need to enable the dashboard, ingress and olm addons. The dashboard addon installs the dashboard service that exposes the Kubernetes objects in a user interface. The ingress addon allows us to create Ingress CRs to expose the Tackle UI and Tackle Hub API. The olm addon allows us to use an operator to deploy Tackle.
 
-### Installing Tackle resources
+### Installing Konveyor/Tackle2 operator
 
-Create a `konveyor-tackle` namespace and other supporting tackle resources including the tackle CRD.
+Use the yaml provided by the tackle2-operator to setup the `konveyor-tackle` namespace, operator,
+and operator subscription pointing at the latest development versions:
 
 ```sh
 $ kubectl apply -f https://raw.githubusercontent.com/konveyor/tackle2-operator/main/tackle-k8s.yaml
 ```
 
-Deploy the tackle CR:
+Once the operator is installed, the tackle operator needs to be deployed:
 
 Note: The below command will fail if the Tackle CRD is not yet established. This may take some time.
 
