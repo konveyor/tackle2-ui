@@ -141,6 +141,7 @@
     "couldNotFetchBody": "Resource doesn't exists or you don't have access to it",
     "couldNotFetchTitle": "Not available",
     "duplicateTag": "A tag with this name already exists. Use a different name.",
+    "duplicateWave": "A migration wave with same start and end dates and same name or without a name already exists. Use different values.",
     "importErrorCheckDocumentation": "For status Error imports, check the documentation to ensure your file is structured correctly.",
     "insecureTracker": "Insecure mode deactivates certificate verification. Use insecure mode for instances that have self-signed certificates.",
     "jiraInstanceNotConnected": "Jira instance {{name}} is not connected.",
