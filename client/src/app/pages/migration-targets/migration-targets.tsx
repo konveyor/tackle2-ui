@@ -93,7 +93,7 @@ export const MigrationTargets: React.FC = () => {
       pushNotification({
         title: t("toastr.success.saveWhat", {
           what: response.data.name,
-          type: "custom target",
+          type: t("terms.customTarget"),
         }),
         variant: "success",
         message: (

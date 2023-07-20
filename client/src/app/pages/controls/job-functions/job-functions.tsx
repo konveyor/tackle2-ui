@@ -175,7 +175,7 @@ export const JobFunctions: React.FC = () => {
     pushNotification({
       title: t("toastr.success.saveWhat", {
         what: response.data.name,
-        type: "job function",
+        type: t("terms.jobFunction"),
       }),
       variant: "success",
     });
