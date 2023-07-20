@@ -165,7 +165,7 @@ export const MigrationWaves: React.FC = () => {
   };
 
   const tableControls = useLocalTableControls({
-    idProperty: "name",
+    idProperty: "id",
     items: migrationWaves,
     columnNames: {
       name: "Name",
