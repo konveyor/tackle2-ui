@@ -96,12 +96,18 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   };
 
   const onCreateMigrationWaveError = (error: AxiosError) => {
-    pushNotification({
-      title: t("toastr.fail.create", {
-        type: t("terms.migrationWave").toLowerCase(),
-      }),
-      variant: "danger",
-    });
+    if (error.response?.status === 409)
+      pushNotification({
+        title: t("message.duplicateWave"),
+        variant: "danger",
+      });
+    else
+      pushNotification({
+        title: t("toastr.fail.create", {
+          type: t("terms.migrationWave").toLowerCase(),
+        }),
+        variant: "danger",
+      });
   };
 
   const { mutate: createMigrationWave } = useCreateMigrationWaveMutation(
@@ -119,12 +125,18 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   };
 
   const onUpdateMigrationWaveError = (error: AxiosError) => {
-    pushNotification({
-      title: t("toastr.fail.save", {
-        type: t("terms.migrationWave").toLowerCase(),
-      }),
-      variant: "danger",
-    });
+    if (error.response?.status === 409)
+      pushNotification({
+        title: t("message.duplicateWave"),
+        variant: "danger",
+      });
+    else
+      pushNotification({
+        title: t("toastr.fail.save", {
+          type: t("terms.migrationWave").toLowerCase(),
+        }),
+        variant: "danger",
+      });
   };
 
   const { mutate: updateMigrationWave } = useUpdateMigrationWaveMutation(
