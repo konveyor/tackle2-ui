@@ -117,7 +117,7 @@ export const getAffectedAppsUrl = ({
     newPrefixedSerializedParams: {
       [prefix("filters")]: serializeFilterUrlParams(toFilterValues).filters,
       [FROM_ISSUES_PARAMS_KEY]: fromIssuesParams,
-      ruleReportName: ruleReport.name,
+      issueTitle: ruleReport.description.split("\n")[0],
     },
   })}`;
 };
