@@ -167,7 +167,7 @@ export const AffectedApplications: React.FC = () => {
                 </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
-            <Table {...tableProps} aria-label="Migration waves table">
+            <Table {...tableProps} aria-label="Affected applications table">
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
