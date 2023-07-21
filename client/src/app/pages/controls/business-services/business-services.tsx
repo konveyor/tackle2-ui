@@ -223,7 +223,7 @@ export const BusinessServices: React.FC = () => {
     pushNotification({
       title: t("toastr.success.saveWhat", {
         what: response.data.name,
-        type: "business service",
+        type: t("terms.businessService"),
       }),
       variant: "success",
     });
