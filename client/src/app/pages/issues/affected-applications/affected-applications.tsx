@@ -9,6 +9,7 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
+  Truncate,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { AppPlaceholder, ConditionalRender } from "@app/shared/components";
@@ -44,8 +45,8 @@ export const AffectedApplications: React.FC = () => {
   const { t } = useTranslation();
 
   const { ruleset, rule } = useParams<IAffectedApplicationsRouteParams>();
-  const ruleReportName =
-    new URLSearchParams(useLocation().search).get("ruleReportName") ||
+  const issueTitle =
+    new URLSearchParams(useLocation().search).get("issueTitle") ||
     "Active rule";
 
   const tableControlState = useTableControlUrlParams({
@@ -140,7 +141,7 @@ export const AffectedApplications: React.FC = () => {
             </Link>
           </BreadcrumbItem>
           <BreadcrumbItem to="#" isActive>
-            {ruleReportName}
+            {issueTitle}
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>
@@ -166,7 +167,7 @@ export const AffectedApplications: React.FC = () => {
                 </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
-            <Table {...tableProps} aria-label="Migration waves table">
+            <Table {...tableProps} aria-label="Affected applications table">
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>

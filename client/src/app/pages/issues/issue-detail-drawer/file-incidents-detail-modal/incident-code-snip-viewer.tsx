@@ -8,12 +8,12 @@ import { LANGUAGES_BY_FILE_EXTENSION } from "config/monacoConstants";
 const codeLineRegex = /^\s*([0-9]+)( {2})?(.*)$/; // Pattern: leading whitespace (line number) (2 spaces)? (code)
 
 export interface IIncidentCodeSnipViewerProps {
-  issueName: string;
+  issueTitle: string;
   incident: AnalysisIncident;
 }
 
 export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
-  issueName,
+  issueTitle,
   incident,
 }) => {
   const codeSnipNumberedLines = incident.codeSnip.split("\n");
@@ -63,7 +63,7 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
             // Red squiggly under the affected line
             monaco.editor.setModelMarkers(model, "my-markers", [
               {
-                message: issueName,
+                message: issueTitle,
                 severity: monaco.MarkerSeverity.Error,
                 startLineNumber: relativeLineNum,
                 startColumn:

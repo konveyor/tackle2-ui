@@ -10,6 +10,7 @@ import {
   Tabs,
   TabTitleText,
   Tab,
+  Truncate,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IssueAffectedFilesTable } from "./issue-affected-files-table";
@@ -60,7 +61,7 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
               {applicationName}
             </Text>
             <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
-              {issue.name}
+              <Truncate content={issue.description.split("\n")[0]} />
             </Title>
           </TextContent>
           <Tabs
