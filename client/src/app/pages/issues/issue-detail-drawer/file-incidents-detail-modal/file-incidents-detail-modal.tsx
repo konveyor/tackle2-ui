@@ -10,6 +10,7 @@ import {
   TextContent,
   Text,
   Alert,
+  Truncate,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisFileReport, AnalysisIssue } from "@app/api/models";
@@ -58,6 +59,8 @@ export const FileIncidentsDetailModal: React.FC<
     isFetching ||
     (firstFiveIncidents.length > 0 && activeTabIncidentId === undefined);
 
+  const issueTitle = issue.description.split("\n")[0];
+
   return (
     <Modal
       title={fileReport.file}
@@ -99,13 +102,15 @@ export const FileIncidentsDetailModal: React.FC<
                   <Grid hasGutter className={spacing.mtLg}>
                     <GridItem span={6}>
                       <IncidentCodeSnipViewer
-                        issueName={issue.name}
+                        issueTitle={issueTitle}
                         incident={incident}
                       />
                     </GridItem>
                     <GridItem span={6} className={spacing.plSm}>
                       <TextContent>
-                        <Text component="h2">{issue.name}</Text>
+                        <Text component="h2">
+                          <Truncate content={issueTitle} />
+                        </Text>
                         <Text component="small">Line {incident.line}</Text>
                       </TextContent>
                       <IssueDescriptionAndLinks
