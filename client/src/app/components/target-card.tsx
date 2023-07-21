@@ -124,7 +124,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       onClick={handleCardClick}
       isSelectable={!!cardSelected}
       isSelected={isCardSelected}
-      className="pf-v5-l-stack pf-v5-l-stack__item pf-v5-m-fill"
+      className="pf-v5-l-stack pf-v5-l-stack__item pf-m-fill"
     >
       <CardBody>
         <Flex>

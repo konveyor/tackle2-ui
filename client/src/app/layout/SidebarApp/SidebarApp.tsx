@@ -109,7 +109,7 @@ export const SidebarApp: React.FC = () => {
             <NavItem>
               <NavLink
                 to={Paths.applications + search}
-                activeClassName="pf-v5-m-current"
+                activeClassName="pf-m-current"
               >
                 {t("sidebar.applicationInventory")}
               </NavLink>
@@ -117,13 +117,13 @@ export const SidebarApp: React.FC = () => {
             <NavItem>
               <NavLink
                 to={Paths.reports + search}
-                activeClassName="pf-v5-m-current"
+                activeClassName="pf-m-current"
               >
                 {t("sidebar.reports")}
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink to={Paths.controls} activeClassName="pf-v5-m-current">
+              <NavLink to={Paths.controls} activeClassName="pf-m-current">
                 {t("sidebar.controls")}
               </NavLink>
             </NavItem>
@@ -131,7 +131,7 @@ export const SidebarApp: React.FC = () => {
               <NavItem>
                 <NavLink
                   to={Paths.migrationWaves}
-                  activeClassName="pf-v5-m-current"
+                  activeClassName="pf-m-current"
                 >
                   {t("sidebar.migrationWaves")}
                 </NavLink>
@@ -140,14 +140,14 @@ export const SidebarApp: React.FC = () => {
             {FEATURES_ENABLED.dynamicReports ? (
               <>
                 <NavItem>
-                  <NavLink to={Paths.issues} activeClassName="pf-v5-m-current">
+                  <NavLink to={Paths.issues} activeClassName="pf-m-current">
                     {t("sidebar.issues")}
                   </NavLink>
                 </NavItem>
                 <NavItem>
                   <NavLink
                     to={Paths.dependencies}
-                    activeClassName="pf-v5-m-current"
+                    activeClassName="pf-m-current"
                   >
                     {t("sidebar.dependencies")}
                   </NavLink>
@@ -158,12 +158,12 @@ export const SidebarApp: React.FC = () => {
         ) : (
           <NavList title="Admin">
             <NavItem>
-              <NavLink to={Paths.general} activeClassName="pf-v5-m-current">
+              <NavLink to={Paths.general} activeClassName="pf-m-current">
                 {t("terms.general")}
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink to={Paths.identities} activeClassName="pf-v5-m-current">
+              <NavLink to={Paths.identities} activeClassName="pf-m-current">
                 {t("terms.credentials")}
               </NavLink>
             </NavItem>
@@ -176,7 +176,7 @@ export const SidebarApp: React.FC = () => {
               <NavItem>
                 <NavLink
                   to={Paths.repositoriesGit}
-                  activeClassName="pf-v5-m-current"
+                  activeClassName="pf-m-current"
                 >
                   Git
                 </NavLink>
@@ -184,7 +184,7 @@ export const SidebarApp: React.FC = () => {
               <NavItem>
                 <NavLink
                   to={Paths.repositoriesSvn}
-                  activeClassName="pf-v5-m-current"
+                  activeClassName="pf-m-current"
                 >
                   Subversion
                 </NavLink>
@@ -192,21 +192,21 @@ export const SidebarApp: React.FC = () => {
               <NavItem>
                 <NavLink
                   to={Paths.repositoriesMvn}
-                  activeClassName="pf-v5-m-current"
+                  activeClassName="pf-m-current"
                 >
                   Maven
                 </NavLink>
               </NavItem>
             </NavExpandable>
             <NavItem>
-              <NavLink to={Paths.proxies} activeClassName="pf-v5-m-current">
+              <NavLink to={Paths.proxies} activeClassName="pf-m-current">
                 Proxy
               </NavLink>
             </NavItem>
             <NavItem>
               <NavLink
                 to={Paths.migrationTargets}
-                activeClassName="pf-v5-m-current"
+                activeClassName="pf-m-current"
               >
                 Custom migration targets
               </NavLink>
@@ -219,7 +219,7 @@ export const SidebarApp: React.FC = () => {
                 isExpanded
               >
                 <NavItem>
-                  <NavLink to={Paths.jira} activeClassName="pf-v5-m-current">
+                  <NavLink to={Paths.jira} activeClassName="pf-m-current">
                     Jira
                   </NavLink>
                 </NavItem>
