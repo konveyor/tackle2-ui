@@ -108,20 +108,13 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
           {task?.state === "Succeeded" && application ? (
             <>
               <Tooltip content="View Report">
-                <Button
-                  icon={
-                    <span className={spacing.mrXs}>
-                      <ExclamationCircleIcon
-                        color={COLOR_HEX_VALUES_BY_NAME.blue}
-                      ></ExclamationCircleIcon>
-                    </span>
-                  }
-                  type="button"
-                  variant="link"
-                  isInline
-                  onClick={() => setAppAnalysisToView(application.id)}
-                >
-                  View analysis
+                <Button variant="link" isInline>
+                  <Link
+                    to={`/hub/applications/${application.id}/bucket${task?.data?.output}`}
+                    target="_blank"
+                  >
+                    Report
+                  </Link>
                 </Button>
               </Tooltip>
               {(isHTMLDownloadEnabled || isCSVDownloadEnabled) && (
