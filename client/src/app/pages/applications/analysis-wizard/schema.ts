@@ -11,6 +11,7 @@ import {
 } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import { useAnalyzableApplicationsByMode } from "./utils";
+import { customURLValidation } from "@app/utils/utils";
 
 export const ANALYSIS_MODES = [
   "binary",
@@ -156,13 +157,10 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
       is: "repository",
       then: yup.mixed<string>().required(),
     }),
-    sourceRepository: yup.mixed<string>().when("rulesKind", {
+    sourceRepository: yup.string().when("rulesKind", {
       is: "repository",
-      then: yup
-        .string()
-        .required("This value is required")
-        .min(3, t("validation.minLength", { length: 3 }))
-        .max(120, t("validation.maxLength", { length: 120 })),
+      then: (schema) =>
+        customURLValidation(schema).required("Enter repository url."),
     }),
     branch: yup.mixed<string>().when("rulesKind", {
       is: "repository",

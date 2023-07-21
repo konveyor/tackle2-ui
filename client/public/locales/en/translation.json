@@ -156,6 +156,7 @@
     "savingSelection": "Saving selection",
     "selectOwnerFromStakeholdersList": "Select owner from list of stakeholders",
     "suggestedAdoptionPlanHelpText": "The suggested approach to migration based on effort, priority, and dependencies.",
+    "taskInProgressForTags": "A new analysis is in-progress.  Tags may be updated upon completion.",
     "toTagApplication": "Either no tags exist yet or you may not have permission to view any. If you have permission, try creating a new custom tag."
   },
   "proposedActions": {
@@ -236,6 +237,7 @@
     "decision": "Decision",
     "dependencies": "Dependencies",
     "description": "Description",
+    "details": "Details",
     "displayName": "Display name",
     "effort": "Effort",
     "effortEstimate": "Effort estimate",
@@ -243,6 +245,7 @@
     "error": "Error",
     "errorReport": "Error report",
     "exportToIssue": "Export to Issue Manager",
+    "facts": "Facts",
     "failed": "Failed",
     "filename": "File name",
     "filter": "Filter...",
