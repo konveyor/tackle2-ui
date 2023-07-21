@@ -1,5 +1,5 @@
 .perspective {
-  padding: var(--pf-v5-c-nav__link--PaddingTop)
+  padding: var(--pf-v5-global--spacer--lg)
     var(--pf-v5-c-nav__link--PaddingRight) var(--pf-v5-global--spacer--lg)
     var(--pf-v5-c-nav__link--PaddingLeft);
   border-bottom: 1px solid var(--pf-v5-c-nav__link--before--BorderColor);
@@ -26,4 +26,8 @@
   border-bottom-width: var(
     --pf-v5-c-select__toggle--m-expanded--before--BorderBottomWidth
   );
+}
+
+.perspective + .pf-v5-c-nav__list {
+  padding-top: 0;
 }
