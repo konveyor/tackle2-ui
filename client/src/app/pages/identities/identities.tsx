@@ -49,6 +49,7 @@ import { NotificationsContext } from "@app/shared/notifications-context";
 import { IdentityForm } from "./components/identity-form";
 import { validateXML } from "./components/identity-form/validateXML";
 import { useFetchTrackers } from "@app/queries/trackers";
+import { isAuthRequired } from "@app/Constants";
 
 const ENTITY_FIELD = "entity";
 
@@ -129,6 +130,19 @@ export const Identities: React.FC = () => {
         return item.kind || "";
       },
     },
+    ...(isAuthRequired
+      ? [
+          {
+            key: "createdBy",
+            title: "Created By",
+            type: FilterType.search,
+            placeholderText: "Filter by created by User...",
+            getItemValue: (item: Identity) => {
+              return item.createUser || "";
+            },
+          } as const,
+        ]
+      : []),
   ];
 
   const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
@@ -139,6 +153,8 @@ export const Identities: React.FC = () => {
     identity?.name || "",
     "", // description column
     identity?.kind || "",
+    ...((isAuthRequired && identity?.createUser) || ""),
+
     "", // Action column
   ];
   const { sortBy, onSort, sortedItems } = useLegacySortState(
@@ -157,6 +173,9 @@ export const Identities: React.FC = () => {
     },
     { title: "Description", transforms: [cellWidth(25)] },
     { title: "Type", transforms: [sortable, cellWidth(20)] },
+    ...(isAuthRequired
+      ? [{ title: "Created by", transforms: [sortable, cellWidth(10)] }]
+      : []),
     {
       title: "",
       props: {
@@ -192,6 +211,17 @@ export const Identities: React.FC = () => {
             </TableText>
           ),
         },
+        ...(isAuthRequired
+          ? [
+              {
+                title: (
+                  <TableText wrapModifier="truncate">
+                    {item.createUser}
+                  </TableText>
+                ),
+              },
+            ]
+          : []),
         {
           title: (
             <AppTableActionButtons
