@@ -1,8 +1,10 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   TextContent,
   Text,
+  TextVariants,
   Title,
   Tabs,
   Tab,
@@ -47,9 +49,12 @@ export const ApplicationDetailDrawer: React.FC<
   reportsTabContent = null,
   factsTabContent = null,
 }) => {
+  const { t } = useTranslation();
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
   );
+
+  const isTaskRunning = task?.state === "Running";
 
   return (
     <PageDrawerContent
@@ -60,7 +65,7 @@ export const ApplicationDetailDrawer: React.FC<
     >
       <TextContent>
         <Text component="small" className={spacing.mb_0}>
-          Name
+          {t("terms.name")}
         </Text>
         <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
           {application?.name}
@@ -73,48 +78,59 @@ export const ApplicationDetailDrawer: React.FC<
       >
         <Tab
           eventKey={TabKey.Details}
-          title={<TabTitleText>Details</TabTitleText>}
+          title={<TabTitleText>{t("terms.details")}</TabTitleText>}
         >
           <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
             <Text component="small">{application?.description}</Text>
             <Title headingLevel="h3" size="md">
-              Business service
+              {t("terms.businessService")}
             </Title>
             <Text component="small">
-              {application?.businessService && (
+              {application?.businessService ? (
                 <ApplicationBusinessService
                   id={application.businessService.id}
                 />
-              )}
+              ) : null}
             </Text>
           </TextContent>
           {detailsTabMainContent}
         </Tab>
+
         <Tab eventKey={TabKey.Tags} title={<TabTitleText>Tags</TabTitleText>}>
-          {application && task?.state === "Running" ? (
+          {application && isTaskRunning ? (
             <Bullseye className={spacing.mtLg}>
-              <Spinner size="xl">Loading...</Spinner>
+              <TextContent>
+                <Text component={TextVariants.h3}>
+                  {t("message.taskInProgressForTags")}
+                  <Spinner
+                    isSVG
+                    isInline
+                    aria-label="spinner when a new analysis is running"
+                  />
+                </Text>
+              </TextContent>
             </Bullseye>
-          ) : (
-            application && <ApplicationTags application={application} />
-          )}
+          ) : null}
+
+          {application ? <ApplicationTags application={application} /> : null}
         </Tab>
         {reportsTabContent && task && (
           <Tab
             eventKey={TabKey.Reports}
-            title={<TabTitleText>Reports</TabTitleText>}
+            title={<TabTitleText>{t("terms.reports")}</TabTitleText>}
           >
             {reportsTabContent}
           </Tab>
         )}
-        {factsTabContent && (
+
+        {factsTabContent ? (
           <Tab
             eventKey={TabKey.Facts}
-            title={<TabTitleText>Facts</TabTitleText>}
+            title={<TabTitleText>{t("terms.facts")}</TabTitleText>}
           >
             {factsTabContent}
           </Tab>
-        )}
+        ) : null}
       </Tabs>
     </PageDrawerContent>
   );
