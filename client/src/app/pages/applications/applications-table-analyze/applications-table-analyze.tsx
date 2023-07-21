@@ -317,20 +317,18 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         },
         {
           title: (
-            <div className="pf-v5-c-inline-edit__action pf-v5-m-enable-editable">
-              <RBAC
-                allowedPermissions={applicationsWriteScopes}
-                rbacType={RBAC_TYPE.Scope}
+            <RBAC
+              allowedPermissions={applicationsWriteScopes}
+              rbacType={RBAC_TYPE.Scope}
+            >
+              <Button
+                type="button"
+                variant="plain"
+                onClick={() => openUpdateApplicationModal(item)}
               >
-                <Button
-                  type="button"
-                  variant="plain"
-                  onClick={() => openUpdateApplicationModal(item)}
-                >
-                  <PencilAltIcon />
-                </Button>
-              </RBAC>
-            </div>
+                <PencilAltIcon />
+              </Button>
+            </RBAC>
           ),
         },
       ],

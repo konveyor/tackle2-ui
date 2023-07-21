@@ -297,7 +297,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
               bodyContent={t("message.insecureTracker")}
               className="popover"
             >
-              <span className={`${spacing.mlSm} pf-v5-c-icon pf-v5-m-info`}>
+              <span className={`${spacing.mlSm} pf-v5-c-icon pf-m-info`}>
                 <QuestionCircleIcon />
               </span>
             </Popover>

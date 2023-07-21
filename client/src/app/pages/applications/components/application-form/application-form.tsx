@@ -658,7 +658,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 bodyContent={t("message.binaryPackaging")}
                 className="popover"
               >
-                <span className="pf-v5-c-icon pf-v5-m-info">
+                <span className="pf-v5-c-icon pf-m-info">
                   <QuestionCircleIcon />
                 </span>
               </Popover>

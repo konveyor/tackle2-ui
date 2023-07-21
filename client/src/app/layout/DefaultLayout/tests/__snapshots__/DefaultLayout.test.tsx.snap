@@ -6,14 +6,14 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-c-page pf-v5-m-resize-observer pf-v5-m-breakpoint-default pf-v5-m-height-breakpoint-sm"
+        class="pf-v5-c-page pf-m-resize-observer pf-m-breakpoint-default pf-m-height-breakpoint-sm"
       >
         <div
           class="pf-v5-c-skip-to-content"
         >
           <a
             aria-disabled="false"
-            class="pf-v5-c-button pf-v5-m-primary"
+            class="pf-v5-c-button pf-m-primary"
             data-ouia-component-id="OUIA-Generated-Button-primary-1"
             data-ouia-component-type="PF5/Button"
             data-ouia-safe="true"
@@ -35,7 +35,7 @@ Object {
                 aria-disabled="false"
                 aria-expanded="false"
                 aria-label="Global navigation"
-                class="pf-v5-c-button pf-v5-m-plain"
+                class="pf-v5-c-button pf-m-plain"
                 data-ouia-component-id="OUIA-Generated-Button-plain-1"
                 data-ouia-component-type="PF5/Button"
                 data-ouia-safe="true"
@@ -71,7 +71,7 @@ Object {
             class="pf-v5-c-page__header-tools"
           >
             <div
-              class="pf-v5-c-page__header-tools-group pf-v5-m-hidden"
+              class="pf-v5-c-page__header-tools-group pf-m-hidden"
             >
               <div
                 class="pf-v5-c-page__header-tools-item"
@@ -79,7 +79,7 @@ Object {
                 <button
                   aria-disabled="false"
                   aria-label="about button"
-                  class="pf-v5-c-button pf-v5-m-plain"
+                  class="pf-v5-c-button pf-m-plain"
                   data-ouia-component-id="OUIA-Generated-Button-plain-2"
                   data-ouia-component-type="PF5/Button"
                   data-ouia-safe="true"
@@ -97,7 +97,7 @@ Object {
                 class="pf-v5-c-page__header-tools-item"
               >
                 <div
-                  class="pf-v5-c-dropdown pf-v5-m-align-right"
+                  class="pf-v5-c-dropdown pf-m-align-right"
                   data-ouia-component-id="OUIA-Generated-Dropdown-1"
                   data-ouia-component-type="PF5/Dropdown"
                   data-ouia-safe="true"
@@ -106,7 +106,7 @@ Object {
                     aria-expanded="false"
                     aria-haspopup="true"
                     aria-label="Actions"
-                    class="pf-v5-c-dropdown__toggle pf-v5-m-plain"
+                    class="pf-v5-c-dropdown__toggle pf-m-plain"
                     id="pf-dropdown-toggle-id-0"
                     type="button"
                   >
@@ -131,7 +131,7 @@ Object {
         </header>
         <div
           aria-hidden="true"
-          class="pf-v5-c-page__sidebar pf-v5-m-collapsed"
+          class="pf-v5-c-page__sidebar pf-m-collapsed"
           id="page-sidebar"
         >
           <nav
@@ -211,7 +211,7 @@ Object {
                 </a>
               </li>
               <li
-                class="pf-v5-c-nav__item pf-v5-m-expandable pf-v5-m-expanded"
+                class="pf-v5-c-nav__item pf-m-expandable pf-m-expanded"
                 data-ouia-component-id="OUIA-Generated-NavExpandable-1"
                 data-ouia-component-type="PF5/NavExpandable"
                 data-ouia-safe="true"
@@ -332,7 +332,7 @@ Object {
                 </a>
               </li>
               <li
-                class="pf-v5-c-nav__item pf-v5-m-expandable pf-v5-m-expanded"
+                class="pf-v5-c-nav__item pf-m-expandable pf-m-expanded"
                 data-ouia-component-id="OUIA-Generated-NavExpandable-2"
                 data-ouia-component-type="PF5/NavExpandable"
                 data-ouia-safe="true"
@@ -421,7 +421,7 @@ Object {
                   />
                 </div>
                 <div
-                  class="pf-v5-c-drawer__panel pf-v5-m-resizable"
+                  class="pf-v5-c-drawer__panel pf-m-resizable"
                   hidden=""
                   id="page-drawer-content"
                   style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 150px;"
@@ -435,21 +435,21 @@ Object {
     <div>
       <ul
         aria-live="polite"
-        class="pf-v5-c-alert-group pf-v5-m-toast"
+        class="pf-v5-c-alert-group pf-m-toast"
         role="list"
       />
     </div>
   </body>,
   "container": <div>
     <div
-      class="pf-v5-c-page pf-v5-m-resize-observer pf-v5-m-breakpoint-default pf-v5-m-height-breakpoint-sm"
+      class="pf-v5-c-page pf-m-resize-observer pf-m-breakpoint-default pf-m-height-breakpoint-sm"
     >
       <div
         class="pf-v5-c-skip-to-content"
       >
         <a
           aria-disabled="false"
-          class="pf-v5-c-button pf-v5-m-primary"
+          class="pf-v5-c-button pf-m-primary"
           data-ouia-component-id="OUIA-Generated-Button-primary-1"
           data-ouia-component-type="PF5/Button"
           data-ouia-safe="true"
@@ -471,7 +471,7 @@ Object {
               aria-disabled="false"
               aria-expanded="false"
               aria-label="Global navigation"
-              class="pf-v5-c-button pf-v5-m-plain"
+              class="pf-v5-c-button pf-m-plain"
               data-ouia-component-id="OUIA-Generated-Button-plain-1"
               data-ouia-component-type="PF5/Button"
               data-ouia-safe="true"
@@ -507,7 +507,7 @@ Object {
           class="pf-v5-c-page__header-tools"
         >
           <div
-            class="pf-v5-c-page__header-tools-group pf-v5-m-hidden"
+            class="pf-v5-c-page__header-tools-group pf-m-hidden"
           >
             <div
               class="pf-v5-c-page__header-tools-item"
@@ -515,7 +515,7 @@ Object {
               <button
                 aria-disabled="false"
                 aria-label="about button"
-                class="pf-v5-c-button pf-v5-m-plain"
+                class="pf-v5-c-button pf-m-plain"
                 data-ouia-component-id="OUIA-Generated-Button-plain-2"
                 data-ouia-component-type="PF5/Button"
                 data-ouia-safe="true"
@@ -533,7 +533,7 @@ Object {
               class="pf-v5-c-page__header-tools-item"
             >
               <div
-                class="pf-v5-c-dropdown pf-v5-m-align-right"
+                class="pf-v5-c-dropdown pf-m-align-right"
                 data-ouia-component-id="OUIA-Generated-Dropdown-1"
                 data-ouia-component-type="PF5/Dropdown"
                 data-ouia-safe="true"
@@ -542,7 +542,7 @@ Object {
                   aria-expanded="false"
                   aria-haspopup="true"
                   aria-label="Actions"
-                  class="pf-v5-c-dropdown__toggle pf-v5-m-plain"
+                  class="pf-v5-c-dropdown__toggle pf-m-plain"
                   id="pf-dropdown-toggle-id-0"
                   type="button"
                 >
@@ -567,7 +567,7 @@ Object {
       </header>
       <div
         aria-hidden="true"
-        class="pf-v5-c-page__sidebar pf-v5-m-collapsed"
+        class="pf-v5-c-page__sidebar pf-m-collapsed"
         id="page-sidebar"
       >
         <nav
@@ -647,7 +647,7 @@ Object {
               </a>
             </li>
             <li
-              class="pf-v5-c-nav__item pf-v5-m-expandable pf-v5-m-expanded"
+              class="pf-v5-c-nav__item pf-m-expandable pf-m-expanded"
               data-ouia-component-id="OUIA-Generated-NavExpandable-1"
               data-ouia-component-type="PF5/NavExpandable"
               data-ouia-safe="true"
@@ -768,7 +768,7 @@ Object {
               </a>
             </li>
             <li
-              class="pf-v5-c-nav__item pf-v5-m-expandable pf-v5-m-expanded"
+              class="pf-v5-c-nav__item pf-m-expandable pf-m-expanded"
               data-ouia-component-id="OUIA-Generated-NavExpandable-2"
               data-ouia-component-type="PF5/NavExpandable"
               data-ouia-safe="true"
@@ -857,7 +857,7 @@ Object {
                 />
               </div>
               <div
-                class="pf-v5-c-drawer__panel pf-v5-m-resizable"
+                class="pf-v5-c-drawer__panel pf-m-resizable"
                 hidden=""
                 id="page-drawer-content"
                 style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 150px;"

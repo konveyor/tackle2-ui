@@ -14,7 +14,7 @@ export const HorizontalNav: React.FC<HorizontalNavProps> = ({ navItems }) => {
             key={index}
             to={f.path}
             className="pf-v5-c-tabs__item"
-            activeClassName="pf-v5-m-current"
+            activeClassName="pf-m-current"
           >
             <li key={index} className="pf-v5-c-tabs__item">
               <button className="pf-v5-c-tabs__link">
