@@ -8,10 +8,11 @@ import {
   deleteAllMigrationWaves,
 } from "@app/api/rest";
 import { getWavesWithStatus } from "@app/utils/waves-selector";
-import { useFetchTickets } from "./tickets";
+import { useDeleteTicketMutation, useFetchTickets } from "./tickets";
 import { TrackersQueryKey } from "./trackers";
 import { useFetchApplications } from "./applications";
 import { useFetchStakeholders } from "./stakeholders";
+import { MigrationWave, Ticket } from "@app/api/models";
 
 export const MigrationWavesQueryKey = "migration-waves";
 
@@ -74,15 +75,28 @@ export const useDeleteMigrationWaveMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
+  const { tickets } = useFetchTickets();
+  const { mutateAsync: deleteTicket } = useDeleteTicketMutation();
 
   return useMutation({
-    mutationFn: ({ id }: { id: number; name: string }) =>
-      deleteMigrationWave(id),
+    mutationFn: ({ wave }: { wave: MigrationWave }) =>
+      deleteMigrationWave(wave).then((res) => {
+        const deleteTicketPromiseList = wave.applications.map((app) => {
+          const matchingTicket = tickets.find(
+            (ticket) => ticket?.application?.name === app.name
+          );
+          const deleteTicketPromise =
+            matchingTicket && deleteTicket({ ticket: matchingTicket });
+          return deleteTicketPromise || [];
+        });
+        return Promise.all(deleteTicketPromiseList);
+      }),
     onSuccess: (_, vars) => {
-      onSuccess(vars.name);
       queryClient.invalidateQueries([MigrationWavesQueryKey]);
     },
-    onError,
+    onError: (error) => {
+      onError(error as AxiosError);
+    },
   });
 };
 

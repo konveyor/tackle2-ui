@@ -500,15 +500,16 @@ export const getMigrationWaves = (): Promise<MigrationWave[]> =>
   axios.get(MIGRATION_WAVES).then((response) => response.data);
 
 export const createMigrationWave = (
-  obj: New<MigrationWave>
-): Promise<MigrationWave> => axios.post(MIGRATION_WAVES, obj);
+  wave: New<MigrationWave>
+): Promise<MigrationWave> => axios.post(MIGRATION_WAVES, wave);
 
-export const deleteMigrationWave = (id: number): Promise<MigrationWave> =>
-  axios.delete(`${MIGRATION_WAVES}/${id}`);
+export const deleteMigrationWave = (
+  wave: MigrationWave
+): Promise<MigrationWave> => axios.delete(`${MIGRATION_WAVES}/${wave.id}`);
 
 export const updateMigrationWave = (
-  obj: MigrationWave
-): Promise<MigrationWave> => axios.put(`${MIGRATION_WAVES}/${obj.id}`, obj);
+  wave: MigrationWave
+): Promise<MigrationWave> => axios.put(`${MIGRATION_WAVES}/${wave.id}`, wave);
 
 export const deleteAllMigrationWaves = (
   deletePromises: Promise<MigrationWave>[]

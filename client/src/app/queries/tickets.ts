@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-
-import { createTickets, getTickets } from "@app/api/rest";
+import { createTickets, deleteTicket, getTickets } from "@app/api/rest";
 import { AxiosError } from "axios";
 import { New, Ref, Ticket } from "@app/api/models";
 
@@ -28,12 +27,26 @@ export const useFetchTickets = () => {
     queryKey: [TicketsQueryKey],
     queryFn: getTickets,
     refetchInterval: 5000,
-    onError: (error) => console.log("error, ", error),
+    onError: (error) => console.error(error),
   });
   return {
     tickets: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,
+  };
+};
+
+export const useDeleteTicketMutation = () => {
+  const { isLoading, error, mutateAsync } = useMutation({
+    mutationFn: ({ ticket }: { ticket: Ticket }) => deleteTicket(ticket.id),
+    onError: (err: AxiosError) => {
+      console.error(err);
+    },
+  });
+  return {
+    mutateAsync,
+    isLoading,
+    error,
   };
 };

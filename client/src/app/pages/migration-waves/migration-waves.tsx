@@ -98,13 +98,11 @@ export const MigrationWaves: React.FC = () => {
     React.useState<MigrationWave | null>(null);
   const closeWaveModal = () => setWaveModalState(null);
 
-  const [migrationWaveToDelete, setMigrationWaveToDelete] = React.useState<{
-    id: number;
-    name: string;
-  } | null>(null);
+  const [migrationWaveToDelete, setMigrationWaveToDelete] =
+    React.useState<MigrationWave | null>(null);
 
   const [migrationWavesToDelete, setMigrationWavesToDelete] = React.useState<
-    number[] | null
+    MigrationWave[] | null
   >(null);
 
   const onDeleteWaveSuccess = (name: string) => {
@@ -288,11 +286,7 @@ export const MigrationWaves: React.FC = () => {
                               key="bulk-delete"
                               isDisabled={selectedItems.length === 0}
                               onClick={() =>
-                                setMigrationWavesToDelete(
-                                  selectedItems.map(
-                                    (migrationWave) => migrationWave.id
-                                  )
-                                )
+                                setMigrationWavesToDelete(selectedItems)
                               }
                             >
                               {t("actions.delete")}
@@ -467,10 +461,9 @@ export const MigrationWaves: React.FC = () => {
                                       <DropdownItem
                                         key="delete"
                                         onClick={() =>
-                                          setMigrationWaveToDelete({
-                                            id: migrationWave.id,
-                                            name: migrationWave.name,
-                                          })
+                                          setMigrationWaveToDelete(
+                                            migrationWave
+                                          )
                                         }
                                       >
                                         {t("actions.delete")}
@@ -605,12 +598,12 @@ export const MigrationWaves: React.FC = () => {
         }}
         onConfirm={() => {
           if (migrationWaveToDelete) {
-            deleteWave(migrationWaveToDelete);
+            deleteWave({ wave: migrationWaveToDelete });
             setMigrationWaveToDelete(null);
           }
           if (migrationWavesToDelete) {
             deleteAllMigrationWaves(
-              migrationWavesToDelete.map((id) => deleteMigrationWave(id))
+              migrationWavesToDelete.map((wave) => deleteMigrationWave(wave))
             );
             setMigrationWavesToDelete(null);
           }

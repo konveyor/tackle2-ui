@@ -19,25 +19,27 @@ export const useFetchRulesets = () => {
     {
       onError: (err) => console.log(err),
       select: (data) => {
-        return data.map((ruleset) => {
-          const mappedRules = ruleset.rules.map((rule) => {
-            if (ruleset?.name === "rule-example.yaml") {
-              debugger;
-            }
-            const labels = getLabels(rule.labels || []);
+        return data
+          .map((ruleset) => {
+            const mappedRules = ruleset.rules.map((rule) => {
+              if (ruleset?.name === "rule-example.yaml") {
+                debugger;
+              }
+              const labels = getLabels(rule.labels || []);
 
-            const transformedMetadata: Metadata = {
-              source: labels.sourceLabel,
-              target: labels.targetLabel,
-              otherLabels: labels.otherLabels,
-            };
-            return {
-              ...rule,
-              metadata: transformedMetadata,
-            };
-          });
-          return { ...ruleset, rules: mappedRules };
-        });
+              const transformedMetadata: Metadata = {
+                source: labels.sourceLabel,
+                target: labels.targetLabel,
+                otherLabels: labels.otherLabels,
+              };
+              return {
+                ...rule,
+                metadata: transformedMetadata,
+              };
+            });
+            return { ...ruleset, rules: mappedRules };
+          })
+          .filter((ruleset) => !ruleset.name.startsWith("."));
       },
     }
   );
