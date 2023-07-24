@@ -21,6 +21,7 @@ import { DropdownItem } from "@patternfly/react-core/deprecated";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 
 import {
@@ -73,10 +74,13 @@ import { deleteMigrationWave } from "@app/api/rest";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
+
+  const currentTimezone = dayjs.tz.guess();
 
   const { migrationWaves, isFetching, fetchError } = useFetchMigrationWaves();
   const { trackers: trackers } = useFetchTrackers();
@@ -220,6 +224,7 @@ export const MigrationWaves: React.FC = () => {
     },
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -361,16 +366,16 @@ export const MigrationWaves: React.FC = () => {
                             width={10}
                             {...getTdProps({ columnKey: "startDate" })}
                           >
-                            {dayjs
-                              .utc(migrationWave.startDate)
+                            {dayjs(migrationWave.startDate)
+                              .tz(currentTimezone)
                               .format("MM/DD/YYYY")}
                           </Td>
                           <Td
                             width={10}
                             {...getTdProps({ columnKey: "endDate" })}
                           >
-                            {dayjs
-                              .utc(migrationWave.endDate)
+                            {dayjs(migrationWave.endDate)
+                              .tz(currentTimezone)
                               .format("MM/DD/YYYY")}
                           </Td>
                           <Td
