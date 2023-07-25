@@ -97,6 +97,12 @@ $ export TACKLE_FEATURE_AUTH_REQUIRED=true
 
 #### Running the install script
 
+Before proceeding, if you are on macOS you will need to use [Homebrew](https://brew.sh/) to install the `coreutils` package:
+
+```sh
+$ brew install coreutils
+```
+
 To run the install script (requires `kubectl` on your PATH configured for minikube):
 
 ```sh
