@@ -57,45 +57,63 @@ $ minikube start --addons=dashboard --addons=ingress --addons=olm
 
 Note: We need to enable the dashboard, ingress and olm addons. The dashboard addon installs the dashboard service that exposes the Kubernetes objects in a user interface. The ingress addon allows us to create Ingress CRs to expose the Tackle UI and Tackle Hub API. The olm addon allows us to use an operator to deploy Tackle.
 
-### Installing Konveyor/Tackle2 operator
+### Configuring kubectl for minikube
 
-Use the yaml provided by the tackle2-operator to setup the `konveyor-tackle` namespace, operator,
-and operator subscription pointing at the latest development versions:
+You will need `kubectl` on your PATH and configured to control minikube in order to proceed. There are two ways to set this up:
 
-```sh
-$ kubectl apply -f https://raw.githubusercontent.com/konveyor/tackle2-operator/main/tackle-k8s.yaml
-```
+1. **Install kubectl yourself**
 
-Once the operator is installed, the tackle operator needs to be deployed:
+   If you already [have the `kubectl` CLI tool installed](https://kubernetes.io/docs/tasks/tools/#kubectl) and available on your PATH, the `minikube start` command should configure it to control the minikube cluster. You should see the following message when minikube starts if this worked correctly:
 
-Note: The below command will fail if the Tackle CRD is not yet established. This may take some time.
+   ```
+   🏄  Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+   ```
 
-```sh
-$ cat << EOF | kubectl apply -f -
-kind: Tackle
-apiVersion: tackle.konveyor.io/v1alpha1
-metadata:
-  name: tackle
-  namespace: konveyor-tackle
-spec:
-EOF
-```
+2. **Use a shell alias for minikube's built-in kubectl**
 
-Note: If you wish to run tackle with keycloak authentication enabled, append the following field to the above tackle CR spec:
+   Minikube provides its own internal `kubectl` which you can use by running `minikube kubectl --` followed by your CLI arguments. If you want to use the built-in `minikube kubectl` as the `kubectl` on your PATH, you can set a shell alias. The following example shows how to do it for Bash on Fedora 35.
 
-`feature_auth_required: true`
+   ```sh
+   $ mkdir -p ~/.bashrc.d
+   $ cat << EOF > ~/.bashrc.d/minikube
+   alias kubectl="minikube kubectl --"
+   EOF
+   $ source ~/.bashrc
+   ```
 
-Wait few minutes to make sure tackle is fully deployed (with auth `true`):
+### Installing the Konveyor operator
 
-```sh
-$ kubectl wait deployment tackle-keycloak-sso -n konveyor-tackle --for condition=Available --timeout=5m
-```
+The [konveyor/operator git repository](https://github.com/konveyor/operator) provides a script to install Tackle locally using `kubectl`. You can [inspect its source here](https://github.com/konveyor/operator/blob/main/hack/install-tackle.sh). This script creates the `konveyor-tackle` namespace, CatalogSource, OperatorGroup, Subscription and Tackle CR, then waits for deployments to be ready.
 
-(with auth `false`):
+#### Customizing the install script (optional)
+
+The install script provides optional environment variables you can use to customize the images and features used. See [the source of the script](https://github.com/konveyor/operator/blob/main/hack/install-tackle.sh) for all available variables.
+
+For example, if you wish to run tackle with keycloak authentication enabled, export the following variable before running the install script:
 
 ```sh
-$ kubectl wait deployment tackle-operator -n konveyor-tackle --for condition=Available --timeout=5m
+$ export TACKLE_FEATURE_AUTH_REQUIRED=true
 ```
+
+#### Running the install script
+
+Before proceeding, if you are on macOS you will need to use [Homebrew](https://brew.sh/) to install the `coreutils` package:
+
+```sh
+$ brew install coreutils
+```
+
+To run the install script (requires `kubectl` on your PATH configured for minikube):
+
+```sh
+$ curl https://raw.githubusercontent.com/konveyor/operator/main/hack/install-tackle.sh | bash
+```
+
+Alternatively, you can clone the [konveyor/operator git repository](https://github.com/konveyor/operator) and run `./hack/install-tackle.sh` from your clone, or you can execute its commands manually.
+
+⚠️ Note: While CRDs are being established, you may see the script output `NotFound` errors. You can safely ignore these. The script will wait 30 seconds to check for the CRD again before proceeding.
+
+The installation is complete when the script outputs "condition met" messages and terminates.
 
 ### Start your local development server
 
@@ -148,19 +166,6 @@ $ kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080
 
 **Note**: The `npm run port-forward` or `kubectl port-forward` commands need to remain running
 for the ports to be available.
-
-## Configuring kubectl (optional)
-
-Minikube allows us to use the `kubectl` command with `minikube kubectl`. To make the experience more Kubernetes-like, we can set a shell alias to simply use kubectl.
-The following example shows how to do it for Bash on Fedora 35.
-
-```sh
-$ mkdir -p ~/.bashrc.d
-$ cat << EOF > ~/.bashrc.d/minikube
-alias kubectl="minikube kubectl --"
-EOF
-$ source ~/.bashrc
-```
 
 ## Accessing the Kubernetes dashboard
 
