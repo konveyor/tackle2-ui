@@ -62,14 +62,12 @@ export interface FormValues {
 
 export interface ApplicationFormProps {
   application?: Application;
-  onSaved: () => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
 export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   application,
-  onSaved,
-  onCancel,
+  onClose,
 }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
@@ -295,7 +293,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         variant: "success",
       });
     }
-    onSaved();
+    onClose();
   };
 
   const onCreateUpdateApplicationError = (error: AxiosError) => {
@@ -702,7 +700,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>

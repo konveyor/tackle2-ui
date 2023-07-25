@@ -159,7 +159,6 @@ export const ApplicationsTable: React.FC = () => {
     selectMultiple,
     areAllSelected,
     selectedRows,
-    setPageNumber,
     openDetailDrawer,
     closeDetailDrawer,
     activeAppInDetailDrawer,
@@ -176,11 +175,6 @@ export const ApplicationsTable: React.FC = () => {
     update: openUpdateApplicationModal,
     close: closeApplicationModal,
   } = useEntityModal<Application>();
-
-  const onApplicationModalSaved = () => {
-    closeApplicationModal();
-    fetchApplications();
-  };
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -799,8 +793,7 @@ export const ApplicationsTable: React.FC = () => {
       >
         <ApplicationForm
           application={applicationToUpdate}
-          onSaved={onApplicationModalSaved}
-          onCancel={closeApplicationModal}
+          onClose={closeApplicationModal}
         />
       </Modal>
       <Modal
