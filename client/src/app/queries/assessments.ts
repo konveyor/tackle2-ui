@@ -32,7 +32,7 @@ export const useFetchApplicationAssessments = (
     if (application.id) queryResultsByAppId[application.id] = queryResults[i];
   });
   return {
-    getApplicationAssessment: (id: number) => queryResultsByAppId[id].data,
+    getApplicationAssessment: (id: number) => queryResultsByAppId[id]?.data,
     isLoadingApplicationAssessment: (id: number) =>
       queryResultsByAppId[id].isLoading,
     fetchErrorApplicationAssessment: (id: number) =>
