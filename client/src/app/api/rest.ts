@@ -135,34 +135,6 @@ const buildQuery = (params: any) => {
   return query;
 };
 
-// Business services
-
-export const getBusinessServices = (): AxiosPromise<Array<BusinessService>> => {
-  return APIClient.get(`${BUSINESS_SERVICES}`, jsonHeaders);
-};
-
-export const deleteBusinessService = (id: number | string): AxiosPromise => {
-  return APIClient.delete(`${BUSINESS_SERVICES}/${id}`);
-};
-
-export const createBusinessService = (
-  obj: New<BusinessService>
-): AxiosPromise<BusinessService> => {
-  return APIClient.post(`${BUSINESS_SERVICES}`, obj);
-};
-
-export const updateBusinessService = (
-  obj: BusinessService
-): AxiosPromise<BusinessService> => {
-  return APIClient.put(`${BUSINESS_SERVICES}/${obj.id}`, obj);
-};
-
-export const getBusinessServiceById = (
-  id: number | string
-): AxiosPromise<BusinessService> => {
-  return APIClient.get(`${BUSINESS_SERVICES}/${id}`);
-};
-
 // App inventory
 
 export const updateAllApplications = (
@@ -183,7 +155,7 @@ export const getApplicationById = (
   return APIClient.get(`${APPLICATIONS}/${id}`);
 };
 
-//
+// Applications Dependencies
 
 export const getApplicationDependencies = (): AxiosPromise<
   ApplicationDependency[]
@@ -201,7 +173,7 @@ export const deleteApplicationDependency = (id: number): AxiosPromise => {
   return APIClient.delete(`${APPLICATION_DEPENDENCY}/${id}`);
 };
 
-//
+// Reviews
 
 export const getReviews = (): AxiosPromise<Review[]> => {
   return APIClient.get(`${REVIEWS}`);
@@ -713,6 +685,28 @@ export const updateJobFunction = (obj: JobFunction): Promise<JobFunction> =>
 
 export const deleteJobFunction = (id: number): Promise<JobFunction> =>
   axios.delete(`${JOB_FUNCTIONS}/${id}`);
+
+// Business services
+
+export const getBusinessServices = (): Promise<Array<BusinessService>> =>
+  axios.get(BUSINESS_SERVICES).then((response) => response.data);
+
+export const deleteBusinessService = (
+  id: number | string
+): Promise<BusinessService> => axios.delete(`${BUSINESS_SERVICES}/${id}`);
+
+export const createBusinessService = (
+  obj: New<BusinessService>
+): Promise<BusinessService> => axios.post(BUSINESS_SERVICES, obj);
+
+export const updateBusinessService = (
+  obj: BusinessService
+): Promise<BusinessService> => axios.put(`${BUSINESS_SERVICES}/${obj.id}`, obj);
+
+export const getBusinessServiceById = (
+  id: number | string
+): Promise<BusinessService> =>
+  axios.get(`${BUSINESS_SERVICES}/${id}`).then((response) => response.data);
 
 // Tags
 

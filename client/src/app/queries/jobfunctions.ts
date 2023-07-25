@@ -8,15 +8,9 @@ import {
 } from "@app/api/rest";
 import { AxiosError } from "axios";
 
-export interface IJobFunctionFetchState {
-  jobFunctions: JobFunction[];
-  isFetching: boolean;
-  fetchError: any;
-  refetch: any;
-}
 export const JobFunctionsQueryKey = "jobfunctions";
 
-export const useFetchJobFunctions = (): IJobFunctionFetchState => {
+export const useFetchJobFunctions = () => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [JobFunctionsQueryKey],
     queryFn: getJobFunctions,
