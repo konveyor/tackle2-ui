@@ -39,6 +39,7 @@ import {
 } from "@app/shared/components/hook-form-pf-fields";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export interface FormValues {
   name: string;
@@ -61,7 +62,7 @@ export interface FormValues {
 
 export interface ApplicationFormProps {
   application?: Application;
-  onSaved: (response: AxiosResponse<Application>) => void;
+  onSaved: () => void;
   onCancel: () => void;
 }
 
@@ -71,6 +72,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   onCancel,
 }) => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [axiosError, setAxiosError] = useState<AxiosError>();
 
@@ -274,8 +276,26 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     }
   };
 
-  const onCreateUpdateApplicationSuccess = (response: any) => {
-    onSaved(response);
+  const onCreateUpdateApplicationSuccess = (
+    response: AxiosResponse<Application>
+  ) => {
+    if (application) {
+      pushNotification({
+        title: t("toastr.success.save", {
+          type: t("terms.application"),
+        }),
+        variant: "success",
+      });
+    } else {
+      pushNotification({
+        title: t("toastr.success.createWhat", {
+          type: t("terms.application"),
+          what: response.data.name,
+        }),
+        variant: "success",
+      });
+    }
+    onSaved();
   };
 
   const onCreateUpdateApplicationError = (error: AxiosError) => {

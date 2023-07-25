@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useTranslation, Trans } from "react-i18next";
 
 import {
@@ -177,17 +177,7 @@ export const ApplicationsTable: React.FC = () => {
     close: closeApplicationModal,
   } = useEntityModal<Application>();
 
-  const onApplicationModalSaved = (response: AxiosResponse<Application>) => {
-    if (!applicationToUpdate) {
-      pushNotification({
-        title: t("toastr.success.saveWhat", {
-          what: response.data.name,
-          type: t("terms.application"),
-        }),
-        variant: "success",
-      });
-    }
-
+  const onApplicationModalSaved = () => {
     closeApplicationModal();
     fetchApplications();
   };
