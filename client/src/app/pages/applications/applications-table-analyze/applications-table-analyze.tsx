@@ -180,11 +180,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     close: closeApplicationModal,
   } = useEntityModal<Application>();
 
-  const onApplicationModalSaved = () => {
-    closeApplicationModal();
-    refetch();
-  };
-
   // Delete
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
@@ -630,8 +625,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       >
         <ApplicationForm
           application={applicationToUpdate}
-          onSaved={onApplicationModalSaved}
-          onCancel={closeApplicationModal}
+          onClose={closeApplicationModal}
         />
       </Modal>
 

@@ -177,11 +177,6 @@ export const ApplicationsTable: React.FC = () => {
     close: closeApplicationModal,
   } = useEntityModal<Application>();
 
-  const onApplicationModalSaved = () => {
-    closeApplicationModal();
-    fetchApplications();
-  };
-
   // Delete
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -800,8 +795,7 @@ export const ApplicationsTable: React.FC = () => {
       >
         <ApplicationForm
           application={applicationToUpdate}
-          onSaved={onApplicationModalSaved}
-          onCancel={closeApplicationModal}
+          onClose={closeApplicationModal}
         />
       </Modal>
       <Modal
