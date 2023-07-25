@@ -48,8 +48,6 @@ export interface ITableControlCommonArgs<
   expandableVariant?: "single" | "compound" | null;
   hasActionsColumn?: boolean;
   variant?: TableProps["variant"];
-  // TODO PF V5 obsolete
-  // hasClickableRows?: boolean;
 }
 
 // URL-param-specific args
