@@ -180,17 +180,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     close: closeApplicationModal,
   } = useEntityModal<Application>();
 
-  const onApplicationModalSaved = (response: AxiosResponse<Application>) => {
-    if (!applicationToUpdate) {
-      pushNotification({
-        title: t("toastr.success.saveWhat", {
-          what: response.data.name,
-          type: t("terms.application"),
-        }),
-        variant: "success",
-      });
-    }
-
+  const onApplicationModalSaved = () => {
     closeApplicationModal();
     refetch();
   };
