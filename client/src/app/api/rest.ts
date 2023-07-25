@@ -163,37 +163,6 @@ export const getBusinessServiceById = (
   return APIClient.get(`${BUSINESS_SERVICES}/${id}`);
 };
 
-// Job functions
-
-export enum JobFunctionSortBy {
-  NAME,
-}
-
-export interface JobFunctionSortByQuery {
-  field: JobFunctionSortBy;
-  direction?: Direction;
-}
-
-export const getJobFunctions = (): AxiosPromise<JobFunction[]> => {
-  return APIClient.get(`${JOB_FUNCTIONS}`, jsonHeaders);
-};
-
-export const createJobFunction = (
-  obj: New<JobFunction>
-): AxiosPromise<JobFunction> => {
-  return APIClient.post(`${JOB_FUNCTIONS}`, obj);
-};
-
-export const updateJobFunction = (
-  obj: JobFunction
-): AxiosPromise<JobFunction> => {
-  return APIClient.put(`${JOB_FUNCTIONS}/${obj.id}`, obj);
-};
-
-export const deleteJobFunction = (id: number): AxiosPromise => {
-  return APIClient.delete(`${JOB_FUNCTIONS}/${id}`);
-};
-
 // App inventory
 
 export const updateAllApplications = (
@@ -720,6 +689,30 @@ export const updateStakeholderGroup = (
   obj: StakeholderGroup
 ): Promise<StakeholderGroup> =>
   axios.put(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj);
+
+// Job functions
+
+export enum JobFunctionSortBy {
+  NAME,
+}
+
+export interface JobFunctionSortByQuery {
+  field: JobFunctionSortBy;
+  direction?: Direction;
+}
+
+export const getJobFunctions = (): Promise<JobFunction[]> =>
+  axios.get(JOB_FUNCTIONS).then((response) => response.data);
+
+export const createJobFunction = (
+  obj: New<JobFunction>
+): Promise<JobFunction> => axios.post(JOB_FUNCTIONS, obj);
+
+export const updateJobFunction = (obj: JobFunction): Promise<JobFunction> =>
+  axios.put(`${JOB_FUNCTIONS}/${obj.id}`, obj);
+
+export const deleteJobFunction = (id: number): Promise<JobFunction> =>
+  axios.delete(`${JOB_FUNCTIONS}/${id}`);
 
 // Tags
 
