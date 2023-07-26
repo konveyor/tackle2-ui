@@ -22,6 +22,7 @@ import {
   TextContent,
   Button,
   Text,
+  Modal,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
@@ -37,8 +38,7 @@ import {
 import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { UpdateCustomTargetModal } from "./components/update-custom-target-modal/update-custom-target-modal";
-import { NewCustomTargetModal } from "./components/new-custom-target-modal";
+import { CustomTargetForm } from "./components/custom-target-form";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
 
 export const MigrationTargets: React.FC = () => {
@@ -193,16 +193,24 @@ export const MigrationTargets: React.FC = () => {
             </Button>
           </GridItem>
         </Grid>
-        <NewCustomTargetModal
-          isOpen={isMigrationTargetModalOpen && !!!rulesetToUpdate}
-          onSaved={onCustomTargetModalSaved}
-          onCancel={closeMigrationTargetModal}
-        />
-        <UpdateCustomTargetModal
-          ruleset={rulesetToUpdate}
-          onSaved={onCustomTargetModalSaved}
-          onCancel={closeMigrationTargetModal}
-        />
+        <Modal
+          id="create-edit-custom-tarrget-modal"
+          title={t(
+            rulesetToUpdate ? "dialog.title.update" : "dialog.title.new",
+            {
+              what: t("terms.customTarget").toLowerCase(),
+            }
+          )}
+          variant="medium"
+          isOpen={isMigrationTargetModalOpen}
+          onClose={closeMigrationTargetModal}
+        >
+          <CustomTargetForm
+            ruleset={rulesetToUpdate}
+            onSaved={onCustomTargetModalSaved}
+            onCancel={closeMigrationTargetModal}
+          />
+        </Modal>
       </PageSection>
       <DndContext
         sensors={sensors}
