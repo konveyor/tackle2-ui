@@ -47,14 +47,14 @@ export const useCreateJobFunctionMutation = (
 };
 
 export const useUpdateJobFunctionMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: () => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateJobFunction,
-    onSuccess: (res) => {
-      onSuccess(res);
+    onSuccess: () => {
+      onSuccess();
       queryClient.invalidateQueries([JobFunctionsQueryKey]);
     },
     onError: onError,

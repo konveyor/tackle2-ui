@@ -27,7 +27,7 @@ export interface FormValues {
 }
 
 export interface JobFunctionFormProps {
-  jobFunction?: JobFunction;
+  jobFunction?: JobFunction | null;
   onClose: () => void;
 }
 
@@ -81,7 +81,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
     onClose();
   };
 
-  const onUpdateJobFunctionSuccess = (response: AxiosResponse<JobFunction>) => {
+  const onUpdateJobFunctionSuccess = () => {
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.jobFunction"),

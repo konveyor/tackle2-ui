@@ -244,7 +244,7 @@ export const JobFunctions: React.FC = () => {
         onClose={closeCreateUpdateModal}
       >
         <JobFunctionForm
-          jobFunction={jobFunctionToUpdate ? jobFunctionToUpdate : undefined}
+          jobFunction={jobFunctionToUpdate}
           onClose={closeCreateUpdateModal}
         />
       </Modal>
