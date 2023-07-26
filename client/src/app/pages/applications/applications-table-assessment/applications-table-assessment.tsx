@@ -192,7 +192,6 @@ export const ApplicationsTable: React.FC = () => {
     fetchApplications();
   };
 
-  // Delete
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
       title: t("toastr.success.applicationDeleted", {
@@ -200,7 +199,7 @@ export const ApplicationsTable: React.FC = () => {
       }),
       variant: "success",
     });
-    fetchApplications();
+    activeAppInDetailDrawer && closeDetailDrawer();
   };
 
   const onDeleteApplicationError = (error: AxiosError) => {
