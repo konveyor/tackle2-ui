@@ -29,13 +29,12 @@ import { useTranslation } from "react-i18next";
 
 import { Item } from "./components/dnd/item";
 import { DndGrid } from "./components/dnd/grid";
-import { Ruleset, Setting } from "@app/api/models";
+import { Ruleset } from "@app/api/models";
 import { AxiosError, AxiosResponse } from "axios";
 import {
   useDeleteRulesetMutation,
   useFetchRulesets,
 } from "@app/queries/rulesets";
-import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { CustomTargetForm } from "./components/custom-target-form";
@@ -53,6 +52,14 @@ export const MigrationTargets: React.FC = () => {
 
   const rulesetOrderSetting = useSetting("ui.ruleset.order");
   const rulesetOrderSettingMutation = useSettingMutation("ui.ruleset.order");
+
+  // Create and update modal
+  const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
+    "create" | Ruleset | null
+  >(null);
+  const isCreateUpdateModalOpen = createUpdateModalState !== null;
+  const rulesetToUpdate =
+    createUpdateModalState !== "create" ? createUpdateModalState : null;
 
   const targetsEndRef = useRef<null | HTMLDivElement>(null);
 
@@ -115,7 +122,6 @@ export const MigrationTargets: React.FC = () => {
         ),
       });
       // update ruleset order
-
       if (
         rulesetOrderSetting.isSuccess &&
         response.data.id &&
@@ -128,18 +134,9 @@ export const MigrationTargets: React.FC = () => {
       }
     }
 
-    closeMigrationTargetModal();
+    setCreateUpdateModalState(null);
     refetchrulesets();
   };
-
-  // Create and update modal
-  const {
-    isOpen: isMigrationTargetModalOpen,
-    data: rulesetToUpdate,
-    create: openCreateMigrationTargetModal,
-    update: openUpdateMigrationTargetModal,
-    close: closeMigrationTargetModal,
-  } = useEntityModal<Ruleset>();
 
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
@@ -187,7 +184,7 @@ export const MigrationTargets: React.FC = () => {
               id="clear-repository"
               isInline
               className={spacing.mlMd}
-              onClick={openCreateMigrationTargetModal}
+              onClick={() => setCreateUpdateModalState("create")}
             >
               Create new
             </Button>
@@ -202,13 +199,13 @@ export const MigrationTargets: React.FC = () => {
             }
           )}
           variant="medium"
-          isOpen={isMigrationTargetModalOpen}
-          onClose={closeMigrationTargetModal}
+          isOpen={isCreateUpdateModalOpen}
+          onClose={() => setCreateUpdateModalState(null)}
         >
           <CustomTargetForm
             ruleset={rulesetToUpdate}
             onSaved={onCustomTargetModalSaved}
-            onCancel={closeMigrationTargetModal}
+            onCancel={() => setCreateUpdateModalState(null)}
           />
         </Modal>
       </PageSection>
@@ -233,7 +230,7 @@ export const MigrationTargets: React.FC = () => {
                       (Ruleset) => Ruleset.id === id
                     );
                     if (matchingRuleset) {
-                      openUpdateMigrationTargetModal(matchingRuleset);
+                      setCreateUpdateModalState(matchingRuleset);
                     }
                   }}
                   onDelete={() => {
