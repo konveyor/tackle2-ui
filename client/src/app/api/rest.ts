@@ -459,19 +459,21 @@ export const deleteAllMigrationWaves = (
     .catch((error) => error);
 };
 
-export const updateRuleset = (obj: Ruleset) =>
+// Ruleset
+
+export const updateRuleset = (obj: Ruleset): Promise<Ruleset> =>
   axios.put(`${RULESETS}/${obj.id}`, obj);
 
-export const createRuleset = (obj: Ruleset) =>
-  axios.post<Ruleset>(RULESETS, obj);
+export const createRuleset = (obj: Ruleset): Promise<Ruleset> =>
+  axios.post(RULESETS, obj);
 
 export const deleteRuleset = (id: number) => axios.delete(`${RULESETS}/${id}`);
 
-export const getRulesets = () =>
-  axios.get<[]>(RULESETS).then((response) => response.data);
+export const getRulesets = (): Promise<Ruleset[]> =>
+  axios.get(RULESETS).then((response) => response.data);
 
-export const getFileByID = (id: number) =>
-  axios.get<Ruleset[]>(FILES).then((response) => response.data);
+export const getFileByID = (id: number): Promise<Ruleset[]> =>
+  axios.get(FILES).then((response) => response.data);
 
 export const createFile = ({
   formData,
@@ -479,9 +481,9 @@ export const createFile = ({
 }: {
   formData: FormData;
   file: IReadFile;
-}) =>
+}): Promise<Ruleset> =>
   axios
-    .post<Ruleset>(`${FILES}/${file.fileName}`, formData, fileHeaders)
+    .post(`${FILES}/${file.fileName}`, formData, fileHeaders)
     .then((response) => {
       return response.data;
     });
