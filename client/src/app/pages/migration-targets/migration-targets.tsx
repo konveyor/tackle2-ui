@@ -89,9 +89,17 @@ export const MigrationTargets: React.FC = () => {
   );
 
   const onCustomTargetModalSaved = (response: AxiosResponse<Ruleset>) => {
-    if (!rulesetToUpdate) {
+    if (rulesetToUpdate) {
       pushNotification({
         title: t("toastr.success.saveWhat", {
+          what: response.data.name,
+          type: t("terms.customTarget"),
+        }),
+        variant: "success",
+      });
+    } else {
+      pushNotification({
+        title: t("toastr.success.createWhat", {
           what: response.data.name,
           type: t("terms.customTarget"),
         }),
@@ -106,21 +114,22 @@ export const MigrationTargets: React.FC = () => {
           </Button>
         ),
       });
-    }
-    // update ruleset order
+      // update ruleset order
 
-    if (
-      rulesetOrderSetting.isSuccess &&
-      response.data.id &&
-      rulesetOrderSetting.data
-    ) {
-      rulesetOrderSettingMutation.mutate([
-        ...rulesetOrderSetting.data,
-        response.data.id,
-      ]);
-      closeMigrationTargetModal();
-      refetchrulesets();
+      if (
+        rulesetOrderSetting.isSuccess &&
+        response.data.id &&
+        rulesetOrderSetting.data
+      ) {
+        rulesetOrderSettingMutation.mutate([
+          ...rulesetOrderSetting.data,
+          response.data.id,
+        ]);
+      }
     }
+
+    closeMigrationTargetModal();
+    refetchrulesets();
   };
 
   // Create and update modal
@@ -191,7 +200,7 @@ export const MigrationTargets: React.FC = () => {
         />
         <UpdateCustomTargetModal
           ruleset={rulesetToUpdate}
-          onSaved={closeMigrationTargetModal}
+          onSaved={onCustomTargetModalSaved}
           onCancel={closeMigrationTargetModal}
         />
       </PageSection>
