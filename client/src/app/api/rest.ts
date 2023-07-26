@@ -695,7 +695,7 @@ export const updateStakeholderGroup = (
 
 // Business services
 
-export const getBusinessServices = (): Promise<Array<BusinessService>> =>
+export const getBusinessServices = (): Promise<BusinessService[]> =>
   axios.get(BUSINESS_SERVICES).then((response) => response.data);
 
 export const deleteBusinessService = (
