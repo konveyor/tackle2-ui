@@ -292,7 +292,7 @@ export const createBulkCopyReview = (
   return APIClient.post<BulkCopyReview>(`${REVIEWS}/copy`, bulk);
 };
 
-export const getIdentities = (): AxiosPromise<Array<Identity>> => {
+export const getIdentities = (): AxiosPromise<Identity[]> => {
   return APIClient.get(`${IDENTITIES}`, jsonHeaders);
 };
 
@@ -308,7 +308,7 @@ export const deleteIdentity = (identity: Identity): AxiosPromise => {
   return APIClient.delete(`${IDENTITIES}/${identity.id}`);
 };
 
-export const getProxies = (): AxiosPromise<Array<Proxy>> => {
+export const getProxies = (): AxiosPromise<Proxy[]> => {
   return APIClient.get(`${PROXIES}`, jsonHeaders);
 };
 
@@ -690,7 +690,7 @@ export const deleteJobFunction = (id: number): Promise<JobFunction> =>
 
 // Business services
 
-export const getBusinessServices = (): Promise<Array<BusinessService>> =>
+export const getBusinessServices = (): Promise<BusinessService[]> =>
   axios.get(BUSINESS_SERVICES).then((response) => response.data);
 
 export const deleteBusinessService = (
@@ -728,7 +728,7 @@ export const updateTag = (obj: Tag): Promise<Tag> =>
 
 // Tag categories
 
-export const getTagCategories = (): Promise<Array<TagCategory>> =>
+export const getTagCategories = (): Promise<TagCategory[]> =>
   axios.get(TAG_CATEGORIES).then((response) => response.data);
 
 export const getTagCategoryById = (id: number): Promise<TagCategory> =>
