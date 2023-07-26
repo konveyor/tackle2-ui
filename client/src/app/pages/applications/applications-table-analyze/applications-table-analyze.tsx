@@ -204,7 +204,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       }),
       variant: "success",
     });
-    refetch();
+    activeAppInDetailDrawer && closeDetailDrawer();
   };
 
   const onDeleteApplicationError = (error: AxiosError) => {
@@ -212,7 +212,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       title: getAxiosErrorMessage(error),
       variant: "danger",
     });
-    refetch();
   };
 
   const { mutate: deleteApplication } = useDeleteApplicationMutation(
