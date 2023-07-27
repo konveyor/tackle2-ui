@@ -22,23 +22,22 @@ import {
   TextContent,
   Button,
   Text,
+  Modal,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 
 import { Item } from "./components/dnd/item";
 import { DndGrid } from "./components/dnd/grid";
-import { Ruleset, Setting } from "@app/api/models";
+import { Ruleset } from "@app/api/models";
 import { AxiosError, AxiosResponse } from "axios";
 import {
   useDeleteRulesetMutation,
   useFetchRulesets,
 } from "@app/queries/rulesets";
-import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { UpdateCustomTargetModal } from "./components/update-custom-target-modal/update-custom-target-modal";
-import { NewCustomTargetModal } from "./components/new-custom-target-modal";
+import { CustomTargetForm } from "./components/custom-target-form";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
 
 export const MigrationTargets: React.FC = () => {
@@ -53,6 +52,14 @@ export const MigrationTargets: React.FC = () => {
 
   const rulesetOrderSetting = useSetting("ui.ruleset.order");
   const rulesetOrderSettingMutation = useSettingMutation("ui.ruleset.order");
+
+  // Create and update modal
+  const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
+    "create" | Ruleset | null
+  >(null);
+  const isCreateUpdateModalOpen = createUpdateModalState !== null;
+  const rulesetToUpdate =
+    createUpdateModalState !== "create" ? createUpdateModalState : null;
 
   const targetsEndRef = useRef<null | HTMLDivElement>(null);
 
@@ -89,9 +96,17 @@ export const MigrationTargets: React.FC = () => {
   );
 
   const onCustomTargetModalSaved = (response: AxiosResponse<Ruleset>) => {
-    if (!rulesetToUpdate) {
+    if (rulesetToUpdate) {
       pushNotification({
         title: t("toastr.success.saveWhat", {
+          what: response.data.name,
+          type: t("terms.customTarget"),
+        }),
+        variant: "success",
+      });
+    } else {
+      pushNotification({
+        title: t("toastr.success.createWhat", {
           what: response.data.name,
           type: t("terms.customTarget"),
         }),
@@ -106,31 +121,22 @@ export const MigrationTargets: React.FC = () => {
           </Button>
         ),
       });
+      // update ruleset order
+      if (
+        rulesetOrderSetting.isSuccess &&
+        response.data.id &&
+        rulesetOrderSetting.data
+      ) {
+        rulesetOrderSettingMutation.mutate([
+          ...rulesetOrderSetting.data,
+          response.data.id,
+        ]);
+      }
     }
-    // update ruleset order
 
-    if (
-      rulesetOrderSetting.isSuccess &&
-      response.data.id &&
-      rulesetOrderSetting.data
-    ) {
-      rulesetOrderSettingMutation.mutate([
-        ...rulesetOrderSetting.data,
-        response.data.id,
-      ]);
-      closeMigrationTargetModal();
-      refetchrulesets();
-    }
+    setCreateUpdateModalState(null);
+    refetchrulesets();
   };
-
-  // Create and update modal
-  const {
-    isOpen: isMigrationTargetModalOpen,
-    data: rulesetToUpdate,
-    create: openCreateMigrationTargetModal,
-    update: openUpdateMigrationTargetModal,
-    close: closeMigrationTargetModal,
-  } = useEntityModal<Ruleset>();
 
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
@@ -178,22 +184,30 @@ export const MigrationTargets: React.FC = () => {
               id="clear-repository"
               isInline
               className={spacing.mlMd}
-              onClick={openCreateMigrationTargetModal}
+              onClick={() => setCreateUpdateModalState("create")}
             >
               Create new
             </Button>
           </GridItem>
         </Grid>
-        <NewCustomTargetModal
-          isOpen={isMigrationTargetModalOpen && !!!rulesetToUpdate}
-          onSaved={onCustomTargetModalSaved}
-          onCancel={closeMigrationTargetModal}
-        />
-        <UpdateCustomTargetModal
-          ruleset={rulesetToUpdate}
-          onSaved={closeMigrationTargetModal}
-          onCancel={closeMigrationTargetModal}
-        />
+        <Modal
+          id="create-edit-custom-tarrget-modal"
+          title={t(
+            rulesetToUpdate ? "dialog.title.update" : "dialog.title.new",
+            {
+              what: t("terms.customTarget").toLowerCase(),
+            }
+          )}
+          variant="medium"
+          isOpen={isCreateUpdateModalOpen}
+          onClose={() => setCreateUpdateModalState(null)}
+        >
+          <CustomTargetForm
+            ruleset={rulesetToUpdate}
+            onSaved={onCustomTargetModalSaved}
+            onCancel={() => setCreateUpdateModalState(null)}
+          />
+        </Modal>
       </PageSection>
       <DndContext
         sensors={sensors}
@@ -216,7 +230,7 @@ export const MigrationTargets: React.FC = () => {
                       (Ruleset) => Ruleset.id === id
                     );
                     if (matchingRuleset) {
-                      openUpdateMigrationTargetModal(matchingRuleset);
+                      setCreateUpdateModalState(matchingRuleset);
                     }
                   }}
                   onDelete={() => {
