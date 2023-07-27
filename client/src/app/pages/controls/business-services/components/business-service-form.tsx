@@ -1,22 +1,23 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { object, string } from "yup";
 
 import {
   ActionGroup,
-  Alert,
   Button,
   ButtonVariant,
   Form,
 } from "@patternfly/react-core";
-
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { createBusinessService, updateBusinessService } from "@app/api/rest";
 import { BusinessService, New } from "@app/api/models";
-import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import { duplicateNameCheck } from "@app/utils/utils";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
-import { useFetchBusinessServices } from "@app/queries/businessservices";
+import {
+  useCreateBusinessServiceMutation,
+  useFetchBusinessServices,
+  useUpdateBusinessServiceMutation,
+} from "@app/queries/businessservices";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -25,6 +26,7 @@ import {
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export interface FormValues {
   name: string;
@@ -33,22 +35,18 @@ export interface FormValues {
 }
 
 export interface BusinessServiceFormProps {
-  businessService?: BusinessService;
-  onSaved: (response: AxiosResponse<BusinessService>) => void;
-  onCancel: () => void;
+  businessService: BusinessService | null;
+  onClose: () => void;
 }
 
 export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
   businessService,
-  onSaved,
-  onCancel,
+  onClose,
 }) => {
   const { t } = useTranslation();
-
-  const [error, setError] = useState<AxiosError>();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const { businessServices } = useFetchBusinessServices();
-
   const { stakeholders } = useFetchStakeholders();
 
   const stakeholdersOptions = stakeholders.map((stakeholder) => {
@@ -94,6 +92,57 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
     mode: "onChange",
   });
 
+  const onCreateBusinessServiceSuccess = (
+    response: AxiosResponse<BusinessService>
+  ) => {
+    pushNotification({
+      title: t("toastr.success.createWhat", {
+        type: t("terms.businessService"),
+        what: response.data.name,
+      }),
+      variant: "success",
+    });
+    onClose();
+  };
+
+  const onUpdateBusinessServiceSuccess = () => {
+    pushNotification({
+      title: t("toastr.success.save", {
+        type: t("terms.businessService"),
+      }),
+      variant: "success",
+    });
+    onClose();
+  };
+
+  const onCreateBusinessServiceError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.create", {
+        type: t("terms.businessService").toLowerCase(),
+      }),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: createBusinessService } = useCreateBusinessServiceMutation(
+    onCreateBusinessServiceSuccess,
+    onCreateBusinessServiceError
+  );
+
+  const onUpdateBusinessServiceError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.save", {
+        type: t("terms.businessService").toLowerCase(),
+      }),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: updateBusinessService } = useUpdateBusinessServiceMutation(
+    onUpdateBusinessServiceSuccess,
+    onUpdateBusinessServiceError
+  );
+
   const onSubmit = (formValues: FormValues) => {
     const matchingStakeholderRef = stakeholders.find(
       (stakeholder) => stakeholder.name === formValues.owner
@@ -104,30 +153,16 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
       owner: matchingStakeholderRef,
     };
 
-    let promise: AxiosPromise<BusinessService>;
     if (businessService) {
-      promise = updateBusinessService({
-        ...businessService,
-        ...payload,
-      });
+      updateBusinessService({ id: businessService.id, ...payload });
     } else {
-      promise = createBusinessService(payload);
+      createBusinessService(payload);
     }
-
-    promise
-      .then((response) => {
-        onSaved(response);
-      })
-      .catch((error) => {
-        setError(error);
-      });
+    onClose();
   };
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      {error && (
-        <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />
-      )}
       <HookFormPFTextInput
         control={control}
         name="name"
@@ -180,7 +215,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>

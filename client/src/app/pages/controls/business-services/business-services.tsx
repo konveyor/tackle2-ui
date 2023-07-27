@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { AxiosError, AxiosResponse } from "axios";
+import React from "react";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
-
 import {
   Button,
   ButtonVariant,
+  Modal,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -24,12 +24,9 @@ import {
   NoDataEmptyState,
   ConfirmDialog,
 } from "@app/shared/components";
-
 import { BusinessService } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-
-import { NewBusinessServiceModal } from "./components/new-business-service-modal";
-import { UpdateBusinessServiceModal } from "./components/update-business-service-modal";
+import { BusinessServiceForm } from "./components/business-service-form";
 import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
 import {
   FilterCategory,
@@ -50,6 +47,7 @@ const ENTITY_FIELD = "entity";
 
 export const BusinessServices: React.FC = () => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
     React.useState<Boolean>(false);
@@ -57,10 +55,12 @@ export const BusinessServices: React.FC = () => {
   const [businessServiceIdToDelete, setBusinessServiceIdToDelete] =
     React.useState<number>();
 
-  const { pushNotification } = React.useContext(NotificationsContext);
-
-  const [isNewModalOpen, setIsNewModalOpen] = useState(false);
-  const [rowToUpdate, setRowToUpdate] = useState<BusinessService>();
+  const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
+    "create" | BusinessService | null
+  >(null);
+  const isCreateUpdateModalOpen = createUpdateModalState !== null;
+  const businessServiceToUpdate =
+    createUpdateModalState !== "create" ? createUpdateModalState : null;
 
   const onDeleteBusinessServiceSuccess = (response: any) => {
     pushNotification({
@@ -185,7 +185,7 @@ export const BusinessServices: React.FC = () => {
             <AppTableActionButtons
               isDeleteEnabled={isAssignedToApplication}
               tooltipMessage="Cannot remove a business service associated with application(s)"
-              onEdit={() => editRow(item)}
+              onEdit={() => setCreateUpdateModalState(item)}
               onDelete={() => deleteRow(item)}
             />
           ),
@@ -193,10 +193,6 @@ export const BusinessServices: React.FC = () => {
       ],
     });
   });
-
-  const editRow = (row: BusinessService) => {
-    setRowToUpdate(row);
-  };
 
   const deleteRow = (row: BusinessService) => {
     setBusinessServiceIdToDelete(row.id);
@@ -209,39 +205,11 @@ export const BusinessServices: React.FC = () => {
     setFilterValues({});
   };
 
-  // Create Modal
-
-  const handleOnOpenCreateNewBusinessServiceModal = () => {
-    setIsNewModalOpen(true);
-  };
-
-  const handleOnBusinessServiceCreated = (
-    response: AxiosResponse<BusinessService>
-  ) => {
-    setIsNewModalOpen(false);
-    refetch();
-    pushNotification({
-      title: t("toastr.success.saveWhat", {
-        what: response.data.name,
-        type: t("terms.businessService"),
-      }),
-      variant: "success",
-    });
-  };
-
-  const handleOnCancelCreateBusinessService = () => {
-    setIsNewModalOpen(false);
-  };
-
   // Update Modal
 
-  const handleOnBusinessServiceUpdated = () => {
-    setRowToUpdate(undefined);
-    refetch();
-  };
-
-  const handleOnCancelUpdateBusinessService = () => {
-    setRowToUpdate(undefined);
+  const closeCreateUpdateModal = () => {
+    setCreateUpdateModalState(null);
+    refetch;
   };
 
   return (
@@ -281,7 +249,7 @@ export const BusinessServices: React.FC = () => {
                     id="create-business-service"
                     aria-label="Create business service"
                     variant={ButtonVariant.primary}
-                    onClick={handleOnOpenCreateNewBusinessServiceModal}
+                    onClick={() => setCreateUpdateModalState("create")}
                   >
                     {t("actions.createNew")}
                   </Button>
@@ -304,16 +272,23 @@ export const BusinessServices: React.FC = () => {
         />
       </ConditionalRender>
 
-      <NewBusinessServiceModal
-        isOpen={isNewModalOpen}
-        onSaved={handleOnBusinessServiceCreated}
-        onCancel={handleOnCancelCreateBusinessService}
-      />
-      <UpdateBusinessServiceModal
-        businessService={rowToUpdate}
-        onSaved={handleOnBusinessServiceUpdated}
-        onCancel={handleOnCancelUpdateBusinessService}
-      />
+      <Modal
+        id="create-edit-stakeholder-modal"
+        title={t(
+          businessServiceToUpdate ? "dialog.title.update" : "dialog.title.new",
+          {
+            what: t("terms.businessService").toLowerCase(),
+          }
+        )}
+        variant="medium"
+        isOpen={isCreateUpdateModalOpen}
+        onClose={closeCreateUpdateModal}
+      >
+        <BusinessServiceForm
+          businessService={businessServiceToUpdate}
+          onClose={closeCreateUpdateModal}
+        />
+      </Modal>
       {isConfirmDialogOpen && (
         <ConfirmDialog
           title={t("dialog.title.delete", {
