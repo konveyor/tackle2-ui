@@ -274,25 +274,24 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     }
   };
 
-  const onCreateUpdateApplicationSuccess = (
-    response: AxiosResponse<Application>
-  ) => {
-    if (application) {
-      pushNotification({
-        title: t("toastr.success.save", {
-          type: t("terms.application"),
-        }),
-        variant: "success",
-      });
-    } else {
-      pushNotification({
-        title: t("toastr.success.createWhat", {
-          type: t("terms.application"),
-          what: response.data.name,
-        }),
-        variant: "success",
-      });
-    }
+  const onCreateApplicationSuccess = (response: AxiosResponse<Application>) => {
+    pushNotification({
+      title: t("toastr.success.createWhat", {
+        type: t("terms.application"),
+        what: response.data.name,
+      }),
+      variant: "success",
+    });
+    onClose();
+  };
+
+  const onUpdateApplicationSuccess = () => {
+    pushNotification({
+      title: t("toastr.success.save", {
+        type: t("terms.application"),
+      }),
+      variant: "success",
+    });
     onClose();
   };
 
@@ -301,12 +300,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   };
 
   const { mutate: createApplication } = useCreateApplicationMutation(
-    onCreateUpdateApplicationSuccess,
+    onCreateApplicationSuccess,
     onCreateUpdateApplicationError
   );
 
   const { mutate: updateApplication } = useUpdateApplicationMutation(
-    onCreateUpdateApplicationSuccess,
+    onUpdateApplicationSuccess,
     onCreateUpdateApplicationError
   );
 
