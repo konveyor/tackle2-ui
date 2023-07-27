@@ -1,24 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 import {
+  createBusinessService,
   deleteBusinessService,
   getBusinessServiceById,
   getBusinessServices,
+  updateBusinessService,
 } from "@app/api/rest";
-import { BusinessService } from "@app/api/models";
-import { AxiosError } from "axios";
 
 export const BusinessServicesQueryKey = "businessservices";
 export const BusinessServiceQueryKey = "businessservice";
 
 export const useFetchBusinessServices = () => {
-  const { data, isLoading, error, refetch } = useQuery<BusinessService[]>(
-    [BusinessServicesQueryKey],
-    async () => (await getBusinessServices()).data,
-    {
-      onError: (error) => console.log("error, ", error),
-    }
-  );
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [BusinessServicesQueryKey],
+    queryFn: getBusinessServices,
+    onError: (error: AxiosError) => console.log("error, ", error),
+  });
   return {
     businessServices: data || [],
     isFetching: isLoading,
@@ -26,18 +25,49 @@ export const useFetchBusinessServices = () => {
     refetch,
   };
 };
-export const useFetchBusinessServiceByID = (id: number | string) => {
-  const { data, isLoading, error } = useQuery<BusinessService>(
-    [BusinessServicesQueryKey, id],
-    async () => (await getBusinessServiceById(id)).data,
-    { onError: (error) => console.log(error) }
-  );
 
+export const useFetchBusinessServiceByID = (id: number | string) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: [BusinessServicesQueryKey, id],
+    queryFn: () => getBusinessServiceById(id),
+    onError: (error: AxiosError) => console.log("error, ", error),
+  });
   return {
     businessService: data,
     isFetching: isLoading,
     fetchError: error as AxiosError,
   };
+};
+
+export const useCreateBusinessServiceMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createBusinessService,
+    onSuccess: (res) => {
+      onSuccess(res);
+      queryClient.invalidateQueries([BusinessServicesQueryKey]);
+    },
+    onError,
+  });
+};
+
+export const useUpdateBusinessServiceMutation = (
+  onSuccess: () => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateBusinessService,
+    onSuccess: () => {
+      onSuccess();
+      queryClient.invalidateQueries([BusinessServicesQueryKey]);
+    },
+    onError: onError,
+  });
 };
 
 export const useDeleteBusinessServiceMutation = (
