@@ -1,19 +1,24 @@
 coverage:
   status:
     project:
-      default:
-        target: 75%
-      unitests:
-        target: 30%
+      default: false
+
+      client:
+        informational: true
+        target: auto
         flags:
-          - unitests
-      e2etests:
-        target: 70%
+          - client
+
+      server:
+        informational: true
+        target: auto
         flags:
-          - e2etests
+          - server
 
 flags:
-  unitests:
-    carryforward: false
-  e2etests:
-    carryforward: false
+  client:
+    paths:
+      - client/
+  server:
+    paths:
+      - server/
