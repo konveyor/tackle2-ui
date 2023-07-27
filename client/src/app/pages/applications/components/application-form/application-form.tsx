@@ -39,6 +39,7 @@ import {
 } from "@app/shared/components/hook-form-pf-fields";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export interface FormValues {
   name: string;
@@ -61,16 +62,15 @@ export interface FormValues {
 
 export interface ApplicationFormProps {
   application?: Application;
-  onSaved: (response: AxiosResponse<Application>) => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
 export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   application,
-  onSaved,
-  onCancel,
+  onClose,
 }) => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [axiosError, setAxiosError] = useState<AxiosError>();
 
@@ -274,8 +274,25 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     }
   };
 
-  const onCreateUpdateApplicationSuccess = (response: any) => {
-    onSaved(response);
+  const onCreateApplicationSuccess = (response: AxiosResponse<Application>) => {
+    pushNotification({
+      title: t("toastr.success.createWhat", {
+        type: t("terms.application"),
+        what: response.data.name,
+      }),
+      variant: "success",
+    });
+    onClose();
+  };
+
+  const onUpdateApplicationSuccess = () => {
+    pushNotification({
+      title: t("toastr.success.save", {
+        type: t("terms.application"),
+      }),
+      variant: "success",
+    });
+    onClose();
   };
 
   const onCreateUpdateApplicationError = (error: AxiosError) => {
@@ -283,12 +300,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   };
 
   const { mutate: createApplication } = useCreateApplicationMutation(
-    onCreateUpdateApplicationSuccess,
+    onCreateApplicationSuccess,
     onCreateUpdateApplicationError
   );
 
   const { mutate: updateApplication } = useUpdateApplicationMutation(
-    onCreateUpdateApplicationSuccess,
+    onUpdateApplicationSuccess,
     onCreateUpdateApplicationError
   );
 
@@ -682,7 +699,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>

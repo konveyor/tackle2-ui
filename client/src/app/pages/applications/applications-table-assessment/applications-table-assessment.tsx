@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useTranslation, Trans } from "react-i18next";
 
 import {
@@ -159,7 +159,6 @@ export const ApplicationsTable: React.FC = () => {
     selectMultiple,
     areAllSelected,
     selectedRows,
-    setPageNumber,
     openDetailDrawer,
     closeDetailDrawer,
     activeAppInDetailDrawer,
@@ -176,21 +175,6 @@ export const ApplicationsTable: React.FC = () => {
     update: openUpdateApplicationModal,
     close: closeApplicationModal,
   } = useEntityModal<Application>();
-
-  const onApplicationModalSaved = (response: AxiosResponse<Application>) => {
-    if (!applicationToUpdate) {
-      pushNotification({
-        title: t("toastr.success.saveWhat", {
-          what: response.data.name,
-          type: t("terms.application"),
-        }),
-        variant: "success",
-      });
-    }
-
-    closeApplicationModal();
-    fetchApplications();
-  };
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -809,8 +793,7 @@ export const ApplicationsTable: React.FC = () => {
       >
         <ApplicationForm
           application={applicationToUpdate}
-          onSaved={onApplicationModalSaved}
-          onCancel={closeApplicationModal}
+          onClose={closeApplicationModal}
         />
       </Modal>
       <Modal
