@@ -10,7 +10,7 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import { JobFunction, New, Ref, Stakeholder } from "@app/api/models";
+import { New, Ref, Stakeholder } from "@app/api/models";
 import { duplicateFieldCheck, duplicateNameCheck } from "@app/utils/utils";
 import { toOptionLike } from "@app/utils/model-utils";
 import {
