@@ -186,7 +186,7 @@ export const ManageImports: React.FC = () => {
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {
     let status;
-    if (false && item.importStatus === "Completed") {
+    if (item.importStatus === "Completed") {
       status = <StatusIcon status="Completed" />;
     } else if (item.importStatus === "In Progress") {
       status = (
