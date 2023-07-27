@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { JobFunction } from "@app/api/models";
-import { deleteJobFunction, getJobFunctions } from "@app/api/rest";
+import {
+  createJobFunction,
+  deleteJobFunction,
+  getJobFunctions,
+  updateJobFunction,
+} from "@app/api/rest";
 import { AxiosError } from "axios";
 
 export interface IJobFunctionFetchState {
@@ -12,19 +17,48 @@ export interface IJobFunctionFetchState {
 export const JobFunctionsQueryKey = "jobfunctions";
 
 export const useFetchJobFunctions = (): IJobFunctionFetchState => {
-  const { data, isLoading, error, refetch } = useQuery(
-    [JobFunctionsQueryKey],
-    async () => (await getJobFunctions()).data,
-    {
-      onError: (error) => console.log("error, ", error),
-    }
-  );
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [JobFunctionsQueryKey],
+    queryFn: getJobFunctions,
+    onError: (error: AxiosError) => console.log("error, ", error),
+  });
   return {
     jobFunctions: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,
   };
+};
+
+export const useCreateJobFunctionMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createJobFunction,
+    onSuccess: (res) => {
+      onSuccess(res);
+      queryClient.invalidateQueries([JobFunctionsQueryKey]);
+    },
+    onError,
+  });
+};
+
+export const useUpdateJobFunctionMutation = (
+  onSuccess: () => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateJobFunction,
+    onSuccess: () => {
+      onSuccess();
+      queryClient.invalidateQueries([JobFunctionsQueryKey]);
+    },
+    onError: onError,
+  });
 };
 
 export const useDeleteJobFunctionMutation = (

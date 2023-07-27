@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { AxiosError, AxiosResponse } from "axios";
+import React from "react";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  Modal,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -25,9 +26,7 @@ import {
 } from "@app/shared/components";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { JobFunction } from "@app/api/models";
-
-import { NewJobFunctionModal } from "./components/new-job-function-modal";
-import { UpdateJobFunctionModal } from "./components/update-job-function-modal";
+import { JobFunctionForm } from "./components/job-function-form";
 import {
   FilterCategory,
   FilterToolbar,
@@ -47,6 +46,7 @@ const ENTITY_FIELD = "entity";
 
 export const JobFunctions: React.FC = () => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
     React.useState<Boolean>(false);
@@ -56,7 +56,12 @@ export const JobFunctions: React.FC = () => {
     setJobFunctionStakeholderIdToDelete,
   ] = React.useState<number>();
 
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
+    "create" | JobFunction | null
+  >(null);
+  const isCreateUpdateModalOpen = createUpdateModalState !== null;
+  const jobFunctionToUpdate =
+    createUpdateModalState !== "create" ? createUpdateModalState : null;
 
   const { jobFunctions, isFetching, fetchError, refetch } =
     useFetchJobFunctions();
@@ -92,9 +97,6 @@ export const JobFunctions: React.FC = () => {
 
   const { currentPageItems, setPageNumber, paginationProps } =
     useLegacyPaginationState(sortedItems, 10);
-
-  const [isNewModalOpen, setIsNewModalOpen] = useState(false);
-  const [rowToUpdate, setRowToUpdate] = useState<JobFunction>();
 
   const onDeleteJobFunctionSuccess = (response: any) => {
     pushNotification({
@@ -142,7 +144,7 @@ export const JobFunctions: React.FC = () => {
             <AppTableActionButtons
               isDeleteEnabled={!!item.stakeholders}
               tooltipMessage="Cannot remove a Job function associated with stakeholder(s)"
-              onEdit={() => setRowToUpdate(item)}
+              onEdit={() => setCreateUpdateModalState(item)}
               onDelete={() => deleteRow(item)}
             />
           ),
@@ -164,36 +166,9 @@ export const JobFunctions: React.FC = () => {
     setFilterValues({});
   };
 
-  const handleOnOpenCreateModal = () => {
-    setIsNewModalOpen(true);
-  };
-
-  const handleOnCreatedNew = (response: AxiosResponse<JobFunction>) => {
-    setIsNewModalOpen(false);
-    refetch();
-
-    pushNotification({
-      title: t("toastr.success.saveWhat", {
-        what: response.data.name,
-        type: t("terms.jobFunction"),
-      }),
-      variant: "success",
-    });
-  };
-
-  const handleOnCreateNewCancel = () => {
-    setIsNewModalOpen(false);
-  };
-
-  // Update Modal
-
-  const handleOnJobFunctionUpdated = () => {
-    setRowToUpdate(undefined);
-    refetch();
-  };
-
-  const handleOnUpdatedCancel = () => {
-    setRowToUpdate(undefined);
+  const closeCreateUpdateModal = () => {
+    setCreateUpdateModalState(null);
+    refetch;
   };
 
   return (
@@ -233,7 +208,7 @@ export const JobFunctions: React.FC = () => {
                     id="create-job-function"
                     aria-label="Create job function"
                     variant={ButtonVariant.primary}
-                    onClick={handleOnOpenCreateModal}
+                    onClick={() => setCreateUpdateModalState("create")}
                   >
                     {t("actions.createNew")}
                   </Button>
@@ -256,16 +231,24 @@ export const JobFunctions: React.FC = () => {
         />
       </ConditionalRender>
 
-      <NewJobFunctionModal
-        isOpen={isNewModalOpen}
-        onSaved={handleOnCreatedNew}
-        onCancel={handleOnCreateNewCancel}
-      />
-      <UpdateJobFunctionModal
-        jobFunction={rowToUpdate}
-        onSaved={handleOnJobFunctionUpdated}
-        onCancel={handleOnUpdatedCancel}
-      />
+      <Modal
+        id="create-edit-stakeholder-modal"
+        title={t(
+          jobFunctionToUpdate ? "dialog.title.update" : "dialog.title.new",
+          {
+            what: t("terms.jobFunction").toLowerCase(),
+          }
+        )}
+        variant="medium"
+        isOpen={isCreateUpdateModalOpen}
+        onClose={closeCreateUpdateModal}
+      >
+        <JobFunctionForm
+          jobFunction={jobFunctionToUpdate}
+          onClose={closeCreateUpdateModal}
+        />
+      </Modal>
+
       {isConfirmDialogOpen && (
         <ConfirmDialog
           title={t("dialog.title.delete", {

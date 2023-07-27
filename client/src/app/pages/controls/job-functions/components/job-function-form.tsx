@@ -1,41 +1,42 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosPromise, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { object, string } from "yup";
 
 import {
   ActionGroup,
-  Alert,
   Button,
   ButtonVariant,
   Form,
 } from "@patternfly/react-core";
 
-import { createJobFunction, updateJobFunction } from "@app/api/rest";
 import { JobFunction, New } from "@app/api/models";
-import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
-import { useFetchJobFunctions } from "@app/queries/jobfunctions";
+import { duplicateNameCheck } from "@app/utils/utils";
+import {
+  useCreateJobFunctionMutation,
+  useFetchJobFunctions,
+  useUpdateJobFunctionMutation,
+} from "@app/queries/jobfunctions";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { HookFormPFTextInput } from "@app/shared/components/hook-form-pf-fields";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export interface FormValues {
   name: string;
 }
 
 export interface JobFunctionFormProps {
-  jobFunction?: JobFunction;
-  onSaved: (response: AxiosResponse<JobFunction>) => void;
-  onCancel: () => void;
+  jobFunction: JobFunction | null;
+  onClose: () => void;
 }
 
 export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
   jobFunction,
-  onSaved,
-  onCancel,
+  onClose,
 }) => {
   const { t } = useTranslation();
-  const [error, setError] = useState<AxiosError>();
+  const { pushNotification } = React.useContext(NotificationsContext);
   const { jobFunctions } = useFetchJobFunctions();
 
   const validationSchema = object().shape({
@@ -69,35 +70,70 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
     mode: "onChange",
   });
 
+  const onCreateJobFunctionSuccess = (response: AxiosResponse<JobFunction>) => {
+    pushNotification({
+      title: t("toastr.success.createWhat", {
+        type: t("terms.jobFunction"),
+        what: response.data.name,
+      }),
+      variant: "success",
+    });
+    onClose();
+  };
+
+  const onUpdateJobFunctionSuccess = () => {
+    pushNotification({
+      title: t("toastr.success.save", {
+        type: t("terms.jobFunction"),
+      }),
+      variant: "success",
+    });
+    onClose();
+  };
+
+  const onCreateJobFunctionError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.create", {
+        type: t("terms.jobFunction").toLowerCase(),
+      }),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: createJobFunction } = useCreateJobFunctionMutation(
+    onCreateJobFunctionSuccess,
+    onCreateJobFunctionError
+  );
+
+  const onUpdateJobFunctionError = (error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.save", {
+        type: t("terms.jobFunction").toLowerCase(),
+      }),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: updateJobFunction } = useUpdateJobFunctionMutation(
+    onUpdateJobFunctionSuccess,
+    onUpdateJobFunctionError
+  );
+
   const onSubmit = (formValues: FormValues) => {
     const payload: New<JobFunction> = {
       name: formValues.name.trim(),
     };
 
-    let promise: AxiosPromise<JobFunction>;
     if (jobFunction) {
-      promise = updateJobFunction({
-        id: jobFunction.id,
-        ...payload,
-      });
+      updateJobFunction({ id: jobFunction.id, ...payload });
     } else {
-      promise = createJobFunction(payload);
+      createJobFunction(payload);
     }
-
-    promise
-      .then((response) => {
-        onSaved(response);
-      })
-      .catch((error) => {
-        setError(error);
-      });
+    onClose();
   };
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      {error && (
-        <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />
-      )}
       <HookFormPFTextInput
         control={control}
         name="name"
@@ -121,7 +157,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>
