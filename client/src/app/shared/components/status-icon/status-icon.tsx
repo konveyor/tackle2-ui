@@ -19,9 +19,11 @@ import {
 export type StatusIconType =
   | "Canceled"
   | "Completed"
+  | "Error"
   | "Failed"
   | "InProgress"
   | "NotStarted"
+  | "Ok"
   | "Scheduled"
   | "Unknown";
 
@@ -40,6 +42,10 @@ const iconList: IconListType = {
     Icon: CheckCircleIcon,
     color: successColor,
   },
+  Error: {
+    Icon: ExclamationCircleIcon,
+    color: errorColor,
+  },
   Failed: {
     Icon: ExclamationCircleIcon,
     color: errorColor,
@@ -51,6 +57,10 @@ const iconList: IconListType = {
   NotStarted: {
     Icon: TimesCircleIcon,
     color: unknownColor,
+  },
+  Ok: {
+    Icon: CheckCircleIcon,
+    color: successColor,
   },
   Scheduled: {
     Icon: InProgressIcon,
@@ -66,12 +76,14 @@ export interface IStatusIconProps {
   status: StatusIconType;
   isDisabled?: boolean;
   className?: string;
+  label?: React.ReactNode | string;
 }
 
 export const StatusIcon: React.FC<IStatusIconProps> = ({
   status,
   isDisabled = false,
   className = "",
+  label,
 }: IStatusIconProps) => {
   const { t } = useTranslation();
 
@@ -83,29 +95,33 @@ export const StatusIcon: React.FC<IStatusIconProps> = ({
     />
   );
 
-  let label: string;
-  switch (status) {
-    case "Canceled":
-      label = t("terms.canceled");
-      break;
-    case "Completed":
-      label = t("terms.completed");
-      break;
-    case "Failed":
-      label = t("terms.failed");
-      break;
-    case "InProgress":
-      label = t("terms.inProgress");
-      break;
-    case "NotStarted":
-      label = t("terms.notStarted");
-      break;
-    case "Scheduled":
-      label = t("terms.scheduled");
-      break;
-    default:
-      label = t("terms.unknown");
-      break;
+  if (!label) {
+    switch (status) {
+      case "Canceled":
+        label = t("terms.canceled");
+        break;
+      case "Completed":
+        label = t("terms.completed");
+        break;
+      case "Error":
+        label = t("terms.error");
+        break;
+      case "Failed":
+        label = t("terms.failed");
+        break;
+      case "InProgress":
+        label = t("terms.inProgress");
+        break;
+      case "NotStarted":
+        label = t("terms.notStarted");
+        break;
+      case "Scheduled":
+        label = t("terms.scheduled");
+        break;
+      default:
+        label = t("terms.unknown");
+        break;
+    }
   }
 
   return (

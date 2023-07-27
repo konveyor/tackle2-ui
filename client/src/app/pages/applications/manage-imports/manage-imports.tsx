@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { StatusIcon } from "@migtools/lib-ui";
+import { StatusIcon } from "@app/shared/components";
 import {
   Button,
   ButtonVariant,
@@ -186,8 +186,8 @@ export const ManageImports: React.FC = () => {
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {
     let status;
-    if (item.importStatus === "Completed") {
-      status = <StatusIcon status="Ok" label={t("terms.completed")} />;
+    if (false && item.importStatus === "Completed") {
+      status = <StatusIcon status="Completed" />;
     } else if (item.importStatus === "In Progress") {
       status = (
         <Flex

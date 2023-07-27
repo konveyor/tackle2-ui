@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StatusIcon } from "@migtools/lib-ui";
+import { StatusIcon } from "@app/shared/components";
 
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
