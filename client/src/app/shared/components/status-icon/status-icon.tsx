@@ -1,6 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Flex, FlexItem, SpinnerProps } from "@patternfly/react-core";
+import {
+  Flex,
+  FlexItem,
+  SpinnerProps,
+  TextContent,
+} from "@patternfly/react-core";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
@@ -92,6 +97,7 @@ export const StatusIcon: React.FC<IStatusIconProps> = ({
     <Icon
       color={isDisabled ? disabledColor.value : iconList[status].color.value}
       className={className}
+      isInline
     />
   );
 
@@ -125,15 +131,8 @@ export const StatusIcon: React.FC<IStatusIconProps> = ({
   }
 
   return (
-    <Flex
-      spaceItems={{ default: "spaceItemsSm" }}
-      alignItems={{ default: "alignItemsCenter" }}
-      flexWrap={{ default: "nowrap" }}
-      style={{ whiteSpace: "nowrap" }}
-      className={className}
-    >
-      <FlexItem>{icon}</FlexItem>
-      <FlexItem>{label}</FlexItem>
-    </Flex>
+    <TextContent>
+      {icon} {label}
+    </TextContent>
   );
 };
