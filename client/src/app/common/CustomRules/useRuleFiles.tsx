@@ -5,7 +5,7 @@ import { AxiosError } from "axios";
 import { useUploadFileMutation } from "@app/queries/taskgroups";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useCreateFileMutation } from "@app/queries/rulesets";
-import { CustomTargetFormValues } from "@app/pages/migration-targets/custom-target-form";
+import { CustomTargetFormValues } from "@app/pages/migration-targets/components/custom-target-form";
 import { UseFormReturn } from "react-hook-form";
 import { XMLValidator } from "fast-xml-parser";
 import XSDSchema from "./windup-jboss-ruleset.xsd";

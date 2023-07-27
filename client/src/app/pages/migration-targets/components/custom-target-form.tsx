@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActionGroup,
   Alert,
@@ -26,8 +26,7 @@ import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
-import { useEffect, useState } from "react";
-import { IReadFile, Ref, Ruleset, Rule } from "@app/api/models";
+import { IReadFile, Ruleset, Rule } from "@app/api/models";
 import { parseRules } from "@app/common/CustomRules/rules-utils";
 import {
   useCreateFileMutation,
@@ -36,14 +35,14 @@ import {
   useUpdateRulesetMutation,
 } from "@app/queries/rulesets";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import { IdentityDropdown, toOptionLike } from "@app/utils/model-utils";
+import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
 import useRuleFiles from "@app/common/CustomRules/useRuleFiles";
 import { customURLValidation, duplicateNameCheck } from "@app/utils/utils";
-import { customRulesFilesSchema } from "../applications/analysis-wizard/schema";
+import { customRulesFilesSchema } from "../../applications/analysis-wizard/schema";
 
 export interface CustomTargetFormProps {
-  ruleset?: Ruleset;
+  ruleset?: Ruleset | null;
   onSaved: (response: AxiosResponse<Ruleset>) => void;
   onCancel: () => void;
 }
