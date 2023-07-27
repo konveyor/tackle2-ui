@@ -27,7 +27,7 @@ export interface FormValues {
 }
 
 export interface JobFunctionFormProps {
-  jobFunction?: JobFunction | null;
+  jobFunction: JobFunction | null;
   onClose: () => void;
 }
 
