@@ -35,7 +35,7 @@ export interface FormValues {
 }
 
 export interface BusinessServiceFormProps {
-  businessService?: BusinessService;
+  businessService: BusinessService | null;
   onClose: () => void;
 }
 
@@ -105,9 +105,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
     onClose();
   };
 
-  const onUpdateBusinessServiceSuccess = (
-    response: AxiosResponse<BusinessService>
-  ) => {
+  const onUpdateBusinessServiceSuccess = () => {
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.businessService"),

@@ -285,9 +285,7 @@ export const BusinessServices: React.FC = () => {
         onClose={closeCreateUpdateModal}
       >
         <BusinessServiceForm
-          businessService={
-            businessServiceToUpdate ? businessServiceToUpdate : undefined
-          }
+          businessService={businessServiceToUpdate}
           onClose={closeCreateUpdateModal}
         />
       </Modal>

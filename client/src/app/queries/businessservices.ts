@@ -56,14 +56,14 @@ export const useCreateBusinessServiceMutation = (
 };
 
 export const useUpdateBusinessServiceMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: () => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateBusinessService,
-    onSuccess: (res) => {
-      onSuccess(res);
+    onSuccess: () => {
+      onSuccess();
       queryClient.invalidateQueries([BusinessServicesQueryKey]);
     },
     onError: onError,
