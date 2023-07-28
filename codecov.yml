@@ -1,5 +1,10 @@
 coverage:
   status:
+    patch:
+      default:
+        informational: true
+        target: auto
+
     project:
       default: false
 
