@@ -16,28 +16,28 @@ export const useFetchTasks = (filters: FetchTasksFilters = {}) => {
     {
       refetchInterval: 5000,
       select: (allTasks) => {
-        const filteredTasks = filters
-          ? allTasks.filter((task) => {
-              return !filters.addon || task.addon === filters.addon;
-            })
-          : allTasks;
-        let uniqLatestTasks: Task[] = [];
-        filteredTasks.forEach((task) => {
-          const aTask = uniqLatestTasks.find(
-            (item) => task.application?.id === item.application?.id
+        const uniqSorted = allTasks
+          .filter((task) =>
+            filters?.addon ? filters.addon === task.addon : true
+          )
+          // sort by application.id (ascending) then createTime (newest to oldest)
+          .sort((a, b) => {
+            if (a.application.id !== b.application.id) {
+              return a.application.id - b.application.id;
+            } else {
+              const aTime = a?.createTime ?? "";
+              const bTime = b?.createTime ?? "";
+              return aTime < bTime ? 1 : aTime > bTime ? -1 : 0;
+            }
+          })
+          // remove old tasks for each application
+          .filter(
+            (task, index, tasks) =>
+              index === 0 ||
+              task.application.id !== tasks[index - 1].application.id
           );
-          if (!aTask) {
-            uniqLatestTasks.push(task);
-          } else if (
-            aTask?.createTime &&
-            task?.createTime &&
-            task.createTime > aTask.createTime
-          ) {
-            const others = uniqLatestTasks.filter((t) => t.id !== aTask.id);
-            uniqLatestTasks = [...others, task];
-          }
-        });
-        return uniqLatestTasks;
+
+        return uniqSorted;
       },
       onError: (err) => console.log(err),
     }
