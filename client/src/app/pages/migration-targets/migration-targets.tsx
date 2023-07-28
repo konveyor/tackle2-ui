@@ -44,11 +44,7 @@ export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const {
-    rulesets,
-    isFetching: isFetchingrulesets,
-    refetch: refetchrulesets,
-  } = useFetchRulesets();
+  const { rulesets, refetch: refetchrulesets } = useFetchRulesets();
 
   const rulesetOrderSetting = useSetting("ui.ruleset.order");
   const rulesetOrderSettingMutation = useSettingMutation("ui.ruleset.order");
@@ -221,28 +217,34 @@ export const MigrationTargets: React.FC = () => {
         >
           <DndGrid>
             {rulesetOrderSetting.isSuccess &&
-              rulesetOrderSetting.data.map((id) => (
-                <SortableItem
-                  key={id}
-                  id={id}
-                  onEdit={() => {
-                    const matchingRuleset = rulesets.find(
-                      (Ruleset) => Ruleset.id === id
-                    );
-                    if (matchingRuleset) {
-                      setCreateUpdateModalState(matchingRuleset);
-                    }
-                  }}
-                  onDelete={() => {
-                    const matchingRuleset = rulesets.find(
-                      (Ruleset) => Ruleset.id === id
-                    );
-                    if (matchingRuleset?.id) {
-                      deleteRuleset(matchingRuleset.id);
-                    }
-                  }}
-                />
-              ))}
+              rulesetOrderSetting.data.map((id) => {
+                const matchingRuleset = rulesets.find(
+                  (Ruleset) => Ruleset.id === id
+                );
+                if (matchingRuleset) {
+                  return (
+                    <SortableItem
+                      key={id}
+                      id={id}
+                      onEdit={() => {
+                        if (matchingRuleset) {
+                          setCreateUpdateModalState(matchingRuleset);
+                        }
+                      }}
+                      onDelete={() => {
+                        const matchingRuleset = rulesets.find(
+                          (Ruleset) => Ruleset.id === id
+                        );
+                        if (matchingRuleset?.id) {
+                          deleteRuleset(matchingRuleset.id);
+                        }
+                      }}
+                    />
+                  );
+                } else {
+                  return null;
+                }
+              })}
             <div ref={targetsEndRef} />
           </DndGrid>
           <DragOverlay>{activeId ? <Item id={activeId} /> : null}</DragOverlay>

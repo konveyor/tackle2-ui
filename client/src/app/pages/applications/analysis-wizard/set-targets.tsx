@@ -161,9 +161,9 @@ export const SetTargets: React.FC = () => {
               const matchingRuleset = rulesets.find(
                 (target) => target.id === id
               );
-              return (
-                <GalleryItem key={index}>
-                  {matchingRuleset && (
+              if (matchingRuleset) {
+                return (
+                  <GalleryItem key={index}>
                     <TargetCard
                       readOnly
                       item={matchingRuleset}
@@ -190,9 +190,11 @@ export const SetTargets: React.FC = () => {
                       }}
                       formTargets={formTargets}
                     />
-                  )}
-                </GalleryItem>
-              );
+                  </GalleryItem>
+                );
+              } else {
+                return null;
+              }
             })
           : null}
       </Gallery>
