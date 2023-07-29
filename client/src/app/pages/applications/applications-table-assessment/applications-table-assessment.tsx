@@ -174,14 +174,10 @@ export const ApplicationsTable: React.FC = () => {
   };
 
   // Application(s) Delete modal
-  const [applicationsToDeleteModalState, setApplicationsToDeleteModalState] =
-    React.useState<"create" | Application[]>([]);
-  const isApplicationsToDeleteModalOpen =
-    applicationsToDeleteModalState.length > 0;
-  const applicationsToDelete =
-    applicationsToDeleteModalState !== "create"
-      ? applicationsToDeleteModalState
-      : [];
+  const [applicationsToDelete, setApplicationsToDelete] = React.useState<
+    Application[]
+  >([]);
+  const isApplicationsToDeleteModalOpen = applicationsToDelete.length > 0;
 
   // Create and update modal
   const [
@@ -430,7 +426,7 @@ export const ApplicationsTable: React.FC = () => {
             content: "Cannot delete application assigned to a migration wave.",
           },
         }),
-        onClick: () => setApplicationsToDeleteModalState([row]),
+        onClick: () => setApplicationsToDelete([row]),
       });
     }
 
@@ -617,7 +613,7 @@ export const ApplicationsTable: React.FC = () => {
             key="applications-bulk-delete"
             isAriaDisabled={areAppsInWaves || selectedRows.length < 1}
             onClick={() => {
-              setApplicationsToDeleteModalState(selectedRows);
+              setApplicationsToDelete(selectedRows);
             }}
           >
             {t("actions.delete")}
@@ -892,8 +888,8 @@ export const ApplicationsTable: React.FC = () => {
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
           cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setApplicationsToDeleteModalState([])}
-          onClose={() => setApplicationsToDeleteModalState([])}
+          onCancel={() => setApplicationsToDelete([])}
+          onClose={() => setApplicationsToDelete([])}
           onConfirm={() => {
             let ids: number[] = [];
             applicationsToDelete.forEach((application) => {
@@ -903,7 +899,7 @@ export const ApplicationsTable: React.FC = () => {
               bulkDeleteApplication({
                 ids: ids,
               });
-            setApplicationsToDeleteModalState([]);
+            setApplicationsToDelete([]);
           }}
         />
       )}

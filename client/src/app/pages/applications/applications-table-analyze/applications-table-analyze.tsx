@@ -215,14 +215,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       : null;
 
   // Application(s) Delete modal
-  const [applicationsToDeleteModalState, setApplicationsToDeleteModalState] =
-    React.useState<"create" | Application[]>([]);
-  const isApplicationsToDeleteModalOpen =
-    applicationsToDeleteModalState.length > 0;
-  const applicationsToDelete =
-    applicationsToDeleteModalState !== "create"
-      ? applicationsToDeleteModalState
-      : [];
+  const [applicationsToDelete, setApplicationsToDelete] = React.useState<
+    Application[]
+  >([]);
+  const isApplicationsToDeleteModalOpen = applicationsToDelete.length > 0;
 
   // Table
   const columns: ICell[] = [
@@ -353,7 +349,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                 "Cannot delete application assigned to a migration wave.",
             },
           }),
-          onClick: () => setApplicationsToDeleteModalState([row]),
+          onClick: () => setApplicationsToDelete([row]),
         }
       );
     }
@@ -450,7 +446,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             key="applications-bulk-delete"
             isAriaDisabled={areAppsInWaves || selectedRows.length < 1}
             onClick={() => {
-              setApplicationsToDeleteModalState(selectedRows);
+              setApplicationsToDelete(selectedRows);
             }}
           >
             {t("actions.delete")}
@@ -687,8 +683,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
           cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setApplicationsToDeleteModalState([])}
-          onClose={() => setApplicationsToDeleteModalState([])}
+          onCancel={() => setApplicationsToDelete([])}
+          onClose={() => setApplicationsToDelete([])}
           onConfirm={() => {
             let ids: number[] = [];
             applicationsToDelete.forEach((application) => {
@@ -698,7 +694,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
               bulkDeleteApplication({
                 ids: ids,
               });
-            setApplicationsToDeleteModalState([]);
+            setApplicationsToDelete([]);
           }}
         />
       )}
