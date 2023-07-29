@@ -31,6 +31,7 @@ import {
 } from "@app/shared/components/hook-form-pf-fields";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { NotificationsContext } from "@app/shared/notifications-context";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export interface FormValues {
   applicationName: string;
@@ -79,11 +80,9 @@ export const ApplicationIdentityForm: React.FC<
     onClose();
   };
 
-  const onUpdateApplicationsError = (_error: AxiosError) => {
+  const onUpdateApplicationsError = (error: AxiosError) => {
     pushNotification({
-      title: t("toastr.fail.create", {
-        type: t("terms.application(s)").toLowerCase(),
-      }),
+      title: getAxiosErrorMessage(error),
       variant: "danger",
     });
   };
