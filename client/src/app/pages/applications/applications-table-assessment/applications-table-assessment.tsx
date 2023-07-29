@@ -58,7 +58,6 @@ import keycloak from "@app/keycloak";
 import {
   ApplicationsQueryKey,
   useBulkDeleteApplicationMutation,
-  useDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
 import {
@@ -72,7 +71,6 @@ import {
   useFetchApplicationAssessments,
 } from "@app/queries/assessments";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { useAssessApplication } from "@app/shared/hooks/useAssessApplication";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
@@ -198,23 +196,22 @@ export const ApplicationsTable: React.FC = () => {
       : null;
 
   // Copy assessment modal
-  const [copyAssessmentModalState, setCopyAssessmentModalState] =
-    React.useState<"create" | Application | null>(null);
-  const isCopyAssessmentModalOpen = copyAssessmentModalState !== null;
-  const applicationToCopyAssessmentFrom =
-    copyAssessmentModalState !== "create" ? copyAssessmentModalState : null;
+  const [applicationToCopyAssessmentFrom, setAapplicationToCopyAssessmentFrom] =
+    React.useState<Application | null>(null);
+  const isCopyAssessmentModalOpen = applicationToCopyAssessmentFrom !== null;
 
   // Copy assessment and review modal
   const [
-    copyAssessmentAndReviewModalState,
+    applicationToCopyAssessmentAndReviewFrom,
     setCopyAssessmentAndReviewModalState,
-  ] = React.useState<"create" | Application | null>(null);
+  ] = React.useState<Application | null>(null);
   const isCopyAssessmentAndReviewModalOpen =
-    copyAssessmentAndReviewModalState !== null;
-  const applicationToCopyAssessmentAndReviewFrom =
-    copyAssessmentAndReviewModalState !== "create"
-      ? copyAssessmentAndReviewModalState
-      : null;
+    applicationToCopyAssessmentAndReviewFrom !== null;
+
+  // Dependencies modal
+  const [applicationToManageDependencies, setApplicationToManageDependencies] =
+    React.useState<Application | null>(null);
+  const isDependenciesModalOpen = applicationToManageDependencies !== null;
 
   const {
     reviews,
@@ -226,14 +223,6 @@ export const ApplicationsTable: React.FC = () => {
     (review) =>
       review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
   );
-
-  // Dependencies modal
-  const {
-    isOpen: isDependenciesModalOpen,
-    data: applicationToManageDependencies,
-    update: openDependenciesModal,
-    close: closeDependenciesModal,
-  } = useEntityModal<Application>();
 
   // Application import modal
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
@@ -406,7 +395,7 @@ export const ApplicationsTable: React.FC = () => {
     ) {
       actions.push({
         title: t("actions.copyAssessment"),
-        onClick: () => setCopyAssessmentModalState(row),
+        onClick: () => setAapplicationToCopyAssessmentFrom(row),
       });
     }
     if (
@@ -448,7 +437,7 @@ export const ApplicationsTable: React.FC = () => {
     if (dependenciesWriteAccess) {
       actions.push({
         title: t("actions.manageDependencies"),
-        onClick: () => openDependenciesModal(row),
+        onClick: () => setApplicationToManageDependencies(row),
       });
     }
 
@@ -806,7 +795,7 @@ export const ApplicationsTable: React.FC = () => {
           what: applicationToCopyAssessmentFrom?.name,
         })}
         onClose={() => {
-          setCopyAssessmentModalState(null);
+          setAapplicationToCopyAssessmentFrom(null);
           fetchApplications();
         }}
       >
@@ -821,7 +810,7 @@ export const ApplicationsTable: React.FC = () => {
             isCopying={isCopying}
             createCopy={createCopy}
             onSaved={() => {
-              setCopyAssessmentModalState(null);
+              setAapplicationToCopyAssessmentFrom(null);
               fetchApplications();
             }}
           />
@@ -864,12 +853,12 @@ export const ApplicationsTable: React.FC = () => {
         title={t("composed.manageDependenciesFor", {
           what: applicationToManageDependencies?.name,
         })}
-        onClose={closeDependenciesModal}
+        onClose={() => setApplicationToManageDependencies(null)}
       >
         {applicationToManageDependencies && (
           <ApplicationDependenciesFormContainer
             application={applicationToManageDependencies}
-            onCancel={closeDependenciesModal}
+            onCancel={() => setApplicationToManageDependencies(null)}
           />
         )}
       </Modal>

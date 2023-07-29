@@ -57,7 +57,6 @@ import {
 } from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
 import {
-  useDeleteApplicationMutation,
   useFetchApplications,
   useBulkDeleteApplicationMutation,
   ApplicationsQueryKey,
