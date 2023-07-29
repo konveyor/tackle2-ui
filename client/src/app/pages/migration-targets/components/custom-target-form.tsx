@@ -406,7 +406,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
               });
             }}
             onClearClick={() => {
-              // TODO PF V5
               onChange(0);
               setFilename("default.png");
               setValue("imageID", 1);
