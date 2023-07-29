@@ -212,13 +212,17 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
 
-  // Credentials modal
-  const {
-    isOpen: isCredentialsModalOpen,
-    data: applicationToManageCredentials,
-    update: openCredentialsModal,
-    close: closeCredentialsModal,
-  } = useEntityModal<Application[]>();
+  // Applications Credentials modal
+  const [
+    createUpdateApplicationsCredentialsModalState,
+    setCreateUpdateApplicationsCredentialsModalState,
+  ] = React.useState<"create" | Application[] | null>(null);
+  const isCreateUpdateCredentialsModalOpen =
+    createUpdateApplicationsCredentialsModalState !== null;
+  const applicationsCredentialsToUpdate =
+    createUpdateApplicationsCredentialsModalState !== "create"
+      ? createUpdateApplicationsCredentialsModalState
+      : null;
 
   // Bulk Delete modal
   const {
@@ -344,7 +348,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       actions.push(
         {
           title: "Manage credentials",
-          onClick: () => openCredentialsModal([row]),
+          onClick: () =>
+            setCreateUpdateApplicationsCredentialsModalState([row]),
         },
         {
           title: t("actions.delete"),
@@ -405,10 +410,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     if (task?.id) cancelTask(task.id);
   };
 
-  const handleOnApplicationIdentityUpdated = () => {
-    closeCredentialsModal();
-  };
-
   const userScopes: string[] = token?.scope.split(" ") || [],
     importWriteAccess = checkAccess(userScopes, importsWriteScopes),
     applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes);
@@ -442,7 +443,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           key="manage-applications-credentials"
           isDisabled={selectedRows.length < 1}
           onClick={() => {
-            openCredentialsModal(selectedRows);
+            setCreateUpdateApplicationsCredentialsModalState(selectedRows);
           }}
         >
           {t("actions.manageCredentials")}
@@ -662,16 +663,17 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       </Modal>
 
       <Modal
-        isOpen={isCredentialsModalOpen}
+        isOpen={isCreateUpdateCredentialsModalOpen}
         variant="medium"
         title="Manage credentials"
-        onClose={closeCredentialsModal}
+        onClose={() => setCreateUpdateApplicationsCredentialsModalState(null)}
       >
-        {applicationToManageCredentials && (
+        {applicationsCredentialsToUpdate && (
           <ApplicationIdentityForm
-            applications={applicationToManageCredentials}
-            onSaved={handleOnApplicationIdentityUpdated}
-            onCancel={closeCredentialsModal}
+            applications={applicationsCredentialsToUpdate}
+            onClose={() =>
+              setCreateUpdateApplicationsCredentialsModalState(null)
+            }
           />
         )}
       </Modal>

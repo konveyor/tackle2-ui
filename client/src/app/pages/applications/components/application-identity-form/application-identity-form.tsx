@@ -41,13 +41,12 @@ export interface FormValues {
 
 export interface ApplicationIdentityFormProps {
   applications: Application[];
-  onSaved: (response: AxiosResponse) => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
 export const ApplicationIdentityForm: React.FC<
   ApplicationIdentityFormProps
-> = ({ applications, onSaved, onCancel }) => {
+> = ({ applications, onClose }) => {
   const { t } = useTranslation();
   const [error, setAxiosError] = useState<AxiosError>();
 
@@ -72,9 +71,7 @@ export const ApplicationIdentityForm: React.FC<
 
   // Actions
   const onCreateUpdateApplicationSuccess = (response: any) => {
-    if (response) {
-      onSaved(response);
-    }
+    onClose();
   };
 
   const onCreateUpdateApplicationError = (error: AxiosError) => {
@@ -256,7 +253,7 @@ export const ApplicationIdentityForm: React.FC<
           type="button"
           aria-label="cancel"
           variant={ButtonVariant.link}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>
