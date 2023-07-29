@@ -190,7 +190,7 @@ export const ApplicationsTable: React.FC = () => {
     createUpdateApplicationsModalState,
     setcreateUpdateApplicationsModalState,
   ] = React.useState<"create" | Application | null>(null);
-  const iscreateUpdateApplicationsModalOpen =
+  const isCreateUpdateApplicationsModalOpen =
     createUpdateApplicationsModalState !== null;
   const createUpdateApplications =
     createUpdateApplicationsModalState !== "create"
@@ -198,12 +198,11 @@ export const ApplicationsTable: React.FC = () => {
       : null;
 
   // Copy assessment modal
-  const {
-    isOpen: isCopyAssessmentModalOpen,
-    data: applicationToCopyAssessmentFrom,
-    update: openCopyAssessmentModal,
-    close: closeCopyAssessmentModal,
-  } = useEntityModal<Application>();
+  const [copyAssessmentModalState, setCopyAssessmentModalState] =
+    React.useState<"create" | Application | null>(null);
+  const isCopyAssessmentModalOpen = copyAssessmentModalState !== null;
+  const applicationToCopyAssessmentFrom =
+    copyAssessmentModalState !== "create" ? copyAssessmentModalState : null;
 
   // Copy assessment and review modal
   const {
@@ -403,7 +402,7 @@ export const ApplicationsTable: React.FC = () => {
     ) {
       actions.push({
         title: t("actions.copyAssessment"),
-        onClick: () => openCopyAssessmentModal(row),
+        onClick: () => setCopyAssessmentModalState(row),
       });
     }
     if (
@@ -788,7 +787,7 @@ export const ApplicationsTable: React.FC = () => {
             : t("dialog.title.newApplication")
         }
         variant="medium"
-        isOpen={iscreateUpdateApplicationsModalOpen}
+        isOpen={isCreateUpdateApplicationsModalOpen}
         onClose={() => setcreateUpdateApplicationsModalState(null)}
       >
         <ApplicationForm
@@ -803,7 +802,7 @@ export const ApplicationsTable: React.FC = () => {
           what: applicationToCopyAssessmentFrom?.name,
         })}
         onClose={() => {
-          closeCopyAssessmentModal();
+          setCopyAssessmentModalState(null);
           fetchApplications();
         }}
       >
@@ -818,7 +817,7 @@ export const ApplicationsTable: React.FC = () => {
             isCopying={isCopying}
             createCopy={createCopy}
             onSaved={() => {
-              closeCopyAssessmentModal();
+              setCopyAssessmentModalState(null);
               fetchApplications();
             }}
           />
