@@ -388,6 +388,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                     // TODO PF v5
                     onChange(selectionValue.value);
                   }}
+                  onClear={() => onChange("")}
                 />
               )}
             />
