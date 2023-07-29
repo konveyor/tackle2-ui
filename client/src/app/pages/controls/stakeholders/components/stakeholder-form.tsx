@@ -231,7 +231,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
       <HookFormPFGroupController
         control={control}
         name="stakeholderGroupNames"
-        label={t("terms.stakeholderGroup")}
+        label={t("terms.stakeholderGroups")}
         fieldId="stakeholderGroups"
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
