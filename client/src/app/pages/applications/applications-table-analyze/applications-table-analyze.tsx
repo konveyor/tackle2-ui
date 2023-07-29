@@ -173,13 +173,16 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   };
 
   // Create and update modal
-  const {
-    isOpen: isApplicationModalOpen,
-    data: applicationToUpdate,
-    create: openCreateApplicationModal,
-    update: openUpdateApplicationModal,
-    close: closeApplicationModal,
-  } = useEntityModal<Application>();
+  const [
+    createUpdateApplicationsModalState,
+    setcreateUpdateApplicationsModalState,
+  ] = React.useState<"create" | Application | null>(null);
+  const iscreateUpdateApplicationsModalOpen =
+    createUpdateApplicationsModalState !== null;
+  const createUpdateApplications =
+    createUpdateApplicationsModalState !== "create"
+      ? createUpdateApplicationsModalState
+      : null;
 
   // Delete
 
@@ -323,7 +326,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
               <Button
                 type="button"
                 variant="plain"
-                onClick={() => openUpdateApplicationModal(item)}
+                onClick={() => setcreateUpdateApplicationsModalState(item)}
               >
                 <PencilAltIcon />
               </Button>
@@ -556,7 +559,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                       id="create-application"
                       aria-label="Create Application"
                       variant={ButtonVariant.primary}
-                      onClick={openCreateApplicationModal}
+                      onClick={() => {
+                        setcreateUpdateApplicationsModalState("create");
+                      }}
                     >
                       {t("actions.createNew")}
                     </Button>
@@ -629,14 +634,16 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       </ConditionalRender>
 
       <Modal
-        title={applicationToUpdate ? "Update application" : "New application"}
+        title={
+          createUpdateApplications ? "Update application" : "New application"
+        }
         variant="medium"
-        isOpen={isApplicationModalOpen}
-        onClose={closeApplicationModal}
+        isOpen={iscreateUpdateApplicationsModalOpen}
+        onClose={() => setcreateUpdateApplicationsModalState(null)}
       >
         <ApplicationForm
-          application={applicationToUpdate}
-          onClose={closeApplicationModal}
+          application={createUpdateApplications}
+          onClose={() => setcreateUpdateApplicationsModalState(null)}
         />
       </Modal>
 

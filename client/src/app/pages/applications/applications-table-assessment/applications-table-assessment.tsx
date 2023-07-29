@@ -805,7 +805,7 @@ export const ApplicationsTable: React.FC = () => {
         onClose={closeApplicationModal}
       >
         <ApplicationForm
-          application={applicationToUpdate}
+          application={applicationToUpdate || null}
           onClose={closeApplicationModal}
         />
       </Modal>

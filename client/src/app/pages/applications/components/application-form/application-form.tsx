@@ -61,7 +61,7 @@ export interface FormValues {
 }
 
 export interface ApplicationFormProps {
-  application?: Application;
+  application: Application | null;
   onClose: () => void;
 }
 
@@ -71,8 +71,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
-
-  const [axiosError, setAxiosError] = useState<AxiosError>();
 
   const { businessServices } = useFetchBusinessServices();
   const { stakeholders } = useFetchStakeholders();
@@ -117,7 +115,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     }) || [];
 
   const getBinaryInitialValue = (
-    application: Application | undefined,
+    application: Application | null,
     fieldName: string
   ) => {
     const fieldList = application?.binary?.split(":") || [];
@@ -296,7 +294,10 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   };
 
   const onCreateUpdateApplicationError = (error: AxiosError) => {
-    setAxiosError(error);
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
   };
 
   const { mutate: createApplication } = useCreateApplicationMutation(
@@ -388,13 +389,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      {axiosError && (
-        <Alert
-          variant="danger"
-          isInline
-          title={getAxiosErrorMessage(axiosError)}
-        />
-      )}
       <ExpandableSection
         toggleText={"Basic information"}
         className="toggle"

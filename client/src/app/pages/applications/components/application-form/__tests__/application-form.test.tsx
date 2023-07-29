@@ -34,7 +34,7 @@ describe("Component: application-form", () => {
 
     mock.onGet(`${BUSINESS_SERVICES}`).reply(200, businessServices);
 
-    render(<ApplicationForm onClose={mockChangeValue} />);
+    render(<ApplicationForm application={null} onClose={mockChangeValue} />);
     const nameInput = await screen.findByLabelText("Name *");
     fireEvent.change(nameInput, {
       target: { value: "app-name" },
