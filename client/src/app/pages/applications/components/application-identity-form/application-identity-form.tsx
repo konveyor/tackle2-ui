@@ -32,6 +32,7 @@ import {
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export interface FormValues {
   applicationName: string;
@@ -48,6 +49,8 @@ export const ApplicationIdentityForm: React.FC<
   ApplicationIdentityFormProps
 > = ({ applications, onClose }) => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
+
   const [error, setAxiosError] = useState<AxiosError>();
 
   const { identities } = useFetchIdentities();
@@ -69,18 +72,29 @@ export const ApplicationIdentityForm: React.FC<
       };
     });
 
-  // Actions
-  const onCreateUpdateApplicationSuccess = (response: any) => {
+  const onUpdateApplicationsSuccess = (response: []) => {
+    pushNotification({
+      title: t("toastr.success.numberOfSaved", {
+        count: response.length,
+        type: t("terms.application(s)").toLowerCase(),
+      }),
+      variant: "success",
+    });
     onClose();
   };
 
-  const onCreateUpdateApplicationError = (error: AxiosError) => {
-    setAxiosError(error);
+  const onUpdateApplicationsError = (_error: AxiosError) => {
+    pushNotification({
+      title: t("toastr.fail.create", {
+        type: t("terms.application(s)").toLowerCase(),
+      }),
+      variant: "danger",
+    });
   };
 
   const { mutate: updateAllApplications } = useUpdateAllApplicationsMutation(
-    onCreateUpdateApplicationSuccess,
-    onCreateUpdateApplicationError
+    onUpdateApplicationsSuccess,
+    onUpdateApplicationsError
   );
 
   const onSubmit = (formValues: FormValues) => {
