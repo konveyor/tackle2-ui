@@ -205,12 +205,16 @@ export const ApplicationsTable: React.FC = () => {
     copyAssessmentModalState !== "create" ? copyAssessmentModalState : null;
 
   // Copy assessment and review modal
-  const {
-    isOpen: isCopyAssessmentAndReviewModalOpen,
-    data: applicationToCopyAssessmentAndReviewFrom,
-    update: openCopyAssessmentAndReviewModal,
-    close: closeCopyAssessmentAndReviewModal,
-  } = useEntityModal<Application>();
+  const [
+    copyAssessmentAndReviewModalState,
+    setCopyAssessmentAndReviewModalState,
+  ] = React.useState<"create" | Application | null>(null);
+  const isCopyAssessmentAndReviewModalOpen =
+    copyAssessmentAndReviewModalState !== null;
+  const applicationToCopyAssessmentAndReviewFrom =
+    copyAssessmentAndReviewModalState !== "create"
+      ? copyAssessmentAndReviewModalState
+      : null;
 
   const {
     reviews,
@@ -412,7 +416,7 @@ export const ApplicationsTable: React.FC = () => {
     ) {
       actions.push({
         title: t("actions.copyAssessmentAndReview"),
-        onClick: () => openCopyAssessmentAndReviewModal(row),
+        onClick: () => setCopyAssessmentAndReviewModalState(row),
       });
     }
     if (
@@ -830,7 +834,7 @@ export const ApplicationsTable: React.FC = () => {
           what: applicationToCopyAssessmentAndReviewFrom?.name,
         })}
         onClose={() => {
-          closeCopyAssessmentAndReviewModal();
+          setCopyAssessmentAndReviewModalState(null);
           fetchApplications();
         }}
       >
@@ -848,7 +852,7 @@ export const ApplicationsTable: React.FC = () => {
             isCopying={isCopying}
             createCopy={createCopy}
             onSaved={() => {
-              closeCopyAssessmentAndReviewModal();
+              setCopyAssessmentAndReviewModalState(null);
               fetchApplications();
             }}
           />
