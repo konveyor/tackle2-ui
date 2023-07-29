@@ -38,11 +38,9 @@ import {
   ConfirmDialog,
 } from "@app/shared/components";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
-
 import { formatPath, Paths } from "@app/Paths";
 import { Application, Assessment, Task } from "@app/api/models";
 import { ApplicationForm } from "../components/application-form";
-
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
@@ -94,11 +92,7 @@ export const ApplicationsTable: React.FC = () => {
   //RBAC
   const token = keycloak.tokenParsed;
   const { t } = useTranslation();
-
-  const [
-    isApplicationDeleteConfirmDialogOpen,
-    setIsApplicationDeleteConfirmDialogOpen,
-  ] = React.useState<Boolean>(false);
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [
     isDiscardAssessmentConfirmDialogOpen,
@@ -113,9 +107,6 @@ export const ApplicationsTable: React.FC = () => {
   const [isEditReviewConfirmDialogOpen, setIsEditReviewConfirmDialogOpen] =
     React.useState<Boolean>(false);
 
-  const [applicationToDelete, setApplicationToDelete] =
-    React.useState<number>();
-
   const [
     applicationAssessmentOrReviewToDiscard,
     setApplicationAssessmentOrReviewToDiscard,
@@ -124,7 +115,6 @@ export const ApplicationsTable: React.FC = () => {
   const [assessmentToEdit, setAssessmentToEdit] = React.useState<Assessment>();
   const [reviewToEdit, setReviewToEdit] = React.useState<number>();
 
-  const { pushNotification } = React.useContext(NotificationsContext);
   const [isSubmittingBulkCopy, setIsSubmittingBulkCopy] = useState(false);
 
   // Router
@@ -168,18 +158,6 @@ export const ApplicationsTable: React.FC = () => {
     applications
   );
 
-  // Create and update modal
-  const [
-    createUpdateApplicationsModalState,
-    setcreateUpdateApplicationsModalState,
-  ] = React.useState<"create" | Application | null>(null);
-  const iscreateUpdateApplicationsModalOpen =
-    createUpdateApplicationsModalState !== null;
-  const createUpdateApplications =
-    createUpdateApplicationsModalState !== "create"
-      ? createUpdateApplicationsModalState
-      : null;
-
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
       title: t("toastr.success.applicationDeleted", {
@@ -196,6 +174,28 @@ export const ApplicationsTable: React.FC = () => {
       variant: "danger",
     });
   };
+
+  // Application(s) Delete modal
+  const [applicationsToDeleteModalState, setApplicationsToDeleteModalState] =
+    React.useState<"create" | Application[]>([]);
+  const isApplicationsToDeleteModalOpen =
+    applicationsToDeleteModalState.length > 0;
+  const applicationsToDelete =
+    applicationsToDeleteModalState !== "create"
+      ? applicationsToDeleteModalState
+      : [];
+
+  // Create and update modal
+  const [
+    createUpdateApplicationsModalState,
+    setcreateUpdateApplicationsModalState,
+  ] = React.useState<"create" | Application | null>(null);
+  const iscreateUpdateApplicationsModalOpen =
+    createUpdateApplicationsModalState !== null;
+  const createUpdateApplications =
+    createUpdateApplicationsModalState !== "create"
+      ? createUpdateApplicationsModalState
+      : null;
 
   // Copy assessment modal
   const {
@@ -236,27 +236,12 @@ export const ApplicationsTable: React.FC = () => {
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     useState(false);
 
-  // Bulk Delete modal
-  const [applicationsToDeleteModalState, setApplicationsToDeleteModalState] =
-    React.useState<"create" | Application[] | null>(null);
-  const isApplicationsToDeleteModalOpen =
-    applicationsToDeleteModalState !== null;
-  const applicationsToDelete =
-    applicationsToDeleteModalState !== "create"
-      ? applicationsToDeleteModalState
-      : null;
-
   // Table's assessments
   const {
     getApplicationAssessment,
     isLoadingApplicationAssessment,
     fetchErrorApplicationAssessment,
   } = useFetchApplicationAssessments(applications);
-
-  const { mutate: deleteApplication } = useDeleteApplicationMutation(
-    onDeleteApplicationSuccess,
-    onDeleteApplicationError
-  );
 
   const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
     onDeleteApplicationSuccess,
@@ -453,7 +438,7 @@ export const ApplicationsTable: React.FC = () => {
             content: "Cannot delete application assigned to a migration wave.",
           },
         }),
-        onClick: () => deleteRow(row),
+        onClick: () => setApplicationsToDeleteModalState([row]),
       });
     }
 
@@ -477,11 +462,6 @@ export const ApplicationsTable: React.FC = () => {
   ) => {
     const row = getRow(rowData);
     toggleRowSelected(row);
-  };
-
-  const deleteRow = (row: Application) => {
-    setApplicationToDelete(row.id);
-    setIsApplicationDeleteConfirmDialogOpen(true);
   };
 
   const discardAssessmentRow = (row: Application) => {
@@ -906,7 +886,10 @@ export const ApplicationsTable: React.FC = () => {
       {isApplicationsToDeleteModalOpen && (
         <ConfirmDialog
           title={t("dialog.title.delete", {
-            what: t("terms.application(s)").toLowerCase(),
+            what:
+              applicationsToDelete.length > 1
+                ? t("terms.application(s)").toLowerCase()
+                : t("terms.application").toLowerCase(),
           })}
           titleIconVariant={"warning"}
           isOpen={true}
@@ -917,40 +900,18 @@ export const ApplicationsTable: React.FC = () => {
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
           cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setApplicationsToDeleteModalState(null)}
-          onClose={() => setApplicationsToDeleteModalState(null)}
+          onCancel={() => setApplicationsToDeleteModalState([])}
+          onClose={() => setApplicationsToDeleteModalState([])}
           onConfirm={() => {
             let ids: number[] = [];
-            applicationsToDelete?.forEach((application) => {
+            applicationsToDelete.forEach((application) => {
               if (application.id) ids.push(application.id);
             });
             if (ids)
               bulkDeleteApplication({
                 ids: ids,
               });
-            setApplicationsToDeleteModalState(null);
-          }}
-        />
-      )}
-      {isApplicationDeleteConfirmDialogOpen && (
-        <ConfirmDialog
-          title={t("dialog.title.delete", {
-            what: t("terms.application").toLowerCase(),
-          })}
-          titleIconVariant={"warning"}
-          isOpen={true}
-          message={t("dialog.message.delete")}
-          confirmBtnVariant={ButtonVariant.danger}
-          confirmBtnLabel={t("actions.delete")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsApplicationDeleteConfirmDialogOpen(false)}
-          onClose={() => setIsApplicationDeleteConfirmDialogOpen(false)}
-          onConfirm={() => {
-            if (applicationToDelete) {
-              deleteApplication({ id: applicationToDelete });
-              setApplicationToDelete(undefined);
-            }
-            setIsApplicationDeleteConfirmDialogOpen(false);
+            setApplicationsToDeleteModalState([]);
           }}
         />
       )}

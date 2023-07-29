@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useHistory } from "react-router-dom";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 import {
@@ -67,7 +67,6 @@ import {
   useApplicationsFilterValues,
 } from "../applicationsFilter";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
-import { useEntityModal } from "@app/shared/hooks";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { ConfirmDialog } from "@app/shared/components/confirm-dialog/confirm-dialog";
 import { ApplicationDetailDrawerAnalysis } from "../components/application-detail-drawer";
@@ -87,12 +86,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
-
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
-
-  const [applicationToDeleteId, setApplicationToDeleteId] =
-    React.useState<number>();
 
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     React.useState(false);
@@ -203,11 +196,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     });
   };
 
-  const { mutate: deleteApplication } = useDeleteApplicationMutation(
-    onDeleteApplicationSuccess,
-    onDeleteApplicationError
-  );
-
   const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
     onDeleteApplicationSuccess,
     onDeleteApplicationError
@@ -227,15 +215,15 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       ? createUpdateApplicationsCredentialsModalState
       : null;
 
-  // Bulk Delete modal
+  // Application(s) Delete modal
   const [applicationsToDeleteModalState, setApplicationsToDeleteModalState] =
-    React.useState<"create" | Application[] | null>(null);
+    React.useState<"create" | Application[]>([]);
   const isApplicationsToDeleteModalOpen =
-    applicationsToDeleteModalState !== null;
+    applicationsToDeleteModalState.length > 0;
   const applicationsToDelete =
     applicationsToDeleteModalState !== "create"
       ? applicationsToDeleteModalState
-      : null;
+      : [];
 
   // Table
   const columns: ICell[] = [
@@ -366,7 +354,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                 "Cannot delete application assigned to a migration wave.",
             },
           }),
-          onClick: () => deleteRow(row),
+          onClick: () => setApplicationsToDeleteModalState([row]),
         }
       );
     }
@@ -403,11 +391,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   ) => {
     const row = getRow(rowData);
     toggleRowSelected(row);
-  };
-
-  const deleteRow = (row: Application) => {
-    setApplicationToDeleteId(row.id);
-    setIsConfirmDialogOpen(true);
   };
 
   const cancelAnalysis = (row: Application) => {
@@ -689,55 +672,37 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       {isApplicationsToDeleteModalOpen && (
         <ConfirmDialog
           title={t("dialog.title.delete", {
-            what: t("terms.application(s)").toLowerCase(),
+            what:
+              applicationsToDelete.length > 1
+                ? t("terms.application(s)").toLowerCase()
+                : t("terms.application").toLowerCase(),
           })}
           titleIconVariant={"warning"}
           isOpen={true}
-          message={`${t("dialog.message.applicationsBulkDelete")} ${t(
-            "dialog.message.delete"
-          )}`}
+          message={`${
+            applicationsToDelete.length > 1
+              ? t("dialog.message.applicationsBulkDelete")
+              : t("terms.application").toLowerCase()
+          } ${t("dialog.message.delete")}`}
           aria-label="Applications bulk delete"
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
           cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setApplicationsToDeleteModalState(null)}
-          onClose={() => setApplicationsToDeleteModalState(null)}
+          onCancel={() => setApplicationsToDeleteModalState([])}
+          onClose={() => setApplicationsToDeleteModalState([])}
           onConfirm={() => {
             let ids: number[] = [];
-            applicationsToDelete?.forEach((application) => {
+            applicationsToDelete.forEach((application) => {
               if (application.id) ids.push(application.id);
             });
             if (ids)
               bulkDeleteApplication({
                 ids: ids,
               });
-            setApplicationsToDeleteModalState(null);
+            setApplicationsToDeleteModalState([]);
           }}
         />
       )}
-      {isConfirmDialogOpen && (
-        <ConfirmDialog
-          title={t("dialog.title.delete", {
-            what: t("terms.application").toLowerCase(),
-          })}
-          isOpen={true}
-          titleIconVariant={"warning"}
-          message={t("dialog.message.delete")}
-          confirmBtnVariant={ButtonVariant.danger}
-          confirmBtnLabel={t("actions.delete")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsConfirmDialogOpen(false)}
-          onClose={() => setIsConfirmDialogOpen(false)}
-          onConfirm={() => {
-            if (applicationToDeleteId) {
-              deleteApplication({ id: applicationToDeleteId });
-              setApplicationToDeleteId(undefined);
-            }
-            setIsConfirmDialogOpen(false);
-          }}
-        />
-      )}
-
       <SimpleDocumentViewerModal<Task | string>
         title={`Analysis details for ${taskToView?.name}`}
         fetch={getTaskById}
