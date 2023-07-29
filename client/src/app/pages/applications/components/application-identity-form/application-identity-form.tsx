@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 
 import {
   ActionGroup,
-  Alert,
   Button,
   ButtonVariant,
   Form,
   Text,
 } from "@patternfly/react-core";
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
-import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Application, Ref } from "@app/api/models";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -50,8 +48,6 @@ export const ApplicationIdentityForm: React.FC<
 > = ({ applications, onClose }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
-
-  const [error, setAxiosError] = useState<AxiosError>();
 
   const { identities } = useFetchIdentities();
 
@@ -182,7 +178,6 @@ export const ApplicationIdentityForm: React.FC<
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      {error && <Alert variant="danger" title={getAxiosErrorMessage(error)} />}
       <HookFormPFTextInput
         control={control}
         name="applicationName"
