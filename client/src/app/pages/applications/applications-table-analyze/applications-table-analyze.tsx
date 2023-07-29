@@ -225,12 +225,14 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       : null;
 
   // Bulk Delete modal
-  const {
-    isOpen: isBulkDeleteModalOpen,
-    data: applicationToBulkDelete,
-    update: openBulkDeleteModal,
-    close: closeBulkDeleteModal,
-  } = useEntityModal<Application[]>();
+  const [applicationsToDeleteModalState, setApplicationsToDeleteModalState] =
+    React.useState<"create" | Application[] | null>(null);
+  const isApplicationsToDeleteModalOpen =
+    applicationsToDeleteModalState !== null;
+  const applicationsToDelete =
+    applicationsToDeleteModalState !== "create"
+      ? applicationsToDeleteModalState
+      : null;
 
   // Table
   const columns: ICell[] = [
@@ -463,7 +465,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             key="applications-bulk-delete"
             isAriaDisabled={areAppsInWaves || selectedRows.length < 1}
             onClick={() => {
-              openBulkDeleteModal(selectedRows);
+              setApplicationsToDeleteModalState(selectedRows);
             }}
           >
             {t("actions.delete")}
@@ -679,7 +681,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       </Modal>
 
       <Modal
-        isOpen={isBulkDeleteModalOpen}
+        isOpen={isApplicationsToDeleteModalOpen}
         variant="small"
         title={t("dialog.title.delete", {
           what: t("terms.application(s)").toLowerCase(),
@@ -687,7 +689,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         titleIconVariant="warning"
         aria-label="Applications bulk delete"
         aria-describedby="applications-bulk-delete"
-        onClose={() => closeBulkDeleteModal()}
+        onClose={() => setApplicationsToDeleteModalState(null)}
         showClose={true}
         actions={[
           <Button
@@ -695,8 +697,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             variant="danger"
             onClick={() => {
               let ids: number[] = [];
-              if (applicationToBulkDelete) {
-                applicationToBulkDelete?.forEach((application) => {
+              if (isApplicationsToDeleteModalOpen) {
+                applicationsToDelete?.forEach((application) => {
                   if (application.id) ids.push(application.id);
                 });
                 if (ids)
@@ -704,7 +706,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                     ids: ids,
                   });
               }
-              closeBulkDeleteModal();
+              setApplicationsToDeleteModalState(null);
               selectAll(false);
             }}
           >
@@ -713,7 +715,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           <Button
             key="cancel"
             variant="link"
-            onClick={() => closeBulkDeleteModal()}
+            onClick={() => setApplicationsToDeleteModalState(null)}
           >
             {t("actions.cancel")}
           </Button>,
