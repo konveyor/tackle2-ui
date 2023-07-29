@@ -686,53 +686,35 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           />
         )}
       </Modal>
-
-      <Modal
-        isOpen={isApplicationsToDeleteModalOpen}
-        variant="small"
-        title={t("dialog.title.delete", {
-          what: t("terms.application(s)").toLowerCase(),
-        })}
-        titleIconVariant="warning"
-        aria-label="Applications bulk delete"
-        aria-describedby="applications-bulk-delete"
-        onClose={() => setApplicationsToDeleteModalState(null)}
-        showClose={true}
-        actions={[
-          <Button
-            key="delete"
-            variant="danger"
-            onClick={() => {
-              let ids: number[] = [];
-              if (isApplicationsToDeleteModalOpen) {
-                applicationsToDelete?.forEach((application) => {
-                  if (application.id) ids.push(application.id);
-                });
-                if (ids)
-                  bulkDeleteApplication({
-                    ids: ids,
-                  });
-              }
-              setApplicationsToDeleteModalState(null);
-              selectAll(false);
-            }}
-          >
-            {t("actions.delete")}
-          </Button>,
-          <Button
-            key="cancel"
-            variant="link"
-            onClick={() => setApplicationsToDeleteModalState(null)}
-          >
-            {t("actions.cancel")}
-          </Button>,
-        ]}
-      >
-        {`${t("dialog.message.applicationsBulkDelete")} ${t(
-          "dialog.message.delete"
-        )}`}
-      </Modal>
-
+      {isApplicationsToDeleteModalOpen && (
+        <ConfirmDialog
+          title={t("dialog.title.delete", {
+            what: t("terms.application(s)").toLowerCase(),
+          })}
+          titleIconVariant={"warning"}
+          isOpen={true}
+          message={`${t("dialog.message.applicationsBulkDelete")} ${t(
+            "dialog.message.delete"
+          )}`}
+          aria-label="Applications bulk delete"
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setApplicationsToDeleteModalState(null)}
+          onClose={() => setApplicationsToDeleteModalState(null)}
+          onConfirm={() => {
+            let ids: number[] = [];
+            applicationsToDelete?.forEach((application) => {
+              if (application.id) ids.push(application.id);
+            });
+            if (ids)
+              bulkDeleteApplication({
+                ids: ids,
+              });
+            setApplicationsToDeleteModalState(null);
+          }}
+        />
+      )}
       {isConfirmDialogOpen && (
         <ConfirmDialog
           title={t("dialog.title.delete", {
