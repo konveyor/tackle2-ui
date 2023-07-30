@@ -86,6 +86,30 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
+  const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
+
+  const [saveApplicationsModalState, setSaveApplicationsModalState] =
+    React.useState<"create" | Application | null>(null);
+  const isCreateUpdateApplicationsModalOpen =
+    saveApplicationsModalState !== null;
+  const createUpdateApplications =
+    saveApplicationsModalState !== "create" ? saveApplicationsModalState : null;
+
+  const [
+    saveApplicationsCredentialsModalState,
+    setSaveApplicationsCredentialsModalState,
+  ] = React.useState<"create" | Application[] | null>(null);
+  const isCreateUpdateCredentialsModalOpen =
+    saveApplicationsCredentialsModalState !== null;
+  const applicationsCredentialsToUpdate =
+    saveApplicationsCredentialsModalState !== "create"
+      ? saveApplicationsCredentialsModalState
+      : null;
+
+  const [applicationsToDelete, setApplicationsToDelete] = React.useState<
+    Application[]
+  >([]);
+
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     React.useState(false);
 
@@ -164,18 +188,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     return false;
   };
 
-  // Create and update modal
-  const [
-    createUpdateApplicationsModalState,
-    setcreateUpdateApplicationsModalState,
-  ] = React.useState<"create" | Application | null>(null);
-  const iscreateUpdateApplicationsModalOpen =
-    createUpdateApplicationsModalState !== null;
-  const createUpdateApplications =
-    createUpdateApplicationsModalState !== "create"
-      ? createUpdateApplicationsModalState
-      : null;
-
   // Delete
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
@@ -199,26 +211,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     onDeleteApplicationSuccess,
     onDeleteApplicationError
   );
-
-  const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
-
-  // Applications Credentials modal
-  const [
-    createUpdateApplicationsCredentialsModalState,
-    setCreateUpdateApplicationsCredentialsModalState,
-  ] = React.useState<"create" | Application[] | null>(null);
-  const isCreateUpdateCredentialsModalOpen =
-    createUpdateApplicationsCredentialsModalState !== null;
-  const applicationsCredentialsToUpdate =
-    createUpdateApplicationsCredentialsModalState !== "create"
-      ? createUpdateApplicationsCredentialsModalState
-      : null;
-
-  // Application(s) Delete modal
-  const [applicationsToDelete, setApplicationsToDelete] = React.useState<
-    Application[]
-  >([]);
-  const isApplicationsToDeleteModalOpen = applicationsToDelete.length > 0;
 
   // Table
   const columns: ICell[] = [
@@ -309,7 +301,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
               <Button
                 type="button"
                 variant="plain"
-                onClick={() => setcreateUpdateApplicationsModalState(item)}
+                onClick={() => setSaveApplicationsModalState(item)}
               >
                 <PencilAltIcon />
               </Button>
@@ -336,8 +328,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       actions.push(
         {
           title: "Manage credentials",
-          onClick: () =>
-            setCreateUpdateApplicationsCredentialsModalState([row]),
+          onClick: () => setSaveApplicationsCredentialsModalState([row]),
         },
         {
           title: t("actions.delete"),
@@ -426,7 +417,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           key="manage-applications-credentials"
           isDisabled={selectedRows.length < 1}
           onClick={() => {
-            setCreateUpdateApplicationsCredentialsModalState(selectedRows);
+            setSaveApplicationsCredentialsModalState(selectedRows);
           }}
         >
           {t("actions.manageCredentials")}
@@ -538,7 +529,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                       aria-label="Create Application"
                       variant={ButtonVariant.primary}
                       onClick={() => {
-                        setcreateUpdateApplicationsModalState("create");
+                        setSaveApplicationsModalState("create");
                       }}
                     >
                       {t("actions.createNew")}
@@ -610,31 +601,26 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           }
         />
       </ConditionalRender>
-
       <Modal
         title={
           createUpdateApplications ? "Update application" : "New application"
         }
         variant="medium"
-        isOpen={iscreateUpdateApplicationsModalOpen}
-        onClose={() => setcreateUpdateApplicationsModalState(null)}
+        isOpen={isCreateUpdateApplicationsModalOpen}
+        onClose={() => setSaveApplicationsModalState(null)}
       >
         <ApplicationForm
           application={createUpdateApplications}
-          onClose={() => setcreateUpdateApplicationsModalState(null)}
+          onClose={() => setSaveApplicationsModalState(null)}
         />
-      </Modal>
-
-      {isAnalyzeModalOpen && (
-        <AnalysisWizard
-          applications={selectedRows}
-          isOpen={isAnalyzeModalOpen}
-          onClose={() => {
-            setAnalyzeModalOpen(false);
-          }}
-        />
-      )}
-
+      </Modal>{" "}
+      <AnalysisWizard
+        applications={selectedRows}
+        isOpen={isAnalyzeModalOpen}
+        onClose={() => {
+          setAnalyzeModalOpen(false);
+        }}
+      />
       <Modal
         isOpen={isApplicationImportModalOpen}
         variant="medium"
@@ -648,56 +634,46 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           }}
         />
       </Modal>
-
       <Modal
         isOpen={isCreateUpdateCredentialsModalOpen}
         variant="medium"
         title="Manage credentials"
-        onClose={() => setCreateUpdateApplicationsCredentialsModalState(null)}
+        onClose={() => setSaveApplicationsCredentialsModalState(null)}
       >
         {applicationsCredentialsToUpdate && (
           <ApplicationIdentityForm
             applications={applicationsCredentialsToUpdate}
-            onClose={() =>
-              setCreateUpdateApplicationsCredentialsModalState(null)
-            }
+            onClose={() => setSaveApplicationsCredentialsModalState(null)}
           />
         )}
       </Modal>
-      {isApplicationsToDeleteModalOpen && (
-        <ConfirmDialog
-          title={t("dialog.title.delete", {
-            what:
-              applicationsToDelete.length > 1
-                ? t("terms.application(s)").toLowerCase()
-                : t("terms.application").toLowerCase(),
-          })}
-          titleIconVariant={"warning"}
-          isOpen={true}
-          message={`${
+      <ConfirmDialog
+        title={t("dialog.title.delete", {
+          what:
             applicationsToDelete.length > 1
-              ? t("dialog.message.applicationsBulkDelete")
-              : t("terms.application").toLowerCase()
-          } ${t("dialog.message.delete")}`}
-          aria-label="Applications bulk delete"
-          confirmBtnVariant={ButtonVariant.danger}
-          confirmBtnLabel={t("actions.delete")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setApplicationsToDelete([])}
-          onClose={() => setApplicationsToDelete([])}
-          onConfirm={() => {
-            let ids: number[] = [];
-            applicationsToDelete.forEach((application) => {
-              if (application.id) ids.push(application.id);
-            });
-            if (ids)
-              bulkDeleteApplication({
-                ids: ids,
-              });
-            setApplicationsToDelete([]);
-          }}
-        />
-      )}
+              ? t("terms.application(s)").toLowerCase()
+              : t("terms.application").toLowerCase(),
+        })}
+        titleIconVariant={"warning"}
+        isOpen={applicationsToDelete.length > 0}
+        message={`${t("dialog.message.applicationsBulkDelete")} ${t(
+          "dialog.message.delete"
+        )}`}
+        aria-label="Applications bulk delete"
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.delete")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setApplicationsToDelete([])}
+        onClose={() => setApplicationsToDelete([])}
+        onConfirm={() => {
+          let ids: number[] = [];
+          applicationsToDelete.forEach((application) => {
+            if (application.id) ids.push(application.id);
+          });
+          if (ids) bulkDeleteApplication({ ids: ids });
+          setApplicationsToDelete([]);
+        }}
+      />
       <SimpleDocumentViewerModal<Task | string>
         title={`Analysis details for ${taskToView?.name}`}
         fetch={getTaskById}
