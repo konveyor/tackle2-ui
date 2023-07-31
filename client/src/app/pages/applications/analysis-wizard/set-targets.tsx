@@ -22,7 +22,7 @@ export const SetTargets: React.FC = () => {
 
   const { rulesets } = useFetchRulesets();
 
-  const rulesetOrderSetting = useSetting("ui.ruleset.order");
+  const rulesetOrderSetting = useSetting("ui.target.order");
 
   const { watch, setValue, getValues } =
     useFormContext<AnalysisWizardFormValues>();

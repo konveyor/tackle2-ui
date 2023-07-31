@@ -46,8 +46,8 @@ export const MigrationTargets: React.FC = () => {
 
   const { rulesets, refetch: refetchrulesets } = useFetchRulesets();
 
-  const rulesetOrderSetting = useSetting("ui.ruleset.order");
-  const rulesetOrderSettingMutation = useSettingMutation("ui.ruleset.order");
+  const rulesetOrderSetting = useSetting("ui.target.order");
+  const rulesetOrderSettingMutation = useSettingMutation("ui.target.order");
 
   // Create and update modal
   const [createUpdateModalState, setCreateUpdateModalState] = React.useState<

@@ -341,7 +341,7 @@ export type SettingTypes = {
   "mvn.insecure.enabled": boolean;
   "review.assessment.required": boolean;
   "svn.insecure.enabled": boolean;
-  "ui.ruleset.order": number[];
+  "ui.target.order": number[];
 };
 
 export type Setting<K extends keyof SettingTypes> = {
