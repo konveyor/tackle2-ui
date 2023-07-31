@@ -6,43 +6,29 @@ Object {
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-l-flex pf-m-space-items-sm pf-m-align-items-center pf-m-nowrap"
-        style="white-space: nowrap;"
+        class="pf-v5-c-content"
       >
-        <div
-          class=""
-        >
-          <test-file-stub
-            classname=""
-            color="#6a6e73"
-          />
-        </div>
-        <div
-          class=""
-        >
-          terms.notStarted
-        </div>
+        <test-file-stub
+          classname=""
+          color="#6a6e73"
+          isinline="true"
+        />
+         
+        terms.notStarted
       </div>
     </div>
   </body>,
   "container": <div>
     <div
-      class="pf-v5-l-flex pf-m-space-items-sm pf-m-align-items-center pf-m-nowrap"
-      style="white-space: nowrap;"
+      class="pf-v5-c-content"
     >
-      <div
-        class=""
-      >
-        <test-file-stub
-          classname=""
-          color="#6a6e73"
-        />
-      </div>
-      <div
-        class=""
-      >
-        terms.notStarted
-      </div>
+      <test-file-stub
+        classname=""
+        color="#6a6e73"
+        isinline="true"
+      />
+       
+      terms.notStarted
     </div>
   </div>,
   "debug": [Function],

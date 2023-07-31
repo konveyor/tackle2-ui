@@ -1,6 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Flex, FlexItem, SpinnerProps } from "@patternfly/react-core";
+import {
+  Flex,
+  FlexItem,
+  SpinnerProps,
+  TextContent,
+} from "@patternfly/react-core";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
@@ -19,9 +24,11 @@ import {
 export type StatusIconType =
   | "Canceled"
   | "Completed"
+  | "Error"
   | "Failed"
   | "InProgress"
   | "NotStarted"
+  | "Ok"
   | "Scheduled"
   | "Unknown";
 
@@ -40,6 +47,10 @@ const iconList: IconListType = {
     Icon: CheckCircleIcon,
     color: successColor,
   },
+  Error: {
+    Icon: ExclamationCircleIcon,
+    color: errorColor,
+  },
   Failed: {
     Icon: ExclamationCircleIcon,
     color: errorColor,
@@ -51,6 +62,10 @@ const iconList: IconListType = {
   NotStarted: {
     Icon: TimesCircleIcon,
     color: unknownColor,
+  },
+  Ok: {
+    Icon: CheckCircleIcon,
+    color: successColor,
   },
   Scheduled: {
     Icon: InProgressIcon,
@@ -66,12 +81,14 @@ export interface IStatusIconProps {
   status: StatusIconType;
   isDisabled?: boolean;
   className?: string;
+  label?: React.ReactNode | string;
 }
 
 export const StatusIcon: React.FC<IStatusIconProps> = ({
   status,
   isDisabled = false,
   className = "",
+  label,
 }: IStatusIconProps) => {
   const { t } = useTranslation();
 
@@ -80,44 +97,42 @@ export const StatusIcon: React.FC<IStatusIconProps> = ({
     <Icon
       color={isDisabled ? disabledColor.value : iconList[status].color.value}
       className={className}
+      isInline
     />
   );
 
-  let label: string;
-  switch (status) {
-    case "Canceled":
-      label = t("terms.canceled");
-      break;
-    case "Completed":
-      label = t("terms.completed");
-      break;
-    case "Failed":
-      label = t("terms.failed");
-      break;
-    case "InProgress":
-      label = t("terms.inProgress");
-      break;
-    case "NotStarted":
-      label = t("terms.notStarted");
-      break;
-    case "Scheduled":
-      label = t("terms.scheduled");
-      break;
-    default:
-      label = t("terms.unknown");
-      break;
+  if (!label) {
+    switch (status) {
+      case "Canceled":
+        label = t("terms.canceled");
+        break;
+      case "Completed":
+        label = t("terms.completed");
+        break;
+      case "Error":
+        label = t("terms.error");
+        break;
+      case "Failed":
+        label = t("terms.failed");
+        break;
+      case "InProgress":
+        label = t("terms.inProgress");
+        break;
+      case "NotStarted":
+        label = t("terms.notStarted");
+        break;
+      case "Scheduled":
+        label = t("terms.scheduled");
+        break;
+      default:
+        label = t("terms.unknown");
+        break;
+    }
   }
 
   return (
-    <Flex
-      spaceItems={{ default: "spaceItemsSm" }}
-      alignItems={{ default: "alignItemsCenter" }}
-      flexWrap={{ default: "nowrap" }}
-      style={{ whiteSpace: "nowrap" }}
-      className={className}
-    >
-      <FlexItem>{icon}</FlexItem>
-      <FlexItem>{label}</FlexItem>
-    </Flex>
+    <TextContent>
+      {icon} {label}
+    </TextContent>
   );
 };
