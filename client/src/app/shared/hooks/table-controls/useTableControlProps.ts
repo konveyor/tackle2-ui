@@ -49,8 +49,6 @@ export const useTableControlProps = <
     isSelectable = false,
     expandableVariant = null,
     hasActionsColumn = false,
-    // TODO PF V5 obsolete
-    // hasClickableRows = false,
     variant,
     idProperty,
   } = args;
@@ -104,8 +102,6 @@ export const useTableControlProps = <
 
   const tableProps: Omit<TableProps, "ref"> = {
     variant,
-    // TODO PF V5 obsolete
-    // hasSelectableRowCaption: hasClickableRows,
   };
 
   const getThProps = ({
