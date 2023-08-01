@@ -20,6 +20,7 @@ import {
   IRow,
   IRowData,
   ISeparator,
+  nowrap,
   sortable,
   TableText,
 } from "@patternfly/react-table";
@@ -295,9 +296,21 @@ export const ApplicationsTable: React.FC = () => {
       title: t("terms.businessService"),
       transforms: [sortable, cellWidth(20)],
     },
-    { title: t("terms.assessment"), transforms: [cellWidth(10)] },
-    { title: t("terms.review"), transforms: [cellWidth(10)] },
-    { title: t("terms.tagCount"), transforms: [sortable, cellWidth(10)] },
+    {
+      title: t("terms.assessment"),
+      transforms: [cellWidth(10)],
+      cellTransforms: [nowrap],
+    },
+    {
+      title: t("terms.review"),
+      transforms: [cellWidth(10)],
+      cellTransforms: [nowrap],
+    },
+    {
+      title: t("terms.tagCount"),
+      transforms: [sortable, cellWidth(10)],
+      cellTransforms: [nowrap],
+    },
     {
       title: "",
       props: {
