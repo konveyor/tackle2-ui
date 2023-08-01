@@ -1,25 +1,16 @@
 import { useState } from "react";
 import { AxiosError } from "axios";
 import { getProxies, updateProxy } from "@app/api/rest";
-import { Proxy } from "@app/api/models";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-export interface IProxyFetchState {
-  proxies: Proxy[];
-  isFetching: boolean;
-  fetchError: AxiosError;
-}
 
 export const ProxiesTasksQueryKey = "proxies";
 
-export const useFetchProxies = (
-  defaultIsFetching: boolean = false
-): IProxyFetchState => {
-  const { isLoading, data, error } = useQuery(
-    [ProxiesTasksQueryKey],
-    async () => (await getProxies()).data,
-    { onError: (error) => console.log("error, ", error) }
-  );
+export const useFetchProxies = () => {
+  const { isLoading, data, error } = useQuery({
+    queryKey: [ProxiesTasksQueryKey],
+    queryFn: getProxies,
+    onError: (error) => console.log("error, ", error),
+  });
   return {
     proxies: data || [],
     isFetching: isLoading,
@@ -27,25 +18,17 @@ export const useFetchProxies = (
   };
 };
 
-export const useUpdateProxyMutation = (onSuccess: any) => {
-  const [putResult, setPutResult] = useState<any>(null);
+export const useUpdateProxyMutation = (
+  onSuccess: (res: any) => void,
+  onError: (err: AxiosError) => void
+) => {
   const queryClient = useQueryClient();
-
-  const { isLoading, mutate, error } = useMutation(updateProxy, {
+  return useMutation({
+    mutationFn: updateProxy,
     onSuccess: (res) => {
-      onSuccess();
-      setPutResult(res);
+      onSuccess(res);
       queryClient.invalidateQueries([ProxiesTasksQueryKey]);
     },
-    onError: (err) => {
-      setPutResult(err);
-      queryClient.invalidateQueries([ProxiesTasksQueryKey]);
-    },
+    onError: onError,
   });
-  return {
-    mutate,
-    putResult,
-    isLoading,
-    error,
-  };
 };

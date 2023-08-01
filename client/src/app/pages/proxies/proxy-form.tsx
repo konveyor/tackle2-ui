@@ -7,12 +7,6 @@ import {
   Form,
   Switch,
 } from "@patternfly/react-core";
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import { getAxiosErrorMessage, getValidatedFromErrors } from "@app/utils/utils";
-import { useProxyFormValidationSchema } from "./proxies-validation-schema";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Proxy } from "@app/api/models";
-import { useUpdateProxyMutation } from "@app/queries/proxies";
 import {
   Controller,
   FieldValues,
@@ -20,13 +14,22 @@ import {
   useForm,
 } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useFetchIdentities } from "@app/queries/identities";
 import { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
+import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { getAxiosErrorMessage, getValidatedFromErrors } from "@app/utils/utils";
+import { useProxyFormValidationSchema } from "./proxies-validation-schema";
+import { Proxy } from "@app/api/models";
+import { useUpdateProxyMutation } from "@app/queries/proxies";
+import { useFetchIdentities } from "@app/queries/identities";
 import {
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
+import { NotificationsContext } from "@app/shared/notifications-context";
 
 export interface ProxyFormValues {
   isHttpProxyEnabled: boolean;
@@ -51,6 +54,9 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   httpProxy,
   httpsProxy,
 }) => {
+  const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
+
   const { identities } = useFetchIdentities();
 
   const identityOptions: OptionWithValue<string>[] = identities
@@ -95,14 +101,26 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
   const values = getValues();
 
   const onProxySubmitComplete = () => {
+    pushNotification({
+      title: t("toastr.success.save", {
+        type: t("terms.proxyConfig"),
+      }),
+      variant: "success",
+    });
     reset(values);
   };
 
-  const {
-    mutate: submitProxy,
-    isLoading,
-    error,
-  } = useUpdateProxyMutation(onProxySubmitComplete);
+  const onProxySubmitError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: submitProxy, isLoading } = useUpdateProxyMutation(
+    onProxySubmitComplete,
+    onProxySubmitError
+  );
 
   const httpValuesHaveUpdate = (values: ProxyFormValues, httpProxy?: Proxy) => {
     if (httpProxy?.host === "" && values.isHttpProxyEnabled) {
@@ -187,13 +205,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
 
   return (
     <Form className={spacing.mMd} onSubmit={handleSubmit(onSubmit)}>
-      {error && (
-        <Alert
-          variant="danger"
-          isInline
-          title={getAxiosErrorMessage(error as AxiosError)}
-        />
-      )}
       <Controller
         control={control}
         name="isHttpProxyEnabled"
