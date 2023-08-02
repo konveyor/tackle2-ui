@@ -6,6 +6,9 @@ import { useTranslation, Trans } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  Flex,
+  FlexItem,
+  Icon,
   Modal,
   ToolbarGroup,
   ToolbarItem,
@@ -24,7 +27,9 @@ import {
   sortable,
   TableText,
 } from "@patternfly/react-table";
+import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
+import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
 
 import {
@@ -32,7 +37,6 @@ import {
   AppTableWithControls,
   ConditionalRender,
   NoDataEmptyState,
-  StatusIcon,
   KebabDropdown,
   ToolbarBulkSelector,
   ConfirmDialog,
@@ -313,10 +317,20 @@ export const ApplicationsTable: React.FC = () => {
           ),
         },
         {
-          title: item.review ? (
-            <StatusIcon status="Completed" />
-          ) : (
-            <StatusIcon status="NotStarted" />
+          title: (
+            <Flex
+              flexWrap={{ default: "nowrap" }}
+              spaceItems={{ default: "spaceItemsSm" }}
+            >
+              <FlexItem>
+                <Icon status={item.review && "success"}>
+                  {item.review ? <CheckCircleIcon /> : <TimesCircleIcon />}
+                </Icon>
+              </FlexItem>
+              <FlexItem>
+                {t(`terms.${item.review ? "completed" : "notStarted"}`)}
+              </FlexItem>
+            </Flex>
           ),
         },
         {
