@@ -20,6 +20,10 @@
     "client",
     "server"
   ],
+  "engines": {
+    "node": ">=18.14.2",
+    "npm": ">=9.5.0"
+  },
   "devDependencies": {
     "concurrently": "^8.0.1",
     "copyfiles": "^2.4.1",
