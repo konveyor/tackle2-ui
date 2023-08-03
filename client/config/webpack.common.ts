@@ -1,6 +1,6 @@
 import path from "path";
 import { Configuration, WatchIgnorePlugin } from "webpack";
-import CaseSensitivePathsPlugin from "case-sensitive-paths-webpack-plugin";
+// import CaseSensitivePathsWebpackPlugin from "case-sensitive-paths-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
 import Dotenv from "dotenv-webpack";
 import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
@@ -165,7 +165,7 @@ const config: Configuration = {
   },
 
   plugins: [
-    new CaseSensitivePathsPlugin(),
+    // new CaseSensitivePathsWebpackPlugin(),
     new Dotenv({
       systemvars: true,
       silent: true,
@@ -186,9 +186,9 @@ const config: Configuration = {
         },
       ],
     }),
-    new WatchIgnorePlugin({
-      paths: [/\.js$/, /\.d\.ts$/],
-    }),
+    // new WatchIgnorePlugin({
+    //   paths: [/\.js$/, /\.d\.ts$/],
+    // }),
     new MonacoWebpackPlugin({
       filename: "monaco/[name].worker.js",
       languages: Object.values(LANGUAGES_BY_FILE_EXTENSION),

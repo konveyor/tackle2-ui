@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
 
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "config/**/*", "types/**/*"],
 
   "compilerOptions": {
     "outDir": "dist",
@@ -12,13 +12,14 @@
         "../node_modules/@patternfly/react-core/dist/styles/assets/*"
       ]
     },
+    "typeRoots": ["types/", "node_modules/@types"],
 
     "target": "es2020",
     "module": "es2020",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
 
     "allowJs": true,
-    "checkJs": true,
+    "checkJs": false,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react",
@@ -27,17 +28,12 @@
     "sourceMap": true,
     "strict": true,
 
-    "noUnusedLocals": false, // TODO: activate when fixed
-    "noUnusedParameters": false, // TODO: activate when fixed
-
     "noEmit": true
   },
 
   "ts-node": {
-    "files": true,
-    "transpileOnly": true,
     "compilerOptions": {
-      "module": "commonjs" // allow webpack config to be typescript
+      "module": "commonjs" // node16 == commonjs or es2020 depending on package.json/type
     }
   }
 }
