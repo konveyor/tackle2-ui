@@ -15,8 +15,6 @@ export interface ConfirmDialogProps {
     | "danger"
     | "warning"
     | "info"
-    // TODO PF V5 - check removal of obsolete value is not breaking any case
-    // | "default"
     | React.ComponentType<any>;
   message: string | React.ReactNode;
 

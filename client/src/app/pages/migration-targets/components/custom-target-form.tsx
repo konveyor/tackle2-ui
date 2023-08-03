@@ -406,7 +406,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
               });
             }}
             onClearClick={() => {
-              // TODO PF V5
               onChange(0);
               setFilename("default.png");
               setValue("imageID", 1);
@@ -564,7 +563,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                 options={sourceIdentityOptions}
                 onChange={(selection) => {
                   const selectionValue = selection as OptionWithValue<string>;
-                  // TODO PF V5
                   onChange(selectionValue.value);
                 }}
                 onClear={() => onChange("")}

@@ -222,10 +222,8 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
             options={jobFunctionOptions}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<string>;
-              // TODO PF V5
               onChange(selectionValue.value);
             }}
-            // TODO PF V5
             onClear={() => onChange("")}
           />
         )}
@@ -233,7 +231,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
       <HookFormPFGroupController
         control={control}
         name="stakeholderGroupNames"
-        label={t("terms.stakeholderGroup")}
+        label={t("terms.stakeholderGroups")}
         fieldId="stakeholderGroups"
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
