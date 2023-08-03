@@ -38,11 +38,9 @@ import {
   ConfirmDialog,
 } from "@app/shared/components";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
-
 import { formatPath, Paths } from "@app/Paths";
 import { Application, Assessment, Task } from "@app/api/models";
 import { ApplicationForm } from "../components/application-form";
-
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
@@ -60,7 +58,6 @@ import keycloak from "@app/keycloak";
 import {
   ApplicationsQueryKey,
   useBulkDeleteApplicationMutation,
-  useDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
 import {
@@ -74,7 +71,6 @@ import {
   useFetchApplicationAssessments,
 } from "@app/queries/assessments";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEntityModal } from "@app/shared/hooks/useEntityModal";
 import { useAssessApplication } from "@app/shared/hooks/useAssessApplication";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
@@ -94,37 +90,42 @@ export const ApplicationsTable: React.FC = () => {
   //RBAC
   const token = keycloak.tokenParsed;
   const { t } = useTranslation();
-
-  const [
-    isApplicationDeleteConfirmDialogOpen,
-    setIsApplicationDeleteConfirmDialogOpen,
-  ] = React.useState<Boolean>(false);
-
-  const [
-    isDiscardAssessmentConfirmDialogOpen,
-    setIsDiscardAssessmentConfirmDialogOpen,
-  ] = React.useState<Boolean>(false);
-
-  const [
-    isEditAssessmentConfirmDialogOpen,
-    setIsEditAssessmentConfirmDialogOpen,
-  ] = React.useState<Boolean>(false);
-
-  const [isEditReviewConfirmDialogOpen, setIsEditReviewConfirmDialogOpen] =
-    React.useState<Boolean>(false);
-
-  const [applicationToDelete, setApplicationToDelete] =
-    React.useState<number>();
-
-  const [
-    applicationAssessmentOrReviewToDiscard,
-    setApplicationAssessmentOrReviewToDiscard,
-  ] = React.useState<Application>();
-
-  const [assessmentToEdit, setAssessmentToEdit] = React.useState<Assessment>();
-  const [reviewToEdit, setReviewToEdit] = React.useState<number>();
-
   const { pushNotification } = React.useContext(NotificationsContext);
+
+  const [saveApplicationsModalState, setSavesApplicationsModalState] =
+    React.useState<"create" | Application | null>(null);
+  const isCreateUpdateApplicationsModalOpen =
+    saveApplicationsModalState !== null;
+  const createUpdateApplications =
+    saveApplicationsModalState !== "create" ? saveApplicationsModalState : null;
+
+  const [applicationToCopyAssessmentFrom, setAapplicationToCopyAssessmentFrom] =
+    React.useState<Application | null>(null);
+  const isCopyAssessmentModalOpen = applicationToCopyAssessmentFrom !== null;
+
+  const [
+    applicationToCopyAssessmentAndReviewFrom,
+    setCopyAssessmentAndReviewModalState,
+  ] = React.useState<Application | null>(null);
+  const isCopyAssessmentAndReviewModalOpen =
+    applicationToCopyAssessmentAndReviewFrom !== null;
+
+  const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
+    React.useState<Application | null>(null);
+  const isDependenciesModalOpen = applicationDependenciesToManage !== null;
+
+  const [assessmentToEdit, setAssessmentToEdit] =
+    React.useState<Assessment | null>(null);
+
+  const [reviewToEdit, setReviewToEdit] = React.useState<number | null>(null);
+
+  const [applicationsToDelete, setApplicationsToDelete] = React.useState<
+    Application[]
+  >([]);
+
+  const [assessmentOrReviewToDiscard, setAssessmentOrReviewToDiscard] =
+    React.useState<Application | null>(null);
+
   const [isSubmittingBulkCopy, setIsSubmittingBulkCopy] = useState(false);
 
   // Router
@@ -168,15 +169,6 @@ export const ApplicationsTable: React.FC = () => {
     applications
   );
 
-  // Create and update modal
-  const {
-    isOpen: isApplicationModalOpen,
-    data: applicationToUpdate,
-    create: openCreateApplicationModal,
-    update: openUpdateApplicationModal,
-    close: closeApplicationModal,
-  } = useEntityModal<Application>();
-
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
       title: t("toastr.success.applicationDeleted", {
@@ -185,6 +177,7 @@ export const ApplicationsTable: React.FC = () => {
       variant: "success",
     });
     activeAppInDetailDrawer && closeDetailDrawer();
+    setApplicationsToDelete([]);
   };
 
   const onDeleteApplicationError = (error: AxiosError) => {
@@ -192,23 +185,8 @@ export const ApplicationsTable: React.FC = () => {
       title: getAxiosErrorMessage(error),
       variant: "danger",
     });
+    setApplicationsToDelete([]);
   };
-
-  // Copy assessment modal
-  const {
-    isOpen: isCopyAssessmentModalOpen,
-    data: applicationToCopyAssessmentFrom,
-    update: openCopyAssessmentModal,
-    close: closeCopyAssessmentModal,
-  } = useEntityModal<Application>();
-
-  // Copy assessment and review modal
-  const {
-    isOpen: isCopyAssessmentAndReviewModalOpen,
-    data: applicationToCopyAssessmentAndReviewFrom,
-    update: openCopyAssessmentAndReviewModal,
-    close: closeCopyAssessmentAndReviewModal,
-  } = useEntityModal<Application>();
 
   const {
     reviews,
@@ -221,25 +199,9 @@ export const ApplicationsTable: React.FC = () => {
       review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
   );
 
-  // Dependencies modal
-  const {
-    isOpen: isDependenciesModalOpen,
-    data: applicationToManageDependencies,
-    update: openDependenciesModal,
-    close: closeDependenciesModal,
-  } = useEntityModal<Application>();
-
   // Application import modal
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     useState(false);
-
-  // Bulk Delete modal
-  const {
-    isOpen: isBulkDeleteModalOpen,
-    data: applicationToBulkDelete,
-    update: openBulkDeleteModal,
-    close: closeBulkDeleteModal,
-  } = useEntityModal<Application[]>();
 
   // Table's assessments
   const {
@@ -247,11 +209,6 @@ export const ApplicationsTable: React.FC = () => {
     isLoadingApplicationAssessment,
     fetchErrorApplicationAssessment,
   } = useFetchApplicationAssessments(applications);
-
-  const { mutate: deleteApplication } = useDeleteApplicationMutation(
-    onDeleteApplicationSuccess,
-    onDeleteApplicationError
-  );
 
   const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
     onDeleteApplicationSuccess,
@@ -380,7 +337,7 @@ export const ApplicationsTable: React.FC = () => {
               <Button
                 type="button"
                 variant="plain"
-                onClick={() => openUpdateApplicationModal(item)}
+                onClick={() => setSavesApplicationsModalState(item)}
               >
                 <PencilAltIcon />
               </Button>
@@ -413,7 +370,7 @@ export const ApplicationsTable: React.FC = () => {
     ) {
       actions.push({
         title: t("actions.copyAssessment"),
-        onClick: () => openCopyAssessmentModal(row),
+        onClick: () => setAapplicationToCopyAssessmentFrom(row),
       });
     }
     if (
@@ -423,7 +380,7 @@ export const ApplicationsTable: React.FC = () => {
     ) {
       actions.push({
         title: t("actions.copyAssessmentAndReview"),
-        onClick: () => openCopyAssessmentAndReviewModal(row),
+        onClick: () => setCopyAssessmentAndReviewModalState(row),
       });
     }
     if (
@@ -433,7 +390,8 @@ export const ApplicationsTable: React.FC = () => {
       actions.push({
         title: t("actions.discardAssessment"),
         onClick: () => {
-          discardAssessmentRow(row);
+          setAssessmentOrReviewToDiscard(row);
+          // setIsDiscardAssessmentConfirmDialogOpen(true);
           fetchApplications();
         },
       });
@@ -448,14 +406,14 @@ export const ApplicationsTable: React.FC = () => {
             content: "Cannot delete application assigned to a migration wave.",
           },
         }),
-        onClick: () => deleteRow(row),
+        onClick: () => setApplicationsToDelete([row]),
       });
     }
 
     if (dependenciesWriteAccess) {
       actions.push({
         title: t("actions.manageDependencies"),
-        onClick: () => openDependenciesModal(row),
+        onClick: () => setApplicationDependenciesToManage(row),
       });
     }
 
@@ -472,16 +430,6 @@ export const ApplicationsTable: React.FC = () => {
   ) => {
     const row = getRow(rowData);
     toggleRowSelected(row);
-  };
-
-  const deleteRow = (row: Application) => {
-    setApplicationToDelete(row.id);
-    setIsApplicationDeleteConfirmDialogOpen(true);
-  };
-
-  const discardAssessmentRow = (row: Application) => {
-    setApplicationAssessmentOrReviewToDiscard(row);
-    setIsDiscardAssessmentConfirmDialogOpen(true);
   };
 
   const onDeleteReviewSuccess = (name: string) => {
@@ -548,7 +496,6 @@ export const ApplicationsTable: React.FC = () => {
       (assessment: Assessment) => {
         if (assessment.status === "COMPLETE") {
           setAssessmentToEdit(assessment);
-          setIsEditAssessmentConfirmDialogOpen(true);
         } else {
           history.push(
             formatPath(Paths.applicationsAssessment, {
@@ -581,10 +528,8 @@ export const ApplicationsTable: React.FC = () => {
     }
 
     const row = selectedRows[0];
-    if (row.review) {
-      setReviewToEdit(row.id);
-      setIsEditReviewConfirmDialogOpen(true);
-    } else {
+    if (row.review) setReviewToEdit(row.id);
+    else {
       history.push(
         formatPath(Paths.applicationsReview, {
           applicationId: row.id,
@@ -640,7 +585,7 @@ export const ApplicationsTable: React.FC = () => {
             key="applications-bulk-delete"
             isAriaDisabled={areAppsInWaves || selectedRows.length < 1}
             onClick={() => {
-              openBulkDeleteModal(selectedRows);
+              setApplicationsToDelete(selectedRows);
             }}
           >
             {t("actions.delete")}
@@ -708,7 +653,9 @@ export const ApplicationsTable: React.FC = () => {
                       id="create-application"
                       aria-label="Create Application"
                       variant={ButtonVariant.primary}
-                      onClick={openCreateApplicationModal}
+                      onClick={() => {
+                        setSavesApplicationsModalState("create");
+                      }}
                     >
                       {t("actions.createNew")}
                     </Button>
@@ -796,17 +743,17 @@ export const ApplicationsTable: React.FC = () => {
       </ConditionalRender>
       <Modal
         title={
-          applicationToUpdate
+          createUpdateApplications
             ? t("dialog.title.updateApplication")
             : t("dialog.title.newApplication")
         }
         variant="medium"
-        isOpen={isApplicationModalOpen}
-        onClose={closeApplicationModal}
+        isOpen={isCreateUpdateApplicationsModalOpen}
+        onClose={() => setSavesApplicationsModalState(null)}
       >
         <ApplicationForm
-          application={applicationToUpdate}
-          onClose={closeApplicationModal}
+          application={createUpdateApplications}
+          onClose={() => setSavesApplicationsModalState(null)}
         />
       </Modal>
       <Modal
@@ -816,7 +763,7 @@ export const ApplicationsTable: React.FC = () => {
           what: applicationToCopyAssessmentFrom?.name,
         })}
         onClose={() => {
-          closeCopyAssessmentModal();
+          setAapplicationToCopyAssessmentFrom(null);
           fetchApplications();
         }}
       >
@@ -824,14 +771,14 @@ export const ApplicationsTable: React.FC = () => {
           <BulkCopyAssessmentReviewForm
             application={applicationToCopyAssessmentFrom}
             assessment={
-              getApplicationAssessment(applicationToCopyAssessmentFrom.id!)!
+              getApplicationAssessment(applicationToCopyAssessmentFrom.id)!
             }
             isSubmittingBulkCopy={isSubmittingBulkCopy}
             setIsSubmittingBulkCopy={setIsSubmittingBulkCopy}
             isCopying={isCopying}
             createCopy={createCopy}
             onSaved={() => {
-              closeCopyAssessmentModal();
+              setAapplicationToCopyAssessmentFrom(null);
               fetchApplications();
             }}
           />
@@ -844,7 +791,7 @@ export const ApplicationsTable: React.FC = () => {
           what: applicationToCopyAssessmentAndReviewFrom?.name,
         })}
         onClose={() => {
-          closeCopyAssessmentAndReviewModal();
+          setCopyAssessmentAndReviewModalState(null);
           fetchApplications();
         }}
       >
@@ -862,7 +809,7 @@ export const ApplicationsTable: React.FC = () => {
             isCopying={isCopying}
             createCopy={createCopy}
             onSaved={() => {
-              closeCopyAssessmentAndReviewModal();
+              setCopyAssessmentAndReviewModalState(null);
               fetchApplications();
             }}
           />
@@ -872,14 +819,14 @@ export const ApplicationsTable: React.FC = () => {
         isOpen={isDependenciesModalOpen}
         variant="medium"
         title={t("composed.manageDependenciesFor", {
-          what: applicationToManageDependencies?.name,
+          what: applicationDependenciesToManage?.name,
         })}
-        onClose={closeDependenciesModal}
+        onClose={() => setApplicationDependenciesToManage(null)}
       >
-        {applicationToManageDependencies && (
+        {applicationDependenciesToManage && (
           <ApplicationDependenciesFormContainer
-            application={applicationToManageDependencies}
-            onCancel={closeDependenciesModal}
+            application={applicationDependenciesToManage}
+            onCancel={() => setApplicationDependenciesToManage(null)}
           />
         )}
       </Modal>
@@ -896,157 +843,102 @@ export const ApplicationsTable: React.FC = () => {
           }}
         />
       </Modal>
-      <Modal
-        isOpen={isBulkDeleteModalOpen}
-        variant="small"
+      <ConfirmDialog
         title={t("dialog.title.delete", {
-          what: t("terms.application(s)").toLowerCase(),
+          what:
+            applicationsToDelete.length > 1
+              ? t("terms.application(s)").toLowerCase()
+              : t("terms.application").toLowerCase(),
         })}
-        titleIconVariant="warning"
-        aria-label="Applications bulk delete"
-        aria-describedby="applications-bulk-delete"
-        onClose={() => closeBulkDeleteModal()}
-        showClose={true}
-        actions={[
-          <Button
-            key="delete"
-            variant="danger"
-            onClick={() => {
-              let ids: number[] = [];
-              if (applicationToBulkDelete) {
-                applicationToBulkDelete?.forEach((application) => {
-                  if (application.id) ids.push(application.id);
-                });
-                if (ids)
-                  bulkDeleteApplication({
-                    ids: ids,
-                  });
-              }
-              closeBulkDeleteModal();
-            }}
-          >
-            {t("actions.delete")}
-          </Button>,
-          <Button
-            key="cancel"
-            variant="link"
-            onClick={() => closeBulkDeleteModal()}
-          >
-            {t("actions.cancel")}
-          </Button>,
-        ]}
-      >
-        {`${t("dialog.message.applicationsBulkDelete")} ${t(
+        titleIconVariant={"warning"}
+        isOpen={applicationsToDelete.length > 0}
+        message={`${t("dialog.message.applicationsBulkDelete")} ${t(
           "dialog.message.delete"
         )}`}
-      </Modal>
-      {isApplicationDeleteConfirmDialogOpen && (
-        <ConfirmDialog
-          title={t("dialog.title.delete", {
-            what: t("terms.application").toLowerCase(),
-          })}
-          titleIconVariant={"warning"}
-          isOpen={true}
-          message={t("dialog.message.delete")}
-          confirmBtnVariant={ButtonVariant.danger}
-          confirmBtnLabel={t("actions.delete")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsApplicationDeleteConfirmDialogOpen(false)}
-          onClose={() => setIsApplicationDeleteConfirmDialogOpen(false)}
-          onConfirm={() => {
-            if (applicationToDelete) {
-              deleteApplication({ id: applicationToDelete });
-              setApplicationToDelete(undefined);
-            }
-            setIsApplicationDeleteConfirmDialogOpen(false);
-          }}
-        />
-      )}
-      {isDiscardAssessmentConfirmDialogOpen && (
-        <ConfirmDialog
-          title={t("dialog.title.discard", {
-            what: t("terms.assessment").toLowerCase(),
-          })}
-          titleIconVariant={"warning"}
-          isOpen={true}
-          message={
-            <span>
-              <Trans
-                i18nKey="dialog.message.discardAssessment"
-                values={{
-                  applicationName: applicationAssessmentOrReviewToDiscard?.name,
-                }}
-              >
-                The assessment for <strong>applicationName</strong> will be
-                discarded, as well as the review result. Do you wish to
-                continue?
-              </Trans>
-            </span>
-          }
-          confirmBtnVariant={ButtonVariant.primary}
-          confirmBtnLabel={t("actions.continue")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsDiscardAssessmentConfirmDialogOpen(false)}
-          onClose={() => setIsDiscardAssessmentConfirmDialogOpen(false)}
-          onConfirm={() => {
-            if (applicationAssessmentOrReviewToDiscard) {
-              discardAssessmentAndReview(
-                applicationAssessmentOrReviewToDiscard
-              );
-              setApplicationAssessmentOrReviewToDiscard(undefined);
-            }
-            setIsDiscardAssessmentConfirmDialogOpen(false);
-          }}
-        />
-      )}
-      {isEditAssessmentConfirmDialogOpen && (
-        <ConfirmDialog
-          title={t("composed.editQuestion", {
-            what: t("terms.assessment").toLowerCase(),
-          })}
-          titleIconVariant={"warning"}
-          isOpen={true}
-          message={t("message.overrideAssessmentConfirmation")}
-          confirmBtnVariant={ButtonVariant.primary}
-          confirmBtnLabel={t("actions.continue")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsEditAssessmentConfirmDialogOpen(false)}
-          onClose={() => setIsEditAssessmentConfirmDialogOpen(false)}
-          onConfirm={() => {
-            history.push(
-              formatPath(Paths.applicationsAssessment, {
-                assessmentId: assessmentToEdit?.id,
-              })
-            );
-            setAssessmentToEdit(undefined);
-            setIsEditAssessmentConfirmDialogOpen(false);
-          }}
-        />
-      )}
-      {isEditReviewConfirmDialogOpen && (
-        <ConfirmDialog
-          title={t("composed.editQuestion", {
-            what: t("terms.review").toLowerCase(),
-          })}
-          titleIconVariant={"warning"}
-          isOpen={true}
-          message={t("message.overrideReviewConfirmation")}
-          confirmBtnVariant={ButtonVariant.primary}
-          confirmBtnLabel={t("actions.continue")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsEditReviewConfirmDialogOpen(false)}
-          onClose={() => setIsEditReviewConfirmDialogOpen(false)}
-          onConfirm={() => {
-            history.push(
-              formatPath(Paths.applicationsReview, {
-                applicationId: reviewToEdit,
-              })
-            );
-            setReviewToEdit(undefined);
-            setIsEditReviewConfirmDialogOpen(false);
-          }}
-        />
-      )}
+        aria-label="Applications bulk delete"
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.delete")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setApplicationsToDelete([])}
+        onClose={() => setApplicationsToDelete([])}
+        onConfirm={() => {
+          const ids = applicationsToDelete
+            .filter((application) => application.id)
+            .map((application) => application.id);
+          if (ids) bulkDeleteApplication({ ids: ids });
+        }}
+      />
+      <ConfirmDialog
+        title={t("dialog.title.discard", {
+          what: t("terms.assessment").toLowerCase(),
+        })}
+        titleIconVariant={"warning"}
+        isOpen={assessmentOrReviewToDiscard !== null}
+        message={
+          <span>
+            <Trans
+              i18nKey="dialog.message.discardAssessment"
+              values={{
+                applicationName: assessmentOrReviewToDiscard?.name,
+              }}
+            >
+              The assessment for <strong>applicationName</strong> will be
+              discarded, as well as the review result. Do you wish to continue?
+            </Trans>
+          </span>
+        }
+        confirmBtnVariant={ButtonVariant.primary}
+        confirmBtnLabel={t("actions.continue")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setAssessmentOrReviewToDiscard(null)}
+        onClose={() => setAssessmentOrReviewToDiscard(null)}
+        onConfirm={() => {
+          discardAssessmentAndReview(assessmentOrReviewToDiscard!);
+          setAssessmentOrReviewToDiscard(null);
+        }}
+      />
+      <ConfirmDialog
+        title={t("composed.editQuestion", {
+          what: t("terms.assessment").toLowerCase(),
+        })}
+        titleIconVariant={"warning"}
+        isOpen={assessmentToEdit !== null}
+        message={t("message.overrideAssessmentConfirmation")}
+        confirmBtnVariant={ButtonVariant.primary}
+        confirmBtnLabel={t("actions.continue")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setAssessmentToEdit(null)}
+        onClose={() => setAssessmentToEdit(null)}
+        onConfirm={() => {
+          history.push(
+            formatPath(Paths.applicationsAssessment, {
+              assessmentId: assessmentToEdit?.id,
+            })
+          );
+          setAssessmentToEdit(null);
+        }}
+      />
+      <ConfirmDialog
+        title={t("composed.editQuestion", {
+          what: t("terms.review").toLowerCase(),
+        })}
+        titleIconVariant={"warning"}
+        isOpen={reviewToEdit !== null}
+        message={t("message.overrideReviewConfirmation")}
+        confirmBtnVariant={ButtonVariant.primary}
+        confirmBtnLabel={t("actions.continue")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setReviewToEdit(null)}
+        onClose={() => setReviewToEdit(null)}
+        onConfirm={() => {
+          history.push(
+            formatPath(Paths.applicationsReview, {
+              applicationId: reviewToEdit,
+            })
+          );
+          setReviewToEdit(null);
+        }}
+      />
     </>
   );
 };
