@@ -305,22 +305,6 @@ export const deleteIdentity = (identity: Identity): AxiosPromise => {
   return APIClient.delete(`${IDENTITIES}/${identity.id}`);
 };
 
-export const getProxies = (): AxiosPromise<Array<Proxy>> => {
-  return APIClient.get(`${PROXIES}`, jsonHeaders);
-};
-
-export const createProxy = (obj: Proxy): AxiosPromise<Proxy> => {
-  return APIClient.post(`${PROXIES}`, obj);
-};
-
-export const updateProxy = (obj: Proxy): AxiosPromise<Proxy> => {
-  return APIClient.put(`${PROXIES}/${obj.id}`, obj);
-};
-
-export const deleteProxy = (id: number): AxiosPromise => {
-  return APIClient.delete(`${PROXIES}/${id}`);
-};
-
 // Axios direct
 
 export const createApplication = (obj: Application): Promise<Application> =>
@@ -749,3 +733,11 @@ export const getFacts = (
   id
     ? axios.get(`${APPLICATIONS}/${id}/facts`).then((response) => response.data)
     : Promise.reject();
+
+// Proxies
+
+export const getProxies = (): Promise<Proxy[]> =>
+  axios.get(PROXIES).then((response) => response.data);
+
+export const updateProxy = (obj: Proxy): Promise<Proxy> =>
+  axios.put(`${PROXIES}/${obj.id}`, obj);
