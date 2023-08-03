@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useHistory } from "react-router-dom";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 import {
@@ -57,7 +57,6 @@ import {
 } from "@app/rbac";
 import { checkAccess } from "@app/common/rbac-utils";
 import {
-  useDeleteApplicationMutation,
   useFetchApplications,
   useBulkDeleteApplicationMutation,
   ApplicationsQueryKey,
@@ -67,7 +66,6 @@ import {
   useApplicationsFilterValues,
 } from "../applicationsFilter";
 import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
-import { useEntityModal } from "@app/shared/hooks";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { ConfirmDialog } from "@app/shared/components/confirm-dialog/confirm-dialog";
 import { ApplicationDetailDrawerAnalysis } from "../components/application-detail-drawer";
@@ -88,11 +86,29 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
+  const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
 
-  const [applicationToDeleteId, setApplicationToDeleteId] =
-    React.useState<number>();
+  const [saveApplicationsModalState, setSaveApplicationsModalState] =
+    React.useState<"create" | Application | null>(null);
+  const isCreateUpdateApplicationsModalOpen =
+    saveApplicationsModalState !== null;
+  const createUpdateApplications =
+    saveApplicationsModalState !== "create" ? saveApplicationsModalState : null;
+
+  const [
+    saveApplicationsCredentialsModalState,
+    setSaveApplicationsCredentialsModalState,
+  ] = React.useState<"create" | Application[] | null>(null);
+  const isCreateUpdateCredentialsModalOpen =
+    saveApplicationsCredentialsModalState !== null;
+  const applicationsCredentialsToUpdate =
+    saveApplicationsCredentialsModalState !== "create"
+      ? saveApplicationsCredentialsModalState
+      : null;
+
+  const [applicationsToDelete, setApplicationsToDelete] = React.useState<
+    Application[]
+  >([]);
 
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     React.useState(false);
@@ -109,7 +125,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     data: applications,
     isFetching,
     error: fetchError,
-    refetch,
   } = useFetchApplications();
 
   const {
@@ -172,15 +187,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     return false;
   };
 
-  // Create and update modal
-  const {
-    isOpen: isApplicationModalOpen,
-    data: applicationToUpdate,
-    create: openCreateApplicationModal,
-    update: openUpdateApplicationModal,
-    close: closeApplicationModal,
-  } = useEntityModal<Application>();
-
   // Delete
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
@@ -191,6 +197,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       variant: "success",
     });
     activeAppInDetailDrawer && closeDetailDrawer();
+    setApplicationsToDelete([]);
   };
 
   const onDeleteApplicationError = (error: AxiosError) => {
@@ -198,35 +205,13 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       title: getAxiosErrorMessage(error),
       variant: "danger",
     });
+    setApplicationsToDelete([]);
   };
-
-  const { mutate: deleteApplication } = useDeleteApplicationMutation(
-    onDeleteApplicationSuccess,
-    onDeleteApplicationError
-  );
 
   const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
     onDeleteApplicationSuccess,
     onDeleteApplicationError
   );
-
-  const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
-
-  // Credentials modal
-  const {
-    isOpen: isCredentialsModalOpen,
-    data: applicationToManageCredentials,
-    update: openCredentialsModal,
-    close: closeCredentialsModal,
-  } = useEntityModal<Application[]>();
-
-  // Bulk Delete modal
-  const {
-    isOpen: isBulkDeleteModalOpen,
-    data: applicationToBulkDelete,
-    update: openBulkDeleteModal,
-    close: closeBulkDeleteModal,
-  } = useEntityModal<Application[]>();
 
   // Table
   const columns: ICell[] = [
@@ -317,7 +302,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
               <Button
                 type="button"
                 variant="plain"
-                onClick={() => openUpdateApplicationModal(item)}
+                onClick={() => setSaveApplicationsModalState(item)}
               >
                 <PencilAltIcon />
               </Button>
@@ -344,7 +329,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       actions.push(
         {
           title: "Manage credentials",
-          onClick: () => openCredentialsModal([row]),
+          onClick: () => setSaveApplicationsCredentialsModalState([row]),
         },
         {
           title: t("actions.delete"),
@@ -356,7 +341,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                 "Cannot delete application assigned to a migration wave.",
             },
           }),
-          onClick: () => deleteRow(row),
+          onClick: () => setApplicationsToDelete([row]),
         }
       );
     }
@@ -395,18 +380,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     toggleRowSelected(row);
   };
 
-  const deleteRow = (row: Application) => {
-    setApplicationToDeleteId(row.id);
-    setIsConfirmDialogOpen(true);
-  };
-
   const cancelAnalysis = (row: Application) => {
     const task = tasks.find((task) => task.application?.id === row.id);
     if (task?.id) cancelTask(task.id);
-  };
-
-  const handleOnApplicationIdentityUpdated = () => {
-    closeCredentialsModal();
   };
 
   const userScopes: string[] = token?.scope.split(" ") || [],
@@ -442,7 +418,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           key="manage-applications-credentials"
           isDisabled={selectedRows.length < 1}
           onClick={() => {
-            openCredentialsModal(selectedRows);
+            setSaveApplicationsCredentialsModalState(selectedRows);
           }}
         >
           {t("actions.manageCredentials")}
@@ -462,7 +438,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             key="applications-bulk-delete"
             isAriaDisabled={areAppsInWaves || selectedRows.length < 1}
             onClick={() => {
-              openBulkDeleteModal(selectedRows);
+              setApplicationsToDelete(selectedRows);
             }}
           >
             {t("actions.delete")}
@@ -553,7 +529,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                       id="create-application"
                       aria-label="Create Application"
                       variant={ButtonVariant.primary}
-                      onClick={openCreateApplicationModal}
+                      onClick={() => {
+                        setSaveApplicationsModalState("create");
+                      }}
                     >
                       {t("actions.createNew")}
                     </Button>
@@ -624,29 +602,26 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           }
         />
       </ConditionalRender>
-
       <Modal
-        title={applicationToUpdate ? "Update application" : "New application"}
+        title={
+          createUpdateApplications ? "Update application" : "New application"
+        }
         variant="medium"
-        isOpen={isApplicationModalOpen}
-        onClose={closeApplicationModal}
+        isOpen={isCreateUpdateApplicationsModalOpen}
+        onClose={() => setSaveApplicationsModalState(null)}
       >
         <ApplicationForm
-          application={applicationToUpdate}
-          onClose={closeApplicationModal}
+          application={createUpdateApplications}
+          onClose={() => setSaveApplicationsModalState(null)}
         />
-      </Modal>
-
-      {isAnalyzeModalOpen && (
-        <AnalysisWizard
-          applications={selectedRows}
-          isOpen={isAnalyzeModalOpen}
-          onClose={() => {
-            setAnalyzeModalOpen(false);
-          }}
-        />
-      )}
-
+      </Modal>{" "}
+      <AnalysisWizard
+        applications={selectedRows}
+        isOpen={isAnalyzeModalOpen}
+        onClose={() => {
+          setAnalyzeModalOpen(false);
+        }}
+      />
       <Modal
         isOpen={isApplicationImportModalOpen}
         variant="medium"
@@ -660,91 +635,44 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           }}
         />
       </Modal>
-
       <Modal
-        isOpen={isCredentialsModalOpen}
+        isOpen={isCreateUpdateCredentialsModalOpen}
         variant="medium"
         title="Manage credentials"
-        onClose={closeCredentialsModal}
+        onClose={() => setSaveApplicationsCredentialsModalState(null)}
       >
-        {applicationToManageCredentials && (
+        {applicationsCredentialsToUpdate && (
           <ApplicationIdentityForm
-            applications={applicationToManageCredentials}
-            onSaved={handleOnApplicationIdentityUpdated}
-            onCancel={closeCredentialsModal}
+            applications={applicationsCredentialsToUpdate}
+            onClose={() => setSaveApplicationsCredentialsModalState(null)}
           />
         )}
       </Modal>
-
-      <Modal
-        isOpen={isBulkDeleteModalOpen}
-        variant="small"
+      <ConfirmDialog
         title={t("dialog.title.delete", {
-          what: t("terms.application(s)").toLowerCase(),
+          what:
+            applicationsToDelete.length > 1
+              ? t("terms.application(s)").toLowerCase()
+              : t("terms.application").toLowerCase(),
         })}
-        titleIconVariant="warning"
-        aria-label="Applications bulk delete"
-        aria-describedby="applications-bulk-delete"
-        onClose={() => closeBulkDeleteModal()}
-        showClose={true}
-        actions={[
-          <Button
-            key="delete"
-            variant="danger"
-            onClick={() => {
-              let ids: number[] = [];
-              if (applicationToBulkDelete) {
-                applicationToBulkDelete?.forEach((application) => {
-                  if (application.id) ids.push(application.id);
-                });
-                if (ids)
-                  bulkDeleteApplication({
-                    ids: ids,
-                  });
-              }
-              closeBulkDeleteModal();
-              selectAll(false);
-            }}
-          >
-            {t("actions.delete")}
-          </Button>,
-          <Button
-            key="cancel"
-            variant="link"
-            onClick={() => closeBulkDeleteModal()}
-          >
-            {t("actions.cancel")}
-          </Button>,
-        ]}
-      >
-        {`${t("dialog.message.applicationsBulkDelete")} ${t(
+        titleIconVariant={"warning"}
+        isOpen={applicationsToDelete.length > 0}
+        message={`${t("dialog.message.applicationsBulkDelete")} ${t(
           "dialog.message.delete"
         )}`}
-      </Modal>
-
-      {isConfirmDialogOpen && (
-        <ConfirmDialog
-          title={t("dialog.title.delete", {
-            what: t("terms.application").toLowerCase(),
-          })}
-          isOpen={true}
-          titleIconVariant={"warning"}
-          message={t("dialog.message.delete")}
-          confirmBtnVariant={ButtonVariant.danger}
-          confirmBtnLabel={t("actions.delete")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsConfirmDialogOpen(false)}
-          onClose={() => setIsConfirmDialogOpen(false)}
-          onConfirm={() => {
-            if (applicationToDeleteId) {
-              deleteApplication({ id: applicationToDeleteId });
-              setApplicationToDeleteId(undefined);
-            }
-            setIsConfirmDialogOpen(false);
-          }}
-        />
-      )}
-
+        aria-label="Applications bulk delete"
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.delete")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setApplicationsToDelete([])}
+        onClose={() => setApplicationsToDelete([])}
+        onConfirm={() => {
+          const ids = applicationsToDelete
+            .filter((application) => application.id)
+            .map((application) => application.id);
+          if (ids) bulkDeleteApplication({ ids: ids });
+        }}
+      />
       <SimpleDocumentViewerModal<Task | string>
         title={`Analysis details for ${taskToView?.name}`}
         fetch={getTaskById}

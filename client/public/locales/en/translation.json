@@ -368,6 +368,7 @@
       "assessmentDiscarded": "Success! Assessment discarded for {{application}}.",
       "create": "{{type}} was successfully created.",
       "createWhat": "{{type}} {{what}} was successfully created.",
+      "numberOfSaved": "{{count}} {{type}} were successfully saved.",
       "deleted": "{{type}} was successfully deleted.",
       "deletedWhat": "{{type}} {{what}} was successfully deleted.",
       "deletedAll": "{{type}} {{what}} were successfully deleted.",

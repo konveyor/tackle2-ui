@@ -4,7 +4,6 @@ import { AxiosError, AxiosResponse } from "axios";
 import * as yup from "yup";
 import {
   ActionGroup,
-  Alert,
   Button,
   ButtonVariant,
   FileUpload,
@@ -68,7 +67,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [axiosError, setAxiosError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
   const [identity, setIdentity] = useState(initialIdentity);
   const [isPasswordHidden, setIsPasswordHidden] = useState(true);
@@ -115,7 +113,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   };
 
   const onCreateUpdateIdentityError = (error: AxiosError) => {
-    setAxiosError(error);
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
   };
 
   const { mutate: createIdentity } = useCreateIdentityMutation(
@@ -444,13 +445,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      {axiosError && (
-        <Alert
-          variant="danger"
-          isInline
-          title={getAxiosErrorMessage(axiosError)}
-        />
-      )}
       <HookFormPFTextInput
         control={control}
         name="name"

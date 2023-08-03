@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 
 import {
   ActionGroup,
-  Alert,
   Button,
   ButtonVariant,
   Form,
   Text,
 } from "@patternfly/react-core";
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
-import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Application, Ref } from "@app/api/models";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -32,6 +30,8 @@ import {
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { NotificationsContext } from "@app/shared/notifications-context";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export interface FormValues {
   applicationName: string;
@@ -41,15 +41,14 @@ export interface FormValues {
 
 export interface ApplicationIdentityFormProps {
   applications: Application[];
-  onSaved: (response: AxiosResponse) => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
 export const ApplicationIdentityForm: React.FC<
   ApplicationIdentityFormProps
-> = ({ applications, onSaved, onCancel }) => {
+> = ({ applications, onClose }) => {
   const { t } = useTranslation();
-  const [error, setAxiosError] = useState<AxiosError>();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const { identities } = useFetchIdentities();
 
@@ -70,20 +69,27 @@ export const ApplicationIdentityForm: React.FC<
       };
     });
 
-  // Actions
-  const onCreateUpdateApplicationSuccess = (response: any) => {
-    if (response) {
-      onSaved(response);
-    }
+  const onUpdateApplicationsSuccess = (response: []) => {
+    pushNotification({
+      title: t("toastr.success.numberOfSaved", {
+        count: response.length,
+        type: t("terms.application(s)").toLowerCase(),
+      }),
+      variant: "success",
+    });
+    onClose();
   };
 
-  const onCreateUpdateApplicationError = (error: AxiosError) => {
-    setAxiosError(error);
+  const onUpdateApplicationsError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
   };
 
   const { mutate: updateAllApplications } = useUpdateAllApplicationsMutation(
-    onCreateUpdateApplicationSuccess,
-    onCreateUpdateApplicationError
+    onUpdateApplicationsSuccess,
+    onUpdateApplicationsError
   );
 
   const onSubmit = (formValues: FormValues) => {
@@ -171,7 +177,6 @@ export const ApplicationIdentityForm: React.FC<
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      {error && <Alert variant="danger" title={getAxiosErrorMessage(error)} />}
       <HookFormPFTextInput
         control={control}
         name="applicationName"
@@ -256,7 +261,7 @@ export const ApplicationIdentityForm: React.FC<
           type="button"
           aria-label="cancel"
           variant={ButtonVariant.link}
-          onClick={onCancel}
+          onClick={onClose}
         >
           {t("actions.cancel")}
         </Button>

@@ -142,12 +142,8 @@ export const updateAllApplications = (
   updatePromises: Promise<Application>[]
 ) => {
   return Promise.all(updatePromises)
-    .then((response) => {
-      return response;
-    })
-    .catch((error) => {
-      return error;
-    });
+    .then((response) => response)
+    .catch((error) => error);
 };
 
 export const getApplicationById = (
