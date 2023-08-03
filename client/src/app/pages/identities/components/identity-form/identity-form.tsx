@@ -635,7 +635,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   : ""
               }
               filename={values.settingsFilename}
-              // TODO PF V5 - Validate change
               onFileInputChange={(_, file) => {
                 onChange(value);
                 setValue("settingsFilename", file.name);

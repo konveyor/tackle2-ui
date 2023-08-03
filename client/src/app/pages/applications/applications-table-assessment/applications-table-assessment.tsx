@@ -283,8 +283,6 @@ export const ApplicationsTable: React.FC = () => {
     rows.push({
       [ENTITY_FIELD]: item,
       selected: isSelected,
-      // TODO PF v5 - IsHoverable replaced with isClickable
-      // isHoverable: true,
       isClickable: true,
       isRowSelected: activeAppInDetailDrawer?.id === item.id,
       cells: [
