@@ -125,7 +125,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     data: applications,
     isFetching,
     error: fetchError,
-    refetch,
   } = useFetchApplications();
 
   const {
@@ -198,6 +197,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       variant: "success",
     });
     activeAppInDetailDrawer && closeDetailDrawer();
+    setApplicationsToDelete([]);
   };
 
   const onDeleteApplicationError = (error: AxiosError) => {
@@ -205,6 +205,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       title: getAxiosErrorMessage(error),
       variant: "danger",
     });
+    setApplicationsToDelete([]);
   };
 
   const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
@@ -670,7 +671,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             .filter((application) => application.id)
             .map((application) => application.id);
           if (ids) bulkDeleteApplication({ ids: ids });
-          setApplicationsToDelete([]);
         }}
       />
       <SimpleDocumentViewerModal<Task | string>

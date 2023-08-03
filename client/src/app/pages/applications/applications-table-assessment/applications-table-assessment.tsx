@@ -177,6 +177,7 @@ export const ApplicationsTable: React.FC = () => {
       variant: "success",
     });
     activeAppInDetailDrawer && closeDetailDrawer();
+    setApplicationsToDelete([]);
   };
 
   const onDeleteApplicationError = (error: AxiosError) => {
@@ -184,6 +185,7 @@ export const ApplicationsTable: React.FC = () => {
       title: getAxiosErrorMessage(error),
       variant: "danger",
     });
+    setApplicationsToDelete([]);
   };
 
   const {
@@ -864,7 +866,6 @@ export const ApplicationsTable: React.FC = () => {
             .filter((application) => application.id)
             .map((application) => application.id);
           if (ids) bulkDeleteApplication({ ids: ids });
-          setApplicationsToDelete([]);
         }}
       />
       <ConfirmDialog
