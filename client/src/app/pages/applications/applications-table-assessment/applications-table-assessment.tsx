@@ -860,10 +860,9 @@ export const ApplicationsTable: React.FC = () => {
         onCancel={() => setApplicationsToDelete([])}
         onClose={() => setApplicationsToDelete([])}
         onConfirm={() => {
-          let ids: number[] = [];
-          applicationsToDelete.forEach((application) => {
-            if (application.id) ids.push(application.id);
-          });
+          const ids = applicationsToDelete
+            .filter((application) => application.id)
+            .map((application) => application.id);
           if (ids) bulkDeleteApplication({ ids: ids });
           setApplicationsToDelete([]);
         }}
