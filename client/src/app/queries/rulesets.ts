@@ -19,25 +19,23 @@ export const useFetchRulesets = () => {
     {
       onError: (err) => console.log(err),
       select: (data) => {
-        return data
-          .filter((ruleset) => !ruleset.name.startsWith("."))
-          .map((ruleset) => {
-            const mappedRules = ruleset.rules.map((rule) => {
-              const labels = getLabels(rule.labels || []);
+        return data.map((ruleset) => {
+          const mappedRules = ruleset.rules.map((rule) => {
+            const labels = getLabels(rule.labels || []);
 
-              const transformedMetadata: Metadata = {
-                source: labels.sourceLabel,
-                target: labels.targetLabel,
-                otherLabels: labels.otherLabels,
-              };
+            const transformedMetadata: Metadata = {
+              source: labels.sourceLabel,
+              target: labels.targetLabel,
+              otherLabels: labels.otherLabels,
+            };
 
-              return {
-                ...rule,
-                metadata: transformedMetadata,
-              };
-            });
-            return { ...ruleset, rules: mappedRules };
+            return {
+              ...rule,
+              metadata: transformedMetadata,
+            };
           });
+          return { ...ruleset, rules: mappedRules };
+        });
       },
     }
   );
@@ -115,21 +113,22 @@ export const useCreateRulesetMutation = (
 };
 
 export const useCreateFileMutation = (
-  onSuccess: (res: any, formData: FormData, file: IReadFile) => void,
-  onError: (err: AxiosError) => void
+  onSuccess?: (res: any, formData: FormData, file: IReadFile) => void,
+  onError?: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(createFile, {
+  const { isLoading, mutate, mutateAsync, error } = useMutation(createFile, {
     onSuccess: (res, { formData, file }) => {
-      onSuccess(res, formData, file);
+      onSuccess && onSuccess(res, formData, file);
       queryClient.invalidateQueries([]);
     },
     onError: (err: AxiosError) => {
-      onError(err);
+      onError && onError(err);
     },
   });
   return {
     mutate,
+    mutateAsync,
     isLoading,
     error,
   };

@@ -404,7 +404,6 @@ export interface TaskData {
     tags: {
       excluded: string[];
     };
-    rulesets: Ref[];
     repository?: Repository;
     identity?: Ref;
     labels: {
@@ -462,19 +461,43 @@ export enum RulesetKind {
   CATEGORY = "category",
 }
 
+// export interface Ruleset {
+//   createTime?: string;
+//   createUser?: string;
+//   description?: string;
+//   id?: number;
+//   image?: RulesetImage;
+//   kind?: RulesetKind;
+//   name: string;
+//   rules: Rule[];
+//   custom?: boolean;
+//   repository?: Repository;
+//   identity?: Ref;
+// }
 export interface Ruleset {
-  createTime?: string;
-  createUser?: string;
-  description?: string;
   id?: number;
-  image?: RulesetImage;
   kind?: RulesetKind;
-  name: string;
+  name?: string;
+  description?: string;
   rules: Rule[];
-  custom?: boolean;
   repository?: Repository;
   identity?: Ref;
 }
+export interface Label {
+  name: string;
+  label: string;
+}
+export interface Target {
+  id?: number;
+  name: string;
+  description?: string;
+  choice?: boolean;
+  custom?: boolean;
+  labels?: Label[];
+  image?: RulesetImage;
+  ruleset: Ruleset;
+}
+
 export interface Metadata {
   target: string;
   source?: string;

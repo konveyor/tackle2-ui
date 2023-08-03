@@ -1,4 +1,4 @@
-import { IReadFile, ParsedRule, Rule, Ruleset } from "@app/api/models";
+import { IReadFile, ParsedRule, Rule, Ruleset, Target } from "@app/api/models";
 import yaml from "js-yaml";
 
 type RuleFileType = "YAML" | "XML" | null;
@@ -137,8 +137,8 @@ export const getLabels = (labels: string[]) =>
     { sourceLabel: "", targetLabel: "", otherLabels: [], allLabels: [] }
   );
 
-export const getRulesetTargetList = (ruleset: Ruleset) => {
-  return ruleset.rules.reduce((acc: string[], rule) => {
+export const getRulesetTargetList = (target: Target) => {
+  return target.ruleset.rules.reduce((acc: string[], rule) => {
     return [...acc, rule?.metadata?.target || ""];
   }, []);
 };

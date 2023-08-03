@@ -270,9 +270,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           tags: {
             excluded: fieldValues.excludedRulesTags,
           },
-          rulesets: fieldValues.formRulesets.map((ruleset) => {
-            return { name: ruleset.name, id: ruleset.id || 0 };
-          }),
+          // rulesets: fieldValues.formRulesets.map((ruleset) => {
+          //   return { name: ruleset.name, id: ruleset.id || 0 };
+          // }),
           ...(fieldValues.rulesKind === "repository" && {
             repository: {
               kind: fieldValues?.repositoryType,

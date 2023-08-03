@@ -49,6 +49,7 @@ import {
   AnalysisAppDependency,
   AnalysisAppReport,
   Rule,
+  Target,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
@@ -85,6 +86,7 @@ export const TICKETS = HUB + "/tickets";
 export const FACTS = HUB + "/facts";
 
 export const RULESETS = HUB + "/rulesets";
+export const TARGETS = HUB + "/targets";
 export const FILES = HUB + "/files";
 export const CACHE = HUB + "/cache/m2";
 
@@ -440,6 +442,18 @@ export const deleteAllMigrationWaves = (
     .catch((error) => error);
 };
 
+export const updateTarget = (obj: Target): Promise<Target> =>
+  axios.put(`${TARGETS}/${obj.id}`, obj);
+
+export const createTarget = (obj: Target): Promise<Target> =>
+  axios.post(TARGETS, obj);
+
+export const deleteTarget = (id: number): Promise<Target> =>
+  axios.delete(`${TARGETS}/${id}`);
+
+export const getTargets = (): Promise<Target[]> =>
+  axios.get(TARGETS).then((response) => response.data);
+
 export const updateRuleset = (obj: Ruleset): Promise<Ruleset> =>
   axios.put(`${RULESETS}/${obj.id}`, obj);
 
@@ -448,6 +462,9 @@ export const createRuleset = (obj: Ruleset): Promise<Ruleset> =>
 
 export const deleteRuleset = (id: number): Promise<Ruleset> =>
   axios.delete(`${RULESETS}/${id}`);
+
+export const getRulesetById = (id: number): Promise<Ruleset> =>
+  axios.get(RULESETS).then((response) => response.data);
 
 export const getRulesets = (): Promise<Ruleset[]> =>
   axios.get(RULESETS).then((response) => response.data);
@@ -463,7 +480,7 @@ export const createFile = ({
   file: IReadFile;
 }) =>
   axios
-    .post<Ruleset>(`${FILES}/${file.fileName}`, formData, fileHeaders)
+    .post(`${FILES}/${file.fileName}`, formData, fileHeaders)
     .then((response) => {
       return response.data;
     });

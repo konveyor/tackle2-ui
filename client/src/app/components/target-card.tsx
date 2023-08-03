@@ -13,6 +13,9 @@ import {
   ButtonVariant,
   Label,
   CardHeader,
+  PanelMain,
+  PanelMainBody,
+  Panel,
 } from "@patternfly/react-core";
 import { DropdownItem } from "@patternfly/react-core/deprecated";
 import {
@@ -28,11 +31,10 @@ import { KebabDropdown } from "@app/shared/components";
 import { useTranslation } from "react-i18next";
 import "./target-card.css";
 import DefaultRulesetIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
-import { Ruleset } from "@app/api/models";
-import { getParsedLabel } from "@app/common/CustomRules/rules-utils";
+import { Target } from "@app/api/models";
 
 export interface TargetCardProps {
-  item: Ruleset;
+  item: Target;
   cardSelected?: boolean;
   isEditable?: boolean;
   onCardClick?: (isSelecting: boolean, value: string) => void;
@@ -45,7 +47,7 @@ export interface TargetCardProps {
 }
 
 // Force display dropdown box even though there only one option available.
-// This is a business rule to guarantee that option is alwyas present.
+// This is a business rule to guarantee that option is always present.
 const forceSelect = ["Azure"];
 
 export const TargetCard: React.FC<TargetCardProps> = ({
@@ -64,17 +66,16 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 
   const prevSelectedTarget = formTargets?.find(
     (target) =>
-      item.rules.map((ruleset) => ruleset?.metadata?.target).indexOf(target) !==
-      -1
+      item.ruleset?.rules
+        .map((rule) => rule?.metadata?.target)
+        .indexOf(target) !== -1
   );
 
   const [isRuleTargetSelectOpen, setRuleTargetSelectOpen] =
     React.useState(false);
 
   const [selectedRuleTarget, setSelectedRuleTarget] = React.useState(
-    prevSelectedTarget ||
-      item.rules[0]?.metadata?.target ||
-      `${item.name}-Empty`
+    prevSelectedTarget || item?.labels?.[0].name || `${item.name}-Empty`
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
@@ -105,7 +106,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   const getImage = (): React.ComponentType => {
     let result: React.ComponentType<any> = CubesIcon;
     const imagePath = item?.image?.id
-      ? `/hub/files/${item.image.id}`
+      ? `/hub/files/${item?.image.id}`
       : DefaultRulesetIcon;
     if (item.image) {
       result = () => (
@@ -177,9 +178,11 @@ export const TargetCard: React.FC<TargetCardProps> = ({
           <Title headingLevel="h4" size="md">
             {item.name}
           </Title>
-          {item.kind === "category" &&
-          (item.rules.length > 1 || forceSelect.includes(item.name)) ? (
+          {item.choice &&
+          (item?.ruleset?.rules?.length > 1 ||
+            forceSelect.includes(item.name)) ? (
             <Select
+              className={spacing.mtSm}
               toggleId={`${item.name}-toggle`}
               variant={SelectVariant.single}
               aria-label="Select Input"
@@ -189,18 +192,22 @@ export const TargetCard: React.FC<TargetCardProps> = ({
               isOpen={isRuleTargetSelectOpen}
               width={250}
             >
-              {item.rules.map((rule) => (
-                <SelectOption key={rule.name} value={rule?.metadata?.target}>
-                  {rule?.metadata?.target
-                    ? getParsedLabel(rule.metadata.target)?.labelValue
-                    : "Empty"}
+              {item?.labels?.map((label) => (
+                <SelectOption key={label.name} value={label.name}>
+                  {label.name ? label.name : "Empty"}
                 </SelectOption>
               ))}
             </Select>
           ) : null}
-          <Text className={`${spacing.pMd} pf-v5-u-text-align-left`}>
-            {item.description}
-          </Text>
+          <Panel isScrollable>
+            <PanelMain maxHeight="13em">
+              <PanelMainBody>
+                <Text className={`${spacing.pMd} pf-v5-u-text-align-left`}>
+                  {item.description}
+                </Text>
+              </PanelMainBody>
+            </PanelMain>
+          </Panel>
         </EmptyState>
       </CardBody>
     </Card>

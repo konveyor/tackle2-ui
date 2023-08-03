@@ -14,15 +14,15 @@ import { useFormContext } from "react-hook-form";
 import { TargetCard } from "@app/components/target-card";
 import { AnalysisWizardFormValues } from "./schema";
 import { useSetting } from "@app/queries/settings";
-import { useFetchRulesets } from "@app/queries/rulesets";
-import { Ruleset } from "@app/api/models";
+import { Ruleset, Target } from "@app/api/models";
+import { useFetchTargets } from "@app/queries/targets";
 
 export const SetTargets: React.FC = () => {
   const { t } = useTranslation();
 
-  const { rulesets } = useFetchRulesets();
+  const { targets } = useFetchTargets();
 
-  const rulesetOrderSetting = useSetting("ui.target.order");
+  const targetOrderSetting = useSetting("ui.target.order");
 
   const { watch, setValue, getValues } =
     useFormContext<AnalysisWizardFormValues>();
@@ -34,18 +34,18 @@ export const SetTargets: React.FC = () => {
 
   const handleOnSelectedCardTargetChange = (
     selectedRuleTarget: string,
-    selectedRuleset: Ruleset
+    selectedTarget: Target
   ) => {
     const otherSelectedRuleTargets = formTargets.filter(
       (formTarget) =>
-        !selectedRuleset.rules
+        !selectedTarget.ruleset.rules
           .map((rule) => rule?.metadata?.target)
           .includes(formTarget)
     );
     const definedSelectedTargets: string[] =
-      selectedRuleset.kind === "category"
+      selectedTarget.ruleset.kind === "category"
         ? [selectedRuleTarget]
-        : selectedRuleset.rules
+        : selectedTarget.ruleset.rules
             .map((rulesets) => rulesets?.metadata?.target || "")
             .filter((target) => !!target);
 
@@ -156,26 +156,24 @@ export const SetTargets: React.FC = () => {
           />
         )}
       <Gallery hasGutter>
-        {rulesetOrderSetting.isSuccess
-          ? rulesetOrderSetting.data.map((id, index) => {
-              const matchingRuleset = rulesets.find(
-                (target) => target.id === id
-              );
-              if (matchingRuleset) {
+        {targetOrderSetting.isSuccess
+          ? targetOrderSetting.data.map((id, index) => {
+              const matchingTarget = targets.find((target) => target.id === id);
+              if (matchingTarget) {
                 return (
                   <GalleryItem key={index}>
                     <TargetCard
                       readOnly
-                      item={matchingRuleset}
+                      item={matchingTarget}
                       cardSelected={formRulesets
                         .map((formRuleset) => formRuleset.name)
-                        .includes(matchingRuleset.name)}
+                        .includes(matchingTarget.name)}
                       onSelectedCardTargetChange={(
                         selectedRuleTarget: string
                       ) => {
                         handleOnSelectedCardTargetChange(
                           selectedRuleTarget,
-                          matchingRuleset
+                          matchingTarget
                         );
                       }}
                       onCardClick={(
@@ -185,7 +183,7 @@ export const SetTargets: React.FC = () => {
                         handleOnCardClick(
                           isSelecting,
                           selectedRuleTarget,
-                          matchingRuleset
+                          matchingTarget
                         );
                       }}
                       formTargets={formTargets}
