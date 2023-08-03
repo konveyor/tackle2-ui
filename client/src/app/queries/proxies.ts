@@ -19,14 +19,14 @@ export const useFetchProxies = () => {
 };
 
 export const useUpdateProxyMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: () => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateProxy,
-    onSuccess: (res) => {
-      onSuccess(res);
+    onSuccess: () => {
+      onSuccess();
       queryClient.invalidateQueries([ProxiesTasksQueryKey]);
     },
     onError: onError,
