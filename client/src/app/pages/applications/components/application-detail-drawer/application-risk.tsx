@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { RiskLabel } from "@app/shared/components";
+
+import { RiskLabel } from "@app/components/RiskLabel";
 import { Application, Assessment } from "@app/api/models";
 import { useFetchRisks } from "@app/queries/risks";
 

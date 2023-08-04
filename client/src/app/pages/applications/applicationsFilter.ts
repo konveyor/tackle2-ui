@@ -8,10 +8,10 @@ import { useFetchTagCategories } from "@app/queries/tags";
 import {
   FilterCategory,
   FilterType,
-} from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
-import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
-import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
+} from "@app/components/FilterToolbar/FilterToolbar";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
+import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
+import { useLegacySortState } from "@app/hooks/useLegacySortState";
 import { dedupeFunction } from "@app/utils/utils";
 import { useSelectionState } from "@migtools/lib-ui";
 export enum ApplicationTableType {

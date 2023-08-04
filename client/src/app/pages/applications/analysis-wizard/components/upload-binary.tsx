@@ -17,7 +17,7 @@ import { AxiosError } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { uploadLimit } from "@app/Constants";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { AnalysisWizardFormValues } from "../schema";
 
 interface IUploadBinary {

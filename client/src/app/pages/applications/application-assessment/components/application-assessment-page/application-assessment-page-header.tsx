@@ -3,8 +3,9 @@ import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button, ButtonVariant, Modal, Text } from "@patternfly/react-core";
 
-import { ConfirmDialog, PageHeader } from "@app/shared/components";
-import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { PageHeader } from "@app/components/PageHeader";
+import { ApplicationDependenciesFormContainer } from "@app/components/ApplicationDependenciesFormContainer";
 import { Paths } from "@app/Paths";
 import { Application, Assessment } from "@app/api/models";
 import { getApplicationById } from "@app/api/rest";

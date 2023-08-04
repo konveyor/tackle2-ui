@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import { TargetCard } from "@app/components/target-card";
+import { TargetCard } from "@app/components/TargetCard";
 import { useFetchTargets } from "@app/queries/targets";
 
 interface ItemProps {

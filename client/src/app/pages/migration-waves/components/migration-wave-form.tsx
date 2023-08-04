@@ -35,9 +35,9 @@ import {
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
-} from "@app/shared/components/hook-form-pf-fields";
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import { NotificationsContext } from "@app/shared/notifications-context";
+} from "@app/components/HookFormPFFields";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);

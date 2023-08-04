@@ -13,13 +13,13 @@ import { SelectOption, SelectVariant } from "@patternfly/react-core/deprecated";
 
 import { Paths } from "@app/Paths";
 import { LayoutTheme } from "../LayoutUtils";
-import { checkAccess } from "@app/common/rbac-utils";
+import { checkAccess } from "@app/utils/rbac-utils";
 import keycloak from "@app/keycloak";
 
 import { useLocalStorage } from "@migtools/lib-ui";
 import { LocalStorageKey } from "@app/Constants";
 import { FEATURES_ENABLED } from "@app/FeatureFlags";
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { toOptionLike } from "@app/utils/model-utils";
 import "./SidebarApp.css";
 

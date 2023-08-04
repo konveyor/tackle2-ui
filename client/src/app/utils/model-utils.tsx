@@ -12,7 +12,8 @@ import {
   TagCategory,
   TagRef,
 } from "@app/api/models";
-import { Color, OptionWithValue } from "@app/shared/components";
+import { Color } from "@app/components/Color";
+import { OptionWithValue } from "@app/components/SimpleSelect";
 
 interface IModel {
   id?: string | number;

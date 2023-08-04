@@ -13,9 +13,10 @@ import {
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
 import { Paths } from "@app/Paths";
 import { IssuesTable } from "./issues-table";
-import { ConfirmDialog } from "@app/shared/components";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 
 export enum IssueFilterGroups {

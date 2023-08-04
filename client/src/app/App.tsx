@@ -3,7 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import { AppRoutes } from "./Routes";
 import { DefaultLayout } from "./layout";
-import { NotificationsProvider } from "./shared/notifications-context";
+import { NotificationsProvider } from "./components/NotificationsContext";
 
 import "@patternfly/patternfly/patternfly.css";
 import "@patternfly/patternfly/patternfly-addons.css";

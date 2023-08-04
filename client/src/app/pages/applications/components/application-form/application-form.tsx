@@ -14,7 +14,7 @@ import {
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import { SimpleSelect, OptionWithValue } from "@app/shared/components";
+import { SimpleSelect, OptionWithValue } from "@app/components/SimpleSelect";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { Application, TagRef } from "@app/api/models";
 import {
@@ -35,10 +35,10 @@ import {
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
-} from "@app/shared/components/hook-form-pf-fields";
+} from "@app/components/HookFormPFFields";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 
 export interface FormValues {
   name: string;

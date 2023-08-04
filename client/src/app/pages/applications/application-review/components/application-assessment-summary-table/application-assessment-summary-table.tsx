@@ -8,7 +8,8 @@ import {
   TableText,
 } from "@patternfly/react-table";
 
-import { AppTableWithControls, RiskLabel } from "@app/shared/components";
+import { AppTableWithControls } from "@app/components/AppTableWithControls";
+import { RiskLabel } from "@app/components/RiskLabel";
 import { RISK_LIST } from "@app/Constants";
 import {
   Assessment,
@@ -18,14 +19,14 @@ import {
   Risk,
 } from "@app/api/models";
 
-import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
-import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
+import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
+import { useLegacySortState } from "@app/hooks/useLegacySortState";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
-} from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
+} from "@app/components/FilterToolbar/FilterToolbar";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 
 interface ITableItem {
   answerValue: string;
@@ -83,7 +84,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
       title: "Risk",
       type: FilterType.select,
       placeholderText: "Filter by name...",
-      getItemValue: (item: ITableItem) => {
+      getItemValue: (item) => {
         return item.riskValue || "";
       },
       selectOptions: typeOptions,

@@ -11,12 +11,11 @@ import {
   ChartVoronoiContainer,
 } from "@patternfly/react-charts";
 
-import { ConditionalRender, StateError } from "@app/shared/components";
-
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { StateError } from "@app/components/StateError";
 import { PROPOSED_ACTION_LIST } from "@app/Constants";
 import { ApplicationAdoptionPlan } from "@app/api/models";
 import { getApplicationAdoptionPlan } from "@app/api/rest";
-
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { NoApplicationSelectedEmptyState } from "../no-application-selected-empty-state";
 import { useQuery } from "@tanstack/react-query";

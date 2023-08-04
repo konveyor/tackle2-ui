@@ -9,18 +9,15 @@ import {
   getHubRequestParams,
   useTableControlProps,
   useTableControlUrlParams,
-} from "@app/shared/hooks/table-controls";
+} from "@app/hooks/table-controls";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
-} from "@app/shared/components/table-controls";
-import { SimplePagination } from "@app/shared/components/simple-pagination";
-import {
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
+} from "@app/components/TableControls";
+import { SimplePagination } from "@app/components/SimplePagination";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { useFetchAppDependencies } from "@app/queries/dependencies";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTags } from "@app/queries/tags";

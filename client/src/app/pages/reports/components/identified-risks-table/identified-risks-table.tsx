@@ -8,19 +8,19 @@ import {
   TableVariant,
 } from "@patternfly/react-table";
 
-import { AppTableWithControls } from "@app/shared/components";
+import { AppTableWithControls } from "@app/components/AppTableWithControls";
 
 import { Application, AssessmentQuestionRisk } from "@app/api/models";
 import { getAssessmentIdentifiedRisks } from "@app/api/rest";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
-import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
+import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
+} from "@app/components/FilterToolbar";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { useQuery } from "@tanstack/react-query";
 
 export interface ITableRowData {

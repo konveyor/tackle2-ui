@@ -10,7 +10,7 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { New, Ref, StakeholderGroup } from "@app/api/models";
@@ -28,8 +28,8 @@ import {
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
-} from "@app/shared/components/hook-form-pf-fields";
-import { NotificationsContext } from "@app/shared/notifications-context";
+} from "@app/components/HookFormPFFields";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 
 export interface FormValues {
   name: string;

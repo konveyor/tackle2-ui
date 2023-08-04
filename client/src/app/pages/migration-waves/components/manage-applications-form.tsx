@@ -16,20 +16,17 @@ import {
 import dayjs from "dayjs";
 
 import { Application, MigrationWave } from "@app/api/models";
-import { ToolbarBulkSelector } from "@app/shared/components";
-import { NotificationsContext } from "@app/shared/notifications-context";
-import { useLocalTableControls } from "@app/shared/hooks/table-controls";
-import {
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { SimplePagination } from "@app/shared/components/simple-pagination";
+import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { SimplePagination } from "@app/components/SimplePagination";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
-} from "@app/shared/components/table-controls";
+} from "@app/components/TableControls";
 import { dedupeFunction } from "@app/utils/utils";
 import { useUpdateMigrationWaveMutation } from "@app/queries/migration-waves";
 
