@@ -27,8 +27,11 @@ import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/shared/components/hook-form-pf-fields";
-import { IReadFile, Rule, Target } from "@app/api/models";
-import { parseRules } from "@app/common/CustomRules/rules-utils";
+import { IReadFile, Rule, Target, TargetLabel } from "@app/api/models";
+import {
+  getParsedLabel,
+  parseRules,
+} from "@app/common/CustomRules/rules-utils";
 import { useCreateFileMutation } from "@app/queries/rulesets";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { toOptionLike } from "@app/utils/model-utils";
@@ -253,6 +256,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   const onSubmit = (formValues: CustomTargetFormValues) => {
     let rules: Rule[] = [];
+    let labels: TargetLabel[] = [];
 
     ruleFiles.forEach((file) => {
       if (file.data && file?.fullFile?.type !== "placeholder") {
@@ -265,6 +269,15 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           },
         };
         rules = [...rules, newRule];
+        labels = [
+          ...labels,
+          ...(allLabels?.map((label): TargetLabel => {
+            return {
+              name: getParsedLabel(label).labelValue,
+              label: label,
+            };
+          }) || []),
+        ];
       } else {
         const matchingExistingRule = target?.ruleset?.rules.find(
           (ruleset) => ruleset.name === file.fileName
@@ -285,6 +298,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       description: formValues?.description?.trim() || "",
       ...(formValues.imageID && { id: formValues.imageID }),
       custom: true,
+      labels: labels,
       ruleset: {
         name: formValues.name.trim(),
         rules: rules,

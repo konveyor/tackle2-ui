@@ -65,15 +65,10 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
 
   const prevSelectedLabel =
-    formLabels?.find(
-      (formLabel) => {
-        const labelNames = target?.labels?.map((label) => label.name);
-        return labelNames?.includes(formLabel.name);
-      }
-      // item.ruleset?.rules
-      //   .map((rule) => rule?.metadata?.target)
-      //   .indexOf(target) !== -1
-    )?.name || "";
+    formLabels?.find((formLabel) => {
+      const labelNames = target?.labels?.map((label) => label.name);
+      return labelNames?.includes(formLabel.name);
+    })?.name || "";
 
   const [isLabelSelectOpen, setLabelSelectOpen] = React.useState(false);
 
