@@ -59,12 +59,8 @@ export const SetOptions: React.FC = () => {
     }
   });
 
-  const defaultTargetsAndTargets = [
-    ...new Set(
-      defaultTargets.concat(
-        allTargetLabelsFromTargets.map((label) => label.label)
-      )
-    ),
+  const defaultTargetsAndTargetsLabels = [
+    ...new Set(defaultTargets.concat(allTargetLabelsFromTargets)),
   ];
   console.log("formLabels", formLabels);
 
@@ -90,15 +86,14 @@ export const SetOptions: React.FC = () => {
           field: { onChange, onBlur, value: selectedFormTargets },
           fieldState: { isDirty, error },
         }) => {
-          const selections = formLabels.map((formLabel) => {
-            const parsedLabel = getParsedLabel(formLabel?.label);
-            console.log("parsedLabel", parsedLabel);
-            if (parsedLabel.labelType === "target") {
-              console.log("parsedLabel is target", parsedLabel.labelValue);
-              return parsedLabel.labelValue;
-            }
-          });
-          console.log("selections", selections);
+          const selections = formLabels
+            .map((formLabel) => {
+              const parsedLabel = getParsedLabel(formLabel?.label);
+              if (parsedLabel.labelType === "target") {
+                return parsedLabel.labelValue;
+              }
+            })
+            .filter(Boolean);
           return (
             <Select
               id="targets"
@@ -108,32 +103,35 @@ export const SetOptions: React.FC = () => {
               aria-label="Select targets"
               selections={selections}
               isOpen={isSelectTargetsOpen}
-              // onSelect={(_, selection) => {
-              //   const selectionWithLabelSelector = `konveyor.io/target=${selection}`;
-              //   const matchingTarget = targets.find((target) =>
-              //     getTargetLabelList(target).includes(selectionWithLabelSelector)
-              //   );
-              //   if (!formTargets.includes(selectionWithLabelSelector)) {
-              //     onChange([...selectedFormTargets, selectionWithLabelSelector]);
-              //     if (matchingTarget)
-              //       setValue("formRulesets", [...formRulesets, matchingTarget]);
-              //   } else {
-              //     if (matchingTarget)
-              //       setValue(
-              //         "formRulesets",
-              //         formRulesets.filter(
-              //           (formRuleset) => formRuleset.name !== matchingRuleset.name
-              //         )
-              //       );
-              //     onChange(
-              //       selectedFormTargets.filter(
-              //         (formTarget) => formTarget !== selectionWithLabelSelector
-              //       )
-              //     );
-              //   }
-              //   onBlur();
-              //   setSelectTargetsOpen(!isSelectTargetsOpen);
-              // }}
+              onSelect={(_, selection) => {
+                const selectionWithLabelSelector = `konveyor.io/target=${selection}`;
+                const matchingLabel =
+                  defaultTargetsAndTargetsLabels?.find(
+                    (label) => label.label === selectionWithLabelSelector
+                  ) || "";
+
+                console.log("matching label select", matchingLabel);
+                const formLabelLabels = formLabels.map(
+                  (formLabel) => formLabel.label
+                );
+                if (
+                  matchingLabel &&
+                  !formLabelLabels.includes(matchingLabel.label)
+                ) {
+                  console.log("matching label select", matchingLabel);
+                  onChange([...formLabels, matchingLabel]);
+                } else {
+                  console.log("matching label deselect", matchingLabel);
+                  onChange(
+                    formLabels.filter(
+                      (formLabel) =>
+                        formLabel.label !== selectionWithLabelSelector
+                    )
+                  );
+                }
+                onBlur();
+                setSelectTargetsOpen(!isSelectTargetsOpen);
+              }}
               onToggle={() => {
                 setSelectTargetsOpen(!isSelectTargetsOpen);
               }}
@@ -142,11 +140,11 @@ export const SetOptions: React.FC = () => {
               }}
               validated={getValidatedFromErrors(error, isDirty)}
             >
-              {defaultTargetsAndTargets.map((targetName, index) => (
+              {defaultTargetsAndTargetsLabels.map((targetLabel, index) => (
                 <SelectOption
                   key={index}
                   component="button"
-                  value={getParsedLabel(targetName).labelValue}
+                  value={getParsedLabel(targetLabel.label).labelValue}
                 />
               ))}
             </Select>

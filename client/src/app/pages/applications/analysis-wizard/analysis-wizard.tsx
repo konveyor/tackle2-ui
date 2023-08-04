@@ -259,7 +259,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           labels: {
             included: Array.from(
               new Set<string>([
-                ...fieldValues.formLabels.map((label) => label.name),
+                ...fieldValues.formLabels.map((label) => label.label),
                 ...fieldValues.selectedFormSources,
                 ...fieldValues.formOtherLabels,
               ])

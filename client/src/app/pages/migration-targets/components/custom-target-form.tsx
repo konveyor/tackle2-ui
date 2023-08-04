@@ -296,10 +296,11 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       id: formValues.id ? formValues.id : undefined,
       name: formValues.name.trim(),
       description: formValues?.description?.trim() || "",
-      ...(formValues.imageID && { id: formValues.imageID }),
+      ...(formValues.imageID && { image: { id: formValues.imageID } }),
       custom: true,
-      labels: labels,
+      labels: !!labels.length ? labels : [{ name: "custom", label: "custom" }],
       ruleset: {
+        id: target && target.custom ? target.ruleset.id : undefined,
         name: formValues.name.trim(),
         rules: rules,
         ...(formValues.rulesKind === "repository" && {
@@ -468,13 +469,13 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                   trigger("imageID");
                 })
                 .catch((err) => {
-                  setValue("imageID", 1);
+                  setValue("imageID", null);
                 });
             }}
             onClearClick={() => {
               onChange(0);
               setFilename("default.png");
-              setValue("imageID", 1);
+              setValue("imageID", null);
               setIsImageFileRejected(false);
             }}
             browseButtonText="Upload"

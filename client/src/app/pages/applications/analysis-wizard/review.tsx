@@ -42,8 +42,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
 
   const { watch } = useFormContext<AnalysisWizardFormValues>();
   const {
-    formTargets,
-    selectedFormSources,
+    formLabels,
     withKnown,
     includedPackages,
     hasExcludedPackages,
@@ -83,34 +82,37 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {formTargets.length > 1
+            {formLabels.length > 1
               ? t("wizard.terms.targets")
               : t("wizard.terms.target")}
           </DescriptionListTerm>
           <DescriptionListDescription id="targets">
             <List isPlain>
-              {formTargets.map((target, index) => (
-                <ListItem key={index}>
-                  {/* {getParsedLabel(target).labelValue} */}
-                </ListItem>
-              ))}
+              {formLabels.map((label, index) => {
+                const parsedLabel = getParsedLabel(label?.label);
+                if (parsedLabel.labelType === "target") {
+                  return (
+                    <ListItem key={index}>{parsedLabel.labelValue}</ListItem>
+                  );
+                }
+              })}
             </List>
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>
+          {/* <DescriptionListTerm>
             {formTargets.length > 1
               ? t("wizard.terms.sources")
               : t("wizard.terms.source")}
-          </DescriptionListTerm>
+          </DescriptionListTerm> */}
           <DescriptionListDescription id="sources">
-            <List isPlain>
+            {/* <List isPlain>
               {selectedFormSources.map((source, index) => (
                 <ListItem key={index}>
                   {getParsedLabel(source).labelValue}
                 </ListItem>
               ))}
-            </List>
+            </List> */}
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>

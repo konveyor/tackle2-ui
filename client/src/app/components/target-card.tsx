@@ -73,7 +73,9 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   const [isLabelSelectOpen, setLabelSelectOpen] = React.useState(false);
 
   const [selectedLabelName, setSelectedLabelName] = React.useState<string>(
-    prevSelectedLabel || target?.labels?.[0].name || `${target.name}-Empty`
+    prevSelectedLabel ||
+      target?.labels?.[0]?.name ||
+      `${target?.name || "target"}-Empty`
   );
   console.log("selectedLabelName", {
     selectedLabelName,
@@ -204,7 +206,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
           ) : null}
           {target.description ? (
             <Panel isScrollable>
-              <PanelMain maxHeight="13em">
+              <PanelMain maxHeight="10em">
                 <PanelMainBody>
                   <Text className={`${spacing.pMd} pf-v5-u-text-align-left`}>
                     {target.description}
