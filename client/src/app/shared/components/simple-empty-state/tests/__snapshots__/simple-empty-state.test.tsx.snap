@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SimpleEmptyState Renders with description 1`] = `
-Object {
+{
   "asFragment": [Function],
   "baseElement": <body>
     <div>
@@ -106,7 +106,7 @@ Object {
 `;
 
 exports[`SimpleEmptyState Renders with icon 1`] = `
-Object {
+{
   "asFragment": [Function],
   "baseElement": <body>
     <div>
@@ -215,7 +215,7 @@ Object {
 `;
 
 exports[`SimpleEmptyState Renders with primaryAction 1`] = `
-Object {
+{
   "asFragment": [Function],
   "baseElement": <body>
     <div>
@@ -326,7 +326,7 @@ Object {
 `;
 
 exports[`SimpleEmptyState Renders without crashing 1`] = `
-Object {
+{
   "asFragment": [Function],
   "baseElement": <body>
     <div>
