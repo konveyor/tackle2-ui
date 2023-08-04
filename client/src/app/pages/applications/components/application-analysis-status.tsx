@@ -1,7 +1,8 @@
 import React from "react";
 
 import { TaskState } from "@app/api/models";
-import { StatusIcon } from "@app/shared/components";
+import { IconedStatus } from "@app/shared/components";
+import { useTranslation } from "react-i18next";
 
 export interface ApplicationAnalysisStatusProps {
   state: TaskState;
@@ -28,6 +29,8 @@ const taskStateToAnalyze: Map<TaskState, AnalysisState> = new Map([
   ["Ready", "Scheduled"],
 ]);
 
+const { t } = useTranslation();
+
 export const ApplicationAnalysisStatus: React.FC<
   ApplicationAnalysisStatusProps
 > = ({ state }) => {
@@ -39,5 +42,5 @@ export const ApplicationAnalysisStatus: React.FC<
     return "NotStarted";
   };
 
-  return <StatusIcon status={getTaskStatus(state)} />;
+  return <IconedStatus preset={getTaskStatus(state)} />;
 };

@@ -2,13 +2,10 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { AxiosError } from "axios";
 import { useTranslation, Trans } from "react-i18next";
-
+import { IconedStatus } from "@app/shared/components";
 import {
   Button,
   ButtonVariant,
-  Flex,
-  FlexItem,
-  Icon,
   Modal,
   ToolbarGroup,
   ToolbarItem,
@@ -318,19 +315,7 @@ export const ApplicationsTable: React.FC = () => {
         },
         {
           title: (
-            <Flex
-              flexWrap={{ default: "nowrap" }}
-              spaceItems={{ default: "spaceItemsSm" }}
-            >
-              <FlexItem>
-                <Icon status={item.review && "success"}>
-                  {item.review ? <CheckCircleIcon /> : <TimesCircleIcon />}
-                </Icon>
-              </FlexItem>
-              <FlexItem>
-                {t(`terms.${item.review ? "completed" : "notStarted"}`)}
-              </FlexItem>
-            </Flex>
+            <IconedStatus preset={item.review ? "Completed" : "NotStarted"} />
           ),
         },
         {

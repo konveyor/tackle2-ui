@@ -24,7 +24,7 @@ import { global_palette_gold_400 as gold } from "@patternfly/react-tokens";
 
 import {
   AppTableWithControls,
-  StatusIcon,
+  IconedStatus,
   ToolbarBulkSelector,
 } from "@app/shared/components";
 
@@ -252,9 +252,9 @@ export const BulkCopyAssessmentReviewForm: React.FC<
         },
         {
           title: app.review ? (
-            <StatusIcon status="Completed" />
+            <IconedStatus preset="Completed" />
           ) : (
-            <StatusIcon status="NotStarted" />
+            <IconedStatus preset="NotStarted" />
           ),
         },
       ],

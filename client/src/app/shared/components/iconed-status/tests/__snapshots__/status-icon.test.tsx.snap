@@ -6,29 +6,51 @@ exports[`StatusIcon Renders without crashing 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-c-content"
+        class="pf-v5-l-flex pf-m-space-items-sm pf-m-nowrap"
       >
-        <test-file-stub
-          classname=""
-          color="#6a6e73"
-          isinline="true"
-        />
-         
-        terms.notStarted
+        <div
+          class=""
+        >
+          <span
+            class="pf-v5-c-icon"
+          >
+            <span
+              class="pf-v5-c-icon__content"
+            >
+              <test-file-stub />
+            </span>
+          </span>
+        </div>
+        <div
+          class=""
+        >
+          terms.notStarted
+        </div>
       </div>
     </div>
   </body>,
   "container": <div>
     <div
-      class="pf-v5-c-content"
+      class="pf-v5-l-flex pf-m-space-items-sm pf-m-nowrap"
     >
-      <test-file-stub
-        classname=""
-        color="#6a6e73"
-        isinline="true"
-      />
-       
-      terms.notStarted
+      <div
+        class=""
+      >
+        <span
+          class="pf-v5-c-icon"
+        >
+          <span
+            class="pf-v5-c-icon__content"
+          >
+            <test-file-stub />
+          </span>
+        </span>
+      </div>
+      <div
+        class=""
+      >
+        terms.notStarted
+      </div>
     </div>
   </div>,
   "debug": [Function],
