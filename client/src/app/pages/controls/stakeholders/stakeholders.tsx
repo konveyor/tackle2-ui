@@ -31,7 +31,7 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";

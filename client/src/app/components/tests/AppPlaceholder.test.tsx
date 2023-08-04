@@ -1,6 +1,6 @@
 import { render } from "@app/test-config/test-utils";
 import React from "react";
-import { AppPlaceholder } from "../ApppPlaceholder";
+import { AppPlaceholder } from "../AppPlaceholder";
 
 describe("AppPlaceholder", () => {
   it("Renders without crashing", () => {

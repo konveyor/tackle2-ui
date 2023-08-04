@@ -65,7 +65,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
 import { getTaskById } from "@app/api/rest";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { KebabDropdown } from "@app/components/KebabDropdown";

@@ -44,7 +44,7 @@ import TooltipTitle from "@app/components/TooltipTitle";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { PageHeader } from "@app/components/PageHeader";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
 import { KebabDropdown } from "@app/components/KebabDropdown";
 

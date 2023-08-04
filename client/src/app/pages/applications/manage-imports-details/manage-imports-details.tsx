@@ -30,7 +30,7 @@ import { useLegacySortState } from "@app/hooks/useLegacySortState";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { PageHeader } from "@app/components/PageHeader";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 
 const ENTITY_FIELD = "entity";

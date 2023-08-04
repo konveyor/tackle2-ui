@@ -14,7 +14,7 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { StateError } from "@app/components/StateError";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { AnalysisFileReport, AnalysisIssue } from "@app/api/models";

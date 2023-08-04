@@ -8,7 +8,7 @@ import {
   sortable,
 } from "@patternfly/react-table";
 
-import { AppTable } from "../AppTtable";
+import { AppTable } from "../AppTable";
 import { render, screen } from "@app/test-config/test-utils";
 
 describe("AppTable", () => {

@@ -15,7 +15,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useSelectionState } from "@migtools/lib-ui";
 
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import {
   useTableControlUrlParams,
   getHubRequestParams,

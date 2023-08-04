@@ -1,7 +1,7 @@
 import React, { lazy, Suspense } from "react";
 import { Switch, Redirect, useLocation } from "react-router-dom";
 
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { RepositoriesGit } from "./pages/repositories/Git";
 import { RepositoriesMvn } from "./pages/repositories/Mvn";
 import { RepositoriesSvn } from "./pages/repositories/Svn";

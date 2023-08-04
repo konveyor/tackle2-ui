@@ -44,7 +44,7 @@ import { getTagCategoryFallbackColor } from "@app/pages/applications/components/
 import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { Color } from "@app/components/Color";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";

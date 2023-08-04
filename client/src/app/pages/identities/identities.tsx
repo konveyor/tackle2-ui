@@ -44,7 +44,7 @@ import { useFetchTrackers } from "@app/queries/trackers";
 import { isAuthRequired } from "@app/Constants";
 import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";

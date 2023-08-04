@@ -3,7 +3,7 @@ import { isAuthRequired } from "@app/Constants";
 import i18n from "@app/i18n";
 import keycloak from "@app/keycloak";
 import { deleteCookie, getCookie, setCookie } from "@app/queries/cookies";
-import { AppPlaceholder } from "./ApppPlaceholder";
+import { AppPlaceholder } from "./AppPlaceholder";
 import { Flex, FlexItem, Spinner } from "@patternfly/react-core";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
 import React, { Suspense, useEffect } from "react";

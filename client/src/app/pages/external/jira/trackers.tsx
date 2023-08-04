@@ -41,7 +41,7 @@ import { useFetchTickets } from "@app/queries/tickets";
 import TrackerStatus from "./components/tracker-status";
 import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 

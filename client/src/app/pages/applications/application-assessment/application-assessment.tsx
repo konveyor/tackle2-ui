@@ -17,7 +17,7 @@ import { ApplicationAssessmentPage } from "./components/application-assessment-p
 import { ApplicationAssessmentWizard } from "./components/application-assessment-wizard";
 import { SimpleEmptyState } from "@app/components/SimpleEmptyState";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 export const ApplicationAssessment: React.FC = () => {
   const { t } = useTranslation();

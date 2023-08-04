@@ -64,7 +64,7 @@ import { ManageApplicationsForm } from "./components/manage-applications-form";
 import { deleteMigrationWave } from "@app/api/rest";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { KebabDropdown } from "@app/components/KebabDropdown";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";

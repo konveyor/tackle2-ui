@@ -46,7 +46,7 @@ import { StakeholderGroupForm } from "./components/stakeholder-group-form";
 import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 

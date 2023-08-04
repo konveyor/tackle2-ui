@@ -31,7 +31,7 @@ import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 import { useSelectionState } from "@migtools/lib-ui";
 
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import { useFetchIssueReports, useFetchRuleReports } from "@app/queries/issues";

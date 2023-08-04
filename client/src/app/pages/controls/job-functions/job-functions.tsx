@@ -16,7 +16,7 @@ import {
   TableText,
 } from "@patternfly/react-table";
 
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
 import { ConditionalRender } from "@app/components/ConditionalRender";

@@ -71,7 +71,7 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { StatusIcon } from "@app/components/StatusIcon";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { KebabDropdown } from "@app/components/KebabDropdown";

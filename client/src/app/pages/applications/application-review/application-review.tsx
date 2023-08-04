@@ -36,7 +36,7 @@ import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useSetting } from "@app/queries/settings";
 import { SimpleEmptyState } from "@app/components/SimpleEmptyState";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 export const ApplicationReview: React.FC = () => {
   const { t } = useTranslation();

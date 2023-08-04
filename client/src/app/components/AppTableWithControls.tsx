@@ -8,7 +8,7 @@ import {
   ToolbarItemVariant,
 } from "@patternfly/react-core";
 
-import { AppTable, IAppTableProps } from "./AppTtable";
+import { AppTable, IAppTableProps } from "./AppTable";
 import { PaginationStateProps } from "@app/hooks/useLegacyPaginationState";
 import { SimplePagination } from "./SimplePagination";
 

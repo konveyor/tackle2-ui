@@ -20,7 +20,7 @@ import { useTranslation } from "react-i18next";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Paths } from "@app/Paths";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 const ApplicationsTableAssessment = lazy(
   () => import("./applications-table-assessment")

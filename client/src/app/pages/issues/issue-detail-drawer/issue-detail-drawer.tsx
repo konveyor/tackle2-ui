@@ -15,7 +15,7 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IssueAffectedFilesTable } from "./issue-affected-files-table";
 import { useFetchIssue } from "@app/queries/issues";
-import { AppPlaceholder } from "@app/components/ApppPlaceholder";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { StateNoData } from "@app/components/StateNoData";
 
 export interface IIssueDetailDrawerProps
