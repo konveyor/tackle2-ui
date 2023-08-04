@@ -202,15 +202,17 @@ export const TargetCard: React.FC<TargetCardProps> = ({
               ))}
             </Select>
           ) : null}
-          <Panel isScrollable>
-            <PanelMain maxHeight="13em">
-              <PanelMainBody>
-                <Text className={`${spacing.pMd} pf-v5-u-text-align-left`}>
-                  {target.description}
-                </Text>
-              </PanelMainBody>
-            </PanelMain>
-          </Panel>
+          {target.description ? (
+            <Panel isScrollable>
+              <PanelMain maxHeight="13em">
+                <PanelMainBody>
+                  <Text className={`${spacing.pMd} pf-v5-u-text-align-left`}>
+                    {target.description}
+                  </Text>
+                </PanelMainBody>
+              </PanelMain>
+            </Panel>
+          ) : null}
         </EmptyState>
       </CardBody>
     </Card>

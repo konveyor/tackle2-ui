@@ -40,12 +40,15 @@ import {
   FilterType,
 } from "@app/shared/components/FilterToolbar";
 import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
-import { IReadFile, Ref } from "@app/api/models";
+import { IReadFile, Ref, TargetLabel } from "@app/api/models";
 import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
 
 import "./wizard.css";
 import { AnalysisWizardFormValues } from "./schema";
-import { parseRules } from "@app/common/CustomRules/rules-utils";
+import {
+  getParsedLabel,
+  parseRules,
+} from "@app/common/CustomRules/rules-utils";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
@@ -65,9 +68,8 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
   const values = getValues();
 
   const {
-    formSources,
-    formTargets,
-    formOtherLabels,
+    formLabels,
+    // formOtherLabels,
     customRulesFiles,
     rulesKind,
   } = watch();
@@ -193,21 +195,13 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                 type="button"
                 variant="plain"
                 onClick={() => {
-                  // customRulesFiles.forEach((file) => {
-                  //   const { source, target } = parseRules(file);
-                  //   if (source && formSources.includes(source)) {
-                  //     const updatedSources = formSources.filter(
-                  //       (formSource) => formSource !== source
-                  //     );
-                  //     setValue("formSources", [...updatedSources]);
-                  //   }
-                  //   // if (target && formTargets.includes(target)) {
-                  //   //   const updatedTargets = formTargets.filter(
-                  //   //     (formTarget) => formTarget !== target
-                  //   //   );
-                  //     // setValue("formTargets", [...updatedTargets]);
-                  //   }
-                  // });
+                  customRulesFiles.forEach((file) => {
+                    const { allLabels } = parseRules(file);
+                    const updatedFormLabels = formLabels.filter(
+                      (label) => !allLabels?.includes(label.label)
+                    );
+                    setValue("formLabels", [...updatedFormLabels]);
+                  });
 
                   // Remove rule file from list
                   const updatedFileList = customRulesFiles.filter(
@@ -236,7 +230,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
         </Title>
         <Text> {t("wizard.label.customRules")}</Text>
       </TextContent>
-      {/* {values.formRulesets.length === 0 &&
+      {values.formLabels.length === 0 &&
         values.customRulesFiles.length === 0 &&
         !values.sourceRepository && (
           <Alert
@@ -244,7 +238,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
             isInline
             title={t("wizard.label.ruleFileRequiredDetails")}
           />
-        )} */}
+        )}
       <HookFormPFGroupController
         control={control}
         name="rulesKind"
@@ -444,29 +438,25 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                     shouldDirty: true,
                   });
                   updatedCustomRulesFiles.forEach((file) => {
-                    const { source, target, otherLabels } = parseRules(file);
-                    if (source && !formSources.includes(source)) {
-                      setValue("formSources", [...formSources, source]);
-                    }
-                    // if (target && !formTargets.includes(target)) {
-                    //   setValue("formTargets", [...formTargets, target]);
-                    // }
-                    if (
-                      otherLabels?.length &&
-                      formOtherLabels.some(
-                        (otherLabel) => !otherLabels.includes(otherLabel)
-                      )
-                    ) {
-                      const newOtherLabels = otherLabels.filter(
-                        (otherLabel) => !formOtherLabels.includes(otherLabel)
-                      );
+                    const { allLabels } = parseRules(file);
 
-                      setValue("formOtherLabels", [
-                        ...formOtherLabels,
-                        ...newOtherLabels,
-                      ]);
-                    }
+                    const formattedAllLabels =
+                      allLabels?.map((label): TargetLabel => {
+                        return {
+                          name: getParsedLabel(label).labelValue,
+                          label: label,
+                        };
+                      }) || [];
+
+                    const newLabels = formLabels.filter((label) => {
+                      const newLabelNames = formattedAllLabels.map(
+                        (label) => label.name
+                      );
+                      !newLabelNames.includes(label.name);
+                    });
+                    setValue("formLabels", newLabels);
                   });
+
                   setRuleFiles([]);
                   setUploadError("");
                   setCustomRulesModalOpen(false);

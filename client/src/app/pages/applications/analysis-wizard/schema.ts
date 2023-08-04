@@ -2,7 +2,6 @@ import * as yup from "yup";
 import {
   Application,
   IReadFile,
-  Ruleset,
   FileLoadError,
   Target,
   TargetLabel,
@@ -131,9 +130,9 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
         then: yup.array().of(customRulesFilesSchema),
         otherwise: (schema) => schema,
       })
-      .when(["formRulesets", "rulesKind"], {
-        is: (rulesets: Ruleset[], rulesKind: string) =>
-          rulesets.length === 0 && rulesKind === "manual",
+      .when(["formLabels", "rulesKind"], {
+        is: (labels: TargetLabel[], rulesKind: string) =>
+          labels.length === 0 && rulesKind === "manual",
         then: (schema) => schema.min(1, "At least 1 Rule File is required"), // TODO translation here
       }),
     repositoryType: yup.mixed<string>().when("rulesKind", {

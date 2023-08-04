@@ -259,7 +259,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           labels: {
             included: Array.from(
               new Set<string>([
-                // ...fieldValues.formLabels,
+                ...fieldValues.formLabels.map((label) => label.name),
                 ...fieldValues.selectedFormSources,
                 ...fieldValues.formOtherLabels,
               ])
@@ -270,9 +270,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           tags: {
             excluded: fieldValues.excludedRulesTags,
           },
-          // rulesets: fieldValues.formRulesets.map((ruleset) => {
-          //   return { name: ruleset.name, id: ruleset.id || 0 };
-          // }),
           ...(fieldValues.rulesKind === "repository" && {
             repository: {
               kind: fieldValues?.repositoryType,
