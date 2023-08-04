@@ -22,8 +22,8 @@ import { AnalysisWizardFormValues } from "./schema";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 import { StringListField } from "@app/shared/components/string-list-field";
 import {
+  getAllLabelsFromTarget,
   getParsedLabel,
-  getTargetLabelList,
 } from "@app/common/CustomRules/rules-utils";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchTargets } from "@app/queries/targets";
@@ -37,9 +37,7 @@ export const SetOptions: React.FC = () => {
   const {
     formSources,
     selectedFormSources,
-    formTargets,
-    // formLabels,
-    formOtherLabels,
+    formLabels,
     diva,
     excludedRulesTags,
     autoTaggingEnabled,
@@ -49,14 +47,26 @@ export const SetOptions: React.FC = () => {
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
   const { targets } = useFetchTargets();
 
-  const allTargetLabels = targets
-    .map((target) => getTargetLabelList(target))
+  const allLabelsFromTargets = targets
+    .map((target) => getAllLabelsFromTarget(target))
     .filter(Boolean)
     .flat();
 
-  const defaultTargetsAndRulesetTargets = [
-    ...new Set(defaultTargets.concat(allTargetLabels)),
+  const allTargetLabelsFromTargets = allLabelsFromTargets.filter((label) => {
+    const parsedLabel = getParsedLabel(label?.label);
+    if (parsedLabel.labelType === "target") {
+      return parsedLabel.labelValue;
+    }
+  });
+
+  const defaultTargetsAndTargets = [
+    ...new Set(
+      defaultTargets.concat(
+        allTargetLabelsFromTargets.map((label) => label.label)
+      )
+    ),
   ];
+  console.log("formLabels", formLabels);
 
   return (
     <Form
@@ -73,66 +83,75 @@ export const SetOptions: React.FC = () => {
       </TextContent>
       <HookFormPFGroupController
         control={control}
-        name="formTargets"
+        name="formLabels"
         label={t("wizard.terms.targets")}
-        fieldId="targets"
+        fieldId="target-labels"
         renderInput={({
           field: { onChange, onBlur, value: selectedFormTargets },
           fieldState: { isDirty, error },
-        }) => (
-          <Select
-            id="targets"
-            toggleId="targets-toggle"
-            variant={SelectVariant.typeaheadMulti}
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-            aria-label="Select targets"
-            // selections={formTargets.map(
-            //   (formTarget) => getParsedLabel(formTarget).labelValue
-            // )}
-            isOpen={isSelectTargetsOpen}
-            // onSelect={(_, selection) => {
-            //   const selectionWithLabelSelector = `konveyor.io/target=${selection}`;
-            //   const matchingTarget = targets.find((target) =>
-            //     getTargetLabelList(target).includes(selectionWithLabelSelector)
-            //   );
-            //   if (!formTargets.includes(selectionWithLabelSelector)) {
-            //     onChange([...selectedFormTargets, selectionWithLabelSelector]);
-            //     if (matchingTarget)
-            //       setValue("formRulesets", [...formRulesets, matchingTarget]);
-            //   } else {
-            //     if (matchingTarget)
-            //       setValue(
-            //         "formRulesets",
-            //         formRulesets.filter(
-            //           (formRuleset) => formRuleset.name !== matchingRuleset.name
-            //         )
-            //       );
-            //     onChange(
-            //       selectedFormTargets.filter(
-            //         (formTarget) => formTarget !== selectionWithLabelSelector
-            //       )
-            //     );
-            //   }
-            //   onBlur();
-            //   setSelectTargetsOpen(!isSelectTargetsOpen);
-            // }}
-            onToggle={() => {
-              setSelectTargetsOpen(!isSelectTargetsOpen);
-            }}
-            onClear={() => {
-              onChange([]);
-            }}
-            validated={getValidatedFromErrors(error, isDirty)}
-          >
-            {defaultTargetsAndRulesetTargets.map((targetName, index) => (
-              <SelectOption
-                key={index}
-                component="button"
-                value={getParsedLabel(targetName).labelValue}
-              />
-            ))}
-          </Select>
-        )}
+        }) => {
+          const selections = formLabels.map((formLabel) => {
+            const parsedLabel = getParsedLabel(formLabel?.label);
+            console.log("parsedLabel", parsedLabel);
+            if (parsedLabel.labelType === "target") {
+              console.log("parsedLabel is target", parsedLabel.labelValue);
+              return parsedLabel.labelValue;
+            }
+          });
+          console.log("selections", selections);
+          return (
+            <Select
+              id="targets"
+              toggleId="targets-toggle"
+              variant={SelectVariant.typeaheadMulti}
+              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+              aria-label="Select targets"
+              selections={selections}
+              isOpen={isSelectTargetsOpen}
+              // onSelect={(_, selection) => {
+              //   const selectionWithLabelSelector = `konveyor.io/target=${selection}`;
+              //   const matchingTarget = targets.find((target) =>
+              //     getTargetLabelList(target).includes(selectionWithLabelSelector)
+              //   );
+              //   if (!formTargets.includes(selectionWithLabelSelector)) {
+              //     onChange([...selectedFormTargets, selectionWithLabelSelector]);
+              //     if (matchingTarget)
+              //       setValue("formRulesets", [...formRulesets, matchingTarget]);
+              //   } else {
+              //     if (matchingTarget)
+              //       setValue(
+              //         "formRulesets",
+              //         formRulesets.filter(
+              //           (formRuleset) => formRuleset.name !== matchingRuleset.name
+              //         )
+              //       );
+              //     onChange(
+              //       selectedFormTargets.filter(
+              //         (formTarget) => formTarget !== selectionWithLabelSelector
+              //       )
+              //     );
+              //   }
+              //   onBlur();
+              //   setSelectTargetsOpen(!isSelectTargetsOpen);
+              // }}
+              onToggle={() => {
+                setSelectTargetsOpen(!isSelectTargetsOpen);
+              }}
+              onClear={() => {
+                onChange([]);
+              }}
+              validated={getValidatedFromErrors(error, isDirty)}
+            >
+              {defaultTargetsAndTargets.map((targetName, index) => (
+                <SelectOption
+                  key={index}
+                  component="button"
+                  value={getParsedLabel(targetName).labelValue}
+                />
+              ))}
+            </Select>
+          );
+        }}
       />
       <HookFormPFGroupController
         control={control}

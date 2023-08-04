@@ -1,4 +1,11 @@
-import { IReadFile, ParsedRule, Rule, Ruleset, Target } from "@app/api/models";
+import {
+  IReadFile,
+  ParsedRule,
+  Rule,
+  Ruleset,
+  Target,
+  TargetLabel,
+} from "@app/api/models";
 import yaml from "js-yaml";
 
 type RuleFileType = "YAML" | "XML" | null;
@@ -137,10 +144,10 @@ export const getLabels = (labels: string[]) =>
     { sourceLabel: "", targetLabel: "", otherLabels: [], allLabels: [] }
   );
 
-export const getTargetLabelList = (target: Target) => {
+export const getAllLabelsFromTarget = (target: Target) => {
   return (
-    target?.labels?.reduce((acc: string[], label) => {
-      return [...acc, label.label || ""];
+    target?.labels?.reduce((acc: TargetLabel[], label) => {
+      return [...acc, label || ""];
     }, []) || []
   );
 };

@@ -200,6 +200,10 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                     const updatedFormLabels = formLabels.filter(
                       (label) => !allLabels?.includes(label.label)
                     );
+                    console.log(
+                      "remove rule: what is labels",
+                      updatedFormLabels
+                    );
                     setValue("formLabels", [...updatedFormLabels]);
                   });
 
@@ -448,13 +452,21 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                         };
                       }) || [];
 
+                    console.log(
+                      "add rule: what isformatted all labels",
+                      formattedAllLabels
+                    );
                     const newLabels = formLabels.filter((label) => {
                       const newLabelNames = formattedAllLabels.map(
                         (label) => label.name
                       );
-                      !newLabelNames.includes(label.name);
+                      return !newLabelNames.includes(label.name);
                     });
-                    setValue("formLabels", newLabels);
+                    console.log("add rule: what is labels", newLabels);
+                    setValue("formLabels", [
+                      ...newLabels,
+                      ...formattedAllLabels,
+                    ]);
                   });
 
                   setRuleFiles([]);
