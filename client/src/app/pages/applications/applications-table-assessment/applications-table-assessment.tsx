@@ -24,9 +24,7 @@ import {
   sortable,
   TableText,
 } from "@patternfly/react-table";
-import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
-import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
 
 import {

@@ -2,7 +2,6 @@ import React from "react";
 
 import { TaskState } from "@app/api/models";
 import { IconedStatus } from "@app/shared/components";
-import { useTranslation } from "react-i18next";
 
 export interface ApplicationAnalysisStatusProps {
   state: TaskState;
@@ -28,8 +27,6 @@ const taskStateToAnalyze: Map<TaskState, AnalysisState> = new Map([
   ["Postponed", "Scheduled"],
   ["Ready", "Scheduled"],
 ]);
-
-const { t } = useTranslation();
 
 export const ApplicationAnalysisStatus: React.FC<
   ApplicationAnalysisStatusProps
