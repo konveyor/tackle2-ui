@@ -6,7 +6,6 @@ import {
   Gallery,
   GalleryItem,
   Form,
-  Alert,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
@@ -14,8 +13,9 @@ import { useFormContext } from "react-hook-form";
 import { TargetCard } from "@app/components/target-card";
 import { AnalysisWizardFormValues } from "./schema";
 import { useSetting } from "@app/queries/settings";
-import { Ruleset, Target } from "@app/api/models";
 import { useFetchTargets } from "@app/queries/targets";
+import { Target, TargetLabel } from "@app/api/models";
+import { c_options_menu__toggle_BackgroundColor } from "@patternfly/react-tokens";
 
 export const SetTargets: React.FC = () => {
   const { t } = useTranslation();
@@ -27,113 +27,70 @@ export const SetTargets: React.FC = () => {
   const { watch, setValue, getValues } =
     useFormContext<AnalysisWizardFormValues>();
   const values = getValues();
-  const formTargets = watch("formTargets");
-  const formRulesets = watch("formRulesets");
+  const formLabels = watch("formLabels");
   const formSources = watch("formSources");
   const formOtherLabels = watch("formOtherLabels");
 
-  const handleOnSelectedCardTargetChange = (
-    selectedRuleTarget: string,
-    selectedTarget: Target
-  ) => {
-    const otherSelectedRuleTargets = formTargets.filter(
-      (formTarget) =>
-        !selectedTarget.ruleset.rules
-          .map((rule) => rule?.metadata?.target)
-          .includes(formTarget)
-    );
-    const definedSelectedTargets: string[] =
-      selectedTarget.ruleset.kind === "category"
-        ? [selectedRuleTarget]
-        : selectedTarget.ruleset.rules
-            .map((rulesets) => rulesets?.metadata?.target || "")
-            .filter((target) => !!target);
+  const handleOnSelectedCardTargetChange = (selectedLabelName: string) => {
+    const otherSelectedLabels = formLabels?.filter((formLabel) => {
+      return formLabel.name !== selectedLabelName;
+    });
+    const matchingLabel =
+      targets
+        ?.find((target) => {
+          const labelNames = target?.labels?.map((label) => label.name);
+          return labelNames?.includes(selectedLabelName);
+        })
+        ?.labels?.find((label) => label.name === selectedLabelName) || "";
 
-    setValue("formTargets", [
-      ...otherSelectedRuleTargets,
-      ...definedSelectedTargets,
-    ]);
+    const matchingOtherLabelNames =
+      targets
+        ?.find((target) => {
+          const labelNames = target?.labels?.map((label) => label.name);
+          return labelNames?.includes(selectedLabelName);
+        })
+        ?.labels?.filter((label) => label.name !== selectedLabelName)
+        .map((label) => label.name) || "";
+
+    const isNewLabel = !formLabels
+      .map((label) => label.name)
+      .includes(selectedLabelName);
+    if (isNewLabel) {
+      const filterConflictingLabels = otherSelectedLabels.filter(
+        (label) => !matchingOtherLabelNames.includes(label.name)
+      );
+      matchingLabel &&
+        setValue("formLabels", [...filterConflictingLabels, matchingLabel]);
+    }
   };
 
   const handleOnCardClick = (
     isSelecting: boolean,
-    selectedRuleTarget: string,
-    selectedRuleset: Ruleset
+    selectedLabelName: string
   ) => {
-    const otherSelectedRuleSources = formSources.filter(
-      (formSource) =>
-        !selectedRuleset.rules
-          .map((rule) => rule?.metadata?.source)
-          .includes(formSource)
-    );
-    const otherSelectedRuleTargets = formTargets.filter(
-      (formTarget) =>
-        !selectedRuleset.rules
-          .map((rule) => rule?.metadata?.target)
-          .includes(formTarget)
-    );
+    console.log({ isSelecting, selectedLabelName });
 
-    const otherSelectedRulesets = formRulesets.filter(
-      (formRuleset) => selectedRuleset.id !== formRuleset.id
-    );
-
-    const otherSelectedOtherLabels = formOtherLabels.filter(
-      (label) =>
-        !selectedRuleset.rules
-          .flatMap((rule) => rule?.metadata?.otherLabels)
-          .includes(label)
-    );
-
+    const otherSelectedLabels = formLabels?.filter((formLabel) => {
+      return formLabel.name !== selectedLabelName;
+    });
+    console.log({ otherSelectedLabels, formLabels });
     if (isSelecting) {
-      const definedSelectedOtherLabels: string[] = Array.from(
-        new Set(
-          selectedRuleset.rules
-            .flatMap((rulesets) => rulesets?.metadata?.otherLabels || "")
-            .filter((otherLabel) => otherLabel!)
-        )
-      );
+      const matchingLabel =
+        targets
+          ?.find((target) => {
+            const labelNames = target?.labels?.map((label) => label.name);
+            return labelNames?.includes(selectedLabelName);
+          })
+          ?.labels?.find((label) => label.name === selectedLabelName) || "";
 
-      setValue("formOtherLabels", [
-        ...otherSelectedOtherLabels,
-        ...definedSelectedOtherLabels,
-      ]);
-
-      const definedSelectedSources: string[] = Array.from(
-        new Set(
-          selectedRuleset.rules
-            .map((rulesets) => rulesets?.metadata?.source || "")
-            .filter((source) => !!source)
-        )
-      );
-
-      setValue("formSources", [
-        ...otherSelectedRuleSources,
-        ...definedSelectedSources,
-      ]);
-
-      const definedSelectedTargets: string[] = Array.from(
-        new Set(
-          selectedRuleset.kind === "category"
-            ? [selectedRuleTarget]
-            : selectedRuleset.rules
-                .map((rulesets) => rulesets?.metadata?.target || "")
-                .filter((target) => !!target)
-        )
-      );
-
-      setValue("formTargets", [
-        ...otherSelectedRuleTargets,
-        ...definedSelectedTargets,
-      ]);
-
-      setValue("formRulesets", [...otherSelectedRulesets, selectedRuleset]);
+      matchingLabel &&
+        setValue("formLabels", [...otherSelectedLabels, matchingLabel]);
     } else {
-      setValue("formSources", otherSelectedRuleSources);
-      setValue("formTargets", otherSelectedRuleTargets);
-      setValue("formRulesets", otherSelectedRulesets);
-      setValue("formOtherLabels", otherSelectedOtherLabels);
+      // console.log("otherSelected", { otherSelectedLabels });
+      setValue("formLabels", otherSelectedLabels);
     }
   };
+
   return (
     <Form
       onSubmit={(event) => {
@@ -146,7 +103,7 @@ export const SetTargets: React.FC = () => {
         </Title>
         <Text>{t("wizard.label.setTargets")}</Text>
       </TextContent>
-      {values.formRulesets.length === 0 &&
+      {/* {values.formRulesets.length === 0 &&
         values.customRulesFiles.length === 0 &&
         !values.sourceRepository && (
           <Alert
@@ -154,39 +111,34 @@ export const SetTargets: React.FC = () => {
             isInline
             title={t("wizard.label.skipTargets")}
           />
-        )}
+        )} */}
       <Gallery hasGutter>
         {targetOrderSetting.isSuccess
           ? targetOrderSetting.data.map((id, index) => {
               const matchingTarget = targets.find((target) => target.id === id);
+              const matchingLabelNames =
+                matchingTarget?.labels?.map((label) => label.name) || [];
+
+              const isSelected = formLabels?.some((label) =>
+                matchingLabelNames.includes(label.name)
+              );
               if (matchingTarget) {
                 return (
                   <GalleryItem key={index}>
                     <TargetCard
                       readOnly
                       item={matchingTarget}
-                      cardSelected={formRulesets
-                        .map((formRuleset) => formRuleset.name)
-                        .includes(matchingTarget.name)}
-                      onSelectedCardTargetChange={(
-                        selectedRuleTarget: string
-                      ) => {
-                        handleOnSelectedCardTargetChange(
-                          selectedRuleTarget,
-                          matchingTarget
-                        );
+                      cardSelected={isSelected}
+                      onSelectedCardTargetChange={(selectedTarget) => {
+                        handleOnSelectedCardTargetChange(selectedTarget);
                       }}
                       onCardClick={(
                         isSelecting: boolean,
-                        selectedRuleTarget: string
+                        selectedLabelName: string
                       ) => {
-                        handleOnCardClick(
-                          isSelecting,
-                          selectedRuleTarget,
-                          matchingTarget
-                        );
+                        handleOnCardClick(isSelecting, selectedLabelName);
                       }}
-                      formTargets={formTargets}
+                      formLabels={formLabels}
                     />
                   </GalleryItem>
                 );

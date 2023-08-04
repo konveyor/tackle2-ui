@@ -137,8 +137,10 @@ export const getLabels = (labels: string[]) =>
     { sourceLabel: "", targetLabel: "", otherLabels: [], allLabels: [] }
   );
 
-export const getRulesetTargetList = (target: Target) => {
-  return target.ruleset.rules.reduce((acc: string[], rule) => {
-    return [...acc, rule?.metadata?.target || ""];
-  }, []);
+export const getTargetLabelList = (target: Target) => {
+  return (
+    target?.labels?.reduce((acc: string[], label) => {
+      return [...acc, label.label || ""];
+    }, []) || []
+  );
 };

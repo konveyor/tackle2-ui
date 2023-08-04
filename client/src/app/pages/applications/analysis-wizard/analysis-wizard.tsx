@@ -169,11 +169,11 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     defaultValues: {
       artifact: null,
       mode: "binary",
+      formLabels: [],
       formTargets: [],
       formOtherLabels: [],
       selectedFormSources: [],
       formSources: defaultSources,
-      formRulesets: [],
       withKnown: "app",
       includedPackages: [],
       excludedPackages: [],
@@ -259,7 +259,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           labels: {
             included: Array.from(
               new Set<string>([
-                ...fieldValues.formTargets,
+                // ...fieldValues.formLabels,
                 ...fieldValues.selectedFormSources,
                 ...fieldValues.formOtherLabels,
               ])

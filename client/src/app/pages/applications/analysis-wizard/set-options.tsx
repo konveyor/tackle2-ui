@@ -21,12 +21,12 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisWizardFormValues } from "./schema";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 import { StringListField } from "@app/shared/components/string-list-field";
-import { useFetchRulesets } from "@app/queries/rulesets";
 import {
   getParsedLabel,
-  getRulesetTargetList,
+  getTargetLabelList,
 } from "@app/common/CustomRules/rules-utils";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import { useFetchTargets } from "@app/queries/targets";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
@@ -38,7 +38,8 @@ export const SetOptions: React.FC = () => {
     formSources,
     selectedFormSources,
     formTargets,
-    formRulesets,
+    // formLabels,
+    formOtherLabels,
     diva,
     excludedRulesTags,
     autoTaggingEnabled,
@@ -46,14 +47,15 @@ export const SetOptions: React.FC = () => {
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
-  const { rulesets } = useFetchRulesets();
+  const { targets } = useFetchTargets();
 
-  const allRulesetTargets = rulesets
-    .map((Ruleset) => getRulesetTargetList(Ruleset))
+  const allTargetLabels = targets
+    .map((target) => getTargetLabelList(target))
+    .filter(Boolean)
     .flat();
 
   const defaultTargetsAndRulesetTargets = [
-    ...new Set(defaultTargets.concat(allRulesetTargets)),
+    ...new Set(defaultTargets.concat(allTargetLabels)),
   ];
 
   return (
@@ -79,43 +81,41 @@ export const SetOptions: React.FC = () => {
           fieldState: { isDirty, error },
         }) => (
           <Select
-            id="rulesets"
-            toggleId="rulesets-toggle"
+            id="targets"
+            toggleId="targets-toggle"
             variant={SelectVariant.typeaheadMulti}
             maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
             aria-label="Select targets"
-            selections={formTargets.map(
-              (formTarget) => getParsedLabel(formTarget).labelValue
-            )}
+            // selections={formTargets.map(
+            //   (formTarget) => getParsedLabel(formTarget).labelValue
+            // )}
             isOpen={isSelectTargetsOpen}
-            onSelect={(_, selection) => {
-              const selectionWithLabelSelector = `konveyor.io/target=${selection}`;
-              const matchingRuleset = rulesets.find((Ruleset) =>
-                getRulesetTargetList(Ruleset).includes(
-                  selectionWithLabelSelector
-                )
-              );
-              if (!formTargets.includes(selectionWithLabelSelector)) {
-                onChange([...selectedFormTargets, selectionWithLabelSelector]);
-                if (matchingRuleset)
-                  setValue("formRulesets", [...formRulesets, matchingRuleset]);
-              } else {
-                if (matchingRuleset)
-                  setValue(
-                    "formRulesets",
-                    formRulesets.filter(
-                      (formRuleset) => formRuleset.name !== matchingRuleset.name
-                    )
-                  );
-                onChange(
-                  selectedFormTargets.filter(
-                    (formTarget) => formTarget !== selectionWithLabelSelector
-                  )
-                );
-              }
-              onBlur();
-              setSelectTargetsOpen(!isSelectTargetsOpen);
-            }}
+            // onSelect={(_, selection) => {
+            //   const selectionWithLabelSelector = `konveyor.io/target=${selection}`;
+            //   const matchingTarget = targets.find((target) =>
+            //     getTargetLabelList(target).includes(selectionWithLabelSelector)
+            //   );
+            //   if (!formTargets.includes(selectionWithLabelSelector)) {
+            //     onChange([...selectedFormTargets, selectionWithLabelSelector]);
+            //     if (matchingTarget)
+            //       setValue("formRulesets", [...formRulesets, matchingTarget]);
+            //   } else {
+            //     if (matchingTarget)
+            //       setValue(
+            //         "formRulesets",
+            //         formRulesets.filter(
+            //           (formRuleset) => formRuleset.name !== matchingRuleset.name
+            //         )
+            //       );
+            //     onChange(
+            //       selectedFormTargets.filter(
+            //         (formTarget) => formTarget !== selectionWithLabelSelector
+            //       )
+            //     );
+            //   }
+            //   onBlur();
+            //   setSelectTargetsOpen(!isSelectTargetsOpen);
+            // }}
             onToggle={() => {
               setSelectTargetsOpen(!isSelectTargetsOpen);
             }}

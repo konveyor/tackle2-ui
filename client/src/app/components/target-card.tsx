@@ -31,15 +31,15 @@ import { KebabDropdown } from "@app/shared/components";
 import { useTranslation } from "react-i18next";
 import "./target-card.css";
 import DefaultRulesetIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
-import { Target } from "@app/api/models";
+import { Target, TargetLabel } from "@app/api/models";
 
 export interface TargetCardProps {
   item: Target;
   cardSelected?: boolean;
   isEditable?: boolean;
-  onCardClick?: (isSelecting: boolean, value: string) => void;
+  onCardClick?: (isSelecting: boolean, targetLabelName: string) => void;
   onSelectedCardTargetChange?: (value: string) => void;
-  formTargets?: string[];
+  formLabels?: TargetLabel[];
   handleProps?: any;
   readOnly?: boolean;
   onEdit?: () => void;
@@ -51,10 +51,10 @@ export interface TargetCardProps {
 const forceSelect = ["Azure"];
 
 export const TargetCard: React.FC<TargetCardProps> = ({
-  item,
+  item: target,
   readOnly,
   cardSelected,
-  formTargets,
+  formLabels,
   onCardClick,
   onSelectedCardTargetChange,
   handleProps,
@@ -64,19 +64,27 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
 
-  const prevSelectedTarget = formTargets?.find(
-    (target) =>
-      item.ruleset?.rules
-        .map((rule) => rule?.metadata?.target)
-        .indexOf(target) !== -1
-  );
+  const prevSelectedLabel =
+    formLabels?.find(
+      (formLabel) => {
+        const labelNames = target?.labels?.map((label) => label.name);
+        return labelNames?.includes(formLabel.name);
+      }
+      // item.ruleset?.rules
+      //   .map((rule) => rule?.metadata?.target)
+      //   .indexOf(target) !== -1
+    )?.name || "";
 
-  const [isRuleTargetSelectOpen, setRuleTargetSelectOpen] =
-    React.useState(false);
+  const [isLabelSelectOpen, setLabelSelectOpen] = React.useState(false);
 
-  const [selectedRuleTarget, setSelectedRuleTarget] = React.useState(
-    prevSelectedTarget || item?.labels?.[0].name || `${item.name}-Empty`
+  const [selectedLabelName, setSelectedLabelName] = React.useState<string>(
+    prevSelectedLabel || target?.labels?.[0].name || `${target.name}-Empty`
   );
+  console.log("selectedLabelName", {
+    selectedLabelName,
+    prevSelectedLabel,
+    formLabels,
+  });
 
   const handleCardClick = (event: React.MouseEvent) => {
     // Stop 'select' event propagation
@@ -85,17 +93,17 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 
     setCardSelected(!isCardSelected);
     onCardClick &&
-      selectedRuleTarget &&
-      onCardClick(!isCardSelected, selectedRuleTarget);
+      selectedLabelName &&
+      onCardClick(!isCardSelected, selectedLabelName);
   };
 
-  const handleRuleTargetSelection = (
+  const handleLabelSelection = (
     event: React.MouseEvent | React.ChangeEvent,
     selection: string | SelectOptionObject
   ) => {
     event.stopPropagation();
-    setRuleTargetSelectOpen(false);
-    setSelectedRuleTarget(selection as string);
+    setLabelSelectOpen(false);
+    setSelectedLabelName(selection as string);
 
     //update the formTargets if this card is selected
     if (isCardSelected && onSelectedCardTargetChange) {
@@ -105,10 +113,10 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 
   const getImage = (): React.ComponentType => {
     let result: React.ComponentType<any> = CubesIcon;
-    const imagePath = item?.image?.id
-      ? `/hub/files/${item?.image.id}`
+    const imagePath = target?.image?.id
+      ? `/hub/files/${target?.image.id}`
       : DefaultRulesetIcon;
-    if (item.image) {
+    if (target.image) {
       result = () => (
         <img
           src={imagePath}
@@ -152,10 +160,10 @@ export const TargetCard: React.FC<TargetCardProps> = ({
             )}
           </FlexItem>
           <FlexItem className={spacing.mlAuto}>
-            {readOnly && item.custom ? (
+            {readOnly && target.custom ? (
               <Label color="grey">Custom</Label>
             ) : (
-              item.custom && (
+              target.custom && (
                 <KebabDropdown
                   dropdownItems={[
                     <DropdownItem key="edit-custom-card" onClick={onEdit}>
@@ -176,23 +184,23 @@ export const TargetCard: React.FC<TargetCardProps> = ({
         >
           <EmptyStateIcon icon={getImage()} />
           <Title headingLevel="h4" size="md">
-            {item.name}
+            {target.name}
           </Title>
-          {item.choice &&
-          (item?.ruleset?.rules?.length > 1 ||
-            forceSelect.includes(item.name)) ? (
+          {target.choice &&
+          ((!!target?.labels?.length && target?.labels?.length > 1) ||
+            forceSelect.includes(target.name)) ? (
             <Select
               className={spacing.mtSm}
-              toggleId={`${item.name}-toggle`}
+              toggleId={`${target.name}-toggle`}
               variant={SelectVariant.single}
-              aria-label="Select Input"
-              onToggle={(_, isExpanded) => setRuleTargetSelectOpen(isExpanded)}
-              onSelect={handleRuleTargetSelection}
-              selections={selectedRuleTarget}
-              isOpen={isRuleTargetSelectOpen}
+              aria-label="Select Label"
+              onToggle={(_, isExpanded) => setLabelSelectOpen(isExpanded)}
+              onSelect={handleLabelSelection}
+              selections={selectedLabelName}
+              isOpen={isLabelSelectOpen}
               width={250}
             >
-              {item?.labels?.map((label) => (
+              {target?.labels?.map((label) => (
                 <SelectOption key={label.name} value={label.name}>
                   {label.name ? label.name : "Empty"}
                 </SelectOption>
@@ -203,7 +211,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
             <PanelMain maxHeight="13em">
               <PanelMainBody>
                 <Text className={`${spacing.pMd} pf-v5-u-text-align-left`}>
-                  {item.description}
+                  {target.description}
                 </Text>
               </PanelMainBody>
             </PanelMain>

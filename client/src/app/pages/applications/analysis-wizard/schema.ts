@@ -2,12 +2,10 @@ import * as yup from "yup";
 import {
   Application,
   IReadFile,
-  Ref,
-  Repository,
   Ruleset,
-  RulesetImage,
-  RulesetKind,
   FileLoadError,
+  Target,
+  TargetLabel,
 } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import { useAnalyzableApplicationsByMode } from "./utils";
@@ -58,31 +56,16 @@ const useModeStepSchema = ({
 };
 
 export interface TargetsStepValues {
-  formTargets: string[];
+  formLabels: TargetLabel[];
   formOtherLabels: string[];
-  formRulesets: Ruleset[];
+  formTargets: Target[];
 }
-export const rulesetSchema: yup.SchemaOf<Ruleset> = yup.object({
-  createTime: yup.string(),
-  createUser: yup.string(),
-  description: yup.string(),
-  id: yup.number().required(),
-  name: yup.string().required(),
-  image: yup.mixed<RulesetImage>(),
-  kind: yup.mixed<RulesetKind>(),
-  rules: yup.array(),
-  custom: yup.boolean(),
-  repository: yup.mixed<Repository>(),
-  identity: yup.mixed<Ref>(),
-  updateUser: yup.string(),
-});
 
 const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
-  const { t } = useTranslation();
   return yup.object({
-    formTargets: yup.array(),
+    formLabels: yup.array(),
     formOtherLabels: yup.array(),
-    formRulesets: yup.array().of(rulesetSchema),
+    formTargets: yup.array(),
   });
 };
 

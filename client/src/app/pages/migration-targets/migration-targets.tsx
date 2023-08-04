@@ -62,17 +62,14 @@ export const MigrationTargets: React.FC = () => {
 
   const [activeId, setActiveId] = useState(null);
 
-  const onDeleteTargetSuccess = () => {
+  const onDeleteTargetSuccess = (target: Target, id: number) => {
     pushNotification({
       title: "Custom target deleted",
       variant: "success",
     });
-
     if (targetOrderSetting.isSuccess)
       targetOrderSettingMutation.mutate(
-        targetOrderSetting.data.filter(
-          (targetID: number) => targetID !== targetID
-        )
+        targetOrderSetting.data.filter((targetID: number) => targetID !== id)
       );
   };
 

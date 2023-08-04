@@ -193,21 +193,21 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                 type="button"
                 variant="plain"
                 onClick={() => {
-                  customRulesFiles.forEach((file) => {
-                    const { source, target } = parseRules(file);
-                    if (source && formSources.includes(source)) {
-                      const updatedSources = formSources.filter(
-                        (formSource) => formSource !== source
-                      );
-                      setValue("formSources", [...updatedSources]);
-                    }
-                    if (target && formTargets.includes(target)) {
-                      const updatedTargets = formTargets.filter(
-                        (formTarget) => formTarget !== target
-                      );
-                      setValue("formTargets", [...updatedTargets]);
-                    }
-                  });
+                  // customRulesFiles.forEach((file) => {
+                  //   const { source, target } = parseRules(file);
+                  //   if (source && formSources.includes(source)) {
+                  //     const updatedSources = formSources.filter(
+                  //       (formSource) => formSource !== source
+                  //     );
+                  //     setValue("formSources", [...updatedSources]);
+                  //   }
+                  //   // if (target && formTargets.includes(target)) {
+                  //   //   const updatedTargets = formTargets.filter(
+                  //   //     (formTarget) => formTarget !== target
+                  //   //   );
+                  //     // setValue("formTargets", [...updatedTargets]);
+                  //   }
+                  // });
 
                   // Remove rule file from list
                   const updatedFileList = customRulesFiles.filter(
@@ -236,7 +236,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
         </Title>
         <Text> {t("wizard.label.customRules")}</Text>
       </TextContent>
-      {values.formRulesets.length === 0 &&
+      {/* {values.formRulesets.length === 0 &&
         values.customRulesFiles.length === 0 &&
         !values.sourceRepository && (
           <Alert
@@ -244,7 +244,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
             isInline
             title={t("wizard.label.ruleFileRequiredDetails")}
           />
-        )}
+        )} */}
       <HookFormPFGroupController
         control={control}
         name="rulesKind"
@@ -448,9 +448,9 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                     if (source && !formSources.includes(source)) {
                       setValue("formSources", [...formSources, source]);
                     }
-                    if (target && !formTargets.includes(target)) {
-                      setValue("formTargets", [...formTargets, target]);
-                    }
+                    // if (target && !formTargets.includes(target)) {
+                    //   setValue("formTargets", [...formTargets, target]);
+                    // }
                     if (
                       otherLabels?.length &&
                       formOtherLabels.some(

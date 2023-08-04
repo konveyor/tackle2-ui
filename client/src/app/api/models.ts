@@ -483,7 +483,7 @@ export interface Ruleset {
   repository?: Repository;
   identity?: Ref;
 }
-export interface Label {
+export interface TargetLabel {
   name: string;
   label: string;
 }
@@ -493,7 +493,7 @@ export interface Target {
   description?: string;
   choice?: boolean;
   custom?: boolean;
-  labels?: Label[];
+  labels?: TargetLabel[];
   image?: RulesetImage;
   ruleset: Ruleset;
 }

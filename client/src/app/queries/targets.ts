@@ -14,23 +14,7 @@ import { getLabels } from "@app/common/CustomRules/rules-utils";
 export const TargetsQueryKey = "targets";
 
 export const useFetchTargets = () => {
-  async function getCompositeTargets() {
-    const targets = await getTargets();
-    const rulesets = await getRulesets();
-    const compositeTargets = targets.map((target) => {
-      console.log("target", target);
-      console.log("targets", targets);
-      console.log("rulesets", rulesets);
-      return target;
-    });
-
-    // const rulesets= await getRulesetById();
-    // const publisherIds = books.map(x => x.publisherId);
-    // const publishers = await getPublishersForIds(publisherIds);
-    // return { compositeTargets };
-    return compositeTargets;
-  }
-  const { data, isLoading, error, refetch } = useQuery<any[]>(
+  const { data, isLoading, error, refetch } = useQuery<Target[]>(
     [TargetsQueryKey],
     async () => await getTargets(),
     {

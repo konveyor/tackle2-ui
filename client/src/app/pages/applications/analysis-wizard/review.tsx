@@ -91,7 +91,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
             <List isPlain>
               {formTargets.map((target, index) => (
                 <ListItem key={index}>
-                  {getParsedLabel(target).labelValue}
+                  {/* {getParsedLabel(target).labelValue} */}
                 </ListItem>
               ))}
             </List>
