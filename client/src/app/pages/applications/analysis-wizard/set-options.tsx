@@ -21,13 +21,11 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisWizardFormValues } from "./schema";
 import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
 import { StringListField } from "@app/shared/components/string-list-field";
-import {
-  getAllLabelsFromTarget,
-  getParsedLabel,
-} from "@app/common/CustomRules/rules-utils";
+import { getParsedLabel } from "@app/common/CustomRules/rules-utils";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchTargets } from "@app/queries/targets";
 import defaultSources from "./sources";
+import { Target } from "@app/api/models";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
@@ -40,6 +38,9 @@ export const SetOptions: React.FC = () => {
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
   const { targets } = useFetchTargets();
+
+  const getAllLabelsFromTarget = (target: Target) =>
+    target?.labels?.map((label) => label) ?? [];
 
   const allLabelsFromTargets = targets
     .map((target) => getAllLabelsFromTarget(target))
