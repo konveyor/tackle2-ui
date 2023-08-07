@@ -570,9 +570,11 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     }
                     filename={values.keyFilename}
                     onFileInputChange={(_, file) => {
-                      onChange(value);
                       setValue("keyFilename", file.name);
                       setIsKeyFileRejected(false);
+                    }}
+                    onDataChange={(_, value: string) => {
+                      onChange(value);
                     }}
                     dropzoneProps={{
                       // accept: ".csv",
@@ -583,7 +585,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     filenamePlaceholder="Drag and drop a file or upload one"
                     onClearClick={() => {
                       onChange("");
-                      resetField("keyFilename");
+                      setValue("keyFilename", "");
                       setIsKeyFileRejected(false);
                     }}
                     allowEditingUploadedText
@@ -636,9 +638,11 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               }
               filename={values.settingsFilename}
               onFileInputChange={(_, file) => {
-                onChange(value);
                 setValue("settingsFilename", file.name);
                 setIsSettingsFileRejected(false);
+              }}
+              onDataChange={(_, value: string) => {
+                onChange(value);
               }}
               dropzoneProps={{
                 accept: { "text/xml": [".xml"] },
@@ -648,7 +652,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               filenamePlaceholder="Drag and drop a file or upload one"
               onClearClick={() => {
                 onChange("");
-                resetField("settingsFilename");
+                setValue("settingsFilename", "");
                 setIsSettingsFileRejected(false);
               }}
               onReadStarted={() => setIsLoading(true)}
