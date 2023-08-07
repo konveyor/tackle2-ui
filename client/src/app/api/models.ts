@@ -341,7 +341,7 @@ export type SettingTypes = {
   "mvn.insecure.enabled": boolean;
   "review.assessment.required": boolean;
   "svn.insecure.enabled": boolean;
-  "ui.ruleset.order": number[];
+  "ui.target.order": number[];
 };
 
 export type Setting<K extends keyof SettingTypes> = {
@@ -404,7 +404,6 @@ export interface TaskData {
     tags: {
       excluded: string[];
     };
-    rulesets: Ref[];
     repository?: Repository;
     identity?: Ref;
     labels: {
@@ -463,18 +462,29 @@ export enum RulesetKind {
 }
 
 export interface Ruleset {
-  createTime?: string;
-  createUser?: string;
-  description?: string;
   id?: number;
-  image?: RulesetImage;
   kind?: RulesetKind;
-  name: string;
+  name?: string;
+  description?: string;
   rules: Rule[];
-  custom?: boolean;
   repository?: Repository;
   identity?: Ref;
 }
+export interface TargetLabel {
+  name: string;
+  label: string;
+}
+export interface Target {
+  id?: number;
+  name: string;
+  description?: string;
+  choice?: boolean;
+  custom?: boolean;
+  labels?: TargetLabel[];
+  image?: RulesetImage;
+  ruleset: Ruleset;
+}
+
 export interface Metadata {
   target: string;
   source?: string;
@@ -687,4 +697,10 @@ export type Fact = {
   name: string;
   //TODO: Address this when moving to structured facts api
   data: any;
+};
+
+export type HubFile = {
+  id: number;
+  name: string;
+  path: string;
 };

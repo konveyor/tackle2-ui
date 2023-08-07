@@ -29,7 +29,6 @@ import {
   JobFunction,
   Proxy,
   Review,
-  Ruleset,
   Setting,
   SettingTypes,
   Stakeholder,
@@ -49,6 +48,8 @@ import {
   AnalysisAppDependency,
   AnalysisAppReport,
   Rule,
+  Target,
+  HubFile,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
@@ -84,7 +85,7 @@ export const TRACKER_PROJECT_ISSUETYPES = "issuetypes";
 export const TICKETS = HUB + "/tickets";
 export const FACTS = HUB + "/facts";
 
-export const RULESETS = HUB + "/rulesets";
+export const TARGETS = HUB + "/targets";
 export const FILES = HUB + "/files";
 export const CACHE = HUB + "/cache/m2";
 
@@ -440,20 +441,17 @@ export const deleteAllMigrationWaves = (
     .catch((error) => error);
 };
 
-export const updateRuleset = (obj: Ruleset): Promise<Ruleset> =>
-  axios.put(`${RULESETS}/${obj.id}`, obj);
+export const updateTarget = (obj: Target): Promise<Target> =>
+  axios.put(`${TARGETS}/${obj.id}`, obj);
 
-export const createRuleset = (obj: Ruleset): Promise<Ruleset> =>
-  axios.post(RULESETS, obj);
+export const createTarget = (obj: Target): Promise<Target> =>
+  axios.post(TARGETS, obj);
 
-export const deleteRuleset = (id: number): Promise<Ruleset> =>
-  axios.delete(`${RULESETS}/${id}`);
+export const deleteTarget = (id: number): Promise<Target> =>
+  axios.delete(`${TARGETS}/${id}`);
 
-export const getRulesets = (): Promise<Ruleset[]> =>
-  axios.get(RULESETS).then((response) => response.data);
-
-export const getFileByID = (id: number): Promise<Ruleset[]> =>
-  axios.get(FILES).then((response) => response.data);
+export const getTargets = (): Promise<Target[]> =>
+  axios.get(TARGETS).then((response) => response.data);
 
 export const createFile = ({
   formData,
@@ -463,7 +461,7 @@ export const createFile = ({
   file: IReadFile;
 }) =>
   axios
-    .post<Ruleset>(`${FILES}/${file.fileName}`, formData, fileHeaders)
+    .post<HubFile>(`${FILES}/${file.fileName}`, formData, fileHeaders)
     .then((response) => {
       return response.data;
     });

@@ -13,6 +13,9 @@ import {
   ButtonVariant,
   Label,
   CardHeader,
+  PanelMain,
+  PanelMainBody,
+  Panel,
 } from "@patternfly/react-core";
 import { DropdownItem } from "@patternfly/react-core/deprecated";
 import {
@@ -28,16 +31,19 @@ import { KebabDropdown } from "@app/shared/components";
 import { useTranslation } from "react-i18next";
 import "./target-card.css";
 import DefaultRulesetIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
-import { Ruleset } from "@app/api/models";
-import { getParsedLabel } from "@app/common/CustomRules/rules-utils";
+import { Target, TargetLabel } from "@app/api/models";
 
 export interface TargetCardProps {
-  item: Ruleset;
+  item: Target;
   cardSelected?: boolean;
   isEditable?: boolean;
-  onCardClick?: (isSelecting: boolean, value: string) => void;
+  onCardClick?: (
+    isSelecting: boolean,
+    targetLabelName: string,
+    target: Target
+  ) => void;
   onSelectedCardTargetChange?: (value: string) => void;
-  formTargets?: string[];
+  formLabels?: TargetLabel[];
   handleProps?: any;
   readOnly?: boolean;
   onEdit?: () => void;
@@ -45,14 +51,14 @@ export interface TargetCardProps {
 }
 
 // Force display dropdown box even though there only one option available.
-// This is a business rule to guarantee that option is alwyas present.
+// This is a business rule to guarantee that option is always present.
 const forceSelect = ["Azure"];
 
 export const TargetCard: React.FC<TargetCardProps> = ({
-  item,
+  item: target,
   readOnly,
   cardSelected,
-  formTargets,
+  formLabels,
   onCardClick,
   onSelectedCardTargetChange,
   handleProps,
@@ -62,19 +68,18 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
 
-  const prevSelectedTarget = formTargets?.find(
-    (target) =>
-      item.rules.map((ruleset) => ruleset?.metadata?.target).indexOf(target) !==
-      -1
-  );
+  const prevSelectedLabel =
+    formLabels?.find((formLabel) => {
+      const labelNames = target?.labels?.map((label) => label.name);
+      return labelNames?.includes(formLabel.name);
+    })?.name || "";
 
-  const [isRuleTargetSelectOpen, setRuleTargetSelectOpen] =
-    React.useState(false);
+  const [isLabelSelectOpen, setLabelSelectOpen] = React.useState(false);
 
-  const [selectedRuleTarget, setSelectedRuleTarget] = React.useState(
-    prevSelectedTarget ||
-      item.rules[0]?.metadata?.target ||
-      `${item.name}-Empty`
+  const [selectedLabelName, setSelectedLabelName] = React.useState<string>(
+    prevSelectedLabel ||
+      target?.labels?.[0]?.name ||
+      `${target?.name || "target"}-Empty`
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
@@ -84,19 +89,17 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 
     setCardSelected(!isCardSelected);
     onCardClick &&
-      selectedRuleTarget &&
-      onCardClick(!isCardSelected, selectedRuleTarget);
+      selectedLabelName &&
+      onCardClick(!isCardSelected, selectedLabelName, target);
   };
 
-  const handleRuleTargetSelection = (
+  const handleLabelSelection = (
     event: React.MouseEvent | React.ChangeEvent,
     selection: string | SelectOptionObject
   ) => {
     event.stopPropagation();
-    setRuleTargetSelectOpen(false);
-    setSelectedRuleTarget(selection as string);
-
-    //update the formTargets if this card is selected
+    setLabelSelectOpen(false);
+    setSelectedLabelName(selection as string);
     if (isCardSelected && onSelectedCardTargetChange) {
       onSelectedCardTargetChange(selection as string);
     }
@@ -104,10 +107,10 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 
   const getImage = (): React.ComponentType => {
     let result: React.ComponentType<any> = CubesIcon;
-    const imagePath = item?.image?.id
-      ? `/hub/files/${item.image.id}`
+    const imagePath = target?.image?.id
+      ? `/hub/files/${target?.image.id}`
       : DefaultRulesetIcon;
-    if (item.image) {
+    if (target.image) {
       result = () => (
         <img
           src={imagePath}
@@ -129,7 +132,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     >
       <CardHeader
         selectableActions={{
-          selectableActionId: "" + item.id,
+          selectableActionId: "" + target.id,
           isChecked: isCardSelected,
         }}
       />
@@ -151,10 +154,10 @@ export const TargetCard: React.FC<TargetCardProps> = ({
             )}
           </FlexItem>
           <FlexItem className={spacing.mlAuto}>
-            {readOnly && item.custom ? (
+            {readOnly && target.custom ? (
               <Label color="grey">Custom</Label>
             ) : (
-              item.custom && (
+              target.custom && (
                 <KebabDropdown
                   dropdownItems={[
                     <DropdownItem key="edit-custom-card" onClick={onEdit}>
@@ -175,32 +178,40 @@ export const TargetCard: React.FC<TargetCardProps> = ({
         >
           <EmptyStateIcon icon={getImage()} />
           <Title headingLevel="h4" size="md">
-            {item.name}
+            {target.name}
           </Title>
-          {item.kind === "category" &&
-          (item.rules.length > 1 || forceSelect.includes(item.name)) ? (
+          {target.choice &&
+          ((!!target?.labels?.length && target?.labels?.length > 1) ||
+            forceSelect.includes(target.name)) ? (
             <Select
-              toggleId={`${item.name}-toggle`}
+              className={spacing.mtSm}
+              toggleId={`${target.name}-toggle`}
               variant={SelectVariant.single}
-              aria-label="Select Input"
-              onToggle={(_, isExpanded) => setRuleTargetSelectOpen(isExpanded)}
-              onSelect={handleRuleTargetSelection}
-              selections={selectedRuleTarget}
-              isOpen={isRuleTargetSelectOpen}
+              aria-label="Select Label"
+              onToggle={(_, isExpanded) => setLabelSelectOpen(isExpanded)}
+              onSelect={handleLabelSelection}
+              selections={selectedLabelName}
+              isOpen={isLabelSelectOpen}
               width={250}
             >
-              {item.rules.map((rule) => (
-                <SelectOption key={rule.name} value={rule?.metadata?.target}>
-                  {rule?.metadata?.target
-                    ? getParsedLabel(rule.metadata.target)?.labelValue
-                    : "Empty"}
+              {target?.labels?.map((label) => (
+                <SelectOption key={label.name} value={label.name}>
+                  {label.name ? label.name : "Empty"}
                 </SelectOption>
               ))}
             </Select>
           ) : null}
-          <Text className={`${spacing.pMd} pf-v5-u-text-align-left`}>
-            {item.description}
-          </Text>
+          {target.description ? (
+            <Panel isScrollable className="panel-style">
+              <PanelMain maxHeight={target.choice ? "9em" : "12em"}>
+                <PanelMainBody>
+                  <Text className={`${spacing.pMd} pf-v5-u-text-align-left`}>
+                    {target.description}
+                  </Text>
+                </PanelMainBody>
+              </PanelMain>
+            </Panel>
+          ) : null}
         </EmptyState>
       </CardBody>
     </Card>

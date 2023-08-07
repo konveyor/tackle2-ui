@@ -2,12 +2,9 @@ import * as yup from "yup";
 import {
   Application,
   IReadFile,
-  Ref,
-  Repository,
-  Ruleset,
-  RulesetImage,
-  RulesetKind,
   FileLoadError,
+  Target,
+  TargetLabel,
 } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import { useAnalyzableApplicationsByMode } from "./utils";
@@ -58,31 +55,12 @@ const useModeStepSchema = ({
 };
 
 export interface TargetsStepValues {
-  formTargets: string[];
-  formOtherLabels: string[];
-  formRulesets: Ruleset[];
+  formLabels: TargetLabel[];
 }
-export const rulesetSchema: yup.SchemaOf<Ruleset> = yup.object({
-  createTime: yup.string(),
-  createUser: yup.string(),
-  description: yup.string(),
-  id: yup.number().required(),
-  name: yup.string().required(),
-  image: yup.mixed<RulesetImage>(),
-  kind: yup.mixed<RulesetKind>(),
-  rules: yup.array(),
-  custom: yup.boolean(),
-  repository: yup.mixed<Repository>(),
-  identity: yup.mixed<Ref>(),
-  updateUser: yup.string(),
-});
 
 const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
-  const { t } = useTranslation();
   return yup.object({
-    formTargets: yup.array(),
-    formOtherLabels: yup.array(),
-    formRulesets: yup.array().of(rulesetSchema),
+    formLabels: yup.array(),
   });
 };
 
@@ -114,8 +92,6 @@ const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
 };
 
 export interface CustomRulesStepValues {
-  formSources: string[];
-  selectedFormSources: string[];
   customRulesFiles: IReadFile[];
   rulesKind: string;
   repositoryType?: string;
@@ -137,8 +113,6 @@ export const customRulesFilesSchema: yup.SchemaOf<IReadFile> = yup.object({
 const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
   const { t } = useTranslation();
   return yup.object({
-    selectedFormSources: yup.array().of(yup.string().defined()),
-    formSources: yup.array().of(yup.string().defined()),
     rulesKind: yup.string().defined(),
     customRulesFiles: yup
       .array()
@@ -148,9 +122,9 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
         then: yup.array().of(customRulesFilesSchema),
         otherwise: (schema) => schema,
       })
-      .when(["formRulesets", "rulesKind"], {
-        is: (rulesets: Ruleset[], rulesKind: string) =>
-          rulesets.length === 0 && rulesKind === "manual",
+      .when(["formLabels", "rulesKind"], {
+        is: (labels: TargetLabel[], rulesKind: string) =>
+          labels.length === 0 && rulesKind === "manual",
         then: (schema) => schema.min(1, "At least 1 Rule File is required"), // TODO translation here
       }),
     repositoryType: yup.mixed<string>().when("rulesKind", {
