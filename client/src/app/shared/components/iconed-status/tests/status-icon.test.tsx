@@ -1,10 +1,10 @@
 import { render } from "@app/test-config/test-utils";
 import React from "react";
-import { StatusIcon } from "../status-icon";
+import { IconedStatus } from "../iconed-status";
 
 describe("StatusIcon", () => {
   it("Renders without crashing", () => {
-    const wrapper = render(<StatusIcon status="NotStarted" />);
+    const wrapper = render(<IconedStatus preset="NotStarted" />);
     expect(wrapper).toMatchSnapshot();
   });
 });

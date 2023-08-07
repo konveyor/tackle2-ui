@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { StatusIcon } from "@app/shared/components";
+import { IconedStatus } from "@app/shared/components";
 import {
   Button,
   ButtonVariant,
-  Flex,
-  FlexItem,
   Modal,
   PageSection,
   Popover,
@@ -24,8 +22,6 @@ import {
   sortable,
   truncate,
 } from "@patternfly/react-table";
-import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
-
 import {
   AppPlaceholder,
   AppTableWithControls,
@@ -37,11 +33,10 @@ import {
 
 import { formatPath, Paths } from "@app/Paths";
 import { ApplicationImportSummary } from "@app/api/models";
-import { formatDate, getAxiosErrorMessage } from "@app/utils/utils";
+import { formatDate } from "@app/utils/utils";
 
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
-import { AxiosError } from "axios";
 import {
   useDeleteImportSummaryMutation,
   useFetchImportSummaries,
@@ -187,25 +182,13 @@ export const ManageImports: React.FC = () => {
   currentPageItems.forEach((item) => {
     let status;
     if (item.importStatus === "Completed") {
-      status = <StatusIcon status="Completed" />;
+      status = <IconedStatus preset="Completed" />;
     } else if (item.importStatus === "In Progress") {
-      status = (
-        <Flex
-          spaceItems={{ default: "spaceItemsSm" }}
-          alignItems={{ default: "alignItemsCenter" }}
-          flexWrap={{ default: "nowrap" }}
-          style={{ whiteSpace: "nowrap" }}
-        >
-          <FlexItem>
-            <InProgressIcon />
-          </FlexItem>
-          <FlexItem>{t("terms.inProgress")}</FlexItem>
-        </Flex>
-      );
+      status = <IconedStatus preset="InProgress" />;
     } else {
       status = (
-        <StatusIcon
-          status="Error"
+        <IconedStatus
+          preset="Error"
           label={
             <Popover
               position="right"
