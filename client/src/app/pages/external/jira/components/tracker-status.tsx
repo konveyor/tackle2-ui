@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StatusIcon } from "@app/shared/components";
+import { IconedStatus } from "@app/shared/components";
 
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
@@ -31,8 +31,8 @@ const TrackerStatus = ({ name, connected, message }: ITrackerStatusProps) => {
 
   return (
     <>
-      <StatusIcon
-        status={connected ? "Ok" : "Error"}
+      <IconedStatus
+        preset={connected ? "Ok" : "Error"}
         className={spacing.mlSm}
         label={
           connected ? (

@@ -13,5 +13,5 @@ export { ProposedActionLabel } from "./proposed-action-label";
 export { RiskLabel } from "./risk-label";
 export { SimpleEmptyState } from "./simple-empty-state";
 export * from "./simple-select";
-export * from "./status-icon";
+export * from "./iconed-status";
 export { ToolbarBulkSelector } from "./toolbar-bulk-selector";

@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next";
 
 import {
   EmptyTextMessage,
-  StatusIcon,
-  StatusIconType,
+  IconedStatus,
+  IconedStatusPreset,
 } from "@app/shared/components";
 import { Assessment } from "@app/api/models";
 import { Spinner } from "@patternfly/react-core";
@@ -16,7 +16,7 @@ export interface ApplicationAssessmentStatusProps {
   fetchError?: AxiosError;
 }
 
-const getStatusIconFrom = (assessment: Assessment): StatusIconType => {
+const getStatusIconFrom = (assessment: Assessment): IconedStatusPreset => {
   switch (assessment.status) {
     case "EMPTY":
       return "NotStarted";
@@ -42,8 +42,8 @@ export const ApplicationAssessmentStatus: React.FC<
   }
 
   return assessment ? (
-    <StatusIcon status={getStatusIconFrom(assessment)} />
+    <IconedStatus preset={getStatusIconFrom(assessment)} />
   ) : (
-    <StatusIcon status="NotStarted" />
+    <IconedStatus preset="NotStarted" />
   );
 };

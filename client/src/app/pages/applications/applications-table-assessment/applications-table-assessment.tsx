@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { AxiosError } from "axios";
 import { useTranslation, Trans } from "react-i18next";
-
+import { IconedStatus } from "@app/shared/components";
 import {
   Button,
   ButtonVariant,
@@ -32,7 +32,6 @@ import {
   AppTableWithControls,
   ConditionalRender,
   NoDataEmptyState,
-  StatusIcon,
   KebabDropdown,
   ToolbarBulkSelector,
   ConfirmDialog,
@@ -313,10 +312,8 @@ export const ApplicationsTable: React.FC = () => {
           ),
         },
         {
-          title: item.review ? (
-            <StatusIcon status="Completed" />
-          ) : (
-            <StatusIcon status="NotStarted" />
+          title: (
+            <IconedStatus preset={item.review ? "Completed" : "NotStarted"} />
           ),
         },
         {
