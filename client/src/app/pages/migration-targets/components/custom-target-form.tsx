@@ -18,7 +18,6 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import Resizer from "react-image-file-resizer";
 import { AxiosError, AxiosResponse } from "axios";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import defaultImage from "./default.png";
@@ -82,23 +81,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   const [filename, setFilename] = React.useState("default.png");
 
   const [isImageFileRejected, setIsImageFileRejected] = useState(false);
-
-  const resizeFile = (file: File) =>
-    new Promise<File>((resolve) => {
-      const extension = file?.name?.split(".")[1];
-      Resizer.imageFileResizer(
-        file,
-        80,
-        80,
-        extension,
-        100,
-        0,
-        (uri) => {
-          resolve(uri as File);
-        },
-        "file"
-      );
-    });
 
   const repositoryTypeOptions: OptionWithValue<string>[] = [
     {
@@ -397,8 +379,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   );
 
   const handleFileUpload = async (file: File) => {
-    // const image = await resizeFile(file);
-    // console.log("image after resize", image);
     setFilename(file.name);
     const formFile = new FormData();
     formFile.append("file", file);
@@ -552,7 +532,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                     file={file.fullFile}
                     key={file.fileName}
                     customFileHandler={(file) => {
-                      if (file.type === "place as Blobholder") {
+                      if (file.type === "placeholder") {
                         return null;
                       } else {
                         return handleFile(file);

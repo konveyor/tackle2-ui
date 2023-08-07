@@ -50,6 +50,7 @@ import {
   AnalysisAppReport,
   Rule,
   Target,
+  HubFile,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
@@ -480,7 +481,7 @@ export const createFile = ({
   file: IReadFile;
 }) =>
   axios
-    .post(`${FILES}/${file.fileName}`, formData, fileHeaders)
+    .post<HubFile>(`${FILES}/${file.fileName}`, formData, fileHeaders)
     .then((response) => {
       return response.data;
     });

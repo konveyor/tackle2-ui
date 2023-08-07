@@ -698,3 +698,9 @@ export type Fact = {
   //TODO: Address this when moving to structured facts api
   data: any;
 };
+
+export type HubFile = {
+  id: number;
+  name: string;
+  path: string;
+};
