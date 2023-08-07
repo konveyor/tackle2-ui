@@ -1,15 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { IReadFile, Metadata, Ruleset, Target } from "@app/api/models";
+import { IReadFile, Target } from "@app/api/models";
 import {
   createFile,
   createTarget,
   deleteTarget,
-  getRulesets,
   getTargets,
   updateTarget,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
-import { getLabels } from "@app/common/CustomRules/rules-utils";
 
 export const TargetsQueryKey = "targets";
 

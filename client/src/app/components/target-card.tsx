@@ -128,7 +128,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     >
       <CardHeader
         selectableActions={{
-          selectableActionId: "" + item.id,
+          selectableActionId: "" + target.id,
           isChecked: isCardSelected,
         }}
       />

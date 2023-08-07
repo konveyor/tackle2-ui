@@ -29,7 +29,6 @@ import {
   JobFunction,
   Proxy,
   Review,
-  Ruleset,
   Setting,
   SettingTypes,
   Stakeholder,
@@ -86,7 +85,6 @@ export const TRACKER_PROJECT_ISSUETYPES = "issuetypes";
 export const TICKETS = HUB + "/tickets";
 export const FACTS = HUB + "/facts";
 
-export const RULESETS = HUB + "/rulesets";
 export const TARGETS = HUB + "/targets";
 export const FILES = HUB + "/files";
 export const CACHE = HUB + "/cache/m2";
@@ -454,24 +452,6 @@ export const deleteTarget = (id: number): Promise<Target> =>
 
 export const getTargets = (): Promise<Target[]> =>
   axios.get(TARGETS).then((response) => response.data);
-
-export const updateRuleset = (obj: Ruleset): Promise<Ruleset> =>
-  axios.put(`${RULESETS}/${obj.id}`, obj);
-
-export const createRuleset = (obj: Ruleset): Promise<Ruleset> =>
-  axios.post(RULESETS, obj);
-
-export const deleteRuleset = (id: number): Promise<Ruleset> =>
-  axios.delete(`${RULESETS}/${id}`);
-
-export const getRulesetById = (id: number): Promise<Ruleset> =>
-  axios.get(RULESETS).then((response) => response.data);
-
-export const getRulesets = (): Promise<Ruleset[]> =>
-  axios.get(RULESETS).then((response) => response.data);
-
-export const getFileByID = (id: number): Promise<Ruleset[]> =>
-  axios.get(FILES).then((response) => response.data);
 
 export const createFile = ({
   formData,
