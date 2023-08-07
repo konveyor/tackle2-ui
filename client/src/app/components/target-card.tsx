@@ -12,6 +12,7 @@ import {
   Button,
   ButtonVariant,
   Label,
+  CardHeader,
 } from "@patternfly/react-core";
 import { DropdownItem } from "@patternfly/react-core/deprecated";
 import {
@@ -126,6 +127,12 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       isSelected={isCardSelected}
       className="pf-v5-l-stack pf-v5-l-stack__item pf-m-fill"
     >
+      <CardHeader
+        selectableActions={{
+          selectableActionId: "" + item.id,
+          isChecked: isCardSelected,
+        }}
+      />
       <CardBody>
         <Flex>
           <FlexItem>
