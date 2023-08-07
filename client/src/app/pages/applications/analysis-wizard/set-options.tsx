@@ -27,6 +27,7 @@ import {
 } from "@app/common/CustomRules/rules-utils";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchTargets } from "@app/queries/targets";
+import defaultSources from "./sources";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
@@ -34,14 +35,7 @@ export const SetOptions: React.FC = () => {
   const { watch, control, setValue, getValues } =
     useFormContext<AnalysisWizardFormValues>();
 
-  const {
-    formSources,
-    selectedFormSources,
-    formLabels,
-    diva,
-    excludedRulesTags,
-    autoTaggingEnabled,
-  } = watch();
+  const { formLabels, diva, excludedRulesTags, autoTaggingEnabled } = watch();
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
@@ -50,7 +44,9 @@ export const SetOptions: React.FC = () => {
   const allLabelsFromTargets = targets
     .map((target) => getAllLabelsFromTarget(target))
     .filter(Boolean)
-    .flat();
+    .flat()
+    // Remove duplicates from array of objects based on label value (label.label)
+    .filter((v, i, a) => a.findIndex((v2) => v2.label === v.label) === i);
 
   const allTargetLabelsFromTargets = allLabelsFromTargets.filter((label) => {
     const parsedLabel = getParsedLabel(label?.label);
@@ -59,10 +55,20 @@ export const SetOptions: React.FC = () => {
     }
   });
 
+  const allSourceLabelsFromTargets = allLabelsFromTargets.filter((label) => {
+    const parsedLabel = getParsedLabel(label?.label);
+    if (parsedLabel.labelType === "source") {
+      return parsedLabel.labelValue;
+    }
+  });
+
   const defaultTargetsAndTargetsLabels = [
     ...new Set(defaultTargets.concat(allTargetLabelsFromTargets)),
   ];
-  console.log("formLabels", formLabels);
+
+  const defaultSourcesAndSourcesLabels = [
+    ...new Set(defaultSources.concat(allSourceLabelsFromTargets)),
+  ];
 
   return (
     <Form
@@ -83,10 +89,10 @@ export const SetOptions: React.FC = () => {
         label={t("wizard.terms.targets")}
         fieldId="target-labels"
         renderInput={({
-          field: { onChange, onBlur, value: selectedFormTargets },
+          field: { onChange, onBlur },
           fieldState: { isDirty, error },
         }) => {
-          const selections = formLabels
+          const targetSelections = formLabels
             .map((formLabel) => {
               const parsedLabel = getParsedLabel(formLabel?.label);
               if (parsedLabel.labelType === "target") {
@@ -101,7 +107,7 @@ export const SetOptions: React.FC = () => {
               variant={SelectVariant.typeaheadMulti}
               maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
               aria-label="Select targets"
-              selections={selections}
+              selections={targetSelections}
               isOpen={isSelectTargetsOpen}
               onSelect={(_, selection) => {
                 const selectionWithLabelSelector = `konveyor.io/target=${selection}`;
@@ -110,7 +116,6 @@ export const SetOptions: React.FC = () => {
                     (label) => label.label === selectionWithLabelSelector
                   ) || "";
 
-                console.log("matching label select", matchingLabel);
                 const formLabelLabels = formLabels.map(
                   (formLabel) => formLabel.label
                 );
@@ -118,10 +123,8 @@ export const SetOptions: React.FC = () => {
                   matchingLabel &&
                   !formLabelLabels.includes(matchingLabel.label)
                 ) {
-                  console.log("matching label select", matchingLabel);
                   onChange([...formLabels, matchingLabel]);
                 } else {
-                  console.log("matching label deselect", matchingLabel);
                   onChange(
                     formLabels.filter(
                       (formLabel) =>
@@ -153,52 +156,75 @@ export const SetOptions: React.FC = () => {
       />
       <HookFormPFGroupController
         control={control}
-        name="selectedFormSources"
+        name="formLabels"
         label={t("wizard.terms.sources")}
         fieldId="sources"
         renderInput={({
           field: { onChange, onBlur, value },
           fieldState: { isDirty, error },
-        }) => (
-          <Select
-            id="formSources-id"
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-            toggleId="sources-toggle"
-            variant={SelectVariant.typeaheadMulti}
-            aria-label="Select sources"
-            selections={value.map((val) => getParsedLabel(val).labelValue)}
-            isOpen={isSelectSourcesOpen}
-            onSelect={(_, selection) => {
-              const selectionWithLabelSelector = `konveyor.io/source=${selection}`;
-              if (!value.includes(selectionWithLabelSelector)) {
-                onChange([...selectedFormSources, selectionWithLabelSelector]);
-              } else {
-                onChange(
-                  selectedFormSources.filter(
-                    (source: string) => source !== selectionWithLabelSelector
-                  )
-                );
+        }) => {
+          const sourceSelections = formLabels
+            .map((formLabel) => {
+              const parsedLabel = getParsedLabel(formLabel?.label);
+              if (parsedLabel.labelType === "source") {
+                return parsedLabel.labelValue;
               }
-              onBlur();
-              setSelectSourcesOpen(!isSelectSourcesOpen);
-            }}
-            onToggle={() => {
-              setSelectSourcesOpen(!isSelectSourcesOpen);
-            }}
-            onClear={() => {
-              onChange([]);
-            }}
-            validated={getValidatedFromErrors(error, isDirty)}
-          >
-            {formSources.map((source, index) => (
-              <SelectOption
-                key={index}
-                component="button"
-                value={getParsedLabel(source).labelValue}
-              />
-            ))}
-          </Select>
-        )}
+            })
+            .filter(Boolean);
+
+          return (
+            <Select
+              id="formSources-id"
+              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+              toggleId="sources-toggle"
+              variant={SelectVariant.typeaheadMulti}
+              aria-label="Select sources"
+              selections={sourceSelections}
+              isOpen={isSelectSourcesOpen}
+              onSelect={(_, selection) => {
+                const selectionWithLabelSelector = `konveyor.io/source=${selection}`;
+                const matchingLabel =
+                  defaultSourcesAndSourcesLabels?.find(
+                    (label) => label.label === selectionWithLabelSelector
+                  ) || "";
+
+                const formLabelLabels = formLabels.map(
+                  (formLabel) => formLabel.label
+                );
+                if (
+                  matchingLabel &&
+                  !formLabelLabels.includes(matchingLabel.label)
+                ) {
+                  onChange([...formLabels, matchingLabel]);
+                } else {
+                  onChange(
+                    formLabels.filter(
+                      (formLabel) =>
+                        formLabel.label !== selectionWithLabelSelector
+                    )
+                  );
+                }
+                onBlur();
+                setSelectSourcesOpen(!isSelectSourcesOpen);
+              }}
+              onToggle={() => {
+                setSelectSourcesOpen(!isSelectSourcesOpen);
+              }}
+              onClear={() => {
+                onChange([]);
+              }}
+              validated={getValidatedFromErrors(error, isDirty)}
+            >
+              {defaultSourcesAndSourcesLabels.map((targetLabel, index) => (
+                <SelectOption
+                  key={index}
+                  component="button"
+                  value={getParsedLabel(targetLabel.label).labelValue}
+                />
+              ))}
+            </Select>
+          );
+        }}
       />
       <StringListField
         listItems={excludedRulesTags}

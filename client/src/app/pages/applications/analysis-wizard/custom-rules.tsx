@@ -67,12 +67,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
     useFormContext<AnalysisWizardFormValues>();
   const values = getValues();
 
-  const {
-    formLabels,
-    // formOtherLabels,
-    customRulesFiles,
-    rulesKind,
-  } = watch();
+  const { formLabels, customRulesFiles, rulesKind } = watch();
   const initialActiveTabKeyValue = (value: string): number =>
     value === "manual" ? 0 : value === "repository" ? 1 : 0;
 
@@ -199,10 +194,6 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                     const { allLabels } = parseRules(file);
                     const updatedFormLabels = formLabels.filter(
                       (label) => !allLabels?.includes(label.label)
-                    );
-                    console.log(
-                      "remove rule: what is labels",
-                      updatedFormLabels
                     );
                     setValue("formLabels", [...updatedFormLabels]);
                   });
@@ -451,18 +442,12 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
                           label: label,
                         };
                       }) || [];
-
-                    console.log(
-                      "add rule: what isformatted all labels",
-                      formattedAllLabels
-                    );
                     const newLabels = formLabels.filter((label) => {
                       const newLabelNames = formattedAllLabels.map(
                         (label) => label.name
                       );
                       return !newLabelNames.includes(label.name);
                     });
-                    console.log("add rule: what is labels", newLabels);
                     setValue("formLabels", [
                       ...newLabels,
                       ...formattedAllLabels,

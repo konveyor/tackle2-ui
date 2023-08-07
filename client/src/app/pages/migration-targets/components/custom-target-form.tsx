@@ -32,7 +32,7 @@ import {
   getParsedLabel,
   parseRules,
 } from "@app/common/CustomRules/rules-utils";
-import { useCreateFileMutation } from "@app/queries/rulesets";
+import { useCreateFileMutation } from "@app/queries/targets";
 import { OptionWithValue, SimpleSelect } from "@app/shared/components";
 import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";

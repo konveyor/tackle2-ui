@@ -461,19 +461,6 @@ export enum RulesetKind {
   CATEGORY = "category",
 }
 
-// export interface Ruleset {
-//   createTime?: string;
-//   createUser?: string;
-//   description?: string;
-//   id?: number;
-//   image?: RulesetImage;
-//   kind?: RulesetKind;
-//   name: string;
-//   rules: Rule[];
-//   custom?: boolean;
-//   repository?: Repository;
-//   identity?: Ref;
-// }
 export interface Ruleset {
   id?: number;
   kind?: RulesetKind;

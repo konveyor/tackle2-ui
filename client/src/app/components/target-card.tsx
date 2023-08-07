@@ -77,11 +77,6 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       target?.labels?.[0]?.name ||
       `${target?.name || "target"}-Empty`
   );
-  console.log("selectedLabelName", {
-    selectedLabelName,
-    prevSelectedLabel,
-    formLabels,
-  });
 
   const handleCardClick = (event: React.MouseEvent) => {
     // Stop 'select' event propagation
@@ -101,8 +96,6 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     event.stopPropagation();
     setLabelSelectOpen(false);
     setSelectedLabelName(selection as string);
-
-    //update the formTargets if this card is selected
     if (isCardSelected && onSelectedCardTargetChange) {
       onSelectedCardTargetChange(selection as string);
     }

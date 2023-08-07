@@ -14,8 +14,6 @@ import { TargetCard } from "@app/components/target-card";
 import { AnalysisWizardFormValues } from "./schema";
 import { useSetting } from "@app/queries/settings";
 import { useFetchTargets } from "@app/queries/targets";
-import { Target, TargetLabel } from "@app/api/models";
-import { c_options_menu__toggle_BackgroundColor } from "@patternfly/react-tokens";
 
 export const SetTargets: React.FC = () => {
   const { t } = useTranslation();
@@ -28,8 +26,6 @@ export const SetTargets: React.FC = () => {
     useFormContext<AnalysisWizardFormValues>();
   const values = getValues();
   const formLabels = watch("formLabels");
-  const formSources = watch("formSources");
-  const formOtherLabels = watch("formOtherLabels");
 
   const handleOnSelectedCardTargetChange = (selectedLabelName: string) => {
     const otherSelectedLabels = formLabels?.filter((formLabel) => {
@@ -86,7 +82,6 @@ export const SetTargets: React.FC = () => {
       matchingLabel &&
         setValue("formLabels", [...otherSelectedLabels, matchingLabel]);
     } else {
-      // console.log("otherSelected", { otherSelectedLabels });
       setValue("formLabels", otherSelectedLabels);
     }
   };
@@ -103,15 +98,6 @@ export const SetTargets: React.FC = () => {
         </Title>
         <Text>{t("wizard.label.setTargets")}</Text>
       </TextContent>
-      {/* {values.formRulesets.length === 0 &&
-        values.customRulesFiles.length === 0 &&
-        !values.sourceRepository && (
-          <Alert
-            variant="warning"
-            isInline
-            title={t("wizard.label.skipTargets")}
-          />
-        )} */}
       <Gallery hasGutter>
         {targetOrderSetting.isSuccess
           ? targetOrderSetting.data.map((id, index) => {

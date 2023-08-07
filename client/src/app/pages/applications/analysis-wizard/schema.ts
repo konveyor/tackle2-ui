@@ -56,15 +56,11 @@ const useModeStepSchema = ({
 
 export interface TargetsStepValues {
   formLabels: TargetLabel[];
-  formOtherLabels: string[];
-  formTargets: Target[];
 }
 
 const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
   return yup.object({
     formLabels: yup.array(),
-    formOtherLabels: yup.array(),
-    formTargets: yup.array(),
   });
 };
 
@@ -96,8 +92,6 @@ const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
 };
 
 export interface CustomRulesStepValues {
-  formSources: string[];
-  selectedFormSources: string[];
   customRulesFiles: IReadFile[];
   rulesKind: string;
   repositoryType?: string;
@@ -119,8 +113,6 @@ export const customRulesFilesSchema: yup.SchemaOf<IReadFile> = yup.object({
 const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
   const { t } = useTranslation();
   return yup.object({
-    selectedFormSources: yup.array().of(yup.string().defined()),
-    formSources: yup.array().of(yup.string().defined()),
     rulesKind: yup.string().defined(),
     customRulesFiles: yup
       .array()

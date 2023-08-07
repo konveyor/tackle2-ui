@@ -100,19 +100,22 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          {/* <DescriptionListTerm>
-            {formTargets.length > 1
+          <DescriptionListTerm>
+            {formLabels.length > 1
               ? t("wizard.terms.sources")
               : t("wizard.terms.source")}
-          </DescriptionListTerm> */}
+          </DescriptionListTerm>
           <DescriptionListDescription id="sources">
-            {/* <List isPlain>
-              {selectedFormSources.map((source, index) => (
-                <ListItem key={index}>
-                  {getParsedLabel(source).labelValue}
-                </ListItem>
-              ))}
-            </List> */}
+            <List isPlain>
+              {formLabels.map((label, index) => {
+                const parsedLabel = getParsedLabel(label?.label);
+                if (parsedLabel.labelType === "source") {
+                  return (
+                    <ListItem key={index}>{parsedLabel.labelValue}</ListItem>
+                  );
+                }
+              })}
+            </List>
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
@@ -127,12 +130,9 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {
-              // t("wizard.terms.packages")
-              t("wizard.composed.included", {
-                what: t("wizard.terms.packages").toLowerCase(),
-              })
-            }
+            {t("wizard.composed.included", {
+              what: t("wizard.terms.packages").toLowerCase(),
+            })}
           </DescriptionListTerm>
           <DescriptionListDescription id="included-packages">
             <List isPlain>

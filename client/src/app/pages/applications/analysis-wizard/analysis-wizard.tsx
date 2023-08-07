@@ -170,10 +170,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       artifact: null,
       mode: "binary",
       formLabels: [],
-      formTargets: [],
-      formOtherLabels: [],
-      selectedFormSources: [],
-      formSources: defaultSources,
       withKnown: "app",
       includedPackages: [],
       excludedPackages: [],
@@ -260,8 +256,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             included: Array.from(
               new Set<string>([
                 ...fieldValues.formLabels.map((label) => label.label),
-                ...fieldValues.selectedFormSources,
-                ...fieldValues.formOtherLabels,
               ])
             ),
             excluded: [],

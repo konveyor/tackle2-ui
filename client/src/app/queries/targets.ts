@@ -94,3 +94,25 @@ export const useCreateTargetMutation = (
     error,
   };
 };
+
+export const useCreateFileMutation = (
+  onSuccess?: (res: any, formData: FormData, file: IReadFile) => void,
+  onError?: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+  const { isLoading, mutate, mutateAsync, error } = useMutation(createFile, {
+    onSuccess: (res, { formData, file }) => {
+      onSuccess && onSuccess(res, formData, file);
+      queryClient.invalidateQueries([]);
+    },
+    onError: (err: AxiosError) => {
+      onError && onError(err);
+    },
+  });
+  return {
+    mutate,
+    mutateAsync,
+    isLoading,
+    error,
+  };
+};
