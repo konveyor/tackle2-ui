@@ -39,11 +39,8 @@ export const SetOptions: React.FC = () => {
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
   const { targets } = useFetchTargets();
 
-  const getAllLabelsFromTarget = (target: Target) =>
-    target?.labels?.map((label) => label) ?? [];
-
   const allLabelsFromTargets = targets
-    .map((target) => getAllLabelsFromTarget(target))
+    .map((target) => target?.labels ?? [])
     .filter(Boolean)
     .flat()
     // Remove duplicates from array of objects based on label value (label.label)
