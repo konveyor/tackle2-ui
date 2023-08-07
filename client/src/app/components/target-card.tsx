@@ -37,7 +37,11 @@ export interface TargetCardProps {
   item: Target;
   cardSelected?: boolean;
   isEditable?: boolean;
-  onCardClick?: (isSelecting: boolean, targetLabelName: string) => void;
+  onCardClick?: (
+    isSelecting: boolean,
+    targetLabelName: string,
+    target: Target
+  ) => void;
   onSelectedCardTargetChange?: (value: string) => void;
   formLabels?: TargetLabel[];
   handleProps?: any;
@@ -86,7 +90,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     setCardSelected(!isCardSelected);
     onCardClick &&
       selectedLabelName &&
-      onCardClick(!isCardSelected, selectedLabelName);
+      onCardClick(!isCardSelected, selectedLabelName, target);
   };
 
   const handleLabelSelection = (
