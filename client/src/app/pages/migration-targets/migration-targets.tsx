@@ -29,32 +29,29 @@ import { useTranslation } from "react-i18next";
 
 import { Item } from "./components/dnd/item";
 import { DndGrid } from "./components/dnd/grid";
-import { Ruleset } from "@app/api/models";
 import { AxiosError, AxiosResponse } from "axios";
-import {
-  useDeleteRulesetMutation,
-  useFetchRulesets,
-} from "@app/queries/rulesets";
 import { NotificationsContext } from "@app/shared/notifications-context";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { CustomTargetForm } from "./components/custom-target-form";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
+import { useDeleteTargetMutation, useFetchTargets } from "@app/queries/targets";
+import { Target } from "@app/api/models";
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const { rulesets, refetch: refetchrulesets } = useFetchRulesets();
+  const { targets, refetch: refetchTargets } = useFetchTargets();
 
-  const rulesetOrderSetting = useSetting("ui.ruleset.order");
-  const rulesetOrderSettingMutation = useSettingMutation("ui.ruleset.order");
+  const targetOrderSetting = useSetting("ui.target.order");
+  const targetOrderSettingMutation = useSettingMutation("ui.target.order");
 
   // Create and update modal
   const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
-    "create" | Ruleset | null
+    "create" | Target | null
   >(null);
   const isCreateUpdateModalOpen = createUpdateModalState !== null;
-  const rulesetToUpdate =
+  const targetToUpdate =
     createUpdateModalState !== "create" ? createUpdateModalState : null;
 
   const targetsEndRef = useRef<null | HTMLDivElement>(null);
@@ -65,34 +62,31 @@ export const MigrationTargets: React.FC = () => {
 
   const [activeId, setActiveId] = useState(null);
 
-  const onDeleterulesetsuccess = (response: any, RulesetID: number) => {
+  const onDeleteTargetSuccess = (target: Target, id: number) => {
     pushNotification({
       title: "Custom target deleted",
       variant: "success",
     });
-
-    if (rulesetOrderSetting.isSuccess)
-      rulesetOrderSettingMutation.mutate(
-        rulesetOrderSetting.data.filter(
-          (rulesetID: number) => rulesetID !== RulesetID
-        )
+    if (targetOrderSetting.isSuccess)
+      targetOrderSettingMutation.mutate(
+        targetOrderSetting.data.filter((targetID: number) => targetID !== id)
       );
   };
 
-  const onDeleteRulesetError = (error: AxiosError) => {
+  const onDeleteTargetError = (error: AxiosError) => {
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
     });
   };
 
-  const { mutate: deleteRuleset } = useDeleteRulesetMutation(
-    onDeleterulesetsuccess,
-    onDeleteRulesetError
+  const { mutate: deleteTarget } = useDeleteTargetMutation(
+    onDeleteTargetSuccess,
+    onDeleteTargetError
   );
 
-  const onCustomTargetModalSaved = (response: AxiosResponse<Ruleset>) => {
-    if (rulesetToUpdate) {
+  const onCustomTargetModalSaved = (response: AxiosResponse<Target>) => {
+    if (targetToUpdate) {
       pushNotification({
         title: t("toastr.success.saveWhat", {
           what: response.data.name,
@@ -117,39 +111,39 @@ export const MigrationTargets: React.FC = () => {
           </Button>
         ),
       });
-      // update ruleset order
+      // update target order
       if (
-        rulesetOrderSetting.isSuccess &&
+        targetOrderSetting.isSuccess &&
         response.data.id &&
-        rulesetOrderSetting.data
+        targetOrderSetting.data
       ) {
-        rulesetOrderSettingMutation.mutate([
-          ...rulesetOrderSetting.data,
+        targetOrderSettingMutation.mutate([
+          ...targetOrderSetting.data,
           response.data.id,
         ]);
       }
     }
 
     setCreateUpdateModalState(null);
-    refetchrulesets();
+    refetchTargets();
   };
 
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
   function handleDragOver(event: any) {
-    if (rulesetOrderSetting.isSuccess) {
+    if (targetOrderSetting.isSuccess) {
       const { active, over } = event;
 
       if (active.id !== over.id) {
-        const reorderRuleset = (items: number[]) => {
+        const reorderTarget = (items: number[]) => {
           const oldIndex = items.indexOf(active.id);
           const newIndex = items.indexOf(over.id);
 
           return arrayMove(items, oldIndex, newIndex);
         };
 
-        rulesetOrderSettingMutation.mutate(
-          reorderRuleset(rulesetOrderSetting.data)
+        targetOrderSettingMutation.mutate(
+          reorderTarget(targetOrderSetting.data)
         );
       }
     }
@@ -189,7 +183,7 @@ export const MigrationTargets: React.FC = () => {
         <Modal
           id="create-edit-custom-tarrget-modal"
           title={t(
-            rulesetToUpdate ? "dialog.title.update" : "dialog.title.new",
+            targetToUpdate ? "dialog.title.update" : "dialog.title.new",
             {
               what: t("terms.customTarget").toLowerCase(),
             }
@@ -199,7 +193,7 @@ export const MigrationTargets: React.FC = () => {
           onClose={() => setCreateUpdateModalState(null)}
         >
           <CustomTargetForm
-            ruleset={rulesetToUpdate}
+            target={targetToUpdate}
             onSaved={onCustomTargetModalSaved}
             onCancel={() => setCreateUpdateModalState(null)}
           />
@@ -212,31 +206,31 @@ export const MigrationTargets: React.FC = () => {
         onDragOver={handleDragOver}
       >
         <SortableContext
-          items={rulesetOrderSetting.isSuccess ? rulesetOrderSetting.data : []}
+          items={targetOrderSetting.isSuccess ? targetOrderSetting.data : []}
           strategy={rectSortingStrategy}
         >
           <DndGrid>
-            {rulesetOrderSetting.isSuccess &&
-              rulesetOrderSetting.data.map((id) => {
-                const matchingRuleset = rulesets.find(
-                  (Ruleset) => Ruleset.id === id
+            {targetOrderSetting.isSuccess &&
+              targetOrderSetting.data.map((id) => {
+                const matchingTarget = targets.find(
+                  (target) => target.id === id
                 );
-                if (matchingRuleset) {
+                if (matchingTarget) {
                   return (
                     <SortableItem
                       key={id}
                       id={id}
                       onEdit={() => {
-                        if (matchingRuleset) {
-                          setCreateUpdateModalState(matchingRuleset);
+                        if (matchingTarget) {
+                          setCreateUpdateModalState(matchingTarget);
                         }
                       }}
                       onDelete={() => {
-                        const matchingRuleset = rulesets.find(
-                          (Ruleset) => Ruleset.id === id
+                        const matchingTarget = targets.find(
+                          (target) => target.id === id
                         );
-                        if (matchingRuleset?.id) {
-                          deleteRuleset(matchingRuleset.id);
+                        if (matchingTarget?.id) {
+                          deleteTarget(matchingTarget.id);
                         }
                       }}
                     />

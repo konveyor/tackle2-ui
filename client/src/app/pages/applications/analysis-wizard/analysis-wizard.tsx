@@ -169,11 +169,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     defaultValues: {
       artifact: null,
       mode: "binary",
-      formTargets: [],
-      formOtherLabels: [],
-      selectedFormSources: [],
-      formSources: defaultSources,
-      formRulesets: [],
+      formLabels: [],
       withKnown: "app",
       includedPackages: [],
       excludedPackages: [],
@@ -259,9 +255,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           labels: {
             included: Array.from(
               new Set<string>([
-                ...fieldValues.formTargets,
-                ...fieldValues.selectedFormSources,
-                ...fieldValues.formOtherLabels,
+                ...fieldValues.formLabels.map((label) => label.label),
               ])
             ),
             excluded: [],
@@ -270,9 +264,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           tags: {
             excluded: fieldValues.excludedRulesTags,
           },
-          rulesets: fieldValues.formRulesets.map((ruleset) => {
-            return { name: ruleset.name, id: ruleset.id || 0 };
-          }),
           ...(fieldValues.rulesKind === "repository" && {
             repository: {
               kind: fieldValues?.repositoryType,

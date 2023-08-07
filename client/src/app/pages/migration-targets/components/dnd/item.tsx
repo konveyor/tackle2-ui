@@ -1,6 +1,6 @@
 import React, { forwardRef } from "react";
 import { TargetCard } from "@app/components/target-card";
-import { useFetchRulesets } from "@app/queries/rulesets";
+import { useFetchTargets } from "@app/queries/targets";
 
 interface ItemProps {
   id: number;
@@ -13,8 +13,8 @@ interface ItemProps {
 
 export const Item: React.FC<ItemProps> = forwardRef(
   ({ id, style, ...props }, ref) => {
-    const { rulesets } = useFetchRulesets();
-    const matchingRuleset = rulesets.find((Ruleset) => Ruleset.id === id);
+    const { targets } = useFetchTargets();
+    const matchingTarget = targets.find((target) => target.id === id);
     const inlineStyles = {
       height: 400,
       width: "20em",
@@ -22,9 +22,9 @@ export const Item: React.FC<ItemProps> = forwardRef(
     } as React.CSSProperties;
     return (
       <div ref={ref} style={inlineStyles}>
-        {matchingRuleset && (
+        {matchingTarget && (
           <TargetCard
-            item={matchingRuleset}
+            item={matchingTarget}
             handleProps={props.handleProps}
             onEdit={props.onEdit}
             onDelete={props.onDelete}

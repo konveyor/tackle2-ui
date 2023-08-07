@@ -1,3 +1,7 @@
+.panel-style {
+  background: none;
+}
+
 .select-card__component__empty-state {
   padding: 0 !important;
 }
