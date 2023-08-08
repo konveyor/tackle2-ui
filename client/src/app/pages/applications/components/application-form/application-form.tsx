@@ -356,13 +356,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         formValues.version,
         formValues.packaging
       ),
-      review: undefined, // The review should not updated through this form
       id: formValues.id,
       migrationWave: application ? application.migrationWave : null,
+      identities: application?.identities ? application.identities : undefined,
     };
 
     if (application) {
-      updateApplication(payload);
+      updateApplication({ ...payload });
     } else {
       createApplication(payload);
     }
