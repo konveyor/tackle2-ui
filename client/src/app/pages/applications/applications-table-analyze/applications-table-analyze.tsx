@@ -26,7 +26,6 @@ import {
 } from "@patternfly/react-table";
 import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
-
 import keycloak from "@app/keycloak";
 import {
   AppPlaceholder,
