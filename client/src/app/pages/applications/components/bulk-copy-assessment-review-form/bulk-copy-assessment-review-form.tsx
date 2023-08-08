@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -21,16 +21,7 @@ import {
 } from "@patternfly/react-core";
 import ExclamationTriangleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon";
 import { global_palette_gold_400 as gold } from "@patternfly/react-tokens";
-<<<<<<< HEAD
-
-import {
-  AppTableWithControls,
-  IconedStatus,
-  ToolbarBulkSelector,
-} from "@app/shared/components";
-=======
 import { useSelectionState } from "@migtools/lib-ui";
->>>>>>> 9f86cb51 (shared/components files: Remove index and CamelCase rename)
 
 import { Application, Assessment, Review } from "@app/api/models";
 import { dedupeFunction } from "@app/utils/utils";
@@ -47,7 +38,7 @@ import { useLegacySortState } from "@app/hooks/useLegacySortState";
 import { useFetchApplicationAssessments } from "@app/queries/assessments";
 import { useFetchApplications } from "@app/queries/applications";
 import { useFetchTagCategories } from "@app/queries/tags";
-import { StatusIcon } from "@app/components/StatusIcon";
+import { IconedStatus } from "@app/components/IconedStatus";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 
