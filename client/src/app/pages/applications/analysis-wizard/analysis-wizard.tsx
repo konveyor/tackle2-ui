@@ -102,12 +102,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const [stepIdReached, setStepIdReached] = React.useState(1);
   const isMutating = useIsMutating();
 
-  React.useEffect(() => {
-    if (!currentTaskgroup) {
-      createTaskgroup(defaultTaskgroup);
-    }
-  }, []);
-
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
     setCurrentTaskgroup(data);
   };
@@ -287,12 +281,22 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const isModeValid = applications.every((app) => isModeSupported(app, mode));
 
+  const handleCancel = () => {
+    if (currentTaskgroup && currentTaskgroup.id) {
+      deleteTaskgroup(currentTaskgroup.id);
+    }
+    setCurrentTaskgroup(null);
+    reset();
+    onClose();
+  };
+
   const onSubmit = (fieldValues: AnalysisWizardFormValues) => {
     if (currentTaskgroup) {
       const taskgroup = setupTaskgroup(currentTaskgroup, fieldValues);
-
       submitTaskgroup(taskgroup);
     }
+    setCurrentTaskgroup(null);
+    reset();
     onClose();
   };
 
@@ -301,13 +305,11 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     { prevId, prevName }
   ) => {
     if (id && stepIdReached < (id as number)) setStepIdReached(id as number);
-  };
-
-  const handleClose = () => {
-    reset();
-    if (currentTaskgroup && currentTaskgroup.id)
-      deleteTaskgroup(currentTaskgroup.id);
-    onClose();
+    if (id === StepId.SetTargets) {
+      if (!currentTaskgroup) {
+        createTaskgroup(defaultTaskgroup);
+      }
+    }
   };
 
   const analyzableApplications = useAnalyzableApplications(applications, mode);
@@ -410,7 +412,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             onBack={onMove}
             onSave={handleSubmit(onSubmit)}
             onClose={() => {
-              handleClose();
+              handleCancel();
             }}
           />
         </FormProvider>
