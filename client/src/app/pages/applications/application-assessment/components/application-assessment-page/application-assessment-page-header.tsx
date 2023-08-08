@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { Button, ButtonVariant, Modal, Text } from "@patternfly/react-core";
 
 import { ConfirmDialog, PageHeader } from "@app/shared/components";
-import { useEntityModal } from "@app/shared/hooks";
 import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
 import { Paths } from "@app/Paths";
 import { Application, Assessment } from "@app/api/models";
@@ -33,13 +32,8 @@ export const ApplicationAssessmentPageHeader: React.FC<
     }
   }, [assessment]);
 
-  // Dependencies modal
-  const {
-    isOpen: isDependenciesModalOpen,
-    data: applicationToManageDependencies,
-    update: openDependenciesModal,
-    close: closeDependenciesModal,
-  } = useEntityModal<Application>();
+  const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
+    React.useState<Application | null>(null);
 
   return (
     <>
@@ -61,7 +55,9 @@ export const ApplicationAssessmentPageHeader: React.FC<
         btnActions={
           <>
             {application && (
-              <Button onClick={() => openDependenciesModal(application)}>
+              <Button
+                onClick={() => setApplicationDependenciesToManage(application)}
+              >
                 {t("actions.manageDependencies")}
               </Button>
             )}
@@ -71,17 +67,17 @@ export const ApplicationAssessmentPageHeader: React.FC<
       />
 
       <Modal
-        isOpen={isDependenciesModalOpen}
+        isOpen={applicationDependenciesToManage !== null}
         variant="medium"
         title={t("composed.manageDependenciesFor", {
-          what: applicationToManageDependencies?.name,
+          what: applicationDependenciesToManage?.name,
         })}
-        onClose={closeDependenciesModal}
+        onClose={() => setApplicationDependenciesToManage(null)}
       >
-        {applicationToManageDependencies && (
+        {applicationDependenciesToManage && (
           <ApplicationDependenciesFormContainer
-            application={applicationToManageDependencies}
-            onCancel={closeDependenciesModal}
+            application={applicationDependenciesToManage}
+            onCancel={() => setApplicationDependenciesToManage(null)}
           />
         )}
       </Modal>
