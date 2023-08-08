@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 
 import { Skeleton, Split, SplitItem } from "@patternfly/react-core";
 
-import { ConditionalRender, StateError } from "@app/shared/components";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { StateError } from "@app/components/StateError";
 
 import { RISK_LIST } from "@app/Constants";
 import { AssessmentRisk } from "@app/api/models";

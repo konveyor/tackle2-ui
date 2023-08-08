@@ -2,7 +2,7 @@ import * as React from "react";
 import {
   IPageDrawerContentProps,
   PageDrawerContent,
-} from "@app/shared/page-drawer-context";
+} from "@app/components/PageDrawerContext";
 import {
   TextContent,
   Text,
@@ -15,8 +15,8 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IssueAffectedFilesTable } from "./issue-affected-files-table";
 import { useFetchIssue } from "@app/queries/issues";
-import { AppPlaceholder } from "@app/shared/components";
-import { StateNoData } from "@app/shared/components/app-table/state-no-data";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { StateNoData } from "@app/components/StateNoData";
 
 export interface IIssueDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {

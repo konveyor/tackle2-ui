@@ -18,20 +18,17 @@ import {
   getHubRequestParams,
   useTableControlProps,
   useTableControlUrlParams,
-} from "@app/shared/hooks/table-controls";
+} from "@app/hooks/table-controls";
 import { useFetchFileReports } from "@app/queries/issues";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
-} from "@app/shared/components/table-controls";
-import { SimplePagination } from "@app/shared/components/simple-pagination";
+} from "@app/components/TableControls";
+import { SimplePagination } from "@app/components/SimplePagination";
 import { FileIncidentsDetailModal } from "./file-incidents-detail-modal";
-import {
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 
 export interface IIssueAffectedFilesTableProps {
   issue: AnalysisIssue;

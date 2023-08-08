@@ -30,29 +30,27 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 import { useSelectionState } from "@migtools/lib-ui";
-import {
-  AppPlaceholder,
-  OptionWithValue,
-  SimpleSelect,
-} from "@app/shared/components";
+
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import { useFetchIssueReports, useFetchRuleReports } from "@app/queries/issues";
 import {
   FilterType,
   FilterToolbar,
-} from "@app/shared/components/FilterToolbar";
-import { SingleLabelWithOverflow } from "@app/shared/components/SingleLabelWithOverflow";
-import { SimplePagination } from "@app/shared/components/simple-pagination";
+} from "@app/components/FilterToolbar/FilterToolbar";
+import { SingleLabelWithOverflow } from "@app/components/SingleLabelWithOverflow";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   TableHeaderContentWithControls,
   ConditionalTableBody,
   TableRowContentWithControls,
-} from "@app/shared/components/table-controls";
+} from "@app/components/TableControls";
 import {
   useTableControlUrlParams,
   getHubRequestParams,
   useTableControlProps,
-} from "@app/shared/hooks/table-controls";
+} from "@app/hooks/table-controls";
 
 import {
   parseReportLabels,
@@ -68,7 +66,7 @@ import {
 import { useFetchApplications } from "@app/queries/applications";
 import { Paths } from "@app/Paths";
 import { AffectedAppsLink } from "./affected-apps-link";
-import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
+import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { IssueDetailDrawer } from "./issue-detail-drawer";
 import { IssueDescriptionAndLinks } from "./components/issue-description-and-links";
 

@@ -26,11 +26,11 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
+import { AxiosError, AxiosResponse } from "axios";
 
 import { Item } from "./components/dnd/item";
 import { DndGrid } from "./components/dnd/grid";
-import { AxiosError, AxiosResponse } from "axios";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { CustomTargetForm } from "./components/custom-target-form";
 import { useSetting, useSettingMutation } from "@app/queries/settings";

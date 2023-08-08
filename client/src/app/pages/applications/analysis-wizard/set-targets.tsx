@@ -10,7 +10,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
 
-import { TargetCard } from "@app/components/target-card";
+import { TargetCard } from "@app/components/TargetCard";
 import { AnalysisWizardFormValues } from "./schema";
 import { useSetting } from "@app/queries/settings";
 import { useFetchTargets } from "@app/queries/targets";

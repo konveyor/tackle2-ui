@@ -9,26 +9,27 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
-  Truncate,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { AppPlaceholder, ConditionalRender } from "@app/shared/components";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import { useSelectionState } from "@migtools/lib-ui";
+
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import {
   useTableControlUrlParams,
   getHubRequestParams,
   useTableControlProps,
-} from "@app/shared/hooks/table-controls";
-import { SimplePagination } from "@app/shared/components/simple-pagination";
+} from "@app/hooks/table-controls";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
-} from "@app/shared/components/table-controls";
+} from "@app/components/TableControls";
 import { useFetchAppReports } from "@app/queries/issues";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { FilterToolbar } from "@app/shared/components/FilterToolbar";
-import { useSelectionState } from "@migtools/lib-ui";
+import { FilterToolbar } from "@app/components/FilterToolbar";
 import {
   getBackToAllIssuesUrl,
   useSharedAffectedApplicationFilterCategories,

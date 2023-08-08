@@ -20,34 +20,28 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError, AxiosResponse } from "axios";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import defaultImage from "./default.png";
 
+import defaultImage from "./default.png";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
-} from "@app/shared/components/hook-form-pf-fields";
-import { IReadFile, Rule, Target, TargetLabel } from "@app/api/models";
-import {
-  getParsedLabel,
-  parseRules,
-} from "@app/common/CustomRules/rules-utils";
+} from "@app/components/HookFormPFFields";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useCreateFileMutation } from "@app/queries/targets";
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { IReadFile, Rule, Target, TargetLabel } from "@app/api/models";
+import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
-import useRuleFiles from "@app/common/CustomRules/useRuleFiles";
-import {
-  customURLValidation,
-  duplicateNameCheck,
-  getAxiosErrorMessage,
-} from "@app/utils/utils";
+import useRuleFiles from "@app/hooks/useRuleFiles";
+import { customURLValidation, duplicateNameCheck } from "@app/utils/utils";
 import { customRulesFilesSchema } from "../../applications/analysis-wizard/schema";
 import {
   useCreateTargetMutation,
   useFetchTargets,
   useUpdateTargetMutation,
 } from "@app/queries/targets";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 
 export interface CustomTargetFormProps {
   target?: Target | null;

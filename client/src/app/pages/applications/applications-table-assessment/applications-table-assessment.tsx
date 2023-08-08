@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { AxiosError } from "axios";
 import { useTranslation, Trans } from "react-i18next";
-import { IconedStatus } from "@app/shared/components";
+import { IconedStatus } from "@app/components/IconedStatus";
 import {
   Button,
   ButtonVariant,
@@ -27,16 +27,7 @@ import {
 import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
 
-import {
-  AppPlaceholder,
-  AppTableWithControls,
-  ConditionalRender,
-  NoDataEmptyState,
-  KebabDropdown,
-  ToolbarBulkSelector,
-  ConfirmDialog,
-} from "@app/shared/components";
-import { ApplicationDependenciesFormContainer } from "@app/shared/containers";
+import { ApplicationDependenciesFormContainer } from "@app/components/ApplicationDependenciesFormContainer";
 import { formatPath, Paths } from "@app/Paths";
 import { Application, Assessment, Task } from "@app/api/models";
 import { ApplicationForm } from "../components/application-form";
@@ -52,7 +43,7 @@ import {
   RBAC,
   RBAC_TYPE,
 } from "@app/rbac";
-import { checkAccess, checkAccessAll } from "@app/common/rbac-utils";
+import { checkAccess, checkAccessAll } from "@app/utils/rbac-utils";
 import keycloak from "@app/keycloak";
 import {
   ApplicationsQueryKey,
@@ -63,21 +54,29 @@ import {
   ApplicationTableType,
   useApplicationsFilterValues,
 } from "../applicationsFilter";
-import { FilterToolbar } from "@app/shared/components/FilterToolbar/FilterToolbar";
+import { FilterToolbar } from "@app/components/FilterToolbar/FilterToolbar";
 import { useDeleteReviewMutation, useFetchReviews } from "@app/queries/reviews";
 import {
   useDeleteAssessmentMutation,
   useFetchApplicationAssessments,
 } from "@app/queries/assessments";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAssessApplication } from "@app/shared/hooks/useAssessApplication";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { useAssessApplication } from "@app/hooks/useAssessApplication";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
 import { ApplicationDetailDrawerAssessment } from "../components/application-detail-drawer";
 import { useSetting } from "@app/queries/settings";
 import { useFetchTasks } from "@app/queries/tasks";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
+import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
+import { StatusIcon } from "@app/components/StatusIcon";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { AppTableWithControls } from "@app/components/AppTableWithControls";
+import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
+import { KebabDropdown } from "@app/components/KebabDropdown";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 
 const ENTITY_FIELD = "entity";
 

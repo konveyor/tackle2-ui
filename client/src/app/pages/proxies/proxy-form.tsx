@@ -18,7 +18,7 @@ import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { getAxiosErrorMessage, getValidatedFromErrors } from "@app/utils/utils";
 import { useProxyFormValidationSchema } from "./proxies-validation-schema";
 import { Proxy } from "@app/api/models";
@@ -28,8 +28,8 @@ import {
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
-} from "@app/shared/components/hook-form-pf-fields";
-import { NotificationsContext } from "@app/shared/notifications-context";
+} from "@app/components/HookFormPFFields";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 
 export interface ProxyFormValues {
   isHttpProxyEnabled: boolean;

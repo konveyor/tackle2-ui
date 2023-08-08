@@ -1,6 +1,5 @@
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-
 import {
   cellWidth,
   ICell,
@@ -11,38 +10,32 @@ import {
   TableVariant,
   truncate,
 } from "@patternfly/react-table";
-import { Label, ToolbarItem } from "@patternfly/react-core";
-
-import {
-  AppTableWithControls,
-  ProposedActionLabel,
-  RiskLabel,
-  ToolbarBulkSelector,
-} from "@app/shared/components";
+import { Label } from "@patternfly/react-core";
+import { useQuery } from "@tanstack/react-query";
 
 import { EFFORT_ESTIMATE_LIST, RISK_LIST } from "@app/Constants";
 import {
   Application,
   AssessmentConfidence,
-  AssessmentRisk,
   Review,
   Risk,
 } from "@app/api/models";
 import { getAssessmentConfidence } from "@app/api/rest";
-
 import { ApplicationSelectionContext } from "../../application-selection-context";
-import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
-import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
-import { useSelectionState } from "@migtools/lib-ui";
+import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
+import { useLegacySortState } from "@app/hooks/useLegacySortState";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
+} from "@app/components/FilterToolbar";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { useFetchReviews } from "@app/queries/reviews";
-import { useQuery } from "@tanstack/react-query";
 import { useFetchRisks } from "@app/queries/risks";
+import { AppTableWithControls } from "@app/components/AppTableWithControls";
+import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
+import { RiskLabel } from "@app/components/RiskLabel";
+import { ProposedActionLabel } from "@app/components/ProposedActionLabel";
 
 export interface TableRowData {
   application: Application;

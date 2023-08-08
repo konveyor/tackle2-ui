@@ -16,32 +16,30 @@ import {
   TableText,
 } from "@patternfly/react-table";
 
-import {
-  AppPlaceholder,
-  ConditionalRender,
-  AppTableWithControls,
-  AppTableActionButtons,
-  NoDataEmptyState,
-  ConfirmDialog,
-} from "@app/shared/components";
 import { BusinessService } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { BusinessServiceForm } from "./components/business-service-form";
-import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
+import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
-import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
+} from "@app/components/FilterToolbar";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
+import { useLegacySortState } from "@app/hooks/useLegacySortState";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import { useFetchApplications } from "@app/queries/applications";
 import {
   useDeleteBusinessServiceMutation,
   useFetchBusinessServices,
 } from "@app/queries/businessservices";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { AppTableWithControls } from "@app/components/AppTableWithControls";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 
 const ENTITY_FIELD = "entity";
 

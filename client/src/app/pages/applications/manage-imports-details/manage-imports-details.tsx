@@ -12,17 +12,11 @@ import {
 } from "@patternfly/react-core";
 import { cellWidth, ICell, IRow, truncate } from "@patternfly/react-table";
 
-import {
-  AppPlaceholder,
-  AppTableWithControls,
-  ConditionalRender,
-  PageHeader,
-} from "@app/shared/components";
 import { ImportSummaryRoute, Paths } from "@app/Paths";
 import { getApplicationSummaryCSV } from "@app/api/rest";
 import { ApplicationImport } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
+import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
 import {
   useFetchImports,
   useFetchImportSummaryByID,
@@ -30,10 +24,14 @@ import {
 import {
   FilterCategory,
   FilterType,
-} from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
-import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
-import { NotificationsContext } from "@app/shared/notifications-context";
+} from "@app/components/FilterToolbar/FilterToolbar";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
+import { useLegacySortState } from "@app/hooks/useLegacySortState";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { PageHeader } from "@app/components/PageHeader";
+import { AppTableWithControls } from "@app/components/AppTableWithControls";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
 
 const ENTITY_FIELD = "entity";
 

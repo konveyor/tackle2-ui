@@ -17,15 +17,8 @@ import {
 import BanIcon from "@patternfly/react-icons/dist/esm/icons/ban-icon";
 import InfoCircleIcon from "@patternfly/react-icons/dist/esm/icons/info-circle-icon";
 
-import {
-  AppPlaceholder,
-  ConditionalRender,
-  SimpleEmptyState,
-} from "@app/shared/components";
-import { useAssessApplication } from "@app/shared/hooks";
-
+import { useAssessApplication } from "@app/hooks";
 import { formatPath, Paths, ReviewRoute } from "@app/Paths";
-
 import {
   getApplicationById,
   getAssessmentById,
@@ -34,14 +27,16 @@ import {
 } from "@app/api/rest";
 import { Application, Assessment, Review } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-
 import { ApplicationReviewPage } from "./components/application-review-page";
 import { ApplicationDetails } from "./components/application-details";
 import { ReviewForm } from "./components/review-form";
 import { ApplicationAssessmentDonutChart } from "./components/application-assessment-donut-chart";
 import { ApplicationAssessmentSummaryTable } from "./components/application-assessment-summary-table";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useSetting } from "@app/queries/settings";
+import { SimpleEmptyState } from "@app/components/SimpleEmptyState";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 export const ApplicationReview: React.FC = () => {
   const { t } = useTranslation();

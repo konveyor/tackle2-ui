@@ -21,35 +21,33 @@ import {
   TableText,
 } from "@patternfly/react-table";
 
-import {
-  AppPlaceholder,
-  AppTableActionButtons,
-  AppTableWithControls,
-  ConditionalRender,
-  ConfirmDialog,
-  NoDataEmptyState,
-} from "@app/shared/components";
 import { Identity, ITypeOptions } from "@app/api/models";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
-import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
-import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
+import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
+import { useLegacySortState } from "@app/hooks/useLegacySortState";
 import { AxiosError } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
-} from "@app/shared/components/FilterToolbar";
+} from "@app/components/FilterToolbar";
 import {
   useDeleteIdentityMutation,
   useFetchIdentities,
 } from "@app/queries/identities";
 import { useFetchApplications } from "@app/queries/applications";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { IdentityForm } from "./components/identity-form";
 import { validateXML } from "./components/identity-form/validateXML";
 import { useFetchTrackers } from "@app/queries/trackers";
 import { isAuthRequired } from "@app/Constants";
+import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { AppTableWithControls } from "@app/components/AppTableWithControls";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 
 const ENTITY_FIELD = "entity";
 

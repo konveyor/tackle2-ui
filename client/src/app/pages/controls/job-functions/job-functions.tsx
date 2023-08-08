@@ -16,14 +16,12 @@ import {
   TableText,
 } from "@patternfly/react-table";
 
-import {
-  AppPlaceholder,
-  AppTableActionButtons,
-  AppTableWithControls,
-  ConditionalRender,
-  ConfirmDialog,
-  NoDataEmptyState,
-} from "@app/shared/components";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
+import { AppTableWithControls } from "@app/components/AppTableWithControls";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { JobFunction } from "@app/api/models";
 import { JobFunctionForm } from "./components/job-function-form";
@@ -31,16 +29,16 @@ import {
   FilterCategory,
   FilterToolbar,
   FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
-import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
-import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
+} from "@app/components/FilterToolbar";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
+import { useLegacySortState } from "@app/hooks/useLegacySortState";
+import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import {
   useDeleteJobFunctionMutation,
   useFetchJobFunctions,
 } from "@app/queries/jobfunctions";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 
 const ENTITY_FIELD = "entity";
 

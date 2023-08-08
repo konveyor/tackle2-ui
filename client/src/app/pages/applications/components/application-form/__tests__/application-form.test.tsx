@@ -1,4 +1,4 @@
-import React, { HTMLInputTypeAttribute } from "react";
+import React from "react";
 import {
   render,
   waitFor,

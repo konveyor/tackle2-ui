@@ -31,30 +31,25 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 
-import {
-  AppPlaceholder,
-  AppTableActionButtons,
-  ConditionalRender,
-  ConfirmDialog,
-} from "@app/shared/components";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Stakeholder } from "@app/api/models";
-import {
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import {
   useDeleteStakeholderMutation,
   useFetchStakeholders,
 } from "@app/queries/stakeholders";
-import { NotificationsContext } from "@app/shared/notifications-context";
-import { useLocalTableControls } from "@app/shared/hooks/table-controls";
-import { SimplePagination } from "@app/shared/components/simple-pagination";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
-} from "@app/shared/components/table-controls";
+} from "@app/components/TableControls";
 import { StakeholderForm } from "./components/stakeholder-form";
 
 export const Stakeholders: React.FC = () => {
@@ -158,8 +153,8 @@ export const Stakeholders: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.stakeholderGroups").toLowerCase(),
           }) + "...",
-        getItemValue: (stakeholder) => {
-          const stakeholderGroups = stakeholder.stakeholderGroups?.map(
+        getItemValue: (item) => {
+          const stakeholderGroups = item.stakeholderGroups?.map(
             (stakeholderGroup) => stakeholderGroup.name
           );
           return stakeholderGroups?.join(" ; ") || "";

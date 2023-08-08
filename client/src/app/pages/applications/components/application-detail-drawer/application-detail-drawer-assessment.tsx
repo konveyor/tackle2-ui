@@ -11,7 +11,8 @@ import {
   Label,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { EmptyTextMessage } from "@app/shared/components";
+
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
 import { Assessment, Review, Task } from "@app/api/models";
 import { ApplicationRisk } from "./application-risk";

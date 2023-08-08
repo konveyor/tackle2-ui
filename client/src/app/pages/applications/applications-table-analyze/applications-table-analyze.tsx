@@ -27,14 +27,7 @@ import {
 import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
 import keycloak from "@app/keycloak";
-import {
-  AppPlaceholder,
-  AppTableWithControls,
-  ConditionalRender,
-  NoDataEmptyState,
-  KebabDropdown,
-  ToolbarBulkSelector,
-} from "@app/shared/components";
+
 import { Paths } from "@app/Paths";
 import { Application, Task } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -42,7 +35,7 @@ import { ApplicationForm } from "../components/application-form";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
-import { FilterToolbar } from "@app/shared/components/FilterToolbar";
+import { FilterToolbar } from "@app/components/FilterToolbar";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import { useCancelTaskMutation, useFetchTasks } from "@app/queries/tasks";
@@ -54,7 +47,7 @@ import {
   tasksReadScopes,
   tasksWriteScopes,
 } from "@app/rbac";
-import { checkAccess } from "@app/common/rbac-utils";
+import { checkAccess } from "@app/utils/rbac-utils";
 import {
   useFetchApplications,
   useBulkDeleteApplicationMutation,
@@ -64,13 +57,19 @@ import {
   ApplicationTableType,
   useApplicationsFilterValues,
 } from "../applicationsFilter";
-import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
-import { NotificationsContext } from "@app/shared/notifications-context";
-import { ConfirmDialog } from "@app/shared/components/confirm-dialog/confirm-dialog";
+import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { ApplicationDetailDrawerAnalysis } from "../components/application-detail-drawer";
 import { useQueryClient } from "@tanstack/react-query";
-import { SimpleDocumentViewerModal } from "@app/shared/components/simple-task-viewer";
+import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
 import { getTaskById } from "@app/api/rest";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { AppTableWithControls } from "@app/components/AppTableWithControls";
+import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
+import { KebabDropdown } from "@app/components/KebabDropdown";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 
 const ENTITY_FIELD = "entity";
 

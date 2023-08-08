@@ -25,7 +25,7 @@ import {
   useUpdateTrackerMutation,
 } from "@app/queries/trackers";
 import { useFetchIdentities } from "@app/queries/identities";
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import {
   duplicateNameCheck,
   getAxiosErrorMessage,
@@ -34,8 +34,8 @@ import {
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
-} from "@app/shared/components/hook-form-pf-fields";
-import { NotificationsContext } from "@app/shared/notifications-context";
+} from "@app/components/HookFormPFFields";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 

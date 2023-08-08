@@ -4,19 +4,19 @@ import { useSelectionState } from "@migtools/lib-ui";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import { AnalysisFileReport } from "@app/api/models";
 import { useFetchIncidents } from "@app/queries/issues";
-import { SimplePagination } from "@app/shared/components/simple-pagination";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   TableHeaderContentWithControls,
   ConditionalTableBody,
   TableRowContentWithControls,
-} from "@app/shared/components/table-controls";
+} from "@app/components/TableControls";
 import {
   getHubRequestParams,
   useTableControlProps,
   useTableControlUrlParams,
-} from "@app/shared/hooks/table-controls";
+} from "@app/hooks/table-controls";
 import ReactMarkdown from "react-markdown";
-import { markdownPFComponents } from "@app/components/markdown-pf-components";
+import { markdownPFComponents } from "@app/components/markdownPFComponents";
 
 export interface IFileRemainingIncidentsTableProps {
   fileReport: AnalysisFileReport;

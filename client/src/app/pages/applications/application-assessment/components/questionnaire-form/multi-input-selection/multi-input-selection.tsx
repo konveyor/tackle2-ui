@@ -3,7 +3,7 @@ import { Radio, Stack, StackItem } from "@patternfly/react-core";
 
 import { Question } from "@app/api/models";
 import { getQuestionFieldName } from "../../../form-utils";
-import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
+import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { useFormContext } from "react-hook-form";
 import { ApplicationAssessmentWizardValues } from "../../application-assessment-wizard/application-assessment-wizard";
 

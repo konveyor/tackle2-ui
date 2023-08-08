@@ -17,16 +17,7 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import {
-  AppPlaceholder,
-  AppTableActionButtons,
-  ConditionalRender,
-  ConfirmDialog,
-} from "@app/shared/components";
-import {
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import {
   useDeleteTrackerMutation,
   useFetchTrackers,
@@ -34,21 +25,25 @@ import {
 import { Tbody, Tr, Td, Thead, Th, Table } from "@patternfly/react-table";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 
-import { useLocalTableControls } from "@app/shared/hooks/table-controls";
-import { SimplePagination } from "@app/shared/components/simple-pagination";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
-} from "@app/shared/components/table-controls";
+} from "@app/components/TableControls";
 import { TrackerForm } from "./tracker-form";
-import { Tracker, Ref } from "@app/api/models";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { Tracker } from "@app/api/models";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
 import { useFetchTickets } from "@app/queries/tickets";
 import TrackerStatus from "./components/tracker-status";
 import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 
 export const JiraTrackers: React.FC = () => {
   const { t } = useTranslation();
