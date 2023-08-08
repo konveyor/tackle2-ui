@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -21,31 +21,26 @@ import {
 } from "@patternfly/react-core";
 import ExclamationTriangleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon";
 import { global_palette_gold_400 as gold } from "@patternfly/react-tokens";
-
-import {
-  AppTableWithControls,
-  IconedStatus,
-  ToolbarBulkSelector,
-} from "@app/shared/components";
+import { useSelectionState } from "@migtools/lib-ui";
 
 import { Application, Assessment, Review } from "@app/api/models";
-
 import { dedupeFunction } from "@app/utils/utils";
-
 import { ApplicationBusinessService } from "../application-business-service";
-import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
+import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
 import { ApplicationAssessmentStatus } from "../application-assessment-status";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
-import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
-import { useSelectionState } from "@migtools/lib-ui";
+} from "@app/components/FilterToolbar";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
+import { useLegacySortState } from "@app/hooks/useLegacySortState";
 import { useFetchApplicationAssessments } from "@app/queries/assessments";
 import { useFetchApplications } from "@app/queries/applications";
 import { useFetchTagCategories } from "@app/queries/tags";
+import { IconedStatus } from "@app/components/IconedStatus";
+import { AppTableWithControls } from "@app/components/AppTableWithControls";
+import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 
 const ENTITY_FIELD = "entity";
 

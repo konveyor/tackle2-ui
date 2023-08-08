@@ -19,37 +19,35 @@ import {
   sortable,
 } from "@patternfly/react-table";
 
-import {
-  AppPlaceholder,
-  AppTableActionButtons,
-  AppTableWithControls,
-  ConditionalRender,
-  NoDataEmptyState,
-  Color,
-  ConfirmDialog,
-} from "@app/shared/components";
 import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
 import { Tag, TagCategory } from "@app/api/models";
 import { TagTable } from "./components/tag-table";
-import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
+import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
-import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
+} from "@app/components/FilterToolbar";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
+import { useLegacySortState } from "@app/hooks/useLegacySortState";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import {
   useDeleteTagMutation,
   useDeleteTagCategoryMutation,
   useFetchTagCategories,
 } from "@app/queries/tags";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { COLOR_NAMES_BY_HEX_VALUE } from "@app/Constants";
 import { TagForm } from "./components/tag-form";
 import { TagCategoryForm } from "./components/tag-category-form";
 import { getTagCategoryFallbackColor } from "@app/pages/applications/components/application-tags/application-tag-label";
+import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
+import { Color } from "@app/components/Color";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { AppTableWithControls } from "@app/components/AppTableWithControls";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 
 const ENTITY_FIELD = "entity";
 
@@ -187,7 +185,7 @@ export const Tags: React.FC = () => {
         t("actions.filterBy", {
           what: t("terms.name").toLowerCase(),
         }) + "...",
-      getItemValue: (item: TagCategory) => {
+      getItemValue: (item) => {
         let tagCategoryNames = item.name?.toString() || "";
         let tagNames = item?.tags
           ?.map((tag) => tag.name)

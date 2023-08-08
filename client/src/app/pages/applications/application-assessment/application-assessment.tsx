@@ -8,19 +8,16 @@ import {
   Bullseye,
 } from "@patternfly/react-core";
 import BanIcon from "@patternfly/react-icons/dist/esm/icons/ban-icon";
-import {
-  ConditionalRender,
-  SimpleEmptyState,
-  AppPlaceholder,
-} from "@app/shared/components";
+
 import { AssessmentRoute } from "@app/Paths";
 import { Assessment } from "@app/api/models";
 import { getAssessmentById } from "@app/api/rest";
-
 import { getAxiosErrorMessage } from "@app/utils/utils";
-
 import { ApplicationAssessmentPage } from "./components/application-assessment-page";
 import { ApplicationAssessmentWizard } from "./components/application-assessment-wizard";
+import { SimpleEmptyState } from "@app/components/SimpleEmptyState";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 export const ApplicationAssessment: React.FC = () => {
   const { t } = useTranslation();

@@ -2,7 +2,7 @@ import React from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 
-import { EmptyTextMessage } from "@app/shared/components";
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { Application } from "@app/api/models";
 
 export interface IApplicationCellProps {

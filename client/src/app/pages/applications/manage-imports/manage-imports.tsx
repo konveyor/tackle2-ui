@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { IconedStatus } from "@app/shared/components";
 import {
   Button,
   ButtonVariant,
@@ -22,34 +21,32 @@ import {
   sortable,
   truncate,
 } from "@patternfly/react-table";
-import {
-  AppPlaceholder,
-  AppTableWithControls,
-  ConditionalRender,
-  PageHeader,
-  KebabDropdown,
-  ConfirmDialog,
-} from "@app/shared/components";
 
+import { IconedStatus } from "@app/components/IconedStatus";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { formatPath, Paths } from "@app/Paths";
 import { ApplicationImportSummary } from "@app/api/models";
 import { formatDate } from "@app/utils/utils";
-
 import { ImportApplicationsForm } from "../components/import-applications-form";
-import { useLegacyPaginationState } from "@app/shared/hooks/useLegacyPaginationState";
+import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
 import {
   useDeleteImportSummaryMutation,
   useFetchImportSummaries,
 } from "@app/queries/imports";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
-} from "@app/shared/components/FilterToolbar/FilterToolbar";
-import { useLegacySortState } from "@app/shared/hooks/useLegacySortState";
-import TooltipTitle from "@app/common/TooltipTitle";
-import { NotificationsContext } from "@app/shared/notifications-context";
+} from "@app/components/FilterToolbar/FilterToolbar";
+import { useLegacySortState } from "@app/hooks/useLegacySortState";
+import TooltipTitle from "@app/components/TooltipTitle";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { PageHeader } from "@app/components/PageHeader";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { AppTableWithControls } from "@app/components/AppTableWithControls";
+import { KebabDropdown } from "@app/components/KebabDropdown";
 
 const ENTITY_FIELD = "entity";
 

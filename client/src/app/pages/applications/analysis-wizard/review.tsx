@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 
 import { Application } from "@app/api/models";
 import { AnalysisWizardFormValues } from "./schema";
-import { getParsedLabel } from "@app/common/CustomRules/rules-utils";
+import { getParsedLabel } from "@app/utils/rules-utils";
 
 interface IReview {
   applications: Application[];

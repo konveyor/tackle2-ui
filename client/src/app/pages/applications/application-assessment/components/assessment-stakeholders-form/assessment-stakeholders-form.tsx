@@ -13,8 +13,8 @@ import { useFormContext } from "react-hook-form";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import { ApplicationAssessmentWizardValues } from "../application-assessment-wizard/application-assessment-wizard";
-import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { Stakeholder, StakeholderGroup } from "@app/api/models";
 
 const stakeholderGroupToOption = (

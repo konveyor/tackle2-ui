@@ -17,7 +17,7 @@ import {
   getIssueReports,
   getIssue,
 } from "@app/api/rest";
-import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
+import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
 export const RuleReportsQueryKey = "rulereports";
 export const AppReportsQueryKey = "appreports";

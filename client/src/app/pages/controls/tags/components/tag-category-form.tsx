@@ -28,9 +28,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
-} from "@app/shared/components/hook-form-pf-fields";
-import { Color, OptionWithValue, SimpleSelect } from "@app/shared/components";
-import { NotificationsContext } from "@app/shared/notifications-context";
+} from "@app/components/HookFormPFFields";
+import { Color } from "@app/components/Color";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { getTagCategoryFallbackColor } from "@app/pages/applications/components/application-tags/application-tag-label";
 export interface FormValues {
   name: string;

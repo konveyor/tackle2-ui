@@ -14,7 +14,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { XMLValidator } from "fast-xml-parser";
 
 import "./identity-form.css";
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { Identity, IdentityKind, New } from "@app/api/models";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import schema0 from "./schema-1.0.0.xsd";
@@ -26,14 +26,14 @@ import {
   useFetchIdentities,
   useUpdateIdentityMutation,
 } from "@app/queries/identities";
-import KeyDisplayToggle from "@app/common/KeyDisplayToggle";
+import KeyDisplayToggle from "@app/components/KeyDisplayToggle";
 import { XMLLintValidationResult } from "./validateXML";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
-} from "@app/shared/components/hook-form-pf-fields";
+} from "@app/components/HookFormPFFields";
 import { FEATURES_ENABLED } from "@app/FeatureFlags";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 
 type UserCredentials = "userpass" | "source";
 

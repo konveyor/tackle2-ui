@@ -29,8 +29,8 @@ import { FieldErrors, useForm } from "react-hook-form";
 import {
   HookFormPFGroupController,
   HookFormPFTextArea,
-} from "@app/shared/components/hook-form-pf-fields";
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+} from "@app/components/HookFormPFFields";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 
 export interface FormValues {
   action: ProposedAction;

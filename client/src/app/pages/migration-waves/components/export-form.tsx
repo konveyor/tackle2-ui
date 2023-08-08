@@ -18,10 +18,10 @@ import {
   useTrackerProjectsByTracker,
   getTrackersByKind,
 } from "@app/queries/trackers";
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import {
   useCreateTicketsMutation,

@@ -2,7 +2,7 @@ import {
   FilterCategory,
   FilterToolbar,
   FilterType,
-} from "@app/shared/components/FilterToolbar";
+} from "@app/components/FilterToolbar";
 import {
   Button,
   Toolbar,
@@ -14,7 +14,7 @@ import React from "react";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { Fact } from "@app/api/models";
 import { FactDetailModal } from "./fact-detail-modal/fact-detail-modal";
 

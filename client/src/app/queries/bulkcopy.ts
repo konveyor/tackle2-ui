@@ -6,7 +6,7 @@ import {
   getBulkCopyAssessment,
 } from "@app/api/rest";
 import React from "react";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { AxiosError } from "axios";
 
 export const BulkCopyProgressQueryKey = "bulkcopyprogress";

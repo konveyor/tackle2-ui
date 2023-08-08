@@ -17,15 +17,16 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
-import { ConditionalRender, NoDataEmptyState } from "@app/shared/components";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { Application, Tag, TagCategory } from "@app/api/models";
 import { getTagById, getTagCategoryById } from "@app/api/rest";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
+} from "@app/components/FilterToolbar";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { useHistory } from "react-router-dom";
 import { ApplicationTagLabel } from "./application-tag-label";
 

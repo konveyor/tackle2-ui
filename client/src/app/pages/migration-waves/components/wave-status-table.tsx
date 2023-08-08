@@ -15,14 +15,14 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 
-import { useLocalTableControls } from "@app/shared/hooks/table-controls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
-} from "@app/shared/components/table-controls";
-import { SimplePagination } from "@app/shared/components/simple-pagination";
-import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
+} from "@app/components/TableControls";
+import { SimplePagination } from "@app/components/SimplePagination";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { useHistory } from "react-router-dom";
 import { useFetchTickets } from "@app/queries/tickets";
 import { Paths } from "@app/Paths";

@@ -30,18 +30,9 @@ import {
   useFetchMigrationWaves,
   useUpdateMigrationWaveMutation,
 } from "@app/queries/migration-waves";
-import {
-  AppPlaceholder,
-  ConditionalRender,
-  ConfirmDialog,
-  KebabDropdown,
-  ToolbarBulkSelector,
-} from "@app/shared/components";
+
 import { MigrationWave, Ref } from "@app/api/models";
-import {
-  FilterToolbar,
-  FilterType,
-} from "@app/shared/components/FilterToolbar";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import {
   ExpandableRowContent,
   Table,
@@ -51,16 +42,16 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { useLocalTableControls } from "@app/shared/hooks/table-controls";
-import { SimplePagination } from "@app/shared/components/simple-pagination";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
-} from "@app/shared/components/table-controls";
+} from "@app/components/TableControls";
 import { ExportForm } from "./components/export-form";
 
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError, AxiosResponse } from "axios";
 import { useFetchTrackers } from "@app/queries/trackers";
@@ -71,7 +62,12 @@ import { WaveStatusTable } from "./components/wave-status-table";
 import { WaveForm } from "./components/migration-wave-form";
 import { ManageApplicationsForm } from "./components/manage-applications-form";
 import { deleteMigrationWave } from "@app/api/rest";
-import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
+import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
+import { KebabDropdown } from "@app/components/KebabDropdown";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

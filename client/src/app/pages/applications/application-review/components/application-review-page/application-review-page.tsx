@@ -1,10 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-
 import { PageSection, Text } from "@patternfly/react-core";
 
-import { PageHeader } from "@app/shared/components";
-
+import { PageHeader } from "@app/components/PageHeader";
 import { Paths } from "@app/Paths";
 
 export const ApplicationReviewPage: React.FC = ({ children }) => {

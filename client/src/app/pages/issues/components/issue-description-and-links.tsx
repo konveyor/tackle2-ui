@@ -5,7 +5,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import ExternalLinkSquareAltIcon from "@patternfly/react-icons/dist/esm/icons/external-link-square-alt-icon";
 
 import { AnalysisIssueLink } from "@app/api/models";
-import { markdownPFComponents } from "@app/components/markdown-pf-components";
+import { markdownPFComponents } from "@app/components/markdownPFComponents";
 
 export interface IIssueDescriptionAndLinksProps {
   description: string;

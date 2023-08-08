@@ -2,7 +2,7 @@ import * as React from "react";
 import {
   IPageDrawerContentProps,
   PageDrawerContent,
-} from "@app/shared/page-drawer-context";
+} from "@app/components/PageDrawerContext";
 import {
   TextContent,
   Text,
@@ -13,7 +13,7 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisDependency } from "@app/api/models";
-import { StateNoData } from "@app/shared/components/app-table/state-no-data";
+import { StateNoData } from "@app/components/StateNoData";
 import { DependencyAppsTable } from "./dependency-apps-table";
 
 export interface IDependencyAppsDetailDrawerProps

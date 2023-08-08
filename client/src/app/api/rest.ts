@@ -52,7 +52,7 @@ import {
   HubFile,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
-import { serializeRequestParamsForHub } from "@app/shared/hooks/table-controls";
+import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
 // TACKLE_HUB
 export const HUB = "/hub";

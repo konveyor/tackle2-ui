@@ -1,13 +1,6 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import Measure from "react-measure";
 import { useTranslation } from "react-i18next";
-
 import {
   Bullseye,
   Checkbox,
@@ -29,9 +22,10 @@ import {
   chart_color_green_100 as green,
   global_palette_white as white,
 } from "@patternfly/react-tokens";
+import { useQuery } from "@tanstack/react-query";
 
-import { ConditionalRender, StateError } from "@app/shared/components";
-
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { StateError } from "@app/components/StateError";
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
 import { getAssessmentConfidence } from "@app/api/rest";
 import {
@@ -39,13 +33,11 @@ import {
   AssessmentConfidence,
   ProposedAction,
 } from "@app/api/models";
-
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { CartesianSquare } from "./cartesian-square";
 import { Arrow } from "./arrow";
 import { useFetchReviews } from "@app/queries/reviews";
-import useFetchApplicationDependencies from "@app/shared/hooks/useFetchApplicationDependencies/useFetchApplicationDependencies";
-import { useQuery } from "@tanstack/react-query";
+import useFetchApplicationDependencies from "@app/hooks/useFetchApplicationDependencies/useFetchApplicationDependencies";
 
 interface Line {
   from: LinePoint;

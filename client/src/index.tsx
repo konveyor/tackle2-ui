@@ -5,7 +5,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import App from "@app/App";
 import reportWebVitals from "@app/reportWebVitals";
-import { KeycloakProvider } from "@app/common/KeycloakProvider";
+import { KeycloakProvider } from "@app/components/KeycloakProvider";
 
 const queryClient = new QueryClient();
 

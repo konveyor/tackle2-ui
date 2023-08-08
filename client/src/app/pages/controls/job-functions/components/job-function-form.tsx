@@ -19,8 +19,8 @@ import {
 } from "@app/queries/jobfunctions";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { HookFormPFTextInput } from "@app/shared/components/hook-form-pf-fields";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 
 export interface FormValues {
   name: string;

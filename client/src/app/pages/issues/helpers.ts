@@ -4,12 +4,12 @@ import {
   FilterCategory,
   FilterType,
   FilterValue,
-} from "@app/shared/components/FilterToolbar";
+} from "@app/components/FilterToolbar";
 import {
   deserializeFilterUrlParams,
   serializeFilterUrlParams,
-} from "@app/shared/hooks/table-controls";
-import { trimAndStringifyUrlParams } from "@app/shared/hooks/useUrlParams";
+} from "@app/hooks/table-controls";
+import { trimAndStringifyUrlParams } from "@app/hooks/useUrlParams";
 import { Paths } from "@app/Paths";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import { IssueFilterGroups } from "./issues";

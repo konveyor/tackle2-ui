@@ -14,7 +14,7 @@ import { QuestionnaireCategory } from "@app/api/models";
 import { MultiInputSelection } from "./multi-input-selection";
 import { Question, QuestionHeader, QuestionBody } from "./question";
 import { getCommentFieldName } from "../../form-utils";
-import { HookFormPFTextInput } from "@app/shared/components/hook-form-pf-fields";
+import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
 import { useFormContext } from "react-hook-form";
 import { ApplicationAssessmentWizardValues } from "../application-assessment-wizard/application-assessment-wizard";
 

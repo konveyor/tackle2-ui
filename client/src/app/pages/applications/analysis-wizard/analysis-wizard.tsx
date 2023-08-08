@@ -29,12 +29,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 import "./wizard.css";
 import { useAnalyzableApplications, isModeSupported } from "./utils";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import {
   AnalysisWizardFormValues,
   useAnalysisWizardFormValidationSchema,
 } from "./schema";
-import { useAsyncYupValidation } from "@app/shared/hooks/useAsyncYupValidation";
+import { useAsyncYupValidation } from "@app/hooks/useAsyncYupValidation";
 import { CustomRules } from "./custom-rules";
 import { useSetting } from "@app/queries/settings";
 import defaultSources from "./sources";

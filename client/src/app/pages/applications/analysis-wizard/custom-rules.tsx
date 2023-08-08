@@ -38,25 +38,22 @@ import {
   FilterCategory,
   FilterToolbar,
   FilterType,
-} from "@app/shared/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/shared/hooks/useLegacyFilterState";
-import { IReadFile, Ref, TargetLabel } from "@app/api/models";
-import { NoDataEmptyState } from "@app/shared/components/no-data-empty-state";
+} from "@app/components/FilterToolbar";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
+import { IReadFile, TargetLabel } from "@app/api/models";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 
 import "./wizard.css";
 import { AnalysisWizardFormValues } from "./schema";
-import {
-  getParsedLabel,
-  parseRules,
-} from "@app/common/CustomRules/rules-utils";
+import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
-} from "@app/shared/components/hook-form-pf-fields";
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+} from "@app/components/HookFormPFFields";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
-import useRuleFiles from "@app/common/CustomRules/useRuleFiles";
+import useRuleFiles from "@app/hooks/useRuleFiles";
 interface CustomRulesProps {
   taskgroupID: number | null;
 }

@@ -24,11 +24,9 @@ import {
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import {
-  AppPlaceholder,
-  ConditionalRender,
-  StateError,
-} from "@app/shared/components";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { StateError } from "@app/components/StateError";
 import { ApplicationSelectionContextProvider } from "./application-selection-context";
 import { Landscape } from "./components/landscape";
 import { AdoptionCandidateTable } from "./components/adoption-candidate-table";

@@ -5,7 +5,7 @@ import { ToolbarChip } from "@patternfly/react-core";
 import { SelectVariant } from "@patternfly/react-core/deprecated";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 
 import { RISK_LIST, DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { Risk } from "@app/api/models";

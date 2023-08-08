@@ -19,10 +19,10 @@ import {
   ApplicationDetailDrawer,
   IApplicationDetailDrawerProps,
 } from "./application-detail-drawer";
-import { EmptyTextMessage } from "@app/shared/components";
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { useFetchFacts } from "@app/queries/facts";
 import { ApplicationFacts } from "./application-facts";
-import { SimpleDocumentViewerModal } from "@app/shared/components/simple-task-viewer";
+import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
 import { getTaskById } from "@app/api/rest";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 

@@ -8,13 +8,13 @@ import {
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
-import { useLocalTableControls } from "@app/shared/hooks/table-controls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
-} from "@app/shared/components/table-controls";
-import { SimplePagination } from "@app/shared/components/simple-pagination";
+} from "@app/components/TableControls";
+import { SimplePagination } from "@app/components/SimplePagination";
 import { MigrationWave, WaveWithStatus } from "@app/api/models";
 
 export interface IWaveApplicationsTableProps {

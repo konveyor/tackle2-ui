@@ -1,14 +1,11 @@
 import React from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
-
-import {
-  EmptyTextMessage,
-  IconedStatus,
-  IconedStatusPreset,
-} from "@app/shared/components";
-import { Assessment } from "@app/api/models";
 import { Spinner } from "@patternfly/react-core";
+
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
+import { Assessment } from "@app/api/models";
+import { IconedStatus, IconedStatusPreset } from "@app/components/IconedStatus";
 
 export interface ApplicationAssessmentStatusProps {
   assessment?: Assessment;

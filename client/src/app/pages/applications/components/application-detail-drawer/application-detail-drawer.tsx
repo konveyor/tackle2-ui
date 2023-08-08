@@ -18,7 +18,7 @@ import { Application, Task } from "@app/api/models";
 import {
   IPageDrawerContentProps,
   PageDrawerContent,
-} from "@app/shared/page-drawer-context";
+} from "@app/components/PageDrawerContext";
 import { getIssuesSingleAppSelectedLocation } from "@app/pages/issues/helpers";
 import { ApplicationBusinessService } from "../application-business-service";
 import { ApplicationTags } from "../application-tags";

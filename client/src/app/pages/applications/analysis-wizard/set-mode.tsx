@@ -2,12 +2,12 @@ import React from "react";
 import { TextContent, Title, Alert, Form } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { UploadBinary } from "./components/upload-binary";
 import { toOptionLike } from "@app/utils/model-utils";
 import { AnalysisMode, AnalysisWizardFormValues } from "./schema";
 import { useFormContext } from "react-hook-form";
-import { HookFormPFGroupController } from "@app/shared/components/hook-form-pf-fields";
+import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 
 interface ISetMode {
   isSingleApp: boolean;

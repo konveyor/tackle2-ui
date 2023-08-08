@@ -21,9 +21,9 @@ import { useTranslation } from "react-i18next";
 import "./Repositories.css";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useDeleteCacheMutation, useFetchCache } from "@app/queries/cache";
-import { ConfirmDialog } from "@app/shared/components";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { isRWXSupported } from "@app/Constants";
-import { ConditionalTooltip } from "@app/shared/components/ConditionalTooltip";
+import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
 
 export const RepositoriesMvn: React.FC = () => {

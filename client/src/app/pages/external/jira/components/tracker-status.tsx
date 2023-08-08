@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { IconedStatus } from "@app/shared/components";
 
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
@@ -14,6 +13,7 @@ import {
 } from "@patternfly/react-core";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 
+import { IconedStatus } from "@app/components/IconedStatus";
 import "./tracker-status.css";
 
 interface ITrackerStatusProps {

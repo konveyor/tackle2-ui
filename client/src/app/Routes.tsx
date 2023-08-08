@@ -1,17 +1,16 @@
 import React, { lazy, Suspense } from "react";
 import { Switch, Redirect, useLocation } from "react-router-dom";
 
-import { AppPlaceholder } from "@app/shared/components";
-
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { RepositoriesGit } from "./pages/repositories/Git";
 import { RepositoriesMvn } from "./pages/repositories/Mvn";
 import { RepositoriesSvn } from "./pages/repositories/Svn";
 import { Paths } from "@app/Paths";
 import { ApplicationAssessment } from "./pages/applications/application-assessment/application-assessment";
-import { RouteWrapper } from "./common/RouteWrapper";
+import { RouteWrapper } from "./components/RouteWrapper";
 import { adminRoles, devRoles } from "./rbac";
 import { ErrorBoundary } from "react-error-boundary";
-import { ErrorFallback } from "@app/common/ErrorFallback";
+import { ErrorFallback } from "@app/components/ErrorFallback";
 import { FEATURES_ENABLED } from "./FeatureFlags";
 
 const Applications = lazy(() => import("./pages/applications"));

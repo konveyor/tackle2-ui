@@ -16,7 +16,7 @@ import {
 
 import { UPLOAD_FILE } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { NotificationsContext } from "@app/shared/notifications-context";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 
 export interface ImportApplicationsFormProps {
   onSaved: (response: AxiosResponse) => void;

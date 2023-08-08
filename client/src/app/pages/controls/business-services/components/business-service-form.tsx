@@ -24,9 +24,9 @@ import {
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
-} from "@app/shared/components/hook-form-pf-fields";
-import { OptionWithValue, SimpleSelect } from "@app/shared/components";
-import { NotificationsContext } from "@app/shared/notifications-context";
+} from "@app/components/HookFormPFFields";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 
 export interface FormValues {
   name: string;
