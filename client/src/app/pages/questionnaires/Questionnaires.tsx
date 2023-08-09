@@ -170,7 +170,6 @@ export const Questionnaires: React.FC = () => {
   const {
     currentPageItems,
     numRenderedColumns,
-    selectionState: { selectedItems },
     propHelpers: {
       toolbarProps,
       filterToolbarProps,
