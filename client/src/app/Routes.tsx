@@ -33,7 +33,7 @@ const AffectedApplications = lazy(
   () => import("./pages/issues/affected-applications")
 );
 const Dependencies = lazy(() => import("./pages/dependencies"));
-const Questionnaires = lazy(() => import("./pages/questionnaires"));
+const Questionnaires = lazy(() => import("./pages/assessment"));
 
 export interface IRoute {
   path: string;

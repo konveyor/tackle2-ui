@@ -35,7 +35,6 @@ import {
 } from "@app/queries/questionnaires";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
@@ -50,7 +49,7 @@ import { NotificationsContext } from "@app/components/NotificationsContext";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Questionnaire } from "@app/api/models";
 
-export const Questionnaires: React.FC = () => {
+export const AssessmentSettings: React.FC = () => {
   const { t } = useTranslation();
 
   const { pushNotification } = React.useContext(NotificationsContext);
