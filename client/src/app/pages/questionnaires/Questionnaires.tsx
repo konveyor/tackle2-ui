@@ -173,7 +173,6 @@ export const Questionnaires: React.FC = () => {
     selectionState: { selectedItems },
     propHelpers: {
       toolbarProps,
-      toolbarBulkSelectorProps,
       filterToolbarProps,
       paginationToolbarItemProps,
       paginationProps,
@@ -202,7 +201,6 @@ export const Questionnaires: React.FC = () => {
           >
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
-                <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
                   {/* <RBAC
