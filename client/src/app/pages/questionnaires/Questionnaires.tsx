@@ -300,7 +300,7 @@ export const Questionnaires: React.FC = () => {
                               label="Yes"
                               labelOff="No"
                               isChecked={questionnaire.required}
-                              onChange={(_event, _checked) => {
+                              onChange={() => {
                                 updateQuestionnaire(
                                   {
                                     ...questionnaire,
