@@ -218,10 +218,10 @@ export interface Assessment {
   status: AssessmentStatus;
   stakeholders?: number[];
   stakeholderGroups?: number[];
-  questionnaire: Questionnaire;
+  questionnaire: PathfinderQuestionnaire;
 }
 
-export interface Questionnaire {
+export interface PathfinderQuestionnaire {
   categories: QuestionnaireCategory[];
 }
 
@@ -704,3 +704,13 @@ export type HubFile = {
   name: string;
   path: string;
 };
+
+export interface Questionnaire {
+  id: number;
+  required: boolean;
+  name: string;
+  questions: number;
+  rating: string;
+  dateImported: string;
+  system: boolean;
+}

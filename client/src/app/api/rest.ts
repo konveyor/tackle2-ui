@@ -50,6 +50,7 @@ import {
   Rule,
   Target,
   HubFile,
+  Questionnaire,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
@@ -105,6 +106,8 @@ export const ANALYSIS_REPORT_FILES = HUB + "/analyses/report/issues/:id/files";
 export const ANALYSIS_ISSUES = HUB + "/analyses/issues";
 export const ANALYSIS_ISSUE_INCIDENTS =
   HUB + "/analyses/issues/:issueId/incidents";
+
+export const QUESTIONNAIRES = HUB + "/questionnaires";
 
 // PATHFINDER
 export const PATHFINDER = "/hub/pathfinder";
@@ -739,3 +742,15 @@ export const getProxies = (): Promise<Proxy[]> =>
 
 export const updateProxy = (obj: Proxy): Promise<Proxy> =>
   axios.put(`${PROXIES}/${obj.id}`, obj);
+
+// Questionnaires
+
+export const getQuestionnaires = (): Promise<Questionnaire[]> =>
+  axios.get(QUESTIONNAIRES).then((response) => response.data);
+
+export const updateQuestionnaire = (
+  obj: Questionnaire
+): Promise<Questionnaire> => axios.put(`${QUESTIONNAIRES}/${obj.id}`, obj);
+
+export const deleteQuestionnaire = (id: number): Promise<Questionnaire> =>
+  axios.delete(`${QUESTIONNAIRES}/${id}`);
