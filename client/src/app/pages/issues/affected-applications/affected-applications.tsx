@@ -45,7 +45,9 @@ interface IAffectedApplicationsRouteParams {
 export const AffectedApplications: React.FC = () => {
   const { t } = useTranslation();
 
-  const { ruleset, rule } = useParams<IAffectedApplicationsRouteParams>();
+  const routeParams = useParams<IAffectedApplicationsRouteParams>();
+  const ruleset = decodeURIComponent(routeParams.ruleset);
+  const rule = decodeURIComponent(routeParams.rule);
   const issueTitle =
     new URLSearchParams(useLocation().search).get("issueTitle") ||
     "Active rule";
