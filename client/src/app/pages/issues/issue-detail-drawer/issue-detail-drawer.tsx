@@ -17,6 +17,7 @@ import { IssueAffectedFilesTable } from "./issue-affected-files-table";
 import { useFetchIssue } from "@app/queries/issues";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { StateNoData } from "@app/components/StateNoData";
+import { getIssueTitle } from "../helpers";
 
 export interface IIssueDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -61,7 +62,7 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
               {applicationName}
             </Text>
             <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
-              <Truncate content={issue.description.split("\n")[0]} />
+              <Truncate content={getIssueTitle(issue)} />
             </Title>
           </TextContent>
           <Tabs
