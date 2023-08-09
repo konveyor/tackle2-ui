@@ -122,7 +122,7 @@ export const devRoutes: IRoute[] = [
       ]
     : []),
   {
-    path: Paths.questionnaires,
+    path: Paths.assessment,
     comp: Questionnaires,
     exact: false,
   },

@@ -47,7 +47,7 @@ export enum Paths {
   repositoriesMvn = "/repositories/maven",
   proxies = "/proxies",
   migrationTargets = "/migration-targets",
-  questionnaires = "/questionnaires",
+  assessment = "/assessment",
   jira = "/jira",
 }
 

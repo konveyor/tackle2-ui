@@ -228,10 +228,7 @@ export const SidebarApp: React.FC = () => {
                 </NavExpandable>
               ) : null}
               <NavItem>
-                <NavLink
-                  to={Paths.questionnaires}
-                  activeClassName="pf-m-current"
-                >
+                <NavLink to={Paths.assessment} activeClassName="pf-m-current">
                   Assessment
                 </NavLink>
               </NavItem>
