@@ -11,7 +11,7 @@ import { Questionnaire } from "@app/api/models";
 
 export const QuestionnairesTasksQueryKey = "questionnaires";
 
-// TODO Replace when Hub API is ready
+// TODO Remove when Hub API is ready
 export const useFetchQuestionnaires = (mockQuestionnaires: Questionnaire[]) => {
   return {
     questionnaires: mockQuestionnaires,
@@ -20,6 +20,7 @@ export const useFetchQuestionnaires = (mockQuestionnaires: Questionnaire[]) => {
   };
 };
 
+// TODO Uncomment when Hub API is ready
 // export const useFetchQuestionnaires = () => {
 //   const { isLoading, data, error } = useQuery({
 //     queryKey: [QuestionnairesTasksQueryKey],
@@ -30,7 +31,8 @@ export const useFetchQuestionnaires = (mockQuestionnaires: Questionnaire[]) => {
 //     questionnaires: data || [],
 //     isFetching: isLoading,
 //     fetchError: error as AxiosErr_event
-// TODO Replace when Hub API is ready
+
+// TODO Remove when Hub API is ready
 const mockUpdateQuestionnaire = (
   obj: Questionnaire,
   mockQuestionnaires: Questionnaire[],
@@ -42,15 +44,17 @@ const mockUpdateQuestionnaire = (
   setMockQuestionnaires(newMockQuestionnaires);
 };
 
+// TODO Remove when Hub API is ready
 export const useUpdateQuestionnaireMutation = (
-  _onSuccess: () => void,
-  _onError: (err: AxiosError) => void
+  onSuccess: () => void,
+  onError: (err: AxiosError) => void
 ) => {
   return {
     mutationFn: mockUpdateQuestionnaire,
   };
 };
 
+// TODO Uncomment when Hub API is ready
 // export const useUpdateQuestionnaireMutation = (
 //   onSuccess: () => void,
 //   onError: (err: AxiosError) => void
@@ -66,7 +70,7 @@ export const useUpdateQuestionnaireMutation = (
 //   });
 // };
 
-// TODO Replace when Hub API is ready
+// TODO Remove when Hub API is ready
 const mockDeleteQuestionnaire = (
   id: number,
   mockQuestionnaires: Questionnaire[],
@@ -78,15 +82,17 @@ const mockDeleteQuestionnaire = (
   setMockQuestionnaires(newMockQuestionnaires);
 };
 
+// TODO Remove when Hub API is ready
 export const useDeleteQuestionnaireMutation = (
-  _onSuccess: (name: string) => void,
-  _onError: (err: AxiosError) => void
+  onSuccess: (name: string) => void,
+  onError: (err: AxiosError) => void
 ) => {
   return {
     mutationFn: mockDeleteQuestionnaire,
   };
 };
 
+// TODO Uncomment when Hub API is ready
 // export const useDeleteQuestionnaireMutation = (
 //   onSuccess: (name: string) => void,
 //   onError: (err: AxiosError) => void

@@ -250,7 +250,7 @@ export const Questionnaires: React.FC = () => {
                 </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
-            <Table {...tableProps} aria-label="Assement table">
+            <Table {...tableProps} aria-label="Questionnaires table">
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
@@ -415,7 +415,7 @@ export const Questionnaires: React.FC = () => {
         onClose={() => setIsImportModal(false)}
       >
         <Text>TODO Import questionnaire component</Text>
-      </Modal>{" "}
+      </Modal>
       <Modal
         id="download.template.modal"
         title={t("dialog.title.download", {
