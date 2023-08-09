@@ -29,6 +29,7 @@
     "delete": "Delete",
     "discardAssessment": "Discard assessment/review",
     "downloadCsvTemplate": "Download CSV template",
+    "download": "Download {{what}}",
     "edit": "Edit",
     "export": "Export",
     "filterBy": "Filter by {{what}}",
@@ -47,6 +48,7 @@
     "selectNone": "Select none",
     "selectPage": "Select page",
     "submitReview": "Submit review",
+    "view": "View",
     "viewErrorReport": "View error report"
   },
   "colors": {
@@ -101,8 +103,11 @@
       "copyApplicationAssessmentFrom": "Copy {{what}} assessment",
       "delete": "Delete {{what}}?",
       "discard": "Discard {{what}}?",
+      "download": "Download {{what}}",
       "edit": "Edit {{what}}",
+      "export": "Export {{what}}",
       "importApplicationFile": "Import application file",
+      "import": "Import {{what}}",
       "leavePage": "Leave page",
       "new": "New {{what}}",
       "newApplication": "New application",
@@ -302,6 +307,8 @@
     "proxyConfig": "Proxy configuration",
     "proxyConfigDetails": "Manage connections to proxy servers",
     "question": "Question",
+    "questionnaire": "Questionnaire",
+    "questionnaires": "Questionnaires",
     "rank": "Rank",
     "project": "Project",
     "refresh": "Refresh",
@@ -356,7 +363,8 @@
     "user": "User",
     "version": "Version",
     "workPriority": "Work priority",
-    "tag": "Tag"
+    "tag": "Tag",
+    "YAMLTemplate": "YAML template"
   },
   "toastr": {
     "success": {
