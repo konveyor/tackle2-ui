@@ -1,1 +1,1 @@
-export { Questionnaires as default } from "./questionnaires";
+export { Questionnaires as default } from "./Questionnaires";

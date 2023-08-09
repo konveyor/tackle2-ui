@@ -1,12 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
-import { getQuestionnaires, updateQuestionnaire } from "@app/api/rest";
+// TODO Uncomment when Hub API is ready
+import {
+  deleteQuestionnaire,
+  getQuestionnaires,
+  updateQuestionnaire,
+} from "@app/api/rest";
 import { Questionnaire } from "@app/api/models";
 
 export const QuestionnairesTasksQueryKey = "questionnaires";
 
-// TOD Replace when Hub API is ready
+// TODO Replace when Hub API is ready
 export const useFetchQuestionnaires = (mockQuestionnaires: Questionnaire[]) => {
   return {
     questionnaires: mockQuestionnaires,
@@ -24,11 +29,8 @@ export const useFetchQuestionnaires = (mockQuestionnaires: Questionnaire[]) => {
 //   return {
 //     questionnaires: data || [],
 //     isFetching: isLoading,
-//     fetchError: error as AxiosError,
-//   };
-// };
-
-// TOD Replace when Hub API is ready
+//     fetchError: error as AxiosErr_event
+// TODO Replace when Hub API is ready
 const mockUpdateQuestionnaire = (
   obj: Questionnaire,
   mockQuestionnaires: Questionnaire[],
@@ -41,15 +43,11 @@ const mockUpdateQuestionnaire = (
 };
 
 export const useUpdateQuestionnaireMutation = (
-  onSuccess: () => void,
-  onError: (err: AxiosError) => void
+  _onSuccess: () => void,
+  _onError: (err: AxiosError) => void
 ) => {
   return {
     mutationFn: mockUpdateQuestionnaire,
-    onSuccess: () => {
-      onSuccess();
-    },
-    onError: onError,
   };
 };
 
@@ -65,5 +63,46 @@ export const useUpdateQuestionnaireMutation = (
 //       queryClient.invalidateQueries([QuestionnairesTasksQueryKey]);
 //     },
 //     onError: onError,
+//   });
+// };
+
+// TODO Replace when Hub API is ready
+const mockDeleteQuestionnaire = (
+  id: number,
+  mockQuestionnaires: Questionnaire[],
+  setMockQuestionnaires: (questionnaires: Questionnaire[]) => void
+) => {
+  const newMockQuestionnaires = mockQuestionnaires.filter(
+    (questionnaire) => questionnaire.id !== id
+  );
+  setMockQuestionnaires(newMockQuestionnaires);
+};
+
+export const useDeleteQuestionnaireMutation = (
+  _onSuccess: (name: string) => void,
+  _onError: (err: AxiosError) => void
+) => {
+  return {
+    mutationFn: mockDeleteQuestionnaire,
+  };
+};
+
+// export const useDeleteQuestionnaireMutation = (
+//   onSuccess: (name: string) => void,
+//   onError: (err: AxiosError) => void
+// ) => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: ({ questionnaire }: { questionnaire: Questionnaire }) =>
+//       deleteQuestionnaire(questionnaire.id),
+//     onSuccess: (_, vars) => {
+//       onSuccess(vars.questionnaire.name);
+//       queryClient.invalidateQueries([QuestionnairesTasksQueryKey]);
+//     },
+//     onError: (err: AxiosError) => {
+//       onError(err);
+//       queryClient.invalidateQueries([QuestionnairesTasksQueryKey]);
+//     },
 //   });
 // };

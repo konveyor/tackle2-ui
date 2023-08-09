@@ -226,7 +226,7 @@ export const SidebarApp: React.FC = () => {
                     </NavLink>
                   </NavItem>
                 </NavExpandable>
-              ) : null}{" "}
+              ) : null}
               <NavItem>
                 <NavLink
                   to={Paths.questionnaires}

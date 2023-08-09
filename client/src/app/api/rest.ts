@@ -751,3 +751,6 @@ export const getQuestionnaires = (): Promise<Questionnaire[]> =>
 export const updateQuestionnaire = (
   obj: Questionnaire
 ): Promise<Questionnaire> => axios.put(`${QUESTIONNAIRES}/${obj.id}`, obj);
+
+export const deleteQuestionnaire = (id: number): Promise<Questionnaire> =>
+  axios.delete(`${QUESTIONNAIRES}/${id}`);

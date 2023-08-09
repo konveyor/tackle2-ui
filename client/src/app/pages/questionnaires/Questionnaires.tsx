@@ -29,6 +29,7 @@ import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
 
 import {
+  useDeleteQuestionnaireMutation,
   useFetchQuestionnaires,
   useUpdateQuestionnaireMutation,
 } from "@app/queries/questionnaires";
@@ -100,6 +101,21 @@ export const Questionnaires: React.FC = () => {
 
   const { mutationFn: updateQuestionnaire } = useUpdateQuestionnaireMutation(
     onSaveQuestionnaireSuccess,
+    onSaveQuestionnaireError
+  );
+
+  const onDeleteQuestionnaireSuccess = (name: string) => {
+    pushNotification({
+      title: t("toastr.success.deletedWhat", {
+        what: name,
+        type: t("terms.questionnaire"),
+      }),
+      variant: "success",
+    });
+  };
+
+  const { mutationFn: deleteQuestionnaire } = useDeleteQuestionnaireMutation(
+    onDeleteQuestionnaireSuccess,
     onSaveQuestionnaireError
   );
 
@@ -290,6 +306,7 @@ export const Questionnaires: React.FC = () => {
                                     ...questionnaire,
                                     required: !questionnaire.required,
                                   },
+                                  // TODO Remove mock when Hub API is ready
                                   mockQuestionnaires,
                                   setMockQuestionnaires
                                 );
@@ -448,8 +465,12 @@ export const Questionnaires: React.FC = () => {
         onClose={() => setQuestionnaireToDelete(null)}
         onConfirm={() => {
           if (questionnaireToDelete) {
-            // TODO Add API Query
-            // deleteQuestionnaire(questionnaireToDelete);
+            deleteQuestionnaire(
+              questionnaireToDelete,
+              // TODO Remove mock when Hub API is ready
+              mockQuestionnaires,
+              setMockQuestionnaires
+            );
             setQuestionnaireToDelete(null);
           }
         }}
