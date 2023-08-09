@@ -109,8 +109,8 @@ export const getAffectedAppsUrl = ({
     if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
   });
   const baseUrl = Paths.issuesAllAffectedApplications
-    .replace("/:ruleset/", `/${ruleReport.ruleset}/`)
-    .replace("/:rule/", `/${ruleReport.rule}/`);
+    .replace("/:ruleset/", `/${encodeURIComponent(ruleReport.ruleset)}/`)
+    .replace("/:rule/", `/${encodeURIComponent(ruleReport.rule)}/`);
   const prefix = (key: string) =>
     `${TableURLParamKeyPrefix.issuesAffectedApps}:${key}`;
   return `${baseUrl}?${trimAndStringifyUrlParams({
