@@ -56,6 +56,7 @@ import {
   parseReportLabels,
   getIssuesSingleAppSelectedLocation,
   useSharedAffectedApplicationFilterCategories,
+  getIssueTitle,
 } from "./helpers";
 import { IssueFilterGroups } from "./issues";
 import {
@@ -354,7 +355,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                       {...getTdProps({ columnKey: "description" })}
                       modifier="truncate"
                     >
-                      {report.description.split("\n")[0]}
+                      {getIssueTitle(report)}
                     </Td>
                     <Td width={20} {...getTdProps({ columnKey: "category" })}>
                       {report.category}

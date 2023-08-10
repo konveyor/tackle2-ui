@@ -22,6 +22,7 @@ import { useFetchIncidents } from "@app/queries/issues";
 import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
 import { FileAllIncidentsTable } from "./file-all-incidents-table";
 import { IssueDescriptionAndLinks } from "../../components/issue-description-and-links";
+import { getIssueTitle } from "../../helpers";
 
 export interface IFileIncidentsDetailModalProps {
   issue: AnalysisIssue;
@@ -58,7 +59,7 @@ export const FileIncidentsDetailModal: React.FC<
     isFetching ||
     (firstFiveIncidents.length > 0 && activeTabIncidentId === undefined);
 
-  const issueTitle = issue.description.split("\n")[0];
+  const issueTitle = getIssueTitle(issue);
 
   return (
     <Modal
