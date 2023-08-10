@@ -11,15 +11,10 @@ import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 
 interface ISetMode {
   isSingleApp: boolean;
-  taskgroupID: number | null;
   isModeValid: boolean;
 }
 
-export const SetMode: React.FC<ISetMode> = ({
-  isSingleApp,
-  taskgroupID,
-  isModeValid,
-}) => {
+export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
   const { t } = useTranslation();
 
   const { watch, control, setValue } =
@@ -89,9 +84,7 @@ export const SetMode: React.FC<ISetMode> = ({
           <p>{t("wizard.label.notAllAnalyzableDetails")}</p>
         </Alert>
       )}
-      {mode === "binary-upload" && taskgroupID && (
-        <UploadBinary taskgroupID={taskgroupID} />
-      )}
+      {mode === "binary-upload" && <UploadBinary />}
     </Form>
   );
 };
