@@ -1,5 +1,9 @@
 import { Location, LocationDescriptor } from "history";
-import { AnalysisIssueReport, AnalysisRuleReport } from "@app/api/models";
+import {
+  AnalysisIssue,
+  AnalysisIssueReport,
+  AnalysisRuleReport,
+} from "@app/api/models";
 import {
   FilterCategory,
   FilterType,
@@ -109,15 +113,16 @@ export const getAffectedAppsUrl = ({
     if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
   });
   const baseUrl = Paths.issuesAllAffectedApplications
-    .replace("/:ruleset/", `/${ruleReport.ruleset}/`)
-    .replace("/:rule/", `/${ruleReport.rule}/`);
+    .replace("/:ruleset/", `/${encodeURIComponent(ruleReport.ruleset)}/`)
+    .replace("/:rule/", `/${encodeURIComponent(ruleReport.rule)}/`);
   const prefix = (key: string) =>
     `${TableURLParamKeyPrefix.issuesAffectedApps}:${key}`;
+
   return `${baseUrl}?${trimAndStringifyUrlParams({
     newPrefixedSerializedParams: {
       [prefix("filters")]: serializeFilterUrlParams(toFilterValues).filters,
       [FROM_ISSUES_PARAMS_KEY]: fromIssuesParams,
-      issueTitle: ruleReport.description.split("\n")[0],
+      issueTitle: getIssueTitle(ruleReport),
     },
   })}`;
 };
@@ -195,3 +200,10 @@ export const parseReportLabels = (
   });
   return { sources, targets, otherLabels };
 };
+
+export const getIssueTitle = (
+  issueReport: AnalysisRuleReport | AnalysisIssue | AnalysisIssueReport
+) =>
+  issueReport?.description?.split("\n")[0] ||
+  issueReport?.name?.split("\n")[0] ||
+  "*Unnamed*";

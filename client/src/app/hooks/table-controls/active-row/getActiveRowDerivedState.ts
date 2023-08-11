@@ -17,9 +17,8 @@ export const getActiveRowDerivedState = <TItem>({
   activeRowItem:
     currentPageItems.find((item) => item[idProperty] === activeRowId) || null,
   setActiveRowItem: (item: TItem | null) => {
-    const itemId =
-      item && item[idProperty] !== undefined ? item[idProperty] : null;
-    setActiveRowId(itemId as string | number | null); // TODO Assertion shouldn't be necessary here but TS isn't fully inferring item[idProperty]?
+    const itemId = (item?.[idProperty] ?? null) as string | number | null; // TODO Assertion shouldn't be necessary here but TS isn't fully inferring item[idProperty]?
+    setActiveRowId(itemId);
   },
   clearActiveRow: () => setActiveRowId(null),
 });
