@@ -3,31 +3,32 @@ import { fileURLToPath } from "url";
 
 import express from "express";
 import ejs from "ejs";
-import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import { createHttpTerminator } from "http-terminator";
+import { createProxyMiddleware } from "http-proxy-middleware";
 
-import setupProxy from "./setupProxy";
-import { getEncodedEnv } from "client/config/envLookup";
+import { encodeEnv, KONVEYOR_ENV, proxyMap } from "@konveyor-ui/common";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const pathToClientDist = path.join(__dirname, "../../client/dist");
 
+const brandType = process.env["PROFILE"] || "konveyor";
 const port = 8080;
 
 const app = express();
 app.use(cookieParser());
-
-setupProxy(app);
-
+app.use(express.json());
 app.engine("ejs", ejs.renderFile);
-
-app.use(bodyParser.json());
 app.set("views", pathToClientDist);
+
 app.use(express.static(pathToClientDist));
 
-const brandType = process.env["PROFILE"] || "konveyor";
+// Setup proxy handling
+for (const proxyPath in proxyMap) {
+  app.use(proxyPath, createProxyMiddleware(proxyMap[proxyPath]));
+}
 
+// Handle any request that hasn't already been handled by express.static or proxy
 app.get("*", (_, res) => {
   if (process.env.NODE_ENV === "development") {
     res.send(`
@@ -38,16 +39,18 @@ app.get("*", (_, res) => {
     `);
   } else {
     res.render("index.html.ejs", {
-      _env: getEncodedEnv(),
+      _env: encodeEnv(KONVEYOR_ENV),
       brandType,
     });
   }
 });
 
+// Start the server
 const server = app.listen(port, () => {
   console.log(`Server listening on port::${port}`);
 });
 
+// Handle shutdown signals Ctrl-C (SIGINT) and default podman/docker stop (SIGTERM)
 const httpTerminator = createHttpTerminator({ server });
 
 const shutdown = async (signal) => {
@@ -61,6 +64,5 @@ const shutdown = async (signal) => {
   console.log(`${signal} - Stopped server on port::${port}`);
 };
 
-// Handle shutdown signals Ctrl-C (SIGINT) and default podman/docker stop (SIGTERM)
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
