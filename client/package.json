@@ -91,6 +91,7 @@
     "jest-watch-typeahead": "^1.0.0",
     "mini-css-extract-plugin": "^2.5.2",
     "monaco-editor-webpack-plugin": "^7.0.1",
+    "msw": "^1.2.3",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.3",
     "raw-loader": "^4.0.2",
@@ -130,5 +131,8 @@
   },
   "nyc": {
     "exclude": "client/src/reportWebVitals.ts"
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }

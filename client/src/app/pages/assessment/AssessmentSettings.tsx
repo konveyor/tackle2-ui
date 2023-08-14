@@ -54,40 +54,7 @@ export const AssessmentSettings: React.FC = () => {
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  // TODO Replace with Hub API when ready
-  const [mockQuestionnaires, setMockQuestionnaires] = React.useState<
-    Questionnaire[]
-  >([
-    {
-      id: 1,
-      name: "System questionnaire",
-      questions: 42,
-      rating: "5% Red, 25% Yellow",
-      dateImported: "8 Aug. 2023, 10:20 AM EST",
-      required: false,
-      system: true,
-    },
-    {
-      id: 2,
-      name: "Custom questionnaire",
-      questions: 24,
-      rating: "15% Red, 35% Yellow",
-      dateImported: "9 Aug. 2023, 03:32 PM EST",
-      required: true,
-      system: false,
-    },
-    {
-      id: 3,
-      name: "Ruby questionnaire",
-      questions: 34,
-      rating: "7% Red, 25% Yellow",
-      dateImported: "10 Aug. 2023, 11:23 PM EST",
-      required: true,
-      system: false,
-    },
-  ]);
-  const { questionnaires, isFetching, fetchError } =
-    useFetchQuestionnaires(mockQuestionnaires);
+  const { questionnaires, isFetching, fetchError } = useFetchQuestionnaires();
 
   const onSaveQuestionnaireSuccess = () => {};
 
@@ -98,7 +65,7 @@ export const AssessmentSettings: React.FC = () => {
     });
   };
 
-  const { mutationFn: updateQuestionnaire } = useUpdateQuestionnaireMutation(
+  const { mutate: updateQuestionnaire } = useUpdateQuestionnaireMutation(
     onSaveQuestionnaireSuccess,
     onSaveQuestionnaireError
   );
@@ -113,7 +80,7 @@ export const AssessmentSettings: React.FC = () => {
     });
   };
 
-  const { mutationFn: deleteQuestionnaire } = useDeleteQuestionnaireMutation(
+  const { mutate: deleteQuestionnaire } = useDeleteQuestionnaireMutation(
     onDeleteQuestionnaireSuccess,
     onSaveQuestionnaireError
   );
@@ -126,9 +93,8 @@ export const AssessmentSettings: React.FC = () => {
   const [questionnaireToExport, setQuestionnaireToExport] = React.useState<
     number | null
   >(null);
-  const [questionnaireToDelete, setQuestionnaireToDelete] = React.useState<
-    number | null
-  >(null);
+  const [questionnaireToDelete, setQuestionnaireToDelete] =
+    React.useState<Questionnaire | null>();
 
   const tableControls = useLocalTableControls({
     idProperty: "id",
@@ -297,15 +263,10 @@ export const AssessmentSettings: React.FC = () => {
                               labelOff="No"
                               isChecked={questionnaire.required}
                               onChange={() => {
-                                updateQuestionnaire(
-                                  {
-                                    ...questionnaire,
-                                    required: !questionnaire.required,
-                                  },
-                                  // TODO Remove mock when Hub API is ready
-                                  mockQuestionnaires,
-                                  setMockQuestionnaires
-                                );
+                                updateQuestionnaire({
+                                  ...questionnaire,
+                                  required: !questionnaire.required,
+                                });
                               }}
                             />
                           </Td>
@@ -380,7 +341,7 @@ export const AssessmentSettings: React.FC = () => {
                                   key="delete"
                                   isAriaDisabled={questionnaire.system === true}
                                   onClick={() =>
-                                    setQuestionnaireToDelete(questionnaire.id)
+                                    setQuestionnaireToDelete(questionnaire)
                                   }
                                 >
                                   {t("actions.delete")}
@@ -461,12 +422,7 @@ export const AssessmentSettings: React.FC = () => {
         onClose={() => setQuestionnaireToDelete(null)}
         onConfirm={() => {
           if (questionnaireToDelete) {
-            deleteQuestionnaire(
-              questionnaireToDelete,
-              // TODO Remove mock when Hub API is ready
-              mockQuestionnaires,
-              setMockQuestionnaires
-            );
+            deleteQuestionnaire({ questionnaire: questionnaireToDelete });
             setQuestionnaireToDelete(null);
           }
         }}

@@ -7,6 +7,12 @@ import App from "@app/App";
 import reportWebVitals from "@app/reportWebVitals";
 import { KeycloakProvider } from "@app/components/KeycloakProvider";
 
+if (process.env.NODE_ENV === "development") {
+  import("./mocks/browser").then((browserMocks) => {
+    browserMocks.worker.start();
+  });
+}
+
 const queryClient = new QueryClient();
 
 ReactDOM.render(

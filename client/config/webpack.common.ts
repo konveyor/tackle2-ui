@@ -186,9 +186,6 @@ const config: Configuration = {
         },
       ],
     }),
-    // new WatchIgnorePlugin({
-    //   paths: [/\.js$/, /\.d\.ts$/],
-    // }),
     new MonacoWebpackPlugin({
       filename: "monaco/[name].worker.js",
       languages: Object.values(LANGUAGES_BY_FILE_EXTENSION),

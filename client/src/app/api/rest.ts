@@ -748,9 +748,13 @@ export const updateProxy = (obj: Proxy): Promise<Proxy> =>
 export const getQuestionnaires = (): Promise<Questionnaire[]> =>
   axios.get(QUESTIONNAIRES).then((response) => response.data);
 
+// TODO: The update handlers in hub don't return any content (success is a response code
+// TODO:  of 204 - NoContext) ... the return type does not make sense.
 export const updateQuestionnaire = (
   obj: Questionnaire
 ): Promise<Questionnaire> => axios.put(`${QUESTIONNAIRES}/${obj.id}`, obj);
 
+// TODO: The delete handlers in hub don't return any content (success is a response code
+// TODO:  of 204 - NoContext) ... the return type does not make sense.
 export const deleteQuestionnaire = (id: number): Promise<Questionnaire> =>
   axios.delete(`${QUESTIONNAIRES}/${id}`);
