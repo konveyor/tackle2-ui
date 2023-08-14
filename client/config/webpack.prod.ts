@@ -1,9 +1,9 @@
 import path from "path";
 import merge from "webpack-merge";
 import webpack, { Configuration } from "webpack";
-import HtmlWebpackPlugin from "html-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
+import HtmlWebpackPlugin from "html-webpack-plugin";
 
 import { stylePaths } from "./stylePaths";
 import commonWebpackConfiguration from "./webpack.common";
@@ -48,14 +48,21 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
         preset: ["default", { mergeLonghand: false }],
       },
     }),
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: "production",
+    }),
+    // index.html generated at runtime via the express server to inject `_env`
     new HtmlWebpackPlugin({
-      // In real prod mode, populate window._env at run time with express
       filename: "index.html.ejs",
       template: `!!raw-loader!${pathTo("../public/index.html.ejs")}`,
       favicon: pathTo(`../public/${brandType}-favicon.ico`),
-    }),
-    new webpack.EnvironmentPlugin({
-      NODE_ENV: "production",
+      minify: {
+        collapseWhitespace: false,
+        keepClosingSlash: true,
+        minifyJS: true,
+        removeEmptyAttributes: true,
+        removeRedundantAttributes: true,
+      },
     }),
   ],
 });

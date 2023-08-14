@@ -1,32 +1,50 @@
 {
-  "name": "tackle2-ui",
+  "name": "@konveyor-ui/root",
   "version": "2.1.0",
   "license": "Apache-2.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/konveyor/tackle2-ui.git"
+  },
   "scripts": {
     "clean": "rimraf ./dist && npm run clean -ws --if-present",
+    "clean:all": "npm run clean && rimraf ./node_modules ./**/node_modules/",
+    "postinstall": "npm run build -w common",
     "dist": "rimraf ./dist && copyfiles -e 'node_modules/**' entrypoint.sh '**/package.json' '*/dist/**/*' ./dist",
     "build": "npm run build -ws --if-present",
+    "start:dev:common": "npm run start:dev -w common",
     "start:dev:server": "npm run start:dev -w server",
     "start:dev:client": "npm run start:dev -w client",
-    "start:dev": "concurrently -n port-forward,server,client -c 'white.bold.inverse,green.bold.inverse,blue.bold.inverse' 'npm:port-forward' 'npm:start:dev:server' 'npm:start:dev:client'",
-    "start": "npm run build -w client && npm run start -w server",
+    "start:dev": "concurrently -n port-forward,common,client -c 'white.bold.inverse,green.bold.inverse,blue.bold.inverse' 'npm:port-forward' 'npm:start:dev:common' 'npm:start:dev:client'",
+    "start": "npm run build -w common -w client && npm run start -w server",
     "test": "npm run test -ws --if-present --",
     "port-forward:hub": "kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080",
     "port-forward:keycloak": "kubectl port-forward svc/tackle-keycloak-sso -n konveyor-tackle 9001:8080",
-    "port-forward": "concurrently 'npm:port-forward:*'"
+    "port-forward": "concurrently -c auto 'npm:port-forward:*'"
   },
   "workspaces": [
-    "client",
-    "server"
+    "common",
+    "server",
+    "client"
   ],
   "engines": {
     "node": ">=18.14.2",
     "npm": ">=9.5.0"
   },
   "devDependencies": {
-    "concurrently": "^8.0.1",
+    "@rollup/plugin-commonjs": "^25.0.3",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@rollup/plugin-run": "^3.0.1",
+    "@rollup/plugin-typescript": "^11.1.2",
+    "@types/node": "^18.14.2",
+    "concurrently": "^8.2.0",
     "copyfiles": "^2.4.1",
-    "rimraf": "^4.4.1"
+    "rimraf": "^4.4.1",
+    "rollup": "^3.27.2",
+    "ts-node": "^10.9.1",
+    "type-fest": "^3.13.0",
+    "typescript": "^5.1.6"
   }
 }
