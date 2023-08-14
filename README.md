@@ -215,6 +215,12 @@ Please read the [Pull Request (PR) Process](https://github.com/konveyor/release-
 section of the [Konveyor versioning and branching doc](https://github.com/konveyor/release-tools/blob/main/VERSIONING.md)
 for more information.
 
+## File Naming Conventions
+
+- Use kebab-case for file names.
+- The root page/parent level components are placed directly in their respective directories.
+- Presentation layer components are placed within the `components/` subdirectory of the parent component.
+
 # Contributing
 
 We welcome contributions to this project! If you're interested in contributing,
