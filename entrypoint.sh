@@ -8,7 +8,6 @@ if [[ -z "$TACKLE_HUB_URL" ]]; then
 fi
 
 if [[ $AUTH_REQUIRED != "false" ]]; then
-
   if [[ -z "$KEYCLOAK_REALM" ]]; then
     echo "You must provide KEYCLOAK_REALM environment variable" 1>&2
     exit 1

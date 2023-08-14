@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en-US">
   <head>
-    <% if(brandType == 'mta'){ %>
+    <% if (brandType == 'mta') { %>
       <title>Migration Toolkit for Applications</title>
       <meta name="description" content="MTA UI" />
       <meta id="appName" name="application-name" content="MTA UI" />
-      <% } else{ %>
+    <% } else { %>
       <title>Konveyor</title>
       <meta name="description" content="Konveyor/Tackle UI" />
       <meta id="appName" name="application-name" content="Konveyor Tackle UI" />
-      <% } %>
+    <% } %>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
@@ -17,7 +17,7 @@
     <link rel="manifest" href="manifest.json" />
     <base href="/" />
     <script>
-      window._env = JSON.parse(atob("<%= _env %>"));
+      window._env = "<%= _env %>";
     </script>
   </head>
   <body>

@@ -1,19 +1,34 @@
 import path from "path";
 import { mergeWithRules } from "webpack-merge";
-import HtmlWebpackPlugin from "html-webpack-plugin";
+import type { Configuration as WebpackConfiguration } from "webpack";
+import type { Configuration as DevServerConfiguration } from "webpack-dev-server";
+
 import ReactRefreshTypeScript from "react-refresh-typescript";
 import ReactRefreshWebpackPlugin from "@pmmmwh/react-refresh-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
+import HtmlWebpackPlugin from "html-webpack-plugin";
 
-import "webpack-dev-server";
-import { getEncodedEnv } from "./envLookup";
+import { encodeEnv, KONVEYOR_ENV, proxyMap } from "@konveyor-ui/common";
 import { stylePaths } from "./stylePaths";
 import commonWebpackConfiguration from "./webpack.common";
 
 const brandType = process.env["PROFILE"] || "konveyor";
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
 
-const config = mergeWithRules({
+interface Configuration extends WebpackConfiguration {
+  devServer?: DevServerConfiguration;
+}
+
+const devServer: DevServerConfiguration = {
+  port: 9000,
+  historyApiFallback: {
+    disableDotRule: true,
+  },
+  hot: true,
+  proxy: proxyMap,
+};
+
+const config: Configuration = mergeWithRules({
   module: {
     rules: {
       test: "match",
@@ -32,18 +47,7 @@ const config = mergeWithRules({
     assetModuleFilename: "assets/[name][ext]",
   },
 
-  devServer: {
-    port: 9000,
-    proxy: {
-      // NOTE: Any future non-UI paths handled by the server package should be added here.
-      "/auth": "http://localhost:8080",
-      "/hub": "http://localhost:8080",
-    },
-    historyApiFallback: {
-      disableDotRule: true,
-    },
-    hot: true,
-  },
+  devServer,
 
   module: {
     rules: [
@@ -75,20 +79,28 @@ const config = mergeWithRules({
         mode: "readonly",
       },
     }),
+    // index.html generated at compile time to inject `_env`
     new HtmlWebpackPlugin({
-      // In dev mode, populate window._env at build time
       filename: "index.html",
       template: pathTo("../public/index.html.ejs"),
-      favicon: pathTo(`../public/${brandType}-favicon.ico`),
       templateParameters: {
-        _env: getEncodedEnv(),
+        _env: encodeEnv(KONVEYOR_ENV),
         brandType,
+      },
+      favicon: pathTo(`../public/${brandType}-favicon.ico`),
+      minify: {
+        collapseWhitespace: false,
+        keepClosingSlash: true,
+        minifyJS: true,
+        removeEmptyAttributes: true,
+        removeRedundantAttributes: true,
       },
     }),
   ],
 
   watchOptions: {
-    ignored: /node_modules/, // adjust this pattern if using monorepo linked packages
+    // ignore watching everything except @konveyor-ui packages
+    ignored: /node_modules\/(?!@konveyor-ui\/)/,
   },
-});
+} as Configuration);
 export default config;
