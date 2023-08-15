@@ -17,16 +17,16 @@ const port = 8080;
 
 const app = express();
 app.use(cookieParser());
-app.use(express.json());
-app.engine("ejs", ejs.renderFile);
-app.set("views", pathToClientDist);
-
-app.use(express.static(pathToClientDist));
 
 // Setup proxy handling
 for (const proxyPath in proxyMap) {
   app.use(proxyPath, createProxyMiddleware(proxyMap[proxyPath]));
 }
+
+app.engine("ejs", ejs.renderFile);
+app.use(express.json());
+app.set("views", pathToClientDist);
+app.use(express.static(pathToClientDist));
 
 // Handle any request that hasn't already been handled by express.static or proxy
 app.get("*", (_, res) => {
