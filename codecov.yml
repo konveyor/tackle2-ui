@@ -27,6 +27,3 @@ flags:
   server:
     paths:
       - server/
-
-ignore:
-  - "**/mockServiceWorker.js"
