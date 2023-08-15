@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useKeycloak } from "@react-keycloak/web";
-import { DropdownGroup, DropdownItem } from "@patternfly/react-core";
 import {
-  Dropdown,
-  DropdownToggle,
-  PageHeaderToolsItem,
-} from "@patternfly/react-core/deprecated";
+  DropdownGroup,
+  DropdownItem,
+  ToolbarItem,
+} from "@patternfly/react-core";
+import { Dropdown, DropdownToggle } from "@patternfly/react-core/deprecated";
 import { isAuthRequired, LocalStorageKey } from "@app/Constants";
 import { useHistory } from "react-router-dom";
 
@@ -27,7 +27,7 @@ export const SSOMenu: React.FC = () => {
   return (
     <>
       {keycloak && (
-        <PageHeaderToolsItem
+        <ToolbarItem
           visibility={{
             default: "hidden",
             md: "visible",
@@ -82,7 +82,7 @@ export const SSOMenu: React.FC = () => {
               </DropdownGroup>,
             ]}
           />
-        </PageHeaderToolsItem>
+        </ToolbarItem>
       )}
     </>
   );
