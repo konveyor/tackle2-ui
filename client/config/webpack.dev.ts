@@ -3,10 +3,11 @@ import { mergeWithRules } from "webpack-merge";
 import type { Configuration as WebpackConfiguration } from "webpack";
 import type { Configuration as DevServerConfiguration } from "webpack-dev-server";
 
+import CopyPlugin from "copy-webpack-plugin";
+import HtmlWebpackPlugin from "html-webpack-plugin";
 import ReactRefreshTypeScript from "react-refresh-typescript";
 import ReactRefreshWebpackPlugin from "@pmmmwh/react-refresh-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
-import HtmlWebpackPlugin from "html-webpack-plugin";
 
 import { encodeEnv, KONVEYOR_ENV, proxyMap } from "@konveyor-ui/common";
 import { stylePaths } from "./stylePaths";
@@ -78,6 +79,13 @@ const config: Configuration = mergeWithRules({
       typescript: {
         mode: "readonly",
       },
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: pathTo("../public/mockServiceWorker.js"),
+        },
+      ],
     }),
     // index.html generated at compile time to inject `_env`
     new HtmlWebpackPlugin({
