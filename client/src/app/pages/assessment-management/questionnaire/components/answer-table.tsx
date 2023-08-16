@@ -12,14 +12,14 @@ import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { Answer } from "@app/api/models";
 import { Label, Text } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { IconedStatus, IconedStatusPreset } from "@app/components/IconedStatus";
+import { IconedStatus } from "@app/components/IconedStatus";
 import { TimesCircleIcon } from "@patternfly/react-icons";
 import { WarningTriangleIcon } from "@patternfly/react-icons";
-export interface IWaveStatusTableProps {
+export interface IAnswerTableProps {
   answers: Answer[];
 }
 
-const AnswerTable: React.FC<IWaveStatusTableProps> = ({ answers }) => {
+const AnswerTable: React.FC<IAnswerTableProps> = ({ answers }) => {
   const { t } = useTranslation();
 
   const tableControls = useLocalTableControls({
