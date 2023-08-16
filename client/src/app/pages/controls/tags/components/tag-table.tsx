@@ -1,18 +1,19 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Table,
+  Thead,
+  Tr,
+  Th,
+  Tbody,
+  Td,
+  ActionsColumn,
+  IAction,
   cellWidth,
-  IActions,
   ICell,
   IRow,
   IRowData,
 } from "@patternfly/react-table";
-import {
-  Table,
-  TableBody,
-  TableHeader,
-} from "@patternfly/react-table/deprecated";
-
 import { Tag, TagCategory } from "@app/api/models";
 import "./tag-table.css";
 
@@ -61,8 +62,6 @@ export const TagTable: React.FC<TabTableProps> = ({
       });
     });
 
-  // Rows
-
   const editRow = (row: Tag) => {
     onEdit(row);
   };
@@ -71,42 +70,40 @@ export const TagTable: React.FC<TabTableProps> = ({
     onDelete(row);
   };
 
-  const actions: IActions = [
+  const defaultActions = (tag: IRowData): IAction[] => [
     {
       title: t("actions.edit"),
-      onClick: (
-        event: React.MouseEvent,
-        rowIndex: number,
-        rowData: IRowData
-      ) => {
-        const row: Tag = getRow(rowData);
-        editRow(row);
-      },
+      onClick: () => editRow(getRow(tag)),
     },
     {
       title: t("actions.delete"),
-      onClick: (
-        event: React.MouseEvent,
-        rowIndex: number,
-        rowData: IRowData
-      ) => {
-        const row: Tag = getRow(rowData);
-        deleteRow(row);
-      },
+      onClick: () => deleteRow(getRow(tag)),
     },
   ];
 
   return (
-    <Table
-      borders={false}
-      variant="compact"
-      aria-label="Tag table"
-      cells={columns}
-      rows={rows}
-      actions={actions}
-    >
-      <TableHeader />
-      <TableBody />
+    <Table borders={false} aria-label="Tag table" variant="compact" isNested>
+      <Thead noWrap>
+        <Tr>
+          <Th>{t("terms.tagName")}</Th>
+          <Td></Td>
+        </Tr>
+      </Thead>
+      <Tbody>
+        {rows.map((row: IRow) => {
+          const rowActions = defaultActions(row);
+          return (
+            <Tr>
+              {row.cells?.map((cell: any) => (
+                <Td>{cell.title}</Td>
+              ))}
+              <Td isActionCell>
+                {rowActions && <ActionsColumn items={rowActions} />}
+              </Td>
+            </Tr>
+          );
+        })}
+      </Tbody>
     </Table>
   );
 };
