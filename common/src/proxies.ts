@@ -38,7 +38,7 @@ export const proxyMap: Record<string, Options> = {
       "^/hub": "",
     },
 
-    onProxyReq: (proxyReq, req, res) => {
+    onProxyReq: (proxyReq, req, _res) => {
       if (req.cookies?.keycloak_cookie && !req.headers["authorization"]) {
         proxyReq.setHeader(
           "Authorization",

@@ -129,7 +129,7 @@ export const MigrationWaves: React.FC = () => {
     onError
   );
 
-  const onDeleteAllMigrationWavesSuccess = (response: any) => {
+  const onDeleteAllMigrationWavesSuccess = () => {
     pushNotification({
       title: t("toastr.success.deletedAll", {
         type: t("terms.migrationWave(s)"),
@@ -221,6 +221,9 @@ export const MigrationWaves: React.FC = () => {
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
 
+  // TODO: Check RBAC access
+  const rbacWriteAccess = true; // checkAccess(userScopes, migrationWaveWriteScopes);
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -259,50 +262,46 @@ export const MigrationWaves: React.FC = () => {
                     </Button>
                   </ToolbarItem>
                   {/* </RBAC> */}
-                  {
-                    //RBAC
-                    // xxxxWriteAccess = checkAccess(userScopes, migrationWaveWriteScopes);
-                    true ? ( //TODO: Check RBAC access
-                      <ToolbarItem>
-                        <KebabDropdown
-                          dropdownItems={[
-                            <DropdownItem
-                              isDisabled={
-                                selectedItems.filter(
-                                  (migrationWave) =>
-                                    !!migrationWave.applications.length
-                                ).length < 1
-                              }
-                              key="bulk-export-to-issue-manager"
-                              component="button"
-                              onClick={() =>
-                                setApplicationsToExport(
-                                  selectedItems.flatMap(
-                                    (item) => item.applications
-                                  )
+                  {rbacWriteAccess ? (
+                    <ToolbarItem>
+                      <KebabDropdown
+                        dropdownItems={[
+                          <DropdownItem
+                            isDisabled={
+                              selectedItems.filter(
+                                (migrationWave) =>
+                                  !!migrationWave.applications.length
+                              ).length < 1
+                            }
+                            key="bulk-export-to-issue-manager"
+                            component="button"
+                            onClick={() =>
+                              setApplicationsToExport(
+                                selectedItems.flatMap(
+                                  (item) => item.applications
                                 )
-                              }
-                            >
-                              {t("terms.exportToIssue")}
-                            </DropdownItem>,
-                            <DropdownItem
-                              key="bulk-delete"
-                              isDisabled={selectedItems.length === 0}
-                              onClick={() =>
-                                setMigrationWavesToDelete(
-                                  selectedItems.map(
-                                    (migrationWave) => migrationWave.id
-                                  )
+                              )
+                            }
+                          >
+                            {t("terms.exportToIssue")}
+                          </DropdownItem>,
+                          <DropdownItem
+                            key="bulk-delete"
+                            isDisabled={selectedItems.length === 0}
+                            onClick={() =>
+                              setMigrationWavesToDelete(
+                                selectedItems.map(
+                                  (migrationWave) => migrationWave.id
                                 )
-                              }
-                            >
-                              {t("actions.delete")}
-                            </DropdownItem>,
-                          ]}
-                        />
-                      </ToolbarItem>
-                    ) : null
-                  }
+                              )
+                            }
+                          >
+                            {t("actions.delete")}
+                          </DropdownItem>,
+                        ]}
+                      />
+                    </ToolbarItem>
+                  ) : null}
                 </ToolbarGroup>
                 <ToolbarItem {...paginationToolbarItemProps}>
                   <SimplePagination
@@ -411,9 +410,7 @@ export const MigrationWaves: React.FC = () => {
                           <Td width={10}>
                             <KebabDropdown
                               dropdownItems={
-                                //RBAC
-                                // xxxxWriteAccess = checkAccess(userScopes, migration-waveWriteScopes);
-                                true //TODO: Check RBAC access
+                                rbacWriteAccess
                                   ? [
                                       <DropdownItem
                                         key="edit"
