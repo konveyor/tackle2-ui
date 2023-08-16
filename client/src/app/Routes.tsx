@@ -33,8 +33,16 @@ const AffectedApplications = lazy(
   () => import("./pages/issues/affected-applications")
 );
 const Dependencies = lazy(() => import("./pages/dependencies"));
-const Questionnaires = lazy(() => import("./pages/assessment"));
 
+const AssessmentSettings = lazy(
+  () =>
+    import(
+      "./pages/assessment-management/assessment-settings/assessment-settings-page"
+    )
+);
+const Questionnaire = lazy(
+  () => import("./pages/assessment-management/questionnaire/questionnaire-page")
+);
 export interface IRoute {
   path: string;
   comp: React.ComponentType<any>;
@@ -123,7 +131,12 @@ export const devRoutes: IRoute[] = [
     : []),
   {
     path: Paths.assessment,
-    comp: Questionnaires,
+    comp: AssessmentSettings,
+    exact: false,
+  },
+  {
+    path: Paths.questionnaire,
+    comp: Questionnaire,
     exact: false,
   },
 ];
