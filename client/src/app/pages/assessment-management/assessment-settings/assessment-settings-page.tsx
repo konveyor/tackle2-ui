@@ -48,10 +48,13 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Questionnaire } from "@app/api/models";
+import { useHistory } from "react-router-dom";
+import { Paths } from "@app/Paths";
 
-export const AssessmentSettings: React.FC = () => {
+const AssessmentSettings: React.FC = () => {
   const { t } = useTranslation();
 
+  const history = useHistory();
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const { questionnaires, isFetching, fetchError } = useFetchQuestionnaires();
@@ -324,8 +327,7 @@ export const AssessmentSettings: React.FC = () => {
                                 key="view"
                                 component="button"
                                 onClick={() => {
-                                  // TODO Link to questionnaire page
-                                  // history.push(Paths.questionnaire);
+                                  history.push(Paths.questionnaire);
                                 }}
                               >
                                 {t("actions.view")}
@@ -430,3 +432,4 @@ export const AssessmentSettings: React.FC = () => {
     </>
   );
 };
+export default AssessmentSettings;

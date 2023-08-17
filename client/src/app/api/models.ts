@@ -714,3 +714,42 @@ export interface Questionnaire {
   dateImported: string;
   system: boolean;
 }
+export interface RiskMessages {
+  green: string;
+  red: string;
+  unknown: string;
+  yellow: string;
+}
+export interface Section {
+  name: string;
+  questions: CustomYamlAssessmentQuestion[];
+}
+
+// TODO: Rename after removing pathfinder
+export interface CustomYamlAssessmentQuestion {
+  answers: Answer[];
+  explanation: string;
+  formulation: string;
+  include_if_tags_present?: Tag[];
+  skip_if_tags_present?: Tag[];
+}
+
+export interface Answer {
+  choice: string;
+  mitigation: string;
+  rationale: string;
+  risk: string;
+  autoanswer_if_tags_present?: Tag[];
+}
+export interface Thresholds {
+  red: string;
+  unknown: string;
+  yellow: string;
+}
+export interface YamlAssessment {
+  description: string;
+  name: string;
+  risk_messages: RiskMessages;
+  sections: Section[];
+  thresholds: Thresholds;
+}

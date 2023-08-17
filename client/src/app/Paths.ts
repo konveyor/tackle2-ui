@@ -48,6 +48,7 @@ export enum Paths {
   proxies = "/proxies",
   migrationTargets = "/migration-targets",
   assessment = "/assessment",
+  questionnaire = "/questionnaire",
   jira = "/jira",
 }
 
