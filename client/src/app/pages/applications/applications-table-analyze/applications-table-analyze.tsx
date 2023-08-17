@@ -70,6 +70,7 @@ import { AppTableWithControls } from "@app/components/AppTableWithControls";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { KebabDropdown } from "@app/components/KebabDropdown";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 
 const ENTITY_FIELD = "entity";
 
@@ -611,13 +612,15 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           onClose={() => setSaveApplicationsModalState(null)}
         />
       </Modal>{" "}
-      <AnalysisWizard
-        applications={selectedRows}
-        isOpen={isAnalyzeModalOpen}
-        onClose={() => {
-          setAnalyzeModalOpen(false);
-        }}
-      />
+      <TaskGroupProvider>
+        <AnalysisWizard
+          applications={selectedRows}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      </TaskGroupProvider>
       <Modal
         isOpen={isApplicationImportModalOpen}
         variant="medium"
