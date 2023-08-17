@@ -54,11 +54,11 @@ import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
 import useRuleFiles from "@app/hooks/useRuleFiles";
-interface CustomRulesProps {
-  taskgroupID: number | null;
-}
-export const CustomRules: React.FC<CustomRulesProps> = (props) => {
+import { useTaskGroup } from "./components/TaskGroupContext";
+
+export const CustomRules: React.FC = () => {
   const { t } = useTranslation();
+  const { taskGroup, updateTaskGroup } = useTaskGroup();
 
   const { watch, setValue, control, getValues } =
     useFormContext<AnalysisWizardFormValues>();
@@ -92,7 +92,7 @@ export const CustomRules: React.FC<CustomRulesProps> = (props) => {
     successfullyReadFileCount,
     handleFile,
     removeFiles,
-  } = useRuleFiles(props?.taskgroupID, values.customRulesFiles);
+  } = useRuleFiles(taskGroup?.id, values.customRulesFiles);
 
   const repositoryTypeOptions: OptionWithValue<string>[] = [
     {

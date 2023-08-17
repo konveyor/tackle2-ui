@@ -10,7 +10,6 @@ import { useTranslation } from "react-i18next";
 
 import {
   Application,
-  IReadFile,
   TaskData,
   Taskgroup,
   TaskgroupTask,
@@ -36,9 +35,8 @@ import {
 } from "./schema";
 import { useAsyncYupValidation } from "@app/hooks/useAsyncYupValidation";
 import { CustomRules } from "./custom-rules";
-import { useSetting } from "@app/queries/settings";
-import defaultSources from "./sources";
 import { useFetchIdentities } from "@app/queries/identities";
+import { TaskGroupProvider, useTaskGroup } from "./components/TaskGroupContext";
 
 interface IAnalysisWizard {
   applications: Application[];
@@ -67,7 +65,7 @@ const defaultTaskData: TaskData = {
   },
 };
 
-const defaultTaskgroup: Taskgroup = {
+export const defaultTaskgroup: Taskgroup = {
   name: `taskgroup.analyzer`,
   addon: "analyzer",
   data: {
@@ -96,18 +94,16 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [currentTaskgroup, setCurrentTaskgroup] =
-    React.useState<Taskgroup | null>();
+  const { taskGroup, updateTaskGroup } = useTaskGroup();
 
   const [stepIdReached, setStepIdReached] = React.useState(1);
   const isMutating = useIsMutating();
 
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
-    setCurrentTaskgroup(data);
+    updateTaskGroup(data);
   };
 
   const onCreateTaskgroupError = (error: Error | unknown) => {
-    console.log("Taskgroup creation failed: ", error);
     pushNotification({
       title: "Taskgroup creation failed",
       variant: "danger",
@@ -139,11 +135,10 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   );
 
   const onDeleteTaskgroupSuccess = () => {
-    setCurrentTaskgroup(null);
+    updateTaskGroup(null);
   };
 
   const onDeleteTaskgroupError = (error: Error | unknown) => {
-    console.log("Taskgroup: delete failed: ", error);
     pushNotification({
       title: "Taskgroup: delete failed",
       variant: "danger",
@@ -282,20 +277,20 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const isModeValid = applications.every((app) => isModeSupported(app, mode));
 
   const handleCancel = () => {
-    if (currentTaskgroup && currentTaskgroup.id) {
-      deleteTaskgroup(currentTaskgroup.id);
+    if (taskGroup && taskGroup.id) {
+      deleteTaskgroup(taskGroup.id);
     }
-    setCurrentTaskgroup(null);
+    updateTaskGroup(null);
     reset();
     onClose();
   };
 
   const onSubmit = (fieldValues: AnalysisWizardFormValues) => {
-    if (currentTaskgroup) {
-      const taskgroup = setupTaskgroup(currentTaskgroup, fieldValues);
+    if (taskGroup) {
+      const taskgroup = setupTaskgroup(taskGroup, fieldValues);
       submitTaskgroup(taskgroup);
     }
-    setCurrentTaskgroup(null);
+    updateTaskGroup(null);
     reset();
     onClose();
   };
@@ -306,7 +301,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   ) => {
     if (id && stepIdReached < (id as number)) setStepIdReached(id as number);
     if (id === StepId.SetTargets) {
-      if (!currentTaskgroup) {
+      if (!taskGroup) {
         createTaskgroup(defaultTaskgroup);
       }
     }
@@ -335,11 +330,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           component: (
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
-              taskgroupID={
-                currentTaskgroup && currentTaskgroup?.id
-                  ? currentTaskgroup.id
-                  : null
-              }
               isModeValid={isModeValid}
             />
           ),
@@ -365,15 +355,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
         {
           id: StepId.CustomRules,
           name: t("wizard.terms.customRules"),
-          component: (
-            <CustomRules
-              taskgroupID={
-                currentTaskgroup && currentTaskgroup?.id
-                  ? currentTaskgroup.id
-                  : null
-              }
-            />
-          ),
+          component: <CustomRules />,
           ...getStepNavProps(StepId.CustomRules),
         },
         {
@@ -392,7 +374,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       ...getStepNavProps(StepId.Review),
     },
   ];
-
   return (
     <>
       {isOpen && (

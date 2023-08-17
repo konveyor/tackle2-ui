@@ -10,6 +10,7 @@ import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import { useFormContext } from "react-hook-form";
 
 import {
+  useCreateTaskgroupMutation,
   useRemoveUploadedFileMutation,
   useUploadFileTaskgroupMutation,
 } from "@app/queries/taskgroups";
@@ -19,12 +20,12 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { uploadLimit } from "@app/Constants";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { AnalysisWizardFormValues } from "../schema";
+import { useTaskGroup } from "./TaskGroupContext";
+import { Taskgroup } from "@app/api/models";
+import { defaultTaskgroup } from "../analysis-wizard";
 
-interface IUploadBinary {
-  taskgroupID: number;
-}
-
-export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
+export const UploadBinary: React.FC = () => {
+  const { taskGroup, updateTaskGroup } = useTaskGroup();
   const { setValue, watch } = useFormContext<AnalysisWizardFormValues>();
   const artifact = watch("artifact");
 
@@ -90,6 +91,22 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
     completedRemove,
     failedRemove
   );
+  const onCreateTaskgroupSuccess = (data: Taskgroup) => {
+    updateTaskGroup(data);
+  };
+
+  const onCreateTaskgroupError = (error: Error | unknown) => {
+    console.log("Taskgroup creation failed: ", error);
+    pushNotification({
+      title: "Taskgroup creation failed",
+      variant: "danger",
+    });
+  };
+
+  const { mutateAsync: createTaskgroup } = useCreateTaskgroupMutation(
+    onCreateTaskgroupSuccess,
+    onCreateTaskgroupError
+  );
 
   const handleFileDrop = (_: DropEvent, droppedFiles: File[]) => {
     if (droppedFiles[0]) {
@@ -98,12 +115,26 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
       setFileUploadStatus(undefined);
       const form = new FormData();
       form.append("file", droppedFiles[0]);
-      uploadFile({
-        id: taskgroupID,
-        path: `binary/${droppedFiles[0].name}`,
-        formData: form,
-        file: droppedFiles[0],
-      });
+      if (!taskGroup) {
+        createTaskgroup(defaultTaskgroup).then((data) => {
+          updateTaskGroup(data);
+          data.id &&
+            uploadFile({
+              id: data?.id,
+              path: `binary/${droppedFiles[0].name}`,
+              formData: form,
+              file: droppedFiles[0],
+            });
+        });
+      } else {
+        taskGroup.id &&
+          uploadFile({
+            id: taskGroup?.id,
+            path: `binary/${droppedFiles[0].name}`,
+            formData: form,
+            file: droppedFiles[0],
+          });
+      }
       setValue("artifact", droppedFiles[0]);
     }
   };
@@ -175,10 +206,11 @@ export const UploadBinary: React.FC<IUploadBinary> = ({ taskgroupID }) => {
             key={artifact.name}
             customFileHandler={handleFile}
             onClearClick={() => {
-              removeFile({
-                id: taskgroupID,
-                path: `binary/${artifact}`,
-              });
+              taskGroup?.id &&
+                removeFile({
+                  id: taskGroup?.id,
+                  path: `binary/${artifact}`,
+                });
               setValue("artifact", null);
             }}
             progressAriaLabel={"text"}
