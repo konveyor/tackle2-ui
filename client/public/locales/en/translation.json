@@ -188,6 +188,7 @@
   "sidebar": {
     "administrator": "Administration",
     "applicationInventory": "Application inventory",
+    "archetypes": "Archetypes",
     "controls": "Controls",
     "developer": "Migration",
     "reports": "Reports",
