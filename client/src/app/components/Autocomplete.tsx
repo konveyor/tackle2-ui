@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import {
   Label,
+  LabelProps,
   Flex,
   FlexItem,
   Menu,
@@ -14,62 +15,43 @@ import {
 
 export interface IAutocompleteProps {
   options?: string[];
-  value?: string;
-  labelColor?:
-    | "blue"
-    | "cyan"
-    | "green"
-    | "orange"
-    | "purple"
-    | "red"
-    | "grey"
-    | "gold"
-    | undefined;
-  selections?: string[];
+  placeholderText?: string;
+  searchString?: string;
+  searchInputAriaLabel?: string;
+  labelColor?: LabelProps["color"];
+  selections?: Set<string>;
+  menuHeader?: string;
+  noResultsMessage?: string;
 }
 
 export const Autocomplete: React.FC<IAutocompleteProps> = ({
   // TODO: data just for testing purposes, should be removed
-  options = ["Cluster", "Kind", "Label", "Name", "Namespace", "Status"],
-  value,
+  options = [],
+  placeholderText = "Search",
+  searchString = "",
+  searchInputAriaLabel = "Search input",
   labelColor,
-  selections = [],
+  selections = new Set<string>(),
+  menuHeader = "Suggestions",
+  noResultsMessage = "No results found",
 }) => {
-  const [inputValue, setInputValue] = React.useState(value || "");
-  const [menuIsOpen, setMenuIsOpen] = React.useState(false);
-  const [currentChips, setCurrentChips] = React.useState<string[]>(
-    selections || []
-  );
-  const [hint, setHint] = React.useState("");
-  const [menuItems, setMenuItems] = React.useState<React.ReactElement[]>([]);
+  const [inputValue, setInputValue] = useState(searchString);
+  const [menuIsOpen, setMenuIsOpen] = useState(false);
+  const [currentChips, setCurrentChips] = useState<Set<string>>(selections);
+  const [hint, setHint] = useState("");
+  const [menuItems, setMenuItems] = useState<React.ReactElement[]>([]);
 
   /** refs used to detect when clicks occur inside vs outside of the textInputGroup and menu popper */
-  const menuRef = React.useRef<HTMLDivElement>(null);
-  const searchInputRef = React.useRef<HTMLInputElement>(null);
-
-  /** callback for updating the inputValue state in this component so that the input can be controlled */
-  const handleInputChange = (
-    _event: React.FormEvent<HTMLInputElement>,
-    value: string
-  ) => {
-    setInputValue(value);
-  };
-
-  /** callback for removing a chip from the chip selections */
-  const deleteChip = (chipToDelete: string) => {
-    const newChips = currentChips.filter(
-      (chip) => !Object.is(chip, chipToDelete)
-    );
-    setCurrentChips(newChips);
-  };
+  const menuRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     /** in the menu only show items that include the text in the input */
     const filteredMenuItems = options
       .filter(
         (item: string) =>
-          !inputValue ||
-          item.toLowerCase().includes(inputValue.toString().toLowerCase())
+          !currentChips.has(item) &&
+          (!inputValue || item.toLowerCase().includes(inputValue.toLowerCase()))
       )
       .map((currentValue, index) => (
         <MenuItem key={currentValue} itemId={index}>
@@ -81,7 +63,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     if (filteredMenuItems.length === 0) {
       const noResultItem = (
         <MenuItem isDisabled key="no result">
-          No results found
+          {noResultsMessage}
         </MenuItem>
       );
       setMenuItems([noResultItem]);
@@ -90,7 +72,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     }
 
     /** The hint is set whenever there is only one autocomplete option left. */
-    if (filteredMenuItems.length === 1) {
+    if (filteredMenuItems.length === 1 && inputValue.length) {
       const hint = filteredMenuItems[0].props.children;
       if (hint.toLowerCase().indexOf(inputValue.toLowerCase())) {
         // the match was found in a place other than the start, so typeahead wouldn't work right
@@ -106,18 +88,35 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     /** add a heading to the menu */
     const headingItem = (
       <MenuItem isDisabled key="heading">
-        Suggestions
+        {menuHeader}
       </MenuItem>
     );
 
     const divider = <Divider key="divider" />;
 
     setMenuItems([headingItem, divider, ...filteredMenuItems]);
-  }, [inputValue]);
+  }, [inputValue, currentChips]);
+
+  /** callback for updating the inputValue state in this component so that the input can be controlled */
+  const handleInputChange = (
+    _event: React.FormEvent<HTMLInputElement>,
+    value: string
+  ) => {
+    setInputValue(value);
+  };
+
+  /** callback for removing a chip from the chip selections */
+  const deleteChip = (chipToDelete: string) => {
+    const newChips = new Set(currentChips);
+    newChips.delete(chipToDelete);
+    setCurrentChips(newChips);
+  };
 
   /** add the given string as a chip in the chip group and clear the input */
   const addChip = (newChipText: string) => {
-    setCurrentChips([...currentChips, `${newChipText}`]);
+    const newChips = new Set(currentChips);
+    newChips.add(newChipText);
+    setCurrentChips(newChips);
     setInputValue("");
     setMenuIsOpen(false);
   };
@@ -129,9 +128,11 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     }
   };
 
-  const handleTab = () => {
+  const handleTab = (event: React.KeyboardEvent) => {
+    // if only 1 item (plus menu heading and divider)
     if (menuItems.length === 3) {
       setInputValue(menuItems[2].props.children);
+      event.preventDefault();
     }
     setMenuIsOpen(false);
   };
@@ -147,7 +148,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
       const firstElement = menuRef.current.querySelector<HTMLButtonElement>(
         "li > button:not(:disabled)"
       );
-      firstElement && firstElement.focus();
+      firstElement?.focus();
     }
   };
 
@@ -162,13 +163,14 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   const handleTextInputKeyDown = (event: React.KeyboardEvent) => {
     switch (event.key) {
       case "Enter":
+        console.log("enter");
         handleEnter();
         break;
       case "Escape":
         handleEscape();
         break;
       case "Tab":
-        handleTab();
+        handleTab(event);
         break;
       case "ArrowUp":
       case "ArrowDown":
@@ -187,6 +189,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
 
   /** add the text of the selected item as a new chip */
   const onSelect = (event?: React.MouseEvent<Element, MouseEvent>) => {
+    console.log("onselect");
     if (!event) {
       return;
     }
@@ -198,13 +201,13 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
 
   /** close the menu when a click occurs outside of the menu or text input group */
   const handleClick = (event?: MouseEvent) => {
-    console.log("click", event);
     if (!event) {
       return;
     }
     if (searchInputRef.current?.contains(event.target as HTMLElement)) {
       setMenuIsOpen(true);
-    } else if (
+    }
+    if (
       menuRef.current &&
       !menuRef.current.contains(event.target as HTMLElement) &&
       searchInputRef.current &&
@@ -223,10 +226,6 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
         focusTextInput();
         setMenuIsOpen(false);
         break;
-      case "Enter":
-      case " ":
-        setTimeout(() => setMenuIsOpen(false), 0);
-        break;
     }
   };
 
@@ -235,24 +234,21 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
       <SearchInput
         value={inputValue}
         hint={hint}
-        id="searchInputId"
         onChange={handleInputChange}
         onFocus={() => setMenuIsOpen(true)}
         onKeyDown={handleTextInputKeyDown}
-        placeholder="search"
-        aria-label="Search input"
-      ></SearchInput>
+        placeholder={placeholderText}
+        aria-label={searchInputAriaLabel}
+      />
     </div>
   );
 
   const menu = (
-    <div ref={menuRef}>
-      <Menu onSelect={onSelect} onKeyDown={handleMenuKeyDown}>
-        <MenuContent>
-          <MenuList>{menuItems}</MenuList>
-        </MenuContent>
-      </Menu>
-    </div>
+    <Menu ref={menuRef} onSelect={onSelect} onKeyDown={handleMenuKeyDown}>
+      <MenuContent>
+        <MenuList>{menuItems}</MenuList>
+      </MenuContent>
+    </Menu>
   );
 
   return (
@@ -270,7 +266,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
       </FlexItem>
       <FlexItem>
         <Flex spaceItems={{ default: "spaceItemsXs" }}>
-          {currentChips.map((currentChip) => (
+          {Array.from(currentChips).map((currentChip) => (
             <FlexItem>
               <Label
                 color={labelColor}
