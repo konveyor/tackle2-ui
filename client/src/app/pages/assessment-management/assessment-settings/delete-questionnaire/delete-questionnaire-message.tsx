@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 
-import { TextInput } from "@patternfly/react-core";
+import { Text, TextInput } from "@patternfly/react-core";
 
 import "./delete-questionnaire-message.css";
 
@@ -18,13 +18,13 @@ const DeleteQuestionnaireMessage: FC<DeleteQuestionnaireMessageProps> = ({
 
   return (
     <>
-      <p>{t("dialog.message.deleteQuestionnaire")}</p>
-      <p>{t("dialog.message.delete")}</p>
-      <p className="confirm-deletion">
+      <Text component="p">{t("dialog.message.deleteQuestionnaire")}</Text>
+      <Text component="p">{t("dialog.message.delete")}</Text>
+      <Text component="p" className="confirm-deletion">
         {t("dialog.message.confirmDeletion", {
           what: t("terms.questionnaire").toLowerCase(),
         })}
-      </p>
+      </Text>
       <TextInput
         className="confirm-deletion-input"
         value={questionnaireNameToDelete}

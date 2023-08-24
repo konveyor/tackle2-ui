@@ -103,7 +103,7 @@ const AssessmentSettings: React.FC = () => {
     React.useState<Questionnaire | null>();
 
   const [questionnaireNameToDelete, setQuestionnaireNameToDelete] =
-    React.useState<string>("");
+    React.useState("");
 
   const tableControls = useLocalTableControls({
     idProperty: "id",
