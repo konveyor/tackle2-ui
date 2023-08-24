@@ -7,15 +7,16 @@ import {
   PageSectionVariants,
   Breadcrumb,
   BreadcrumbItem,
+  Button,
   Tab,
   TabTitleText,
   Tabs,
-  TabContent,
   Toolbar,
   ToolbarItem,
   SearchInput,
   ToolbarContent,
 } from "@patternfly/react-core";
+import AngleLeftIcon from "@patternfly/react-icons/dist/esm/icons/angle-left-icon";
 import { YamlAssessment } from "@app/api/models";
 import { Link } from "react-router-dom";
 import { Paths } from "@app/Paths";
@@ -80,51 +81,56 @@ const Questionnaire: React.FC = () => {
           when={fetchError}
           then={<AppPlaceholder />}
         >
-          <Toolbar>
-            <ToolbarContent>
-              <ToolbarItem widths={{ default: "300px" }}>
-                <SearchInput
-                  placeholder="Search questions"
-                  value={searchValue}
-                  onChange={(_event, value) => setSearchValue(value)}
-                  onClear={() => setSearchValue("")}
-                  resultsCount={2}
-                />
-              </ToolbarItem>
-            </ToolbarContent>
-          </Toolbar>
           <div
             style={{
               backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
-              display: "flex",
             }}
-            className="tabs-vertical-container"
           >
-            <Tabs
-              activeKey={activeTabKey}
-              onSelect={handleTabClick}
-              isVertical
-              aria-label="Tabs for questionnaire sections"
-              role="region"
-            >
-              {assessmentData?.sections.map((section, index) => {
-                return (
-                  <Tab
-                    eventKey={index}
-                    title={
-                      <TabTitleText aria-label="vertical" role="region">
-                        {section.name}
-                      </TabTitleText>
-                    }
-                  >
-                    <QuestionsTable
-                      fetchError={fetchError}
-                      questions={activeSection?.questions}
-                    />
-                  </Tab>
-                );
-              })}
-            </Tabs>
+            <Toolbar>
+              <ToolbarContent>
+                <ToolbarItem widths={{ default: "300px" }}>
+                  <SearchInput
+                    placeholder="Search questions"
+                    value={searchValue}
+                    onChange={(_event, value) => setSearchValue(value)}
+                    onClear={() => setSearchValue("")}
+                    resultsCount={2}
+                  />
+                </ToolbarItem>
+              </ToolbarContent>
+            </Toolbar>
+            <Link to={Paths.assessment}>
+              <Button variant="link" icon={<AngleLeftIcon />}>
+                Back to questionnaires
+              </Button>
+            </Link>
+            <div className="tabs-vertical-container">
+              <Tabs
+                activeKey={activeTabKey}
+                onSelect={handleTabClick}
+                isVertical
+                aria-label="Tabs for questionnaire sections"
+                role="region"
+              >
+                {assessmentData?.sections.map((section, index) => {
+                  return (
+                    <Tab
+                      eventKey={index}
+                      title={
+                        <TabTitleText aria-label="vertical" role="region">
+                          {section.name}
+                        </TabTitleText>
+                      }
+                    >
+                      <QuestionsTable
+                        fetchError={fetchError}
+                        questions={activeSection?.questions}
+                      />
+                    </Tab>
+                  );
+                })}
+              </Tabs>
+            </div>
           </div>
         </ConditionalRender>
       </PageSection>
