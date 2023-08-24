@@ -86,7 +86,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
       tagCategory: tagCategoryInitialValue?.name,
     },
     resolver: yupResolver(validationSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const onTagSuccess = (_: AxiosResponse<Tag>) =>

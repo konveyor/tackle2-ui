@@ -106,7 +106,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
       ),
     },
     resolver: yupResolver(validationSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const onCreateStakeholderGroupSuccess = (

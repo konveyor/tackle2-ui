@@ -88,7 +88,7 @@ export const SetOptions: React.FC = () => {
         fieldId="target-labels"
         renderInput={({
           field: { onChange, onBlur },
-          fieldState: { isDirty, error },
+          fieldState: { isDirty, error, isTouched },
         }) => {
           const targetSelections = formLabels
             .map((formLabel) => {
@@ -139,7 +139,7 @@ export const SetOptions: React.FC = () => {
               onClear={() => {
                 onChange([]);
               }}
-              validated={getValidatedFromErrors(error, isDirty)}
+              validated={getValidatedFromErrors(error, isDirty, isTouched)}
             >
               {defaultTargetsAndTargetsLabels.map((targetLabel, index) => (
                 <SelectOption
@@ -159,7 +159,7 @@ export const SetOptions: React.FC = () => {
         fieldId="sources"
         renderInput={({
           field: { onChange, onBlur, value },
-          fieldState: { isDirty, error },
+          fieldState: { isDirty, error, isTouched },
         }) => {
           const sourceSelections = formLabels
             .map((formLabel) => {
@@ -211,7 +211,7 @@ export const SetOptions: React.FC = () => {
               onClear={() => {
                 onChange([]);
               }}
-              validated={getValidatedFromErrors(error, isDirty)}
+              validated={getValidatedFromErrors(error, isDirty, isTouched)}
             >
               {defaultSourcesAndSourcesLabels.map((targetLabel, index) => (
                 <SelectOption

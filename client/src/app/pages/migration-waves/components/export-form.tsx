@@ -92,7 +92,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
       kind: "",
     },
     resolver: yupResolver(validationSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const values = watch();

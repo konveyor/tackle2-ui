@@ -176,7 +176,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       insecure: tracker?.insecure || false,
     },
     resolver: yupResolver(validationSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const values = getValues();

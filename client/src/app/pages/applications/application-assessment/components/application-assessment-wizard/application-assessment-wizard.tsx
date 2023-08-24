@@ -115,7 +115,7 @@ export const ApplicationAssessmentWizard: React.FC<
         [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
       };
     }, [assessment]),
-    mode: "onChange",
+    mode: "all",
   });
   const values = methods.getValues();
 

@@ -255,7 +255,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       packaging: getBinaryInitialValue(application, "packaging"),
     },
     resolver: yupResolver(validationSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const buildBinaryFieldString = (

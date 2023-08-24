@@ -31,7 +31,7 @@ export const HookFormPFTextInput = <
       {...extractedProps}
       renderInput={({
         field: { onChange, onBlur, value, name, ref },
-        fieldState: { isDirty, error },
+        fieldState: { isDirty, error, isTouched },
       }) => (
         <TextInput
           ref={ref}
@@ -56,7 +56,7 @@ export const HookFormPFTextInput = <
           validated={
             errorsSuppressed
               ? "default"
-              : getValidatedFromErrors(error, isDirty)
+              : getValidatedFromErrors(error, isDirty, isTouched)
           }
           {...remainingProps}
         />
