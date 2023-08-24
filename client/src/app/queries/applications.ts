@@ -5,6 +5,7 @@ import {
   createApplication,
   deleteApplication,
   deleteBulkApplications,
+  getApplicationById,
   getApplications,
   updateAllApplications,
   updateApplication,
@@ -12,6 +13,7 @@ import {
 import { reviewsQueryKey } from "./reviews";
 import { assessmentsQueryKey } from "./assessments";
 import { AxiosError } from "axios";
+import { mockQuestionnaire } from "@app/data/mock-questionnaire";
 
 export interface IApplicationDependencyFetchState {
   applicationDependencies: ApplicationDependency[];
@@ -34,6 +36,14 @@ export const useFetchApplications = () => {
       queryClient.invalidateQueries([reviewsQueryKey]);
       queryClient.invalidateQueries([assessmentsQueryKey]);
     },
+    select: (apps) =>
+      apps.map(
+        (app: Application): Application => ({
+          ...app,
+          //TODO: remove this mock data and replace with real data
+          assessments: [mockQuestionnaire],
+        })
+      ),
     onError: (error: AxiosError) => console.log(error),
   });
   return {
@@ -41,6 +51,28 @@ export const useFetchApplications = () => {
     isFetching: isLoading,
     error,
     refetch,
+  };
+};
+
+export const ApplicationQueryKey = "application";
+
+export const useFetchApplicationByID = (id: number | string) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: [ApplicationQueryKey, id],
+    queryFn: () => getApplicationById(id),
+    onError: (error: AxiosError) => console.log("error, ", error),
+    select: (app): Application => {
+      return {
+        ...app.data,
+        //TODO: remove this mock data and replace with real data
+        assessments: [mockQuestionnaire, mockQuestionnaire],
+      };
+    },
+  });
+  return {
+    application: data,
+    isFetching: isLoading,
+    fetchError: error,
   };
 };
 
