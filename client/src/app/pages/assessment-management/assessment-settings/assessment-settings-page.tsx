@@ -25,9 +25,8 @@ import {
 } from "@patternfly/react-core";
 import { AxiosError } from "axios";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { LockIcon } from "@patternfly/react-icons";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
-import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
+import { LockIcon, EllipsisVIcon, CubesIcon } from "@patternfly/react-icons";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import {
   useDeleteQuestionnaireMutation,
@@ -276,12 +275,7 @@ const AssessmentSettings: React.FC = () => {
                           </Td>
                           <Td width={25} {...getTdProps({ columnKey: "name" })}>
                             {questionnaire.system && (
-                              <LockIcon
-                                style={{
-                                  marginRight:
-                                    "var(--pf-v5-global--spacer--sm)",
-                                }}
-                              />
+                              <LockIcon className={spacing.mrSm} />
                             )}
                             {questionnaire.name}
                           </Td>
