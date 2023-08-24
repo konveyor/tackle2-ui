@@ -296,7 +296,7 @@ const AssessmentSettings: React.FC = () => {
                           </Td>
                           <Td width={10}>
                             <Dropdown
-                              isOpen={isKebabOpen === rowIndex}
+                              isOpen={isKebabOpen === questionnaire.id}
                               onSelect={() => setIsKebabOpen(null)}
                               onOpenChange={(_isOpen) => setIsKebabOpen(null)}
                               toggle={(
@@ -306,7 +306,11 @@ const AssessmentSettings: React.FC = () => {
                                   ref={toggleRef}
                                   aria-label="kebab dropdown toggle"
                                   variant="plain"
-                                  onClick={() => setIsKebabOpen(rowIndex)}
+                                  onClick={() => {
+                                    isKebabOpen
+                                      ? setIsKebabOpen(null)
+                                      : setIsKebabOpen(questionnaire.id);
+                                  }}
                                   isExpanded={isKebabOpen === rowIndex}
                                 >
                                   <EllipsisVIcon />

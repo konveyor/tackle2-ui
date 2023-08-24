@@ -121,6 +121,7 @@ export interface Application {
   repository?: Repository;
   binary?: string;
   migrationWave: Ref | null;
+  assessments?: Questionnaire[];
 }
 
 export interface Review {
@@ -707,13 +708,19 @@ export type HubFile = {
 
 export interface Questionnaire {
   id: number;
-  required: boolean;
   name: string;
+  description: string;
+  revision: number;
   questions: number;
   rating: string;
   dateImported: string;
+  required: boolean;
   system: boolean;
+  sections: Section[];
+  thresholds: Thresholds;
+  riskMessages: RiskMessages;
 }
+
 export interface RiskMessages {
   green: string;
   red: string;
@@ -728,7 +735,7 @@ export interface Section {
 // TODO: Rename after removing pathfinder
 export interface CustomYamlAssessmentQuestion {
   answers: Answer[];
-  explanation: string;
+  explanation?: string;
   formulation: string;
   include_if_tags_present?: Tag[];
   skip_if_tags_present?: Tag[];
@@ -736,10 +743,11 @@ export interface CustomYamlAssessmentQuestion {
 
 export interface Answer {
   choice: string;
-  mitigation: string;
-  rationale: string;
+  mitigation?: string;
+  rationale?: string;
   risk: string;
   autoanswer_if_tags_present?: Tag[];
+  autotag?: Tag[];
 }
 export interface Thresholds {
   red: string;

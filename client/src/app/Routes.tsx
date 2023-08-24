@@ -43,6 +43,10 @@ const AssessmentSettings = lazy(
 const Questionnaire = lazy(
   () => import("./pages/assessment-management/questionnaire/questionnaire-page")
 );
+const AssessmentActions = lazy(
+  () =>
+    import("./pages/applications/assessment-actions/assessment-actions-page")
+);
 export interface IRoute {
   path: string;
   comp: React.ComponentType<any>;
@@ -66,6 +70,12 @@ export const devRoutes: IRoute[] = [
     comp: ApplicationAssessment,
     exact: false,
   },
+  {
+    path: Paths.assessmentActions,
+    comp: AssessmentActions,
+    exact: false,
+  },
+
   {
     path: Paths.applicationsReview,
     comp: Reviews,
