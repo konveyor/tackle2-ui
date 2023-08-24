@@ -1,116 +1,146 @@
-import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+// External libraries
+import * as React from "react";
+import { useState } from "react";
 import { AxiosError } from "axios";
-import { useTranslation, Trans } from "react-i18next";
-import { IconedStatus } from "@app/components/IconedStatus";
+import { useHistory, useLocation } from "react-router-dom";
+import { Trans, useTranslation } from "react-i18next";
+
+// @patternfly
 import {
-  Button,
-  ButtonVariant,
-  Modal,
-  ToolbarGroup,
+  Toolbar,
+  ToolbarContent,
   ToolbarItem,
-  TooltipPosition,
+  Button,
+  ToolbarGroup,
+  ButtonVariant,
+  DropdownItem,
+  Dropdown,
+  MenuToggle,
+  MenuToggleElement,
+  Modal,
 } from "@patternfly/react-core";
-import { DropdownItem } from "@patternfly/react-core/deprecated";
 import {
-  cellWidth,
-  IAction,
-  ICell,
-  IExtraData,
-  IRow,
-  IRowData,
-  ISeparator,
-  nowrap,
-  sortable,
+  PencilAltIcon,
+  TagIcon,
+  EllipsisVIcon,
+  CubesIcon,
+} from "@patternfly/react-icons";
+import {
+  Table,
+  Thead,
+  Tr,
+  Th,
+  Tbody,
+  Td,
   TableText,
 } from "@patternfly/react-table";
-import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
-import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
 
-import { ApplicationDependenciesFormContainer } from "@app/components/ApplicationDependenciesFormContainer";
-import { formatPath, Paths } from "@app/Paths";
-import { Application, Assessment, Task } from "@app/api/models";
-import { ApplicationForm } from "../components/application-form";
-import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
-import { ApplicationBusinessService } from "../components/application-business-service";
-import { ImportApplicationsForm } from "../components/import-applications-form";
-import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
+// @app components and utilities
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import {
-  applicationsWriteScopes,
-  dependenciesWriteScopes,
-  importsWriteScopes,
-  modifiedPathfinderWriteScopes,
+  FilterType,
+  FilterToolbar,
+  FilterCategory,
+} from "@app/components/FilterToolbar/FilterToolbar";
+import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  TableHeaderContentWithControls,
+  ConditionalTableBody,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { IconedStatus } from "@app/components/IconedStatus";
+import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
+import { ApplicationDependenciesFormContainer } from "@app/components/ApplicationDependenciesFormContainer";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
+import { Paths, formatPath } from "@app/Paths";
+import keycloak from "@app/keycloak";
+import {
   RBAC,
   RBAC_TYPE,
+  applicationsWriteScopes,
+  importsWriteScopes,
 } from "@app/rbac";
-import { checkAccess, checkAccessAll } from "@app/utils/rbac-utils";
-import keycloak from "@app/keycloak";
+import { checkAccess } from "@app/utils/rbac-utils";
+
+// Hooks
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  handlePropagatedRowClick,
+  useLocalTableControls,
+} from "@app/hooks/table-controls";
+import { useAssessApplication } from "@app/hooks";
+
+// Queries
+import { Application, Assessment, Task } from "@app/api/models";
 import {
   ApplicationsQueryKey,
   useBulkDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
-import {
-  ApplicationTableType,
-  useApplicationsFilterValues,
-} from "../applicationsFilter";
-import { FilterToolbar } from "@app/components/FilterToolbar/FilterToolbar";
-import { useDeleteReviewMutation, useFetchReviews } from "@app/queries/reviews";
+import { useFetchTasks } from "@app/queries/tasks";
 import {
   useDeleteAssessmentMutation,
   useFetchApplicationAssessments,
 } from "@app/queries/assessments";
-import { useQueryClient } from "@tanstack/react-query";
-import { useAssessApplication } from "@app/hooks/useAssessApplication";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+import { useDeleteReviewMutation, useFetchReviews } from "@app/queries/reviews";
+import { useFetchIdentities } from "@app/queries/identities";
+import { useFetchTagCategories } from "@app/queries/tags";
 import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
+
+// Relative components
+import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
+import { ApplicationBusinessService } from "../components/application-business-service";
 import { ApplicationDetailDrawerAssessment } from "../components/application-detail-drawer";
-import { useSetting } from "@app/queries/settings";
-import { useFetchTasks } from "@app/queries/tasks";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { StatusIcon } from "@app/components/StatusIcon";
+import { ApplicationForm } from "../components/application-form";
+import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
+import { ImportApplicationsForm } from "../components/import-applications-form";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { AppTableWithControls } from "@app/components/AppTableWithControls";
-import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
-import { KebabDropdown } from "@app/components/KebabDropdown";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-
-const ENTITY_FIELD = "entity";
-
-const getRow = (rowData: IRowData): Application => {
-  return rowData[ENTITY_FIELD];
-};
+import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 
 export const ApplicationsTable: React.FC = () => {
-  //RBAC
-  const token = keycloak.tokenParsed;
   const { t } = useTranslation();
+  const history = useHistory();
+  const token = keycloak.tokenParsed;
+
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [saveApplicationsModalState, setSavesApplicationsModalState] =
-    React.useState<"create" | Application | null>(null);
-  const isCreateUpdateApplicationsModalOpen =
-    saveApplicationsModalState !== null;
-  const createUpdateApplications =
-    saveApplicationsModalState !== "create" ? saveApplicationsModalState : null;
+  const [isKebabOpen, setIsKebabOpen] = React.useState<number | null>(null);
+  const [isToolbarKebabOpen, setIsToolbarKebabOpen] =
+    React.useState<boolean>(false);
 
-  const [applicationToCopyAssessmentFrom, setAapplicationToCopyAssessmentFrom] =
+  const [saveApplicationModalState, setSaveApplicationModalState] =
+    React.useState<"create" | Application | null>(null);
+
+  const isCreateUpdateApplicationsModalOpen =
+    saveApplicationModalState !== null;
+
+  const createUpdateApplications =
+    saveApplicationModalState !== "create" ? saveApplicationModalState : null;
+
+  const [applicationToCopyAssessmentFrom, setApplicationToCopyAssessmentFrom] =
     React.useState<Application | null>(null);
+
   const isCopyAssessmentModalOpen = applicationToCopyAssessmentFrom !== null;
+
+  const [isAssessModalOpen, setAssessModalOpen] = React.useState(false);
 
   const [
     applicationToCopyAssessmentAndReviewFrom,
     setCopyAssessmentAndReviewModalState,
   ] = React.useState<Application | null>(null);
+
   const isCopyAssessmentAndReviewModalOpen =
     applicationToCopyAssessmentAndReviewFrom !== null;
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
     React.useState<Application | null>(null);
   const isDependenciesModalOpen = applicationDependenciesToManage !== null;
+
+  const [applicationToAssess, setApplicationToAssess] =
+    React.useState<Application | null>(null);
 
   const [assessmentToEdit, setAssessmentToEdit] =
     React.useState<Assessment | null>(null);
@@ -126,46 +156,21 @@ export const ApplicationsTable: React.FC = () => {
 
   const [isSubmittingBulkCopy, setIsSubmittingBulkCopy] = useState(false);
 
-  // Router
-  const history = useHistory();
-
-  // Table data
-  const {
-    data: applications,
-    isFetching,
-    error: fetchError,
-    refetch: fetchApplications,
-  } = useFetchApplications();
-
-  const { tasks } = useFetchTasks({ addon: "analyzer" });
-
   const getTask = (application: Application) =>
     tasks.find((task: Task) => task.application?.id === application.id);
 
-  const queryClient = useQueryClient();
+  const { tasks } = useFetchTasks({ addon: "analyzer" });
+
+  const { tagCategories: tagCategories } = useFetchTagCategories();
+
+  const { identities } = useFetchIdentities();
 
   const {
-    paginationProps,
-    sortBy,
-    onSort,
-    filterCategories,
-    filterValues,
-    setFilterValues,
-    handleOnClearAllFilters,
-    currentPageItems,
-    isRowSelected,
-    toggleRowSelected,
-    selectAll,
-    selectMultiple,
-    areAllSelected,
-    selectedRows,
-    openDetailDrawer,
-    closeDetailDrawer,
-    activeAppInDetailDrawer,
-  } = useApplicationsFilterValues(
-    ApplicationTableType.Assessment,
-    applications
-  );
+    data: applications,
+    isFetching: isFetchingApplications,
+    error: applicationsFetchError,
+    refetch: fetchApplications,
+  } = useFetchApplications();
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -174,7 +179,7 @@ export const ApplicationsTable: React.FC = () => {
       }),
       variant: "success",
     });
-    activeAppInDetailDrawer && closeDetailDrawer();
+    clearActiveRow();
     setApplicationsToDelete([]);
   };
 
@@ -185,28 +190,6 @@ export const ApplicationsTable: React.FC = () => {
     });
     setApplicationsToDelete([]);
   };
-
-  const {
-    reviews,
-    isFetching: isFetchingReviews,
-    fetchError: fetchErrorReviews,
-  } = useFetchReviews();
-
-  const appReview = reviews?.find(
-    (review) =>
-      review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
-  );
-
-  // Application import modal
-  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    useState(false);
-
-  // Table's assessments
-  const {
-    getApplicationAssessment,
-    isLoadingApplicationAssessment,
-    fetchErrorApplicationAssessment,
-  } = useFetchApplicationAssessments(applications);
 
   const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
     onDeleteApplicationSuccess,
@@ -230,201 +213,10 @@ export const ApplicationsTable: React.FC = () => {
     });
     fetchApplications();
   };
-
   const { mutate: createCopy, isCopying } = useCreateBulkCopyMutation({
     onSuccess: onHandleCopySuccess,
     onError: onHandleCopyError,
   });
-
-  // Create assessment
-  const { assessApplication, inProgress: isApplicationAssessInProgress } =
-    useAssessApplication();
-
-  // Table
-  const columns: ICell[] = [
-    {
-      title: t("terms.name"),
-      transforms: [sortable, cellWidth(20)],
-    },
-    { title: t("terms.description"), transforms: [cellWidth(25)] },
-    {
-      title: t("terms.businessService"),
-      transforms: [sortable, cellWidth(20)],
-    },
-    {
-      title: t("terms.assessment"),
-      transforms: [cellWidth(10)],
-      cellTransforms: [nowrap],
-    },
-    {
-      title: t("terms.review"),
-      transforms: [cellWidth(10)],
-      cellTransforms: [nowrap],
-    },
-    {
-      title: t("terms.tagCount"),
-      transforms: [sortable, cellWidth(10)],
-      cellTransforms: [nowrap],
-    },
-    {
-      title: "",
-      props: {
-        className: "pf-v5-c-table__inline-edit-action",
-      },
-    },
-  ];
-
-  const rows: IRow[] = [];
-  currentPageItems?.forEach((item) => {
-    const isSelected = isRowSelected(item);
-
-    rows.push({
-      [ENTITY_FIELD]: item,
-      selected: isSelected,
-      isClickable: true,
-      isRowSelected: activeAppInDetailDrawer?.id === item.id,
-      cells: [
-        {
-          title: <TableText wrapModifier="truncate">{item.name}</TableText>,
-        },
-        {
-          title: (
-            <TableText wrapModifier="truncate">{item.description}</TableText>
-          ),
-        },
-        {
-          title: (
-            <TableText wrapModifier="truncate">
-              {item.businessService && (
-                <ApplicationBusinessService id={item.businessService.id} />
-              )}
-            </TableText>
-          ),
-        },
-        {
-          title: (
-            <ApplicationAssessmentStatus
-              assessment={getApplicationAssessment(item.id!)}
-              isLoading={isLoadingApplicationAssessment(item.id!)}
-              fetchError={fetchErrorApplicationAssessment(item.id!)}
-            />
-          ),
-        },
-        {
-          title: (
-            <IconedStatus preset={item.review ? "Completed" : "NotStarted"} />
-          ),
-        },
-        {
-          title: (
-            <>
-              <TagIcon /> {item.tags ? item.tags.length : 0}
-            </>
-          ),
-        },
-        {
-          title: (
-            <RBAC
-              allowedPermissions={applicationsWriteScopes}
-              rbacType={RBAC_TYPE.Scope}
-            >
-              <Button
-                type="button"
-                variant="plain"
-                onClick={() => setSavesApplicationsModalState(item)}
-              >
-                <PencilAltIcon />
-              </Button>
-            </RBAC>
-          ),
-        },
-      ],
-    });
-  });
-
-  const actionResolver = (rowData: IRowData): (IAction | ISeparator)[] => {
-    const row: Application = getRow(rowData);
-    if (!row) {
-      return [];
-    }
-
-    const applicationAssessment = getApplicationAssessment(row.id!);
-
-    const userScopes: string[] = token?.scope.split(" ") || [],
-      dependenciesWriteAccess = checkAccess(
-        userScopes,
-        dependenciesWriteScopes
-      ),
-      applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes);
-
-    const actions: (IAction | ISeparator)[] = [];
-    if (
-      applicationAssessment?.status === "COMPLETE" &&
-      checkAccess(userScopes, ["assessments:patch"])
-    ) {
-      actions.push({
-        title: t("actions.copyAssessment"),
-        onClick: () => setAapplicationToCopyAssessmentFrom(row),
-      });
-    }
-    if (
-      row.review &&
-      applicationAssessment?.status === "COMPLETE" &&
-      checkAccessAll(userScopes, ["assessments:patch", "reviews:post"])
-    ) {
-      actions.push({
-        title: t("actions.copyAssessmentAndReview"),
-        onClick: () => setCopyAssessmentAndReviewModalState(row),
-      });
-    }
-    if (
-      (applicationAssessment?.status || row.review) &&
-      checkAccess(userScopes, ["assessments:delete"])
-    ) {
-      actions.push({
-        title: t("actions.discardAssessment"),
-        onClick: () => {
-          setAssessmentOrReviewToDiscard(row);
-          // setIsDiscardAssessmentConfirmDialogOpen(true);
-          fetchApplications();
-        },
-      });
-    }
-    if (applicationWriteAccess) {
-      actions.push({
-        title: t("actions.delete"),
-        ...(row.migrationWave !== null && {
-          isAriaDisabled: true,
-          tooltipProps: {
-            position: TooltipPosition.top,
-            content: "Cannot delete application assigned to a migration wave.",
-          },
-        }),
-        onClick: () => setApplicationsToDelete([row]),
-      });
-    }
-
-    if (dependenciesWriteAccess) {
-      actions.push({
-        title: t("actions.manageDependencies"),
-        onClick: () => setApplicationDependenciesToManage(row),
-      });
-    }
-
-    return actions;
-  };
-
-  // Row actions
-  const selectRow = (
-    event: React.FormEvent<HTMLInputElement>,
-    isSelected: boolean,
-    rowIndex: number,
-    rowData: IRowData,
-    extraData: IExtraData
-  ) => {
-    const row = getRow(rowData);
-    toggleRowSelected(row);
-  };
 
   const onDeleteReviewSuccess = (name: string) => {
     pushNotification({
@@ -473,71 +265,185 @@ export const ApplicationsTable: React.FC = () => {
     }
   };
 
-  // Toolbar actions
-  const assessSelectedRows = () => {
-    if (selectedRows.length !== 1) {
-      const msg = "The number of applications to be assessed must be 1";
-      pushNotification({
-        title: msg,
-        variant: "danger",
-      });
-      return;
-    }
+  const {
+    getApplicationAssessment,
+    isLoadingApplicationAssessment,
+    fetchErrorApplicationAssessment,
+  } = useFetchApplicationAssessments(applications);
 
-    const row = selectedRows[0];
-    assessApplication(
-      row,
-      (assessment: Assessment) => {
-        if (assessment.status === "COMPLETE") {
-          setAssessmentToEdit(assessment);
-        } else {
-          history.push(
-            formatPath(Paths.applicationsAssessment, {
-              assessmentId: assessment.id,
-            })
-          );
-        }
+  const { assessApplication, inProgress: isApplicationAssessInProgress } =
+    useAssessApplication();
+
+  const tableControls = useLocalTableControls({
+    idProperty: "id",
+    items: applications || [],
+    columnNames: {
+      name: "Name",
+      description: "Description",
+      businessService: "Business Service",
+      assessment: "Assessment",
+      review: "Review",
+      tags: "Tags",
+    },
+    sortableColumns: ["name", "description", "businessService", "tags"],
+    initialSort: { columnKey: "name", direction: "asc" },
+    filterCategories: [
+      {
+        key: "name",
+        title: t("terms.name"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.name").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => item?.name || "",
       },
-      (error: AxiosError) => {
-        pushNotification({
-          title: getAxiosErrorMessage(error),
-          variant: "danger",
-        });
-      }
-    );
-  };
+      {
+        key: "description",
+        title: t("terms.description"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.description").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => item.description || "",
+      },
+      {
+        key: "businessService",
+        title: t("terms.businessService"),
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.businessService").toLowerCase(),
+          }) + "...",
+        type: FilterType.select,
+        selectOptions: dedupeFunction(
+          applications
+            .filter((app) => !!app.businessService?.name)
+            .map((app) => app.businessService?.name)
+            .map((name) => ({ key: name, value: name }))
+        ),
+        getItemValue: (item) => item.businessService?.name || "",
+      },
+      {
+        key: "identities",
+        title: t("terms.credentialType"),
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.credentialType").toLowerCase(),
+          }) + "...",
+        type: FilterType.multiselect,
+        selectOptions: [
+          { key: "source", value: "Source" },
+          { key: "maven", value: "Maven" },
+          { key: "proxy", value: "Proxy" },
+        ],
+        getItemValue: (item) => {
+          const searchStringArr: string[] = [];
+          item.identities?.forEach((appIdentity) => {
+            const matchingIdentity = identities.find(
+              (identity) => identity.id === appIdentity.id
+            );
+            searchStringArr.push(matchingIdentity?.kind || "");
+          });
+          const searchString = searchStringArr.join("");
+          return searchString;
+        },
+      },
+      {
+        key: "repository",
+        title: t("terms.repositoryType"),
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.repositoryType").toLowerCase(),
+          }) + "...",
+        type: FilterType.select,
+        selectOptions: [
+          { key: "git", value: "Git" },
+          { key: "subversion", value: "Subversion" },
+        ],
+        getItemValue: (item) => item?.repository?.kind || "",
+      },
+      {
+        key: "binary",
+        title: t("terms.artifact"),
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.artifact").toLowerCase(),
+          }) + "...",
+        type: FilterType.select,
+        selectOptions: [
+          { key: "binary", value: t("terms.artifactAssociated") },
+          { key: "none", value: t("terms.artifactNotAssociated") },
+        ],
+        getItemValue: (item) => {
+          const hasBinary =
+            item.binary !== "::" && item.binary?.match(/.+:.+:.+/)
+              ? "binary"
+              : "none";
 
-  const { data: reviewAssessmentSetting } = useSetting(
-    "review.assessment.required"
+          return hasBinary;
+        },
+      },
+      {
+        key: "tags",
+        title: t("terms.tags"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.tagName").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          let tagNames = item?.tags?.map((tag) => tag.name).join("");
+          return tagNames || "";
+        },
+        selectOptions: dedupeFunction(
+          tagCategories
+            ?.map((tagCategory) => tagCategory?.tags)
+            .flat()
+            .filter((tag) => tag && tag.name)
+            .map((tag) => ({ key: tag?.name, value: tag?.name }))
+        ),
+      },
+    ],
+    initialItemsPerPage: 10,
+    hasActionsColumn: true,
+    isSelectable: true,
+  });
+
+  const queryClient = useQueryClient();
+
+  const {
+    currentPageItems,
+    numRenderedColumns,
+    propHelpers: {
+      toolbarProps,
+      filterToolbarProps,
+      paginationToolbarItemProps,
+      paginationProps,
+      tableProps,
+      getThProps,
+      getTdProps,
+      toolbarBulkSelectorProps,
+      getClickableTrProps,
+    },
+    activeRowDerivedState: { activeRowItem, clearActiveRow },
+
+    selectionState: { selectedItems: selectedRows },
+  } = tableControls;
+
+  const {
+    reviews,
+    isFetching: isFetchingReviews,
+    fetchError: fetchErrorReviews,
+  } = useFetchReviews();
+
+  const appReview = reviews?.find(
+    (review) =>
+      review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
   );
 
-  const reviewSelectedRows = () => {
-    if (selectedRows.length !== 1) {
-      const msg = "The number of applications to be reviewed must be 1";
-      pushNotification({
-        title: msg,
-        variant: "danger",
-      });
-      return;
-    }
-
-    const row = selectedRows[0];
-    if (row.review) setReviewToEdit(row.id);
-    else {
-      history.push(
-        formatPath(Paths.applicationsReview, {
-          applicationId: row.id,
-        })
-      );
-    }
-  };
-
-  // Flags
-  const isReviewBtnDisabled = (row: Application) => {
-    if (reviewAssessmentSetting) return false;
-    const assessment = getApplicationAssessment(row.id!);
-    return assessment === undefined || assessment.status !== "COMPLETE";
-  };
+  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
+    React.useState(false);
 
   const userScopes: string[] = token?.scope.split(" ") || [],
     importWriteAccess = checkAccess(userScopes, importsWriteScopes),
@@ -589,350 +495,527 @@ export const ApplicationsTable: React.FC = () => {
     : [];
   const dropdownItems = [...importDropdownItems, ...applicationDeleteDropdown];
 
+  const assessSelectedApp = (application: Application) => {
+    // if application/archetype has an assessment, ask if user wants to override it
+    setAssessModalOpen(true);
+    setApplicationToAssess(application);
+    // if()
+    // assessApplication(
+    //   application,
+    //   (assessment: Assessment) => {
+    //     if (assessment.status === "COMPLETE") {
+    //       setAssessmentToEdit(assessment);
+    //     } else {
+    //       history.push(
+    //         formatPath(Paths.applicationsAssessment, {
+    //           assessmentId: assessment.id,
+    //         })
+    //       );
+    //     }
+    //   },
+    //   (error: AxiosError) => {
+    //     pushNotification({
+    //       title: getAxiosErrorMessage(error),
+    //       variant: "danger",
+    //     });
+    //   }
+    // );
+  };
+  const reviewSelectedApp = (application: Application) => {
+    if (application.review) {
+      setReviewToEdit(application.id);
+    } else {
+      history.push(
+        formatPath(Paths.applicationsReview, {
+          applicationId: application.id,
+        })
+      );
+    }
+  };
+
   return (
-    <>
-      <ConditionalRender
-        when={isFetching && !(applications || fetchError)}
-        then={<AppPlaceholder />}
+    <ConditionalRender
+      when={isFetchingApplications && !(applications || applicationsFetchError)}
+      then={<AppPlaceholder />}
+    >
+      <div
+        style={{
+          backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+        }}
       >
-        <AppTableWithControls
-          paginationProps={paginationProps}
-          paginationIdPrefix="app-assessment"
-          count={applications ? applications.length : 0}
-          sortBy={sortBy}
-          onSort={onSort}
-          onSelect={selectRow}
-          canSelectAll={false}
-          cells={columns}
-          rows={rows}
-          actionResolver={actionResolver}
-          isLoading={isFetching}
-          loadingVariant="skeleton"
-          fetchError={fetchError}
-          onAppClick={(application) => {
-            if (activeAppInDetailDrawer === application) {
-              closeDetailDrawer();
-            } else {
-              openDetailDrawer(application);
-            }
-          }}
-          toolbarToggle={
-            <FilterToolbar
-              filterCategories={filterCategories}
-              filterValues={filterValues}
-              setFilterValues={setFilterValues}
-            />
-          }
-          toolbarBulkSelector={
-            <ToolbarBulkSelector
-              onSelectAll={selectAll}
-              areAllSelected={areAllSelected}
-              selectedRows={selectedRows}
-              paginationProps={paginationProps}
-              currentPageItems={currentPageItems}
-              onSelectMultiple={selectMultiple}
-            />
-          }
-          toolbarClearAllFilters={handleOnClearAllFilters}
-          toolbarActions={
-            <>
-              <ToolbarGroup variant="button-group">
-                <ToolbarItem>
-                  <RBAC
-                    allowedPermissions={applicationsWriteScopes}
-                    rbacType={RBAC_TYPE.Scope}
+        <Toolbar {...toolbarProps}>
+          <ToolbarContent>
+            <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
+            <FilterToolbar {...filterToolbarProps} />
+            <ToolbarGroup variant="button-group">
+              <ToolbarItem>
+                <RBAC
+                  allowedPermissions={applicationsWriteScopes}
+                  rbacType={RBAC_TYPE.Scope}
+                >
+                  <Button
+                    type="button"
+                    id="create-application"
+                    aria-label="Create Application"
+                    variant={ButtonVariant.primary}
+                    onClick={() => {
+                      setSaveApplicationModalState("create");
+                    }}
                   >
-                    <Button
-                      type="button"
-                      id="create-application"
-                      aria-label="Create Application"
-                      variant={ButtonVariant.primary}
-                      onClick={() => {
-                        setSavesApplicationsModalState("create");
-                      }}
-                    >
-                      {t("actions.createNew")}
-                    </Button>
-                  </RBAC>
+                    {t("actions.createNew")}
+                  </Button>
+                </RBAC>
+              </ToolbarItem>
+              {dropdownItems.length ? (
+                <ToolbarItem>
+                  <Dropdown
+                    isOpen={isToolbarKebabOpen}
+                    onSelect={() => setIsToolbarKebabOpen(false)}
+                    onOpenChange={(_isOpen) => setIsToolbarKebabOpen(false)}
+                    toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                      <MenuToggle
+                        ref={toggleRef}
+                        aria-label="kebab dropdown toggle"
+                        variant="plain"
+                        onClick={() =>
+                          setIsToolbarKebabOpen(!isToolbarKebabOpen)
+                        }
+                        isExpanded={isToolbarKebabOpen}
+                      >
+                        <EllipsisVIcon />
+                      </MenuToggle>
+                    )}
+                    shouldFocusToggleOnSelect
+                  >
+                    {dropdownItems}
+                  </Dropdown>
                 </ToolbarItem>
-                <RBAC
-                  allowedPermissions={modifiedPathfinderWriteScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
-                  <ToolbarItem>
-                    <Button
-                      type="button"
-                      id="assess-application"
-                      aria-label="Assess Application"
-                      variant={ButtonVariant.primary}
-                      onClick={assessSelectedRows}
-                      isDisabled={
-                        selectedRows.length !== 1 ||
-                        isApplicationAssessInProgress
-                      }
-                      isLoading={isApplicationAssessInProgress}
+              ) : (
+                <></>
+              )}
+            </ToolbarGroup>
+
+            <ToolbarItem {...paginationToolbarItemProps}>
+              <SimplePagination
+                idPrefix="s-table"
+                isTop
+                paginationProps={paginationProps}
+              />
+            </ToolbarItem>
+          </ToolbarContent>
+        </Toolbar>
+        <Table {...tableProps} isExpandable aria-label="App assessments table">
+          <Thead>
+            <Tr>
+              <TableHeaderContentWithControls {...tableControls}>
+                <Th {...getThProps({ columnKey: "name" })} />
+                <Th {...getThProps({ columnKey: "description" })} />
+                <Th {...getThProps({ columnKey: "businessService" })} />
+                <Th {...getThProps({ columnKey: "assessment" })} />
+                <Th {...getThProps({ columnKey: "review" })} />
+                <Th {...getThProps({ columnKey: "tags" })} />
+              </TableHeaderContentWithControls>
+            </Tr>
+          </Thead>
+          <ConditionalTableBody
+            isError={!!applicationsFetchError}
+            isNoData={currentPageItems.length === 0}
+            noDataEmptyState={
+              <NoDataEmptyState
+                title={t("composed.noDataStateTitle", {
+                  what: t("terms.applications").toLowerCase(),
+                })}
+                description={t("composed.noDataStateBody", {
+                  what: t("terms.application").toLowerCase(),
+                })}
+              />
+            }
+            numRenderedColumns={numRenderedColumns}
+          >
+            <Tbody>
+              {currentPageItems?.map((application, rowIndex) => {
+                return (
+                  <Tr
+                    style={{ cursor: "pointer" }}
+                    key={application.name}
+                    {...getClickableTrProps({ item: application })}
+                  >
+                    <TableRowContentWithControls
+                      {...tableControls}
+                      item={application}
+                      rowIndex={rowIndex}
                     >
-                      {t("actions.assess")}
-                    </Button>
-                  </ToolbarItem>
-                </RBAC>
-                <RBAC
-                  allowedPermissions={modifiedPathfinderWriteScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
-                  <ToolbarItem>
-                    <Button
-                      type="button"
-                      id="review-application"
-                      aria-label="Review Application"
-                      variant={ButtonVariant.primary}
-                      onClick={reviewSelectedRows}
-                      isDisabled={
-                        selectedRows.length !== 1 ||
-                        isReviewBtnDisabled(selectedRows[0])
-                      }
-                    >
-                      {t("actions.review")}
-                    </Button>
-                  </ToolbarItem>
-                </RBAC>
-                {dropdownItems.length ? (
-                  <ToolbarItem>
-                    <KebabDropdown
-                      dropdownItems={dropdownItems}
-                    ></KebabDropdown>
-                  </ToolbarItem>
-                ) : (
-                  <></>
-                )}
-              </ToolbarGroup>
-            </>
-          }
-          noDataState={
-            <NoDataEmptyState
-              // t('terms.applications')
-              title={t("composed.noDataStateTitle", {
-                what: t("terms.applications").toLowerCase(),
+                      <Td
+                        width={20}
+                        {...getTdProps({ columnKey: "name" })}
+                        modifier="truncate"
+                      >
+                        {application.name}
+                      </Td>
+                      <Td
+                        width={25}
+                        {...getTdProps({ columnKey: "description" })}
+                        modifier="truncate"
+                      >
+                        {application.description}
+                      </Td>
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "businessService" })}
+                      >
+                        {application.businessService && (
+                          <ApplicationBusinessService
+                            id={application.businessService.id}
+                          />
+                        )}
+                      </Td>
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "assessment" })}
+                      >
+                        <ApplicationAssessmentStatus
+                          assessment={getApplicationAssessment(application.id!)}
+                          isLoading={isLoadingApplicationAssessment(
+                            application.id!
+                          )}
+                          fetchError={fetchErrorApplicationAssessment(
+                            application.id!
+                          )}
+                        />
+                      </Td>
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "review" })}
+                      >
+                        <IconedStatus
+                          preset={
+                            application.review ? "Completed" : "NotStarted"
+                          }
+                        />
+                      </Td>
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "tags" })}
+                      >
+                        <TagIcon />
+                        {application.tags ? application.tags.length : 0}
+                      </Td>
+                      <Td width={20}>
+                        <RBAC
+                          allowedPermissions={applicationsWriteScopes}
+                          rbacType={RBAC_TYPE.Scope}
+                        >
+                          <Button
+                            type="button"
+                            variant="plain"
+                            onClick={() =>
+                              setSaveApplicationModalState(application)
+                            }
+                          >
+                            <PencilAltIcon />
+                          </Button>
+                        </RBAC>
+                        <Dropdown
+                          isOpen={isKebabOpen === application.id}
+                          onSelect={() => setIsKebabOpen(null)}
+                          onOpenChange={(_isOpen) => setIsKebabOpen(null)}
+                          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                            <MenuToggle
+                              ref={toggleRef}
+                              aria-label="kebab dropdown toggle"
+                              variant="plain"
+                              onClick={() =>
+                                isKebabOpen
+                                  ? setIsKebabOpen(null)
+                                  : setIsKebabOpen(application.id)
+                              }
+                              isExpanded={isKebabOpen === rowIndex}
+                            >
+                              <EllipsisVIcon />
+                            </MenuToggle>
+                          )}
+                          shouldFocusToggleOnSelect
+                        >
+                          <DropdownItem
+                            key="assess"
+                            component="button"
+                            onClick={() => assessSelectedApp(application)}
+                          >
+                            {t("actions.assess")}
+                          </DropdownItem>
+                          <DropdownItem
+                            key="review"
+                            component="button"
+                            onClick={() => reviewSelectedApp(application)}
+                          >
+                            {t("actions.review")}
+                          </DropdownItem>
+                          <DropdownItem
+                            key="delete"
+                            component="button"
+                            onClick={() =>
+                              setApplicationsToDelete([application])
+                            }
+                          >
+                            {t("actions.delete")}
+                          </DropdownItem>
+                          <DropdownItem
+                            key="manage-dependencies"
+                            component="button"
+                            onClick={() => {
+                              setApplicationDependenciesToManage(application);
+                            }}
+                          >
+                            {t("actions.manageDependencies")}
+                          </DropdownItem>
+                        </Dropdown>
+                      </Td>
+                    </TableRowContentWithControls>
+                  </Tr>
+                );
               })}
-              // t('terms.application')
-              description={t("composed.noDataStateBody", {
-                what: t("terms.application").toLowerCase(),
-              })}
-            />
-          }
+            </Tbody>
+          </ConditionalTableBody>
+        </Table>
+        <SimplePagination
+          idPrefix="app-assessments-table"
+          isTop={false}
+          paginationProps={paginationProps}
         />
         <ApplicationDetailDrawerAssessment
-          application={activeAppInDetailDrawer}
-          onCloseClick={closeDetailDrawer}
+          application={activeRowItem}
+          onCloseClick={clearActiveRow}
           reviews={reviews}
           assessment={
-            (activeAppInDetailDrawer &&
-              getApplicationAssessment(activeAppInDetailDrawer.id!)) ||
+            (activeRowItem && getApplicationAssessment(activeRowItem.id)) ||
             null
           }
-          task={
-            activeAppInDetailDrawer ? getTask(activeAppInDetailDrawer) : null
+          task={activeRowItem ? getTask(activeRowItem) : null}
+        />
+        <Modal
+          title={
+            createUpdateApplications
+              ? t("dialog.title.updateApplication")
+              : t("dialog.title.newApplication")
           }
-        />
-      </ConditionalRender>
-      <Modal
-        title={
-          createUpdateApplications
-            ? t("dialog.title.updateApplication")
-            : t("dialog.title.newApplication")
-        }
-        variant="medium"
-        isOpen={isCreateUpdateApplicationsModalOpen}
-        onClose={() => setSavesApplicationsModalState(null)}
-      >
-        <ApplicationForm
-          application={createUpdateApplications}
-          onClose={() => setSavesApplicationsModalState(null)}
-        />
-      </Modal>
-      <Modal
-        isOpen={isCopyAssessmentModalOpen}
-        variant="large"
-        title={t("dialog.title.copyApplicationAssessmentFrom", {
-          what: applicationToCopyAssessmentFrom?.name,
-        })}
-        onClose={() => {
-          setAapplicationToCopyAssessmentFrom(null);
-          fetchApplications();
-        }}
-      >
-        {applicationToCopyAssessmentFrom && (
-          <BulkCopyAssessmentReviewForm
-            application={applicationToCopyAssessmentFrom}
-            assessment={
-              getApplicationAssessment(applicationToCopyAssessmentFrom.id)!
-            }
-            isSubmittingBulkCopy={isSubmittingBulkCopy}
-            setIsSubmittingBulkCopy={setIsSubmittingBulkCopy}
-            isCopying={isCopying}
-            createCopy={createCopy}
-            onSaved={() => {
-              setAapplicationToCopyAssessmentFrom(null);
-              fetchApplications();
-            }}
+          variant="medium"
+          isOpen={isCreateUpdateApplicationsModalOpen}
+          onClose={() => setSaveApplicationModalState(null)}
+        >
+          <ApplicationForm
+            application={createUpdateApplications}
+            onClose={() => setSaveApplicationModalState(null)}
           />
-        )}
-      </Modal>
-      <Modal
-        isOpen={isCopyAssessmentAndReviewModalOpen}
-        variant="large"
-        title={t("dialog.title.copyApplicationAssessmentAndReviewFrom", {
-          what: applicationToCopyAssessmentAndReviewFrom?.name,
-        })}
-        onClose={() => {
-          setCopyAssessmentAndReviewModalState(null);
-          fetchApplications();
-        }}
-      >
-        {applicationToCopyAssessmentAndReviewFrom && (
-          <BulkCopyAssessmentReviewForm
-            application={applicationToCopyAssessmentAndReviewFrom}
-            assessment={
-              getApplicationAssessment(
-                applicationToCopyAssessmentAndReviewFrom.id!
-              )!
-            }
-            review={appReview}
-            isSubmittingBulkCopy={isSubmittingBulkCopy}
-            setIsSubmittingBulkCopy={setIsSubmittingBulkCopy}
-            isCopying={isCopying}
-            createCopy={createCopy}
-            onSaved={() => {
-              setCopyAssessmentAndReviewModalState(null);
-              fetchApplications();
-            }}
-          />
-        )}
-      </Modal>
-      <Modal
-        isOpen={isDependenciesModalOpen}
-        variant="medium"
-        title={t("composed.manageDependenciesFor", {
-          what: applicationDependenciesToManage?.name,
-        })}
-        onClose={() => setApplicationDependenciesToManage(null)}
-      >
-        {applicationDependenciesToManage && (
-          <ApplicationDependenciesFormContainer
-            application={applicationDependenciesToManage}
-            onCancel={() => setApplicationDependenciesToManage(null)}
-          />
-        )}
-      </Modal>
-      <Modal
-        isOpen={isApplicationImportModalOpen}
-        variant="medium"
-        title={t("dialog.title.importApplicationFile")}
-        onClose={() => setIsApplicationImportModalOpen((current) => !current)}
-      >
-        <ImportApplicationsForm
-          onSaved={() => {
-            setIsApplicationImportModalOpen(false);
+        </Modal>
+        <Modal
+          isOpen={isCopyAssessmentModalOpen}
+          variant="large"
+          title={t("dialog.title.copyApplicationAssessmentFrom", {
+            what: applicationToCopyAssessmentFrom?.name,
+          })}
+          onClose={() => {
+            setApplicationToCopyAssessmentFrom(null);
             fetchApplications();
           }}
-        />
-      </Modal>
-      <ConfirmDialog
-        title={t("dialog.title.delete", {
-          what:
-            applicationsToDelete.length > 1
-              ? t("terms.application(s)").toLowerCase()
-              : t("terms.application").toLowerCase(),
-        })}
-        titleIconVariant={"warning"}
-        isOpen={applicationsToDelete.length > 0}
-        message={`${t("dialog.message.applicationsBulkDelete")} ${t(
-          "dialog.message.delete"
-        )}`}
-        aria-label="Applications bulk delete"
-        confirmBtnVariant={ButtonVariant.danger}
-        confirmBtnLabel={t("actions.delete")}
-        cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => setApplicationsToDelete([])}
-        onClose={() => setApplicationsToDelete([])}
-        onConfirm={() => {
-          const ids = applicationsToDelete
-            .filter((application) => application.id)
-            .map((application) => application.id);
-          if (ids) bulkDeleteApplication({ ids: ids });
-        }}
-      />
-      <ConfirmDialog
-        title={t("dialog.title.discard", {
-          what: t("terms.assessment").toLowerCase(),
-        })}
-        titleIconVariant={"warning"}
-        isOpen={assessmentOrReviewToDiscard !== null}
-        message={
-          <span>
-            <Trans
-              i18nKey="dialog.message.discardAssessment"
-              values={{
-                applicationName: assessmentOrReviewToDiscard?.name,
+        >
+          {applicationToCopyAssessmentFrom && (
+            <BulkCopyAssessmentReviewForm
+              application={applicationToCopyAssessmentFrom}
+              assessment={
+                getApplicationAssessment(applicationToCopyAssessmentFrom.id)!
+              }
+              isSubmittingBulkCopy={isSubmittingBulkCopy}
+              setIsSubmittingBulkCopy={setIsSubmittingBulkCopy}
+              isCopying={isCopying}
+              createCopy={createCopy}
+              onSaved={() => {
+                setApplicationToCopyAssessmentFrom(null);
+                fetchApplications();
               }}
-            >
-              The assessment for <strong>applicationName</strong> will be
-              discarded, as well as the review result. Do you wish to continue?
-            </Trans>
-          </span>
-        }
-        confirmBtnVariant={ButtonVariant.primary}
-        confirmBtnLabel={t("actions.continue")}
-        cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => setAssessmentOrReviewToDiscard(null)}
-        onClose={() => setAssessmentOrReviewToDiscard(null)}
-        onConfirm={() => {
-          discardAssessmentAndReview(assessmentOrReviewToDiscard!);
-          setAssessmentOrReviewToDiscard(null);
-        }}
-      />
-      <ConfirmDialog
-        title={t("composed.editQuestion", {
-          what: t("terms.assessment").toLowerCase(),
-        })}
-        titleIconVariant={"warning"}
-        isOpen={assessmentToEdit !== null}
-        message={t("message.overrideAssessmentConfirmation")}
-        confirmBtnVariant={ButtonVariant.primary}
-        confirmBtnLabel={t("actions.continue")}
-        cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => setAssessmentToEdit(null)}
-        onClose={() => setAssessmentToEdit(null)}
-        onConfirm={() => {
-          history.push(
-            formatPath(Paths.applicationsAssessment, {
-              assessmentId: assessmentToEdit?.id,
-            })
-          );
-          setAssessmentToEdit(null);
-        }}
-      />
-      <ConfirmDialog
-        title={t("composed.editQuestion", {
-          what: t("terms.review").toLowerCase(),
-        })}
-        titleIconVariant={"warning"}
-        isOpen={reviewToEdit !== null}
-        message={t("message.overrideReviewConfirmation")}
-        confirmBtnVariant={ButtonVariant.primary}
-        confirmBtnLabel={t("actions.continue")}
-        cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => setReviewToEdit(null)}
-        onClose={() => setReviewToEdit(null)}
-        onConfirm={() => {
-          history.push(
-            formatPath(Paths.applicationsReview, {
-              applicationId: reviewToEdit,
-            })
-          );
-          setReviewToEdit(null);
-        }}
-      />
-    </>
+            />
+          )}
+        </Modal>
+        <Modal
+          isOpen={isCopyAssessmentAndReviewModalOpen}
+          variant="large"
+          title={t("dialog.title.copyApplicationAssessmentAndReviewFrom", {
+            what: applicationToCopyAssessmentAndReviewFrom?.name,
+          })}
+          onClose={() => {
+            setCopyAssessmentAndReviewModalState(null);
+            fetchApplications();
+          }}
+        >
+          {applicationToCopyAssessmentAndReviewFrom && (
+            <BulkCopyAssessmentReviewForm
+              application={applicationToCopyAssessmentAndReviewFrom}
+              assessment={
+                getApplicationAssessment(
+                  applicationToCopyAssessmentAndReviewFrom.id!
+                )!
+              }
+              review={appReview}
+              isSubmittingBulkCopy={isSubmittingBulkCopy}
+              setIsSubmittingBulkCopy={setIsSubmittingBulkCopy}
+              isCopying={isCopying}
+              createCopy={createCopy}
+              onSaved={() => {
+                setCopyAssessmentAndReviewModalState(null);
+                fetchApplications();
+              }}
+            />
+          )}
+        </Modal>
+        <Modal
+          isOpen={isDependenciesModalOpen}
+          variant="medium"
+          title={t("composed.manageDependenciesFor", {
+            what: applicationDependenciesToManage?.name,
+          })}
+          onClose={() => setApplicationDependenciesToManage(null)}
+        >
+          {applicationDependenciesToManage && (
+            <ApplicationDependenciesFormContainer
+              application={applicationDependenciesToManage}
+              onCancel={() => setApplicationDependenciesToManage(null)}
+            />
+          )}
+        </Modal>
+        <Modal
+          isOpen={isApplicationImportModalOpen}
+          variant="medium"
+          title={t("dialog.title.importApplicationFile")}
+          onClose={() => setIsApplicationImportModalOpen((current) => !current)}
+        >
+          <ImportApplicationsForm
+            onSaved={() => {
+              setIsApplicationImportModalOpen(false);
+              fetchApplications();
+            }}
+          />
+        </Modal>
+        <ConfirmDialog
+          title={t("dialog.title.delete", {
+            what:
+              applicationsToDelete.length > 1
+                ? t("terms.application(s)").toLowerCase()
+                : t("terms.application").toLowerCase(),
+          })}
+          titleIconVariant={"warning"}
+          isOpen={applicationsToDelete.length > 0}
+          message={`${t("dialog.message.applicationsBulkDelete")} ${t(
+            "dialog.message.delete"
+          )}`}
+          aria-label="Applications bulk delete"
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setApplicationsToDelete([])}
+          onClose={() => setApplicationsToDelete([])}
+          onConfirm={() => {
+            const ids = applicationsToDelete
+              .filter((application) => application.id)
+              .map((application) => application.id);
+            if (ids) bulkDeleteApplication({ ids: ids });
+          }}
+        />
+        <ConfirmDialog
+          title={t("dialog.title.discard", {
+            what: t("terms.assessment").toLowerCase(),
+          })}
+          titleIconVariant={"warning"}
+          isOpen={assessmentOrReviewToDiscard !== null}
+          message={
+            <span>
+              <Trans
+                i18nKey="dialog.message.discardAssessment"
+                values={{
+                  applicationName: assessmentOrReviewToDiscard?.name,
+                }}
+              >
+                The assessment for <strong>applicationName</strong> will be
+                discarded, as well as the review result. Do you wish to
+                continue?
+              </Trans>
+            </span>
+          }
+          confirmBtnVariant={ButtonVariant.primary}
+          confirmBtnLabel={t("actions.continue")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setAssessmentOrReviewToDiscard(null)}
+          onClose={() => setAssessmentOrReviewToDiscard(null)}
+          onConfirm={() => {
+            discardAssessmentAndReview(assessmentOrReviewToDiscard!);
+            setAssessmentOrReviewToDiscard(null);
+          }}
+        />
+        <ConfirmDialog
+          title={t("composed.editQuestion", {
+            what: t("terms.assessment").toLowerCase(),
+          })}
+          titleIconVariant={"warning"}
+          isOpen={assessmentToEdit !== null}
+          message={t("message.overrideAssessmentConfirmation")}
+          confirmBtnVariant={ButtonVariant.primary}
+          confirmBtnLabel={t("actions.continue")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setAssessmentToEdit(null)}
+          onClose={() => setAssessmentToEdit(null)}
+          onConfirm={() => {
+            history.push(
+              formatPath(Paths.applicationsAssessment, {
+                assessmentId: assessmentToEdit?.id,
+              })
+            );
+            setAssessmentToEdit(null);
+          }}
+        />
+        <ConfirmDialog
+          title={t("composed.editQuestion", {
+            what: t("terms.review").toLowerCase(),
+          })}
+          titleIconVariant={"warning"}
+          isOpen={reviewToEdit !== null}
+          message={t("message.overrideReviewConfirmation")}
+          confirmBtnVariant={ButtonVariant.primary}
+          confirmBtnLabel={t("actions.continue")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setReviewToEdit(null)}
+          onClose={() => setReviewToEdit(null)}
+          onConfirm={() => {
+            history.push(
+              formatPath(Paths.applicationsReview, {
+                applicationId: reviewToEdit,
+              })
+            );
+            setReviewToEdit(null);
+          }}
+        />
+        <ConfirmDialog
+          title={t("dialog.title.newAssessment")}
+          titleIconVariant={"warning"}
+          isOpen={isAssessModalOpen}
+          message={t("message.overrideArchetypeConfirmation")}
+          confirmBtnVariant={ButtonVariant.primary}
+          confirmBtnLabel={t("actions.accept")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setApplicationToAssess(null)}
+          onClose={() => setApplicationToAssess(null)}
+          onConfirm={() => {
+            applicationToAssess &&
+              history.push(
+                formatPath(Paths.assessmentActions, {
+                  applicationId: applicationToAssess?.id,
+                })
+              );
+            setApplicationToAssess(null);
+          }}
+        />
+      </div>
+    </ConditionalRender>
   );
 };
