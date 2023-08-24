@@ -30,7 +30,7 @@ export const HookFormPFTextArea = <
       {...extractedProps}
       renderInput={({
         field: { onChange, onBlur, value, name, ref },
-        fieldState: { isDirty, error },
+        fieldState: { isDirty, error, isTouched },
       }) => (
         <TextArea
           ref={ref}
@@ -44,7 +44,7 @@ export const HookFormPFTextArea = <
           validated={
             errorsSuppressed
               ? "default"
-              : getValidatedFromErrors(error, isDirty)
+              : getValidatedFromErrors(error, isDirty, isTouched)
           }
           {...remainingProps}
         />

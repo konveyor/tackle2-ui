@@ -59,8 +59,9 @@ export const HookFormPFGroupController = <
     control={control}
     name={name}
     render={({ field, fieldState, formState }) => {
-      const { isDirty, error } = fieldState;
-      const shouldDisplayError = error?.message && isDirty && !errorsSuppressed;
+      const { isDirty, isTouched, error } = fieldState;
+      const shouldDisplayError =
+        error?.message && (isDirty || isTouched) && !errorsSuppressed;
       return (
         <FormGroup
           labelIcon={labelIcon}

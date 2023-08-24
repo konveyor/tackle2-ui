@@ -92,9 +92,10 @@ export const objectKeys = <T extends Object>(obj: T) =>
 
 export const getValidatedFromErrors = (
   error: unknown | undefined,
-  dirty: boolean | undefined
+  dirty: boolean | undefined,
+  isTouched: boolean | undefined
 ) => {
-  return error && dirty ? "error" : "default";
+  return error && (dirty || isTouched) ? "error" : "default";
 };
 
 export const getValidatedFromError = (error: unknown | undefined) => {

@@ -159,7 +159,7 @@ export const ApplicationIdentityForm: React.FC<
     resolver: yupResolver(
       validationSchema({ [SOURCE_CREDENTIALS]: false, [MAVEN_SETTINGS]: false })
     ),
-    mode: "onChange",
+    mode: "all",
   });
 
   useEffect(() => {
