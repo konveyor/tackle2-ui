@@ -6,6 +6,11 @@ import {
   Title,
   Tooltip,
   Button,
+  Divider,
+  DescriptionList,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  DescriptionListDescription,
 } from "@patternfly/react-core";
 import {
   CheckCircleIcon,
@@ -23,8 +28,10 @@ import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { useFetchFacts } from "@app/queries/facts";
 import { ApplicationFacts } from "./application-facts";
 import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
-import { getTaskById } from "@app/api/rest";
+import { APPLICATIONS, getTaskById } from "@app/api/rest";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
+import { Link } from "react-router-dom";
+import DownloadButton, { MimeType } from "./components/download-button";
 
 export interface IApplicationDetailDrawerAnalysisProps
   extends Pick<
@@ -100,23 +107,57 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
           </Title>
           {task?.state === "Succeeded" && application ? (
             <>
-              <Tooltip content="View Report">
-                <Button
-                  icon={
-                    <span className={spacing.mrXs}>
-                      <ExclamationCircleIcon
-                        color={COLOR_HEX_VALUES_BY_NAME.blue}
-                      ></ExclamationCircleIcon>
-                    </span>
-                  }
-                  type="button"
-                  variant="link"
-                  isInline
-                  onClick={() => setAppAnalysisToView(application.id)}
-                >
-                  View analysis
-                </Button>
-              </Tooltip>
+              <DescriptionList
+                isHorizontal
+                columnModifier={{ default: "2Col" }}
+              >
+                <DescriptionListGroup>
+                  <DescriptionListTerm>Details</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    <Tooltip content="View the analysis task details">
+                      <Button
+                        icon={
+                          <span className={spacing.mrXs}>
+                            <ExclamationCircleIcon
+                              color={COLOR_HEX_VALUES_BY_NAME.blue}
+                            ></ExclamationCircleIcon>
+                          </span>
+                        }
+                        type="button"
+                        variant="link"
+                        onClick={() => setAppAnalysisToView(application.id)}
+                        className={spacing.ml_0}
+                        style={{ margin: "0", padding: "0" }}
+                      >
+                        View analysis details
+                      </Button>
+                    </Tooltip>
+                  </DescriptionListDescription>
+                  <DescriptionListTerm>Download</DescriptionListTerm>
+                  <DescriptionListDescription>
+                    <Tooltip
+                      content="Click to download Analysis report"
+                      position="top"
+                    >
+                      <DownloadButton
+                        application={application}
+                        mimeType={MimeType.TAR}
+                      />
+                    </Tooltip>
+                    {" | "}
+                    <Tooltip
+                      content="Click to download Analysis report"
+                      position="top"
+                    >
+                      <DownloadButton
+                        application={application}
+                        mimeType={MimeType.YAML}
+                      />
+                    </Tooltip>
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+              </DescriptionList>
+              <Divider className={spacing.mtMd}></Divider>
             </>
           ) : task?.state === "Failed" ? (
             task ? (
