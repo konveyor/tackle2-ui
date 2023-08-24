@@ -98,14 +98,14 @@ const Questionnaire: React.FC = () => {
               backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
               display: "flex",
             }}
+            className="tabs-vertical-container"
           >
             <Tabs
               activeKey={activeTabKey}
               onSelect={handleTabClick}
               isVertical
-              aria-label="Tabs in the vertical example"
+              aria-label="Tabs for questionnaire sections"
               role="region"
-              className="tabs-vertical-container"
             >
               {assessmentData?.sections.map((section, index) => {
                 return (
@@ -117,16 +117,10 @@ const Questionnaire: React.FC = () => {
                       </TabTitleText>
                     }
                   >
-                    <TabContent
-                      id={section.name}
-                      className="tab-content-container"
-                      style={{ flex: 1 }}
-                    >
-                      <QuestionsTable
-                        fetchError={fetchError}
-                        questions={activeSection?.questions}
-                      />
-                    </TabContent>
+                    <QuestionsTable
+                      fetchError={fetchError}
+                      questions={activeSection?.questions}
+                    />
                   </Tab>
                 );
               })}
