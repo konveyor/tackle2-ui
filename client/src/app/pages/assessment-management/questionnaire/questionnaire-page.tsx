@@ -11,6 +11,10 @@ import {
   TabTitleText,
   Tabs,
   TabContent,
+  Toolbar,
+  ToolbarItem,
+  SearchInput,
+  ToolbarContent,
 } from "@patternfly/react-core";
 import { YamlAssessment } from "@app/api/models";
 import { Link } from "react-router-dom";
@@ -52,6 +56,8 @@ const Questionnaire: React.FC = () => {
   }, []);
   // ------------------------!!
 
+  const [searchValue, setSearchValue] = React.useState("");
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -74,6 +80,19 @@ const Questionnaire: React.FC = () => {
           when={fetchError}
           then={<AppPlaceholder />}
         >
+          <Toolbar>
+            <ToolbarContent>
+              <ToolbarItem widths={{ default: "300px" }}>
+                <SearchInput
+                  placeholder="Search questions"
+                  value={searchValue}
+                  onChange={(_event, value) => setSearchValue(value)}
+                  onClear={() => setSearchValue("")}
+                  resultsCount={2}
+                />
+              </ToolbarItem>
+            </ToolbarContent>
+          </Toolbar>
           <div
             style={{
               backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
@@ -86,7 +105,6 @@ const Questionnaire: React.FC = () => {
               isVertical
               aria-label="Tabs in the vertical example"
               role="region"
-              width="50px"
               className="tabs-vertical-container"
             >
               {assessmentData?.sections.map((section, index) => {
