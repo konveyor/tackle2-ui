@@ -175,7 +175,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       autoTaggingEnabled: true,
     },
     resolver: yupResolver(allFieldsSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const { handleSubmit, watch, reset } = methods;

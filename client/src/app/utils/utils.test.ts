@@ -70,16 +70,18 @@ describe("utils", () => {
   it("getValidatedFromErrors: given 'error' and 'touched' return 'error'", () => {
     const error = "Any value";
     const dirty = true;
+    const isTouched = true;
 
-    const status = getValidatedFromErrors(error, dirty);
+    const status = getValidatedFromErrors(error, dirty, isTouched);
     expect(status).toBe("error");
   });
 
   it("getValidatedFromErrors: given 'error' but not 'touched' return 'default'", () => {
     const error = "Any value";
     const dirty = false;
+    const isTouched = false;
 
-    const status = getValidatedFromErrors(error, dirty);
+    const status = getValidatedFromErrors(error, dirty, isTouched);
     expect(status).toBe("default");
   });
 

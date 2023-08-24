@@ -92,7 +92,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
         : null,
     },
     resolver: yupResolver(validationSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const onTagSuccess = (_: AxiosResponse<TagCategory>) =>
