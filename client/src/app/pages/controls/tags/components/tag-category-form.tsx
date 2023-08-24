@@ -92,7 +92,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
         : null,
     },
     resolver: yupResolver(validationSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const onTagSuccess = (_: AxiosResponse<TagCategory>) =>
@@ -189,7 +189,12 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
             onMinus={() => {
               onChange((value || 0) - 1);
             }}
-            onChange={() => onChange}
+            onChange={(event) => {
+              const target = event?.target as HTMLInputElement;
+              if (target) {
+                onChange(target.valueAsNumber);
+              }
+            }}
             onPlus={() => {
               onChange((value || 0) + 1);
             }}

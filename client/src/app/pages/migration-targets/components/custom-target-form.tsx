@@ -184,7 +184,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       rootPath: target?.ruleset?.repository?.path,
     },
     resolver: yupResolver(validationSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const {
@@ -308,7 +308,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
               return handleFileUpload(defaultImageFile);
             })
             .then((res) => {
-              console.log("res ", res);
               updateTarget({
                 ...payload,
                 image: { id: res.id },
@@ -329,7 +328,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
               return handleFileUpload(defaultImageFile);
             })
             .then((res) => {
-              console.log("res ", res);
               createTarget({
                 ...payload,
                 image: { id: res.id },

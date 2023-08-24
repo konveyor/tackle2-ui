@@ -211,7 +211,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     watch,
     trigger,
   } = useForm<WaveFormValues>({
-    mode: "onChange",
+    mode: "all",
     defaultValues: {
       name: migrationWave?.name || "",
       startDateStr: migrationWave?.startDate

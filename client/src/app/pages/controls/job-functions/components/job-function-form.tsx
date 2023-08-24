@@ -67,7 +67,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
       name: jobFunction?.name || "",
     },
     resolver: yupResolver(validationSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const onCreateJobFunctionSuccess = (response: AxiosResponse<JobFunction>) => {

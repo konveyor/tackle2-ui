@@ -19,6 +19,7 @@ export enum Paths {
   applicationsImports = "/applications/application-imports",
   applicationsImportsDetails = "/applications/application-imports/:importId",
   applicationsAssessment = "/applications/assessment/:assessmentId",
+  assessmentActions = "/applications/assessment-actions/:applicationId",
   applicationsReview = "/applications/application/:applicationId/review",
   applicationsAnalysis = "/applications/analysis",
   controls = "/controls",
@@ -54,6 +55,10 @@ export enum Paths {
 
 export interface AssessmentRoute {
   assessmentId: string;
+}
+
+export interface AssessmentActionsRoute {
+  applicationId: string;
 }
 
 export interface ReviewRoute {
