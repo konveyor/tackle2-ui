@@ -111,7 +111,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
       ),
     },
     resolver: yupResolver(validationSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const onCreateStakeholderSuccess = (_: AxiosResponse<Stakeholder>) =>

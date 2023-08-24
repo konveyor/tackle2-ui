@@ -98,7 +98,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
       comments: review?.comments || "",
     },
     resolver: yupResolver(validationSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const onInvalid = (errors: FieldErrors<FormValues>) => {

@@ -392,7 +392,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       user: identity?.user || "",
     },
     resolver: yupResolver(validationSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const values = getValues();
