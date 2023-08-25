@@ -14,30 +14,33 @@ import {
 } from "@patternfly/react-core";
 
 export interface IAutocompleteProps {
+  onChange: (selections: string[]) => void;
   options?: string[];
   placeholderText?: string;
   searchString?: string;
   searchInputAriaLabel?: string;
   labelColor?: LabelProps["color"];
-  selections?: Set<string>;
+  selections?: string[];
   menuHeader?: string;
   noResultsMessage?: string;
 }
 
 export const Autocomplete: React.FC<IAutocompleteProps> = ({
-  // TODO: data just for testing purposes, should be removed
+  onChange,
   options = [],
   placeholderText = "Search",
   searchString = "",
   searchInputAriaLabel = "Search input",
   labelColor,
-  selections = new Set<string>(),
+  selections = [],
   menuHeader = "Suggestions",
   noResultsMessage = "No results found",
 }) => {
   const [inputValue, setInputValue] = useState(searchString);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
-  const [currentChips, setCurrentChips] = useState<Set<string>>(selections);
+  const [currentChips, setCurrentChips] = useState<Set<string>>(
+    new Set(selections)
+  );
   const [hint, setHint] = useState("");
   const [menuItems, setMenuItems] = useState<React.ReactElement[]>([]);
 
@@ -46,10 +49,20 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
+    onChange([...currentChips]);
+    buildMenu();
+  }, [currentChips]);
+
+  React.useEffect(() => {
+    buildMenu();
+  }, [options]);
+
+  const buildMenu = () => {
     /** in the menu only show items that include the text in the input */
     const filteredMenuItems = options
       .filter(
-        (item: string) =>
+        (item: string, index: number, arr: string[]) =>
+          arr.indexOf(item) === index &&
           !currentChips.has(item) &&
           (!inputValue || item.toLowerCase().includes(inputValue.toLowerCase()))
       )
@@ -95,7 +108,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     const divider = <Divider key="divider" />;
 
     setMenuItems([headingItem, divider, ...filteredMenuItems]);
-  }, [inputValue, currentChips]);
+  };
 
   /** callback for updating the inputValue state in this component so that the input can be controlled */
   const handleInputChange = (
@@ -103,6 +116,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     value: string
   ) => {
     setInputValue(value);
+    buildMenu();
   };
 
   /** callback for removing a chip from the chip selections */
@@ -189,7 +203,6 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
 
   /** add the text of the selected item as a new chip */
   const onSelect = (event?: React.MouseEvent<Element, MouseEvent>) => {
-    console.log("onselect");
     if (!event) {
       return;
     }
@@ -267,12 +280,8 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
       <FlexItem>
         <Flex spaceItems={{ default: "spaceItemsXs" }}>
           {Array.from(currentChips).map((currentChip) => (
-            <FlexItem>
-              <Label
-                color={labelColor}
-                key={currentChip}
-                onClose={() => deleteChip(currentChip)}
-              >
+            <FlexItem key={currentChip}>
+              <Label color={labelColor} onClose={() => deleteChip(currentChip)}>
                 {currentChip}
               </Label>
             </FlexItem>
