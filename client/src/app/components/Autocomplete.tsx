@@ -119,8 +119,6 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     buildMenu();
   };
 
-  const handleClearInput = () => {};
-
   /** callback for removing a chip from the chip selections */
   const deleteChip = (chipToDelete: string) => {
     const newChips = new Set(currentChips);
