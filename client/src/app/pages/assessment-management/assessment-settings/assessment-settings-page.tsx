@@ -50,6 +50,7 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { Questionnaire } from "@app/api/models";
 import { useHistory } from "react-router-dom";
 import { Paths } from "@app/Paths";
+import { ImportQuestionnaireForm } from "@app/pages/assessment/import-questionnaire-form/import-questionnaire-form";
 
 const AssessmentSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -382,7 +383,7 @@ const AssessmentSettings: React.FC = () => {
         isOpen={isImportModal}
         onClose={() => setIsImportModal(false)}
       >
-        <Text>TODO Import questionnaire component</Text>
+        <ImportQuestionnaireForm onSaved={() => setIsImportModal(false)} />
       </Modal>
       <Modal
         id="download.template.modal"
