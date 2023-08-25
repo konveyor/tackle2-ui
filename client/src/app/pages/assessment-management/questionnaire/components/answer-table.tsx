@@ -44,7 +44,7 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({ answers }) => {
       case "green":
         return <IconedStatus preset="Ok" />;
       case "red":
-        <IconedStatus icon={<TimesCircleIcon />} status="danger" />;
+        return <IconedStatus icon={<TimesCircleIcon />} status="danger" />;
       case "yellow":
         return <IconedStatus icon={<WarningTriangleIcon />} status="warning" />;
       default:
