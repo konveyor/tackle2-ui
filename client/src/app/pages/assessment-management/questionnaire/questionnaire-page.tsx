@@ -152,6 +152,8 @@ const Questionnaire: React.FC = () => {
                       fetchError={fetchError}
                       questions={allMatchingQuestions}
                       isSearching={!!searchValue}
+                      assessmentData={assessmentData}
+                      isAllQuestionsTab
                     />
                   </Tab>,
                   ...(assessmentData?.sections.map((section, index) => {
@@ -173,6 +175,7 @@ const Questionnaire: React.FC = () => {
                           fetchError={fetchError}
                           questions={filteredQuestions}
                           isSearching={!!searchValue}
+                          assessmentData={assessmentData}
                         />
                       </Tab>
                     );
