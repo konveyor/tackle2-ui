@@ -362,9 +362,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       identities: application?.identities ? application.identities : undefined,
     };
 
-    console.log({ payload });
-    return;
-
     if (application) {
       updateApplication({ ...payload });
     } else {
