@@ -119,6 +119,8 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     buildMenu();
   };
 
+  const handleClearInput = () => {};
+
   /** callback for removing a chip from the chip selections */
   const deleteChip = (chipToDelete: string) => {
     const newChips = new Set(currentChips);
@@ -248,6 +250,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
         value={inputValue}
         hint={hint}
         onChange={handleInputChange}
+        onClear={() => setInputValue("")}
         onFocus={() => setMenuIsOpen(true)}
         onKeyDown={handleTextInputKeyDown}
         placeholder={placeholderText}
@@ -257,7 +260,12 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   );
 
   const menu = (
-    <Menu ref={menuRef} onSelect={onSelect} onKeyDown={handleMenuKeyDown}>
+    <Menu
+      ref={menuRef}
+      onSelect={onSelect}
+      onKeyDown={handleMenuKeyDown}
+      isScrollable
+    >
       <MenuContent>
         <MenuList>{menuItems}</MenuList>
       </MenuContent>
