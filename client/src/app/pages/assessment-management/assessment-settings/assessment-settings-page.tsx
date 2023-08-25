@@ -45,7 +45,7 @@ import {
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { Questionnaire } from "@app/api/models";
 import { useHistory } from "react-router-dom";
 import { Paths } from "@app/Paths";
@@ -333,7 +333,11 @@ const AssessmentSettings: React.FC = () => {
                                 key="view"
                                 component="button"
                                 onClick={() => {
-                                  history.push(Paths.questionnaire);
+                                  history.push(
+                                    formatPath(Paths.questionnaire, {
+                                      questionnaireId: questionnaire.id,
+                                    })
+                                  );
                                 }}
                               >
                                 {t("actions.view")}
