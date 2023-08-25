@@ -32,7 +32,6 @@ const Questionnaire: React.FC = () => {
   const [activeSectionIndex, setActiveSectionIndex] = React.useState<
     "all" | number
   >("all");
-  console.log({ activeSectionIndex });
 
   const handleTabClick = (
     _event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent,
