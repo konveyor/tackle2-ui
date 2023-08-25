@@ -239,7 +239,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
         {
           title: (
             <ApplicationAssessmentStatus
-              assessment={getApplicationAssessment(app.id!)}
+              assessments={app.assessments}
               isLoading={isLoadingApplicationAssessment(app.id!)}
               fetchError={fetchErrorApplicationAssessment(app.id!)}
             />

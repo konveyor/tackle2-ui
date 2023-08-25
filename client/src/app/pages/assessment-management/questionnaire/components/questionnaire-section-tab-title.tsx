@@ -1,13 +1,13 @@
 import React from "react";
 import { TabTitleText, Badge } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { CustomYamlAssessmentQuestion } from "@app/api/models";
+import { Question } from "@app/api/models";
 
 const QuestionnaireSectionTabTitle: React.FC<{
   isSearching: boolean;
   sectionName: string;
-  unfilteredQuestions: CustomYamlAssessmentQuestion[];
-  filteredQuestions: CustomYamlAssessmentQuestion[];
+  unfilteredQuestions: Question[];
+  filteredQuestions: Question[];
 }> = ({ isSearching, sectionName, unfilteredQuestions, filteredQuestions }) => (
   <TabTitleText aria-label="vertical" role="region">
     {sectionName}

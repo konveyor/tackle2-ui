@@ -15,8 +15,8 @@ import {
   Assessment,
   ITypeOptions,
   Question,
-  QuestionnaireCategory,
   Risk,
+  Section,
 } from "@app/api/models";
 
 import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
@@ -27,11 +27,14 @@ import {
   FilterType,
 } from "@app/components/FilterToolbar/FilterToolbar";
 import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
+import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 
 interface ITableItem {
   answerValue: string;
-  riskValue: Risk;
-  category: QuestionnaireCategory;
+  //TODO: fix this once the API is updated
+  // riskValue: Risk;
+  riskValue: string;
+  section: Section;
   question: Question;
 }
 
@@ -43,19 +46,27 @@ export const ApplicationAssessmentSummaryTable: React.FC<
   IApplicationAssessmentSummaryTableProps
 > = ({ assessment }) => {
   const { t } = useTranslation();
+  const { questionnaires } = useFetchQuestionnaires();
+
+  const matchingQuestionnaire = questionnaires.find(
+    (questionnaire) => questionnaire.id === assessment?.questionnaire?.id
+  );
+  if (!matchingQuestionnaire) {
+    return null;
+  }
 
   const tableItems: ITableItem[] = useMemo(() => {
-    return assessment.questionnaire.categories
+    return matchingQuestionnaire.sections
       .slice(0)
-      .map((category) => {
-        const result: ITableItem[] = category.questions.map((question) => {
-          const checkedOption = question.options.find(
-            (q) => q.checked === true
+      .map((section) => {
+        const result: ITableItem[] = section.questions.map((question) => {
+          const checkedOption = question.answers.find(
+            (q) => q.selected === true
           );
           const item: ITableItem = {
-            answerValue: checkedOption ? checkedOption.option : "",
+            answerValue: checkedOption ? checkedOption.text : "",
             riskValue: checkedOption ? checkedOption.risk : "UNKNOWN",
-            category,
+            section,
             question,
           };
           return item;
@@ -64,8 +75,8 @@ export const ApplicationAssessmentSummaryTable: React.FC<
       })
       .flatMap((f) => f)
       .sort((a, b) => {
-        if (a.category.order !== b.category.order) {
-          return a.category.order - b.category.order;
+        if (a.section.order !== b.section.order) {
+          return a.section.order - b.section.order;
         } else {
           return a.question.order - b.question.order;
         }
@@ -96,10 +107,11 @@ export const ApplicationAssessmentSummaryTable: React.FC<
     filterCategories
   );
   const getSortValues = (tableItem: ITableItem) => [
-    tableItem.category.title || "",
-    tableItem.question.question || "",
+    tableItem.section.name || "",
+    tableItem.question.text || "",
     tableItem.answerValue || "",
-    RISK_LIST[tableItem.riskValue].sortFactor || "",
+    //TODO: fix this once the API is updated
+    // RISK_LIST[tableItem.riskValue].sortFactor || "",
   ];
 
   const { sortBy, onSort, sortedItems } = useLegacySortState(
@@ -142,14 +154,12 @@ export const ApplicationAssessmentSummaryTable: React.FC<
       cells: [
         {
           title: (
-            <TableText wrapModifier="truncate">{item.category.title}</TableText>
+            <TableText wrapModifier="truncate">{item.section.name}</TableText>
           ),
         },
         {
           title: (
-            <TableText wrapModifier="truncate">
-              {item.question.question}
-            </TableText>
+            <TableText wrapModifier="truncate">{item.question.text}</TableText>
           ),
         },
         {
@@ -158,7 +168,8 @@ export const ApplicationAssessmentSummaryTable: React.FC<
           ),
         },
         {
-          title: <RiskLabel risk={item.riskValue} />,
+          // title: <RiskLabel risk={item.riskValue} />,
+          title: "Risk component will go here",
         },
       ],
     });

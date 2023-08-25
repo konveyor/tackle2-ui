@@ -11,7 +11,7 @@ import {
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
 
 import { Application, AssessmentQuestionRisk } from "@app/api/models";
-import { getAssessmentIdentifiedRisks } from "@app/api/rest";
+// import { getAssessmentIdentifiedRisks } from "@app/api/rest";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
@@ -48,11 +48,12 @@ export const IdentifiedRisksTable: React.FC<
   } = useQuery<AssessmentQuestionRisk[]>(
     ["assessmentquestionrisks"],
     async () =>
-      (
-        await getAssessmentIdentifiedRisks(
-          allApplications.length > 0 ? allApplications.map((f) => f.id!) : []
-        )
-      ).data,
+      // (
+      //   await getAssessmentIdentifiedRisks(
+      //     allApplications.length > 0 ? allApplications.map((f) => f.id!) : []
+      //   )
+      // ).data,
+      [],
     {
       onError: (error) => console.log("error, ", error),
     }

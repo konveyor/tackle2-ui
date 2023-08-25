@@ -9,14 +9,8 @@ import {
   Assessment,
   AssessmentStatus,
   Question,
-  QuestionnaireCategory,
+  Section,
 } from "@app/api/models";
-import {
-  COMMENTS_KEY,
-  getCommentFieldName,
-  getQuestionFieldName,
-  QUESTIONS_KEY,
-} from "../../form-utils";
 import { AssessmentStakeholdersForm } from "../assessment-stakeholders-form";
 import { CustomWizardFooter } from "../custom-wizard-footer";
 import { getApplicationById, patchAssessment } from "@app/api/rest";
@@ -26,6 +20,16 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
 import { QuestionnaireForm } from "../questionnaire-form";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import {
+  useFetchQuestionnaireById,
+  useFetchQuestionnaires,
+} from "@app/queries/questionnaires";
+import {
+  COMMENTS_KEY,
+  QUESTIONS_KEY,
+  getCommentFieldName,
+  getQuestionFieldName,
+} from "../../form-utils";
 
 export const SAVE_ACTION_KEY = "saveAction";
 
@@ -42,7 +46,7 @@ export interface ApplicationAssessmentWizardValues {
     [key: string]: string; // <categoryId, commentValue>
   };
   [QUESTIONS_KEY]: {
-    [key: string]: number | undefined; // <questionId, optionId>
+    [key: string]: string | undefined; // <questionId, optionId>
   };
   [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE;
 }
@@ -55,6 +59,12 @@ export interface ApplicationAssessmentWizardProps {
 export const ApplicationAssessmentWizard: React.FC<
   ApplicationAssessmentWizardProps
 > = ({ assessment, isOpen }) => {
+  const { questionnaires } = useFetchQuestionnaires();
+
+  const matchingQuestionnaire = questionnaires.find(
+    (questionnaire) => questionnaire.id === assessment?.questionnaire?.id
+  );
+
   const { t } = useTranslation();
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -66,30 +76,31 @@ export const ApplicationAssessmentWizard: React.FC<
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const sortedCategories = useMemo(() => {
-    return (assessment ? assessment.questionnaire.categories : []).sort(
+  const sortedSections = useMemo(() => {
+    return (matchingQuestionnaire ? matchingQuestionnaire.sections : []).sort(
       (a, b) => a.order - b.order
     );
   }, [assessment]);
 
-  const initialComments = useMemo(() => {
-    let comments: { [key: string]: string } = {};
-    if (assessment) {
-      assessment.questionnaire.categories.forEach((category) => {
-        comments[getCommentFieldName(category, false)] = category.comment || "";
-      });
-    }
-    return comments;
-  }, [assessment]);
+  // const initialComments = useMemo(() => {
+  //   let comments: { [key: string]: string } = {};
+  //   if (assessment) {
+  //     assessment.questionnaire.categories.forEach((category) => {
+  //       comments[getCommentFieldName(category, false)] = category.comment || "";
+  //     });
+  //   }
+  //   return comments;
+  // }, [assessment]);
 
   const initialQuestions = useMemo(() => {
-    let questions: { [key: string]: number | undefined } = {};
-    if (assessment) {
-      assessment.questionnaire.categories
+    let questions: { [key: string]: string | undefined } = {};
+    if (assessment && matchingQuestionnaire) {
+      console.log("questionnaire questions", matchingQuestionnaire);
+      matchingQuestionnaire.sections
         .flatMap((f) => f.questions)
         .forEach((question) => {
           questions[getQuestionFieldName(question, false)] =
-            question.options.find((f) => f.checked === true)?.id;
+            question.answers.find((f) => f.selected === true)?.text;
         });
     }
     return questions;
@@ -97,9 +108,9 @@ export const ApplicationAssessmentWizard: React.FC<
 
   useEffect(() => {
     methods.reset({
-      stakeholders: assessment?.stakeholders || [],
-      stakeholderGroups: assessment?.stakeholderGroups || [],
-      comments: initialComments,
+      // stakeholders: assessment?.stakeholders || [],
+      // stakeholderGroups: assessment?.stakeholderGroups || [],
+      // comments: initialComments,
       questions: initialQuestions,
       [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
     });
@@ -108,9 +119,9 @@ export const ApplicationAssessmentWizard: React.FC<
   const methods = useForm<ApplicationAssessmentWizardValues>({
     defaultValues: useMemo(() => {
       return {
-        stakeholders: assessment?.stakeholders || [],
-        stakeholderGroups: assessment?.stakeholderGroups || [],
-        comments: initialComments,
+        // stakeholders: assessment?.stakeholders || [],
+        // stakeholderGroups: assessment?.stakeholderGroups || [],
+        // comments: initialComments,
         questions: initialQuestions,
         [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
       };
@@ -129,9 +140,10 @@ export const ApplicationAssessmentWizard: React.FC<
   const disableNavigation = !isValid || isSubmitting;
 
   const isFirstStepValid = () => {
-    const numberOfStakeholdlers = values.stakeholders.length;
-    const numberOfGroups = values.stakeholderGroups.length;
-    return numberOfStakeholdlers + numberOfGroups > 0;
+    // const numberOfStakeholdlers = values.stakeholders.length;
+    // const numberOfGroups = values.stakeholderGroups.length;
+    // return numberOfStakeholdlers + numberOfGroups > 0;
+    return true;
   };
 
   const isQuestionValid = (question: Question): boolean => {
@@ -139,10 +151,10 @@ export const ApplicationAssessmentWizard: React.FC<
     return !questionErrors[getQuestionFieldName(question, false)];
   };
 
-  const isCommentValid = (category: QuestionnaireCategory): boolean => {
-    const commentErrors = errors.comments || {};
-    return !commentErrors[getCommentFieldName(category, false)];
-  };
+  // const isCommentValid = (category: QuestionnaireCategory): boolean => {
+  //   const commentErrors = errors.comments || {};
+  //   return !commentErrors[getCommentFieldName(category, false)];
+  // };
 
   const questionHasValue = (question: Question): boolean => {
     const questionValues = values.questions || {};
@@ -150,30 +162,26 @@ export const ApplicationAssessmentWizard: React.FC<
     return value !== null && value !== undefined;
   };
 
-  const commentMinLenghtIs1 = (category: QuestionnaireCategory): boolean => {
-    const categoryComments = values.comments || {};
-    const value = categoryComments[getCommentFieldName(category, false)];
-    return value !== null && value !== undefined && value.length > 0;
-  };
+  // const commentMinLenghtIs1 = (category: QuestionnaireCategory): boolean => {
+  //   const categoryComments = values.comments || {};
+  //   const value = categoryComments[getCommentFieldName(category, false)];
+  //   return value !== null && value !== undefined && value.length > 0;
+  // };
 
-  const shouldNextBtnBeEnabled = (category: QuestionnaireCategory): boolean => {
+  const shouldNextBtnBeEnabled = (section: Section): boolean => {
     return (
-      category.questions.every((question) => isQuestionValid(question)) &&
-      category.questions.every((question) => questionHasValue(question)) &&
-      isCommentValid(category)
+      section.questions.every((question) => isQuestionValid(question)) &&
+      section.questions.every((question) => questionHasValue(question))
+      //  && isCommentValid(category)
     );
   };
 
-  const maxCategoryWithData = [...sortedCategories]
-    .reverse()
-    .find((category) => {
-      return (
-        category.questions.some((question) => questionHasValue(question)) ||
-        commentMinLenghtIs1(category)
-      );
-    });
+  const maxCategoryWithData = [...sortedSections].reverse().find((section) => {
+    return section.questions.some((question) => questionHasValue(question));
+    //  ||commentMinLenghtIs1(category)
+  });
   const canJumpTo = maxCategoryWithData
-    ? sortedCategories.findIndex((f) => f.id === maxCategoryWithData.id) + 1
+    ? sortedSections.findIndex((f) => f.name === maxCategoryWithData.name) + 1
     : 0;
 
   const onInvalid = (errors: FieldErrors<ApplicationAssessmentWizardValues>) =>
@@ -191,33 +199,32 @@ export const ApplicationAssessmentWizard: React.FC<
 
     const payload: Assessment = {
       ...assessment,
-      stakeholders: formValues.stakeholders,
-      stakeholderGroups: formValues.stakeholderGroups,
-      questionnaire: {
-        categories: assessment?.questionnaire.categories.map((category) => {
-          const commentValues = values["comments"];
+      // stakeholders: formValues.stakeholders,
+      // stakeholderGroups: formValues.stakeholderGroups,
 
-          const fieldName = getCommentFieldName(category, false);
-          const commentValue = commentValues[fieldName];
+      sections:
+        matchingQuestionnaire?.sections?.map((section) => {
+          // const commentValues = values["comments"];
+          // const fieldName = getCommentFieldName(category, false);
+          // const commentValue = commentValues[fieldName];
           return {
-            ...category,
-            comment: commentValue,
-            questions: category.questions.map((question) => ({
+            ...section,
+            // comment: commentValue,
+            questions: section.questions.map((question) => ({
               ...question,
-              options: question.options.map((option) => {
+              answers: question.answers.map((option) => {
                 const questionValues = values["questions"];
 
                 const fieldName = getQuestionFieldName(question, false);
                 const questionValue = questionValues[fieldName];
                 return {
                   ...option,
-                  checked: questionValue === option.id,
+                  selected: questionValue === option.text,
                 };
               }),
             })),
           };
-        }),
-      },
+        }) || [],
       status: assessmentStatus,
     };
 
@@ -229,8 +236,8 @@ export const ApplicationAssessmentWizard: React.FC<
             break;
           case SAVE_ACTION_VALUE.SAVE_AND_REVIEW:
             assessment &&
-              getApplicationById(assessment?.applicationId)
-                .then(({ data }) => {
+              getApplicationById(assessment?.application?.id || 0)
+                .then((data) => {
                   history.push(
                     formatPath(Paths.applicationsReview, {
                       applicationId: data.id,
@@ -250,7 +257,6 @@ export const ApplicationAssessmentWizard: React.FC<
         console.log("Save assessment error:", error);
       });
   };
-
   const wizardSteps: WizardStep[] = [
     {
       id: 0,
@@ -261,20 +267,20 @@ export const ApplicationAssessmentWizard: React.FC<
       canJumpTo: 0 === currentStep || !disableNavigation,
       enableNext: isFirstStepValid(),
     },
-    ...sortedCategories.map((category, index) => {
+    ...sortedSections.map((section, index) => {
       const stepIndex = index + 1;
 
       return {
         id: stepIndex,
-        name: category.title,
+        name: section.name,
         stepNavItemProps: {
-          children: <WizardStepNavDescription category={category} />,
+          children: <WizardStepNavDescription section={section} />,
         },
-        component: <QuestionnaireForm key={category.id} category={category} />,
+        component: <QuestionnaireForm key={section.name} section={section} />,
         canJumpTo:
           stepIndex === currentStep ||
           (stepIndex <= canJumpTo && !disableNavigation),
-        enableNext: shouldNextBtnBeEnabled(category),
+        enableNext: shouldNextBtnBeEnabled(section),
       } as WizardStep;
     }),
   ];
@@ -282,7 +288,7 @@ export const ApplicationAssessmentWizard: React.FC<
   const wizardFooter = (
     <CustomWizardFooter
       isFirstStep={currentStep === 0}
-      isLastStep={currentStep === sortedCategories.length}
+      isLastStep={currentStep === sortedSections.length}
       isDisabled={isSubmitting || isValidating}
       isFormInvalid={!isValid}
       onSave={(review) => {

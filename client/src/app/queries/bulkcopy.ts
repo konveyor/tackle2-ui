@@ -34,7 +34,7 @@ export const useCreateBulkCopyMutation = ({
       review?: Review;
     }) =>
       createBulkCopyAssessment({
-        fromAssessmentId: assessment.id || 0,
+        fromAssessmentId: assessment?.id || 0,
         applications:
           selectedApps?.map((f) => ({ applicationId: f.id! })) || [],
       })

@@ -8,6 +8,7 @@ import {
   Bullseye,
 } from "@patternfly/react-core";
 import BanIcon from "@patternfly/react-icons/dist/esm/icons/ban-icon";
+import yaml from "js-yaml";
 
 import { AssessmentRoute } from "@app/Paths";
 import { Assessment } from "@app/api/models";
@@ -18,36 +19,18 @@ import { ApplicationAssessmentWizard } from "./components/application-assessment
 import { SimpleEmptyState } from "@app/components/SimpleEmptyState";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { useFetchAssessmentByID } from "@app/queries/assessments";
 
 export const ApplicationAssessment: React.FC = () => {
   const { t } = useTranslation();
 
   const { assessmentId } = useParams<AssessmentRoute>();
+  const { assessment, isFetching, fetchError } =
+    useFetchAssessmentByID(assessmentId);
 
   const [saveError, setSaveError] = useState<AxiosError>();
 
-  const [assessment, setAssessment] = useState<Assessment>();
-  const [isFetchingAssessment, setIsFetchingAssessment] = useState(true);
-  const [fetchAssessmentError, setFetchAssessmentError] =
-    useState<AxiosError>();
-
-  useEffect(() => {
-    if (assessmentId) {
-      setIsFetchingAssessment(true);
-
-      getAssessmentById(assessmentId)
-        .then(({ data }) => {
-          setIsFetchingAssessment(false);
-          setAssessment(data);
-        })
-        .catch((error) => {
-          setIsFetchingAssessment(false);
-          setFetchAssessmentError(error);
-        });
-    }
-  }, [assessmentId]);
-
-  if (fetchAssessmentError) {
+  if (fetchError) {
     return (
       <ApplicationAssessmentPage assessment={assessment}>
         <Bullseye>
@@ -73,10 +56,7 @@ export const ApplicationAssessment: React.FC = () => {
             }
           />
         )}
-        <ConditionalRender
-          when={isFetchingAssessment}
-          then={<AppPlaceholder />}
-        >
+        <ConditionalRender when={isFetching} then={<AppPlaceholder />}>
           <ApplicationAssessmentWizard
             assessment={assessment}
             isOpen

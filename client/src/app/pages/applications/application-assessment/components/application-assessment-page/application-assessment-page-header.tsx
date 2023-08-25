@@ -26,8 +26,8 @@ export const ApplicationAssessmentPageHeader: React.FC<
   const [application, setApplication] = useState<Application>();
 
   useEffect(() => {
-    if (assessment) {
-      getApplicationById(assessment.applicationId).then(({ data }) => {
+    if (assessment?.application?.id) {
+      getApplicationById(assessment?.application?.id).then((data) => {
         setApplication(data);
       });
     }

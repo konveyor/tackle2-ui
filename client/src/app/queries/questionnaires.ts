@@ -3,12 +3,15 @@ import { AxiosError } from "axios";
 
 import {
   deleteQuestionnaire,
+  getQuestionnaireById,
   getQuestionnaires,
   updateQuestionnaire,
 } from "@app/api/rest";
 import { Questionnaire } from "@app/api/models";
+import { c_options_menu__toggle_BackgroundColor } from "@patternfly/react-tokens";
 
 export const QuestionnairesTasksQueryKey = "questionnaires";
+export const QuestionnaireByIdQueryKey = "questionnaireById";
 
 export const useFetchQuestionnaires = () => {
   const { isLoading, data, error } = useQuery({
@@ -60,4 +63,20 @@ export const useDeleteQuestionnaireMutation = (
       queryClient.invalidateQueries([QuestionnairesTasksQueryKey]);
     },
   });
+};
+
+export const useFetchQuestionnaireById = (id: number | string) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: [QuestionnaireByIdQueryKey, id],
+    queryFn: () => getQuestionnaireById(id),
+    onError: (error: AxiosError) => console.log("error, ", error),
+  });
+  console.log("data, ", data);
+  console.log("isLoading, ", isLoading);
+  console.log("error, ", error);
+  return {
+    questionnaire: data,
+    isFetching: isLoading,
+    fetchError: error,
+  };
 };

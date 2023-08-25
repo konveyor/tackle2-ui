@@ -2,21 +2,21 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { Text, TextContent } from "@patternfly/react-core";
-import { QuestionnaireCategory } from "@app/api/models";
+import { Section } from "@app/api/models";
 
 export interface IWizardStepNavDescriptionProps {
-  category: QuestionnaireCategory;
+  section: Section;
 }
 
 export const WizardStepNavDescription: React.FC<
   IWizardStepNavDescriptionProps
-> = ({ category }) => {
+> = ({ section }) => {
   const { t } = useTranslation();
 
   return (
     <TextContent>
       <Text component="small">
-        {t("composed.Nquestions", { n: category.questions.length })}
+        {t("composed.Nquestions", { n: section.questions.length })}
       </Text>
     </TextContent>
   );

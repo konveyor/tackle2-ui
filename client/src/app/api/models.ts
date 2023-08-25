@@ -121,7 +121,7 @@ export interface Application {
   repository?: Repository;
   binary?: string;
   migrationWave: Ref | null;
-  assessments?: Questionnaire[];
+  assessments?: Ref[];
 }
 
 export interface Review {
@@ -206,67 +206,6 @@ export interface Proxy {
   createUser?: string;
   id: any;
   enabled: boolean;
-}
-
-// Pathfinder
-
-export type AssessmentStatus = "EMPTY" | "STARTED" | "COMPLETE";
-export type Risk = "GREEN" | "AMBER" | "RED" | "UNKNOWN";
-
-export interface Assessment {
-  id?: number;
-  applicationId: number;
-  status: AssessmentStatus;
-  stakeholders?: number[];
-  stakeholderGroups?: number[];
-  questionnaire: PathfinderQuestionnaire;
-}
-
-export interface PathfinderQuestionnaire {
-  categories: QuestionnaireCategory[];
-}
-
-export interface QuestionnaireCategory {
-  id: number;
-  order: number;
-  title?: string;
-  comment?: string;
-  questions: Question[];
-}
-
-export interface Question {
-  id: number;
-  order: number;
-  question: string;
-  description: string;
-  options: QuestionOption[];
-}
-
-export interface QuestionOption {
-  id: number;
-  order: number;
-  option: string;
-  checked: boolean;
-  risk: Risk;
-}
-
-export interface AssessmentRisk {
-  assessmentId: number;
-  applicationId: number;
-  risk: Risk;
-}
-
-export interface AssessmentQuestionRisk {
-  category: string;
-  question: string;
-  answer: string;
-  applications: number[];
-}
-
-export interface AssessmentConfidence {
-  assessmentId: number;
-  applicationId: number;
-  confidence: number;
 }
 
 export interface BulkCopyAssessment {
@@ -729,35 +668,79 @@ export interface RiskMessages {
 }
 export interface Section {
   name: string;
-  questions: CustomYamlAssessmentQuestion[];
+  questions: Question[];
+  order: number;
 }
 
-// TODO: Rename after removing pathfinder
-export interface CustomYamlAssessmentQuestion {
+export interface Question {
   answers: Answer[];
+  text: string;
+  order: number;
   explanation?: string;
-  formulation: string;
-  include_if_tags_present?: Tag[];
-  skip_if_tags_present?: Tag[];
+  includeFor?: CategorizedTag[];
+  excludeFor?: CategorizedTag[];
 }
 
 export interface Answer {
-  choice: string;
-  mitigation?: string;
-  rationale?: string;
+  order: number;
+  text: string;
   risk: string;
-  autoanswer_if_tags_present?: Tag[];
-  autotag?: Tag[];
+  rationale?: string;
+  mitigation?: string;
+  applyTags?: CategorizedTag[];
+  autoAnswerFor?: CategorizedTag[];
+  selected?: boolean;
 }
 export interface Thresholds {
-  red: string;
-  unknown: string;
-  yellow: string;
+  red: number;
+  unknown: number;
+  yellow: number;
 }
-export interface YamlAssessment {
-  description: string;
+export type AssessmentStatus = "EMPTY" | "STARTED" | "COMPLETE";
+export type Risk = "GREEN" | "AMBER" | "RED" | "UNKNOWN";
+
+export interface InitialAssessment {
+  application?: Ref;
+  archetype?: Ref;
+  questionnaire: Ref;
+}
+export interface Assessment
+  extends Pick<Questionnaire, "thresholds" | "sections" | "riskMessages"> {
   name: string;
-  risk_messages: RiskMessages;
-  sections: Section[];
-  thresholds: Thresholds;
+  id: number;
+  application?: Ref;
+  archetype?: Ref;
+  questionnaire: Ref;
+  description: string;
+  status: AssessmentStatus;
+  risk: Risk;
+}
+export interface CategorizedTag {
+  category: TagCategory;
+  tag: Tag;
+}
+
+//TODO: update to use new api
+export interface AssessmentRisk {
+  assessmentId: number;
+  applicationId: number;
+  risk: Risk;
+}
+export interface AssessmentRisk {
+  assessmentId: number;
+  applicationId: number;
+  risk: Risk;
+}
+
+export interface AssessmentQuestionRisk {
+  category: string;
+  question: string;
+  answer: string;
+  applications: number[];
+}
+
+export interface AssessmentConfidence {
+  assessmentId: number;
+  applicationId: number;
+  confidence: number;
 }
