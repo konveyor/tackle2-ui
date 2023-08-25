@@ -96,7 +96,10 @@
       "discardAssessment": "The assessment for <1>{{applicationName}}</1> will be discarded, as well as the review result. Do you wish to continue?",
       "leavePage": "Are you sure you want to leave this page? Be sure to save your changes, or they will be lost.",
       "pageError": "Oops! Something went wrong.",
-      "refreshPage": "Try to refresh your page or contact your admin."
+      "refreshPage": "Try to refresh your page or contact your admin.",
+      "maxfileSize": "Max file size of 1MB exceeded. Upload a smaller file.",
+      "dragAndDropFile": "Drag and drop your file here or upload one.",
+      "uploadYamlFile": "Upload your YAML file"
     },
     "title": {
       "applicationAnalysis": "Application analysis",
@@ -362,6 +365,7 @@
     "unknown": "Unknown",
     "unsuitableForContainers": "Unsuitable for containers",
     "uploadApplicationFile": "Upload your application file",
+    "uploadYamlFile": "Upload your YAML file",
     "url": "URL",
     "user": "User",
     "version": "Version",
