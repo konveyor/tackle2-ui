@@ -9,6 +9,7 @@ import {
   ExpandableRowContent,
 } from "@patternfly/react-table";
 import {
+  ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
@@ -18,11 +19,13 @@ import { CustomYamlAssessmentQuestion } from "@app/api/models";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { Label } from "@patternfly/react-core";
 import AnswerTable from "./answer-table";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 
 const QuestionsTable: React.FC<{
-  fetchError: boolean;
+  fetchError?: Error;
   questions?: CustomYamlAssessmentQuestion[];
-}> = ({ fetchError = false, questions }) => {
+  isSearching?: boolean;
+}> = ({ fetchError, questions, isSearching = false }) => {
   const tableControls = useLocalTableControls({
     idProperty: "formulation",
     items: questions || [],
@@ -57,41 +60,56 @@ const QuestionsTable: React.FC<{
           </TableHeaderContentWithControls>
         </Tr>
       </Thead>
-      <Tbody>
-        {currentPageItems?.map((question, rowIndex) => (
-          <>
-            <Tr key={question.formulation}>
-              <TableRowContentWithControls
-                {...tableControls}
-                item={question}
-                rowIndex={rowIndex}
-              >
-                <Td width={100} {...getTdProps({ columnKey: "formulation" })}>
-                  {(!!question?.include_if_tags_present?.length ||
-                    !!question?.skip_if_tags_present?.length) && (
-                    <Label className={spacing.mrSm}>Conditional</Label>
-                  )}
-                  {question.formulation}
-                </Td>
-              </TableRowContentWithControls>
-            </Tr>
-            {isCellExpanded(question) ? (
-              <Tr isExpanded>
-                <Td />
-                <Td
-                  {...getExpandedContentTdProps({ item: question })}
-                  className={spacing.pyLg}
+      <ConditionalTableBody
+        numRenderedColumns={numRenderedColumns}
+        isError={!!fetchError}
+        isNoData={questions?.length === 0}
+        noDataEmptyState={
+          <NoDataEmptyState
+            title={
+              isSearching
+                ? "No questions in this section match your search"
+                : "This section is empty"
+            }
+          />
+        }
+      >
+        <Tbody>
+          {currentPageItems?.map((question, rowIndex) => (
+            <>
+              <Tr key={question.formulation}>
+                <TableRowContentWithControls
+                  {...tableControls}
+                  item={question}
+                  rowIndex={rowIndex}
                 >
-                  <ExpandableRowContent>
-                    {question.explanation}
-                    <AnswerTable answers={question.answers} />
-                  </ExpandableRowContent>
-                </Td>
+                  <Td width={100} {...getTdProps({ columnKey: "formulation" })}>
+                    {(!!question?.include_if_tags_present?.length ||
+                      !!question?.skip_if_tags_present?.length) && (
+                      <Label className={spacing.mrSm}>Conditional</Label>
+                    )}
+                    {question.formulation}
+                  </Td>
+                </TableRowContentWithControls>
               </Tr>
-            ) : null}
-          </>
-        ))}
-      </Tbody>
+              {isCellExpanded(question) ? (
+                <Tr isExpanded>
+                  <Td />
+                  <Td
+                    {...getExpandedContentTdProps({ item: question })}
+                    className={spacing.pyLg}
+                  >
+                    <ExpandableRowContent>
+                      {question.explanation}
+                      <AnswerTable answers={question.answers} />
+                    </ExpandableRowContent>
+                  </Td>
+                </Tr>
+              ) : null}
+            </>
+          ))}
+        </Tbody>
+      </ConditionalTableBody>
     </Table>
   );
 };

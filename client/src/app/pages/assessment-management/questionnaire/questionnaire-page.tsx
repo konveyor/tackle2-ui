@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import yaml from "js-yaml";
 import {
   Text,
@@ -8,13 +8,12 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   Button,
-  Tab,
-  TabTitleText,
   Tabs,
   Toolbar,
   ToolbarItem,
   SearchInput,
   ToolbarContent,
+  Tab,
 } from "@patternfly/react-core";
 import AngleLeftIcon from "@patternfly/react-icons/dist/esm/icons/angle-left-icon";
 import { YamlAssessment } from "@app/api/models";
@@ -23,29 +22,33 @@ import { Paths } from "@app/Paths";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { useTranslation } from "react-i18next";
-import "./questionnaire-page.css";
+import QuestionnaireSectionTabTitle from "./components/questionnaire-section-tab-title";
 import QuestionsTable from "./components/questions-table";
+import "./questionnaire-page.css";
 
 const Questionnaire: React.FC = () => {
   const { t } = useTranslation();
 
-  const [activeTabKey, setActiveTabKey] = React.useState<number>(0);
+  const [activeSectionIndex, setActiveSectionIndex] = React.useState<
+    "all" | number
+  >("all");
+  console.log({ activeSectionIndex });
 
   const handleTabClick = (
-    event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent,
-    tabIndex: string | number
+    _event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent,
+    tabKey: string | number
   ) => {
-    setActiveTabKey(tabIndex as number);
+    setActiveSectionIndex(tabKey as "all" | number);
   };
 
   const [assessmentData, setAssessmentData] = useState<YamlAssessment | null>(
     null
   );
-  const activeSection = assessmentData?.sections[activeTabKey];
 
   // ------------------------!!
   // TODO: replace this with the real data from the API
-  const fetchError = false;
+  const fetchError = undefined;
+  const isLoading = false;
 
   useEffect(() => {
     fetch("/questionnaire-data.yaml") // adjust this path
@@ -58,6 +61,25 @@ const Questionnaire: React.FC = () => {
   // ------------------------!!
 
   const [searchValue, setSearchValue] = React.useState("");
+  const filteredAssessmentData = useMemo<YamlAssessment | null>(() => {
+    if (!assessmentData) return null;
+    return {
+      ...assessmentData,
+      sections: assessmentData?.sections.map((section) => ({
+        ...section,
+        questions: section.questions.filter(({ formulation, explanation }) =>
+          [formulation, explanation].some((text) =>
+            text?.toLowerCase().includes(searchValue.toLowerCase())
+          )
+        ),
+      })),
+    };
+  }, [assessmentData, searchValue]);
+  const allQuestions =
+    assessmentData?.sections.flatMap((section) => section.questions) || [];
+  const allMatchingQuestions =
+    filteredAssessmentData?.sections.flatMap((section) => section.questions) ||
+    [];
 
   return (
     <>
@@ -78,7 +100,7 @@ const Questionnaire: React.FC = () => {
         <ConditionalRender
           // TODO: add loading state
           // when={isFetching && !(currentPageDataFromReactQuery || fetchError)}
-          when={fetchError}
+          when={isLoading}
           then={<AppPlaceholder />}
         >
           <div
@@ -94,7 +116,9 @@ const Questionnaire: React.FC = () => {
                     value={searchValue}
                     onChange={(_event, value) => setSearchValue(value)}
                     onClear={() => setSearchValue("")}
-                    resultsCount={2}
+                    resultsCount={
+                      (searchValue && allMatchingQuestions.length) || undefined
+                    }
                   />
                 </ToolbarItem>
               </ToolbarContent>
@@ -106,29 +130,54 @@ const Questionnaire: React.FC = () => {
             </Link>
             <div className="tabs-vertical-container">
               <Tabs
-                activeKey={activeTabKey}
+                activeKey={activeSectionIndex}
                 onSelect={handleTabClick}
                 isVertical
                 aria-label="Tabs for questionnaire sections"
                 role="region"
               >
-                {assessmentData?.sections.map((section, index) => {
-                  return (
-                    <Tab
-                      eventKey={index}
-                      title={
-                        <TabTitleText aria-label="vertical" role="region">
-                          {section.name}
-                        </TabTitleText>
-                      }
-                    >
-                      <QuestionsTable
-                        fetchError={fetchError}
-                        questions={activeSection?.questions}
+                {[
+                  <Tab
+                    eventKey="all"
+                    title={
+                      <QuestionnaireSectionTabTitle
+                        isSearching={!!searchValue}
+                        sectionName="All questions"
+                        unfilteredQuestions={allQuestions}
+                        filteredQuestions={allMatchingQuestions}
                       />
-                    </Tab>
-                  );
-                })}
+                    }
+                  >
+                    <QuestionsTable
+                      fetchError={fetchError}
+                      questions={allMatchingQuestions}
+                      isSearching={!!searchValue}
+                    />
+                  </Tab>,
+                  ...(assessmentData?.sections.map((section, index) => {
+                    const filteredQuestions =
+                      filteredAssessmentData?.sections[index]?.questions || [];
+                    return (
+                      <Tab
+                        eventKey={index}
+                        title={
+                          <QuestionnaireSectionTabTitle
+                            isSearching={!!searchValue}
+                            sectionName={section.name}
+                            unfilteredQuestions={section.questions}
+                            filteredQuestions={filteredQuestions}
+                          />
+                        }
+                      >
+                        <QuestionsTable
+                          fetchError={fetchError}
+                          questions={filteredQuestions}
+                          isSearching={!!searchValue}
+                        />
+                      </Tab>
+                    );
+                  }) || []),
+                ]}
               </Tabs>
             </div>
           </div>
