@@ -79,7 +79,9 @@ const QuestionsTable: React.FC<{
           <NoDataEmptyState
             title={
               isSearching
-                ? "No questions in this section match your search"
+                ? isAllQuestionsTab
+                  ? "No questions match your search"
+                  : "No questions in this section match your search"
                 : "This section is empty"
             }
           />
