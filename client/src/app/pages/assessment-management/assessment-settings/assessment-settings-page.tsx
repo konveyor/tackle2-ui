@@ -102,7 +102,7 @@ const AssessmentSettings: React.FC = () => {
   const [questionnaireToDelete, setQuestionnaireToDelete] =
     React.useState<Questionnaire | null>();
 
-  const [questionnaireNameToDelete, setQuestionnaireNameToDelete] =
+  const [questionnaireNameInput, setQuestionnaireNameInput] =
     React.useState("");
 
   const tableControls = useLocalTableControls({
@@ -159,7 +159,7 @@ const AssessmentSettings: React.FC = () => {
   const rbacWriteAccess = true; // checkAccess(userScopes, questionnaireWriteScopes);
   const handleDeleteQuestionnaireClose = () => {
     setQuestionnaireToDelete(null);
-    setQuestionnaireNameToDelete("");
+    setQuestionnaireNameInput("");
   };
 
   return (
@@ -430,13 +430,14 @@ const AssessmentSettings: React.FC = () => {
         title={t("dialog.title.delete", {
           what: t("terms.questionnaire").toLowerCase(),
         })}
-        inProgress={questionnaireToDelete?.name !== questionnaireNameToDelete}
+        submitDisabled={questionnaireToDelete?.name !== questionnaireNameInput}
         isOpen={!!questionnaireToDelete}
         titleIconVariant={"warning"}
         message={
           <DeleteQuestionnaireMessage
-            questionnaireNameToDelete={questionnaireNameToDelete}
-            setQuestionnaireNameToDelete={setQuestionnaireNameToDelete}
+            inputName={questionnaireNameInput}
+            setInputName={setQuestionnaireNameInput}
+            questionnaireName={questionnaireToDelete?.name}
           />
         }
         confirmBtnVariant={ButtonVariant.danger}
@@ -445,7 +446,7 @@ const AssessmentSettings: React.FC = () => {
         onCancel={() => handleDeleteQuestionnaireClose()}
         onClose={() => handleDeleteQuestionnaireClose()}
         onConfirm={() => {
-          if (questionnaireToDelete?.name === questionnaireNameToDelete) {
+          if (questionnaireToDelete?.name === questionnaireNameInput) {
             deleteQuestionnaire({ questionnaire: questionnaireToDelete });
             handleDeleteQuestionnaireClose();
           }

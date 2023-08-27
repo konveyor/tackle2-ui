@@ -1,18 +1,20 @@
 import React, { Dispatch, FC, SetStateAction } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 import { Text, TextInput } from "@patternfly/react-core";
 
 import "./delete-questionnaire-message.css";
 
 type DeleteQuestionnaireMessageProps = {
-  questionnaireNameToDelete: string;
-  setQuestionnaireNameToDelete: Dispatch<SetStateAction<string>>;
+  inputName: string;
+  setInputName: Dispatch<SetStateAction<string>>;
+  questionnaireName: string | undefined;
 };
 
 const DeleteQuestionnaireMessage: FC<DeleteQuestionnaireMessageProps> = ({
-  questionnaireNameToDelete,
-  setQuestionnaireNameToDelete,
+  inputName,
+  setInputName,
+  questionnaireName,
 }) => {
   const { t } = useTranslation();
 
@@ -20,15 +22,17 @@ const DeleteQuestionnaireMessage: FC<DeleteQuestionnaireMessageProps> = ({
     <>
       <Text component="p">{t("dialog.message.deleteQuestionnaire")}</Text>
       <Text component="p">{t("dialog.message.delete")}</Text>
+
       <Text component="p" className="confirm-deletion">
-        {t("dialog.message.confirmDeletion", {
-          what: t("terms.questionnaire").toLowerCase(),
-        })}
+        <Trans i18nKey="dialog.message.confirmDeletion">
+          Confirm deletion by typing <strong>{{ questionnaireName }}</strong>{" "}
+          below:
+        </Trans>
       </Text>
       <TextInput
         className="confirm-deletion-input"
-        value={questionnaireNameToDelete}
-        onChange={(event, value) => setQuestionnaireNameToDelete(value)}
+        value={inputName}
+        onChange={(event, value) => setInputName(value)}
       />
     </>
   );
