@@ -15,6 +15,7 @@ import {
 
 export interface IAutocompleteProps {
   onChange: (selections: string[]) => void;
+  allowUserOptions?: boolean;
   options?: string[];
   placeholderText?: string;
   searchString?: string;
@@ -28,12 +29,13 @@ export interface IAutocompleteProps {
 export const Autocomplete: React.FC<IAutocompleteProps> = ({
   onChange,
   options = [],
+  allowUserOptions = false,
   placeholderText = "Search",
   searchString = "",
   searchInputAriaLabel = "Search input",
   labelColor,
   selections = [],
-  menuHeader = "Suggestions",
+  menuHeader = "",
   noResultsMessage = "No results found",
 }) => {
   const [inputValue, setInputValue] = useState(searchString);
@@ -107,7 +109,11 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
 
     const divider = <Divider key="divider" />;
 
-    setMenuItems([headingItem, divider, ...filteredMenuItems]);
+    if (menuHeader) {
+      setMenuItems([headingItem, divider, ...filteredMenuItems]);
+    } else {
+      setMenuItems(filteredMenuItems);
+    }
   };
 
   /** callback for updating the inputValue state in this component so that the input can be controlled */
@@ -128,9 +134,16 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
 
   /** add the given string as a chip in the chip group and clear the input */
   const addChip = (newChipText: string) => {
-    const newChips = new Set(currentChips);
-    newChips.add(newChipText);
-    setCurrentChips(newChips);
+    if (!allowUserOptions) {
+      const matchingOption = options.find(
+        (o) => o.toLowerCase() === (hint || newChipText).toLowerCase()
+      );
+      if (!matchingOption) {
+        return;
+      }
+      newChipText = matchingOption;
+    }
+    setCurrentChips(new Set([...currentChips, newChipText]));
     setInputValue("");
     setMenuIsOpen(false);
   };
@@ -143,9 +156,10 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   };
 
   const handleTab = (event: React.KeyboardEvent) => {
-    // if only 1 item (plus menu heading and divider)
-    if (menuItems.length === 3) {
-      setInputValue(menuItems[2].props.children);
+    const firstItemIndex = menuHeader ? 2 : 0;
+    // if only 1 item (possibly including menu heading and divider)
+    if (menuItems.length === 1 + firstItemIndex) {
+      setInputValue(menuItems[firstItemIndex].props.children);
       event.preventDefault();
     }
     setMenuIsOpen(false);
@@ -177,7 +191,6 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   const handleTextInputKeyDown = (event: React.KeyboardEvent) => {
     switch (event.key) {
       case "Enter":
-        console.log("enter");
         handleEnter();
         break;
       case "Escape":
