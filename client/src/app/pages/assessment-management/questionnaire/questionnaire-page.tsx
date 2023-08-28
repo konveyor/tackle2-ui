@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import yaml from "js-yaml";
 import {
   Text,
@@ -7,40 +7,47 @@ import {
   PageSectionVariants,
   Breadcrumb,
   BreadcrumbItem,
-  Tab,
-  TabTitleText,
+  Button,
   Tabs,
-  TabContent,
+  Toolbar,
+  ToolbarItem,
+  SearchInput,
+  ToolbarContent,
+  Tab,
 } from "@patternfly/react-core";
+import AngleLeftIcon from "@patternfly/react-icons/dist/esm/icons/angle-left-icon";
 import { YamlAssessment } from "@app/api/models";
 import { Link } from "react-router-dom";
 import { Paths } from "@app/Paths";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { useTranslation } from "react-i18next";
-import "./questionnaire-page.css";
+import QuestionnaireSectionTabTitle from "./components/questionnaire-section-tab-title";
 import QuestionsTable from "./components/questions-table";
+import "./questionnaire-page.css";
 
 const Questionnaire: React.FC = () => {
   const { t } = useTranslation();
 
-  const [activeTabKey, setActiveTabKey] = React.useState<number>(0);
+  const [activeSectionIndex, setActiveSectionIndex] = React.useState<
+    "all" | number
+  >("all");
 
   const handleTabClick = (
-    event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent,
-    tabIndex: string | number
+    _event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent,
+    tabKey: string | number
   ) => {
-    setActiveTabKey(tabIndex as number);
+    setActiveSectionIndex(tabKey as "all" | number);
   };
 
   const [assessmentData, setAssessmentData] = useState<YamlAssessment | null>(
     null
   );
-  const activeSection = assessmentData?.sections[activeTabKey];
 
   // ------------------------!!
   // TODO: replace this with the real data from the API
-  const fetchError = false;
+  const fetchError = undefined;
+  const isLoading = false;
 
   useEffect(() => {
     fetch("/questionnaire-data.yaml") // adjust this path
@@ -51,6 +58,27 @@ const Questionnaire: React.FC = () => {
       });
   }, []);
   // ------------------------!!
+
+  const [searchValue, setSearchValue] = React.useState("");
+  const filteredAssessmentData = useMemo<YamlAssessment | null>(() => {
+    if (!assessmentData) return null;
+    return {
+      ...assessmentData,
+      sections: assessmentData?.sections.map((section) => ({
+        ...section,
+        questions: section.questions.filter(({ formulation, explanation }) =>
+          [formulation, explanation].some((text) =>
+            text?.toLowerCase().includes(searchValue.toLowerCase())
+          )
+        ),
+      })),
+    };
+  }, [assessmentData, searchValue]);
+  const allQuestions =
+    assessmentData?.sections.flatMap((section) => section.questions) || [];
+  const allMatchingQuestions =
+    filteredAssessmentData?.sections.flatMap((section) => section.questions) ||
+    [];
 
   return (
     <>
@@ -71,48 +99,89 @@ const Questionnaire: React.FC = () => {
         <ConditionalRender
           // TODO: add loading state
           // when={isFetching && !(currentPageDataFromReactQuery || fetchError)}
-          when={fetchError}
+          when={isLoading}
           then={<AppPlaceholder />}
         >
           <div
             style={{
               backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
-              display: "flex",
             }}
           >
-            <Tabs
-              activeKey={activeTabKey}
-              onSelect={handleTabClick}
-              isVertical
-              aria-label="Tabs in the vertical example"
-              role="region"
-              width="50px"
-              className="tabs-vertical-container"
-            >
-              {assessmentData?.sections.map((section, index) => {
-                return (
+            <Toolbar>
+              <ToolbarContent>
+                <ToolbarItem widths={{ default: "300px" }}>
+                  <SearchInput
+                    placeholder="Search questions"
+                    value={searchValue}
+                    onChange={(_event, value) => setSearchValue(value)}
+                    onClear={() => setSearchValue("")}
+                    resultsCount={
+                      (searchValue && allMatchingQuestions.length) || undefined
+                    }
+                  />
+                </ToolbarItem>
+              </ToolbarContent>
+            </Toolbar>
+            <Link to={Paths.assessment}>
+              <Button variant="link" icon={<AngleLeftIcon />}>
+                Back to questionnaires
+              </Button>
+            </Link>
+            <div className="tabs-vertical-container">
+              <Tabs
+                activeKey={activeSectionIndex}
+                onSelect={handleTabClick}
+                isVertical
+                aria-label="Tabs for questionnaire sections"
+                role="region"
+              >
+                {[
                   <Tab
-                    eventKey={index}
+                    eventKey="all"
                     title={
-                      <TabTitleText aria-label="vertical" role="region">
-                        {section.name}
-                      </TabTitleText>
+                      <QuestionnaireSectionTabTitle
+                        isSearching={!!searchValue}
+                        sectionName="All questions"
+                        unfilteredQuestions={allQuestions}
+                        filteredQuestions={allMatchingQuestions}
+                      />
                     }
                   >
-                    <TabContent
-                      id={section.name}
-                      className="tab-content-container"
-                      style={{ flex: 1 }}
-                    >
-                      <QuestionsTable
-                        fetchError={fetchError}
-                        questions={activeSection?.questions}
-                      />
-                    </TabContent>
-                  </Tab>
-                );
-              })}
-            </Tabs>
+                    <QuestionsTable
+                      fetchError={fetchError}
+                      questions={allMatchingQuestions}
+                      isSearching={!!searchValue}
+                      assessmentData={assessmentData}
+                      isAllQuestionsTab
+                    />
+                  </Tab>,
+                  ...(assessmentData?.sections.map((section, index) => {
+                    const filteredQuestions =
+                      filteredAssessmentData?.sections[index]?.questions || [];
+                    return (
+                      <Tab
+                        eventKey={index}
+                        title={
+                          <QuestionnaireSectionTabTitle
+                            isSearching={!!searchValue}
+                            sectionName={section.name}
+                            unfilteredQuestions={section.questions}
+                            filteredQuestions={filteredQuestions}
+                          />
+                        }
+                      >
+                        <QuestionsTable
+                          fetchError={fetchError}
+                          questions={filteredQuestions}
+                          isSearching={!!searchValue}
+                          assessmentData={assessmentData}
+                        />
+                      </Tab>
+                    );
+                  }) || []),
+                ]}
+              </Tabs>
+            </div>
           </div>
         </ConditionalRender>
       </PageSection>

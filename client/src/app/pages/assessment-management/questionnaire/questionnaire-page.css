@@ -1,6 +1,11 @@
 .tabs-vertical-container {
-  width: 20em;
+  display: flex;
 }
-.tab-content-container {
-  width: 80em;
+
+.tabs-vertical-container .pf-v5-c-tabs {
+  width: 20%;
+}
+
+.tabs-vertical-container .pf-v5-c-tab-content {
+  width: 80%;
 }
