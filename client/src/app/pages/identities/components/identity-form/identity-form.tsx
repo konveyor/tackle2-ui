@@ -465,7 +465,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         label="Type"
         fieldId="type-select"
         isRequired
-        renderInput={({ field: { value, name } }) => (
+        renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
             id="type-select"
             toggleId="type-select-toggle"
@@ -475,7 +475,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             options={kindOptions}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<IdentityKind>;
-              setValue(name, selectionValue.value);
+              onChange(selectionValue.value);
               // So we don't retain the values from the wrong type of credential
               resetField("user");
               resetField("password");
@@ -492,7 +492,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             label="User credentials"
             isRequired
             fieldId="user-credentials-select"
-            renderInput={({ field: { value, name } }) => (
+            renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
                 id="user-credentials-select"
                 toggleId="user-credentials-select-toggle"
@@ -507,7 +507,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 onChange={(selection) => {
                   const selectionValue =
                     selection as OptionWithValue<UserCredentials>;
-                  setValue(name, selectionValue.value);
+                  onChange(selectionValue.value);
                   // So we don't retain the values from the wrong type of credential
                   resetField("user");
                   resetField("password");
