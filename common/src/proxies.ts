@@ -39,9 +39,6 @@ export const proxyMap: Record<string, Options> = {
     },
 
     onProxyReq: (proxyReq, req, res) => {
-      if (req.originalUrl.includes("windup/report/?filter")) {
-        proxyReq.setHeader("Accept", "");
-      }
       if (req.cookies?.keycloak_cookie && !req.headers["authorization"]) {
         proxyReq.setHeader(
           "Authorization",
