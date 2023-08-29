@@ -59,7 +59,7 @@ export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
         label={t("wizard.label.analysisSource")}
         fieldId="analysis-mode"
         isRequired
-        renderInput={({ field: { value, name } }) => (
+        renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
             id="analysis-mode"
             toggleId="analysis-mode-toggle"
@@ -68,8 +68,8 @@ export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
             variant="single"
             value={toOptionLike(value, options)}
             onChange={(selection) => {
-              const option = selection as OptionWithValue<AnalysisMode>;
-              setValue(name, option.value);
+              const selectionValue = selection as OptionWithValue<AnalysisMode>;
+              onChange(selectionValue.value);
             }}
             options={options}
           />
