@@ -485,7 +485,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       />
 
       {values?.kind === "source" && (
-        <div className="pf-v5-c-form">
+        <>
           <HookFormPFGroupController
             control={control}
             name="userCredentials"
@@ -612,7 +612,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               />
             </>
           )}
-        </div>
+        </>
       )}
 
       {values?.kind === "maven" && (
