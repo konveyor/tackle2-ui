@@ -348,16 +348,6 @@ export const getApplicationImports = (
     .get(`${APP_IMPORT}?importSummary.id=${importSummaryID}&isValid=${isValid}`)
     .then((response) => response.data);
 
-export const getApplicationAnalysis = (
-  applicationId: number,
-  format: "json" | "yaml"
-): Promise<string> => {
-  const headers = format === "yaml" ? yamlHeaders : jsonHeaders;
-  return axios
-    .get<string>(`${APPLICATIONS}/${applicationId}/analysis`, headers)
-    .then((response) => response.data);
-};
-
 export function getTaskById(id: number, format: "json"): Promise<Task>;
 export function getTaskById(id: number, format: "yaml"): Promise<string>;
 export function getTaskById(
