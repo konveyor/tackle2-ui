@@ -33,6 +33,8 @@ import {
   Tbody,
   Td,
   TableText,
+  ActionsColumn,
+  CustomActionsToggleProps,
 } from "@patternfly/react-table";
 
 // @app components and utilities
@@ -632,153 +634,112 @@ export const ApplicationsTable: React.FC = () => {
             }
             numRenderedColumns={numRenderedColumns}
           >
-            <Tbody>
-              {currentPageItems?.map((application, rowIndex) => {
-                return (
-                  <Tr
-                    style={{ cursor: "pointer" }}
-                    key={application.name}
-                    {...getClickableTrProps({ item: application })}
+            {currentPageItems?.map((application, rowIndex) => {
+              return (
+                <Tr
+                  style={{ cursor: "pointer" }}
+                  key={application.name}
+                  {...getClickableTrProps({ item: application })}
+                >
+                  <TableRowContentWithControls
+                    {...tableControls}
+                    item={application}
+                    rowIndex={rowIndex}
                   >
-                    <TableRowContentWithControls
-                      {...tableControls}
-                      item={application}
-                      rowIndex={rowIndex}
+                    <Td
+                      width={20}
+                      {...getTdProps({ columnKey: "name" })}
+                      modifier="truncate"
                     >
-                      <Td
-                        width={20}
-                        {...getTdProps({ columnKey: "name" })}
-                        modifier="truncate"
-                      >
-                        {application.name}
-                      </Td>
-                      <Td
-                        width={25}
-                        {...getTdProps({ columnKey: "description" })}
-                        modifier="truncate"
-                      >
-                        {application.description}
-                      </Td>
-                      <Td
-                        width={10}
-                        modifier="truncate"
-                        {...getTdProps({ columnKey: "businessService" })}
-                      >
-                        {application.businessService && (
-                          <ApplicationBusinessService
-                            id={application.businessService.id}
-                          />
+                      {application.name}
+                    </Td>
+                    <Td
+                      width={25}
+                      {...getTdProps({ columnKey: "description" })}
+                      modifier="truncate"
+                    >
+                      {application.description}
+                    </Td>
+                    <Td
+                      width={10}
+                      modifier="truncate"
+                      {...getTdProps({ columnKey: "businessService" })}
+                    >
+                      {application.businessService && (
+                        <ApplicationBusinessService
+                          id={application.businessService.id}
+                        />
+                      )}
+                    </Td>
+                    <Td
+                      width={10}
+                      modifier="truncate"
+                      {...getTdProps({ columnKey: "assessment" })}
+                    >
+                      <ApplicationAssessmentStatus
+                        assessment={getApplicationAssessment(application.id!)}
+                        isLoading={isLoadingApplicationAssessment(
+                          application.id!
                         )}
-                      </Td>
-                      <Td
-                        width={10}
-                        modifier="truncate"
-                        {...getTdProps({ columnKey: "assessment" })}
-                      >
-                        <ApplicationAssessmentStatus
-                          assessment={getApplicationAssessment(application.id!)}
-                          isLoading={isLoadingApplicationAssessment(
-                            application.id!
-                          )}
-                          fetchError={fetchErrorApplicationAssessment(
-                            application.id!
-                          )}
-                        />
-                      </Td>
-                      <Td
-                        width={10}
-                        modifier="truncate"
-                        {...getTdProps({ columnKey: "review" })}
-                      >
-                        <IconedStatus
-                          preset={
-                            application.review ? "Completed" : "NotStarted"
-                          }
-                        />
-                      </Td>
-                      <Td
-                        width={10}
-                        modifier="truncate"
-                        {...getTdProps({ columnKey: "tags" })}
-                      >
-                        <TagIcon />
-                        {application.tags ? application.tags.length : 0}
-                      </Td>
-                      <Td width={20}>
-                        <RBAC
-                          allowedPermissions={applicationsWriteScopes}
-                          rbacType={RBAC_TYPE.Scope}
-                        >
-                          <Button
-                            type="button"
-                            variant="plain"
-                            onClick={() =>
-                              setSaveApplicationModalState(application)
-                            }
-                          >
-                            <PencilAltIcon />
-                          </Button>
-                        </RBAC>
-                        <Dropdown
-                          isOpen={isKebabOpen === application.id}
-                          onSelect={() => setIsKebabOpen(null)}
-                          onOpenChange={(_isOpen) => setIsKebabOpen(null)}
-                          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                            <MenuToggle
-                              ref={toggleRef}
-                              aria-label="kebab dropdown toggle"
-                              variant="plain"
-                              onClick={() =>
-                                isKebabOpen
-                                  ? setIsKebabOpen(null)
-                                  : setIsKebabOpen(application.id)
-                              }
-                              isExpanded={isKebabOpen === rowIndex}
-                            >
-                              <EllipsisVIcon />
-                            </MenuToggle>
-                          )}
-                          shouldFocusToggleOnSelect
-                        >
-                          <DropdownItem
-                            key="assess"
-                            component="button"
-                            onClick={() => assessSelectedApp(application)}
-                          >
-                            {t("actions.assess")}
-                          </DropdownItem>
-                          <DropdownItem
-                            key="review"
-                            component="button"
-                            onClick={() => reviewSelectedApp(application)}
-                          >
-                            {t("actions.review")}
-                          </DropdownItem>
-                          <DropdownItem
-                            key="delete"
-                            component="button"
-                            onClick={() =>
-                              setApplicationsToDelete([application])
-                            }
-                          >
-                            {t("actions.delete")}
-                          </DropdownItem>
-                          <DropdownItem
-                            key="manage-dependencies"
-                            component="button"
-                            onClick={() => {
-                              setApplicationDependenciesToManage(application);
-                            }}
-                          >
-                            {t("actions.manageDependencies")}
-                          </DropdownItem>
-                        </Dropdown>
-                      </Td>
-                    </TableRowContentWithControls>
-                  </Tr>
-                );
-              })}
-            </Tbody>
+                        fetchError={fetchErrorApplicationAssessment(
+                          application.id!
+                        )}
+                      />
+                    </Td>
+                    <Td
+                      width={10}
+                      modifier="truncate"
+                      {...getTdProps({ columnKey: "review" })}
+                    >
+                      <IconedStatus
+                        preset={application.review ? "Completed" : "NotStarted"}
+                      />
+                    </Td>
+                    <Td
+                      width={10}
+                      modifier="truncate"
+                      {...getTdProps({ columnKey: "tags" })}
+                    >
+                      <TagIcon />
+                      {application.tags ? application.tags.length : 0}
+                    </Td>
+                    <Td isActionCell>
+                      <Button
+                        variant="plain"
+                        icon={<PencilAltIcon />}
+                        onClick={() =>
+                          setSaveApplicationModalState(application)
+                        }
+                      />
+                    </Td>
+                    <Td isActionCell>
+                      <ActionsColumn
+                        items={[
+                          {
+                            title: t("actions.assess"),
+                            onClick: () => assessSelectedApp(application),
+                          },
+                          {
+                            title: t("actions.review"),
+                            onClick: () => reviewSelectedApp(application),
+                          },
+                          {
+                            title: t("actions.delete"),
+                            onClick: () =>
+                              setApplicationsToDelete([application]),
+                          },
+                          {
+                            title: t("actions.manageDependencies"),
+                            onClick: () =>
+                              setApplicationDependenciesToManage(application),
+                          },
+                        ]}
+                      />
+                    </Td>
+                  </TableRowContentWithControls>
+                </Tr>
+              );
+            })}
           </ConditionalTableBody>
         </Table>
         <SimplePagination
