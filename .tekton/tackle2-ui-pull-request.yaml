@@ -95,7 +95,7 @@ spec:
       description: Skip optional checks, set false if you want to run optional checks
       name: skip-optional
       type: string
-    - default: "false"
+    - default: "true"
       description: Execute the build with network isolation
       name: hermetic
       type: string
