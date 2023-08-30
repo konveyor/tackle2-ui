@@ -196,22 +196,22 @@ export const AppRoutes = () => {
     <Suspense fallback={<AppPlaceholder />}>
       <ErrorBoundary FallbackComponent={ErrorFallback} key={location.pathname}>
         <Switch>
-          {devRoutes.map(({ ...props }, index) => (
+          {devRoutes.map(({ comp, path, exact }, index) => (
             <RouteWrapper
-              comp={props.comp}
+              comp={comp}
               key={index}
               roles={devRoles}
-              path={props.path}
-              exact={props.exact}
+              path={path}
+              exact={exact}
             />
           ))}
-          {adminRoutes.map(({ ...props }, index) => (
+          {adminRoutes.map(({ comp, path, exact }, index) => (
             <RouteWrapper
-              comp={props.comp}
+              comp={comp}
               key={index}
               roles={adminRoles}
-              path={props.path}
-              exact={props.exact}
+              path={path}
+              exact={exact}
             />
           ))}
           <Redirect from="*" to="/applications" />

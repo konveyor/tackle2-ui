@@ -1,5 +1,6 @@
 /** Define process.env to contain `KonveyorEnvType` */
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace NodeJS {
     interface ProcessEnv extends Partial<Readonly<KonveyorEnvType>> {}
   }

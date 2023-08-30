@@ -150,6 +150,9 @@ const AssessmentSettings: React.FC = () => {
     },
   } = tableControls;
 
+  // TODO: Check RBAC access
+  const rbacWriteAccess = true; // checkAccess(userScopes, questionnaireWriteScopes);
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -189,25 +192,21 @@ const AssessmentSettings: React.FC = () => {
                     </Button>
                   </ToolbarItem>
                   {/* </RBAC> */}
-                  {
-                    //RBAC
-                    // xxxxWriteAccess = checkAccess(userScopes, questionnaireWriteScopes);
-                    true ? ( //TODO: Check RBAC access
-                      <ToolbarItem>
-                        <Button
-                          type="button"
-                          id="download-yaml-template"
-                          aria-label="Download questionnaire"
-                          variant={ButtonVariant.link}
-                          onClick={() => setIsDownloadTemplateModal(true)}
-                        >
-                          {t("dialog.title.download", {
-                            what: t("terms.YAMLTemplate"),
-                          })}
-                        </Button>
-                      </ToolbarItem>
-                    ) : null
-                  }
+                  {rbacWriteAccess ? (
+                    <ToolbarItem>
+                      <Button
+                        type="button"
+                        id="download-yaml-template"
+                        aria-label="Download questionnaire"
+                        variant={ButtonVariant.link}
+                        onClick={() => setIsDownloadTemplateModal(true)}
+                      >
+                        {t("dialog.title.download", {
+                          what: t("terms.YAMLTemplate"),
+                        })}
+                      </Button>
+                    </ToolbarItem>
+                  ) : null}
                 </ToolbarGroup>
                 <ToolbarItem {...paginationToolbarItemProps}>
                   <SimplePagination
@@ -416,7 +415,7 @@ const AssessmentSettings: React.FC = () => {
         isOpen={isDownloadTemplateModal}
         onClose={() => setIsDownloadTemplateModal(false)}
       >
-        <Text>TODO Downlaod YAML Template component</Text>
+        <Text>TODO Download YAML Template component</Text>
       </Modal>
       <ConfirmDialog
         title={t("dialog.title.delete", {

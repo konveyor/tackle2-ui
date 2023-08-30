@@ -12,7 +12,7 @@ interface ItemProps {
 }
 
 export const Item: React.FC<ItemProps> = forwardRef(
-  ({ id, style, ...props }, ref) => {
+  ({ id, style, handleProps, onEdit, onDelete }: ItemProps, ref) => {
     const { targets } = useFetchTargets();
     const matchingTarget = targets.find((target) => target.id === id);
     const inlineStyles = {
@@ -25,12 +25,14 @@ export const Item: React.FC<ItemProps> = forwardRef(
         {matchingTarget && (
           <TargetCard
             item={matchingTarget}
-            handleProps={props.handleProps}
-            onEdit={props.onEdit}
-            onDelete={props.onDelete}
+            handleProps={handleProps}
+            onEdit={onEdit}
+            onDelete={onDelete}
           />
         )}
       </div>
     );
   }
 );
+
+Item.displayName = "Item";

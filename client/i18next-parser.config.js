@@ -1,3 +1,5 @@
+/* eslint-env node */
+
 module.exports = {
   createOldCatalogs: true, // Save the \_old files
 
