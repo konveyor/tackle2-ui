@@ -11,6 +11,7 @@ import { XMLValidator } from "fast-xml-parser";
 import XSDSchema from "./windup-jboss-ruleset.xsd";
 import { checkRuleFileType } from "../utils/rules-utils";
 import { DropEvent } from "@patternfly/react-core";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const xmllint = require("xmllint");
 
 export default function useRuleFiles(

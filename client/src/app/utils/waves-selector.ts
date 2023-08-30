@@ -26,7 +26,7 @@ export const getWavesWithStatus = (
     } else if (statuses.includes("")) {
       const now = dayjs.utc();
       const start = dayjs.utc(wave.startDate);
-      var duration = now.diff(start);
+      const duration = now.diff(start);
       if (duration > 0) {
         return "In Progress";
       } else {

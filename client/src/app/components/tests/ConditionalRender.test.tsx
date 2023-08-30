@@ -6,7 +6,7 @@ describe("ConditionalRender", () => {
   it("Renders WHEN=true", () => {
     render(
       <ConditionalRender when={true} then={"Hello world"}>
-        I'm the content
+        I&apos;m the content
       </ConditionalRender>
     );
     screen.findByRole("heading", { name: /Hello world/i });
@@ -15,7 +15,7 @@ describe("ConditionalRender", () => {
   it("Renders WHEN=false", () => {
     render(
       <ConditionalRender when={false} then={"Hello world"}>
-        I'm the content
+        I&apos;m the content
       </ConditionalRender>
     );
     screen.findByRole("heading", { name: /I'm the content/i });

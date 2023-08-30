@@ -10,6 +10,7 @@
   "scripts": {
     "clean": "rimraf ./dist && npm run clean -ws --if-present",
     "clean:all": "npm run clean && rimraf ./node_modules ./**/node_modules/",
+    "prepare": "husky install",
     "postinstall": "npm run build -w common",
     "dist": "rimraf ./dist && copyfiles -e 'node_modules/**' entrypoint.sh '**/package.json' '*/dist/**/*' ./dist",
     "build": "npm run build -ws --if-present",
@@ -19,9 +20,13 @@
     "start:dev": "concurrently -n port-forward,common,client -c 'white.bold.inverse,green.bold.inverse,blue.bold.inverse' 'npm:port-forward' 'npm:start:dev:common' 'npm:start:dev:client'",
     "start": "npm run build -w common -w client && npm run start -w server",
     "test": "npm run test -ws --if-present --",
+    "lint": "npm run lint -ws --if-present --",
     "port-forward:hub": "kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080",
     "port-forward:keycloak": "kubectl port-forward svc/tackle-keycloak-sso -n konveyor-tackle 9001:8080",
     "port-forward": "concurrently -c auto 'npm:port-forward:*'"
+  },
+  "lint-staged": {
+    "*": "prettier --ignore-unknown --write"
   },
   "workspaces": [
     "common",
@@ -39,8 +44,19 @@
     "@rollup/plugin-run": "^3.0.1",
     "@rollup/plugin-typescript": "^11.1.2",
     "@types/node": "^18.14.2",
+    "@typescript-eslint/eslint-plugin": "^6.4.0",
+    "@typescript-eslint/parser": "^6.4.0",
     "concurrently": "^8.2.0",
     "copyfiles": "^2.4.1",
+    "eslint": "^8.47.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.33.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-unused-imports": "^3.0.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
+    "prettier": "^3.0.2",
     "rimraf": "^4.4.1",
     "rollup": "^3.27.2",
     "ts-node": "^10.9.1",

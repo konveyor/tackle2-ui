@@ -6,9 +6,14 @@
   "type": "module",
   "scripts": {
     "clean": "rimraf ./dist",
+    "lint": "eslint .",
     "build": "NODE_ENV=production rollup -c",
     "start:dev": "ROLLUP_RUN=true rollup -c -w",
     "start": "npm run build && node --enable-source-maps dist/index.js"
+  },
+  "lint-staged": {
+    "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": "eslint --fix",
+    "*.{css,json,md,yaml,yml}": "prettier --write"
   },
   "dependencies": {
     "cookie-parser": "^1.4.6",
