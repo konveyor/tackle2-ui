@@ -48,6 +48,7 @@ import {
   Questionnaire,
   Archetype,
   InitialAssessment,
+  MimeType,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
@@ -64,6 +65,7 @@ export const TAGS = HUB + "/tags";
 export const MIGRATION_WAVES = HUB + "/migrationwaves";
 
 export const APPLICATIONS = HUB + "/applications";
+export const APPLICATION_ANALYSIS = APPLICATIONS + "/:applicationId/analysis";
 export const APPLICATION_DEPENDENCY = HUB + "/dependencies";
 export const REVIEWS = HUB + "/reviews";
 export const REPORT = HUB + "/reports";
@@ -323,6 +325,23 @@ export const getApplications = (): Promise<Application[]> =>
 
 export const updateApplication = (obj: Application): Promise<Application> =>
   axios.put(`${APPLICATIONS}/${obj.id}`, obj);
+
+export const getApplicationAnalysis = (
+  applicationId: number,
+  type: MimeType
+): Promise<void> =>
+  axios.get(
+    APPLICATION_ANALYSIS.replace(
+      "/:applicationId/",
+      `/${String(applicationId)}/${type === MimeType.TAR ? "report" : null}`
+    ),
+    {
+      responseType: "blob",
+      headers: {
+        Accept: `application/x-${type}`,
+      },
+    }
+  );
 
 export const getApplicationsImportSummary = (): Promise<
   ApplicationImportSummary[]

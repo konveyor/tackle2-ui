@@ -1,56 +1,56 @@
-import React, { useState } from "react";
-import { Alert, Button } from "@patternfly/react-core";
+import React from "react";
+import { Button } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Application } from "@app/api/models";
-import { Spinner } from "@patternfly/react-core";
-import { useDownloadStaticReport } from "@app/queries/download";
+import { saveAs } from "file-saver";
 
-export enum MimeType {
-  TAR = "tar",
-  YAML = "yaml",
-}
-function DownloadButton({
-  application,
-  mimeType,
-}: {
-  application: Application;
+import { MimeType } from "@app/api/models";
+import { useFetchStaticReport } from "@app/queries/applications";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { AxiosError } from "axios";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+
+interface IDownloadButtonProps {
+  id: number;
   mimeType: MimeType;
-}) {
-  const {
-    mutate: downloadFile,
-    isLoading,
-    isError,
-  } = useDownloadStaticReport();
+}
 
-  const handleDownload = () => {
-    downloadFile({
-      applicationId: application.id,
-      mimeType: mimeType,
+export const DownloadButton: React.FC<IDownloadButtonProps> = ({
+  id,
+  mimeType,
+}) => {
+  const { pushNotification } = React.useContext(NotificationsContext);
+
+  const onFetchStaticReportError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
     });
   };
 
-  return (
-    <>
-      {isLoading ? (
-        <Spinner size="sm" />
-      ) : isError ? (
-        <Alert variant="warning" isInline title={"Error downloading report"}>
-          <p>{"An error has occurred. Try to download again."}</p>
-        </Alert>
-      ) : (
-        <>
-          <Button
-            onClick={handleDownload}
-            id={`download-${mimeType}-button`}
-            variant="link"
-            className={spacing.pXs}
-          >
-            {mimeType === MimeType.YAML ? "YAML" : "Report"}
-          </Button>
-        </>
-      )}
-    </>
+  const { data: report, refetch } = useFetchStaticReport(
+    id,
+    mimeType,
+    onFetchStaticReportError
   );
-}
+
+  const handleDownload = () => {
+    refetch();
+    if (report) {
+      saveAs(new Blob([report]), `analysis-report-app-${id}.${mimeType}`);
+    }
+  };
+
+  return (
+    <Button
+      key={mimeType}
+      onClick={handleDownload}
+      id={`download-${mimeType}-button`}
+      variant="link"
+      className={spacing.pXs}
+    >
+      {mimeType === MimeType.YAML ? "YAML" : "Report"}
+    </Button>
+  );
+};
 
 export default DownloadButton;
