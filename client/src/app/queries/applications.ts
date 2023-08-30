@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
-import { ApplicationDependency, MimeType } from "@app/api/models";
+import { MimeType } from "@app/api/models";
 import {
   createApplication,
   deleteApplication,
@@ -13,7 +14,6 @@ import {
 } from "@app/api/rest";
 import { reviewsQueryKey } from "./reviews";
 import { assessmentsQueryKey } from "./assessments";
-import { AxiosError } from "axios";
 
 export const ApplicationDependencyQueryKey = "applicationdependencies";
 export const ApplicationsQueryKey = "applications";

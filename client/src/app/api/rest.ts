@@ -799,3 +799,31 @@ export const updateArchetype = (archetype: Archetype): Promise<void> =>
 // success with code 204 and therefore no response content
 export const deleteArchetype = (id: number): Promise<void> =>
   axios.delete(`${ARCHETYPES}/${id}`);
+
+export const downloadApplicationAnalysisReport = (
+  id: number,
+  type: MimeType
+): Promise<void> =>
+  axios
+    .get(`${APPLICATIONS}/${id}/analysis/report`, {
+      responseType: "blob",
+      headers: {
+        Accept: `application/x-${type}`,
+      },
+    })
+    .then((response) => {
+      if (response.status !== 200) {
+        throw new Error("Network response was not ok when downloading file.");
+      }
+      response.data;
+    });
+
+export const downloadQuestionnaire = (id: number): Promise<void> =>
+  axios
+    .get(`${QUESTIONNAIRES}/${id}`, {
+      responseType: "blob",
+      headers: {
+        Accept: "application/x-yaml",
+      },
+    })
+    .then((response) => response.data);
