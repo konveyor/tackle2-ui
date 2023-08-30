@@ -17,9 +17,14 @@
   "module": "./dist/index.mjs",
   "scripts": {
     "clean": "rimraf ./dist",
+    "lint": "eslint .",
     "prebuild": "npm run clean",
     "build": "rollup -c",
     "start:dev": "rollup -c --watch"
+  },
+  "lint-staged": {
+    "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": "eslint --fix",
+    "*.{css,json,md,yaml,yml}": "prettier --write"
   },
   "dependencies": {
     "ejs": "^3.1.7",
