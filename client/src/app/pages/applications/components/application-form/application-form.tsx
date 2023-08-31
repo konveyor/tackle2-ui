@@ -39,6 +39,7 @@ import {
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { Autocomplete } from "@app/components/Autocomplete";
 
 export interface FormValues {
   name: string;
@@ -445,50 +446,75 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             label={t("terms.tags")}
             fieldId="tags"
             renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+              <Autocomplete
+                noResultsMessage={t("message.noResultsFoundTitle")}
+                onChange={(selections) => {
+                  onChange(
+                    selections
+                      .map((sel) => getTagRef(sel))
+                      .filter((sel) => sel !== undefined) as TagRef[]
+                  );
+                }}
+                options={tagOptions.map((o) => o.value)}
                 placeholderText={t("composed.selectMany", {
                   what: t("terms.tags").toLowerCase(),
                 })}
-                id="tags-select"
-                variant="typeaheadmulti"
-                toggleId="tags-select-toggle"
-                toggleAriaLabel="tags dropdown toggle"
-                aria-label={name}
-                value={value
-                  .map((formTag) =>
-                    tags?.find((tagRef) => tagRef.name === formTag.name)
-                  )
-                  .map((matchingTag) =>
-                    matchingTag
-                      ? {
-                          value: matchingTag.name,
-                          toString: () => matchingTag.name,
-                        }
-                      : undefined
-                  )
-                  .filter((e) => e !== undefined)}
-                options={tagOptions}
-                onChange={(selection) => {
-                  const selectionWithValue = selection.toString();
-
-                  const currentValue = value || [];
-                  const e = currentValue.find(
-                    (f) => f.name === selectionWithValue
-                  );
-                  if (e) {
-                    onChange(
-                      currentValue.filter((f) => f.name !== selectionWithValue)
-                    );
-                  } else {
-                    const tag = getTagRef(selectionWithValue);
-                    if (currentValue && typeof tag !== "undefined")
-                      onChange([...currentValue, tag]);
-                  }
-                }}
-                onClear={() => onChange([])}
-                noResultsFoundText={t("message.noResultsFoundTitle")}
+                searchInputAriaLabel="tags-select-toggle"
+                selections={
+                  value
+                    .map((formTag) =>
+                      tags?.find((tagRef) => tagRef.name === formTag.name)
+                    )
+                    .map((matchingTag) =>
+                      matchingTag ? matchingTag.name : undefined
+                    )
+                    .filter((e) => e !== undefined) as string[]
+                }
               />
+              // <SimpleSelect
+              //   maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+              //   placeholderText={t("composed.selectMany", {
+              //     what: t("terms.tags").toLowerCase(),
+              //   })}
+              //   id="tags-select"
+              //   variant="typeaheadmulti"
+              //   toggleId="tags-select-toggle"
+              //   toggleAriaLabel="tags dropdown toggle"
+              //   aria-label={name}
+              //   value={value
+              //     .map((formTag) =>
+              //       tags?.find((tagRef) => tagRef.name === formTag.name)
+              //     )
+              //     .map((matchingTag) =>
+              //       matchingTag
+              //         ? {
+              //             value: matchingTag.name,
+              //             toString: () => matchingTag.name,
+              //           }
+              //         : undefined
+              //     )
+              //     .filter((e) => e !== undefined)}
+              //   options={tagOptions}
+              // onChange={(selection) => {
+              //   const selectionWithValue = selection.toString();
+
+              //   const currentValue = value || [];
+              //   const e = currentValue.find(
+              //     (f) => f.name === selectionWithValue
+              //   );
+              //   if (e) {
+              //     onChange(
+              //       currentValue.filter((f) => f.name !== selectionWithValue)
+              //     );
+              //   } else {
+              //     const tag = getTagRef(selectionWithValue);
+              //     if (currentValue && typeof tag !== "undefined")
+              //       onChange([...currentValue, tag]);
+              //   }
+              // }}
+              //   onClear={() => onChange([])}
+              //   noResultsFoundText={t("message.noResultsFoundTitle")}
+              // />
             )}
           />
           <HookFormPFGroupController
