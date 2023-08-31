@@ -501,27 +501,6 @@ export const ApplicationsTable: React.FC = () => {
     // if application/archetype has an assessment, ask if user wants to override it
     setAssessModalOpen(true);
     setApplicationToAssess(application);
-    // if()
-    // assessApplication(
-    //   application,
-    //   (assessment: Assessment) => {
-    //     if (assessment.status === "COMPLETE") {
-    //       setAssessmentToEdit(assessment);
-    //     } else {
-    //       history.push(
-    //         formatPath(Paths.applicationsAssessment, {
-    //           assessmentId: assessment.id,
-    //         })
-    //       );
-    //     }
-    //   },
-    //   (error: AxiosError) => {
-    //     pushNotification({
-    //       title: getAxiosErrorMessage(error),
-    //       variant: "danger",
-    //     });
-    //   }
-    // );
   };
   const reviewSelectedApp = (application: Application) => {
     if (application.review) {
@@ -677,7 +656,7 @@ export const ApplicationsTable: React.FC = () => {
                       {...getTdProps({ columnKey: "assessment" })}
                     >
                       <ApplicationAssessmentStatus
-                        assessment={getApplicationAssessment(application.id!)}
+                        assessments={application.assessments}
                         isLoading={isLoadingApplicationAssessment(
                           application.id!
                         )}

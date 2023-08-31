@@ -10,20 +10,20 @@ import {
   TextContent,
 } from "@patternfly/react-core";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
-import { QuestionnaireCategory } from "@app/api/models";
 import { MultiInputSelection } from "./multi-input-selection";
 import { Question, QuestionHeader, QuestionBody } from "./question";
 import { getCommentFieldName } from "../../form-utils";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
 import { useFormContext } from "react-hook-form";
 import { ApplicationAssessmentWizardValues } from "../application-assessment-wizard/application-assessment-wizard";
+import { Section } from "@app/api/models";
 
 export interface QuestionnaireFormProps {
-  category: QuestionnaireCategory;
+  section: Section;
 }
 
 export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
-  category,
+  section,
 }) => {
   const { t } = useTranslation();
   const { control, getValues } =
@@ -40,28 +40,28 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
   }, []);
 
   const sortedQuestions = useMemo(() => {
-    return category.questions.sort((a, b) => a.order - b.order);
-  }, [category]);
+    return section.questions.sort((a, b) => a.order - b.order);
+  }, [section]);
 
   // Comments
 
-  const commentFieldName = getCommentFieldName(category, true);
+  const commentFieldName = getCommentFieldName(section, true);
 
   return (
     <Stack hasGutter>
       <StackItem>
         <TextContent>
-          <Text component="h1">{category.title}</Text>
+          <Text component="h1">{section.name}</Text>
         </TextContent>
       </StackItem>
       {sortedQuestions.map((question) => (
-        <StackItem key={question.id}>
+        <StackItem key={question.text}>
           <Question cy-data="question">
             <QuestionHeader>
               <Split hasGutter>
-                <SplitItem>{question.question}</SplitItem>
+                <SplitItem>{question.text}</SplitItem>
                 <SplitItem>
-                  <Popover bodyContent={<div>{question.description}</div>}>
+                  <Popover bodyContent={<div>{question.explanation}</div>}>
                     <button
                       type="button"
                       aria-label="More info"

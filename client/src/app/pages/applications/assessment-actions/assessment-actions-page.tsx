@@ -36,9 +36,7 @@ const AssessmentActions: React.FC = () => {
       <PageSection>
         <ConditionalRender when={!application} then={<AppPlaceholder />}>
           <TextContent>
-            <AssessmentActionsTable
-              questionnaires={application?.assessments || []}
-            />
+            <AssessmentActionsTable application={application} />
           </TextContent>
         </ConditionalRender>
       </PageSection>

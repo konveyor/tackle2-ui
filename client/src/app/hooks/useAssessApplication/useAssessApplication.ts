@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { AxiosError } from "axios";
 
 import { createAssessment, getAssessments } from "@app/api/rest";
-import { Application, Assessment } from "@app/api/models";
+import { Application, Assessment, InitialAssessment } from "@app/api/models";
 
 export interface IState {
   inProgress: boolean;
@@ -34,7 +34,7 @@ export const useAssessApplication = (): IState => {
 
       setInProgress(true);
       getAssessments({ applicationId: application.id })
-        .then(({ data }) => {
+        .then((data) => {
           const currentAssessment: Assessment | undefined = data[0]
             ? data[0]
             : undefined;
@@ -63,12 +63,13 @@ export const useAssessApplication = (): IState => {
 
       setInProgress(true);
       getAssessments({ applicationId: application.id })
-        .then(({ data }) => {
+        .then((data) => {
           const currentAssessment: Assessment | undefined = data[0];
 
-          const newAssessment = {
-            applicationId: application.id,
-          } as Assessment;
+          const newAssessment: InitialAssessment = {
+            application: { id: application.id, name: application.name },
+            questionnaire: { id: 1, name: "Sample Questionnaire" },
+          };
 
           return Promise.all([
             currentAssessment,
@@ -77,7 +78,7 @@ export const useAssessApplication = (): IState => {
         })
         .then(([currentAssessment, newAssessment]) => {
           setInProgress(false);
-          onSuccess(currentAssessment || newAssessment!.data);
+          onSuccess(currentAssessment || newAssessment!);
         })
         .catch((error: AxiosError) => {
           setInProgress(false);

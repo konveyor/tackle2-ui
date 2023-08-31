@@ -27,7 +27,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { StateError } from "@app/components/StateError";
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
-import { getAssessmentConfidence } from "@app/api/rest";
+// import { getAssessmentConfidence } from "@app/api/rest";
 import {
   Application,
   AssessmentConfidence,
@@ -136,11 +136,12 @@ export const AdoptionCandidateGraph: React.FC = () => {
   } = useQuery<AssessmentConfidence[]>(
     ["assessmentconfidence"],
     async () =>
-      (
-        await getAssessmentConfidence(
-          applications.length > 0 ? applications.map((f) => f.id!) : []
-        )
-      ).data,
+      // (
+      //   await getAssessmentConfidence(
+      //     applications.length > 0 ? applications.map((f) => f.id!) : []
+      //   )
+      // ).data,
+      [],
     {
       onError: (error) => console.log("error, ", error),
     }

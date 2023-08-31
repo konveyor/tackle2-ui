@@ -1,15 +1,22 @@
 import {
   useMutation,
   useQueries,
+  useQuery,
   useQueryClient,
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import { deleteAssessment, getAssessments } from "@app/api/rest";
+import {
+  createAssessment,
+  deleteAssessment,
+  getAssessmentById,
+  getAssessments,
+} from "@app/api/rest";
 import { AxiosError, AxiosResponse } from "axios";
-import { Application, Assessment } from "@app/api/models";
+import { Application, Assessment, InitialAssessment } from "@app/api/models";
 
 export const assessmentsQueryKey = "assessments";
+export const assessmentQueryKey = "assessment";
 
 export const useFetchApplicationAssessments = (
   applications: Application[] = []
@@ -21,7 +28,7 @@ export const useFetchApplicationAssessments = (
         const response = await getAssessments({
           applicationId: application.id,
         });
-        const allAssessmentsForApp = response.data;
+        const allAssessmentsForApp = response;
         return allAssessmentsForApp[0] || [];
       },
       onError: (error: any) => console.log("error, ", error),
@@ -39,10 +46,23 @@ export const useFetchApplicationAssessments = (
       queryResultsByAppId[id].error as AxiosError | undefined,
   };
 };
-export interface IAssessementMutation {
-  id: number;
-  name: string;
-}
+
+export const useCreateAssessmentMutation = (
+  onSuccess: (name: string) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (assessment: InitialAssessment) => createAssessment(assessment),
+    onSuccess: (_, args) => {
+      // onSuccess(args.);
+      //TODO determine what to return here and how to handle
+      queryClient.invalidateQueries([assessmentsQueryKey]);
+    },
+    onError: onError,
+  });
+};
 
 export const useDeleteAssessmentMutation = (
   onSuccess: (name: string) => void,
@@ -51,11 +71,25 @@ export const useDeleteAssessmentMutation = (
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (args: IAssessementMutation) => deleteAssessment(args.id),
+    mutationFn: (args: { name: string; id: number }) =>
+      deleteAssessment(args.id),
     onSuccess: (_, args) => {
       onSuccess(args.name);
       queryClient.invalidateQueries([assessmentsQueryKey]);
     },
     onError: onError,
   });
+};
+
+export const useFetchAssessmentByID = (id: number | string) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: [assessmentQueryKey, id],
+    queryFn: () => getAssessmentById(id),
+    onError: (error: AxiosError) => console.log("error, ", error),
+  });
+  return {
+    assessment: data,
+    isFetching: isLoading,
+    fetchError: error,
+  };
 };

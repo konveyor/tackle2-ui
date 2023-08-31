@@ -14,9 +14,6 @@ import {
   ApplicationImport,
   ApplicationImportSummary,
   Assessment,
-  AssessmentConfidence,
-  AssessmentQuestionRisk,
-  AssessmentRisk,
   BulkCopyAssessment,
   BulkCopyReview,
   BusinessService,
@@ -51,6 +48,7 @@ import {
   Target,
   HubFile,
   Questionnaire,
+  InitialAssessment,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
@@ -111,7 +109,7 @@ export const QUESTIONNAIRES = HUB + "/questionnaires";
 
 // PATHFINDER
 export const PATHFINDER = "/hub/pathfinder";
-export const ASSESSMENTS = PATHFINDER + "/assessments";
+export const ASSESSMENTS = HUB + "/assessments";
 
 const jsonHeaders = { headers: { Accept: "application/json" } };
 const formHeaders = { headers: { Accept: "multipart/form-data" } };
@@ -148,12 +146,6 @@ export const updateAllApplications = (
   return Promise.all(updatePromises)
     .then((response) => response)
     .catch((error) => error);
-};
-
-export const getApplicationById = (
-  id: number | string
-): AxiosPromise<Application> => {
-  return APIClient.get(`${APPLICATIONS}/${id}`);
 };
 
 // Applications Dependencies
@@ -214,62 +206,54 @@ export const getApplicationSummaryCSV = (id: string): AxiosPromise => {
   });
 };
 
-//
+//TODO: Remove this
+export const getApplicationByIdPromise = (
+  id: number | string
+): Promise<Application> => axios.get(`${APPLICATIONS}/${id}`);
 
-export const getAssessments = (filters: {
+//TODO: Remove this
+export const getAssessmentsPromise = (filters: {
   applicationId?: number | string;
-}): AxiosPromise<Assessment[]> => {
+}): Promise<Assessment[]> => {
   const params = {
     applicationId: filters.applicationId,
   };
 
   const query: string[] = buildQuery(params);
-  return APIClient.get(`${ASSESSMENTS}?${query.join("&")}`);
+  return axios.get(`${ASSESSMENTS}?${query.join("&")}`);
 };
 
-export const createAssessment = (obj: Assessment): AxiosPromise<Assessment> => {
-  return APIClient.post(`${ASSESSMENTS}`, obj);
+export const getAssessments = (filters: {
+  applicationId?: number | string;
+}): Promise<Assessment[]> => {
+  const params = {
+    applicationId: filters.applicationId,
+  };
+
+  const query: string[] = buildQuery(params);
+  return axios
+    .get(`${ASSESSMENTS}?${query.join("&")}`)
+    .then((response) => response.data);
+};
+
+export const createAssessment = (
+  obj: InitialAssessment
+): Promise<Assessment> => {
+  return axios.post(`${ASSESSMENTS}`, obj).then((response) => response.data);
 };
 
 export const patchAssessment = (obj: Assessment): AxiosPromise<Assessment> => {
-  return APIClient.patch(`${ASSESSMENTS}/${obj.id}`, obj);
+  return axios
+    .patch(`${ASSESSMENTS}/${obj.id}`, obj)
+    .then((response) => response.data);
 };
 
-export const getAssessmentById = (
-  id: number | string
-): AxiosPromise<Assessment> => {
-  return APIClient.get(`${ASSESSMENTS}/${id}`);
+export const getAssessmentById = (id: number | string): Promise<Assessment> => {
+  return axios.get(`${ASSESSMENTS}/${id}`).then((response) => response.data);
 };
 
 export const deleteAssessment = (id: number): AxiosPromise => {
   return APIClient.delete(`${ASSESSMENTS}/${id}`);
-};
-
-export const getAssessmentLandscape = (
-  applicationIds: number[]
-): AxiosPromise<AssessmentRisk[]> => {
-  return APIClient.post(
-    `${ASSESSMENTS}/assessment-risk`,
-    applicationIds.map((f) => ({ applicationId: f }))
-  );
-};
-
-export const getAssessmentIdentifiedRisks = (
-  applicationIds: number[]
-): AxiosPromise<AssessmentQuestionRisk[]> => {
-  return APIClient.post(
-    `${ASSESSMENTS}/risks`,
-    applicationIds.map((f) => ({ applicationId: f }))
-  );
-};
-
-export const getAssessmentConfidence = (
-  applicationIds: number[]
-): AxiosPromise<AssessmentConfidence[]> => {
-  return APIClient.post(
-    `${ASSESSMENTS}/confidence`,
-    applicationIds.map((f) => ({ applicationId: f }))
-  );
 };
 
 export const createBulkCopyAssessment = (
@@ -319,6 +303,9 @@ export const deleteApplication = (id: number): Promise<Application> =>
 
 export const deleteBulkApplications = (ids: number[]): Promise<Application[]> =>
   axios.delete(APPLICATIONS, { data: ids });
+
+export const getApplicationById = (id: number | string): Promise<Application> =>
+  axios.get(`${APPLICATIONS}/${id}`).then((response) => response.data);
 
 export const getApplications = (): Promise<Application[]> =>
   axios.get(APPLICATIONS).then((response) => response.data);
@@ -737,6 +724,11 @@ export const updateProxy = (obj: Proxy): Promise<Proxy> =>
 
 export const getQuestionnaires = (): Promise<Questionnaire[]> =>
   axios.get(QUESTIONNAIRES).then((response) => response.data);
+
+export const getQuestionnaireById = (
+  id: number | string
+): Promise<Questionnaire> =>
+  axios.get(`${QUESTIONNAIRES}/id/${id}`).then((response) => response.data);
 
 // TODO: The update handlers in hub don't return any content (success is a response code
 // TODO:  of 204 - NoContext) ... the return type does not make sense.

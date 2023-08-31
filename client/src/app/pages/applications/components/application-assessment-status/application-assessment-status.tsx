@@ -4,11 +4,15 @@ import { useTranslation } from "react-i18next";
 import { Spinner } from "@patternfly/react-core";
 
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
-import { Assessment } from "@app/api/models";
+import { Assessment, Ref } from "@app/api/models";
 import { IconedStatus, IconedStatusPreset } from "@app/components/IconedStatus";
+import {
+  useFetchApplicationAssessments,
+  useFetchAssessmentByID,
+} from "@app/queries/assessments";
 
 export interface ApplicationAssessmentStatusProps {
-  assessment?: Assessment;
+  assessments?: Ref[];
   isLoading: boolean;
   fetchError?: AxiosError;
 }
@@ -28,8 +32,10 @@ const getStatusIconFrom = (assessment: Assessment): IconedStatusPreset => {
 
 export const ApplicationAssessmentStatus: React.FC<
   ApplicationAssessmentStatusProps
-> = ({ assessment, isLoading, fetchError }) => {
+> = ({ assessments, isLoading, fetchError }) => {
   const { t } = useTranslation();
+  //TODO: remove this once we have a proper assessment status
+  const { assessment } = useFetchAssessmentByID(assessments?.[0]?.id || 0);
 
   if (fetchError) {
     return <EmptyTextMessage message={t("terms.notAvailable")} />;

@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { AssessmentRisk } from "@app/api/models";
-import { getAssessmentLandscape } from "@app/api/rest";
 
 export const RisksQueryKey = "risks";
 
@@ -9,7 +8,9 @@ export const useFetchRisks = (applicationIDs: number[]) => {
     ["assessmentrisks", applicationIDs],
     async () => {
       if (applicationIDs.length > 0)
-        return (await getAssessmentLandscape(applicationIDs)).data;
+        // return (await getAssessmentLandscape(applicationIDs)).data;
+        //TODO see if we still need this
+        return [];
       else return [];
     },
     {

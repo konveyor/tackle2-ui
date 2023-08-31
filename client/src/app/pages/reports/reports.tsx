@@ -28,11 +28,11 @@ import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { StateError } from "@app/components/StateError";
 import { ApplicationSelectionContextProvider } from "./application-selection-context";
-import { Landscape } from "./components/landscape";
-import { AdoptionCandidateTable } from "./components/adoption-candidate-table";
-import { AdoptionPlan } from "./components/adoption-plan";
-import { IdentifiedRisksTable } from "./components/identified-risks-table";
-import { AdoptionCandidateGraph } from "./components/adoption-candidate-graph/adoption-candidate-graph";
+// import { Landscape } from "./components/landscape";
+// import { AdoptionCandidateTable } from "./components/adoption-candidate-table";
+// import { AdoptionPlan } from "./components/adoption-plan";
+// import { IdentifiedRisksTable } from "./components/identified-risks-table";
+// import { AdoptionCandidateGraph } from "./components/adoption-candidate-graph/adoption-candidate-graph";
 import { useFetchApplications } from "@app/queries/applications";
 
 export const Reports: React.FC = () => {
@@ -86,9 +86,7 @@ export const Reports: React.FC = () => {
                     </TextContent>
                   </CardHeader>
                   <CardBody>
-                    <Bullseye>
-                      <Landscape />
-                    </Bullseye>
+                    <Bullseye>{/* <Landscape /> */}</Bullseye>
                   </CardBody>
                 </Card>
               </StackItem>
@@ -127,11 +125,11 @@ export const Reports: React.FC = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardBody>
-                    {isAdoptionCandidateTable ? (
+                    {/* {isAdoptionCandidateTable ? (
                       <AdoptionCandidateTable allApplications={applications} />
                     ) : (
                       <AdoptionCandidateGraph />
-                    )}
+                    )} */}
                   </CardBody>
                 </Card>
               </StackItem>
@@ -168,7 +166,7 @@ export const Reports: React.FC = () => {
                   </CardHeader>
                   <CardExpandableContent>
                     <CardBody style={{ maxHeight: 700, overflowY: "auto" }}>
-                      {isAdoptionPlanOpen && <AdoptionPlan />}
+                      {/* {isAdoptionPlanOpen && <AdoptionPlan />} */}
                     </CardBody>
                   </CardExpandableContent>
                 </Card>
@@ -194,7 +192,7 @@ export const Reports: React.FC = () => {
                   </CardHeader>
                   <CardExpandableContent>
                     <CardBody>
-                      {isRiskCardOpen && <IdentifiedRisksTable />}
+                      {/* {isRiskCardOpen && <IdentifiedRisksTable />} */}
                     </CardBody>
                   </CardExpandableContent>
                 </Card>
