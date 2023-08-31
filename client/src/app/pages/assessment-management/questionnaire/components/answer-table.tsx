@@ -23,7 +23,7 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({ answers }) => {
   const { t } = useTranslation();
 
   const tableControls = useLocalTableControls({
-    idProperty: "choice",
+    idProperty: "text",
     items: answers,
     columnNames: {
       choice: "Answer choice",
@@ -75,14 +75,14 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({ answers }) => {
           <Tbody>
             {currentPageItems?.map((answer, rowIndex) => (
               <>
-                <Tr key={answer.choice}>
+                <Tr key={answer.text}>
                   <TableRowContentWithControls
                     {...tableControls}
                     item={answer}
                     rowIndex={rowIndex}
                   >
                     <Td width={40} {...getTdProps({ columnKey: "choice" })}>
-                      {answer.choice}
+                      {answer.text}
                     </Td>
                     <Td width={20} {...getTdProps({ columnKey: "choice" })}>
                       {getIconByRisk(answer.risk)}
@@ -90,7 +90,7 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({ answers }) => {
                   </TableRowContentWithControls>
                 </Tr>
                 <Tr>
-                  {!!answer?.autoanswer_if_tags_present?.length && (
+                  {!!answer?.autoAnswerFor?.length && (
                     <>
                       <div style={{ display: "flex" }}>
                         <Text
@@ -99,7 +99,7 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({ answers }) => {
                         >
                           Tags to be applied:
                         </Text>
-                        {answer?.autoanswer_if_tags_present?.map((tag: any) => {
+                        {answer?.autoAnswerFor?.map((tag: any) => {
                           return (
                             <div style={{ flex: "0 0 6em" }}>
                               <Label color="grey">{tag.tag}</Label>

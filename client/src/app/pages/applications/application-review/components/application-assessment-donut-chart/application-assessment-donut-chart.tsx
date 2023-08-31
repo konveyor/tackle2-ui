@@ -5,7 +5,8 @@ import { ChartDonut, ChartLegend } from "@patternfly/react-charts";
 import { global_palette_blue_300 as defaultColor } from "@patternfly/react-tokens";
 
 import { RISK_LIST } from "@app/Constants";
-import { Assessment, QuestionnaireCategory } from "@app/api/models";
+import { Assessment, Section } from "@app/api/models";
+import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 
 export interface ChartData {
   red: number;
@@ -14,18 +15,16 @@ export interface ChartData {
   unknown: number;
 }
 
-export const getChartDataFromCategories = (
-  categories: QuestionnaireCategory[]
-): ChartData => {
+export const getChartDataFromCategories = (sections: Section[]): ChartData => {
   let green = 0;
   let amber = 0;
   let red = 0;
   let unknown = 0;
 
-  categories
+  sections
     .flatMap((f) => f.questions)
-    .flatMap((f) => f.options)
-    .filter((f) => f.checked === true)
+    .flatMap((f) => f.answers)
+    .filter((f) => f.selected === true)
     .forEach((f) => {
       switch (f.risk) {
         case "GREEN":
@@ -58,9 +57,14 @@ export const ApplicationAssessmentDonutChart: React.FC<
   IApplicationAssessmentDonutChartProps
 > = ({ assessment }) => {
   const { t } = useTranslation();
+  const { questionnaires } = useFetchQuestionnaires();
+
+  const matchingQuestionnaire = questionnaires.find(
+    (questionnaire) => questionnaire.id === assessment?.questionnaire?.id
+  );
 
   const charData: ChartData = useMemo(() => {
-    return getChartDataFromCategories(assessment.questionnaire.categories);
+    return getChartDataFromCategories(matchingQuestionnaire?.sections || []);
   }, [assessment]);
 
   const chartDefinition = [

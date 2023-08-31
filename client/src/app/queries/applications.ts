@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { Application, ApplicationDependency } from "@app/api/models";
+import { ApplicationDependency } from "@app/api/models";
 import {
   createApplication,
   deleteApplication,
@@ -13,7 +13,6 @@ import {
 import { reviewsQueryKey } from "./reviews";
 import { assessmentsQueryKey } from "./assessments";
 import { AxiosError } from "axios";
-import { mockQuestionnaire } from "@app/data/mock-questionnaire";
 
 export interface IApplicationDependencyFetchState {
   applicationDependencies: ApplicationDependency[];
@@ -36,14 +35,6 @@ export const useFetchApplications = () => {
       queryClient.invalidateQueries([reviewsQueryKey]);
       queryClient.invalidateQueries([assessmentsQueryKey]);
     },
-    select: (apps) =>
-      apps.map(
-        (app: Application): Application => ({
-          ...app,
-          //TODO: remove this mock data and replace with real data
-          assessments: [mockQuestionnaire],
-        })
-      ),
     onError: (error: AxiosError) => console.log(error),
   });
   return {
@@ -61,13 +52,6 @@ export const useFetchApplicationByID = (id: number | string) => {
     queryKey: [ApplicationQueryKey, id],
     queryFn: () => getApplicationById(id),
     onError: (error: AxiosError) => console.log("error, ", error),
-    select: (app): Application => {
-      return {
-        ...app.data,
-        //TODO: remove this mock data and replace with real data
-        assessments: [mockQuestionnaire, mockQuestionnaire],
-      };
-    },
   });
   return {
     application: data,

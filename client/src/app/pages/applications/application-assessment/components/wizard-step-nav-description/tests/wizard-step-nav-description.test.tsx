@@ -1,17 +1,17 @@
 import React from "react";
-import { QuestionnaireCategory } from "@app/api/models";
+import { Section } from "@app/api/models";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
 import { render } from "@app/test-config/test-utils";
 
 describe("WizardStepNavDescription", () => {
-  const category: QuestionnaireCategory = {
-    id: 123,
+  const section: Section = {
+    name: "Section 1",
     order: 1,
     questions: [],
   };
 
   it("Renders without crashing", () => {
-    const wrapper = render(<WizardStepNavDescription category={category} />);
+    const wrapper = render(<WizardStepNavDescription section={section} />);
     expect(wrapper).toMatchSnapshot();
   });
 });

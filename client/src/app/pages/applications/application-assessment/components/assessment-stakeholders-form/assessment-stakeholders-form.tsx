@@ -39,11 +39,10 @@ export const AssessmentStakeholdersForm: React.FC = () => {
   const { setValue, control, formState } =
     useFormContext<ApplicationAssessmentWizardValues>();
 
-  const { stakeholders } = useFetchStakeholders();
+  // const { stakeholders } = useFetchStakeholders();
 
-  const { stakeholderGroups } = useFetchStakeholderGroups();
+  // const { stakeholderGroups } = useFetchStakeholderGroups();
 
-  // Identity dropdown
   return (
     <div className="pf-v5-c-form">
       <FormSection>
@@ -72,11 +71,13 @@ export const AssessmentStakeholdersForm: React.FC = () => {
                   toggleId="stakeholders-select-toggle"
                   toggleAriaLabel="Stakeholders dropdown toggle"
                   aria-label={name}
-                  value={value
-                    .map((id) => stakeholders.find((f) => id === f.id))
-                    .map((e) => (e ? stakeholderToOption(e) : undefined))
-                    .filter((e) => e !== undefined)}
-                  options={stakeholders.map(stakeholderToOption)}
+                  // value={value
+                  //   .map((id) => stakeholders.find((f) => id === f.id))
+                  //   .map((e) => (e ? stakeholderToOption(e) : undefined))
+                  //   .filter((e) => e !== undefined)}
+                  // options={stakeholders.map(stakeholderToOption)}
+                  value={value}
+                  options={[]}
                   onChange={(selection) => {
                     const selectionWithValue =
                       selection as OptionWithValue<Stakeholder>;
@@ -107,11 +108,13 @@ export const AssessmentStakeholdersForm: React.FC = () => {
                   toggleId="stakeholder-groups-select-toggle"
                   toggleAriaLabel="Stakeholder groups dropdown toggle"
                   aria-label={name}
-                  value={value
-                    .map((id) => stakeholderGroups.find((f) => id === f.id))
-                    .map((e) => (e ? stakeholderGroupToOption(e) : undefined))
-                    .filter((e) => e !== undefined)}
-                  options={stakeholderGroups.map(stakeholderGroupToOption)}
+                  value={value}
+                  options={[]}
+                  // value={value
+                  //   .map((id) => stakeholderGroups.find((f) => id === f.id))
+                  //   .map((e) => (e ? stakeholderGroupToOption(e) : undefined))
+                  //   .filter((e) => e !== undefined)}
+                  // options={stakeholderGroups.map(stakeholderGroupToOption)}
                   onChange={(selection) => {
                     const selectionWithValue =
                       selection as OptionWithValue<StakeholderGroup>;

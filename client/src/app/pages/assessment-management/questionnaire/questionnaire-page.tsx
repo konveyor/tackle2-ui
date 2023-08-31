@@ -16,7 +16,7 @@ import {
   Tab,
 } from "@patternfly/react-core";
 import AngleLeftIcon from "@patternfly/react-icons/dist/esm/icons/angle-left-icon";
-import { YamlAssessment } from "@app/api/models";
+import { Assessment } from "@app/api/models";
 import { Link } from "react-router-dom";
 import { Paths } from "@app/Paths";
 import { ConditionalRender } from "@app/components/ConditionalRender";
@@ -25,6 +25,7 @@ import { useTranslation } from "react-i18next";
 import QuestionnaireSectionTabTitle from "./components/questionnaire-section-tab-title";
 import QuestionsTable from "./components/questions-table";
 import "./questionnaire-page.css";
+import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 
 const Questionnaire: React.FC = () => {
   const { t } = useTranslation();
@@ -40,35 +41,20 @@ const Questionnaire: React.FC = () => {
     setActiveSectionIndex(tabKey as "all" | number);
   };
 
-  const [assessmentData, setAssessmentData] = useState<YamlAssessment | null>(
-    null
-  );
+  const [assessmentData, setAssessmentData] = useState<Assessment | null>(null);
 
-  // ------------------------!!
-  // TODO: replace this with the real data from the API
-  const fetchError = undefined;
-  const isLoading = false;
-
-  useEffect(() => {
-    fetch("/questionnaire-data.yaml") // adjust this path
-      .then((response) => response.text())
-      .then((data) => {
-        const parsedData = yaml.load(data) as YamlAssessment;
-        setAssessmentData(parsedData);
-      });
-  }, []);
-  // ------------------------!!
+  const { questionnaires, isFetching, fetchError } = useFetchQuestionnaires();
 
   const [searchValue, setSearchValue] = React.useState("");
-  const filteredAssessmentData = useMemo<YamlAssessment | null>(() => {
+  const filteredAssessmentData = useMemo<Assessment | null>(() => {
     if (!assessmentData) return null;
     return {
       ...assessmentData,
       sections: assessmentData?.sections.map((section) => ({
         ...section,
-        questions: section.questions.filter(({ formulation, explanation }) =>
-          [formulation, explanation].some((text) =>
-            text?.toLowerCase().includes(searchValue.toLowerCase())
+        questions: section.questions.filter(({ text, explanation }) =>
+          [text, explanation].some(
+            (text) => text?.toLowerCase().includes(searchValue.toLowerCase())
           )
         ),
       })),
@@ -96,12 +82,7 @@ const Questionnaire: React.FC = () => {
         </Breadcrumb>
       </PageSection>
       <PageSection>
-        <ConditionalRender
-          // TODO: add loading state
-          // when={isFetching && !(currentPageDataFromReactQuery || fetchError)}
-          when={isLoading}
-          then={<AppPlaceholder />}
-        >
+        <ConditionalRender when={isFetching} then={<AppPlaceholder />}>
           <div
             style={{
               backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
@@ -148,7 +129,7 @@ const Questionnaire: React.FC = () => {
                     }
                   >
                     <QuestionsTable
-                      fetchError={fetchError}
+                      fetchError={fetchError as Error}
                       questions={allMatchingQuestions}
                       isSearching={!!searchValue}
                       assessmentData={assessmentData}
@@ -171,7 +152,7 @@ const Questionnaire: React.FC = () => {
                         }
                       >
                         <QuestionsTable
-                          fetchError={fetchError}
+                          fetchError={fetchError as Error}
                           questions={filteredQuestions}
                           isSearching={!!searchValue}
                           assessmentData={assessmentData}

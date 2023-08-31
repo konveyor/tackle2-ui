@@ -1,4 +1,4 @@
-import { QuestionnaireCategory, Question } from "@app/api/models";
+import { Question, Section } from "@app/api/models";
 
 export const COMMENTS_KEY = "comments";
 export const QUESTIONS_KEY = "questions";
@@ -9,15 +9,12 @@ export enum SAVE_ACTION_VALUE {
   SAVE_AND_REVIEW,
   SAVE_AS_DRAFT,
 }
-export const getCommentFieldName = (
-  category: QuestionnaireCategory,
-  fullName: boolean
-) => {
-  const fieldName = `category-${category.id}`;
+export const getCommentFieldName = (section: Section, fullName: boolean) => {
+  const fieldName = `category-${section.name}`;
   return fullName ? `${COMMENTS_KEY}.${fieldName}` : fieldName;
 };
 
 export const getQuestionFieldName = (question: Question, fullName: boolean) => {
-  const fieldName = `question-${question.id}`;
+  const fieldName = `question-${question.text}`;
   return fullName ? `${QUESTIONS_KEY}.${fieldName}` : fieldName;
 };

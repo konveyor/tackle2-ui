@@ -9,15 +9,26 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { Questionnaire } from "@app/api/models";
+import {
+  Application,
+  Assessment,
+  InitialAssessment,
+  Questionnaire,
+} from "@app/api/models";
 import { Button } from "@patternfly/react-core";
+import { Paths, formatPath } from "@app/Paths";
+import { useHistory } from "react-router-dom";
+import { useFetchQuestionnaires } from "@app/queries/questionnaires";
+import { useCreateAssessmentMutation } from "@app/queries/assessments";
 export interface AssessmentActionsTableProps {
-  questionnaires: Questionnaire[];
+  application?: Application;
 }
 
 const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
-  questionnaires,
+  application,
 }) => {
+  const { questionnaires } = useFetchQuestionnaires();
+
   const tableControls = useLocalTableControls({
     idProperty: "id",
     items: questionnaires,
@@ -33,6 +44,43 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
     numRenderedColumns,
     propHelpers: { tableProps, getThProps, getTdProps },
   } = tableControls;
+
+  const onSuccessHandler = () => {};
+  const onErrorHandler = () => {};
+
+  const history = useHistory();
+  const { mutateAsync: createAssessmentAsync } = useCreateAssessmentMutation(
+    onSuccessHandler,
+    onErrorHandler
+  );
+
+  const handleAssessmentCreationAndNav = async (
+    questionnaire: Questionnaire
+  ) => {
+    //TODO handle archetypes here too
+    if (!application) {
+      console.error("Application is undefined. Cannot proceed.");
+      return;
+    }
+
+    // Replace with your actual assessment data
+    const newAssessment: InitialAssessment = {
+      questionnaire: { name: questionnaire.name, id: questionnaire.id },
+      application: { name: application.name, id: application?.id },
+      //TODO handle archetypes here too
+    };
+
+    try {
+      const result = await createAssessmentAsync(newAssessment);
+      history.push(
+        formatPath(Paths.applicationsAssessment, {
+          assessmentId: result.id,
+        })
+      );
+    } catch (error) {
+      console.error("Error while creating assessment:", error);
+    }
+  };
 
   return (
     <>
@@ -53,7 +101,7 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
           numRenderedColumns={numRenderedColumns}
           noDataEmptyState={
             <div>
-              <NoDataEmptyState title="No assessments are associated with this application." />
+              <NoDataEmptyState title="No Questionnaires are currently available to be taken. " />
             </div>
           }
         >
@@ -76,7 +124,10 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
                       <Button
                         type="button"
                         variant="primary"
-                        onClick={() => console.log("trigger assessment")}
+                        //TODO:Dynamic assessment button. Determine if matching assessment. Derive button status from that
+                        onClick={() =>
+                          handleAssessmentCreationAndNav(questionnaire)
+                        }
                       >
                         Take
                       </Button>

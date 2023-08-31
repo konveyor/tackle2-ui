@@ -15,7 +15,7 @@ import {
 } from "@app/components/TableControls";
 import { useTranslation } from "react-i18next";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { CustomYamlAssessmentQuestion, YamlAssessment } from "@app/api/models";
+import { Assessment, Question } from "@app/api/models";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { Label } from "@patternfly/react-core";
 import AnswerTable from "./answer-table";
@@ -23,9 +23,9 @@ import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 
 const QuestionsTable: React.FC<{
   fetchError?: Error;
-  questions?: CustomYamlAssessmentQuestion[];
+  questions?: Question[];
   isSearching?: boolean;
-  assessmentData?: YamlAssessment | null;
+  assessmentData?: Assessment | null;
   isAllQuestionsTab?: boolean;
 }> = ({
   fetchError,
@@ -35,7 +35,7 @@ const QuestionsTable: React.FC<{
   isAllQuestionsTab = false,
 }) => {
   const tableControls = useLocalTableControls({
-    idProperty: "formulation",
+    idProperty: "text",
     items: questions || [],
     columnNames: {
       formulation: "Name",
@@ -95,7 +95,7 @@ const QuestionsTable: React.FC<{
               )?.name || "";
             return (
               <>
-                <Tr key={question.formulation}>
+                <Tr key={question.text}>
                   <TableRowContentWithControls
                     {...tableControls}
                     item={question}
@@ -105,11 +105,11 @@ const QuestionsTable: React.FC<{
                       width={isAllQuestionsTab ? 60 : 100}
                       {...getTdProps({ columnKey: "formulation" })}
                     >
-                      {(!!question?.include_if_tags_present?.length ||
-                        !!question?.skip_if_tags_present?.length) && (
+                      {(!!question?.includeFor?.length ||
+                        !!question?.excludeFor?.length) && (
                         <Label className={spacing.mrSm}>Conditional</Label>
                       )}
-                      {question.formulation}
+                      {question.text}
                     </Td>
                     {isAllQuestionsTab ? (
                       <Td width={40} {...getTdProps({ columnKey: "section" })}>

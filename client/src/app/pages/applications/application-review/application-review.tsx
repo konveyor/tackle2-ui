@@ -20,9 +20,9 @@ import InfoCircleIcon from "@patternfly/react-icons/dist/esm/icons/info-circle-i
 import { useAssessApplication } from "@app/hooks";
 import { formatPath, Paths, ReviewRoute } from "@app/Paths";
 import {
-  getApplicationById,
+  getApplicationByIdPromise,
   getAssessmentById,
-  getAssessments,
+  getAssessmentsPromise,
   getReviewId,
 } from "@app/api/rest";
 import { Application, Assessment, Review } from "@app/api/models";
@@ -30,13 +30,12 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationReviewPage } from "./components/application-review-page";
 import { ApplicationDetails } from "./components/application-details";
 import { ReviewForm } from "./components/review-form";
-import { ApplicationAssessmentDonutChart } from "./components/application-assessment-donut-chart";
-import { ApplicationAssessmentSummaryTable } from "./components/application-assessment-summary-table";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useSetting } from "@app/queries/settings";
 import { SimpleEmptyState } from "@app/components/SimpleEmptyState";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ApplicationAssessmentDonutChart } from "./components/application-assessment-donut-chart/application-assessment-donut-chart";
 
 export const ApplicationReview: React.FC = () => {
   const { t } = useTranslation();
@@ -69,10 +68,10 @@ export const ApplicationReview: React.FC = () => {
       setIsFetching(true);
 
       Promise.all([
-        getAssessments({ applicationId: applicationId }),
-        getApplicationById(applicationId),
+        getAssessmentsPromise({ applicationId: applicationId }),
+        getApplicationByIdPromise(applicationId),
       ])
-        .then(([{ data: assessmentData }, { data: applicationData }]) => {
+        .then(([assessmentData, applicationData]) => {
           setApplication(applicationData);
 
           const assessment = assessmentData[0]
@@ -86,7 +85,7 @@ export const ApplicationReview: React.FC = () => {
         })
         .then(([assessmentResponse, reviewResponse]) => {
           if (assessmentResponse) {
-            setAssessment(assessmentResponse.data);
+            setAssessment(assessmentResponse);
           }
           if (reviewResponse) {
             setReview(reviewResponse.data);
@@ -217,7 +216,6 @@ export const ApplicationReview: React.FC = () => {
                 <Text component="h3">{t("terms.assessmentSummary")}</Text>
               </TextContent>
             </CardHeader>
-            <ApplicationAssessmentSummaryTable assessment={assessment} />
           </Card>
         </PageSection>
       )}

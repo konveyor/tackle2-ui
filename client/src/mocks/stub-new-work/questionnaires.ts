@@ -10,6 +10,20 @@ import type { Questionnaire } from "@app/api/models";
  *   https://github.com/konveyor/tackle2-hub/blob/main/api/tag.go
  */
 const handlers: RestHandler[] = [
+  rest.get(`${AppRest.QUESTIONNAIRES}/id/:questionnaireId`, (req, res, ctx) => {
+    const { questionnaireId } = req.params;
+
+    const id = parseInt(questionnaireId as string);
+
+    if (id in data) {
+      return res(ctx.json(data[id]));
+    } else {
+      return res(
+        ctx.status(404),
+        ctx.json({ error: "Questionnaire not found" })
+      );
+    }
+  }),
   rest.get(AppRest.QUESTIONNAIRES, (req, res, ctx) => {
     console.log(
       "%cquestionnaire stub%c \u{1f916} %s",
@@ -37,9 +51,9 @@ const handlers: RestHandler[] = [
     const id_ = Array.isArray(id) ? id[0] : id;
     if (id_ in data) {
       data[id_] = updates;
-      return res(ctx.status(204)); // follow the hub handler success response == StatusNoContent
+      return res(ctx.status(204));
     }
-    return res(ctx.status(404)); // hub doesn't do this, it fails silently
+    return res(ctx.status(404));
   }),
 
   rest.delete(`${AppRest.QUESTIONNAIRES}/:id`, (req, res, ctx) => {
@@ -54,9 +68,9 @@ const handlers: RestHandler[] = [
     const id_ = Array.isArray(id) ? id[0] : id;
     if (id_ in data) {
       delete data[id_];
-      return res(ctx.status(204)); // follow the hub handler success response == StatusNoContent
+      return res(ctx.status(204));
     }
-    return res(ctx.status(404)); // hub doesn't do this, it fails silently
+    return res(ctx.status(404));
   }),
 ];
 
@@ -74,8 +88,168 @@ const data: Record<number, Questionnaire> = {
     dateImported: "8 Aug. 2023, 10:20 AM EST",
     required: false,
     system: true,
-    sections: [],
-    thresholds: { red: "5", yellow: "25", unknown: "70" },
+    sections: [
+      {
+        name: "Application technologies 1",
+        order: 1,
+        questions: [
+          {
+            order: 1,
+            text: "What is the main technology in your application?",
+            explanation:
+              "What would you describe as the main framework used to build your application.",
+            answers: [
+              {
+                order: 1,
+                text: "Unknown",
+                rationale: "This is a problem because of the uncertainty.",
+                mitigation:
+                  "Gathering more information about this is required.",
+                risk: "unknown",
+              },
+              {
+                order: 2,
+                text: "Quarkus",
+                risk: "green",
+                autoAnswerFor: [
+                  {
+                    category: {
+                      name: "Cat 1",
+                      id: 23,
+                    },
+                    tag: {
+                      id: 34,
+                      name: "Tag 1",
+                    },
+                  },
+                ],
+                applyTags: [
+                  {
+                    category: {
+                      name: "Cat 1",
+                      id: 23,
+                    },
+                    tag: {
+                      id: 34,
+                      name: "Tag 1",
+                    },
+                  },
+                ],
+              },
+              {
+                order: 3,
+                text: "Spring Boot",
+                risk: "green",
+              },
+              {
+                order: 4,
+                text: "Java EE",
+                rationale:
+                  "This might not be the most cloud friendly technology.",
+                mitigation:
+                  "Maybe start thinking about migrating to Quarkus or Jakarta EE.",
+                risk: "yellow",
+              },
+              {
+                order: 5,
+                text: "J2EE",
+                rationale: "This is obsolete.",
+                mitigation:
+                  "Maybe start thinking about migrating to Quarkus or Jakarta EE.",
+                risk: "red",
+              },
+            ],
+          },
+          {
+            order: 2,
+            text: "What version of Java EE does the application use?",
+            explanation:
+              "What version of the Java EE specification is your application using?",
+            answers: [
+              {
+                order: 1,
+                text: "Below 5.",
+                rationale: "This technology stack is obsolete.",
+                mitigation: "Consider migrating to at least Java EE 7.",
+                risk: "red",
+              },
+              {
+                order: 2,
+                text: "5 or 6",
+                rationale: "This is a mostly outdated stack.",
+                mitigation: "Consider migrating to at least Java EE 7.",
+                risk: "yellow",
+              },
+              {
+                order: 3,
+                text: "7",
+                risk: "green",
+              },
+            ],
+          },
+          {
+            order: 3,
+            text: "Does your application use any caching mechanism?",
+            answers: [
+              {
+                order: 1,
+                text: "Yes",
+                rationale:
+                  "This could be problematic in containers and Kubernetes.",
+                mitigation:
+                  "Review the clustering mechanism to check compatibility and support for container environments.",
+                risk: "yellow",
+              },
+              {
+                order: 2,
+
+                text: "No",
+                risk: "green",
+              },
+              {
+                order: 3,
+                text: "Unknown",
+                rationale: "This is a problem because of the uncertainty.",
+                mitigation:
+                  "Gathering more information about this is required.",
+                risk: "unknown",
+              },
+            ],
+          },
+          {
+            order: 4,
+            text: "What implementation of JAX-WS does your application use?",
+            answers: [
+              {
+                order: 1,
+                text: "Apache Axis",
+                rationale: "This version is obsolete",
+                mitigation: "Consider migrating to Apache CXF",
+                risk: "red",
+              },
+              {
+                order: 2,
+                text: "Apache CXF",
+                risk: "green",
+              },
+              {
+                order: 3,
+                text: "Unknown",
+                rationale: "This is a problem because of the uncertainty.",
+                mitigation:
+                  "Gathering more information about this is required.",
+                risk: "unknown",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    thresholds: {
+      red: 3,
+      unknown: 2,
+      yellow: 4,
+    },
     riskMessages: {
       green: "Low Risk",
       red: "High Risk",
@@ -94,7 +268,11 @@ const data: Record<number, Questionnaire> = {
     required: true,
     system: false,
     sections: [],
-    thresholds: { red: "5", yellow: "25", unknown: "70" },
+    thresholds: {
+      red: 3,
+      unknown: 2,
+      yellow: 4,
+    },
     riskMessages: {
       green: "Low Risk",
       red: "High Risk",
@@ -114,7 +292,11 @@ const data: Record<number, Questionnaire> = {
     required: true,
     system: false,
     sections: [],
-    thresholds: { red: "5", yellow: "25", unknown: "70" },
+    thresholds: {
+      red: 3,
+      unknown: 2,
+      yellow: 4,
+    },
     riskMessages: {
       green: "Low Risk",
       red: "High Risk",
