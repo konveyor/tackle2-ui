@@ -20,10 +20,7 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
 import { QuestionnaireForm } from "../questionnaire-form";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import {
-  useFetchQuestionnaireById,
-  useFetchQuestionnaires,
-} from "@app/queries/questionnaires";
+import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 import {
   COMMENTS_KEY,
   QUESTIONS_KEY,
@@ -70,7 +67,7 @@ export const ApplicationAssessmentWizard: React.FC<
   const [currentStep, setCurrentStep] = useState(0);
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
+    React.useState<boolean>(false);
 
   const history = useHistory();
 
@@ -80,7 +77,7 @@ export const ApplicationAssessmentWizard: React.FC<
     return (matchingQuestionnaire ? matchingQuestionnaire.sections : []).sort(
       (a, b) => a.order - b.order
     );
-  }, [assessment]);
+  }, [matchingQuestionnaire]);
 
   // const initialComments = useMemo(() => {
   //   let comments: { [key: string]: string } = {};
@@ -188,7 +185,7 @@ export const ApplicationAssessmentWizard: React.FC<
     console.error("form errors", errors);
 
   const onSubmit = (formValues: ApplicationAssessmentWizardValues) => {
-    if (!assessment) {
+    if (!assessment?.application?.id) {
       console.log("An assessment must exist in order to save the form");
       return;
     }
@@ -235,8 +232,8 @@ export const ApplicationAssessmentWizard: React.FC<
             history.push(Paths.applications);
             break;
           case SAVE_ACTION_VALUE.SAVE_AND_REVIEW:
-            assessment &&
-              getApplicationById(assessment?.application?.id || 0)
+            assessment?.application?.id &&
+              getApplicationById(assessment.application.id)
                 .then((data) => {
                   history.push(
                     formatPath(Paths.applicationsReview, {

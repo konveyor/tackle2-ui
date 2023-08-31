@@ -43,15 +43,6 @@ const Questionnaire: React.FC = () => {
 
   const [assessmentData, setAssessmentData] = useState<Assessment | null>(null);
 
-  // useEffect(() => {
-  //   fetch("/questionnaire-data.yaml") // adjust this path
-  //     .then((response) => response.text())
-  //     .then((data) => {
-  //       const parsedData = yaml.load(data) as Assessment;
-  //       setAssessmentData(parsedData);
-  //     });
-  // }, []);
-  // // ------------------------!!
   const { questionnaires, isFetching, fetchError } = useFetchQuestionnaires();
 
   const [searchValue, setSearchValue] = React.useState("");
@@ -62,8 +53,8 @@ const Questionnaire: React.FC = () => {
       sections: assessmentData?.sections.map((section) => ({
         ...section,
         questions: section.questions.filter(({ text, explanation }) =>
-          [text, explanation].some((text) =>
-            text?.toLowerCase().includes(searchValue.toLowerCase())
+          [text, explanation].some(
+            (text) => text?.toLowerCase().includes(searchValue.toLowerCase())
           )
         ),
       })),

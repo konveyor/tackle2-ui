@@ -101,7 +101,7 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
           numRenderedColumns={numRenderedColumns}
           noDataEmptyState={
             <div>
-              <NoDataEmptyState title="No Questionnaires are currently available. " />
+              <NoDataEmptyState title="No Questionnaires are currently available to be taken. " />
             </div>
           }
         >

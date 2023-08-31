@@ -8,7 +8,6 @@ import {
   updateQuestionnaire,
 } from "@app/api/rest";
 import { Questionnaire } from "@app/api/models";
-import { c_options_menu__toggle_BackgroundColor } from "@patternfly/react-tokens";
 
 export const QuestionnairesTasksQueryKey = "questionnaires";
 export const QuestionnaireByIdQueryKey = "questionnaireById";
@@ -71,9 +70,6 @@ export const useFetchQuestionnaireById = (id: number | string) => {
     queryFn: () => getQuestionnaireById(id),
     onError: (error: AxiosError) => console.log("error, ", error),
   });
-  console.log("data, ", data);
-  console.log("isLoading, ", isLoading);
-  console.log("error, ", error);
   return {
     questionnaire: data,
     isFetching: isLoading,

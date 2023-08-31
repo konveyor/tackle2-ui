@@ -34,6 +34,7 @@ export const ApplicationAssessmentStatus: React.FC<
   ApplicationAssessmentStatusProps
 > = ({ assessments, isLoading, fetchError }) => {
   const { t } = useTranslation();
+  //TODO: remove this once we have a proper assessment status
   const { assessment } = useFetchAssessmentByID(assessments?.[0]?.id || 0);
 
   if (fetchError) {
