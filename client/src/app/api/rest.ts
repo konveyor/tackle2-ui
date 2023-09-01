@@ -40,14 +40,13 @@ import {
   Ref,
   TrackerProject,
   TrackerProjectIssuetype,
-  Fact,
   UnstructuredFact,
   AnalysisAppDependency,
   AnalysisAppReport,
-  Rule,
   Target,
   HubFile,
   Questionnaire,
+  Archetype,
   InitialAssessment,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
@@ -106,6 +105,8 @@ export const ANALYSIS_ISSUE_INCIDENTS =
   HUB + "/analyses/issues/:issueId/incidents";
 
 export const QUESTIONNAIRES = HUB + "/questionnaires";
+
+export const ARCHETYPES = HUB + "/archetypes";
 
 // PATHFINDER
 export const PATHFINDER = "/hub/pathfinder";
@@ -548,7 +549,10 @@ export const getFileReports = (
       )
     : Promise.reject();
 
-export const getIncidents = (issueId?: number, params: HubRequestParams = {}) =>
+export const getIncidents = (
+  issueId?: number,
+  params: HubRequestParams = {}
+) =>
   issueId
     ? getHubPaginatedResult<AnalysisIncident>(
         ANALYSIS_ISSUE_INCIDENTS.replace("/:issueId/", `/${String(issueId)}/`),
@@ -740,3 +744,24 @@ export const updateQuestionnaire = (
 // TODO:  of 204 - NoContext) ... the return type does not make sense.
 export const deleteQuestionnaire = (id: number): Promise<Questionnaire> =>
   axios.delete(`${QUESTIONNAIRES}/${id}`);
+
+// ---------------------------------------
+// Archetypes
+//
+export const getArchetypes = (): Promise<Archetype[]> =>
+  axios.get(ARCHETYPES).then(({ data }) => data);
+
+export const getArchetypeById = (id: number): Promise<Archetype> =>
+  axios.get(`${ARCHETYPES}/${id}`).then(({ data }) => data);
+
+// success with code 201 and created entity as response data
+export const createArchetype = (archetype: Archetype): Promise<Archetype> =>
+  axios.post(ARCHETYPES, archetype);
+
+// success with code 204 and therefore no response content
+export const updateArchetype = (archetype: Archetype): Promise<void> =>
+  axios.put(`${ARCHETYPES}/${archetype.id}`, archetype);
+
+// success with code 204 and therefore no response content
+export const deleteArchetype = (id: number): Promise<void> =>
+  axios.delete(`${ARCHETYPES}/${id}`);

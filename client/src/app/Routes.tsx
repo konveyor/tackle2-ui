@@ -47,6 +47,8 @@ const AssessmentActions = lazy(
   () =>
     import("./pages/applications/assessment-actions/assessment-actions-page")
 );
+const Archetypes = lazy(() => import("./pages/archetypes/archetypes-page"));
+
 export interface IRoute {
   path: string;
   comp: React.ComponentType<any>;
@@ -149,6 +151,11 @@ export const devRoutes: IRoute[] = [
     comp: Questionnaire,
     exact: false,
   },
+  {
+    path: Paths.archetypes,
+    comp: Archetypes,
+    exact: false,
+  },
 ];
 
 export const adminRoutes: IRoute[] = [
@@ -189,6 +196,7 @@ export const adminRoutes: IRoute[] = [
       ]
     : []),
 ];
+
 export const AppRoutes = () => {
   const location = useLocation();
 
