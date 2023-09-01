@@ -221,14 +221,11 @@ const Archetypes: React.FC = () => {
                                 title: t("actions.edit"),
                                 onClick: () => alert("TODO"),
                               },
-                              {
-                                isSeparator: true,
-                              },
+                              { isSeparator: true },
                               {
                                 title: t("actions.delete"),
                                 onClick: () => alert("TODO"),
                                 isDanger: true,
-                                variant: "danger",
                               },
                             ]}
                           />
