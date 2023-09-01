@@ -49,8 +49,6 @@ const Archetypes: React.FC = () => {
     idProperty: "id",
     items: archetypes,
     isLoading: isFetching,
-    isSelectable: false,
-    expandableVariant: null,
     hasActionsColumn: true,
 
     columnNames: {
