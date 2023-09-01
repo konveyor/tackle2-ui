@@ -44,7 +44,7 @@ export const useFetchArchetypeById = (id: number) => {
   };
 };
 
-export const useCreateApplicationMutation = (
+export const useCreateArchetypeMutation = (
   onSuccess: (archetype: Archetype) => void,
   onError: (err: AxiosError) => void
 ) => {
