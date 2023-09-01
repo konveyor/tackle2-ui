@@ -31,9 +31,9 @@ export const mockApplicationArray: Application[] = [
 ];
 
 export const handlers = [
-  rest.get(AppRest.APPLICATIONS, (req, res, ctx) => {
-    return res(ctx.json(mockApplicationArray));
-  }),
+  // rest.get(AppRest.APPLICATIONS, (req, res, ctx) => {
+  //   return res(ctx.json(mockApplicationArray));
+  // }),
 ];
 
 export default handlers;
