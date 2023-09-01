@@ -140,4 +140,5 @@ export const useFetchStaticReport = (
     queryKey: [ReportQueryKey, id],
     queryFn: () => getApplicationAnalysis(id, type),
     onError: onError,
+    enabled: false,
   });

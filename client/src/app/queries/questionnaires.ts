@@ -4,11 +4,7 @@ import { AxiosError } from "axios";
 import {
   createQuestionnaire,
   deleteQuestionnaire,
-<<<<<<< HEAD
   getQuestionnaireById,
-=======
-  downloadQuestionnaire,
->>>>>>> a13c54d8 (use React.FC; rename rest fn)
   getQuestionnaires,
   updateQuestionnaire,
 } from "@app/api/rest";
@@ -76,6 +72,7 @@ export const useFetchQuestionnaireById = (
     queryKey: [QuestionnaireByIdQueryKey, id],
     queryFn: () => getQuestionnaireById(id),
     onError: onError,
+    enabled: false,
   });
 
 export const useCreateQuestionnaireMutation = (
