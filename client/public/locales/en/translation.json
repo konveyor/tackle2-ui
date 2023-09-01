@@ -31,6 +31,7 @@
     "discardAssessment": "Discard assessment/review",
     "downloadCsvTemplate": "Download CSV template",
     "download": "Download {{what}}",
+    "duplicate": "Duplicate",
     "edit": "Edit",
     "export": "Export",
     "filterBy": "Filter by {{what}}",
