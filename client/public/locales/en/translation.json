@@ -114,6 +114,7 @@
       "import": "Import {{what}}",
       "leavePage": "Leave page",
       "new": "New {{what}}",
+      "newArchetype": "Create new archetype",
       "newAssessment": "New assessment",
       "newApplication": "New application",
       "newBusinessService": "New business service",
@@ -139,6 +140,8 @@
     "small": "Small"
   },
   "message": {
+    "archetypeApplicationCount": "{{count}} applications",
+    "archetypeNoApplications": "No applications currently match the criteria tags.",
     "appNotAssesedTitle": "Assessment has not been completed",
     "appNotAssessedBody": "In order to review an application it must be assessed first. Assess the application and try again.",
     "assessmentStakeholderHeader": "Select the stakeholder(s) or stakeholder group(s) associated with this assessment.",
@@ -188,6 +191,7 @@
   "sidebar": {
     "administrator": "Administration",
     "applicationInventory": "Application inventory",
+    "archetypes": "Archetypes",
     "controls": "Controls",
     "developer": "Migration",
     "reports": "Reports",
@@ -209,6 +213,7 @@
     "applicationImports": "Application imports",
     "applicationName": "Application name",
     "applications": "Applications",
+    "archetypes": "Archetypes",
     "artifact": "Artifact",
     "artifactAssociated": "Associated artifact",
     "artifactNotAssociated": "No associated artifact",
@@ -289,6 +294,7 @@
     "label": "Label",
     "loading": "Loading",
     "lowRisk": "Low risk",
+    "maintainers": "Maintainers",
     "mavenConfig": "Maven configuration",
     "mediumRisk": "Medium risk",
     "member(s)": "Member(s)",

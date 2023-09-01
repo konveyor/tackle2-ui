@@ -744,3 +744,16 @@ export interface AssessmentConfidence {
   applicationId: number;
   confidence: number;
 }
+
+export interface Archetype {
+  id: number;
+  name: string;
+  description: string;
+  comments: string;
+  criteriaTags: Tag[];
+  archetypeTags: Tag[];
+  assessmentTags?: Tag[];
+  stakeholders?: Stakeholder[];
+  stakeholderGroups?: StakeholderGroup[];
+  applications?: Application[];
+}

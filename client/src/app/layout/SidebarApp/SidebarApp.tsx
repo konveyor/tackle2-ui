@@ -118,6 +118,14 @@ export const SidebarApp: React.FC = () => {
               </NavItem>
               <NavItem>
                 <NavLink
+                  to={Paths.archetypes + search}
+                  activeClassName="pf-m-current"
+                >
+                  {t("sidebar.archetypes")}
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink
                   to={Paths.reports + search}
                   activeClassName="pf-m-current"
                 >

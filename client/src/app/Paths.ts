@@ -22,6 +22,7 @@ export enum Paths {
   assessmentActions = "/applications/assessment-actions/:applicationId",
   applicationsReview = "/applications/application/:applicationId/review",
   applicationsAnalysis = "/applications/analysis",
+  archetypes = "/archetypes",
   controls = "/controls",
   controlsBusinessServices = "/controls/business-services",
   controlsStakeholders = "/controls/stakeholders",
