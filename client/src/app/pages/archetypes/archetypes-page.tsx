@@ -9,8 +9,6 @@ import {
   EmptyStateFooter,
   EmptyStateHeader,
   EmptyStateIcon,
-  Label,
-  LabelGroup,
   PageSection,
   PageSectionVariants,
   Text,
@@ -34,9 +32,11 @@ import {
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useFetchArchetypes } from "@app/queries/archetypes";
-import { Archetype, Tag, TagCategory } from "@app/api/models";
-import { LabelCustomColor } from "@migtools/lib-ui";
-import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
+
+import ArchetypeApplicationsColumn from "./components/archetype-applications-column";
+import ArchetypeDescriptionColumn from "./components/archetype-description-column";
+import ArchetypeMaintainersColumn from "./components/archetype-maintainers-column";
+import ArchetypeTagsColumn from "./components/archetype-tags-column";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
@@ -193,8 +193,7 @@ const Archetypes: React.FC = () => {
                           {archetype.name}
                         </Td>
                         <Td {...getTdProps({ columnKey: "description" })}>
-                          {/* TODO: Truncate length and add tooltip with full text */}
-                          {archetype.description}
+                          <ArchetypeDescriptionColumn archetype={archetype} />
                         </Td>
                         <Td {...getTdProps({ columnKey: "tags" })}>
                           <ArchetypeTagsColumn archetype={archetype} />
@@ -226,69 +225,3 @@ const Archetypes: React.FC = () => {
 };
 
 export default Archetypes;
-
-//
-// TODO: Move column components to their own files
-//
-
-// copied from application-tag-label.tsx
-export const getTagCategoryFallbackColor = (category?: TagCategory) => {
-  if (!category?.id) return COLOR_HEX_VALUES_BY_NAME.gray;
-  const colorValues = Object.values(COLOR_HEX_VALUES_BY_NAME);
-  return colorValues[category?.id % colorValues.length];
-};
-
-// copied from application-tag-label.tsx
-const TagLabel: React.FC<{
-  tag: Tag;
-  category?: TagCategory;
-}> = ({ tag, category }) => (
-  <LabelCustomColor
-    color={category?.colour || getTagCategoryFallbackColor(category)}
-  >
-    {tag.name}
-  </LabelCustomColor>
-);
-
-// TODO: Refactor the application-tags-label.tsx so applications and archetypes can share `TagLabel`
-// TODO: Sort tags?
-// TODO: Group tags by categories?
-const ArchetypeTagsColumn: React.FC<{ archetype: Archetype }> = ({
-  archetype,
-}) => (
-  <LabelGroup>
-    {archetype.archetypeTags?.map((tag) => <TagLabel key={tag.id} tag={tag} />)}
-  </LabelGroup>
-);
-
-// TODO: Don't show the full name, generate initials
-// TODO: Sort individual stakeholders with stakeholder groups
-// TODO: Add tooltips for each Label with the full name
-const ArchetypeMaintainersColumn: React.FC<{ archetype: Archetype }> = ({
-  archetype,
-}) => (
-  <LabelGroup>
-    {archetype.stakeholders?.map((sh) => <Label key={sh.id}>{sh.name}</Label>)}
-    {archetype.stakeholderGroups?.map((shg) => (
-      <Label key={shg.id}>{shg.name}</Label>
-    ))}
-  </LabelGroup>
-);
-
-// TODO: When count > 0 render a link to navigate to the application inventory assessment page
-//       with filters set to show the applications for the archetype?
-const ArchetypeApplicationsColumn: React.FC<{ archetype: Archetype }> = ({
-  archetype,
-}) => {
-  const { t } = useTranslation();
-
-  return (archetype?.applications?.length ?? 0) > 0 ? (
-    <Text>
-      {t("message.archetypeApplicationCount", {
-        count: archetype.applications?.length ?? 0,
-      })}
-    </Text>
-  ) : (
-    <Text>{t("message.archetypeNoApplications")}</Text>
-  );
-};
