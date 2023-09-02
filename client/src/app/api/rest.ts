@@ -65,7 +65,6 @@ export const TAGS = HUB + "/tags";
 export const MIGRATION_WAVES = HUB + "/migrationwaves";
 
 export const APPLICATIONS = HUB + "/applications";
-export const APPLICATION_ANALYSIS = APPLICATIONS + "/:applicationId/analysis";
 export const APPLICATION_DEPENDENCY = HUB + "/dependencies";
 export const REVIEWS = HUB + "/reviews";
 export const REPORT = HUB + "/reports";
@@ -331,10 +330,9 @@ export const getApplicationAnalysis = (
   type: MimeType
 ): Promise<void> =>
   axios.get(
-    APPLICATION_ANALYSIS.replace(
-      "/:applicationId/",
-      `/${String(applicationId)}/${type === MimeType.TAR ? "report" : null}`
-    ),
+    `${APPLICATIONS}/${String(applicationId)}/analysis${
+      type === MimeType.TAR ? "/report" : ""
+    }`,
     {
       responseType: "blob",
       headers: {
@@ -758,10 +756,15 @@ export const updateProxy = (obj: Proxy): Promise<Proxy> =>
 export const getQuestionnaires = (): Promise<Questionnaire[]> =>
   axios.get(QUESTIONNAIRES).then((response) => response.data);
 
-export const getQuestionnaireById = (
-  id: number | string
-): Promise<Questionnaire> =>
-  axios.get(`${QUESTIONNAIRES}/${id}`).then((response) => response.data);
+export const downloadQuestionnaire = (id: number): Promise<void> =>
+  axios
+    .get(`${QUESTIONNAIRES}/${id}`, {
+      responseType: "blob",
+      headers: {
+        Accept: "application/x-yaml",
+      },
+    })
+    .then((response) => response.data);
 
 export const createQuestionnaire = (
   obj: Questionnaire
@@ -799,31 +802,3 @@ export const updateArchetype = (archetype: Archetype): Promise<void> =>
 // success with code 204 and therefore no response content
 export const deleteArchetype = (id: number): Promise<void> =>
   axios.delete(`${ARCHETYPES}/${id}`);
-
-export const downloadApplicationAnalysisReport = (
-  id: number,
-  type: MimeType
-): Promise<void> =>
-  axios
-    .get(`${APPLICATIONS}/${id}/analysis/report`, {
-      responseType: "blob",
-      headers: {
-        Accept: `application/x-${type}`,
-      },
-    })
-    .then((response) => {
-      if (response.status !== 200) {
-        throw new Error("Network response was not ok when downloading file.");
-      }
-      response.data;
-    });
-
-export const downloadQuestionnaire = (id: number): Promise<void> =>
-  axios
-    .get(`${QUESTIONNAIRES}/${id}`, {
-      responseType: "blob",
-      headers: {
-        Accept: "application/x-yaml",
-      },
-    })
-    .then((response) => response.data);

@@ -4,7 +4,7 @@ import { AxiosError } from "axios";
 import {
   createQuestionnaire,
   deleteQuestionnaire,
-  getQuestionnaireById,
+  downloadQuestionnaire,
   getQuestionnaires,
   updateQuestionnaire,
 } from "@app/api/rest";
@@ -65,12 +65,12 @@ export const useDeleteQuestionnaireMutation = (
 };
 
 export const useFetchQuestionnaireById = (
-  id: number | string,
+  id: number,
   onError: (err: AxiosError) => void
 ) =>
   useQuery({
     queryKey: [QuestionnaireByIdQueryKey, id],
-    queryFn: () => getQuestionnaireById(id),
+    queryFn: () => downloadQuestionnaire(id),
     onError: onError,
     enabled: false,
   });
