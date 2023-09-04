@@ -100,9 +100,6 @@ const AssessmentSettings: React.FC = () => {
   const [questionnaireToDelete, setQuestionnaireToDelete] =
     React.useState<Questionnaire>();
 
-  const [questionnaireNameInput, setQuestionnaireNameInput] =
-    React.useState("");
-
   const tableControls = useLocalTableControls({
     idProperty: "id",
     items: questionnaires,
@@ -155,10 +152,6 @@ const AssessmentSettings: React.FC = () => {
 
   // TODO: Check RBAC access
   const rbacWriteAccess = true; // checkAccess(userScopes, questionnaireWriteScopes);
-  const handleDeleteQuestionnaireClose = () => {
-    setQuestionnaireToDelete(undefined);
-    setQuestionnaireNameInput("");
-  };
 
   return (
     <>
@@ -428,11 +421,11 @@ const AssessmentSettings: React.FC = () => {
         deleteObjectMessage={t("dialog.message.deleteQuestionnaire")}
         isOpen={!!questionnaireToDelete}
         nameToDelete={questionnaireToDelete?.name}
-        onClose={() => handleDeleteQuestionnaireClose()}
+        onClose={() => setQuestionnaireToDelete(undefined)}
         onConfirmDelete={() => {
           questionnaireToDelete &&
             deleteQuestionnaire({ questionnaire: questionnaireToDelete });
-          handleDeleteQuestionnaireClose();
+          setQuestionnaireToDelete(undefined);
         }}
         titleWhat={t("terms.questionnaire").toLowerCase()}
       />

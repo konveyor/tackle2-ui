@@ -41,6 +41,11 @@ const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
 
   const isDisabled = nameToDeleteInput !== nameToDelete;
 
+  const handleClose = () => {
+    setNameToDeleteInput("");
+    onClose();
+  };
+
   const confirmBtn = (
     <Button
       id="confirm-delete-dialog-button"
@@ -60,7 +65,7 @@ const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
       id="cancel-delete-button"
       aria-label="cancel"
       variant={ButtonVariant.link}
-      onClick={onClose}
+      onClick={handleClose}
     >
       {cancelBtnLabel ?? t("actions.cancel")}
     </Button>
@@ -71,10 +76,7 @@ const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
       variant={ModalVariant.small}
       titleIconVariant={titleIconVariant}
       isOpen={isOpen}
-      onClose={() => {
-        setNameToDeleteInput("");
-        onClose();
-      }}
+      onClose={handleClose}
       aria-label={t("Confirm delete dialog")}
       actions={[confirmBtn, cancelBtn]}
       title={t("dialog.title.delete", {
