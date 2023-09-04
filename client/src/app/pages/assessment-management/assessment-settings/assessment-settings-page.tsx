@@ -11,7 +11,6 @@ import {
   MenuToggle,
   MenuToggleElement,
   Modal,
-  ModalProps,
   ModalVariant,
   PageSection,
   PageSectionVariants,
@@ -44,7 +43,6 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -52,7 +50,7 @@ import { Questionnaire } from "@app/api/models";
 import { useHistory } from "react-router-dom";
 import { Paths } from "@app/Paths";
 import { ImportQuestionnaireForm } from "@app/pages/assessment/import-questionnaire-form/import-questionnaire-form";
-import DeleteQuestionnaireMessage from "./delete-questionnaire/delete-questionnaire-message";
+import ConfirmDeleteDialog from "@app/components/ConfirmDeleteCatalog/ConfirmDeleteCatalog";
 
 const AssessmentSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -100,7 +98,7 @@ const AssessmentSettings: React.FC = () => {
     number | null
   >(null);
   const [questionnaireToDelete, setQuestionnaireToDelete] =
-    React.useState<Questionnaire | null>();
+    React.useState<Questionnaire>();
 
   const [questionnaireNameInput, setQuestionnaireNameInput] =
     React.useState("");
@@ -158,7 +156,7 @@ const AssessmentSettings: React.FC = () => {
   // TODO: Check RBAC access
   const rbacWriteAccess = true; // checkAccess(userScopes, questionnaireWriteScopes);
   const handleDeleteQuestionnaireClose = () => {
-    setQuestionnaireToDelete(null);
+    setQuestionnaireToDelete(undefined);
     setQuestionnaireNameInput("");
   };
 
@@ -426,86 +424,19 @@ const AssessmentSettings: React.FC = () => {
       >
         <Text>TODO Download YAML Template component</Text>
       </Modal>
-      <ConfirmDialog
-        title={t("dialog.title.delete", {
-          what: t("terms.questionnaire").toLowerCase(),
-        })}
-        submitDisabled={questionnaireToDelete?.name !== questionnaireNameInput}
+      <ConfirmDeleteDialog
+        deleteObjectMessage={t("dialog.message.deleteQuestionnaire")}
         isOpen={!!questionnaireToDelete}
-        titleIconVariant={"warning"}
-        message={
-          <DeleteQuestionnaireMessage
-            inputName={questionnaireNameInput}
-            setInputName={setQuestionnaireNameInput}
-            questionnaireName={questionnaireToDelete?.name}
-          />
-        }
-        confirmBtnVariant={ButtonVariant.danger}
-        confirmBtnLabel={t("actions.delete")}
-        cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => handleDeleteQuestionnaireClose()}
+        nameToDelete={questionnaireToDelete?.name}
         onClose={() => handleDeleteQuestionnaireClose()}
-        onConfirm={() => {
-          if (questionnaireToDelete?.name === questionnaireNameInput) {
+        onConfirmDelete={() => {
+          questionnaireToDelete &&
             deleteQuestionnaire({ questionnaire: questionnaireToDelete });
-            handleDeleteQuestionnaireClose();
-          }
+          handleDeleteQuestionnaireClose();
         }}
+        titleWhat={t("terms.questionnaire").toLowerCase()}
       />
     </>
   );
 };
 export default AssessmentSettings;
-
-type ConfirmDeleteDialogProps = {
-  deleteBtnLabel?: string;
-  isOpen: boolean;
-  isDisabled?: boolean;
-  onClose: () => void;
-  onConfirmDelete: () => void;
-  titleWhat: string;
-  titleIconVariant?: ModalProps["titleIconVariant"];
-};
-
-const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
-  deleteBtnLabel = undefined,
-  isOpen,
-  isDisabled = false,
-  onClose,
-  onConfirmDelete,
-  titleWhat,
-  titleIconVariant = "warning",
-}) => {
-  const { t } = useTranslation();
-  const confirmBtn = (
-    <Button
-      id="confirm-delete-dialog-button"
-      key="confirm"
-      aria-label="confirm"
-      variant={ButtonVariant.danger}
-      isDisabled={isDisabled}
-      onClick={onConfirmDelete}
-    >
-      {deleteBtnLabel ?? t("actions.delete")}
-    </Button>
-  );
-  return (
-    <Modal
-      id="confirm-delete-dialog"
-      variant={ModalVariant.small}
-      titleIconVariant={titleIconVariant}
-      isOpen={isOpen}
-      onClose={onClose}
-      aria-label={t("Confirm delete dialog")}
-      actions={[confirmBtn]}
-      title={t("dialog.title.delete", {
-        what: titleWhat,
-      })}
-    >
-      {/* <DeleteQuestionnaireMessage
-        questionnaireNameToDelete={questionnaireNameToDelete}
-        setQuestionnaireNameToDelete={setQuestionnaireNameToDelete}
-      /> */}
-    </Modal>
-  );
-};

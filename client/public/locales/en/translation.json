@@ -102,7 +102,7 @@
       "dragAndDropFile": "Drag and drop your file here or upload one.",
       "uploadYamlFile": "Upload your YAML file",
       "deleteQuestionnaire": "Deleting a questionnaire will cascade into the deletion of all answered questionnaires associated to applications and/or archetypes.",
-      "confirmDeletion": "Confirm deletion by typing <1>{{questionnaireName}}</1> below:"
+      "confirmDeletion": "Confirm deletion by typing <1>{{nameToDelete}}</1> below:"
     },
     "title": {
       "applicationAnalysis": "Application analysis",
