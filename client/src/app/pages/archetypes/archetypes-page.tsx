@@ -18,7 +18,15 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Table, Tbody, Th, Thead, Tr, Td } from "@patternfly/react-table";
+import {
+  Table,
+  Tbody,
+  Th,
+  Thead,
+  Tr,
+  Td,
+  ActionsColumn,
+} from "@patternfly/react-table";
 import { CubesIcon } from "@patternfly/react-icons";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -202,7 +210,26 @@ const Archetypes: React.FC = () => {
                         <Td {...getTdProps({ columnKey: "applications" })}>
                           <ArchetypeApplicationsColumn archetype={archetype} />
                         </Td>
-                        <Td>{/* TODO: Add kebab action menu */}</Td>
+                        <Td isActionCell>
+                          <ActionsColumn
+                            items={[
+                              {
+                                title: t("actions.duplicate"),
+                                onClick: () => alert("TODO"),
+                              },
+                              {
+                                title: t("actions.edit"),
+                                onClick: () => alert("TODO"),
+                              },
+                              { isSeparator: true },
+                              {
+                                title: t("actions.delete"),
+                                onClick: () => alert("TODO"),
+                                isDanger: true,
+                              },
+                            ]}
+                          />
+                        </Td>
                       </TableRowContentWithControls>
                     </Tr>
                   </Tbody>
