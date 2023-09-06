@@ -13,37 +13,34 @@ export const downloadStaticReport = async ({
   applicationId,
   mimeType,
 }: DownloadOptions): Promise<void> => {
-  let acceptHeader = "application/x-tar";
+  const yamlAcceptHeader = "application/x-yaml";
+  let url = `${APPLICATIONS}/${applicationId}/analysis/report`;
 
   switch (mimeType) {
     case MimeType.YAML:
-      acceptHeader = "application/x-yaml";
+      url = `${APPLICATIONS}/${applicationId}/analysis`;
       break;
     case MimeType.TAR:
     default:
-      acceptHeader = "application/x-tar";
+      url = `${APPLICATIONS}/${applicationId}/analysis/report`;
   }
 
   try {
-    const response = await axios.get(
-      `${APPLICATIONS}/${applicationId}/analysis/report`,
-      {
-        responseType: "blob",
+    const response = await axios.get(url, {
+      responseType: "blob",
+      ...(MimeType.YAML && {
         headers: {
-          Accept: acceptHeader,
+          Accept: yamlAcceptHeader,
         },
-      }
-    );
+      }),
+    });
 
     if (response.status !== 200) {
       throw new Error("Network response was not ok when downloading file.");
     }
 
     const blob = new Blob([response.data]);
-    saveAs(
-      blob,
-      `analysis-report-app-${applicationId}.${acceptHeader.split("-")[1]}`
-    );
+    saveAs(blob, `analysis-report-app-${applicationId}.${mimeType}`);
   } catch (error) {
     console.error("There was an error downloading the file:", error);
     throw error;
