@@ -100,7 +100,9 @@
       "refreshPage": "Try to refresh your page or contact your admin.",
       "maxfileSize": "Max file size of 1MB exceeded. Upload a smaller file.",
       "dragAndDropFile": "Drag and drop your file here or upload one.",
-      "uploadYamlFile": "Upload your YAML file"
+      "uploadYamlFile": "Upload your YAML file",
+      "deleteQuestionnaire": "Deleting a questionnaire will cascade into the deletion of all answered questionnaires associated to applications and/or archetypes.",
+      "confirmDeletion": "Confirm deletion by typing <1>{{nameToDelete}}</1> below:"
     },
     "title": {
       "applicationAnalysis": "Application analysis",
