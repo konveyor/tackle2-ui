@@ -43,7 +43,6 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -51,6 +50,7 @@ import { Questionnaire } from "@app/api/models";
 import { useHistory } from "react-router-dom";
 import { Paths } from "@app/Paths";
 import { ImportQuestionnaireForm } from "@app/pages/assessment/import-questionnaire-form/import-questionnaire-form";
+import ConfirmDeleteDialog from "@app/components/ConfirmDeleteCatalog/ConfirmDeleteCatalog";
 
 const AssessmentSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -98,7 +98,7 @@ const AssessmentSettings: React.FC = () => {
     number | null
   >(null);
   const [questionnaireToDelete, setQuestionnaireToDelete] =
-    React.useState<Questionnaire | null>();
+    React.useState<Questionnaire>();
 
   const tableControls = useLocalTableControls({
     idProperty: "id",
@@ -417,24 +417,17 @@ const AssessmentSettings: React.FC = () => {
       >
         <Text>TODO Download YAML Template component</Text>
       </Modal>
-      <ConfirmDialog
-        title={t("dialog.title.delete", {
-          what: t("terms.questionnaire").toLowerCase(),
-        })}
+      <ConfirmDeleteDialog
+        deleteObjectMessage={t("dialog.message.deleteQuestionnaire")}
         isOpen={!!questionnaireToDelete}
-        titleIconVariant={"warning"}
-        message={t("dialog.message.delete")}
-        confirmBtnVariant={ButtonVariant.danger}
-        confirmBtnLabel={t("actions.delete")}
-        cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => setQuestionnaireToDelete(null)}
-        onClose={() => setQuestionnaireToDelete(null)}
-        onConfirm={() => {
-          if (questionnaireToDelete) {
+        nameToDelete={questionnaireToDelete?.name}
+        onClose={() => setQuestionnaireToDelete(undefined)}
+        onConfirmDelete={() => {
+          questionnaireToDelete &&
             deleteQuestionnaire({ questionnaire: questionnaireToDelete });
-            setQuestionnaireToDelete(null);
-          }
+          setQuestionnaireToDelete(undefined);
         }}
+        titleWhat={t("terms.questionnaire").toLowerCase()}
       />
     </>
   );
