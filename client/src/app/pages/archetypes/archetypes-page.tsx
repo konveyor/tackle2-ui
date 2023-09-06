@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
@@ -9,6 +9,7 @@ import {
   EmptyStateFooter,
   EmptyStateHeader,
   EmptyStateIcon,
+  Modal,
   PageSection,
   PageSectionVariants,
   Text,
@@ -57,6 +58,13 @@ const Archetypes: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const { pushNotification } = React.useContext(NotificationsContext);
+
+  const [openCreateArchetype, setOpenCreateArchetype] =
+    useState<boolean>(false);
+
+  const [archetypeToEdit, setArchetypeToEdit] = useState<Archetype | null>(
+    null
+  );
 
   const { archetypes, isFetching, error: fetchError } = useFetchArchetypes();
 
@@ -271,6 +279,24 @@ const Archetypes: React.FC = () => {
       </PageSection>
 
       {/* TODO: Add create/edit modal */}
+      <Modal
+        title={t("dialog.title.newArchetype")}
+        variant="medium"
+        isOpen={openCreateArchetype}
+        onClose={() => setOpenCreateArchetype(false)}
+      >
+        <ArchetypeForm />
+      </Modal>
+      <Modal
+        title={t("dialog.title.updateArchetype")}
+        variant="medium"
+        isOpen={!!archetypeToEdit}
+        onClose={() => setArchetypeToEdit(null)}
+        key={archetypeToEdit?.id ?? -1}
+      >
+        <ArchetypeForm />
+      </Modal>
+
       {/* TODO: Add duplicate confirm modal */}
       <ConfirmDialog
         title={t("dialog.title.deleteWithName", {
