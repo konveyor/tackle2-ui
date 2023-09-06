@@ -273,8 +273,9 @@ const Archetypes: React.FC = () => {
       {/* TODO: Add create/edit modal */}
       {/* TODO: Add duplicate confirm modal */}
       <ConfirmDialog
-        title={t("dialog.title.delete", {
+        title={t("dialog.title.deleteWithName", {
           what: t("terms.archetype").toLowerCase(),
+          name: archetypeToDelete?.name,
         })}
         isOpen={!!archetypeToDelete}
         titleIconVariant="warning"
