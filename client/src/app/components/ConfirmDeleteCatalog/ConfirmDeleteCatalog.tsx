@@ -77,7 +77,7 @@ const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
       titleIconVariant={titleIconVariant}
       isOpen={isOpen}
       onClose={handleClose}
-      aria-label={t("Confirm delete dialog")}
+      aria-label="Confirm delete dialog"
       actions={[confirmBtn, cancelBtn]}
       title={t("dialog.title.delete", {
         what: titleWhat,
