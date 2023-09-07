@@ -2,7 +2,8 @@ export const formatPath = (path: Paths, data: any) => {
   let url = path as string;
 
   for (const k of Object.keys(data)) {
-    url = url.replace(":" + k, data[k]);
+    const regex = new RegExp(`:${k}(/|$)`, "g");
+    url = url.replace(regex, data[k] + "$1");
   }
 
   return url;
