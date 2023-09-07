@@ -64,6 +64,7 @@ export const useDeleteQuestionnaireMutation = (
   });
 };
 
+// The questionnaire download is triggered on demand by a refetch()
 export const useFetchQuestionnaireById = (
   id: number,
   onError: (err: AxiosError) => void

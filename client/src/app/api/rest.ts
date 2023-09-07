@@ -328,7 +328,7 @@ export const updateApplication = (obj: Application): Promise<Application> =>
 export const getApplicationAnalysis = (
   applicationId: number,
   type: MimeType
-): Promise<void> =>
+): Promise<string> =>
   axios.get(
     `${APPLICATIONS}/${String(applicationId)}/analysis${
       type === MimeType.TAR ? "/report" : ""

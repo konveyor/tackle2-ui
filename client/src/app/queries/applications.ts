@@ -131,6 +131,7 @@ export const useBulkDeleteApplicationMutation = (
   );
 };
 
+// The report download is triggerred on demand by a refetch()
 export const useFetchStaticReport = (
   id: number,
   type: MimeType,

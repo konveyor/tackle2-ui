@@ -34,10 +34,11 @@ export const DownloadButton: React.FC<IDownloadButtonProps> = ({
   );
 
   const handleDownload = () => {
-    refetch();
-    if (report) {
-      saveAs(new Blob([report]), `analysis-report-app-${id}.${mimeType}`);
-    }
+    refetch().then(() => {
+      if (report) {
+        saveAs(new Blob([report]), `analysis-report-app-${id}.${mimeType}`);
+      }
+    });
   };
 
   return (

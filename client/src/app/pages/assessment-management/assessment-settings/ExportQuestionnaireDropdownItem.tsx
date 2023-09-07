@@ -30,10 +30,11 @@ export const ExportQuestionnaireDropdownItem: React.FC<
   );
 
   const exportQuestionnaire = () => {
-    refetch();
-    if (questionnaire) {
-      saveAs(new Blob([questionnaire]), `questionnaire-${id}.yaml`);
-    }
+    refetch().then(() => {
+      if (questionnaire) {
+        saveAs(new Blob([questionnaire]), `questionnaire-${id}.yaml`);
+      }
+    });
   };
 
   return (
