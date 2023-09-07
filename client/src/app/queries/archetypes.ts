@@ -78,17 +78,17 @@ export const useUpdateArchetypeMutation = (
 };
 
 export const useDeleteArchetypeMutation = (
-  onSuccess: (id: number) => void,
+  onSuccess: (archetype: Archetype) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteArchetype,
-    onSuccess: (_, id) => {
-      onSuccess(id);
+    mutationFn: (archetype: Archetype) => deleteArchetype(archetype.id),
+    onSuccess: (_, archetype) => {
+      onSuccess(archetype);
       queryClient.invalidateQueries([ARCHETYPES_QUERY_KEY]);
-      queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, id]);
+      queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, archetype.id]);
     },
     onError: onError,
   });

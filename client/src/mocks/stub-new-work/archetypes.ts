@@ -76,7 +76,7 @@ const handlers: RestHandler[] = [
     return res(ctx.status(404));
   }),
 
-  rest.delete(`${AppRest.QUESTIONNAIRES}/:id`, (req, res, ctx) => {
+  rest.delete(`${AppRest.ARCHETYPES}/:id`, (req, res, ctx) => {
     const { id } = req.params;
     console.log(
       "%c✏️ archetype stub%c 🤖 %s",

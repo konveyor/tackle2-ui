@@ -39,12 +39,19 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { useFetchArchetypes } from "@app/queries/archetypes";
+import {
+  useDeleteArchetypeMutation,
+  useFetchArchetypes,
+} from "@app/queries/archetypes";
 
 import ArchetypeApplicationsColumn from "./components/archetype-applications-column";
 import ArchetypeDescriptionColumn from "./components/archetype-description-column";
 import ArchetypeMaintainersColumn from "./components/archetype-maintainers-column";
 import ArchetypeTagsColumn from "./components/archetype-tags-column";
+import { Archetype } from "@app/api/models";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+import { AxiosError } from "axios";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
@@ -52,6 +59,27 @@ const Archetypes: React.FC = () => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const { archetypes, isFetching, error: fetchError } = useFetchArchetypes();
+
+  const onError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+  };
+
+  const [archetypeToDelete, setArchetypeToDelete] =
+    React.useState<Archetype | null>(null);
+  const { mutate: deleteArchetype } = useDeleteArchetypeMutation(
+    (archetypeDeleted) =>
+      pushNotification({
+        title: t("toastr.success.deletedWhat", {
+          what: archetypeDeleted.name,
+          type: t("terms.archetype"),
+        }),
+        variant: "success",
+      }),
+    onError
+  );
 
   const tableControls = useLocalTableControls({
     idProperty: "id",
@@ -224,7 +252,7 @@ const Archetypes: React.FC = () => {
                               { isSeparator: true },
                               {
                                 title: t("actions.delete"),
-                                onClick: () => alert("TODO"),
+                                onClick: () => setArchetypeToDelete(archetype),
                                 isDanger: true,
                               },
                             ]}
@@ -244,7 +272,26 @@ const Archetypes: React.FC = () => {
 
       {/* TODO: Add create/edit modal */}
       {/* TODO: Add duplicate confirm modal */}
-      {/* TODO: Add delete confirm modal */}
+      <ConfirmDialog
+        title={t("dialog.title.deleteWithName", {
+          what: t("terms.archetype").toLowerCase(),
+          name: archetypeToDelete?.name,
+        })}
+        isOpen={!!archetypeToDelete}
+        titleIconVariant="warning"
+        message={t("dialog.message.delete")}
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.delete")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setArchetypeToDelete(null)}
+        onClose={() => setArchetypeToDelete(null)}
+        onConfirm={() => {
+          if (archetypeToDelete) {
+            deleteArchetype(archetypeToDelete);
+            setArchetypeToDelete(null);
+          }
+        }}
+      />
     </>
   );
 };
