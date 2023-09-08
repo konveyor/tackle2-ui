@@ -282,7 +282,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
         <Button
           type="submit"
           aria-label="submit"
-          id="identity-form-submit"
+          id="submit"
           variant={ButtonVariant.primary}
           isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
         >

@@ -144,7 +144,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
       <ActionGroup>
         <Button
           type="submit"
-          id="job-function-form-submit"
+          id="submit"
           aria-label="submit"
           variant={ButtonVariant.primary}
           isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
