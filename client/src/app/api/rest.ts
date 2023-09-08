@@ -734,6 +734,11 @@ export const getQuestionnaireById = (
 ): Promise<Questionnaire> =>
   axios.get(`${QUESTIONNAIRES}/id/${id}`).then((response) => response.data);
 
+export const createQuestionnaire = (
+  obj: Questionnaire
+): Promise<Questionnaire> =>
+  axios.post(`${QUESTIONNAIRES}`, obj).then((response) => response.data);
+
 // TODO: The update handlers in hub don't return any content (success is a response code
 // TODO:  of 204 - NoContext) ... the return type does not make sense.
 export const updateQuestionnaire = (
