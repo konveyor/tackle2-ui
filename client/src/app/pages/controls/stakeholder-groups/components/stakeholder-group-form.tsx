@@ -160,8 +160,9 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
 
   const onSubmit = (formValues: FormValues) => {
     const matchingStakeholderRefs: Ref[] = stakeholders
-      .filter((stakeholder) =>
-        formValues?.stakeholderNames?.includes(stakeholder.name)
+      .filter(
+        (stakeholder) =>
+          formValues?.stakeholderNames?.includes(stakeholder.name)
       )
       .map((stakeholder) => {
         return {
@@ -239,7 +240,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
       <ActionGroup>
         <Button
           type="submit"
-          id="stakeholder-group-form-submit"
+          id="submit"
           aria-label="submit"
           variant={ButtonVariant.primary}
           isDisabled={!isValid || isSubmitting || isValidating || !isDirty}

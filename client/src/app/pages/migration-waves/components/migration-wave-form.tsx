@@ -13,13 +13,11 @@ import {
   DatePicker,
   Level,
   LevelItem,
-  Weekday,
 } from "@patternfly/react-core";
 
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import {
-  useFetchMigrationWaves,
   useCreateMigrationWaveMutation,
   useUpdateMigrationWaveMutation,
 } from "@app/queries/migration-waves";
@@ -155,7 +153,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
         "min-char-check",
         "Name is invalid. The name must be between 3 and 120 characters ",
         (value) => {
-          if (!!value) {
+          if (value) {
             const schema = yup
               .string()
               .min(3, t("validation.minLength", { length: 3 }))
@@ -428,7 +426,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
         <Button
           type="submit"
           aria-label="submit"
-          id="migration-wave-form-submit"
+          id="submit"
           variant="primary"
           isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
         >

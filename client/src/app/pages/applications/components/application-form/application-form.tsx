@@ -462,8 +462,9 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 searchInputAriaLabel="tags-select-toggle"
                 selections={
                   value
-                    .map((formTag) =>
-                      tags?.find((tagRef) => tagRef.name === formTag.name)
+                    .map(
+                      (formTag) =>
+                        tags?.find((tagRef) => tagRef.name === formTag.name)
                     )
                     .map((matchingTag) =>
                       matchingTag ? matchingTag.name : undefined
@@ -563,10 +564,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 toggleAriaLabel="contributors dropdown toggle"
                 aria-label={name}
                 value={value
-                  .map((formContributor) =>
-                    stakeholders?.find(
-                      (stakeholder) => stakeholder.name === formContributor
-                    )
+                  .map(
+                    (formContributor) =>
+                      stakeholders?.find(
+                        (stakeholder) => stakeholder.name === formContributor
+                      )
                   )
                   .map((matchingStakeholder) =>
                     matchingStakeholder
@@ -705,7 +707,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       <ActionGroup>
         <Button
           type="submit"
-          id="application-form-submit"
+          id="submit"
           aria-label="submit"
           variant={ButtonVariant.primary}
           isDisabled={!isValid || isSubmitting || isValidating || !isDirty}

@@ -181,7 +181,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
       <ActionGroup>
         <Button
           type="submit"
-          id="tag-form-submit"
+          id="submit"
           aria-label="submit"
           variant={ButtonVariant.primary}
           isDisabled={!isValid || isSubmitting || isValidating || !isDirty}

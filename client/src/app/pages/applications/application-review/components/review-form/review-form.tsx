@@ -12,11 +12,7 @@ import {
   NumberInput,
 } from "@patternfly/react-core";
 
-import {
-  DEFAULT_SELECT_MAX_HEIGHT,
-  PROPOSED_ACTION_LIST,
-  EFFORT_ESTIMATE_LIST,
-} from "@app/Constants";
+import { PROPOSED_ACTION_LIST, EFFORT_ESTIMATE_LIST } from "@app/Constants";
 import { number } from "yup";
 import {
   Application,
@@ -242,7 +238,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
       <ActionGroup>
         <Button
           type="submit"
-          id="review-form-submit"
+          id="submit"
           aria-label="submit"
           variant={ButtonVariant.primary}
           isDisabled={!isValid || isSubmitting || isValidating || !isDirty}

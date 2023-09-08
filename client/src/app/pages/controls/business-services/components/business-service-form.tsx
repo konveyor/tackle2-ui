@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosResponse } from "axios";
 import { object, string } from "yup";
@@ -202,7 +202,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
       <ActionGroup>
         <Button
           type="submit"
-          id="business-service-form-submit"
+          id="submit"
           aria-label="submit"
           variant={ButtonVariant.primary}
           isDisabled={!isValid || isSubmitting || isValidating || !isDirty}

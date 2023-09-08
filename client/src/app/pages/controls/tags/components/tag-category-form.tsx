@@ -234,7 +234,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
       <ActionGroup>
         <Button
           type="submit"
-          id="tag-type-form-submit"
+          id="submit"
           aria-label="submit"
           variant={ButtonVariant.primary}
           isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
