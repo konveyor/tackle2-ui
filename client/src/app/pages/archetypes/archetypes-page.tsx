@@ -47,6 +47,7 @@ import {
 
 import ArchetypeApplicationsColumn from "./components/archetype-applications-column";
 import ArchetypeDescriptionColumn from "./components/archetype-description-column";
+import ArchetypeForm from "./components/archetype-form";
 import ArchetypeMaintainersColumn from "./components/archetype-maintainers-column";
 import ArchetypeTagsColumn from "./components/archetype-tags-column";
 import { Archetype } from "@app/api/models";
@@ -62,9 +63,7 @@ const Archetypes: React.FC = () => {
   const [openCreateArchetype, setOpenCreateArchetype] =
     useState<boolean>(false);
 
-  const [archetypeToEdit, setArchetypeToEdit] = useState<Archetype | null>(
-    null
-  );
+  const [archetypeToEdit, setArchetypeToEdit] = useState<Archetype>();
 
   const { archetypes, isFetching, error: fetchError } = useFetchArchetypes();
 
@@ -151,7 +150,7 @@ const Archetypes: React.FC = () => {
       id="create-new-archetype"
       aria-label="Create new archetype"
       variant={ButtonVariant.primary}
-      onClick={() => {}} // TODO: Add create archetype modal
+      onClick={() => setOpenCreateArchetype(true)}
     >
       {t("dialog.title.newArchetype")}
     </Button>
@@ -255,7 +254,7 @@ const Archetypes: React.FC = () => {
                               },
                               {
                                 title: t("actions.edit"),
-                                onClick: () => alert("TODO"),
+                                onClick: () => setArchetypeToEdit(archetype),
                               },
                               { isSeparator: true },
                               {
@@ -278,26 +277,33 @@ const Archetypes: React.FC = () => {
         </ConditionalRender>
       </PageSection>
 
-      {/* TODO: Add create/edit modal */}
+      {/* Create modal */}
       <Modal
         title={t("dialog.title.newArchetype")}
         variant="medium"
         isOpen={openCreateArchetype}
         onClose={() => setOpenCreateArchetype(false)}
       >
-        <ArchetypeForm />
+        <ArchetypeForm onClose={() => setOpenCreateArchetype(false)} />
       </Modal>
+
+      {/* Edit modal */}
       <Modal
         title={t("dialog.title.updateArchetype")}
         variant="medium"
         isOpen={!!archetypeToEdit}
-        onClose={() => setArchetypeToEdit(null)}
-        key={archetypeToEdit?.id ?? -1}
+        onClose={() => setArchetypeToEdit(undefined)}
       >
-        <ArchetypeForm />
+        <ArchetypeForm
+          key={archetypeToEdit?.id ?? -1}
+          toEdit={archetypeToEdit}
+          onClose={() => setArchetypeToEdit(undefined)}
+        />
       </Modal>
 
       {/* TODO: Add duplicate confirm modal */}
+
+      {/* Delete confirm modal */}
       <ConfirmDialog
         title={t("dialog.title.deleteWithName", {
           what: t("terms.archetype").toLowerCase(),

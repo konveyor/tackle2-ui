@@ -30,11 +30,13 @@ export const useFetchArchetypes = () => {
   };
 };
 
-export const useFetchArchetypeById = (id: number) => {
+export const useFetchArchetypeById = (id?: number) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [ARCHETYPE_QUERY_KEY, id],
-    queryFn: () => getArchetypeById(id),
+    queryFn: () =>
+      id === undefined ? Promise.resolve(undefined) : getArchetypeById(id),
     onError: (error: AxiosError) => console.log("error, ", error),
+    enabled: id !== undefined,
   });
 
   return {
