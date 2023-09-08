@@ -403,7 +403,7 @@ export const MigrationWaves: React.FC = () => {
                                 columnKey: "status",
                               }))}
                           >
-                            {!!migrationWave.applications.length
+                            {migrationWave.applications.length
                               ? migrationWave.status
                               : "N/A"}
                           </Td>
@@ -580,8 +580,9 @@ export const MigrationWaves: React.FC = () => {
       <ConfirmDialog
         title={
           migrationWaveToDelete
-            ? t("dialog.title.delete", {
+            ? t("dialog.title.deleteWithName", {
                 what: t("terms.migrationWave").toLowerCase(),
+                name: migrationWaveToDelete.name,
               })
             : t("dialog.title.delete", {
                 what: t("terms.migrationWave(s)").toLowerCase(),

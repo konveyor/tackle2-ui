@@ -2,7 +2,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { AxiosError } from "axios";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
 
 // @patternfly
@@ -19,22 +19,14 @@ import {
   MenuToggleElement,
   Modal,
 } from "@patternfly/react-core";
-import {
-  PencilAltIcon,
-  TagIcon,
-  EllipsisVIcon,
-  CubesIcon,
-} from "@patternfly/react-icons";
+import { PencilAltIcon, TagIcon, EllipsisVIcon } from "@patternfly/react-icons";
 import {
   Table,
   Thead,
   Tr,
   Th,
-  Tbody,
   Td,
-  TableText,
   ActionsColumn,
-  CustomActionsToggleProps,
 } from "@patternfly/react-table";
 
 // @app components and utilities
@@ -42,7 +34,6 @@ import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import {
   FilterType,
   FilterToolbar,
-  FilterCategory,
 } from "@app/components/FilterToolbar/FilterToolbar";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
@@ -72,10 +63,7 @@ import { checkAccess } from "@app/utils/rbac-utils";
 
 // Hooks
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  handlePropagatedRowClick,
-  useLocalTableControls,
-} from "@app/hooks/table-controls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useAssessApplication } from "@app/hooks";
 
 // Queries
@@ -403,7 +391,7 @@ export const ApplicationsTable: React.FC = () => {
             what: t("terms.tagName").toLowerCase(),
           }) + "...",
         getItemValue: (item) => {
-          let tagNames = item?.tags?.map((tag) => tag.name).join("");
+          const tagNames = item?.tags?.map((tag) => tag.name).join("");
           return tagNames || "";
         },
         selectOptions: dedupeFunction(
@@ -857,17 +845,27 @@ export const ApplicationsTable: React.FC = () => {
           />
         </Modal>
         <ConfirmDialog
-          title={t("dialog.title.delete", {
-            what:
-              applicationsToDelete.length > 1
-                ? t("terms.application(s)").toLowerCase()
-                : t("terms.application").toLowerCase(),
-          })}
+          title={t(
+            applicationsToDelete.length > 1
+              ? "dialog.title.delete"
+              : "dialog.title.deleteWithName",
+            {
+              what:
+                applicationsToDelete.length > 1
+                  ? t("terms.application(s)").toLowerCase()
+                  : t("terms.application").toLowerCase(),
+              name:
+                applicationsToDelete.length === 1 &&
+                applicationsToDelete[0].name,
+            }
+          )}
           titleIconVariant={"warning"}
           isOpen={applicationsToDelete.length > 0}
-          message={`${t("dialog.message.applicationsBulkDelete")} ${t(
-            "dialog.message.delete"
-          )}`}
+          message={`${
+            applicationsToDelete.length > 1
+              ? t("dialog.message.applicationsBulkDelete")
+              : ""
+          } ${t("dialog.message.delete")}`}
           aria-label="Applications bulk delete"
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
