@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import {
   ActionGroup,
-  Alert,
   Button,
   ButtonVariant,
   Form,
@@ -388,7 +387,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       <ActionGroup>
         <Button
           type="submit"
-          id="proxy-form-submit"
+          id="submit"
           aria-label="submit"
           variant={ButtonVariant.primary}
           isDisabled={

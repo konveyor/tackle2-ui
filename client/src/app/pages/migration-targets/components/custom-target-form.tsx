@@ -174,7 +174,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       customRulesFiles: getInitialCustomRulesFilesData(),
       rulesKind: !target
         ? "manual"
-        : !!target?.ruleset?.rules?.length
+        : target?.ruleset?.rules?.length
         ? "manual"
         : "repository",
       associatedCredentials: target?.ruleset?.identity?.name,
@@ -274,7 +274,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       description: formValues?.description?.trim() || "",
       ...(formValues.imageID && { image: { id: formValues.imageID } }),
       custom: true,
-      labels: !!labels.length ? labels : [{ name: "custom", label: "custom" }],
+      labels: labels.length ? labels : [{ name: "custom", label: "custom" }],
       ruleset: {
         id: target && target.custom ? target.ruleset.id : undefined,
         name: formValues.name.trim(),
@@ -615,7 +615,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         <Button
           type="submit"
           aria-label="submit"
-          id="identity-form-submit"
+          id="submit"
           variant={ButtonVariant.primary}
           isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
         >

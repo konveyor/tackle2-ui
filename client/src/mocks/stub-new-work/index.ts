@@ -6,8 +6,8 @@ import applications from "./applications";
 import archetypes from "./archetypes";
 
 export default [
-  ...questionnaires,
-  ...assessments,
-  ...applications,
-  ...archetypes,
+  // ...questionnaires,
+  // ...assessments,
+  // ...applications,
+  // ...archetypes,
 ] as RestHandler[];

@@ -309,7 +309,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
         <Button
           type="submit"
           aria-label="submit"
-          id="identity-form-submit"
+          id="submit"
           variant={ButtonVariant.primary}
           isDisabled={
             !isValid || isSubmitting || isValidating || isLoading || !isDirty
