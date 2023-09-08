@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 
@@ -16,26 +16,19 @@ import {
 
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { useForm } from "react-hook-form";
-import { FileLoadError, IReadFile } from "@app/api/models";
+import { Questionnaire } from "@app/api/models";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useCreateFileMutation } from "@app/queries/targets";
+import { useCreateQuestionnaireMutation } from "@app/queries/questionnaires";
+import jsYaml from "js-yaml";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export interface ImportQuestionnaireFormProps {
-  onSaved: (response?: AxiosResponse) => void;
+  onSaved: (response?: Questionnaire) => void;
 }
 export interface ImportQuestionnaireFormValues {
-  yamlFile: IReadFile;
+  yamlFile: string;
 }
-
-export const yamlFileSchema: yup.SchemaOf<IReadFile> = yup.object({
-  fileName: yup.string().required(),
-  fullFile: yup.mixed<File>(),
-  loadError: yup.mixed<FileLoadError>(),
-  loadPercentage: yup.number(),
-  loadResult: yup.mixed<"danger" | "success" | undefined>(),
-  data: yup.string(),
-  responseID: yup.number(),
-});
 
 export const ImportQuestionnaireForm: React.FC<
   ImportQuestionnaireFormProps
@@ -47,7 +40,7 @@ export const ImportQuestionnaireForm: React.FC<
   const validationSchema: yup.SchemaOf<ImportQuestionnaireFormValues> = yup
     .object()
     .shape({
-      yamlFile: yamlFileSchema,
+      yamlFile: yup.string().required(),
     });
   const methods = useForm<ImportQuestionnaireFormValues>({
     resolver: yupResolver(validationSchema),
@@ -57,37 +50,81 @@ export const ImportQuestionnaireForm: React.FC<
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
-    getValues,
-    setValue,
     control,
-    watch,
     setFocus,
     clearErrors,
     trigger,
-    reset,
   } = methods;
 
-  const { mutateAsync: createYamlFileAsync } = useCreateFileMutation();
+  const onHandleSuccessfullQuestionnaireCreation = (
+    response: Questionnaire
+  ) => {
+    onSaved(response);
+    pushNotification({
+      title: t("toastr.success.questionnaireCreated"),
+      variant: "success",
+    });
+    onSaved();
+  };
 
-  const handleFileUpload = async (file: File) => {
-    setFilename(file.name);
-    const formFile = new FormData();
-    formFile.append("file", file);
-
-    const newYamlFile: IReadFile = {
-      fileName: file.name,
-      fullFile: file,
-    };
-
-    return createYamlFileAsync({
-      formData: formFile,
-      file: newYamlFile,
+  const onHandleFailedQuestionnaireCreation = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
     });
   };
 
+  const { mutate: createQuestionnaire } = useCreateQuestionnaireMutation(
+    onHandleSuccessfullQuestionnaireCreation,
+    onHandleFailedQuestionnaireCreation
+  );
+
+  const { pushNotification } = React.useContext(NotificationsContext);
+
+  const convertYamlToJson = (yamlString: string) => {
+    try {
+      const jsonData = jsYaml.load(yamlString);
+      return jsonData;
+    } catch (error) {
+      pushNotification({
+        title: "Failed",
+        message: getAxiosErrorMessage(error as AxiosError),
+        variant: "danger",
+        timeout: 30000,
+      });
+    }
+  };
+
+  function isQuestionnaire(data: any): data is Questionnaire {
+    return (
+      typeof data === "object" &&
+      data !== null &&
+      "name" in data &&
+      "description" in data
+    );
+  }
+
   const onSubmit = (values: ImportQuestionnaireFormValues) => {
-    console.log("values", values);
-    onSaved();
+    if (values.yamlFile) {
+      try {
+        const jsonData = convertYamlToJson(values.yamlFile);
+
+        if (isQuestionnaire(jsonData)) {
+          const questionnaireData = jsonData as Questionnaire;
+
+          createQuestionnaire(questionnaireData);
+        } else {
+          console.error("Invalid JSON data.");
+        }
+      } catch (error) {
+        pushNotification({
+          title: "Failed",
+          message: getAxiosErrorMessage(error as AxiosError),
+          variant: "danger",
+          timeout: 30000,
+        });
+      }
+    }
   };
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -122,20 +159,40 @@ export const ImportQuestionnaireForm: React.FC<
             }}
             validated={isFileRejected || error ? "error" : "default"}
             onFileInputChange={async (_, file) => {
-              console.log("uploading file", file);
-              //TODO: handle new api here. This is just a placeholder.
               try {
-                await handleFileUpload(file);
+                if (!file) {
+                  console.error("No file selected.");
+                  return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                  try {
+                    const yamlContent = e?.target?.result as string;
+                    onChange(yamlContent);
+                    setFilename(file.name);
+                  } catch (error) {
+                    console.error("Error reading YAML file:", error);
+                  }
+                };
+
+                reader.readAsText(file);
                 setFocus(name);
                 clearErrors(name);
                 trigger(name);
               } catch (err) {
-                //Handle new api error here
+                pushNotification({
+                  title: "Failed",
+                  message: getAxiosErrorMessage(err as AxiosError),
+                  variant: "danger",
+                  timeout: 30000,
+                });
               }
             }}
             onClearClick={() => {
-              //TODO
-              console.log("clearing file");
+              onChange("");
+              setFilename("");
             }}
             browseButtonText="Upload"
           />

@@ -99,10 +99,9 @@ const AssessmentSettings: React.FC = () => {
   >(null);
   const [questionnaireToDelete, setQuestionnaireToDelete] =
     React.useState<Questionnaire>();
-
   const tableControls = useLocalTableControls({
     idProperty: "id",
-    items: questionnaires,
+    items: questionnaires || [],
     columnNames: {
       required: "Required",
       name: "Name",
@@ -128,9 +127,9 @@ const AssessmentSettings: React.FC = () => {
       },
     ],
     sortableColumns: ["name", "dateImported"],
-    getSortValues: (assessment) => ({
-      name: assessment.name || "",
-      dateImported: assessment.dateImported || "",
+    getSortValues: (questionnaire) => ({
+      name: questionnaire.name || "",
+      dateImported: questionnaire.dateImported || "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
     hasPagination: true,
