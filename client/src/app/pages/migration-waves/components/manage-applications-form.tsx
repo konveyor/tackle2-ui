@@ -293,7 +293,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
         <Button
           type="submit"
           aria-label="submit"
-          id="wave-form-submit"
+          id="submit"
           variant="primary"
           isDisabled={!isNewerSelection()}
         >

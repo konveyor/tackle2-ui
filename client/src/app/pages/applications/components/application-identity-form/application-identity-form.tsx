@@ -93,9 +93,9 @@ export const ApplicationIdentityForm: React.FC<
   );
 
   const onSubmit = (formValues: FormValues) => {
-    let updatePromises: Array<Promise<Application>> = [];
+    const updatePromises: Array<Promise<Application>> = [];
     applications.forEach((application) => {
-      let updatedIdentities: Ref[] = [];
+      const updatedIdentities: Ref[] = [];
       if (application.identities && identities) {
         const matchingSourceCredential = identities.find(
           (identity) => identity.name === formValues.sourceCredentials
@@ -249,7 +249,7 @@ export const ApplicationIdentityForm: React.FC<
       <ActionGroup>
         <Button
           type="submit"
-          id="identity-form-submit"
+          id="submit"
           aria-label="submit"
           variant={ButtonVariant.primary}
           isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
