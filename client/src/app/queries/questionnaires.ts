@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 
 import {
+  createQuestionnaire,
   deleteQuestionnaire,
   getQuestionnaireById,
   getQuestionnaires,
@@ -18,7 +19,6 @@ export const useFetchQuestionnaires = () => {
     queryFn: getQuestionnaires,
     onError: (error: AxiosError) => console.log("error, ", error),
   });
-
   return {
     questionnaires: data || [],
     isFetching: isLoading,
@@ -74,5 +74,30 @@ export const useFetchQuestionnaireById = (id: number | string) => {
     questionnaire: data,
     isFetching: isLoading,
     fetchError: error,
+  };
+};
+
+export const useCreateQuestionnaireMutation = (
+  onSuccess?: (res: Questionnaire) => void,
+  onError?: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+  const { isLoading, mutate, mutateAsync, error } = useMutation(
+    createQuestionnaire,
+    {
+      onSuccess: (res) => {
+        onSuccess && onSuccess(res);
+        queryClient.invalidateQueries([]);
+      },
+      onError: (err: AxiosError) => {
+        onError && onError(err);
+      },
+    }
+  );
+  return {
+    mutate,
+    mutateAsync,
+    isLoading,
+    error,
   };
 };

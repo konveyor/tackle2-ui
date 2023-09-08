@@ -1,0 +1,43 @@
+name: Sample Questionnaire
+description: This is a sample questionnaire in YAML format
+revision: 1
+required: true
+sections:
+  - order: 1
+    name: Section 1
+    questions:
+      - order: 1
+        text: What is your favorite color?
+        explanation: Please select your favorite color.
+        includeFor:
+          - category: Category1
+            tag: Tag1
+        excludeFor: []
+        answers:
+          - order: 1
+            text: Red
+            risk: red
+            rationale: Red is a nice color.
+            mitigation: No mitigation needed.
+            applyTags: []
+            autoAnswerFor: []
+            selected: false
+            autoAnswered: false
+          - order: 2
+            text: Blue
+            risk: green
+            rationale: Blue is a calming color.
+            mitigation: No mitigation needed.
+            applyTags: []
+            autoAnswerFor: []
+            selected: false
+            autoAnswered: false
+thresholds:
+  red: 5
+  yellow: 10
+  unknown: 15
+riskMessages:
+  red: High risk
+  yellow: Medium risk
+  green: Low risk
+  unknown: Unknown risk
