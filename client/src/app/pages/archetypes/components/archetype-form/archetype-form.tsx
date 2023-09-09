@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
-import { useForm } from "react-hook-form";
+import { Control, useForm, Path } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
@@ -12,11 +12,13 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import type { Archetype, TagRef } from "@app/api/models";
+import type { Archetype, Tag } from "@app/api/models";
 import {
+  HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
+import { Autocomplete } from "@app/components/Autocomplete";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import {
   useFetchArchetypes,
@@ -25,13 +27,14 @@ import {
   useUpdateArchetypeMutation,
 } from "@app/queries/archetypes";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import { useFetchTagCategories } from "@app/queries/tags";
 
 interface ArchetypeFormValues {
   name: string;
   description?: string;
   comments?: string;
-  criteriaTags: TagRef[];
-  tags: TagRef[];
+  criteriaTags: string[]; // TODO: string[] only works if tags are uniquely named globally
+  tags: string[]; // TODO: string[] only works if tags are uniquely named globally
   stakeholders?: object[];
   stakeholderGroups?: object[];
 }
@@ -48,11 +51,16 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
   const isCreate = toEdit === undefined;
   const { t } = useTranslation();
 
-  const { archetype, existingArchetypes, createArchetype, updateArchetype } =
-    useArchetypeFormData({
-      id: toEdit?.id,
-      onActionSuccess: onClose,
-    });
+  const {
+    archetype,
+    existingArchetypes,
+    tags,
+    createArchetype,
+    updateArchetype,
+  } = useArchetypeFormData({
+    id: toEdit?.id,
+    onActionSuccess: onClose,
+  });
 
   const validationSchema = yup.object().shape({
     // for text input fields
@@ -80,8 +88,18 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       .max(250, t("validation.maxLength", { length: 250 })),
 
     // for complex data fields
-    // TODO: add criteriaTags (at least 1 required)
-    // TODO: add tags (at least 1 required)
+    criteriaTags: yup
+      .array()
+      .of(yup.string())
+      .min(1)
+      .required(t("validation.required")),
+
+    tags: yup
+      .array()
+      .of(yup.string())
+      .min(1)
+      .required(t("validation.required")),
+
     // TODO: add stakeholders (optional)
     // TODO: add stakeholderGroups (optional)
   });
@@ -96,21 +114,31 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       description: toEdit?.description || "",
       comments: toEdit?.comments || "",
 
-      // TODO: add for criteriaTags, tags, stakeholders, stakeholderGroups
+      criteriaTags: toEdit?.criteriaTags?.map((tag) => tag.name).sort() ?? [],
+      tags: toEdit?.archetypeTags?.map((tag) => tag.name).sort() ?? [],
+
+      // TODO: add stakeholders
+      // TODO: add stakeholderGroups
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
 
-  const onValidSubmit = (formValues: ArchetypeFormValues) => {
+  const onValidSubmit = (values: ArchetypeFormValues) => {
     const payload: Archetype = {
       id: toEdit?.id || -1, // TODO: verify the -1 will be thrown out on create
-      name: formValues.name.trim(),
-      description: formValues.description?.trim() ?? "",
-      comments: formValues.comments?.trim() ?? "",
+      name: values.name.trim(),
+      description: values.description?.trim() ?? "",
+      comments: values.comments?.trim() ?? "",
 
-      criteriaTags: [], // TODO: add criteriaTags
-      archetypeTags: [], // TODO: add tags
+      criteriaTags: values.criteriaTags
+        .map((tagName) => tags.find((tag) => tag.name === tagName))
+        .filter(Boolean) as Tag[],
+
+      archetypeTags: values.tags
+        .map((tagName) => tags.find((tag) => tag.name === tagName))
+        .filter(Boolean) as Tag[],
+
       stakeholders: undefined, // TODO: add stakeholders
       stakeholderGroups: undefined, // TODO: add stakeholderGroups
     };
@@ -127,7 +155,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       <HookFormPFTextInput
         control={control}
         name="name"
-        label="Name"
+        label="Name" // TODO: l10n
         fieldId="name"
         isRequired
       />
@@ -135,12 +163,38 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       <HookFormPFTextInput
         control={control}
         name="description"
-        label="Description"
+        label="Description" // TODO: l10n
         fieldId="description"
       />
 
-      {/* TODO: add criteriaTags */}
-      {/* TODO: add tags */}
+      <TagsSelect
+        tags={tags}
+        control={control}
+        name="criteriaTags"
+        label="Criteria Tags" // TODO: l10n
+        fieldId="criteriaTags"
+        isRequired
+        noResultsMessage={t("message.noResultsFoundTitle")}
+        placeholderText={t("composed.selectMany", {
+          what: t("terms.tags").toLowerCase(),
+        })}
+        searchInputAriaLabel="criteria-tags-select-toggle"
+      />
+
+      <TagsSelect
+        tags={tags}
+        control={control}
+        name="tags"
+        label="Archetype Tags" // TODO: l10n
+        fieldId="archetypeTags"
+        isRequired
+        noResultsMessage={t("message.noResultsFoundTitle")}
+        placeholderText={t("composed.selectMany", {
+          what: t("terms.tags").toLowerCase(),
+        })}
+        searchInputAriaLabel="archetype-tags-select-toggle"
+      />
+
       {/* TODO: add stakeholders */}
       {/* TODO: add stakeholderGroups */}
 
@@ -179,6 +233,54 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
 
 export default ArchetypeForm;
 
+// TODO: Currently only supports working with tag names (which only work if tags names are globally unique)
+// TODO: Does not support select menu grouping by tag category
+// TODO: Does not support select menu selection checkboxes
+// TODO: Does not support rendering tag labels with tag category color
+// TODO: Does not support rendering tag labels in tag category groups
+const TagsSelect: React.FC<{
+  tags: Tag[];
+  control: Control<ArchetypeFormValues>;
+  name: Path<ArchetypeFormValues>;
+  label: string;
+  fieldId: string;
+  noResultsMessage: string;
+  placeholderText: string;
+  searchInputAriaLabel: string;
+  isRequired: boolean;
+}> = ({
+  tags,
+  control,
+  name,
+  label,
+  fieldId,
+  noResultsMessage,
+  placeholderText,
+  searchInputAriaLabel,
+  isRequired = false,
+}) => {
+  return (
+    <HookFormPFGroupController
+      isRequired={isRequired}
+      control={control}
+      name={name}
+      label={label}
+      fieldId={fieldId}
+      renderInput={({ field: { value, onChange } }) => (
+        <Autocomplete
+          id={fieldId}
+          noResultsMessage={noResultsMessage}
+          placeholderText={placeholderText}
+          searchInputAriaLabel={searchInputAriaLabel}
+          options={tags.map((tag) => tag.name).sort()}
+          selections={Array.isArray(value) ? value : [value]}
+          onChange={onChange}
+        />
+      )}
+    />
+  );
+};
+
 const useArchetypeFormData = ({
   id,
   onActionSuccess = () => {},
@@ -193,6 +295,12 @@ const useArchetypeFormData = ({
 
   const { archetypes: existingArchetypes } = useFetchArchetypes();
   const { archetype } = useFetchArchetypeById(id);
+
+  const { tagCategories } = useFetchTagCategories();
+  const tags = useMemo(
+    () => tagCategories.flatMap((tc) => tc.tags).filter(Boolean) as Tag[],
+    [tagCategories]
+  );
 
   const onCreateSuccess = (archetype: Archetype) => {
     pushNotification({
@@ -238,5 +346,7 @@ const useArchetypeFormData = ({
     existingArchetypes,
     createArchetype,
     updateArchetype,
+    tagCategories,
+    tags,
   };
 };
