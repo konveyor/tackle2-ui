@@ -1,5 +1,4 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { useLocalTableControls } from "@app/hooks/table-controls";
@@ -9,17 +8,13 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import {
-  Application,
-  Assessment,
-  InitialAssessment,
-  Questionnaire,
-} from "@app/api/models";
+import { Application, InitialAssessment, Questionnaire } from "@app/api/models";
 import { Button } from "@patternfly/react-core";
-import { Paths, formatPath } from "@app/Paths";
+import { Paths } from "@app/Paths";
 import { useHistory } from "react-router-dom";
 import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 import { useCreateAssessmentMutation } from "@app/queries/assessments";
+import { formatPath } from "@app/utils/utils";
 export interface AssessmentActionsTableProps {
   application?: Application;
 }
