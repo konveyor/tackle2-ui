@@ -22,7 +22,9 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
   const archivedQuestionnaires = questionnaires.filter(
     (questionnaire) => !questionnaire.required
   );
-
+  console.log("application", application);
+  console.log("assessments", assessments);
+  console.log("questionnaires", questionnaires);
   return (
     <>
       <QuestionnairesTable

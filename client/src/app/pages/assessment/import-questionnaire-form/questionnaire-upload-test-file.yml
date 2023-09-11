@@ -20,7 +20,10 @@ sections:
             rationale: Red is a nice color.
             mitigation: No mitigation needed.
             applyTags: []
-            autoAnswerFor: []
+            autoAnswerFor: [{
+              category: Category1,
+              tag: Tag1,
+              }]
             selected: false
             autoAnswered: false
           - order: 2

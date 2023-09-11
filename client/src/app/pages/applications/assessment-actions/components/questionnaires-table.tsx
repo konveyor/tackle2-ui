@@ -9,18 +9,7 @@ import {
 } from "@app/components/TableControls";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { Application, Assessment, Questionnaire } from "@app/api/models";
-import DynamicAssessmentButton from "./dynamic-assessment-button";
-import {
-  assessmentsByAppIdQueryKey,
-  useDeleteAssessmentMutation,
-} from "@app/queries/assessments";
-import { Button } from "@patternfly/react-core";
-import { TrashIcon } from "@patternfly/react-icons";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { useQueryClient } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { AxiosError } from "axios";
+import DynamicAssessmentActionsRow from "./dynamic-assessment-actions-row";
 
 interface QuestionnairesTableProps {
   tableName: string;
@@ -37,39 +26,9 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
   application,
   tableName,
 }) => {
-  const { t } = useTranslation();
-  const { pushNotification } = React.useContext(NotificationsContext);
-  const queryClient = useQueryClient();
-
-  const onDeleteAssessmentSuccess = (name: string) => {
-    pushNotification({
-      title: t("toastr.success.assessmentDiscarded", {
-        application: name,
-      }),
-      variant: "success",
-    });
-    queryClient.invalidateQueries([assessmentsByAppIdQueryKey]);
-  };
-
-  const onDeleteError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
-
-  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
-    onDeleteAssessmentSuccess,
-    onDeleteError
-  );
-
-  if (!questionnaires) {
-    return <div>Application is undefined</div>;
-  }
-
   const tableControls = useLocalTableControls({
     idProperty: "id",
-    items: questionnaires,
+    items: questionnaires || [],
     columnNames: {
       questionnaires: tableName,
     },
@@ -83,10 +42,6 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
     numRenderedColumns,
     propHelpers: { tableProps, getThProps, getTdProps },
   } = tableControls;
-
-  if (!questionnaires || !application) {
-    return <div>No data available.</div>;
-  }
 
   return (
     <>
@@ -103,7 +58,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
           </Tr>
         </Thead>
         <ConditionalTableBody
-          isNoData={questionnaires.length === 0}
+          isNoData={questionnaires?.length === 0}
           numRenderedColumns={numRenderedColumns}
           noDataEmptyState={
             <div>
@@ -129,29 +84,13 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
                     >
                       {questionnaire.name}
                     </Td>
-                    <Td>
-                      <DynamicAssessmentButton
+                    {application && (
+                      <DynamicAssessmentActionsRow
+                        assessment={matchingAssessment}
                         questionnaire={questionnaire}
-                        assessments={assessments}
                         application={application}
                       />
-                    </Td>
-                    {matchingAssessment ? (
-                      <Td isActionCell>
-                        <Button
-                          type="button"
-                          variant="plain"
-                          onClick={() => {
-                            deleteAssessment({
-                              id: matchingAssessment.id,
-                              name: matchingAssessment.name,
-                            });
-                          }}
-                        >
-                          <TrashIcon />
-                        </Button>
-                      </Td>
-                    ) : null}
+                    )}
                   </TableRowContentWithControls>
                 </Tr>
               );
