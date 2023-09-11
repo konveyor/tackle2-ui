@@ -63,7 +63,9 @@ const Archetypes: React.FC = () => {
   const [openCreateArchetype, setOpenCreateArchetype] =
     useState<boolean>(false);
 
-  const [archetypeToEdit, setArchetypeToEdit] = useState<Archetype>();
+  const [archetypeToEdit, setArchetypeToEdit] = useState<Archetype | null>(
+    null
+  );
 
   const { archetypes, isFetching, error: fetchError } = useFetchArchetypes();
 
@@ -292,12 +294,12 @@ const Archetypes: React.FC = () => {
         title={t("dialog.title.updateArchetype")}
         variant="medium"
         isOpen={!!archetypeToEdit}
-        onClose={() => setArchetypeToEdit(undefined)}
+        onClose={() => setArchetypeToEdit(null)}
       >
         <ArchetypeForm
           key={archetypeToEdit?.id ?? -1}
           toEdit={archetypeToEdit}
-          onClose={() => setArchetypeToEdit(undefined)}
+          onClose={() => setArchetypeToEdit(null)}
         />
       </Modal>
 

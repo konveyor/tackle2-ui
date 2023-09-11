@@ -40,19 +40,19 @@ interface ArchetypeFormValues {
 }
 
 export interface ArchetypeFormProps {
-  toEdit?: Archetype;
+  toEdit: Archetype | null;
   onClose: () => void;
 }
 
 export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
-  toEdit = undefined,
+  toEdit = null,
   onClose,
 }) => {
-  const isCreate = toEdit === undefined;
+  const isCreate = toEdit === null;
   const { t } = useTranslation();
 
   const {
-    archetype,
+    archetype, // TODO: Use this or just rely on `toEdit`?
     existingArchetypes,
     tags,
     createArchetype,
