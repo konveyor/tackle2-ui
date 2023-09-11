@@ -1,17 +1,16 @@
 import React from "react";
 import { Control, Path } from "react-hook-form";
-import type { Tag } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { Autocomplete } from "@app/components/Autocomplete";
 import type { ArchetypeFormValues } from "./archetype-form";
 
-// TODO: Currently only supports working with tag names (which only work if tags names are globally unique)
-// TODO: Does not support select menu grouping by tag category
+// TODO: Currently only supports working with tag names (which only work if item names are globally unique)
+// TODO: Does not support select menu grouping by category
 // TODO: Does not support select menu selection checkboxes
-// TODO: Does not support rendering tag labels with tag category color
-// TODO: Does not support rendering tag labels in tag category groups
-const TagsSelect = ({
-  tags,
+// TODO: Does not support rendering item labels with item category color
+// TODO: Does not support rendering item labels in item category groups
+const ItemsSelect = <ItemType extends { name: string }>({
+  items = [],
   control,
   name,
   label,
@@ -21,7 +20,7 @@ const TagsSelect = ({
   searchInputAriaLabel,
   isRequired = false,
 }: {
-  tags: Tag[];
+  items: ItemType[];
   control: Control<ArchetypeFormValues>;
   name: Path<ArchetypeFormValues>;
   label: string;
@@ -29,8 +28,13 @@ const TagsSelect = ({
   noResultsMessage: string;
   placeholderText: string;
   searchInputAriaLabel: string;
-  isRequired: boolean;
+  isRequired?: boolean;
 }) => {
+  const itemsToName = () => items.map((item) => item.name).sort();
+
+  const normalizeSelections = (values: string | string[] | undefined) =>
+    (Array.isArray(values) ? values : [values]).filter(Boolean) as string[];
+
   return (
     <HookFormPFGroupController
       isRequired={isRequired}
@@ -44,8 +48,8 @@ const TagsSelect = ({
           noResultsMessage={noResultsMessage}
           placeholderText={placeholderText}
           searchInputAriaLabel={searchInputAriaLabel}
-          options={tags.map((tag) => tag.name).sort()}
-          selections={Array.isArray(value) ? value : [value]}
+          options={itemsToName()}
+          selections={normalizeSelections(value)}
           onChange={onChange}
         />
       )}
@@ -53,4 +57,4 @@ const TagsSelect = ({
   );
 };
 
-export default TagsSelect;
+export default ItemsSelect;
