@@ -1,6 +1,7 @@
 import { AxiosError } from "axios";
-import { FormGroupProps, ToolbarChip } from "@patternfly/react-core";
+import { ToolbarChip } from "@patternfly/react-core";
 import { StringSchema } from "yup";
+import { Paths } from "@app/Paths";
 
 // Axios error
 
@@ -122,4 +123,15 @@ export const customURLValidation = (schema: StringSchema) => {
       return true;
     }
   });
+};
+
+export const formatPath = (path: Paths, data: any) => {
+  let url = path as string;
+
+  for (const k of Object.keys(data)) {
+    const regex = new RegExp(`:${k}(/|$)`, "g");
+    url = url.replace(regex, data[k] + "$1");
+  }
+
+  return url;
 };

@@ -24,9 +24,9 @@ import {
 
 import { IconedStatus } from "@app/components/IconedStatus";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { formatPath, Paths } from "@app/Paths";
+import { Paths } from "@app/Paths";
 import { ApplicationImportSummary } from "@app/api/models";
-import { formatDate } from "@app/utils/utils";
+import { formatDate, formatPath } from "@app/utils/utils";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
 import {
