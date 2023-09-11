@@ -1,6 +1,6 @@
+import * as yup from "yup";
 import { AxiosError } from "axios";
 import { ToolbarChip } from "@patternfly/react-core";
-import { StringSchema } from "yup";
 import { Paths } from "@app/Paths";
 
 // Axios error
@@ -112,11 +112,15 @@ export const gitUrlRegex =
 export const standardStrictURLRegex =
   /https:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)/;
 
-export const customURLValidation = (schema: StringSchema) => {
-  const containsURL = (string: string) =>
-    gitUrlRegex.test(string) || standardURLRegex.test(string);
+export const svnUrlRegex = /^svn:\/\/[^\s/$.?#].[^\s]*$/;
 
-  return schema.test("gitUrlTest", "Must be a valid URL.", (value) => {
+export const customURLValidation = (schema: yup.StringSchema) => {
+  const containsURL = (string: string) =>
+    gitUrlRegex.test(string) ||
+    standardURLRegex.test(string) ||
+    svnUrlRegex.test(string);
+
+  return schema.test("urlValidation", "Must be a valid URL.", (value) => {
     if (value) {
       return containsURL(value);
     } else {
