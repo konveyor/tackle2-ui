@@ -157,7 +157,7 @@ export const IssueAffectedFilesTable: React.FC<
                       isInline
                       onClick={() => setSelectedFileForDetailModal(fileReport)}
                     >
-                      {fileReport.file}
+                      {fileReport?.file || "<unknown>"}
                     </Button>
                   </Td>
                   <Td
