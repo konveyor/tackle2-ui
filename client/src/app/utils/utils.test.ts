@@ -1,15 +1,14 @@
-import { act, render } from "@testing-library/react";
-import { renderHook } from "@testing-library/react-hooks";
 import { AxiosError } from "axios";
 import {
   getAxiosErrorMessage,
   getValidatedFromError,
   getValidatedFromErrors,
   getToolbarChipKey,
-  customURLValidation,
   gitUrlRegex,
   standardURLRegex,
+  formatPath,
 } from "./utils";
+import { Paths } from "@app/Paths";
 
 describe("utils", () => {
   // getAxiosErrorMessage
@@ -156,5 +155,22 @@ describe("utils", () => {
     expect(standardURLRegex.test(url)).toBe(true);
     expect(standardURLRegex.test(url)).toBe(true);
     expect(standardURLRegex.test(url)).toBe(true);
+  });
+});
+describe("formatPath function", () => {
+  it("should replace path parameters with values", () => {
+    const path = Paths.applicationsImportsDetails;
+    const data = { importId: "import123" };
+    const result = formatPath(path, data);
+
+    expect(result).toBe("/applications/application-imports/import123");
+  });
+
+  it("should handle missing data", () => {
+    const path = Paths.applicationsAssessment;
+    const data = {};
+    const result = formatPath(path, data);
+
+    expect(result).toBe("/applications/assessment/:assessmentId");
   });
 });

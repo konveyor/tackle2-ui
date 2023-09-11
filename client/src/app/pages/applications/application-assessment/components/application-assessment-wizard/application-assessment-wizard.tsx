@@ -14,9 +14,9 @@ import {
 import { AssessmentStakeholdersForm } from "../assessment-stakeholders-form";
 import { CustomWizardFooter } from "../custom-wizard-footer";
 import { getApplicationById, patchAssessment } from "@app/api/rest";
-import { formatPath, Paths } from "@app/Paths";
+import { Paths } from "@app/Paths";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
 import { QuestionnaireForm } from "../questionnaire-form";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";

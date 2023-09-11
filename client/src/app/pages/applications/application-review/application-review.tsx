@@ -18,7 +18,7 @@ import BanIcon from "@patternfly/react-icons/dist/esm/icons/ban-icon";
 import InfoCircleIcon from "@patternfly/react-icons/dist/esm/icons/info-circle-icon";
 
 import { useAssessApplication } from "@app/hooks";
-import { formatPath, Paths, ReviewRoute } from "@app/Paths";
+import { Paths, ReviewRoute } from "@app/Paths";
 import {
   getApplicationByIdPromise,
   getAssessmentById,
@@ -26,7 +26,7 @@ import {
   getReviewId,
 } from "@app/api/rest";
 import { Application, Assessment, Review } from "@app/api/models";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationReviewPage } from "./components/application-review-page";
 import { ApplicationDetails } from "./components/application-details";
 import { ReviewForm } from "./components/review-form";

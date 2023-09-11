@@ -55,8 +55,12 @@ import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { ApplicationDependenciesFormContainer } from "@app/components/ApplicationDependenciesFormContainer";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
-import { Paths, formatPath } from "@app/Paths";
+import {
+  dedupeFunction,
+  formatPath,
+  getAxiosErrorMessage,
+} from "@app/utils/utils";
+import { Paths } from "@app/Paths";
 import keycloak from "@app/keycloak";
 import {
   RBAC,
