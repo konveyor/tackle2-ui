@@ -6,10 +6,7 @@ import { Spinner } from "@patternfly/react-core";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { Assessment, Ref } from "@app/api/models";
 import { IconedStatus, IconedStatusPreset } from "@app/components/IconedStatus";
-import {
-  useFetchApplicationAssessments,
-  useFetchAssessmentByID,
-} from "@app/queries/assessments";
+import { useFetchAssessmentById } from "@app/queries/assessments";
 
 export interface ApplicationAssessmentStatusProps {
   assessments?: Ref[];
@@ -19,11 +16,11 @@ export interface ApplicationAssessmentStatusProps {
 
 const getStatusIconFrom = (assessment: Assessment): IconedStatusPreset => {
   switch (assessment.status) {
-    case "EMPTY":
+    case "empty":
       return "NotStarted";
-    case "STARTED":
+    case "started":
       return "InProgress";
-    case "COMPLETE":
+    case "complete":
       return "Completed";
     default:
       return "NotStarted";
@@ -35,7 +32,7 @@ export const ApplicationAssessmentStatus: React.FC<
 > = ({ assessments, isLoading, fetchError }) => {
   const { t } = useTranslation();
   //TODO: remove this once we have a proper assessment status
-  const { assessment } = useFetchAssessmentByID(assessments?.[0]?.id || 0);
+  const { assessment } = useFetchAssessmentById(assessments?.[0]?.id || 0);
 
   if (fetchError) {
     return <EmptyTextMessage message={t("terms.notAvailable")} />;

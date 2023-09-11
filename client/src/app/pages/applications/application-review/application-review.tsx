@@ -145,7 +145,7 @@ export const ApplicationReview: React.FC = () => {
 
   if (
     !isFetching &&
-    (!assessment || (assessment && assessment.status !== "COMPLETE")) &&
+    (!assessment || (assessment && assessment.status !== "complete")) &&
     !reviewAssessmentSetting
   ) {
     return (

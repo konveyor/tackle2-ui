@@ -10,6 +10,7 @@ export enum Paths {
   applicationsImportsDetails = "/applications/application-imports/:importId",
   applicationsAssessment = "/applications/assessment/:assessmentId",
   assessmentActions = "/applications/assessment-actions/:applicationId",
+  assessmentSummary = "/applications/assessment-summary/:assessmentId",
   applicationsReview = "/applications/application/:applicationId/review",
   applicationsAnalysis = "/applications/analysis",
   archetypes = "/archetypes",
@@ -40,7 +41,7 @@ export enum Paths {
   proxies = "/proxies",
   migrationTargets = "/migration-targets",
   assessment = "/assessment",
-  questionnaire = "/questionnaire",
+  questionnaire = "/questionnaire/:questionnaireId",
   jira = "/jira",
 }
 

@@ -1,185 +1,9 @@
-import { Questionnaire, Assessment } from "@app/api/models";
+import { Assessment, InitialAssessment } from "@app/api/models";
 import { rest } from "msw";
 
 import * as AppRest from "@app/api/rest";
 import { mockApplicationArray } from "./applications";
-
-const mockQuestionnaire: Questionnaire = {
-  id: 1,
-  name: "Sample Questionnaire",
-  description: "This is a sample questionnaire",
-  revision: 1,
-  questions: 5,
-  rating: "High",
-  dateImported: "2023-08-25",
-  required: true,
-  system: false,
-  sections: [
-    {
-      name: "Application technologies 1",
-      order: 1,
-      questions: [
-        {
-          order: 1,
-          text: "What is the main technology in your application?",
-          explanation:
-            "What would you describe as the main framework used to build your application.",
-          answers: [
-            {
-              order: 1,
-              text: "Unknown",
-              rationale: "This is a problem because of the uncertainty.",
-              mitigation: "Gathering more information about this is required.",
-              risk: "unknown",
-            },
-            {
-              order: 2,
-              text: "Quarkus",
-              risk: "green",
-              autoAnswerFor: [
-                {
-                  category: {
-                    name: "Cat 1",
-                    id: 23,
-                  },
-                  tag: {
-                    id: 34,
-                    name: "Tag 1",
-                  },
-                },
-              ],
-              applyTags: [
-                {
-                  category: {
-                    name: "Cat 1",
-                    id: 23,
-                  },
-                  tag: {
-                    id: 34,
-                    name: "Tag 1",
-                  },
-                },
-              ],
-            },
-            {
-              order: 3,
-              text: "Spring Boot",
-              risk: "green",
-            },
-            {
-              order: 4,
-              text: "Java EE",
-              rationale:
-                "This might not be the most cloud friendly technology.",
-              mitigation:
-                "Maybe start thinking about migrating to Quarkus or Jakarta EE.",
-              risk: "yellow",
-            },
-            {
-              order: 5,
-              text: "J2EE",
-              rationale: "This is obsolete.",
-              mitigation:
-                "Maybe start thinking about migrating to Quarkus or Jakarta EE.",
-              risk: "red",
-            },
-          ],
-        },
-        {
-          order: 2,
-          text: "What version of Java EE does the application use?",
-          explanation:
-            "What version of the Java EE specification is your application using?",
-          answers: [
-            {
-              order: 1,
-              text: "Below 5.",
-              rationale: "This technology stack is obsolete.",
-              mitigation: "Consider migrating to at least Java EE 7.",
-              risk: "red",
-            },
-            {
-              order: 2,
-              text: "5 or 6",
-              rationale: "This is a mostly outdated stack.",
-              mitigation: "Consider migrating to at least Java EE 7.",
-              risk: "yellow",
-            },
-            {
-              order: 3,
-              text: "7",
-              risk: "green",
-            },
-          ],
-        },
-        {
-          order: 3,
-          text: "Does your application use any caching mechanism?",
-          answers: [
-            {
-              order: 1,
-              text: "Yes",
-              rationale:
-                "This could be problematic in containers and Kubernetes.",
-              mitigation:
-                "Review the clustering mechanism to check compatibility and support for container environments.",
-              risk: "yellow",
-            },
-            {
-              order: 2,
-
-              text: "No",
-              risk: "green",
-            },
-            {
-              order: 3,
-              text: "Unknown",
-              rationale: "This is a problem because of the uncertainty.",
-              mitigation: "Gathering more information about this is required.",
-              risk: "unknown",
-            },
-          ],
-        },
-        {
-          order: 4,
-          text: "What implementation of JAX-WS does your application use?",
-          answers: [
-            {
-              order: 1,
-              text: "Apache Axis",
-              rationale: "This version is obsolete",
-              mitigation: "Consider migrating to Apache CXF",
-              risk: "red",
-            },
-            {
-              order: 2,
-              text: "Apache CXF",
-              risk: "green",
-            },
-            {
-              order: 3,
-              text: "Unknown",
-              rationale: "This is a problem because of the uncertainty.",
-              mitigation: "Gathering more information about this is required.",
-              risk: "unknown",
-            },
-          ],
-        },
-      ],
-    },
-  ],
-  thresholds: {
-    red: 3,
-    unknown: 2,
-    yellow: 4,
-  },
-  riskMessages: {
-    green: "Low risk",
-    red: "High risk",
-    unknown: "Unknown risk",
-    yellow: "Moderate risk",
-  },
-};
+import questionnaireData from "./questionnaireData";
 
 let assessmentCounter = 1;
 
@@ -189,16 +13,222 @@ function generateNewAssessmentId() {
   return newAssessmentId;
 }
 
-const mockAssessmentArray: Assessment[] = [];
+const mockAssessmentArray: Assessment[] = [
+  {
+    id: 43,
+    status: "started",
+    name: "test",
+    questionnaire: { id: 1, name: "Sample Questionnaire" },
+    description: "Sample assessment description",
+    risk: "AMBER",
+    sections: [
+      {
+        name: "Application technologies 1",
+        order: 1,
+        questions: [
+          {
+            order: 1,
+            text: "What is the main technology in your application?",
+            explanation:
+              "What would you describe as the main framework used to build your application.",
+            answers: [
+              {
+                order: 1,
+                text: "Unknown",
+                rationale: "This is a problem because of the uncertainty.",
+                mitigation:
+                  "Gathering more information about this is required.",
+                risk: "unknown",
+                selected: false,
+              },
+              {
+                order: 2,
+                text: "Quarkus",
+                risk: "green",
+                autoAnswerFor: [
+                  {
+                    category: {
+                      name: "Cat 1",
+                      id: 23,
+                    },
+                    tag: {
+                      id: 34,
+                      name: "Tag 1",
+                    },
+                  },
+                ],
+                applyTags: [
+                  {
+                    category: {
+                      name: "Cat 1",
+                      id: 23,
+                    },
+                    tag: {
+                      id: 34,
+                      name: "Tag 1",
+                    },
+                  },
+                ],
+                selected: true,
+              },
+              {
+                order: 3,
+                text: "Spring Boot",
+                risk: "green",
+                selected: false,
+              },
+              {
+                order: 4,
+                text: "Java EE",
+                rationale:
+                  "This might not be the most cloud friendly technology.",
+                mitigation:
+                  "Maybe start thinking about migrating to Quarkus or Jakarta EE.",
+                risk: "yellow",
+                selected: false,
+              },
+              {
+                order: 5,
+                text: "J2EE",
+                rationale: "This is obsolete.",
+                mitigation:
+                  "Maybe start thinking about migrating to Quarkus or Jakarta EE.",
+                risk: "red",
+                selected: false,
+              },
+            ],
+          },
+          {
+            order: 2,
+            text: "What version of Java EE does the application use?",
+            explanation:
+              "What version of the Java EE specification is your application using?",
+            answers: [
+              {
+                order: 1,
+                text: "Below 5.",
+                rationale: "This technology stack is obsolete.",
+                mitigation: "Consider migrating to at least Java EE 7.",
+                risk: "red",
+                selected: true,
+              },
+              {
+                order: 2,
+                text: "5 or 6",
+                rationale: "This is a mostly outdated stack.",
+                mitigation: "Consider migrating to at least Java EE 7.",
+                risk: "yellow",
+                selected: false,
+              },
+              {
+                order: 3,
+                text: "7",
+                risk: "green",
+                selected: false,
+              },
+            ],
+          },
+          {
+            order: 3,
+            text: "Does your application use any caching mechanism?",
+            answers: [
+              {
+                order: 1,
+                text: "Yes",
+                rationale:
+                  "This could be problematic in containers and Kubernetes.",
+                mitigation:
+                  "Review the clustering mechanism to check compatibility and support for container environments.",
+                risk: "yellow",
+                selected: true,
+              },
+              {
+                order: 2,
+                text: "No",
+                risk: "green",
+                selected: false,
+              },
+              {
+                order: 3,
+                text: "Unknown",
+                rationale: "This is a problem because of the uncertainty.",
+                mitigation:
+                  "Gathering more information about this is required.",
+                risk: "unknown",
+                selected: false,
+              },
+            ],
+          },
+          {
+            order: 4,
+            text: "What implementation of JAX-WS does your application use?",
+            answers: [
+              {
+                order: 1,
+                text: "Apache Axis",
+                rationale: "This version is obsolete",
+                mitigation: "Consider migrating to Apache CXF",
+                risk: "red",
+                selected: false,
+              },
+              {
+                order: 2,
+                text: "Apache CXF",
+                risk: "green",
+                selected: true,
+              },
+              {
+                order: 3,
+                text: "Unknown",
+                rationale: "This is a problem because of the uncertainty.",
+                mitigation:
+                  "Gathering more information about this is required.",
+                risk: "unknown",
+                selected: false,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    riskMessages: {
+      green: "Low risk",
+      red: "High risk",
+      unknown: "Unknown risk",
+      yellow: "Moderate risk",
+    },
+    thresholds: {
+      red: 3,
+      unknown: 2,
+      yellow: 4,
+    },
+    application: { id: 1, name: "App 1" },
+  },
+];
 
 export const handlers = [
   rest.get(AppRest.QUESTIONNAIRES, (req, res, ctx) => {
-    return res(ctx.json(mockQuestionnaire));
+    return res(ctx.json(questionnaireData));
   }),
 
   rest.get(AppRest.ASSESSMENTS, (req, res, ctx) => {
     return res(ctx.json(mockAssessmentArray));
   }),
+
+  rest.get(
+    `${AppRest.APPLICATIONS}/:applicationId/assessments`,
+    (req, res, ctx) => {
+      // Extract the applicationId from the route parameters
+      const applicationId = parseInt(req?.params?.applicationId as string, 10);
+
+      // Filter the mock assessments based on the applicationId
+      const filteredAssessments = mockAssessmentArray.filter(
+        (assessment) => assessment?.application?.id === applicationId
+      );
+
+      return res(ctx.json(filteredAssessments));
+    }
+  ),
 
   rest.get(`${AppRest.ASSESSMENTS}/:assessmentId`, (req, res, ctx) => {
     const { assessmentId } = req.params;
@@ -213,14 +243,17 @@ export const handlers = [
       return res(ctx.status(404), ctx.json({ error: "Assessment not found" }));
     }
   }),
-  rest.post(AppRest.ASSESSMENTS, (req, res, ctx) => {
+  rest.post(AppRest.ASSESSMENTS, async (req, res, ctx) => {
+    console.log("req need to find questionnaire id", req);
+
+    const initialAssessment: InitialAssessment = await req.json();
+
     const newAssessmentId = generateNewAssessmentId();
 
     const newAssessment: Assessment = {
       id: newAssessmentId,
-      status: "STARTED",
+      status: "started",
       name: "test",
-      questionnaire: { id: 1, name: "Sample Questionnaire" },
       description: "Sample assessment description",
       risk: "AMBER",
       sections: [],
@@ -235,7 +268,8 @@ export const handlers = [
         unknown: 2,
         yellow: 4,
       },
-      application: { id: 1, name: "App 1" },
+      application: initialAssessment.application,
+      questionnaire: initialAssessment.questionnaire,
     };
 
     mockAssessmentArray.push(newAssessment);
@@ -280,6 +314,39 @@ export const handlers = [
         ctx.status(200),
         ctx.json(mockAssessmentArray[foundAssessmentIndex])
       );
+    } else {
+      return res(ctx.status(404), ctx.json({ error: "Assessment not found" }));
+    }
+  }),
+  rest.delete(`${AppRest.ASSESSMENTS}/:assessmentId`, (req, res, ctx) => {
+    const { assessmentId } = req.params;
+
+    const foundIndex = mockAssessmentArray.findIndex(
+      (assessment) => assessment.id === parseInt(assessmentId as string)
+    );
+
+    if (foundIndex !== -1) {
+      // Remove the assessment from the mock array
+      const deletedAssessment = mockAssessmentArray.splice(foundIndex, 1)[0];
+
+      // Find and remove the assessment reference from the related application
+      const relatedApplicationIndex = mockApplicationArray.findIndex(
+        (application) => application?.id === deletedAssessment?.application?.id
+      );
+      if (relatedApplicationIndex !== -1) {
+        const relatedApplication =
+          mockApplicationArray[relatedApplicationIndex];
+        if (relatedApplication?.assessments) {
+          const assessmentIndex = relatedApplication.assessments.findIndex(
+            (assessment) => assessment.id === deletedAssessment.id
+          );
+          if (assessmentIndex !== -1) {
+            relatedApplication.assessments.splice(assessmentIndex, 1);
+          }
+        }
+      }
+
+      return res(ctx.status(204)); // Return a 204 (No Content) status for a successful delete
     } else {
       return res(ctx.status(404), ctx.json({ error: "Assessment not found" }));
     }

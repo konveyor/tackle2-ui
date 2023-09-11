@@ -122,6 +122,7 @@ export interface Application {
   binary?: string;
   migrationWave: Ref | null;
   assessments?: Ref[];
+  assessed?: boolean;
 }
 
 export interface Review {
@@ -696,7 +697,7 @@ export interface Thresholds {
   unknown: number;
   yellow: number;
 }
-export type AssessmentStatus = "EMPTY" | "STARTED" | "COMPLETE";
+export type AssessmentStatus = "empty" | "started" | "complete";
 export type Risk = "GREEN" | "AMBER" | "RED" | "UNKNOWN";
 
 export interface InitialAssessment {
