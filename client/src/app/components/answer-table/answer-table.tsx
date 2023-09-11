@@ -15,16 +15,23 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IconedStatus } from "@app/components/IconedStatus";
 import { TimesCircleIcon } from "@patternfly/react-icons";
 import { WarningTriangleIcon } from "@patternfly/react-icons";
+
 export interface IAnswerTableProps {
   answers: Answer[];
+  hideAnswerKey?: boolean;
 }
 
-const AnswerTable: React.FC<IAnswerTableProps> = ({ answers }) => {
+const AnswerTable: React.FC<IAnswerTableProps> = ({
+  answers,
+  hideAnswerKey,
+}) => {
   const { t } = useTranslation();
 
   const tableControls = useLocalTableControls({
     idProperty: "text",
-    items: answers,
+    items: hideAnswerKey
+      ? answers.filter((answer) => answer.selected)
+      : answers,
     columnNames: {
       choice: "Answer choice",
       weight: "Weight",
@@ -99,10 +106,10 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({ answers }) => {
                         >
                           Tags to be applied:
                         </Text>
-                        {answer?.autoAnswerFor?.map((tag: any) => {
+                        {answer?.autoAnswerFor?.map((tag, index) => {
                           return (
-                            <div style={{ flex: "0 0 6em" }}>
-                              <Label color="grey">{tag.tag}</Label>
+                            <div key={index} style={{ flex: "0 0 6em" }}>
+                              <Label color="grey">{tag.tag.name}</Label>
                             </div>
                           );
                         })}

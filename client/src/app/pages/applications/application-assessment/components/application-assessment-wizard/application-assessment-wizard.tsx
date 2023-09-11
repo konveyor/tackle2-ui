@@ -13,20 +13,32 @@ import {
 } from "@app/api/models";
 import { AssessmentStakeholdersForm } from "../assessment-stakeholders-form";
 import { CustomWizardFooter } from "../custom-wizard-footer";
-import { getApplicationById, patchAssessment } from "@app/api/rest";
-import { Paths } from "@app/Paths";
+import { getApplicationById } from "@app/api/rest";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
 import { QuestionnaireForm } from "../questionnaire-form";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { useFetchQuestionnaires } from "@app/queries/questionnaires";
+import {
+  QuestionnairesQueryKey,
+  useFetchQuestionnaires,
+} from "@app/queries/questionnaires";
 import {
   COMMENTS_KEY,
   QUESTIONS_KEY,
   getCommentFieldName,
   getQuestionFieldName,
 } from "../../form-utils";
+import { AxiosError } from "axios";
+import {
+  assessmentQueryKey,
+  assessmentsByAppIdQueryKey,
+  assessmentsQueryKey,
+  useUpdateAssessmentMutation,
+} from "@app/queries/assessments";
+import { useQueryClient } from "@tanstack/react-query";
+import { ApplicationAssessmentStatus } from "@app/pages/applications/components/application-assessment-status";
+import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
+import { Paths } from "@app/Paths";
 
 export const SAVE_ACTION_KEY = "saveAction";
 
@@ -56,7 +68,17 @@ export interface ApplicationAssessmentWizardProps {
 export const ApplicationAssessmentWizard: React.FC<
   ApplicationAssessmentWizardProps
 > = ({ assessment, isOpen }) => {
+  const queryClient = useQueryClient();
   const { questionnaires } = useFetchQuestionnaires();
+  const onHandleUpdateAssessmentSuccess = () => {
+    queryClient.invalidateQueries([
+      assessmentsByAppIdQueryKey,
+      assessment?.application?.id,
+    ]);
+  };
+  const { mutate: updateAssessmentMutation } = useUpdateAssessmentMutation(
+    onHandleUpdateAssessmentSuccess
+  );
 
   const matchingQuestionnaire = questionnaires.find(
     (questionnaire) => questionnaire.id === assessment?.questionnaire?.id
@@ -79,6 +101,7 @@ export const ApplicationAssessmentWizard: React.FC<
     );
   }, [matchingQuestionnaire]);
 
+  //TODO: Add comments to the sections when/if available from api
   // const initialComments = useMemo(() => {
   //   let comments: { [key: string]: string } = {};
   //   if (assessment) {
@@ -90,18 +113,22 @@ export const ApplicationAssessmentWizard: React.FC<
   // }, [assessment]);
 
   const initialQuestions = useMemo(() => {
-    let questions: { [key: string]: string | undefined } = {};
+    const questions: { [key: string]: string | undefined } = {};
     if (assessment && matchingQuestionnaire) {
-      console.log("questionnaire questions", matchingQuestionnaire);
       matchingQuestionnaire.sections
         .flatMap((f) => f.questions)
         .forEach((question) => {
+          const existingAnswer = assessment.sections
+            ?.flatMap((section) => section.questions)
+            .find((q) => q.text === question.text)
+            ?.answers.find((a) => a.selected === true);
+
           questions[getQuestionFieldName(question, false)] =
-            question.answers.find((f) => f.selected === true)?.text;
+            existingAnswer?.text || "";
         });
     }
     return questions;
-  }, [assessment]);
+  }, [assessment, matchingQuestionnaire]);
 
   useEffect(() => {
     methods.reset({
@@ -111,7 +138,7 @@ export const ApplicationAssessmentWizard: React.FC<
       questions: initialQuestions,
       [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
     });
-  }, [assessment]);
+  }, [initialQuestions]);
 
   const methods = useForm<ApplicationAssessmentWizardValues>({
     defaultValues: useMemo(() => {
@@ -137,6 +164,7 @@ export const ApplicationAssessmentWizard: React.FC<
   const disableNavigation = !isValid || isSubmitting;
 
   const isFirstStepValid = () => {
+    // TODO: Wire up stakeholder support for assessment when available
     // const numberOfStakeholdlers = values.stakeholders.length;
     // const numberOfGroups = values.stakeholderGroups.length;
     // return numberOfStakeholdlers + numberOfGroups > 0;
@@ -148,6 +176,7 @@ export const ApplicationAssessmentWizard: React.FC<
     return !questionErrors[getQuestionFieldName(question, false)];
   };
 
+  //TODO: Add comments to the sections
   // const isCommentValid = (category: QuestionnaireCategory): boolean => {
   //   const commentErrors = errors.comments || {};
   //   return !commentErrors[getCommentFieldName(category, false)];
@@ -158,7 +187,7 @@ export const ApplicationAssessmentWizard: React.FC<
     const value = questionValues[getQuestionFieldName(question, false)];
     return value !== null && value !== undefined;
   };
-
+  //TODO: Add comments to the sections
   // const commentMinLenghtIs1 = (category: QuestionnaireCategory): boolean => {
   //   const categoryComments = values.comments || {};
   //   const value = categoryComments[getCommentFieldName(category, false)];
@@ -184,76 +213,192 @@ export const ApplicationAssessmentWizard: React.FC<
   const onInvalid = (errors: FieldErrors<ApplicationAssessmentWizardValues>) =>
     console.error("form errors", errors);
 
-  const onSubmit = (formValues: ApplicationAssessmentWizardValues) => {
+  const buildSectionsFromFormValues = (
+    formValues: ApplicationAssessmentWizardValues
+  ): Section[] => {
+    if (!formValues || !formValues[QUESTIONS_KEY]) {
+      return [];
+    }
+    const updatedQuestionsData = formValues[QUESTIONS_KEY];
+
+    // Create an array of sections based on the questionsData
+    const sections: Section[] =
+      matchingQuestionnaire?.sections?.map((section) => {
+        //TODO: Add comments to the sections
+        // const commentValues = values["comments"];
+        // const fieldName = getCommentFieldName(category, false);
+        // const commentValue = commentValues[fieldName];
+        return {
+          ...section,
+          // comment: commentValue,
+          questions: section.questions.map((question) => {
+            return {
+              ...question,
+              answers: question.answers.map((option) => {
+                const fieldName = getQuestionFieldName(question, false);
+                const questionAnswerValue = updatedQuestionsData[fieldName];
+                return {
+                  ...option,
+                  selected: questionAnswerValue === option.text,
+                };
+              }),
+            };
+          }),
+        };
+      }) || [];
+    return sections;
+  };
+
+  const handleSaveAsDraft = async (
+    formValues: ApplicationAssessmentWizardValues
+  ) => {
+    try {
+      if (!assessment?.application?.id) {
+        console.log("An assessment must exist in order to save as draft");
+        return;
+      }
+      const sections = assessment
+        ? buildSectionsFromFormValues(formValues)
+        : [];
+
+      const assessmentStatus: AssessmentStatus = "started";
+      const payload: Assessment = {
+        ...assessment,
+        sections,
+        status: assessmentStatus,
+      };
+
+      await updateAssessmentMutation(payload);
+      pushNotification({
+        title: "Assessment has been saved as a draft.",
+        variant: "info",
+      });
+      history.push(
+        formatPath(Paths.assessmentActions, {
+          applicationId: assessment?.application?.id,
+        })
+      );
+    } catch (error) {
+      pushNotification({
+        title: "Failed to save as a draft.",
+        variant: "danger",
+        message: getAxiosErrorMessage(error as AxiosError),
+      });
+    }
+  };
+
+  const handleSave = async (formValues: ApplicationAssessmentWizardValues) => {
+    try {
+      if (!assessment?.application?.id) {
+        console.log("An assessment must exist in order to save.");
+        return;
+      }
+      const assessmentStatus: AssessmentStatus = "complete";
+      const sections = assessment
+        ? buildSectionsFromFormValues(formValues)
+        : [];
+
+      const payload: Assessment = {
+        ...assessment,
+        sections,
+        status: assessmentStatus,
+      };
+
+      await updateAssessmentMutation(payload);
+      pushNotification({
+        title: "Assessment has been saved.",
+        variant: "success",
+      });
+
+      history.push(
+        formatPath(Paths.assessmentActions, {
+          applicationId: assessment?.application?.id,
+        })
+      );
+    } catch (error) {
+      pushNotification({
+        title: "Failed to save.",
+        variant: "danger",
+        message: getAxiosErrorMessage(error as AxiosError),
+      });
+    }
+  };
+
+  const handleSaveAndReview = async (
+    formValues: ApplicationAssessmentWizardValues
+  ) => {
+    try {
+      if (!assessment?.application?.id) {
+        console.log("An assessment must exist in order to save.");
+        return;
+      }
+
+      const assessmentStatus: AssessmentStatus = "complete";
+
+      const sections = assessment
+        ? buildSectionsFromFormValues(formValues)
+        : [];
+
+      const payload: Assessment = {
+        ...assessment,
+        sections,
+        status: assessmentStatus,
+      };
+
+      await updateAssessmentMutation(payload);
+
+      pushNotification({
+        title: "Assessment has been saved.",
+        variant: "success",
+      });
+
+      assessment?.application?.id &&
+        getApplicationById(assessment.application.id)
+          .then((data) => {
+            history.push(
+              formatPath(Paths.applicationsReview, {
+                applicationId: data.id,
+              })
+            );
+          })
+          .catch((error) => {
+            pushNotification({
+              title: getAxiosErrorMessage(error),
+              variant: "danger",
+            });
+          });
+    } catch (error) {
+      pushNotification({
+        title: "Failed to save.",
+        variant: "danger",
+        message: getAxiosErrorMessage(error as AxiosError),
+      });
+    }
+  };
+
+  const onSubmit = async (formValues: ApplicationAssessmentWizardValues) => {
     if (!assessment?.application?.id) {
       console.log("An assessment must exist in order to save the form");
       return;
     }
 
     const saveAction = formValues[SAVE_ACTION_KEY];
-    const assessmentStatus: AssessmentStatus =
-      saveAction !== SAVE_ACTION_VALUE.SAVE_AS_DRAFT ? "COMPLETE" : "STARTED";
 
-    const payload: Assessment = {
-      ...assessment,
-      // stakeholders: formValues.stakeholders,
-      // stakeholderGroups: formValues.stakeholderGroups,
-
-      sections:
-        matchingQuestionnaire?.sections?.map((section) => {
-          // const commentValues = values["comments"];
-          // const fieldName = getCommentFieldName(category, false);
-          // const commentValue = commentValues[fieldName];
-          return {
-            ...section,
-            // comment: commentValue,
-            questions: section.questions.map((question) => ({
-              ...question,
-              answers: question.answers.map((option) => {
-                const questionValues = values["questions"];
-
-                const fieldName = getQuestionFieldName(question, false);
-                const questionValue = questionValues[fieldName];
-                return {
-                  ...option,
-                  selected: questionValue === option.text,
-                };
-              }),
-            })),
-          };
-        }) || [],
-      status: assessmentStatus,
-    };
-
-    patchAssessment(payload)
-      .then(() => {
-        switch (saveAction) {
-          case SAVE_ACTION_VALUE.SAVE:
-            history.push(Paths.applications);
-            break;
-          case SAVE_ACTION_VALUE.SAVE_AND_REVIEW:
-            assessment?.application?.id &&
-              getApplicationById(assessment.application.id)
-                .then((data) => {
-                  history.push(
-                    formatPath(Paths.applicationsReview, {
-                      applicationId: data.id,
-                    })
-                  );
-                })
-                .catch((error) => {
-                  pushNotification({
-                    title: getAxiosErrorMessage(error),
-                    variant: "danger",
-                  });
-                });
-            break;
-        }
-      })
-      .catch((error) => {
-        console.log("Save assessment error:", error);
-      });
+    switch (saveAction) {
+      case SAVE_ACTION_VALUE.SAVE:
+        handleSave(formValues);
+        break;
+      case SAVE_ACTION_VALUE.SAVE_AS_DRAFT:
+        await handleSaveAsDraft(formValues);
+        break;
+      case SAVE_ACTION_VALUE.SAVE_AND_REVIEW:
+        handleSaveAndReview(formValues);
+        break;
+      default:
+        break;
+    }
   };
+
   const wizardSteps: WizardStep[] = [
     {
       id: 0,
@@ -332,7 +477,11 @@ export const ApplicationAssessmentWizard: React.FC<
               onClose={() => setIsConfirmDialogOpen(false)}
               onConfirm={() => {
                 setIsConfirmDialogOpen(false);
-                history.push(Paths.applications);
+                history.push(
+                  formatPath(Paths.assessmentActions, {
+                    applicationId: assessment?.application?.id,
+                  })
+                );
               }}
             />
           )}

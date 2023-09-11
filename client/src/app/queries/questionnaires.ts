@@ -10,12 +10,12 @@ import {
 } from "@app/api/rest";
 import { Questionnaire } from "@app/api/models";
 
-export const QuestionnairesTasksQueryKey = "questionnaires";
+export const QuestionnairesQueryKey = "questionnaires";
 export const QuestionnaireByIdQueryKey = "questionnaireById";
 
 export const useFetchQuestionnaires = () => {
   const { isLoading, data, error } = useQuery({
-    queryKey: [QuestionnairesTasksQueryKey],
+    queryKey: [QuestionnairesQueryKey],
     queryFn: getQuestionnaires,
     onError: (error: AxiosError) => console.log("error, ", error),
   });
@@ -37,7 +37,7 @@ export const useUpdateQuestionnaireMutation = (
 
     onSuccess: () => {
       onSuccess();
-      queryClient.invalidateQueries([QuestionnairesTasksQueryKey]);
+      queryClient.invalidateQueries([QuestionnairesQueryKey]);
     },
     onError: onError,
   });
@@ -55,11 +55,11 @@ export const useDeleteQuestionnaireMutation = (
 
     onSuccess: (_, { questionnaire }) => {
       onSuccess(questionnaire.name);
-      queryClient.invalidateQueries([QuestionnairesTasksQueryKey]);
+      queryClient.invalidateQueries([QuestionnairesQueryKey]);
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([QuestionnairesTasksQueryKey]);
+      queryClient.invalidateQueries([QuestionnairesQueryKey]);
     },
   });
 };
