@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
-import { Control, useForm, Path } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
@@ -14,11 +14,9 @@ import {
 
 import type { Archetype, Tag } from "@app/api/models";
 import {
-  HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { Autocomplete } from "@app/components/Autocomplete";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import {
   useFetchArchetypes,
@@ -29,7 +27,9 @@ import {
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import { useFetchTagCategories } from "@app/queries/tags";
 
-interface ArchetypeFormValues {
+import TagsSelect from "../tags-select";
+
+export interface ArchetypeFormValues {
   name: string;
   description?: string;
   comments?: string;
@@ -232,54 +232,6 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
 };
 
 export default ArchetypeForm;
-
-// TODO: Currently only supports working with tag names (which only work if tags names are globally unique)
-// TODO: Does not support select menu grouping by tag category
-// TODO: Does not support select menu selection checkboxes
-// TODO: Does not support rendering tag labels with tag category color
-// TODO: Does not support rendering tag labels in tag category groups
-const TagsSelect: React.FC<{
-  tags: Tag[];
-  control: Control<ArchetypeFormValues>;
-  name: Path<ArchetypeFormValues>;
-  label: string;
-  fieldId: string;
-  noResultsMessage: string;
-  placeholderText: string;
-  searchInputAriaLabel: string;
-  isRequired: boolean;
-}> = ({
-  tags,
-  control,
-  name,
-  label,
-  fieldId,
-  noResultsMessage,
-  placeholderText,
-  searchInputAriaLabel,
-  isRequired = false,
-}) => {
-  return (
-    <HookFormPFGroupController
-      isRequired={isRequired}
-      control={control}
-      name={name}
-      label={label}
-      fieldId={fieldId}
-      renderInput={({ field: { value, onChange } }) => (
-        <Autocomplete
-          id={fieldId}
-          noResultsMessage={noResultsMessage}
-          placeholderText={placeholderText}
-          searchInputAriaLabel={searchInputAriaLabel}
-          options={tags.map((tag) => tag.name).sort()}
-          selections={Array.isArray(value) ? value : [value]}
-          onChange={onChange}
-        />
-      )}
-    />
-  );
-};
 
 const useArchetypeFormData = ({
   id,
