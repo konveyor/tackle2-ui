@@ -83,6 +83,7 @@ import { Application, Assessment, Task } from "@app/api/models";
 import {
   ApplicationsQueryKey,
   useBulkDeleteApplicationMutation,
+  useDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
 import { useFetchTasks } from "@app/queries/tasks";
@@ -177,6 +178,9 @@ export const ApplicationsTable: React.FC = () => {
     error: applicationsFetchError,
     refetch: fetchApplications,
   } = useFetchApplications();
+
+  //TODO: check if any archetypes match this application here
+  const matchingArchetypes = [];
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -503,8 +507,18 @@ export const ApplicationsTable: React.FC = () => {
 
   const assessSelectedApp = (application: Application) => {
     // if application/archetype has an assessment, ask if user wants to override it
-    setAssessModalOpen(true);
-    setApplicationToAssess(application);
+    if (matchingArchetypes.length) {
+      setAssessModalOpen(true);
+      setApplicationToAssess(application);
+    } else {
+      application?.id &&
+        history.push(
+          formatPath(Paths.assessmentActions, {
+            applicationId: application?.id,
+          })
+        );
+      setApplicationToAssess(null);
+    }
   };
   const reviewSelectedApp = (application: Application) => {
     if (application.review) {

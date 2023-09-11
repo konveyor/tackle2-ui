@@ -15,24 +15,27 @@ import {
 } from "@app/components/TableControls";
 import { useTranslation } from "react-i18next";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Assessment, Question } from "@app/api/models";
+import { Assessment, Question, Questionnaire } from "@app/api/models";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { Label } from "@patternfly/react-core";
-import AnswerTable from "./answer-table";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import AnswerTable from "@app/components/answer-table/answer-table";
+import { AxiosError } from "axios";
 
 const QuestionsTable: React.FC<{
-  fetchError?: Error;
+  fetchError: AxiosError | null;
   questions?: Question[];
   isSearching?: boolean;
-  assessmentData?: Assessment | null;
+  data?: Assessment | Questionnaire | null;
   isAllQuestionsTab?: boolean;
+  hideAnswerKey?: boolean;
 }> = ({
   fetchError,
   questions,
   isSearching = false,
-  assessmentData,
+  data,
   isAllQuestionsTab = false,
+  hideAnswerKey,
 }) => {
   const tableControls = useLocalTableControls({
     idProperty: "text",
@@ -90,7 +93,7 @@ const QuestionsTable: React.FC<{
         <Tbody>
           {currentPageItems?.map((question, rowIndex) => {
             const sectionName =
-              assessmentData?.sections.find((section) =>
+              data?.sections.find((section) =>
                 section.questions.includes(question)
               )?.name || "";
             return (
@@ -127,7 +130,10 @@ const QuestionsTable: React.FC<{
                     >
                       <ExpandableRowContent>
                         {question.explanation}
-                        <AnswerTable answers={question.answers} />
+                        <AnswerTable
+                          hideAnswerKey={hideAnswerKey}
+                          answers={question.answers}
+                        />
                       </ExpandableRowContent>
                     </Td>
                   </Tr>

@@ -11,12 +11,16 @@ import {
   deleteAssessment,
   getAssessmentById,
   getAssessments,
+  getAssessmentsByAppId,
+  updateAssessment,
 } from "@app/api/rest";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { Application, Assessment, InitialAssessment } from "@app/api/models";
+import { QuestionnairesQueryKey } from "./questionnaires";
 
 export const assessmentsQueryKey = "assessments";
 export const assessmentQueryKey = "assessment";
+export const assessmentsByAppIdQueryKey = "assessmentsByAppId";
 
 export const useFetchApplicationAssessments = (
   applications: Application[] = []
@@ -31,7 +35,7 @@ export const useFetchApplicationAssessments = (
         const allAssessmentsForApp = response;
         return allAssessmentsForApp[0] || [];
       },
-      onError: (error: any) => console.log("error, ", error),
+      onError: (error: AxiosError) => console.log("error, ", error),
     })),
   });
   const queryResultsByAppId: Record<number, UseQueryResult<Assessment>> = {};
@@ -55,10 +59,31 @@ export const useCreateAssessmentMutation = (
 
   return useMutation({
     mutationFn: (assessment: InitialAssessment) => createAssessment(assessment),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries([
+        assessmentsByAppIdQueryKey,
+        res?.application?.id,
+      ]);
+    },
+    onError: onError,
+  });
+};
+
+export const useUpdateAssessmentMutation = (
+  onSuccess?: (name: string) => void,
+  onError?: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (assessment: Assessment) => updateAssessment(assessment),
     onSuccess: (_, args) => {
-      // onSuccess(args.);
-      //TODO determine what to return here and how to handle
-      queryClient.invalidateQueries([assessmentsQueryKey]);
+      onSuccess && onSuccess(args.name);
+      queryClient.invalidateQueries([
+        QuestionnairesQueryKey,
+        assessmentsByAppIdQueryKey,
+        _?.application?.id,
+      ]);
     },
     onError: onError,
   });
@@ -75,13 +100,17 @@ export const useDeleteAssessmentMutation = (
       deleteAssessment(args.id),
     onSuccess: (_, args) => {
       onSuccess(args.name);
-      queryClient.invalidateQueries([assessmentsQueryKey]);
+      queryClient.invalidateQueries([
+        assessmentsByAppIdQueryKey,
+        args.id,
+        QuestionnairesQueryKey,
+      ]);
     },
     onError: onError,
   });
 };
 
-export const useFetchAssessmentByID = (id: number | string) => {
+export const useFetchAssessmentById = (id: number | string) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [assessmentQueryKey, id],
     queryFn: () => getAssessmentById(id),
@@ -89,6 +118,20 @@ export const useFetchAssessmentByID = (id: number | string) => {
   });
   return {
     assessment: data,
+    isFetching: isLoading,
+    fetchError: error,
+  };
+};
+
+export const useFetchAssessmentsByAppId = (applicationId: number | string) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: [assessmentsByAppIdQueryKey, applicationId],
+    queryFn: () => getAssessmentsByAppId(applicationId),
+    onError: (error: AxiosError) => console.log("error, ", error),
+    onSuccess: (data) => {},
+  });
+  return {
+    assessments: data,
     isFetching: isLoading,
     fetchError: error,
   };

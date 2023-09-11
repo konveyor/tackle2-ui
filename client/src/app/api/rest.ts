@@ -237,15 +237,25 @@ export const getAssessments = (filters: {
     .then((response) => response.data);
 };
 
+export const getAssessmentsByAppId = (
+  applicationId?: number | string
+): Promise<Assessment[]> => {
+  return axios
+    .get(`${APPLICATIONS}/${applicationId}/assessments`)
+    .then((response) => response.data);
+};
+
 export const createAssessment = (
   obj: InitialAssessment
 ): Promise<Assessment> => {
-  return axios.post(`${ASSESSMENTS}`, obj).then((response) => response.data);
+  return axios
+    .post(`${APPLICATIONS}/${obj?.application?.id}/assessments`, obj)
+    .then((response) => response.data);
 };
 
-export const patchAssessment = (obj: Assessment): AxiosPromise<Assessment> => {
+export const updateAssessment = (obj: Assessment): Promise<Assessment> => {
   return axios
-    .patch(`${ASSESSMENTS}/${obj.id}`, obj)
+    .put(`${ASSESSMENTS}/${obj.id}`, obj)
     .then((response) => response.data);
 };
 
@@ -732,7 +742,7 @@ export const getQuestionnaires = (): Promise<Questionnaire[]> =>
 export const getQuestionnaireById = (
   id: number | string
 ): Promise<Questionnaire> =>
-  axios.get(`${QUESTIONNAIRES}/id/${id}`).then((response) => response.data);
+  axios.get(`${QUESTIONNAIRES}/${id}`).then((response) => response.data);
 
 export const createQuestionnaire = (
   obj: Questionnaire

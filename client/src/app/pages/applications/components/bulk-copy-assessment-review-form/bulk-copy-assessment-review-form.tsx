@@ -273,7 +273,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
       const assessment = getApplicationAssessment(f.id!);
       if (
         assessment &&
-        (assessment.status === "COMPLETE" || assessment.status === "STARTED")
+        (assessment.status === "complete" || assessment.status === "started")
       )
         return true;
       return false;

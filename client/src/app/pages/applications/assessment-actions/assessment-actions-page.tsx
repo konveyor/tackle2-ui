@@ -11,13 +11,13 @@ import { Link, useParams } from "react-router-dom";
 import { AssessmentActionsRoute, Paths } from "@app/Paths";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { useTranslation } from "react-i18next";
 import { useFetchApplicationByID } from "@app/queries/applications";
 import AssessmentActionsTable from "./components/assessment-actions-table";
 
 const AssessmentActions: React.FC = () => {
   const { applicationId } = useParams<AssessmentActionsRoute>();
   const { application } = useFetchApplicationByID(applicationId || "");
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -36,7 +36,9 @@ const AssessmentActions: React.FC = () => {
       <PageSection>
         <ConditionalRender when={!application} then={<AppPlaceholder />}>
           <TextContent>
-            <AssessmentActionsTable application={application} />
+            {application ? (
+              <AssessmentActionsTable application={application} />
+            ) : null}
           </TextContent>
         </ConditionalRender>
       </PageSection>
