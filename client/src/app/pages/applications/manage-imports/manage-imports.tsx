@@ -58,11 +58,8 @@ export const ManageImports: React.FC = () => {
   // i18
   const { t } = useTranslation();
 
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
-
-  const [importSummaryIdToDelete, setImportSummaryIdToDelete] =
-    React.useState<number>();
+  const [importSummaryToDelete, setImportSummaryToDelete] =
+    React.useState<ApplicationImportSummary>();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -276,8 +273,7 @@ export const ManageImports: React.FC = () => {
 
   // Row actions
   const deleteRow = (row: ApplicationImportSummary) => {
-    setImportSummaryIdToDelete(row.id);
-    setIsConfirmDialogOpen(true);
+    setImportSummaryToDelete(row);
   };
 
   const viewRowDetails = (row: ApplicationImportSummary) => {
@@ -383,10 +379,11 @@ export const ManageImports: React.FC = () => {
           }}
         />
       </Modal>
-      {isConfirmDialogOpen && (
+      {!!importSummaryToDelete && (
         <ConfirmDialog
-          title={t("dialog.title.delete", {
+          title={t("dialog.title.deleteWithName", {
             what: "import summary",
+            name: importSummaryToDelete.filename,
           })}
           titleIconVariant={"warning"}
           message={t("dialog.message.delete")}
@@ -394,14 +391,13 @@ export const ManageImports: React.FC = () => {
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
           cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsConfirmDialogOpen(false)}
-          onClose={() => setIsConfirmDialogOpen(false)}
+          onCancel={() => setImportSummaryToDelete(undefined)}
+          onClose={() => setImportSummaryToDelete(undefined)}
           onConfirm={() => {
-            if (importSummaryIdToDelete) {
-              deleteImportSummary(importSummaryIdToDelete);
-              setImportSummaryIdToDelete(undefined);
+            if (importSummaryToDelete) {
+              deleteImportSummary(importSummaryToDelete.id);
+              setImportSummaryToDelete(undefined);
             }
-            setIsConfirmDialogOpen(false);
           }}
         />
       )}

@@ -648,17 +648,26 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         )}
       </Modal>
       <ConfirmDialog
-        title={t("dialog.title.delete", {
-          what:
-            applicationsToDelete.length > 1
-              ? t("terms.application(s)").toLowerCase()
-              : t("terms.application").toLowerCase(),
-        })}
+        title={t(
+          applicationsToDelete.length > 1
+            ? "dialog.title.delete"
+            : "dialog.title.deleteWithName",
+          {
+            what:
+              applicationsToDelete.length > 1
+                ? t("terms.application(s)").toLowerCase()
+                : t("terms.application").toLowerCase(),
+            name:
+              applicationsToDelete.length === 1 && applicationsToDelete[0].name,
+          }
+        )}
         titleIconVariant={"warning"}
         isOpen={applicationsToDelete.length > 0}
-        message={`${t("dialog.message.applicationsBulkDelete")} ${t(
-          "dialog.message.delete"
-        )}`}
+        message={`${
+          applicationsToDelete.length > 1
+            ? t("dialog.message.applicationsBulkDelete")
+            : ""
+        } ${t("dialog.message.delete")}`}
         aria-label="Applications bulk delete"
         confirmBtnVariant={ButtonVariant.danger}
         confirmBtnLabel={t("actions.delete")}

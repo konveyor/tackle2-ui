@@ -55,7 +55,7 @@ export const Identities: React.FC = () => {
   const { t } = useTranslation();
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
+    React.useState<boolean>(false);
 
   const [identityToDelete, setIdentityToDelete] = React.useState<Identity>();
 
@@ -243,8 +243,9 @@ export const Identities: React.FC = () => {
 
   const dependentApplications = React.useMemo(() => {
     if (identityToDelete) {
-      const res = applications?.filter((app) =>
-        app?.identities?.map((id) => id.id).includes(identityToDelete.id)
+      const res = applications?.filter(
+        (app) =>
+          app?.identities?.map((id) => id.id).includes(identityToDelete.id)
       );
       return res;
     }
@@ -333,8 +334,9 @@ export const Identities: React.FC = () => {
       </PageSection>
       {isConfirmDialogOpen && (
         <ConfirmDialog
-          title={t("dialog.title.delete", {
+          title={t("dialog.title.deleteWithName", {
             what: t("terms.credential").toLowerCase(),
+            name: identityToDelete?.name,
           })}
           titleIconVariant={"warning"}
           message={

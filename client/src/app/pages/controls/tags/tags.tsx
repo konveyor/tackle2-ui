@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { AxiosError, AxiosResponse } from "axios";
+import React from "react";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@migtools/lib-ui";
 import {
@@ -59,17 +59,9 @@ export const Tags: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [isTagToDeleteConfirmDialogOpen, setIsTagToDeleteConfirmDialogOpen] =
-    React.useState<Boolean>(false);
-
-  const [
-    isTagCategoryToDeleteConfirmDialogOpen,
-    setIsTagCategoryToDeleteConfirmDialogOpen,
-  ] = React.useState<Boolean>(false);
-
-  const [tagIdToDelete, setTagIdToDelete] = React.useState<number>();
-  const [tagCategoryIdToDelete, setTagCategoryIdToDelete] =
-    React.useState<number>();
+  const [tagToDelete, setTagToDelete] = React.useState<Tag>();
+  const [tagCategoryToDelete, setTagCategoryToDelete] =
+    React.useState<TagCategory>();
 
   const [tagCategoryModalState, setTagCategoryModalState] = React.useState<
     "create" | TagCategory | null
@@ -186,8 +178,8 @@ export const Tags: React.FC = () => {
           what: t("terms.name").toLowerCase(),
         }) + "...",
       getItemValue: (item) => {
-        let tagCategoryNames = item.name?.toString() || "";
-        let tagNames = item?.tags
+        const tagCategoryNames = item.name?.toString() || "";
+        const tagNames = item?.tags
           ?.map((tag) => tag.name)
           .concat(tagCategoryNames)
           .join("");
@@ -265,8 +257,7 @@ export const Tags: React.FC = () => {
     useLegacyPaginationState(sortedItems, 10);
 
   const deleteTagFromTable = (row: Tag) => {
-    setTagIdToDelete(row.id);
-    setIsTagToDeleteConfirmDialogOpen(true);
+    setTagToDelete(row);
   };
 
   const columns: ICell[] = [
@@ -361,8 +352,7 @@ export const Tags: React.FC = () => {
   };
 
   const deleteRow = (row: TagCategory) => {
-    setTagCategoryIdToDelete(row.id);
-    setIsTagCategoryToDeleteConfirmDialogOpen(true);
+    setTagCategoryToDelete(row);
   };
 
   // Advanced filters
@@ -485,10 +475,11 @@ export const Tags: React.FC = () => {
         />
       </Modal>
 
-      {isTagToDeleteConfirmDialogOpen && (
+      {!!tagToDelete && (
         <ConfirmDialog
-          title={t("dialog.title.delete", {
+          title={t("dialog.title.deleteWithName", {
             what: t("terms.tag").toLowerCase(),
+            name: tagToDelete.name,
           })}
           titleIconVariant={"warning"}
           message={t("dialog.message.delete")}
@@ -496,21 +487,21 @@ export const Tags: React.FC = () => {
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
           cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsTagToDeleteConfirmDialogOpen(false)}
-          onClose={() => setIsTagToDeleteConfirmDialogOpen(false)}
+          onCancel={() => setTagToDelete(undefined)}
+          onClose={() => setTagToDelete(undefined)}
           onConfirm={() => {
-            if (tagIdToDelete) {
-              deleteTag(tagIdToDelete);
-              setTagIdToDelete(undefined);
+            if (tagToDelete) {
+              deleteTag(tagToDelete.id);
+              setTagToDelete(undefined);
             }
-            setIsTagToDeleteConfirmDialogOpen(false);
           }}
         />
       )}
-      {isTagCategoryToDeleteConfirmDialogOpen && (
+      {!!tagCategoryToDelete && (
         <ConfirmDialog
-          title={t("dialog.title.delete", {
+          title={t("dialog.title.deleteWithName", {
             what: t("terms.tagCategory").toLowerCase(),
+            name: tagCategoryToDelete.name,
           })}
           titleIconVariant={"warning"}
           message={t("dialog.message.delete")}
@@ -518,14 +509,13 @@ export const Tags: React.FC = () => {
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
           cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsTagCategoryToDeleteConfirmDialogOpen(false)}
-          onClose={() => setIsTagCategoryToDeleteConfirmDialogOpen(false)}
+          onCancel={() => setTagCategoryToDelete(undefined)}
+          onClose={() => setTagCategoryToDelete(undefined)}
           onConfirm={() => {
-            if (tagCategoryIdToDelete) {
-              deleteTagCategory(tagCategoryIdToDelete);
-              setTagCategoryIdToDelete(undefined);
+            if (tagCategoryToDelete) {
+              deleteTagCategory(tagCategoryToDelete.id);
+              setTagCategoryToDelete(undefined);
             }
-            setIsTagCategoryToDeleteConfirmDialogOpen(false);
           }}
         />
       )}

@@ -60,11 +60,8 @@ export const StakeholderGroups: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
-
-  const [stakeholderGroupIdToDelete, setStakeholderGroupIdToDelete] =
-    React.useState<number>();
+  const [stakeholderGroupToDelete, setStakeholderGroupToDelete] =
+    React.useState<StakeholderGroup>();
 
   const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
     "create" | StakeholderGroup | null
@@ -250,8 +247,7 @@ export const StakeholderGroups: React.FC = () => {
   };
 
   const deleteRow = (row: StakeholderGroup) => {
-    setStakeholderGroupIdToDelete(row.id);
-    setIsConfirmDialogOpen(true);
+    setStakeholderGroupToDelete(row);
   };
 
   // Advanced filters
@@ -350,10 +346,11 @@ export const StakeholderGroups: React.FC = () => {
         />
       </Modal>
 
-      {isConfirmDialogOpen && (
+      {!!stakeholderGroupToDelete && (
         <ConfirmDialog
-          title={t("dialog.title.delete", {
+          title={t("dialog.title.deleteWithName", {
             what: t("terms.stakeholderGroup").toLowerCase(),
+            name: stakeholderGroupToDelete.name,
           })}
           isOpen={true}
           titleIconVariant={"warning"}
@@ -361,14 +358,13 @@ export const StakeholderGroups: React.FC = () => {
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
           cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsConfirmDialogOpen(false)}
-          onClose={() => setIsConfirmDialogOpen(false)}
+          onCancel={() => setStakeholderGroupToDelete(undefined)}
+          onClose={() => setStakeholderGroupToDelete(undefined)}
           onConfirm={() => {
-            if (stakeholderGroupIdToDelete) {
-              deleteStakeholderGroup(stakeholderGroupIdToDelete);
-              setStakeholderGroupIdToDelete(undefined);
+            if (stakeholderGroupToDelete) {
+              deleteStakeholderGroup(stakeholderGroupToDelete.id);
+              setStakeholderGroupToDelete(undefined);
             }
-            setIsConfirmDialogOpen(false);
           }}
         />
       )}
