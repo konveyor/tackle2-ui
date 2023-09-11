@@ -55,11 +55,8 @@ import { StakeholderForm } from "./components/stakeholder-form";
 export const Stakeholders: React.FC = () => {
   const { t } = useTranslation();
 
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
-
-  const [stakeholderIdToDelete, setStakeholderIdToDelete] =
-    React.useState<number>();
+  const [stakeholderToDelete, setStakeholderToDelete] =
+    React.useState<Stakeholder>();
 
   const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
     "create" | Stakeholder | null
@@ -189,8 +186,7 @@ export const Stakeholders: React.FC = () => {
   } = tableControls;
 
   const deleteRow = (row: Stakeholder) => {
-    setStakeholderIdToDelete(row.id);
-    setIsConfirmDialogOpen(true);
+    setStakeholderToDelete(row);
   };
 
   return (
@@ -364,10 +360,11 @@ export const Stakeholders: React.FC = () => {
         />
       </Modal>
 
-      {isConfirmDialogOpen && (
+      {!!stakeholderToDelete && (
         <ConfirmDialog
-          title={t("dialog.title.delete", {
+          title={t("dialog.title.deleteWithName", {
             what: t("terms.stakeholder").toLowerCase(),
+            name: stakeholderToDelete.name,
           })}
           isOpen={true}
           titleIconVariant={"warning"}
@@ -375,14 +372,13 @@ export const Stakeholders: React.FC = () => {
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
           cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsConfirmDialogOpen(false)}
-          onClose={() => setIsConfirmDialogOpen(false)}
+          onCancel={() => setStakeholderToDelete(undefined)}
+          onClose={() => setStakeholderToDelete(undefined)}
           onConfirm={() => {
-            if (stakeholderIdToDelete) {
-              deleteStakeholder(stakeholderIdToDelete);
-              setStakeholderIdToDelete(undefined);
+            if (stakeholderToDelete) {
+              deleteStakeholder(stakeholderToDelete.id);
+              setStakeholderToDelete(undefined);
             }
-            setIsConfirmDialogOpen(false);
           }}
         />
       )}

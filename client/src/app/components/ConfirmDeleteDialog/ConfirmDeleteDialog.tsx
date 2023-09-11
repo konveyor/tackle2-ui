@@ -10,7 +10,7 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 
-import "./ConfirmDeleteCatalog.css";
+import "./ConfirmDeleteDialog.css";
 
 type ConfirmDeleteDialogProps = {
   cancelBtnLabel?: string;

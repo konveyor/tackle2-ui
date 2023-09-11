@@ -46,13 +46,8 @@ export const JobFunctions: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
-
-  const [
-    jobFunctionstakeholderIdToDelete,
-    setJobFunctionStakeholderIdToDelete,
-  ] = React.useState<number>();
+  const [jobFunctionToDelete, setJobFunctionToDelete] =
+    React.useState<JobFunction>();
 
   const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
     "create" | JobFunction | null
@@ -154,8 +149,7 @@ export const JobFunctions: React.FC = () => {
   // Rows
 
   const deleteRow = (row: JobFunction) => {
-    setJobFunctionStakeholderIdToDelete(row.id);
-    setIsConfirmDialogOpen(true);
+    setJobFunctionToDelete(row);
   };
 
   // Advanced filters
@@ -247,10 +241,11 @@ export const JobFunctions: React.FC = () => {
         />
       </Modal>
 
-      {isConfirmDialogOpen && (
+      {!!jobFunctionToDelete && (
         <ConfirmDialog
-          title={t("dialog.title.delete", {
+          title={t("dialog.title.deleteWithName", {
             what: t("terms.jobFunction").toLowerCase(),
+            name: jobFunctionToDelete.name,
           })}
           isOpen={true}
           titleIconVariant={"warning"}
@@ -258,14 +253,13 @@ export const JobFunctions: React.FC = () => {
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
           cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsConfirmDialogOpen(false)}
-          onClose={() => setIsConfirmDialogOpen(false)}
+          onCancel={() => setJobFunctionToDelete(undefined)}
+          onClose={() => setJobFunctionToDelete(undefined)}
           onConfirm={() => {
-            if (jobFunctionstakeholderIdToDelete) {
-              deleteJobFunction(jobFunctionstakeholderIdToDelete);
-              setJobFunctionStakeholderIdToDelete(undefined);
+            if (jobFunctionToDelete) {
+              deleteJobFunction(jobFunctionToDelete.id);
+              setJobFunctionToDelete(undefined);
             }
-            setIsConfirmDialogOpen(false);
           }}
         />
       )}

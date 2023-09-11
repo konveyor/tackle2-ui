@@ -50,7 +50,7 @@ import { Questionnaire } from "@app/api/models";
 import { useHistory } from "react-router-dom";
 import { Paths } from "@app/Paths";
 import { ImportQuestionnaireForm } from "@app/pages/assessment/import-questionnaire-form/import-questionnaire-form";
-import ConfirmDeleteDialog from "@app/components/ConfirmDeleteCatalog/ConfirmDeleteCatalog";
+import ConfirmDeleteDialog from "@app/components/ConfirmDeleteDialog/ConfirmDeleteDialog";
 
 const AssessmentSettings: React.FC = () => {
   const { t } = useTranslation();

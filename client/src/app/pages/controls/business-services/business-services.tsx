@@ -48,10 +48,10 @@ export const BusinessServices: React.FC = () => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
+    React.useState<boolean>(false);
 
-  const [businessServiceIdToDelete, setBusinessServiceIdToDelete] =
-    React.useState<number>();
+  const [businessServiceToDelete, setBusinessServiceToDelete] =
+    React.useState<BusinessService>();
 
   const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
     "create" | BusinessService | null
@@ -193,7 +193,7 @@ export const BusinessServices: React.FC = () => {
   });
 
   const deleteRow = (row: BusinessService) => {
-    setBusinessServiceIdToDelete(row.id);
+    setBusinessServiceToDelete(row);
     setIsConfirmDialogOpen(true);
   };
 
@@ -289,8 +289,9 @@ export const BusinessServices: React.FC = () => {
       </Modal>
       {isConfirmDialogOpen && (
         <ConfirmDialog
-          title={t("dialog.title.delete", {
+          title={t("dialog.title.deleteWithName", {
             what: t("terms.businessService").toLowerCase(),
+            name: businessServiceToDelete?.name,
           })}
           titleIconVariant={"warning"}
           message={t("dialog.message.delete")}
@@ -301,9 +302,9 @@ export const BusinessServices: React.FC = () => {
           onCancel={() => setIsConfirmDialogOpen(false)}
           onClose={() => setIsConfirmDialogOpen(false)}
           onConfirm={() => {
-            if (businessServiceIdToDelete) {
-              deleteBusinessService(businessServiceIdToDelete);
-              setBusinessServiceIdToDelete(undefined);
+            if (businessServiceToDelete) {
+              deleteBusinessService(businessServiceToDelete.id);
+              setBusinessServiceToDelete(undefined);
             }
             setIsConfirmDialogOpen(false);
           }}
