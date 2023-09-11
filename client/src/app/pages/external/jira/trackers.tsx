@@ -56,10 +56,9 @@ export const JiraTrackers: React.FC = () => {
   const trackerToUpdate =
     trackerModalState !== "create" ? trackerModalState : null;
 
-  const [trackerToDeleteState, setTrackerToDeleteState] =
-    React.useState<Tracker | null>(null);
-
-  const isConfirmDialogOpen = trackerToDeleteState !== null;
+  const [trackerToDelete, setTrackerToDelete] = React.useState<Tracker | null>(
+    null
+  );
 
   const { trackers, isFetching, fetchError, refetch } = useFetchTrackers();
 
@@ -277,7 +276,7 @@ export const JiraTrackers: React.FC = () => {
                                     ),
                                     variant: "danger",
                                   })
-                                : setTrackerToDeleteState(tracker);
+                                : setTrackerToDelete(tracker);
                             }}
                           />
                         </Td>
@@ -311,25 +310,28 @@ export const JiraTrackers: React.FC = () => {
           onClose={() => setTrackerModalState(null)}
         />
       </Modal>
-      <ConfirmDialog
-        title={t("dialog.title.delete", {
-          what: t("terms.instance").toLowerCase(),
-        })}
-        isOpen={isConfirmDialogOpen}
-        titleIconVariant={"warning"}
-        message={t("dialog.message.delete")}
-        confirmBtnVariant={ButtonVariant.danger}
-        confirmBtnLabel={t("actions.delete")}
-        cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => setTrackerToDeleteState(null)}
-        onClose={() => setTrackerToDeleteState(null)}
-        onConfirm={() => {
-          if (trackerToDeleteState) {
-            deleteTracker({ tracker: trackerToDeleteState });
-          }
-          setTrackerToDeleteState(null);
-        }}
-      />
+      {!!trackerToDelete && (
+        <ConfirmDialog
+          title={t("dialog.title.deleteWithName", {
+            what: t("terms.instance").toLowerCase(),
+            name: trackerToDelete?.name,
+          })}
+          isOpen={true}
+          titleIconVariant={"warning"}
+          message={t("dialog.message.delete")}
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setTrackerToDelete(null)}
+          onClose={() => setTrackerToDelete(null)}
+          onConfirm={() => {
+            if (trackerToDelete) {
+              deleteTracker({ tracker: trackerToDelete });
+            }
+            setTrackerToDelete(null);
+          }}
+        />
+      )}
     </>
   );
 };
