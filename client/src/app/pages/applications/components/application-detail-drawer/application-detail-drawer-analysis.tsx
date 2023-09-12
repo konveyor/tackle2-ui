@@ -135,23 +135,27 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                   <DescriptionListTerm>Download</DescriptionListTerm>
                   <DescriptionListDescription>
                     <Tooltip
-                      content="Click to download Analysis report"
+                      content="Click to download Analysis report YAML file"
                       position="top"
                     >
                       <DownloadButton
                         id={application.id}
                         mimeType={MimeType.TAR}
-                      />
+                      >
+                        TAR
+                      </DownloadButton>
                     </Tooltip>
                     {" | "}
                     <Tooltip
-                      content="Click to download Analysis report"
+                      content="Click to download Analysis report TAR file"
                       position="top"
                     >
                       <DownloadButton
                         id={application.id}
                         mimeType={MimeType.YAML}
-                      />
+                      >
+                        YAML
+                      </DownloadButton>
                     </Tooltip>
                   </DescriptionListDescription>
                 </DescriptionListGroup>

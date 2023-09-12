@@ -48,9 +48,7 @@ export const DownloadButton: React.FC<IDownloadButtonProps> = ({
       id={`download-${mimeType}-button`}
       variant="link"
       className={spacing.pXs}
-    >
-      {mimeType === MimeType.YAML ? "YAML" : "Report"}
-    </Button>
+    />
   );
 };
 

@@ -759,20 +759,20 @@ export const getQuestionnaires = (): Promise<Questionnaire[]> =>
 export const getQuestionnaireById = <T>(
   id: number | string,
   isBlob: boolean = false
-): Promise<T> => {
-  let config = {};
-  if (isBlob) {
-    config = {
-      responseType: "blob",
-      headers: {
-        Accept: "application/x-yaml",
-      },
-    };
-  }
-  return axios
-    .get(`${QUESTIONNAIRES}/${id}`, config)
+): Promise<T> =>
+  axios
+    .get(
+      `${QUESTIONNAIRES}/${id}`,
+      isBlob
+        ? {
+            responseType: "blob",
+            headers: {
+              Accept: "application/x-yaml",
+            },
+          }
+        : {}
+    )
     .then((response) => response.data);
-};
 
 export const createQuestionnaire = (
   obj: Questionnaire
