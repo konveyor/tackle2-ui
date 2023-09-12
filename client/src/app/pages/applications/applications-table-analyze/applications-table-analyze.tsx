@@ -515,6 +515,19 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         </DropdownItem>,
       ]
     : [];
+  const applicationDropdownItems = applicationWriteAccess
+    ? [
+        <DropdownItem
+          key="manage-applications-credentials"
+          isDisabled={selectedRows.length < 1}
+          onClick={() => {
+            setSaveApplicationsCredentialsModalState(selectedRows);
+          }}
+        >
+          {t("actions.manageCredentials")}
+        </DropdownItem>,
+      ]
+    : [];
   const applicationDeleteDropdown = applicationWriteAccess
     ? [
         <ConditionalTooltip
@@ -536,7 +549,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         </ConditionalTooltip>,
       ]
     : [];
-  const dropdownItems = [...importDropdownItems, ...applicationDeleteDropdown];
+  const dropdownItems = [
+    ...importDropdownItems,
+    ...applicationDropdownItems,
+    ...applicationDeleteDropdown,
+  ];
 
   const isAnalyzingAllowed = () => {
     const candidateTasks = selectedRows.filter(
