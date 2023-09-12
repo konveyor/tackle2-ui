@@ -12,11 +12,13 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 interface IDownloadButtonProps {
   id: number;
   mimeType: MimeType;
+  children: React.ReactNode;
 }
 
 export const DownloadButton: React.FC<IDownloadButtonProps> = ({
   id,
   mimeType,
+  children,
 }) => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -48,7 +50,9 @@ export const DownloadButton: React.FC<IDownloadButtonProps> = ({
       id={`download-${mimeType}-button`}
       variant="link"
       className={spacing.pXs}
-    />
+    >
+      {children}
+    </Button>
   );
 };
 
