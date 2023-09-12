@@ -15,8 +15,8 @@ import { Question, QuestionHeader, QuestionBody } from "./question";
 import { getCommentFieldName } from "../../form-utils";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
 import { useFormContext } from "react-hook-form";
-import { ApplicationAssessmentWizardValues } from "../application-assessment-wizard/application-assessment-wizard";
 import { Section } from "@app/api/models";
+import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
 
 export interface QuestionnaireFormProps {
   section: Section;
@@ -26,8 +26,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
   section,
 }) => {
   const { t } = useTranslation();
-  const { control, getValues } =
-    useFormContext<ApplicationAssessmentWizardValues>();
+  const { control, getValues } = useFormContext<AssessmentWizardValues>();
 
   // Force the wizard parent to reset the scroll
   useEffect(() => {

@@ -12,16 +12,12 @@ import { useFormContext } from "react-hook-form";
 
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
-import { ApplicationAssessmentWizardValues } from "../application-assessment-wizard/application-assessment-wizard";
-import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { Stakeholder, StakeholderGroup } from "@app/api/models";
 import ItemsSelect from "@app/components/items-select/items-select";
+import { AssessmentWizardValues } from "../assessment-wizard/assessment-wizard";
 
 export const AssessmentStakeholdersForm: React.FC = () => {
   const { t } = useTranslation();
-  const { setValue, control, formState } =
-    useFormContext<ApplicationAssessmentWizardValues>();
+  const { control } = useFormContext<AssessmentWizardValues>();
 
   const { stakeholders } = useFetchStakeholders();
   const { stakeholderGroups } = useFetchStakeholderGroups();

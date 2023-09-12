@@ -52,8 +52,9 @@ import ArchetypeMaintainersColumn from "./components/archetype-maintainers-colum
 import ArchetypeTagsColumn from "./components/archetype-tags-column";
 import { Archetype } from "@app/api/models";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
+import { Paths } from "@app/Paths";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
@@ -157,6 +158,38 @@ const Archetypes: React.FC = () => {
       {t("dialog.title.newArchetype")}
     </Button>
   );
+  const [isOverrideModalOpen, setOverrideModalOpen] = React.useState(false);
+  const [archetypeToAssess, setArchetypeToAssess] =
+    React.useState<Archetype | null>(null);
+
+  const assessSelectedArchetype = (archetype: Archetype) => {
+    // if application/archetype has an assessment, ask if user wants to override it
+    const matchingAssessment = true;
+    if (matchingAssessment) {
+      setOverrideModalOpen(true);
+      setArchetypeToAssess(archetype);
+    } else {
+      archetype?.id &&
+        history.push(
+          formatPath(Paths.archetypeAssessmentActions, {
+            archetypeId: archetype?.id,
+          })
+        );
+      setArchetypeToAssess(null);
+    }
+  };
+  const reviewSelectedArchetype = (archetype: Archetype) => {
+    //TODO: Review archetype
+    // if (application.review) {
+    //   setReviewToEdit(application.id);
+    // } else {
+    //   history.push(
+    //     formatPath(Paths.applicationsReview, {
+    //       applicationId: application.id,
+    //     })
+    //   );
+    // }
+  };
 
   return (
     <>
@@ -250,8 +283,12 @@ const Archetypes: React.FC = () => {
                         <Td isActionCell>
                           <ActionsColumn
                             items={[
+                              // {
+                              //   title: t("actions.duplicate"),
+                              //   onClick: () => alert("TODO"),
+                              // },
                               {
-                                title: t("actions.duplicate"),
+                                title: t("actions.assess"),
                                 onClick: () => alert("TODO"),
                               },
                               {
@@ -324,6 +361,26 @@ const Archetypes: React.FC = () => {
             deleteArchetype(archetypeToDelete);
             setArchetypeToDelete(null);
           }
+        }}
+      />
+      <ConfirmDialog
+        title={t("dialog.title.newAssessment")}
+        titleIconVariant={"warning"}
+        isOpen={isOverrideModalOpen}
+        message={t("message.overrideArchetypeConfirmation")}
+        confirmBtnVariant={ButtonVariant.primary}
+        confirmBtnLabel={t("actions.accept")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setArchetypeToAssess(null)}
+        onClose={() => setArchetypeToAssess(null)}
+        onConfirm={() => {
+          archetypeToAssess &&
+            history.push(
+              formatPath(Paths.archetypeAssessmentActions, {
+                archetypeId: archetypeToAssess?.id,
+              })
+            );
+          setArchetypeToAssess(null);
         }}
       />
     </>

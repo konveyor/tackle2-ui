@@ -36,6 +36,7 @@ interface QuestionnaireSummaryProps {
   fetchError: AxiosError | null;
   summaryData: Assessment | Questionnaire | undefined;
   summaryType: SummaryType;
+  isArchetype?: boolean;
 }
 
 const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
@@ -43,6 +44,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
   summaryType,
   isFetching,
   fetchError,
+  isArchetype,
 }) => {
   const { t } = useTranslation();
 
@@ -88,7 +90,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
       <Breadcrumb>
         <BreadcrumbItem>
           <Link
-            to={formatPath(Paths.assessmentActions, {
+            to={formatPath(Paths.applicationAssessmentActions, {
               applicationId: (summaryData as Assessment)?.application?.id,
             })}
           >
@@ -143,10 +145,14 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
             <Link
               to={
                 summaryType === SummaryType.Assessment
-                  ? formatPath(Paths.assessmentActions, {
-                      applicationId: (summaryData as Assessment)?.application
-                        ?.id,
-                    })
+                  ? isArchetype
+                    ? formatPath(Paths.archetypeAssessmentActions, {
+                        archetypeId: (summaryData as Assessment)?.archetype?.id,
+                      })
+                    : formatPath(Paths.applicationAssessmentActions, {
+                        applicationId: (summaryData as Assessment)?.application
+                          ?.id,
+                      })
                   : Paths.assessment
               }
             >

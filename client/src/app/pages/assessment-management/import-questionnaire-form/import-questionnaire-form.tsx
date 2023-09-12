@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 

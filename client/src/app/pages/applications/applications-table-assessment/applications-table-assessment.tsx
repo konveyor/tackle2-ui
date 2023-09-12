@@ -499,7 +499,7 @@ export const ApplicationsTable: React.FC = () => {
     } else {
       application?.id &&
         history.push(
-          formatPath(Paths.assessmentActions, {
+          formatPath(Paths.applicationAssessmentActions, {
             applicationId: application?.id,
           })
         );
@@ -962,7 +962,7 @@ export const ApplicationsTable: React.FC = () => {
           onConfirm={() => {
             applicationToAssess &&
               history.push(
-                formatPath(Paths.assessmentActions, {
+                formatPath(Paths.applicationAssessmentActions, {
                   applicationId: applicationToAssess?.id,
                 })
               );

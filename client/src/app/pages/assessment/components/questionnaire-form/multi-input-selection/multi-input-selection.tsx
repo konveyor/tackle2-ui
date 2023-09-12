@@ -4,8 +4,8 @@ import { Radio, Stack, StackItem } from "@patternfly/react-core";
 import { Question } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { useFormContext } from "react-hook-form";
-import { ApplicationAssessmentWizardValues } from "../../application-assessment-wizard/application-assessment-wizard";
 import { getQuestionFieldName } from "../../../form-utils";
+import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
 
 export interface MultiInputSelectionProps {
   question: Question;
@@ -14,7 +14,7 @@ export interface MultiInputSelectionProps {
 export const MultiInputSelection: React.FC<MultiInputSelectionProps> = ({
   question,
 }) => {
-  const { control } = useFormContext<ApplicationAssessmentWizardValues>();
+  const { control } = useFormContext<AssessmentWizardValues>();
 
   const sortedOptions = useMemo(() => {
     return (question.answers || []).sort((a, b) => a.order - b.order);

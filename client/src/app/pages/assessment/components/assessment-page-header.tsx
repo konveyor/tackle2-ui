@@ -10,18 +10,18 @@ import { Paths } from "@app/Paths";
 import { Application, Assessment } from "@app/api/models";
 import { getApplicationById } from "@app/api/rest";
 
-export interface IApplicationAssessmentPageHeaderProps {
+export interface AssessmentPageHeaderProps {
   assessment?: Assessment;
 }
 
-export const ApplicationAssessmentPageHeader: React.FC<
-  IApplicationAssessmentPageHeaderProps
-> = ({ assessment }) => {
+export const AssessmentPageHeader: React.FC<AssessmentPageHeaderProps> = ({
+  assessment,
+}) => {
   const { t } = useTranslation();
   const history = useHistory();
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
+    React.useState<boolean>(false);
 
   const [application, setApplication] = useState<Application>();
 

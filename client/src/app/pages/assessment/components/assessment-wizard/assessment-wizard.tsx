@@ -12,7 +12,6 @@ import {
   Question,
   Section,
 } from "@app/api/models";
-import { AssessmentStakeholdersForm } from "../assessment-stakeholders-form";
 import { CustomWizardFooter } from "../custom-wizard-footer";
 import { getApplicationById } from "@app/api/rest";
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -23,7 +22,6 @@ import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 import {
   COMMENTS_KEY,
   QUESTIONS_KEY,
-  getCommentFieldName,
   getQuestionFieldName,
 } from "../../form-utils";
 import { AxiosError } from "axios";
@@ -35,6 +33,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { AssessmentStakeholdersForm } from "../assessment-stakeholders-form/assessment-stakeholders-form";
 
 export const SAVE_ACTION_KEY = "saveAction";
 
@@ -44,7 +43,7 @@ export enum SAVE_ACTION_VALUE {
   SAVE_AS_DRAFT,
 }
 
-export interface ApplicationAssessmentWizardValues {
+export interface AssessmentWizardValues {
   stakeholders: string[];
   stakeholderGroups: string[];
   [COMMENTS_KEY]: {
@@ -56,14 +55,17 @@ export interface ApplicationAssessmentWizardValues {
   [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE;
 }
 
-export interface ApplicationAssessmentWizardProps {
+export interface AssessmentWizardProps {
   assessment?: Assessment;
   isOpen: boolean;
+  isArchetype?: boolean;
 }
 
-export const ApplicationAssessmentWizard: React.FC<
-  ApplicationAssessmentWizardProps
-> = ({ assessment, isOpen }) => {
+export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
+  assessment,
+  isOpen,
+  isArchetype,
+}) => {
   const queryClient = useQueryClient();
   const { questionnaires } = useFetchQuestionnaires();
   const onHandleUpdateAssessmentSuccess = () => {
@@ -142,7 +144,7 @@ export const ApplicationAssessmentWizard: React.FC<
     stakeholderGroups: yup.array().of(yup.string()),
   });
 
-  const methods = useForm<ApplicationAssessmentWizardValues>({
+  const methods = useForm<AssessmentWizardValues>({
     defaultValues: useMemo(() => {
       return {
         // stakeholders: assessment?.stakeholders || [],
@@ -213,11 +215,11 @@ export const ApplicationAssessmentWizard: React.FC<
     ? sortedSections.findIndex((f) => f.name === maxCategoryWithData.name) + 1
     : 0;
 
-  const onInvalid = (errors: FieldErrors<ApplicationAssessmentWizardValues>) =>
+  const onInvalid = (errors: FieldErrors<AssessmentWizardValues>) =>
     console.error("form errors", errors);
 
   const buildSectionsFromFormValues = (
-    formValues: ApplicationAssessmentWizardValues
+    formValues: AssessmentWizardValues
   ): Section[] => {
     if (!formValues || !formValues[QUESTIONS_KEY]) {
       return [];
@@ -252,9 +254,7 @@ export const ApplicationAssessmentWizard: React.FC<
     return sections;
   };
 
-  const handleSaveAsDraft = async (
-    formValues: ApplicationAssessmentWizardValues
-  ) => {
+  const handleSaveAsDraft = async (formValues: AssessmentWizardValues) => {
     try {
       if (!assessment?.application?.id) {
         console.log("An assessment must exist in order to save as draft");
@@ -276,11 +276,19 @@ export const ApplicationAssessmentWizard: React.FC<
         title: "Assessment has been saved as a draft.",
         variant: "info",
       });
-      history.push(
-        formatPath(Paths.assessmentActions, {
-          applicationId: assessment?.application?.id,
-        })
-      );
+      if (isArchetype) {
+        history.push(
+          formatPath(Paths.archetypeAssessmentActions, {
+            archetypeId: assessment?.archetype?.id,
+          })
+        );
+      } else {
+        history.push(
+          formatPath(Paths.applicationAssessmentActions, {
+            applicationId: assessment?.application?.id,
+          })
+        );
+      }
     } catch (error) {
       pushNotification({
         title: "Failed to save as a draft.",
@@ -290,7 +298,7 @@ export const ApplicationAssessmentWizard: React.FC<
     }
   };
 
-  const handleSave = async (formValues: ApplicationAssessmentWizardValues) => {
+  const handleSave = async (formValues: AssessmentWizardValues) => {
     try {
       if (!assessment?.application?.id) {
         console.log("An assessment must exist in order to save.");
@@ -313,11 +321,19 @@ export const ApplicationAssessmentWizard: React.FC<
         variant: "success",
       });
 
-      history.push(
-        formatPath(Paths.assessmentActions, {
-          applicationId: assessment?.application?.id,
-        })
-      );
+      if (isArchetype) {
+        history.push(
+          formatPath(Paths.archetypeAssessmentActions, {
+            archetypeId: assessment?.archetype?.id,
+          })
+        );
+      } else {
+        history.push(
+          formatPath(Paths.applicationAssessmentActions, {
+            applicationId: assessment?.application?.id,
+          })
+        );
+      }
     } catch (error) {
       pushNotification({
         title: "Failed to save.",
@@ -327,9 +343,7 @@ export const ApplicationAssessmentWizard: React.FC<
     }
   };
 
-  const handleSaveAndReview = async (
-    formValues: ApplicationAssessmentWizardValues
-  ) => {
+  const handleSaveAndReview = async (formValues: AssessmentWizardValues) => {
     try {
       if (!assessment?.application?.id) {
         console.log("An assessment must exist in order to save.");
@@ -379,7 +393,7 @@ export const ApplicationAssessmentWizard: React.FC<
     }
   };
 
-  const onSubmit = async (formValues: ApplicationAssessmentWizardValues) => {
+  const onSubmit = async (formValues: AssessmentWizardValues) => {
     if (!assessment?.application?.id) {
       console.log("An assessment must exist in order to save the form");
       return;
@@ -480,11 +494,19 @@ export const ApplicationAssessmentWizard: React.FC<
               onClose={() => setIsConfirmDialogOpen(false)}
               onConfirm={() => {
                 setIsConfirmDialogOpen(false);
-                history.push(
-                  formatPath(Paths.assessmentActions, {
-                    applicationId: assessment?.application?.id,
-                  })
-                );
+                if (isArchetype) {
+                  history.push(
+                    formatPath(Paths.archetypeAssessmentActions, {
+                      archetypeId: assessment?.archetype?.id,
+                    })
+                  );
+                } else {
+                  history.push(
+                    formatPath(Paths.applicationAssessmentActions, {
+                      applicationId: assessment?.application?.id,
+                    })
+                  );
+                }
               }}
             />
           )}
