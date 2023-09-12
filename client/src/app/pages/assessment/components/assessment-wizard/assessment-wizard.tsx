@@ -192,7 +192,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const questionHasValue = (question: Question): boolean => {
     const questionValues = values.questions || {};
     const value = questionValues[getQuestionFieldName(question, false)];
-    console.log("value", value);
     return value !== null && value !== undefined && value !== "";
   };
   //TODO: Add comments to the sections
@@ -203,17 +202,12 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   // };
 
   const shouldNextBtnBeEnabled = (section: Section): boolean => {
-    console.log("section", section);
     const allQuestionsValid = section?.questions.every((question) =>
       isQuestionValid(question)
     );
     const allQuestionsAnswered = section?.questions.every((question) => {
-      console.log("question", question);
-      console.log("questionHasValue(question)", questionHasValue(question));
       return questionHasValue(question);
     });
-    console.log("allQuestionsValid", allQuestionsValid);
-    console.log("allQuestionsAnswered", allQuestionsAnswered);
     return (
       allQuestionsAnswered && allQuestionsValid
       //  && isCommentValid(category)
