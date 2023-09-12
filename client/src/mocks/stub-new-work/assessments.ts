@@ -203,6 +203,8 @@ const mockAssessmentArray: Assessment[] = [
       yellow: 4,
     },
     application: { id: 1, name: "App 1" },
+    stakeholderGroups: [],
+    stakeholders: [],
   },
 ];
 
@@ -270,6 +272,8 @@ export const handlers = [
       },
       application: initialAssessment.application,
       questionnaire: initialAssessment.questionnaire,
+      stakeholderGroups: [],
+      stakeholders: [],
     };
 
     mockAssessmentArray.push(newAssessment);

@@ -140,15 +140,18 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const validationSchema = yup.object().shape({
     stakeholders: yup.array().of(yup.string()),
-
     stakeholderGroups: yup.array().of(yup.string()),
   });
 
   const methods = useForm<AssessmentWizardValues>({
     defaultValues: useMemo(() => {
       return {
-        // stakeholders: assessment?.stakeholders || [],
-        // stakeholderGroups: assessment?.stakeholderGroups || [],
+        stakeholders:
+          assessment?.stakeholders.map((stakeholder) => stakeholder.name) || [],
+        stakeholderGroups:
+          assessment?.stakeholderGroups.map(
+            (stakeholderGroup) => stakeholderGroup.name
+          ) || [],
         // comments: initialComments,
         questions: initialQuestions,
         [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
@@ -170,10 +173,9 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const isFirstStepValid = () => {
     // TODO: Wire up stakeholder support for assessment when available
-    // const numberOfStakeholdlers = values.stakeholders.length;
-    // const numberOfGroups = values.stakeholderGroups.length;
-    // return numberOfStakeholdlers + numberOfGroups > 0;
-    return true;
+    const numberOfStakeholdlers = values?.stakeholders?.length || 0;
+    const numberOfGroups = values?.stakeholderGroups?.length || 0;
+    return numberOfStakeholdlers + numberOfGroups > 0;
   };
 
   const isQuestionValid = (question: Question): boolean => {
@@ -190,7 +192,8 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const questionHasValue = (question: Question): boolean => {
     const questionValues = values.questions || {};
     const value = questionValues[getQuestionFieldName(question, false)];
-    return value !== null && value !== undefined;
+    console.log("value", value);
+    return value !== null && value !== undefined && value !== "";
   };
   //TODO: Add comments to the sections
   // const commentMinLenghtIs1 = (category: QuestionnaireCategory): boolean => {
@@ -200,9 +203,19 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   // };
 
   const shouldNextBtnBeEnabled = (section: Section): boolean => {
+    console.log("section", section);
+    const allQuestionsValid = section?.questions.every((question) =>
+      isQuestionValid(question)
+    );
+    const allQuestionsAnswered = section?.questions.every((question) => {
+      console.log("question", question);
+      console.log("questionHasValue(question)", questionHasValue(question));
+      return questionHasValue(question);
+    });
+    console.log("allQuestionsValid", allQuestionsValid);
+    console.log("allQuestionsAnswered", allQuestionsAnswered);
     return (
-      section.questions.every((question) => isQuestionValid(question)) &&
-      section.questions.every((question) => questionHasValue(question))
+      allQuestionsAnswered && allQuestionsValid
       //  && isCommentValid(category)
     );
   };
@@ -448,7 +461,12 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     <CustomWizardFooter
       isFirstStep={currentStep === 0}
       isLastStep={currentStep === sortedSections.length}
-      isDisabled={isSubmitting || isValidating}
+      isDisabled={
+        isSubmitting ||
+        isValidating ||
+        (currentStep === sortedSections.length &&
+          !shouldNextBtnBeEnabled(sortedSections[currentStep - 1]))
+      }
       isFormInvalid={!isValid}
       onSave={(review) => {
         const saveActionValue = review
