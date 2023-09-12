@@ -52,17 +52,20 @@ export const useFetchApplicationAssessments = (
 };
 
 export const useCreateAssessmentMutation = (
+  isArchetype: boolean,
   onSuccess: (name: string) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (assessment: InitialAssessment) => createAssessment(assessment),
+    mutationFn: (assessment: InitialAssessment) =>
+      createAssessment(assessment, isArchetype),
     onSuccess: (res) => {
       queryClient.invalidateQueries([
         assessmentsByItemIdQueryKey,
         res?.application?.id,
+        res?.archetype?.id,
       ]);
     },
     onError: onError,

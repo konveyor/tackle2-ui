@@ -33,6 +33,8 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
   archetype,
   tableName,
 }) => {
+  console.log("archetype", archetype);
+  console.log("application", assessments);
   const tableControls = useLocalTableControls({
     idProperty: "id",
     items: questionnaires || [],

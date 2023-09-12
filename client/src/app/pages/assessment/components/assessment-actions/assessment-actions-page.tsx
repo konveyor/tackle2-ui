@@ -22,6 +22,8 @@ const AssessmentActions: React.FC = () => {
 
   const { application } = useFetchApplicationByID(applicationId || "");
   const { archetype } = useFetchArchetypeById(archetypeId || "");
+
+  console.log("archetype", archetype);
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>

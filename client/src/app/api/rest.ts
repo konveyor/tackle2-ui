@@ -255,11 +255,18 @@ export const getAssessmentsByItemId = (
 };
 
 export const createAssessment = (
-  obj: InitialAssessment
+  obj: InitialAssessment,
+  isArchetype: boolean
 ): Promise<Assessment> => {
-  return axios
-    .post(`${APPLICATIONS}/${obj?.application?.id}/assessments`, obj)
-    .then((response) => response.data);
+  if (isArchetype) {
+    return axios
+      .post(`${ARCHETYPES}/${obj?.archetype?.id}/assessments`, obj)
+      .then((response) => response.data);
+  } else {
+    return axios
+      .post(`${APPLICATIONS}/${obj?.application?.id}/assessments`, obj)
+      .then((response) => response.data);
+  }
 };
 
 export const updateAssessment = (obj: Assessment): Promise<Assessment> => {

@@ -762,4 +762,5 @@ export interface Archetype {
   stakeholders?: Ref[];
   stakeholderGroups?: Ref[];
   applications?: Application[];
+  assessments?: Ref[];
 }

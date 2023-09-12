@@ -33,6 +33,7 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
     <>
       <QuestionnairesTable
         application={application}
+        archetype={archetype}
         questionnaires={requiredQuestionnaires}
         assessments={assessments}
         isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}
@@ -41,6 +42,7 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
 
       <QuestionnairesTable
         application={application}
+        archetype={archetype}
         questionnaires={archivedQuestionnaires}
         assessments={assessments}
         isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}

@@ -169,6 +169,8 @@ const data: Record<number, Archetype> = {
     assessmentTags: [],
     stakeholders: [],
     stakeholderGroups: [],
+    // assessments: [{ id: 1, name: "test" }],
+    assessments: [],
   },
 };
 

@@ -50,6 +50,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
   const onErrorHandler = () => {};
 
   const { mutateAsync: createAssessmentAsync } = useCreateAssessmentMutation(
+    isArchetype,
     onSuccessHandler,
     onErrorHandler
   );

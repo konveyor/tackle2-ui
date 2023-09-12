@@ -73,7 +73,9 @@ export const useAssessApplication = (): IState => {
 
           return Promise.all([
             currentAssessment,
-            !currentAssessment ? createAssessment(newAssessment) : undefined,
+            !currentAssessment
+              ? createAssessment(newAssessment, false)
+              : undefined,
           ]);
         })
         .then(([currentAssessment, newAssessment]) => {
