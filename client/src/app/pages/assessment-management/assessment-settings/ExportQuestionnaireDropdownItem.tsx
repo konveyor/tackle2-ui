@@ -3,7 +3,7 @@ import { saveAs } from "file-saver";
 import { DropdownItem } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 
-import { useFetchQuestionnaireById } from "@app/queries/questionnaires";
+import { useFetchQuestionnaireBlob } from "@app/queries/questionnaires";
 import { AxiosError } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -24,7 +24,7 @@ export const ExportQuestionnaireDropdownItem: React.FC<
     });
   };
 
-  const { data: questionnaire, refetch } = useFetchQuestionnaireById(
+  const { data: questionnaire, refetch } = useFetchQuestionnaireBlob(
     id,
     onExportQuestionnaireError
   );

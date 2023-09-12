@@ -4,7 +4,8 @@ import { AxiosError } from "axios";
 import {
   createQuestionnaire,
   deleteQuestionnaire,
-  downloadQuestionnaire,
+  getQuestionnaireBlob,
+  getQuestionnaireById,
   getQuestionnaires,
   updateQuestionnaire,
 } from "@app/api/rest";
@@ -64,14 +65,27 @@ export const useDeleteQuestionnaireMutation = (
   });
 };
 
-// The questionnaire download is triggered on demand by a refetch()
-export const useFetchQuestionnaireById = (
+export const useFetchQuestionnaireById = (id: number | string) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: [QuestionnaireByIdQueryKey, id],
+    queryFn: () => getQuestionnaireById(id),
+    onError: (error: AxiosError) => console.log("error, ", error),
+  });
+  return {
+    questionnaire: data,
+    isFetching: isLoading,
+    fetchError: error,
+  };
+};
+
+// Download a questionnaire is triggered on demand using refetch()
+export const useFetchQuestionnaireBlob = (
   id: number,
   onError: (err: AxiosError) => void
 ) =>
   useQuery({
     queryKey: [QuestionnaireByIdQueryKey, id],
-    queryFn: () => downloadQuestionnaire(id),
+    queryFn: () => getQuestionnaireBlob(id),
     onError: onError,
     enabled: false,
   });
