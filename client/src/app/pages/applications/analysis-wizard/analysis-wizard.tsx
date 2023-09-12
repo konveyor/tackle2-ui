@@ -36,7 +36,7 @@ import {
 import { useAsyncYupValidation } from "@app/hooks/useAsyncYupValidation";
 import { CustomRules } from "./custom-rules";
 import { useFetchIdentities } from "@app/queries/identities";
-import { TaskGroupProvider, useTaskGroup } from "./components/TaskGroupContext";
+import { useTaskGroup } from "./components/TaskGroupContext";
 
 interface IAnalysisWizard {
   applications: Application[];
@@ -57,7 +57,7 @@ const defaultTaskData: TaskData = {
   targets: [],
   sources: [],
   scope: {
-    withKnown: false,
+    withKnownLibs: false,
     packages: {
       included: [],
       excluded: [],
@@ -159,7 +159,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       artifact: null,
       mode: "binary",
       formLabels: [],
-      withKnown: "app",
+      withKnownLibs: "app",
       includedPackages: [],
       excludedPackages: [],
       customRulesFiles: [],
@@ -207,8 +207,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       Object.values(StepId).filter((val) => typeof val === "number") as StepId[]
     ).find((stepId) => !isStepValid[stepId]) || null;
 
-  const { mode, withKnown, hasExcludedPackages } = values;
-  const hasIncludedPackages = withKnown.includes("select");
+  const { mode, withKnownLibs, hasExcludedPackages } = values;
+  const hasIncludedPackages = withKnownLibs.includes("select");
 
   const setupTaskgroup = (
     currentTaskgroup: Taskgroup,
@@ -234,7 +234,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           diva: fieldValues.diva,
         },
         scope: {
-          withKnown: fieldValues.withKnown.includes("oss") ? true : false,
+          withKnownLibs: fieldValues.withKnownLibs.includes("oss")
+            ? true
+            : false,
           packages: {
             included: hasIncludedPackages ? fieldValues.includedPackages : [],
             excluded: hasExcludedPackages ? fieldValues.excludedPackages : [],

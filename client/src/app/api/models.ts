@@ -334,7 +334,7 @@ export interface TaskData {
   targets?: string[];
   sources?: string[];
   scope: {
-    withKnown: boolean;
+    withKnownLibs: boolean;
     packages: {
       included: string[];
       excluded: string[];

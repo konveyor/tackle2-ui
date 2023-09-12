@@ -32,7 +32,7 @@ const taskgroupData = {
         excluded: [],
         included: [],
       },
-      withKnown: false,
+      withKnownLibs: false,
     },
     sources: [],
     targets: [],

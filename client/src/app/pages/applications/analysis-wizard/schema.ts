@@ -3,7 +3,6 @@ import {
   Application,
   IReadFile,
   FileLoadError,
-  Target,
   TargetLabel,
 } from "@app/api/models";
 import { useTranslation } from "react-i18next";
@@ -65,7 +64,7 @@ const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
 };
 
 export interface ScopeStepValues {
-  withKnown: AnalysisScope;
+  withKnownLibs: AnalysisScope;
   includedPackages: string[];
   hasExcludedPackages: boolean;
   excludedPackages: string[];
@@ -74,12 +73,14 @@ export interface ScopeStepValues {
 const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
   const { t } = useTranslation();
   return yup.object({
-    withKnown: yup.mixed<AnalysisScope>().required(t("validation.required")),
+    withKnownLibs: yup
+      .mixed<AnalysisScope>()
+      .required(t("validation.required")),
     includedPackages: yup
       .array()
       .of(yup.string().defined())
-      .when("withKnown", (withKnown, schema) =>
-        withKnown.includes("select") ? schema.min(1) : schema
+      .when("withKnownLibs", (withKnownLibs, schema) =>
+        withKnownLibs.includes("select") ? schema.min(1) : schema
       ),
     hasExcludedPackages: yup.bool().defined(),
     excludedPackages: yup
