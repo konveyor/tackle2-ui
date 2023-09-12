@@ -26,7 +26,7 @@ import {
 } from "../../form-utils";
 import { AxiosError } from "axios";
 import {
-  assessmentsByAppIdQueryKey,
+  assessmentsByItemIdQueryKey,
   useUpdateAssessmentMutation,
 } from "@app/queries/assessments";
 import { useQueryClient } from "@tanstack/react-query";
@@ -70,7 +70,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const { questionnaires } = useFetchQuestionnaires();
   const onHandleUpdateAssessmentSuccess = () => {
     queryClient.invalidateQueries([
-      assessmentsByAppIdQueryKey,
+      assessmentsByItemIdQueryKey,
       assessment?.application?.id,
     ]);
   };

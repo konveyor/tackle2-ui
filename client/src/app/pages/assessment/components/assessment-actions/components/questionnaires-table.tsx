@@ -8,13 +8,19 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { Application, Assessment, Questionnaire } from "@app/api/models";
+import {
+  Application,
+  Archetype,
+  Assessment,
+  Questionnaire,
+} from "@app/api/models";
 import DynamicAssessmentActionsRow from "./dynamic-assessment-actions-row";
 
 interface QuestionnairesTableProps {
   tableName: string;
   isFetching: boolean;
   application?: Application;
+  archetype?: Archetype;
   assessments?: Assessment[];
   questionnaires?: Questionnaire[];
 }
@@ -24,6 +30,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
   questionnaires,
   isFetching,
   application,
+  archetype,
   tableName,
 }) => {
   const tableControls = useLocalTableControls({
@@ -42,7 +49,6 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
     numRenderedColumns,
     propHelpers: { tableProps, getThProps, getTdProps },
   } = tableControls;
-
   return (
     <>
       <Table
@@ -71,6 +77,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
               const matchingAssessment = assessments?.find(
                 (assessment) => assessment.questionnaire.id === questionnaire.id
               );
+
               return (
                 <Tr key={questionnaire.name}>
                   <TableRowContentWithControls
@@ -84,13 +91,15 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
                     >
                       {questionnaire.name}
                     </Td>
-                    {application && (
+                    {application || archetype ? (
                       <DynamicAssessmentActionsRow
                         assessment={matchingAssessment}
                         questionnaire={questionnaire}
+                        isArchetype={!!archetype}
                         application={application}
+                        archetype={archetype}
                       />
-                    )}
+                    ) : null}
                   </TableRowContentWithControls>
                 </Tr>
               );

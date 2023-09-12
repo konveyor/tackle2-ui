@@ -1,20 +1,24 @@
 import React from "react";
-import { Application } from "@app/api/models";
+import { Application, Archetype } from "@app/api/models";
 import { useFetchQuestionnaires } from "@app/queries/questionnaires";
-import { useFetchAssessmentsByAppId } from "@app/queries/assessments";
 import QuestionnairesTable from "./questionnaires-table";
+import { useFetchAssessmentsByItemId } from "@app/queries/assessments";
 
 export interface AssessmentActionsTableProps {
-  application: Application;
+  application?: Application;
+  archetype?: Archetype;
 }
 
 const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
   application,
+  archetype,
 }) => {
+  console.log("archetype in actions table", archetype);
+  console.log("application in actions table", application);
   const { questionnaires, isFetching: isFetchingQuestionnaires } =
     useFetchQuestionnaires();
   const { assessments, isFetching: isFetchingAssessmentsById } =
-    useFetchAssessmentsByAppId(application.id);
+    useFetchAssessmentsByItemId(!!archetype, archetype?.id || application?.id);
 
   const requiredQuestionnaires = questionnaires.filter(
     (questionnaire) => questionnaire.required

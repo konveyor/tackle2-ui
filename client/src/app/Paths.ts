@@ -11,7 +11,7 @@ export enum Paths {
   archetypesAssessment = "/archetypes/assessment/:assessmentId",
   applicationsAssessment = "/applications/assessment/:assessmentId",
   applicationAssessmentActions = "/applications/assessment-actions/:applicationId",
-  archetypeAssessmentActions = "/applications/assessment-actions/:archetypeId",
+  archetypeAssessmentActions = "/archetypes/assessment-actions/:archetypeId",
   assessmentSummary = "/applications/assessment-summary/:assessmentId",
   applicationsReview = "/applications/application/:applicationId/review",
   applicationsAnalysis = "/applications/analysis",
@@ -52,7 +52,8 @@ export interface AssessmentRoute {
 }
 
 export interface AssessmentActionsRoute {
-  applicationId: string;
+  applicationId?: string;
+  archetypeId?: string;
 }
 
 export interface ReviewRoute {

@@ -238,12 +238,20 @@ export const getAssessments = (filters: {
     .then((response) => response.data);
 };
 
-export const getAssessmentsByAppId = (
-  applicationId?: number | string
+export const getAssessmentsByItemId = (
+  isArchetype: boolean,
+  itemId?: number | string
 ): Promise<Assessment[]> => {
-  return axios
-    .get(`${APPLICATIONS}/${applicationId}/assessments`)
-    .then((response) => response.data);
+  if (!itemId) return Promise.resolve([]);
+  if (isArchetype) {
+    return axios
+      .get(`${ARCHETYPES}/${itemId}/assessments`)
+      .then((response) => response.data);
+  } else {
+    return axios
+      .get(`${APPLICATIONS}/${itemId}/assessments`)
+      .then((response) => response.data);
+  }
 };
 
 export const createAssessment = (
@@ -796,7 +804,7 @@ export const deleteQuestionnaire = (id: number): Promise<Questionnaire> =>
 export const getArchetypes = (): Promise<Archetype[]> =>
   axios.get(ARCHETYPES).then(({ data }) => data);
 
-export const getArchetypeById = (id: number): Promise<Archetype> =>
+export const getArchetypeById = (id: number | string): Promise<Archetype> =>
   axios.get(`${ARCHETYPES}/${id}`).then(({ data }) => data);
 
 // success with code 201 and created entity as response data

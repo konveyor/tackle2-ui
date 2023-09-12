@@ -164,7 +164,7 @@ const Archetypes: React.FC = () => {
 
   const assessSelectedArchetype = (archetype: Archetype) => {
     // if application/archetype has an assessment, ask if user wants to override it
-    const matchingAssessment = true;
+    const matchingAssessment = false;
     if (matchingAssessment) {
       setOverrideModalOpen(true);
       setArchetypeToAssess(archetype);
@@ -289,7 +289,8 @@ const Archetypes: React.FC = () => {
                               // },
                               {
                                 title: t("actions.assess"),
-                                onClick: () => alert("TODO"),
+                                onClick: () =>
+                                  assessSelectedArchetype(archetype),
                               },
                               {
                                 title: t("actions.edit"),

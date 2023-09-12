@@ -13,11 +13,15 @@ import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { useFetchApplicationByID } from "@app/queries/applications";
 import AssessmentActionsTable from "./components/assessment-actions-table";
+import { useFetchArchetypeById } from "@app/queries/archetypes";
 
 const AssessmentActions: React.FC = () => {
-  const { applicationId } = useParams<AssessmentActionsRoute>();
-  const { application } = useFetchApplicationByID(applicationId || "");
+  const { applicationId, archetypeId } = useParams<AssessmentActionsRoute>();
+  const isArchetype = location.pathname.includes("/archetypes/");
+  console.log("isArchetype", isArchetype);
 
+  const { application } = useFetchApplicationByID(applicationId || "");
+  const { archetype } = useFetchArchetypeById(archetypeId || "");
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -25,22 +29,38 @@ const AssessmentActions: React.FC = () => {
           <Text component="h1">Assessment Actions</Text>
         </TextContent>
         <Breadcrumb>
-          <BreadcrumbItem>
-            <Link to={Paths.applications}>Applications</Link>
-          </BreadcrumbItem>
+          {isArchetype ? (
+            <BreadcrumbItem>
+              <Link to={Paths.archetypes}>Archetypes</Link>
+            </BreadcrumbItem>
+          ) : (
+            <BreadcrumbItem>
+              <Link to={Paths.applications}>Applications</Link>
+            </BreadcrumbItem>
+          )}
           <BreadcrumbItem to="#" isActive>
             Assessment
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>
       <PageSection>
-        <ConditionalRender when={!application} then={<AppPlaceholder />}>
-          <TextContent>
-            {application ? (
-              <AssessmentActionsTable application={application} />
-            ) : null}
-          </TextContent>
-        </ConditionalRender>
+        {isArchetype ? (
+          <ConditionalRender when={!archetype} then={<AppPlaceholder />}>
+            <TextContent>
+              {archetype ? (
+                <AssessmentActionsTable archetype={archetype} />
+              ) : null}
+            </TextContent>
+          </ConditionalRender>
+        ) : (
+          <ConditionalRender when={!application} then={<AppPlaceholder />}>
+            <TextContent>
+              {application ? (
+                <AssessmentActionsTable application={application} />
+              ) : null}
+            </TextContent>
+          </ConditionalRender>
+        )}
       </PageSection>
     </>
   );

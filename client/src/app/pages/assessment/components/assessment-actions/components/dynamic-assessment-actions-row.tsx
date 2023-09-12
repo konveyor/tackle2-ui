@@ -1,12 +1,13 @@
 import { Paths } from "@app/Paths";
 import {
   Application,
+  Archetype,
   Assessment,
   InitialAssessment,
   Questionnaire,
 } from "@app/api/models";
 import {
-  assessmentsByAppIdQueryKey,
+  assessmentsByItemIdQueryKey,
   useCreateAssessmentMutation,
   useDeleteAssessmentMutation,
 } from "@app/queries/assessments";
@@ -30,13 +31,15 @@ enum AssessmentAction {
 
 interface DynamicAssessmentActionsRowProps {
   questionnaire: Questionnaire;
-  application: Application;
+  isArchetype: boolean;
+  application?: Application;
+  archetype?: Archetype;
   assessment?: Assessment;
 }
 
 const DynamicAssessmentActionsRow: FunctionComponent<
   DynamicAssessmentActionsRowProps
-> = ({ questionnaire, application, assessment }) => {
+> = ({ questionnaire, application, archetype, assessment, isArchetype }) => {
   const history = useHistory();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -58,7 +61,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
       }),
       variant: "success",
     });
-    queryClient.invalidateQueries([assessmentsByAppIdQueryKey]);
+    queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
   };
 
   const onDeleteError = (error: AxiosError) => {
@@ -99,8 +102,13 @@ const DynamicAssessmentActionsRow: FunctionComponent<
   const createAssessment = async () => {
     const newAssessment: InitialAssessment = {
       questionnaire: { name: questionnaire.name, id: questionnaire.id },
-      application: { name: application?.name, id: application?.id },
-      // TODO handle archetypes here too
+      ...(isArchetype
+        ? archetype
+          ? { archetype: { name: archetype.name, id: archetype.id } }
+          : {}
+        : application
+        ? { application: { name: application.name, id: application.id } }
+        : {}),
     };
 
     try {

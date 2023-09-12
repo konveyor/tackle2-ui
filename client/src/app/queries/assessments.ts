@@ -11,7 +11,7 @@ import {
   deleteAssessment,
   getAssessmentById,
   getAssessments,
-  getAssessmentsByAppId,
+  getAssessmentsByItemId,
   updateAssessment,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
@@ -20,7 +20,7 @@ import { QuestionnairesQueryKey } from "./questionnaires";
 
 export const assessmentsQueryKey = "assessments";
 export const assessmentQueryKey = "assessment";
-export const assessmentsByAppIdQueryKey = "assessmentsByAppId";
+export const assessmentsByItemIdQueryKey = "assessmentsByItemId";
 
 export const useFetchApplicationAssessments = (
   applications: Application[] = []
@@ -61,7 +61,7 @@ export const useCreateAssessmentMutation = (
     mutationFn: (assessment: InitialAssessment) => createAssessment(assessment),
     onSuccess: (res) => {
       queryClient.invalidateQueries([
-        assessmentsByAppIdQueryKey,
+        assessmentsByItemIdQueryKey,
         res?.application?.id,
       ]);
     },
@@ -81,7 +81,7 @@ export const useUpdateAssessmentMutation = (
       onSuccess && onSuccess(args.name);
       queryClient.invalidateQueries([
         QuestionnairesQueryKey,
-        assessmentsByAppIdQueryKey,
+        assessmentsByItemIdQueryKey,
         _?.application?.id,
       ]);
     },
@@ -101,7 +101,7 @@ export const useDeleteAssessmentMutation = (
     onSuccess: (_, args) => {
       onSuccess(args.name);
       queryClient.invalidateQueries([
-        assessmentsByAppIdQueryKey,
+        assessmentsByItemIdQueryKey,
         args.id,
         QuestionnairesQueryKey,
       ]);
@@ -123,13 +123,17 @@ export const useFetchAssessmentById = (id: number | string) => {
   };
 };
 
-export const useFetchAssessmentsByAppId = (applicationId: number | string) => {
+export const useFetchAssessmentsByItemId = (
+  isArchetype: boolean,
+  itemId?: number | string
+) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: [assessmentsByAppIdQueryKey, applicationId],
-    queryFn: () => getAssessmentsByAppId(applicationId),
+    queryKey: [assessmentsByItemIdQueryKey, itemId],
+    queryFn: () => getAssessmentsByItemId(isArchetype, itemId),
     onError: (error: AxiosError) => console.log("error, ", error),
     onSuccess: (data) => {},
   });
+
   return {
     assessments: data,
     isFetching: isLoading,
