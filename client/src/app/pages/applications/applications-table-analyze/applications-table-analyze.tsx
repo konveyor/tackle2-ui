@@ -467,11 +467,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     fetchError: fetchErrorReviews,
   } = useFetchReviews();
 
-  const appReview = reviews?.find(
-    (review) =>
-      review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
-  );
-
   const [
     saveApplicationsCredentialsModalState,
     setSaveApplicationsCredentialsModalState,
@@ -543,22 +538,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     : [];
   const dropdownItems = [...importDropdownItems, ...applicationDeleteDropdown];
 
-  const assessSelectedApp = (application: Application) => {
-    // if application/archetype has an assessment, ask if user wants to override it
-    setAssessModalOpen(true);
-    setApplicationToAssess(application);
-  };
-  // const reviewSelectedApp = (application: Application) => {
-  //   if (application.review) {
-  //     setReviewToEdit(application.id);
-  //   } else {
-  //     history.push(
-  //       formatPath(Paths.applicationsReview, {
-  //         applicationId: application.id,
-  //       })
-  //     );
-  //   }
-  // };
   const isAnalyzingAllowed = () => {
     const candidateTasks = selectedRows.filter(
       (app) =>
