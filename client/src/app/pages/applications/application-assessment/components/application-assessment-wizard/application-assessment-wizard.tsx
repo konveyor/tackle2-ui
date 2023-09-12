@@ -1,3 +1,4 @@
+import * as yup from "yup";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
@@ -18,10 +19,7 @@ import { NotificationsContext } from "@app/components/NotificationsContext";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
 import { QuestionnaireForm } from "../questionnaire-form";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import {
-  QuestionnairesQueryKey,
-  useFetchQuestionnaires,
-} from "@app/queries/questionnaires";
+import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 import {
   COMMENTS_KEY,
   QUESTIONS_KEY,
@@ -30,15 +28,13 @@ import {
 } from "../../form-utils";
 import { AxiosError } from "axios";
 import {
-  assessmentQueryKey,
   assessmentsByAppIdQueryKey,
-  assessmentsQueryKey,
   useUpdateAssessmentMutation,
 } from "@app/queries/assessments";
 import { useQueryClient } from "@tanstack/react-query";
-import { ApplicationAssessmentStatus } from "@app/pages/applications/components/application-assessment-status";
 import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 export const SAVE_ACTION_KEY = "saveAction";
 
@@ -49,8 +45,8 @@ export enum SAVE_ACTION_VALUE {
 }
 
 export interface ApplicationAssessmentWizardValues {
-  stakeholders: number[];
-  stakeholderGroups: number[];
+  stakeholders: string[];
+  stakeholderGroups: string[];
   [COMMENTS_KEY]: {
     [key: string]: string; // <categoryId, commentValue>
   };
@@ -140,6 +136,12 @@ export const ApplicationAssessmentWizard: React.FC<
     });
   }, [initialQuestions]);
 
+  const validationSchema = yup.object().shape({
+    stakeholders: yup.array().of(yup.string()),
+
+    stakeholderGroups: yup.array().of(yup.string()),
+  });
+
   const methods = useForm<ApplicationAssessmentWizardValues>({
     defaultValues: useMemo(() => {
       return {
@@ -150,6 +152,7 @@ export const ApplicationAssessmentWizard: React.FC<
         [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
       };
     }, [assessment]),
+    resolver: yupResolver(validationSchema),
     mode: "all",
   });
   const values = methods.getValues();
