@@ -68,24 +68,18 @@ import { checkAccess } from "@app/utils/rbac-utils";
 // Hooks
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { useAssessApplication } from "@app/hooks";
 
 // Queries
-import { Application, Assessment, Task } from "@app/api/models";
+import { Application, Task } from "@app/api/models";
 import {
-  ApplicationsQueryKey,
   useBulkDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
 import { useCancelTaskMutation, useFetchTasks } from "@app/queries/tasks";
-import {
-  useDeleteAssessmentMutation,
-  useFetchApplicationAssessments,
-} from "@app/queries/assessments";
-import { useDeleteReviewMutation, useFetchReviews } from "@app/queries/reviews";
+import { useFetchApplicationAssessments } from "@app/queries/assessments";
+import { useFetchReviews } from "@app/queries/reviews";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchTagCategories } from "@app/queries/tags";
-import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
 
 // Relative components
 import { ApplicationBusinessService } from "../components/application-business-service";
@@ -106,11 +100,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [isToolbarKebabOpen, setIsToolbarKebabOpen] =
-    React.useState<boolean>(false);
+  const [isToolbarKebabOpen, setIsToolbarKebabOpen] = useState<boolean>(false);
 
-  const [saveApplicationModalState, setSaveApplicationModalState] =
-    React.useState<"create" | Application | null>(null);
+  const [saveApplicationModalState, setSaveApplicationModalState] = useState<
+    "create" | Application | null
+  >(null);
 
   const isCreateUpdateApplicationsModalOpen =
     saveApplicationModalState !== null;
@@ -118,41 +112,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const createUpdateApplications =
     saveApplicationModalState !== "create" ? saveApplicationModalState : null;
 
-  const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
+  const [isAnalyzeModalOpen, setAnalyzeModalOpen] = useState(false);
 
-  const [applicationToCopyAssessmentFrom, setApplicationToCopyAssessmentFrom] =
-    React.useState<Application | null>(null);
-
-  const [isAssessModalOpen, setAssessModalOpen] = React.useState(false);
-
-  const [
-    applicationToCopyAssessmentAndReviewFrom,
-    setCopyAssessmentAndReviewModalState,
-  ] = React.useState<Application | null>(null);
-
-  const isCopyAssessmentAndReviewModalOpen =
-    applicationToCopyAssessmentAndReviewFrom !== null;
-
-  const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
-    React.useState<Application | null>(null);
-  const isDependenciesModalOpen = applicationDependenciesToManage !== null;
-
-  const [applicationToAssess, setApplicationToAssess] =
-    React.useState<Application | null>(null);
-
-  const [assessmentToEdit, setAssessmentToEdit] =
-    React.useState<Assessment | null>(null);
-
-  const [reviewToEdit, setReviewToEdit] = React.useState<number | null>(null);
-
-  const [applicationsToDelete, setApplicationsToDelete] = React.useState<
+  const [applicationsToDelete, setApplicationsToDelete] = useState<
     Application[]
   >([]);
-
-  const [assessmentOrReviewToDiscard, setAssessmentOrReviewToDiscard] =
-    React.useState<Application | null>(null);
-
-  const [isSubmittingBulkCopy, setIsSubmittingBulkCopy] = useState(false);
 
   const getTask = (application: Application) =>
     tasks.find((task: Task) => task.application?.id === application.id);
@@ -193,65 +157,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     onDeleteApplicationSuccess,
     onDeleteApplicationError
   );
-  const onHandleCopySuccess = (hasSuccessfulReviewCopy: boolean) => {
-    setIsSubmittingBulkCopy(false);
-    pushNotification({
-      title: hasSuccessfulReviewCopy
-        ? t("toastr.success.assessmentAndReviewCopied")
-        : t("toastr.success.assessmentCopied"),
-      variant: "success",
-    });
-    fetchApplications();
-  };
-  const onHandleCopyError = (error: AxiosError) => {
-    setIsSubmittingBulkCopy(false);
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-    fetchApplications();
-  };
-  const { mutate: createCopy, isCopying } = useCreateBulkCopyMutation({
-    onSuccess: onHandleCopySuccess,
-    onError: onHandleCopyError,
-  });
-
-  const onDeleteReviewSuccess = (name: string) => {
-    pushNotification({
-      title: t("toastr.success.reviewDiscarded", {
-        application: name,
-      }),
-      variant: "success",
-    });
-    queryClient.invalidateQueries([ApplicationsQueryKey]);
-  };
-
-  const onDeleteAssessmentSuccess = (name: string) => {
-    pushNotification({
-      title: t("toastr.success.assessmentDiscarded", {
-        application: name,
-      }),
-      variant: "success",
-    });
-    queryClient.invalidateQueries([ApplicationsQueryKey]);
-  };
-
-  const onDeleteError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
-
-  const { mutate: deleteReview } = useDeleteReviewMutation(
-    onDeleteReviewSuccess,
-    onDeleteError
-  );
-
-  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
-    onDeleteAssessmentSuccess,
-    onDeleteError
-  );
 
   const isTaskCancellable = (application: Application) => {
     const task = getTask(application);
@@ -286,24 +191,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     failedCancelTask
   );
 
-  const discardAssessmentAndReview = (application: Application) => {
-    if (application.review?.id)
-      deleteReview({ id: application.review.id, name: application.name });
-
-    const assessment = getApplicationAssessment(application.id!);
-    if (assessment && assessment.id) {
-      deleteAssessment({ id: assessment.id, name: application.name });
-    }
-  };
-
-  const {
-    getApplicationAssessment,
-    isLoadingApplicationAssessment,
-    fetchErrorApplicationAssessment,
-  } = useFetchApplicationAssessments(applications);
-
-  const { assessApplication, inProgress: isApplicationAssessInProgress } =
-    useAssessApplication();
+  const { getApplicationAssessment } =
+    useFetchApplicationAssessments(applications);
 
   const tableControls = useLocalTableControls({
     idProperty: "id",
@@ -461,16 +350,12 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     selectionState: { selectedItems: selectedRows },
   } = tableControls;
 
-  const {
-    reviews,
-    isFetching: isFetchingReviews,
-    fetchError: fetchErrorReviews,
-  } = useFetchReviews();
+  const { reviews } = useFetchReviews();
 
   const [
     saveApplicationsCredentialsModalState,
     setSaveApplicationsCredentialsModalState,
-  ] = React.useState<"create" | Application[] | null>(null);
+  ] = useState<"create" | Application[] | null>(null);
   const isCreateUpdateCredentialsModalOpen =
     saveApplicationsCredentialsModalState !== null;
   const applicationsCredentialsToUpdate =
@@ -479,9 +364,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       : null;
 
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    React.useState(false);
+    useState(false);
 
-  const [taskToView, setTaskToView] = React.useState<{
+  const [taskToView, setTaskToView] = useState<{
     name: string;
     task: number | undefined;
   }>();
