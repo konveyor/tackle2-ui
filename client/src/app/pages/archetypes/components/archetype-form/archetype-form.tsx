@@ -32,9 +32,9 @@ import {
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import { useFetchTagCategories } from "@app/queries/tags";
 
-import ItemsSelect from "../items-select";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
+import ItemsSelect from "@app/components/items-select/items-select";
 
 export interface ArchetypeFormValues {
   name: string;
@@ -74,7 +74,6 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
   });
 
   const validationSchema = yup.object().shape({
-    // for text input fields
     name: yup
       .string()
       .trim()
@@ -191,7 +190,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         fieldId="description"
       />
 
-      <ItemsSelect
+      <ItemsSelect<Tag, ArchetypeFormValues>
         items={tags}
         control={control}
         name="criteriaTags"
@@ -205,7 +204,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         searchInputAriaLabel="criteria-tags-select-toggle"
       />
 
-      <ItemsSelect
+      <ItemsSelect<Tag, ArchetypeFormValues>
         items={tags}
         control={control}
         name="tags"
@@ -219,7 +218,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         searchInputAriaLabel="archetype-tags-select-toggle"
       />
 
-      <ItemsSelect
+      <ItemsSelect<Stakeholder, ArchetypeFormValues>
         items={stakeholders}
         control={control}
         name="stakeholders"
@@ -232,7 +231,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         searchInputAriaLabel="stakeholder-select-toggle"
       />
 
-      <ItemsSelect
+      <ItemsSelect<StakeholderGroup, ArchetypeFormValues>
         items={stakeholderGroups}
         control={control}
         name="stakeholderGroups"

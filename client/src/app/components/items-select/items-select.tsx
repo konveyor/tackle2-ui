@@ -1,28 +1,31 @@
 import React from "react";
-import { Control, Path } from "react-hook-form";
+import { Control, FieldValues, Path } from "react-hook-form";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { Autocomplete } from "@app/components/Autocomplete";
-import type { ArchetypeFormValues } from "./archetype-form";
 
 // TODO: Currently only supports working with tag names (which only work if item names are globally unique)
 // TODO: Does not support select menu grouping by category
 // TODO: Does not support select menu selection checkboxes
 // TODO: Does not support rendering item labels with item category color
 // TODO: Does not support rendering item labels in item category groups
-const ItemsSelect = <ItemType extends { name: string }>({
+
+const ItemsSelect = <
+  ItemType extends { name: string },
+  FormValues extends FieldValues,
+>({
   items = [],
-  control,
-  name,
   label,
   fieldId,
+  name,
+  control,
   noResultsMessage,
   placeholderText,
   searchInputAriaLabel,
   isRequired = false,
 }: {
   items: ItemType[];
-  control: Control<ArchetypeFormValues>;
-  name: Path<ArchetypeFormValues>;
+  name: Path<FormValues>;
+  control: Control<FormValues>;
   label: string;
   fieldId: string;
   noResultsMessage: string;
@@ -50,7 +53,9 @@ const ItemsSelect = <ItemType extends { name: string }>({
           searchInputAriaLabel={searchInputAriaLabel}
           options={itemsToName()}
           selections={normalizeSelections(value)}
-          onChange={onChange}
+          onChange={() => {
+            onChange(value);
+          }}
         />
       )}
     />

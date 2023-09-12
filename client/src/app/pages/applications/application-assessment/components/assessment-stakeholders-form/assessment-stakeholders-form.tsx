@@ -16,32 +16,15 @@ import { ApplicationAssessmentWizardValues } from "../application-assessment-wiz
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { Stakeholder, StakeholderGroup } from "@app/api/models";
-
-const stakeholderGroupToOption = (
-  value: StakeholderGroup
-): OptionWithValue<StakeholderGroup> => ({
-  value,
-  toString: () => value.name,
-});
-
-const stakeholderToOption = (
-  value: Stakeholder
-): OptionWithValue<Stakeholder> => ({
-  value,
-  toString: () => value.name,
-  props: {
-    description: value.email,
-  },
-});
+import ItemsSelect from "@app/components/items-select/items-select";
 
 export const AssessmentStakeholdersForm: React.FC = () => {
   const { t } = useTranslation();
   const { setValue, control, formState } =
     useFormContext<ApplicationAssessmentWizardValues>();
 
-  // const { stakeholders } = useFetchStakeholders();
-
-  // const { stakeholderGroups } = useFetchStakeholderGroups();
+  const { stakeholders } = useFetchStakeholders();
+  const { stakeholderGroups } = useFetchStakeholderGroups();
 
   return (
     <div className="pf-v5-c-form">
@@ -59,79 +42,30 @@ export const AssessmentStakeholdersForm: React.FC = () => {
       <Grid className="pf-v5-c-form__section">
         <GridItem md={6} className="pf-v5-c-form">
           <FormSection>
-            <HookFormPFGroupController
+            <ItemsSelect
+              items={stakeholders}
               control={control}
               name="stakeholders"
-              label={t("terms.stakeholders")}
+              label="Stakeholder(s)"
               fieldId="stakeholders"
-              renderInput={({ field: { value, name, onChange } }) => (
-                <SimpleSelect
-                  id="stakeholders-select"
-                  variant="typeaheadmulti"
-                  toggleId="stakeholders-select-toggle"
-                  toggleAriaLabel="Stakeholders dropdown toggle"
-                  aria-label={name}
-                  // value={value
-                  //   .map((id) => stakeholders.find((f) => id === f.id))
-                  //   .map((e) => (e ? stakeholderToOption(e) : undefined))
-                  //   .filter((e) => e !== undefined)}
-                  // options={stakeholders.map(stakeholderToOption)}
-                  value={value}
-                  options={[]}
-                  onChange={(selection) => {
-                    const selectionWithValue =
-                      selection as OptionWithValue<Stakeholder>;
-                    const selectionId: number = selectionWithValue.value.id!;
-
-                    const currentValue = value || [];
-                    const e = currentValue.find((f) => f === selectionId);
-                    if (e) {
-                      onChange(currentValue.filter((f) => f !== selectionId));
-                    } else {
-                      onChange([...currentValue, selectionId]);
-                    }
-                  }}
-                  onClear={() => onChange([])}
-                  noResultsFoundText={t("message.noResultsFoundTitle")}
-                />
-              )}
+              noResultsMessage={t("message.noResultsFoundTitle")}
+              placeholderText={t("composed.selectMany", {
+                what: t("terms.stakeholder(s)").toLowerCase(),
+              })}
+              searchInputAriaLabel="stakeholder-select-toggle"
             />
-            <HookFormPFGroupController
+
+            <ItemsSelect
+              items={stakeholderGroups}
               control={control}
               name="stakeholderGroups"
-              label={t("terms.stakeholderGroups")}
-              fieldId="stakeholder-groups"
-              renderInput={({ field: { value, name, onChange } }) => (
-                <SimpleSelect
-                  variant="typeaheadmulti"
-                  id="stakeholder-groups-select"
-                  toggleId="stakeholder-groups-select-toggle"
-                  toggleAriaLabel="Stakeholder groups dropdown toggle"
-                  aria-label={name}
-                  value={value}
-                  options={[]}
-                  // value={value
-                  //   .map((id) => stakeholderGroups.find((f) => id === f.id))
-                  //   .map((e) => (e ? stakeholderGroupToOption(e) : undefined))
-                  //   .filter((e) => e !== undefined)}
-                  // options={stakeholderGroups.map(stakeholderGroupToOption)}
-                  onChange={(selection) => {
-                    const selectionWithValue =
-                      selection as OptionWithValue<StakeholderGroup>;
-                    const selectionId: number = selectionWithValue.value.id!;
-
-                    const currentValue = value || [];
-                    const e = currentValue.find((f) => f === selectionId);
-                    if (e) {
-                      onChange(currentValue.filter((f) => f !== selectionId));
-                    } else {
-                      onChange([...currentValue, selectionId]);
-                    }
-                  }}
-                  onClear={() => onChange([])}
-                  noResultsFoundText={t("message.noResultsFoundTitle")}
-                />
-              )}
+              label="Stakeholder Group(s)"
+              fieldId="stakeholderGroups"
+              noResultsMessage={t("message.noResultsFoundTitle")}
+              placeholderText={t("composed.selectMany", {
+                what: t("terms.stakeholderGroup(s)").toLowerCase(),
+              })}
+              searchInputAriaLabel="stakeholder-groups-select-toggle"
             />
           </FormSection>
         </GridItem>
