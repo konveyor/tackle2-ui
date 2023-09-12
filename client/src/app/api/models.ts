@@ -757,9 +757,9 @@ export interface Archetype {
   description: string;
   comments: string;
   criteriaTags: Tag[];
-  archetypeTags: Tag[];
+  tags: Tag[];
   assessmentTags?: Tag[];
-  stakeholders?: Stakeholder[];
-  stakeholderGroups?: StakeholderGroup[];
+  stakeholders?: Ref[];
+  stakeholderGroups?: Ref[];
   applications?: Application[];
 }

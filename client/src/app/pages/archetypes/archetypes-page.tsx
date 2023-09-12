@@ -298,7 +298,7 @@ const Archetypes: React.FC = () => {
       >
         <ArchetypeForm
           key={archetypeToEdit?.id ?? -1}
-          toEdit={archetypeToEdit}
+          archetype={archetypeToEdit}
           onClose={() => setArchetypeToEdit(null)}
         />
       </Modal>

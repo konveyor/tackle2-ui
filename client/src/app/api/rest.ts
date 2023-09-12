@@ -800,8 +800,9 @@ export const getArchetypeById = (id: number): Promise<Archetype> =>
   axios.get(`${ARCHETYPES}/${id}`).then(({ data }) => data);
 
 // success with code 201 and created entity as response data
-export const createArchetype = (archetype: Archetype): Promise<Archetype> =>
-  axios.post(ARCHETYPES, archetype);
+export const createArchetype = (
+  archetype: New<Archetype>
+): Promise<Archetype> => axios.post(ARCHETYPES, archetype);
 
 // success with code 204 and therefore no response content
 export const updateArchetype = (archetype: Archetype): Promise<void> =>
