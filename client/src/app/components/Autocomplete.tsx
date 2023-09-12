@@ -15,6 +15,7 @@ import {
 
 export interface IAutocompleteProps {
   onChange: (selections: string[]) => void;
+  id?: string;
   allowUserOptions?: boolean;
   options?: string[];
   placeholderText?: string;
@@ -27,6 +28,7 @@ export interface IAutocompleteProps {
 }
 
 export const Autocomplete: React.FC<IAutocompleteProps> = ({
+  id = "",
   onChange,
   options = [],
   allowUserOptions = false,
@@ -258,6 +260,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   const inputGroup = (
     <div ref={searchInputRef}>
       <SearchInput
+        id={id}
         value={inputValue}
         hint={hint}
         onChange={handleInputChange}
@@ -285,7 +288,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
 
   return (
     <Flex direction={{ default: "column" }}>
-      <FlexItem>
+      <FlexItem key="input">
         <Popper
           trigger={inputGroup}
           triggerRef={searchInputRef}
@@ -296,7 +299,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
           onDocumentClick={handleClick}
         />
       </FlexItem>
-      <FlexItem>
+      <FlexItem key="chips">
         <Flex spaceItems={{ default: "spaceItemsXs" }}>
           {Array.from(currentChips).map((currentChip) => (
             <FlexItem key={currentChip}>

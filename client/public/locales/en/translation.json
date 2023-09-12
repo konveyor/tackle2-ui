@@ -128,6 +128,7 @@
       "newTag": "New Tag",
       "newTagCategory": "New tag category",
       "update": "Update {{what}}",
+      "updateArchetype": "Update archetype",
       "updateApplication": "Update application",
       "updateBusinessService": "Update business service",
       "updateJobFunction": "Update job function",

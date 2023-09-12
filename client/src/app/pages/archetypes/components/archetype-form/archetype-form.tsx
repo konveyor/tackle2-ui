@@ -1,0 +1,356 @@
+import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { AxiosError } from "axios";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+import {
+  ActionGroup,
+  Button,
+  ButtonVariant,
+  Form,
+} from "@patternfly/react-core";
+
+import type {
+  Archetype,
+  Stakeholder,
+  StakeholderGroup,
+  Tag,
+} from "@app/api/models";
+import {
+  HookFormPFTextArea,
+  HookFormPFTextInput,
+} from "@app/components/HookFormPFFields";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import {
+  useFetchArchetypes,
+  useFetchArchetypeById,
+  useCreateArchetypeMutation,
+  useUpdateArchetypeMutation,
+} from "@app/queries/archetypes";
+import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import { useFetchTagCategories } from "@app/queries/tags";
+
+import ItemsSelect from "../items-select";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
+import { useFetchStakeholders } from "@app/queries/stakeholders";
+
+export interface ArchetypeFormValues {
+  name: string;
+  description?: string;
+  comments?: string;
+
+  // TODO: a string[] only works here with `Autocomplete` if the entities have globally unique names
+  criteriaTags: string[];
+  tags: string[];
+  stakeholders?: string[];
+  stakeholderGroups?: string[];
+}
+
+export interface ArchetypeFormProps {
+  toEdit?: Archetype | null;
+  onClose: () => void;
+}
+
+export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
+  toEdit = null,
+  onClose,
+}) => {
+  const isCreate = toEdit === null;
+  const { t } = useTranslation();
+
+  const {
+    archetype, // TODO: Use this or just rely on `toEdit`?
+    existingArchetypes,
+    tags,
+    stakeholders,
+    stakeholderGroups,
+    createArchetype,
+    updateArchetype,
+  } = useArchetypeFormData({
+    id: toEdit?.id,
+    onActionSuccess: onClose,
+  });
+
+  const validationSchema = yup.object().shape({
+    // for text input fields
+    name: yup
+      .string()
+      .trim()
+      .required(t("validation.required"))
+      .min(3, t("validation.minLength", { length: 3 }))
+      .max(120, t("validation.maxLength", { length: 120 }))
+      .test(
+        "Duplicate name",
+        "An archetype with this name already exists. Use a different name.",
+        (value) =>
+          duplicateNameCheck(existingArchetypes, toEdit || null, value ?? "")
+      ),
+
+    description: yup
+      .string()
+      .trim()
+      .max(250, t("validation.maxLength", { length: 250 })),
+
+    comments: yup
+      .string()
+      .trim()
+      .max(250, t("validation.maxLength", { length: 250 })),
+
+    // for complex data fields
+    criteriaTags: yup
+      .array()
+      .of(yup.string())
+      .min(1)
+      .required(t("validation.required")),
+
+    tags: yup
+      .array()
+      .of(yup.string())
+      .min(1)
+      .required(t("validation.required")),
+
+    stakeholders: yup.array().of(yup.string()),
+
+    stakeholderGroups: yup.array().of(yup.string()),
+  });
+
+  const {
+    handleSubmit,
+    formState: { isSubmitting, isValidating, isValid, isDirty },
+    control,
+  } = useForm<ArchetypeFormValues>({
+    defaultValues: {
+      name: toEdit?.name || "",
+      description: toEdit?.description || "",
+      comments: toEdit?.comments || "",
+
+      criteriaTags: toEdit?.criteriaTags?.map((tag) => tag.name).sort() ?? [],
+      tags: toEdit?.archetypeTags?.map((tag) => tag.name).sort() ?? [],
+
+      stakeholders: toEdit?.stakeholders?.map((sh) => sh.name).sort() ?? [],
+      stakeholderGroups:
+        toEdit?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
+    },
+    resolver: yupResolver(validationSchema),
+    mode: "all",
+  });
+
+  const onValidSubmit = (values: ArchetypeFormValues) => {
+    const payload: Archetype = {
+      id: toEdit?.id || -1, // TODO: verify the -1 will be thrown out on create
+      name: values.name.trim(),
+      description: values.description?.trim() ?? "",
+      comments: values.comments?.trim() ?? "",
+
+      criteriaTags: values.criteriaTags
+        .map((tagName) => tags.find((tag) => tag.name === tagName))
+        .filter(Boolean) as Tag[],
+
+      archetypeTags: values.tags
+        .map((tagName) => tags.find((tag) => tag.name === tagName))
+        .filter(Boolean) as Tag[],
+
+      stakeholders:
+        values.stakeholders === undefined
+          ? undefined
+          : (values.stakeholders
+              .map((name) => stakeholders.find((s) => s.name === name))
+              .filter(Boolean) as Stakeholder[]),
+
+      stakeholderGroups:
+        values.stakeholderGroups === undefined
+          ? undefined
+          : (values.stakeholderGroups
+              .map((name) => stakeholderGroups.find((s) => s.name === name))
+              .filter(Boolean) as StakeholderGroup[]),
+    };
+
+    if (isCreate) {
+      createArchetype(payload);
+    } else {
+      updateArchetype(payload);
+    }
+  };
+
+  return (
+    <Form onSubmit={handleSubmit(onValidSubmit)} id="archetype-form">
+      <HookFormPFTextInput
+        control={control}
+        name="name"
+        label="Name" // TODO: l10n
+        fieldId="name"
+        isRequired
+      />
+
+      <HookFormPFTextInput
+        control={control}
+        name="description"
+        label="Description" // TODO: l10n
+        fieldId="description"
+      />
+
+      <ItemsSelect
+        items={tags}
+        control={control}
+        name="criteriaTags"
+        label="Criteria Tags" // TODO: l10n
+        fieldId="criteriaTags"
+        isRequired
+        noResultsMessage={t("message.noResultsFoundTitle")}
+        placeholderText={t("composed.selectMany", {
+          what: t("terms.tags").toLowerCase(),
+        })}
+        searchInputAriaLabel="criteria-tags-select-toggle"
+      />
+
+      <ItemsSelect
+        items={tags}
+        control={control}
+        name="tags"
+        label="Archetype Tags" // TODO: l10n
+        fieldId="archetypeTags"
+        isRequired
+        noResultsMessage={t("message.noResultsFoundTitle")}
+        placeholderText={t("composed.selectMany", {
+          what: t("terms.tags").toLowerCase(),
+        })}
+        searchInputAriaLabel="archetype-tags-select-toggle"
+      />
+
+      <ItemsSelect
+        items={stakeholders}
+        control={control}
+        name="stakeholders"
+        label="Stakeholder(s)" // TODO: l10n
+        fieldId="stakeholders"
+        noResultsMessage={t("message.noResultsFoundTitle")}
+        placeholderText={t("composed.selectMany", {
+          what: t("terms.stakeholder(s)").toLowerCase(),
+        })}
+        searchInputAriaLabel="stakeholder-select-toggle"
+      />
+
+      <ItemsSelect
+        items={stakeholderGroups}
+        control={control}
+        name="stakeholderGroups"
+        label="Stakeholder Group(s)" // TODO: l10n
+        fieldId="stakeholderGroups"
+        noResultsMessage={t("message.noResultsFoundTitle")}
+        placeholderText={t("composed.selectMany", {
+          what: t("terms.stakeholderGroup(s)").toLowerCase(),
+        })}
+        searchInputAriaLabel="stakeholder-groups-select-toggle"
+      />
+
+      <HookFormPFTextArea
+        control={control}
+        name="comments"
+        label={t("terms.comments")}
+        fieldId="comments"
+        resizeOrientation="vertical"
+      />
+
+      <ActionGroup>
+        <Button
+          type="submit"
+          id="submit"
+          aria-label="submit"
+          variant={ButtonVariant.primary}
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+        >
+          {isCreate ? t("actions.create") : t("actions.save")}
+        </Button>
+        <Button
+          type="button"
+          id="cancel"
+          aria-label="cancel"
+          variant={ButtonVariant.link}
+          isDisabled={isSubmitting || isValidating}
+          onClick={onClose}
+        >
+          {t("actions.cancel")}
+        </Button>
+      </ActionGroup>
+    </Form>
+  );
+};
+
+export default ArchetypeForm;
+
+const useArchetypeFormData = ({
+  id,
+  onActionSuccess = () => {},
+  onActionFail = () => {},
+}: {
+  id?: number;
+  onActionSuccess?: () => void;
+  onActionFail?: () => void;
+}) => {
+  const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
+
+  const { archetypes: existingArchetypes } = useFetchArchetypes();
+  const { archetype } = useFetchArchetypeById(id);
+
+  const { tagCategories } = useFetchTagCategories();
+  const tags = useMemo(
+    () => tagCategories.flatMap((tc) => tc.tags).filter(Boolean) as Tag[],
+    [tagCategories]
+  );
+
+  const { stakeholderGroups } = useFetchStakeholderGroups();
+  const { stakeholders } = useFetchStakeholders();
+
+  const onCreateSuccess = (archetype: Archetype) => {
+    pushNotification({
+      title: t("toastr.success.createWhat", {
+        type: t("terms.archetype"),
+        what: archetype.name,
+      }),
+      variant: "success",
+    });
+    onActionSuccess();
+  };
+
+  const onUpdateSuccess = (_id: number) => {
+    pushNotification({
+      title: t("toastr.success.save", {
+        type: t("terms.archetype"),
+      }),
+      variant: "success",
+    });
+    onActionSuccess();
+  };
+
+  const onCreateUpdateError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+    onActionFail();
+  };
+
+  const { mutate: createArchetype } = useCreateArchetypeMutation(
+    onCreateSuccess,
+    onCreateUpdateError
+  );
+
+  const { mutate: updateArchetype } = useUpdateArchetypeMutation(
+    onUpdateSuccess,
+    onCreateUpdateError
+  );
+
+  return {
+    archetype,
+    existingArchetypes,
+    createArchetype,
+    updateArchetype,
+    tagCategories,
+    tags,
+    stakeholders,
+    stakeholderGroups,
+  };
+};
