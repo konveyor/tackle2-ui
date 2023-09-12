@@ -4,7 +4,6 @@ import { AxiosError } from "axios";
 import {
   createQuestionnaire,
   deleteQuestionnaire,
-  getQuestionnaireBlob,
   getQuestionnaireById,
   getQuestionnaires,
   updateQuestionnaire,
@@ -68,7 +67,7 @@ export const useDeleteQuestionnaireMutation = (
 export const useFetchQuestionnaireById = (id: number | string) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [QuestionnaireByIdQueryKey, id],
-    queryFn: () => getQuestionnaireById(id),
+    queryFn: () => getQuestionnaireById<Questionnaire>(id),
     onError: (error: AxiosError) => console.log("error, ", error),
   });
   return {
@@ -78,14 +77,14 @@ export const useFetchQuestionnaireById = (id: number | string) => {
   };
 };
 
-// Download a questionnaire is triggered on demand using refetch()
+// A questionnaire download is triggered on demand using refetch()
 export const useFetchQuestionnaireBlob = (
   id: number,
   onError: (err: AxiosError) => void
 ) =>
   useQuery({
     queryKey: [QuestionnaireByIdQueryKey, id],
-    queryFn: () => getQuestionnaireBlob(id),
+    queryFn: () => getQuestionnaireById<Blob>(id, true),
     onError: onError,
     enabled: false,
   });

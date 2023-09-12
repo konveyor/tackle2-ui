@@ -328,7 +328,7 @@ export const updateApplication = (obj: Application): Promise<Application> =>
 export const getApplicationAnalysis = (
   applicationId: number,
   type: MimeType
-): Promise<string> =>
+): Promise<Blob> =>
   axios.get(
     `${APPLICATIONS}/${String(applicationId)}/analysis${
       type === MimeType.TAR ? "/report" : ""
@@ -756,30 +756,23 @@ export const updateProxy = (obj: Proxy): Promise<Proxy> =>
 export const getQuestionnaires = (): Promise<Questionnaire[]> =>
   axios.get(QUESTIONNAIRES).then((response) => response.data);
 
-export const getQuestionnaireById = (
-  id: number | string
-): Promise<Questionnaire> =>
-  axios.get(`${QUESTIONNAIRES}/${id}`).then((response) => response.data);
-
-export const getQuestionnaire = (id: number | string): Promise<void> =>
-  axios
-    .get(`${QUESTIONNAIRES}/${id}`, {
+export const getQuestionnaireById = <T>(
+  id: number | string,
+  isBlob: boolean = false
+): Promise<T> => {
+  let config = {};
+  if (isBlob) {
+    config = {
       responseType: "blob",
       headers: {
         Accept: "application/x-yaml",
       },
-    })
+    };
+  }
+  return axios
+    .get(`${QUESTIONNAIRES}/${id}`, config)
     .then((response) => response.data);
-
-export const getQuestionnaireBlob = (id: number): Promise<BlobPart> =>
-  axios
-    .get(`${QUESTIONNAIRES}/${id}`, {
-      responseType: "blob",
-      headers: {
-        Accept: "application/x-yaml",
-      },
-    })
-    .then((response) => response.data);
+};
 
 export const createQuestionnaire = (
   obj: Questionnaire
