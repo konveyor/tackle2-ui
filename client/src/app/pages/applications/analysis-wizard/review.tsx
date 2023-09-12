@@ -43,7 +43,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
   const { watch } = useFormContext<AnalysisWizardFormValues>();
   const {
     formLabels,
-    withKnown,
+    withKnownLibs,
     includedPackages,
     hasExcludedPackages,
     excludedPackages,
@@ -53,7 +53,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
     autoTaggingEnabled,
   } = watch();
 
-  const hasIncludedPackages = withKnown.includes("select");
+  const hasIncludedPackages = withKnownLibs.includes("select");
 
   return (
     <>
@@ -122,7 +122,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           <DescriptionListTerm>{t("wizard.terms.scope")}</DescriptionListTerm>
           <DescriptionListDescription id="scope">
             <List isPlain>
-              {withKnown.split(",").map((scope, index) => (
+              {withKnownLibs.split(",").map((scope, index) => (
                 <ListItem key={index}>{defaultScopes.get(scope)}</ListItem>
               ))}
             </List>
