@@ -1,3 +1,8 @@
+export enum MimeType {
+  TAR = "tar",
+  YAML = "yaml",
+}
+
 export type New<T extends { id: number }> = Omit<T, "id">;
 
 export interface HubFilter {

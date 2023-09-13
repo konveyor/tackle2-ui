@@ -17,7 +17,7 @@ import {
   ExclamationCircleIcon,
 } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Fact, Identity, Task } from "@app/api/models";
+import { Identity, MimeType, Task } from "@app/api/models";
 import { getKindIDByRef } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
 import {
@@ -28,10 +28,9 @@ import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { useFetchFacts } from "@app/queries/facts";
 import { ApplicationFacts } from "./application-facts";
 import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
-import { APPLICATIONS, getTaskById } from "@app/api/rest";
+import { getTaskById } from "@app/api/rest";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
-import { Link } from "react-router-dom";
-import DownloadButton, { MimeType } from "./components/download-button";
+import DownloadButton from "./components/download-button";
 
 export interface IApplicationDetailDrawerAnalysisProps
   extends Pick<
@@ -136,23 +135,27 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                   <DescriptionListTerm>Download</DescriptionListTerm>
                   <DescriptionListDescription>
                     <Tooltip
-                      content="Click to download Analysis report"
+                      content="Click to download Analysis report YAML file"
                       position="top"
                     >
                       <DownloadButton
-                        application={application}
+                        id={application.id}
                         mimeType={MimeType.TAR}
-                      />
+                      >
+                        TAR
+                      </DownloadButton>
                     </Tooltip>
                     {" | "}
                     <Tooltip
-                      content="Click to download Analysis report"
+                      content="Click to download Analysis report TAR file"
                       position="top"
                     >
                       <DownloadButton
-                        application={application}
+                        id={application.id}
                         mimeType={MimeType.YAML}
-                      />
+                      >
+                        YAML
+                      </DownloadButton>
                     </Tooltip>
                   </DescriptionListDescription>
                 </DescriptionListGroup>

@@ -51,6 +51,7 @@ import { useHistory } from "react-router-dom";
 import { Paths } from "@app/Paths";
 import { ImportQuestionnaireForm } from "@app/pages/assessment/import-questionnaire-form/import-questionnaire-form";
 import ConfirmDeleteDialog from "@app/components/ConfirmDeleteDialog/ConfirmDeleteDialog";
+import { ExportQuestionnaireDropdownItem } from "./ExportQuestionnaireDropdownItem";
 
 const AssessmentSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -320,15 +321,9 @@ const AssessmentSettings: React.FC = () => {
                               )}
                               shouldFocusToggleOnSelect
                             >
-                              <DropdownItem
-                                key="export"
-                                component="button"
-                                onClick={() =>
-                                  setQuestionnaireToExport(questionnaire.id)
-                                }
-                              >
-                                {t("actions.export")}
-                              </DropdownItem>
+                              <ExportQuestionnaireDropdownItem
+                                id={questionnaire.id}
+                              />
                               <DropdownItem
                                 key="view"
                                 component="button"

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 
 import {
   createQuestionnaire,
@@ -67,7 +67,7 @@ export const useDeleteQuestionnaireMutation = (
 export const useFetchQuestionnaireById = (id: number | string) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [QuestionnaireByIdQueryKey, id],
-    queryFn: () => getQuestionnaireById(id),
+    queryFn: () => getQuestionnaireById<Questionnaire>(id),
     onError: (error: AxiosError) => console.log("error, ", error),
   });
   return {
@@ -76,6 +76,18 @@ export const useFetchQuestionnaireById = (id: number | string) => {
     fetchError: error,
   };
 };
+
+// A questionnaire download is triggered on demand using refetch()
+export const useFetchQuestionnaireBlob = (
+  id: number,
+  onError: (err: AxiosError) => void
+) =>
+  useQuery({
+    queryKey: [QuestionnaireByIdQueryKey, id],
+    queryFn: () => getQuestionnaireById<Blob>(id, true),
+    onError: onError,
+    enabled: false,
+  });
 
 export const useCreateQuestionnaireMutation = (
   onSuccess?: (res: Questionnaire) => void,

@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
-import { ApplicationDependency } from "@app/api/models";
+import { MimeType } from "@app/api/models";
 import {
   createApplication,
   deleteApplication,
   deleteBulkApplications,
+  getApplicationAnalysis,
   getApplicationById,
   getApplications,
   updateAllApplications,
@@ -12,17 +14,10 @@ import {
 } from "@app/api/rest";
 import { reviewsQueryKey } from "./reviews";
 import { assessmentsQueryKey } from "./assessments";
-import { AxiosError } from "axios";
-
-export interface IApplicationDependencyFetchState {
-  applicationDependencies: ApplicationDependency[];
-  isFetching: boolean;
-  fetchError: any;
-  refetch: any;
-}
 
 export const ApplicationDependencyQueryKey = "applicationdependencies";
 export const ApplicationsQueryKey = "applications";
+export const ReportQueryKey = "report";
 
 export const useFetchApplications = () => {
   const queryClient = useQueryClient();
@@ -135,3 +130,16 @@ export const useBulkDeleteApplicationMutation = (
     }
   );
 };
+
+// The report download is triggerred on demand by a refetch()
+export const useFetchStaticReport = (
+  id: number,
+  type: MimeType,
+  onError: (err: AxiosError) => void
+) =>
+  useQuery({
+    queryKey: [ReportQueryKey, id],
+    queryFn: () => getApplicationAnalysis(id, type),
+    onError: onError,
+    enabled: false,
+  });
