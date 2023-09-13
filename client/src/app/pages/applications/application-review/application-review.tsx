@@ -2,17 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
-import {
-  Bullseye,
-  Card,
-  CardHeader,
-  FormSection,
-  Grid,
-  GridItem,
-  PageSection,
-  Text,
-  TextContent,
-} from "@patternfly/react-core";
+import { Bullseye, FormSection, Grid, GridItem } from "@patternfly/react-core";
 import BanIcon from "@patternfly/react-icons/dist/esm/icons/ban-icon";
 
 import { Paths, ReviewRoute } from "@app/Paths";
@@ -26,8 +16,6 @@ import { Application, Assessment, Review } from "@app/api/models";
 import { ApplicationReviewPage } from "./components/application-review-page";
 import { ApplicationDetails } from "./components/application-details";
 import { ReviewForm } from "./components/review-form";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { useSetting } from "@app/queries/settings";
 import { SimpleEmptyState } from "@app/components/SimpleEmptyState";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -39,19 +27,8 @@ import QuestionnaireSummary, {
 export const ApplicationReview: React.FC = () => {
   const { t } = useTranslation();
 
-  const { pushNotification } = React.useContext(NotificationsContext);
-
   const history = useHistory();
   const { applicationId } = useParams<ReviewRoute>();
-
-  // const { assessApplication, inProgress: isApplicationAssessInProgress } =
-  //   useAssessApplication();
-
-  const { data: reviewAssessmentSetting } = useSetting(
-    "review.assessment.required"
-  );
-
-  // Application and review
 
   const [isFetching, setIsFetching] = useState(true);
   const [fetchError, setFetchError] = useState<AxiosError>();
@@ -68,8 +45,6 @@ export const ApplicationReview: React.FC = () => {
 
       Promise.all([
         getAssessmentsByItemId(false, applicationId),
-        // getAssessmentsPromise({ applicationId: applicationId }),
-        // getApplicationByIdPromise(applicationId),
         getApplicationById(applicationId),
       ])
         .then(([assessmentData, applicationData]) => {
@@ -154,19 +129,10 @@ export const ApplicationReview: React.FC = () => {
         </ConditionalRender>
       </ApplicationReviewPage>
       {assessment && (
-        <PageSection>
-          <Card>
-            <CardHeader>
-              <TextContent>
-                <Text component="h3">{t("terms.assessmentSummary")}</Text>
-              </TextContent>
-              <QuestionnaireSummary
-                summaryData={assessment}
-                summaryType={SummaryType.Assessment}
-              />
-            </CardHeader>
-          </Card>
-        </PageSection>
+        <QuestionnaireSummary
+          summaryData={assessment}
+          summaryType={SummaryType.Assessment}
+        />
       )}
     </>
   );
