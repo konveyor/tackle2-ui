@@ -20,7 +20,7 @@ const mockAssessmentArray: Assessment[] = [
     name: "test",
     questionnaire: { id: 1, name: "Sample Questionnaire" },
     description: "Sample assessment description",
-    risk: "AMBER",
+    risk: "yellow",
     sections: [
       {
         name: "Application technologies 1",
@@ -257,7 +257,7 @@ export const handlers = [
       status: "started",
       name: "test",
       description: "Sample assessment description",
-      risk: "AMBER",
+      risk: "yellow",
       sections: [],
       riskMessages: {
         green: "Low risk",

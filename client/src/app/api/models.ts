@@ -689,7 +689,7 @@ export interface Thresholds {
   yellow: number;
 }
 export type AssessmentStatus = "empty" | "started" | "complete";
-export type Risk = "GREEN" | "AMBER" | "RED" | "UNKNOWN";
+export type Risk = "green" | "yellow" | "red" | "unknown";
 
 export interface InitialAssessment {
   application?: Ref;

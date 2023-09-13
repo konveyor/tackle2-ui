@@ -9,15 +9,7 @@ import {
 } from "@patternfly/react-table";
 
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
-import { RiskLabel } from "@app/components/RiskLabel";
-import { RISK_LIST } from "@app/Constants";
-import {
-  Assessment,
-  ITypeOptions,
-  Question,
-  Risk,
-  Section,
-} from "@app/api/models";
+import { Assessment, ITypeOptions, Question, Section } from "@app/api/models";
 
 import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
 import { useLegacySortState } from "@app/hooks/useLegacySortState";
@@ -65,7 +57,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
           );
           const item: ITableItem = {
             answerValue: checkedOption ? checkedOption.text : "",
-            riskValue: checkedOption ? checkedOption.risk : "UNKNOWN",
+            riskValue: checkedOption ? checkedOption.risk : "unknown",
             section,
             question,
           };
@@ -83,10 +75,10 @@ export const ApplicationAssessmentSummaryTable: React.FC<
       });
   }, [assessment]);
   const typeOptions: Array<ITypeOptions> = [
-    { key: "GREEN", value: "Low" },
-    { key: "AMBER", value: "Medium" },
-    { key: "RED", value: "High" },
-    { key: "UNKNOWN", value: "Unknown" },
+    { key: "green", value: "Low" },
+    { key: "yellow", value: "Medium" },
+    { key: "red", value: "High" },
+    { key: "unknown", value: "Unknown" },
   ];
 
   const filterCategories: FilterCategory<ITableItem, "riskValue">[] = [

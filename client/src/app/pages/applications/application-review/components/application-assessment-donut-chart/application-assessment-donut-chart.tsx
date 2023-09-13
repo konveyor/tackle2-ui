@@ -63,24 +63,24 @@ export const ApplicationAssessmentDonutChart: React.FC<
 
   const chartDefinition = [
     {
-      x: t(RISK_LIST["GREEN"].i18Key),
+      x: t(RISK_LIST["green"].i18Key),
       y: charData.green,
-      color: RISK_LIST["GREEN"].hexColor,
+      color: RISK_LIST["green"].hexColor,
     },
     {
-      x: t(RISK_LIST["AMBER"].i18Key),
+      x: t(RISK_LIST["yellow"].i18Key),
       y: charData.amber,
-      color: RISK_LIST["AMBER"].hexColor,
+      color: RISK_LIST["yellow"].hexColor,
     },
     {
-      x: t(RISK_LIST["RED"].i18Key),
+      x: t(RISK_LIST["red"].i18Key),
       y: charData.red,
-      color: RISK_LIST["RED"].hexColor,
+      color: RISK_LIST["red"].hexColor,
     },
     {
-      x: t(RISK_LIST["UNKNOWN"].i18Key),
+      x: t(RISK_LIST["unknown"].i18Key),
       y: charData.unknown,
-      color: RISK_LIST["UNKNOWN"].hexColor,
+      color: RISK_LIST["unknown"].hexColor,
     },
   ].filter((f) => f.y > 0);
 
