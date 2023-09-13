@@ -14,8 +14,6 @@ import {
   ApplicationImport,
   ApplicationImportSummary,
   Assessment,
-  BulkCopyAssessment,
-  BulkCopyReview,
   BusinessService,
   Cache,
   HubPaginatedResult,
@@ -50,7 +48,6 @@ import {
   InitialAssessment,
   MimeType,
 } from "./models";
-import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
 // TACKLE_HUB
@@ -251,27 +248,6 @@ export const getAssessmentById = (id: number | string): Promise<Assessment> => {
 
 export const deleteAssessment = (id: number): AxiosPromise => {
   return APIClient.delete(`${ASSESSMENTS}/${id}`);
-};
-
-export const createBulkCopyAssessment = (
-  bulk: BulkCopyAssessment
-): AxiosPromise<BulkCopyAssessment> => {
-  return APIClient.post<BulkCopyAssessment>(`${ASSESSMENTS}/bulk`, bulk);
-};
-
-export const getBulkCopyAssessment = ({
-  queryKey,
-}: {
-  queryKey: QueryKey;
-}): AxiosPromise<BulkCopyAssessment> => {
-  const [_, id] = queryKey;
-  return APIClient.get<BulkCopyAssessment>(`${ASSESSMENTS}/bulk/${id}`);
-};
-
-export const createBulkCopyReview = (
-  bulk: BulkCopyReview
-): AxiosPromise<BulkCopyReview> => {
-  return APIClient.post<BulkCopyReview>(`${REVIEWS}/copy`, bulk);
 };
 
 export const getIdentities = (): AxiosPromise<Array<Identity>> => {

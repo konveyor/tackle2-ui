@@ -1,6 +1,5 @@
 // External libraries
 import * as React from "react";
-import { useState } from "react";
 import { AxiosError } from "axios";
 import { useHistory } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
@@ -77,14 +76,12 @@ import { useDeleteAssessmentMutation } from "@app/queries/assessments";
 import { useDeleteReviewMutation, useFetchReviews } from "@app/queries/reviews";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchTagCategories } from "@app/queries/tags";
-import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
 
 // Relative components
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ApplicationDetailDrawerAssessment } from "../components/application-detail-drawer";
 import { ApplicationForm } from "../components/application-form";
-import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
@@ -143,8 +140,6 @@ export const ApplicationsTable: React.FC = () => {
   const [assessmentOrReviewToDiscard, setAssessmentOrReviewToDiscard] =
     React.useState<Application | null>(null);
 
-  const [isSubmittingBulkCopy, setIsSubmittingBulkCopy] = useState(false);
-
   const getTask = (application: Application) =>
     tasks.find((task: Task) => task.application?.id === application.id);
 
@@ -187,28 +182,6 @@ export const ApplicationsTable: React.FC = () => {
     onDeleteApplicationSuccess,
     onDeleteApplicationError
   );
-  const onHandleCopySuccess = (hasSuccessfulReviewCopy: boolean) => {
-    setIsSubmittingBulkCopy(false);
-    pushNotification({
-      title: hasSuccessfulReviewCopy
-        ? t("toastr.success.assessmentAndReviewCopied")
-        : t("toastr.success.assessmentCopied"),
-      variant: "success",
-    });
-    fetchApplications();
-  };
-  const onHandleCopyError = (error: AxiosError) => {
-    setIsSubmittingBulkCopy(false);
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-    fetchApplications();
-  };
-  const { mutate: createCopy, isCopying } = useCreateBulkCopyMutation({
-    onSuccess: onHandleCopySuccess,
-    onError: onHandleCopyError,
-  });
 
   const onDeleteReviewSuccess = (name: string) => {
     pushNotification({
@@ -745,57 +718,6 @@ export const ApplicationsTable: React.FC = () => {
             application={createUpdateApplications}
             onClose={() => setSaveApplicationModalState(null)}
           />
-        </Modal>
-        <Modal
-          isOpen={isCopyAssessmentModalOpen}
-          variant="large"
-          title={t("dialog.title.copyApplicationAssessmentFrom", {
-            what: applicationToCopyAssessmentFrom?.name,
-          })}
-          onClose={() => {
-            setApplicationToCopyAssessmentFrom(null);
-            fetchApplications();
-          }}
-        >
-          {applicationToCopyAssessmentFrom && (
-            <BulkCopyAssessmentReviewForm
-              application={applicationToCopyAssessmentFrom}
-              isSubmittingBulkCopy={isSubmittingBulkCopy}
-              setIsSubmittingBulkCopy={setIsSubmittingBulkCopy}
-              isCopying={isCopying}
-              createCopy={createCopy}
-              onSaved={() => {
-                setApplicationToCopyAssessmentFrom(null);
-                fetchApplications();
-              }}
-            />
-          )}
-        </Modal>
-        <Modal
-          isOpen={isCopyAssessmentAndReviewModalOpen}
-          variant="large"
-          title={t("dialog.title.copyApplicationAssessmentAndReviewFrom", {
-            what: applicationToCopyAssessmentAndReviewFrom?.name,
-          })}
-          onClose={() => {
-            setCopyAssessmentAndReviewModalState(null);
-            fetchApplications();
-          }}
-        >
-          {applicationToCopyAssessmentAndReviewFrom && (
-            <BulkCopyAssessmentReviewForm
-              application={applicationToCopyAssessmentAndReviewFrom}
-              review={appReview}
-              isSubmittingBulkCopy={isSubmittingBulkCopy}
-              setIsSubmittingBulkCopy={setIsSubmittingBulkCopy}
-              isCopying={isCopying}
-              createCopy={createCopy}
-              onSaved={() => {
-                setCopyAssessmentAndReviewModalState(null);
-                fetchApplications();
-              }}
-            />
-          )}
         </Modal>
         <Modal
           isOpen={isDependenciesModalOpen}

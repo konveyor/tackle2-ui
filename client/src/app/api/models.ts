@@ -172,13 +172,6 @@ export interface ApplicationImport {
   isValid: boolean;
 }
 
-export interface BulkCopyReview {
-  id?: number;
-  sourceReview: number;
-  targetApplications: number[];
-  completed?: boolean;
-}
-
 export type IdentityKind =
   | "source"
   | "maven"
@@ -212,13 +205,6 @@ export interface Proxy {
   createUser?: string;
   id: any;
   enabled: boolean;
-}
-
-export interface BulkCopyAssessment {
-  bulkId?: number;
-  fromAssessmentId: number;
-  applications: { applicationId: number }[];
-  completed?: boolean;
 }
 
 // Pagination
