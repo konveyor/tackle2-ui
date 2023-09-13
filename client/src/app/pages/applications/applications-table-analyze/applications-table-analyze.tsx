@@ -486,6 +486,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                     {t("actions.createNew")}
                   </Button>
                 </RBAC>
+              </ToolbarItem>
+              <ToolbarItem>
                 <RBAC
                   allowedPermissions={tasksWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
