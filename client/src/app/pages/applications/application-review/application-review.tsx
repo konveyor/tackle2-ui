@@ -32,6 +32,9 @@ import { SimpleEmptyState } from "@app/components/SimpleEmptyState";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ApplicationAssessmentDonutChart } from "./components/application-assessment-donut-chart/application-assessment-donut-chart";
+import QuestionnaireSummary, {
+  SummaryType,
+} from "@app/components/questionnaire-summary/questionnaire-summary";
 
 export const ApplicationReview: React.FC = () => {
   const { t } = useTranslation();
@@ -157,6 +160,10 @@ export const ApplicationReview: React.FC = () => {
               <TextContent>
                 <Text component="h3">{t("terms.assessmentSummary")}</Text>
               </TextContent>
+              <QuestionnaireSummary
+                summaryData={assessment}
+                summaryType={SummaryType.Assessment}
+              />
             </CardHeader>
           </Card>
         </PageSection>

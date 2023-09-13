@@ -32,8 +32,8 @@ export enum SummaryType {
 }
 
 interface QuestionnaireSummaryProps {
-  isFetching: boolean;
-  fetchError: AxiosError | null;
+  isFetching?: boolean;
+  fetchError?: AxiosError | null;
   summaryData: Assessment | Questionnaire | undefined;
   summaryType: SummaryType;
   isArchetype?: boolean;
@@ -42,8 +42,8 @@ interface QuestionnaireSummaryProps {
 const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
   summaryData,
   summaryType,
-  isFetching,
-  fetchError,
+  isFetching = false,
+  fetchError = null,
   isArchetype,
 }) => {
   const { t } = useTranslation();
