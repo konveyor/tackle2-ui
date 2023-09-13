@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
 import {
   Bullseye,
-  Button,
   Card,
   CardHeader,
   FormSection,
@@ -15,18 +14,15 @@ import {
   TextContent,
 } from "@patternfly/react-core";
 import BanIcon from "@patternfly/react-icons/dist/esm/icons/ban-icon";
-import InfoCircleIcon from "@patternfly/react-icons/dist/esm/icons/info-circle-icon";
 
-import { useAssessApplication } from "@app/hooks";
 import { Paths, ReviewRoute } from "@app/Paths";
 import {
-  getApplicationByIdPromise,
+  getApplicationById,
   getAssessmentById,
-  getAssessmentsPromise,
+  getAssessmentsByItemId,
   getReviewId,
 } from "@app/api/rest";
 import { Application, Assessment, Review } from "@app/api/models";
-import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { ApplicationReviewPage } from "./components/application-review-page";
 import { ApplicationDetails } from "./components/application-details";
 import { ReviewForm } from "./components/review-form";
@@ -45,8 +41,8 @@ export const ApplicationReview: React.FC = () => {
   const history = useHistory();
   const { applicationId } = useParams<ReviewRoute>();
 
-  const { assessApplication, inProgress: isApplicationAssessInProgress } =
-    useAssessApplication();
+  // const { assessApplication, inProgress: isApplicationAssessInProgress } =
+  //   useAssessApplication();
 
   const { data: reviewAssessmentSetting } = useSetting(
     "review.assessment.required"
@@ -68,8 +64,10 @@ export const ApplicationReview: React.FC = () => {
       setIsFetching(true);
 
       Promise.all([
-        getAssessmentsPromise({ applicationId: applicationId }),
-        getApplicationByIdPromise(applicationId),
+        getAssessmentsByItemId(false, applicationId),
+        // getAssessmentsPromise({ applicationId: applicationId }),
+        // getApplicationByIdPromise(applicationId),
+        getApplicationById(applicationId),
       ])
         .then(([assessmentData, applicationData]) => {
           setApplication(applicationData);
@@ -105,30 +103,6 @@ export const ApplicationReview: React.FC = () => {
     history.push(Paths.applications);
   };
 
-  const startApplicationAssessment = () => {
-    if (!application) {
-      console.log("Can not assess without an application");
-      return;
-    }
-
-    assessApplication(
-      application,
-      (assessment: Assessment) => {
-        history.push(
-          formatPath(Paths.applicationsAssessment, {
-            assessmentId: assessment.id,
-          })
-        );
-      },
-      (error) => {
-        pushNotification({
-          title: getAxiosErrorMessage(error),
-          variant: "danger",
-        });
-      }
-    );
-  };
-
   if (fetchError) {
     return (
       <ApplicationReviewPage>
@@ -137,38 +111,6 @@ export const ApplicationReview: React.FC = () => {
             icon={BanIcon}
             title={t("message.couldNotFetchTitle")}
             description={t("message.couldNotFetchBody") + "."}
-          />
-        </Bullseye>
-      </ApplicationReviewPage>
-    );
-  }
-
-  if (
-    !isFetching &&
-    (!assessment || (assessment && assessment.status !== "complete")) &&
-    !reviewAssessmentSetting
-  ) {
-    return (
-      <ApplicationReviewPage>
-        <Bullseye>
-          <SimpleEmptyState
-            icon={InfoCircleIcon}
-            title={t("message.appNotAssesedTitle")}
-            description={t("message.appNotAssessedBody") + "."}
-            primaryAction={
-              <>
-                {application && (
-                  <Button
-                    variant="primary"
-                    isDisabled={isApplicationAssessInProgress}
-                    isLoading={isApplicationAssessInProgress}
-                    onClick={startApplicationAssessment}
-                  >
-                    {t("actions.assess")}
-                  </Button>
-                )}
-              </>
-            }
           />
         </Bullseye>
       </ApplicationReviewPage>

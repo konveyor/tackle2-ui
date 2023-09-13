@@ -250,7 +250,6 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
           id="cancel"
           aria-label="cancel"
           variant={ButtonVariant.link}
-          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
           onClick={onCancel}
         >
           {t("actions.cancel")}

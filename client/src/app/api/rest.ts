@@ -211,7 +211,8 @@ export const getApplicationSummaryCSV = (id: string): AxiosPromise => {
 //TODO: Remove this
 export const getApplicationByIdPromise = (
   id: number | string
-): Promise<Application> => axios.get(`${APPLICATIONS}/${id}`);
+): Promise<Application> =>
+  axios.get(`${APPLICATIONS}/${id}`).then((response) => response.data);
 
 //TODO: Remove this
 export const getAssessmentsPromise = (filters: {
@@ -222,7 +223,9 @@ export const getAssessmentsPromise = (filters: {
   };
 
   const query: string[] = buildQuery(params);
-  return axios.get(`${ASSESSMENTS}?${query.join("&")}`);
+  return axios
+    .get(`${ASSESSMENTS}?${query.join("&")}`)
+    .then((response) => response.data);
 };
 
 export const getAssessments = (filters: {

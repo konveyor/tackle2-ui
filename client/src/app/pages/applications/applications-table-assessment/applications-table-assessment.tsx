@@ -64,7 +64,6 @@ import { checkAccess } from "@app/utils/rbac-utils";
 // Hooks
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { useAssessApplication } from "@app/hooks";
 
 // Queries
 import { Application, Assessment, Task } from "@app/api/models";
@@ -266,9 +265,6 @@ export const ApplicationsTable: React.FC = () => {
     isLoadingApplicationAssessment,
     fetchErrorApplicationAssessment,
   } = useFetchApplicationAssessments(applications);
-
-  const { assessApplication, inProgress: isApplicationAssessInProgress } =
-    useAssessApplication();
 
   const tableControls = useLocalTableControls({
     idProperty: "id",

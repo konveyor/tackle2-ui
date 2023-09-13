@@ -6,7 +6,6 @@ import { global_palette_blue_300 as defaultColor } from "@patternfly/react-token
 
 import { RISK_LIST } from "@app/Constants";
 import { Assessment, Section } from "@app/api/models";
-import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 
 export interface ChartData {
   red: number;
@@ -27,13 +26,13 @@ export const getChartDataFromCategories = (sections: Section[]): ChartData => {
     .filter((f) => f.selected === true)
     .forEach((f) => {
       switch (f.risk) {
-        case "GREEN":
+        case "green":
           green++;
           break;
-        case "AMBER":
+        case "yellow":
           amber++;
           break;
-        case "RED":
+        case "red":
           red++;
           break;
         default:
@@ -57,14 +56,9 @@ export const ApplicationAssessmentDonutChart: React.FC<
   IApplicationAssessmentDonutChartProps
 > = ({ assessment }) => {
   const { t } = useTranslation();
-  const { questionnaires } = useFetchQuestionnaires();
-
-  const matchingQuestionnaire = questionnaires.find(
-    (questionnaire) => questionnaire.id === assessment?.questionnaire?.id
-  );
 
   const charData: ChartData = useMemo(() => {
-    return getChartDataFromCategories(matchingQuestionnaire?.sections || []);
+    return getChartDataFromCategories(assessment.sections || []);
   }, [assessment]);
 
   const chartDefinition = [

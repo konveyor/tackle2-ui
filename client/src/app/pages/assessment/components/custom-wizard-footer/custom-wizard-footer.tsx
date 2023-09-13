@@ -74,12 +74,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
               >
                 {t("actions.back")}
               </Button>
-              <Button
-                variant="link"
-                onClick={onClose}
-                // isDisabled={isDisabled}
-                cy-data="cancel"
-              >
+              <Button variant="link" onClick={onClose} cy-data="cancel">
                 {t("actions.cancel")}
               </Button>
               <Button
