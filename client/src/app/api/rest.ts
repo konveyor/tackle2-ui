@@ -208,39 +208,6 @@ export const getApplicationSummaryCSV = (id: string): AxiosPromise => {
   });
 };
 
-//TODO: Remove this
-export const getApplicationByIdPromise = (
-  id: number | string
-): Promise<Application> =>
-  axios.get(`${APPLICATIONS}/${id}`).then((response) => response.data);
-
-//TODO: Remove this
-export const getAssessmentsPromise = (filters: {
-  applicationId?: number | string;
-}): Promise<Assessment[]> => {
-  const params = {
-    applicationId: filters.applicationId,
-  };
-
-  const query: string[] = buildQuery(params);
-  return axios
-    .get(`${ASSESSMENTS}?${query.join("&")}`)
-    .then((response) => response.data);
-};
-
-export const getAssessments = (filters: {
-  applicationId?: number | string;
-}): Promise<Assessment[]> => {
-  const params = {
-    applicationId: filters.applicationId,
-  };
-
-  const query: string[] = buildQuery(params);
-  return axios
-    .get(`${ASSESSMENTS}?${query.join("&")}`)
-    .then((response) => response.data);
-};
-
 export const getAssessmentsByItemId = (
   isArchetype: boolean,
   itemId?: number | string

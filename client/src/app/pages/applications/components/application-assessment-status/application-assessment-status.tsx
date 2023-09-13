@@ -10,7 +10,7 @@ import { useFetchAssessmentById } from "@app/queries/assessments";
 
 export interface ApplicationAssessmentStatusProps {
   assessments?: Ref[];
-  isLoading: boolean;
+  isLoading?: boolean;
   fetchError?: AxiosError;
 }
 
@@ -29,7 +29,7 @@ const getStatusIconFrom = (assessment: Assessment): IconedStatusPreset => {
 
 export const ApplicationAssessmentStatus: React.FC<
   ApplicationAssessmentStatusProps
-> = ({ assessments, isLoading, fetchError }) => {
+> = ({ assessments, isLoading = false, fetchError = null }) => {
   const { t } = useTranslation();
   //TODO: remove this once we have a proper assessment status
   const { assessment } = useFetchAssessmentById(assessments?.[0]?.id || 0);

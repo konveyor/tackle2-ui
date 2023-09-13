@@ -73,10 +73,7 @@ import {
   useFetchApplications,
 } from "@app/queries/applications";
 import { useFetchTasks } from "@app/queries/tasks";
-import {
-  useDeleteAssessmentMutation,
-  useFetchApplicationAssessments,
-} from "@app/queries/assessments";
+import { useDeleteAssessmentMutation } from "@app/queries/assessments";
 import { useDeleteReviewMutation, useFetchReviews } from "@app/queries/reviews";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchTagCategories } from "@app/queries/tags";
@@ -250,21 +247,29 @@ export const ApplicationsTable: React.FC = () => {
     onDeleteError
   );
 
-  const discardAssessmentAndReview = (application: Application) => {
-    if (application.review?.id)
-      deleteReview({ id: application.review.id, name: application.name });
+  const discardAssessmentAndReview = async (application: Application) => {
+    try {
+      if (application.review?.id) {
+        await deleteReview({
+          id: application.review.id,
+          name: application.name,
+        });
+      }
 
-    const assessment = getApplicationAssessment(application.id!);
-    if (assessment && assessment.id) {
-      deleteAssessment({ id: assessment.id, name: application.name });
+      if (application.assessments) {
+        await Promise.all(
+          application.assessments.map(async (assessment) => {
+            await deleteAssessment({
+              id: assessment.id,
+              name: application.name,
+            });
+          })
+        );
+      }
+    } catch (error) {
+      console.error("Error while deleting assessments and/or reviews:", error);
     }
   };
-
-  const {
-    getApplicationAssessment,
-    isLoadingApplicationAssessment,
-    fetchErrorApplicationAssessment,
-  } = useFetchApplicationAssessments(applications);
 
   const tableControls = useLocalTableControls({
     idProperty: "id",
@@ -657,12 +662,6 @@ export const ApplicationsTable: React.FC = () => {
                     >
                       <ApplicationAssessmentStatus
                         assessments={application.assessments}
-                        isLoading={isLoadingApplicationAssessment(
-                          application.id!
-                        )}
-                        fetchError={fetchErrorApplicationAssessment(
-                          application.id!
-                        )}
                       />
                     </Td>
                     <Td
@@ -730,10 +729,6 @@ export const ApplicationsTable: React.FC = () => {
           application={activeRowItem}
           onCloseClick={clearActiveRow}
           reviews={reviews}
-          assessment={
-            (activeRowItem && getApplicationAssessment(activeRowItem.id)) ||
-            null
-          }
           task={activeRowItem ? getTask(activeRowItem) : null}
         />
         <Modal
@@ -765,9 +760,6 @@ export const ApplicationsTable: React.FC = () => {
           {applicationToCopyAssessmentFrom && (
             <BulkCopyAssessmentReviewForm
               application={applicationToCopyAssessmentFrom}
-              assessment={
-                getApplicationAssessment(applicationToCopyAssessmentFrom.id)!
-              }
               isSubmittingBulkCopy={isSubmittingBulkCopy}
               setIsSubmittingBulkCopy={setIsSubmittingBulkCopy}
               isCopying={isCopying}
@@ -793,11 +785,6 @@ export const ApplicationsTable: React.FC = () => {
           {applicationToCopyAssessmentAndReviewFrom && (
             <BulkCopyAssessmentReviewForm
               application={applicationToCopyAssessmentAndReviewFrom}
-              assessment={
-                getApplicationAssessment(
-                  applicationToCopyAssessmentAndReviewFrom.id!
-                )!
-              }
               review={appReview}
               isSubmittingBulkCopy={isSubmittingBulkCopy}
               setIsSubmittingBulkCopy={setIsSubmittingBulkCopy}

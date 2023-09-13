@@ -35,7 +35,6 @@ import {
 } from "@app/components/FilterToolbar";
 import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { useLegacySortState } from "@app/hooks/useLegacySortState";
-import { useFetchApplicationAssessments } from "@app/queries/assessments";
 import { useFetchApplications } from "@app/queries/applications";
 import { useFetchTagCategories } from "@app/queries/tags";
 import { IconedStatus } from "@app/components/IconedStatus";
@@ -138,7 +137,7 @@ export const BulkCopyAssessmentReviewForm: React.FC<
           what: t("terms.tagName").toLowerCase(),
         }) + "...",
       getItemValue: (item) => {
-        let tagNames = item?.tags?.map((tag) => tag.name).join("");
+        const tagNames = item?.tags?.map((tag) => tag.name).join("");
         return tagNames || "";
       },
       selectOptions: dedupeFunction(
@@ -185,13 +184,6 @@ export const BulkCopyAssessmentReviewForm: React.FC<
     // Don't allow selecting source application as a copy target
     isItemSelectable: (a) => a.id !== application.id,
   });
-
-  // Table's assessments
-  const {
-    getApplicationAssessment,
-    isLoadingApplicationAssessment,
-    fetchErrorApplicationAssessment,
-  } = useFetchApplicationAssessments(applications);
 
   // Table
   const columns: ICell[] = [
