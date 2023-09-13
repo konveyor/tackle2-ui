@@ -29,6 +29,7 @@ import {
 } from "@app/components/TableControls";
 import { dedupeFunction } from "@app/utils/utils";
 import { useUpdateMigrationWaveMutation } from "@app/queries/migration-waves";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 
 export interface ManageApplicationsFormProps {
   applications: Application[];
@@ -249,7 +250,17 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
           </Tr>
         </Thead>
         <ConditionalTableBody
-          isNoData={applications.length === 0}
+          isNoData={currentPageItems.length === 0}
+          noDataEmptyState={
+            <NoDataEmptyState
+              title={t("composed.noDataStateTitle", {
+                what: t("terms.applications").toLowerCase(),
+              })}
+              description={t("composed.noDataStateBody", {
+                what: t("terms.application").toLowerCase(),
+              })}
+            />
+          }
           numRenderedColumns={numRenderedColumns}
         >
           {currentPageItems?.map((application, rowIndex) => {
