@@ -66,7 +66,6 @@ import {
 import { checkAccess } from "@app/utils/rbac-utils";
 
 // Hooks
-import { useQueryClient } from "@tanstack/react-query";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
@@ -100,11 +99,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [isToolbarKebabOpen, setIsToolbarKebabOpen] = useState<boolean>(false);
+  const [isToolbarKebabOpen, setIsToolbarKebabOpen] =
+    React.useState<boolean>(false);
 
-  const [saveApplicationModalState, setSaveApplicationModalState] = useState<
-    "create" | Application | null
-  >(null);
+  const [saveApplicationModalState, setSaveApplicationModalState] =
+    React.useState<"create" | Application | null>(null);
 
   const isCreateUpdateApplicationsModalOpen =
     saveApplicationModalState !== null;
@@ -328,8 +327,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     hasActionsColumn: true,
     isSelectable: true,
   });
-
-  const queryClient = useQueryClient();
 
   const {
     currentPageItems,
