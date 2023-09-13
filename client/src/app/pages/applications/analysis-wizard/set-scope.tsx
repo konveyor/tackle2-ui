@@ -19,8 +19,12 @@ export const SetScope: React.FC = () => {
     message: "Must be a valid Java package name", // TODO translation here
   });
 
-  const { hasExcludedPackages, withKnown, includedPackages, excludedPackages } =
-    watch();
+  const {
+    hasExcludedPackages,
+    withKnownLibs,
+    includedPackages,
+    excludedPackages,
+  } = watch();
 
   return (
     <Form
@@ -35,9 +39,9 @@ export const SetScope: React.FC = () => {
       <Radio
         id="app"
         name="app"
-        isChecked={withKnown === "app"}
+        isChecked={withKnownLibs === "app"}
         onChange={() => {
-          setValue("withKnown", "app");
+          setValue("withKnownLibs", "app");
         }}
         label={t("wizard.label.scopeInternalDeps")}
         className={spacing.mbXs}
@@ -45,9 +49,9 @@ export const SetScope: React.FC = () => {
       <Radio
         id="oss"
         name="oss"
-        isChecked={withKnown === "app,oss"}
+        isChecked={withKnownLibs === "app,oss"}
         onChange={() => {
-          setValue("withKnown", "app,oss");
+          setValue("withKnownLibs", "app,oss");
         }}
         label={t("wizard.label.scopeAllDeps")}
         className={spacing.mbXs}
@@ -55,14 +59,14 @@ export const SetScope: React.FC = () => {
       <Radio
         id="select"
         name="select"
-        isChecked={withKnown === "app,oss,select"}
+        isChecked={withKnownLibs === "app,oss,select"}
         onChange={() => {
-          setValue("withKnown", "app,oss,select");
+          setValue("withKnownLibs", "app,oss,select");
         }}
         label={t("wizard.label.scopeSelectDeps")}
         className="scope-select-radio-button"
         body={
-          withKnown.includes("select") ? (
+          withKnownLibs.includes("select") ? (
             <StringListField
               listItems={includedPackages}
               setListItems={(items) => setValue("includedPackages", items)}

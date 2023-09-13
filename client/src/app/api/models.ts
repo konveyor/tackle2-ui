@@ -1,3 +1,8 @@
+export enum MimeType {
+  TAR = "tar",
+  YAML = "yaml",
+}
+
 export type New<T extends { id: number }> = Omit<T, "id">;
 
 export interface HubFilter {
@@ -334,7 +339,7 @@ export interface TaskData {
   targets?: string[];
   sources?: string[];
   scope: {
-    withKnown: boolean;
+    withKnownLibs: boolean;
     packages: {
       included: string[];
       excluded: string[];

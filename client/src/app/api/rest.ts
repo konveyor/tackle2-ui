@@ -48,6 +48,7 @@ import {
   Questionnaire,
   Archetype,
   InitialAssessment,
+  MimeType,
 } from "./models";
 import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
@@ -323,6 +324,22 @@ export const getApplications = (): Promise<Application[]> =>
 
 export const updateApplication = (obj: Application): Promise<Application> =>
   axios.put(`${APPLICATIONS}/${obj.id}`, obj);
+
+export const getApplicationAnalysis = (
+  applicationId: number,
+  type: MimeType
+): Promise<Blob> =>
+  axios.get(
+    `${APPLICATIONS}/${String(applicationId)}/analysis${
+      type === MimeType.TAR ? "/report" : ""
+    }`,
+    {
+      responseType: "blob",
+      headers: {
+        Accept: `application/x-${type}`,
+      },
+    }
+  );
 
 export const getApplicationsImportSummary = (): Promise<
   ApplicationImportSummary[]
@@ -739,10 +756,23 @@ export const updateProxy = (obj: Proxy): Promise<Proxy> =>
 export const getQuestionnaires = (): Promise<Questionnaire[]> =>
   axios.get(QUESTIONNAIRES).then((response) => response.data);
 
-export const getQuestionnaireById = (
-  id: number | string
-): Promise<Questionnaire> =>
-  axios.get(`${QUESTIONNAIRES}/${id}`).then((response) => response.data);
+export const getQuestionnaireById = <T>(
+  id: number | string,
+  isBlob: boolean = false
+): Promise<T> =>
+  axios
+    .get(
+      `${QUESTIONNAIRES}/${id}`,
+      isBlob
+        ? {
+            responseType: "blob",
+            headers: {
+              Accept: "application/x-yaml",
+            },
+          }
+        : {}
+    )
+    .then((response) => response.data);
 
 export const createQuestionnaire = (
   obj: Questionnaire
