@@ -70,7 +70,7 @@ Items are paginated according to the user-selected page number and items-per-pag
 
 ### Expansion
 
-Item details can be expanded, either with a "single expansion" variant where an entire row is expanded to show more detail or a "compound expansion" variant where individual cells in a row are expanded. This is tracked in state by a mapping of item ids (derived from the `idProperty` config argument) to an array of either boolean values (for single expansion) or `columnKey` values that are expanded for that item (for compound expansion). See [Unique Identifiers](#unique-identifiers) for more on `idProperty` and `columnKey`.
+Item details can be expanded, either with a "single expansion" variant where an entire row is expanded to show more detail or a "compound expansion" variant where an individual cell in a row (one at a time per row) is expanded. This is tracked in state by a mapping of item ids (derived from the `idProperty` config argument) to either a boolean value (for single expansion) or a `columnKey` value (for compound expansion). See [Unique Identifiers](#unique-identifiers) for more on `idProperty` and `columnKey`.
 
 - Single or compound expansion is defined by the optional `expandableVariant` config argument which defaults to `"single"`.
 - Expansion state is provided by `useExpansionState` or `useExpansionUrlParams`.
