@@ -666,7 +666,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                       {...getTdProps({ columnKey: "analysis" })}
                     >
                       <ApplicationAnalysisStatus
-                        state={getTaskState(application)}
+                        state={getTask(application)?.state || "No task"}
                       />
                     </Td>
                     <Td
