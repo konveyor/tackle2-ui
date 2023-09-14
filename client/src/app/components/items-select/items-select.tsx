@@ -53,8 +53,8 @@ const ItemsSelect = <
           searchInputAriaLabel={searchInputAriaLabel}
           options={itemsToName()}
           selections={normalizeSelections(value)}
-          onChange={() => {
-            onChange(value);
+          onChange={(selection) => {
+            onChange(selection as any);
           }}
         />
       )}

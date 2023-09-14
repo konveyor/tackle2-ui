@@ -6,20 +6,26 @@ import { RepositoriesGit } from "./pages/repositories/Git";
 import { RepositoriesMvn } from "./pages/repositories/Mvn";
 import { RepositoriesSvn } from "./pages/repositories/Svn";
 import { Paths } from "@app/Paths";
-import { ApplicationAssessment } from "./pages/applications/application-assessment/application-assessment";
 import { RouteWrapper } from "./components/RouteWrapper";
 import { adminRoles, devRoles } from "./rbac";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "@app/components/ErrorFallback";
 import { FEATURES_ENABLED } from "./FeatureFlags";
 
+const Assessment = lazy(() => import("./pages/assessment/assessment-page"));
+const Review = lazy(() => import("./pages/review/review-page"));
+const AssessmentSettings = lazy(
+  () =>
+    import(
+      "./pages/assessment-management/assessment-settings/assessment-settings-page"
+    )
+);
 const Applications = lazy(() => import("./pages/applications"));
 const ManageImports = lazy(() => import("./pages/applications/manage-imports"));
 const ImportDetails = lazy(
   () => import("./pages/applications/manage-imports-details")
 );
 
-const Reviews = lazy(() => import("./pages/applications/application-review"));
 const Reports = lazy(() => import("./pages/reports"));
 const Controls = lazy(() => import("./pages/controls"));
 const Identities = lazy(() => import("./pages/identities"));
@@ -34,27 +40,22 @@ const AffectedApplications = lazy(
 );
 const Dependencies = lazy(() => import("./pages/dependencies"));
 
-const AssessmentSettings = lazy(
-  () =>
-    import(
-      "./pages/assessment-management/assessment-settings/assessment-settings-page"
-    )
-);
-
 const Questionnaire = lazy(
   () => import("./pages/assessment-management/questionnaire/questionnaire-page")
 );
 
 const AssessmentActions = lazy(
   () =>
-    import("./pages/applications/assessment-actions/assessment-actions-page")
+    import(
+      "./pages/assessment/components/assessment-actions/assessment-actions-page"
+    )
 );
 const Archetypes = lazy(() => import("./pages/archetypes/archetypes-page"));
 
 const AssessmentSummary = lazy(
   () =>
     import(
-      "./pages/applications/application-assessment/components/assessment-summary/assessment-summary-page"
+      "./pages/assessment/components/assessment-summary/assessment-summary-page"
     )
 );
 export interface IRoute {
@@ -76,23 +77,33 @@ export const devRoutes: IRoute[] = [
     exact: false,
   },
   {
-    path: Paths.applicationsAssessment,
-    comp: ApplicationAssessment,
+    path: Paths.archetypesAssessment,
+    comp: Assessment,
     exact: false,
   },
   {
-    path: Paths.assessmentActions,
+    path: Paths.applicationsAssessment,
+    comp: Assessment,
+    exact: false,
+  },
+  {
+    path: Paths.applicationsReview,
+    comp: Review,
+    exact: false,
+  },
+  {
+    path: Paths.applicationAssessmentActions,
+    comp: AssessmentActions,
+    exact: false,
+  },
+  {
+    path: Paths.archetypeAssessmentActions,
     comp: AssessmentActions,
     exact: false,
   },
   {
     path: Paths.assessmentSummary,
     comp: AssessmentSummary,
-    exact: false,
-  },
-  {
-    path: Paths.applicationsReview,
-    comp: Reviews,
     exact: false,
   },
   {

@@ -1,68 +1,35 @@
-import {
-  useMutation,
-  useQueries,
-  useQuery,
-  useQueryClient,
-  UseQueryResult,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   createAssessment,
   deleteAssessment,
   getAssessmentById,
-  getAssessments,
-  getAssessmentsByAppId,
+  getAssessmentsByItemId,
   updateAssessment,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
-import { Application, Assessment, InitialAssessment } from "@app/api/models";
+import { Assessment, InitialAssessment } from "@app/api/models";
 import { QuestionnairesQueryKey } from "./questionnaires";
 
 export const assessmentsQueryKey = "assessments";
 export const assessmentQueryKey = "assessment";
-export const assessmentsByAppIdQueryKey = "assessmentsByAppId";
-
-export const useFetchApplicationAssessments = (
-  applications: Application[] = []
-) => {
-  const queryResults = useQueries({
-    queries: applications.map((application) => ({
-      queryKey: [assessmentsQueryKey, application.id],
-      queryFn: async () => {
-        const response = await getAssessments({
-          applicationId: application.id,
-        });
-        const allAssessmentsForApp = response;
-        return allAssessmentsForApp[0] || [];
-      },
-      onError: (error: AxiosError) => console.log("error, ", error),
-    })),
-  });
-  const queryResultsByAppId: Record<number, UseQueryResult<Assessment>> = {};
-  applications.forEach((application, i) => {
-    if (application.id) queryResultsByAppId[application.id] = queryResults[i];
-  });
-  return {
-    getApplicationAssessment: (id: number) => queryResultsByAppId[id]?.data,
-    isLoadingApplicationAssessment: (id: number) =>
-      queryResultsByAppId[id].isLoading,
-    fetchErrorApplicationAssessment: (id: number) =>
-      queryResultsByAppId[id].error as AxiosError | undefined,
-  };
-};
+export const assessmentsByItemIdQueryKey = "assessmentsByItemId";
 
 export const useCreateAssessmentMutation = (
+  isArchetype: boolean,
   onSuccess: (name: string) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (assessment: InitialAssessment) => createAssessment(assessment),
+    mutationFn: (assessment: InitialAssessment) =>
+      createAssessment(assessment, isArchetype),
     onSuccess: (res) => {
       queryClient.invalidateQueries([
-        assessmentsByAppIdQueryKey,
+        assessmentsByItemIdQueryKey,
         res?.application?.id,
+        res?.archetype?.id,
       ]);
     },
     onError: onError,
@@ -81,7 +48,7 @@ export const useUpdateAssessmentMutation = (
       onSuccess && onSuccess(args.name);
       queryClient.invalidateQueries([
         QuestionnairesQueryKey,
-        assessmentsByAppIdQueryKey,
+        assessmentsByItemIdQueryKey,
         _?.application?.id,
       ]);
     },
@@ -101,7 +68,7 @@ export const useDeleteAssessmentMutation = (
     onSuccess: (_, args) => {
       onSuccess(args.name);
       queryClient.invalidateQueries([
-        assessmentsByAppIdQueryKey,
+        assessmentsByItemIdQueryKey,
         args.id,
         QuestionnairesQueryKey,
       ]);
@@ -123,13 +90,17 @@ export const useFetchAssessmentById = (id: number | string) => {
   };
 };
 
-export const useFetchAssessmentsByAppId = (applicationId: number | string) => {
+export const useFetchAssessmentsByItemId = (
+  isArchetype: boolean,
+  itemId?: number | string
+) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: [assessmentsByAppIdQueryKey, applicationId],
-    queryFn: () => getAssessmentsByAppId(applicationId),
+    queryKey: [assessmentsByItemIdQueryKey, itemId],
+    queryFn: () => getAssessmentsByItemId(isArchetype, itemId),
     onError: (error: AxiosError) => console.log("error, ", error),
     onSuccess: (data) => {},
   });
+
   return {
     assessments: data,
     isFetching: isLoading,

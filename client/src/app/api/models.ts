@@ -131,13 +131,13 @@ export interface Application {
 }
 
 export interface Review {
-  id?: number;
+  id: number;
   proposedAction: ProposedAction;
   effortEstimate: EffortEstimate;
   businessCriticality: number;
   workPriority: number;
   comments?: string;
-  application?: Application;
+  application?: Ref;
 }
 
 export interface ApplicationDependency {
@@ -170,13 +170,6 @@ export interface ApplicationImport {
   "Application Name": string;
   errorMessage: string;
   isValid: boolean;
-}
-
-export interface BulkCopyReview {
-  id?: number;
-  sourceReview: number;
-  targetApplications: number[];
-  completed?: boolean;
 }
 
 export type IdentityKind =
@@ -212,13 +205,6 @@ export interface Proxy {
   createUser?: string;
   id: any;
   enabled: boolean;
-}
-
-export interface BulkCopyAssessment {
-  bulkId?: number;
-  fromAssessmentId: number;
-  applications: { applicationId: number }[];
-  completed?: boolean;
 }
 
 // Pagination
@@ -703,7 +689,7 @@ export interface Thresholds {
   yellow: number;
 }
 export type AssessmentStatus = "empty" | "started" | "complete";
-export type Risk = "GREEN" | "AMBER" | "RED" | "UNKNOWN";
+export type Risk = "green" | "yellow" | "red" | "unknown";
 
 export interface InitialAssessment {
   application?: Ref;
@@ -720,6 +706,8 @@ export interface Assessment
   description: string;
   status: AssessmentStatus;
   risk: Risk;
+  stakeholders: Ref[];
+  stakeholderGroups: Ref[];
 }
 export interface CategorizedTag {
   category: TagCategory;
@@ -757,9 +745,10 @@ export interface Archetype {
   description: string;
   comments: string;
   criteriaTags: Tag[];
-  archetypeTags: Tag[];
+  tags: Tag[];
   assessmentTags?: Tag[];
-  stakeholders?: Stakeholder[];
-  stakeholderGroups?: StakeholderGroup[];
+  stakeholders?: Ref[];
+  stakeholderGroups?: Ref[];
   applications?: Application[];
+  assessments?: Ref[];
 }
