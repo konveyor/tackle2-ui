@@ -71,7 +71,6 @@ import { Application, Assessment, Task } from "@app/api/models";
 import {
   ApplicationsQueryKey,
   useBulkDeleteApplicationMutation,
-  useDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
 import { useFetchTasks } from "@app/queries/tasks";
@@ -102,7 +101,6 @@ export const ApplicationsTable: React.FC = () => {
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [isKebabOpen, setIsKebabOpen] = React.useState<number | null>(null);
   const [isToolbarKebabOpen, setIsToolbarKebabOpen] =
     React.useState<boolean>(false);
 
