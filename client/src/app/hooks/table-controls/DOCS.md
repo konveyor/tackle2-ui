@@ -90,7 +90,7 @@ An item can be clicked to mark it as "active", which usually opens a drawer on t
 - Active row shorthand functions are provided by `getActiveRowDerivedState`.
 - A `useEffect` call which prevents invalid state after an item is deleted is provided by `useActiveRowEffects`.
 
-⚠️ TECH DEBT NOTE: We may want to rename the "active row" feature and code to "active item" to be consistent about using "item" naming rather than "row" naming outside the rendering code (see [Item Objects, Not Row Objects](#item-objects-not-row-objects).
+> ⚠️ TECH DEBT NOTE: We may want to rename the "active row" feature and code to "active item" to be consistent about using "item" naming rather than "row" naming outside the rendering code (see [Item Objects, Not Row Objects](#item-objects-not-row-objects)).
 
 ### Selection
 
