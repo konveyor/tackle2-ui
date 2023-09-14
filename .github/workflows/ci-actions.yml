@@ -27,8 +27,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Verify package-lock.json
+        run: ./scripts/verify_lock.mjs
+
       - name: Install
-        run: npm clean-install
+        run: npm clean-install --ignore-scripts
 
       - name: Lint sources
         run: npm run lint
