@@ -30,9 +30,7 @@ import { ApplicationSelectionContextProvider } from "./application-selection-con
 import { Landscape } from "./components/landscape";
 import { AdoptionPlan } from "./components/adoption-plan";
 import { IdentifiedRisksTable } from "./components/identified-risks-table";
-import { AdoptionCandidateGraph } from "./components/adoption-candidate-graph/adoption-candidate-graph";
 import { useFetchApplications } from "@app/queries/applications";
-import { AdoptionCandidateTable } from "./components/adoption-candidate-table/adoption-candidate-table";
 
 export const Reports: React.FC = () => {
   // i18
@@ -126,11 +124,11 @@ export const Reports: React.FC = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardBody>
-                    {isAdoptionCandidateTable ? (
+                    {/* {isAdoptionCandidateTable ? (
                       <AdoptionCandidateTable allApplications={applications} />
                     ) : (
                       <AdoptionCandidateGraph />
-                    )}
+                    )} */}
                   </CardBody>
                 </Card>
               </StackItem>

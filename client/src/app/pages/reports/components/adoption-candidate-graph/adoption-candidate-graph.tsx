@@ -36,7 +36,7 @@ import {
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { CartesianSquare } from "./cartesian-square";
 import { Arrow } from "./arrow";
-import { useFetchReviews } from "@app/queries/reviews";
+import { useGetReviewByAppId } from "@app/queries/reviews";
 import useFetchApplicationDependencies from "@app/hooks/useFetchApplicationDependencies/useFetchApplicationDependencies";
 
 interface Line {
@@ -155,12 +155,6 @@ export const AdoptionCandidateGraph: React.FC = () => {
   const { applicationDependencies: dependencies } =
     useFetchApplicationDependencies();
 
-  const {
-    reviews,
-    isFetching: isFetchingReviews,
-    fetchError: fetchErrorReviews,
-  } = useFetchReviews();
-
   // Chart data
   const legendAndPoints: ProposedActionChartDataListType = useMemo(() => {
     if (!confidences) {
@@ -171,9 +165,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
       const appConfidence = confidences.find(
         (elem) => elem.applicationId === current.id
       );
-      const appReview = reviews?.find(
-        (review) => review.id === current?.review?.id
-      );
+      const { review: appReview } = useGetReviewByAppId(current?.id || "");
 
       if (appConfidence && appReview) {
         const key = appReview.proposedAction;

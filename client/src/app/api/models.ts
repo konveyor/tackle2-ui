@@ -131,13 +131,13 @@ export interface Application {
 }
 
 export interface Review {
-  id?: number;
+  id: number;
   proposedAction: ProposedAction;
   effortEstimate: EffortEstimate;
   businessCriticality: number;
   workPriority: number;
   comments?: string;
-  application?: Application;
+  application?: Ref;
 }
 
 export interface ApplicationDependency {

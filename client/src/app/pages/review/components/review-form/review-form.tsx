@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import { AxiosPromise, AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
 import { object, string, mixed } from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -17,16 +16,25 @@ import { number } from "yup";
 import {
   Application,
   EffortEstimate,
+  New,
   ProposedAction,
   Review,
 } from "@app/api/models";
-import { createReview, updateReview } from "@app/api/rest";
 import { FieldErrors, useForm } from "react-hook-form";
 import {
   HookFormPFGroupController,
   HookFormPFTextArea,
 } from "@app/components/HookFormPFFields";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import {
+  reviewsByItemIdQueryKey,
+  useCreateReviewMutation,
+  useUpdateReviewMutation,
+} from "@app/queries/reviews";
+import { useQueryClient } from "@tanstack/react-query";
+import { useHistory } from "react-router-dom";
+import { Paths } from "@app/Paths";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 
 export interface FormValues {
   action: ProposedAction;
@@ -38,18 +46,16 @@ export interface FormValues {
 
 export interface IReviewFormProps {
   application: Application;
-  review?: Review;
-  onSaved: (response: AxiosResponse<Review>) => void;
-  onCancel: () => void;
+  review?: Review | null;
 }
 
 export const ReviewForm: React.FC<IReviewFormProps> = ({
   application,
   review,
-  onSaved,
-  onCancel,
 }) => {
   const { t } = useTranslation();
+  const history = useHistory();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const actionOptions: OptionWithValue<ProposedAction>[] = useMemo(() => {
     return Object.entries(PROPOSED_ACTION_LIST).map(([key, value]) => ({
@@ -101,34 +107,86 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
     console.log("Invalid form", errors);
   };
 
-  const onSubmit = (formValues: FormValues) => {
-    const payload: Review = {
+  // const onSubmit = (formValues: FormValues) => {
+  //   const payload: Review = {
+  //     ...review,
+  //     proposedAction: formValues.action,
+  //     effortEstimate: formValues.effort,
+  //     businessCriticality: formValues.criticality || 0,
+  //     workPriority: formValues.priority || 0,
+  //     comments: formValues.comments.trim(),
+  //     // application: { ...application, review: undefined },
+  //     application: { id: application.id, name: application.name },
+  //   };
+
+  //   let promise: Promise<Review>;
+  //   if (review) {
+  //     promise = updateReview({
+  //       ...review,
+  //       ...payload,
+  //     });
+  //   } else {
+  //     promise = createReview(payload);
+  //   }
+
+  //   promise
+  //     .then((response) => {
+  //       onSaved(response);
+  //     })
+  //     .catch((error) => {});
+  // };
+  const queryClient = useQueryClient();
+  const onHandleUpdateReviewSuccess = () => {
+    queryClient.invalidateQueries([
+      reviewsByItemIdQueryKey,
+      application.review?.id,
+    ]);
+  };
+  const createReviewMutation = useCreateReviewMutation();
+  const updateReviewMutation = useUpdateReviewMutation(
+    onHandleUpdateReviewSuccess
+  );
+
+  const onSubmit = async (formValues: FormValues) => {
+    const payload: New<Review> = {
       ...review,
       proposedAction: formValues.action,
       effortEstimate: formValues.effort,
       businessCriticality: formValues.criticality || 0,
       workPriority: formValues.priority || 0,
       comments: formValues.comments.trim(),
-      application: { ...application, review: undefined },
+      application: { id: application.id, name: application.name },
     };
 
-    let promise: AxiosPromise<Review>;
-    if (review) {
-      promise = updateReview({
-        ...review,
-        ...payload,
+    try {
+      if (review) {
+        // This is an update action
+        await updateReviewMutation.mutateAsync({
+          ...review,
+          ...payload,
+        });
+        pushNotification({
+          title: "Review has been updated.",
+          variant: "info",
+        });
+      } else {
+        // This is a save action
+        await createReviewMutation.mutateAsync(payload);
+        pushNotification({
+          title: "Review has been updated.",
+          variant: "info",
+        });
+      }
+
+      history.push(Paths.applications);
+    } catch (error) {
+      console.error("Error:", error);
+      pushNotification({
+        title: "Review has been updated.",
+        variant: "info",
       });
-    } else {
-      promise = createReview(payload);
     }
-
-    promise
-      .then((response) => {
-        onSaved(response);
-      })
-      .catch((error) => {});
   };
-
   return (
     <Form onSubmit={handleSubmit(onSubmit, onInvalid)}>
       <HookFormPFGroupController
@@ -250,7 +308,9 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
           id="cancel"
           aria-label="cancel"
           variant={ButtonVariant.link}
-          onClick={onCancel}
+          onClick={() => {
+            history.push(Paths.applications);
+          }}
         >
           {t("actions.cancel")}
         </Button>

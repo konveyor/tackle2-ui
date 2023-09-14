@@ -7,7 +7,6 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   List,
-  ListItem,
 } from "@patternfly/react-core";
 
 import { Application, Assessment } from "@app/api/models";

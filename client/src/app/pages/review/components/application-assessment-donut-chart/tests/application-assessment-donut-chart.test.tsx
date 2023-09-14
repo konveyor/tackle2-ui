@@ -1,13 +1,3 @@
-import React from "react";
-
-import {
-  ChartData,
-  ApplicationAssessmentDonutChart,
-  getChartDataFromCategories,
-} from "../application-assessment-donut-chart";
-import { Assessment } from "@app/api/models";
-import { render } from "@app/test-config/test-utils";
-
 describe("AppTable", () => {
   const assessments = [];
   // const assessment: Assessment = {

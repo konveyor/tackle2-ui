@@ -11,15 +11,21 @@ import { adminRoles, devRoles } from "./rbac";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "@app/components/ErrorFallback";
 import { FEATURES_ENABLED } from "./FeatureFlags";
-import { AssessmentPage } from "./pages/assessment/assessment-page";
 
+const Assessment = lazy(() => import("./pages/assessment/assessment-page"));
+const Review = lazy(() => import("./pages/review/review-page"));
+const AssessmentSettings = lazy(
+  () =>
+    import(
+      "./pages/assessment-management/assessment-settings/assessment-settings-page"
+    )
+);
 const Applications = lazy(() => import("./pages/applications"));
 const ManageImports = lazy(() => import("./pages/applications/manage-imports"));
 const ImportDetails = lazy(
   () => import("./pages/applications/manage-imports-details")
 );
 
-const Reviews = lazy(() => import("./pages/applications/application-review"));
 const Reports = lazy(() => import("./pages/reports"));
 const Controls = lazy(() => import("./pages/controls"));
 const Identities = lazy(() => import("./pages/identities"));
@@ -33,13 +39,6 @@ const AffectedApplications = lazy(
   () => import("./pages/issues/affected-applications")
 );
 const Dependencies = lazy(() => import("./pages/dependencies"));
-
-const AssessmentSettings = lazy(
-  () =>
-    import(
-      "./pages/assessment-management/assessment-settings/assessment-settings-page"
-    )
-);
 
 const Questionnaire = lazy(
   () => import("./pages/assessment-management/questionnaire/questionnaire-page")
@@ -79,12 +78,17 @@ export const devRoutes: IRoute[] = [
   },
   {
     path: Paths.archetypesAssessment,
-    comp: AssessmentPage,
+    comp: Assessment,
     exact: false,
   },
   {
     path: Paths.applicationsAssessment,
-    comp: AssessmentPage,
+    comp: Assessment,
+    exact: false,
+  },
+  {
+    path: Paths.applicationsReview,
+    comp: Review,
     exact: false,
   },
   {
@@ -100,11 +104,6 @@ export const devRoutes: IRoute[] = [
   {
     path: Paths.assessmentSummary,
     comp: AssessmentSummary,
-    exact: false,
-  },
-  {
-    path: Paths.applicationsReview,
-    comp: Reviews,
     exact: false,
   },
   {

@@ -114,11 +114,19 @@ const DynamicAssessmentActionsRow: FunctionComponent<
 
     try {
       const result = await createAssessmentAsync(newAssessment);
-      history.push(
-        formatPath(Paths.applicationsAssessment, {
-          assessmentId: result.id,
-        })
-      );
+      if (isArchetype) {
+        history.push(
+          formatPath(Paths.archetypesAssessment, {
+            assessmentId: result.id,
+          })
+        );
+      } else {
+        history.push(
+          formatPath(Paths.applicationsAssessment, {
+            assessmentId: result.id,
+          })
+        );
+      }
     } catch (error) {
       console.error("Error while creating assessment:", error);
     }

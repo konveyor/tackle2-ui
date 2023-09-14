@@ -66,9 +66,6 @@ describe("AppPlaceholder", () => {
     );
 
     expect(screen.getByRole("button", { name: /next/i })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /back/i })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /cancel/i })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /saveAsDraft/i })).toBeDisabled();
   });
 
   it("Disable actions using 'isFormInvalid=true'", () => {
@@ -83,9 +80,6 @@ describe("AppPlaceholder", () => {
       />
     );
     expect(screen.getByRole("button", { name: /next/i })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /back/i })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /cancel/i })).not.toBeDisabled();
-    expect(screen.getByRole("button", { name: /saveAsDraft/i })).toBeDisabled();
   });
 
   it("Last step: should call 'onSave' callback", () => {

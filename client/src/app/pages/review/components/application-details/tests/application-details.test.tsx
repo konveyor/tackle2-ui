@@ -1,8 +1,4 @@
-import React from "react";
-
-import { ApplicationDetails } from "../application-details";
-import { Application, Assessment } from "@app/api/models";
-import { render } from "@app/test-config/test-utils";
+import { Application } from "@app/api/models";
 
 describe("AppTable", () => {
   it.skip("Renders without crashing", () => {

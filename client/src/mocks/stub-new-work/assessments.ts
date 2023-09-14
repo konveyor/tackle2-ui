@@ -245,7 +245,8 @@ export const handlers = [
       return res(ctx.status(404), ctx.json({ error: "Assessment not found" }));
     }
   }),
-  rest.post(AppRest.ASSESSMENTS, async (req, res, ctx) => {
+  //TODO Finish updating mocks
+  rest.post(`${AppRest.ARCHETYPES}/`, async (req, res, ctx) => {
     console.log("req need to find questionnaire id", req);
 
     const initialAssessment: InitialAssessment = await req.json();

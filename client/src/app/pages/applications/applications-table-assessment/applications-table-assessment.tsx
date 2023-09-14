@@ -407,11 +407,6 @@ export const ApplicationsTable: React.FC = () => {
     fetchError: fetchErrorReviews,
   } = useFetchReviews();
 
-  const appReview = reviews?.find(
-    (review) =>
-      review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
-  );
-
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     React.useState(false);
 
@@ -701,7 +696,6 @@ export const ApplicationsTable: React.FC = () => {
         <ApplicationDetailDrawerAssessment
           application={activeRowItem}
           onCloseClick={clearActiveRow}
-          reviews={reviews}
           task={activeRowItem ? getTask(activeRowItem) : null}
         />
         <Modal

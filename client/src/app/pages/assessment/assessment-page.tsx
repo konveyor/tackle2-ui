@@ -19,7 +19,7 @@ import { useFetchAssessmentById } from "@app/queries/assessments";
 import { AssessmentPageHeader } from "./components/assessment-page-header";
 import { AssessmentWizard } from "./components/assessment-wizard/assessment-wizard";
 
-export const AssessmentPage: React.FC = () => {
+const AssessmentPage: React.FC = () => {
   const { t } = useTranslation();
 
   const { assessmentId } = useParams<AssessmentRoute>();
@@ -69,3 +69,4 @@ export const AssessmentPage: React.FC = () => {
     </>
   );
 };
+export default AssessmentPage;

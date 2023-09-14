@@ -167,24 +167,24 @@ export const deleteApplicationDependency = (id: number): AxiosPromise => {
 
 // Reviews
 
-export const getReviews = (): AxiosPromise<Review[]> => {
-  return APIClient.get(`${REVIEWS}`);
+export const getReviews = (): Promise<Review[]> => {
+  return axios.get(`${REVIEWS}`);
 };
 
-export const getReviewId = (id: number | string): AxiosPromise<Review> => {
-  return APIClient.get(`${REVIEWS}/${id}`);
+export const getReviewById = (id: number | string): Promise<Review> => {
+  return axios.get(`${REVIEWS}/${id}`).then((response) => response.data);
 };
 
-export const createReview = (obj: Review): AxiosPromise<Review> => {
-  return APIClient.post(`${REVIEWS}`, obj);
+export const createReview = (obj: New<Review>): Promise<Review> => {
+  return axios.post(`${REVIEWS}`, obj);
 };
 
-export const updateReview = (obj: Review): AxiosPromise<Review> => {
-  return APIClient.put(`${REVIEWS}/${obj.id}`, obj);
+export const updateReview = (obj: Review): Promise<Review> => {
+  return axios.put(`${REVIEWS}/${obj.id}`, obj);
 };
 
-export const deleteReview = (id: number): AxiosPromise => {
-  return APIClient.delete(`${REVIEWS}/${id}`);
+export const deleteReview = (id: number): Promise<Review> => {
+  return axios.delete(`${REVIEWS}/${id}`);
 };
 
 export const getApplicationAdoptionPlan = (

@@ -66,7 +66,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
 
     return {
       ...summaryData,
-      sections: summaryData?.sections.map((section) => ({
+      sections: summaryData?.sections?.map((section) => ({
         ...section,
         questions: section.questions.filter(({ text, explanation }) =>
           [text, explanation].some(
@@ -78,9 +78,10 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
   }, [summaryData, searchValue]);
 
   const allQuestions =
-    summaryData?.sections.flatMap((section) => section.questions) || [];
+    summaryData?.sections?.flatMap((section) => section.questions) || [];
   const allMatchingQuestions =
-    filteredSummaryData?.sections.flatMap((section) => section.questions) || [];
+    filteredSummaryData?.sections?.flatMap((section) => section.questions) ||
+    [];
 
   if (!summaryData) {
     return <div>No data available.</div>;
@@ -190,7 +191,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
                       hideAnswerKey={summaryType === SummaryType.Assessment}
                     />
                   </Tab>,
-                  ...(summaryData?.sections.map((section, index) => {
+                  ...(summaryData?.sections?.map((section, index) => {
                     const filteredQuestions =
                       filteredSummaryData?.sections[index]?.questions || [];
                     return (

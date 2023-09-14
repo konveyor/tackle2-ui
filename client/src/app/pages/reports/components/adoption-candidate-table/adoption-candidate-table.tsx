@@ -22,7 +22,7 @@ import {
 } from "@app/api/models";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
-import { useFetchReviews } from "@app/queries/reviews";
+import { useGetReviewByAppId } from "@app/queries/reviews";
 import { useQuery } from "@tanstack/react-query";
 import { useFetchRisks } from "@app/queries/risks";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
@@ -91,12 +91,6 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
     }
   );
 
-  const {
-    reviews,
-    isFetching: isFetchingReviews,
-    fetchError: fetchErrorReviews,
-  } = useFetchReviews();
-
   // Risk
   const { risks: assessmentRisks, refetch: fetchRisks } = useFetchRisks(
     allApplications.map((app) => app.id!)
@@ -116,10 +110,8 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
       const confidenceData = confidence?.find(
         (e) => e.applicationId === app.id
       );
+      const { review: reviewData } = useGetReviewByAppId(app?.id || "");
 
-      const reviewData = reviews?.find(
-        (review) => review.id === app.review?.id
-      );
       const riskData = assessmentRisks?.find((e) => e.applicationId === app.id);
 
       const result: TableRowData = {

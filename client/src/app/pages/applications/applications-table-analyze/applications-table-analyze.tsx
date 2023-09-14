@@ -75,7 +75,6 @@ import {
   useFetchApplications,
 } from "@app/queries/applications";
 import { useCancelTaskMutation, useFetchTasks } from "@app/queries/tasks";
-import { useFetchApplicationAssessments } from "@app/queries/assessments";
 import { useFetchReviews } from "@app/queries/reviews";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchTagCategories } from "@app/queries/tags";
@@ -189,9 +188,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     completedCancelTask,
     failedCancelTask
   );
-
-  const { getApplicationAssessment } =
-    useFetchApplicationAssessments(applications);
 
   const tableControls = useLocalTableControls({
     idProperty: "id",
@@ -701,11 +697,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
         <ApplicationDetailDrawerAssessment
           application={activeRowItem}
           onCloseClick={clearActiveRow}
-          reviews={reviews}
-          assessment={
-            (activeRowItem && getApplicationAssessment(activeRowItem.id)) ||
-            null
-          }
           task={activeRowItem ? getTask(activeRowItem) : null}
         />
 

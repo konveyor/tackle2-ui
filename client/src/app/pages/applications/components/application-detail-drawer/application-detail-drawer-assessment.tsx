@@ -14,28 +14,25 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
-import { Review, Task } from "@app/api/models";
+import { Task } from "@app/api/models";
 import { ApplicationRisk } from "./application-risk";
 import {
   ApplicationDetailDrawer,
   IApplicationDetailDrawerProps,
 } from "./application-detail-drawer";
+import { useGetReviewByAppId } from "@app/queries/reviews";
 
 export interface IApplicationDetailDrawerAssessmentProps
   extends Pick<IApplicationDetailDrawerProps, "application" | "onCloseClick"> {
-  reviews: Review[];
   task: Task | undefined | null;
 }
 
 export const ApplicationDetailDrawerAssessment: React.FC<
   IApplicationDetailDrawerAssessmentProps
-> = ({ application, onCloseClick, reviews, task }) => {
+> = ({ application, onCloseClick, task }) => {
   const { t } = useTranslation();
 
-  const appReview = reviews?.find(
-    (review) => review.id === application?.review?.id
-  );
-
+  const { review: appReview } = useGetReviewByAppId(application?.id || "");
   const notYetReviewed = (
     <EmptyTextMessage message={t("terms.notYetReviewed")} />
   );
