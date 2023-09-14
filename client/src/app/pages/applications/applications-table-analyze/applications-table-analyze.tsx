@@ -450,12 +450,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     tasks.some((task) => task.application?.id === app.id)
   );
 
-  const getTaskState = (application: Application) => {
-    const task = getTask(application);
-    if (task && task.state) return task.state;
-    return "No task";
-  };
-
   return (
     <ConditionalRender
       when={isFetchingApplications && !(applications || applicationsFetchError)}
