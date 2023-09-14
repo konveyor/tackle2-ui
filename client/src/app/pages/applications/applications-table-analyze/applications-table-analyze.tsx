@@ -1,159 +1,173 @@
+// External libraries
 import * as React from "react";
-import { useHistory } from "react-router-dom";
+import { useState } from "react";
 import { AxiosError } from "axios";
+import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
-import {
-  Button,
-  ButtonVariant,
-  Modal,
-  ToolbarGroup,
-  ToolbarItem,
-  TooltipPosition,
-} from "@patternfly/react-core";
-import { DropdownItem } from "@patternfly/react-core/deprecated";
-import {
-  cellWidth,
-  IAction,
-  ICell,
-  IExtraData,
-  IRow,
-  IRowData,
-  ISeparator,
-  nowrap,
-  sortable,
-  TableText,
-} from "@patternfly/react-table";
-import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
-import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
-import keycloak from "@app/keycloak";
 
-import { Paths } from "@app/Paths";
-import { Application, Task } from "@app/api/models";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { ApplicationForm } from "../components/application-form";
-import { ApplicationBusinessService } from "../components/application-business-service";
-import { ImportApplicationsForm } from "../components/import-applications-form";
-import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
-import { FilterToolbar } from "@app/components/FilterToolbar";
-import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
-import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
-import { useCancelTaskMutation, useFetchTasks } from "@app/queries/tasks";
+// @patternfly
 import {
-  applicationsWriteScopes,
-  importsWriteScopes,
-  RBAC,
-  RBAC_TYPE,
-  tasksReadScopes,
-  tasksWriteScopes,
-} from "@app/rbac";
-import { checkAccess } from "@app/utils/rbac-utils";
+  Toolbar,
+  ToolbarContent,
+  ToolbarItem,
+  Button,
+  ToolbarGroup,
+  ButtonVariant,
+  DropdownItem,
+  Dropdown,
+  MenuToggle,
+  MenuToggleElement,
+  Modal,
+} from "@patternfly/react-core";
 import {
-  useFetchApplications,
-  useBulkDeleteApplicationMutation,
-  ApplicationsQueryKey,
-} from "@app/queries/applications";
+  PencilAltIcon,
+  TagIcon,
+  EllipsisVIcon,
+  WarningTriangleIcon,
+} from "@patternfly/react-icons";
 import {
-  ApplicationTableType,
-  useApplicationsFilterValues,
-} from "../applicationsFilter";
-import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { ApplicationDetailDrawerAnalysis } from "../components/application-detail-drawer";
-import { useQueryClient } from "@tanstack/react-query";
+  Table,
+  Thead,
+  Tr,
+  Th,
+  Td,
+  ActionsColumn,
+} from "@patternfly/react-table";
+
+// @app components and utilities
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import {
+  FilterType,
+  FilterToolbar,
+} from "@app/components/FilterToolbar/FilterToolbar";
+import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  TableHeaderContentWithControls,
+  ConditionalTableBody,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { IconedStatus } from "@app/components/IconedStatus";
+import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
 import { getTaskById } from "@app/api/rest";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
+import { Paths } from "@app/Paths";
+import keycloak from "@app/keycloak";
+import {
+  RBAC,
+  RBAC_TYPE,
+  applicationsWriteScopes,
+  tasksWriteScopes,
+  importsWriteScopes,
+  tasksReadScopes,
+} from "@app/rbac";
+import { checkAccess } from "@app/utils/rbac-utils";
+
+// Hooks
+import { useLocalTableControls } from "@app/hooks/table-controls";
+
+// Queries
+import { Application, Task } from "@app/api/models";
+import {
+  useBulkDeleteApplicationMutation,
+  useFetchApplications,
+} from "@app/queries/applications";
+import { useCancelTaskMutation, useFetchTasks } from "@app/queries/tasks";
+import { useFetchApplicationAssessments } from "@app/queries/assessments";
+import { useFetchReviews } from "@app/queries/reviews";
+import { useFetchIdentities } from "@app/queries/identities";
+import { useFetchTagCategories } from "@app/queries/tags";
+
+// Relative components
+import { ApplicationBusinessService } from "../components/application-business-service";
+import { ApplicationDetailDrawerAssessment } from "../components/application-detail-drawer";
+import { ApplicationForm } from "../components/application-form";
+import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
+import { ImportApplicationsForm } from "../components/import-applications-form";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { AppTableWithControls } from "@app/components/AppTableWithControls";
-import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
-import { KebabDropdown } from "@app/components/KebabDropdown";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
-
-const ENTITY_FIELD = "entity";
-
-const getRow = (rowData: IRowData): Application => {
-  return rowData[ENTITY_FIELD];
-};
+import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 
 export const ApplicationsTableAnalyze: React.FC = () => {
-  //RBAC
-  const token = keycloak.tokenParsed || undefined;
-
   const { t } = useTranslation();
+  const history = useHistory();
+  const token = keycloak.tokenParsed;
+
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [isAnalyzeModalOpen, setAnalyzeModalOpen] = React.useState(false);
+  const [isToolbarKebabOpen, setIsToolbarKebabOpen] =
+    React.useState<boolean>(false);
 
-  const [saveApplicationsModalState, setSaveApplicationsModalState] =
+  const [saveApplicationModalState, setSaveApplicationModalState] =
     React.useState<"create" | Application | null>(null);
+
   const isCreateUpdateApplicationsModalOpen =
-    saveApplicationsModalState !== null;
+    saveApplicationModalState !== null;
+
   const createUpdateApplications =
-    saveApplicationsModalState !== "create" ? saveApplicationsModalState : null;
+    saveApplicationModalState !== "create" ? saveApplicationModalState : null;
 
-  const [
-    saveApplicationsCredentialsModalState,
-    setSaveApplicationsCredentialsModalState,
-  ] = React.useState<"create" | Application[] | null>(null);
-  const isCreateUpdateCredentialsModalOpen =
-    saveApplicationsCredentialsModalState !== null;
-  const applicationsCredentialsToUpdate =
-    saveApplicationsCredentialsModalState !== "create"
-      ? saveApplicationsCredentialsModalState
-      : null;
+  const [isAnalyzeModalOpen, setAnalyzeModalOpen] = useState(false);
 
-  const [applicationsToDelete, setApplicationsToDelete] = React.useState<
+  const [applicationsToDelete, setApplicationsToDelete] = useState<
     Application[]
   >([]);
 
-  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    React.useState(false);
-
-  const [taskToView, setTaskToView] = React.useState<{
-    name: string;
-    task: number | undefined;
-  }>();
-
-  // Router
-  const history = useHistory();
-
-  const {
-    data: applications,
-    isFetching,
-    error: fetchError,
-  } = useFetchApplications();
-
-  const {
-    paginationProps,
-    sortBy,
-    onSort,
-    filterCategories,
-    filterValues,
-    setFilterValues,
-    handleOnClearAllFilters,
-    currentPageItems,
-    isRowSelected,
-    toggleRowSelected,
-    selectAll,
-    selectMultiple,
-    areAllSelected,
-    selectedRows,
-    openDetailDrawer,
-    closeDetailDrawer,
-    activeAppInDetailDrawer,
-  } = useApplicationsFilterValues(ApplicationTableType.Analysis, applications);
+  const getTask = (application: Application) =>
+    tasks.find((task: Task) => task.application?.id === application.id);
 
   const { tasks } = useFetchTasks({ addon: "analyzer" });
 
-  const queryClient = useQueryClient();
-  const allTasksComplete = tasks.every((task) => task.state !== "Running");
+  const { tagCategories: tagCategories } = useFetchTagCategories();
 
-  React.useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
-  }, [allTasksComplete]);
+  const { identities } = useFetchIdentities();
+
+  const {
+    data: applications,
+    isFetching: isFetchingApplications,
+    error: applicationsFetchError,
+    refetch: fetchApplications,
+  } = useFetchApplications();
+
+  const onDeleteApplicationSuccess = (appIDCount: number) => {
+    pushNotification({
+      title: t("toastr.success.applicationDeleted", {
+        appIDCount: appIDCount,
+      }),
+      variant: "success",
+    });
+    clearActiveRow();
+    setApplicationsToDelete([]);
+  };
+
+  const onDeleteApplicationError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+    setApplicationsToDelete([]);
+  };
+
+  const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
+    onDeleteApplicationSuccess,
+    onDeleteApplicationError
+  );
+
+  const isTaskCancellable = (application: Application) => {
+    const task = getTask(application);
+    if (task?.state && task.state.match(/(Created|Running|Ready|Pending)/))
+      return true;
+    return false;
+  };
+
+  const cancelAnalysis = (row: Application) => {
+    const task = tasks.find((task) => task.application?.id === row.id);
+    if (task?.id) cancelTask(task.id);
+  };
 
   const completedCancelTask = () => {
     pushNotification({
@@ -176,215 +190,189 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     failedCancelTask
   );
 
-  const getTask = (application: Application) =>
-    tasks.find((task: Task) => task.application?.id === application.id);
+  const { getApplicationAssessment } =
+    useFetchApplicationAssessments(applications);
 
-  const isTaskCancellable = (application: Application) => {
-    const task = getTask(application);
-    if (task?.state && task.state.match(/(Created|Running|Ready|Pending)/))
-      return true;
-    return false;
-  };
-
-  // Delete
-
-  const onDeleteApplicationSuccess = (appIDCount: number) => {
-    pushNotification({
-      title: t("toastr.success.applicationDeleted", {
-        appIDCount: appIDCount,
-      }),
-      variant: "success",
-    });
-    activeAppInDetailDrawer && closeDetailDrawer();
-    setApplicationsToDelete([]);
-  };
-
-  const onDeleteApplicationError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-    setApplicationsToDelete([]);
-  };
-
-  const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
-    onDeleteApplicationSuccess,
-    onDeleteApplicationError
-  );
-
-  // Table
-  const columns: ICell[] = [
-    {
-      title: t("terms.name"),
-      transforms: [sortable, cellWidth(20)],
+  const tableControls = useLocalTableControls({
+    idProperty: "id",
+    items: applications || [],
+    columnNames: {
+      name: "Name",
+      description: "Description",
+      businessService: "Business Service",
+      analysis: "Analysis",
+      tags: "Tags",
     },
-    { title: t("terms.description"), transforms: [cellWidth(25)] },
-    {
-      title: t("terms.businessService"),
-      transforms: [sortable, cellWidth(20)],
-    },
-    {
-      title: t("terms.analysis"),
-      transforms: [cellWidth(10)],
-      cellTransforms: [nowrap],
-    },
-    {
-      title: t("terms.tagCount"),
-      transforms: [sortable, cellWidth(10)],
-      cellTransforms: [nowrap],
-    },
-    {
-      title: "",
-      props: {
-        className: "pf-v5-c-table__inline-edit-action",
+    sortableColumns: ["name", "description", "businessService", "tags"],
+    initialSort: { columnKey: "name", direction: "asc" },
+    filterCategories: [
+      {
+        key: "name",
+        title: t("terms.name"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.name").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => item?.name || "",
       },
-    },
-  ];
+      {
+        key: "description",
+        title: t("terms.description"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.description").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => item.description || "",
+      },
+      {
+        key: "businessService",
+        title: t("terms.businessService"),
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.businessService").toLowerCase(),
+          }) + "...",
+        type: FilterType.select,
+        selectOptions: dedupeFunction(
+          applications
+            .filter((app) => !!app.businessService?.name)
+            .map((app) => app.businessService?.name)
+            .map((name) => ({ key: name, value: name }))
+        ),
+        getItemValue: (item) => item.businessService?.name || "",
+      },
+      {
+        key: "identities",
+        title: t("terms.credentialType"),
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.credentialType").toLowerCase(),
+          }) + "...",
+        type: FilterType.multiselect,
+        selectOptions: [
+          { key: "source", value: "Source" },
+          { key: "maven", value: "Maven" },
+          { key: "proxy", value: "Proxy" },
+        ],
+        getItemValue: (item) => {
+          const searchStringArr: string[] = [];
+          item.identities?.forEach((appIdentity) => {
+            const matchingIdentity = identities.find(
+              (identity) => identity.id === appIdentity.id
+            );
+            searchStringArr.push(matchingIdentity?.kind || "");
+          });
+          const searchString = searchStringArr.join("");
+          return searchString;
+        },
+      },
+      {
+        key: "repository",
+        title: t("terms.repositoryType"),
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.repositoryType").toLowerCase(),
+          }) + "...",
+        type: FilterType.select,
+        selectOptions: [
+          { key: "git", value: "Git" },
+          { key: "subversion", value: "Subversion" },
+        ],
+        getItemValue: (item) => item?.repository?.kind || "",
+      },
+      {
+        key: "binary",
+        title: t("terms.artifact"),
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.artifact").toLowerCase(),
+          }) + "...",
+        type: FilterType.select,
+        selectOptions: [
+          { key: "binary", value: t("terms.artifactAssociated") },
+          { key: "none", value: t("terms.artifactNotAssociated") },
+        ],
+        getItemValue: (item) => {
+          const hasBinary =
+            item.binary !== "::" && item.binary?.match(/.+:.+:.+/)
+              ? "binary"
+              : "none";
 
-  const getTaskState = (application: Application) => {
-    const task = getTask(application);
-    if (task && task.state) return task.state;
-    return "No task";
-  };
-
-  const rows: IRow[] = [];
-  currentPageItems?.forEach((item) => {
-    const isSelected = isRowSelected(item);
-
-    rows.push({
-      [ENTITY_FIELD]: item,
-      selected: isSelected,
-      isClickable: true,
-      isRowSelected: activeAppInDetailDrawer?.id === item.id,
-      cells: [
-        {
-          title: <TableText wrapModifier="truncate">{item.name}</TableText>,
+          return hasBinary;
         },
-        {
-          title: (
-            <TableText wrapModifier="truncate">{item.description}</TableText>
-          ),
+      },
+      {
+        key: "tags",
+        title: t("terms.tags"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.tagName").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          const tagNames = item?.tags?.map((tag) => tag.name).join("");
+          return tagNames || "";
         },
-        {
-          title: (
-            <TableText wrapModifier="truncate">
-              {item.businessService && (
-                <ApplicationBusinessService id={item.businessService.id} />
-              )}
-            </TableText>
-          ),
-        },
-        {
-          title: (
-            <>
-              {item.id && (
-                <ApplicationAnalysisStatus state={getTaskState(item)} />
-              )}
-            </>
-          ),
-        },
-        {
-          title: (
-            <>
-              <TagIcon /> {item.tags ? item.tags.length : 0}
-            </>
-          ),
-        },
-        {
-          title: (
-            <RBAC
-              allowedPermissions={applicationsWriteScopes}
-              rbacType={RBAC_TYPE.Scope}
-            >
-              <Button
-                type="button"
-                variant="plain"
-                onClick={() => setSaveApplicationsModalState(item)}
-              >
-                <PencilAltIcon />
-              </Button>
-            </RBAC>
-          ),
-        },
-      ],
-    });
+        selectOptions: dedupeFunction(
+          tagCategories
+            ?.map((tagCategory) => tagCategory?.tags)
+            .flat()
+            .filter((tag) => tag && tag.name)
+            .map((tag) => ({ key: tag?.name, value: tag?.name }))
+        ),
+      },
+    ],
+    initialItemsPerPage: 10,
+    hasActionsColumn: true,
+    isSelectable: true,
   });
 
-  const actionResolver = (rowData: IRowData): (IAction | ISeparator)[] => {
-    const row: Application = getRow(rowData);
-    if (!row) {
-      return [];
-    }
+  const {
+    currentPageItems,
+    numRenderedColumns,
+    propHelpers: {
+      toolbarProps,
+      filterToolbarProps,
+      paginationToolbarItemProps,
+      paginationProps,
+      tableProps,
+      getThProps,
+      getTdProps,
+      toolbarBulkSelectorProps,
+      getClickableTrProps,
+    },
+    activeRowDerivedState: { activeRowItem, clearActiveRow },
 
-    const actions: (IAction | ISeparator)[] = [];
-    const userScopes: string[] = token?.scope.split(" ") || [],
-      applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes),
-      tasksReadAccess = checkAccess(userScopes, tasksReadScopes),
-      tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes);
+    selectionState: { selectedItems: selectedRows },
+  } = tableControls;
 
-    if (applicationWriteAccess) {
-      actions.push(
-        {
-          title: "Manage credentials",
-          onClick: () => setSaveApplicationsCredentialsModalState([row]),
-        },
-        {
-          title: t("actions.delete"),
-          ...(row.migrationWave !== null && {
-            isAriaDisabled: true,
-            tooltipProps: {
-              position: TooltipPosition.top,
-              content:
-                "Cannot delete application assigned to a migration wave.",
-            },
-          }),
-          onClick: () => setApplicationsToDelete([row]),
-        }
-      );
-    }
+  const { reviews } = useFetchReviews();
 
-    if (tasksReadAccess) {
-      actions.push({
-        title: t("actions.analysisDetails"),
-        "aria-disabled": !getTask(row),
-        onClick: () => {
-          const task = getTask(row);
-          if (task) setTaskToView({ name: row.name, task: task.id });
-        },
-      });
-    }
+  const [
+    saveApplicationsCredentialsModalState,
+    setSaveApplicationsCredentialsModalState,
+  ] = useState<"create" | Application[] | null>(null);
+  const isCreateUpdateCredentialsModalOpen =
+    saveApplicationsCredentialsModalState !== null;
+  const applicationsCredentialsToUpdate =
+    saveApplicationsCredentialsModalState !== "create"
+      ? saveApplicationsCredentialsModalState
+      : null;
 
-    if (tasksWriteAccess) {
-      actions.push({
-        title: "Cancel analysis",
-        "aria-disabled": !isTaskCancellable(row),
-        onClick: () => cancelAnalysis(row),
-      });
-    }
+  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
+    useState(false);
 
-    return actions;
-  };
-
-  // Row actions
-  const selectRow = (
-    _event: React.FormEvent<HTMLInputElement>,
-    _isSelected: boolean,
-    _rowIndex: number,
-    rowData: IRowData,
-    _extraData: IExtraData
-  ) => {
-    const row = getRow(rowData);
-    toggleRowSelected(row);
-  };
-
-  const cancelAnalysis = (row: Application) => {
-    const task = tasks.find((task) => task.application?.id === row.id);
-    if (task?.id) cancelTask(task.id);
-  };
+  const [taskToView, setTaskToView] = useState<{
+    name: string;
+    task: number | undefined;
+  }>();
 
   const userScopes: string[] = token?.scope.split(" ") || [],
     importWriteAccess = checkAccess(userScopes, importsWriteScopes),
-    applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes);
+    applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes),
+    tasksReadAccess = checkAccess(userScopes, tasksReadScopes),
+    tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes);
 
   const areAppsInWaves = selectedRows.some(
     (application) => application.migrationWave !== null
@@ -465,75 +453,41 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const hasExistingAnalysis = selectedRows.some((app) =>
     tasks.some((task) => task.application?.id === app.id)
   );
+
   return (
-    <>
-      <ConditionalRender
-        when={isFetching && !(applications || fetchError)}
-        then={<AppPlaceholder />}
+    <ConditionalRender
+      when={isFetchingApplications && !(applications || applicationsFetchError)}
+      then={<AppPlaceholder />}
+    >
+      <div
+        style={{
+          backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+        }}
       >
-        <AppTableWithControls
-          count={applications ? applications.length : 0}
-          paginationProps={paginationProps}
-          paginationIdPrefix="app-analysis"
-          sortBy={sortBy}
-          onSort={onSort}
-          onSelect={selectRow}
-          canSelectAll={false}
-          cells={columns}
-          rows={rows}
-          actionResolver={actionResolver}
-          isLoading={isFetching}
-          loadingVariant="skeleton"
-          fetchError={fetchError}
-          onAppClick={(application) => {
-            if (activeAppInDetailDrawer === application) {
-              closeDetailDrawer();
-            } else {
-              openDetailDrawer(application);
-            }
-          }}
-          toolbarToggle={
-            <FilterToolbar
-              filterCategories={filterCategories}
-              filterValues={filterValues}
-              setFilterValues={setFilterValues}
-              endToolbarItems={
-                <ToolbarItem>{`${selectedRows.length} selected`}</ToolbarItem>
-              }
-            />
-          }
-          toolbarBulkSelector={
-            <ToolbarBulkSelector
-              onSelectAll={selectAll}
-              areAllSelected={areAllSelected}
-              selectedRows={selectedRows}
-              paginationProps={paginationProps}
-              currentPageItems={currentPageItems}
-              onSelectMultiple={selectMultiple}
-            />
-          }
-          toolbarClearAllFilters={handleOnClearAllFilters}
-          toolbarActions={
-            <>
-              <ToolbarGroup variant="button-group">
+        <Toolbar {...toolbarProps}>
+          <ToolbarContent>
+            <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
+            <FilterToolbar {...filterToolbarProps} />
+            <ToolbarGroup variant="button-group">
+              <ToolbarItem>
                 <RBAC
                   allowedPermissions={applicationsWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
                 >
-                  <ToolbarItem>
-                    <Button
-                      type="button"
-                      id="create-application"
-                      aria-label="Create Application"
-                      variant={ButtonVariant.primary}
-                      onClick={() => {
-                        setSaveApplicationsModalState("create");
-                      }}
-                    >
-                      {t("actions.createNew")}
-                    </Button>
-                  </ToolbarItem>
+                  <Button
+                    type="button"
+                    id="create-application"
+                    aria-label="Create Application"
+                    variant={ButtonVariant.primary}
+                    onClick={() => {
+                      setSaveApplicationModalState("create");
+                    }}
+                  >
+                    {t("actions.createNew")}
+                  </Button>
                 </RBAC>
+              </ToolbarItem>
+              <ToolbarItem>
                 <RBAC
                   allowedPermissions={tasksWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
@@ -565,128 +519,288 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                     </ConditionalTooltip>
                   </ToolbarItem>
                 </RBAC>
-                {dropdownItems.length ? (
-                  <ToolbarItem>
-                    <KebabDropdown
-                      dropdownItems={dropdownItems}
-                    ></KebabDropdown>
-                  </ToolbarItem>
-                ) : (
-                  <></>
-                )}
-              </ToolbarGroup>
-            </>
-          }
-          noDataState={
-            <NoDataEmptyState
-              // t('terms.applications')
-              title={t("composed.noDataStateTitle", {
-                what: t("terms.applications").toLowerCase(),
-              })}
-              // t('terms.application')
-              description={t("composed.noDataStateBody", {
-                what: t("terms.application").toLowerCase(),
-              })}
-            />
-          }
+              </ToolbarItem>
+              {dropdownItems.length ? (
+                <ToolbarItem>
+                  <Dropdown
+                    isOpen={isToolbarKebabOpen}
+                    onSelect={() => setIsToolbarKebabOpen(false)}
+                    onOpenChange={(_isOpen) => setIsToolbarKebabOpen(false)}
+                    toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                      <MenuToggle
+                        ref={toggleRef}
+                        aria-label="kebab dropdown toggle"
+                        variant="plain"
+                        onClick={() =>
+                          setIsToolbarKebabOpen(!isToolbarKebabOpen)
+                        }
+                        isExpanded={isToolbarKebabOpen}
+                      >
+                        <EllipsisVIcon />
+                      </MenuToggle>
+                    )}
+                    shouldFocusToggleOnSelect
+                  >
+                    {dropdownItems}
+                  </Dropdown>
+                </ToolbarItem>
+              ) : (
+                <></>
+              )}
+            </ToolbarGroup>
+
+            <ToolbarItem {...paginationToolbarItemProps}>
+              <SimplePagination
+                idPrefix="s-table"
+                isTop
+                paginationProps={paginationProps}
+              />
+            </ToolbarItem>
+          </ToolbarContent>
+        </Toolbar>
+        <Table {...tableProps} isExpandable aria-label="App analysis table">
+          <Thead>
+            <Tr>
+              <TableHeaderContentWithControls {...tableControls}>
+                <Th {...getThProps({ columnKey: "name" })} />
+                <Th {...getThProps({ columnKey: "description" })} />
+                <Th {...getThProps({ columnKey: "businessService" })} />
+                <Th {...getThProps({ columnKey: "analysis" })} />
+                <Th {...getThProps({ columnKey: "tags" })} />
+              </TableHeaderContentWithControls>
+            </Tr>
+          </Thead>
+          <ConditionalTableBody
+            isError={!!applicationsFetchError}
+            isNoData={currentPageItems.length === 0}
+            noDataEmptyState={
+              <NoDataEmptyState
+                title={t("composed.noDataStateTitle", {
+                  what: t("terms.applications").toLowerCase(),
+                })}
+                description={t("composed.noDataStateBody", {
+                  what: t("terms.application").toLowerCase(),
+                })}
+              />
+            }
+            numRenderedColumns={numRenderedColumns}
+          >
+            {currentPageItems?.map((application, rowIndex) => {
+              const actionItems = [];
+
+              if (applicationWriteAccess) {
+                actionItems.push(
+                  {
+                    title: "Manage credentials",
+                    onClick: () =>
+                      setSaveApplicationsCredentialsModalState([application]),
+                  },
+                  {
+                    title: t("actions.delete"),
+                    onClick: () => setApplicationsToDelete([application]),
+                  }
+                );
+              }
+
+              if (tasksReadAccess) {
+                actionItems.push({
+                  title: t("actions.analysisDetails"),
+                  "aria-disabled": !getTask(application),
+                  onClick: () => {
+                    const task = getTask(application);
+                    if (task)
+                      setTaskToView({ name: application.name, task: task.id });
+                  },
+                });
+              }
+
+              if (tasksWriteAccess) {
+                actionItems.push({
+                  title: "Cancel analysis",
+                  "aria-disabled": !isTaskCancellable(application),
+                  onClick: () => cancelAnalysis(application),
+                });
+              }
+
+              return (
+                <Tr
+                  style={{ cursor: "pointer" }}
+                  key={application.name}
+                  {...getClickableTrProps({ item: application })}
+                >
+                  <TableRowContentWithControls
+                    {...tableControls}
+                    item={application}
+                    rowIndex={rowIndex}
+                  >
+                    <Td
+                      width={20}
+                      {...getTdProps({ columnKey: "name" })}
+                      modifier="truncate"
+                    >
+                      {application.name}
+                    </Td>
+                    <Td
+                      width={25}
+                      {...getTdProps({ columnKey: "description" })}
+                      modifier="truncate"
+                    >
+                      {application.description}
+                    </Td>
+                    <Td
+                      width={10}
+                      modifier="truncate"
+                      {...getTdProps({ columnKey: "businessService" })}
+                    >
+                      {application.businessService && (
+                        <ApplicationBusinessService
+                          id={application.businessService.id}
+                        />
+                      )}
+                    </Td>
+                    <Td
+                      width={10}
+                      modifier="truncate"
+                      {...getTdProps({ columnKey: "analysis" })}
+                    >
+                      <IconedStatus
+                        preset={application.review ? "Completed" : "NotStarted"}
+                      />
+                    </Td>
+                    <Td
+                      width={10}
+                      modifier="truncate"
+                      {...getTdProps({ columnKey: "tags" })}
+                    >
+                      <TagIcon />
+                      {application.tags ? application.tags.length : 0}
+                    </Td>
+                    <Td isActionCell>
+                      <Button
+                        variant="plain"
+                        icon={<PencilAltIcon />}
+                        onClick={() =>
+                          setSaveApplicationModalState(application)
+                        }
+                      />
+                    </Td>
+                    <Td isActionCell>
+                      <ActionsColumn items={actionItems} />
+                    </Td>
+                  </TableRowContentWithControls>
+                </Tr>
+              );
+            })}
+          </ConditionalTableBody>
+        </Table>
+        <SimplePagination
+          idPrefix="app-assessments-table"
+          isTop={false}
+          paginationProps={paginationProps}
         />
-        <ApplicationDetailDrawerAnalysis
-          application={activeAppInDetailDrawer}
-          applications={applications}
-          onCloseClick={closeDetailDrawer}
-          task={
-            activeAppInDetailDrawer ? getTask(activeAppInDetailDrawer) : null
+        <ApplicationDetailDrawerAssessment
+          application={activeRowItem}
+          onCloseClick={clearActiveRow}
+          reviews={reviews}
+          assessment={
+            (activeRowItem && getApplicationAssessment(activeRowItem.id)) ||
+            null
           }
+          task={activeRowItem ? getTask(activeRowItem) : null}
         />
-      </ConditionalRender>
-      <Modal
-        title={
-          createUpdateApplications ? "Update application" : "New application"
-        }
-        variant="medium"
-        isOpen={isCreateUpdateApplicationsModalOpen}
-        onClose={() => setSaveApplicationsModalState(null)}
-      >
-        <ApplicationForm
-          application={createUpdateApplications}
-          onClose={() => setSaveApplicationsModalState(null)}
-        />
-      </Modal>{" "}
-      <TaskGroupProvider>
-        <AnalysisWizard
-          applications={selectedRows}
-          isOpen={isAnalyzeModalOpen}
-          onClose={() => {
-            setAnalyzeModalOpen(false);
+
+        <ConfirmDialog
+          title={t(
+            applicationsToDelete.length > 1
+              ? "dialog.title.delete"
+              : "dialog.title.deleteWithName",
+            {
+              what:
+                applicationsToDelete.length > 1
+                  ? t("terms.application(s)").toLowerCase()
+                  : t("terms.application").toLowerCase(),
+              name:
+                applicationsToDelete.length === 1 &&
+                applicationsToDelete[0].name,
+            }
+          )}
+          titleIconVariant={"warning"}
+          isOpen={applicationsToDelete.length > 0}
+          message={`${
+            applicationsToDelete.length > 1
+              ? t("dialog.message.applicationsBulkDelete")
+              : ""
+          } ${t("dialog.message.delete")}`}
+          aria-label="Applications bulk delete"
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setApplicationsToDelete([])}
+          onClose={() => setApplicationsToDelete([])}
+          onConfirm={() => {
+            const ids = applicationsToDelete
+              .filter((application) => application.id)
+              .map((application) => application.id);
+            if (ids) bulkDeleteApplication({ ids: ids });
           }}
         />
-      </TaskGroupProvider>
-      <Modal
-        isOpen={isApplicationImportModalOpen}
-        variant="medium"
-        title={t("dialog.title.importApplicationFile")}
-        onClose={() => setIsApplicationImportModalOpen(false)}
-      >
-        <ImportApplicationsForm
-          onSaved={() => {
-            setIsApplicationImportModalOpen(false);
-            selectAll(false);
-          }}
-        />
-      </Modal>
-      <Modal
-        isOpen={isCreateUpdateCredentialsModalOpen}
-        variant="medium"
-        title="Manage credentials"
-        onClose={() => setSaveApplicationsCredentialsModalState(null)}
-      >
-        {applicationsCredentialsToUpdate && (
-          <ApplicationIdentityForm
-            applications={applicationsCredentialsToUpdate}
-            onClose={() => setSaveApplicationsCredentialsModalState(null)}
+        <TaskGroupProvider>
+          <AnalysisWizard
+            applications={selectedRows}
+            isOpen={isAnalyzeModalOpen}
+            onClose={() => {
+              setAnalyzeModalOpen(false);
+            }}
           />
-        )}
-      </Modal>
-      <ConfirmDialog
-        title={t(
-          applicationsToDelete.length > 1
-            ? "dialog.title.delete"
-            : "dialog.title.deleteWithName",
-          {
-            what:
-              applicationsToDelete.length > 1
-                ? t("terms.application(s)").toLowerCase()
-                : t("terms.application").toLowerCase(),
-            name:
-              applicationsToDelete.length === 1 && applicationsToDelete[0].name,
+        </TaskGroupProvider>
+        <Modal
+          isOpen={isCreateUpdateCredentialsModalOpen}
+          variant="medium"
+          title="Manage credentials"
+          onClose={() => setSaveApplicationsCredentialsModalState(null)}
+        >
+          {applicationsCredentialsToUpdate && (
+            <ApplicationIdentityForm
+              applications={applicationsCredentialsToUpdate}
+              onClose={() => setSaveApplicationsCredentialsModalState(null)}
+            />
+          )}
+        </Modal>
+        <Modal
+          title={
+            createUpdateApplications
+              ? t("dialog.title.updateApplication")
+              : t("dialog.title.newApplication")
           }
-        )}
-        titleIconVariant={"warning"}
-        isOpen={applicationsToDelete.length > 0}
-        message={`${
-          applicationsToDelete.length > 1
-            ? t("dialog.message.applicationsBulkDelete")
-            : ""
-        } ${t("dialog.message.delete")}`}
-        aria-label="Applications bulk delete"
-        confirmBtnVariant={ButtonVariant.danger}
-        confirmBtnLabel={t("actions.delete")}
-        cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => setApplicationsToDelete([])}
-        onClose={() => setApplicationsToDelete([])}
-        onConfirm={() => {
-          const ids = applicationsToDelete
-            .filter((application) => application.id)
-            .map((application) => application.id);
-          if (ids) bulkDeleteApplication({ ids: ids });
-        }}
-      />
-      <SimpleDocumentViewerModal<Task | string>
-        title={`Analysis details for ${taskToView?.name}`}
-        fetch={getTaskById}
-        documentId={taskToView?.task}
-        onClose={() => setTaskToView(undefined)}
-      />
-    </>
+          variant="medium"
+          isOpen={isCreateUpdateApplicationsModalOpen}
+          onClose={() => setSaveApplicationModalState(null)}
+        >
+          <ApplicationForm
+            application={createUpdateApplications}
+            onClose={() => setSaveApplicationModalState(null)}
+          />
+        </Modal>
+        <SimpleDocumentViewerModal<Task | string>
+          title={`Analysis details for ${taskToView?.name}`}
+          fetch={getTaskById}
+          documentId={taskToView?.task}
+          onClose={() => setTaskToView(undefined)}
+        />
+        <Modal
+          isOpen={isApplicationImportModalOpen}
+          variant="medium"
+          title={t("dialog.title.importApplicationFile")}
+          onClose={() => setIsApplicationImportModalOpen((current) => !current)}
+        >
+          <ImportApplicationsForm
+            onSaved={() => {
+              setIsApplicationImportModalOpen(false);
+              fetchApplications();
+            }}
+          />
+        </Modal>
+      </div>
+    </ConditionalRender>
   );
 };
