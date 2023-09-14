@@ -14,6 +14,7 @@ import {
 
 import type {
   Archetype,
+  New,
   Stakeholder,
   StakeholderGroup,
   Tag,
@@ -49,19 +50,17 @@ export interface ArchetypeFormValues {
 }
 
 export interface ArchetypeFormProps {
-  toEdit?: Archetype | null;
+  archetype?: Archetype | null;
   onClose: () => void;
 }
 
 export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
-  toEdit = null,
+  archetype,
   onClose,
 }) => {
-  const isCreate = toEdit === null;
   const { t } = useTranslation();
 
   const {
-    archetype, // TODO: Use this or just rely on `toEdit`?
     existingArchetypes,
     tags,
     stakeholders,
@@ -69,7 +68,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
     createArchetype,
     updateArchetype,
   } = useArchetypeFormData({
-    id: toEdit?.id,
+    id: archetype?.id,
     onActionSuccess: onClose,
   });
 
@@ -84,7 +83,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         "Duplicate name",
         "An archetype with this name already exists. Use a different name.",
         (value) =>
-          duplicateNameCheck(existingArchetypes, toEdit || null, value ?? "")
+          duplicateNameCheck(existingArchetypes, archetype || null, value ?? "")
       ),
 
     description: yup
@@ -119,26 +118,30 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
     control,
+    //for debugging
+    getValues,
+    getFieldState,
+    formState,
   } = useForm<ArchetypeFormValues>({
     defaultValues: {
-      name: toEdit?.name || "",
-      description: toEdit?.description || "",
-      comments: toEdit?.comments || "",
+      name: archetype?.name || "",
+      description: archetype?.description || "",
+      comments: archetype?.comments || "",
 
-      criteriaTags: toEdit?.criteriaTags?.map((tag) => tag.name).sort() ?? [],
-      tags: toEdit?.archetypeTags?.map((tag) => tag.name).sort() ?? [],
+      criteriaTags:
+        archetype?.criteriaTags?.map((tag) => tag.name).sort() ?? [],
+      tags: archetype?.tags?.map((tag) => tag.name).sort() ?? [],
 
-      stakeholders: toEdit?.stakeholders?.map((sh) => sh.name).sort() ?? [],
+      stakeholders: archetype?.stakeholders?.map((sh) => sh.name).sort() ?? [],
       stakeholderGroups:
-        toEdit?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
+        archetype?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
 
   const onValidSubmit = (values: ArchetypeFormValues) => {
-    const payload: Archetype = {
-      id: toEdit?.id || -1, // TODO: verify the -1 will be thrown out on create
+    const payload: New<Archetype> = {
       name: values.name.trim(),
       description: values.description?.trim() ?? "",
       comments: values.comments?.trim() ?? "",
@@ -147,7 +150,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         .map((tagName) => tags.find((tag) => tag.name === tagName))
         .filter(Boolean) as Tag[],
 
-      archetypeTags: values.tags
+      tags: values.tags
         .map((tagName) => tags.find((tag) => tag.name === tagName))
         .filter(Boolean) as Tag[],
 
@@ -166,19 +169,19 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
               .filter(Boolean) as StakeholderGroup[]),
     };
 
-    if (isCreate) {
-      createArchetype(payload);
+    if (archetype) {
+      updateArchetype({ id: archetype.id, ...payload });
     } else {
-      updateArchetype(payload);
+      createArchetype(payload);
     }
   };
-
+  console.log("values", getValues(), getFieldState("criteriaTags"), formState);
   return (
     <Form onSubmit={handleSubmit(onValidSubmit)} id="archetype-form">
       <HookFormPFTextInput
         control={control}
         name="name"
-        label="Name" // TODO: l10n
+        label="Name"
         fieldId="name"
         isRequired
       />
@@ -186,7 +189,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       <HookFormPFTextInput
         control={control}
         name="description"
-        label="Description" // TODO: l10n
+        label="Description"
         fieldId="description"
       />
 
@@ -194,7 +197,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         items={tags}
         control={control}
         name="criteriaTags"
-        label="Criteria Tags" // TODO: l10n
+        label="Criteria Tags"
         fieldId="criteriaTags"
         isRequired
         noResultsMessage={t("message.noResultsFoundTitle")}
@@ -208,7 +211,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         items={tags}
         control={control}
         name="tags"
-        label="Archetype Tags" // TODO: l10n
+        label="Archetype Tags"
         fieldId="archetypeTags"
         isRequired
         noResultsMessage={t("message.noResultsFoundTitle")}
@@ -222,7 +225,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         items={stakeholders}
         control={control}
         name="stakeholders"
-        label="Stakeholder(s)" // TODO: l10n
+        label="Stakeholder(s)"
         fieldId="stakeholders"
         noResultsMessage={t("message.noResultsFoundTitle")}
         placeholderText={t("composed.selectMany", {
@@ -235,7 +238,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         items={stakeholderGroups}
         control={control}
         name="stakeholderGroups"
-        label="Stakeholder Group(s)" // TODO: l10n
+        label="Stakeholder Group(s)"
         fieldId="stakeholderGroups"
         noResultsMessage={t("message.noResultsFoundTitle")}
         placeholderText={t("composed.selectMany", {
@@ -260,7 +263,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
           variant={ButtonVariant.primary}
           isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
         >
-          {isCreate ? t("actions.create") : t("actions.save")}
+          {!archetype ? t("actions.create") : t("actions.save")}
         </Button>
         <Button
           type="button"

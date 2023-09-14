@@ -32,13 +32,13 @@ const extractLandscapeData = (
 
   data.forEach((elem) => {
     switch (elem.risk) {
-      case "GREEN":
+      case "green":
         low++;
         break;
-      case "AMBER":
+      case "yellow":
         medium++;
         break;
-      case "RED":
+      case "red":
         high++;
         break;
     }
@@ -91,7 +91,7 @@ export const Landscape: React.FC = () => {
             <Donut
               value={landscapeData.low}
               total={applications.length}
-              color={RISK_LIST["GREEN"].hexColor}
+              color={RISK_LIST["green"].hexColor}
               riskLabel={t("terms.lowRisk")}
               riskDescription={t("terms.cloudNativeReady")}
             />
@@ -100,7 +100,7 @@ export const Landscape: React.FC = () => {
             <Donut
               value={landscapeData.medium}
               total={applications.length}
-              color={RISK_LIST["AMBER"].hexColor}
+              color={RISK_LIST["yellow"].hexColor}
               riskLabel={t("terms.mediumRisk")}
               riskDescription={t("terms.modernizable")}
             />
@@ -109,7 +109,7 @@ export const Landscape: React.FC = () => {
             <Donut
               value={landscapeData.high}
               total={applications.length}
-              color={RISK_LIST["RED"].hexColor}
+              color={RISK_LIST["red"].hexColor}
               riskLabel={t("terms.highRisk")}
               riskDescription={t("terms.unsuitableForContainers")}
             />
@@ -118,7 +118,7 @@ export const Landscape: React.FC = () => {
             <Donut
               value={landscapeData.unassessed}
               total={applications.length}
-              color={RISK_LIST["UNKNOWN"].hexColor}
+              color={RISK_LIST["unknown"].hexColor}
               riskLabel={t("terms.unassessed")}
               riskDescription={t("terms.notYetAssessed")}
             />

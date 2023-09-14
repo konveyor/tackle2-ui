@@ -8,10 +8,12 @@ export enum Paths {
   applicationsAssessmentTab = "/applications/assessment-tab",
   applicationsImports = "/applications/application-imports",
   applicationsImportsDetails = "/applications/application-imports/:importId",
+  archetypesAssessment = "/archetypes/assessment/:assessmentId",
   applicationsAssessment = "/applications/assessment/:assessmentId",
-  assessmentActions = "/applications/assessment-actions/:applicationId",
+  applicationAssessmentActions = "/applications/assessment-actions/:applicationId",
+  archetypeAssessmentActions = "/archetypes/assessment-actions/:archetypeId",
   assessmentSummary = "/applications/assessment-summary/:assessmentId",
-  applicationsReview = "/applications/application/:applicationId/review",
+  applicationsReview = "/applications/:applicationId/review",
   applicationsAnalysis = "/applications/analysis",
   archetypes = "/archetypes",
   controls = "/controls",
@@ -50,11 +52,13 @@ export interface AssessmentRoute {
 }
 
 export interface AssessmentActionsRoute {
-  applicationId: string;
+  applicationId?: string;
+  archetypeId?: string;
 }
 
 export interface ReviewRoute {
-  applicationId: string;
+  applicationId?: string;
+  archetypeId?: string;
 }
 
 export interface ImportSummaryRoute {

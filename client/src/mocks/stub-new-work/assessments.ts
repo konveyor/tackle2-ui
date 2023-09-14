@@ -20,7 +20,7 @@ const mockAssessmentArray: Assessment[] = [
     name: "test",
     questionnaire: { id: 1, name: "Sample Questionnaire" },
     description: "Sample assessment description",
-    risk: "AMBER",
+    risk: "yellow",
     sections: [
       {
         name: "Application technologies 1",
@@ -203,6 +203,8 @@ const mockAssessmentArray: Assessment[] = [
       yellow: 4,
     },
     application: { id: 1, name: "App 1" },
+    stakeholderGroups: [],
+    stakeholders: [],
   },
 ];
 
@@ -243,7 +245,8 @@ export const handlers = [
       return res(ctx.status(404), ctx.json({ error: "Assessment not found" }));
     }
   }),
-  rest.post(AppRest.ASSESSMENTS, async (req, res, ctx) => {
+  //TODO Finish updating mocks
+  rest.post(`${AppRest.ARCHETYPES}/`, async (req, res, ctx) => {
     console.log("req need to find questionnaire id", req);
 
     const initialAssessment: InitialAssessment = await req.json();
@@ -255,7 +258,7 @@ export const handlers = [
       status: "started",
       name: "test",
       description: "Sample assessment description",
-      risk: "AMBER",
+      risk: "yellow",
       sections: [],
       riskMessages: {
         green: "Low risk",
@@ -270,6 +273,8 @@ export const handlers = [
       },
       application: initialAssessment.application,
       questionnaire: initialAssessment.questionnaire,
+      stakeholderGroups: [],
+      stakeholders: [],
     };
 
     mockAssessmentArray.push(newAssessment);

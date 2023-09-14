@@ -32,17 +32,19 @@ export enum SummaryType {
 }
 
 interface QuestionnaireSummaryProps {
-  isFetching: boolean;
-  fetchError: AxiosError | null;
+  isFetching?: boolean;
+  fetchError?: AxiosError | null;
   summaryData: Assessment | Questionnaire | undefined;
   summaryType: SummaryType;
+  isArchetype?: boolean;
 }
 
 const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
   summaryData,
   summaryType,
-  isFetching,
-  fetchError,
+  isFetching = false,
+  fetchError = null,
+  isArchetype,
 }) => {
   const { t } = useTranslation();
 
@@ -64,7 +66,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
 
     return {
       ...summaryData,
-      sections: summaryData?.sections.map((section) => ({
+      sections: summaryData?.sections?.map((section) => ({
         ...section,
         questions: section.questions.filter(({ text, explanation }) =>
           [text, explanation].some(
@@ -76,9 +78,10 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
   }, [summaryData, searchValue]);
 
   const allQuestions =
-    summaryData?.sections.flatMap((section) => section.questions) || [];
+    summaryData?.sections?.flatMap((section) => section.questions) || [];
   const allMatchingQuestions =
-    filteredSummaryData?.sections.flatMap((section) => section.questions) || [];
+    filteredSummaryData?.sections?.flatMap((section) => section.questions) ||
+    [];
 
   if (!summaryData) {
     return <div>No data available.</div>;
@@ -88,7 +91,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
       <Breadcrumb>
         <BreadcrumbItem>
           <Link
-            to={formatPath(Paths.assessmentActions, {
+            to={formatPath(Paths.applicationAssessmentActions, {
               applicationId: (summaryData as Assessment)?.application?.id,
             })}
           >
@@ -143,10 +146,14 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
             <Link
               to={
                 summaryType === SummaryType.Assessment
-                  ? formatPath(Paths.assessmentActions, {
-                      applicationId: (summaryData as Assessment)?.application
-                        ?.id,
-                    })
+                  ? isArchetype
+                    ? formatPath(Paths.archetypeAssessmentActions, {
+                        archetypeId: (summaryData as Assessment)?.archetype?.id,
+                      })
+                    : formatPath(Paths.applicationAssessmentActions, {
+                        applicationId: (summaryData as Assessment)?.application
+                          ?.id,
+                      })
                   : Paths.assessment
               }
             >
@@ -184,7 +191,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
                       hideAnswerKey={summaryType === SummaryType.Assessment}
                     />
                   </Tab>,
-                  ...(summaryData?.sections.map((section, index) => {
+                  ...(summaryData?.sections?.map((section, index) => {
                     const filteredQuestions =
                       filteredSummaryData?.sections[index]?.questions || [];
                     return (

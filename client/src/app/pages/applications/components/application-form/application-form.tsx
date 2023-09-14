@@ -360,7 +360,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       id: formValues.id,
       migrationWave: application ? application.migrationWave : null,
       identities: application?.identities ? application.identities : undefined,
-      assessments: application?.assessments ? application.assessments : [],
     };
 
     if (application) {

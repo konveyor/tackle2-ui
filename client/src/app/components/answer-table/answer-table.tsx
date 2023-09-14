@@ -109,7 +109,7 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
                         {answer?.autoAnswerFor?.map((tag, index) => {
                           return (
                             <div key={index} style={{ flex: "0 0 6em" }}>
-                              <Label color="grey">{tag.tag.name}</Label>
+                              <Label color="grey">{tag.tag}</Label>
                             </div>
                           );
                         })}

@@ -1,0 +1,561 @@
+---
+id: 1
+createuser: admin.noauth
+createtime: 2023-09-12T21:14:56.924175129Z
+effort: 17
+
+issues: 
+- id: 1
+  createtime: 2023-09-12T21:14:56.932551879Z
+  ruleset: discovery-rules
+  rule: hardcoded-ip-address
+  name: ""
+  description: |-
+    Hardcoded IP Address
+    When migrating environments, hard-coded IP addresses may need to be modified or eliminated.
+  category: mandatory
+  effort: 1
+  incidents:
+  - id: 1
+    createtime: 2023-09-12T21:14:56.932731338Z
+    file: /addon/source/example-applications/example-1/src/main/resources/persistence.properties
+    line: 0
+    message: When migrating environments, hard-coded IP addresses may need to be modified
+      or eliminated.
+    codesnip: |2
+       1  jdbc.driverClassName=oracle.jdbc.driver.OracleDriver
+       2  jdbc.url=jdbc:oracle:thin:@169.60.225.216:1521/XEPDB1
+       3  jdbc.user=customers
+       4  jdbc.password=customers
+       5  hibernate.hbm2ddl.auto=create-drop
+       6  hibernate.dialect=org.hibernate.dialect.OracleDialect
+    facts:
+      matchingText: 169.60.225.216
+  - id: 2
+    createtime: 2023-09-12T21:14:56.932731338Z
+    file: /addon/source/example-applications/example-1/target/classes/persistence.properties
+    line: 0
+    message: When migrating environments, hard-coded IP addresses may need to be modified
+      or eliminated.
+    codesnip: |2
+       1  jdbc.driverClassName=oracle.jdbc.driver.OracleDriver
+       2  jdbc.url=jdbc:oracle:thin:@169.60.225.216:1521/XEPDB1
+       3  jdbc.user=customers
+       4  jdbc.password=customers
+       5  hibernate.hbm2ddl.auto=create-drop
+       6  hibernate.dialect=org.hibernate.dialect.OracleDialect
+    facts:
+      matchingText: 169.60.225.216
+  labels:
+  - konveyor.io/target=cloud-readiness
+  - discovery
+- id: 2
+  createtime: 2023-09-12T21:14:56.933328546Z
+  ruleset: eap7/weblogic
+  rule: hsearch-00116
+  name: ""
+  description: |-
+    Hibernate Search 5 - Changes in indexing numeric and date values
+    Numbers and dates are now indexed as numeric fields by default. Properties of type int, long, float, double, and their. corresponding wrapper classes are no longer indexed as strings. Instead, they are now indexed using Lucene’s appropriate numeric. encoding. The id fields are an exception to this rule. Even when they are represented by a numeric type, they are still indexed as. a string keyword by default. The use of `@NumericField` is now obsolete unless you want to specify a custom precision for the numeric. encoding. You can keep the old string-based index format by explicitly specifying a string encoding field bridge. In the case of. integers, this is the `org.hibernate.search.bridge.builtin.IntegerBridge`. Check the `org.hibernate.search.bridge.builtin` package for. other publicly available field bridges.. Date and Calendar are no longer indexed as strings. Instead, instances are encoded as long values representing the number. of milliseconds since January 1, 1970, 00:00:00 GMT. You can switch the indexing format by using the new EncodingType enum. For example:. ```java. @DateBridge(encoding=EncodingType.STRING). @CalendarBridge(encoding=EncodingType.STRING). ```. The encoding change for numbers and dates is important and can have a big impact on application behavior. If you have. a query that targets a field that was previously string-encoded, but is now encoded numerically, you must update the query. Numeric. fields must be searched with a NumericRangeQuery. You must also make sure that all fields targeted by faceting are string encoded.. If you use the Search query DSL, the correct query should be created automatically for you.
+  category: optional
+  effort: 1
+  incidents:
+  - id: 3
+    createtime: 2023-09-12T21:14:56.933410129Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/controller/CustomerController.java
+    line: 0
+    message: Numbers and dates are now indexed as numeric fields by default. Properties
+      of type int, long, float, double, and their. corresponding wrapper classes are
+      no longer indexed as strings. Instead, they are now indexed using Lucene’s appropriate
+      numeric. encoding. The id fields are an exception to this rule. Even when they
+      are represented by a numeric type, they are still indexed as. a string keyword
+      by default. The use of `@NumericField` is now obsolete unless you want to specify
+      a custom precision for the numeric. encoding. You can keep the old string-based
+      index format by explicitly specifying a string encoding field bridge. In the
+      case of. integers, this is the `org.hibernate.search.bridge.builtin.IntegerBridge`.
+      Check the `org.hibernate.search.bridge.builtin` package for. other publicly
+      available field bridges.. Date and Calendar are no longer indexed as strings.
+      Instead, instances are encoded as long values representing the number. of milliseconds
+      since January 1, 1970, 00:00:00 GMT. You can switch the indexing format by using
+      the new EncodingType enum. For example:. ```java. @DateBridge(encoding=EncodingType.STRING).
+      @CalendarBridge(encoding=EncodingType.STRING). ```. The encoding change for
+      numbers and dates is important and can have a big impact on application behavior.
+      If you have. a query that targets a field that was previously string-encoded,
+      but is now encoded numerically, you must update the query. Numeric. fields must
+      be searched with a NumericRangeQuery. You must also make sure that all fields
+      targeted by faceting are string encoded.. If you use the Search query DSL, the
+      correct query should be created automatically for you.
+    codesnip: "16  @RestController\n17  @RequestMapping(\"/customers\")\n18  public
+      class CustomerController {\n19  \t\n20  \t@Autowired\n21  \tprivate CustomerService
+      customerService;\n22  \t\n23  \tprivate static Logger logger = Logger.getLogger(
+      CustomerController.class.getName() );\n24  \t\n25  \t@GetMapping(value = \"/{id}\",
+      produces = MediaType.APPLICATION_JSON_VALUE)\n26      public Customer getById(@PathVariable(\"id\")
+      Long id) {\n27  \t\tCustomer c = customerService.findById(id);\n28  \t\tif (c
+      == null) {\n29  \t\t\tthrow new ResourceNotFoundException(\"Requested order
+      doesn't exist\");\n30  \t\t}\n31  \t\tlogger.debug(\"Returning element: \" +
+      c);\n32  \t\treturn c;\n33  \t}\n34  \t\n35  \t@RequestMapping\n36  \tpublic
+      Page<Customer> findAll(Pageable pageable){"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/controller/CustomerController.java
+      kind: Method
+      name: getById
+  - id: 4
+    createtime: 2023-09-12T21:14:56.933410129Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+    line: 0
+    message: Numbers and dates are now indexed as numeric fields by default. Properties
+      of type int, long, float, double, and their. corresponding wrapper classes are
+      no longer indexed as strings. Instead, they are now indexed using Lucene’s appropriate
+      numeric. encoding. The id fields are an exception to this rule. Even when they
+      are represented by a numeric type, they are still indexed as. a string keyword
+      by default. The use of `@NumericField` is now obsolete unless you want to specify
+      a custom precision for the numeric. encoding. You can keep the old string-based
+      index format by explicitly specifying a string encoding field bridge. In the
+      case of. integers, this is the `org.hibernate.search.bridge.builtin.IntegerBridge`.
+      Check the `org.hibernate.search.bridge.builtin` package for. other publicly
+      available field bridges.. Date and Calendar are no longer indexed as strings.
+      Instead, instances are encoded as long values representing the number. of milliseconds
+      since January 1, 1970, 00:00:00 GMT. You can switch the indexing format by using
+      the new EncodingType enum. For example:. ```java. @DateBridge(encoding=EncodingType.STRING).
+      @CalendarBridge(encoding=EncodingType.STRING). ```. The encoding change for
+      numbers and dates is important and can have a big impact on application behavior.
+      If you have. a query that targets a field that was previously string-encoded,
+      but is now encoded numerically, you must update the query. Numeric. fields must
+      be searched with a NumericRangeQuery. You must also make sure that all fields
+      targeted by faceting are string encoded.. If you use the Search query DSL, the
+      correct query should be created automatically for you.
+    codesnip: "11  @Entity\n12  @Table(name = \"customers\")\n13  public class Customer
+      {\n14  \t@Id\n15      @SequenceGenerator(\n16              name = \"customersSequence\",\n17
+      \             sequenceName = \"customers_id_seq\",\n18              allocationSize
+      = 1,\n19              initialValue = 6)\n20      @GeneratedValue(strategy =
+      GenerationType.SEQUENCE, generator = \"customersSequence\")\n21  \tprivate Long
+      id;\n22  \t\n23  \t@Column(length = 20)\n24  \tprivate String username;\n25
+      \ \t\n26  \t@Column(length = 20)\n27  \tprivate String name;\n28  \t\n29  \t@Column(length
+      = 40)\n30  \tprivate String surname;\n31  \t"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+      kind: Field
+      name: id
+  - id: 5
+    createtime: 2023-09-12T21:14:56.933410129Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+    line: 0
+    message: Numbers and dates are now indexed as numeric fields by default. Properties
+      of type int, long, float, double, and their. corresponding wrapper classes are
+      no longer indexed as strings. Instead, they are now indexed using Lucene’s appropriate
+      numeric. encoding. The id fields are an exception to this rule. Even when they
+      are represented by a numeric type, they are still indexed as. a string keyword
+      by default. The use of `@NumericField` is now obsolete unless you want to specify
+      a custom precision for the numeric. encoding. You can keep the old string-based
+      index format by explicitly specifying a string encoding field bridge. In the
+      case of. integers, this is the `org.hibernate.search.bridge.builtin.IntegerBridge`.
+      Check the `org.hibernate.search.bridge.builtin` package for. other publicly
+      available field bridges.. Date and Calendar are no longer indexed as strings.
+      Instead, instances are encoded as long values representing the number. of milliseconds
+      since January 1, 1970, 00:00:00 GMT. You can switch the indexing format by using
+      the new EncodingType enum. For example:. ```java. @DateBridge(encoding=EncodingType.STRING).
+      @CalendarBridge(encoding=EncodingType.STRING). ```. The encoding change for
+      numbers and dates is important and can have a big impact on application behavior.
+      If you have. a query that targets a field that was previously string-encoded,
+      but is now encoded numerically, you must update the query. Numeric. fields must
+      be searched with a NumericRangeQuery. You must also make sure that all fields
+      targeted by faceting are string encoded.. If you use the Search query DSL, the
+      correct query should be created automatically for you.
+    codesnip: "34  \t\n35  \t@Column(name = \"zipcode\", length = 10)\n36  \tprivate
+      String zipCode;\n37  \t\n38  \t@Column(length = 40)\n39  \tprivate String city;\n40
+      \ \t\n41  \t@Column(length = 40)\n42  \tprivate String country;\n43  \t\n44
+      \ \tpublic Long getId() {\n45  \t\treturn id;\n46  \t}\n47  \tpublic void setId(Long
+      id) {\n48  \t\tthis.id = id;\n49  \t}\n50  \tpublic String getUsername() {\n51
+      \ \t\treturn username;\n52  \t}\n53  \tpublic void setUsername(String username)
+      {\n54  \t\tthis.username = username;"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+      kind: Method
+      name: getId
+  - id: 6
+    createtime: 2023-09-12T21:14:56.933410129Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+    line: 0
+    message: Numbers and dates are now indexed as numeric fields by default. Properties
+      of type int, long, float, double, and their. corresponding wrapper classes are
+      no longer indexed as strings. Instead, they are now indexed using Lucene’s appropriate
+      numeric. encoding. The id fields are an exception to this rule. Even when they
+      are represented by a numeric type, they are still indexed as. a string keyword
+      by default. The use of `@NumericField` is now obsolete unless you want to specify
+      a custom precision for the numeric. encoding. You can keep the old string-based
+      index format by explicitly specifying a string encoding field bridge. In the
+      case of. integers, this is the `org.hibernate.search.bridge.builtin.IntegerBridge`.
+      Check the `org.hibernate.search.bridge.builtin` package for. other publicly
+      available field bridges.. Date and Calendar are no longer indexed as strings.
+      Instead, instances are encoded as long values representing the number. of milliseconds
+      since January 1, 1970, 00:00:00 GMT. You can switch the indexing format by using
+      the new EncodingType enum. For example:. ```java. @DateBridge(encoding=EncodingType.STRING).
+      @CalendarBridge(encoding=EncodingType.STRING). ```. The encoding change for
+      numbers and dates is important and can have a big impact on application behavior.
+      If you have. a query that targets a field that was previously string-encoded,
+      but is now encoded numerically, you must update the query. Numeric. fields must
+      be searched with a NumericRangeQuery. You must also make sure that all fields
+      targeted by faceting are string encoded.. If you use the Search query DSL, the
+      correct query should be created automatically for you.
+    codesnip: "37  \t\n38  \t@Column(length = 40)\n39  \tprivate String city;\n40
+      \ \t\n41  \t@Column(length = 40)\n42  \tprivate String country;\n43  \t\n44
+      \ \tpublic Long getId() {\n45  \t\treturn id;\n46  \t}\n47  \tpublic void setId(Long
+      id) {\n48  \t\tthis.id = id;\n49  \t}\n50  \tpublic String getUsername() {\n51
+      \ \t\treturn username;\n52  \t}\n53  \tpublic void setUsername(String username)
+      {\n54  \t\tthis.username = username;\n55  \t}\n56  \tpublic String getName()
+      {\n57  \t\treturn name;"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+      kind: Method
+      name: setId
+  - id: 7
+    createtime: 2023-09-12T21:14:56.933410129Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/repository/CustomerRepository.java
+    line: 0
+    message: Numbers and dates are now indexed as numeric fields by default. Properties
+      of type int, long, float, double, and their. corresponding wrapper classes are
+      no longer indexed as strings. Instead, they are now indexed using Lucene’s appropriate
+      numeric. encoding. The id fields are an exception to this rule. Even when they
+      are represented by a numeric type, they are still indexed as. a string keyword
+      by default. The use of `@NumericField` is now obsolete unless you want to specify
+      a custom precision for the numeric. encoding. You can keep the old string-based
+      index format by explicitly specifying a string encoding field bridge. In the
+      case of. integers, this is the `org.hibernate.search.bridge.builtin.IntegerBridge`.
+      Check the `org.hibernate.search.bridge.builtin` package for. other publicly
+      available field bridges.. Date and Calendar are no longer indexed as strings.
+      Instead, instances are encoded as long values representing the number. of milliseconds
+      since January 1, 1970, 00:00:00 GMT. You can switch the indexing format by using
+      the new EncodingType enum. For example:. ```java. @DateBridge(encoding=EncodingType.STRING).
+      @CalendarBridge(encoding=EncodingType.STRING). ```. The encoding change for
+      numbers and dates is important and can have a big impact on application behavior.
+      If you have. a query that targets a field that was previously string-encoded,
+      but is now encoded numerically, you must update the query. Numeric. fields must
+      be searched with a NumericRangeQuery. You must also make sure that all fields
+      targeted by faceting are string encoded.. If you use the Search query DSL, the
+      correct query should be created automatically for you.
+    codesnip: " 1  package io.konveyor.demo.ordermanagement.repository;\n 2  \n 3
+      \ import io.konveyor.demo.ordermanagement.model.Customer;\n 4  import org.springframework.data.repository.PagingAndSortingRepository;\n
+      5  \n 6  public interface CustomerRepository extends PagingAndSortingRepository<Customer,
+      Long> {\n 7  \n 8  }\n"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/repository/CustomerRepository.java
+      kind: Interface
+      name: CustomerRepository
+  - id: 8
+    createtime: 2023-09-12T21:14:56.933410129Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/service/CustomerService.java
+    line: 0
+    message: Numbers and dates are now indexed as numeric fields by default. Properties
+      of type int, long, float, double, and their. corresponding wrapper classes are
+      no longer indexed as strings. Instead, they are now indexed using Lucene’s appropriate
+      numeric. encoding. The id fields are an exception to this rule. Even when they
+      are represented by a numeric type, they are still indexed as. a string keyword
+      by default. The use of `@NumericField` is now obsolete unless you want to specify
+      a custom precision for the numeric. encoding. You can keep the old string-based
+      index format by explicitly specifying a string encoding field bridge. In the
+      case of. integers, this is the `org.hibernate.search.bridge.builtin.IntegerBridge`.
+      Check the `org.hibernate.search.bridge.builtin` package for. other publicly
+      available field bridges.. Date and Calendar are no longer indexed as strings.
+      Instead, instances are encoded as long values representing the number. of milliseconds
+      since January 1, 1970, 00:00:00 GMT. You can switch the indexing format by using
+      the new EncodingType enum. For example:. ```java. @DateBridge(encoding=EncodingType.STRING).
+      @CalendarBridge(encoding=EncodingType.STRING). ```. The encoding change for
+      numbers and dates is important and can have a big impact on application behavior.
+      If you have. a query that targets a field that was previously string-encoded,
+      but is now encoded numerically, you must update the query. Numeric. fields must
+      be searched with a NumericRangeQuery. You must also make sure that all fields
+      targeted by faceting are string encoded.. If you use the Search query DSL, the
+      correct query should be created automatically for you.
+    codesnip: "12  \n13  @Service\n14  @Transactional\n15  public class CustomerService
+      implements ICustomerService{\n16  \t\n17  \t@Autowired\n18  \tprivate CustomerRepository
+      repository;\n19  \t\n20  \tprivate static Logger logger = Logger.getLogger(
+      CustomerService.class.getName() );\n21  \t\n22  \tpublic Customer findById(Long
+      id) {\n23  \t\tlogger.debug(\"Entering CustomerService.findById()\");\n24  \t\tCustomer
+      c = repository.findById(id).orElse(null);\n25  \t\tlogger.debug(\"Returning
+      element: \" + c);\n26  \t\treturn c;\n27  \t}\n28  \t\n29  \tpublic Page<Customer>findAll(Pageable
+      pageable) {\n30  \t\tlogger.debug(\"Entering CustomerService.findAll()\");\n31
+      \ \t\tPage<Customer> p = repository.findAll(pageable);\n32  \t\tlogger.debug(\"Returning
+      element: \" + p);"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/service/CustomerService.java
+      kind: Method
+      name: findById
+  - id: 9
+    createtime: 2023-09-12T21:14:56.933410129Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/service/ICustomerService.java
+    line: 0
+    message: Numbers and dates are now indexed as numeric fields by default. Properties
+      of type int, long, float, double, and their. corresponding wrapper classes are
+      no longer indexed as strings. Instead, they are now indexed using Lucene’s appropriate
+      numeric. encoding. The id fields are an exception to this rule. Even when they
+      are represented by a numeric type, they are still indexed as. a string keyword
+      by default. The use of `@NumericField` is now obsolete unless you want to specify
+      a custom precision for the numeric. encoding. You can keep the old string-based
+      index format by explicitly specifying a string encoding field bridge. In the
+      case of. integers, this is the `org.hibernate.search.bridge.builtin.IntegerBridge`.
+      Check the `org.hibernate.search.bridge.builtin` package for. other publicly
+      available field bridges.. Date and Calendar are no longer indexed as strings.
+      Instead, instances are encoded as long values representing the number. of milliseconds
+      since January 1, 1970, 00:00:00 GMT. You can switch the indexing format by using
+      the new EncodingType enum. For example:. ```java. @DateBridge(encoding=EncodingType.STRING).
+      @CalendarBridge(encoding=EncodingType.STRING). ```. The encoding change for
+      numbers and dates is important and can have a big impact on application behavior.
+      If you have. a query that targets a field that was previously string-encoded,
+      but is now encoded numerically, you must update the query. Numeric. fields must
+      be searched with a NumericRangeQuery. You must also make sure that all fields
+      targeted by faceting are string encoded.. If you use the Search query DSL, the
+      correct query should be created automatically for you.
+    codesnip: " 1  package io.konveyor.demo.ordermanagement.service;\n 2  \n 3  import
+      io.konveyor.demo.ordermanagement.model.Customer;\n 4  import org.springframework.data.domain.Page;\n
+      5  import org.springframework.data.domain.Pageable;\n 6  \n 7  public interface
+      ICustomerService {\n 8      public Customer findById(Long id); \n 9  \t\n10
+      \ \tpublic Page<Customer>findAll(Pageable pageable);\n11      \n12  }\n"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/service/ICustomerService.java
+      kind: Method
+      name: findById
+  links:
+  - url: https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.0/html-single/migration_guide/#migrate_hibernate_search_number_and_date_index_formatting_changes
+    title: Number and Date Index Formatting Changes in Hibernate Search 5.x
+  - url: http://hibernate.org/search/documentation/migrate/5.0/#number-and-date-index-format
+    title: Number and date index format
+  - url: http://docs.jboss.org/hibernate/search/5.5/api/org/hibernate/search/bridge/builtin/package-summary.html
+    title: Javadoc API for org.hibernate.search.bridge.builtin package
+  - url: http://docs.jboss.org/hibernate/search/5.5/api/org/hibernate/search/bridge/builtin/IntegerBridge.html
+    title: Javadoc API for IntegerBridge
+  labels:
+  - konveyor.io/source=hibernate-search4
+  - konveyor.io/source=eap6
+  - konveyor.io/target=hibernate-search5
+  - konveyor.io/target=eap7
+  - hibernate-search
+  - hibernate
+- id: 3
+  createtime: 2023-09-12T21:14:56.933920338Z
+  ruleset: eap7/weblogic
+  rule: hsearch-00119
+  name: ""
+  description: |-
+    Hibernate Search 5 - Changes in indexing numeric values
+    Numbers and dates now indexed as numeric fields by default.. Properties of type `Date`, `Calendar` as well as `int`, `long`, `float`, `double` and their corresponding wrappers, are no longer indexed as strings. Instead, they are now indexed using Lucene’s appropriate numeric encoding.. The `id` fields are an exception to this rule: even when these are represented by a numeric type, they will still be indexed as a string keyword by default..
+  category: optional
+  effort: 1
+  incidents:
+  - id: 10
+    createtime: 2023-09-12T21:14:56.933993046Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/controller/CustomerController.java
+    line: 0
+    message: 'Numbers and dates now indexed as numeric fields by default.. Properties
+      of type `Date`, `Calendar` as well as `int`, `long`, `float`, `double` and their
+      corresponding wrappers, are no longer indexed as strings. Instead, they are
+      now indexed using Lucene’s appropriate numeric encoding.. The `id` fields are
+      an exception to this rule: even when these are represented by a numeric type,
+      they will still be indexed as a string keyword by default..'
+    codesnip: "16  @RestController\n17  @RequestMapping(\"/customers\")\n18  public
+      class CustomerController {\n19  \t\n20  \t@Autowired\n21  \tprivate CustomerService
+      customerService;\n22  \t\n23  \tprivate static Logger logger = Logger.getLogger(
+      CustomerController.class.getName() );\n24  \t\n25  \t@GetMapping(value = \"/{id}\",
+      produces = MediaType.APPLICATION_JSON_VALUE)\n26      public Customer getById(@PathVariable(\"id\")
+      Long id) {\n27  \t\tCustomer c = customerService.findById(id);\n28  \t\tif (c
+      == null) {\n29  \t\t\tthrow new ResourceNotFoundException(\"Requested order
+      doesn't exist\");\n30  \t\t}\n31  \t\tlogger.debug(\"Returning element: \" +
+      c);\n32  \t\treturn c;\n33  \t}\n34  \t\n35  \t@RequestMapping\n36  \tpublic
+      Page<Customer> findAll(Pageable pageable){"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/controller/CustomerController.java
+      kind: Method
+      name: getById
+  - id: 11
+    createtime: 2023-09-12T21:14:56.933993046Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+    line: 0
+    message: 'Numbers and dates now indexed as numeric fields by default.. Properties
+      of type `Date`, `Calendar` as well as `int`, `long`, `float`, `double` and their
+      corresponding wrappers, are no longer indexed as strings. Instead, they are
+      now indexed using Lucene’s appropriate numeric encoding.. The `id` fields are
+      an exception to this rule: even when these are represented by a numeric type,
+      they will still be indexed as a string keyword by default..'
+    codesnip: "11  @Entity\n12  @Table(name = \"customers\")\n13  public class Customer
+      {\n14  \t@Id\n15      @SequenceGenerator(\n16              name = \"customersSequence\",\n17
+      \             sequenceName = \"customers_id_seq\",\n18              allocationSize
+      = 1,\n19              initialValue = 6)\n20      @GeneratedValue(strategy =
+      GenerationType.SEQUENCE, generator = \"customersSequence\")\n21  \tprivate Long
+      id;\n22  \t\n23  \t@Column(length = 20)\n24  \tprivate String username;\n25
+      \ \t\n26  \t@Column(length = 20)\n27  \tprivate String name;\n28  \t\n29  \t@Column(length
+      = 40)\n30  \tprivate String surname;\n31  \t"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+      kind: Field
+      name: id
+  - id: 12
+    createtime: 2023-09-12T21:14:56.933993046Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+    line: 0
+    message: 'Numbers and dates now indexed as numeric fields by default.. Properties
+      of type `Date`, `Calendar` as well as `int`, `long`, `float`, `double` and their
+      corresponding wrappers, are no longer indexed as strings. Instead, they are
+      now indexed using Lucene’s appropriate numeric encoding.. The `id` fields are
+      an exception to this rule: even when these are represented by a numeric type,
+      they will still be indexed as a string keyword by default..'
+    codesnip: "34  \t\n35  \t@Column(name = \"zipcode\", length = 10)\n36  \tprivate
+      String zipCode;\n37  \t\n38  \t@Column(length = 40)\n39  \tprivate String city;\n40
+      \ \t\n41  \t@Column(length = 40)\n42  \tprivate String country;\n43  \t\n44
+      \ \tpublic Long getId() {\n45  \t\treturn id;\n46  \t}\n47  \tpublic void setId(Long
+      id) {\n48  \t\tthis.id = id;\n49  \t}\n50  \tpublic String getUsername() {\n51
+      \ \t\treturn username;\n52  \t}\n53  \tpublic void setUsername(String username)
+      {\n54  \t\tthis.username = username;"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+      kind: Method
+      name: getId
+  - id: 13
+    createtime: 2023-09-12T21:14:56.933993046Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+    line: 0
+    message: 'Numbers and dates now indexed as numeric fields by default.. Properties
+      of type `Date`, `Calendar` as well as `int`, `long`, `float`, `double` and their
+      corresponding wrappers, are no longer indexed as strings. Instead, they are
+      now indexed using Lucene’s appropriate numeric encoding.. The `id` fields are
+      an exception to this rule: even when these are represented by a numeric type,
+      they will still be indexed as a string keyword by default..'
+    codesnip: "37  \t\n38  \t@Column(length = 40)\n39  \tprivate String city;\n40
+      \ \t\n41  \t@Column(length = 40)\n42  \tprivate String country;\n43  \t\n44
+      \ \tpublic Long getId() {\n45  \t\treturn id;\n46  \t}\n47  \tpublic void setId(Long
+      id) {\n48  \t\tthis.id = id;\n49  \t}\n50  \tpublic String getUsername() {\n51
+      \ \t\treturn username;\n52  \t}\n53  \tpublic void setUsername(String username)
+      {\n54  \t\tthis.username = username;\n55  \t}\n56  \tpublic String getName()
+      {\n57  \t\treturn name;"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+      kind: Method
+      name: setId
+  - id: 14
+    createtime: 2023-09-12T21:14:56.933993046Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/repository/CustomerRepository.java
+    line: 0
+    message: 'Numbers and dates now indexed as numeric fields by default.. Properties
+      of type `Date`, `Calendar` as well as `int`, `long`, `float`, `double` and their
+      corresponding wrappers, are no longer indexed as strings. Instead, they are
+      now indexed using Lucene’s appropriate numeric encoding.. The `id` fields are
+      an exception to this rule: even when these are represented by a numeric type,
+      they will still be indexed as a string keyword by default..'
+    codesnip: " 1  package io.konveyor.demo.ordermanagement.repository;\n 2  \n 3
+      \ import io.konveyor.demo.ordermanagement.model.Customer;\n 4  import org.springframework.data.repository.PagingAndSortingRepository;\n
+      5  \n 6  public interface CustomerRepository extends PagingAndSortingRepository<Customer,
+      Long> {\n 7  \n 8  }\n"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/repository/CustomerRepository.java
+      kind: Interface
+      name: CustomerRepository
+  - id: 15
+    createtime: 2023-09-12T21:14:56.933993046Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/service/CustomerService.java
+    line: 0
+    message: 'Numbers and dates now indexed as numeric fields by default.. Properties
+      of type `Date`, `Calendar` as well as `int`, `long`, `float`, `double` and their
+      corresponding wrappers, are no longer indexed as strings. Instead, they are
+      now indexed using Lucene’s appropriate numeric encoding.. The `id` fields are
+      an exception to this rule: even when these are represented by a numeric type,
+      they will still be indexed as a string keyword by default..'
+    codesnip: "12  \n13  @Service\n14  @Transactional\n15  public class CustomerService
+      implements ICustomerService{\n16  \t\n17  \t@Autowired\n18  \tprivate CustomerRepository
+      repository;\n19  \t\n20  \tprivate static Logger logger = Logger.getLogger(
+      CustomerService.class.getName() );\n21  \t\n22  \tpublic Customer findById(Long
+      id) {\n23  \t\tlogger.debug(\"Entering CustomerService.findById()\");\n24  \t\tCustomer
+      c = repository.findById(id).orElse(null);\n25  \t\tlogger.debug(\"Returning
+      element: \" + c);\n26  \t\treturn c;\n27  \t}\n28  \t\n29  \tpublic Page<Customer>findAll(Pageable
+      pageable) {\n30  \t\tlogger.debug(\"Entering CustomerService.findAll()\");\n31
+      \ \t\tPage<Customer> p = repository.findAll(pageable);\n32  \t\tlogger.debug(\"Returning
+      element: \" + p);"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/service/CustomerService.java
+      kind: Method
+      name: findById
+  - id: 16
+    createtime: 2023-09-12T21:14:56.933993046Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/service/ICustomerService.java
+    line: 0
+    message: 'Numbers and dates now indexed as numeric fields by default.. Properties
+      of type `Date`, `Calendar` as well as `int`, `long`, `float`, `double` and their
+      corresponding wrappers, are no longer indexed as strings. Instead, they are
+      now indexed using Lucene’s appropriate numeric encoding.. The `id` fields are
+      an exception to this rule: even when these are represented by a numeric type,
+      they will still be indexed as a string keyword by default..'
+    codesnip: " 1  package io.konveyor.demo.ordermanagement.service;\n 2  \n 3  import
+      io.konveyor.demo.ordermanagement.model.Customer;\n 4  import org.springframework.data.domain.Page;\n
+      5  import org.springframework.data.domain.Pageable;\n 6  \n 7  public interface
+      ICustomerService {\n 8      public Customer findById(Long id); \n 9  \t\n10
+      \ \tpublic Page<Customer>findAll(Pageable pageable);\n11      \n12  }\n"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/service/ICustomerService.java
+      kind: Method
+      name: findById
+  links:
+  - url: https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.0/html-single/migration_guide/#migrate_miscellaneous_hibernate_search_changes
+    title: Miscellaneous Changes in Hibernate Search 5.x
+  - url: http://hibernate.org/search/documentation/migrate/5.5/#number-and-date-index-format
+    title: Numeric and Date index format
+  labels:
+  - konveyor.io/source=hibernate-search4
+  - konveyor.io/source=eap6
+  - konveyor.io/target=hibernate-search5
+  - konveyor.io/target=eap7
+  - hibernate-search
+  - hibernate
+- id: 4
+  createtime: 2023-09-12T21:14:56.934252671Z
+  ruleset: eap7/weblogic
+  rule: hibernate4-00039
+  name: ""
+  description: |-
+    Hibernate 5  - Oracle12cDialect maps byte[] and Byte[] to BLOB
+    Previous versions of Hibernate have mapped `byte[]` and `Byte[]` to Oracle’s `LONG RAW` data type (via the JDBC `LONGVARBINARY` type). Oracle have deprecated the `LONG RAW` data type for many releases - possibly as far back as 8i.. Therefore it was decided to start having Hibernate map `byte[]` and `Byte[]` to `BLOB` for Oracle.. However, in the interest of backwards compatibility and not breaking existing applications it was also decided to limit this change to just the `Oracle12cDialect`. So starting in 5.1 applications using `Oracle12cDialect` and implicitly mapping `byte[]` and `Byte[]` values will start seeing those handled as `BLOB` data rather than `LONG RAW` data.. For existing applications that want to continue to use `Oracle12cDialect` and still continue to implicitly map `byte[]` and `Byte[]` attributes to `LONG RAW`, there is a new configuration setting you can use to enable that: `hibernate.dialect.oracle.prefer_longvarbinary`, which is `false `by default (map to `BLOB`).
+  category: mandatory
+  effort: 1
+  incidents:
+  - id: 17
+    createtime: 2023-09-12T21:14:56.934310588Z
+    file: /addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+    line: 0
+    message: 'Previous versions of Hibernate have mapped `byte[]` and `Byte[]` to
+      Oracle’s `LONG RAW` data type (via the JDBC `LONGVARBINARY` type). Oracle have
+      deprecated the `LONG RAW` data type for many releases - possibly as far back
+      as 8i.. Therefore it was decided to start having Hibernate map `byte[]` and
+      `Byte[]` to `BLOB` for Oracle.. However, in the interest of backwards compatibility
+      and not breaking existing applications it was also decided to limit this change
+      to just the `Oracle12cDialect`. So starting in 5.1 applications using `Oracle12cDialect`
+      and implicitly mapping `byte[]` and `Byte[]` values will start seeing those
+      handled as `BLOB` data rather than `LONG RAW` data.. For existing applications
+      that want to continue to use `Oracle12cDialect` and still continue to implicitly
+      map `byte[]` and `Byte[]` attributes to `LONG RAW`, there is a new configuration
+      setting you can use to enable that: `hibernate.dialect.oracle.prefer_longvarbinary`,
+      which is `false `by default (map to `BLOB`).'
+    codesnip: " 1  package io.konveyor.demo.ordermanagement.model;\n 2  \n 3  import
+      javax.persistence.Column;\n 4  import javax.persistence.Entity;\n 5  import
+      javax.persistence.GeneratedValue;\n 6  import javax.persistence.GenerationType;\n
+      7  import javax.persistence.Id;\n 8  import javax.persistence.SequenceGenerator;\n
+      9  import javax.persistence.Table;\n10  \n11  @Entity\n12  @Table(name = \"customers\")\n13
+      \ public class Customer {\n14  \t@Id\n15      @SequenceGenerator(\n16              name
+      = \"customersSequence\",\n17              sequenceName = \"customers_id_seq\",\n18
+      \             allocationSize = 1,\n19              initialValue = 6)\n20      @GeneratedValue(strategy
+      = GenerationType.SEQUENCE, generator = \"customersSequence\")\n21  \tprivate
+      Long id;"
+    facts:
+      file: file:///addon/source/example-applications/example-1/src/main/java/io/konveyor/demo/ordermanagement/model/Customer.java
+      kind: Class
+      name: Entity
+  labels:
+  - konveyor.io/source=hibernate4
+  - konveyor.io/source=eap6
+  - konveyor.io/target=hibernate5
+  - konveyor.io/target=eap7
+  - hibernate
+  - configuration
+  - Hibernate
+
+dependencies: 
+- id: 1
+  createtime: 2023-09-12T21:14:56.934497213Z
+  name: io.konveyor.demo.config-utils
+  version: 1.0.0
+  sha: FE4FE11AAEE77BE10035218537FBF4B2E6EF1D9F

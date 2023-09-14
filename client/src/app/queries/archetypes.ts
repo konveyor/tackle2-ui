@@ -30,7 +30,7 @@ export const useFetchArchetypes = () => {
   };
 };
 
-export const useFetchArchetypeById = (id?: number) => {
+export const useFetchArchetypeById = (id?: number | string) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [ARCHETYPE_QUERY_KEY, id],
     queryFn: () =>

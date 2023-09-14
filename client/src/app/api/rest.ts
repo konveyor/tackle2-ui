@@ -14,8 +14,6 @@ import {
   ApplicationImport,
   ApplicationImportSummary,
   Assessment,
-  BulkCopyAssessment,
-  BulkCopyReview,
   BusinessService,
   Cache,
   HubPaginatedResult,
@@ -50,7 +48,6 @@ import {
   InitialAssessment,
   MimeType,
 } from "./models";
-import { QueryKey } from "@tanstack/react-query";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
 // TACKLE_HUB
@@ -170,24 +167,24 @@ export const deleteApplicationDependency = (id: number): AxiosPromise => {
 
 // Reviews
 
-export const getReviews = (): AxiosPromise<Review[]> => {
-  return APIClient.get(`${REVIEWS}`);
+export const getReviews = (): Promise<Review[]> => {
+  return axios.get(`${REVIEWS}`);
 };
 
-export const getReviewId = (id: number | string): AxiosPromise<Review> => {
-  return APIClient.get(`${REVIEWS}/${id}`);
+export const getReviewById = (id: number | string): Promise<Review> => {
+  return axios.get(`${REVIEWS}/${id}`).then((response) => response.data);
 };
 
-export const createReview = (obj: Review): AxiosPromise<Review> => {
-  return APIClient.post(`${REVIEWS}`, obj);
+export const createReview = (obj: New<Review>): Promise<Review> => {
+  return axios.post(`${REVIEWS}`, obj);
 };
 
-export const updateReview = (obj: Review): AxiosPromise<Review> => {
-  return APIClient.put(`${REVIEWS}/${obj.id}`, obj);
+export const updateReview = (obj: Review): Promise<Review> => {
+  return axios.put(`${REVIEWS}/${obj.id}`, obj);
 };
 
-export const deleteReview = (id: number): AxiosPromise => {
-  return APIClient.delete(`${REVIEWS}/${id}`);
+export const deleteReview = (id: number): Promise<Review> => {
+  return axios.delete(`${REVIEWS}/${id}`);
 };
 
 export const getApplicationAdoptionPlan = (
@@ -208,50 +205,35 @@ export const getApplicationSummaryCSV = (id: string): AxiosPromise => {
   });
 };
 
-//TODO: Remove this
-export const getApplicationByIdPromise = (
-  id: number | string
-): Promise<Application> => axios.get(`${APPLICATIONS}/${id}`);
-
-//TODO: Remove this
-export const getAssessmentsPromise = (filters: {
-  applicationId?: number | string;
-}): Promise<Assessment[]> => {
-  const params = {
-    applicationId: filters.applicationId,
-  };
-
-  const query: string[] = buildQuery(params);
-  return axios.get(`${ASSESSMENTS}?${query.join("&")}`);
-};
-
-export const getAssessments = (filters: {
-  applicationId?: number | string;
-}): Promise<Assessment[]> => {
-  const params = {
-    applicationId: filters.applicationId,
-  };
-
-  const query: string[] = buildQuery(params);
-  return axios
-    .get(`${ASSESSMENTS}?${query.join("&")}`)
-    .then((response) => response.data);
-};
-
-export const getAssessmentsByAppId = (
-  applicationId?: number | string
+export const getAssessmentsByItemId = (
+  isArchetype: boolean,
+  itemId?: number | string
 ): Promise<Assessment[]> => {
-  return axios
-    .get(`${APPLICATIONS}/${applicationId}/assessments`)
-    .then((response) => response.data);
+  if (!itemId) return Promise.resolve([]);
+  if (isArchetype) {
+    return axios
+      .get(`${ARCHETYPES}/${itemId}/assessments`)
+      .then((response) => response.data);
+  } else {
+    return axios
+      .get(`${APPLICATIONS}/${itemId}/assessments`)
+      .then((response) => response.data);
+  }
 };
 
 export const createAssessment = (
-  obj: InitialAssessment
+  obj: InitialAssessment,
+  isArchetype: boolean
 ): Promise<Assessment> => {
-  return axios
-    .post(`${APPLICATIONS}/${obj?.application?.id}/assessments`, obj)
-    .then((response) => response.data);
+  if (isArchetype) {
+    return axios
+      .post(`${ARCHETYPES}/${obj?.archetype?.id}/assessments`, obj)
+      .then((response) => response.data);
+  } else {
+    return axios
+      .post(`${APPLICATIONS}/${obj?.application?.id}/assessments`, obj)
+      .then((response) => response.data);
+  }
 };
 
 export const updateAssessment = (obj: Assessment): Promise<Assessment> => {
@@ -266,27 +248,6 @@ export const getAssessmentById = (id: number | string): Promise<Assessment> => {
 
 export const deleteAssessment = (id: number): AxiosPromise => {
   return APIClient.delete(`${ASSESSMENTS}/${id}`);
-};
-
-export const createBulkCopyAssessment = (
-  bulk: BulkCopyAssessment
-): AxiosPromise<BulkCopyAssessment> => {
-  return APIClient.post<BulkCopyAssessment>(`${ASSESSMENTS}/bulk`, bulk);
-};
-
-export const getBulkCopyAssessment = ({
-  queryKey,
-}: {
-  queryKey: QueryKey;
-}): AxiosPromise<BulkCopyAssessment> => {
-  const [_, id] = queryKey;
-  return APIClient.get<BulkCopyAssessment>(`${ASSESSMENTS}/bulk/${id}`);
-};
-
-export const createBulkCopyReview = (
-  bulk: BulkCopyReview
-): AxiosPromise<BulkCopyReview> => {
-  return APIClient.post<BulkCopyReview>(`${REVIEWS}/copy`, bulk);
 };
 
 export const getIdentities = (): AxiosPromise<Array<Identity>> => {
@@ -796,12 +757,13 @@ export const deleteQuestionnaire = (id: number): Promise<Questionnaire> =>
 export const getArchetypes = (): Promise<Archetype[]> =>
   axios.get(ARCHETYPES).then(({ data }) => data);
 
-export const getArchetypeById = (id: number): Promise<Archetype> =>
+export const getArchetypeById = (id: number | string): Promise<Archetype> =>
   axios.get(`${ARCHETYPES}/${id}`).then(({ data }) => data);
 
 // success with code 201 and created entity as response data
-export const createArchetype = (archetype: Archetype): Promise<Archetype> =>
-  axios.post(ARCHETYPES, archetype);
+export const createArchetype = (
+  archetype: New<Archetype>
+): Promise<Archetype> => axios.post(ARCHETYPES, archetype);
 
 // success with code 204 and therefore no response content
 export const updateArchetype = (archetype: Archetype): Promise<void> =>
