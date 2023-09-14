@@ -135,7 +135,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                   <DescriptionListTerm>Download</DescriptionListTerm>
                   <DescriptionListDescription>
                     <Tooltip
-                      content="Click to download Analysis report YAML file"
+                      content="Click to download Analysis report TAR file"
                       position="top"
                     >
                       <DownloadButton
@@ -147,7 +147,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                     </Tooltip>
                     {" | "}
                     <Tooltip
-                      content="Click to download Analysis report TAR file"
+                      content="Click to download Analysis report YAML file"
                       position="top"
                     >
                       <DownloadButton
