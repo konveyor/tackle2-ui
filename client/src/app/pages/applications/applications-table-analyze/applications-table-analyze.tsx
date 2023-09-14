@@ -645,6 +645,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                         isOpen={isRowDropdownOpen === application.id}
                         onSelect={() => setIsRowDropdownOpen(null)}
                         onOpenChange={(_isOpen) => setIsRowDropdownOpen(null)}
+                        popperProps={{ position: "right" }}
                         toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                           <MenuToggle
                             ref={toggleRef}
