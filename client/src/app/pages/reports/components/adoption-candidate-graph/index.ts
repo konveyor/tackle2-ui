@@ -1,1 +1,1 @@
-export { AdoptionCandidateGraph as AdoptionCandidateTable } from "./adoption-candidate-graph";
+export { AdoptionCandidateGraph } from "./adoption-candidate-graph";

@@ -14,29 +14,25 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
-import { Assessment, Review, Task } from "@app/api/models";
+import { Task } from "@app/api/models";
 import { ApplicationRisk } from "./application-risk";
 import {
   ApplicationDetailDrawer,
   IApplicationDetailDrawerProps,
 } from "./application-detail-drawer";
+import { useGetReviewByAppId } from "@app/queries/reviews";
 
 export interface IApplicationDetailDrawerAssessmentProps
   extends Pick<IApplicationDetailDrawerProps, "application" | "onCloseClick"> {
-  reviews: Review[];
-  assessment: Assessment | null;
   task: Task | undefined | null;
 }
 
 export const ApplicationDetailDrawerAssessment: React.FC<
   IApplicationDetailDrawerAssessmentProps
-> = ({ application, onCloseClick, reviews, assessment, task }) => {
+> = ({ application, onCloseClick, task }) => {
   const { t } = useTranslation();
 
-  const appReview = reviews?.find(
-    (review) => review.id === application?.review?.id
-  );
-
+  const { review: appReview } = useGetReviewByAppId(application?.id || "");
   const notYetReviewed = (
     <EmptyTextMessage message={t("terms.notYetReviewed")} />
   );
@@ -103,12 +99,7 @@ export const ApplicationDetailDrawerAssessment: React.FC<
             <DescriptionListGroup>
               <DescriptionListTerm>{t("terms.risk")}</DescriptionListTerm>
               <DescriptionListDescription cy-data="risk">
-                {application && assessment && (
-                  <ApplicationRisk
-                    application={application}
-                    assessment={assessment}
-                  />
-                )}
+                {application && <ApplicationRisk application={application} />}
               </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
