@@ -283,7 +283,9 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
             (!isDirty && !isDuplicating)
           }
         >
-          {!archetype ? t("actions.create") : t("actions.save")}
+          {!archetype || isDuplicating
+            ? t("actions.create")
+            : t("actions.save")}
         </Button>
         <Button
           type="button"
