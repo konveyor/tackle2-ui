@@ -94,25 +94,25 @@ type RiskListType = {
 // t('risks.unknown')
 
 export const RISK_LIST: RiskListType = {
-  GREEN: {
+  green: {
     i18Key: "risks.low",
     hexColor: "#68b240",
     labelColor: "green",
     sortFactor: 1,
   },
-  AMBER: {
+  yellow: {
     i18Key: "risks.medium",
     hexColor: "#f0ab0b",
     labelColor: "orange",
     sortFactor: 2,
   },
-  RED: {
+  red: {
     i18Key: "risks.high",
     hexColor: "#cb440d",
     labelColor: "red",
     sortFactor: 3,
   },
-  UNKNOWN: {
+  unknown: {
     i18Key: "risks.unknown",
     hexColor: black.value,
     labelColor: "grey",

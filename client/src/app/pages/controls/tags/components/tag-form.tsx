@@ -133,9 +133,23 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
     const matchingTagCategoryRef = tagCategories.find(
       (tagCategory) => tagCategory.name === formValues.tagCategory
     );
+    if (!matchingTagCategoryRef) {
+      console.error("No matching category found");
+      onClose();
+      pushNotification({
+        title: t("toastr.fail.save", {
+          type: t("terms.tag").toLowerCase(),
+        }),
+        variant: "danger",
+      });
+      return;
+    }
+
+    const { id, name } = matchingTagCategoryRef;
+
     const payload: New<Tag> = {
       name: formValues.name.trim(),
-      category: matchingTagCategoryRef,
+      category: { id, name },
     };
 
     if (tag) updateTag({ id: tag.id, ...payload });

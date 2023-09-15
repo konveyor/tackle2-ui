@@ -1,6 +1,5 @@
 // External libraries
 import * as React from "react";
-import { useState } from "react";
 import { AxiosError } from "axios";
 import { useHistory } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
@@ -64,7 +63,6 @@ import { checkAccess } from "@app/utils/rbac-utils";
 // Hooks
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { useAssessApplication } from "@app/hooks";
 
 // Queries
 import { Application, Assessment, Task } from "@app/api/models";
@@ -74,21 +72,16 @@ import {
   useFetchApplications,
 } from "@app/queries/applications";
 import { useFetchTasks } from "@app/queries/tasks";
-import {
-  useDeleteAssessmentMutation,
-  useFetchApplicationAssessments,
-} from "@app/queries/assessments";
+import { useDeleteAssessmentMutation } from "@app/queries/assessments";
 import { useDeleteReviewMutation, useFetchReviews } from "@app/queries/reviews";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchTagCategories } from "@app/queries/tags";
-import { useCreateBulkCopyMutation } from "@app/queries/bulkcopy";
 
 // Relative components
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ApplicationDetailDrawerAssessment } from "../components/application-detail-drawer";
 import { ApplicationForm } from "../components/application-form";
-import { BulkCopyAssessmentReviewForm } from "../components/bulk-copy-assessment-review-form";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
@@ -147,8 +140,6 @@ export const ApplicationsTable: React.FC = () => {
   const [assessmentOrReviewToDiscard, setAssessmentOrReviewToDiscard] =
     React.useState<Application | null>(null);
 
-  const [isSubmittingBulkCopy, setIsSubmittingBulkCopy] = useState(false);
-
   const getTask = (application: Application) =>
     tasks.find((task: Task) => task.application?.id === application.id);
 
@@ -191,28 +182,6 @@ export const ApplicationsTable: React.FC = () => {
     onDeleteApplicationSuccess,
     onDeleteApplicationError
   );
-  const onHandleCopySuccess = (hasSuccessfulReviewCopy: boolean) => {
-    setIsSubmittingBulkCopy(false);
-    pushNotification({
-      title: hasSuccessfulReviewCopy
-        ? t("toastr.success.assessmentAndReviewCopied")
-        : t("toastr.success.assessmentCopied"),
-      variant: "success",
-    });
-    fetchApplications();
-  };
-  const onHandleCopyError = (error: AxiosError) => {
-    setIsSubmittingBulkCopy(false);
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-    fetchApplications();
-  };
-  const { mutate: createCopy, isCopying } = useCreateBulkCopyMutation({
-    onSuccess: onHandleCopySuccess,
-    onError: onHandleCopyError,
-  });
 
   const onDeleteReviewSuccess = (name: string) => {
     pushNotification({
@@ -251,24 +220,29 @@ export const ApplicationsTable: React.FC = () => {
     onDeleteError
   );
 
-  const discardAssessmentAndReview = (application: Application) => {
-    if (application.review?.id)
-      deleteReview({ id: application.review.id, name: application.name });
+  const discardAssessmentAndReview = async (application: Application) => {
+    try {
+      if (application.review?.id) {
+        await deleteReview({
+          id: application.review.id,
+          name: application.name,
+        });
+      }
 
-    const assessment = getApplicationAssessment(application.id!);
-    if (assessment && assessment.id) {
-      deleteAssessment({ id: assessment.id, name: application.name });
+      if (application.assessments) {
+        await Promise.all(
+          application.assessments.map(async (assessment) => {
+            await deleteAssessment({
+              id: assessment.id,
+              name: application.name,
+            });
+          })
+        );
+      }
+    } catch (error) {
+      console.error("Error while deleting assessments and/or reviews:", error);
     }
   };
-
-  const {
-    getApplicationAssessment,
-    isLoadingApplicationAssessment,
-    fetchErrorApplicationAssessment,
-  } = useFetchApplicationAssessments(applications);
-
-  const { assessApplication, inProgress: isApplicationAssessInProgress } =
-    useAssessApplication();
 
   const tableControls = useLocalTableControls({
     idProperty: "id",
@@ -433,11 +407,6 @@ export const ApplicationsTable: React.FC = () => {
     fetchError: fetchErrorReviews,
   } = useFetchReviews();
 
-  const appReview = reviews?.find(
-    (review) =>
-      review.id === applicationToCopyAssessmentAndReviewFrom?.review?.id
-  );
-
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     React.useState(false);
 
@@ -499,7 +468,7 @@ export const ApplicationsTable: React.FC = () => {
     } else {
       application?.id &&
         history.push(
-          formatPath(Paths.assessmentActions, {
+          formatPath(Paths.applicationAssessmentActions, {
             applicationId: application?.id,
           })
         );
@@ -661,12 +630,6 @@ export const ApplicationsTable: React.FC = () => {
                     >
                       <ApplicationAssessmentStatus
                         assessments={application.assessments}
-                        isLoading={isLoadingApplicationAssessment(
-                          application.id!
-                        )}
-                        fetchError={fetchErrorApplicationAssessment(
-                          application.id!
-                        )}
                       />
                     </Td>
                     <Td
@@ -733,11 +696,6 @@ export const ApplicationsTable: React.FC = () => {
         <ApplicationDetailDrawerAssessment
           application={activeRowItem}
           onCloseClick={clearActiveRow}
-          reviews={reviews}
-          assessment={
-            (activeRowItem && getApplicationAssessment(activeRowItem.id)) ||
-            null
-          }
           task={activeRowItem ? getTask(activeRowItem) : null}
         />
         <Modal
@@ -754,65 +712,6 @@ export const ApplicationsTable: React.FC = () => {
             application={createUpdateApplications}
             onClose={() => setSaveApplicationModalState(null)}
           />
-        </Modal>
-        <Modal
-          isOpen={isCopyAssessmentModalOpen}
-          variant="large"
-          title={t("dialog.title.copyApplicationAssessmentFrom", {
-            what: applicationToCopyAssessmentFrom?.name,
-          })}
-          onClose={() => {
-            setApplicationToCopyAssessmentFrom(null);
-            fetchApplications();
-          }}
-        >
-          {applicationToCopyAssessmentFrom && (
-            <BulkCopyAssessmentReviewForm
-              application={applicationToCopyAssessmentFrom}
-              assessment={
-                getApplicationAssessment(applicationToCopyAssessmentFrom.id)!
-              }
-              isSubmittingBulkCopy={isSubmittingBulkCopy}
-              setIsSubmittingBulkCopy={setIsSubmittingBulkCopy}
-              isCopying={isCopying}
-              createCopy={createCopy}
-              onSaved={() => {
-                setApplicationToCopyAssessmentFrom(null);
-                fetchApplications();
-              }}
-            />
-          )}
-        </Modal>
-        <Modal
-          isOpen={isCopyAssessmentAndReviewModalOpen}
-          variant="large"
-          title={t("dialog.title.copyApplicationAssessmentAndReviewFrom", {
-            what: applicationToCopyAssessmentAndReviewFrom?.name,
-          })}
-          onClose={() => {
-            setCopyAssessmentAndReviewModalState(null);
-            fetchApplications();
-          }}
-        >
-          {applicationToCopyAssessmentAndReviewFrom && (
-            <BulkCopyAssessmentReviewForm
-              application={applicationToCopyAssessmentAndReviewFrom}
-              assessment={
-                getApplicationAssessment(
-                  applicationToCopyAssessmentAndReviewFrom.id!
-                )!
-              }
-              review={appReview}
-              isSubmittingBulkCopy={isSubmittingBulkCopy}
-              setIsSubmittingBulkCopy={setIsSubmittingBulkCopy}
-              isCopying={isCopying}
-              createCopy={createCopy}
-              onSaved={() => {
-                setCopyAssessmentAndReviewModalState(null);
-                fetchApplications();
-              }}
-            />
-          )}
         </Modal>
         <Modal
           isOpen={isDependenciesModalOpen}
@@ -962,7 +861,7 @@ export const ApplicationsTable: React.FC = () => {
           onConfirm={() => {
             applicationToAssess &&
               history.push(
-                formatPath(Paths.assessmentActions, {
+                formatPath(Paths.applicationAssessmentActions, {
                   applicationId: applicationToAssess?.id,
                 })
               );

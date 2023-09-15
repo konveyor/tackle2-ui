@@ -1,17 +1,40 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import { RiskLabel } from "@app/components/RiskLabel";
-import { Application, Assessment } from "@app/api/models";
+import { Application } from "@app/api/models";
+import { useFetchAssessmentsByItemId } from "@app/queries/assessments";
+import { Alert, Spinner } from "@patternfly/react-core";
 
 export interface IApplicationRiskProps {
   application: Application;
-  assessment?: Assessment;
 }
 
 export const ApplicationRisk: React.FC<IApplicationRiskProps> = ({
   application,
-  assessment,
 }) => {
-  //TODO calculate risk from assessment response
-  return <RiskLabel risk={assessment?.risk || "UNKNOWN"} />;
+  const {
+    assessments,
+    isFetching: isFetchingAssessmentsById,
+    fetchError,
+  } = useFetchAssessmentsByItemId(false, application.id);
+
+  if (isFetchingAssessmentsById || fetchError) {
+    return (
+      <>
+        {isFetchingAssessmentsById && <Spinner />}{" "}
+        {fetchError && <Alert variant="warning" isInline title="Error" />}
+      </>
+    );
+  }
+
+  if (!assessments || assessments.length === 0) {
+    return (
+      <>
+        <RiskLabel risk={"unknown"} />;
+        {isFetchingAssessmentsById && <Spinner />}
+      </>
+    );
+  }
+
+  return <RiskLabel risk={assessments[0].risk || "unknown"} />;
 };
