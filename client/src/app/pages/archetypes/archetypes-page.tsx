@@ -55,6 +55,7 @@ import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
 import { Paths } from "@app/Paths";
+import { SimplePagination } from "@app/components/SimplePagination";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
@@ -127,7 +128,7 @@ const Archetypes: React.FC = () => {
     }),
     initialSort: { columnKey: "name", direction: "asc" },
 
-    hasPagination: false, // TODO: Add pagination
+    hasPagination: true,
   });
   const {
     currentPageItems,
@@ -216,7 +217,13 @@ const Archetypes: React.FC = () => {
                     <CreateButton />
                   </ToolbarItem>
                 </ToolbarGroup>
-                {/* TODO: Add pagination */}
+                <ToolbarItem {...paginationToolbarItemProps}>
+                  <SimplePagination
+                    idPrefix="archetypes-table"
+                    isTop
+                    paginationProps={paginationProps}
+                  />
+                </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
 
@@ -311,8 +318,11 @@ const Archetypes: React.FC = () => {
                 ))}
               </ConditionalTableBody>
             </Table>
-
-            {/* TODO: Add pagination */}
+            <SimplePagination
+              idPrefix="archetypes-table"
+              isTop={false}
+              paginationProps={paginationProps}
+            />
           </div>
         </ConditionalRender>
       </PageSection>
