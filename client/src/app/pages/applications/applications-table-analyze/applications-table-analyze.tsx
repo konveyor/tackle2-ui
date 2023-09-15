@@ -18,6 +18,7 @@ import {
   MenuToggle,
   MenuToggleElement,
   Modal,
+  DropdownList,
 } from "@patternfly/react-core";
 import {
   PencilAltIcon,
@@ -25,14 +26,7 @@ import {
   EllipsisVIcon,
   WarningTriangleIcon,
 } from "@patternfly/react-icons";
-import {
-  Table,
-  Thead,
-  Tr,
-  Th,
-  Td,
-  ActionsColumn,
-} from "@patternfly/react-table";
+import { Table, Thead, Tr, Th, Td, Tbody } from "@patternfly/react-table";
 
 // @app components and utilities
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -100,6 +94,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
   const [isToolbarKebabOpen, setIsToolbarKebabOpen] =
     React.useState<boolean>(false);
+  const [isRowDropdownOpen, setIsRowDropdownOpen] = React.useState<
+    number | null
+  >(null);
 
   const [saveApplicationModalState, setSaveApplicationModalState] =
     React.useState<"create" | Application | null>(null);
@@ -581,47 +578,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             }
             numRenderedColumns={numRenderedColumns}
           >
-            {currentPageItems?.map((application, rowIndex) => {
-              const actionItems = [];
-
-              if (applicationWriteAccess) {
-                actionItems.push(
-                  {
-                    title: "Manage credentials",
-                    onClick: () =>
-                      setSaveApplicationsCredentialsModalState([application]),
-                  },
-                  {
-                    title: t("actions.delete"),
-                    onClick: () => setApplicationsToDelete([application]),
-                  }
-                );
-              }
-
-              if (tasksReadAccess) {
-                actionItems.push({
-                  title: t("actions.analysisDetails"),
-                  "aria-disabled": !getTask(application),
-                  onClick: () => {
-                    const task = getTask(application);
-                    if (task)
-                      setTaskToView({ name: application.name, task: task.id });
-                  },
-                });
-              }
-
-              if (tasksWriteAccess) {
-                actionItems.push({
-                  title: "Cancel analysis",
-                  "aria-disabled": !isTaskCancellable(application),
-                  onClick: () => cancelAnalysis(application),
-                });
-              }
-
-              return (
+            <Tbody style={{ cursor: "pointer" }}>
+              {currentPageItems.map((application, rowIndex) => (
                 <Tr
-                  style={{ cursor: "pointer" }}
-                  key={application.name}
+                  key={application.id}
                   {...getClickableTrProps({ item: application })}
                 >
                   <TableRowContentWithControls
@@ -681,12 +641,103 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                       />
                     </Td>
                     <Td isActionCell>
-                      <ActionsColumn items={actionItems} />
+                      <Dropdown
+                        isOpen={isRowDropdownOpen === application.id}
+                        onSelect={() => setIsRowDropdownOpen(null)}
+                        onOpenChange={(_isOpen) => setIsRowDropdownOpen(null)}
+                        popperProps={{ position: "right" }}
+                        toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                          <MenuToggle
+                            ref={toggleRef}
+                            aria-label="row actions dropdown toggle"
+                            variant="plain"
+                            onClick={() => {
+                              isRowDropdownOpen
+                                ? setIsRowDropdownOpen(null)
+                                : setIsRowDropdownOpen(application.id);
+                            }}
+                            isExpanded={isRowDropdownOpen === rowIndex}
+                          >
+                            <EllipsisVIcon />
+                          </MenuToggle>
+                        )}
+                        shouldFocusToggleOnSelect
+                      >
+                        <DropdownList>
+                          {applicationWriteAccess && (
+                            <>
+                              <DropdownItem
+                                key="manage-creditentials"
+                                component="button"
+                                onClick={() => {
+                                  setSaveApplicationsCredentialsModalState([
+                                    application,
+                                  ]);
+                                }}
+                              >
+                                Manage credentials
+                              </DropdownItem>
+                              <DropdownItem
+                                key="delete"
+                                component="button"
+                                onClick={() =>
+                                  setApplicationsToDelete([application])
+                                }
+                              >
+                                {t("actions.delete")}
+                              </DropdownItem>
+                            </>
+                          )}
+
+                          {tasksReadAccess && (
+                            <ConditionalTooltip
+                              key="analysis-details"
+                              isTooltipEnabled={!getTask(application)}
+                              content={
+                                "There is no analysis details available."
+                              }
+                            >
+                              <DropdownItem
+                                key="analysis-details"
+                                isAriaDisabled={!getTask(application)}
+                                onClick={() => {
+                                  const task = getTask(application);
+                                  if (task)
+                                    setTaskToView({
+                                      name: application.name,
+                                      task: task.id,
+                                    });
+                                }}
+                              >
+                                {t("actions.analysisDetails")}
+                              </DropdownItem>
+                            </ConditionalTooltip>
+                          )}
+
+                          {tasksWriteAccess && (
+                            <ConditionalTooltip
+                              key="cancel-analysis"
+                              isTooltipEnabled={!isTaskCancellable(application)}
+                              content={
+                                "There is no analysis in progress to cancel."
+                              }
+                            >
+                              <DropdownItem
+                                key="cancel-analysis"
+                                isAriaDisabled={!isTaskCancellable(application)}
+                                onClick={() => cancelAnalysis(application)}
+                              >
+                                Cancel analysis
+                              </DropdownItem>
+                            </ConditionalTooltip>
+                          )}
+                        </DropdownList>
+                      </Dropdown>
                     </Td>
                   </TableRowContentWithControls>
                 </Tr>
-              );
-            })}
+              ))}
+            </Tbody>
           </ConditionalTableBody>
         </Table>
         <SimplePagination
