@@ -521,7 +521,7 @@ export const ApplicationsTable: React.FC = () => {
                 </RBAC>
               </ToolbarItem>
               {dropdownItems.length ? (
-                <ToolbarItem>
+                <ToolbarItem id="toolbar-kebab">
                   <Dropdown
                     isOpen={isToolbarKebabOpen}
                     onSelect={() => setIsToolbarKebabOpen(false)}
@@ -649,7 +649,7 @@ export const ApplicationsTable: React.FC = () => {
                       <TagIcon />
                       {application.tags ? application.tags.length : 0}
                     </Td>
-                    <Td isActionCell>
+                    <Td isActionCell id="pencil-action">
                       <Button
                         variant="plain"
                         icon={<PencilAltIcon />}
@@ -658,7 +658,7 @@ export const ApplicationsTable: React.FC = () => {
                         }
                       />
                     </Td>
-                    <Td isActionCell>
+                    <Td isActionCell id="row-actions">
                       <ActionsColumn
                         items={[
                           {
