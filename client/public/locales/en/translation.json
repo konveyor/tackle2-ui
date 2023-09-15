@@ -42,6 +42,7 @@
     "manageDependencies": "Manage dependencies",
     "manageImports": "Manage imports",
     "next": "Next",
+    "override": "Override",
     "review": "Review",
     "save": "Save",
     "saveAndReview": "Save and review",
@@ -51,7 +52,8 @@
     "selectPage": "Select page",
     "submitReview": "Submit review",
     "view": "View",
-    "viewErrorReport": "View error report"
+    "viewErrorReport": "View error report",
+    "viewArchetypes": "View archetypes"
   },
   "colors": {
     "black": "Black",
@@ -168,8 +170,8 @@
     "noDataAvailableTitle": "No data available",
     "noResultsFoundBody": "No results match the filter criteria. Remove all filters or clear all filters to show results.",
     "noResultsFoundTitle": "No results found",
-    "overrideAssessmentConfirmation": "This application has already been assessed. Do you want to continue?",
-    "overrideArchetypeConfirmation": "The archetype for this application already has an assessment. Do you want to create a dedicated assessment for this application?",
+    "overrideAssessmentDescription": "The archetype for {{what}} already has an assessment.",
+    "overrideAssessmentConfirmation": "Do you want to create a dedicated assessment for this application?",
     "overrideReviewConfirmation": "This application has already been reviewed. Do you want to continue?",
     "reasonForError": "The reported reason for the error:",
     "reviewInstructions": "Use this section to provide your assessment of the possible migration/modernization plan and effort estimation.",

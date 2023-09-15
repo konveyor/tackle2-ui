@@ -4,6 +4,7 @@ import {
   Modal,
   ButtonVariant,
   ModalVariant,
+  Alert,
 } from "@patternfly/react-core";
 
 export interface ConfirmDialogProps {
@@ -20,13 +21,17 @@ export interface ConfirmDialogProps {
 
   confirmBtnLabel: string;
   cancelBtnLabel: string;
+  customActionLabel?: string;
 
   inProgress?: boolean;
   confirmBtnVariant: ButtonVariant;
 
+  alertMessage?: string;
+
   onClose: () => void;
   onConfirm: () => void;
   onCancel?: () => void;
+  onCustomAction?: () => void;
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -36,11 +41,14 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   message,
   confirmBtnLabel,
   cancelBtnLabel,
+  customActionLabel,
   inProgress,
   confirmBtnVariant,
   onClose,
   onConfirm,
   onCancel,
+  onCustomAction,
+  alertMessage,
 }) => {
   const confirmBtn = (
     <Button
@@ -68,6 +76,21 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     </Button>
   ) : undefined;
 
+  const customActionBtn = onCustomAction ? (
+    <Button
+      key="custom-action"
+      id="custom-action-button"
+      aria-label={customActionLabel}
+      variant={ButtonVariant.secondary}
+      isDisabled={inProgress}
+      onClick={onCustomAction}
+    >
+      {customActionLabel}
+    </Button>
+  ) : undefined;
+
+  const actions = [confirmBtn, customActionBtn, cancelBtn].filter(Boolean);
+
   return (
     <Modal
       id="confirm-dialog"
@@ -77,8 +100,11 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       aria-label="Confirm dialog"
-      actions={onCancel ? [confirmBtn, cancelBtn] : [confirmBtn]}
+      actions={actions}
     >
+      {alertMessage ? (
+        <Alert variant="warning" isInline title={alertMessage} />
+      ) : null}
       {message}
     </Modal>
   );

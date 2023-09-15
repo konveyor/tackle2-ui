@@ -12,6 +12,7 @@ export interface CustomWizardFooterProps {
   isLastStep: boolean;
   isDisabled: boolean;
   isFormInvalid: boolean;
+  isArchetype?: boolean;
   onSave: (review: boolean) => void;
   onSaveAsDraft: () => void;
 }
@@ -21,6 +22,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
   isLastStep,
   isDisabled,
   isFormInvalid,
+  isArchetype,
   onSave,
   onSaveAsDraft,
 }) => {
@@ -47,14 +49,16 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
                   >
                     {t("actions.save")}
                   </Button>
-                  <Button
-                    variant="primary"
-                    onClick={() => onSave(true)}
-                    isDisabled={!enableNext || isDisabled || isFormInvalid}
-                    cy-data="save-and-review"
-                  >
-                    {t("actions.saveAndReview")}
-                  </Button>
+                  {!isArchetype && (
+                    <Button
+                      variant="primary"
+                      onClick={() => onSave(true)}
+                      isDisabled={!enableNext || isDisabled || isFormInvalid}
+                      cy-data="save-and-review"
+                    >
+                      {t("actions.saveAndReview")}
+                    </Button>
+                  )}
                 </>
               ) : (
                 <Button

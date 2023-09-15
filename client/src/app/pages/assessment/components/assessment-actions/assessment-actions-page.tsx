@@ -11,19 +11,18 @@ import { Link, useParams } from "react-router-dom";
 import { AssessmentActionsRoute, Paths } from "@app/Paths";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { useFetchApplicationByID } from "@app/queries/applications";
 import AssessmentActionsTable from "./components/assessment-actions-table";
 import { useFetchArchetypeById } from "@app/queries/archetypes";
+import { useFetchApplicationById } from "@app/queries/applications";
+import useIsArchetype from "@app/hooks/useIsArchetype";
 
 const AssessmentActions: React.FC = () => {
   const { applicationId, archetypeId } = useParams<AssessmentActionsRoute>();
-  const isArchetype = location.pathname.includes("/archetypes/");
-  console.log("isArchetype", isArchetype);
+  const isArchetype = useIsArchetype();
 
-  const { application } = useFetchApplicationByID(applicationId || "");
-  const { archetype } = useFetchArchetypeById(archetypeId || "");
+  const { archetype } = useFetchArchetypeById(archetypeId);
+  const { application } = useFetchApplicationById(applicationId);
 
-  console.log("archetype", archetype);
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -41,7 +40,7 @@ const AssessmentActions: React.FC = () => {
             </BreadcrumbItem>
           )}
           <BreadcrumbItem to="#" isActive>
-            Assessment
+            {isArchetype ? archetype?.name : application?.name}
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>
