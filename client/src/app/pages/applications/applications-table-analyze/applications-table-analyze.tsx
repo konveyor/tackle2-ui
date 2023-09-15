@@ -514,7 +514,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                 </RBAC>
               </ToolbarItem>
               {dropdownItems.length ? (
-                <ToolbarItem>
+                <ToolbarItem id="toolbar-kebab">
                   <Dropdown
                     isOpen={isToolbarKebabOpen}
                     onSelect={() => setIsToolbarKebabOpen(false)}
@@ -631,7 +631,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                       <TagIcon />
                       {application.tags ? application.tags.length : 0}
                     </Td>
-                    <Td isActionCell>
+                    <Td isActionCell id="pencil-action">
                       <Button
                         variant="plain"
                         icon={<PencilAltIcon />}
@@ -640,7 +640,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                         }
                       />
                     </Td>
-                    <Td isActionCell>
+                    <Td isActionCell id="row-actions">
                       <Dropdown
                         isOpen={isRowDropdownOpen === application.id}
                         onSelect={() => setIsRowDropdownOpen(null)}
