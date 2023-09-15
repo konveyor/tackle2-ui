@@ -46,7 +46,6 @@ import {
   ConditionalTableBody,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { IconedStatus } from "@app/components/IconedStatus";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
 import { getTaskById } from "@app/api/rest";
@@ -90,6 +89,7 @@ import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
+import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
 
 export const ApplicationsTableAnalyze: React.FC = () => {
   const { t } = useTranslation();
@@ -659,8 +659,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                       modifier="truncate"
                       {...getTdProps({ columnKey: "analysis" })}
                     >
-                      <IconedStatus
-                        preset={application.review ? "Completed" : "NotStarted"}
+                      <ApplicationAnalysisStatus
+                        state={getTask(application)?.state || "No task"}
                       />
                     </Td>
                     <Td
