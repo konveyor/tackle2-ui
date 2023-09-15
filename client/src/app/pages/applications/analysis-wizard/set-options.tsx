@@ -25,12 +25,11 @@ import { getParsedLabel } from "@app/utils/rules-utils";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchTargets } from "@app/queries/targets";
 import defaultSources from "./sources";
-import { Target } from "@app/api/models";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
 
-  const { watch, control, setValue, getValues } =
+  const { watch, control, setValue } =
     useFormContext<AnalysisWizardFormValues>();
 
   const { formLabels, diva, excludedRulesTags, autoTaggingEnabled } = watch();
@@ -61,8 +60,13 @@ export const SetOptions: React.FC = () => {
   });
 
   const defaultTargetsAndTargetsLabels = [
-    ...new Set(defaultTargets.concat(allTargetLabelsFromTargets)),
-  ];
+    ...defaultTargets,
+    ...allTargetLabelsFromTargets,
+  ].sort((t1, t2) => {
+    if (t1.label > t2.label) return 1;
+    if (t1.label < t2.label) return -1;
+    return 0;
+  });
 
   const defaultSourcesAndSourcesLabels = [
     ...new Set(defaultSources.concat(allSourceLabelsFromTargets)),
@@ -110,7 +114,7 @@ export const SetOptions: React.FC = () => {
               onSelect={(_, selection) => {
                 const selectionWithLabelSelector = `konveyor.io/target=${selection}`;
                 const matchingLabel =
-                  defaultTargetsAndTargetsLabels?.find(
+                  defaultTargetsAndTargetsLabels.find(
                     (label) => label.label === selectionWithLabelSelector
                   ) || "";
 
