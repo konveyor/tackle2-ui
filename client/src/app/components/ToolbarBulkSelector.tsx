@@ -10,12 +10,6 @@ import {
   PaginationProps,
   ToolbarItem,
 } from "@patternfly/react-core";
-// import {
-//   Dropdown,
-//   DropdownItem,
-//   DropdownToggle,
-//   DropdownToggleCheckbox,
-// } from "@patternfly/react-core/deprecated";
 
 import AngleDownIcon from "@patternfly/react-icons/dist/esm/icons/angle-down-icon";
 import AngleRightIcon from "@patternfly/react-icons/dist/esm/icons/angle-right-icon";
