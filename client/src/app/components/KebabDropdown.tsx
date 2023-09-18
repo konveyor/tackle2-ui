@@ -10,10 +10,12 @@ import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-ico
 
 export interface IKebabDropdownProps {
   dropdownItems?: React.ReactNode[];
+  ariaLabel?: string;
 }
 
 export const KebabDropdown: React.FC<IKebabDropdownProps> = ({
   dropdownItems,
+  ariaLabel,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -28,7 +30,7 @@ export const KebabDropdown: React.FC<IKebabDropdownProps> = ({
           isExpanded={isOpen}
           onClick={() => setIsOpen(!isOpen)}
           variant="plain"
-          aria-label="Table toolbar actions kebab toggle"
+          aria-label={ariaLabel || "Table toolbar actions kebab toggle"}
           isDisabled={!dropdownItems || dropdownItems.length === 0}
         >
           <EllipsisVIcon aria-hidden="true" />
