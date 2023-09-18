@@ -51,11 +51,13 @@ export interface ArchetypeFormValues {
 
 export interface ArchetypeFormProps {
   archetype?: Archetype | null;
+  isDuplicating?: boolean;
   onClose: () => void;
 }
 
 export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
   archetype,
+  isDuplicating = false,
   onClose,
 }) => {
   const { t } = useTranslation();
@@ -83,7 +85,11 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         "Duplicate name",
         "An archetype with this name already exists. Use a different name.",
         (value) =>
-          duplicateNameCheck(existingArchetypes, archetype || null, value ?? "")
+          duplicateNameCheck(
+            existingArchetypes,
+            (!isDuplicating && archetype) || null,
+            value ?? ""
+          )
       ),
 
     description: yup
@@ -114,6 +120,15 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
     stakeholderGroups: yup.array().of(yup.string()),
   });
 
+  const getDefaultName = () => {
+    if (!isDuplicating || !archetype) return archetype?.name || "";
+    let name = `${archetype.name} (duplicate)`;
+    for (let i = 2; existingArchetypes.find((a) => a.name === name); i++) {
+      name = `${archetype.name} (duplicate ${i})`;
+    }
+    return name;
+  };
+
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
@@ -124,7 +139,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
     formState,
   } = useForm<ArchetypeFormValues>({
     defaultValues: {
-      name: archetype?.name || "",
+      name: getDefaultName(),
       description: archetype?.description || "",
       comments: archetype?.comments || "",
 
@@ -169,7 +184,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
               .filter(Boolean) as StakeholderGroup[]),
     };
 
-    if (archetype) {
+    if (archetype && !isDuplicating) {
       updateArchetype({ id: archetype.id, ...payload });
     } else {
       createArchetype(payload);
@@ -261,9 +276,16 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
           id="submit"
           aria-label="submit"
           variant={ButtonVariant.primary}
-          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+          isDisabled={
+            !isValid ||
+            isSubmitting ||
+            isValidating ||
+            (!isDirty && !isDuplicating)
+          }
         >
-          {!archetype ? t("actions.create") : t("actions.save")}
+          {!archetype || isDuplicating
+            ? t("actions.create")
+            : t("actions.save")}
         </Button>
         <Button
           type="button"
