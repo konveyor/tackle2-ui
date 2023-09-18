@@ -68,6 +68,9 @@ const Archetypes: React.FC = () => {
     null
   );
 
+  const [archetypeToDuplicate, setArchetypeToDuplicate] =
+    useState<Archetype | null>(null);
+
   const { archetypes, isFetching, error: fetchError } = useFetchArchetypes();
 
   const onError = (error: AxiosError) => {
@@ -283,10 +286,11 @@ const Archetypes: React.FC = () => {
                         <Td isActionCell>
                           <ActionsColumn
                             items={[
-                              // {
-                              //   title: t("actions.duplicate"),
-                              //   onClick: () => alert("TODO"),
-                              // },
+                              {
+                                title: t("actions.duplicate"),
+                                onClick: () =>
+                                  setArchetypeToDuplicate(archetype),
+                              },
                               {
                                 title: t("actions.assess"),
                                 onClick: () =>
@@ -338,6 +342,21 @@ const Archetypes: React.FC = () => {
           key={archetypeToEdit?.id ?? -1}
           archetype={archetypeToEdit}
           onClose={() => setArchetypeToEdit(null)}
+        />
+      </Modal>
+
+      {/* Duplicate modal */}
+      <Modal
+        title={t("dialog.title.newArchetype")}
+        variant="medium"
+        isOpen={!!archetypeToDuplicate}
+        onClose={() => setArchetypeToDuplicate(null)}
+      >
+        <ArchetypeForm
+          key={archetypeToDuplicate?.id ?? -1}
+          archetype={archetypeToDuplicate}
+          isDuplicating
+          onClose={() => setArchetypeToDuplicate(null)}
         />
       </Modal>
 
