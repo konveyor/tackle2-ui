@@ -363,6 +363,7 @@ export const CustomRules: React.FC = () => {
                   toggleId="associated-credentials-select-toggle"
                   toggleAriaLabel="Associated credentials dropdown toggle"
                   aria-label={name}
+                  variant={"typeahead"}
                   value={
                     value
                       ? toOptionLike(value, sourceIdentityOptions)
