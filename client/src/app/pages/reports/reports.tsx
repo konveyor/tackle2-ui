@@ -38,6 +38,7 @@ import { AdoptionPlan } from "./components/adoption-plan";
 import { IdentifiedRisksTable } from "./components/identified-risks-table";
 import { useFetchApplications } from "@app/queries/applications";
 import { useFetchAssessments } from "@app/queries/assessments";
+import { Ref } from "@app/api/models";
 
 export const Reports: React.FC = () => {
   // i18
@@ -102,9 +103,9 @@ export const Reports: React.FC = () => {
     setIsQuestionnaireSelectOpen(false);
   };
 
-  const questionnaires = assessments.reduce((result: string[], item) => {
-    if (!result.includes(item.questionnaire.name)) {
-      result.push(item.questionnaire.name);
+  const questionnaires = assessments.reduce((result: Ref[], item) => {
+    if (!result.some((ref) => ref.id === item.questionnaire.id)) {
+      result.push(item.questionnaire);
     }
     return result;
   }, []);
@@ -145,8 +146,11 @@ export const Reports: React.FC = () => {
                             All questionnaires
                           </SelectOption>
                           {questionnaires.map((questionnaire, index) => (
-                            <SelectOption key={index} value={questionnaire}>
-                              {questionnaire}
+                            <SelectOption
+                              key={index}
+                              value={questionnaire.name}
+                            >
+                              {questionnaire.name}
                             </SelectOption>
                           ))}
                         </Select>
@@ -155,7 +159,16 @@ export const Reports: React.FC = () => {
                   </CardHeader>
                   <CardBody>
                     <Bullseye>
-                      <Landscape />
+                      <Landscape
+                        questionnaire={
+                          selectedQuestionnaire !== "All questionnaires"
+                            ? questionnaires.find(
+                                (questionnaire) =>
+                                  questionnaire.name === selectedQuestionnaire
+                              )
+                            : undefined
+                        }
+                      />
                     </Bullseye>
                   </CardBody>
                 </Card>
