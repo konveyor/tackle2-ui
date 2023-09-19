@@ -16,7 +16,6 @@ import {
 } from "@patternfly/react-core";
 import AngleLeftIcon from "@patternfly/react-icons/dist/esm/icons/angle-left-icon";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { Paths } from "@app/Paths";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -25,6 +24,7 @@ import { Assessment, Questionnaire } from "@app/api/models";
 import QuestionnaireSectionTabTitle from "./components/questionnaire-section-tab-title";
 import { AxiosError } from "axios";
 import { formatPath } from "@app/utils/utils";
+import useIsArchetype from "@app/hooks/useIsArchetype";
 
 export enum SummaryType {
   Assessment = "Assessment",
@@ -36,7 +36,6 @@ interface QuestionnaireSummaryProps {
   fetchError?: AxiosError | null;
   summaryData: Assessment | Questionnaire | undefined;
   summaryType: SummaryType;
-  isArchetype?: boolean;
 }
 
 const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
@@ -44,9 +43,8 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
   summaryType,
   isFetching = false,
   fetchError = null,
-  isArchetype,
 }) => {
-  const { t } = useTranslation();
+  const isArchetype = useIsArchetype();
 
   const [activeSectionIndex, setActiveSectionIndex] = useState<"all" | number>(
     "all"
@@ -86,17 +84,20 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
   if (!summaryData) {
     return <div>No data available.</div>;
   }
+
+  const dynamicPath = isArchetype
+    ? formatPath(Paths.archetypeAssessmentActions, {
+        archetypeId: (summaryData as Assessment)?.archetype?.id,
+      })
+    : formatPath(Paths.applicationAssessmentActions, {
+        applicationId: (summaryData as Assessment)?.application?.id,
+      });
+
   const BreadcrumbPath =
     summaryType === SummaryType.Assessment ? (
       <Breadcrumb>
         <BreadcrumbItem>
-          <Link
-            to={formatPath(Paths.applicationAssessmentActions, {
-              applicationId: (summaryData as Assessment)?.application?.id,
-            })}
-          >
-            Assessment
-          </Link>
+          <Link to={dynamicPath}>Assessment</Link>
         </BreadcrumbItem>
         <BreadcrumbItem to="#" isActive>
           {summaryData?.name}

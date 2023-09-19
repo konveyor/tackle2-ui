@@ -1,6 +1,5 @@
 name: Test questionnaire
 description: This is a sample questionnaire in YAML format
-revision: 1
 required: true
 sections:
   - order: 1
@@ -22,7 +21,6 @@ sections:
             applyTags: []
             autoAnswerFor: [{ category: Category1, tag: Tag1 }]
             selected: false
-            autoAnswered: false
           - order: 2
             text: Blue
             risk: green
@@ -31,14 +29,12 @@ sections:
             applyTags: []
             autoAnswerFor: []
             selected: false
-            autoAnswered: false
       - order: 2
         text: What is your favorite sport?
         explanation: Please select your favorite sport.
-        includeFor:
+        excludeFor:
           - category: Category1
             tag: Tag1
-        excludeFor: []
         answers:
           - order: 1
             text: Soccer
@@ -48,7 +44,6 @@ sections:
             applyTags: []
             autoAnswerFor: []
             selected: false
-            autoAnswered: false
           - order: 2
             text: Cycling
             risk: red
@@ -57,7 +52,6 @@ sections:
             applyTags: []
             autoAnswerFor: []
             selected: false
-            autoAnswered: false
           - order: 3
             text: Climbing
             risk: yellow
@@ -66,7 +60,6 @@ sections:
             applyTags: []
             autoAnswerFor: []
             selected: false
-            autoAnswered: false
           - order: 4
             text: Swimming
             risk: yellow
@@ -75,7 +68,6 @@ sections:
             applyTags: []
             autoAnswerFor: []
             selected: false
-            autoAnswered: false
           - order: 5
             text: Running
             risk: red
@@ -84,7 +76,6 @@ sections:
             applyTags: []
             autoAnswerFor: []
             selected: false
-            autoAnswered: false
 thresholds:
   red: 5
   yellow: 10

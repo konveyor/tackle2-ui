@@ -9,7 +9,7 @@ import {
 } from "@app/api/rest";
 import { New, Review } from "@app/api/models";
 import { AxiosError } from "axios";
-import { useFetchApplicationByID } from "./applications";
+import { useFetchApplicationById } from "./applications";
 
 export const reviewQueryKey = "review";
 export const reviewsByItemIdQueryKey = "reviewsByItemId";
@@ -94,7 +94,7 @@ export function useGetReviewByAppId(applicationId: string | number) {
     application,
     isFetching: isApplicationFetching,
     fetchError: applicationError,
-  } = useFetchApplicationByID(applicationId || "");
+  } = useFetchApplicationById(applicationId);
 
   let review = null;
   let isLoading = false;

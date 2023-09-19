@@ -102,7 +102,12 @@ export const devRoutes: IRoute[] = [
     exact: false,
   },
   {
-    path: Paths.assessmentSummary,
+    path: Paths.applicationAssessmentSummary,
+    comp: AssessmentSummary,
+    exact: false,
+  },
+  {
+    path: Paths.archetypeAssessmentSummary,
     comp: AssessmentSummary,
     exact: false,
   },

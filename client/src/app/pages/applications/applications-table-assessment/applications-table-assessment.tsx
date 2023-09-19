@@ -669,6 +669,15 @@ export const ApplicationsTable: React.FC = () => {
                             title: t("actions.review"),
                             onClick: () => reviewSelectedApp(application),
                           },
+                          ...(application?.review
+                            ? [
+                                {
+                                  title: t("actions.discardAssessment"),
+                                  onClick: () =>
+                                    setAssessmentOrReviewToDiscard(application),
+                                },
+                              ]
+                            : []),
                           {
                             title: t("actions.delete"),
                             onClick: () =>

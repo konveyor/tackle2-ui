@@ -128,6 +128,7 @@ export interface Application {
   migrationWave: Ref | null;
   assessments?: Ref[];
   assessed?: boolean;
+  archetypes?: Ref[];
 }
 
 export interface Review {
@@ -749,6 +750,6 @@ export interface Archetype {
   assessmentTags?: Tag[];
   stakeholders?: Ref[];
   stakeholderGroups?: Ref[];
-  applications?: Application[];
+  applications?: Ref[];
   assessments?: Ref[];
 }

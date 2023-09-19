@@ -18,7 +18,6 @@ import { NotificationsContext } from "@app/components/NotificationsContext";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
 import { QuestionnaireForm } from "../questionnaire-form";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 import {
   COMMENTS_KEY,
   QUESTIONS_KEY,
@@ -34,6 +33,7 @@ import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AssessmentStakeholdersForm } from "../assessment-stakeholders-form/assessment-stakeholders-form";
+import useIsArchetype from "@app/hooks/useIsArchetype";
 
 export const SAVE_ACTION_KEY = "saveAction";
 
@@ -58,16 +58,15 @@ export interface AssessmentWizardValues {
 export interface AssessmentWizardProps {
   assessment?: Assessment;
   isOpen: boolean;
-  isArchetype?: boolean;
 }
 
 export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   assessment,
   isOpen,
-  isArchetype,
 }) => {
+  const isArchetype = useIsArchetype();
   const queryClient = useQueryClient();
-  const { questionnaires } = useFetchQuestionnaires();
+
   const onHandleUpdateAssessmentSuccess = () => {
     queryClient.invalidateQueries([
       assessmentsByItemIdQueryKey,
@@ -76,10 +75,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   };
   const { mutate: updateAssessmentMutation } = useUpdateAssessmentMutation(
     onHandleUpdateAssessmentSuccess
-  );
-
-  const matchingQuestionnaire = questionnaires.find(
-    (questionnaire) => questionnaire.id === assessment?.questionnaire?.id
   );
 
   const { t } = useTranslation();
@@ -94,10 +89,10 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const sortedSections = useMemo(() => {
-    return (matchingQuestionnaire ? matchingQuestionnaire.sections : []).sort(
+    return (assessment ? assessment.sections : []).sort(
       (a, b) => a.order - b.order
     );
-  }, [matchingQuestionnaire]);
+  }, [assessment]);
 
   //TODO: Add comments to the sections when/if available from api
   // const initialComments = useMemo(() => {
@@ -112,8 +107,8 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const initialQuestions = useMemo(() => {
     const questions: { [key: string]: string | undefined } = {};
-    if (assessment && matchingQuestionnaire) {
-      matchingQuestionnaire.sections
+    if (assessment) {
+      assessment.sections
         .flatMap((f) => f.questions)
         .forEach((question) => {
           const existingAnswer = assessment.sections
@@ -126,17 +121,21 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         });
     }
     return questions;
-  }, [assessment, matchingQuestionnaire]);
+  }, [assessment]);
 
   useEffect(() => {
     methods.reset({
-      // stakeholders: assessment?.stakeholders || [],
-      // stakeholderGroups: assessment?.stakeholderGroups || [],
+      stakeholders:
+        assessment?.stakeholders.map((stakeholder) => stakeholder.name) || [],
+      stakeholderGroups:
+        assessment?.stakeholderGroups.map(
+          (stakeholderGroup) => stakeholderGroup.name
+        ) || [],
       // comments: initialComments,
       questions: initialQuestions,
       [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
     });
-  }, [initialQuestions]);
+  }, [initialQuestions, assessment]);
 
   const validationSchema = yup.object().shape({
     stakeholders: yup.array().of(yup.string()),
@@ -235,7 +234,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
     // Create an array of sections based on the questionsData
     const sections: Section[] =
-      matchingQuestionnaire?.sections?.map((section) => {
+      assessment?.sections?.map((section) => {
         //TODO: Add comments to the sections
         // const commentValues = values["comments"];
         // const fieldName = getCommentFieldName(category, false);
@@ -263,7 +262,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const handleSaveAsDraft = async (formValues: AssessmentWizardValues) => {
     try {
-      if (!assessment?.application?.id) {
+      if (!assessment?.application?.id && !assessment?.archetype?.id) {
         console.log("An assessment must exist in order to save as draft");
         return;
       }
@@ -307,7 +306,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const handleSave = async (formValues: AssessmentWizardValues) => {
     try {
-      if (!assessment?.application?.id) {
+      if (!assessment?.application?.id && !assessment?.archetype?.id) {
         console.log("An assessment must exist in order to save.");
         return;
       }
@@ -352,7 +351,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const handleSaveAndReview = async (formValues: AssessmentWizardValues) => {
     try {
-      if (!assessment?.application?.id) {
+      if (!assessment?.application?.id && !assessment?.archetype?.id) {
         console.log("An assessment must exist in order to save.");
         return;
       }
@@ -375,22 +374,41 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         title: "Assessment has been saved.",
         variant: "success",
       });
-
-      assessment?.application?.id &&
-        getApplicationById(assessment.application.id)
-          .then((data) => {
-            history.push(
-              formatPath(Paths.applicationsReview, {
-                applicationId: data.id,
-              })
-            );
-          })
-          .catch((error) => {
-            pushNotification({
-              title: getAxiosErrorMessage(error),
-              variant: "danger",
+      if (isArchetype) {
+        //TODO: Review Archetype?
+        // assessment?.archetype?.id &&
+        //   getArchetypeById(assessment.archetype.id)
+        //     .then((data) => {
+        //       history.push(
+        //         formatPath(Paths.a, {
+        //           applicationId: data.id,
+        //         })
+        //       );
+        //     })
+        //     .catch((error) => {
+        //       pushNotification({
+        //         title: getAxiosErrorMessage(error),
+        //         variant: "danger",
+        //       });
+        //     });
+        // }
+      } else {
+        assessment?.application?.id &&
+          getApplicationById(assessment.application.id)
+            .then((data) => {
+              history.push(
+                formatPath(Paths.applicationsReview, {
+                  applicationId: data.id,
+                })
+              );
+            })
+            .catch((error) => {
+              pushNotification({
+                title: getAxiosErrorMessage(error),
+                variant: "danger",
+              });
             });
-          });
+      }
     } catch (error) {
       pushNotification({
         title: "Failed to save.",
@@ -401,7 +419,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   };
 
   const onSubmit = async (formValues: AssessmentWizardValues) => {
-    if (!assessment?.application?.id) {
+    if (!assessment?.application?.id && !assessment?.archetype?.id) {
       console.log("An assessment must exist in order to save the form");
       return;
     }
@@ -453,6 +471,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const wizardFooter = (
     <CustomWizardFooter
+      isArchetype={isArchetype}
       isFirstStep={currentStep === 0}
       isLastStep={currentStep === sortedSections.length}
       isDisabled={

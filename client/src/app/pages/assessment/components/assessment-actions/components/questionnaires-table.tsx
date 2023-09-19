@@ -74,8 +74,16 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
         >
           <Tbody>
             {currentPageItems?.map((questionnaire, rowIndex) => {
-              const matchingAssessment = assessments?.find(
-                (assessment) => assessment.questionnaire.id === questionnaire.id
+              const matchingArchetypeAssessment = assessments?.find(
+                (assessment) =>
+                  assessment.questionnaire.id === questionnaire.id &&
+                  assessment?.archetype?.id === archetype?.id
+              );
+
+              const matchingApplicationAssessment = assessments?.find(
+                (assessment) =>
+                  assessment.questionnaire.id === questionnaire.id &&
+                  assessment?.application?.id === application?.id
               );
 
               return (
@@ -93,9 +101,12 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
                     </Td>
                     {application || archetype ? (
                       <DynamicAssessmentActionsRow
-                        assessment={matchingAssessment}
+                        assessment={
+                          archetype
+                            ? matchingArchetypeAssessment
+                            : matchingApplicationAssessment
+                        }
                         questionnaire={questionnaire}
-                        isArchetype={!!archetype}
                         application={application}
                         archetype={archetype}
                       />

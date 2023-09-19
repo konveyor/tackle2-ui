@@ -77,11 +77,12 @@ export const useDeleteAssessmentMutation = (
   });
 };
 
-export const useFetchAssessmentById = (id: number | string) => {
+export const useFetchAssessmentById = (id?: number | string) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [assessmentQueryKey, id],
-    queryFn: () => getAssessmentById(id),
+    queryFn: () => (id ? getAssessmentById(id) : undefined),
     onError: (error: AxiosError) => console.log("error, ", error),
+    enabled: !!id,
   });
   return {
     assessment: data,
@@ -99,6 +100,7 @@ export const useFetchAssessmentsByItemId = (
     queryFn: () => getAssessmentsByItemId(isArchetype, itemId),
     onError: (error: AxiosError) => console.log("error, ", error),
     onSuccess: (data) => {},
+    enabled: !!itemId,
   });
 
   return {
