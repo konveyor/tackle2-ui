@@ -9,7 +9,6 @@ import {
   DropdownList,
   ToolbarItem,
 } from "@patternfly/react-core";
-// import { Dropdown, DropdownToggle } from "@patternfly/react-core/deprecated";
 import { isAuthRequired, LocalStorageKey } from "@app/Constants";
 import { useHistory } from "react-router-dom";
 
