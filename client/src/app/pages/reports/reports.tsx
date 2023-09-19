@@ -160,13 +160,14 @@ export const Reports: React.FC = () => {
                   <CardBody>
                     <Bullseye>
                       <Landscape
-                        questionnaire={
-                          selectedQuestionnaire !== "All questionnaires"
-                            ? questionnaires.find(
-                                (questionnaire) =>
-                                  questionnaire.name === selectedQuestionnaire
+                        assessments={
+                          selectedQuestionnaire === "All questionnaires"
+                            ? assessments
+                            : assessments.filter(
+                                (assessment) =>
+                                  assessment.questionnaire.name ===
+                                  selectedQuestionnaire
                               )
-                            : undefined
                         }
                       />
                     </Bullseye>

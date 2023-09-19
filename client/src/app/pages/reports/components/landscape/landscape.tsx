@@ -7,7 +7,7 @@ import { ConditionalRender } from "@app/components/ConditionalRender";
 import { StateError } from "@app/components/StateError";
 
 import { RISK_LIST } from "@app/Constants";
-import { AssessmentRisk, Ref } from "@app/api/models";
+import { Assessment, AssessmentRisk } from "@app/api/models";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { NoApplicationSelectedEmptyState } from "../no-application-selected-empty-state";
@@ -49,10 +49,10 @@ const extractLandscapeData = (
 };
 
 interface ILandscapeProps {
-  questionnaire?: Ref;
+  assessments: Assessment[];
 }
 
-export const Landscape: React.FC<ILandscapeProps> = ({ questionnaire }) => {
+export const Landscape: React.FC<ILandscapeProps> = ({ assessments }) => {
   const { t } = useTranslation();
 
   // Context
