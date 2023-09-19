@@ -23,6 +23,7 @@ const AssessmentPage: React.FC = () => {
   const { t } = useTranslation();
 
   const { assessmentId } = useParams<AssessmentRoute>();
+
   const { assessment, isFetching, fetchError } =
     useFetchAssessmentById(assessmentId);
 

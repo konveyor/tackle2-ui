@@ -42,12 +42,15 @@ export const useFetchApplications = () => {
 
 export const ApplicationQueryKey = "application";
 
-export const useFetchApplicationByID = (id: number | string) => {
+export const useFetchApplicationById = (id?: number | string) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [ApplicationQueryKey, id],
-    queryFn: () => getApplicationById(id),
+    queryFn: () =>
+      id === undefined ? Promise.resolve(undefined) : getApplicationById(id),
     onError: (error: AxiosError) => console.log("error, ", error),
+    enabled: id !== undefined,
   });
+
   return {
     application: data,
     isFetching: isLoading,
