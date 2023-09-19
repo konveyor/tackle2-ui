@@ -37,7 +37,7 @@ import { Landscape } from "./components/landscape";
 import { AdoptionPlan } from "./components/adoption-plan";
 import { IdentifiedRisksTable } from "./components/identified-risks-table";
 import { useFetchApplications } from "@app/queries/applications";
-import { useFetchQuestionnaires } from "@app/queries/questionnaires";
+import { useFetchAssessments } from "@app/queries/assessments";
 
 export const Reports: React.FC = () => {
   // i18
@@ -49,7 +49,7 @@ export const Reports: React.FC = () => {
   const [selectedQuestionnaire, setSelectedQuestionnaire] =
     React.useState<string>("All questionnaires");
 
-  const { questionnaires } = useFetchQuestionnaires();
+  const { assessments } = useFetchAssessments();
 
   // Cards
   const [isAdoptionCandidateTable, setIsAdoptionCandidateTable] =
@@ -137,12 +137,12 @@ export const Reports: React.FC = () => {
                           <SelectOption key={0} value="All questionnaires">
                             All questionnaires
                           </SelectOption>
-                          {questionnaires.map((questionnaire, index) => (
+                          {assessments.map((assessment, index) => (
                             <SelectOption
                               key={index}
-                              value={questionnaire.name}
+                              value={assessment.questionnaire.name}
                             >
-                              {questionnaire.name}
+                              {assessment.questionnaire.name}
                             </SelectOption>
                           ))}
                         </Select>

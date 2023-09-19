@@ -91,9 +91,8 @@ export const Landscape: React.FC = () => {
             <Donut
               value={landscapeData.low}
               total={applications.length}
-              color={RISK_LIST["green"].hexColor}
-              riskLabel={t("terms.lowRisk")}
-              riskDescription={t("terms.cloudNativeReady")}
+              color={RISK_LIST["red"].hexColor}
+              riskLabel={t("colors.red")}
             />
           </SplitItem>
           <SplitItem>
@@ -101,17 +100,15 @@ export const Landscape: React.FC = () => {
               value={landscapeData.medium}
               total={applications.length}
               color={RISK_LIST["yellow"].hexColor}
-              riskLabel={t("terms.mediumRisk")}
-              riskDescription={t("terms.modernizable")}
+              riskLabel={t("colors.yellow")}
             />
           </SplitItem>
           <SplitItem>
             <Donut
               value={landscapeData.high}
               total={applications.length}
-              color={RISK_LIST["red"].hexColor}
-              riskLabel={t("terms.highRisk")}
-              riskDescription={t("terms.unsuitableForContainers")}
+              color={RISK_LIST["green"].hexColor}
+              riskLabel={t("colors.green")}
             />
           </SplitItem>
           <SplitItem>
@@ -119,8 +116,7 @@ export const Landscape: React.FC = () => {
               value={landscapeData.unassessed}
               total={applications.length}
               color={RISK_LIST["unknown"].hexColor}
-              riskLabel={t("terms.unassessed")}
-              riskDescription={t("terms.notYetAssessed")}
+              riskLabel={`${t("terms.unassessed")}/${t("terms.unknown")}`}
             />
           </SplitItem>
         </Split>
