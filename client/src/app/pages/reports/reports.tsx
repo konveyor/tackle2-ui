@@ -9,9 +9,15 @@ import {
   CardExpandableContent,
   CardHeader,
   CardTitle,
+  Flex,
+  FlexItem,
+  MenuToggle,
+  MenuToggleElement,
   PageSection,
   PageSectionVariants,
   Popover,
+  Select,
+  SelectOption,
   Split,
   SplitItem,
   Stack,
@@ -31,10 +37,19 @@ import { Landscape } from "./components/landscape";
 import { AdoptionPlan } from "./components/adoption-plan";
 import { IdentifiedRisksTable } from "./components/identified-risks-table";
 import { useFetchApplications } from "@app/queries/applications";
+import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 
 export const Reports: React.FC = () => {
   // i18
   const { t } = useTranslation();
+
+  const [isQuestionnaireSelectOpen, setIsQuestionnaireSelectOpen] =
+    React.useState<boolean>(false);
+
+  const [selectedQuestionnaire, setSelectedQuestionnaire] =
+    React.useState<string>("All questionnaires");
+
+  const { questionnaires } = useFetchQuestionnaires();
 
   // Cards
   const [isAdoptionCandidateTable, setIsAdoptionCandidateTable] =
@@ -66,6 +81,27 @@ export const Reports: React.FC = () => {
     );
   }
 
+  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+    <MenuToggle
+      ref={toggleRef}
+      aria-label="kebab dropdown toggle"
+      onClick={() => {
+        setIsQuestionnaireSelectOpen(!isQuestionnaireSelectOpen);
+      }}
+      isExpanded={isQuestionnaireSelectOpen}
+    >
+      {selectedQuestionnaire}
+    </MenuToggle>
+  );
+
+  const onSelectQuestionnaire = (
+    _event: React.MouseEvent<Element, MouseEvent> | undefined,
+    value: string | number | undefined
+  ) => {
+    setSelectedQuestionnaire(value as string);
+    setIsQuestionnaireSelectOpen(false);
+  };
+
   return (
     <>
       {pageHeaderSection}
@@ -78,9 +114,40 @@ export const Reports: React.FC = () => {
               <StackItem>
                 <Card>
                   <CardHeader>
-                    <TextContent>
-                      <Text component="h3">{t("terms.currentLandscape")}</Text>
-                    </TextContent>
+                    <Flex>
+                      <FlexItem>
+                        <TextContent>
+                          <Text component="h3">
+                            {t("terms.currentLandscape")}
+                          </Text>
+                        </TextContent>
+                      </FlexItem>
+                      <FlexItem>
+                        <Select
+                          id="select-questionnaires"
+                          isOpen={isQuestionnaireSelectOpen}
+                          selected={selectedQuestionnaire}
+                          onSelect={onSelectQuestionnaire}
+                          onOpenChange={(_isOpen) =>
+                            setIsQuestionnaireSelectOpen(false)
+                          }
+                          toggle={toggle}
+                          shouldFocusToggleOnSelect
+                        >
+                          <SelectOption key={0} value="All questionnaires">
+                            All questionnaires
+                          </SelectOption>
+                          {questionnaires.map((questionnaire, index) => (
+                            <SelectOption
+                              key={index}
+                              value={questionnaire.name}
+                            >
+                              {questionnaire.name}
+                            </SelectOption>
+                          ))}
+                        </Select>
+                      </FlexItem>
+                    </Flex>
                   </CardHeader>
                   <CardBody>
                     <Bullseye>
