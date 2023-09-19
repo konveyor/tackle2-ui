@@ -11,6 +11,7 @@ export interface IDonutProps {
   total: number;
   color: string;
   riskLabel: string;
+  riskDescription?: string;
 }
 
 export const Donut: React.FC<IDonutProps> = ({
@@ -18,6 +19,7 @@ export const Donut: React.FC<IDonutProps> = ({
   total,
   color,
   riskLabel,
+  riskDescription,
 }) => {
   const { t } = useTranslation();
 
@@ -42,6 +44,7 @@ export const Donut: React.FC<IDonutProps> = ({
       <StackItem>
         <TextContent className="pf-v5-u-text-align-center">
           <Text component="h3">{riskLabel}</Text>
+          <Text component="small">{riskDescription}</Text>
         </TextContent>
       </StackItem>
     </Stack>

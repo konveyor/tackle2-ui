@@ -102,6 +102,13 @@ export const Reports: React.FC = () => {
     setIsQuestionnaireSelectOpen(false);
   };
 
+  const questionnaires = assessments.reduce((result: string[], item) => {
+    if (!result.includes(item.questionnaire.name)) {
+      result.push(item.questionnaire.name);
+    }
+    return result;
+  }, []);
+
   return (
     <>
       {pageHeaderSection}
@@ -137,12 +144,9 @@ export const Reports: React.FC = () => {
                           <SelectOption key={0} value="All questionnaires">
                             All questionnaires
                           </SelectOption>
-                          {assessments.map((assessment, index) => (
-                            <SelectOption
-                              key={index}
-                              value={assessment.questionnaire.name}
-                            >
-                              {assessment.questionnaire.name}
+                          {questionnaires.map((questionnaire, index) => (
+                            <SelectOption key={index} value={questionnaire}>
+                              {questionnaire}
                             </SelectOption>
                           ))}
                         </Select>

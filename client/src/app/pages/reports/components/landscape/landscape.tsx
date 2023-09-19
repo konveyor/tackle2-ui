@@ -93,6 +93,7 @@ export const Landscape: React.FC = () => {
               total={applications.length}
               color={RISK_LIST["red"].hexColor}
               riskLabel={t("colors.red")}
+              // riskDescription={}
             />
           </SplitItem>
           <SplitItem>
@@ -101,6 +102,7 @@ export const Landscape: React.FC = () => {
               total={applications.length}
               color={RISK_LIST["yellow"].hexColor}
               riskLabel={t("colors.yellow")}
+              // riskDescription={}
             />
           </SplitItem>
           <SplitItem>
@@ -109,6 +111,7 @@ export const Landscape: React.FC = () => {
               total={applications.length}
               color={RISK_LIST["green"].hexColor}
               riskLabel={t("colors.green")}
+              // riskDescription={}
             />
           </SplitItem>
           <SplitItem>
@@ -117,6 +120,7 @@ export const Landscape: React.FC = () => {
               total={applications.length}
               color={RISK_LIST["unknown"].hexColor}
               riskLabel={`${t("terms.unassessed")}/${t("terms.unknown")}`}
+              // riskDescription={}
             />
           </SplitItem>
         </Split>
