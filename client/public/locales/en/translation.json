@@ -176,6 +176,8 @@
     "reasonForError": "The reported reason for the error:",
     "reviewInstructions": "Use this section to provide your assessment of the possible migration/modernization plan and effort estimation.",
     "savingSelection": "Saving selection",
+    "selectedBecauseArchetypeTags": "Selected because the archetype's tags include {{tags}}",
+    "selectedBecauseAppOrArchetypeTags": "Selected because the application or archetype's tags include {{tags}}",
     "selectOwnerFromStakeholdersList": "Select owner from list of stakeholders",
     "suggestedAdoptionPlanHelpText": "The suggested approach to migration based on effort, priority, and dependencies.",
     "taskInProgressForTags": "A new analysis is in-progress.  Tags may be updated upon completion.",
