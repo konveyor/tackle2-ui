@@ -54,12 +54,7 @@ export const MultiInputSelection: React.FC<MultiInputSelectionProps> = ({
                             ? "message.selectedBecauseArchetypeTags"
                             : "message.selectedBecauseAppOrArchetypeTags",
                           {
-                            tagOrTags: t(
-                              option.autoAnswerFor.length === 1
-                                ? "terms.tag"
-                                : "terms.tags"
-                            ).toLowerCase(),
-                            tagList: option.autoAnswerFor
+                            tags: option.autoAnswerFor
                               .map((t) => `"${t.tag}"`)
                               .join(", "),
                           }
