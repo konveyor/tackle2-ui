@@ -15,6 +15,7 @@ import {
 import type {
   Archetype,
   New,
+  Ref,
   Stakeholder,
   StakeholderGroup,
   Tag,
@@ -174,14 +175,20 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
           ? undefined
           : (values.stakeholders
               .map((name) => stakeholders.find((s) => s.name === name))
-              .filter(Boolean) as Stakeholder[]),
+              .map<Ref | undefined>((sh) =>
+                !sh ? undefined : { id: sh.id, name: sh.name }
+              )
+              .filter(Boolean) as Ref[]),
 
       stakeholderGroups:
         values.stakeholderGroups === undefined
           ? undefined
           : (values.stakeholderGroups
               .map((name) => stakeholderGroups.find((s) => s.name === name))
-              .filter(Boolean) as StakeholderGroup[]),
+              .map<Ref | undefined>((sg) =>
+                !sg ? undefined : { id: sg.id, name: sg.name }
+              )
+              .filter(Boolean) as Ref[]),
     };
 
     if (archetype && !isDuplicating) {
@@ -190,7 +197,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       createArchetype(payload);
     }
   };
-  console.log("values", getValues(), getFieldState("criteriaTags"), formState);
+
   return (
     <Form onSubmit={handleSubmit(onValidSubmit)} id="archetype-form">
       <HookFormPFTextInput
