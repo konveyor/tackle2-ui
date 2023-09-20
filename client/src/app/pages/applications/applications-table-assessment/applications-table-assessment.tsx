@@ -65,7 +65,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
-import { Application, Assessment, Task } from "@app/api/models";
+import { Application, Assessment, Ref, Task } from "@app/api/models";
 import {
   ApplicationsQueryKey,
   useBulkDeleteApplicationMutation,
@@ -73,7 +73,7 @@ import {
 } from "@app/queries/applications";
 import { useFetchTasks } from "@app/queries/tasks";
 import { useDeleteAssessmentMutation } from "@app/queries/assessments";
-import { useDeleteReviewMutation, useFetchReviews } from "@app/queries/reviews";
+import { useDeleteReviewMutation } from "@app/queries/reviews";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchTagCategories } from "@app/queries/tags";
 
@@ -86,6 +86,7 @@ import { ImportApplicationsForm } from "../components/import-applications-form";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
+import { getAssessmentsByItemId } from "@app/api/rest";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -106,27 +107,16 @@ export const ApplicationsTable: React.FC = () => {
   const createUpdateApplications =
     saveApplicationModalState !== "create" ? saveApplicationModalState : null;
 
-  const [applicationToCopyAssessmentFrom, setApplicationToCopyAssessmentFrom] =
+  const [archetypeRefsToOverride, setArchetypeRefsToOverride] = React.useState<
+    Ref[] | null
+  >(null);
+
+  const [applicationToAssess, setApplicationToAssess] =
     React.useState<Application | null>(null);
-
-  const isCopyAssessmentModalOpen = applicationToCopyAssessmentFrom !== null;
-
-  const [isAssessModalOpen, setAssessModalOpen] = React.useState(false);
-
-  const [
-    applicationToCopyAssessmentAndReviewFrom,
-    setCopyAssessmentAndReviewModalState,
-  ] = React.useState<Application | null>(null);
-
-  const isCopyAssessmentAndReviewModalOpen =
-    applicationToCopyAssessmentAndReviewFrom !== null;
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
     React.useState<Application | null>(null);
   const isDependenciesModalOpen = applicationDependenciesToManage !== null;
-
-  const [applicationToAssess, setApplicationToAssess] =
-    React.useState<Application | null>(null);
 
   const [assessmentToEdit, setAssessmentToEdit] =
     React.useState<Assessment | null>(null);
@@ -155,9 +145,6 @@ export const ApplicationsTable: React.FC = () => {
     error: applicationsFetchError,
     refetch: fetchApplications,
   } = useFetchApplications();
-
-  //TODO: check if any archetypes match this application here
-  const matchingArchetypes = [];
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -401,12 +388,6 @@ export const ApplicationsTable: React.FC = () => {
     selectionState: { selectedItems: selectedRows },
   } = tableControls;
 
-  const {
-    reviews,
-    isFetching: isFetchingReviews,
-    fetchError: fetchErrorReviews,
-  } = useFetchReviews();
-
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     React.useState(false);
 
@@ -460,19 +441,56 @@ export const ApplicationsTable: React.FC = () => {
     : [];
   const dropdownItems = [...importDropdownItems, ...applicationDeleteDropdown];
 
-  const assessSelectedApp = (application: Application) => {
-    // if application/archetype has an assessment, ask if user wants to override it
-    if (matchingArchetypes.length) {
-      setAssessModalOpen(true);
-      setApplicationToAssess(application);
+  const handleNavToAssessment = (application: Application) => {
+    application?.id &&
+      history.push(
+        formatPath(Paths.applicationAssessmentActions, {
+          applicationId: application?.id,
+        })
+      );
+  };
+
+  const handleNavToViewArchetypes = (application: Application) => {
+    application?.id &&
+      archetypeRefsToOverride?.length &&
+      history.push(
+        formatPath(Paths.viewArchetypes, {
+          applicationId: application?.id,
+          archetypeId: archetypeRefsToOverride[0].id,
+        })
+      );
+  };
+
+  const assessSelectedApp = async (application: Application) => {
+    setApplicationToAssess(application);
+
+    if (application?.archetypes?.length) {
+      for (const archetypeRef of application.archetypes) {
+        try {
+          const assessments = await getAssessmentsByItemId(
+            true,
+            archetypeRef.id
+          );
+
+          if (assessments && assessments.length > 0) {
+            setArchetypeRefsToOverride(application.archetypes);
+            break;
+          } else {
+            handleNavToAssessment(application);
+          }
+        } catch (error) {
+          console.error(
+            `Error fetching archetype with ID ${archetypeRef.id}:`,
+            error
+          );
+          pushNotification({
+            title: t("terms.error"),
+            variant: "danger",
+          });
+        }
+      }
     } else {
-      application?.id &&
-        history.push(
-          formatPath(Paths.applicationAssessmentActions, {
-            applicationId: application?.id,
-          })
-        );
-      setApplicationToAssess(null);
+      handleNavToAssessment(application);
     }
   };
   const reviewSelectedApp = (application: Application) => {
@@ -858,23 +876,36 @@ export const ApplicationsTable: React.FC = () => {
           }}
         />
         <ConfirmDialog
-          title={t("dialog.title.newAssessment")}
+          title={t("composed.new", {
+            what: t("terms.assessment").toLowerCase(),
+          })}
+          alertMessage={t("message.overrideAssessmentDescription", {
+            what:
+              archetypeRefsToOverride
+                ?.map((archetypeRef) => archetypeRef.name)
+                .join(", ") || "Archetype name",
+          })}
+          message={t("message.overrideAssessmentConfirmation")}
           titleIconVariant={"warning"}
-          isOpen={isAssessModalOpen}
-          message={t("message.overrideArchetypeConfirmation")}
+          isOpen={archetypeRefsToOverride !== null}
           confirmBtnVariant={ButtonVariant.primary}
-          confirmBtnLabel={t("actions.accept")}
+          confirmBtnLabel={t("actions.override")}
           cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setApplicationToAssess(null)}
-          onClose={() => setApplicationToAssess(null)}
-          onConfirm={() => {
+          customActionLabel={t("actions.viewArchetypes")}
+          onCancel={() => setArchetypeRefsToOverride(null)}
+          onClose={() => setArchetypeRefsToOverride(null)}
+          onCustomAction={() => {
             applicationToAssess &&
-              history.push(
-                formatPath(Paths.applicationAssessmentActions, {
-                  applicationId: applicationToAssess?.id,
-                })
-              );
-            setApplicationToAssess(null);
+              handleNavToViewArchetypes(applicationToAssess);
+          }}
+          onConfirm={() => {
+            history.push(
+              formatPath(Paths.applicationAssessmentActions, {
+                applicationId: activeRowItem?.id,
+              })
+            );
+            setArchetypeRefsToOverride(null);
+            applicationToAssess && handleNavToAssessment(applicationToAssess);
           }}
         />
       </div>
