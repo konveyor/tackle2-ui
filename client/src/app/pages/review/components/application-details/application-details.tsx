@@ -13,7 +13,7 @@ import { Application, Assessment } from "@app/api/models";
 import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 
 export interface IApplicationDetailsProps {
-  application: Application;
+  application?: Application;
   assessment?: Assessment;
 }
 
@@ -27,7 +27,7 @@ export const ApplicationDetails: React.FC<IApplicationDetailsProps> = ({
     (questionnaire) => questionnaire.id === assessment?.questionnaire?.id
   );
   const { t } = useTranslation();
-  if (!matchingQuestionnaire) {
+  if (!matchingQuestionnaire || !application) {
     return null;
   }
 

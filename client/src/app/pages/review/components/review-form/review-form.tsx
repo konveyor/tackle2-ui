@@ -28,11 +28,9 @@ import {
 } from "@app/components/HookFormPFFields";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import {
-  reviewsByItemIdQueryKey,
   useCreateReviewMutation,
   useUpdateReviewMutation,
 } from "@app/queries/reviews";
-import { useQueryClient } from "@tanstack/react-query";
 import { useHistory } from "react-router-dom";
 import { Paths } from "@app/Paths";
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -57,6 +55,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
   application,
   review,
 }) => {
+  console.log("existing review", review);
   const { t } = useTranslation();
   const history = useHistory();
   const { pushNotification } = React.useContext(NotificationsContext);
@@ -112,17 +111,8 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
     console.log("Invalid form", errors);
   };
 
-  const queryClient = useQueryClient();
-  const onHandleUpdateReviewSuccess = () => {
-    queryClient.invalidateQueries([
-      reviewsByItemIdQueryKey,
-      application?.review?.id,
-    ]);
-  };
   const createReviewMutation = useCreateReviewMutation();
-  const updateReviewMutation = useUpdateReviewMutation(
-    onHandleUpdateReviewSuccess
-  );
+  const updateReviewMutation = useUpdateReviewMutation();
 
   const onSubmit = async (formValues: FormValues) => {
     const payload: New<Review> = {
@@ -251,7 +241,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
         label={t("composed.workPriority")}
         fieldId="priority"
         isRequired
-        renderInput={({ field: { value, name, onChange } }) => (
+        renderInput={({ field: { value, onChange } }) => (
           <NumberInput
             inputName="priority"
             inputAriaLabel="priority"

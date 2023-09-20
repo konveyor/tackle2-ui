@@ -37,7 +37,7 @@ import { ApplicationSelectionContext } from "../../application-selection-context
 import { CartesianSquare } from "./cartesian-square";
 import { Arrow } from "./arrow";
 import useFetchApplicationDependencies from "@app/hooks/useFetchApplicationDependencies/useFetchApplicationDependencies";
-import { useGetReviewByItemId } from "@app/queries/reviews";
+import { useFetchReviewById } from "@app/queries/reviews";
 
 interface Line {
   from: LinePoint;
@@ -165,7 +165,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
       const appConfidence = confidences.find(
         (elem) => elem.applicationId === current.id
       );
-      const { review: appReview } = useGetReviewByItemId(current?.id);
+      const { review: appReview } = useFetchReviewById(current?.review?.id);
 
       if (appConfidence && appReview) {
         const key = appReview.proposedAction;

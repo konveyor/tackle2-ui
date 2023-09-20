@@ -9,8 +9,6 @@ import {
 } from "@app/api/rest";
 import { New, Review } from "@app/api/models";
 import { AxiosError } from "axios";
-import { useFetchApplicationById } from "./applications";
-import { useFetchArchetypeById } from "./archetypes";
 
 export const reviewQueryKey = "review";
 export const reviewsByItemIdQueryKey = "reviewsByItemId";
@@ -92,55 +90,18 @@ export const useDeleteReviewMutation = (
   });
 };
 
-export function useGetReviewByItemId(
-  id?: string | number,
-  isArchetype?: boolean
-) {
-  const {
-    application,
-    isFetching: isApplicationFetching,
-    fetchError: applicationError,
-  } = useFetchApplicationById(id);
-
-  const {
-    archetype,
-    isFetching: isArchetypeFetching,
-    fetchError: archetypeError,
-  } = useFetchArchetypeById(id);
-
-  let review = null;
-  let isLoading = false;
-  let isError = false;
-
-  const reviewId = application?.review?.id || archetype?.review?.id;
-
-  const reviewQuery = useQuery(
-    [
-      reviewsByItemIdQueryKey,
-      reviewId,
-      application?.review?.id,
-      archetype?.review?.id,
-    ],
-    () => (reviewId ? getReviewById(reviewId) : null),
-    {
-      enabled: !!reviewId,
-    }
-  );
-
-  if (reviewId) {
-    review = reviewQuery.data;
-    isLoading = reviewQuery.isLoading;
-    isError = reviewQuery.isError;
-  }
+export const useFetchReviewById = (id?: number | string) => {
+  const { data, isLoading, error, isFetching } = useQuery({
+    queryKey: [reviewQueryKey, id],
+    queryFn: () =>
+      id === undefined ? Promise.resolve(null) : getReviewById(id),
+    onError: (error: AxiosError) => console.log("error, ", error),
+    enabled: id !== undefined,
+  });
 
   return {
-    application,
-    archetype,
-    review,
-    isLoading,
-    isError,
-    isFetching: isApplicationFetching || isLoading || isArchetypeFetching,
-    fetchError:
-      applicationError || (review ? reviewQuery.error : null) || archetypeError,
+    review: data,
+    isFetching: isFetching,
+    fetchError: error,
   };
-}
+};

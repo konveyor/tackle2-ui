@@ -69,7 +69,6 @@ const Archetypes: React.FC = () => {
   const [archetypeToEdit, setArchetypeToEdit] = useState<Archetype | null>(
     null
   );
-  const [reviewToEdit, setReviewToEdit] = React.useState<number | null>(null);
 
   const [archetypeToDuplicate, setArchetypeToDuplicate] =
     useState<Archetype | null>(null);
@@ -186,18 +185,6 @@ const Archetypes: React.FC = () => {
       setArchetypeToAssess(null);
     }
   };
-  const reviewSelectedArchetype = (archetype: Archetype) => {
-    if (archetype.review) {
-      setReviewToEdit(archetype.id);
-    } else {
-      history.push(
-        formatPath(Paths.archetypeReview, {
-          archetypeId: archetype.id,
-        })
-      );
-    }
-  };
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -312,7 +299,11 @@ const Archetypes: React.FC = () => {
                               {
                                 title: t("actions.review"),
                                 onClick: () =>
-                                  reviewSelectedArchetype(archetype),
+                                  history.push(
+                                    formatPath(Paths.archetypeReview, {
+                                      archetypeId: archetype.id,
+                                    })
+                                  ),
                               },
                               {
                                 title: t("actions.edit"),
