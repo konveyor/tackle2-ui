@@ -47,6 +47,7 @@ import {
 
 import ArchetypeApplicationsColumn from "./components/archetype-applications-column";
 import ArchetypeDescriptionColumn from "./components/archetype-description-column";
+import ArchetypeDetailDrawer from "./components/archetype-detail-drawer";
 import ArchetypeForm from "./components/archetype-form";
 import ArchetypeMaintainersColumn from "./components/archetype-maintainers-column";
 import ArchetypeTagsColumn from "./components/archetype-tags-column";
@@ -142,9 +143,11 @@ const Archetypes: React.FC = () => {
       paginationToolbarItemProps,
       paginationProps,
       tableProps,
+      getClickableTrProps,
       getThProps,
       getTdProps,
     },
+    activeRowDerivedState: { activeRowItem, clearActiveRow },
   } = tableControls;
 
   // TODO: RBAC access checks need to be added.  Only Architect (and Administrator) personas
@@ -267,9 +270,12 @@ const Archetypes: React.FC = () => {
                 }
                 numRenderedColumns={numRenderedColumns}
               >
-                {currentPageItems?.map((archetype, rowIndex) => (
-                  <Tbody key={archetype.id}>
-                    <Tr>
+                <Tbody>
+                  {currentPageItems?.map((archetype, rowIndex) => (
+                    <Tr
+                      key={archetype.id}
+                      {...getClickableTrProps({ item: archetype })}
+                    >
                       <TableRowContentWithControls
                         {...tableControls}
                         item={archetype}
@@ -318,8 +324,8 @@ const Archetypes: React.FC = () => {
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>
-                  </Tbody>
-                ))}
+                  ))}
+                </Tbody>
               </ConditionalTableBody>
             </Table>
             <SimplePagination
@@ -330,6 +336,11 @@ const Archetypes: React.FC = () => {
           </div>
         </ConditionalRender>
       </PageSection>
+
+      <ArchetypeDetailDrawer
+        archetype={activeRowItem}
+        onCloseClick={clearActiveRow}
+      />
 
       {/* Create modal */}
       <Modal
