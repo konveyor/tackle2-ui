@@ -44,6 +44,10 @@ const Questionnaire = lazy(
   () => import("./pages/assessment-management/questionnaire/questionnaire-page")
 );
 
+const ViewArchetypes = lazy(
+  () =>
+    import("./pages/assessment/components/view-archetypes/view-archetypes-page")
+);
 const AssessmentActions = lazy(
   () =>
     import(
@@ -99,6 +103,11 @@ export const devRoutes: IRoute[] = [
   {
     path: Paths.archetypeAssessmentActions,
     comp: AssessmentActions,
+    exact: false,
+  },
+  {
+    path: Paths.viewArchetypes,
+    comp: ViewArchetypes,
     exact: false,
   },
   {
