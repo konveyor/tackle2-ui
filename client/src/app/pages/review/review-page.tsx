@@ -22,15 +22,18 @@ import QuestionnaireSummary, {
   SummaryType,
 } from "@app/components/questionnaire-summary/questionnaire-summary";
 import { PageHeader } from "@app/components/PageHeader";
-import { useGetReviewByAppId } from "@app/queries/reviews";
+import { useGetReviewByItemId } from "@app/queries/reviews";
+import useIsArchetype from "@app/hooks/useIsArchetype";
 
 const ReviewPage: React.FC = () => {
   const { t } = useTranslation();
 
   const { applicationId, archetypeId } = useParams<ReviewRoute>();
+  const isArchetype = useIsArchetype();
 
-  const { application, review, fetchError, isFetching } = useGetReviewByAppId(
-    applicationId || ""
+  const { application, review, fetchError, isFetching } = useGetReviewByItemId(
+    applicationId || archetypeId,
+    isArchetype
   );
 
   //TODO: Review archetypes?
@@ -38,6 +41,25 @@ const ReviewPage: React.FC = () => {
 
   //TODO: Add a dropdown with multiple assessments to choose from
   const assessment = undefined;
+  const breadcrumbs = [
+    ...(isArchetype
+      ? [
+          {
+            title: t("terms.archetypes"),
+            path: Paths.archetypes,
+          },
+        ]
+      : [
+          {
+            title: t("terms.applications"),
+            path: Paths.applications,
+          },
+        ]),
+    {
+      title: t("terms.review"),
+      path: Paths.applicationsReview,
+    },
+  ];
 
   if (fetchError) {
     return (
@@ -48,16 +70,7 @@ const ReviewPage: React.FC = () => {
             description={
               <Text component="p">{t("message.reviewInstructions")}</Text>
             }
-            breadcrumbs={[
-              {
-                title: t("terms.applications"),
-                path: Paths.applications,
-              },
-              {
-                title: t("terms.review"),
-                path: Paths.applicationsReview,
-              },
-            ]}
+            breadcrumbs={breadcrumbs}
             menuActions={[]}
           />
         </PageSection>

@@ -69,6 +69,7 @@ const Archetypes: React.FC = () => {
   const [archetypeToEdit, setArchetypeToEdit] = useState<Archetype | null>(
     null
   );
+  const [reviewToEdit, setReviewToEdit] = React.useState<number | null>(null);
 
   const [archetypeToDuplicate, setArchetypeToDuplicate] =
     useState<Archetype | null>(null);
@@ -186,16 +187,15 @@ const Archetypes: React.FC = () => {
     }
   };
   const reviewSelectedArchetype = (archetype: Archetype) => {
-    //TODO: Review archetype
-    // if (application.review) {
-    //   setReviewToEdit(application.id);
-    // } else {
-    //   history.push(
-    //     formatPath(Paths.applicationsReview, {
-    //       applicationId: application.id,
-    //     })
-    //   );
-    // }
+    if (archetype.review) {
+      setReviewToEdit(archetype.id);
+    } else {
+      history.push(
+        formatPath(Paths.archetypeReview, {
+          archetypeId: archetype.id,
+        })
+      );
+    }
   };
 
   return (
@@ -308,6 +308,11 @@ const Archetypes: React.FC = () => {
                                 title: t("actions.assess"),
                                 onClick: () =>
                                   assessSelectedArchetype(archetype),
+                              },
+                              {
+                                title: t("actions.review"),
+                                onClick: () =>
+                                  reviewSelectedArchetype(archetype),
                               },
                               {
                                 title: t("actions.edit"),

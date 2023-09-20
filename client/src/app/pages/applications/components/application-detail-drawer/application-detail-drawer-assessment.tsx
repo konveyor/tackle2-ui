@@ -20,7 +20,7 @@ import {
   ApplicationDetailDrawer,
   IApplicationDetailDrawerProps,
 } from "./application-detail-drawer";
-import { useGetReviewByAppId } from "@app/queries/reviews";
+import { useGetReviewByItemId } from "@app/queries/reviews";
 
 export interface IApplicationDetailDrawerAssessmentProps
   extends Pick<IApplicationDetailDrawerProps, "application" | "onCloseClick"> {
@@ -32,7 +32,7 @@ export const ApplicationDetailDrawerAssessment: React.FC<
 > = ({ application, onCloseClick, task }) => {
   const { t } = useTranslation();
 
-  const { review: appReview } = useGetReviewByAppId(application?.id || "");
+  const { review: appReview } = useGetReviewByItemId(application?.id);
   const notYetReviewed = (
     <EmptyTextMessage message={t("terms.notYetReviewed")} />
   );

@@ -10,6 +10,7 @@ import {
 import { New, Review } from "@app/api/models";
 import { AxiosError } from "axios";
 import { useFetchApplicationById } from "./applications";
+import { useFetchArchetypeById } from "./archetypes";
 
 export const reviewQueryKey = "review";
 export const reviewsByItemIdQueryKey = "reviewsByItemId";
@@ -40,6 +41,7 @@ export const useCreateReviewMutation = (
       queryClient.invalidateQueries([
         reviewsByItemIdQueryKey,
         res?.application?.id,
+        res?.archetype?.id,
       ]);
       onSuccess && onSuccess(res?.application?.name || "");
     },
@@ -61,6 +63,7 @@ export const useUpdateReviewMutation = (
       queryClient.invalidateQueries([
         reviewsByItemIdQueryKey,
         _?.application?.id,
+        _.archetype?.id,
       ]);
       onSuccess && onSuccess(args?.application?.name || "");
     },
@@ -89,28 +92,42 @@ export const useDeleteReviewMutation = (
   });
 };
 
-export function useGetReviewByAppId(applicationId: string | number) {
+export function useGetReviewByItemId(
+  id?: string | number,
+  isArchetype?: boolean
+) {
   const {
     application,
     isFetching: isApplicationFetching,
     fetchError: applicationError,
-  } = useFetchApplicationById(applicationId);
+  } = useFetchApplicationById(id);
+
+  const {
+    archetype,
+    isFetching: isArchetypeFetching,
+    fetchError: archetypeError,
+  } = useFetchArchetypeById(id);
 
   let review = null;
   let isLoading = false;
   let isError = false;
 
-  const appReviewId = application?.review?.id;
+  const reviewId = application?.review?.id || archetype?.review?.id;
 
   const reviewQuery = useQuery(
-    ["review", application?.review?.id],
-    () => (appReviewId ? getReviewById(appReviewId) : null),
+    [
+      reviewsByItemIdQueryKey,
+      reviewId,
+      application?.review?.id,
+      archetype?.review?.id,
+    ],
+    () => (reviewId ? getReviewById(reviewId) : null),
     {
-      enabled: !!appReviewId,
+      enabled: !!reviewId,
     }
   );
 
-  if (appReviewId) {
+  if (reviewId) {
     review = reviewQuery.data;
     isLoading = reviewQuery.isLoading;
     isError = reviewQuery.isError;
@@ -118,10 +135,12 @@ export function useGetReviewByAppId(applicationId: string | number) {
 
   return {
     application,
+    archetype,
     review,
     isLoading,
     isError,
-    isFetching: isApplicationFetching || isLoading,
-    fetchError: applicationError || (review ? reviewQuery.error : null),
+    isFetching: isApplicationFetching || isLoading || isArchetypeFetching,
+    fetchError:
+      applicationError || (review ? reviewQuery.error : null) || archetypeError,
   };
 }
