@@ -19,6 +19,7 @@ import DynamicAssessmentActionsRow from "./dynamic-assessment-actions-row";
 interface QuestionnairesTableProps {
   tableName: string;
   isFetching: boolean;
+  isReadonly?: boolean;
   application?: Application;
   archetype?: Archetype;
   assessments?: Assessment[];
@@ -28,7 +29,7 @@ interface QuestionnairesTableProps {
 const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
   assessments,
   questionnaires,
-  isFetching,
+  isReadonly,
   application,
   archetype,
   tableName,
@@ -109,6 +110,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
                         questionnaire={questionnaire}
                         application={application}
                         archetype={archetype}
+                        isReadonly={isReadonly}
                       />
                     ) : null}
                   </TableRowContentWithControls>

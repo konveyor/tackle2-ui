@@ -75,6 +75,7 @@
   },
   "composed": {
     "add": "Add {{what}}",
+    "new": "New {{what}}",
     "applicationAssessment": "Application assessment",
     "applicationInventory": "Application inventory",
     "businessCriticality": "Business criticality (1=low, 10=high)",
@@ -170,8 +171,8 @@
     "noDataAvailableTitle": "No data available",
     "noResultsFoundBody": "No results match the filter criteria. Remove all filters or clear all filters to show results.",
     "noResultsFoundTitle": "No results found",
-    "overrideAssessmentDescription": "The archetype for {{what}} already has an assessment.",
-    "overrideAssessmentConfirmation": "Do you want to create a dedicated assessment for this application?",
+    "overrideAssessmentDescription": "The application {{name}} already is associated with archetypes: {{what}}.",
+    "overrideAssessmentConfirmation": "Do you want to create a dedicated assessment for this application and override the inherited archetype assessment(s)?",
     "overrideReviewConfirmation": "This application has already been reviewed. Do you want to continue?",
     "reasonForError": "The reported reason for the error:",
     "reviewInstructions": "Use this section to provide your assessment of the possible migration/modernization plan and effort estimation.",
