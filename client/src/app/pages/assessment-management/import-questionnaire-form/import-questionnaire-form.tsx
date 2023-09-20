@@ -133,14 +133,14 @@ export const ImportQuestionnaireForm: React.FC<
         name="yamlFile"
         label={t("terms.uploadYamlFile")}
         fieldId="yamlFile"
-        helperText={t("dialog.uploadYamlFile")}
+        helperText={t("dialog.message.uploadYamlFile")}
         renderInput={({ field: { onChange, name }, fieldState: { error } }) => (
           <FileUpload
             id={`${name}-file-upload`}
             name={name}
             value={filename}
             filename={filename}
-            filenamePlaceholder={t("dialog.dragAndDropFile")}
+            filenamePlaceholder={t("dialog.message.dragAndDropFile")}
             dropzoneProps={{
               accept: {
                 "text/yaml": [".yml", ".yaml"],
@@ -151,7 +151,7 @@ export const ImportQuestionnaireForm: React.FC<
                 if (currentFile.file.size > 1000000) {
                   methods.setError(name, {
                     type: "custom",
-                    message: t("dialog.maxFileSize"),
+                    message: t("dialog.message.maxFileSize"),
                   });
                 }
                 setIsFileRejected(true);
