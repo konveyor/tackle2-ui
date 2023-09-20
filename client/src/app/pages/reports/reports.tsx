@@ -50,7 +50,8 @@ export const Reports: React.FC = () => {
   const [selectedQuestionnaire, setSelectedQuestionnaire] =
     React.useState<string>("All questionnaires");
 
-  const { assessments } = useFetchAssessments();
+  const { assessments, isFetching: isAssessmentsFetching } =
+    useFetchAssessments();
 
   // Cards
   const [isAdoptionCandidateTable, setIsAdoptionCandidateTable] =
@@ -103,12 +104,14 @@ export const Reports: React.FC = () => {
     setIsQuestionnaireSelectOpen(false);
   };
 
-  const questionnaires = assessments.reduce((result: Ref[], item) => {
-    if (!result.some((ref) => ref.id === item.questionnaire.id)) {
-      result.push(item.questionnaire);
-    }
-    return result;
-  }, []);
+  const questionnaires: Ref[] = isAssessmentsFetching
+    ? []
+    : assessments.reduce((result: Ref[], item) => {
+        if (!result.some((ref) => ref.id === item.questionnaire.id)) {
+          result.push(item.questionnaire);
+        }
+        return result;
+      }, []);
 
   return (
     <>
