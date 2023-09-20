@@ -682,6 +682,7 @@ export interface Answer {
   mitigation?: string;
   applyTags?: CategorizedTag[];
   autoAnswerFor?: CategorizedTag[];
+  autoAnswered?: boolean;
   selected?: boolean;
 }
 export interface Thresholds {
