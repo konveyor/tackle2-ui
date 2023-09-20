@@ -5,14 +5,13 @@ import {
   Assessment,
   InitialAssessment,
   Questionnaire,
-  Ref,
 } from "@app/api/models";
 import {
   assessmentsByItemIdQueryKey,
   useCreateAssessmentMutation,
   useDeleteAssessmentMutation,
 } from "@app/queries/assessments";
-import { Button, ButtonVariant } from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core";
 import React, { FunctionComponent } from "react";
 import { useHistory } from "react-router-dom";
 import "./dynamic-assessment-actions-row.css";
@@ -23,8 +22,6 @@ import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { TrashIcon } from "@patternfly/react-icons";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { getAssessmentsByItemId } from "@app/api/rest";
 import useIsArchetype from "@app/hooks/useIsArchetype";
 
 enum AssessmentAction {
@@ -38,20 +35,18 @@ interface DynamicAssessmentActionsRowProps {
   application?: Application;
   archetype?: Archetype;
   assessment?: Assessment;
+  isReadonly?: boolean;
 }
 
 const DynamicAssessmentActionsRow: FunctionComponent<
   DynamicAssessmentActionsRowProps
-> = ({ questionnaire, application, archetype, assessment }) => {
+> = ({ questionnaire, application, archetype, assessment, isReadonly }) => {
   const isArchetype = useIsArchetype();
   const history = useHistory();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const { pushNotification } = React.useContext(NotificationsContext);
-
-  const [archetypeRefToOverride, setArchetypeRefToOverride] =
-    React.useState<Ref | null>(null);
 
   const onSuccessHandler = () => {};
   const onErrorHandler = () => {};
@@ -148,17 +143,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     if (!isArchetype && application?.archetypes?.length) {
       for (const archetypeRef of application.archetypes) {
         try {
-          const assessments = await getAssessmentsByItemId(
-            true,
-            archetypeRef.id
-          );
-
-          if (assessments && assessments.length > 0) {
-            setArchetypeRefToOverride(archetypeRef);
-            break;
-          } else {
-            createAssessment();
-          }
+          createAssessment();
         } catch (error) {
           console.error(
             `Error fetching archetype with ID ${archetypeRef.id}:`,
@@ -227,16 +212,18 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     <>
       <Td>
         <div>
-          <Button
-            type="button"
-            variant="primary"
-            className={determineButtonClassName()}
-            onClick={() => {
-              onHandleAssessmentAction();
-            }}
-          >
-            {determineAction()}
-          </Button>
+          {!isReadonly ? (
+            <Button
+              type="button"
+              variant="primary"
+              className={determineButtonClassName()}
+              onClick={() => {
+                onHandleAssessmentAction();
+              }}
+            >
+              {determineAction()}
+            </Button>
+          ) : null}
           {assessment?.status === "complete" ? (
             <Button
               type="button"
@@ -254,6 +241,10 @@ const DynamicAssessmentActionsRow: FunctionComponent<
                 );
               }}
             >
+              {viewButtonLabel}
+            </Button>
+          ) : isReadonly ? (
+            <Button type="button" variant="secondary" isDisabled={true}>
               {viewButtonLabel}
             </Button>
           ) : null}
@@ -275,37 +266,6 @@ const DynamicAssessmentActionsRow: FunctionComponent<
           </Button>
         </Td>
       ) : null}
-      <ConfirmDialog
-        title={t("composed.editQuestion", {
-          what: t("terms.assessment").toLowerCase(),
-        })}
-        alertMessage={t("message.overrideAssessmentDescription", {
-          what: archetypeRefToOverride?.name || "Archetype name",
-        })}
-        message={t("message.overrideAssessmentConfirmation")}
-        titleIconVariant={"warning"}
-        isOpen={archetypeRefToOverride !== null}
-        confirmBtnVariant={ButtonVariant.primary}
-        confirmBtnLabel={t("actions.override")}
-        cancelBtnLabel={t("actions.cancel")}
-        customActionLabel={t("actions.viewArchetypes")}
-        onCancel={() => setArchetypeRefToOverride(null)}
-        onClose={() => setArchetypeRefToOverride(null)}
-        //TODO
-        // onCustomAction={() => {
-        //   //nav to view archetypes
-        //   console.log("nav to view archetypes");
-        // }}
-        onConfirm={() => {
-          history.push(
-            formatPath(Paths.applicationsAssessment, {
-              assessmentId: archetypeRefToOverride?.id,
-            })
-          );
-          setArchetypeRefToOverride(null);
-          createAssessment();
-        }}
-      />
     </>
   );
 };
