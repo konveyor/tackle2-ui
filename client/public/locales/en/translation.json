@@ -313,6 +313,7 @@
     "migrationWaves": "Migration waves",
     "migrationWave(s)": "Migration wave(s)",
     "name": "Name",
+    "none": "None",
     "northboundDependencies": "Northbound dependencies",
     "notAvailable": "Not available",
     "notConnected": "Not connected",
@@ -367,6 +368,9 @@
     "tagDeleted": "Tag deleted",
     "tagName": "Tag name",
     "tags": "Tags",
+    "tagsArchetype": "Archetype Tags",
+    "tagsAssessment": "Assessment Tags",
+    "tagsCriteria": "Criteria Tags",
     "target": "Target",
     "tagCategory": "Tag category",
     "tagCategoryDeleted": "Tag category deleted",
@@ -386,6 +390,9 @@
     "workPriority": "Work priority",
     "tag": "Tag",
     "YAMLTemplate": "YAML template"
+  },
+  "titles": {
+    "archetypeDrawer": "Archetype details"
   },
   "toastr": {
     "success": {
