@@ -50,8 +50,11 @@ export const Reports: React.FC = () => {
   const [selectedQuestionnaire, setSelectedQuestionnaire] =
     React.useState<string>("All questionnaires");
 
-  const { assessments, isFetching: isAssessmentsFetching } =
-    useFetchAssessments();
+  const {
+    assessments,
+    isFetching: isAssessmentsFetching,
+    fetchError: assessmentsFetchError,
+  } = useFetchAssessments();
 
   // Cards
   const [isAdoptionCandidateTable, setIsAdoptionCandidateTable] =
@@ -83,7 +86,7 @@ export const Reports: React.FC = () => {
     );
   }
 
-  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+  const toggleQuestionnaire = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
       ref={toggleRef}
       aria-label="kebab dropdown toggle"
@@ -104,14 +107,15 @@ export const Reports: React.FC = () => {
     setIsQuestionnaireSelectOpen(false);
   };
 
-  const questionnaires: Ref[] = isAssessmentsFetching
-    ? []
-    : assessments.reduce((result: Ref[], item) => {
-        if (!result.some((ref) => ref.id === item.questionnaire.id)) {
-          result.push(item.questionnaire);
-        }
-        return result;
-      }, []);
+  const questionnaires: Ref[] =
+    isAssessmentsFetching || assessmentsFetchError
+      ? []
+      : assessments.reduce((result: Ref[], item) => {
+          if (!result.some((ref) => ref.id === item.questionnaire.id)) {
+            result.push(item.questionnaire);
+          }
+          return result;
+        }, []);
 
   return (
     <>
@@ -142,7 +146,7 @@ export const Reports: React.FC = () => {
                           onOpenChange={(_isOpen) =>
                             setIsQuestionnaireSelectOpen(false)
                           }
-                          toggle={toggle}
+                          toggle={toggleQuestionnaire}
                           shouldFocusToggleOnSelect
                         >
                           <SelectOption key={0} value="All questionnaires">
