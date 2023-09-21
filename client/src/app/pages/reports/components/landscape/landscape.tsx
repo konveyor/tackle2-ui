@@ -93,7 +93,7 @@ export const Landscape: React.FC<ILandscapeProps> = ({ assessments }) => {
         <Split hasGutter>
           <SplitItem>
             <Donut
-              value={landscapeData.low}
+              value={landscapeData.high}
               total={applications.length}
               color={RISK_LIST["red"].hexColor}
               riskLabel={t("colors.red")}
