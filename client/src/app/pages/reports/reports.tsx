@@ -9,9 +9,15 @@ import {
   CardExpandableContent,
   CardHeader,
   CardTitle,
+  Flex,
+  FlexItem,
+  MenuToggle,
+  MenuToggleElement,
   PageSection,
   PageSectionVariants,
   Popover,
+  Select,
+  SelectOption,
   Split,
   SplitItem,
   Stack,
@@ -31,10 +37,26 @@ import { Landscape } from "./components/landscape";
 import { AdoptionPlan } from "./components/adoption-plan";
 import { IdentifiedRisksTable } from "./components/identified-risks-table";
 import { useFetchApplications } from "@app/queries/applications";
+import { useFetchAssessments } from "@app/queries/assessments";
+import { Ref } from "@app/api/models";
+
+const ALL_QUESTIONNAIRES = "All questionnaires";
 
 export const Reports: React.FC = () => {
   // i18
   const { t } = useTranslation();
+
+  const [isQuestionnaireSelectOpen, setIsQuestionnaireSelectOpen] =
+    React.useState<boolean>(false);
+
+  const [selectedQuestionnaire, setSelectedQuestionnaire] =
+    React.useState<string>("All questionnaires");
+
+  const {
+    assessments,
+    isFetching: isAssessmentsFetching,
+    fetchError: assessmentsFetchError,
+  } = useFetchAssessments();
 
   // Cards
   const [isAdoptionCandidateTable, setIsAdoptionCandidateTable] =
@@ -66,6 +88,48 @@ export const Reports: React.FC = () => {
     );
   }
 
+  const toggleQuestionnaire = (toggleRef: React.Ref<MenuToggleElement>) => (
+    <MenuToggle
+      ref={toggleRef}
+      aria-label="kebab dropdown toggle"
+      onClick={() => {
+        setIsQuestionnaireSelectOpen(!isQuestionnaireSelectOpen);
+      }}
+      isExpanded={isQuestionnaireSelectOpen}
+    >
+      {selectedQuestionnaire}
+    </MenuToggle>
+  );
+
+  const onSelectQuestionnaire = (
+    _event: React.MouseEvent<Element, MouseEvent> | undefined,
+    value: string | number | undefined
+  ) => {
+    setSelectedQuestionnaire(value as string);
+    setIsQuestionnaireSelectOpen(false);
+  };
+
+  const answeredQuestionnaires: Ref[] =
+    isAssessmentsFetching || assessmentsFetchError
+      ? []
+      : assessments
+          .reduce((questionnaires: Ref[], assessment) => {
+            if (
+              !questionnaires
+                .map((ref) => ref.id)
+                .includes(assessment.questionnaire.id)
+            ) {
+              assessment.questionnaire &&
+                questionnaires.push(assessment.questionnaire);
+            }
+            return questionnaires;
+          }, [])
+          .sort((a, b) => {
+            if (a.name > b.name) return 1;
+            if (b.name > a.name) return -1;
+            return 0;
+          });
+
   return (
     <>
       {pageHeaderSection}
@@ -78,13 +142,56 @@ export const Reports: React.FC = () => {
               <StackItem>
                 <Card>
                   <CardHeader>
-                    <TextContent>
-                      <Text component="h3">{t("terms.currentLandscape")}</Text>
-                    </TextContent>
+                    <Flex>
+                      <FlexItem>
+                        <TextContent>
+                          <Text component="h3">
+                            {t("terms.currentLandscape")}
+                          </Text>
+                        </TextContent>
+                      </FlexItem>
+                      <FlexItem>
+                        <Select
+                          id="select-questionnaires"
+                          isOpen={isQuestionnaireSelectOpen}
+                          selected={selectedQuestionnaire}
+                          onSelect={onSelectQuestionnaire}
+                          onOpenChange={(_isOpen) =>
+                            setIsQuestionnaireSelectOpen(false)
+                          }
+                          toggle={toggleQuestionnaire}
+                          shouldFocusToggleOnSelect
+                        >
+                          <SelectOption key={0} value={ALL_QUESTIONNAIRES}>
+                            All questionnaires
+                          </SelectOption>
+                          {answeredQuestionnaires.map(
+                            (answeredQuestionnaire, index) => (
+                              <SelectOption
+                                key={index}
+                                value={answeredQuestionnaire.name}
+                              >
+                                {answeredQuestionnaire.name}
+                              </SelectOption>
+                            )
+                          )}
+                        </Select>
+                      </FlexItem>
+                    </Flex>
                   </CardHeader>
                   <CardBody>
                     <Bullseye>
-                      <Landscape />
+                      <Landscape
+                        assessments={
+                          selectedQuestionnaire === "All questionnaires"
+                            ? assessments
+                            : assessments.filter(
+                                (assessment) =>
+                                  assessment.questionnaire.name ===
+                                  selectedQuestionnaire
+                              )
+                        }
+                      />
                     </Bullseye>
                   </CardBody>
                 </Card>

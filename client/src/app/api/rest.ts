@@ -205,6 +205,9 @@ export const getApplicationSummaryCSV = (id: string): AxiosPromise => {
   });
 };
 
+export const getAssessments = (): Promise<Assessment[]> =>
+  axios.get(ASSESSMENTS).then((response) => response.data);
+
 export const getAssessmentsByItemId = (
   isArchetype: boolean,
   itemId?: number | string

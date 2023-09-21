@@ -4,6 +4,7 @@ import {
   createAssessment,
   deleteAssessment,
   getAssessmentById,
+  getAssessments,
   getAssessmentsByItemId,
   updateAssessment,
 } from "@app/api/rest";
@@ -15,6 +16,18 @@ export const assessmentsQueryKey = "assessments";
 export const assessmentQueryKey = "assessment";
 export const assessmentsByItemIdQueryKey = "assessmentsByItemId";
 
+export const useFetchAssessments = () => {
+  const { isLoading, data, error } = useQuery({
+    queryKey: [QuestionnairesQueryKey],
+    queryFn: getAssessments,
+    onError: (error: AxiosError) => console.log("error, ", error),
+  });
+  return {
+    assessments: data || [],
+    isFetching: isLoading,
+    fetchError: error,
+  };
+};
 export const useCreateAssessmentMutation = (
   isArchetype: boolean,
   onSuccess: (name: string) => void,

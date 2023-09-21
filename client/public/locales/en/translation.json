@@ -71,7 +71,8 @@
     "orange": "Orange",
     "purple": "Purple",
     "red": "Red",
-    "teal": "Teal"
+    "teal": "Teal",
+    "yellow": "Yellow"
   },
   "composed": {
     "add": "Add {{what}}",
@@ -243,7 +244,6 @@
     "businessServices": "Business services",
     "canceled": "Canceled",
     "category": "Category",
-    "cloudNativeReady": "Cloud-native ready",
     "color": "Color",
     "comments": "Comments",
     "completed": "Completed",
@@ -311,7 +311,6 @@
     "member(s)": "Member(s)",
     "memberCount": "Member count",
     "message": "Message",
-    "modernizable": "Modernizable",
     "migrationWave": "Migration wave",
     "migrationWaves": "Migration waves",
     "migrationWave(s)": "Migration wave(s)",
@@ -322,7 +321,6 @@
     "notConnected": "Not connected",
     "notReviewed": "Not reviewed",
     "notStarted": "Not started",
-    "notYetAssessed": "Not yet assessed",
     "notYetReviewed": "Not yet reviewed",
     "other": "Other",
     "owner": "Owner",
@@ -384,7 +382,6 @@
     "unassessed": "Unassessed",
     "unassigned": "Not yet assigned",
     "unknown": "Unknown",
-    "unsuitableForContainers": "Unsuitable for containers",
     "uploadApplicationFile": "Upload your application file",
     "uploadYamlFile": "Upload your YAML file",
     "url": "URL",
