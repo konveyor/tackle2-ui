@@ -10,6 +10,7 @@ import {
   Assessment,
   AssessmentStatus,
   Question,
+  Ref,
   Section,
 } from "@app/api/models";
 import { CustomWizardFooter } from "../custom-wizard-footer";
@@ -34,6 +35,8 @@ import { Paths } from "@app/Paths";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AssessmentStakeholdersForm } from "../assessment-stakeholders-form/assessment-stakeholders-form";
 import useIsArchetype from "@app/hooks/useIsArchetype";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
+import { useFetchStakeholders } from "@app/queries/stakeholders";
 
 export const SAVE_ACTION_KEY = "saveAction";
 
@@ -66,6 +69,8 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 }) => {
   const isArchetype = useIsArchetype();
   const queryClient = useQueryClient();
+  const { stakeholderGroups } = useFetchStakeholderGroups();
+  const { stakeholders } = useFetchStakeholders();
 
   const onHandleUpdateAssessmentSuccess = () => {
     queryClient.invalidateQueries([
@@ -124,13 +129,11 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   }, [assessment]);
 
   useEffect(() => {
+    console.log("asssessment.stakeholders", assessment?.stakeholders);
     methods.reset({
-      stakeholders:
-        assessment?.stakeholders.map((stakeholder) => stakeholder.name) || [],
+      stakeholders: assessment?.stakeholders?.map((sh) => sh.name).sort() ?? [],
       stakeholderGroups:
-        assessment?.stakeholderGroups.map(
-          (stakeholderGroup) => stakeholderGroup.name
-        ) || [],
+        assessment?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
       // comments: initialComments,
       questions: initialQuestions,
       [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
@@ -146,11 +149,9 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     defaultValues: useMemo(() => {
       return {
         stakeholders:
-          assessment?.stakeholders.map((stakeholder) => stakeholder.name) || [],
+          assessment?.stakeholders?.map((sh) => sh.name).sort() ?? [],
         stakeholderGroups:
-          assessment?.stakeholderGroups.map(
-            (stakeholderGroup) => stakeholderGroup.name
-          ) || [],
+          assessment?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
         // comments: initialComments,
         questions: initialQuestions,
         [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
@@ -273,6 +274,25 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       const assessmentStatus: AssessmentStatus = "started";
       const payload: Assessment = {
         ...assessment,
+        stakeholders:
+          values.stakeholders === undefined
+            ? undefined
+            : (values.stakeholders
+                .map((name) => stakeholders.find((s) => s.name === name))
+                .map<Ref | undefined>((sh) =>
+                  !sh ? undefined : { id: sh.id, name: sh.name }
+                )
+                .filter(Boolean) as Ref[]),
+
+        stakeholderGroups:
+          values.stakeholderGroups === undefined
+            ? undefined
+            : (values.stakeholderGroups
+                .map((name) => stakeholderGroups.find((s) => s.name === name))
+                .map<Ref | undefined>((sg) =>
+                  !sg ? undefined : { id: sg.id, name: sg.name }
+                )
+                .filter(Boolean) as Ref[]),
         sections,
         status: assessmentStatus,
       };
@@ -317,6 +337,25 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
       const payload: Assessment = {
         ...assessment,
+        stakeholders:
+          values.stakeholders === undefined
+            ? undefined
+            : (values.stakeholders
+                .map((name) => stakeholders.find((s) => s.name === name))
+                .map<Ref | undefined>((sh) =>
+                  !sh ? undefined : { id: sh.id, name: sh.name }
+                )
+                .filter(Boolean) as Ref[]),
+
+        stakeholderGroups:
+          values.stakeholderGroups === undefined
+            ? undefined
+            : (values.stakeholderGroups
+                .map((name) => stakeholderGroups.find((s) => s.name === name))
+                .map<Ref | undefined>((sg) =>
+                  !sg ? undefined : { id: sg.id, name: sg.name }
+                )
+                .filter(Boolean) as Ref[]),
         sections,
         status: assessmentStatus,
       };
@@ -364,6 +403,25 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
       const payload: Assessment = {
         ...assessment,
+        stakeholders:
+          values.stakeholders === undefined
+            ? undefined
+            : (values.stakeholders
+                .map((name) => stakeholders.find((s) => s.name === name))
+                .map<Ref | undefined>((sh) =>
+                  !sh ? undefined : { id: sh.id, name: sh.name }
+                )
+                .filter(Boolean) as Ref[]),
+
+        stakeholderGroups:
+          values.stakeholderGroups === undefined
+            ? undefined
+            : (values.stakeholderGroups
+                .map((name) => stakeholderGroups.find((s) => s.name === name))
+                .map<Ref | undefined>((sg) =>
+                  !sg ? undefined : { id: sg.id, name: sg.name }
+                )
+                .filter(Boolean) as Ref[]),
         sections,
         status: assessmentStatus,
       };
