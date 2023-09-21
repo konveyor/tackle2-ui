@@ -12,7 +12,7 @@ import {
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 import { MultiInputSelection } from "./multi-input-selection";
 import { Question, QuestionHeader, QuestionBody } from "./question";
-import { getCommentFieldName } from "../../form-utils";
+import { getCommentFieldName, getQuestionFieldName } from "../../form-utils";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
 import { useFormContext } from "react-hook-form";
 import { Section } from "@app/api/models";
@@ -54,7 +54,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
         </TextContent>
       </StackItem>
       {sortedQuestions.map((question) => (
-        <StackItem key={question.text}>
+        <StackItem key={question.order}>
           <Question cy-data="question">
             <QuestionHeader>
               <Split hasGutter>
@@ -74,7 +74,10 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
               </Split>
             </QuestionHeader>
             <QuestionBody>
-              <MultiInputSelection question={question} />
+              <MultiInputSelection
+                key={getQuestionFieldName(question, true)}
+                question={question}
+              />
             </QuestionBody>
           </Question>
         </StackItem>
