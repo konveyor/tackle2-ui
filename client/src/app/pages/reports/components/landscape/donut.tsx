@@ -11,7 +11,7 @@ export interface IDonutProps {
   total: number;
   color: string;
   riskLabel: string;
-  riskDescription: string;
+  riskDescription?: string;
 }
 
 export const Donut: React.FC<IDonutProps> = ({

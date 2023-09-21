@@ -723,11 +723,6 @@ export interface AssessmentRisk {
   applicationId: number;
   risk: Risk;
 }
-export interface AssessmentRisk {
-  assessmentId: number;
-  applicationId: number;
-  risk: Risk;
-}
 
 export interface AssessmentQuestionRisk {
   category: string;
