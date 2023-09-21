@@ -180,8 +180,10 @@ const DynamicAssessmentActionsRow: FunctionComponent<
       if (assessment) {
         try {
           await deleteAssessmentAsync({
-            name: assessment.name,
-            id: assessment.id,
+            assessmentId: assessment.id,
+            applicationName: application?.name,
+            applicationId: application?.id,
+            archetypeId: archetype?.id,
           }).then(() => {
             createAssessment();
           });
@@ -257,8 +259,10 @@ const DynamicAssessmentActionsRow: FunctionComponent<
             variant="plain"
             onClick={() => {
               deleteAssessment({
-                id: assessment.id,
-                name: assessment.name,
+                assessmentId: assessment.id,
+                applicationName: application?.name,
+                applicationId: application?.id,
+                archetypeId: archetype?.id,
               });
             }}
           >

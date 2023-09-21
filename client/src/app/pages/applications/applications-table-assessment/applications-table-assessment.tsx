@@ -220,8 +220,8 @@ export const ApplicationsTable: React.FC = () => {
         await Promise.all(
           application.assessments.map(async (assessment) => {
             await deleteAssessment({
-              id: assessment.id,
-              name: application.name,
+              assessmentId: assessment.id,
+              applicationName: application.name,
             });
           })
         );
