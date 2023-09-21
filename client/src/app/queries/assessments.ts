@@ -18,7 +18,7 @@ export const assessmentsByItemIdQueryKey = "assessmentsByItemId";
 
 export const useFetchAssessments = () => {
   const { isLoading, data, error } = useQuery({
-    queryKey: [QuestionnairesQueryKey],
+    queryKey: [assessmentsQueryKey],
     queryFn: getAssessments,
     onError: (error: AxiosError) => console.log("error, ", error),
   });
@@ -28,6 +28,7 @@ export const useFetchAssessments = () => {
     fetchError: error,
   };
 };
+
 export const useCreateAssessmentMutation = (
   isArchetype: boolean,
   onSuccess: (name: string) => void,
