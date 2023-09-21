@@ -27,18 +27,17 @@ export const MultiInputSelection: React.FC<MultiInputSelectionProps> = ({
 
   const isArchetype = useIsArchetype();
   const { t } = useTranslation();
-
   return (
     <Stack>
       {sortedOptions.map((option, i) => (
-        <StackItem key={option.text} className="pf-v5-u-pb-xs">
+        <StackItem key={`${questionFieldName}-${i}`} className="pf-v5-u-pb-xs">
           <HookFormPFGroupController
             control={control}
             name={questionFieldName as `questions.${string}`}
-            fieldId="stakeholders"
+            fieldId={`${questionFieldName}-${i}`}
             renderInput={({ field: { value, onChange } }) => (
               <Radio
-                id={`${option.text}`}
+                id={`${questionFieldName}-${option.order}`}
                 name={questionFieldName}
                 isChecked={value === option.text}
                 onChange={(checked, e) => {

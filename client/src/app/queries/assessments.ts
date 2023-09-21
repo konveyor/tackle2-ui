@@ -11,6 +11,7 @@ import {
 import { AxiosError } from "axios";
 import { Assessment, InitialAssessment } from "@app/api/models";
 import { QuestionnairesQueryKey } from "./questionnaires";
+import { ARCHETYPE_QUERY_KEY } from "./archetypes";
 
 export const assessmentsQueryKey = "assessments";
 export const assessmentQueryKey = "assessment";
@@ -70,21 +71,35 @@ export const useUpdateAssessmentMutation = (
 };
 
 export const useDeleteAssessmentMutation = (
-  onSuccess: (name: string) => void,
-  onError: (err: AxiosError) => void
+  onSuccess?: (applicationName: string) => void,
+  onError?: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (args: { name: string; id: number }) =>
-      deleteAssessment(args.id),
-    onSuccess: (_, args) => {
-      onSuccess(args.name);
+    mutationFn: (args: {
+      assessmentId: number;
+      applicationName?: string;
+      applicationId?: number;
+      archetypeId?: number;
+    }) => {
+      const deletedAssessment = deleteAssessment(args.assessmentId);
+
+      queryClient.invalidateQueries([assessmentQueryKey, args?.assessmentId]);
+      queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, args?.archetypeId]);
       queryClient.invalidateQueries([
         assessmentsByItemIdQueryKey,
-        args.id,
-        QuestionnairesQueryKey,
+        args?.archetypeId,
       ]);
+      queryClient.invalidateQueries([
+        assessmentsByItemIdQueryKey,
+        args?.applicationId,
+      ]);
+
+      return deletedAssessment;
+    },
+    onSuccess: (_, args) => {
+      onSuccess && onSuccess(args?.applicationName || "Unknown");
     },
     onError: onError,
   });
