@@ -139,6 +139,7 @@ export interface Review {
   workPriority: number;
   comments?: string;
   application?: Ref;
+  archetype?: Ref;
 }
 
 export interface ApplicationDependency {
@@ -722,11 +723,6 @@ export interface AssessmentRisk {
   applicationId: number;
   risk: Risk;
 }
-export interface AssessmentRisk {
-  assessmentId: number;
-  applicationId: number;
-  risk: Risk;
-}
 
 export interface AssessmentQuestionRisk {
   category: string;
@@ -753,4 +749,5 @@ export interface Archetype {
   stakeholderGroups?: Ref[];
   applications?: Ref[];
   assessments?: Ref[];
+  review?: Ref;
 }

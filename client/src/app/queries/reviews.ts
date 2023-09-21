@@ -9,7 +9,6 @@ import {
 } from "@app/api/rest";
 import { New, Review } from "@app/api/models";
 import { AxiosError } from "axios";
-import { useFetchApplicationById } from "./applications";
 
 export const reviewQueryKey = "review";
 export const reviewsByItemIdQueryKey = "reviewsByItemId";
@@ -40,6 +39,7 @@ export const useCreateReviewMutation = (
       queryClient.invalidateQueries([
         reviewsByItemIdQueryKey,
         res?.application?.id,
+        res?.archetype?.id,
       ]);
       onSuccess && onSuccess(res?.application?.name || "");
     },
@@ -61,6 +61,7 @@ export const useUpdateReviewMutation = (
       queryClient.invalidateQueries([
         reviewsByItemIdQueryKey,
         _?.application?.id,
+        _.archetype?.id,
       ]);
       onSuccess && onSuccess(args?.application?.name || "");
     },
@@ -89,39 +90,18 @@ export const useDeleteReviewMutation = (
   });
 };
 
-export function useGetReviewByAppId(applicationId: string | number) {
-  const {
-    application,
-    isFetching: isApplicationFetching,
-    fetchError: applicationError,
-  } = useFetchApplicationById(applicationId);
-
-  let review = null;
-  let isLoading = false;
-  let isError = false;
-
-  const appReviewId = application?.review?.id;
-
-  const reviewQuery = useQuery(
-    ["review", application?.review?.id],
-    () => (appReviewId ? getReviewById(appReviewId) : null),
-    {
-      enabled: !!appReviewId,
-    }
-  );
-
-  if (appReviewId) {
-    review = reviewQuery.data;
-    isLoading = reviewQuery.isLoading;
-    isError = reviewQuery.isError;
-  }
+export const useFetchReviewById = (id?: number | string) => {
+  const { data, isLoading, error, isFetching } = useQuery({
+    queryKey: [reviewQueryKey, id],
+    queryFn: () =>
+      id === undefined ? Promise.resolve(null) : getReviewById(id),
+    onError: (error: AxiosError) => console.log("error, ", error),
+    enabled: id !== undefined,
+  });
 
   return {
-    application,
-    review,
-    isLoading,
-    isError,
-    isFetching: isApplicationFetching || isLoading,
-    fetchError: applicationError || (review ? reviewQuery.error : null),
+    review: data,
+    isFetching: isFetching,
+    fetchError: error,
   };
-}
+};
