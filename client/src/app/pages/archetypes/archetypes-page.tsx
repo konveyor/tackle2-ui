@@ -185,19 +185,6 @@ const Archetypes: React.FC = () => {
       setArchetypeToAssess(null);
     }
   };
-  const reviewSelectedArchetype = (archetype: Archetype) => {
-    //TODO: Review archetype
-    // if (application.review) {
-    //   setReviewToEdit(application.id);
-    // } else {
-    //   history.push(
-    //     formatPath(Paths.applicationsReview, {
-    //       applicationId: application.id,
-    //     })
-    //   );
-    // }
-  };
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -308,6 +295,15 @@ const Archetypes: React.FC = () => {
                                 title: t("actions.assess"),
                                 onClick: () =>
                                   assessSelectedArchetype(archetype),
+                              },
+                              {
+                                title: t("actions.review"),
+                                onClick: () =>
+                                  history.push(
+                                    formatPath(Paths.archetypeReview, {
+                                      archetypeId: archetype.id,
+                                    })
+                                  ),
                               },
                               {
                                 title: t("actions.edit"),

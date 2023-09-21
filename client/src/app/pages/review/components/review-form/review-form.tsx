@@ -15,6 +15,7 @@ import { PROPOSED_ACTION_LIST, EFFORT_ESTIMATE_LIST } from "@app/Constants";
 import { number } from "yup";
 import {
   Application,
+  Archetype,
   EffortEstimate,
   New,
   ProposedAction,
@@ -27,14 +28,13 @@ import {
 } from "@app/components/HookFormPFFields";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import {
-  reviewsByItemIdQueryKey,
   useCreateReviewMutation,
   useUpdateReviewMutation,
 } from "@app/queries/reviews";
-import { useQueryClient } from "@tanstack/react-query";
 import { useHistory } from "react-router-dom";
 import { Paths } from "@app/Paths";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import useIsArchetype from "@app/hooks/useIsArchetype";
 
 export interface FormValues {
   action: ProposedAction;
@@ -45,17 +45,21 @@ export interface FormValues {
 }
 
 export interface IReviewFormProps {
-  application: Application;
+  application?: Application;
+  archetype?: Archetype;
   review?: Review | null;
 }
 
 export const ReviewForm: React.FC<IReviewFormProps> = ({
+  archetype,
   application,
   review,
 }) => {
+  console.log("existing review", review);
   const { t } = useTranslation();
   const history = useHistory();
   const { pushNotification } = React.useContext(NotificationsContext);
+  const isArchetype = useIsArchetype();
 
   const actionOptions: OptionWithValue<ProposedAction>[] = useMemo(() => {
     return Object.entries(PROPOSED_ACTION_LIST).map(([key, value]) => ({
@@ -107,45 +111,8 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
     console.log("Invalid form", errors);
   };
 
-  // const onSubmit = (formValues: FormValues) => {
-  //   const payload: Review = {
-  //     ...review,
-  //     proposedAction: formValues.action,
-  //     effortEstimate: formValues.effort,
-  //     businessCriticality: formValues.criticality || 0,
-  //     workPriority: formValues.priority || 0,
-  //     comments: formValues.comments.trim(),
-  //     // application: { ...application, review: undefined },
-  //     application: { id: application.id, name: application.name },
-  //   };
-
-  //   let promise: Promise<Review>;
-  //   if (review) {
-  //     promise = updateReview({
-  //       ...review,
-  //       ...payload,
-  //     });
-  //   } else {
-  //     promise = createReview(payload);
-  //   }
-
-  //   promise
-  //     .then((response) => {
-  //       onSaved(response);
-  //     })
-  //     .catch((error) => {});
-  // };
-  const queryClient = useQueryClient();
-  const onHandleUpdateReviewSuccess = () => {
-    queryClient.invalidateQueries([
-      reviewsByItemIdQueryKey,
-      application.review?.id,
-    ]);
-  };
   const createReviewMutation = useCreateReviewMutation();
-  const updateReviewMutation = useUpdateReviewMutation(
-    onHandleUpdateReviewSuccess
-  );
+  const updateReviewMutation = useUpdateReviewMutation();
 
   const onSubmit = async (formValues: FormValues) => {
     const payload: New<Review> = {
@@ -155,7 +122,15 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
       businessCriticality: formValues.criticality || 0,
       workPriority: formValues.priority || 0,
       comments: formValues.comments.trim(),
-      application: { id: application.id, name: application.name },
+      ...(isArchetype && archetype
+        ? {
+            archetype: { id: archetype.id, name: archetype.name },
+          }
+        : application
+        ? {
+            application: { id: application.id, name: application.name },
+          }
+        : undefined),
     };
 
     try {
@@ -178,7 +153,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
         });
       }
 
-      history.push(Paths.applications);
+      history.push(isArchetype ? Paths.archetypes : Paths.applications);
     } catch (error) {
       console.error("Error:", error);
       pushNotification({
@@ -266,7 +241,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
         label={t("composed.workPriority")}
         fieldId="priority"
         isRequired
-        renderInput={({ field: { value, name, onChange } }) => (
+        renderInput={({ field: { value, onChange } }) => (
           <NumberInput
             inputName="priority"
             inputAriaLabel="priority"
@@ -309,7 +284,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           onClick={() => {
-            history.push(Paths.applications);
+            history.push(isArchetype ? Paths.archetypes : Paths.applications);
           }}
         >
           {t("actions.cancel")}

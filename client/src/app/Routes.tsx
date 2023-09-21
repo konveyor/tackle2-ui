@@ -91,6 +91,11 @@ export const devRoutes: IRoute[] = [
     exact: false,
   },
   {
+    path: Paths.archetypeReview,
+    comp: Review,
+    exact: false,
+  },
+  {
     path: Paths.applicationsReview,
     comp: Review,
     exact: false,
