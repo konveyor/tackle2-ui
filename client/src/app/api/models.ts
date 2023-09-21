@@ -139,6 +139,7 @@ export interface Review {
   workPriority: number;
   comments?: string;
   application?: Ref;
+  archetype?: Ref;
 }
 
 export interface ApplicationDependency {
@@ -748,4 +749,5 @@ export interface Archetype {
   stakeholderGroups?: Ref[];
   applications?: Ref[];
   assessments?: Ref[];
+  review?: Ref;
 }
