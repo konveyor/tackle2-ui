@@ -22,7 +22,7 @@ import {
 } from "@app/api/models";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
-import { useGetReviewByAppId } from "@app/queries/reviews";
+import { useFetchReviewById } from "@app/queries/reviews";
 import { useQuery } from "@tanstack/react-query";
 import { useFetchRisks } from "@app/queries/risks";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
@@ -110,7 +110,7 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
       const confidenceData = confidence?.find(
         (e) => e.applicationId === app.id
       );
-      const { review: reviewData } = useGetReviewByAppId(app?.id || "");
+      const { review: reviewData } = useFetchReviewById(app?.review?.id);
 
       const riskData = assessmentRisks?.find((e) => e.applicationId === app.id);
 

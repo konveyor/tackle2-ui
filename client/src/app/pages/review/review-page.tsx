@@ -22,22 +22,46 @@ import QuestionnaireSummary, {
   SummaryType,
 } from "@app/components/questionnaire-summary/questionnaire-summary";
 import { PageHeader } from "@app/components/PageHeader";
-import { useGetReviewByAppId } from "@app/queries/reviews";
+import { useFetchReviewById } from "@app/queries/reviews";
+import useIsArchetype from "@app/hooks/useIsArchetype";
+import { useFetchApplicationById } from "@app/queries/applications";
+import { useFetchArchetypeById } from "@app/queries/archetypes";
 
 const ReviewPage: React.FC = () => {
   const { t } = useTranslation();
 
   const { applicationId, archetypeId } = useParams<ReviewRoute>();
+  const isArchetype = useIsArchetype();
 
-  const { application, review, fetchError, isFetching } = useGetReviewByAppId(
-    applicationId || ""
+  const { archetype } = useFetchArchetypeById(archetypeId);
+  const { application } = useFetchApplicationById(applicationId);
+
+  const { review, fetchError, isFetching } = useFetchReviewById(
+    isArchetype ? archetype?.review?.id : application?.review?.id
   );
-
-  //TODO: Review archetypes?
-  // const { archetype } = useFetchArchetypeById(archetypeId || "");
-
-  //TODO: Add a dropdown with multiple assessments to choose from
+  console.log("archetype.review", archetype?.review?.id);
+  console.log("reviewl", review);
+  console.log("isFetchign", isFetching);
   const assessment = undefined;
+  const breadcrumbs = [
+    ...(isArchetype
+      ? [
+          {
+            title: t("terms.archetypes"),
+            path: Paths.archetypes,
+          },
+        ]
+      : [
+          {
+            title: t("terms.applications"),
+            path: Paths.applications,
+          },
+        ]),
+    // {
+    //   title: t("terms.review"),
+    //   path: Paths.applicationsReview,
+    // },
+  ];
 
   if (fetchError) {
     return (
@@ -48,16 +72,7 @@ const ReviewPage: React.FC = () => {
             description={
               <Text component="p">{t("message.reviewInstructions")}</Text>
             }
-            breadcrumbs={[
-              {
-                title: t("terms.applications"),
-                path: Paths.applications,
-              },
-              {
-                title: t("terms.review"),
-                path: Paths.applicationsReview,
-              },
-            ]}
+            breadcrumbs={breadcrumbs}
             menuActions={[]}
           />
         </PageSection>
@@ -81,37 +96,30 @@ const ReviewPage: React.FC = () => {
           description={
             <Text component="p">{t("message.reviewInstructions")}</Text>
           }
-          breadcrumbs={[
-            {
-              title: t("terms.applications"),
-              path: Paths.applications,
-            },
-            {
-              title: t("terms.review"),
-              path: Paths.applicationsReview,
-            },
-          ]}
+          breadcrumbs={breadcrumbs}
           menuActions={[]}
         />
       </PageSection>
       <PageSection variant="light">
         <ConditionalRender when={isFetching} then={<AppPlaceholder />}>
           <Grid hasGutter>
-            {application && (
-              <GridItem md={5}>
-                <div className="pf-v5-c-form">
-                  <FormSection>
-                    <ApplicationDetails
-                      application={application}
-                      assessment={assessment}
-                    />
-                  </FormSection>
-                  <FormSection>
-                    <ReviewForm review={review} application={application} />
-                  </FormSection>
-                </div>
-              </GridItem>
-            )}
+            <GridItem md={5}>
+              <div className="pf-v5-c-form">
+                <FormSection>
+                  <ApplicationDetails
+                    application={application}
+                    assessment={assessment}
+                  />
+                </FormSection>
+                <FormSection>
+                  <ReviewForm
+                    review={review}
+                    application={application}
+                    archetype={archetype}
+                  />
+                </FormSection>
+              </div>
+            </GridItem>
             {assessment && (
               <GridItem md={6}>
                 <ApplicationAssessmentDonutChart assessment={assessment} />
