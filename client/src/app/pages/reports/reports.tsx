@@ -115,9 +115,9 @@ export const Reports: React.FC = () => {
       : assessments
           .reduce((questionnaires: Ref[], assessment) => {
             if (
-              !questionnaires.some(
-                (ref) => ref.id === assessment.questionnaire.id
-              )
+              !questionnaires
+                .map((ref) => ref.id)
+                .includes(assessment.questionnaire.id)
             ) {
               assessment.questionnaire &&
                 questionnaires.push(assessment.questionnaire);
