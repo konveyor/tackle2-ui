@@ -112,12 +112,23 @@ export const Reports: React.FC = () => {
   const answeredQuestionnaires: Ref[] =
     isAssessmentsFetching || assessmentsFetchError
       ? []
-      : assessments.reduce((result: Ref[], item) => {
-          if (!result.some((ref) => ref.id === item.questionnaire.id)) {
-            result.push(item.questionnaire);
-          }
-          return result;
-        }, []);
+      : assessments
+          .reduce((questionnaires: Ref[], assessment) => {
+            if (
+              !questionnaires.some(
+                (ref) => ref.id === assessment.questionnaire.id
+              )
+            ) {
+              assessment.questionnaire &&
+                questionnaires.push(assessment.questionnaire);
+            }
+            return questionnaires;
+          }, [])
+          .sort((a, b) => {
+            if (a.name > b.name) return 1;
+            if (b.name > a.name) return -1;
+            return 0;
+          });
 
   return (
     <>
