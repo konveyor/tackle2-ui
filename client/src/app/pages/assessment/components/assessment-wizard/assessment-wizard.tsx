@@ -26,6 +26,7 @@ import {
 import { AxiosError } from "axios";
 import {
   assessmentsByItemIdQueryKey,
+  useDeleteAssessmentMutation,
   useUpdateAssessmentMutation,
 } from "@app/queries/assessments";
 import { useQueryClient } from "@tanstack/react-query";
@@ -77,12 +78,14 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     onHandleUpdateAssessmentSuccess
   );
 
+  const { mutate: deleteAssessmentMutation } = useDeleteAssessmentMutation();
+
   const { t } = useTranslation();
 
   const [currentStep, setCurrentStep] = useState(0);
 
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<boolean>(false);
+  const [assessmentToCancel, setAssessmentToCancel] =
+    React.useState<Assessment | null>(null);
 
   const history = useHistory();
 
@@ -509,11 +512,11 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             onNext={() => setCurrentStep((current) => current + 1)}
             onBack={() => setCurrentStep((current) => current - 1)}
             onClose={() => {
-              setIsConfirmDialogOpen(true);
+              assessment && setAssessmentToCancel(assessment);
             }}
             onGoToStep={(step) => setCurrentStep(step.id as number)}
           />
-          {isConfirmDialogOpen && (
+          {assessmentToCancel && (
             <ConfirmDialog
               title={t("dialog.title.leavePage")}
               isOpen
@@ -521,23 +524,38 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
               confirmBtnVariant={ButtonVariant.primary}
               confirmBtnLabel={t("actions.continue")}
               cancelBtnLabel={t("actions.cancel")}
-              onCancel={() => setIsConfirmDialogOpen(false)}
-              onClose={() => setIsConfirmDialogOpen(false)}
+              onCancel={() => setAssessmentToCancel(null)}
+              onClose={() => setAssessmentToCancel(null)}
               onConfirm={() => {
-                setIsConfirmDialogOpen(false);
                 if (isArchetype) {
+                  assessmentToCancel.status === "empty" &&
+                    deleteAssessmentMutation({
+                      assessmentId: assessmentToCancel.id,
+                      applicationName: assessmentToCancel.application?.name,
+                      applicationId: assessmentToCancel.application?.id,
+                      archetypeId: assessmentToCancel.archetype?.id,
+                    });
+
                   history.push(
                     formatPath(Paths.archetypeAssessmentActions, {
                       archetypeId: assessment?.archetype?.id,
                     })
                   );
                 } else {
+                  assessmentToCancel.status === "empty" &&
+                    deleteAssessmentMutation({
+                      assessmentId: assessmentToCancel.id,
+                      applicationName: assessmentToCancel.application?.name,
+                      applicationId: assessmentToCancel.application?.id,
+                      archetypeId: assessmentToCancel.archetype?.id,
+                    });
                   history.push(
                     formatPath(Paths.applicationAssessmentActions, {
                       applicationId: assessment?.application?.id,
                     })
                   );
                 }
+                setAssessmentToCancel(null);
               }}
             />
           )}
