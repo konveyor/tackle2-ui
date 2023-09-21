@@ -56,12 +56,13 @@ export const ImportQuestionnaireForm: React.FC<
     trigger,
   } = methods;
 
-  const onHandleSuccessfullQuestionnaireCreation = (
-    response: Questionnaire
-  ) => {
+  const onHandleSuccessfulQuestionnaireCreation = (response: Questionnaire) => {
     onSaved(response);
     pushNotification({
-      title: t("toastr.success.questionnaireCreated"),
+      title: t("toastr.success.createWhat", {
+        type: t("terms.questionnaire"),
+        what: response.name,
+      }),
       variant: "success",
     });
     onSaved();
@@ -75,7 +76,7 @@ export const ImportQuestionnaireForm: React.FC<
   };
 
   const { mutate: createQuestionnaire } = useCreateQuestionnaireMutation(
-    onHandleSuccessfullQuestionnaireCreation,
+    onHandleSuccessfulQuestionnaireCreation,
     onHandleFailedQuestionnaireCreation
   );
 
