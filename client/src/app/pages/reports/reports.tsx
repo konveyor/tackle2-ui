@@ -40,6 +40,8 @@ import { useFetchApplications } from "@app/queries/applications";
 import { useFetchAssessments } from "@app/queries/assessments";
 import { Ref } from "@app/api/models";
 
+const ALL_QUESTIONNAIRES = "All questionnaires";
+
 export const Reports: React.FC = () => {
   // i18
   const { t } = useTranslation();
@@ -107,7 +109,7 @@ export const Reports: React.FC = () => {
     setIsQuestionnaireSelectOpen(false);
   };
 
-  const questionnaires: Ref[] =
+  const answeredQuestionnaires: Ref[] =
     isAssessmentsFetching || assessmentsFetchError
       ? []
       : assessments.reduce((result: Ref[], item) => {
@@ -149,17 +151,19 @@ export const Reports: React.FC = () => {
                           toggle={toggleQuestionnaire}
                           shouldFocusToggleOnSelect
                         >
-                          <SelectOption key={0} value="All questionnaires">
+                          <SelectOption key={0} value={ALL_QUESTIONNAIRES}>
                             All questionnaires
                           </SelectOption>
-                          {questionnaires.map((questionnaire, index) => (
-                            <SelectOption
-                              key={index}
-                              value={questionnaire.name}
-                            >
-                              {questionnaire.name}
-                            </SelectOption>
-                          ))}
+                          {answeredQuestionnaires.map(
+                            (answeredQuestionnaire, index) => (
+                              <SelectOption
+                                key={index}
+                                value={answeredQuestionnaire.name}
+                              >
+                                {answeredQuestionnaire.name}
+                              </SelectOption>
+                            )
+                          )}
                         </Select>
                       </FlexItem>
                     </Flex>
