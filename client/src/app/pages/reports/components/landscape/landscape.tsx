@@ -7,7 +7,7 @@ import { ConditionalRender } from "@app/components/ConditionalRender";
 import { StateError } from "@app/components/StateError";
 
 import { RISK_LIST } from "@app/Constants";
-import { AssessmentRisk } from "@app/api/models";
+import { Assessment, AssessmentRisk } from "@app/api/models";
 
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { NoApplicationSelectedEmptyState } from "../no-application-selected-empty-state";
@@ -48,7 +48,11 @@ const extractLandscapeData = (
   return { low, medium, high, unassessed };
 };
 
-export const Landscape: React.FC = () => {
+interface ILandscapeProps {
+  assessments: Assessment[];
+}
+
+export const Landscape: React.FC<ILandscapeProps> = ({ assessments }) => {
   const { t } = useTranslation();
 
   // Context
@@ -89,11 +93,11 @@ export const Landscape: React.FC = () => {
         <Split hasGutter>
           <SplitItem>
             <Donut
-              value={landscapeData.low}
+              value={landscapeData.high}
               total={applications.length}
-              color={RISK_LIST["green"].hexColor}
-              riskLabel={t("terms.lowRisk")}
-              riskDescription={t("terms.cloudNativeReady")}
+              color={RISK_LIST["red"].hexColor}
+              riskLabel={t("colors.red")}
+              // riskDescription={}
             />
           </SplitItem>
           <SplitItem>
@@ -101,17 +105,17 @@ export const Landscape: React.FC = () => {
               value={landscapeData.medium}
               total={applications.length}
               color={RISK_LIST["yellow"].hexColor}
-              riskLabel={t("terms.mediumRisk")}
-              riskDescription={t("terms.modernizable")}
+              riskLabel={t("colors.yellow")}
+              // riskDescription={}
             />
           </SplitItem>
           <SplitItem>
             <Donut
               value={landscapeData.high}
               total={applications.length}
-              color={RISK_LIST["red"].hexColor}
-              riskLabel={t("terms.highRisk")}
-              riskDescription={t("terms.unsuitableForContainers")}
+              color={RISK_LIST["green"].hexColor}
+              riskLabel={t("colors.green")}
+              // riskDescription={}
             />
           </SplitItem>
           <SplitItem>
@@ -119,8 +123,8 @@ export const Landscape: React.FC = () => {
               value={landscapeData.unassessed}
               total={applications.length}
               color={RISK_LIST["unknown"].hexColor}
-              riskLabel={t("terms.unassessed")}
-              riskDescription={t("terms.notYetAssessed")}
+              riskLabel={`${t("terms.unassessed")}/${t("terms.unknown")}`}
+              // riskDescription={}
             />
           </SplitItem>
         </Split>
