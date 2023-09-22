@@ -18,6 +18,222 @@ The table-controls hooks and components provide a pattern where state logic can 
 - All features should be optional and fall back to reasonable defaults if their options are omitted.
 - Code for each feature should be isolated enough that it could be reasonably used on its own.
 
+## Usage
+
+### Example table with client-side filtering/sorting/pagination
+
+For client-paginated tables, we only need the `useLocalTableControls` hook. All arguments can be passed to it in one object, and the `tableControls` object returned by it contains everything we need to render the composable table.
+
+This simple example includes only the filtering, sorting and pagination features and excludes arguments and properties related to the other features (see [Features](#features)).
+
+```tsx
+// In a real table, this API data would come from a useQuery call.
+const isLoading = false;
+const isError = false;
+const things: Thing[] = [
+  { id: 1, name: "Thing 1", description: "Something from the API" },
+  { id: 2, name: "Thing 2", description: "Something else from the API" },
+];
+
+const tableControls = useLocalTableControls({
+  idProperty: "id", // The name of a unique string or number property on the data items.
+  items: things, // The generic type `TItem` is inferred from the items passed here.
+  columnNames: {
+    // The keys of this object define the inferred generic type `TColumnKey`. See "Unique Identifiers".
+    name: "Name",
+    description: "Description",
+  },
+  filterCategories: [
+    {
+      key: "name",
+      title: "Name",
+      type: FilterType.search,
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.name").toLowerCase(),
+        }) + "...",
+      getItemValue: (thing) => thing.name || "",
+    },
+  ],
+  sortableColumns: ["name", "description"],
+  getSortValues: (thing) => ({
+    name: thing.name || "",
+    description: thing.description || "",
+  }),
+  initialSort: { columnKey: "name", direction: "asc" },
+  isLoading,
+});
+
+// Here we destructure some of the properties from `tableControls` for rendering.
+// Later we also spread the entire `tableControls` object onto components whose props include subsets of this object.
+const {
+  currentPageItems,
+  numRenderedColumns,
+  // `numRenderedColumns` is based on which features are used (selection, expansion, etc) and the number of columnNames.
+  // It is used as the colSpan when rendering a full-table-wide cell (e.g. expanded content when using expansion).
+  selectionState: { selectedItems },
+  // The objects and functions in `propHelpers` correspond to the props needed for specific PatternFly or Tackle components and are provided to reduce prop-drilling and make the rendering code as short as possible.
+  propHelpers: {
+    toolbarProps,
+    filterToolbarProps,
+    paginationToolbarItemProps,
+    paginationProps,
+    tableProps,
+    getThProps,
+    getTdProps,
+  },
+} = tableControls;
+
+return (
+  <>
+    <Toolbar {...toolbarProps}>
+      <ToolbarContent>
+        <FilterToolbar {...filterToolbarProps} />
+        {/* You can render whatever other custom toolbar items you may need here! */}
+        <ToolbarItem {...paginationToolbarItemProps}>
+          <SimplePagination
+            idPrefix="example-things-table"
+            isTop
+            paginationProps={paginationProps}
+          />
+        </ToolbarItem>
+      </ToolbarContent>
+    </Toolbar>
+    <Table {...tableProps} aria-label="Example things table">
+      <Thead>
+        <Tr>
+          <TableHeaderContentWithControls {...tableControls}>
+            <Th {...getThProps({ columnKey: "name" })} />
+            <Th {...getThProps({ columnKey: "description" })} />
+          </TableHeaderContentWithControls>
+        </Tr>
+      </Thead>
+      <ConditionalTableBody
+        isLoading={isLoading}
+        isError={isError}
+        isNoData={currentPageItems.length === 0}
+        noDataEmptyState={
+          <EmptyState variant="sm">
+            <EmptyStateIcon icon={CubesIcon} />
+            <Title headingLevel="h2" size="lg">
+              No things available
+            </Title>
+          </EmptyState>
+        }
+        numRenderedColumns={numRenderedColumns}
+      >
+        <Tbody>
+          {currentPageItems?.map((thing, rowIndex) => (
+            <Tr key={thing.id}>
+              <TableRowContentWithControls
+                {...tableControls}
+                item={thing}
+                rowIndex={rowIndex}
+              >
+                <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                  {thing.name}
+                </Td>
+                <Td width={75} {...getTdProps({ columnKey: "description" })}>
+                  {thing.description}
+                </Td>
+              </TableRowContentWithControls>
+            </Tr>
+          ))}
+        </Tbody>
+      </ConditionalTableBody>
+    </Table>
+    <SimplePagination
+      idPrefix="example-things-table"
+      isTop={false}
+      paginationProps={paginationProps}
+    />
+  <>
+);
+```
+
+### Example table with server-side filtering/sorting/pagination
+
+The usage is similar here, but some arguments are no longer required (like `getSortValues` and the `getItemValue` property of the filter category) and we break up the arguments object passed to `useLocalTableControls` into two separate objects passed to `useTableControlState` and `useTableControlProps` based on when they are needed. You'll note that the object passed to the latter contains all the properties of the object passed to the former in addition to things derived from the fetched API data. Those arguments are all also included in the `tableControls` object returned by `useTableControlProps` (and `useLocalTableControls` above). This way, we have one big object we can pass around to any components or functions that need any of the configuration, state, derived state, or props present on it.
+
+Note also: the destructuring and rendering part of the example code is not included here because **_it is identical to the example above_**. The only difference between client-paginated and server-paginated tables is the hook usage; the `tableControls` object and its usage are the same for both.
+
+```tsx
+// In a real table, this API data would come from a useQuery call.
+const tableControlState = useTableControlState({
+  columnNames: {
+    name: "Name",
+    description: "Description",
+  },
+  filterCategories: [
+    {
+      key: "name",
+      title: "Name",
+      type: FilterType.search,
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.name").toLowerCase(),
+        }) + "...",
+      getItemValue: (thing) => thing.name || "",
+    },
+  ],
+  sortableColumns: ["name", "description"],
+  initialSort: { columnKey: "name", direction: "asc" },
+});
+
+const hubRequestParams = getHubRequestParams({
+  ...tableControlState, // Includes filterState, sortState and paginationState
+  hubSortFieldKeys: {
+    // The keys required for sorting on the server, in case they aren't the same as our columns here
+    name: "name",
+    description: "description",
+  },
+});
+
+// `useFetchThings` is an example of a custom hook that calls a react-query `useQuery` and the `serializeRequestParamsForHub` helper.
+// Any API fetch implementation could be used here as long as it will re-fetch when `hubRequestParams` changes.
+// The `data` returned here has been paginated, filtered and sorted on the server.
+const { data, totalItemCount, isLoading, isError } =
+  useFetchThings(hubRequestParams);
+
+const tableControls = useTableControlProps({
+  ...tableControlState, // Includes filterState, sortState and paginationState
+  idProperty: "id",
+  currentPageItems: data,
+  totalItemCount,
+  isLoading,
+});
+
+// Everything else (destructuring `tableControls` and returning JSX) is the same as the client-side example!
+```
+
+### Kitchen sink example with all features
+
+TODO
+
+### Should I Use Client or Server Logic?
+
+If the API endpoints you're using support server-side pagination parameters, it is generally a good idea to use them for better performance and scalability. If you do use server-side pagination, you'll need to also use server-side filtering and sorting.
+
+If the endpoints do not support these parameters or you need to have the entire collection of items in memory at once for some other reason, you'll need a client-paginated table. It is also slightly easier to implement a client-paginated table.
+
+### Which Hooks/Functions Do I Need?
+
+In most cases, you'll only need to use these higher-level hooks and helpers to build a table:
+
+- For client-paginated tables: `useLocalTableControls` or `useLocalTableControlsWithUrlParams` is all you need. These have the same signature and are interchangeable.
+  - Internally they use `useTableControlState` (or `useTableControlUrlParams`), `useTableControlProps` and the `getLocal[Feature]DerivedState` helpers. The config arguments object is a combination of the arguments required by `useTableControlState` and `useTableControlProps`.
+  - The return value (an object we generally name `tableControls`) has everything you need to render your table. Give it a `console.log` to see what is available.
+- For server-paginated tables: `useTableControlState` (or `useTableControlUrlParams`), `getHubRequestParams`, and `useTableControlProps`.
+  - Choose whether you want to use React state or URL params as the source of truth, and use `useTableControlState` or `useTableControlUrlParams` which are interchangeable.
+  - Take the object returned by that hook (generally named `tableControlState`) and pass it to `getHubRequestParams` function (you may need to spread it and add additional properties like `hubSortFieldKeys`).
+  - Call your API query hooks, using the `hubRequestParams` as needed.
+  - Call `useTableControlProps` and pass it an object including all properties from `tableControlState` along with additional config arguments. Some of these arguments will be derived from your API data, such as `currentPageItems`, `totalItemCount` and `isLoading`. Others are simply passed here rather than above because they are used only for rendering and not required for state management.
+  - The return value (the same `tableControls` object returned by `useLocalTableControls`) has everything you need to render your table. Give it a `console.log` to see what is available.
+
+> ⚠️ TECH DEBT NOTE: The `tableControls` object returned by the higher-level hooks here currently has no explicit type. Its type is inferred from the return values of `useTableControlState` and `useTableControlProps`, which was a choice made to ease the original development. However, this makes it difficult to see what properties are available for table rendering without using `console.log` or reading the source. We probably should add an explicit type interface for this object.
+
+If desired, you can use the lower-level feature-specific hooks (see [Features](#features)) on their own (for example, if you really only need pagination and you're not rendering a full table). However, if you are using more than one or two of them you may want to consider using these higher-level hooks even if you don't need all the features. You can omit the config arguments for any features you don't need and then just don't use the relevant `propHelpers`.
+
 ## Features
 
 The functionality of the table-controls hooks is broken down into the following features. Most features are defined by operations to be performed on API data before it is displayed in a table.
@@ -116,30 +332,6 @@ Table columns are identified by unique keys which are statically inferred from t
 
 Item objects must contain some unique identifier which is either a string or number. The property key of this identifier is a required config argument called `idProperty`, which will usually be `"id"`. If no unique identifier is present in the API data, an artificial one can be injected before passing the data into these hooks, which can be done in the useQuery `select` callback (see instances where we have used `"_ui_unique_id"`). Any state which keeps track of something by item (i.e. by row) makes use of `item[idProperty]` as an identifier. Examples of this include selected rows, expanded rows and active rows. Valid `idProperty` values are also enforced by TypeScript generics; if an `idProperty` is provided that is not a property on the `TItem` type, you should get a type error.
 
-## Usage
-
-### Should I Use Client or Server Logic?
-
-If the API endpoints you're using support server-side pagination parameters, it is generally a good idea to use them for better performance and scalability. If you do use server-side pagination, you'll need to also use server-side filtering and sorting.
-
-If the endpoints do not support these parameters or you need to have the entire collection of items in memory at once for some other reason, you'll need a client-paginated table. It is also slightly easier to implement a client-paginated table.
-
-### Which Hooks/Functions Do I Need?
-
-In most cases, you'll only need to use these higher-level hooks and helpers to build a table:
-
-- For client-paginated tables: `useLocalTableControls` is all you need.
-  - Internally it uses `useTableControlState`, `useTableControlProps` and the `getLocal[Feature]DerivedState` helpers. The config arguments object is a combination of the arguments required by `useTableControlState` and `useTableControlProps`.
-  - The return value (an object we generally name `tableControls`) has everything you need to render your table. Give it a `console.log` to see what is available.
-- For server-paginated tables: `useTableControlState` (or `useTableControlUrlParams`), `getHubRequestParams`, and `useTableControlProps`.
-  - Choose whether you want to use React state or URL params as the source of truth, and use `useTableControlState` or `useTableControlUrlParams` which are interchangeable.
-  - Take the object returned by that hook (generally named `tableControlState`) and pass it to `getHubRequestParams` function (you may need to spread it and add additional properties like `hubSortFieldKeys`).
-  - Call your API query hooks, using the `hubRequestParams` as needed.
-  - Call `useTableControlProps` and pass it an object including all properties from `tableControlState` along with additional config arguments. Some of these arguments will be derived from your API data, such as `currentPageItems`, `totalItemCount` and `isLoading`. Others are simply passed here rather than above because they are used only for rendering and not required for state management.
-  - The return value (the same `tableControls` object returned by `useLocalTableControls`) has everything you need to render your table. Give it a `console.log` to see what is available.
-
-If desired, you can use the lower-level hooks provided here on their own (for example, if you really only need pagination and you're not rendering a full table). However, if you are using more than one or two of them you may want to consider using the higher-level hooks above even if you don't need all the features. You can omit the config arguments for any features you don't need and then just don't use the relevant `propHelpers`.
-
 ---
 
 <br /><br /><br />
@@ -150,25 +342,8 @@ If desired, you can use the lower-level hooks provided here on their own (for ex
 
 ---
 
-### Top-level Config Arguments and the `tableControls` Object
-
-TODO explain how the args and return values from each hook get bundled together into a shared object.
-TODO is this the best place in the docs for this section?
-TODO tech debt note about how the structure of this is currently inferred from return values of all the hooks and should probably be explicitly defined in the types.ts file
-
-### Example Table with client-side filtering/sorting/pagination logic
-
-TODO explain benefits and limitations of client-side table logic
-TODO show top-level usage of useLocalTableControls with components for rendering
-
-### Example Table with server-side filtering/sorting/pagination logic
-
-TODO explain benefits and limitations of server-side table logic
-TODO show top-level usage of useTableControlState/useTableControlUrlParams with components for rendering
-
 ## Types
 
-TODO maybe move this to the bottom?
 TODO cover the stuff in types.ts export by export referencing the usage in specific hooks and components
 
 ## Hooks and Helper Functions
