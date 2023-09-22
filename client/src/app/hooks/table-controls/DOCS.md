@@ -22,7 +22,7 @@ The table-controls hooks and components provide a pattern where state logic can 
 
 ### Example table with client-side filtering/sorting/pagination
 
-For client-paginated tables, we only need the `useLocalTableControls` hook. All arguments can be passed to it in one object, and the `tableControls` object returned by it contains everything we need to render the composable table.
+For client-paginated tables, the only hook we need is `useLocalTableControls`. All arguments can be passed to it in one object, and the `tableControls` object returned by it contains everything we need to render the composable table.
 
 This simple example includes only the filtering, sorting and pagination features and excludes arguments and properties related to the other features (see [Features](#features)).
 
@@ -65,14 +65,16 @@ const tableControls = useLocalTableControls({
 });
 
 // Here we destructure some of the properties from `tableControls` for rendering.
-// Later we also spread the entire `tableControls` object onto components whose props include subsets of this object.
+// Later we also spread the entire `tableControls` object onto components whose props include subsets of it.
 const {
   currentPageItems,
   numRenderedColumns,
-  // `numRenderedColumns` is based on which features are used (selection, expansion, etc) and the number of columnNames.
-  // It is used as the colSpan when rendering a full-table-wide cell (e.g. expanded content when using expansion).
+  // `numRenderedColumns` is based on the number of columnNames and additional columns needed for
+  // rendering controls related to features like selection, expansion, etc.
+  // It is used as the colSpan when rendering a full-table-wide cell.
   selectionState: { selectedItems },
-  // The objects and functions in `propHelpers` correspond to the props needed for specific PatternFly or Tackle components and are provided to reduce prop-drilling and make the rendering code as short as possible.
+  // The objects and functions in `propHelpers` correspond to the props needed for specific PatternFly or Tackle
+  // components and are provided to reduce prop-drilling and make the rendering code as short as possible.
   propHelpers: {
     toolbarProps,
     filterToolbarProps,
@@ -189,7 +191,8 @@ const hubRequestParams = getHubRequestParams({
   },
 });
 
-// `useFetchThings` is an example of a custom hook that calls a react-query `useQuery` and the `serializeRequestParamsForHub` helper.
+// `useFetchThings` is an example of a custom hook that calls a react-query `useQuery`
+// and the `serializeRequestParamsForHub` helper.
 // Any API fetch implementation could be used here as long as it will re-fetch when `hubRequestParams` changes.
 // The `data` returned here has been paginated, filtered and sorted on the server.
 const { data, totalItemCount, isLoading, isError } =
