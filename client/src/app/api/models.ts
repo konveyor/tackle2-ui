@@ -709,8 +709,8 @@ export interface Assessment
   description: string;
   status: AssessmentStatus;
   risk: Risk;
-  stakeholders: Ref[];
-  stakeholderGroups: Ref[];
+  stakeholders?: Ref[];
+  stakeholderGroups?: Ref[];
 }
 export interface CategorizedTag {
   category: TagCategory;
