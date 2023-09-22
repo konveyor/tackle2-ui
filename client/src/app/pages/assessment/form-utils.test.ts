@@ -26,11 +26,11 @@ describe("Application assessment - form utils", () => {
 
   it("getQuestionFieldName: fullName", () => {
     const fieldName = getQuestionFieldName(question, true);
-    expect(fieldName).toBe("questions.question-Question 321");
+    expect(fieldName).toBe("questions.question-1");
   });
 
   it("getQuestionFieldName: singleName", () => {
     const fieldName = getQuestionFieldName(question, false);
-    expect(fieldName).toBe("question-Question 321");
+    expect(fieldName).toBe("question-1");
   });
 });

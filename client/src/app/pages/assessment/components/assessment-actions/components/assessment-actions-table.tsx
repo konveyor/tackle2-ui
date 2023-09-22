@@ -38,6 +38,7 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
       <QuestionnairesTable
         application={application}
         archetype={archetype}
+        isReadonly
         questionnaires={archivedQuestionnaires}
         assessments={assessments}
         isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}

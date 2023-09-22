@@ -10,6 +10,7 @@ import {
   Assessment,
   AssessmentStatus,
   Question,
+  Ref,
   Section,
 } from "@app/api/models";
 import { CustomWizardFooter } from "../custom-wizard-footer";
@@ -26,6 +27,7 @@ import {
 import { AxiosError } from "axios";
 import {
   assessmentsByItemIdQueryKey,
+  useDeleteAssessmentMutation,
   useUpdateAssessmentMutation,
 } from "@app/queries/assessments";
 import { useQueryClient } from "@tanstack/react-query";
@@ -34,6 +36,8 @@ import { Paths } from "@app/Paths";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AssessmentStakeholdersForm } from "../assessment-stakeholders-form/assessment-stakeholders-form";
 import useIsArchetype from "@app/hooks/useIsArchetype";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
+import { useFetchStakeholders } from "@app/queries/stakeholders";
 
 export const SAVE_ACTION_KEY = "saveAction";
 
@@ -66,6 +70,8 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 }) => {
   const isArchetype = useIsArchetype();
   const queryClient = useQueryClient();
+  const { stakeholderGroups } = useFetchStakeholderGroups();
+  const { stakeholders } = useFetchStakeholders();
 
   const onHandleUpdateAssessmentSuccess = () => {
     queryClient.invalidateQueries([
@@ -77,12 +83,14 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     onHandleUpdateAssessmentSuccess
   );
 
+  const { mutate: deleteAssessmentMutation } = useDeleteAssessmentMutation();
+
   const { t } = useTranslation();
 
   const [currentStep, setCurrentStep] = useState(0);
 
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<boolean>(false);
+  const [assessmentToCancel, setAssessmentToCancel] =
+    React.useState<Assessment | null>(null);
 
   const history = useHistory();
 
@@ -124,13 +132,11 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   }, [assessment]);
 
   useEffect(() => {
+    console.log("asssessment.stakeholders", assessment?.stakeholders);
     methods.reset({
-      stakeholders:
-        assessment?.stakeholders.map((stakeholder) => stakeholder.name) || [],
+      stakeholders: assessment?.stakeholders?.map((sh) => sh.name).sort() ?? [],
       stakeholderGroups:
-        assessment?.stakeholderGroups.map(
-          (stakeholderGroup) => stakeholderGroup.name
-        ) || [],
+        assessment?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
       // comments: initialComments,
       questions: initialQuestions,
       [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
@@ -146,11 +152,9 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     defaultValues: useMemo(() => {
       return {
         stakeholders:
-          assessment?.stakeholders.map((stakeholder) => stakeholder.name) || [],
+          assessment?.stakeholders?.map((sh) => sh.name).sort() ?? [],
         stakeholderGroups:
-          assessment?.stakeholderGroups.map(
-            (stakeholderGroup) => stakeholderGroup.name
-          ) || [],
+          assessment?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
         // comments: initialComments,
         questions: initialQuestions,
         [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
@@ -273,6 +277,25 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       const assessmentStatus: AssessmentStatus = "started";
       const payload: Assessment = {
         ...assessment,
+        stakeholders:
+          values.stakeholders === undefined
+            ? undefined
+            : (values.stakeholders
+                .map((name) => stakeholders.find((s) => s.name === name))
+                .map<Ref | undefined>((sh) =>
+                  !sh ? undefined : { id: sh.id, name: sh.name }
+                )
+                .filter(Boolean) as Ref[]),
+
+        stakeholderGroups:
+          values.stakeholderGroups === undefined
+            ? undefined
+            : (values.stakeholderGroups
+                .map((name) => stakeholderGroups.find((s) => s.name === name))
+                .map<Ref | undefined>((sg) =>
+                  !sg ? undefined : { id: sg.id, name: sg.name }
+                )
+                .filter(Boolean) as Ref[]),
         sections,
         status: assessmentStatus,
       };
@@ -317,6 +340,25 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
       const payload: Assessment = {
         ...assessment,
+        stakeholders:
+          values.stakeholders === undefined
+            ? undefined
+            : (values.stakeholders
+                .map((name) => stakeholders.find((s) => s.name === name))
+                .map<Ref | undefined>((sh) =>
+                  !sh ? undefined : { id: sh.id, name: sh.name }
+                )
+                .filter(Boolean) as Ref[]),
+
+        stakeholderGroups:
+          values.stakeholderGroups === undefined
+            ? undefined
+            : (values.stakeholderGroups
+                .map((name) => stakeholderGroups.find((s) => s.name === name))
+                .map<Ref | undefined>((sg) =>
+                  !sg ? undefined : { id: sg.id, name: sg.name }
+                )
+                .filter(Boolean) as Ref[]),
         sections,
         status: assessmentStatus,
       };
@@ -364,6 +406,25 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
       const payload: Assessment = {
         ...assessment,
+        stakeholders:
+          values.stakeholders === undefined
+            ? undefined
+            : (values.stakeholders
+                .map((name) => stakeholders.find((s) => s.name === name))
+                .map<Ref | undefined>((sh) =>
+                  !sh ? undefined : { id: sh.id, name: sh.name }
+                )
+                .filter(Boolean) as Ref[]),
+
+        stakeholderGroups:
+          values.stakeholderGroups === undefined
+            ? undefined
+            : (values.stakeholderGroups
+                .map((name) => stakeholderGroups.find((s) => s.name === name))
+                .map<Ref | undefined>((sg) =>
+                  !sg ? undefined : { id: sg.id, name: sg.name }
+                )
+                .filter(Boolean) as Ref[]),
         sections,
         status: assessmentStatus,
       };
@@ -509,11 +570,11 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             onNext={() => setCurrentStep((current) => current + 1)}
             onBack={() => setCurrentStep((current) => current - 1)}
             onClose={() => {
-              setIsConfirmDialogOpen(true);
+              assessment && setAssessmentToCancel(assessment);
             }}
             onGoToStep={(step) => setCurrentStep(step.id as number)}
           />
-          {isConfirmDialogOpen && (
+          {assessmentToCancel && (
             <ConfirmDialog
               title={t("dialog.title.leavePage")}
               isOpen
@@ -521,23 +582,38 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
               confirmBtnVariant={ButtonVariant.primary}
               confirmBtnLabel={t("actions.continue")}
               cancelBtnLabel={t("actions.cancel")}
-              onCancel={() => setIsConfirmDialogOpen(false)}
-              onClose={() => setIsConfirmDialogOpen(false)}
+              onCancel={() => setAssessmentToCancel(null)}
+              onClose={() => setAssessmentToCancel(null)}
               onConfirm={() => {
-                setIsConfirmDialogOpen(false);
                 if (isArchetype) {
+                  assessmentToCancel.status === "empty" &&
+                    deleteAssessmentMutation({
+                      assessmentId: assessmentToCancel.id,
+                      applicationName: assessmentToCancel.application?.name,
+                      applicationId: assessmentToCancel.application?.id,
+                      archetypeId: assessmentToCancel.archetype?.id,
+                    });
+
                   history.push(
                     formatPath(Paths.archetypeAssessmentActions, {
                       archetypeId: assessment?.archetype?.id,
                     })
                   );
                 } else {
+                  assessmentToCancel.status === "empty" &&
+                    deleteAssessmentMutation({
+                      assessmentId: assessmentToCancel.id,
+                      applicationName: assessmentToCancel.application?.name,
+                      applicationId: assessmentToCancel.application?.id,
+                      archetypeId: assessmentToCancel.archetype?.id,
+                    });
                   history.push(
                     formatPath(Paths.applicationAssessmentActions, {
                       applicationId: assessment?.application?.id,
                     })
                   );
                 }
+                setAssessmentToCancel(null);
               }}
             />
           )}
