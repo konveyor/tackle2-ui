@@ -515,7 +515,8 @@ export const getIssueReports = (
     ANALYSIS_REPORT_APP_ISSUES.replace(
       "/:applicationId/",
       `/${String(applicationId)}/`
-    )
+    ),
+    params
   );
 
 export const getIssues = (params: HubRequestParams = {}) =>
