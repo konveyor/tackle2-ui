@@ -64,12 +64,11 @@ const tableControls = useLocalTableControls({
 // Here we destructure some of the properties from `tableControls` for rendering.
 // Later we also spread the entire `tableControls` object onto components whose props include subsets of it.
 const {
-  currentPageItems,
-  numRenderedColumns,
+  currentPageItems, // These items have already been paginated.
   // `numRenderedColumns` is based on the number of columnNames and additional columns needed for
   // rendering controls related to features like selection, expansion, etc.
   // It is used as the colSpan when rendering a full-table-wide cell.
-  selectionState: { selectedItems },
+  numRenderedColumns,
   // The objects and functions in `propHelpers` correspond to the props needed for specific PatternFly or Tackle
   // components and are provided to reduce prop-drilling and make the rendering code as short as possible.
   propHelpers: {
