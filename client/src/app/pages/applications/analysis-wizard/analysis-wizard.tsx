@@ -335,9 +335,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           }}
         >
           <>
-            <h1>
-              enabled? {isStepEnabled(StepId.AnalysisMode + 1) ? "yea" : "nah"}
-            </h1>
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
               isModeValid={isModeValid}
