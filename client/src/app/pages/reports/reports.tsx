@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Bullseye,
@@ -9,10 +9,7 @@ import {
   CardExpandableContent,
   CardHeader,
   CardTitle,
-  Flex,
-  FlexItem,
   MenuToggle,
-  MenuToggleElement,
   PageSection,
   PageSectionVariants,
   Popover,
@@ -29,28 +26,24 @@ import {
 } from "@patternfly/react-core";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
+import { Questionnaire } from "@app/api/models";
+import { useFetchApplications } from "@app/queries/applications";
+import { useFetchAssessments } from "@app/queries/assessments";
+import { useFetchQuestionnaires } from "@app/queries/questionnaires";
+
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { StateError } from "@app/components/StateError";
+
 import { ApplicationSelectionContextProvider } from "./application-selection-context";
 import { Landscape } from "./components/landscape";
 import { AdoptionPlan } from "./components/adoption-plan";
 import { IdentifiedRisksTable } from "./components/identified-risks-table";
-import { useFetchApplications } from "@app/queries/applications";
-import { useFetchAssessments } from "@app/queries/assessments";
-import { Ref } from "@app/api/models";
 
-const ALL_QUESTIONNAIRES = "All questionnaires";
+const ALL_QUESTIONNAIRES = -1;
 
 export const Reports: React.FC = () => {
-  // i18
   const { t } = useTranslation();
-
-  const [isQuestionnaireSelectOpen, setIsQuestionnaireSelectOpen] =
-    React.useState<boolean>(false);
-
-  const [selectedQuestionnaire, setSelectedQuestionnaire] =
-    React.useState<string>("All questionnaires");
 
   const {
     assessments,
@@ -58,17 +51,40 @@ export const Reports: React.FC = () => {
     fetchError: assessmentsFetchError,
   } = useFetchAssessments();
 
-  // Cards
-  const [isAdoptionCandidateTable, setIsAdoptionCandidateTable] =
-    useState(true);
-  const [isAdoptionPlanOpen, setAdoptionPlanOpen] = useState(false);
-  const [isRiskCardOpen, setIsRiskCardOpen] = useState(false);
+  const {
+    questionnaires,
+    isFetching: isQuestionnairesFetching,
+    fetchError: questionnairesFetchError,
+  } = useFetchQuestionnaires();
+
+  const questionnairesById = useMemo(
+    () =>
+      questionnaires.reduce<Record<number, Questionnaire>>((byId, q) => {
+        byId[q.id] = q;
+        return byId;
+      }, {}),
+    [questionnaires]
+  );
 
   const {
     data: applications,
-    isFetching,
-    error: fetchError,
+    isFetching: isApplicationsFetching,
+    error: applicationsFetchError,
   } = useFetchApplications();
+
+  const [isQuestionnaireSelectOpen, setIsQuestionnaireSelectOpen] =
+    React.useState<boolean>(false);
+
+  const [selectedQuestionnaireId, setSelectedQuestionnaireId] =
+    React.useState<number>(ALL_QUESTIONNAIRES);
+
+  const [isAdoptionCandidateTable, setIsAdoptionCandidateTable] =
+    useState(true);
+
+  const [isAdoptionPlanOpen, setAdoptionPlanOpen] = useState(false);
+
+  const [isRiskCardOpen, setIsRiskCardOpen] = useState(false);
+
   const pageHeaderSection = (
     <PageSection variant={PageSectionVariants.light}>
       <TextContent>
@@ -77,7 +93,11 @@ export const Reports: React.FC = () => {
     </PageSection>
   );
 
-  if (fetchError) {
+  if (
+    applicationsFetchError ||
+    assessmentsFetchError ||
+    questionnairesFetchError
+  ) {
     return (
       <>
         {pageHeaderSection}
@@ -88,116 +108,117 @@ export const Reports: React.FC = () => {
     );
   }
 
-  const toggleQuestionnaire = (toggleRef: React.Ref<MenuToggleElement>) => (
-    <MenuToggle
-      ref={toggleRef}
-      aria-label="kebab dropdown toggle"
-      onClick={() => {
-        setIsQuestionnaireSelectOpen(!isQuestionnaireSelectOpen);
-      }}
-      isExpanded={isQuestionnaireSelectOpen}
-    >
-      {selectedQuestionnaire}
-    </MenuToggle>
-  );
-
   const onSelectQuestionnaire = (
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
     value: string | number | undefined
   ) => {
-    setSelectedQuestionnaire(value as string);
+    setSelectedQuestionnaireId(value as number);
     setIsQuestionnaireSelectOpen(false);
   };
 
-  const answeredQuestionnaires: Ref[] =
-    isAssessmentsFetching || assessmentsFetchError
+  const answeredQuestionnaires: Questionnaire[] =
+    isAssessmentsFetching || isQuestionnairesFetching
       ? []
       : assessments
-          .reduce((questionnaires: Ref[], assessment) => {
-            if (
-              !questionnaires
-                .map((ref) => ref.id)
-                .includes(assessment.questionnaire.id)
-            ) {
-              assessment.questionnaire &&
-                questionnaires.push(assessment.questionnaire);
-            }
-            return questionnaires;
-          }, [])
-          .sort((a, b) => {
-            if (a.name > b.name) return 1;
-            if (b.name > a.name) return -1;
-            return 0;
-          });
+          .map<number>((assessment) => assessment?.questionnaire?.id ?? -1)
+          .filter((id, index, ids) => id > 0 && ids.indexOf(id) !== -1)
+          .map<Questionnaire>((id) => questionnairesById[id])
+          .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <>
       {pageHeaderSection}
       <PageSection>
-        <ConditionalRender when={isFetching} then={<AppPlaceholder />}>
+        <ConditionalRender
+          when={
+            isApplicationsFetching ||
+            isAssessmentsFetching ||
+            isQuestionnairesFetching
+          }
+          then={<AppPlaceholder />}
+        >
           <ApplicationSelectionContextProvider
             applications={applications || []}
           >
             <Stack hasGutter>
               <StackItem>
-                <Card>
-                  <CardHeader>
-                    <Flex>
-                      <FlexItem>
-                        <TextContent>
-                          <Text component="h3">
-                            {t("terms.currentLandscape")}
-                          </Text>
-                        </TextContent>
-                      </FlexItem>
-                      <FlexItem>
+                <Card isClickable isSelectable>
+                  <CardHeader
+                    actions={{
+                      hasNoOffset: false,
+                      actions: (
                         <Select
                           id="select-questionnaires"
                           isOpen={isQuestionnaireSelectOpen}
-                          selected={selectedQuestionnaire}
+                          selected={selectedQuestionnaireId}
                           onSelect={onSelectQuestionnaire}
                           onOpenChange={(_isOpen) =>
                             setIsQuestionnaireSelectOpen(false)
                           }
-                          toggle={toggleQuestionnaire}
+                          toggle={(toggleRef) => (
+                            <MenuToggle
+                              ref={toggleRef}
+                              aria-label="select questionnaires dropdown toggle"
+                              onClick={() => {
+                                setIsQuestionnaireSelectOpen(
+                                  !isQuestionnaireSelectOpen
+                                );
+                              }}
+                              isExpanded={isQuestionnaireSelectOpen}
+                            >
+                              {selectedQuestionnaireId === ALL_QUESTIONNAIRES
+                                ? "All questionnaires"
+                                : questionnairesById[selectedQuestionnaireId]
+                                    ?.name}
+                            </MenuToggle>
+                          )}
                           shouldFocusToggleOnSelect
                         >
-                          <SelectOption key={0} value={ALL_QUESTIONNAIRES}>
+                          <SelectOption
+                            key={ALL_QUESTIONNAIRES}
+                            value={ALL_QUESTIONNAIRES}
+                          >
                             All questionnaires
                           </SelectOption>
-                          {answeredQuestionnaires.map(
-                            (answeredQuestionnaire, index) => (
+                          {...answeredQuestionnaires.map(
+                            (answeredQuestionnaire) => (
                               <SelectOption
-                                key={index}
-                                value={answeredQuestionnaire.name}
+                                key={answeredQuestionnaire.id}
+                                value={answeredQuestionnaire.id}
                               >
                                 {answeredQuestionnaire.name}
                               </SelectOption>
                             )
                           )}
                         </Select>
-                      </FlexItem>
-                    </Flex>
+                      ),
+                    }}
+                  >
+                    <TextContent>
+                      <Text component="h3">{t("terms.currentLandscape")}</Text>
+                    </TextContent>
                   </CardHeader>
                   <CardBody>
-                    <Bullseye>
-                      <Landscape
-                        assessments={
-                          selectedQuestionnaire === "All questionnaires"
-                            ? assessments
-                            : assessments.filter(
-                                (assessment) =>
-                                  assessment.questionnaire.name ===
-                                  selectedQuestionnaire
-                              )
-                        }
-                      />
-                    </Bullseye>
+                    <Landscape
+                      questionnaire={
+                        selectedQuestionnaireId === ALL_QUESTIONNAIRES
+                          ? null
+                          : questionnairesById[selectedQuestionnaireId]
+                      }
+                      assessments={
+                        selectedQuestionnaireId === ALL_QUESTIONNAIRES
+                          ? assessments
+                          : assessments.filter(
+                              ({ questionnaire }) =>
+                                questionnaire.id === selectedQuestionnaireId
+                            )
+                      }
+                    />
                   </CardBody>
                 </Card>
               </StackItem>
               <StackItem>
-                <Card>
+                <Card isClickable isSelectable>
                   <CardHeader
                     actions={{
                       actions: (
