@@ -282,6 +282,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const isModeValid = applications.every((app) => isModeSupported(app, mode));
 
   const handleCancel = () => {
+    console.log("handleCancel");
     if (taskGroup && taskGroup.id) {
       deleteTaskgroup(taskGroup.id);
     }
@@ -319,18 +320,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     );
   };
 
-  const getStepNavProps = (stepId: StepId, forceBlock = false) => ({
-    enableNext:
-      !forceBlock &&
-      stepIdReached >= stepId &&
-      (firstInvalidStep === null || firstInvalidStep >= stepId + 1),
-    canJumpTo:
-      !forceBlock &&
-      stepIdReached >= stepId &&
-      (firstInvalidStep === null || firstInvalidStep >= stepId),
-  });
-
-  const newSteps = [
+  const steps = [
     <WizardStep
       name={t("wizard.terms.configureAnalysis")}
       id="wizard-configureAnalysis"
@@ -403,60 +393,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     </WizardStep>,
   ];
 
-  const steps = [
-    {
-      name: t("wizard.terms.configureAnalysis"),
-      steps: [
-        {
-          id: StepId.AnalysisMode,
-          name: t("wizard.terms.analysisMode"),
-          component: (
-            <SetMode
-              isSingleApp={applications.length === 1 ? true : false}
-              isModeValid={isModeValid}
-            />
-          ),
-          ...getStepNavProps(StepId.AnalysisMode, !!isMutating),
-        },
-        {
-          id: StepId.SetTargets,
-          name: t("wizard.terms.setTargets"),
-          component: <SetTargets />,
-          ...getStepNavProps(StepId.SetTargets),
-        },
-        {
-          id: StepId.Scope,
-          name: t("wizard.terms.scope"),
-          component: <SetScope />,
-          ...getStepNavProps(StepId.Scope),
-        },
-      ],
-    },
-    {
-      name: t("wizard.terms.advanced"),
-      steps: [
-        {
-          id: StepId.CustomRules,
-          name: t("wizard.terms.customRules"),
-          component: <CustomRules />,
-          ...getStepNavProps(StepId.CustomRules),
-        },
-        {
-          id: StepId.Options,
-          name: t("wizard.terms.options"),
-          component: <SetOptions />,
-          ...getStepNavProps(StepId.Options),
-        },
-      ],
-    },
-    {
-      id: StepId.Review,
-      name: t("wizard.terms.review"),
-      component: <Review applications={applications} mode={mode} />,
-      nextButtonText: "Run",
-      ...getStepNavProps(StepId.Review),
-    },
-  ];
   return (
     <>
       {isOpen && (
@@ -470,11 +406,13 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           >
             <Wizard
               onClose={handleCancel}
+              onSave={handleSubmit(onSubmit)}
               onStepChange={(_event, currentStep: WizardStepType) =>
                 onMove(currentStep)
               }
               header={
                 <WizardHeader
+                  onClose={handleCancel}
                   title="Application analysis"
                   description={
                     <Truncate
@@ -484,7 +422,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
                 />
               }
             >
-              {newSteps}
+              {steps}
             </Wizard>
           </Modal>
         </FormProvider>
