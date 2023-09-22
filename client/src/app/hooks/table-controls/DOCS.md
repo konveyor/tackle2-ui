@@ -48,10 +48,7 @@ const tableControls = useLocalTableControls({
       key: "name",
       title: "Name",
       type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.name").toLowerCase(),
-        }) + "...",
+      placeholderText: "Filter by name...",
       getItemValue: (thing) => thing.name || "",
     },
   ],
@@ -171,10 +168,7 @@ const tableControlState = useTableControlState({
       key: "name",
       title: "Name",
       type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.name").toLowerCase(),
-        }) + "...",
+      placeholderText: "Filter by name...",
       getItemValue: (thing) => thing.name || "",
     },
   ],
