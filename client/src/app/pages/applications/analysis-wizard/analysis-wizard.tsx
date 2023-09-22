@@ -3,6 +3,7 @@ import { useIsMutating } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   Modal,
+  ModalVariant,
   Wizard,
   WizardStep,
   WizardStepType,
@@ -400,6 +401,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             aria-label="Application analysis wizard modal"
             hasNoBodyWrapper
             onEscapePress={handleCancel}
+            variant={ModalVariant.large}
           >
             <Wizard
               onClose={handleCancel}
