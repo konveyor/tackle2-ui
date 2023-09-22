@@ -169,7 +169,6 @@ const tableControlState = useTableControlState({
       title: "Name",
       type: FilterType.search,
       placeholderText: "Filter by name...",
-      getItemValue: (thing) => thing.name || "",
     },
   ],
   sortableColumns: ["name", "description"],
