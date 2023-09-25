@@ -68,8 +68,6 @@
     "noDataStateBody": "Cree un(a) nuevo(a) {{what}} para empezar a ver datos acá.",
     "noDataStateTitle": "No existen {{what}} disponibles",
     "Nquestions": "{{n}} preguntas",
-    "ofTotalApplications": "De {{count}} aplicación",
-    "ofTotalApplications_plural": "De {{count}} aplicaciones",
     "selectMany": "Seleccione {{what}}",
     "selectOne": "Seleccione un {{what}}",
     "selectAn": "Seleccione una {{what}}",

@@ -1,37 +1,29 @@
-import React, { useContext, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-
-import { Skeleton, Split, SplitItem } from "@patternfly/react-core";
-
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { StateError } from "@app/components/StateError";
+import { Flex, FlexItem, Skeleton } from "@patternfly/react-core";
 
 import { RISK_LIST } from "@app/Constants";
-import { Assessment, AssessmentRisk } from "@app/api/models";
-
-import { ApplicationSelectionContext } from "../../application-selection-context";
-import { NoApplicationSelectedEmptyState } from "../no-application-selected-empty-state";
+import { Assessment, Questionnaire } from "@app/api/models";
+import { ConditionalRender } from "@app/components/ConditionalRender";
 import { Donut } from "./donut";
-import { useFetchRisks } from "@app/queries/risks";
 
-interface ILandscapeData {
-  low: number;
-  medium: number;
-  high: number;
+interface IAggregateRiskData {
+  green: number;
+  yellow: number;
+  red: number;
+  unknown: number;
   unassessed: number;
+  assessmentCount: number;
 }
 
-const extractLandscapeData = (
-  totalApps: number,
-  data: AssessmentRisk[]
-): ILandscapeData => {
+const aggregateRiskData = (assessments: Assessment[]): IAggregateRiskData => {
   let low = 0;
   let medium = 0;
   let high = 0;
-  let unassessed = 0;
+  let unknown = 0;
 
-  data.forEach((elem) => {
-    switch (elem.risk) {
+  assessments?.forEach((assessment) => {
+    switch (assessment.risk) {
       case "green":
         low++;
         break;
@@ -41,48 +33,49 @@ const extractLandscapeData = (
       case "red":
         high++;
         break;
+      case "unknown":
+        unknown++;
+        break;
     }
   });
 
-  unassessed = totalApps - low - medium - high;
-  return { low, medium, high, unassessed };
+  return {
+    green: low,
+    yellow: medium,
+    red: high,
+    unknown,
+    unassessed: assessments.length - low - medium - high,
+    assessmentCount: assessments.length,
+  };
 };
 
 interface ILandscapeProps {
+  /**
+   * The selected questionnaire or `null` if _all questionnaires_ is selected.
+   */
+  questionnaire: Questionnaire | null;
+
+  /**
+   * The set of assessments for the selected questionnaire.  Risk values will be
+   * aggregated from the individual assessment risks.
+   */
   assessments: Assessment[];
 }
 
-export const Landscape: React.FC<ILandscapeProps> = ({ assessments }) => {
+export const Landscape: React.FC<ILandscapeProps> = ({
+  questionnaire,
+  assessments,
+}) => {
   const { t } = useTranslation();
 
-  // Context
-  const { allItems: applications } = useContext(ApplicationSelectionContext);
-
-  const {
-    risks: assessmentRisks,
-    isFetching,
-    error: fetchError,
-  } = useFetchRisks(applications.map((app) => app.id!));
-
-  const landscapeData = useMemo(() => {
-    if (applications.length > 0 && assessmentRisks) {
-      return extractLandscapeData(applications.length, assessmentRisks);
-    } else {
-      return undefined;
-    }
-  }, [applications, assessmentRisks]);
-
-  if (fetchError) {
-    return <StateError />;
-  }
-
-  if (!isFetching && !landscapeData) {
-    return <NoApplicationSelectedEmptyState />;
-  }
+  const landscapeData = useMemo(
+    () => aggregateRiskData(assessments),
+    [assessments]
+  );
 
   return (
     <ConditionalRender
-      when={isFetching}
+      when={!questionnaire && !assessments}
       then={
         <div style={{ height: 200, width: 400 }}>
           <Skeleton height="75%" width="100%" />
@@ -90,44 +83,52 @@ export const Landscape: React.FC<ILandscapeProps> = ({ assessments }) => {
       }
     >
       {landscapeData && (
-        <Split hasGutter>
-          <SplitItem>
+        <Flex
+          justifyContent={{ default: "justifyContentSpaceAround" }}
+          spaceItems={{ default: "spaceItemsNone" }}
+          gap={{ default: "gapMd" }}
+        >
+          <FlexItem>
             <Donut
-              value={landscapeData.high}
-              total={applications.length}
-              color={RISK_LIST["red"].hexColor}
+              id="landscape-donut-red"
+              value={landscapeData.red}
+              total={landscapeData.assessmentCount}
+              color={RISK_LIST.red.hexColor}
               riskLabel={t("colors.red")}
-              // riskDescription={}
+              riskDescription={questionnaire?.riskMessages?.red ?? ""}
             />
-          </SplitItem>
-          <SplitItem>
+          </FlexItem>
+          <FlexItem>
             <Donut
-              value={landscapeData.medium}
-              total={applications.length}
-              color={RISK_LIST["yellow"].hexColor}
+              id="landscape-donut-yellow"
+              value={landscapeData.yellow}
+              total={landscapeData.assessmentCount}
+              color={RISK_LIST.yellow.hexColor}
               riskLabel={t("colors.yellow")}
-              // riskDescription={}
+              riskDescription={questionnaire?.riskMessages?.yellow ?? ""}
             />
-          </SplitItem>
-          <SplitItem>
+          </FlexItem>
+          <FlexItem>
             <Donut
-              value={landscapeData.high}
-              total={applications.length}
-              color={RISK_LIST["green"].hexColor}
+              id="landscape-donut-green"
+              value={landscapeData.green}
+              total={landscapeData.assessmentCount}
+              color={RISK_LIST.green.hexColor}
               riskLabel={t("colors.green")}
-              // riskDescription={}
+              riskDescription={questionnaire?.riskMessages?.green ?? ""}
             />
-          </SplitItem>
-          <SplitItem>
+          </FlexItem>
+          <FlexItem>
             <Donut
+              id="landscape-donut-unassessed"
               value={landscapeData.unassessed}
-              total={applications.length}
-              color={RISK_LIST["unknown"].hexColor}
+              total={landscapeData.assessmentCount}
+              color={RISK_LIST.unknown.hexColor}
               riskLabel={`${t("terms.unassessed")}/${t("terms.unknown")}`}
-              // riskDescription={}
+              riskDescription={questionnaire?.riskMessages?.unknown ?? ""}
             />
-          </SplitItem>
-        </Split>
+          </FlexItem>
+        </Flex>
       )}
     </ConditionalRender>
   );
