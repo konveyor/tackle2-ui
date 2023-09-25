@@ -283,7 +283,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const isModeValid = applications.every((app) => isModeSupported(app, mode));
 
   const handleCancel = () => {
-    console.log("handleCancel");
     if (taskGroup && taskGroup.id) {
       deleteTaskgroup(taskGroup.id);
     }
