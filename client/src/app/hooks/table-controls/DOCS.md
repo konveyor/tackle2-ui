@@ -156,7 +156,6 @@ The usage is similar here, but some arguments are no longer required (like `getS
 Note also: the destructuring and rendering part of the example code is not included here because **_it is identical to the example above_**. The only difference between client-paginated and server-paginated tables is the hook usage; the `tableControls` object and its usage are the same for both.
 
 ```tsx
-// In a real table, this API data would come from a useQuery call.
 const tableControlState = useTableControlState({
   columnNames: {
     name: "Name",
