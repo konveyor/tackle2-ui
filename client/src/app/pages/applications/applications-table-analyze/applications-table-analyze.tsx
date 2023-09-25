@@ -74,7 +74,7 @@ import { useFetchTagCategories } from "@app/queries/tags";
 
 // Relative components
 import { ApplicationBusinessService } from "../components/application-business-service";
-import { ApplicationDetailDrawerAssessment } from "../components/application-detail-drawer";
+import { ApplicationDetailDrawerAnalysis } from "../components/application-detail-drawer";
 import { ApplicationForm } from "../components/application-form";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import { ImportApplicationsForm } from "../components/import-applications-form";
@@ -550,7 +550,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
             <ToolbarItem {...paginationToolbarItemProps}>
               <SimplePagination
-                idPrefix="s-table"
+                idPrefix="app-analysis-table"
                 isTop
                 paginationProps={paginationProps}
               />
@@ -585,7 +585,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
             }
             numRenderedColumns={numRenderedColumns}
           >
-            <Tbody style={{ cursor: "pointer" }}>
+            <Tbody>
               {currentPageItems.map((application, rowIndex) => (
                 <Tr
                   key={application.id}
@@ -748,12 +748,13 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           </ConditionalTableBody>
         </Table>
         <SimplePagination
-          idPrefix="app-assessments-table"
+          idPrefix="app-analysis-table"
           isTop={false}
           paginationProps={paginationProps}
         />
-        <ApplicationDetailDrawerAssessment
+        <ApplicationDetailDrawerAnalysis
           application={activeRowItem}
+          applications={applications}
           onCloseClick={clearActiveRow}
           task={activeRowItem ? getTask(activeRowItem) : null}
         />
