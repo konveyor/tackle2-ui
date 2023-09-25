@@ -6,6 +6,14 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import App from "@app/App";
 import reportWebVitals from "@app/reportWebVitals";
 import { KeycloakProvider } from "@app/components/KeycloakProvider";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(customParseFormat);
 
 if (process.env.NODE_ENV === "development") {
   import("./mocks/browser").then((browserMocks) => {

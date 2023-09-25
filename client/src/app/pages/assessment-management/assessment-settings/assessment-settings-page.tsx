@@ -8,6 +8,7 @@ import {
   EmptyState,
   EmptyStateBody,
   EmptyStateIcon,
+  List,
   MenuToggle,
   MenuToggleElement,
   Modal,
@@ -51,7 +52,10 @@ import { useHistory } from "react-router-dom";
 import { Paths } from "@app/Paths";
 import { ImportQuestionnaireForm } from "@app/pages/assessment-management/import-questionnaire-form/import-questionnaire-form";
 import ConfirmDeleteDialog from "@app/components/ConfirmDeleteDialog/ConfirmDeleteDialog";
-import { ExportQuestionnaireDropdownItem } from "./ExportQuestionnaireDropdownItem";
+import { ExportQuestionnaireDropdownItem } from "./components/export-questionnaire-dropdown-item";
+import dayjs from "dayjs";
+import { QuestionnaireQuestionsColumn } from "./components/questionnaire-questions-column";
+import { QuestionnaireThresholdsColumn } from "./components/questionnaire-thresholds-column";
 
 const AssessmentSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -108,7 +112,7 @@ const AssessmentSettings: React.FC = () => {
       name: "Name",
       questions: "Questions",
       rating: "Rating",
-      dateImported: "Date imported",
+      createTime: "Date imported",
     },
     isSelectable: false,
     expandableVariant: null,
@@ -127,10 +131,10 @@ const AssessmentSettings: React.FC = () => {
         },
       },
     ],
-    sortableColumns: ["name", "dateImported"],
+    sortableColumns: ["name", "createTime"],
     getSortValues: (questionnaire) => ({
       name: questionnaire.name || "",
-      dateImported: questionnaire.dateImported || "",
+      createTime: questionnaire.createTime || "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
     hasPagination: true,
@@ -225,7 +229,7 @@ const AssessmentSettings: React.FC = () => {
                     <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "questions" })} />
                     <Th {...getThProps({ columnKey: "rating" })} />
-                    <Th {...getThProps({ columnKey: "dateImported" })} />
+                    <Th {...getThProps({ columnKey: "createTime" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -247,6 +251,10 @@ const AssessmentSettings: React.FC = () => {
                 numRenderedColumns={numRenderedColumns}
               >
                 {currentPageItems?.map((questionnaire, rowIndex) => {
+                  const formattedDate = dayjs(questionnaire.createTime)
+                    .utc()
+                    .format("YYYY-MM-DD HH:mm:ss");
+
                   return (
                     <Tbody key={questionnaire.id}>
                       <Tr>
@@ -283,19 +291,25 @@ const AssessmentSettings: React.FC = () => {
                             width={10}
                             {...getTdProps({ columnKey: "questions" })}
                           >
-                            {questionnaire.questions}
+                            <QuestionnaireQuestionsColumn
+                              questionnaire={questionnaire}
+                            />
                           </Td>
                           <Td
                             width={15}
                             {...getTdProps({ columnKey: "rating" })}
                           >
-                            {questionnaire.rating}
+                            <List isPlain>
+                              <QuestionnaireThresholdsColumn
+                                questionnaire={questionnaire}
+                              />
+                            </List>
                           </Td>
                           <Td
                             width={25}
-                            {...getTdProps({ columnKey: "dateImported" })}
+                            {...getTdProps({ columnKey: "createTime" })}
                           >
-                            {questionnaire.dateImported}
+                            {formattedDate}
                           </Td>
                           <Td width={10}>
                             <Dropdown

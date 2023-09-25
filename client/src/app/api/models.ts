@@ -646,7 +646,7 @@ export interface Questionnaire {
   revision: number;
   questions: number;
   rating: string;
-  dateImported: string;
+  createTime: string;
   required: boolean;
   system: boolean;
   sections: Section[];
@@ -687,10 +687,12 @@ export interface Answer {
   selected?: boolean;
 }
 export interface Thresholds {
-  red: number;
-  unknown: number;
-  yellow: number;
+  red?: number;
+  unknown?: number;
+  yellow?: number;
+  green?: number;
 }
+
 export type AssessmentStatus = "empty" | "started" | "complete";
 export type Risk = "green" | "yellow" | "red" | "unknown";
 
