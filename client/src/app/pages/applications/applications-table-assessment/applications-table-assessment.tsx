@@ -244,6 +244,12 @@ export const ApplicationsTable: React.FC = () => {
     },
     sortableColumns: ["name", "description", "businessService", "tags"],
     initialSort: { columnKey: "name", direction: "asc" },
+    getSortValues: (app) => ({
+      name: app.name,
+      description: app.description || "",
+      businessService: app.businessService?.name || "",
+      tags: app.tags?.length || 0,
+    }),
     filterCategories: [
       {
         key: "name",
@@ -576,7 +582,7 @@ export const ApplicationsTable: React.FC = () => {
             </ToolbarItem>
           </ToolbarContent>
         </Toolbar>
-        <Table {...tableProps} isExpandable aria-label="App assessments table">
+        <Table {...tableProps} aria-label="App assessments table">
           <Thead>
             <Tr>
               <TableHeaderContentWithControls {...tableControls}>
@@ -586,6 +592,7 @@ export const ApplicationsTable: React.FC = () => {
                 <Th {...getThProps({ columnKey: "assessment" })} />
                 <Th {...getThProps({ columnKey: "review" })} />
                 <Th {...getThProps({ columnKey: "tags" })} />
+                <Th />
               </TableHeaderContentWithControls>
             </Tr>
           </Thead>
