@@ -295,6 +295,9 @@ const Archetypes: React.FC = () => {
                                 title: t("actions.assess"),
                                 onClick: () =>
                                   assessSelectedArchetype(archetype),
+                                isDisabled:
+                                  !archetype.applications ||
+                                  archetype.applications.length === 0,
                               },
                               {
                                 title: t("actions.review"),
@@ -304,6 +307,9 @@ const Archetypes: React.FC = () => {
                                       archetypeId: archetype.id,
                                     })
                                   ),
+                                isDisabled:
+                                  !archetype.applications ||
+                                  archetype.applications.length === 0,
                               },
                               {
                                 title: t("actions.edit"),
