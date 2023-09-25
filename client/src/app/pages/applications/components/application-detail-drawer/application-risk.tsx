@@ -30,7 +30,7 @@ export const ApplicationRisk: React.FC<IApplicationRiskProps> = ({
   if (!assessments || assessments.length === 0) {
     return (
       <>
-        <RiskLabel risk={"unknown"} />;
+        <RiskLabel risk={"unknown"} />
         {isFetchingAssessmentsById && <Spinner />}
       </>
     );

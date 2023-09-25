@@ -26,6 +26,7 @@ import {
   Th,
   Td,
   ActionsColumn,
+  Tbody,
 } from "@patternfly/react-table";
 
 // @app components and utilities
@@ -575,7 +576,7 @@ export const ApplicationsTable: React.FC = () => {
 
             <ToolbarItem {...paginationToolbarItemProps}>
               <SimplePagination
-                idPrefix="s-table"
+                idPrefix="app-assessments-table"
                 isTop
                 paginationProps={paginationProps}
               />
@@ -611,115 +612,120 @@ export const ApplicationsTable: React.FC = () => {
             }
             numRenderedColumns={numRenderedColumns}
           >
-            {currentPageItems?.map((application, rowIndex) => {
-              return (
-                <Tr
-                  style={{ cursor: "pointer" }}
-                  key={application.name}
-                  {...getClickableTrProps({ item: application })}
-                >
-                  <TableRowContentWithControls
-                    {...tableControls}
-                    item={application}
-                    rowIndex={rowIndex}
+            <Tbody>
+              {currentPageItems?.map((application, rowIndex) => {
+                return (
+                  <Tr
+                    key={application.name}
+                    {...getClickableTrProps({ item: application })}
                   >
-                    <Td
-                      width={20}
-                      {...getTdProps({ columnKey: "name" })}
-                      modifier="truncate"
+                    <TableRowContentWithControls
+                      {...tableControls}
+                      item={application}
+                      rowIndex={rowIndex}
                     >
-                      {application.name}
-                    </Td>
-                    <Td
-                      width={25}
-                      {...getTdProps({ columnKey: "description" })}
-                      modifier="truncate"
-                    >
-                      {application.description}
-                    </Td>
-                    <Td
-                      width={10}
-                      modifier="truncate"
-                      {...getTdProps({ columnKey: "businessService" })}
-                    >
-                      {application.businessService && (
-                        <ApplicationBusinessService
-                          id={application.businessService.id}
+                      <Td
+                        width={20}
+                        {...getTdProps({ columnKey: "name" })}
+                        modifier="truncate"
+                      >
+                        {application.name}
+                      </Td>
+                      <Td
+                        width={25}
+                        {...getTdProps({ columnKey: "description" })}
+                        modifier="truncate"
+                      >
+                        {application.description}
+                      </Td>
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "businessService" })}
+                      >
+                        {application.businessService && (
+                          <ApplicationBusinessService
+                            id={application.businessService.id}
+                          />
+                        )}
+                      </Td>
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "assessment" })}
+                      >
+                        <ApplicationAssessmentStatus
+                          assessments={application.assessments}
                         />
-                      )}
-                    </Td>
-                    <Td
-                      width={10}
-                      modifier="truncate"
-                      {...getTdProps({ columnKey: "assessment" })}
-                    >
-                      <ApplicationAssessmentStatus
-                        assessments={application.assessments}
-                      />
-                    </Td>
-                    <Td
-                      width={10}
-                      modifier="truncate"
-                      {...getTdProps({ columnKey: "review" })}
-                    >
-                      <IconedStatus
-                        preset={application.review ? "Completed" : "NotStarted"}
-                      />
-                    </Td>
-                    <Td
-                      width={10}
-                      modifier="truncate"
-                      {...getTdProps({ columnKey: "tags" })}
-                    >
-                      <TagIcon />
-                      {application.tags ? application.tags.length : 0}
-                    </Td>
-                    <Td isActionCell id="pencil-action">
-                      <Button
-                        variant="plain"
-                        icon={<PencilAltIcon />}
-                        onClick={() =>
-                          setSaveApplicationModalState(application)
-                        }
-                      />
-                    </Td>
-                    <Td isActionCell id="row-actions">
-                      <ActionsColumn
-                        items={[
-                          {
-                            title: t("actions.assess"),
-                            onClick: () => assessSelectedApp(application),
-                          },
-                          {
-                            title: t("actions.review"),
-                            onClick: () => reviewSelectedApp(application),
-                          },
-                          ...(application?.review
-                            ? [
-                                {
-                                  title: t("actions.discardAssessment"),
-                                  onClick: () =>
-                                    setAssessmentOrReviewToDiscard(application),
-                                },
-                              ]
-                            : []),
-                          {
-                            title: t("actions.delete"),
-                            onClick: () =>
-                              setApplicationsToDelete([application]),
-                          },
-                          {
-                            title: t("actions.manageDependencies"),
-                            onClick: () =>
-                              setApplicationDependenciesToManage(application),
-                          },
-                        ]}
-                      />
-                    </Td>
-                  </TableRowContentWithControls>
-                </Tr>
-              );
-            })}
+                      </Td>
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "review" })}
+                      >
+                        <IconedStatus
+                          preset={
+                            application.review ? "Completed" : "NotStarted"
+                          }
+                        />
+                      </Td>
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "tags" })}
+                      >
+                        <TagIcon />
+                        {application.tags ? application.tags.length : 0}
+                      </Td>
+                      <Td isActionCell id="pencil-action">
+                        <Button
+                          variant="plain"
+                          icon={<PencilAltIcon />}
+                          onClick={() =>
+                            setSaveApplicationModalState(application)
+                          }
+                        />
+                      </Td>
+                      <Td isActionCell id="row-actions">
+                        <ActionsColumn
+                          items={[
+                            {
+                              title: t("actions.assess"),
+                              onClick: () => assessSelectedApp(application),
+                            },
+                            {
+                              title: t("actions.review"),
+                              onClick: () => reviewSelectedApp(application),
+                            },
+                            ...(application?.review
+                              ? [
+                                  {
+                                    title: t("actions.discardAssessment"),
+                                    onClick: () =>
+                                      setAssessmentOrReviewToDiscard(
+                                        application
+                                      ),
+                                  },
+                                ]
+                              : []),
+                            {
+                              title: t("actions.delete"),
+                              onClick: () =>
+                                setApplicationsToDelete([application]),
+                            },
+                            {
+                              title: t("actions.manageDependencies"),
+                              onClick: () =>
+                                setApplicationDependenciesToManage(application),
+                            },
+                          ]}
+                        />
+                      </Td>
+                    </TableRowContentWithControls>
+                  </Tr>
+                );
+              })}
+            </Tbody>
           </ConditionalTableBody>
         </Table>
         <SimplePagination
