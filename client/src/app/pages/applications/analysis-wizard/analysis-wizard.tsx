@@ -1,11 +1,15 @@
 import * as React from "react";
 import { useIsMutating } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
-import { Truncate } from "@patternfly/react-core";
 import {
+  Modal,
+  ModalVariant,
   Wizard,
-  WizardStepFunctionType,
-} from "@patternfly/react-core/deprecated";
+  WizardStep,
+  WizardStepType,
+  WizardHeader,
+  Truncate,
+} from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -297,10 +301,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     onClose();
   };
 
-  const onMove: WizardStepFunctionType = (
-    { id, name },
-    { prevId, prevName }
-  ) => {
+  const onMove = (current: WizardStepType) => {
+    const id = current.id;
     if (id && stepIdReached < (id as number)) setStepIdReached(id as number);
     if (id === StepId.SetTargets) {
       if (!taskGroup) {
@@ -311,93 +313,116 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const analyzableApplications = useAnalyzableApplications(applications, mode);
 
-  const getStepNavProps = (stepId: StepId, forceBlock = false) => ({
-    enableNext:
-      !forceBlock &&
-      stepIdReached >= stepId &&
-      (firstInvalidStep === null || firstInvalidStep >= stepId + 1),
-    canJumpTo:
-      !forceBlock &&
-      stepIdReached >= stepId &&
-      (firstInvalidStep === null || firstInvalidStep >= stepId),
-  });
+  const isStepEnabled = (stepId: StepId) => {
+    return (
+      stepIdReached + 1 >= stepId &&
+      (firstInvalidStep === null || firstInvalidStep >= stepId)
+    );
+  };
 
   const steps = [
-    {
-      name: t("wizard.terms.configureAnalysis"),
-      steps: [
-        {
-          id: StepId.AnalysisMode,
-          name: t("wizard.terms.analysisMode"),
-          component: (
+    <WizardStep
+      name={t("wizard.terms.configureAnalysis")}
+      id="wizard-configureAnalysis"
+      steps={[
+        <WizardStep
+          id={StepId.AnalysisMode}
+          name={t("wizard.terms.analysisMode")}
+          isDisabled={!isStepEnabled(StepId.AnalysisMode)}
+          footer={{
+            isNextDisabled:
+              !isMutating && !isStepEnabled(StepId.AnalysisMode + 1),
+          }}
+        >
+          <>
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
               isModeValid={isModeValid}
             />
-          ),
-          ...getStepNavProps(StepId.AnalysisMode, !!isMutating),
-        },
-        {
-          id: StepId.SetTargets,
-          name: t("wizard.terms.setTargets"),
-          component: <SetTargets />,
-          ...getStepNavProps(StepId.SetTargets),
-        },
-        {
-          id: StepId.Scope,
-          name: t("wizard.terms.scope"),
-          component: <SetScope />,
-          ...getStepNavProps(StepId.Scope),
-        },
-      ],
-    },
-    {
-      name: t("wizard.terms.advanced"),
-      steps: [
-        {
-          id: StepId.CustomRules,
-          name: t("wizard.terms.customRules"),
-          component: <CustomRules />,
-          ...getStepNavProps(StepId.CustomRules),
-        },
-        {
-          id: StepId.Options,
-          name: t("wizard.terms.options"),
-          component: <SetOptions />,
-          ...getStepNavProps(StepId.Options),
-        },
-      ],
-    },
-    {
-      id: StepId.Review,
-      name: t("wizard.terms.review"),
-      component: <Review applications={applications} mode={mode} />,
-      nextButtonText: "Run",
-      ...getStepNavProps(StepId.Review),
-    },
+          </>
+        </WizardStep>,
+        <WizardStep
+          id={StepId.SetTargets}
+          name={t("wizard.terms.setTargets")}
+          isDisabled={!isStepEnabled(StepId.SetTargets)}
+          footer={{ isNextDisabled: !isStepEnabled(StepId.SetTargets + 1) }}
+        >
+          <SetTargets />
+        </WizardStep>,
+        <WizardStep
+          id={StepId.Scope}
+          name={t("wizard.terms.scope")}
+          isDisabled={!isStepEnabled(StepId.Scope)}
+          footer={{ isNextDisabled: !isStepEnabled(StepId.Scope + 1) }}
+        >
+          <SetScope />
+        </WizardStep>,
+      ]}
+    ></WizardStep>,
+    <WizardStep
+      name={t("wizard.terms.advanced")}
+      id="wizard-advanced"
+      steps={[
+        <WizardStep
+          id={StepId.CustomRules}
+          name={t("wizard.terms.customRules")}
+          isDisabled={!isStepEnabled(StepId.CustomRules)}
+          footer={{ isNextDisabled: !isStepEnabled(StepId.CustomRules + 1) }}
+        >
+          <CustomRules />
+        </WizardStep>,
+        <WizardStep
+          id={StepId.Options}
+          name={t("wizard.terms.options")}
+          isDisabled={!isStepEnabled(StepId.Options)}
+          footer={{ isNextDisabled: !isStepEnabled(StepId.Options + 1) }}
+        >
+          <SetOptions />
+        </WizardStep>,
+      ]}
+    ></WizardStep>,
+    <WizardStep
+      name={t("wizard.terms.review")}
+      id={StepId.Review}
+      isDisabled={!isStepEnabled(StepId.Review)}
+    >
+      <Review applications={applications} mode={mode} />
+    </WizardStep>,
   ];
+
   return (
     <>
       {isOpen && (
         <FormProvider {...methods}>
-          <Wizard
+          <Modal
             isOpen={isOpen}
-            title="Application analysis"
-            description={
-              <Truncate
-                content={applications.map((app) => app.name).join(", ")}
-              />
-            }
-            navAriaLabel={`${title} steps`}
-            mainAriaLabel={`${title} content`}
-            steps={steps}
-            onNext={onMove}
-            onBack={onMove}
-            onSave={handleSubmit(onSubmit)}
-            onClose={() => {
-              handleCancel();
-            }}
-          />
+            showClose={false}
+            aria-label="Application analysis wizard modal"
+            hasNoBodyWrapper
+            onEscapePress={handleCancel}
+            variant={ModalVariant.large}
+          >
+            <Wizard
+              onClose={handleCancel}
+              onSave={handleSubmit(onSubmit)}
+              onStepChange={(_event, currentStep: WizardStepType) =>
+                onMove(currentStep)
+              }
+              header={
+                <WizardHeader
+                  onClose={handleCancel}
+                  title="Application analysis"
+                  description={
+                    <Truncate
+                      content={applications.map((app) => app.name).join(", ")}
+                    />
+                  }
+                />
+              }
+            >
+              {steps}
+            </Wizard>
+          </Modal>
         </FormProvider>
       )}
     </>
