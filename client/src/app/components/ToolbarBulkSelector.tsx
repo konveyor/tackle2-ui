@@ -137,7 +137,7 @@ export const ToolbarBulkSelector = <T,>({
                   />,
                 ],
               }}
-            ></MenuToggle>
+            />
           )}
         >
           <DropdownList>{dropdownItems}</DropdownList>
