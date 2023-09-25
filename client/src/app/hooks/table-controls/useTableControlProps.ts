@@ -17,7 +17,7 @@ export const useTableControlProps = <
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
-  TFilterCategoryKey extends string = string
+  TFilterCategoryKey extends string = string,
 >(
   args: IUseTableControlPropsArgs<
     TItem,
@@ -102,6 +102,7 @@ export const useTableControlProps = <
 
   const tableProps: Omit<TableProps, "ref"> = {
     variant,
+    isExpandable: !!expandableVariant,
   };
 
   const getThProps = ({
