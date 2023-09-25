@@ -22,8 +22,6 @@ import {
   useUpdateMigrationWaveMutation,
 } from "@app/queries/migration-waves";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import customParseFormat from "dayjs/plugin/customParseFormat";
 import {
   Stakeholder,
   StakeholderGroup,
@@ -37,8 +35,6 @@ import {
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-dayjs.extend(utc);
-dayjs.extend(customParseFormat);
 
 const stakeholderGroupToOption = (
   value: StakeholderGroup
