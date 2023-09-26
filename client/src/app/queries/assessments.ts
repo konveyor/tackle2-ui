@@ -129,10 +129,10 @@ export const useFetchAssessmentsByItemId = (
   itemId?: number | string
 ) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: [assessmentsByItemIdQueryKey, itemId],
+    queryKey: [assessmentsByItemIdQueryKey, itemId, isArchetype],
     queryFn: () => getAssessmentsByItemId(isArchetype, itemId),
     onError: (error: AxiosError) => console.log("error, ", error),
-    onSuccess: (data) => {},
+    onSuccess: (_data) => {},
     enabled: !!itemId,
   });
 
