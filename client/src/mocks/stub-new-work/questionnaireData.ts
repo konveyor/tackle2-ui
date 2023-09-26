@@ -10,7 +10,7 @@ const questionnaireData: Record<number, Questionnaire> = {
     revision: 1,
     questions: 42,
     rating: "5% Red, 25% Yellow",
-    dateImported: "8 Aug. 2023, 10:20 AM EST",
+    createTime: "8 Aug. 2023, 10:20 AM EST",
     required: false,
     system: true,
     sections: [
@@ -189,7 +189,7 @@ const questionnaireData: Record<number, Questionnaire> = {
     revision: 1,
     questions: 24,
     rating: "15% Red, 35% Yellow",
-    dateImported: "9 Aug. 2023, 03:32 PM EST",
+    createTime: "9 Aug. 2023, 03:32 PM EST",
     required: true,
     system: false,
     sections: [
@@ -369,7 +369,7 @@ const questionnaireData: Record<number, Questionnaire> = {
     revision: 1,
     questions: 34,
     rating: "7% Red, 25% Yellow",
-    dateImported: "10 Aug. 2023, 11:23 PM EST",
+    createTime: "10 Aug. 2023, 11:23 PM EST",
     required: true,
     system: false,
     sections: [

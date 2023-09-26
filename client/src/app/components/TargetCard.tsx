@@ -6,6 +6,7 @@ import {
   EmptyStateVariant,
   Card,
   CardBody,
+  DropdownItem,
   Text,
   Flex,
   FlexItem,
@@ -17,7 +18,6 @@ import {
   PanelMainBody,
   Panel,
 } from "@patternfly/react-core";
-import { DropdownItem } from "@patternfly/react-core/deprecated";
 import {
   Select,
   SelectOption,
