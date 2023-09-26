@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import {
   Dropdown,
   DropdownItem,
-  DropdownToggle,
-} from "@patternfly/react-core/deprecated";
-import CaretDownIcon from "@patternfly/react-icons/dist/esm/icons/caret-down-icon";
+  DropdownList,
+  MenuToggle,
+} from "@patternfly/react-core";
 
 export interface MenuActionsProps {
   actions: { label: string; callback: () => void }[];
@@ -17,23 +17,26 @@ export const MenuActions: React.FC<MenuActionsProps> = ({ actions }) => {
     <Dropdown
       isOpen={isOpen}
       onSelect={() => {
-        setIsOpen(!isOpen);
+        setIsOpen(false);
       }}
-      toggle={
-        <DropdownToggle
-          onToggle={(_, isOpen) => {
-            setIsOpen(isOpen);
-          }}
-          toggleIndicator={CaretDownIcon}
+      toggle={(toggleRef) => (
+        <MenuToggle
+          ref={toggleRef}
+          onClick={() => setIsOpen(!isOpen)}
+          isExpanded={isOpen}
         >
           Actions
-        </DropdownToggle>
-      }
-      dropdownItems={actions.map((element, index) => (
-        <DropdownItem key={index} component="button" onClick={element.callback}>
-          {element.label}
-        </DropdownItem>
-      ))}
-    />
+        </MenuToggle>
+      )}
+      shouldFocusToggleOnSelect
+    >
+      <DropdownList>
+        {actions.map((item, index) => (
+          <DropdownItem key={index} onClick={item.callback}>
+            {item.label}
+          </DropdownItem>
+        ))}
+      </DropdownList>
+    </Dropdown>
   );
 };

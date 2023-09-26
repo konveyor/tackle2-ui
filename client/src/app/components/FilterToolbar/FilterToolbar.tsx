@@ -1,15 +1,14 @@
 import * as React from "react";
 import {
+  Dropdown,
+  DropdownItem,
+  DropdownGroup,
+  DropdownList,
+  MenuToggle,
   SelectOptionProps,
   ToolbarToggleGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import {
-  Dropdown,
-  DropdownItem,
-  DropdownGroup,
-  DropdownToggle,
-} from "@patternfly/react-core/deprecated";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 
 import { FilterControl } from "./FilterControl";
@@ -29,7 +28,7 @@ export interface OptionPropsWithKey extends SelectOptionProps {
 
 export interface IBasicFilterCategory<
   TItem, // The actual API objects we're filtering
-  TFilterCategoryKey extends string // Unique identifiers for each filter category (inferred from key properties if possible)
+  TFilterCategoryKey extends string, // Unique identifiers for each filter category (inferred from key properties if possible)
 > {
   key: TFilterCategoryKey; // For use in the filterValues state object. Must be unique per category.
   title: string;
@@ -42,7 +41,7 @@ export interface IBasicFilterCategory<
 
 export interface IMultiselectFilterCategory<
   TItem,
-  TFilterCategoryKey extends string
+  TFilterCategoryKey extends string,
 > extends IBasicFilterCategory<TItem, TFilterCategoryKey> {
   selectOptions: OptionPropsWithKey[];
   placeholderText?: string;
@@ -70,7 +69,7 @@ export type IFilterValues<TFilterCategoryKey extends string> = Partial<
 
 export const getFilterLogicOperator = <
   TItem,
-  TFilterCategoryKey extends string
+  TFilterCategoryKey extends string,
 >(
   filterCategory?: FilterCategory<TItem, TFilterCategoryKey>,
   defaultOperator: "AND" | "OR" = "OR"
@@ -131,24 +130,26 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
   );
 
   const renderDropdownItems = () => {
-    if (!!filterGroups.length) {
+    if (filterGroups.length) {
       return filterGroups.map((filterGroup) => (
         <DropdownGroup label={filterGroup} key={filterGroup}>
-          {filterCategories
-            .filter(
-              (filterCategory) => filterCategory.filterGroup === filterGroup
-            )
-            .map((filterCategory) => {
-              return (
-                <DropdownItem
-                  id={`filter-category-${filterCategory.key}`}
-                  key={filterCategory.key}
-                  onClick={() => onCategorySelect(filterCategory)}
-                >
-                  {filterCategory.title}
-                </DropdownItem>
-              );
-            })}
+          <DropdownList>
+            {filterCategories
+              .filter(
+                (filterCategory) => filterCategory.filterGroup === filterGroup
+              )
+              .map((filterCategory) => {
+                return (
+                  <DropdownItem
+                    id={`filter-category-${filterCategory.key}`}
+                    key={filterCategory.key}
+                    onClick={() => onCategorySelect(filterCategory)}
+                  >
+                    {filterCategory.title}
+                  </DropdownItem>
+                );
+              })}
+          </DropdownList>
         </DropdownGroup>
       ));
     } else {
@@ -177,21 +178,22 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
         {!showFiltersSideBySide && (
           <ToolbarItem>
             <Dropdown
-              isGrouped={!!filterGroups.length}
-              toggle={
-                <DropdownToggle
+              toggle={(toggleRef) => (
+                <MenuToggle
                   id="filtered-by"
-                  onToggle={() =>
+                  ref={toggleRef}
+                  onClick={() =>
                     setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
                   }
                   isDisabled={isDisabled}
                 >
                   <FilterIcon /> {currentFilterCategory?.title}
-                </DropdownToggle>
-              }
+                </MenuToggle>
+              )}
               isOpen={isCategoryDropdownOpen}
-              dropdownItems={renderDropdownItems()}
-            />
+            >
+              {renderDropdownItems()}
+            </Dropdown>
           </ToolbarItem>
         )}
 

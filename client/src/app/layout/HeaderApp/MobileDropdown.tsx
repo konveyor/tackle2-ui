@@ -1,22 +1,11 @@
 import React, { useState } from "react";
-import {
-  Dropdown,
-  DropdownItem,
-  KebabToggle,
-} from "@patternfly/react-core/deprecated";
+import { DropdownItem } from "@patternfly/react-core";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
-import { AppAboutModal } from "../AppAboutModal";
+import { KebabDropdown } from "@app/components/KebabDropdown";
+import { AppAboutModal } from "@app/layout/AppAboutModal";
 
 export const MobileDropdown: React.FC = () => {
-  const [isKebabDropdownOpen, setIsKebabDropdownOpen] = useState(false);
   const [isAboutModalOpen, setAboutModalOpen] = useState(false);
-
-  const onKebabDropdownToggle = (isOpen: boolean) =>
-    setIsKebabDropdownOpen(isOpen);
-
-  const onKebabDropdownSelect = () => {
-    setIsKebabDropdownOpen((current) => !current);
-  };
 
   const toggleAboutModal = () => {
     setAboutModalOpen((current) => !current);
@@ -24,16 +13,8 @@ export const MobileDropdown: React.FC = () => {
 
   return (
     <>
-      <Dropdown
-        isPlain
-        position="right"
-        onSelect={onKebabDropdownSelect}
-        toggle={
-          <KebabToggle
-            onToggle={(_, isOpen) => onKebabDropdownToggle(isOpen)}
-          />
-        }
-        isOpen={isKebabDropdownOpen}
+      <KebabDropdown
+        ariaLabel="mobile dropdown"
         dropdownItems={[
           <DropdownItem key="about" onClick={toggleAboutModal}>
             <HelpIcon />

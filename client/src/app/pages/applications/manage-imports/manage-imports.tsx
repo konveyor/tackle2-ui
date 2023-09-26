@@ -4,13 +4,13 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  DropdownItem,
   Modal,
   PageSection,
   Popover,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { DropdownItem } from "@patternfly/react-core/deprecated";
 import {
   cellWidth,
   IAction,
@@ -350,12 +350,10 @@ export const ManageImports: React.FC = () => {
                       dropdownItems={[
                         <DropdownItem
                           key="download-csv-template"
-                          component={
-                            <a href="/template_application_import.csv" download>
-                              {t("actions.downloadCsvTemplate")}
-                            </a>
-                          }
-                        />,
+                          to="/template_application_import.csv"
+                        >
+                          {t("actions.downloadCsvTemplate")}
+                        </DropdownItem>,
                       ]}
                     />
                   </ToolbarItem>
