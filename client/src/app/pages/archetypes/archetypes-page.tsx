@@ -39,7 +39,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { useLocalTableControls } from "@app/hooks/table-controls";
+import { useLocalTableControlsWithUrlParams } from "@app/hooks/table-controls";
 import {
   useDeleteArchetypeMutation,
   useFetchArchetypes,
@@ -57,6 +57,7 @@ import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
 import { Paths } from "@app/Paths";
 import { SimplePagination } from "@app/components/SimplePagination";
+import { TableURLParamKeyPrefix } from "@app/Constants";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
@@ -96,7 +97,8 @@ const Archetypes: React.FC = () => {
     onError
   );
 
-  const tableControls = useLocalTableControls({
+  const tableControls = useLocalTableControlsWithUrlParams({
+    urlParamKeyPrefix: TableURLParamKeyPrefix.archetypes,
     idProperty: "id",
     items: archetypes,
     isLoading: isFetching,

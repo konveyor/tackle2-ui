@@ -242,4 +242,5 @@ export enum TableURLParamKeyPrefix {
   issuesAffectedFiles = "if",
   issuesRemainingIncidents = "ii",
   dependencyApplications = "da",
+  archetypes = "ar",
 }
