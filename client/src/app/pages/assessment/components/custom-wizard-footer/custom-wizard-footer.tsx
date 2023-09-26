@@ -13,6 +13,7 @@ export interface CustomWizardFooterProps {
   isDisabled: boolean;
   isFormInvalid: boolean;
   isArchetype?: boolean;
+  hasAnswers?: boolean;
   onSave: (review: boolean) => void;
   onSaveAsDraft: () => void;
 }
@@ -23,6 +24,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
   isDisabled,
   isFormInvalid,
   isArchetype,
+  hasAnswers,
   onSave,
   onSaveAsDraft,
 }) => {
@@ -84,7 +86,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
               <Button
                 variant="link"
                 onClick={onSaveAsDraft}
-                isDisabled={isFormInvalid}
+                isDisabled={isFormInvalid || isFirstStep || !hasAnswers}
                 cy-data="save-as-draft"
               >
                 {t("actions.saveAsDraft")}
