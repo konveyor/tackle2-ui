@@ -107,12 +107,14 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   }, []);
 
   const tagOptions =
-    tags?.map((tag) => {
-      return {
-        value: tag.name,
-        toString: () => tag.name,
-      };
-    }) || [];
+    tags
+      ?.filter((tag) => !tag.source)
+      .map((tag) => {
+        return {
+          value: tag.name,
+          toString: () => tag.name,
+        };
+      }) || [];
 
   const getBinaryInitialValue = (
     application: Application | null,
