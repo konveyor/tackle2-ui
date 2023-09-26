@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useKeycloak } from "@react-keycloak/web";
 import {
+  Dropdown,
+  MenuToggle,
   DropdownGroup,
   DropdownItem,
+  DropdownList,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Dropdown, DropdownToggle } from "@patternfly/react-core/deprecated";
 import { isAuthRequired, LocalStorageKey } from "@app/Constants";
 import { useHistory } from "react-router-dom";
 
@@ -35,19 +37,20 @@ export const SSOMenu: React.FC = () => {
         >
           <Dropdown
             isPlain
-            position="right"
             onSelect={onDropdownSelect}
             isOpen={isDropdownOpen}
-            toggle={
-              <DropdownToggle
+            toggle={(toggleRef) => (
+              <MenuToggle
+                ref={toggleRef}
                 id="sso-actions-toggle"
-                onToggle={(_, isOpen) => onDropdownToggle(isOpen)}
+                onClick={() => onDropdownToggle(!isDropdownOpen)}
               >
                 {(keycloak?.idTokenParsed as any)["preferred_username"]}
-              </DropdownToggle>
-            }
-            dropdownItems={[
-              <DropdownGroup key="sso">
+              </MenuToggle>
+            )}
+          >
+            <DropdownGroup key="sso">
+              <DropdownList>
                 <DropdownItem
                   id="manage-account"
                   key="sso_user_management"
@@ -79,9 +82,9 @@ export const SSOMenu: React.FC = () => {
                 >
                   {t("actions.logout")}
                 </DropdownItem>
-              </DropdownGroup>,
-            ]}
-          />
+              </DropdownList>
+            </DropdownGroup>
+          </Dropdown>
         </ToolbarItem>
       )}
     </>
