@@ -42,20 +42,12 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState(searchString);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
-  const [currentChips, setCurrentChips] = useState<Set<string>>(
-    new Set(selections)
-  );
   const [hint, setHint] = useState("");
   const [menuItems, setMenuItems] = useState<React.ReactElement[]>([]);
 
   /** refs used to detect when clicks occur inside vs outside of the textInputGroup and menu popper */
   const menuRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    onChange([...currentChips]);
-    buildMenu();
-  }, [currentChips]);
 
   React.useEffect(() => {
     buildMenu();
@@ -67,7 +59,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
       .filter(
         (item: string, index: number, arr: string[]) =>
           arr.indexOf(item) === index &&
-          !currentChips.has(item) &&
+          !selections.includes(item) &&
           (!inputValue || item.toLowerCase().includes(inputValue.toLowerCase()))
       )
       .map((currentValue, index) => (
@@ -129,9 +121,11 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
 
   /** callback for removing a chip from the chip selections */
   const deleteChip = (chipToDelete: string) => {
-    const newChips = new Set(currentChips);
+    const newChips = new Set(selections);
     newChips.delete(chipToDelete);
-    setCurrentChips(newChips);
+    // newChips.delete(chipToDelete);
+    onChange(Array.from(newChips));
+    // setCurrentChips(newChips);
   };
 
   /** add the given string as a chip in the chip group and clear the input */
@@ -145,7 +139,8 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
       }
       newChipText = matchingOption;
     }
-    setCurrentChips(new Set([...currentChips, newChipText]));
+    // setCurrentChips(new Set([...currentChips, newChipText]));
+    onChange(Array.from(new Set([...selections, newChipText])));
     setInputValue("");
     setMenuIsOpen(false);
   };
@@ -301,7 +296,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
       </FlexItem>
       <FlexItem key="chips">
         <Flex spaceItems={{ default: "spaceItemsXs" }}>
-          {Array.from(currentChips).map((currentChip) => (
+          {selections.map((currentChip) => (
             <FlexItem key={currentChip}>
               <Label color={labelColor} onClose={() => deleteChip(currentChip)}>
                 {currentChip}
