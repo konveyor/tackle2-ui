@@ -123,9 +123,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   const deleteChip = (chipToDelete: string) => {
     const newChips = new Set(selections);
     newChips.delete(chipToDelete);
-    // newChips.delete(chipToDelete);
     onChange(Array.from(newChips));
-    // setCurrentChips(newChips);
   };
 
   /** add the given string as a chip in the chip group and clear the input */
@@ -139,7 +137,6 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
       }
       newChipText = matchingOption;
     }
-    // setCurrentChips(new Set([...currentChips, newChipText]));
     onChange(Array.from(new Set([...selections, newChipText])));
     setInputValue("");
     setMenuIsOpen(false);
