@@ -8,7 +8,6 @@ import {
   Text,
 } from "@patternfly/react-core";
 import { BreadCrumbPath } from "./BreadCrumbPath";
-import { MenuActions } from "./MenuActions";
 import { HorizontalNav } from "./HorizontalNav";
 
 export interface PageHeaderProps {
@@ -16,7 +15,6 @@ export interface PageHeaderProps {
   description?: React.ReactNode;
   breadcrumbs: { title: string; path: string | (() => void) }[];
   btnActions?: React.ReactNode;
-  menuActions: { label: string; callback: () => void }[];
   navItems?: { title: string; path: string }[];
 }
 
@@ -25,7 +23,6 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   description,
   breadcrumbs,
   btnActions,
-  menuActions,
   navItems,
 }) => {
   return (
@@ -42,11 +39,6 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
             </TextContent>
           </SplitItem>
           {btnActions && <SplitItem>{btnActions}</SplitItem>}
-          {menuActions.length > 0 && (
-            <SplitItem>
-              <MenuActions actions={menuActions} />
-            </SplitItem>
-          )}
         </Split>
       </StackItem>
       {navItems && (
