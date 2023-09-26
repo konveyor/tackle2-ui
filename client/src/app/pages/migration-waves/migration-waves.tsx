@@ -33,8 +33,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosResponse } from "axios";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
 
@@ -69,9 +67,6 @@ import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
