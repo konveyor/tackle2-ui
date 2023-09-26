@@ -119,33 +119,32 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     buildMenu();
   };
 
-  /** callback for removing a chip from the chip selections */
-  const deleteChip = (chipToDelete: string) => {
-    const newChips = new Set(selections);
-    newChips.delete(chipToDelete);
-    onChange(Array.from(newChips));
+  /** callback for removing a selection */
+  const deleteSelection = (selectionToDelete: string) => {
+    onChange(selections.filter((s) => s !== selectionToDelete));
   };
 
-  /** add the given string as a chip in the chip group and clear the input */
-  const addChip = (newChipText: string) => {
+  /** add the given string as a selection */
+  const addSelection = (newSelectionText: string) => {
     if (!allowUserOptions) {
       const matchingOption = options.find(
-        (o) => o.toLowerCase() === (hint || newChipText).toLowerCase()
+        (o) => o.toLowerCase() === (hint || newSelectionText).toLowerCase()
       );
-      if (!matchingOption) {
+      console.log({ matchingOption, newSelectionText, options });
+      if (!matchingOption || selections.includes(matchingOption)) {
         return;
       }
-      newChipText = matchingOption;
+      newSelectionText = matchingOption;
     }
-    onChange(Array.from(new Set([...selections, newChipText])));
+    onChange([...selections, newSelectionText]);
     setInputValue("");
     setMenuIsOpen(false);
   };
 
-  /** add the current input value as a chip */
+  /** add the current input value as a selection */
   const handleEnter = () => {
     if (inputValue.length) {
-      addChip(inputValue);
+      addSelection(inputValue);
     }
   };
 
@@ -208,13 +207,13 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     closeMenu && setMenuIsOpen(false);
   };
 
-  /** add the text of the selected item as a new chip */
+  /** add the text of the selected menu item to the selected items */
   const onSelect = (event?: React.MouseEvent<Element, MouseEvent>) => {
     if (!event) {
       return;
     }
     const selectedText = (event.target as HTMLElement).innerText;
-    addChip(selectedText);
+    addSelection(selectedText);
     event.stopPropagation();
     focusTextInput(true);
   };
@@ -293,10 +292,13 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
       </FlexItem>
       <FlexItem key="chips">
         <Flex spaceItems={{ default: "spaceItemsXs" }}>
-          {selections.map((currentChip) => (
-            <FlexItem key={currentChip}>
-              <Label color={labelColor} onClose={() => deleteChip(currentChip)}>
-                {currentChip}
+          {selections.map((currentSelection) => (
+            <FlexItem key={currentSelection}>
+              <Label
+                color={labelColor}
+                onClose={() => deleteSelection(currentSelection)}
+              >
+                {currentSelection}
               </Label>
             </FlexItem>
           ))}
