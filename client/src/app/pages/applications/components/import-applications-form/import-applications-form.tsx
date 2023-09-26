@@ -98,6 +98,9 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
             accept: { "text/csv": [".csv"] },
             onDropRejected: handleFileRejected,
           }}
+          onClearClick={() => {
+            setFile(undefined);
+          }}
         />
         {isFileRejected && (
           <FormHelperText>
