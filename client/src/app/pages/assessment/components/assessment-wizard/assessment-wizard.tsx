@@ -1,5 +1,5 @@
 import * as yup from "yup";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
@@ -131,18 +131,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     return questions;
   }, [assessment]);
 
-  useEffect(() => {
-    console.log("asssessment.stakeholders", assessment?.stakeholders);
-    methods.reset({
-      stakeholders: assessment?.stakeholders?.map((sh) => sh.name).sort() ?? [],
-      stakeholderGroups:
-        assessment?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
-      // comments: initialComments,
-      questions: initialQuestions,
-      [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
-    });
-  }, [initialQuestions, assessment]);
-
   const validationSchema = yup.object().shape({
     stakeholders: yup.array().of(yup.string()),
     stakeholderGroups: yup.array().of(yup.string()),
@@ -169,7 +157,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const isValid = methods.formState.isValid;
   const isSubmitting = methods.formState.isSubmitting;
   const isValidating = methods.formState.isValidating;
-
   const watchAllFields = methods.watch();
 
   const disableNavigation = !isValid || isSubmitting;
@@ -204,17 +191,32 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   //   return value !== null && value !== undefined && value.length > 0;
   // };
 
+  const areAllQuestionsAnswered = (section: Section): boolean => {
+    return (
+      section?.questions.every((question) => {
+        return questionHasValue(question);
+      }) ?? false
+    );
+  };
+
+  const hasPartialAnswers = (section: Section): boolean => {
+    const someQuestionsAnswered = section?.questions.some((question) => {
+      return questionHasValue(question);
+    });
+
+    const allQuestionsAnswered = areAllQuestionsAnswered(section);
+
+    return someQuestionsAnswered && !allQuestionsAnswered;
+  };
+
   const shouldNextBtnBeEnabled = (section: Section): boolean => {
     const allQuestionsValid = section?.questions.every((question) =>
       isQuestionValid(question)
     );
-    const allQuestionsAnswered = section?.questions.every((question) => {
-      return questionHasValue(question);
-    });
-    return (
-      allQuestionsAnswered && allQuestionsValid
-      //  && isCommentValid(category)
-    );
+
+    const allQuestionsAnswered = areAllQuestionsAnswered(section);
+
+    return allQuestionsAnswered && allQuestionsValid;
   };
 
   const maxCategoryWithData = [...sortedSections].reverse().find((section) => {
@@ -541,6 +543,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         (currentStep === sortedSections.length &&
           !shouldNextBtnBeEnabled(sortedSections[currentStep - 1]))
       }
+      hasAnswers={hasPartialAnswers(sortedSections[currentStep - 1])}
       isFormInvalid={!isValid}
       onSave={(review) => {
         const saveActionValue = review
