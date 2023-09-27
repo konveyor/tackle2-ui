@@ -106,13 +106,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     }
   }, []);
 
-  const tagOptions =
-    tags?.map((tag) => {
-      return {
-        value: tag.name,
-        toString: () => tag.name,
-      };
-    }) || [];
+  const tagOptions = new Set(
+    (tags || []).reduce<string[]>(
+      (acc, curr) => (!curr.source ? [...acc, curr.name] : acc),
+      []
+    )
+  );
 
   const getBinaryInitialValue = (
     application: Application | null,
@@ -385,7 +384,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   ];
 
   const getTagRef = (tagName: string) =>
-    tags?.find((tag) => tag.name === tagName);
+    Object.assign({ source: "" }, tags?.find((tag) => tag.name === tagName));
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -445,78 +444,34 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             name="tags"
             label={t("terms.tags")}
             fieldId="tags"
-            renderInput={({ field: { value, name, onChange } }) => (
-              <Autocomplete
-                noResultsMessage={t("message.noResultsFoundTitle")}
-                onChange={(selections) => {
-                  onChange(
-                    selections
-                      .map((sel) => getTagRef(sel))
-                      .filter((sel) => sel !== undefined) as TagRef[]
-                  );
-                }}
-                options={tagOptions.map((o) => o.value)}
-                placeholderText={t("composed.selectMany", {
-                  what: t("terms.tags").toLowerCase(),
-                })}
-                searchInputAriaLabel="tags-select-toggle"
-                selections={
-                  value
-                    .map(
-                      (formTag) =>
-                        tags?.find((tagRef) => tagRef.name === formTag.name)
-                    )
-                    .map((matchingTag) =>
-                      matchingTag ? matchingTag.name : undefined
-                    )
-                    .filter((e) => e !== undefined) as string[]
-                }
-              />
-              // <SimpleSelect
-              //   maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-              //   placeholderText={t("composed.selectMany", {
-              //     what: t("terms.tags").toLowerCase(),
-              //   })}
-              //   id="tags-select"
-              //   variant="typeaheadmulti"
-              //   toggleId="tags-select-toggle"
-              //   toggleAriaLabel="tags dropdown toggle"
-              //   aria-label={name}
-              //   value={value
-              //     .map((formTag) =>
-              //       tags?.find((tagRef) => tagRef.name === formTag.name)
-              //     )
-              //     .map((matchingTag) =>
-              //       matchingTag
-              //         ? {
-              //             value: matchingTag.name,
-              //             toString: () => matchingTag.name,
-              //           }
-              //         : undefined
-              //     )
-              //     .filter((e) => e !== undefined)}
-              //   options={tagOptions}
-              // onChange={(selection) => {
-              //   const selectionWithValue = selection.toString();
+            renderInput={({ field: { value, name, onChange } }) => {
+              const selections = value.reduce<string[]>(
+                (acc, curr) =>
+                  curr.source === "" && tagOptions.has(curr.name)
+                    ? [...acc, curr.name]
+                    : acc,
+                []
+              );
 
-              //   const currentValue = value || [];
-              //   const e = currentValue.find(
-              //     (f) => f.name === selectionWithValue
-              //   );
-              //   if (e) {
-              //     onChange(
-              //       currentValue.filter((f) => f.name !== selectionWithValue)
-              //     );
-              //   } else {
-              //     const tag = getTagRef(selectionWithValue);
-              //     if (currentValue && typeof tag !== "undefined")
-              //       onChange([...currentValue, tag]);
-              //   }
-              // }}
-              //   onClear={() => onChange([])}
-              //   noResultsFoundText={t("message.noResultsFoundTitle")}
-              // />
-            )}
+              return (
+                <Autocomplete
+                  noResultsMessage={t("message.noResultsFoundTitle")}
+                  onChange={(selections) => {
+                    onChange(
+                      selections
+                        .map((sel) => getTagRef(sel))
+                        .filter((sel) => sel !== undefined) as TagRef[]
+                    );
+                  }}
+                  options={Array.from(tagOptions)}
+                  placeholderText={t("composed.selectMany", {
+                    what: t("terms.tags").toLowerCase(),
+                  })}
+                  searchInputAriaLabel="tags-select-toggle"
+                  selections={selections}
+                />
+              );
+            }}
           />
           <HookFormPFGroupController
             control={control}
