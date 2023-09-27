@@ -8,6 +8,7 @@ import {
   Modal,
   PageSection,
   PageSectionVariants,
+  Spinner,
   Text,
   TextContent,
   Title,
@@ -44,6 +45,7 @@ import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
+import useUpdatingTrackerId from "./useUpdatingTrackerId";
 
 export const JiraTrackers: React.FC = () => {
   const { t } = useTranslation();
@@ -146,6 +148,11 @@ export const JiraTrackers: React.FC = () => {
       getTdProps,
     },
   } = tableControls;
+
+  //Handle tracker update temporary loading state
+  const [updatingTrackerId, setUpdatingTrackerId] = useUpdatingTrackerId(10000);
+
+  //
 
   return (
     <>
@@ -259,11 +266,15 @@ export const JiraTrackers: React.FC = () => {
                           width={10}
                           {...getTdProps({ columnKey: "connection" })}
                         >
-                          <TrackerStatus
-                            name={tracker.name}
-                            connected={tracker.connected}
-                            message={tracker.message}
-                          />
+                          {updatingTrackerId === tracker.id ? (
+                            <Spinner size="sm" />
+                          ) : (
+                            <TrackerStatus
+                              name={tracker.name}
+                              connected={tracker.connected}
+                              message={tracker.message}
+                            />
+                          )}
                         </Td>
                         <Td width={20}>
                           <AppTableActionButtons
@@ -307,6 +318,7 @@ export const JiraTrackers: React.FC = () => {
       >
         <TrackerForm
           tracker={trackerToUpdate ? trackerToUpdate : undefined}
+          setUpdatingTrackerId={setUpdatingTrackerId}
           onClose={() => setTrackerModalState(null)}
         />
       </Modal>
