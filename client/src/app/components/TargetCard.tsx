@@ -32,6 +32,7 @@ import { KebabDropdown } from "./KebabDropdown";
 import DefaultRulesetIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 import { Target, TargetLabel } from "@app/api/models";
 import "./TargetCard.css";
+import { FILES } from "@app/api/rest";
 
 export interface TargetCardProps {
   item: Target;
@@ -108,7 +109,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   const getImage = (): React.ComponentType => {
     let result: React.ComponentType<any> = CubesIcon;
     const imagePath = target?.image?.id
-      ? `/hub/files/${target?.image.id}`
+      ? `${FILES}${target?.image.id}`
       : DefaultRulesetIcon;
     if (target.image) {
       result = () => (
@@ -116,6 +117,9 @@ export const TargetCard: React.FC<TargetCardProps> = ({
           src={imagePath}
           alt="Card logo"
           style={{ height: 80, pointerEvents: "none" }}
+          onError={(e) => {
+            e.currentTarget.src = DefaultRulesetIcon;
+          }}
         />
       );
     }
