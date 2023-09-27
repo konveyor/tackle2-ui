@@ -66,7 +66,6 @@ export const AssessmentPageHeader: React.FC<AssessmentPageHeaderProps> = ({
             )}
           </>
         }
-        menuActions={[]}
       />
 
       <Modal

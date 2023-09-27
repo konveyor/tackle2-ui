@@ -151,7 +151,6 @@ export const ManageImportsDetails: React.FC = () => {
               path: "",
             },
           ]}
-          menuActions={[]}
         />
       </PageSection>
       <PageSection>

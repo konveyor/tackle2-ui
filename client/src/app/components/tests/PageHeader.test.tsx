@@ -21,16 +21,6 @@ describe("PageHeader", () => {
             },
           ]}
           btnActions={<Button>send email</Button>}
-          menuActions={[
-            {
-              label: "Edit",
-              callback: jest.fn(),
-            },
-            {
-              label: "Delete",
-              callback: jest.fn(),
-            },
-          ]}
           navItems={[
             {
               title: "Overview",
