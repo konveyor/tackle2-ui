@@ -73,7 +73,6 @@ const ReviewPage: React.FC = () => {
               <Text component="p">{t("message.reviewInstructions")}</Text>
             }
             breadcrumbs={breadcrumbs}
-            menuActions={[]}
           />
         </PageSection>
         <PageSection variant="light">
@@ -97,7 +96,6 @@ const ReviewPage: React.FC = () => {
             <Text component="p">{t("message.reviewInstructions")}</Text>
           }
           breadcrumbs={breadcrumbs}
-          menuActions={[]}
         />
       </PageSection>
       <PageSection variant="light">
