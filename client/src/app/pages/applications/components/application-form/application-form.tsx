@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { object, string } from "yup";
 import {
   ActionGroup,
@@ -16,7 +16,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 import { SimpleSelect, OptionWithValue } from "@app/components/SimpleSelect";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { Application, TagRef } from "@app/api/models";
+import { Application, Ref, TagRef } from "@app/api/models";
 import {
   customURLValidation,
   duplicateNameCheck,
@@ -104,7 +104,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     if (tagCategories) {
       setTags(tagCategories.flatMap((f) => f.tags || []));
     }
-  }, []);
+  }, [tagCategories]);
 
   const tagOptions = new Set(
     (tags || []).reduce<string[]>(
@@ -271,11 +271,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     }
   };
 
-  const onCreateApplicationSuccess = (response: AxiosResponse<Application>) => {
+  const onCreateApplicationSuccess = (data: Application) => {
     pushNotification({
       title: t("toastr.success.createWhat", {
         type: t("terms.application"),
-        what: response.data.name,
+        what: data.name,
       }),
       variant: "success",
     });
@@ -319,9 +319,15 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       (stakeholder) => formValues?.owner === stakeholder.name
     );
 
-    const matchingContributors = stakeholders?.filter((stakeholder) =>
-      formValues.contributors.includes(stakeholder.name)
-    );
+    const contributors =
+      formValues.contributors === undefined
+        ? undefined
+        : (formValues.contributors
+            .map((name) => stakeholders.find((s) => s.name === name))
+            .map<Ref | undefined>((sh) =>
+              !sh ? undefined : { id: sh.id, name: sh.name }
+            )
+            .filter(Boolean) as Ref[]);
 
     const payload: Application = {
       name: formValues.name.trim(),
@@ -337,7 +343,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       owner: matchingOwner
         ? { id: matchingOwner.id, name: matchingOwner.name }
         : undefined,
-      contributors: matchingContributors,
+      contributors,
       ...(formValues.sourceRepository
         ? {
             repository: {
