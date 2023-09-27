@@ -445,7 +445,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             label={t("terms.tags")}
             fieldId="tags"
             renderInput={({ field: { value, name, onChange } }) => {
-              console.log(value);
               const selections = value.reduce<string[]>(
                 (acc, curr) =>
                   curr.source === "" && tagOptions.has(curr.name)
