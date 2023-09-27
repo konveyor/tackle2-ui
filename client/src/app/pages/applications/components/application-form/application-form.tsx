@@ -106,15 +106,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     }
   }, []);
 
-  const tagOptions =
-    tags
-      ?.filter((tag) => !tag.source)
-      .map((tag) => {
-        return {
-          value: tag.name,
-          toString: () => tag.name,
-        };
-      }) || [];
+  const tagOptions = new Set(
+    (tags || []).reduce<string[]>(
+      (acc, curr) => (!curr.source ? [...acc, curr.name] : acc),
+      []
+    )
+  );
 
   const getBinaryInitialValue = (
     application: Application | null,
@@ -387,7 +384,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   ];
 
   const getTagRef = (tagName: string) =>
-    tags?.find((tag) => tag.name === tagName);
+    Object.assign({ source: "" }, tags?.find((tag) => tag.name === tagName));
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -448,15 +445,14 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             label={t("terms.tags")}
             fieldId="tags"
             renderInput={({ field: { value, name, onChange } }) => {
-              const selections = value
-                .map(
-                  (formTag) =>
-                    tags?.find((tagRef) => tagRef.name === formTag.name)
-                )
-                .map((matchingTag) =>
-                  matchingTag ? matchingTag.name : undefined
-                )
-                .filter((e) => e !== undefined) as string[];
+              console.log(value);
+              const selections = value.reduce<string[]>(
+                (acc, curr) =>
+                  curr.source === "" && tagOptions.has(curr.name)
+                    ? [...acc, curr.name]
+                    : acc,
+                []
+              );
 
               return (
                 <Autocomplete
@@ -468,7 +464,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                         .filter((sel) => sel !== undefined) as TagRef[]
                     );
                   }}
-                  options={tagOptions.map((o) => o.value)}
+                  options={Array.from(tagOptions)}
                   placeholderText={t("composed.selectMany", {
                     what: t("terms.tags").toLowerCase(),
                   })}
