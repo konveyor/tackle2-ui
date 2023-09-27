@@ -21,7 +21,7 @@ export const ApplicationsQueryKey = "applications";
 export const ReportQueryKey = "report";
 
 interface DownloadOptions {
-  applicationId: number;
+  application: Application;
   mimeType: MimeType;
 }
 
@@ -141,19 +141,19 @@ export const useBulkDeleteApplicationMutation = (
 };
 
 export const downloadStaticReport = async ({
-  applicationId,
+  application,
   mimeType,
 }: DownloadOptions): Promise<void> => {
   const yamlAcceptHeader = "application/x-yaml";
-  let url = `${APPLICATIONS}/${applicationId}/analysis/report`;
+  let url = `${APPLICATIONS}/${application.id}/analysis/report`;
 
   switch (mimeType) {
     case MimeType.YAML:
-      url = `${APPLICATIONS}/${applicationId}/analysis`;
+      url = `${APPLICATIONS}/${application.id}/analysis`;
       break;
     case MimeType.TAR:
     default:
-      url = `${APPLICATIONS}/${applicationId}/analysis/report`;
+      url = `${APPLICATIONS}/${application.id}/analysis/report`;
   }
 
   try {
@@ -171,7 +171,7 @@ export const downloadStaticReport = async ({
     }
 
     const blob = new Blob([response.data]);
-    saveAs(blob, `analysis-report-app-${applicationId}.${mimeType}`);
+    saveAs(blob, `analysis-report-app-${application.name}.${mimeType}`);
   } catch (error) {
     console.error("There was an error downloading the file:", error);
     throw error;

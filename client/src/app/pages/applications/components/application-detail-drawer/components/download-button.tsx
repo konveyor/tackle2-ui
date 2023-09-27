@@ -3,17 +3,18 @@ import { Alert, Button } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Spinner } from "@patternfly/react-core";
 import { useDownloadStaticReport } from "@app/queries/applications";
+import { Application } from "@app/api/models";
 
 export enum MimeType {
   TAR = "tar",
   YAML = "yaml",
 }
 interface IDownloadButtonProps {
-  id: number;
+  application: Application;
   mimeType: MimeType;
 }
 export const DownloadButton: React.FC<IDownloadButtonProps> = ({
-  id,
+  application,
   mimeType,
 }) => {
   const {
@@ -24,7 +25,7 @@ export const DownloadButton: React.FC<IDownloadButtonProps> = ({
 
   const handleDownload = () => {
     downloadFile({
-      applicationId: id,
+      application: application,
       mimeType: mimeType,
     });
   };

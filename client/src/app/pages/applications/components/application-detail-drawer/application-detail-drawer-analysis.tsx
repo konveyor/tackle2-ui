@@ -139,7 +139,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                       position="top"
                     >
                       <DownloadButton
-                        id={application.id}
+                        application={application}
                         mimeType={MimeType.TAR}
                       />
                     </Tooltip>
@@ -149,7 +149,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                       position="top"
                     >
                       <DownloadButton
-                        id={application.id}
+                        application={application}
                         mimeType={MimeType.YAML}
                       />
                     </Tooltip>
