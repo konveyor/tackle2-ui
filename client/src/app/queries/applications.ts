@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
-import { MimeType } from "@app/api/models";
+import { Application, MimeType } from "@app/api/models";
 import {
   createApplication,
   deleteApplication,
@@ -59,14 +59,14 @@ export const useFetchApplicationById = (id?: number | string) => {
 };
 
 export const useUpdateApplicationMutation = (
-  onSuccess: () => void,
+  onSuccess: (payload: Application) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateApplication,
-    onSuccess: () => {
-      onSuccess();
+    onSuccess: (_res, payload) => {
+      onSuccess(payload);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: onError,
@@ -89,14 +89,14 @@ export const useUpdateAllApplicationsMutation = (
 };
 
 export const useCreateApplicationMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (data: Application) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createApplication,
-    onSuccess: (res) => {
-      onSuccess(res);
+    onSuccess: ({ data }) => {
+      onSuccess(data);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: onError,
