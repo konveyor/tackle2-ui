@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
 import { object, string } from "yup";
@@ -74,9 +74,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
   const { businessServices } = useFetchBusinessServices();
   const { stakeholders } = useFetchStakeholders();
-
-  const { tagCategories: tagCategories, refetch: fetchTagCategories } =
-    useFetchTagCategories();
+  const { tagCategories } = useFetchTagCategories();
 
   const businessServiceOptions = businessServices.map((businessService) => {
     return {
@@ -92,26 +90,9 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     };
   });
 
-  useEffect(() => {
-    fetchTagCategories();
-  }, [fetchTagCategories]);
-
   // Tags
-
-  const [tags, setTags] = useState<TagRef[]>();
-
-  useEffect(() => {
-    if (tagCategories) {
-      setTags(tagCategories.flatMap((f) => f.tags || []));
-    }
-  }, [tagCategories]);
-
-  const tagOptions = new Set(
-    (tags || []).reduce<string[]>(
-      (acc, curr) => (!curr.source ? [...acc, curr.name] : acc),
-      []
-    )
-  );
+  const tags: TagRef[] = tagCategories.flatMap((f) => f.tags || []);
+  const tagOptions = new Set(tags.map((tag) => tag.name));
 
   const getBinaryInitialValue = (
     application: Application | null,
@@ -450,7 +431,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             name="tags"
             label={t("terms.tags")}
             fieldId="tags"
-            renderInput={({ field: { value, name, onChange } }) => {
+            renderInput={({ field: { value, onChange } }) => {
               const selections = value.reduce<string[]>(
                 (acc, curr) =>
                   curr.source === "" && tagOptions.has(curr.name)
