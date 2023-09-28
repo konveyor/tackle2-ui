@@ -229,7 +229,7 @@ export const toRef = <RefLike extends Ref>(
 export const toRefs = <RefLike extends Ref>(
   source: Iterable<RefLike>
 ): Array<Ref> | undefined =>
-  !source ? undefined : ([...source].map(toRef).filter(Boolean) as Ref[]);
+  !source ? undefined : [...source].map(toRef).filter(Boolean);
 
 /**
  * Take an array of source items that look like a `Ref`, find the first one that matches
@@ -271,11 +271,11 @@ export const matchItemsToRefs = <RefLike extends Ref, V>(
 ): Array<Ref> | undefined =>
   !matchValues
     ? undefined
-    : (matchValues
+    : matchValues
         .map((toMatch) =>
           !toMatch
             ? undefined
             : items.find((item) => matchOperator(itemMatchFn(item), toMatch))
         )
         .map<Ref | undefined>(toRef)
-        .filter(Boolean) as Ref[]);
+        .filter(Boolean);
