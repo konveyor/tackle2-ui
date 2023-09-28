@@ -59,14 +59,14 @@ export const useFetchApplicationById = (id?: number | string) => {
 };
 
 export const useUpdateApplicationMutation = (
-  onSuccess: () => void,
+  onSuccess: (payload: Application) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateApplication,
-    onSuccess: () => {
-      onSuccess();
+    onSuccess: (_res, payload) => {
+      onSuccess(payload);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: onError,

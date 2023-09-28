@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
 import { object, string } from "yup";
@@ -16,13 +16,17 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 import { SimpleSelect, OptionWithValue } from "@app/components/SimpleSelect";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { Application, Ref, TagRef } from "@app/api/models";
+import { Application, Tag } from "@app/api/models";
 import {
   customURLValidation,
   duplicateNameCheck,
   getAxiosErrorMessage,
 } from "@app/utils/utils";
-import { toOptionLike } from "@app/utils/model-utils";
+import {
+  matchItemsToRef,
+  matchItemsToRefs,
+  toOptionLike,
+} from "@app/utils/model-utils";
 import {
   useCreateApplicationMutation,
   useFetchApplications,
@@ -39,14 +43,15 @@ import {
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { Autocomplete } from "@app/components/Autocomplete";
+import ItemsSelect from "@app/components/items-select/items-select";
 
 export interface FormValues {
+  id: number;
   name: string;
   description: string;
   comments: string;
   businessServiceName: string;
-  tags: TagRef[];
+  tags: string[];
   owner: string | null;
   contributors: string[];
   kind: string;
@@ -57,7 +62,6 @@ export interface FormValues {
   artifact: string;
   version: string;
   packaging: string;
-  id: number;
 }
 
 export interface ApplicationFormProps {
@@ -70,11 +74,20 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const { pushNotification } = React.useContext(NotificationsContext);
-
-  const { businessServices } = useFetchBusinessServices();
-  const { stakeholders } = useFetchStakeholders();
-  const { tagCategories } = useFetchTagCategories();
+  const {
+    existingApplications,
+    businessServices,
+    businessServicesToRef,
+    stakeholders,
+    stakeholdersToRef,
+    stakeholdersToRefs,
+    tags,
+    tagsToRefs,
+    createApplication,
+    updateApplication,
+  } = useApplicationFormData({
+    onActionSuccess: onClose,
+  });
 
   const businessServiceOptions = businessServices.map((businessService) => {
     return {
@@ -90,9 +103,12 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     };
   });
 
-  // Tags
-  const tags: TagRef[] = tagCategories.flatMap((f) => f.tags || []);
-  const tagOptions = new Set(tags.map((tag) => tag.name));
+  const manualTags = application?.tags?.filter((t) => t.source === "") ?? [];
+
+  const nonManualTags = application?.tags?.filter((t) => t.source !== "") ?? [];
+
+  // TODO: Filter this if we want to exclude non-manual tags from manual tag selection
+  const allowedManualTags = tags;
 
   const getBinaryInitialValue = (
     application: Application | null,
@@ -113,8 +129,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     }
   };
 
-  const { data: applications } = useFetchApplications();
-
   const validationSchema = object().shape(
     {
       name: string()
@@ -127,7 +141,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           "An application with this name already exists. Use a different name.",
           (value) =>
             duplicateNameCheck(
-              applications ? applications : [],
+              existingApplications,
               application || null,
               value || ""
             )
@@ -222,7 +236,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       id: application?.id || 0,
       comments: application?.comments || "",
       businessServiceName: application?.businessService?.name || "",
-      tags: application?.tags || [],
+      tags: manualTags.map((tag) => tag.name) || [],
       owner: application?.owner?.name || undefined,
       contributors:
         application?.contributors?.map((contributor) => contributor.name) || [],
@@ -239,113 +253,36 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     mode: "all",
   });
 
-  const buildBinaryFieldString = (
-    group: string,
-    artifact: string,
-    version: string,
-    packaging: string
-  ) => {
-    if (packaging) {
-      return `${group}:${artifact}:${version}:${packaging}`;
-    } else {
-      return `${group}:${artifact}:${version}`;
-    }
-  };
-
-  const onCreateApplicationSuccess = (data: Application) => {
-    pushNotification({
-      title: t("toastr.success.createWhat", {
-        type: t("terms.application"),
-        what: data.name,
-      }),
-      variant: "success",
-    });
-    onClose();
-  };
-
-  const onUpdateApplicationSuccess = () => {
-    pushNotification({
-      title: t("toastr.success.save", {
-        type: t("terms.application"),
-      }),
-      variant: "success",
-    });
-    onClose();
-  };
-
-  const onCreateUpdateApplicationError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
-
-  const { mutate: createApplication } = useCreateApplicationMutation(
-    onCreateApplicationSuccess,
-    onCreateUpdateApplicationError
-  );
-
-  const { mutate: updateApplication } = useUpdateApplicationMutation(
-    onUpdateApplicationSuccess,
-    onCreateUpdateApplicationError
-  );
-
   const onSubmit = (formValues: FormValues) => {
-    const matchingBusinessService = businessServices.find(
-      (businessService) =>
-        formValues?.businessServiceName === businessService.name
-    );
-
-    const matchingOwner = stakeholders.find(
-      (stakeholder) => formValues?.owner === stakeholder.name
-    );
-
-    const contributors =
-      formValues.contributors === undefined
-        ? undefined
-        : (formValues.contributors
-            .map((name) => stakeholders.find((s) => s.name === name))
-            .map<Ref | undefined>((sh) =>
-              !sh ? undefined : { id: sh.id, name: sh.name }
-            )
-            .filter(Boolean) as Ref[]);
+    // Note: We need to manually retain the tags with source != "" in the payload
+    const tags = [...(tagsToRefs(formValues.tags) ?? []), ...nonManualTags];
 
     const payload: Application = {
+      id: formValues.id,
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       comments: formValues.comments.trim(),
-      businessService: matchingBusinessService
+
+      businessService: businessServicesToRef(formValues.businessServiceName),
+      tags,
+      owner: stakeholdersToRef(formValues.owner),
+      contributors: stakeholdersToRefs(formValues.contributors),
+
+      repository: formValues.sourceRepository
         ? {
-            id: matchingBusinessService.id,
-            name: matchingBusinessService.name,
+            kind: formValues.kind.trim(),
+            url: formValues.sourceRepository.trim(),
+            branch: formValues.branch.trim(),
+            path: formValues.rootPath.trim(),
           }
         : undefined,
-      tags: formValues.tags,
-      owner: matchingOwner
-        ? { id: matchingOwner.id, name: matchingOwner.name }
-        : undefined,
-      contributors,
-      ...(formValues.sourceRepository
-        ? {
-            repository: {
-              kind: formValues.kind.trim(),
-              url: formValues.sourceRepository
-                ? formValues.sourceRepository.trim()
-                : undefined,
-              branch: formValues.branch.trim(),
-              path: formValues.rootPath.trim(),
-            },
-          }
-        : { repository: undefined }),
-      binary: buildBinaryFieldString(
-        formValues.group,
-        formValues.artifact,
-        formValues.version,
-        formValues.packaging
-      ),
-      id: formValues.id,
-      migrationWave: application ? application.migrationWave : null,
-      identities: application?.identities ? application.identities : undefined,
+      binary: formValues.packaging
+        ? `${formValues.group}:${formValues.artifact}:${formValues.version}:${formValues.packaging}`
+        : `${formValues.group}:${formValues.artifact}:${formValues.version}`,
+
+      // Values not editable on the form but still need to be passed through
+      identities: application?.identities ?? undefined,
+      migrationWave: application?.migrationWave ?? null,
     };
 
     if (application) {
@@ -369,9 +306,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       toString: () => `Subversion`,
     },
   ];
-
-  const getTagRef = (tagName: string) =>
-    Object.assign({ source: "" }, tags?.find((tag) => tag.name === tagName));
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -426,40 +360,19 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             )}
           />
 
-          <HookFormPFGroupController
+          <ItemsSelect<Tag, FormValues>
+            items={allowedManualTags}
             control={control}
             name="tags"
             label={t("terms.tags")}
             fieldId="tags"
-            renderInput={({ field: { value, onChange } }) => {
-              const selections = value.reduce<string[]>(
-                (acc, curr) =>
-                  curr.source === "" && tagOptions.has(curr.name)
-                    ? [...acc, curr.name]
-                    : acc,
-                []
-              );
-
-              return (
-                <Autocomplete
-                  noResultsMessage={t("message.noResultsFoundTitle")}
-                  onChange={(selections) => {
-                    onChange(
-                      selections
-                        .map((sel) => getTagRef(sel))
-                        .filter((sel) => sel !== undefined) as TagRef[]
-                    );
-                  }}
-                  options={Array.from(tagOptions)}
-                  placeholderText={t("composed.selectMany", {
-                    what: t("terms.tags").toLowerCase(),
-                  })}
-                  searchInputAriaLabel="tags-select-toggle"
-                  selections={selections}
-                />
-              );
-            }}
+            noResultsMessage={t("message.noResultsFoundTitle")}
+            placeholderText={t("composed.selectMany", {
+              what: t("terms.tags").toLowerCase(),
+            })}
+            searchInputAriaLabel="tags-select-toggle"
           />
+
           <HookFormPFGroupController
             control={control}
             name="owner"
@@ -669,4 +582,96 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       </ActionGroup>
     </Form>
   );
+};
+
+const useApplicationFormData = ({
+  onActionSuccess = () => {},
+  onActionFail = () => {},
+}: {
+  onActionSuccess?: () => void;
+  onActionFail?: () => void;
+}) => {
+  const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
+
+  // Fetch data
+  const { tagCategories } = useFetchTagCategories();
+  const tags = useMemo(
+    () => tagCategories.flatMap((tc) => tc.tags).filter(Boolean) as Tag[],
+    [tagCategories]
+  );
+
+  const { businessServices } = useFetchBusinessServices();
+  const { stakeholders } = useFetchStakeholders();
+  const { data: existingApplications } = useFetchApplications();
+
+  // Helpers
+  const tagsToRefs = (names: string[] | undefined | null) =>
+    matchItemsToRefs(tags, (i) => i.name, names);
+
+  const businessServicesToRef = (name: string | undefined | null) =>
+    matchItemsToRef(businessServices, (i) => i.name, name);
+
+  const stakeholdersToRef = (name: string | undefined | null) =>
+    matchItemsToRef(stakeholders, (i) => i.name, name);
+
+  const stakeholdersToRefs = (names: string[] | undefined | null) =>
+    matchItemsToRefs(stakeholders, (i) => i.name, names);
+
+  // Mutation notification handlers
+  const onCreateApplicationSuccess = (data: Application) => {
+    pushNotification({
+      title: t("toastr.success.createWhat", {
+        type: t("terms.application"),
+        what: data.name,
+      }),
+      variant: "success",
+    });
+    onActionSuccess();
+  };
+
+  const onUpdateApplicationSuccess = (payload: Application) => {
+    pushNotification({
+      title: t("toastr.success.saveWhat", {
+        type: t("terms.application"),
+        what: payload.name,
+      }),
+      variant: "success",
+    });
+    onActionSuccess();
+  };
+
+  const onCreateUpdateApplicationError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+    onActionFail();
+  };
+
+  // Mutations
+  const { mutate: createApplication } = useCreateApplicationMutation(
+    onCreateApplicationSuccess,
+    onCreateUpdateApplicationError
+  );
+
+  const { mutate: updateApplication } = useUpdateApplicationMutation(
+    onUpdateApplicationSuccess,
+    onCreateUpdateApplicationError
+  );
+
+  // Send back source data and action that are needed by the ApplicationForm
+  return {
+    businessServices,
+    businessServicesToRef,
+    stakeholders,
+    stakeholdersToRef,
+    stakeholdersToRefs,
+    existingApplications,
+    tagCategories,
+    tags,
+    tagsToRefs,
+    createApplication,
+    updateApplication,
+  };
 };
