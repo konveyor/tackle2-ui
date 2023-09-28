@@ -77,9 +77,9 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   const {
     existingApplications,
     businessServices,
-    businessServicesToRef,
+    businessServiceToRef,
     stakeholders,
-    stakeholdersToRef,
+    stakeholderToRef,
     stakeholdersToRefs,
     tags,
     tagsToRefs,
@@ -263,9 +263,9 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       description: formValues.description.trim(),
       comments: formValues.comments.trim(),
 
-      businessService: businessServicesToRef(formValues.businessServiceName),
+      businessService: businessServiceToRef(formValues.businessServiceName),
       tags,
-      owner: stakeholdersToRef(formValues.owner),
+      owner: stakeholderToRef(formValues.owner),
       contributors: stakeholdersToRefs(formValues.contributors),
 
       repository: formValues.sourceRepository
@@ -609,10 +609,10 @@ const useApplicationFormData = ({
   const tagsToRefs = (names: string[] | undefined | null) =>
     matchItemsToRefs(tags, (i) => i.name, names);
 
-  const businessServicesToRef = (name: string | undefined | null) =>
+  const businessServiceToRef = (name: string | undefined | null) =>
     matchItemsToRef(businessServices, (i) => i.name, name);
 
-  const stakeholdersToRef = (name: string | undefined | null) =>
+  const stakeholderToRef = (name: string | undefined | null) =>
     matchItemsToRef(stakeholders, (i) => i.name, name);
 
   const stakeholdersToRefs = (names: string[] | undefined | null) =>
@@ -663,9 +663,9 @@ const useApplicationFormData = ({
   // Send back source data and action that are needed by the ApplicationForm
   return {
     businessServices,
-    businessServicesToRef,
+    businessServiceToRef,
     stakeholders,
-    stakeholdersToRef,
+    stakeholderToRef,
     stakeholdersToRefs,
     existingApplications,
     tagCategories,
