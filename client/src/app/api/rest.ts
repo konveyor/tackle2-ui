@@ -271,8 +271,8 @@ export const deleteIdentity = (identity: Identity): AxiosPromise => {
 
 // Axios direct
 
-export const createApplication = (obj: Application): Promise<Application> =>
-  axios.post(`${APPLICATIONS}`, obj);
+export const createApplication = (data: Application) =>
+  axios.post<Application>(`${APPLICATIONS}`, data);
 
 export const deleteApplication = (id: number): Promise<Application> =>
   axios.delete(`${APPLICATIONS}/${id}`);
