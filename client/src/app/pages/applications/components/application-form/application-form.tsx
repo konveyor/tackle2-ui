@@ -597,7 +597,7 @@ const useApplicationFormData = ({
   // Fetch data
   const { tagCategories } = useFetchTagCategories();
   const tags = useMemo(
-    () => tagCategories.flatMap((tc) => tc.tags).filter(Boolean) as Tag[],
+    () => tagCategories.flatMap((tc) => tc.tags).filter(Boolean),
     [tagCategories]
   );
 
