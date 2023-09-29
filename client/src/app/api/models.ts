@@ -41,7 +41,7 @@ export interface BusinessService {
   id: number;
   name: string;
   description?: string;
-  owner?: Stakeholder;
+  owner?: Ref;
 }
 
 export interface Stakeholder {

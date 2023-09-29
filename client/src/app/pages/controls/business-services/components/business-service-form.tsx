@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { object, string } from "yup";
 
 import {
@@ -27,6 +27,7 @@ import {
 } from "@app/components/HookFormPFFields";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { matchItemsToRef } from "@app/utils/model-utils";
 
 export interface FormValues {
   name: string;
@@ -44,10 +45,16 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const { pushNotification } = React.useContext(NotificationsContext);
 
-  const { businessServices } = useFetchBusinessServices();
-  const { stakeholders } = useFetchStakeholders();
+  const {
+    businessServices,
+    stakeholders,
+    stakeholderToRef,
+    createBusinessService,
+    updateBusinessService,
+  } = useBusinessServiceFormData({
+    onActionSuccess: onClose,
+  });
 
   const stakeholdersOptions = stakeholders.map((stakeholder) => {
     return {
@@ -92,65 +99,11 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
     mode: "all",
   });
 
-  const onCreateBusinessServiceSuccess = (
-    response: AxiosResponse<BusinessService>
-  ) => {
-    pushNotification({
-      title: t("toastr.success.createWhat", {
-        type: t("terms.businessService"),
-        what: response.data.name,
-      }),
-      variant: "success",
-    });
-    onClose();
-  };
-
-  const onUpdateBusinessServiceSuccess = () => {
-    pushNotification({
-      title: t("toastr.success.save", {
-        type: t("terms.businessService"),
-      }),
-      variant: "success",
-    });
-    onClose();
-  };
-
-  const onCreateBusinessServiceError = (error: AxiosError) => {
-    pushNotification({
-      title: t("toastr.fail.create", {
-        type: t("terms.businessService").toLowerCase(),
-      }),
-      variant: "danger",
-    });
-  };
-
-  const { mutate: createBusinessService } = useCreateBusinessServiceMutation(
-    onCreateBusinessServiceSuccess,
-    onCreateBusinessServiceError
-  );
-
-  const onUpdateBusinessServiceError = (error: AxiosError) => {
-    pushNotification({
-      title: t("toastr.fail.save", {
-        type: t("terms.businessService").toLowerCase(),
-      }),
-      variant: "danger",
-    });
-  };
-
-  const { mutate: updateBusinessService } = useUpdateBusinessServiceMutation(
-    onUpdateBusinessServiceSuccess,
-    onUpdateBusinessServiceError
-  );
-
   const onSubmit = (formValues: FormValues) => {
-    const matchingStakeholderRef = stakeholders.find(
-      (stakeholder) => stakeholder.name === formValues.owner
-    );
     const payload: New<BusinessService> = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
-      owner: matchingStakeholderRef,
+      owner: stakeholderToRef(formValues.owner),
     };
 
     if (businessService) {
@@ -158,7 +111,6 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
     } else {
       createBusinessService(payload);
     }
-    onClose();
   };
 
   return (
@@ -222,4 +174,92 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
       </ActionGroup>
     </Form>
   );
+};
+
+const useBusinessServiceFormData = ({
+  onActionSuccess = () => {},
+  onActionFail = () => {},
+}: {
+  onActionSuccess?: () => void;
+  onActionFail?: () => void;
+}) => {
+  const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
+
+  // Fetch data
+  const { businessServices } = useFetchBusinessServices();
+  const { stakeholders } = useFetchStakeholders();
+
+  // Helpers
+  const stakeholderToRef = (name: string | undefined | null) =>
+    matchItemsToRef(stakeholders, (i) => i.name, name);
+
+  // Mutation notification handlers
+  const onCreateBusinessServiceSuccess = (data: BusinessService) => {
+    pushNotification({
+      title: t("toastr.success.createWhat", {
+        type: t("terms.businessService"),
+        what: data.name,
+      }),
+      variant: "success",
+    });
+    onActionSuccess();
+  };
+
+  const onCreateBusinessServiceError = (
+    _error: AxiosError,
+    _payload: New<BusinessService>
+  ) => {
+    pushNotification({
+      title: t("toastr.fail.create", {
+        type: t("terms.businessService").toLowerCase(),
+      }),
+      variant: "danger",
+    });
+    onActionFail();
+  };
+
+  const onUpdateBusinessServiceSuccess = (payload: BusinessService) => {
+    pushNotification({
+      title: t("toastr.success.saveWhat", {
+        type: t("terms.businessService"),
+        what: payload.name,
+      }),
+      variant: "success",
+    });
+    onActionSuccess();
+  };
+
+  const onUpdateBusinessServiceError = (
+    _error: AxiosError,
+    _payload: New<BusinessService>
+  ) => {
+    pushNotification({
+      title: t("toastr.fail.save", {
+        type: t("terms.businessService").toLowerCase(),
+      }),
+      variant: "danger",
+    });
+    onActionFail();
+  };
+
+  // Mutations
+  const { mutate: createBusinessService } = useCreateBusinessServiceMutation(
+    onCreateBusinessServiceSuccess,
+    onCreateBusinessServiceError
+  );
+
+  const { mutate: updateBusinessService } = useUpdateBusinessServiceMutation(
+    onUpdateBusinessServiceSuccess,
+    onUpdateBusinessServiceError
+  );
+
+  // Send back source data and action that are needed by the ApplicationForm
+  return {
+    businessServices,
+    stakeholders,
+    stakeholderToRef,
+    createBusinessService,
+    updateBusinessService,
+  };
 };
