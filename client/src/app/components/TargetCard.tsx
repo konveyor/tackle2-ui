@@ -24,7 +24,7 @@ import {
   SelectVariant,
   SelectOptionObject,
 } from "@patternfly/react-core/deprecated";
-import { CubesIcon, GripVerticalIcon } from "@patternfly/react-icons";
+import { GripVerticalIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 
@@ -32,6 +32,7 @@ import { KebabDropdown } from "./KebabDropdown";
 import DefaultRulesetIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 import { Target, TargetLabel } from "@app/api/models";
 import "./TargetCard.css";
+import axios from "axios";
 
 export interface TargetCardProps {
   item: Target;
@@ -67,6 +68,8 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 }) => {
   const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
+
+  const [imageDataUrl, setImageDataUrl] = React.useState<string | null>(null);
 
   const prevSelectedLabel =
     formLabels?.find((formLabel) => {
@@ -105,23 +108,23 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     }
   };
 
-  const getImage = (): React.ComponentType => {
-    let result: React.ComponentType<any> = CubesIcon;
-    const imagePath = target?.image?.id
-      ? `/hub/files/${target?.image.id}`
-      : DefaultRulesetIcon;
-    if (target.image) {
-      result = () => (
-        <img
-          src={imagePath}
-          alt="Card logo"
-          style={{ height: 80, pointerEvents: "none" }}
-        />
-      );
+  const fetchImageAndSetDataUrl = async (imagePath: string) => {
+    try {
+      const imageDataResponse = await axios.get(imagePath, {
+        headers: {
+          Accept: "application/octet-stream",
+        },
+      });
+      const encodedSvg = encodeURIComponent(imageDataResponse.data);
+      setImageDataUrl(`data:image/svg+xml,${encodedSvg}`);
+    } catch (error) {
+      console.error("There was an issue fetching the image:", error);
     }
-
-    return result;
   };
+  const imagePath = target?.image?.id
+    ? `/hub/files/${target?.image.id}`
+    : DefaultRulesetIcon;
+  fetchImageAndSetDataUrl(imagePath);
 
   return (
     <Card
@@ -176,7 +179,15 @@ export const TargetCard: React.FC<TargetCardProps> = ({
           variant={EmptyStateVariant.sm}
           className="select-card__component__empty-state"
         >
-          <EmptyStateIcon icon={getImage()} />
+          <EmptyStateIcon
+            icon={() => (
+              <img
+                src={imageDataUrl || DefaultRulesetIcon}
+                alt="Card logo"
+                style={{ height: 80, pointerEvents: "none" }}
+              />
+            )}
+          />
           <Title headingLevel="h4" size="md">
             {target.name}
           </Title>
