@@ -271,8 +271,8 @@ export const deleteIdentity = (identity: Identity): AxiosPromise => {
 
 // Axios direct
 
-export const createApplication = (obj: Application): Promise<Application> =>
-  axios.post(`${APPLICATIONS}`, obj);
+export const createApplication = (data: Application) =>
+  axios.post<Application>(`${APPLICATIONS}`, data);
 
 export const deleteApplication = (id: number): Promise<Application> =>
   axios.delete(`${APPLICATIONS}/${id}`);
@@ -618,27 +618,27 @@ export const updateStakeholderGroup = (
 ): Promise<StakeholderGroup> =>
   axios.put(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj);
 
+// ---------------------------------------
 // Business services
+//
+export const getBusinessServices = () =>
+  axios
+    .get<BusinessService[]>(BUSINESS_SERVICES)
+    .then((response) => response.data);
 
-export const getBusinessServices = (): Promise<BusinessService[]> =>
-  axios.get(BUSINESS_SERVICES).then((response) => response.data);
+export const getBusinessServiceById = (id: number | string) =>
+  axios
+    .get<BusinessService>(`${BUSINESS_SERVICES}/${id}`)
+    .then((response) => response.data);
 
-export const deleteBusinessService = (
-  id: number | string
-): Promise<BusinessService> => axios.delete(`${BUSINESS_SERVICES}/${id}`);
+export const createBusinessService = (obj: New<BusinessService>) =>
+  axios.post<BusinessService>(BUSINESS_SERVICES, obj);
 
-export const createBusinessService = (
-  obj: New<BusinessService>
-): Promise<BusinessService> => axios.post(BUSINESS_SERVICES, obj);
+export const updateBusinessService = (obj: BusinessService) =>
+  axios.put<void>(`${BUSINESS_SERVICES}/${obj.id}`, obj);
 
-export const updateBusinessService = (
-  obj: BusinessService
-): Promise<BusinessService> => axios.put(`${BUSINESS_SERVICES}/${obj.id}`, obj);
-
-export const getBusinessServiceById = (
-  id: number | string
-): Promise<BusinessService> =>
-  axios.get(`${BUSINESS_SERVICES}/${id}`).then((response) => response.data);
+export const deleteBusinessService = (id: number | string) =>
+  axios.delete<void>(`${BUSINESS_SERVICES}/${id}`);
 
 // Job functions
 
