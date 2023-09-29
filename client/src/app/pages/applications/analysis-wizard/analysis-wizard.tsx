@@ -172,7 +172,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       hasExcludedPackages: false,
       associatedCredentials: "",
       rulesKind: "manual",
-      repositoryType: "",
+      repositoryType: undefined,
       sourceRepository: "",
       branch: "",
       rootPath: "",
