@@ -1,14 +1,47 @@
 import React from "react";
-import { useUrlParams } from "./useUrlParams";
+import { TSerializedParams, useUrlParams } from "./useUrlParams";
 import { useLocalStorage, useSessionStorage } from "@migtools/lib-ui";
+import { DisallowCharacters } from "@app/utils/type-utils";
 
-export const usePersistedState = <T>(
-  initialValue: T
-): [T | undefined, React.Dispatch<React.SetStateAction<T | undefined>>] => {
-  const state = React.useState(initialValue);
-  const url = useUrlParams(); // TODO - add a disabled flag for the url param behavior?
-  const localStorage = useLocalStorage(); // TODO
-  const sessionStorage = useSessionStorage(); // TODO
+type UsePersistedStateOptions<
+  T,
+  TURLParamKey extends string,
+  TKeyPrefix extends string,
+> = {
+  defaultValue: T;
+} & (
+  | {
+      mode: null;
+    }
+  | {
+      mode: "url";
+      keyPrefix?: DisallowCharacters<TKeyPrefix, ":">;
+      keys: DisallowCharacters<TURLParamKey, ":">[];
+      serialize: (params: Partial<T>) => TSerializedParams<TURLParamKey>;
+      deserialize: (serializedParams: TSerializedParams<TURLParamKey>) => T;
+    }
+  | {
+      mode: "localStorage" | "sessionStorage";
+      key: string;
+    }
+);
+
+export const usePersistedState = <
+  T,
+  TURLParamKey extends string,
+  TKeyPrefix extends string,
+>(
+  options: UsePersistedStateOptions<T, TURLParamKey, TKeyPrefix>
+): [T, (value: T) => void] => {
+  const storage = {
+    state: React.useState(options.defaultValue),
+    url: useUrlParams(options), // TODO - add a disabled flag for the url param behavior?
+    localStorage: useLocalStorage(options.key, options.defaultValue), // TODO
+    sessionStorage: useSessionStorage(options.key, options.defaultValue), // TODO
+  };
+  if (!options.mode) return storage.state;
+  return storage[options.mode];
+
   // TODO based on options, return only one of the above?
   // TODO make sure none of the disabled ones have any effect on URL or storage
 };

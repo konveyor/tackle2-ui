@@ -16,14 +16,14 @@ import { useLocation, useHistory } from "react-router-dom";
 //       The keys of TDeserializedParams and TSerializedParams have the prefixes omitted.
 //       Prefixes are only used at the very first/last step when reading/writing from/to the URLSearchParams object.
 
-type TSerializedParams<TURLParamKey extends string> = Partial<
+export type TSerializedParams<TURLParamKey extends string> = Partial<
   Record<TURLParamKey, string | null>
 >;
 
 export interface IUseUrlParamsArgs<
   TURLParamKey extends string,
   TKeyPrefix extends string,
-  TDeserializedParams
+  TDeserializedParams,
 > {
   keyPrefix?: DisallowCharacters<TKeyPrefix, ":">;
   keys: DisallowCharacters<TURLParamKey, ":">[];
@@ -38,13 +38,13 @@ export interface IUseUrlParamsArgs<
 
 export type TURLParamStateTuple<TDeserializedParams> = readonly [
   TDeserializedParams,
-  (newParams: Partial<TDeserializedParams>) => void
+  (newParams: Partial<TDeserializedParams>) => void,
 ];
 
 export const useUrlParams = <
   TURLParamKey extends string,
   TKeyPrefix extends string,
-  TDeserializedParams
+  TDeserializedParams,
 >({
   keyPrefix,
   keys,
