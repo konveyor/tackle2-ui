@@ -5,12 +5,10 @@ import { useLocalStorage, useSessionStorage } from "@migtools/lib-ui";
 export const usePersistedState = <T>(
   initialValue: T
 ): [T | undefined, React.Dispatch<React.SetStateAction<T | undefined>>] => {
-  const storage = {
-    state: React.useState(initialValue),
-    url: useUrlParams(), // TODO
-    localStorage: useLocalStorage(), // TODO
-    sessionStorage: useSessionStorage(), // TODO
-  };
+  const state = React.useState(initialValue);
+  const url = useUrlParams(); // TODO - add a disabled flag for the url param behavior?
+  const localStorage = useLocalStorage(); // TODO
+  const sessionStorage = useSessionStorage(); // TODO
   // TODO based on options, return only one of the above?
   // TODO make sure none of the disabled ones have any effect on URL or storage
 };
@@ -24,3 +22,4 @@ export const usePersistedState = <T>(
 // TODO rename active-row to active-item
 // TODO decouple SimplePagination
 // TODO decouple FilterToolbar?  -- can we make a toolbar-batteries hook? useFilterToolbar? option to hook it up to table batteries or not?
+// TODO decouple useUrlParams from react-router? can we do everything from the document.location.search?
