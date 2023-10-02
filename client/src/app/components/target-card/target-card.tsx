@@ -1,3 +1,4 @@
+import "./target-card.css";
 import * as React from "react";
 import {
   EmptyState,
@@ -24,14 +25,14 @@ import {
   SelectVariant,
   SelectOptionObject,
 } from "@patternfly/react-core/deprecated";
-import { CubesIcon, GripVerticalIcon } from "@patternfly/react-icons";
+import { GripVerticalIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 
-import { KebabDropdown } from "./KebabDropdown";
-import DefaultRulesetIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
+import { KebabDropdown } from "../KebabDropdown";
+import DefaultImage from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 import { Target, TargetLabel } from "@app/api/models";
-import "./TargetCard.css";
+import useFetchImageDataUrl from "./hooks/useFetchImageDataUrl";
 
 export interface TargetCardProps {
   item: Target;
@@ -67,6 +68,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 }) => {
   const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
+  const imageDataUrl = useFetchImageDataUrl(target);
 
   const prevSelectedLabel =
     formLabels?.find((formLabel) => {
@@ -103,24 +105,6 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     if (isCardSelected && onSelectedCardTargetChange) {
       onSelectedCardTargetChange(selection as string);
     }
-  };
-
-  const getImage = (): React.ComponentType => {
-    let result: React.ComponentType<any> = CubesIcon;
-    const imagePath = target?.image?.id
-      ? `/hub/files/${target?.image.id}`
-      : DefaultRulesetIcon;
-    if (target.image) {
-      result = () => (
-        <img
-          src={imagePath}
-          alt="Card logo"
-          style={{ height: 80, pointerEvents: "none" }}
-        />
-      );
-    }
-
-    return result;
   };
 
   return (
@@ -176,7 +160,18 @@ export const TargetCard: React.FC<TargetCardProps> = ({
           variant={EmptyStateVariant.sm}
           className="select-card__component__empty-state"
         >
-          <EmptyStateIcon icon={getImage()} />
+          <EmptyStateIcon
+            icon={() => (
+              <img
+                src={imageDataUrl || DefaultImage}
+                alt="Card logo"
+                style={{ height: 80, pointerEvents: "none" }}
+                onError={(e) => {
+                  e.currentTarget.src = DefaultImage;
+                }}
+              />
+            )}
+          />
           <Title headingLevel="h4" size="md">
             {target.name}
           </Title>
