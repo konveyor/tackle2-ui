@@ -1,3 +1,4 @@
+import "./target-card.css";
 import * as React from "react";
 import {
   EmptyState,
@@ -28,11 +29,10 @@ import { GripVerticalIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 
-import { KebabDropdown } from "./KebabDropdown";
-import DefaultRulesetIcon from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
+import { KebabDropdown } from "../KebabDropdown";
+import DefaultImage from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 import { Target, TargetLabel } from "@app/api/models";
-import "./TargetCard.css";
-import axios from "axios";
+import useFetchImageDataUrl from "./hooks/useFetchImageDataUrl";
 
 export interface TargetCardProps {
   item: Target;
@@ -68,8 +68,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 }) => {
   const { t } = useTranslation();
   const [isCardSelected, setCardSelected] = React.useState(cardSelected);
-
-  const [imageDataUrl, setImageDataUrl] = React.useState<string | null>(null);
+  const imageDataUrl = useFetchImageDataUrl(target);
 
   const prevSelectedLabel =
     formLabels?.find((formLabel) => {
@@ -107,24 +106,6 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       onSelectedCardTargetChange(selection as string);
     }
   };
-
-  const fetchImageAndSetDataUrl = async (imagePath: string) => {
-    try {
-      const imageDataResponse = await axios.get(imagePath, {
-        headers: {
-          Accept: "application/octet-stream",
-        },
-      });
-      const encodedSvg = encodeURIComponent(imageDataResponse.data);
-      setImageDataUrl(`data:image/svg+xml,${encodedSvg}`);
-    } catch (error) {
-      console.error("There was an issue fetching the image:", error);
-    }
-  };
-  const imagePath = target?.image?.id
-    ? `/hub/files/${target?.image.id}`
-    : DefaultRulesetIcon;
-  fetchImageAndSetDataUrl(imagePath);
 
   return (
     <Card
@@ -182,9 +163,12 @@ export const TargetCard: React.FC<TargetCardProps> = ({
           <EmptyStateIcon
             icon={() => (
               <img
-                src={imageDataUrl || DefaultRulesetIcon}
+                src={imageDataUrl || DefaultImage}
                 alt="Card logo"
                 style={{ height: 80, pointerEvents: "none" }}
+                onError={(e) => {
+                  e.currentTarget.src = DefaultImage;
+                }}
               />
             )}
           />
