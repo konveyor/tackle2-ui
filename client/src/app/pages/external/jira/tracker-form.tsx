@@ -87,10 +87,6 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     });
 
     setUpdatingTrackerId(_.data.id);
-
-    setTimeout(() => {
-      setUpdatingTrackerId(null);
-    }, 5000);
   };
 
   const onUpdateTrackerSuccess = (
@@ -105,15 +101,10 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     });
 
     setUpdatingTrackerId(tracker.id);
-
-    setTimeout(() => {
-      setUpdatingTrackerId(null);
-    }, 5000);
   };
 
   const onCreateUpdatetrackerError = (error: AxiosError) => {
     setAxiosError(error);
-    setUpdatingTrackerId(null);
   };
 
   const { mutate: createTracker } = useCreateTrackerMutation(
