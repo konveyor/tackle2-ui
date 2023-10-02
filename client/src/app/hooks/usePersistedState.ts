@@ -1,7 +1,6 @@
 import React from "react";
-import { TSerializedParams, useUrlParams } from "./useUrlParams";
+import { IUseUrlParamsArgs, useUrlParams } from "./useUrlParams";
 import { useLocalStorage, useSessionStorage } from "@migtools/lib-ui";
-import { DisallowCharacters } from "@app/utils/type-utils";
 
 type UsePersistedStateOptions<
   T,
@@ -13,18 +12,27 @@ type UsePersistedStateOptions<
   | {
       mode: null;
     }
-  | {
+  | ({
       mode: "url";
-      keyPrefix?: DisallowCharacters<TKeyPrefix, ":">;
-      keys: DisallowCharacters<TURLParamKey, ":">[];
-      serialize: (params: Partial<T>) => TSerializedParams<TURLParamKey>;
-      deserialize: (serializedParams: TSerializedParams<TURLParamKey>) => T;
-    }
+    } & IUseUrlParamsArgs<TURLParamKey, TKeyPrefix, T>)
   | {
       mode: "localStorage" | "sessionStorage";
       key: string;
     }
 );
+
+// TODO FIXME - Original problem: can't call hooks conditionally with eslint rules
+//              (but we could do so if we make sure the conditional never changes between renders)
+//              That's hacky though, what's better?
+//              Calling all 4 hooks and only returning the stuff from the active one
+//              isn't the most performant in theory but is fine in practice
+//              The problem there is TypeScript. can't narrow the type of `options`
+//              without a conditional, so we'd hit the same issue.
+//              The workaround for that may be TS assertions?
+//              But it's not safe to just assert that options in there are defined
+//              because all 4 hooks always get called with whatever you pass.
+//              So they all need an `isEnabled` option and they need to never
+//              try to access other options if it's false.
 
 export const usePersistedState = <
   T,
@@ -35,8 +43,10 @@ export const usePersistedState = <
 ): [T, (value: T) => void] => {
   const storage = {
     state: React.useState(options.defaultValue),
-    url: useUrlParams(options), // TODO - add a disabled flag for the url param behavior?
-    localStorage: useLocalStorage(options.key, options.defaultValue), // TODO
+    url: useUrlParams(
+      options as IUseUrlParamsArgs<TURLParamKey, TKeyPrefix, T> // TODO is this a bad idea?
+    ), // TODO - add a disabled flag for the url param behavior?
+    localStorage: useLocalStorage(options.key, options.defaultValue), // TODO - disabled flag for these too?
     sessionStorage: useSessionStorage(options.key, options.defaultValue), // TODO
   };
   if (!options.mode) return storage.state;

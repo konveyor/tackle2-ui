@@ -25,6 +25,7 @@ export interface IUseUrlParamsArgs<
   TKeyPrefix extends string,
   TDeserializedParams,
 > {
+  isEnabled?: boolean;
   keyPrefix?: DisallowCharacters<TKeyPrefix, ":">;
   keys: DisallowCharacters<TURLParamKey, ":">[];
   defaultValue: TDeserializedParams;
@@ -37,7 +38,7 @@ export interface IUseUrlParamsArgs<
 }
 
 export type TURLParamStateTuple<TDeserializedParams> = readonly [
-  TDeserializedParams,
+  TDeserializedParams | null,
   (newParams: Partial<TDeserializedParams>) => void,
 ];
 
@@ -46,6 +47,7 @@ export const useUrlParams = <
   TKeyPrefix extends string,
   TDeserializedParams,
 >({
+  isEnabled = true,
   keyPrefix,
   keys,
   defaultValue,
@@ -96,18 +98,25 @@ export const useUrlParams = <
   // We use useLocation here so we are re-rendering when the params change.
   const urlParams = new URLSearchParams(useLocation().search);
   // We un-prefix the params object here so the deserialize function doesn't have to care about the keyPrefix.
-  const serializedParams = keys.reduce(
-    (obj, key) => ({
-      ...obj,
-      [key]: urlParams.get(withPrefix(key)),
-    }),
-    {} as TSerializedParams<TURLParamKey>
-  );
-  const allParamsEmpty = keys.every((key) => !serializedParams[key]);
-  const params = allParamsEmpty ? defaultValue : deserialize(serializedParams);
+
+  let allParamsEmpty = true;
+  let params: TDeserializedParams | null = null;
+  if (isEnabled) {
+    const serializedParams = keys.reduce(
+      (obj, key) => ({
+        ...obj,
+        [key]: urlParams.get(withPrefix(key)),
+      }),
+      {} as TSerializedParams<TURLParamKey>
+    );
+    allParamsEmpty = keys.every((key) => !serializedParams[key]);
+    params = allParamsEmpty ? defaultValue : deserialize(serializedParams);
+  }
 
   React.useEffect(() => {
     if (allParamsEmpty) setParams(defaultValue);
+    // Leaving this rule enabled results in a cascade of unnecessary useCallbacks:
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allParamsEmpty]);
 
   return [params, setParams];
