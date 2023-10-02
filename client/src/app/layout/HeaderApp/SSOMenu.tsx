@@ -36,11 +36,11 @@ export const SSOMenu: React.FC = () => {
           }} /** this user dropdown is hidden on mobile sizes */
         >
           <Dropdown
-            isPlain
             onSelect={onDropdownSelect}
             isOpen={isDropdownOpen}
             toggle={(toggleRef) => (
               <MenuToggle
+                isFullHeight
                 ref={toggleRef}
                 id="sso-actions-toggle"
                 onClick={() => onDropdownToggle(!isDropdownOpen)}
@@ -69,14 +69,9 @@ export const SSOMenu: React.FC = () => {
                       LocalStorageKey.selectedPersona
                     );
                     {
-                      keycloak
-                        .logout()
-                        .then((res) => {
-                          history.push("/");
-                        })
-                        .catch((err) => {
-                          history.push("/");
-                        });
+                      keycloak.logout().finally(() => {
+                        history.push("/");
+                      });
                     }
                   }}
                 >
