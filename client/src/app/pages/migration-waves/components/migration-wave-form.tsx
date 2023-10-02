@@ -227,19 +227,18 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     : null;
 
   const onSubmit = (formValues: WaveFormValues) => {
-    const stakeholders = [
-      ...(stakeholdersToRefs(
+    const stakeholders =
+      stakeholdersToRefs(
         formValues.stakeholders.map((stakeholder) => stakeholder.name)
-      ) ?? []),
-    ];
+      ) ?? [];
 
-    const stakeholderGroups = [
-      ...(stakeholderGroupsToRefs(
+    const stakeholderGroups =
+      stakeholderGroupsToRefs(
         formValues.stakeholderGroups.map(
           (stakeholderGroup) => stakeholderGroup.name
         )
-      ) ?? []),
-    ];
+      ) ?? [];
+
     const payload: New<MigrationWave> = {
       applications: migrationWave?.applications || [],
       name: formValues.name?.trim() || "",
