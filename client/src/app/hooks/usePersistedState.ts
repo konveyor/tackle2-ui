@@ -1,6 +1,10 @@
 import React from "react";
 import { IUseUrlParamsArgs, useUrlParams } from "./useUrlParams";
-import { useLocalStorage, useSessionStorage } from "@migtools/lib-ui";
+import {
+  UseStorageTypeOptions,
+  useLocalStorage,
+  useSessionStorage,
+} from "@migtools/lib-ui";
 
 type UsePersistedStateOptions<
   T,
@@ -10,7 +14,7 @@ type UsePersistedStateOptions<
   defaultValue: T;
 } & (
   | {
-      mode: null;
+      mode?: "state";
     }
   | ({
       mode: "url";
@@ -21,39 +25,29 @@ type UsePersistedStateOptions<
     }
 );
 
-// TODO FIXME - Original problem: can't call hooks conditionally with eslint rules
-//              (but we could do so if we make sure the conditional never changes between renders)
-//              That's hacky though, what's better?
-//              Calling all 4 hooks and only returning the stuff from the active one
-//              isn't the most performant in theory but is fine in practice
-//              The problem there is TypeScript. can't narrow the type of `options`
-//              without a conditional, so we'd hit the same issue.
-//              The workaround for that may be TS assertions?
-//              But it's not safe to just assert that options in there are defined
-//              because all 4 hooks always get called with whatever you pass.
-//              So they all need an `isEnabled` option and they need to never
-//              try to access other options if it's false.
-
 export const usePersistedState = <
   T,
   TURLParamKey extends string,
   TKeyPrefix extends string,
 >(
   options: UsePersistedStateOptions<T, TURLParamKey, TKeyPrefix>
-): [T, (value: T) => void] => {
+): [T | null, (value: T) => void] => {
   const storage = {
     state: React.useState(options.defaultValue),
-    url: useUrlParams(
-      options as IUseUrlParamsArgs<TURLParamKey, TKeyPrefix, T> // TODO is this a bad idea?
-    ), // TODO - add a disabled flag for the url param behavior?
-    localStorage: useLocalStorage(options.key, options.defaultValue), // TODO - disabled flag for these too?
-    sessionStorage: useSessionStorage(options.key, options.defaultValue), // TODO
+    url: useUrlParams({
+      ...(options as IUseUrlParamsArgs<TURLParamKey, TKeyPrefix, T>),
+      isEnabled: options.mode === "url",
+    }),
+    localStorage: useLocalStorage({
+      ...(options as UseStorageTypeOptions<T>),
+      isEnabled: options.mode === "localStorage",
+    }),
+    sessionStorage: useSessionStorage({
+      ...(options as UseStorageTypeOptions<T>),
+      isEnabled: options.mode === "sessionStorage",
+    }),
   };
-  if (!options.mode) return storage.state;
-  return storage[options.mode];
-
-  // TODO based on options, return only one of the above?
-  // TODO make sure none of the disabled ones have any effect on URL or storage
+  return storage[options.mode || "state"];
 };
 
 // TODO combine all the use[Feature]State and use[Feature]UrlParams hooks

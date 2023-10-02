@@ -37,7 +37,7 @@ export interface IUseUrlParamsArgs<
   ) => TDeserializedParams;
 }
 
-export type TURLParamStateTuple<TDeserializedParams> = readonly [
+export type TURLParamStateTuple<TDeserializedParams> = [
   TDeserializedParams | null,
   (newParams: Partial<TDeserializedParams>) => void,
 ];
