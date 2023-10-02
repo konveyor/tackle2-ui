@@ -35,6 +35,8 @@ export const usePersistedState = <
   const storage = {
     state: React.useState(options.defaultValue),
     url: useUrlParams({
+      // TODO can we avoid these assertions? how can we narrow the type of `options` depending on mode without conditionals?
+      // something with `satisfies`? read TS docs on narrowing types with hints
       ...(options as IUseUrlParamsArgs<TURLParamKey, TKeyPrefix, T>),
       isEnabled: options.mode === "url",
     }),
