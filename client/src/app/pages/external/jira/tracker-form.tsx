@@ -58,16 +58,14 @@ interface FormValues {
 
 export interface TrackerFormProps {
   onClose: () => void;
-  setUpdatingTrackerId: React.Dispatch<
-    React.SetStateAction<number | null | string>
-  >;
+  addUpdatingTrackerId: (id: number) => void;
   tracker?: Tracker;
 }
 
 export const TrackerForm: React.FC<TrackerFormProps> = ({
   tracker,
   onClose,
-  setUpdatingTrackerId,
+  addUpdatingTrackerId,
 }) => {
   const { t } = useTranslation();
 
@@ -86,7 +84,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       variant: "success",
     });
 
-    setUpdatingTrackerId(_.data.id);
+    addUpdatingTrackerId(_.data.id);
   };
 
   const onUpdateTrackerSuccess = (
@@ -100,7 +98,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       variant: "success",
     });
 
-    setUpdatingTrackerId(tracker.id);
+    addUpdatingTrackerId(tracker.id);
   };
 
   const onCreateUpdatetrackerError = (error: AxiosError) => {
