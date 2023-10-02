@@ -6,7 +6,7 @@ import { deleteCookie, getCookie, setCookie } from "@app/queries/cookies";
 import { AppPlaceholder } from "./AppPlaceholder";
 import { Flex, FlexItem, Spinner } from "@patternfly/react-core";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense } from "react";
 
 interface IKeycloakProviderProps {
   children: React.ReactNode;
