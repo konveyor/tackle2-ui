@@ -1,9 +1,5 @@
 import { useSelectionState } from "@migtools/lib-ui";
-import {
-  getLocalFilterDerivedState,
-  useFilterState,
-  useFilterUrlParams,
-} from "./filtering";
+import { getLocalFilterDerivedState, useFilterState } from "./filtering";
 import {
   useSortState,
   getLocalSortDerivedState,
@@ -17,7 +13,6 @@ import {
 import { useExpansionState, useExpansionUrlParams } from "./expansion";
 import { useActiveRowState, useActiveRowUrlParams } from "./active-row";
 import {
-  IExtraArgsForURLParamHooks,
   IUseLocalTableControlStateArgs,
   IUseTableControlPropsArgs,
 } from "./types";

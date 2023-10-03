@@ -31,52 +31,34 @@ import { IActiveRowDerivedStateArgs } from "./active-row";
 //      to pass TItem while still letting the rest of the generics be inferred.
 //      This may be resolved in a newer TypeScript version after https://github.com/microsoft/TypeScript/pull/54047 is merged!
 
+// Persistence-specific args
+// - Extra args needed for useTableControlState and each concern-specific use*State hook in URL params mode
+// - Does not require any state or query values in scope
+export type IPersistenceOptions<TPersistenceKeyPrefix extends string = string> =
+  {
+    persistIn?: "state" | "urlParams" | "localStorage" | "sessionStorage";
+    persistenceKeyPrefix?: DisallowCharacters<TPersistenceKeyPrefix, ":">;
+  };
+
 // Common args
 // - Used by both useLocalTableControlState and useTableControlState
 // - Does not require any state or query values in scope
-export interface ITableControlCommonArgs<
-  TItem,
-  TColumnKey extends string,
-  TSortableColumnKey extends TColumnKey,
-  TFilterCategoryKey extends string = string,
-> extends IFilterStateArgs<TItem, TFilterCategoryKey>,
-    ISortStateArgs<TSortableColumnKey>,
-    IPaginationStateArgs {
-  columnNames: Record<TColumnKey, string>; // An ordered mapping of unique keys to human-readable column name strings
-  isSelectable?: boolean;
-  hasPagination?: boolean;
-  expandableVariant?: "single" | "compound" | null;
-  hasActionsColumn?: boolean;
-  variant?: TableProps["variant"];
-}
-
-// URL-param-specific args
-// - Extra args needed for useTableControlState and each concern-specific use*State hook in URL params mode
-// - Does not require any state or query values in scope
-export interface IExtraArgsForURLParamHooks<
-  TURLParamKeyPrefix extends string = string,
-> {
-  urlParamKeyPrefix: DisallowCharacters<TURLParamKeyPrefix, ":">;
-}
-
 export type IUseTableControlStateArgs<
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
-  TURLParamKeyPrefix extends string = string,
-> = ITableControlCommonArgs<
-  TItem,
-  TColumnKey,
-  TSortableColumnKey,
-  TFilterCategoryKey
-> &
-  (
-    | { persistIn?: "state" | "localStorage" | "sessionStorage" }
-    | ({
-        persistIn: "urlParams";
-      } & IExtraArgsForURLParamHooks<TURLParamKeyPrefix>)
-  );
+> = IFilterStateArgs<TItem, TFilterCategoryKey> &
+  ISortStateArgs<TSortableColumnKey> &
+  IPaginationStateArgs &
+  IPersistenceOptions & {
+    columnNames: Record<TColumnKey, string>; // An ordered mapping of unique keys to human-readable column name strings
+    isSelectable?: boolean;
+    hasPagination?: boolean;
+    expandableVariant?: "single" | "compound" | null;
+    hasActionsColumn?: boolean;
+    variant?: TableProps["variant"];
+  };
 
 // Data-dependent args
 // - Used by both useLocalTableControlState and useTableControlProps
@@ -95,7 +77,7 @@ export type IUseLocalTableControlStateArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
-> = ITableControlCommonArgs<
+> = IUseTableControlStateArgs<
   TItem,
   TColumnKey,
   TSortableColumnKey,
@@ -106,7 +88,7 @@ export type IUseLocalTableControlStateArgs<
   IFilterStateArgs<TItem, TFilterCategoryKey> &
   ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> &
   ILocalPaginationDerivedStateArgs<TItem> &
-  Pick<ISelectionStateArgs<TItem>, "initialSelected" | "isItemSelectable">;
+  Pick<ISelectionStateArgs<TItem>, "initialSelected" | "isItemSelectable">; // TODO ???
 
 // Rendering args
 // - Used by only useTableControlProps
@@ -119,7 +101,7 @@ export interface IUseTableControlPropsArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
-> extends ITableControlCommonArgs<
+> extends IUseTableControlStateArgs<
       TItem,
       TColumnKey,
       TSortableColumnKey,

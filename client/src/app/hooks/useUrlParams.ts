@@ -21,12 +21,12 @@ export type TSerializedParams<TURLParamKey extends string> = Partial<
 >;
 
 export interface IUseUrlParamsArgs<
-  TURLParamKey extends string,
-  TKeyPrefix extends string,
   TDeserializedParams,
+  TPersistenceKeyPrefix extends string,
+  TURLParamKey extends string,
 > {
   isEnabled?: boolean;
-  keyPrefix?: DisallowCharacters<TKeyPrefix, ":">;
+  persistenceKeyPrefix?: DisallowCharacters<TPersistenceKeyPrefix, ":">;
   keys: DisallowCharacters<TURLParamKey, ":">[];
   defaultValue: TDeserializedParams;
   serialize: (
@@ -38,37 +38,37 @@ export interface IUseUrlParamsArgs<
 }
 
 export type TURLParamStateTuple<TDeserializedParams> = [
-  TDeserializedParams | null,
+  TDeserializedParams,
   (newParams: Partial<TDeserializedParams>) => void,
 ];
 
 export const useUrlParams = <
-  TURLParamKey extends string,
-  TKeyPrefix extends string,
   TDeserializedParams,
+  TKeyPrefix extends string,
+  TURLParamKey extends string,
 >({
   isEnabled = true,
-  keyPrefix,
+  persistenceKeyPrefix,
   keys,
   defaultValue,
   serialize,
   deserialize,
 }: IUseUrlParamsArgs<
-  TURLParamKey,
+  TDeserializedParams,
   TKeyPrefix,
-  TDeserializedParams
+  TURLParamKey
 >): TURLParamStateTuple<TDeserializedParams> => {
   type TPrefixedURLParamKey = TURLParamKey | `${TKeyPrefix}:${TURLParamKey}`;
 
   const history = useHistory();
 
   const withPrefix = (key: TURLParamKey): TPrefixedURLParamKey =>
-    keyPrefix ? `${keyPrefix}:${key}` : key;
+    persistenceKeyPrefix ? `${persistenceKeyPrefix}:${key}` : key;
 
   const withPrefixes = (
     serializedParams: TSerializedParams<TURLParamKey>
   ): TSerializedParams<TPrefixedURLParamKey> =>
-    keyPrefix
+    persistenceKeyPrefix
       ? objectKeys(serializedParams).reduce(
           (obj, key) => ({
             ...obj,
@@ -100,7 +100,7 @@ export const useUrlParams = <
   // We un-prefix the params object here so the deserialize function doesn't have to care about the keyPrefix.
 
   let allParamsEmpty = true;
-  let params: TDeserializedParams | null = null;
+  let params: TDeserializedParams = defaultValue;
   if (isEnabled) {
     const serializedParams = keys.reduce(
       (obj, key) => ({

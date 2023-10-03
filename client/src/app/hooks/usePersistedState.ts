@@ -6,50 +6,80 @@ import {
   useSessionStorage,
 } from "@migtools/lib-ui";
 
-type UsePersistedStateOptions<
-  T,
-  TURLParamKey extends string,
-  TKeyPrefix extends string,
+export type BaseUsePersistedStateOptions<
+  TPersistedState,
+  TPersistenceKeyPrefix extends string = string,
 > = {
-  defaultValue: T;
-} & (
-  | {
-      persistIn?: "state";
-    }
-  | ({
-      persistIn: "urlParams";
-    } & IUseUrlParamsArgs<TURLParamKey, TKeyPrefix, T>)
-  | {
-      persistIn: "localStorage" | "sessionStorage";
-      key: string;
-    }
-);
+  defaultValue: TPersistedState;
+  isEnabled?: boolean;
+  persistenceKeyPrefix?: TPersistenceKeyPrefix;
+};
+
+export type UsePersistedStateOptions<
+  TPersistedState,
+  TPersistenceKeyPrefix extends string,
+  TURLParamKey extends string,
+> = BaseUsePersistedStateOptions<TPersistedState> &
+  (
+    | {
+        persistIn?: "state";
+      }
+    | ({
+        persistIn: "urlParams";
+      } & IUseUrlParamsArgs<
+        TPersistedState,
+        TPersistenceKeyPrefix,
+        TURLParamKey
+      >)
+    | ({
+        persistIn: "localStorage" | "sessionStorage";
+      } & UseStorageTypeOptions<TPersistedState>)
+  );
 
 export const usePersistedState = <
-  T,
+  TPersistedState,
+  TPersistenceKeyPrefix extends string,
   TURLParamKey extends string,
-  TKeyPrefix extends string,
 >(
-  options: UsePersistedStateOptions<T, TURLParamKey, TKeyPrefix>
-): [T | null, (value: T) => void] => {
-  const storage = {
-    state: React.useState(options.defaultValue),
+  options: UsePersistedStateOptions<
+    TPersistedState,
+    TPersistenceKeyPrefix,
+    TURLParamKey
+  >
+): [TPersistedState, (value: TPersistedState) => void] => {
+  const {
+    defaultValue,
+    isEnabled = true,
+    persistIn,
+    persistenceKeyPrefix,
+  } = options;
+  const urlParamOptions = options as IUseUrlParamsArgs<
+    TPersistedState,
+    TPersistenceKeyPrefix,
+    TURLParamKey
+  >;
+  const storageOptions = options as UseStorageTypeOptions<TPersistedState>;
+  const prefixedStorageKey = persistenceKeyPrefix
+    ? `${persistenceKeyPrefix}:${storageOptions.key}`
+    : storageOptions.key;
+  const persistence = {
+    state: React.useState(defaultValue),
     urlParams: useUrlParams({
-      // TODO can we avoid these assertions? how can we narrow the type of `options` depending on mode without conditionals?
-      // something with `satisfies`? read TS docs on narrowing types with hints
-      ...(options as IUseUrlParamsArgs<TURLParamKey, TKeyPrefix, T>),
-      isEnabled: options.persistIn === "urlParams",
+      ...urlParamOptions,
+      isEnabled: isEnabled && persistIn === "urlParams",
     }),
     localStorage: useLocalStorage({
-      ...(options as UseStorageTypeOptions<T>),
-      isEnabled: options.persistIn === "localStorage",
+      ...storageOptions,
+      isEnabled: isEnabled && persistIn === "localStorage",
+      key: prefixedStorageKey,
     }),
     sessionStorage: useSessionStorage({
-      ...(options as UseStorageTypeOptions<T>),
-      isEnabled: options.persistIn === "sessionStorage",
+      ...(options as UseStorageTypeOptions<TPersistedState>),
+      isEnabled: isEnabled && persistIn === "sessionStorage",
+      key: prefixedStorageKey,
     }),
   };
-  return storage[options.persistIn || "state"];
+  return persistence[persistIn || "state"];
 };
 
 // TODO combine all the use[Feature]State and use[Feature]UrlParams hooks
@@ -61,3 +91,4 @@ export const usePersistedState = <
 // TODO decouple SimplePagination
 // TODO decouple FilterToolbar?  -- can we make a toolbar-batteries hook? useFilterToolbar? option to hook it up to table batteries or not?
 // TODO decouple useUrlParams from react-router? can we do everything from the document.location.search?
+``;

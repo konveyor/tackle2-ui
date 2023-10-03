@@ -243,7 +243,7 @@ All of the hooks and helpers described in this section are used internally by th
 Items are filtered according to user-selected filter key/value pairs.
 
 - Keys and filter types (search, select, etc) are defined by the `filterCategories` array config argument. The `key` properties of each of these `FilterCategory` objects are the source of truth for the inferred generic type `TFilterCategoryKeys` (see [Types](#types)).
-- Filter state is provided by `useFilterState` or `useFilterUrlParams`.
+- Filter state is provided by `useFilterState`.
 - For client-side filtering, the filter logic is provided by `getLocalFilterDerivedState` (based on the `getItemValue` callback defined on each `FilterCategory` object, which is not required when using server-side filtering).
 - For server-side filtering, filter state is serialized for the API by `getFilterHubRequestParams`.
 - Filter-related component props are provided by `getFilterProps`.
