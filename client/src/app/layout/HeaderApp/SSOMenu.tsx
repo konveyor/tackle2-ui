@@ -36,11 +36,11 @@ export const SSOMenu: React.FC = () => {
           }} /** this user dropdown is hidden on mobile sizes */
         >
           <Dropdown
-            isPlain
             onSelect={onDropdownSelect}
             isOpen={isDropdownOpen}
             toggle={(toggleRef) => (
               <MenuToggle
+                isFullHeight
                 ref={toggleRef}
                 id="sso-actions-toggle"
                 onClick={() => onDropdownToggle(!isDropdownOpen)}
@@ -75,6 +75,7 @@ export const SSOMenu: React.FC = () => {
                           history.push("/");
                         })
                         .catch((err) => {
+                          console.error("Logout failed:", err);
                           history.push("/");
                         });
                     }
