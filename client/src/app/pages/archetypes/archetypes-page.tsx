@@ -38,7 +38,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { useLocalTableControlsWithUrlParams } from "@app/hooks/table-controls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import {
   useDeleteArchetypeMutation,
   useFetchArchetypes,
@@ -98,8 +98,9 @@ const Archetypes: React.FC = () => {
     onError
   );
 
-  const tableControls = useLocalTableControlsWithUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.archetypes,
+  const tableControls = useLocalTableControls({
+    persistTo: "urlParams",
+    persistenceKeyPrefix: TableURLParamKeyPrefix.archetypes,
     idProperty: "id",
     items: archetypes,
     isLoading: isFetching,

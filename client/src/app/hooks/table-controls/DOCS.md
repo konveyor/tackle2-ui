@@ -214,7 +214,7 @@ If the endpoints do not support these parameters or you need to have the entire 
 
 In most cases, you'll only need to use these higher-level hooks and helpers to build a table:
 
-- For client-paginated tables: `useLocalTableControls` or `useLocalTableControlsWithUrlParams` is all you need. These have the same signature and are interchangeable.
+- For client-paginated tables: `useLocalTableControls` is all you need. These have the same signature and are interchangeable.
   - Internally they use `useTableControlState`, `useTableControlProps` and the `getLocal[Feature]DerivedState` helpers. The config arguments object is a combination of the arguments required by `useTableControlState` and `useTableControlProps`.
   - The return value (an object we generally name `tableControls`) has everything you need to render your table. Give it a `console.log` to see what is available.
 - For server-paginated tables: `useTableControlState`, `getHubRequestParams`, and `useTableControlProps`.

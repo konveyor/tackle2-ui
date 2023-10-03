@@ -39,7 +39,7 @@ export const Dependencies: React.FC = () => {
     useSharedAffectedApplicationFilterCategories();
 
   const tableControlState = useTableControlState({
-    persistIn: "urlParams",
+    persistTo: "urlParams",
     urlParamKeyPrefix: TableURLParamKeyPrefix.dependencies,
     columnNames: {
       name: "Dependency name",

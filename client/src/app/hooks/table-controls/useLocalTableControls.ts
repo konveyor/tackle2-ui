@@ -1,12 +1,6 @@
-import {
-  useLocalTableControlState,
-  useLocalTableControlUrlParams,
-} from "./useLocalTableControlState";
+import { useLocalTableControlState } from "./useLocalTableControlState";
 import { useTableControlProps } from "./useTableControlProps";
-import {
-  IExtraArgsForURLParamHooks,
-  IUseLocalTableControlStateArgs,
-} from "./types";
+import { IUseLocalTableControlStateArgs } from "./types";
 
 export const useLocalTableControls = <
   TItem,
@@ -15,13 +9,3 @@ export const useLocalTableControls = <
 >(
   args: IUseLocalTableControlStateArgs<TItem, TColumnKey, TSortableColumnKey>
 ) => useTableControlProps(useLocalTableControlState(args));
-
-export const useLocalTableControlsWithUrlParams = <
-  TItem,
-  TColumnKey extends string,
-  TSortableColumnKey extends TColumnKey,
-  TURLParamKeyPrefix extends string = string,
->(
-  args: IUseLocalTableControlStateArgs<TItem, TColumnKey, TSortableColumnKey> &
-    IExtraArgsForURLParamHooks<TURLParamKeyPrefix>
-) => useTableControlProps(useLocalTableControlUrlParams(args));

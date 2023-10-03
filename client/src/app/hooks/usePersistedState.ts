@@ -22,17 +22,17 @@ export type UsePersistedStateOptions<
 > = BaseUsePersistedStateOptions<TPersistedState> &
   (
     | {
-        persistIn?: "state";
+        persistTo?: "state";
       }
     | ({
-        persistIn: "urlParams";
+        persistTo: "urlParams";
       } & IUseUrlParamsArgs<
         TPersistedState,
         TPersistenceKeyPrefix,
         TURLParamKey
       >)
     | ({
-        persistIn: "localStorage" | "sessionStorage";
+        persistTo: "localStorage" | "sessionStorage";
       } & UseStorageTypeOptions<TPersistedState>)
   );
 
@@ -50,7 +50,7 @@ export const usePersistedState = <
   const {
     defaultValue,
     isEnabled = true,
-    persistIn,
+    persistTo,
     persistenceKeyPrefix,
   } = options;
   const urlParamOptions = options as IUseUrlParamsArgs<
@@ -66,20 +66,20 @@ export const usePersistedState = <
     state: React.useState(defaultValue),
     urlParams: useUrlParams({
       ...urlParamOptions,
-      isEnabled: isEnabled && persistIn === "urlParams",
+      isEnabled: isEnabled && persistTo === "urlParams",
     }),
     localStorage: useLocalStorage({
       ...storageOptions,
-      isEnabled: isEnabled && persistIn === "localStorage",
+      isEnabled: isEnabled && persistTo === "localStorage",
       key: prefixedStorageKey,
     }),
     sessionStorage: useSessionStorage({
       ...(options as UseStorageTypeOptions<TPersistedState>),
-      isEnabled: isEnabled && persistIn === "sessionStorage",
+      isEnabled: isEnabled && persistTo === "sessionStorage",
       key: prefixedStorageKey,
     }),
   };
-  return persistence[persistIn || "state"];
+  return persistence[persistTo || "state"];
 };
 
 // TODO combine all the use[Feature]State and use[Feature]UrlParams hooks

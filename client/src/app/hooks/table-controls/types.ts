@@ -36,7 +36,7 @@ import { IActiveRowDerivedStateArgs } from "./active-row";
 // - Does not require any state or query values in scope
 export type IPersistenceOptions<TPersistenceKeyPrefix extends string = string> =
   {
-    persistIn?: "state" | "urlParams" | "localStorage" | "sessionStorage";
+    persistTo?: "state" | "urlParams" | "localStorage" | "sessionStorage";
     persistenceKeyPrefix?: DisallowCharacters<TPersistenceKeyPrefix, ":">;
   };
 

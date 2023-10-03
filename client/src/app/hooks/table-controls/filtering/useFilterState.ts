@@ -27,7 +27,7 @@ export const useFilterState = <
 >(
   args: IFilterStateArgs<TItem, TFilterCategoryKey, TPersistenceKeyPrefix>
 ): IFilterState<TFilterCategoryKey> => {
-  const { persistIn = "state", persistenceKeyPrefix } = args;
+  const { persistTo = "state", persistenceKeyPrefix } = args;
 
   const baseOptions: BaseUsePersistedStateOptions<
     IFilterValues<TFilterCategoryKey>
@@ -37,26 +37,26 @@ export const useFilterState = <
   };
 
   // Note: for the discriminated union here to work without TypeScript getting confused
-  //       (e.g. require the urlParams-specific options when persistIn === "urlParams"),
-  //       we need to pass persistIn inside each type-narrowed options object instead of outside the ternary.
+  //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
+  //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
   const [filterValues, setFilterValues] = usePersistedState(
-    persistIn === "urlParams"
+    persistTo === "urlParams"
       ? {
           ...baseOptions,
-          persistIn,
+          persistTo,
           keys: ["filters"],
           serialize: serializeFilterUrlParams,
           deserialize: deserializeFilterUrlParams,
         }
-      : persistIn === "localStorage" || persistIn === "sessionStorage"
+      : persistTo === "localStorage" || persistTo === "sessionStorage"
       ? {
           ...baseOptions,
-          persistIn,
+          persistTo,
           key: "filters",
         }
       : {
           ...baseOptions,
-          persistIn,
+          persistTo,
         }
   );
   return { filterValues, setFilterValues };

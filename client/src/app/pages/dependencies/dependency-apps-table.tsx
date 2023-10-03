@@ -34,7 +34,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
   const { tags } = useFetchTags();
 
   const tableControlState = useTableControlState({
-    persistIn: "urlParams",
+    persistTo: "urlParams",
     urlParamKeyPrefix: TableURLParamKeyPrefix.dependencyApplications,
     columnNames: {
       name: "Application",
