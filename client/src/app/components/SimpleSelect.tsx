@@ -40,6 +40,7 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
 
   return (
     <Select
+      menuAppendTo={"parent"} // prevent menu from being clipped by modal edges
       placeholderText={placeholderText}
       toggleAriaLabel={toggleAriaLabel}
       isOpen={isOpen}
