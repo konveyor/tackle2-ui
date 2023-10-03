@@ -305,6 +305,7 @@
     "label": "Label",
     "loading": "Loading",
     "lowRisk": "Low risk",
+    "manualTags": "Manual Tags",
     "maintainers": "Maintainers",
     "mavenConfig": "Maven configuration",
     "mediumRisk": "Medium risk",
