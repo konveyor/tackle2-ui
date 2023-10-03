@@ -69,9 +69,15 @@ export const SSOMenu: React.FC = () => {
                       LocalStorageKey.selectedPersona
                     );
                     {
-                      keycloak.logout().finally(() => {
-                        history.push("/");
-                      });
+                      keycloak
+                        .logout()
+                        .then((res) => {
+                          history.push("/");
+                        })
+                        .catch((err) => {
+                          console.error("Logout failed:", err);
+                          history.push("/");
+                        });
                     }
                   }}
                 >
