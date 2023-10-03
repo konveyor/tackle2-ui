@@ -1,7 +1,4 @@
 import React from "react";
-import { useUrlParams } from "../../useUrlParams";
-import { objectKeys } from "@app/utils/utils";
-import { IExtraArgsForURLParamHooks } from "../types";
 
 // TExpandedCells maps item[idProperty] values to either:
 //  - The key of an expanded column in that row, if the table is compound-expandable
@@ -19,17 +16,19 @@ export interface IExpansionState<TColumnKey extends string> {
 }
 
 export const useExpansionState = <
-  TColumnKey extends string
+  TColumnKey extends string,
+  TPersistenceKeyPrefix extends string = string,
 >(): IExpansionState<TColumnKey> => {
+  // TODO use usePersistedState here
   const [expandedCells, setExpandedCells] = React.useState<
     TExpandedCells<TColumnKey>
   >({});
   return { expandedCells, setExpandedCells };
 };
-
+/*
 export const useExpansionUrlParams = <
   TColumnKey extends string,
-  TURLParamKeyPrefix extends string = string
+  TURLParamKeyPrefix extends string = string,
 >({
   urlParamKeyPrefix,
 }: IExtraArgsForURLParamHooks<TURLParamKeyPrefix> = {}): IExpansionState<TColumnKey> => {
@@ -52,3 +51,4 @@ export const useExpansionUrlParams = <
   });
   return { expandedCells, setExpandedCells };
 };
+*/

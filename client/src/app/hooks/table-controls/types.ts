@@ -48,7 +48,8 @@ export type IUseTableControlStateArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
-> = IFilterStateArgs<TItem, TFilterCategoryKey> &
+  TPersistenceKeyPrefix extends string = string,
+> = IFilterStateArgs<TItem, TFilterCategoryKey, TPersistenceKeyPrefix> &
   ISortStateArgs<TSortableColumnKey> &
   IPaginationStateArgs &
   IPersistenceOptions & {
