@@ -47,9 +47,9 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import {
-  useTableControlUrlParams,
-  getHubRequestParams,
+  useTableControlState,
   useTableControlProps,
+  getHubRequestParams,
 } from "@app/hooks/table-controls";
 
 import {
@@ -95,7 +95,8 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
   const allIssuesSpecificFilterCategories =
     useSharedAffectedApplicationFilterCategories();
 
-  const tableControlState = useTableControlUrlParams({
+  const tableControlState = useTableControlState({
+    persistIn: "urlParams",
     urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
     columnNames: {
       description: "Issue",

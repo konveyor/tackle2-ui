@@ -26,10 +26,10 @@ export const useFilterState = <TItem, TFilterCategoryKey extends string>({
   TFilterCategoryKey
 >): IFilterState<TFilterCategoryKey> => {
   const state = React.useState<IFilterValues<TFilterCategoryKey>>({});
-  const storage = useSessionStorage<IFilterValues<TFilterCategoryKey>>(
-    filterStorageKey || "",
-    {}
-  );
+  const storage = useSessionStorage<IFilterValues<TFilterCategoryKey>>({
+    key: filterStorageKey || "",
+    defaultValue: {},
+  });
   const [filterValues, setFilterValues] = filterStorageKey ? storage : state;
   return { filterValues, setFilterValues };
 };
@@ -56,7 +56,7 @@ export const serializeFilterUrlParams = <TFilterCategoryKey extends string>(
 };
 
 export const deserializeFilterUrlParams = <
-  TFilterCategoryKey extends string
+  TFilterCategoryKey extends string,
 >(serializedParams: {
   filters?: string | null;
 }): Partial<Record<TFilterCategoryKey, FilterValue>> => {
@@ -69,7 +69,7 @@ export const deserializeFilterUrlParams = <
 
 export const useFilterUrlParams = <
   TFilterCategoryKey extends string,
-  TURLParamKeyPrefix extends string = string
+  TURLParamKeyPrefix extends string = string,
 >({
   urlParamKeyPrefix,
 }: IExtraArgsForURLParamHooks<TURLParamKeyPrefix> = {}): IFilterState<TFilterCategoryKey> => {

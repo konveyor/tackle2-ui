@@ -17,9 +17,9 @@ import { useSelectionState } from "@migtools/lib-ui";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import {
-  useTableControlUrlParams,
-  getHubRequestParams,
+  useTableControlState,
   useTableControlProps,
+  getHubRequestParams,
 } from "@app/hooks/table-controls";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
@@ -52,7 +52,8 @@ export const AffectedApplications: React.FC = () => {
     new URLSearchParams(useLocation().search).get("issueTitle") ||
     "Active rule";
 
-  const tableControlState = useTableControlUrlParams({
+  const tableControlState = useTableControlState({
+    persistIn: "urlParams",
     urlParamKeyPrefix: TableURLParamKeyPrefix.issuesAffectedApps,
     columnNames: {
       name: "Name",

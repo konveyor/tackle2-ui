@@ -25,20 +25,20 @@ import { IActiveRowDerivedStateArgs } from "./active-row";
 //   TSortableColumnKey - A subset of column keys that have sorting enabled
 //   TFilterCategoryKey - Union type of unique identifier strings for filters (not necessarily the same as column keys)
 
-// TODO when calling useTableControlUrlParams, the TItem type is not inferred and some of the params have it inferred as `unknown`.
+// TODO when calling useTableControlState, the TItem type is not inferred and some of the params have it inferred as `unknown`.
 //      this currently doesn't seem to matter since TItem becomes inferred later when currentPageItems is in scope,
 //      but we should see if we can fix that (maybe not depend on TItem in the extended types here, or find a way
 //      to pass TItem while still letting the rest of the generics be inferred.
 //      This may be resolved in a newer TypeScript version after https://github.com/microsoft/TypeScript/pull/54047 is merged!
 
 // Common args
-// - Used by both useLocalTableControlState and useTableControlUrlParams
+// - Used by both useLocalTableControlState and useTableControlState
 // - Does not require any state or query values in scope
 export interface ITableControlCommonArgs<
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
-  TFilterCategoryKey extends string = string
+  TFilterCategoryKey extends string = string,
 > extends IFilterStateArgs<TItem, TFilterCategoryKey>,
     ISortStateArgs<TSortableColumnKey>,
     IPaginationStateArgs {
@@ -51,13 +51,32 @@ export interface ITableControlCommonArgs<
 }
 
 // URL-param-specific args
-// - Extra args needed for useTableControlUrlParams and each concern-specific use*UrlParams hook
+// - Extra args needed for useTableControlState and each concern-specific use*State hook in URL params mode
 // - Does not require any state or query values in scope
 export interface IExtraArgsForURLParamHooks<
-  TURLParamKeyPrefix extends string = string
+  TURLParamKeyPrefix extends string = string,
 > {
-  urlParamKeyPrefix?: DisallowCharacters<TURLParamKeyPrefix, ":">;
+  urlParamKeyPrefix: DisallowCharacters<TURLParamKeyPrefix, ":">;
 }
+
+export type IUseTableControlStateArgs<
+  TItem,
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey,
+  TFilterCategoryKey extends string = string,
+  TURLParamKeyPrefix extends string = string,
+> = ITableControlCommonArgs<
+  TItem,
+  TColumnKey,
+  TSortableColumnKey,
+  TFilterCategoryKey
+> &
+  (
+    | { persistIn?: "state" | "localStorage" | "sessionStorage" }
+    | ({
+        persistIn: "urlParams";
+      } & IExtraArgsForURLParamHooks<TURLParamKeyPrefix>)
+  );
 
 // Data-dependent args
 // - Used by both useLocalTableControlState and useTableControlProps
@@ -75,7 +94,7 @@ export type IUseLocalTableControlStateArgs<
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
-  TFilterCategoryKey extends string = string
+  TFilterCategoryKey extends string = string,
 > = ITableControlCommonArgs<
   TItem,
   TColumnKey,
@@ -94,12 +113,12 @@ export type IUseLocalTableControlStateArgs<
 // - Requires state and query values in scope
 // - Combines all args above with either:
 //   - The return values of useLocalTableControlState
-//   - The return values of useTableControlUrlParams and args derived from server-side filtering/sorting/pagination
+//   - The return values of useTableControlState and args derived from server-side filtering/sorting/pagination
 export interface IUseTableControlPropsArgs<
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
-  TFilterCategoryKey extends string = string
+  TFilterCategoryKey extends string = string,
 > extends ITableControlCommonArgs<
       TItem,
       TColumnKey,

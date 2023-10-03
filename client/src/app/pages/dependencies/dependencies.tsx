@@ -15,9 +15,11 @@ import { useTranslation } from "react-i18next";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import {
-  useTableControlUrlParams,
+  useTableControlState,
   useTableControlProps,
+  getHubRequestParams,
 } from "@app/hooks/table-controls";
+import { TableURLParamKeyPrefix } from "@app/Constants";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
@@ -26,7 +28,6 @@ import {
 } from "@app/components/TableControls";
 import { useFetchDependencies } from "@app/queries/dependencies";
 import { useSelectionState } from "@migtools/lib-ui";
-import { getHubRequestParams } from "@app/hooks/table-controls";
 import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
 import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -37,7 +38,9 @@ export const Dependencies: React.FC = () => {
   const allAffectedApplicationsFilterCategories =
     useSharedAffectedApplicationFilterCategories();
 
-  const tableControlState = useTableControlUrlParams({
+  const tableControlState = useTableControlState({
+    persistIn: "urlParams",
+    urlParamKeyPrefix: TableURLParamKeyPrefix.dependencies,
     columnNames: {
       name: "Dependency name",
       foundIn: "Found in",

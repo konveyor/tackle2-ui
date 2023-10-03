@@ -9,15 +9,11 @@ import {
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useSelectionState } from "@migtools/lib-ui";
+import { AnalysisFileReport, AnalysisIssue } from "@app/api/models";
 import {
-  AnalysisFileReport,
-  AnalysisAppReport,
-  AnalysisIssue,
-} from "@app/api/models";
-import {
-  getHubRequestParams,
+  useTableControlState,
   useTableControlProps,
-  useTableControlUrlParams,
+  getHubRequestParams,
 } from "@app/hooks/table-controls";
 import { useFetchFileReports } from "@app/queries/issues";
 import { TableURLParamKeyPrefix } from "@app/Constants";
@@ -39,7 +35,8 @@ export const IssueAffectedFilesTable: React.FC<
 > = ({ issue }) => {
   const { t } = useTranslation();
 
-  const tableControlState = useTableControlUrlParams({
+  const tableControlState = useTableControlState({
+    persistIn: "urlParams",
     urlParamKeyPrefix: TableURLParamKeyPrefix.issuesAffectedFiles,
     columnNames: {
       file: "File",

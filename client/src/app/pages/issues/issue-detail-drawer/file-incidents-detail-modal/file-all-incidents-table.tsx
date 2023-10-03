@@ -11,9 +11,9 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import {
-  getHubRequestParams,
+  useTableControlState,
   useTableControlProps,
-  useTableControlUrlParams,
+  getHubRequestParams,
 } from "@app/hooks/table-controls";
 import ReactMarkdown from "react-markdown";
 import { markdownPFComponents } from "@app/components/markdownPFComponents";
@@ -25,7 +25,8 @@ export interface IFileRemainingIncidentsTableProps {
 export const FileAllIncidentsTable: React.FC<
   IFileRemainingIncidentsTableProps
 > = ({ fileReport }) => {
-  const tableControlState = useTableControlUrlParams({
+  const tableControlState = useTableControlState({
+    persistIn: "urlParams",
     urlParamKeyPrefix: TableURLParamKeyPrefix.issuesRemainingIncidents,
     columnNames: {
       line: "Line #",

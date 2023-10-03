@@ -14,13 +14,13 @@ type UsePersistedStateOptions<
   defaultValue: T;
 } & (
   | {
-      mode?: "state";
+      persistIn?: "state";
     }
   | ({
-      mode: "url";
+      persistIn: "urlParams";
     } & IUseUrlParamsArgs<TURLParamKey, TKeyPrefix, T>)
   | {
-      mode: "localStorage" | "sessionStorage";
+      persistIn: "localStorage" | "sessionStorage";
       key: string;
     }
 );
@@ -34,26 +34,25 @@ export const usePersistedState = <
 ): [T | null, (value: T) => void] => {
   const storage = {
     state: React.useState(options.defaultValue),
-    url: useUrlParams({
+    urlParams: useUrlParams({
       // TODO can we avoid these assertions? how can we narrow the type of `options` depending on mode without conditionals?
       // something with `satisfies`? read TS docs on narrowing types with hints
       ...(options as IUseUrlParamsArgs<TURLParamKey, TKeyPrefix, T>),
-      isEnabled: options.mode === "url",
+      isEnabled: options.persistIn === "urlParams",
     }),
     localStorage: useLocalStorage({
       ...(options as UseStorageTypeOptions<T>),
-      isEnabled: options.mode === "localStorage",
+      isEnabled: options.persistIn === "localStorage",
     }),
     sessionStorage: useSessionStorage({
       ...(options as UseStorageTypeOptions<T>),
-      isEnabled: options.mode === "sessionStorage",
+      isEnabled: options.persistIn === "sessionStorage",
     }),
   };
-  return storage[options.mode || "state"];
+  return storage[options.persistIn || "state"];
 };
 
 // TODO combine all the use[Feature]State and use[Feature]UrlParams hooks
-// TODO combine/rename useTableControlUrlParams into single useTableControlState hook with persistence options
 // TODO bring in useSelectionState as a persistable thing
 // TODO add JSdoc comments for all inputs and outputs
 // TODO explore the state contract needed for using useTableControlProps with custom state logic

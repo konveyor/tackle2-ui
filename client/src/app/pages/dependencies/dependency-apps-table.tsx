@@ -6,9 +6,9 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useSelectionState } from "@migtools/lib-ui";
 import { AnalysisDependency } from "@app/api/models";
 import {
-  getHubRequestParams,
+  useTableControlState,
   useTableControlProps,
-  useTableControlUrlParams,
+  getHubRequestParams,
 } from "@app/hooks/table-controls";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import {
@@ -33,7 +33,8 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
   const { businessServices } = useFetchBusinessServices();
   const { tags } = useFetchTags();
 
-  const tableControlState = useTableControlUrlParams({
+  const tableControlState = useTableControlState({
+    persistIn: "urlParams",
     urlParamKeyPrefix: TableURLParamKeyPrefix.dependencyApplications,
     columnNames: {
       name: "Application",
