@@ -83,6 +83,8 @@ export const usePersistedState = <
 };
 
 // TODO combine all the use[Feature]State and use[Feature]UrlParams hooks
+// TODO search for and make sure there are no more hooks with "urlParams" in the name
+// TODO TEST IT - should build and work at this point
 // TODO bring in useSelectionState as a persistable thing
 // TODO add JSdoc comments for all inputs and outputs
 // TODO explore the state contract needed for using useTableControlProps with custom state logic
