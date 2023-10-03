@@ -49,10 +49,10 @@ export type IUseTableControlStateArgs<
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
   TPersistenceKeyPrefix extends string = string,
-> = IFilterStateArgs<TItem, TFilterCategoryKey, TPersistenceKeyPrefix> &
+> = IFilterStateArgs<TItem, TFilterCategoryKey> &
   ISortStateArgs<TSortableColumnKey> &
   IPaginationStateArgs &
-  IPersistenceOptions & {
+  IPersistenceOptions<TPersistenceKeyPrefix> & {
     columnNames: Record<TColumnKey, string>; // An ordered mapping of unique keys to human-readable column name strings
     isSelectable?: boolean;
     hasPagination?: boolean;
@@ -78,11 +78,13 @@ export type IUseLocalTableControlStateArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
+  TPersistenceKeyPrefix extends string = string,
 > = IUseTableControlStateArgs<
   TItem,
   TColumnKey,
   TSortableColumnKey,
-  TFilterCategoryKey
+  TFilterCategoryKey,
+  TPersistenceKeyPrefix
 > &
   ITableControlDataDependentArgs<TItem> &
   ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey> &

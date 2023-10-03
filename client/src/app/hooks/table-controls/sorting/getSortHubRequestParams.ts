@@ -2,7 +2,7 @@ import { HubRequestParams } from "@app/api/models";
 import { ISortState } from "./useSortState";
 
 export interface IGetSortHubRequestParamsArgs<
-  TSortableColumnKey extends string
+  TSortableColumnKey extends string,
 > {
   sortState?: ISortState<TSortableColumnKey>;
   hubSortFieldKeys?: Record<TSortableColumnKey, string>;

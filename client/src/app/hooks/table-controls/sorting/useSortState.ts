@@ -1,6 +1,6 @@
-import * as React from "react";
-import { useUrlParams } from "../../useUrlParams";
-import { IExtraArgsForURLParamHooks } from "../types";
+import { IPersistenceOptions } from "..";
+import { usePersistentState } from "@app/hooks/usePersistentState";
+import { BaseUsePersistentStateOptions } from "@app/hooks/usePersistentState";
 
 export interface IActiveSort<TSortableColumnKey extends string> {
   columnKey: TSortableColumnKey;
@@ -12,50 +12,57 @@ export interface ISortState<TSortableColumnKey extends string> {
   setActiveSort: (sort: IActiveSort<TSortableColumnKey>) => void;
 }
 
-export interface ISortStateArgs<TSortableColumnKey extends string> {
+export type ISortStateArgs<TSortableColumnKey extends string> = {
   sortableColumns?: TSortableColumnKey[];
   initialSort?: IActiveSort<TSortableColumnKey> | null;
-}
-
-const getDefaultSort = <TSortableColumnKey extends string>(
-  sortableColumns: TSortableColumnKey[]
-): IActiveSort<TSortableColumnKey> | null =>
-  sortableColumns[0]
-    ? { columnKey: sortableColumns[0], direction: "asc" }
-    : null;
-
-export const useSortState = <TSortableColumnKey extends string>({
-  sortableColumns = [],
-  initialSort = getDefaultSort(sortableColumns),
-}: ISortStateArgs<TSortableColumnKey>): ISortState<TSortableColumnKey> => {
-  const [activeSort, setActiveSort] = React.useState(initialSort);
-  return { activeSort, setActiveSort };
 };
 
-export const useSortUrlParams = <
+export const useSortState = <
   TSortableColumnKey extends string,
-  TURLParamKeyPrefix extends string = string,
->({
-  sortableColumns = [],
-  initialSort = getDefaultSort(sortableColumns),
-  urlParamKeyPrefix,
-}: ISortStateArgs<TSortableColumnKey> &
-  IExtraArgsForURLParamHooks<TURLParamKeyPrefix>): ISortState<TSortableColumnKey> => {
-  const [activeSort, setActiveSort] = useUrlParams({
-    keyPrefix: urlParamKeyPrefix,
-    keys: ["sortColumn", "sortDirection"],
-    defaultValue: initialSort,
-    serialize: (activeSort) => ({
-      sortColumn: activeSort?.columnKey || null,
-      sortDirection: activeSort?.direction || null,
-    }),
-    deserialize: (urlParams) =>
-      urlParams.sortColumn && urlParams.sortDirection
-        ? {
-            columnKey: urlParams.sortColumn as TSortableColumnKey,
-            direction: urlParams.sortDirection as "asc" | "desc",
-          }
-        : null,
-  });
+  TPersistenceKeyPrefix extends string = string,
+>(
+  args: ISortStateArgs<TSortableColumnKey> &
+    IPersistenceOptions<TPersistenceKeyPrefix>
+): ISortState<TSortableColumnKey> => {
+  const {
+    persistTo = "state",
+    persistenceKeyPrefix,
+    sortableColumns = [],
+    initialSort = sortableColumns[0]
+      ? { columnKey: sortableColumns[0], direction: "asc" }
+      : null,
+  } = args;
+
+  const baseStateOptions: BaseUsePersistentStateOptions<IActiveSort<TSortableColumnKey> | null> =
+    {
+      defaultValue: initialSort,
+      persistenceKeyPrefix,
+    };
+
+  // Note: for the discriminated union here to work without TypeScript getting confused
+  //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
+  //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
+  const [activeSort, setActiveSort] = usePersistentState(
+    persistTo === "urlParams"
+      ? {
+          ...baseStateOptions,
+          persistTo,
+          keys: ["sortColumn", "sortDirection"],
+          serialize: (activeSort) => ({
+            sortColumn: activeSort?.columnKey || null,
+            sortDirection: activeSort?.direction || null,
+          }),
+          deserialize: (urlParams) =>
+            urlParams.sortColumn && urlParams.sortDirection
+              ? {
+                  columnKey: urlParams.sortColumn as TSortableColumnKey,
+                  direction: urlParams.sortDirection as "asc" | "desc",
+                }
+              : null,
+        }
+      : persistTo === "localStorage" || persistTo === "sessionStorage"
+      ? { ...baseStateOptions, persistTo, key: "sort" }
+      : { ...baseStateOptions, persistTo }
+  );
   return { activeSort, setActiveSort };
 };

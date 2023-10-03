@@ -16,8 +16,14 @@ export const useLocalTableControlState = <
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
+  TPersistenceKeyPrefix extends string = string,
 >(
-  args: IUseLocalTableControlStateArgs<TItem, TColumnKey, TSortableColumnKey>
+  args: IUseLocalTableControlStateArgs<
+    TItem,
+    TColumnKey,
+    TSortableColumnKey,
+    TPersistenceKeyPrefix
+  >
 ): IUseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey> => {
   const {
     items,

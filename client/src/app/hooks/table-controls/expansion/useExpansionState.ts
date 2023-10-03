@@ -19,7 +19,7 @@ export const useExpansionState = <
   TColumnKey extends string,
   TPersistenceKeyPrefix extends string = string,
 >(): IExpansionState<TColumnKey> => {
-  // TODO use usePersistedState here
+  // TODO use usePersistentState here
   const [expandedCells, setExpandedCells] = React.useState<
     TExpandedCells<TColumnKey>
   >({});

@@ -256,7 +256,7 @@ Items are filtered according to user-selected filter key/value pairs.
 Items are sorted according to the user-selected sort column and direction.
 
 - Sortable columns are defined by a `sortableColumns` array of `TColumnKey` values (see [Unique Identifiers](#unique-identifiers)).
-- Sort state is provided by `useSortState` or `useSortUrlParams`.
+- Sort state is provided by `useSortState`.
 - For client-side sorting, the sort logic is provided by `getLocalSortDerivedState` (based on the `getSortValues` config argument, which is not required when using server-side sorting).
 - For server-side sorting, sort state is serialized for the API by `getSortHubRequestParams`.
 - Sort-related component props are provided by `getSortProps`.
