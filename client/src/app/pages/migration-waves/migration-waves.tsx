@@ -67,6 +67,7 @@ import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { toRefs } from "@app/utils/model-utils";
 
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
@@ -160,10 +161,20 @@ export const MigrationWaves: React.FC = () => {
   );
 
   const removeApplication = (migrationWave: MigrationWave, id: number) => {
-    migrationWave.applications = migrationWave.applications.filter(
-      (application) => application.id !== id
+    const applicationRefs = toRefs(
+      migrationWave.applications.filter((application) => application.id !== id)
     );
-    updateMigrationWave(migrationWave);
+    const payload: MigrationWave = {
+      id: migrationWave.id,
+      name: migrationWave.name,
+      startDate: migrationWave.startDate,
+      endDate: migrationWave.endDate,
+      stakeholderGroups: migrationWave.stakeholderGroups,
+      stakeholders: migrationWave.stakeholders,
+      applications: applicationRefs || [],
+    };
+
+    updateMigrationWave(payload);
   };
 
   const tableControls = useLocalTableControls({

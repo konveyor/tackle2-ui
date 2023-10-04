@@ -35,6 +35,7 @@ import {
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import { matchItemsToRefs } from "@app/utils/model-utils";
 
 const stakeholderGroupToOption = (
   value: StakeholderGroup
@@ -226,13 +227,25 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     : null;
 
   const onSubmit = (formValues: WaveFormValues) => {
+    const stakeholders =
+      stakeholdersToRefs(
+        formValues.stakeholders.map((stakeholder) => stakeholder.name)
+      ) ?? [];
+
+    const stakeholderGroups =
+      stakeholderGroupsToRefs(
+        formValues.stakeholderGroups.map(
+          (stakeholderGroup) => stakeholderGroup.name
+        )
+      ) ?? [];
+
     const payload: New<MigrationWave> = {
       applications: migrationWave?.applications || [],
       name: formValues.name?.trim() || "",
       startDate: dayjs(formValues.startDateStr).format(),
       endDate: dayjs(formValues.endDateStr).format(),
-      stakeholders: formValues.stakeholders,
-      stakeholderGroups: formValues.stakeholderGroups,
+      stakeholders: stakeholders,
+      stakeholderGroups: stakeholderGroups,
     };
     if (migrationWave)
       updateMigrationWave({
@@ -258,6 +271,12 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     }
     return "";
   };
+
+  const stakeholdersToRefs = (names: string[] | undefined | null) =>
+    matchItemsToRefs(stakeholders, (i) => i.name, names);
+
+  const stakeholderGroupsToRefs = (names: string[] | undefined | null) =>
+    matchItemsToRefs(stakeholderGroups, (i) => i.name, names);
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
