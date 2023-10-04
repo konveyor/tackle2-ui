@@ -161,7 +161,7 @@ const AssessmentSettings: React.FC = () => {
     <>
       <PageSection variant={PageSectionVariants.light}>
         <TextContent>
-          <Text component="h1">{t("terms.assessment")}</Text>
+          <Text component="h1">{t("terms.assessmentQuestionnaires")}</Text>
         </TextContent>
       </PageSection>
       <PageSection>
