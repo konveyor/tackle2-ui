@@ -1,9 +1,9 @@
 import React from "react";
 import { LabelGroup } from "@patternfly/react-core";
-import { LabelCustomColor } from "@migtools/lib-ui";
 
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 import type { Archetype, TagCategory, Tag } from "@app/api/models";
+import { LabelCustomColor } from "@app/components/LabelCustomColor";
 
 // copied from application-tag-label.tsx
 export const getTagCategoryFallbackColor = (category?: TagCategory) => {
