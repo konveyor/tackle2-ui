@@ -469,8 +469,8 @@ export interface MigrationWave {
   startDate: string;
   endDate: string;
   applications: Ref[];
-  stakeholders: Stakeholder[];
-  stakeholderGroups: StakeholderGroup[];
+  stakeholders: Ref[];
+  stakeholderGroups: Ref[];
 }
 
 export type IssueManagerKind = "jira-cloud" | "jira-onprem";
