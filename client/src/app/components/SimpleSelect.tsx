@@ -37,7 +37,6 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  console.log({ ...props });
   return (
     <Select
       menuAppendTo="parent" // prevent menu from being clipped by modal edges
