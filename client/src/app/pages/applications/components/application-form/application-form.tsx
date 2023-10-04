@@ -107,7 +107,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
   const nonManualTags = application?.tags?.filter((t) => t.source !== "") ?? [];
 
-  // TODO: Filter this if we want to exclude non-manual tags from manual tag selection
+  // Allow all tags to be selected manually, even if they are included from another source
   const allowedManualTags = tags;
 
   const getBinaryInitialValue = (
@@ -364,7 +364,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             items={allowedManualTags}
             control={control}
             name="tags"
-            label={t("terms.tags")}
+            label={t("terms.manualTags")}
             fieldId="tags"
             noResultsMessage={t("message.noResultsFoundTitle")}
             placeholderText={t("composed.selectMany", {
