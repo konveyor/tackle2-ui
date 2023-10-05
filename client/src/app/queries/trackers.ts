@@ -49,14 +49,14 @@ export const useCreateTrackerMutation = (
 };
 
 export const useUpdateTrackerMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (res: any, tracker: Tracker) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateTracker,
-    onSuccess: (res) => {
-      onSuccess(res);
+    onSuccess: (res, tracker) => {
+      onSuccess(res, tracker);
       queryClient.invalidateQueries([TrackersQueryKey]);
     },
     onError: onError,

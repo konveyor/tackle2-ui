@@ -57,31 +57,49 @@ interface FormValues {
 }
 
 export interface TrackerFormProps {
-  tracker?: Tracker;
   onClose: () => void;
+  addUpdatingTrackerId: (id: number) => void;
+  tracker?: Tracker;
 }
 
 export const TrackerForm: React.FC<TrackerFormProps> = ({
   tracker,
   onClose,
+  addUpdatingTrackerId,
 }) => {
   const { t } = useTranslation();
 
   const [axiosError, setAxiosError] = useState<AxiosError>();
-  const [isLoading, setIsLoading] = useState(false);
 
   const { trackers: trackers } = useFetchTrackers();
   const { identities } = useFetchIdentities();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const onCreateTrackerSuccess = (_: AxiosResponse<Tracker>) =>
+  const onCreateTrackerSuccess = (_: AxiosResponse<Tracker>) => {
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.instance"),
       }),
       variant: "success",
     });
+
+    addUpdatingTrackerId(_.data.id);
+  };
+
+  const onUpdateTrackerSuccess = (
+    _: AxiosResponse<Tracker>,
+    tracker: Tracker
+  ) => {
+    pushNotification({
+      title: t("toastr.success.save", {
+        type: t("terms.instance"),
+      }),
+      variant: "success",
+    });
+
+    addUpdatingTrackerId(tracker.id);
+  };
 
   const onCreateUpdatetrackerError = (error: AxiosError) => {
     setAxiosError(error);
@@ -91,14 +109,6 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     onCreateTrackerSuccess,
     onCreateUpdatetrackerError
   );
-
-  const onUpdateTrackerSuccess = (_: AxiosResponse<Tracker>) =>
-    pushNotification({
-      title: t("toastr.success.save", {
-        type: t("terms.instance"),
-      }),
-      variant: "success",
-    });
 
   const { mutate: updateTracker } = useUpdateTrackerMutation(
     onUpdateTrackerSuccess,
@@ -311,9 +321,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
           aria-label="submit"
           id="submit"
           variant={ButtonVariant.primary}
-          isDisabled={
-            !isValid || isSubmitting || isValidating || isLoading || !isDirty
-          }
+          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
         >
           {!tracker ? "Create" : "Save"}
         </Button>
