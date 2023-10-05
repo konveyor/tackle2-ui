@@ -1,58 +1,56 @@
 import React from "react";
-import { Button } from "@patternfly/react-core";
+import { Alert, Button } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { saveAs } from "file-saver";
+import { Spinner } from "@patternfly/react-core";
+import { useDownloadStaticReport } from "@app/queries/applications";
+import { Application } from "@app/api/models";
 
-import { MimeType } from "@app/api/models";
-import { useFetchStaticReport } from "@app/queries/applications";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { AxiosError } from "axios";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-
-interface IDownloadButtonProps {
-  id: number;
-  mimeType: MimeType;
-  children: React.ReactNode;
+export enum MimeType {
+  TAR = "tar",
+  YAML = "yaml",
 }
-
+interface IDownloadButtonProps {
+  application: Application;
+  mimeType: MimeType;
+}
 export const DownloadButton: React.FC<IDownloadButtonProps> = ({
-  id,
+  application,
   mimeType,
-  children,
 }) => {
-  const { pushNotification } = React.useContext(NotificationsContext);
-
-  const onFetchStaticReportError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
-
-  const { data: report, refetch } = useFetchStaticReport(
-    id,
-    mimeType,
-    onFetchStaticReportError
-  );
+  const {
+    mutate: downloadFile,
+    isLoading,
+    isError,
+  } = useDownloadStaticReport();
 
   const handleDownload = () => {
-    refetch().then(() => {
-      if (report) {
-        saveAs(new Blob([report]), `analysis-report-app-${id}.${mimeType}`);
-      }
+    downloadFile({
+      application: application,
+      mimeType: mimeType,
     });
   };
 
   return (
-    <Button
-      key={mimeType}
-      onClick={handleDownload}
-      id={`download-${mimeType}-button`}
-      variant="link"
-      className={spacing.pXs}
-    >
-      {children}
-    </Button>
+    <>
+      {isLoading ? (
+        <Spinner size="sm" />
+      ) : isError ? (
+        <Alert variant="warning" isInline title={"Error downloading report"}>
+          <p>{"An error has occurred. Try to download again."}</p>
+        </Alert>
+      ) : (
+        <>
+          <Button
+            onClick={handleDownload}
+            id={`download-${mimeType}-button`}
+            variant="link"
+            className={spacing.pXs}
+          >
+            {mimeType === MimeType.YAML ? "YAML" : "Report"}
+          </Button>
+        </>
+      )}
+    </>
   );
 };
 

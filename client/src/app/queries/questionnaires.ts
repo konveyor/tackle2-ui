@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 
 import {
+  QUESTIONNAIRES,
   createQuestionnaire,
   deleteQuestionnaire,
   getQuestionnaireById,
@@ -9,6 +10,7 @@ import {
   updateQuestionnaire,
 } from "@app/api/rest";
 import { Questionnaire } from "@app/api/models";
+import saveAs from "file-saver";
 
 export const QuestionnairesQueryKey = "questionnaires";
 export const QuestionnaireByIdQueryKey = "questionnaireById";
@@ -84,7 +86,7 @@ export const useFetchQuestionnaireBlob = (
 ) =>
   useQuery({
     queryKey: [QuestionnaireByIdQueryKey, id],
-    queryFn: () => getQuestionnaireById<Blob>(id, true),
+    queryFn: () => getQuestionnaireById<Blob>(id),
     onError: onError,
     enabled: false,
   });
@@ -112,4 +114,32 @@ export const useCreateQuestionnaireMutation = (
     isLoading,
     error,
   };
+};
+
+export const downloadQuestionnaire = async (
+  id: number | string
+): Promise<void> => {
+  const url = `${QUESTIONNAIRES}/${id}`;
+
+  try {
+    const response = await axios.get(url, {
+      responseType: "blob",
+      headers: {
+        Accept: "application/x-yaml",
+      },
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Network response was not ok when downloading file.");
+    }
+
+    const blob = new Blob([response.data]);
+    saveAs(blob, `questionnaire-${id}.yaml`);
+  } catch (error) {
+    console.error("There was an error downloading the file:", error);
+    throw error;
+  }
+};
+export const useDownloadQuestionnaire = () => {
+  return useMutation(downloadQuestionnaire);
 };

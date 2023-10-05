@@ -721,23 +721,8 @@ export const updateProxy = (obj: Proxy): Promise<Proxy> =>
 export const getQuestionnaires = (): Promise<Questionnaire[]> =>
   axios.get(QUESTIONNAIRES).then((response) => response.data);
 
-export const getQuestionnaireById = <T>(
-  id: number | string,
-  isBlob: boolean = false
-): Promise<T> =>
-  axios
-    .get(
-      `${QUESTIONNAIRES}/${id}`,
-      isBlob
-        ? {
-            responseType: "blob",
-            headers: {
-              Accept: "application/x-yaml",
-            },
-          }
-        : {}
-    )
-    .then((response) => response.data);
+export const getQuestionnaireById = <T>(id: number | string): Promise<T> =>
+  axios.get(`${QUESTIONNAIRES}/${id}`).then((response) => response.data);
 
 export const createQuestionnaire = (
   obj: Questionnaire
