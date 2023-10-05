@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 
 import { Application, MimeType } from "@app/api/models";
 import {
+  APPLICATIONS,
   createApplication,
   deleteApplication,
   deleteBulkApplications,
-  getApplicationAnalysis,
   getApplicationById,
   getApplications,
   updateAllApplications,
@@ -14,10 +14,16 @@ import {
 } from "@app/api/rest";
 import { reviewsQueryKey } from "./reviews";
 import { assessmentsQueryKey } from "./assessments";
+import saveAs from "file-saver";
 
 export const ApplicationDependencyQueryKey = "applicationdependencies";
 export const ApplicationsQueryKey = "applications";
 export const ReportQueryKey = "report";
+
+interface DownloadOptions {
+  application: Application;
+  mimeType: MimeType;
+}
 
 export const useFetchApplications = () => {
   const queryClient = useQueryClient();
@@ -134,15 +140,44 @@ export const useBulkDeleteApplicationMutation = (
   );
 };
 
-// The report download is triggerred on demand by a refetch()
-export const useFetchStaticReport = (
-  id: number,
-  type: MimeType,
-  onError: (err: AxiosError) => void
-) =>
-  useQuery({
-    queryKey: [ReportQueryKey, id],
-    queryFn: () => getApplicationAnalysis(id, type),
-    onError: onError,
-    enabled: false,
-  });
+export const downloadStaticReport = async ({
+  application,
+  mimeType,
+}: DownloadOptions): Promise<void> => {
+  const yamlAcceptHeader = "application/x-yaml";
+  let url = `${APPLICATIONS}/${application.id}/analysis/report`;
+
+  switch (mimeType) {
+    case MimeType.YAML:
+      url = `${APPLICATIONS}/${application.id}/analysis`;
+      break;
+    case MimeType.TAR:
+    default:
+      url = `${APPLICATIONS}/${application.id}/analysis/report`;
+  }
+
+  try {
+    const response = await axios.get(url, {
+      responseType: "blob",
+      ...(MimeType.YAML && {
+        headers: {
+          Accept: yamlAcceptHeader,
+        },
+      }),
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Network response was not ok when downloading file.");
+    }
+
+    const blob = new Blob([response.data]);
+    saveAs(blob, `analysis-report-app-${application.name}.${mimeType}`);
+  } catch (error) {
+    console.error("There was an error downloading the file:", error);
+    throw error;
+  }
+};
+
+export const useDownloadStaticReport = () => {
+  return useMutation(downloadStaticReport);
+};
