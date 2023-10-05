@@ -267,7 +267,7 @@ Items are sorted according to the user-selected sort column and direction.
 Items are paginated according to the user-selected page number and items-per-page count.
 
 - The only config argument for pagination is the optional `initialItemsPerPage` which defaults to 10.
-- Pagination state is provided by `usePaginationState` or `usePaginationUrlParams`.
+- Pagination state is provided by `usePaginationState`.
 - For client-side pagination, the pagination logic is provided by `getLocalPaginationDerivedState`.
 - For server-side pagination, pagination state is serialized for the API by `getPaginationHubRequestParams`.
 - Pagination-related component props are provided by `getPaginationProps`.
@@ -281,7 +281,7 @@ Items are paginated according to the user-selected page number and items-per-pag
 Item details can be expanded, either with a "single expansion" variant where an entire row is expanded to show more detail or a "compound expansion" variant where an individual cell in a row (one at a time per row) is expanded. This is tracked in state by a mapping of item ids (derived from the `idProperty` config argument) to either a boolean value (for single expansion) or a `columnKey` value (for compound expansion). See [Unique Identifiers](#unique-identifiers) for more on `idProperty` and `columnKey`.
 
 - Single or compound expansion is defined by the optional `expandableVariant` config argument which defaults to `"single"`.
-- Expansion state is provided by `useExpansionState` or `useExpansionUrlParams`.
+- Expansion state is provided by `useExpansionState`.
 - Expansion shorthand functions are provided by `getExpansionDerivedState`.
 - Expansion is never managed server-side.
 - Expansion-related component props are provided inside `useTableControlProps` in the `getSingleExpandTdProps` and `getCompoundExpandTdProps` functions.
@@ -294,7 +294,7 @@ Item details can be expanded, either with a "single expansion" variant where an 
 An item can be clicked to mark it as "active", which usually opens a drawer on the page to show more detail. Note that this is distinct from expansion and selection and these features can all be used together. Active row state is simply a single id value (number or string) for the active item, derived from the `idProperty` config argument (see [Unique Identifiers](#unique-identifiers)).
 
 - The active row feature requires no config arguments.
-- Active row state is provided by `useActiveRowState` or `useActiveRowUrlParams`.
+- Active row state is provided by `useActiveRowState`.
 - Active row shorthand functions are provided by `getActiveRowDerivedState`.
 - A `useEffect` call which prevents invalid state after an item is deleted is provided by `useActiveRowEffects`.
 
