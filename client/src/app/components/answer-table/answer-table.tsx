@@ -15,7 +15,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IconedStatus } from "@app/components/IconedStatus";
 import { TimesCircleIcon } from "@patternfly/react-icons";
 import { WarningTriangleIcon } from "@patternfly/react-icons";
-
+import { List, ListItem } from "@patternfly/react-core";
 export interface IAnswerTableProps {
   answers: Answer[];
   hideAnswerKey?: boolean;
@@ -66,7 +66,41 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
               <Th {...getThProps({ columnKey: "choice" })} />
-              <Th {...getThProps({ columnKey: "weight" })} />
+              <Th
+                {...getThProps({ columnKey: "weight" })}
+                info={{
+                  tooltip: (
+                    <>
+                      <Text>
+                        This column shows the associated risk weight of an
+                        answered question.
+                      </Text>
+                      <List isPlain className={spacing.mtLg}>
+                        <ListItem>
+                          <IconedStatus
+                            icon={<TimesCircleIcon />}
+                            status="danger"
+                            label="is High risk"
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <IconedStatus
+                            icon={<WarningTriangleIcon />}
+                            status="warning"
+                            label="is Medium risk"
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <IconedStatus
+                            preset="Ok"
+                            label="is Low risk"
+                          ></IconedStatus>
+                        </ListItem>
+                      </List>
+                    </>
+                  ),
+                }}
+              />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
