@@ -237,7 +237,7 @@ export const SidebarApp: React.FC = () => {
               ) : null}
               <NavItem>
                 <NavLink to={Paths.assessment} activeClassName="pf-m-current">
-                  Assessment
+                  {t("terms.assessmentQuestionnaires")}
                 </NavLink>
               </NavItem>
             </NavList>
