@@ -15,7 +15,6 @@ import {
 import type {
   Archetype,
   New,
-  Ref,
   Stakeholder,
   StakeholderGroup,
   Tag,
@@ -37,6 +36,7 @@ import { useFetchTagCategories } from "@app/queries/tags";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import ItemsSelect from "@app/components/items-select/items-select";
+import { matchItemsToRefs } from "@app/utils/model-utils";
 
 export interface ArchetypeFormValues {
   name: string;
@@ -66,14 +66,23 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
   const {
     existingArchetypes,
     tags,
+    tagsToRefs,
     stakeholders,
+    stakeholdersToRefs,
     stakeholderGroups,
+    stakeholderGroupsToRefs,
     createArchetype,
     updateArchetype,
   } = useArchetypeFormData({
     id: archetype?.id,
     onActionSuccess: onClose,
   });
+
+  const archetypeTags =
+    archetype?.tags?.filter((t) => t?.source ?? "" === "") ?? [];
+
+  const assessmentTags =
+    archetype?.tags?.filter((t) => t?.source ?? "" !== "") ?? [];
 
   const validationSchema = yup.object().shape({
     name: yup
@@ -145,7 +154,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       comments: archetype?.comments || "",
 
       criteria: archetype?.criteria?.map((tag) => tag.name).sort() ?? [],
-      tags: archetype?.tags?.map((tag) => tag.name).sort() ?? [],
+      tags: archetypeTags.map((tag) => tag.name).sort() ?? [],
 
       stakeholders: archetype?.stakeholders?.map((sh) => sh.name).sort() ?? [],
       stakeholderGroups:
@@ -156,6 +165,9 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
   });
 
   const onValidSubmit = (values: ArchetypeFormValues) => {
+    // Note: We need to manually retain the tags with source != "" in the payload
+    const tags = [...(tagsToRefs(values.tags) ?? []), ...assessmentTags];
+
     const payload: New<Archetype> = {
       name: values.name.trim(),
       description: values.description?.trim() ?? "",
@@ -169,25 +181,8 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         .map((tagName) => tags.find((tag) => tag.name === tagName))
         .filter(Boolean),
 
-      stakeholders:
-        values.stakeholders === undefined
-          ? undefined
-          : values.stakeholders
-              .map((name) => stakeholders.find((s) => s.name === name))
-              .map<Ref | undefined>((sh) =>
-                !sh ? undefined : { id: sh.id, name: sh.name }
-              )
-              .filter(Boolean),
-
-      stakeholderGroups:
-        values.stakeholderGroups === undefined
-          ? undefined
-          : values.stakeholderGroups
-              .map((name) => stakeholderGroups.find((s) => s.name === name))
-              .map<Ref | undefined>((sg) =>
-                !sg ? undefined : { id: sg.id, name: sg.name }
-              )
-              .filter(Boolean),
+      stakeholders: stakeholdersToRefs(values.stakeholders),
+      stakeholderGroups: stakeholderGroupsToRefs(values.stakeholderGroups),
     };
 
     if (archetype && !isDuplicating) {
@@ -322,6 +317,7 @@ const useArchetypeFormData = ({
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
+  // Fetch data
   const { archetypes: existingArchetypes } = useFetchArchetypes();
   const { archetype } = useFetchArchetypeById(id);
 
@@ -334,6 +330,17 @@ const useArchetypeFormData = ({
   const { stakeholderGroups } = useFetchStakeholderGroups();
   const { stakeholders } = useFetchStakeholders();
 
+  // Helpers
+  const tagsToRefs = (names: string[] | undefined | null) =>
+    matchItemsToRefs(tags, (i) => i.name, names);
+
+  const stakeholdersToRefs = (names: string[] | undefined | null) =>
+    matchItemsToRefs(stakeholders, (i) => i.name, names);
+
+  const stakeholderGroupsToRefs = (names: string[] | undefined | null) =>
+    matchItemsToRefs(stakeholderGroups, (i) => i.name, names);
+
+  // Mutation notification handlers
   const onCreateSuccess = (archetype: Archetype) => {
     pushNotification({
       title: t("toastr.success.createWhat", {
@@ -380,7 +387,10 @@ const useArchetypeFormData = ({
     updateArchetype,
     tagCategories,
     tags,
+    tagsToRefs,
     stakeholders,
+    stakeholdersToRefs,
     stakeholderGroups,
+    stakeholderGroupsToRefs,
   };
 };
