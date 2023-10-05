@@ -6,7 +6,6 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
-  EmptyStateFooter,
   EmptyStateHeader,
   EmptyStateIcon,
   Modal,
@@ -252,9 +251,6 @@ const Archetypes: React.FC = () => {
                     <EmptyStateBody>
                       Create a new archetype to get started.
                     </EmptyStateBody>
-                    <EmptyStateFooter>
-                      <CreateButton />
-                    </EmptyStateFooter>
                   </EmptyState>
                 }
                 numRenderedColumns={numRenderedColumns}
