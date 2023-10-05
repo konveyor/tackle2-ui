@@ -44,7 +44,7 @@ export interface ArchetypeFormValues {
   comments?: string;
 
   // TODO: a string[] only works here with `Autocomplete` if the entities have globally unique names
-  criteriaTags: string[];
+  criteria: string[];
   tags: string[];
   stakeholders?: string[];
   stakeholderGroups?: string[];
@@ -104,7 +104,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       .max(250, t("validation.maxLength", { length: 250 })),
 
     // for complex data fields
-    criteriaTags: yup
+    criteria: yup
       .array()
       .of(yup.string())
       .min(1)
@@ -144,8 +144,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       description: archetype?.description || "",
       comments: archetype?.comments || "",
 
-      criteriaTags:
-        archetype?.criteriaTags?.map((tag) => tag.name).sort() ?? [],
+      criteria: archetype?.criteria?.map((tag) => tag.name).sort() ?? [],
       tags: archetype?.tags?.map((tag) => tag.name).sort() ?? [],
 
       stakeholders: archetype?.stakeholders?.map((sh) => sh.name).sort() ?? [],
@@ -162,33 +161,33 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       description: values.description?.trim() ?? "",
       comments: values.comments?.trim() ?? "",
 
-      criteriaTags: values.criteriaTags
+      criteria: values.criteria
         .map((tagName) => tags.find((tag) => tag.name === tagName))
-        .filter(Boolean) as Tag[],
+        .filter(Boolean),
 
       tags: values.tags
         .map((tagName) => tags.find((tag) => tag.name === tagName))
-        .filter(Boolean) as Tag[],
+        .filter(Boolean),
 
       stakeholders:
         values.stakeholders === undefined
           ? undefined
-          : (values.stakeholders
+          : values.stakeholders
               .map((name) => stakeholders.find((s) => s.name === name))
               .map<Ref | undefined>((sh) =>
                 !sh ? undefined : { id: sh.id, name: sh.name }
               )
-              .filter(Boolean) as Ref[]),
+              .filter(Boolean),
 
       stakeholderGroups:
         values.stakeholderGroups === undefined
           ? undefined
-          : (values.stakeholderGroups
+          : values.stakeholderGroups
               .map((name) => stakeholderGroups.find((s) => s.name === name))
               .map<Ref | undefined>((sg) =>
                 !sg ? undefined : { id: sg.id, name: sg.name }
               )
-              .filter(Boolean) as Ref[]),
+              .filter(Boolean),
     };
 
     if (archetype && !isDuplicating) {
@@ -218,9 +217,9 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       <ItemsSelect<Tag, ArchetypeFormValues>
         items={tags}
         control={control}
-        name="criteriaTags"
+        name="criteria"
         label="Criteria Tags"
-        fieldId="criteriaTags"
+        fieldId="criteria"
         isRequired
         noResultsMessage={t("message.noResultsFoundTitle")}
         placeholderText={t("composed.selectMany", {
@@ -234,7 +233,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         control={control}
         name="tags"
         label="Archetype Tags"
-        fieldId="archetypeTags"
+        fieldId="tags"
         isRequired
         noResultsMessage={t("message.noResultsFoundTitle")}
         placeholderText={t("composed.selectMany", {

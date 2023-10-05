@@ -375,8 +375,6 @@ const Archetypes: React.FC = () => {
         />
       </Modal>
 
-      {/* TODO: Add duplicate confirm modal */}
-
       {/* Delete confirm modal */}
       <ConfirmDialog
         title={t("dialog.title.deleteWithName", {
@@ -398,6 +396,8 @@ const Archetypes: React.FC = () => {
           }
         }}
       />
+
+      {/* Override existing assessment confirm modal */}
       <ConfirmDialog
         title={t("dialog.title.newAssessment")}
         titleIconVariant={"warning"}

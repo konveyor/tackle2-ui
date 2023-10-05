@@ -27,6 +27,7 @@ const TagLabel: React.FC<{
 // TODO: Refactor the application-tags-label.tsx so applications and archetypes can share `TagLabel`
 // TODO: Sort tags?
 // TODO: Group tags by categories?
+// TODO: Display ONLY manual tags (source==="") or display tags from ALL sources?
 const ArchetypeTagsColumn: React.FC<{ archetype: Archetype }> = ({
   archetype,
 }) => (

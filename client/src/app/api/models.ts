@@ -461,6 +461,7 @@ export interface IReadFile {
 
 export interface TagRef extends Ref {
   source?: string;
+  virtual?: boolean;
 }
 
 export interface MigrationWave {
@@ -744,12 +745,12 @@ export interface Archetype {
   name: string;
   description: string;
   comments: string;
-  criteriaTags: Tag[];
-  tags: Tag[];
-  assessmentTags?: Tag[];
+  tags: TagRef[];
+  criteria: TagRef[];
   stakeholders?: Ref[];
   stakeholderGroups?: Ref[];
   applications?: Ref[];
   assessments?: Ref[];
+  assessed?: boolean;
   review?: Ref;
 }
