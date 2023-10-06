@@ -130,7 +130,6 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
       const matchingOption = options.find(
         (o) => o.toLowerCase() === (hint || newSelectionText).toLowerCase()
       );
-      console.log({ matchingOption, newSelectionText, options });
       if (!matchingOption || selections.includes(matchingOption)) {
         return;
       }

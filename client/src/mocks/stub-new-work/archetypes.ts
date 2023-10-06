@@ -140,11 +140,11 @@ const data: Record<number, Archetype> = {
     name: "Wayne",
     description: "Wayne does the bare minimum",
     comments: "This one needs coffee",
-    criteriaTags: [tagData["1"]],
+    criteria: [tagData["1"]],
     tags: [tagData["81"]],
-    assessmentTags: [],
     stakeholders: [],
     stakeholderGroups: [],
+    assessed: false,
   },
 
   2: {
@@ -152,11 +152,11 @@ const data: Record<number, Archetype> = {
     name: "Garth",
     description: "Garth has some extra tags",
     comments: "This one needs tea",
-    criteriaTags: [tagData["2"]],
+    criteria: [tagData["2"]],
     tags: [tagData["81"], tagData["82"]],
-    assessmentTags: [],
     stakeholders: [],
     stakeholderGroups: [],
+    assessed: false,
   },
 
   3: {
@@ -164,13 +164,13 @@ const data: Record<number, Archetype> = {
     name: "Cassandra",
     description: "Cassandra is the most complex",
     comments: "This one needs cakes",
-    criteriaTags: [tagData["3"]],
+    criteria: [tagData["3"]],
     tags: [tagData["81"], tagData["82"], tagData["83"]],
-    assessmentTags: [],
     stakeholders: [],
     stakeholderGroups: [],
     // assessments: [{ id: 1, name: "test" }],
     assessments: [],
+    assessed: false,
   },
 };
 

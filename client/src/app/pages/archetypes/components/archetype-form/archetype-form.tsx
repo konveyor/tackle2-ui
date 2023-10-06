@@ -15,7 +15,6 @@ import {
 import type {
   Archetype,
   New,
-  Ref,
   Stakeholder,
   StakeholderGroup,
   Tag,
@@ -37,6 +36,7 @@ import { useFetchTagCategories } from "@app/queries/tags";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import ItemsSelect from "@app/components/items-select/items-select";
+import { matchItemsToRefs } from "@app/utils/model-utils";
 
 export interface ArchetypeFormValues {
   name: string;
@@ -44,7 +44,7 @@ export interface ArchetypeFormValues {
   comments?: string;
 
   // TODO: a string[] only works here with `Autocomplete` if the entities have globally unique names
-  criteriaTags: string[];
+  criteria: string[];
   tags: string[];
   stakeholders?: string[];
   stakeholderGroups?: string[];
@@ -66,14 +66,23 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
   const {
     existingArchetypes,
     tags,
+    tagsToRefs,
     stakeholders,
+    stakeholdersToRefs,
     stakeholderGroups,
+    stakeholderGroupsToRefs,
     createArchetype,
     updateArchetype,
   } = useArchetypeFormData({
     id: archetype?.id,
     onActionSuccess: onClose,
   });
+
+  const archetypeTags =
+    archetype?.tags?.filter((t) => t?.source ?? "" === "") ?? [];
+
+  const assessmentTags =
+    archetype?.tags?.filter((t) => t?.source ?? "" !== "") ?? [];
 
   const validationSchema = yup.object().shape({
     name: yup
@@ -104,7 +113,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       .max(250, t("validation.maxLength", { length: 250 })),
 
     // for complex data fields
-    criteriaTags: yup
+    criteria: yup
       .array()
       .of(yup.string())
       .min(1)
@@ -144,9 +153,8 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       description: archetype?.description || "",
       comments: archetype?.comments || "",
 
-      criteriaTags:
-        archetype?.criteriaTags?.map((tag) => tag.name).sort() ?? [],
-      tags: archetype?.tags?.map((tag) => tag.name).sort() ?? [],
+      criteria: archetype?.criteria?.map((tag) => tag.name).sort() ?? [],
+      tags: archetypeTags.map((tag) => tag.name).sort() ?? [],
 
       stakeholders: archetype?.stakeholders?.map((sh) => sh.name).sort() ?? [],
       stakeholderGroups:
@@ -157,38 +165,24 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
   });
 
   const onValidSubmit = (values: ArchetypeFormValues) => {
+    // Note: We need to manually retain the tags with source != "" in the payload
+    const tags = [...(tagsToRefs(values.tags) ?? []), ...assessmentTags];
+
     const payload: New<Archetype> = {
       name: values.name.trim(),
       description: values.description?.trim() ?? "",
       comments: values.comments?.trim() ?? "",
 
-      criteriaTags: values.criteriaTags
+      criteria: values.criteria
         .map((tagName) => tags.find((tag) => tag.name === tagName))
-        .filter(Boolean) as Tag[],
+        .filter(Boolean),
 
       tags: values.tags
         .map((tagName) => tags.find((tag) => tag.name === tagName))
-        .filter(Boolean) as Tag[],
+        .filter(Boolean),
 
-      stakeholders:
-        values.stakeholders === undefined
-          ? undefined
-          : (values.stakeholders
-              .map((name) => stakeholders.find((s) => s.name === name))
-              .map<Ref | undefined>((sh) =>
-                !sh ? undefined : { id: sh.id, name: sh.name }
-              )
-              .filter(Boolean) as Ref[]),
-
-      stakeholderGroups:
-        values.stakeholderGroups === undefined
-          ? undefined
-          : (values.stakeholderGroups
-              .map((name) => stakeholderGroups.find((s) => s.name === name))
-              .map<Ref | undefined>((sg) =>
-                !sg ? undefined : { id: sg.id, name: sg.name }
-              )
-              .filter(Boolean) as Ref[]),
+      stakeholders: stakeholdersToRefs(values.stakeholders),
+      stakeholderGroups: stakeholderGroupsToRefs(values.stakeholderGroups),
     };
 
     if (archetype && !isDuplicating) {
@@ -218,9 +212,9 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       <ItemsSelect<Tag, ArchetypeFormValues>
         items={tags}
         control={control}
-        name="criteriaTags"
+        name="criteria"
         label="Criteria Tags"
-        fieldId="criteriaTags"
+        fieldId="criteria"
         isRequired
         noResultsMessage={t("message.noResultsFoundTitle")}
         placeholderText={t("composed.selectMany", {
@@ -234,7 +228,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         control={control}
         name="tags"
         label="Archetype Tags"
-        fieldId="archetypeTags"
+        fieldId="tags"
         isRequired
         noResultsMessage={t("message.noResultsFoundTitle")}
         placeholderText={t("composed.selectMany", {
@@ -323,6 +317,7 @@ const useArchetypeFormData = ({
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
+  // Fetch data
   const { archetypes: existingArchetypes } = useFetchArchetypes();
   const { archetype } = useFetchArchetypeById(id);
 
@@ -335,6 +330,17 @@ const useArchetypeFormData = ({
   const { stakeholderGroups } = useFetchStakeholderGroups();
   const { stakeholders } = useFetchStakeholders();
 
+  // Helpers
+  const tagsToRefs = (names: string[] | undefined | null) =>
+    matchItemsToRefs(tags, (i) => i.name, names);
+
+  const stakeholdersToRefs = (names: string[] | undefined | null) =>
+    matchItemsToRefs(stakeholders, (i) => i.name, names);
+
+  const stakeholderGroupsToRefs = (names: string[] | undefined | null) =>
+    matchItemsToRefs(stakeholderGroups, (i) => i.name, names);
+
+  // Mutation notification handlers
   const onCreateSuccess = (archetype: Archetype) => {
     pushNotification({
       title: t("toastr.success.createWhat", {
@@ -381,7 +387,10 @@ const useArchetypeFormData = ({
     updateArchetype,
     tagCategories,
     tags,
+    tagsToRefs,
     stakeholders,
+    stakeholdersToRefs,
     stakeholderGroups,
+    stakeholderGroupsToRefs,
   };
 };

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -19,6 +19,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Archetype, Tag } from "@app/api/models";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
+import { useFetchTagCategories } from "@app/queries/tags";
 
 import "./archetype-detail-drawer.css";
 
@@ -32,6 +33,24 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
   archetype,
 }) => {
   const { t } = useTranslation();
+
+  const { tagCategories } = useFetchTagCategories();
+  const tags = useMemo(
+    () => tagCategories.flatMap((tc) => tc.tags).filter(Boolean),
+    [tagCategories]
+  );
+
+  const archetypeTags =
+    archetype?.tags
+      ?.filter((t) => t?.source ?? "" === "")
+      .map((ref) => tags.find((tag) => ref.id === tag.id))
+      .filter(Boolean) ?? [];
+
+  const assessmentTags =
+    archetype?.tags
+      ?.filter((t) => t?.source ?? "" !== "")
+      .map((ref) => tags.find((tag) => ref.id === tag.id))
+      .filter(Boolean) ?? [];
 
   return (
     <PageDrawerContent
@@ -63,8 +82,8 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.tagsCriteria")}</DescriptionListTerm>
           <DescriptionListDescription>
-            {archetype?.criteriaTags?.length ?? 0 > 0 ? (
-              <TagLabels tags={archetype?.criteriaTags} />
+            {archetype?.criteria?.length ?? 0 > 0 ? (
+              <TagLabels tags={archetype?.criteria} />
             ) : (
               <EmptyTextMessage message={t("terms.none")} />
             )}
@@ -74,8 +93,8 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.tagsArchetype")}</DescriptionListTerm>
           <DescriptionListDescription>
-            {archetype?.tags?.length ?? 0 > 0 ? (
-              <TagLabels tags={archetype?.tags} />
+            {archetypeTags.length > 0 ? (
+              <TagLabels tags={archetypeTags} />
             ) : (
               <EmptyTextMessage message={t("terms.none")} />
             )}
@@ -85,8 +104,8 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.tagsAssessment")}</DescriptionListTerm>
           <DescriptionListDescription>
-            {archetype?.assessmentTags?.length ?? 0 > 0 ? (
-              <TagLabels tags={archetype?.assessmentTags} />
+            {assessmentTags.length > 0 ? (
+              <TagLabels tags={assessmentTags} />
             ) : (
               <EmptyTextMessage message={t("terms.none")} />
             )}
