@@ -46,7 +46,13 @@ export const useFilterState = <
           deserialize: deserializeFilterUrlParams,
         }
       : persistTo === "localStorage" || persistTo === "sessionStorage"
-      ? { ...baseStateOptions, persistTo, key: "filters" }
+      ? {
+          ...baseStateOptions,
+          persistTo,
+          key: `${
+            persistenceKeyPrefix ? `${persistenceKeyPrefix}:` : ""
+          }filters`,
+        }
       : { ...baseStateOptions, persistTo }
   );
   return { filterValues, setFilterValues };

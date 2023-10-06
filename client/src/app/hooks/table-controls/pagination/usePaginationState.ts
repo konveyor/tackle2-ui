@@ -1,6 +1,8 @@
-import * as React from "react";
-import { useUrlParams } from "../../useUrlParams";
-import { IExtraArgsForURLParamHooks } from "../types";
+import {
+  BaseUsePersistentStateOptions,
+  usePersistentState,
+} from "@app/hooks/usePersistentState";
+import { IPersistenceOptions } from "../types";
 
 export interface IPaginationState {
   pageNumber: number;
@@ -13,50 +15,67 @@ export interface IPaginationStateArgs {
   initialItemsPerPage?: number;
 }
 
-export const usePaginationState = ({
-  initialItemsPerPage = 10,
-}: IPaginationStateArgs): IPaginationState => {
-  const [pageNumber, baseSetPageNumber] = React.useState(1);
-  const setPageNumber = (num: number) => baseSetPageNumber(num >= 1 ? num : 1);
-  const [itemsPerPage, setItemsPerPage] = React.useState(initialItemsPerPage);
+export const usePaginationState = <
+  TPersistenceKeyPrefix extends string = string,
+>(
+  args: IPaginationStateArgs & IPersistenceOptions<TPersistenceKeyPrefix>
+): IPaginationState => {
+  const {
+    persistTo = "state",
+    persistenceKeyPrefix,
+    initialItemsPerPage = 10,
+  } = args;
+
+  const defaultValue = { pageNumber: 1, itemsPerPage: initialItemsPerPage };
+  const baseStateOptions: BaseUsePersistentStateOptions<
+    typeof defaultValue | null
+  > = { defaultValue, persistenceKeyPrefix };
+
+  const [paginationState, setPaginationState] = usePersistentState(
+    persistTo === "urlParams"
+      ? {
+          ...baseStateOptions,
+          persistTo,
+          keys: ["pageNumber", "itemsPerPage"],
+          serialize: (state) => {
+            const { pageNumber, itemsPerPage } = state || {};
+            return {
+              pageNumber: pageNumber ? String(pageNumber) : undefined,
+              itemsPerPage: itemsPerPage ? String(itemsPerPage) : undefined,
+            };
+          },
+          deserialize: (urlParams) => {
+            const { pageNumber, itemsPerPage } = urlParams || {};
+            return pageNumber && itemsPerPage
+              ? {
+                  pageNumber: parseInt(pageNumber, 10),
+                  itemsPerPage: parseInt(itemsPerPage, 10),
+                }
+              : defaultValue;
+          },
+        }
+      : persistTo === "localStorage" || persistTo === "sessionStorage"
+      ? {
+          ...baseStateOptions,
+          persistTo,
+          key: `${
+            persistenceKeyPrefix ? `${persistenceKeyPrefix}:` : ""
+          }pagination`,
+        }
+      : { ...baseStateOptions, persistTo }
+  );
+  const { pageNumber, itemsPerPage } = paginationState || defaultValue;
+  const setPageNumber = (num: number) =>
+    setPaginationState({
+      pageNumber: num >= 1 ? num : 1,
+      itemsPerPage: paginationState?.itemsPerPage || initialItemsPerPage,
+    });
+  const setItemsPerPage = (itemsPerPage: number) =>
+    setPaginationState({
+      pageNumber: paginationState?.pageNumber || 1,
+      itemsPerPage,
+    });
   return { pageNumber, setPageNumber, itemsPerPage, setItemsPerPage };
 };
 
-export const usePaginationUrlParams = <
-  TURLParamKeyPrefix extends string = string
->({
-  initialItemsPerPage = 10,
-  urlParamKeyPrefix,
-}: IPaginationStateArgs &
-  IExtraArgsForURLParamHooks<TURLParamKeyPrefix>): IPaginationState => {
-  const defaultValue = { pageNumber: 1, itemsPerPage: initialItemsPerPage };
-  const [paginationState, setPaginationState] = useUrlParams({
-    keyPrefix: urlParamKeyPrefix,
-    keys: ["pageNumber", "itemsPerPage"],
-    defaultValue,
-    serialize: ({ pageNumber, itemsPerPage }) => ({
-      pageNumber: pageNumber ? String(pageNumber) : undefined,
-      itemsPerPage: itemsPerPage ? String(itemsPerPage) : undefined,
-    }),
-    deserialize: ({ pageNumber, itemsPerPage }) =>
-      pageNumber && itemsPerPage
-        ? {
-            pageNumber: parseInt(pageNumber, 10),
-            itemsPerPage: parseInt(itemsPerPage, 10),
-          }
-        : defaultValue,
-  });
-
-  const setPageNumber = (pageNumber: number) =>
-    setPaginationState({ pageNumber: pageNumber >= 1 ? pageNumber : 1 });
-  const setItemsPerPage = (itemsPerPage: number) =>
-    setPaginationState({ itemsPerPage });
-
-  const { pageNumber, itemsPerPage } = paginationState;
-  return {
-    pageNumber: pageNumber || 1,
-    itemsPerPage: itemsPerPage || initialItemsPerPage,
-    setPageNumber,
-    setItemsPerPage,
-  };
-};
+// TODO look for and replace all usages of usePaginationUrlParams and fix usage of usePaginationState

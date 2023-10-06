@@ -61,7 +61,11 @@ export const useSortState = <
               : null,
         }
       : persistTo === "localStorage" || persistTo === "sessionStorage"
-      ? { ...baseStateOptions, persistTo, key: "sort" }
+      ? {
+          ...baseStateOptions,
+          persistTo,
+          key: `${persistenceKeyPrefix ? `${persistenceKeyPrefix}:` : ""}sort`,
+        }
       : { ...baseStateOptions, persistTo }
   );
   return { activeSort, setActiveSort };
