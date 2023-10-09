@@ -53,35 +53,40 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
           <Text component="h1">{section.name}</Text>
         </TextContent>
       </StackItem>
-      {sortedQuestions.map((question) => (
-        <StackItem key={question.order}>
-          <Question cy-data="question">
-            <QuestionHeader>
-              <Split hasGutter>
-                <SplitItem>{question.text}</SplitItem>
-                <SplitItem>
-                  <Popover bodyContent={<div>{question.explanation}</div>}>
-                    <button
-                      type="button"
-                      aria-label="More info"
-                      onClick={(e) => e.preventDefault()}
-                      className="pf-v5-c-form__group-label-help"
-                    >
-                      <HelpIcon />
-                    </button>
-                  </Popover>
-                </SplitItem>
-              </Split>
-            </QuestionHeader>
-            <QuestionBody>
-              <MultiInputSelection
-                key={getQuestionFieldName(question, true)}
-                question={question}
-              />
-            </QuestionBody>
-          </Question>
-        </StackItem>
-      ))}
+      {sortedQuestions.map((question) => {
+        const questionUniqueKey = `${section.name}-${
+          question.order || "no-order"
+        }-${question.text || "no-text"}`;
+        return (
+          <StackItem key={questionUniqueKey}>
+            <Question cy-data="question">
+              <QuestionHeader>
+                <Split hasGutter>
+                  <SplitItem>{question.text}</SplitItem>
+                  <SplitItem>
+                    <Popover bodyContent={<div>{question.explanation}</div>}>
+                      <button
+                        type="button"
+                        aria-label="More info"
+                        onClick={(e) => e.preventDefault()}
+                        className="pf-v5-c-form__group-label-help"
+                      >
+                        <HelpIcon />
+                      </button>
+                    </Popover>
+                  </SplitItem>
+                </Split>
+              </QuestionHeader>
+              <QuestionBody>
+                <MultiInputSelection
+                  key={getQuestionFieldName(question, true)}
+                  question={question}
+                />
+              </QuestionBody>
+            </Question>
+          </StackItem>
+        );
+      })}
       <StackItem>
         <Question>
           <QuestionHeader>
