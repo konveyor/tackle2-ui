@@ -273,7 +273,7 @@ export type SettingTypes = {
   "git.insecure.enabled": boolean;
   "mvn.dependencies.update.forced": boolean;
   "mvn.insecure.enabled": boolean;
-  "review.assessment.required": boolean;
+  "download.html.enabled": boolean;
   "svn.insecure.enabled": boolean;
   "ui.target.order": number[];
 };

@@ -29,50 +29,53 @@ export const MultiInputSelection: React.FC<MultiInputSelectionProps> = ({
   const { t } = useTranslation();
   return (
     <Stack>
-      {sortedOptions.map((option, i) => (
-        <StackItem key={`${questionFieldName}-${i}`} className="pf-v5-u-pb-xs">
-          <HookFormPFGroupController
-            control={control}
-            name={questionFieldName as `questions.${string}`}
-            fieldId={`${questionFieldName}-${i}`}
-            renderInput={({ field: { value, onChange } }) => (
-              <Radio
-                id={`${questionFieldName}-${option.order}`}
-                name={questionFieldName}
-                isChecked={value === option.text}
-                onChange={(checked, e) => {
-                  onChange(option.text);
-                }}
-                aria-label={option.text}
-                label={
-                  <>
-                    {option.autoAnswered && option.autoAnswerFor?.length ? (
-                      <Tooltip
-                        content={t(
-                          isArchetype
-                            ? "message.selectedBecauseArchetypeTags"
-                            : "message.selectedBecauseAppOrArchetypeTags",
-                          {
-                            tags: option.autoAnswerFor
-                              .map((t) => `"${t.tag}"`)
-                              .join(", "),
-                          }
-                        )}
-                      >
-                        <Icon status="info">
-                          <InfoCircleIcon />
-                        </Icon>
-                      </Tooltip>
-                    ) : null}{" "}
-                    {option.text}
-                  </>
-                }
-                value={option.text}
-              />
-            )}
-          />
-        </StackItem>
-      ))}
+      {sortedOptions.map((option, i) => {
+        const answerUniqueId = `${questionFieldName}-${option.text}-${i}}`;
+        return (
+          <StackItem key={answerUniqueId} className="pf-v5-u-pb-xs">
+            <HookFormPFGroupController
+              control={control}
+              name={questionFieldName as `questions.${string}`}
+              fieldId={answerUniqueId}
+              renderInput={({ field: { value, onChange } }) => (
+                <Radio
+                  id={answerUniqueId}
+                  name={questionFieldName}
+                  isChecked={value === option.text}
+                  onChange={(checked, e) => {
+                    onChange(option.text);
+                  }}
+                  aria-label={option.text}
+                  label={
+                    <>
+                      {option.autoAnswered && option.autoAnswerFor?.length ? (
+                        <Tooltip
+                          content={t(
+                            isArchetype
+                              ? "message.selectedBecauseArchetypeTags"
+                              : "message.selectedBecauseAppOrArchetypeTags",
+                            {
+                              tags: option.autoAnswerFor
+                                .map((t) => `"${t.tag}"`)
+                                .join(", "),
+                            }
+                          )}
+                        >
+                          <Icon status="info">
+                            <InfoCircleIcon />
+                          </Icon>
+                        </Tooltip>
+                      ) : null}{" "}
+                      {option.text}
+                    </>
+                  }
+                  value={option.text}
+                />
+              )}
+            />
+          </StackItem>
+        );
+      })}
     </Stack>
   );
 };
