@@ -43,7 +43,6 @@ import {
 } from "@app/components/TableControls";
 import { IconedStatus } from "@app/components/IconedStatus";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
-import { ApplicationDependenciesFormContainer } from "@app/components/ApplicationDependenciesFormContainer";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import {
@@ -88,6 +87,7 @@ import { ConditionalRender } from "@app/components/ConditionalRender";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { getAssessmentsByItemId } from "@app/api/rest";
+import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -762,7 +762,7 @@ export const ApplicationsTable: React.FC = () => {
           onClose={() => setApplicationDependenciesToManage(null)}
         >
           {applicationDependenciesToManage && (
-            <ApplicationDependenciesFormContainer
+            <ApplicationDependenciesForm
               application={applicationDependenciesToManage}
               onCancel={() => setApplicationDependenciesToManage(null)}
             />
