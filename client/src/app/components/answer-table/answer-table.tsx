@@ -16,6 +16,7 @@ import { IconedStatus } from "@app/components/IconedStatus";
 import { TimesCircleIcon } from "@patternfly/react-icons";
 import { WarningTriangleIcon } from "@patternfly/react-icons";
 import { List, ListItem } from "@patternfly/react-core";
+
 export interface IAnswerTableProps {
   answers: Answer[];
   hideAnswerKey?: boolean;
@@ -114,45 +115,65 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
           }
         >
           <Tbody>
-            {currentPageItems?.map((answer, rowIndex) => (
-              <>
-                <Tr key={answer.text}>
-                  <TableRowContentWithControls
-                    {...tableControls}
-                    item={answer}
-                    rowIndex={rowIndex}
-                  >
-                    <Td width={40} {...getTdProps({ columnKey: "choice" })}>
-                      {answer.text}
-                    </Td>
-                    <Td width={20} {...getTdProps({ columnKey: "choice" })}>
-                      {getIconByRisk(answer.risk)}
-                    </Td>
-                  </TableRowContentWithControls>
-                </Tr>
-                <Tr>
-                  {!!answer?.autoAnswerFor?.length && (
-                    <>
-                      <div style={{ display: "flex" }}>
-                        <Text
-                          className={spacing.mrSm}
-                          style={{ flex: "0 0 5em" }}
-                        >
-                          Tags to be applied:
-                        </Text>
-                        {answer?.autoAnswerFor?.map((tag, index) => {
-                          return (
-                            <div key={index} style={{ flex: "0 0 6em" }}>
-                              <Label color="grey">{tag.tag}</Label>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </>
-                  )}
-                </Tr>
-              </>
-            ))}
+            {currentPageItems?.map((answer, rowIndex) => {
+              return (
+                <>
+                  <Tr key={answer.text}>
+                    <TableRowContentWithControls
+                      {...tableControls}
+                      item={answer}
+                      rowIndex={rowIndex}
+                    >
+                      <Td width={40} {...getTdProps({ columnKey: "choice" })}>
+                        {answer.text}
+                      </Td>
+                      <Td width={20} {...getTdProps({ columnKey: "choice" })}>
+                        {getIconByRisk(answer.risk)}
+                      </Td>
+                    </TableRowContentWithControls>
+                  </Tr>
+                  <Tr>
+                    {!!answer?.autoAnswerFor?.length && (
+                      <>
+                        <div style={{ display: "flex" }}>
+                          <Text
+                            className={spacing.mrSm}
+                            style={{ flex: "0 0 5em" }}
+                          >
+                            Auto answer if the following tags are present:
+                          </Text>
+                          {answer?.autoAnswerFor?.map((tag, index) => {
+                            return (
+                              <div key={index} style={{ flex: "0 0 6em" }}>
+                                <Label color="grey">{tag.tag}</Label>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
+                  </Tr>
+                  <Tr>
+                    {!!answer?.applyTags?.length && (
+                      <>
+                        <div style={{ display: "flex" }}>
+                          <Text className={spacing.mrSm}>
+                            Apply Tags for this answer choice:
+                          </Text>
+                          {answer?.applyTags?.map((tag, index) => {
+                            return (
+                              <div key={index} style={{ flex: "0 0 6em" }}>
+                                <Label color="grey">{tag.tag}</Label>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
+                  </Tr>
+                </>
+              );
+            })}
           </Tbody>
         </ConditionalTableBody>
       </Table>
