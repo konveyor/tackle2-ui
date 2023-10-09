@@ -36,8 +36,8 @@ import {
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { CartesianSquare } from "./cartesian-square";
 import { Arrow } from "./arrow";
-import useFetchApplicationDependencies from "@app/hooks/useFetchApplicationDependencies/useFetchApplicationDependencies";
 import { useFetchReviewById } from "@app/queries/reviews";
+import { useFetchApplicationDependencies } from "@app/queries/applications";
 
 interface Line {
   from: LinePoint;
@@ -152,8 +152,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
   }, [applications, refreshChart]);
 
   // Dependencies
-  const { applicationDependencies: dependencies } =
-    useFetchApplicationDependencies();
+  const { allDependencies: dependencies } = useFetchApplicationDependencies();
 
   // Chart data
   const legendAndPoints: ProposedActionChartDataListType = useMemo(() => {
