@@ -61,10 +61,14 @@ export const useUpdateAssessmentMutation = (
     mutationFn: (assessment: Assessment) => updateAssessment(assessment),
     onSuccess: (_, args) => {
       onSuccess && onSuccess(args.name);
+      queryClient.invalidateQueries([QuestionnairesQueryKey]);
       queryClient.invalidateQueries([
-        QuestionnairesQueryKey,
         assessmentsByItemIdQueryKey,
-        _?.application?.id,
+        args.application?.id,
+      ]);
+      queryClient.invalidateQueries([
+        assessmentsByItemIdQueryKey,
+        args.archetype?.id,
       ]);
     },
     onError: onError,
