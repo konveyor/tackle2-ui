@@ -11,7 +11,8 @@ import {
   TabTitleText,
   Spinner,
   Bullseye,
-  Button,
+  List,
+  ListItem,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Application, Task } from "@app/api/models";
@@ -19,7 +20,10 @@ import {
   IPageDrawerContentProps,
   PageDrawerContent,
 } from "@app/components/PageDrawerContext";
-import { getIssuesSingleAppSelectedLocation } from "@app/pages/issues/helpers";
+import {
+  getDependenciesUrlFilteredByAppName,
+  getIssuesSingleAppSelectedLocation,
+} from "@app/pages/issues/helpers";
 import { ApplicationBusinessService } from "../application-business-service";
 import { ApplicationTags } from "../application-tags";
 
@@ -83,11 +87,28 @@ export const ApplicationDetailDrawer: React.FC<
         >
           <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
             <Text component="small">{application?.description}</Text>
-            {application ? (
-              <Link to={getIssuesSingleAppSelectedLocation(application.id)}>
-                Issues
-              </Link>
-            ) : null}
+            <List isPlain>
+              {application ? (
+                <>
+                  <ListItem>
+                    <Link
+                      to={getIssuesSingleAppSelectedLocation(application.id)}
+                    >
+                      Issues
+                    </Link>
+                  </ListItem>
+                  <ListItem>
+                    <Link
+                      to={getDependenciesUrlFilteredByAppName(
+                        application?.name
+                      )}
+                    >
+                      Dependencies
+                    </Link>
+                  </ListItem>
+                </>
+              ) : null}
+            </List>
             <Title headingLevel="h3" size="md">
               {t("terms.businessService")}
             </Title>
