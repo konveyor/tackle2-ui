@@ -1,36 +1,29 @@
-import * as React from "react";
+import React from "react";
 import {
   Alert,
   Card,
   CardBody,
-  EmptyState,
-  EmptyStateIcon,
   Form,
   PageSection,
   PageSectionVariants,
-  Spinner,
   Switch,
   Text,
   TextContent,
-  Title,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-
-import "./general.css";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
 
 export const General: React.FC = () => {
   const { t } = useTranslation();
 
-  const reviewAssessmentSetting = useSetting("review.assessment.required");
-  const reviewAssessmentSettingMutation = useSettingMutation(
-    "review.assessment.required"
+  const enableDownloadSetting = useSetting("download.html.enabled");
+  const enableDownloadSettingMutation = useSettingMutation(
+    "download.html.enabled"
   );
 
-  const onChangeReviewAssessmentSetting = () => {
-    if (reviewAssessmentSetting.isSuccess)
-      reviewAssessmentSettingMutation.mutate(!reviewAssessmentSetting.data);
+  const onChangeEnableDownloadSetting = () => {
+    enableDownloadSettingMutation.mutate(!enableDownloadSetting.data);
   };
 
   return (
@@ -43,25 +36,24 @@ export const General: React.FC = () => {
       <PageSection>
         <Card>
           <CardBody>
-            {reviewAssessmentSetting.isError && (
+            {enableDownloadSetting.isError && (
               <Alert
                 variant="danger"
                 isInline
-                title={reviewAssessmentSetting.error}
+                title={enableDownloadSetting.error}
               />
             )}
             <Form className={spacing.mMd}>
               <Switch
-                id="reviewAssessment"
-                className="repo"
-                label={t("terms.settingsAllowApps")}
-                aria-label="Allow applications review without assessment"
+                id="enable-download-report"
+                label={t("terms.reportDownloadSetting")}
+                aria-label="Allow reports to be downloaded"
                 isChecked={
-                  reviewAssessmentSetting.isSuccess
-                    ? reviewAssessmentSetting.data
+                  enableDownloadSetting.isSuccess
+                    ? enableDownloadSetting.data
                     : false
                 }
-                onChange={onChangeReviewAssessmentSetting}
+                onChange={onChangeEnableDownloadSetting}
               />
             </Form>
           </CardBody>

@@ -31,6 +31,7 @@ import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer"
 import { getTaskById } from "@app/api/rest";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 import DownloadButton from "./components/download-button";
+import { useSetting } from "@app/queries/settings";
 
 export interface IApplicationDetailDrawerAnalysisProps
   extends Pick<
@@ -61,6 +62,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
   const updatedApplication = applications?.find(
     (app) => app.id === application?.id
   );
+  const enableDownloadSetting = useSetting("download.html.enabled");
 
   return (
     <ApplicationDetailDrawer
@@ -134,23 +136,37 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                   <DescriptionListTerm>Download</DescriptionListTerm>
                   <DescriptionListDescription>
                     <Tooltip
-                      content="Click to download Analysis report TAR file"
+                      content={
+                        enableDownloadSetting.data
+                          ? "Click to download TAR file with HTML static analysis report"
+                          : "Download TAR file with HTML static analysis report is disabled by administrator"
+                      }
                       position="top"
                     >
                       <DownloadButton
                         application={application}
                         mimeType={MimeType.TAR}
-                      />
+                        isDownloadEnabled={enableDownloadSetting.data}
+                      >
+                        HTML
+                      </DownloadButton>
                     </Tooltip>
                     {" | "}
                     <Tooltip
-                      content="Click to download Analysis report YAML file"
+                      content={
+                        enableDownloadSetting.data
+                          ? "Click to download YAML file with static analysis report"
+                          : "Download YAML file with static analysis report is disabled by administrator"
+                      }
                       position="top"
                     >
                       <DownloadButton
                         application={application}
                         mimeType={MimeType.YAML}
-                      />
+                        isDownloadEnabled={enableDownloadSetting.data}
+                      >
+                        YAML
+                      </DownloadButton>
                     </Tooltip>
                   </DescriptionListDescription>
                 </DescriptionListGroup>

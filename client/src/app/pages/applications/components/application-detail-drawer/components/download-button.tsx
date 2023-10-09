@@ -1,21 +1,23 @@
 import React from "react";
-import { Alert, Button } from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Spinner } from "@patternfly/react-core";
 import { useDownloadStaticReport } from "@app/queries/applications";
 import { Application } from "@app/api/models";
+import { Spinner, Alert } from "@patternfly/react-core";
 
-export enum MimeType {
-  TAR = "tar",
-  YAML = "yaml",
-}
+import { MimeType } from "@app/api/models";
+
 interface IDownloadButtonProps {
   application: Application;
   mimeType: MimeType;
+  isDownloadEnabled?: boolean;
+  children: React.ReactNode;
 }
 export const DownloadButton: React.FC<IDownloadButtonProps> = ({
   application,
   mimeType,
+  children,
+  isDownloadEnabled,
 }) => {
   const {
     mutate: downloadFile,
@@ -41,12 +43,14 @@ export const DownloadButton: React.FC<IDownloadButtonProps> = ({
       ) : (
         <>
           <Button
+            key={mimeType}
             onClick={handleDownload}
             id={`download-${mimeType}-button`}
             variant="link"
             className={spacing.pXs}
+            isAriaDisabled={!isDownloadEnabled}
           >
-            {mimeType === MimeType.YAML ? "YAML" : "Report"}
+            {children}
           </Button>
         </>
       )}
