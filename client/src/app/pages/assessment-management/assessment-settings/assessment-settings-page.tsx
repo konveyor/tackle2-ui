@@ -56,6 +56,9 @@ import { ExportQuestionnaireDropdownItem } from "./components/export-questionnai
 import dayjs from "dayjs";
 import { QuestionnaireQuestionsColumn } from "./components/questionnaire-questions-column";
 import { QuestionnaireThresholdsColumn } from "./components/questionnaire-thresholds-column";
+import saveAs from "file-saver";
+import { load } from "js-yaml";
+import questionnaireTemplateFile from "./questionnaire-template.yaml";
 
 const AssessmentSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -157,6 +160,14 @@ const AssessmentSettings: React.FC = () => {
   // TODO: Check RBAC access
   const rbacWriteAccess = true; // checkAccess(userScopes, questionnaireWriteScopes);
 
+  const downloadTemplate = () => {
+    const parsedContent = load(questionnaireTemplateFile);
+    const blob = new Blob([JSON.stringify(parsedContent, null, 2)], {
+      type: "application/x-yaml",
+    });
+    saveAs(blob, "questionnaire-template.yaml");
+  };
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -203,7 +214,7 @@ const AssessmentSettings: React.FC = () => {
                         id="download-yaml-template"
                         aria-label="Download questionnaire"
                         variant={ButtonVariant.link}
-                        onClick={() => setIsDownloadTemplateModal(true)}
+                        onClick={downloadTemplate}
                       >
                         {t("dialog.title.download", {
                           what: t("terms.YAMLTemplate"),
@@ -395,39 +406,6 @@ const AssessmentSettings: React.FC = () => {
         onClose={() => setIsImportModal(false)}
       >
         <ImportQuestionnaireForm onSaved={() => setIsImportModal(false)} />
-      </Modal>
-      <Modal
-        id="download.template.modal"
-        title={t("dialog.title.download", {
-          what: t("terms.YAMLTemplate"),
-        })}
-        variant={ModalVariant.medium}
-        isOpen={isDownloadTemplateModal}
-        onClose={() => setIsDownloadTemplateModal(false)}
-      >
-        <Text>TODO Downlaod YAML Template component</Text>
-      </Modal>
-      <Modal
-        id="export.modal"
-        title={t("dialog.title.export", {
-          what: t("terms.questionnaire").toLowerCase(),
-        })}
-        variant={ModalVariant.medium}
-        isOpen={!!questionnaireToExport}
-        onClose={() => setQuestionnaireToExport(null)}
-      >
-        <Text>TODO Export questionnaire Id {questionnaireToExport}</Text>
-      </Modal>{" "}
-      <Modal
-        id="download.template.modal"
-        title={t("dialog.title.download", {
-          what: t("terms.YAMLTemplate"),
-        })}
-        variant={ModalVariant.medium}
-        isOpen={isDownloadTemplateModal}
-        onClose={() => setIsDownloadTemplateModal(false)}
-      >
-        <Text>TODO Download YAML Template component</Text>
       </Modal>
       <ConfirmDeleteDialog
         deleteObjectMessage={t("dialog.message.deleteQuestionnaire")}

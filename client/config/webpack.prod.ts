@@ -35,6 +35,10 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
         include: [...stylePaths],
         use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
+      {
+        test: /\.yaml$/,
+        use: "raw-loader",
+      },
     ],
   },
 

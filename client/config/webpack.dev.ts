@@ -70,6 +70,10 @@ const config: Configuration = mergeWithRules({
         include: [...stylePaths],
         use: ["style-loader", "css-loader"],
       },
+      {
+        test: /\.yaml$/,
+        use: "raw-loader",
+      },
     ],
   },
 
