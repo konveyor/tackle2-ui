@@ -144,8 +144,8 @@ export interface Review {
 
 export interface ApplicationDependency {
   id?: number;
-  from: Application;
-  to: Application;
+  from: Ref;
+  to: Ref;
 }
 
 export interface ApplicationAdoptionPlan {

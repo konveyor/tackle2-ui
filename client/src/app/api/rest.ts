@@ -117,28 +117,6 @@ const yamlHeaders = { headers: { Accept: "application/x-yaml" } };
 
 type Direction = "asc" | "desc";
 
-const buildQuery = (params: any) => {
-  const query: string[] = [];
-
-  Object.keys(params).forEach((key) => {
-    const value = (params as any)[key];
-
-    if (value !== undefined && value !== null) {
-      let queryParamValues: string[] = [];
-      if (Array.isArray(value)) {
-        queryParamValues = value;
-      } else {
-        queryParamValues = [value];
-      }
-      queryParamValues.forEach((v) => query.push(`${key}=${v}`));
-    }
-  });
-
-  return query;
-};
-
-// App inventory
-
 export const updateAllApplications = (
   updatePromises: Promise<Application>[]
 ) => {
@@ -147,22 +125,36 @@ export const updateAllApplications = (
     .catch((error) => error);
 };
 
-// Applications Dependencies
+interface DependencyParams {
+  from?: string[];
+  to?: string[];
+}
 
-export const getApplicationDependencies = (): AxiosPromise<
-  ApplicationDependency[]
-> => {
-  return APIClient.get(`${APPLICATION_DEPENDENCY}`, jsonHeaders);
+export const getApplicationDependencies = (
+  params?: DependencyParams
+): Promise<ApplicationDependency[]> => {
+  return axios
+    .get(`${APPLICATION_DEPENDENCY}`, {
+      params,
+      headers: jsonHeaders,
+    })
+    .then((response) => response.data);
 };
 
 export const createApplicationDependency = (
   obj: ApplicationDependency
-): AxiosPromise<ApplicationDependency> => {
-  return APIClient.post(`${APPLICATION_DEPENDENCY}`, obj);
+): Promise<ApplicationDependency> => {
+  return axios
+    .post(`${APPLICATION_DEPENDENCY}`, obj)
+    .then((response) => response.data);
 };
 
-export const deleteApplicationDependency = (id: number): AxiosPromise => {
-  return APIClient.delete(`${APPLICATION_DEPENDENCY}/${id}`);
+export const deleteApplicationDependency = (
+  id: number
+): Promise<ApplicationDependency> => {
+  return axios
+    .delete(`${APPLICATION_DEPENDENCY}/${id}`)
+    .then((response) => response.data);
 };
 
 // Reviews
