@@ -162,6 +162,19 @@ export const getBackToAllIssuesUrl = ({
   })}`;
 };
 
+export const getDependenciesUrlFilteredByAppName = (appName: string) => {
+  const baseUrl = Paths.dependencies;
+  const filterParams = serializeFilterUrlParams({
+    "application.name": [appName],
+  });
+  const urlParams = trimAndStringifyUrlParams({
+    newPrefixedSerializedParams: {
+      filters: filterParams.filters,
+    },
+  });
+  return `${baseUrl}?${urlParams}`;
+};
+
 // When selecting an application, we want to preserve any issue filters that might be present.
 export const getIssuesSingleAppSelectedLocation = (
   applicationId: number,
