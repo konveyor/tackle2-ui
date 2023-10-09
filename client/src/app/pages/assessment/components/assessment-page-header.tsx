@@ -5,12 +5,12 @@ import { Button, ButtonVariant, Modal, Text } from "@patternfly/react-core";
 
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { PageHeader } from "@app/components/PageHeader";
-import { ApplicationDependenciesFormContainer } from "@app/components/ApplicationDependenciesFormContainer";
 import { Paths } from "@app/Paths";
 import { Application, Assessment } from "@app/api/models";
 import { useFetchApplicationById } from "@app/queries/applications";
 import { useFetchArchetypeById } from "@app/queries/archetypes";
 import useIsArchetype from "@app/hooks/useIsArchetype";
+import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
 
 export interface AssessmentPageHeaderProps {
   assessment?: Assessment;
@@ -77,7 +77,7 @@ export const AssessmentPageHeader: React.FC<AssessmentPageHeaderProps> = ({
         onClose={() => setApplicationDependenciesToManage(null)}
       >
         {applicationDependenciesToManage && (
-          <ApplicationDependenciesFormContainer
+          <ApplicationDependenciesForm
             application={applicationDependenciesToManage}
             onCancel={() => setApplicationDependenciesToManage(null)}
           />

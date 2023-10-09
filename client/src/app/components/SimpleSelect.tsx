@@ -37,9 +37,10 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-
   return (
     <Select
+      menuAppendTo="parent" // prevent menu from being clipped by modal edges
+      maxHeight={200}
       placeholderText={placeholderText}
       toggleAriaLabel={toggleAriaLabel}
       isOpen={isOpen}

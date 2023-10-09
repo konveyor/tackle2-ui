@@ -47,7 +47,6 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
 
   const { identities } = useFetchIdentities();
   const { facts, isFetching } = useFetchFacts(application?.id);
-  const [appAnalysisToView, setAppAnalysisToView] = React.useState<number>();
   const [taskIdToView, setTaskIdToView] = React.useState<number>();
 
   let matchingSourceCredsRef: Identity | undefined;
@@ -124,7 +123,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                         }
                         type="button"
                         variant="link"
-                        onClick={() => setAppAnalysisToView(application.id)}
+                        onClick={() => setTaskIdToView(task.id)}
                         className={spacing.ml_0}
                         style={{ margin: "0", padding: "0" }}
                       >
@@ -139,11 +138,9 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                       position="top"
                     >
                       <DownloadButton
-                        id={application.id}
+                        application={application}
                         mimeType={MimeType.TAR}
-                      >
-                        TAR
-                      </DownloadButton>
+                      />
                     </Tooltip>
                     {" | "}
                     <Tooltip
@@ -151,11 +148,9 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
                       position="top"
                     >
                       <DownloadButton
-                        id={application.id}
+                        application={application}
                         mimeType={MimeType.YAML}
-                      >
-                        YAML
-                      </DownloadButton>
+                      />
                     </Tooltip>
                   </DescriptionListDescription>
                 </DescriptionListGroup>
@@ -217,10 +212,9 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
           <SimpleDocumentViewerModal<Task | string>
             title={`Analysis details for ${application?.name}`}
             fetch={getTaskById}
-            documentId={taskIdToView || appAnalysisToView}
+            documentId={taskIdToView}
             onClose={() => {
               setTaskIdToView(undefined);
-              setAppAnalysisToView(undefined);
             }}
           />
         </TextContent>

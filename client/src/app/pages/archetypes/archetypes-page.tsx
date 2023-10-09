@@ -6,7 +6,6 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
-  EmptyStateFooter,
   EmptyStateHeader,
   EmptyStateIcon,
   Modal,
@@ -252,9 +251,6 @@ const Archetypes: React.FC = () => {
                     <EmptyStateBody>
                       Create a new archetype to get started.
                     </EmptyStateBody>
-                    <EmptyStateFooter>
-                      <CreateButton />
-                    </EmptyStateFooter>
                   </EmptyState>
                 }
                 numRenderedColumns={numRenderedColumns}
@@ -379,8 +375,6 @@ const Archetypes: React.FC = () => {
         />
       </Modal>
 
-      {/* TODO: Add duplicate confirm modal */}
-
       {/* Delete confirm modal */}
       <ConfirmDialog
         title={t("dialog.title.deleteWithName", {
@@ -402,6 +396,8 @@ const Archetypes: React.FC = () => {
           }
         }}
       />
+
+      {/* Override existing assessment confirm modal */}
       <ConfirmDialog
         title={t("dialog.title.newAssessment")}
         titleIconVariant={"warning"}

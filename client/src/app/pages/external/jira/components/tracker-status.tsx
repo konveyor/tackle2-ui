@@ -1,5 +1,5 @@
+import "./tracker-status.css";
 import React, { useState } from "react";
-
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 import {
@@ -10,18 +10,23 @@ import {
   Popover,
   Text,
   TextContent,
+  Spinner,
 } from "@patternfly/react-core";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
-
 import { IconedStatus } from "@app/components/IconedStatus";
-import "./tracker-status.css";
 
 interface ITrackerStatusProps {
   name: string;
   connected: boolean;
   message: string;
+  isTrackerUpdating?: boolean;
 }
-const TrackerStatus = ({ name, connected, message }: ITrackerStatusProps) => {
+const TrackerStatus = ({
+  name,
+  connected,
+  message,
+  isTrackerUpdating,
+}: ITrackerStatusProps) => {
   const { t } = useTranslation();
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -29,7 +34,9 @@ const TrackerStatus = ({ name, connected, message }: ITrackerStatusProps) => {
   const messageFirst = message.slice(0, 300);
   const messageRest = message.slice(300);
 
-  return (
+  return isTrackerUpdating ? (
+    <Spinner size="sm" />
+  ) : (
     <>
       <IconedStatus
         preset={connected ? "Ok" : "Error"}
@@ -42,7 +49,9 @@ const TrackerStatus = ({ name, connected, message }: ITrackerStatusProps) => {
               aria-label="More information about no connection"
               alertSeverityVariant="danger"
               headerIcon={<ExclamationCircleIcon />}
-              headerContent={t("composed.error", { what: t("terms.instance") })}
+              headerContent={t("composed.error", {
+                what: t("terms.instance"),
+              })}
               hasAutoWidth
               onHidden={() => setIsExpanded(false)}
               bodyContent={
