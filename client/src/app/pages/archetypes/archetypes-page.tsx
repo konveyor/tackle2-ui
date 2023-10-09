@@ -66,6 +66,8 @@ const Archetypes: React.FC = () => {
   const [openCreateArchetype, setOpenCreateArchetype] =
     useState<boolean>(false);
 
+  const [reviewToEdit, setReviewToEdit] = React.useState<number | null>(null);
+
   const [archetypeToEdit, setArchetypeToEdit] = useState<Archetype | null>(
     null
   );
@@ -186,6 +188,19 @@ const Archetypes: React.FC = () => {
       setArchetypeToAssess(null);
     }
   };
+
+  const reviewSelectedArchetype = (archetype: Archetype) => {
+    if (archetype.review) {
+      setReviewToEdit(archetype.id);
+    } else {
+      history.push(
+        formatPath(Paths.archetypeReview, {
+          archetypeId: archetype.id,
+        })
+      );
+    }
+  };
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -297,11 +312,7 @@ const Archetypes: React.FC = () => {
                               {
                                 title: t("actions.review"),
                                 onClick: () =>
-                                  history.push(
-                                    formatPath(Paths.archetypeReview, {
-                                      archetypeId: archetype.id,
-                                    })
-                                  ),
+                                  reviewSelectedArchetype(archetype),
                               },
                               {
                                 title: t("actions.edit"),
@@ -416,6 +427,27 @@ const Archetypes: React.FC = () => {
               })
             );
           setArchetypeToAssess(null);
+        }}
+      />
+      <ConfirmDialog
+        title={t("composed.editQuestion", {
+          what: t("terms.review").toLowerCase(),
+        })}
+        titleIconVariant={"warning"}
+        isOpen={reviewToEdit !== null}
+        message={t("message.overrideArchetypeReviewConfirmation")}
+        confirmBtnVariant={ButtonVariant.primary}
+        confirmBtnLabel={t("actions.continue")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setReviewToEdit(null)}
+        onClose={() => setReviewToEdit(null)}
+        onConfirm={() => {
+          history.push(
+            formatPath(Paths.archetypeReview, {
+              archetypeId: reviewToEdit,
+            })
+          );
+          setReviewToEdit(null);
         }}
       />
     </>
