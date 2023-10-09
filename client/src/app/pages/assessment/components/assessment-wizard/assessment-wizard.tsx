@@ -1,5 +1,5 @@
 import * as yup from "yup";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
@@ -561,6 +561,51 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     />
   );
 
+  useEffect(() => {
+    return () => {
+      if (assessment) {
+        handleCancelAssessment();
+      }
+    };
+  }, [assessment]);
+
+  const handleCancelAssessment = () => {
+    if (assessment) {
+      if (isArchetype) {
+        assessment.status === "empty" &&
+          deleteAssessmentMutation({
+            assessmentId: assessment.id,
+            applicationName: assessment.application?.name,
+            applicationId: assessment.application?.id,
+            archetypeId: assessment.archetype?.id,
+          });
+        if (assessmentToCancel) {
+          history.push(
+            formatPath(Paths.archetypeAssessmentActions, {
+              archetypeId: assessment?.archetype?.id,
+            })
+          );
+        }
+      } else {
+        assessment.status === "empty" &&
+          deleteAssessmentMutation({
+            assessmentId: assessment.id,
+            applicationName: assessment.application?.name,
+            applicationId: assessment.application?.id,
+            archetypeId: assessment.archetype?.id,
+          });
+        if (assessmentToCancel) {
+          history.push(
+            formatPath(Paths.applicationAssessmentActions, {
+              applicationId: assessment?.application?.id,
+            })
+          );
+        }
+      }
+      setAssessmentToCancel(null);
+    }
+  };
+
   return (
     <>
       {isOpen && (
@@ -587,37 +632,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
               cancelBtnLabel={t("actions.cancel")}
               onCancel={() => setAssessmentToCancel(null)}
               onClose={() => setAssessmentToCancel(null)}
-              onConfirm={() => {
-                if (isArchetype) {
-                  assessmentToCancel.status === "empty" &&
-                    deleteAssessmentMutation({
-                      assessmentId: assessmentToCancel.id,
-                      applicationName: assessmentToCancel.application?.name,
-                      applicationId: assessmentToCancel.application?.id,
-                      archetypeId: assessmentToCancel.archetype?.id,
-                    });
-
-                  history.push(
-                    formatPath(Paths.archetypeAssessmentActions, {
-                      archetypeId: assessment?.archetype?.id,
-                    })
-                  );
-                } else {
-                  assessmentToCancel.status === "empty" &&
-                    deleteAssessmentMutation({
-                      assessmentId: assessmentToCancel.id,
-                      applicationName: assessmentToCancel.application?.name,
-                      applicationId: assessmentToCancel.application?.id,
-                      archetypeId: assessmentToCancel.archetype?.id,
-                    });
-                  history.push(
-                    formatPath(Paths.applicationAssessmentActions, {
-                      applicationId: assessment?.application?.id,
-                    })
-                  );
-                }
-                setAssessmentToCancel(null);
-              }}
+              onConfirm={() => handleCancelAssessment()}
             />
           )}
         </FormProvider>
