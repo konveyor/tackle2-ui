@@ -1,4 +1,4 @@
-name: Test questionnaire
+name: Test questionnaire  (SAMPLE)
 description: This is a sample questionnaire in YAML format
 required: true
 sections:
@@ -75,6 +75,22 @@ sections:
             mitigation: Some mitigation required. High risk of injury. Don't run with scissors (or at all).
             applyTags: []
             autoAnswerFor: []
+            selected: false
+      - order: 3
+        text: What is your favorite shape?
+        explanation: Please select your favorite shape.
+        includeFor:
+          - category: Category1
+            tag: Tag1
+        excludeFor: []
+        answers:
+          - order: 1
+            text: Circle
+            risk: red
+            selected: false
+          - order: 2
+            text: Square
+            risk: green
             selected: false
 thresholds:
   red: 5
