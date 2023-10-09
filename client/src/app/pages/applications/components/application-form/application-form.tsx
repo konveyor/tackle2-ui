@@ -103,9 +103,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     };
   });
 
-  const manualTags = application?.tags?.filter((t) => t.source === "") ?? [];
+  const manualTags =
+    application?.tags?.filter((t) => t?.source ?? "" === "") ?? [];
 
-  const nonManualTags = application?.tags?.filter((t) => t.source !== "") ?? [];
+  const nonManualTags =
+    application?.tags?.filter((t) => t?.source ?? "" !== "") ?? [];
 
   // Allow all tags to be selected manually, even if they are included from another source
   const allowedManualTags = tags;
