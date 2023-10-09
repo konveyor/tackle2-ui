@@ -5,11 +5,13 @@ import { AxiosError } from "axios";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import {
-  createApplicationDependency,
-  deleteApplicationDependency,
-} from "@app/api/rest";
 import { ApplicationDependency } from "@app/api/models";
+import { toRef } from "@app/utils/model-utils";
+import {
+  useCreateApplicationDependency,
+  useDeleteApplicationDependency,
+} from "@app/queries/applications";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const isEqual = (
   a: OptionWithValue<ApplicationDependency>,
@@ -21,14 +23,6 @@ const isEqual = (
   );
 };
 
-const dependencyToOption = (
-  value: ApplicationDependency,
-  toStringFn: (value: ApplicationDependency) => string
-): OptionWithValue<ApplicationDependency> => ({
-  value,
-  toString: () => toStringFn(value),
-});
-
 export interface SelectDependencyProps {
   fieldId: string;
   toStringFn: (value: ApplicationDependency) => string;
@@ -38,35 +32,32 @@ export interface SelectDependencyProps {
   options: OptionWithValue<ApplicationDependency>[];
 
   isFetching: boolean;
-  fetchError?: AxiosError;
-
   isSaving: boolean;
-  setIsSaving: (value: boolean) => void;
-  saveError?: AxiosError;
-  setSaveError: (value?: AxiosError) => void;
   toggleAriaLabel?: string;
   toggleId?: string;
+  setErrorMsg: (message: string | null) => void;
 }
 
 export const SelectDependency: React.FC<SelectDependencyProps> = ({
   fieldId,
-  toStringFn,
-
   value,
-  setValue,
   options,
-
-  isFetching,
-  fetchError,
-
   isSaving,
-  setIsSaving,
-  setSaveError,
   toggleAriaLabel,
   toggleId,
+  setErrorMsg,
 }) => {
   const { t } = useTranslation();
 
+  const createDependencyMutation = useCreateApplicationDependency({
+    onError: (error: AxiosError) => {
+      setErrorMsg(getAxiosErrorMessage(error));
+    },
+    onSuccess: () => {
+      setErrorMsg(null);
+    },
+  });
+  const deleteDependencyMutation = useDeleteApplicationDependency();
   return (
     <SimpleSelect
       isDisabled={isSaving}
@@ -74,47 +65,27 @@ export const SelectDependency: React.FC<SelectDependencyProps> = ({
       onChange={(selection) => {
         const selectionWithValue =
           selection as OptionWithValue<ApplicationDependency>;
+        const toApplicationRef = toRef(selectionWithValue.value.to) ?? null;
+        const fromApplicationRef = toRef(selectionWithValue.value.from) ?? null;
+
         const elementExists = value.find((f) => {
           return isEqual(f, selectionWithValue);
         });
 
-        setIsSaving(true);
-        setSaveError(undefined);
+        if (!toApplicationRef || !fromApplicationRef) {
+          return;
+        }
 
         if (elementExists) {
-          deleteApplicationDependency(elementExists.value.id!)
-            .then(() => {
-              let nextValue: OptionWithValue<ApplicationDependency>[];
-              nextValue = value.filter(
-                (f: OptionWithValue<ApplicationDependency>) => {
-                  return !isEqual(f, elementExists);
-                }
-              );
-
-              setValue(nextValue);
-
-              setIsSaving(false);
-              setSaveError(undefined);
-            })
-            .catch((error) => {
-              setIsSaving(false);
-              setSaveError(error);
-            });
+          deleteDependencyMutation.mutate(elementExists.value.id!);
         } else {
-          createApplicationDependency(selectionWithValue.value)
-            .then(({ data }) => {
-              let nextValue: OptionWithValue<ApplicationDependency>[];
-              nextValue = [...value, dependencyToOption(data, toStringFn)];
+          const newDependency = {
+            ...selectionWithValue.value,
+            to: toApplicationRef,
+            from: fromApplicationRef,
+          };
 
-              setValue(nextValue);
-
-              setIsSaving(false);
-              setSaveError(undefined);
-            })
-            .catch((error) => {
-              setIsSaving(false);
-              setSaveError(error);
-            });
+          createDependencyMutation.mutate(newDependency);
         }
       }}
       variant="typeaheadmulti"

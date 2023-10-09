@@ -1,13 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 
-import { Application, MimeType } from "@app/api/models";
+import { Application, ApplicationDependency, MimeType } from "@app/api/models";
 import {
   APPLICATIONS,
   createApplication,
+  createApplicationDependency,
   deleteApplication,
+  deleteApplicationDependency,
   deleteBulkApplications,
   getApplicationById,
+  getApplicationDependencies,
   getApplications,
   updateAllApplications,
   updateApplication,
@@ -180,4 +183,85 @@ export const downloadStaticReport = async ({
 
 export const useDownloadStaticReport = () => {
   return useMutation(downloadStaticReport);
+};
+
+export const useFetchApplicationDependencies = (
+  applicationId?: string | number
+) => {
+  const {
+    data: northData,
+    error: northError,
+    isLoading: isLoadingNorth,
+    refetch: refetchNorth,
+  } = useQuery<ApplicationDependency[], AxiosError>(
+    [ApplicationDependencyQueryKey, "north"],
+    () => getApplicationDependencies({ to: [`${applicationId}`] }),
+    {
+      enabled: !!applicationId,
+    }
+  );
+
+  const {
+    data: southData,
+    error: southError,
+    isLoading: isLoadingSouth,
+    refetch: refetchSouth,
+  } = useQuery<ApplicationDependency[], AxiosError>(
+    [ApplicationDependencyQueryKey, "south"],
+    () => getApplicationDependencies({ from: [`${applicationId}`] })
+  );
+
+  const isFetching = isLoadingNorth || isLoadingSouth;
+  const fetchError = northError || southError;
+
+  // Combining both refetch functions into a single one.
+  const refetch = () => {
+    refetchNorth();
+    refetchSouth();
+  };
+
+  return {
+    northboundDependencies: northData,
+    southboundDependencies: southData,
+    allDependencies: [...(northData || []), ...(southData || [])],
+    isFetching,
+    fetchError,
+    refetch,
+  };
+};
+
+interface UseCreateApplicationDependencyOptions {
+  onError?: (error: AxiosError) => void;
+  onSuccess?: () => void;
+}
+
+export const useCreateApplicationDependency = ({
+  onError,
+  onSuccess,
+}: UseCreateApplicationDependencyOptions = {}) => {
+  const queryClient = useQueryClient();
+
+  return useMutation(createApplicationDependency, {
+    onSuccess: () => {
+      queryClient.invalidateQueries([ApplicationDependencyQueryKey]);
+      if (onSuccess) {
+        onSuccess();
+      }
+    },
+    onError: (error: AxiosError) => {
+      if (onError) {
+        onError(error);
+      }
+    },
+  });
+};
+
+export const useDeleteApplicationDependency = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(deleteApplicationDependency, {
+    onSuccess: () => {
+      queryClient.invalidateQueries([ApplicationDependencyQueryKey]);
+    },
+  });
 };
