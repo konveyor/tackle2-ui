@@ -1,4 +1,9 @@
-import React from "react";
+import {
+  BaseUsePersistentStateOptions,
+  usePersistentState,
+} from "@app/hooks/usePersistentState";
+import { objectKeys } from "@app/utils/utils";
+import { IPersistenceOptions } from "../types";
 
 // TExpandedCells maps item[idProperty] values to either:
 //  - The key of an expanded column in that row, if the table is compound-expandable
@@ -18,37 +23,48 @@ export interface IExpansionState<TColumnKey extends string> {
 export const useExpansionState = <
   TColumnKey extends string,
   TPersistenceKeyPrefix extends string = string,
->(): IExpansionState<TColumnKey> => {
-  // TODO use usePersistentState here
-  const [expandedCells, setExpandedCells] = React.useState<
+>(
+  args: IPersistenceOptions<TPersistenceKeyPrefix>
+): IExpansionState<TColumnKey> => {
+  const { persistTo = "state", persistenceKeyPrefix } = args;
+  const baseStateOptions: BaseUsePersistentStateOptions<
     TExpandedCells<TColumnKey>
-  >({});
+  > = {
+    defaultValue: {},
+    persistenceKeyPrefix,
+  };
+
+  // Note: for the discriminated union here to work without TypeScript getting confused
+  //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
+  //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
+  const [expandedCells, setExpandedCells] = usePersistentState(
+    persistTo === "urlParams"
+      ? {
+          ...baseStateOptions,
+          persistTo,
+          keys: ["expandedCells"],
+          serialize: (expandedCellsObj) => {
+            if (!expandedCellsObj || objectKeys(expandedCellsObj).length === 0)
+              return { expandedCells: null };
+            return { expandedCells: JSON.stringify(expandedCellsObj) };
+          },
+          deserialize: ({ expandedCells: expandedCellsStr }) => {
+            try {
+              return JSON.parse(expandedCellsStr || "{}");
+            } catch (e) {
+              return {};
+            }
+          },
+        }
+      : persistTo === "localStorage" || persistTo === "sessionStorage"
+      ? {
+          ...baseStateOptions,
+          persistTo,
+          key: `${
+            persistenceKeyPrefix ? `${persistenceKeyPrefix}:` : ""
+          }expandedCells`,
+        }
+      : { ...baseStateOptions, persistTo }
+  );
   return { expandedCells, setExpandedCells };
 };
-/*
-export const useExpansionUrlParams = <
-  TColumnKey extends string,
-  TURLParamKeyPrefix extends string = string,
->({
-  urlParamKeyPrefix,
-}: IExtraArgsForURLParamHooks<TURLParamKeyPrefix> = {}): IExpansionState<TColumnKey> => {
-  const [expandedCells, setExpandedCells] = useUrlParams({
-    keyPrefix: urlParamKeyPrefix,
-    keys: ["expandedCells"],
-    defaultValue: {} as TExpandedCells<TColumnKey>,
-    serialize: (expandedCellsObj) => {
-      if (objectKeys(expandedCellsObj).length === 0)
-        return { expandedCells: null };
-      return { expandedCells: JSON.stringify(expandedCellsObj) };
-    },
-    deserialize: ({ expandedCells: expandedCellsStr }) => {
-      try {
-        return JSON.parse(expandedCellsStr || "{}");
-      } catch (e) {
-        return {};
-      }
-    },
-  });
-  return { expandedCells, setExpandedCells };
-};
-*/

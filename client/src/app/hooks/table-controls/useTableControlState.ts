@@ -20,20 +20,12 @@ export const useTableControlState = <
     TPersistenceKeyPrefix
   >
 ) => {
-  // Must pass type params because they can't all be inferred from the required args of useFilterState
-  const filterState = useFilterState<
-    TItem,
-    TFilterCategoryKey, // Must pass this because no required args here have categories to infer from
-    TPersistenceKeyPrefix
-  >(args);
-  const sortState = useSortState(args); // Type params inferred from args
-  const paginationState = usePaginationState(args); // Type params inferred from args
-  // Must pass type params because they can't all be inferred from the required args of useExpansionState
-  // TODO is that still true here?
-  const expansionState = useExpansionState<TColumnKey, TPersistenceKeyPrefix>(
-    args
-  );
-  const activeRowState = useActiveRowState(args); // Type params inferred from args
+  // Generic type params for each of these hooks are inferred from the args object
+  const filterState = useFilterState(args);
+  const sortState = useSortState(args);
+  const paginationState = usePaginationState(args);
+  const expansionState = useExpansionState(args);
+  const activeRowState = useActiveRowState(args);
   return {
     ...args,
     filterState,

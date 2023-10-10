@@ -5,6 +5,7 @@ import {
   useLocalStorage,
   useSessionStorage,
 } from "@migtools/lib-ui";
+import { DisallowCharacters } from "@app/utils/type-utils";
 
 export type BaseUsePersistentStateOptions<
   TValue,
@@ -12,7 +13,7 @@ export type BaseUsePersistentStateOptions<
 > = {
   defaultValue: TValue;
   isEnabled?: boolean;
-  persistenceKeyPrefix?: TPersistenceKeyPrefix;
+  persistenceKeyPrefix?: DisallowCharacters<TPersistenceKeyPrefix, ":">;
 };
 
 export type UsePersistentStateOptions<

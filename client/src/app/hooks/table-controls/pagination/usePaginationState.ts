@@ -77,5 +77,3 @@ export const usePaginationState = <
     });
   return { pageNumber, setPageNumber, itemsPerPage, setItemsPerPage };
 };
-
-// TODO look for and replace all usages of usePaginationUrlParams and fix usage of usePaginationState

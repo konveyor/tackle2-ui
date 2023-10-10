@@ -16,12 +16,14 @@ export const useLocalTableControlState = <
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
+  TFilterCategoryKey extends string = string,
   TPersistenceKeyPrefix extends string = string,
 >(
   args: IUseLocalTableControlStateArgs<
     TItem,
     TColumnKey,
     TSortableColumnKey,
+    TFilterCategoryKey,
     TPersistenceKeyPrefix
   >
 ): IUseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey> => {
@@ -64,6 +66,7 @@ export const useLocalTableControlState = <
     items: sortedItems,
   });
 
+  // TODO bring useSelectionState in from lib-ui, but maybe don't use the persistence because we want to keep the whole selected item object references
   const selectionState = useSelectionState({
     ...args,
     items: filteredItems,
@@ -72,7 +75,7 @@ export const useLocalTableControlState = <
     isItemSelectable,
   });
 
-  const expansionState = useExpansionState<TColumnKey>(args);
+  const expansionState = useExpansionState(args);
 
   const activeRowState = useActiveRowState(args);
 
