@@ -62,11 +62,13 @@ export interface AssessmentWizardValues {
 export interface AssessmentWizardProps {
   assessment?: Assessment;
   isOpen: boolean;
+  isLoadingAssessment: boolean;
 }
 
 export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   assessment,
   isOpen,
+  isLoadingAssessment,
 }) => {
   const isArchetype = useIsArchetype();
   const queryClient = useQueryClient();
@@ -129,7 +131,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         });
     }
     return questions;
-  }, [assessment]);
+  }, [assessment, isLoadingAssessment]);
 
   const validationSchema = yup.object().shape({
     stakeholders: yup.array().of(yup.string()),
@@ -137,21 +139,23 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   });
 
   const methods = useForm<AssessmentWizardValues>({
-    defaultValues: useMemo(() => {
-      return {
-        stakeholders:
-          assessment?.stakeholders?.map((sh) => sh.name).sort() ?? [],
-        stakeholderGroups:
-          assessment?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
-        // comments: initialComments,
-        questions: initialQuestions,
-        [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
-      };
-    }, [assessment]),
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
   const values = methods.getValues();
+
+  useEffect(() => {
+    methods.reset({
+      stakeholders: assessment?.stakeholders?.map((sh) => sh.name).sort() ?? [],
+      stakeholderGroups:
+        assessment?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
+      questions: initialQuestions,
+      [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
+    });
+    return () => {
+      methods.reset();
+    };
+  }, [assessment]);
 
   const errors = methods.formState.errors;
   const isValid = methods.formState.isValid;

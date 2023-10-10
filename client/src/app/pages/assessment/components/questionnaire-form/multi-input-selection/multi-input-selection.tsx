@@ -30,7 +30,7 @@ export const MultiInputSelection: React.FC<MultiInputSelectionProps> = ({
   return (
     <Stack>
       {sortedOptions.map((option, i) => {
-        const answerUniqueId = `${questionFieldName}-${option.text}-${i}}`;
+        const answerUniqueId = `${questionFieldName}-${option.text}-${i}`;
         return (
           <StackItem key={answerUniqueId} className="pf-v5-u-pb-xs">
             <HookFormPFGroupController
@@ -42,7 +42,7 @@ export const MultiInputSelection: React.FC<MultiInputSelectionProps> = ({
                   id={answerUniqueId}
                   name={questionFieldName}
                   isChecked={value === option.text}
-                  onChange={(checked, e) => {
+                  onChange={() => {
                     onChange(option.text);
                   }}
                   aria-label={option.text}
