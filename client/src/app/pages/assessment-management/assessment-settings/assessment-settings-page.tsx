@@ -98,13 +98,9 @@ const AssessmentSettings: React.FC = () => {
   );
 
   const [isImportModal, setIsImportModal] = React.useState<boolean>(false);
-  const [isDownloadTemplateModal, setIsDownloadTemplateModal] =
-    React.useState<boolean>(false);
 
   const [isKebabOpen, setIsKebabOpen] = React.useState<number | null>(null);
-  const [questionnaireToExport, setQuestionnaireToExport] = React.useState<
-    number | null
-  >(null);
+
   const [questionnaireToDelete, setQuestionnaireToDelete] =
     React.useState<Questionnaire>();
   const tableControls = useLocalTableControls({
@@ -293,7 +289,7 @@ const AssessmentSettings: React.FC = () => {
                             />
                           </Td>
                           <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                            {questionnaire.system && (
+                            {questionnaire.builtin && (
                               <LockIcon className={spacing.mrSm} />
                             )}
                             {questionnaire.name}
@@ -364,14 +360,18 @@ const AssessmentSettings: React.FC = () => {
                               </DropdownItem>
                               <ConditionalTooltip
                                 key="system-questionnaire"
-                                isTooltipEnabled={questionnaire.system}
+                                isTooltipEnabled={
+                                  questionnaire.builtin === true
+                                }
                                 content={
                                   "Disabled because it is a system questionnaire."
                                 }
                               >
                                 <DropdownItem
                                   key="delete"
-                                  isAriaDisabled={questionnaire.system === true}
+                                  isAriaDisabled={
+                                    questionnaire.builtin === true
+                                  }
                                   onClick={() =>
                                     setQuestionnaireToDelete(questionnaire)
                                   }
