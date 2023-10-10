@@ -19,7 +19,7 @@ import {
   useTableControlProps,
   getHubRequestParams,
 } from "@app/hooks/table-controls";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
@@ -40,7 +40,7 @@ export const Dependencies: React.FC = () => {
 
   const tableControlState = useTableControlState({
     persistTo: "urlParams",
-    urlParamKeyPrefix: TableURLParamKeyPrefix.dependencies,
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.dependencies,
     columnNames: {
       name: "Dependency name",
       foundIn: "Found in",

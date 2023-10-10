@@ -16,7 +16,7 @@ import {
   getHubRequestParams,
 } from "@app/hooks/table-controls";
 import { useFetchFileReports } from "@app/queries/issues";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -37,7 +37,7 @@ export const IssueAffectedFilesTable: React.FC<
 
   const tableControlState = useTableControlState({
     persistTo: "urlParams",
-    urlParamKeyPrefix: TableURLParamKeyPrefix.issuesAffectedFiles,
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.issuesAffectedFiles,
     columnNames: {
       file: "File",
       incidents: "Incidents",

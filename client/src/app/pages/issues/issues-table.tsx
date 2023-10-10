@@ -33,7 +33,7 @@ import { useSelectionState } from "@migtools/lib-ui";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { useFetchIssueReports, useFetchRuleReports } from "@app/queries/issues";
 import {
   FilterType,
@@ -97,7 +97,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
 
   const tableControlState = useTableControlState({
     persistTo: "urlParams",
-    urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.issues,
     columnNames: {
       description: "Issue",
       category: "Category",

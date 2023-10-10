@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
 import { useSelectionState } from "@migtools/lib-ui";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { AnalysisFileReport } from "@app/api/models";
 import { useFetchIncidents } from "@app/queries/issues";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -27,7 +27,7 @@ export const FileAllIncidentsTable: React.FC<
 > = ({ fileReport }) => {
   const tableControlState = useTableControlState({
     persistTo: "urlParams",
-    urlParamKeyPrefix: TableURLParamKeyPrefix.issuesRemainingIncidents,
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.issuesRemainingIncidents,
     columnNames: {
       line: "Line #",
       message: "Message",

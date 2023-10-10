@@ -56,7 +56,7 @@ import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
 import { Paths } from "@app/Paths";
 import { SimplePagination } from "@app/components/SimplePagination";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
@@ -100,7 +100,7 @@ const Archetypes: React.FC = () => {
 
   const tableControls = useLocalTableControls({
     persistTo: "urlParams",
-    persistenceKeyPrefix: TableURLParamKeyPrefix.archetypes,
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.archetypes,
     idProperty: "id",
     items: archetypes,
     isLoading: isFetching,

@@ -10,7 +10,7 @@ import {
   useTableControlProps,
   getHubRequestParams,
 } from "@app/hooks/table-controls";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -35,7 +35,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
 
   const tableControlState = useTableControlState({
     persistTo: "urlParams",
-    urlParamKeyPrefix: TableURLParamKeyPrefix.dependencyApplications,
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.dependencyApplications,
     columnNames: {
       name: "Application",
       version: "Version",

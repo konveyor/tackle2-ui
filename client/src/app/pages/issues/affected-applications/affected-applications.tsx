@@ -35,7 +35,7 @@ import {
   useSharedAffectedApplicationFilterCategories,
 } from "../helpers";
 import { IssueDetailDrawer } from "../issue-detail-drawer";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 
 interface IAffectedApplicationsRouteParams {
   ruleset: string;
@@ -54,7 +54,7 @@ export const AffectedApplications: React.FC = () => {
 
   const tableControlState = useTableControlState({
     persistTo: "urlParams",
-    urlParamKeyPrefix: TableURLParamKeyPrefix.issuesAffectedApps,
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.issuesAffectedApps,
     columnNames: {
       name: "Name",
       description: "Description",

@@ -15,7 +15,7 @@ import {
 } from "@app/hooks/table-controls";
 import { trimAndStringifyUrlParams } from "@app/hooks/useUrlParams";
 import { Paths } from "@app/Paths";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { IssueFilterGroups } from "./issues";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTags } from "@app/queries/tags";
@@ -116,7 +116,7 @@ export const getAffectedAppsUrl = ({
     .replace("/:ruleset/", `/${encodeURIComponent(ruleReport.ruleset)}/`)
     .replace("/:rule/", `/${encodeURIComponent(ruleReport.rule)}/`);
   const prefix = (key: string) =>
-    `${TableURLParamKeyPrefix.issuesAffectedApps}:${key}`;
+    `${TablePersistenceKeyPrefix.issuesAffectedApps}:${key}`;
 
   return `${baseUrl}?${trimAndStringifyUrlParams({
     newPrefixedSerializedParams: {
@@ -143,7 +143,7 @@ export const getBackToAllIssuesUrl = ({
     new URLSearchParams(fromIssuesParams)
   );
   // Pull the filters param out of that
-  const prefix = (key: string) => `${TableURLParamKeyPrefix.issues}:${key}`;
+  const prefix = (key: string) => `${TablePersistenceKeyPrefix.issues}:${key}`;
   const filterValuesToRestore = deserializeFilterUrlParams({
     filters: prefixedParamsToRestore[prefix("filters")],
   });
@@ -183,7 +183,7 @@ export const getIssuesSingleAppSelectedLocation = (
   const existingFiltersParam =
     fromLocation &&
     new URLSearchParams(fromLocation.search).get(
-      `${TableURLParamKeyPrefix.issues}:filters`
+      `${TablePersistenceKeyPrefix.issues}:filters`
     );
   return {
     pathname: Paths.issuesSingleAppSelected.replace(
