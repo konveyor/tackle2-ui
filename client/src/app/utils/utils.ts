@@ -75,6 +75,18 @@ export const dedupeFunction = (arr: any[]) =>
       index === self.findIndex((t) => t.value === value.value)
   );
 
+export const dedupeArrayOfObjects = <T>(arr: Array<T>, key: keyof T) => {
+  const seen = new Set();
+  return arr.filter((item) => {
+    const value = item[key];
+    if (seen.has(value)) {
+      return false;
+    }
+    seen.add(value);
+    return true;
+  });
+};
+
 export const numStr = (num: number | undefined): string => {
   if (num === undefined) return "";
   return String(num);
