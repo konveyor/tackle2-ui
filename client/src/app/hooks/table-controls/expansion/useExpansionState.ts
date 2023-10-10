@@ -24,7 +24,7 @@ export const useExpansionState = <
   TColumnKey extends string,
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: IPersistenceOptions<TPersistenceKeyPrefix>
+  args: IPersistenceOptions<TPersistenceKeyPrefix> = {}
 ): IExpansionState<TColumnKey> => {
   const { persistTo = "state", persistenceKeyPrefix } = args;
   const baseStateOptions: BaseUsePersistentStateOptions<
