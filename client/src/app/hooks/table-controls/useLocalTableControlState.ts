@@ -40,7 +40,11 @@ export const useLocalTableControlState = <
     isItemSelectable,
   } = args;
 
-  const filterState = useFilterState(args);
+  const filterState = useFilterState<
+    TItem,
+    TFilterCategoryKey,
+    TPersistenceKeyPrefix
+  >(args);
   const { filteredItems } = getLocalFilterDerivedState({
     ...args,
     items,
@@ -48,7 +52,11 @@ export const useLocalTableControlState = <
     filterState,
   });
 
-  const sortState = useSortState({ ...args, sortableColumns, initialSort });
+  const sortState = useSortState<TSortableColumnKey, TPersistenceKeyPrefix>({
+    ...args,
+    sortableColumns,
+    initialSort,
+  });
   const { sortedItems } = getLocalSortDerivedState({
     ...args,
     sortState,
@@ -56,7 +64,7 @@ export const useLocalTableControlState = <
     getSortValues,
   });
 
-  const paginationState = usePaginationState({
+  const paginationState = usePaginationState<TPersistenceKeyPrefix>({
     ...args,
     initialItemsPerPage,
   });
@@ -75,9 +83,11 @@ export const useLocalTableControlState = <
     isItemSelectable,
   });
 
-  const expansionState = useExpansionState(args);
+  const expansionState = useExpansionState<TColumnKey, TPersistenceKeyPrefix>(
+    args
+  );
 
-  const activeRowState = useActiveRowState(args);
+  const activeRowState = useActiveRowState<TPersistenceKeyPrefix>(args);
 
   return {
     ...args,

@@ -20,12 +20,19 @@ export const useTableControlState = <
     TPersistenceKeyPrefix
   >
 ) => {
-  // Generic type params for each of these hooks are inferred from the args object
-  const filterState = useFilterState(args);
-  const sortState = useSortState(args);
-  const paginationState = usePaginationState(args);
-  const expansionState = useExpansionState(args);
-  const activeRowState = useActiveRowState(args);
+  const filterState = useFilterState<
+    TItem,
+    TFilterCategoryKey,
+    TPersistenceKeyPrefix
+  >(args);
+  const sortState = useSortState<TSortableColumnKey, TPersistenceKeyPrefix>(
+    args
+  );
+  const paginationState = usePaginationState<TPersistenceKeyPrefix>(args);
+  const expansionState = useExpansionState<TColumnKey, TPersistenceKeyPrefix>(
+    args
+  );
+  const activeRowState = useActiveRowState<TPersistenceKeyPrefix>(args);
   return {
     ...args,
     filterState,
