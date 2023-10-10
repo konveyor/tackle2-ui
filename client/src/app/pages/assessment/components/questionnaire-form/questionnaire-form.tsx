@@ -12,7 +12,7 @@ import {
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 import { MultiInputSelection } from "./multi-input-selection";
 import { Question, QuestionHeader, QuestionBody } from "./question";
-import { getCommentFieldName, getQuestionFieldName } from "../../form-utils";
+import { getCommentFieldName } from "../../form-utils";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
 import { useFormContext } from "react-hook-form";
 import { Section } from "@app/api/models";
@@ -26,7 +26,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
   section,
 }) => {
   const { t } = useTranslation();
-  const { control, getValues } = useFormContext<AssessmentWizardValues>();
+  const { control } = useFormContext<AssessmentWizardValues>();
 
   // Force the wizard parent to reset the scroll
   useEffect(() => {
@@ -53,10 +53,10 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
           <Text component="h1">{section.name}</Text>
         </TextContent>
       </StackItem>
-      {sortedQuestions.map((question) => {
+      {sortedQuestions.map((question, i) => {
         const questionUniqueKey = `${section.name}-${
           question.order || "no-order"
-        }-${question.text || "no-text"}`;
+        }-${question.text || "no-text"}-${i}`;
         return (
           <StackItem key={questionUniqueKey}>
             <Question cy-data="question">
@@ -79,7 +79,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
               </QuestionHeader>
               <QuestionBody>
                 <MultiInputSelection
-                  key={getQuestionFieldName(question, true)}
+                  key={questionUniqueKey}
                   question={question}
                 />
               </QuestionBody>
