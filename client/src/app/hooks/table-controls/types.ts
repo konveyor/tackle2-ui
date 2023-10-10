@@ -30,6 +30,7 @@ import { IActiveRowDerivedStateArgs } from "./active-row";
 //      but we should see if we can fix that (maybe not depend on TItem in the extended types here, or find a way
 //      to pass TItem while still letting the rest of the generics be inferred.
 //      This may be resolved in a newer TypeScript version after https://github.com/microsoft/TypeScript/pull/54047 is merged!
+//      See https://github.com/konveyor/tackle2-ui/issues/1456
 
 // Persistence-specific args
 // - Extra args needed for useTableControlState and each concern-specific use*State hook in URL params mode

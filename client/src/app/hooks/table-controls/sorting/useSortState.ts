@@ -1,6 +1,5 @@
 import { IPersistenceOptions } from "..";
 import { usePersistentState } from "@app/hooks/usePersistentState";
-import { BaseUsePersistentStateOptions } from "@app/hooks/usePersistentState";
 
 export interface IActiveSort<TSortableColumnKey extends string> {
   columnKey: TSortableColumnKey;
@@ -33,19 +32,20 @@ export const useSortState = <
       : null,
   } = args;
 
-  const baseStateOptions: BaseUsePersistentStateOptions<IActiveSort<TSortableColumnKey> | null> =
-    {
-      defaultValue: initialSort,
-      persistenceKeyPrefix,
-    };
-
-  // Note: for the discriminated union here to work without TypeScript getting confused
-  //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
-  //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
-  const [activeSort, setActiveSort] = usePersistentState(
-    persistTo === "urlParams"
+  // We won't need to pass the latter two type params here if TS adds support for partial inference.
+  // See https://github.com/konveyor/tackle2-ui/issues/1456
+  const [activeSort, setActiveSort] = usePersistentState<
+    IActiveSort<TSortableColumnKey> | null,
+    TPersistenceKeyPrefix,
+    "sortColumn" | "sortDirection"
+  >({
+    defaultValue: initialSort,
+    persistenceKeyPrefix,
+    // Note: For the discriminated union here to work without TypeScript getting confused
+    //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
+    //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
+    ...(persistTo === "urlParams"
       ? {
-          ...baseStateOptions,
           persistTo,
           keys: ["sortColumn", "sortDirection"],
           serialize: (activeSort) => ({
@@ -62,11 +62,10 @@ export const useSortState = <
         }
       : persistTo === "localStorage" || persistTo === "sessionStorage"
       ? {
-          ...baseStateOptions,
           persistTo,
           key: `${persistenceKeyPrefix ? `${persistenceKeyPrefix}:` : ""}sort`,
         }
-      : { ...baseStateOptions, persistTo }
-  );
+      : { persistTo }),
+  });
   return { activeSort, setActiveSort };
 };

@@ -1,9 +1,6 @@
 import { FilterCategory, IFilterValues } from "@app/components/FilterToolbar";
 import { IPersistenceOptions } from "../types";
-import {
-  BaseUsePersistentStateOptions,
-  usePersistentState,
-} from "@app/hooks/usePersistentState";
+import { usePersistentState } from "@app/hooks/usePersistentState";
 import { serializeFilterUrlParams } from "./helpers";
 import { deserializeFilterUrlParams } from "./helpers";
 
@@ -26,34 +23,28 @@ export const useFilterState = <
 ): IFilterState<TFilterCategoryKey> => {
   const { persistTo = "state", persistenceKeyPrefix } = args;
 
-  const baseStateOptions: BaseUsePersistentStateOptions<
-    IFilterValues<TFilterCategoryKey>
-  > = {
+  // We won't need to pass the latter two type params here if TS adds support for partial inference.
+  // See https://github.com/konveyor/tackle2-ui/issues/1456
+  const [filterValues, setFilterValues] = usePersistentState<
+    IFilterValues<TFilterCategoryKey>,
+    TPersistenceKeyPrefix,
+    "filters"
+  >({
     defaultValue: {},
     persistenceKeyPrefix,
-  };
-
-  // Note: for the discriminated union here to work without TypeScript getting confused
-  //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
-  //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
-  const [filterValues, setFilterValues] = usePersistentState(
-    persistTo === "urlParams"
+    // Note: For the discriminated union here to work without TypeScript getting confused
+    //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
+    //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
+    ...(persistTo === "urlParams"
       ? {
-          ...baseStateOptions,
           persistTo,
           keys: ["filters"],
           serialize: serializeFilterUrlParams,
           deserialize: deserializeFilterUrlParams,
         }
       : persistTo === "localStorage" || persistTo === "sessionStorage"
-      ? {
-          ...baseStateOptions,
-          persistTo,
-          key: `${
-            persistenceKeyPrefix ? `${persistenceKeyPrefix}:` : ""
-          }filters`,
-        }
-      : { ...baseStateOptions, persistTo }
-  );
+      ? { persistTo, key: "filters" }
+      : { persistTo }),
+  });
   return { filterValues, setFilterValues };
 };

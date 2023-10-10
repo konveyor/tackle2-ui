@@ -1,7 +1,4 @@
-import {
-  BaseUsePersistentStateOptions,
-  usePersistentState,
-} from "@app/hooks/usePersistentState";
+import { usePersistentState } from "@app/hooks/usePersistentState";
 import { objectKeys } from "@app/utils/utils";
 import { IPersistenceOptions } from "../types";
 
@@ -27,20 +24,21 @@ export const useExpansionState = <
   args: IPersistenceOptions<TPersistenceKeyPrefix> = {}
 ): IExpansionState<TColumnKey> => {
   const { persistTo = "state", persistenceKeyPrefix } = args;
-  const baseStateOptions: BaseUsePersistentStateOptions<
-    TExpandedCells<TColumnKey>
-  > = {
+
+  // We won't need to pass the latter two type params here if TS adds support for partial inference.
+  // See https://github.com/konveyor/tackle2-ui/issues/1456
+  const [expandedCells, setExpandedCells] = usePersistentState<
+    TExpandedCells<TColumnKey>,
+    TPersistenceKeyPrefix,
+    "expandedCells"
+  >({
     defaultValue: {},
     persistenceKeyPrefix,
-  };
-
-  // Note: for the discriminated union here to work without TypeScript getting confused
-  //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
-  //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
-  const [expandedCells, setExpandedCells] = usePersistentState(
-    persistTo === "urlParams"
+    // Note: For the discriminated union here to work without TypeScript getting confused
+    //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
+    //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
+    ...(persistTo === "urlParams"
       ? {
-          ...baseStateOptions,
           persistTo,
           keys: ["expandedCells"],
           serialize: (expandedCellsObj) => {
@@ -58,13 +56,12 @@ export const useExpansionState = <
         }
       : persistTo === "localStorage" || persistTo === "sessionStorage"
       ? {
-          ...baseStateOptions,
           persistTo,
           key: `${
             persistenceKeyPrefix ? `${persistenceKeyPrefix}:` : ""
           }expandedCells`,
         }
-      : { ...baseStateOptions, persistTo }
-  );
+      : { persistTo }),
+  });
   return { expandedCells, setExpandedCells };
 };

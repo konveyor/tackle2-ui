@@ -7,15 +7,6 @@ import {
 } from "@migtools/lib-ui";
 import { DisallowCharacters } from "@app/utils/type-utils";
 
-export type BaseUsePersistentStateOptions<
-  TValue,
-  TPersistenceKeyPrefix extends string = string,
-> = {
-  defaultValue: TValue;
-  isEnabled?: boolean;
-  persistenceKeyPrefix?: DisallowCharacters<TPersistenceKeyPrefix, ":">;
-};
-
 type PersistToStateOptions = { persistTo?: "state" };
 
 type PersistToUrlParamsOptions<
@@ -34,12 +25,15 @@ export type UsePersistentStateOptions<
   TValue,
   TPersistenceKeyPrefix extends string,
   TURLParamKey extends string,
-> = BaseUsePersistentStateOptions<TValue> &
-  (
-    | PersistToStateOptions
-    | PersistToUrlParamsOptions<TValue, TPersistenceKeyPrefix, TURLParamKey>
-    | PersistToStorageOptions<TValue>
-  );
+> = {
+  defaultValue: TValue;
+  isEnabled?: boolean;
+  persistenceKeyPrefix?: DisallowCharacters<TPersistenceKeyPrefix, ":">;
+} & (
+  | PersistToStateOptions
+  | PersistToUrlParamsOptions<TValue, TPersistenceKeyPrefix, TURLParamKey>
+  | PersistToStorageOptions<TValue>
+);
 
 export const usePersistentState = <
   TValue,

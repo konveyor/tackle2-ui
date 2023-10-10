@@ -1,7 +1,4 @@
-import {
-  BaseUsePersistentStateOptions,
-  usePersistentState,
-} from "@app/hooks/usePersistentState";
+import { usePersistentState } from "@app/hooks/usePersistentState";
 import { IPersistenceOptions } from "../types";
 
 export interface IPaginationState {
@@ -27,14 +24,21 @@ export const usePaginationState = <
   } = args;
 
   const defaultValue = { pageNumber: 1, itemsPerPage: initialItemsPerPage };
-  const baseStateOptions: BaseUsePersistentStateOptions<
-    typeof defaultValue | null
-  > = { defaultValue, persistenceKeyPrefix };
 
-  const [paginationState, setPaginationState] = usePersistentState(
-    persistTo === "urlParams"
+  // We won't need to pass the latter two type params here if TS adds support for partial inference.
+  // See https://github.com/konveyor/tackle2-ui/issues/1456
+  const [paginationState, setPaginationState] = usePersistentState<
+    typeof defaultValue,
+    TPersistenceKeyPrefix,
+    "pageNumber" | "itemsPerPage"
+  >({
+    defaultValue,
+    persistenceKeyPrefix,
+    // Note: For the discriminated union here to work without TypeScript getting confused
+    //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
+    //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
+    ...(persistTo === "urlParams"
       ? {
-          ...baseStateOptions,
           persistTo,
           keys: ["pageNumber", "itemsPerPage"],
           serialize: (state) => {
@@ -56,14 +60,13 @@ export const usePaginationState = <
         }
       : persistTo === "localStorage" || persistTo === "sessionStorage"
       ? {
-          ...baseStateOptions,
           persistTo,
           key: `${
             persistenceKeyPrefix ? `${persistenceKeyPrefix}:` : ""
           }pagination`,
         }
-      : { ...baseStateOptions, persistTo }
-  );
+      : { persistTo }),
+  });
   const { pageNumber, itemsPerPage } = paginationState || defaultValue;
   const setPageNumber = (num: number) =>
     setPaginationState({
