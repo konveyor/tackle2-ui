@@ -57,9 +57,7 @@ export const useExpansionState = <
       : persistTo === "localStorage" || persistTo === "sessionStorage"
       ? {
           persistTo,
-          key: `${
-            persistenceKeyPrefix ? `${persistenceKeyPrefix}:` : ""
-          }expandedCells`,
+          key: "expandedCells",
         }
       : { persistTo }),
   });

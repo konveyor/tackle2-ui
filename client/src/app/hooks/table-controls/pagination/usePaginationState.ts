@@ -61,9 +61,7 @@ export const usePaginationState = <
       : persistTo === "localStorage" || persistTo === "sessionStorage"
       ? {
           persistTo,
-          key: `${
-            persistenceKeyPrefix ? `${persistenceKeyPrefix}:` : ""
-          }pagination`,
+          key: "pagination",
         }
       : { persistTo }),
   });

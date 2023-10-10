@@ -63,7 +63,7 @@ export const useSortState = <
       : persistTo === "localStorage" || persistTo === "sessionStorage"
       ? {
           persistTo,
-          key: `${persistenceKeyPrefix ? `${persistenceKeyPrefix}:` : ""}sort`,
+          key: "sort",
         }
       : { persistTo }),
   });

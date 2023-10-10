@@ -38,9 +38,7 @@ export const useActiveRowState = <
       : persistTo === "localStorage" || persistTo === "sessionStorage"
       ? {
           persistTo,
-          key: `${
-            persistenceKeyPrefix ? `${persistenceKeyPrefix}:` : ""
-          }activeRow`,
+          key: "activeRow",
         }
       : { persistTo }),
   });
