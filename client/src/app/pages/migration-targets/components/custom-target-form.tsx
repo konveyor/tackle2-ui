@@ -28,7 +28,7 @@ import {
 } from "@app/components/HookFormPFFields";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useCreateFileMutation } from "@app/queries/targets";
-import { IReadFile, Rule, Target, TargetLabel } from "@app/api/models";
+import { IReadFile, New, Rule, Target, TargetLabel } from "@app/api/models";
 import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { toOptionLike } from "@app/utils/model-utils";
@@ -268,8 +268,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       (identity) => identity.name === formValues.associatedCredentials
     );
 
-    const payload: Target = {
-      id: formValues.id ? formValues.id : undefined,
+    const payload: New<Target> = {
       name: formValues.name.trim(),
       description: formValues?.description?.trim() || "",
       ...(formValues.imageID && { image: { id: formValues.imageID } }),
@@ -300,7 +299,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
     if (target) {
       formValues.imageID
-        ? updateTarget({ ...payload })
+        ? updateTarget({ id: target.id, ...payload })
         : fetch(defaultImage)
             .then((res) => res.blob())
             .then((res) => {
@@ -309,6 +308,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             })
             .then((res) => {
               updateTarget({
+                id: target.id,
                 ...payload,
                 image: { id: res.id },
               });

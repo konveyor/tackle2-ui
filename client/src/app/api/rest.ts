@@ -408,7 +408,7 @@ export const deleteAllMigrationWaves = (
 export const updateTarget = (obj: Target): Promise<Target> =>
   axios.put(`${TARGETS}/${obj.id}`, obj);
 
-export const createTarget = (obj: Target): Promise<Target> =>
+export const createTarget = (obj: New<Target>): Promise<Target> =>
   axios.post(TARGETS, obj);
 
 export const deleteTarget = (id: number): Promise<Target> =>
