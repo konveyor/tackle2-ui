@@ -63,6 +63,7 @@ export type IUseTableControlStateArgs<
     persistTo?:
       | PersistTarget
       | {
+          default?: PersistTarget;
           filters?: PersistTarget;
           sort?: PersistTarget;
           pagination?: PersistTarget;

@@ -25,7 +25,7 @@ export const useTableControlState = <
   ): PersistTarget | undefined =>
     !args.persistTo || typeof args.persistTo === "string"
       ? args.persistTo
-      : args.persistTo[feature];
+      : args.persistTo[feature] || args.persistTo.default;
 
   const filterState = useFilterState<
     TItem,
