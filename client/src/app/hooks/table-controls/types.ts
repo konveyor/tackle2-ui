@@ -29,7 +29,6 @@ import {
   IActiveRowState,
   IActiveRowStateArgs,
 } from "./active-row";
-import { useTableControlState } from "./useTableControlState";
 
 // Generic type params used here:
 //   TItem - The actual API objects represented by rows in the table. Can be any object.
@@ -83,7 +82,7 @@ export type ITablePersistenceArgs<
     | Partial<Record<TableFeature | "default", PersistTarget>>;
 };
 
-// State args
+// Table-level state args
 // - Used by useTableControlState
 // - Does not require any state or query data in scope
 export type IUseTableControlStateArgs<
@@ -102,7 +101,7 @@ export type IUseTableControlStateArgs<
   IActiveRowStateArgs &
   ITablePersistenceArgs<TPersistenceKeyPrefix>;
 
-// State object
+// Table-level state object
 // - Returned by useTableControlState
 // - Contains persisted state for all features
 // - Also includes all of useTableControlState's args for convenience, since useTableControlProps requires them along with the state itself
@@ -126,7 +125,7 @@ export type ITableControlState<
   activeRowState: IActiveRowState;
 };
 
-// Local derived state args
+// Table-level local derived state args
 // - Used by getLocalTableControlDerivedState (client-side filtering/sorting/pagination)
 //   - getLocalTableControlDerivedState also requires the return values from useTableControlState
 // - Also used indirectly by the useLocalTableControls shorthand
@@ -139,8 +138,8 @@ export type ITableControlLocalDerivedStateArgs<
 > = ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey> &
   ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> &
   ILocalPaginationDerivedStateArgs<TItem>;
-// There is no ILocalExpansionDerivedStateArgs because expansion derived state is always local an internal to useTableControlProps
-// There is no ILocalActiveRowDerivedStateArgs because expansion derived state is always local an internal to useTableControlProps
+// There is no ILocalExpansionDerivedStateArgs type because expansion derived state is always local and internal to useTableControlProps
+// There is no ILocalActiveRowDerivedStateArgs type because expansion derived state is always local and internal to useTableControlProps
 
 // Table-level derived state object
 // - Used by useTableControlProps
@@ -212,17 +211,14 @@ export type IUseLocalTableControlsArgs<
       TSortableColumnKey,
       TFilterCategoryKey
     >,
-    | keyof (ITableControlDerivedState<TItem> &
-        // TODO make this an explicit type
-        ReturnType<
-          typeof useTableControlState<
-            TItem,
-            TColumnKey,
-            TSortableColumnKey,
-            TFilterCategoryKey,
-            TPersistenceKeyPrefix
-          >
-        >)
+    | keyof ITableControlDerivedState<TItem>
+    | keyof ITableControlState<
+        TItem,
+        TColumnKey,
+        TSortableColumnKey,
+        TFilterCategoryKey,
+        TPersistenceKeyPrefix
+      >
     | "selectionState" // TODO this won't be included here when selection is part of useTableControlState
   > &
   Pick<ISelectionStateArgs<TItem>, "initialSelected" | "isItemSelectable">; // TODO this won't be included here when selection is part of useTableControlState
