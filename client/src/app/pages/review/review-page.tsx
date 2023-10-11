@@ -12,7 +12,6 @@ import {
 import BanIcon from "@patternfly/react-icons/dist/esm/icons/ban-icon";
 
 import { Paths, ReviewRoute } from "@app/Paths";
-import { ApplicationDetails } from "./components/application-details";
 import { ReviewForm } from "./components/review-form";
 import { SimpleEmptyState } from "@app/components/SimpleEmptyState";
 import { ConditionalRender } from "@app/components/ConditionalRender";
@@ -39,9 +38,6 @@ const ReviewPage: React.FC = () => {
   const { review, fetchError, isFetching } = useFetchReviewById(
     isArchetype ? archetype?.review?.id : application?.review?.id
   );
-  console.log("archetype.review", archetype?.review?.id);
-  console.log("reviewl", review);
-  console.log("isFetchign", isFetching);
   const assessment = undefined;
   const breadcrumbs = [
     ...(isArchetype
@@ -103,12 +99,12 @@ const ReviewPage: React.FC = () => {
           <Grid hasGutter>
             <GridItem md={5}>
               <div className="pf-v5-c-form">
-                <FormSection>
+                {/* <FormSection>
                   <ApplicationDetails
                     application={application}
                     assessment={assessment}
                   />
-                </FormSection>
+                </FormSection> */}
                 <FormSection>
                   <ReviewForm
                     review={review}
