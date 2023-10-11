@@ -163,6 +163,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       artifact: null,
       mode: "binary",
       formLabels: [],
+      selectedTargets: [],
       withKnownLibs: "app",
       includedPackages: [],
       excludedPackages: [],
