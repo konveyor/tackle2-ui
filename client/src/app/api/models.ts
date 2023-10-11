@@ -649,7 +649,7 @@ export interface Questionnaire {
   rating: string;
   createTime: string;
   required: boolean;
-  system: boolean;
+  builtin?: boolean;
   sections: Section[];
   thresholds: Thresholds;
   riskMessages: RiskMessages;

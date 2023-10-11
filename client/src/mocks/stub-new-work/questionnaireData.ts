@@ -12,7 +12,7 @@ const questionnaireData: Record<number, Questionnaire> = {
     rating: "5% Red, 25% Yellow",
     createTime: "8 Aug. 2023, 10:20 AM EST",
     required: false,
-    system: true,
+    builtin: true,
     sections: [
       {
         name: "Application technologies 1",
@@ -191,7 +191,7 @@ const questionnaireData: Record<number, Questionnaire> = {
     rating: "15% Red, 35% Yellow",
     createTime: "9 Aug. 2023, 03:32 PM EST",
     required: true,
-    system: false,
+    builtin: false,
     sections: [
       {
         name: "Application technologies 1",
@@ -371,7 +371,7 @@ const questionnaireData: Record<number, Questionnaire> = {
     rating: "7% Red, 25% Yellow",
     createTime: "10 Aug. 2023, 11:23 PM EST",
     required: true,
-    system: false,
+    builtin: false,
     sections: [
       {
         name: "Application technologies 1",

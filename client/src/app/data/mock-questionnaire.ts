@@ -7,7 +7,7 @@ export const mockQuestionnaire = {
   rating: "5% Red, 25% Yellow",
   dateImported: "8 Aug. 2023, 10:20 AM EST",
   required: false,
-  system: true,
+  builtin: true,
   sections: [
     {
       name: "Application technologies 1",
