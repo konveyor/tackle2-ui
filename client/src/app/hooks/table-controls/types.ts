@@ -18,12 +18,14 @@ import {
 } from "./pagination";
 import { IExpansionDerivedStateArgs } from "./expansion";
 import { IActiveRowDerivedStateArgs } from "./active-row";
+import { useTableControlState } from ".";
 
 // Generic type params used here:
 //   TItem - The actual API objects represented by rows in the table. Can be any object.
 //   TColumnKey - Union type of unique identifier strings for the columns in the table
 //   TSortableColumnKey - A subset of column keys that have sorting enabled
 //   TFilterCategoryKey - Union type of unique identifier strings for filters (not necessarily the same as column keys)
+//   TPersistenceKeyPrefix - String (must not include a `:` character) used to distinguish persisted state for multiple tables
 
 // TODO when calling useTableControlState, the TItem type is not inferred and some of the params have it inferred as `unknown`.
 //      this currently doesn't seem to matter since TItem becomes inferred later when currentPageItems is in scope,
@@ -47,9 +49,9 @@ export type IPersistenceOptions<TPersistenceKeyPrefix extends string = string> =
     persistenceKeyPrefix?: DisallowCharacters<TPersistenceKeyPrefix, ":">;
   };
 
-// Common args
-// - Used by both useLocalTableControlState and useTableControlState
-// - Does not require any state or query values in scope
+// State args
+// - Used by useTableControlState
+// - Does not require any state or query data in scope
 export type IUseTableControlStateArgs<
   TItem,
   TColumnKey extends string,
@@ -79,8 +81,9 @@ export type IUseTableControlStateArgs<
   };
 
 // Data-dependent args
-// - Used by both useLocalTableControlState and useTableControlProps
-// - Requires query values and defined TItem type in scope but not state values
+// - Used by both getLocalTableControlDerivedState and useTableControlProps
+// - Also used indirectly by the useLocalTableControls shorthand
+// - Requires query data and defined TItem type in scope but not state values
 export interface ITableControlDataDependentArgs<TItem> {
   isLoading?: boolean;
   idProperty: KeyWithValueType<TItem, string | number>;
@@ -88,9 +91,35 @@ export interface ITableControlDataDependentArgs<TItem> {
 }
 
 // Derived state option args
-// - Used by only useLocalTableControlState (client-side filtering/sorting/pagination)
-// - Requires state and query values in scope
-export type IUseLocalTableControlStateArgs<
+// - Used by getLocalTableControlDerivedState (client-side filtering/sorting/pagination)
+// - Also used indirectly by the useLocalTableControls shorthand
+// - Requires state and query data in scope
+export type IGetLocalTableControlDerivedStateArgs<
+  TItem,
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey,
+  TFilterCategoryKey extends string = string,
+  TPersistenceKeyPrefix extends string = string,
+> = ReturnType<
+  // TODO make this an explicit type
+  typeof useTableControlState<
+    TItem,
+    TColumnKey,
+    TSortableColumnKey,
+    TFilterCategoryKey,
+    TPersistenceKeyPrefix
+  >
+> &
+  ITableControlDataDependentArgs<TItem> &
+  ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey> &
+  IFilterStateArgs<TItem, TFilterCategoryKey> & // TODO ???
+  ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> &
+  ILocalPaginationDerivedStateArgs<TItem> &
+  Pick<ISelectionStateArgs<TItem>, "initialSelected" | "isItemSelectable">; // TODO ???
+
+// Args for useLocalTableControls shorthand hook
+// - Combines args for useTableControlState and getLocalTableControlDerivedState
+export type IUseLocalTableControlsArgs<
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
@@ -103,12 +132,13 @@ export type IUseLocalTableControlStateArgs<
   TFilterCategoryKey,
   TPersistenceKeyPrefix
 > &
-  ITableControlDataDependentArgs<TItem> &
-  ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey> &
-  IFilterStateArgs<TItem, TFilterCategoryKey> &
-  ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> &
-  ILocalPaginationDerivedStateArgs<TItem> &
-  Pick<ISelectionStateArgs<TItem>, "initialSelected" | "isItemSelectable">; // TODO ???
+  IGetLocalTableControlDerivedStateArgs<
+    TItem,
+    TColumnKey,
+    TSortableColumnKey,
+    TFilterCategoryKey,
+    TPersistenceKeyPrefix
+  >;
 
 // Rendering args
 // - Used by only useTableControlProps

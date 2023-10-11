@@ -1,58 +1,44 @@
-import { useSelectionState } from "@migtools/lib-ui";
 import { getLocalFilterDerivedState } from "./filtering";
 import { getLocalSortDerivedState } from "./sorting";
 import { getLocalPaginationDerivedState } from "./pagination";
 import {
-  IUseLocalTableControlStateArgs,
+  IGetLocalTableControlDerivedStateArgs,
   IUseTableControlPropsArgs,
 } from "./types";
-import { useTableControlState } from "./useTableControlState";
 
-export const useLocalTableControlState = <
+export const getLocalTableControlDerivedState = <
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: IUseLocalTableControlStateArgs<
+  args: IGetLocalTableControlDerivedStateArgs<
     TItem,
     TColumnKey,
     TSortableColumnKey,
     TFilterCategoryKey,
     TPersistenceKeyPrefix
   >
-): IUseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey> => {
-  const { items, hasPagination = true, idProperty } = args;
-
-  const tableControlState = useTableControlState(args);
-
+): Omit<
+  IUseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey>,
+  "selectionState" // TODO we won't need to omit this once selection state is part of useTableControlState
+> => {
+  const { items, hasPagination = true } = args;
   const { filteredItems } = getLocalFilterDerivedState({
-    ...tableControlState,
+    ...args,
     items,
   });
-
   const { sortedItems } = getLocalSortDerivedState({
-    ...tableControlState,
+    ...args,
     items: filteredItems,
   });
-
   const { currentPageItems } = getLocalPaginationDerivedState({
-    ...tableControlState,
+    ...args,
     items: sortedItems,
   });
-
-  // TODO bring useSelectionState in from lib-ui, but maybe don't use the persistence because we want to keep the whole selected item object references
-  const selectionState = useSelectionState({
-    ...args,
-    items: filteredItems,
-    isEqual: (a, b) => a[idProperty] === b[idProperty],
-  });
-
   return {
     ...args,
-    ...tableControlState,
-    selectionState,
     totalItemCount: items.length,
     currentPageItems: hasPagination ? currentPageItems : sortedItems,
   };

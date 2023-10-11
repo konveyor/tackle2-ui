@@ -1,6 +1,8 @@
-import { useLocalTableControlState } from "./useLocalTableControlState";
 import { useTableControlProps } from "./useTableControlProps";
-import { IUseLocalTableControlStateArgs } from "./types";
+import { IUseLocalTableControlsArgs } from "./types";
+import { getLocalTableControlDerivedState } from "./getLocalTableControlDerivedState";
+import { useTableControlState } from "./useTableControlState";
+import { useSelectionState } from "@migtools/lib-ui";
 
 export const useLocalTableControls = <
   TItem,
@@ -9,11 +11,22 @@ export const useLocalTableControls = <
   TFilterCategoryKey extends string = string,
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: IUseLocalTableControlStateArgs<
+  args: IUseLocalTableControlsArgs<
     TItem,
     TColumnKey,
     TSortableColumnKey,
     TFilterCategoryKey,
     TPersistenceKeyPrefix
   >
-) => useTableControlProps(useLocalTableControlState(args));
+) =>
+  useTableControlProps({
+    ...getLocalTableControlDerivedState({
+      ...args,
+      ...useTableControlState(args),
+    }),
+    // TODO we won't need this here once selection state is part of useTableControlState
+    selectionState: useSelectionState({
+      ...args,
+      isEqual: (a, b) => a[args.idProperty] === b[args.idProperty],
+    }),
+  });
