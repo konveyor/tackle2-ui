@@ -106,7 +106,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
   const manualTags: TagRef[] = useMemo(() => {
     const rawManualTags: TagRef[] =
-      application?.tags?.filter((t) => t?.source ?? "" === "") ?? [];
+      application?.tags?.filter((t) => !t?.source) ?? [];
     return dedupeArrayOfObjects<TagRef>(rawManualTags, "name");
   }, [application?.tags]);
 

@@ -18,6 +18,7 @@ import type {
   Stakeholder,
   StakeholderGroup,
   Tag,
+  TagRef,
 } from "@app/api/models";
 import {
   HookFormPFTextArea,
@@ -30,7 +31,11 @@ import {
   useCreateArchetypeMutation,
   useUpdateArchetypeMutation,
 } from "@app/queries/archetypes";
-import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import {
+  dedupeArrayOfObjects,
+  duplicateNameCheck,
+  getAxiosErrorMessage,
+} from "@app/utils/utils";
 import { useFetchTagCategories } from "@app/queries/tags";
 
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
@@ -78,11 +83,17 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
     onActionSuccess: onClose,
   });
 
-  const archetypeTags =
-    archetype?.tags?.filter((t) => t?.source ?? "" === "") ?? [];
+  const manualTags: TagRef[] = useMemo(() => {
+    const rawManualTags: TagRef[] =
+      archetype?.tags?.filter((t) => !t?.source) ?? [];
+    return dedupeArrayOfObjects<TagRef>(rawManualTags, "name");
+  }, [archetype?.tags]);
 
-  const assessmentTags =
-    archetype?.tags?.filter((t) => t?.source ?? "" !== "") ?? [];
+  const assessmentTags: TagRef[] = useMemo(() => {
+    const rawAssessmentTags: TagRef[] =
+      archetype?.tags?.filter((t) => t?.source === "assessment") ?? [];
+    return dedupeArrayOfObjects<TagRef>(rawAssessmentTags, "name");
+  }, [archetype?.tags]);
 
   const validationSchema = yup.object().shape({
     name: yup
@@ -154,7 +165,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       comments: archetype?.comments || "",
 
       criteria: archetype?.criteria?.map((tag) => tag.name).sort() ?? [],
-      tags: archetypeTags.map((tag) => tag.name).sort() ?? [],
+      tags: manualTags.map((tag) => tag.name).sort() ?? [],
 
       stakeholders: archetype?.stakeholders?.map((sh) => sh.name).sort() ?? [],
       stakeholderGroups:
@@ -167,14 +178,14 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
   const onValidSubmit = (values: ArchetypeFormValues) => {
     // Note: We need to manually retain the tags with source != "" in the payload
     const tags = [...(tagsToRefs(values.tags) ?? []), ...assessmentTags];
+    const criteriaTags = tagsToRefs(values.criteria) ?? [];
 
     const payload: New<Archetype> = {
       name: values.name.trim(),
       description: values.description?.trim() ?? "",
       comments: values.comments?.trim() ?? "",
-
       criteria: values.criteria
-        .map((tagName) => tags.find((tag) => tag.name === tagName))
+        .map((tagName) => criteriaTags.find((tag) => tag.name === tagName))
         .filter(Boolean),
 
       tags: values.tags
