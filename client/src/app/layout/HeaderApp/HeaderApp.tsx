@@ -86,23 +86,21 @@ export const HeaderApp: React.FC = () => {
           <BarsIcon />
         </PageToggleButton>
       </MastheadToggle>
-      {APP_BRAND === BrandType.Konveyor ? (
-        <MastheadMain>
-          <MastheadBrand>
+      <MastheadMain>
+        <MastheadBrand>
+          {APP_BRAND === BrandType.Konveyor ? (
             <Brand
               src={konveyorBrandImage}
               alt="brand"
               heights={{ default: "60px" }}
             />
-          </MastheadBrand>
-        </MastheadMain>
-      ) : (
-        <MastheadContent>
-          <Title className="logo-pointer" headingLevel="h1" size="2xl">
-            Migration Toolkit for Applications
-          </Title>
-        </MastheadContent>
-      )}
+          ) : (
+            <Title className="logo-pointer" headingLevel="h1" size="2xl">
+              Migration Toolkit for Applications
+            </Title>
+          )}
+        </MastheadBrand>
+      </MastheadMain>
       <MastheadContent>{toolbar}</MastheadContent>
     </Masthead>
   );
