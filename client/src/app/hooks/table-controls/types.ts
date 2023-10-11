@@ -18,7 +18,6 @@ import {
 } from "./pagination";
 import { IExpansionDerivedStateArgs } from "./expansion";
 import { IActiveRowDerivedStateArgs } from "./active-row";
-import { useTableControlState } from ".";
 
 // Generic type params used here:
 //   TItem - The actual API objects represented by rows in the table. Can be any object.
@@ -90,32 +89,19 @@ export interface ITableControlDataDependentArgs<TItem> {
   forceNumRenderedColumns?: number;
 }
 
-// Derived state option args
+// Local derived state args
 // - Used by getLocalTableControlDerivedState (client-side filtering/sorting/pagination)
 // - Also used indirectly by the useLocalTableControls shorthand
 // - Requires state and query data in scope
-export type IGetLocalTableControlDerivedStateArgs<
+export type ITableControlLocalDerivedStateArgs<
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
-  TPersistenceKeyPrefix extends string = string,
-> = ReturnType<
-  // TODO make this an explicit type
-  typeof useTableControlState<
-    TItem,
-    TColumnKey,
-    TSortableColumnKey,
-    TFilterCategoryKey,
-    TPersistenceKeyPrefix
-  >
-> &
-  ITableControlDataDependentArgs<TItem> &
+> = ITableControlDataDependentArgs<TItem> &
   ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey> &
-  IFilterStateArgs<TItem, TFilterCategoryKey> & // TODO ???
   ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> &
-  ILocalPaginationDerivedStateArgs<TItem> &
-  Pick<ISelectionStateArgs<TItem>, "initialSelected" | "isItemSelectable">; // TODO ???
+  ILocalPaginationDerivedStateArgs<TItem>;
 
 // Args for useLocalTableControls shorthand hook
 // - Combines args for useTableControlState and getLocalTableControlDerivedState
@@ -132,20 +118,20 @@ export type IUseLocalTableControlsArgs<
   TFilterCategoryKey,
   TPersistenceKeyPrefix
 > &
-  IGetLocalTableControlDerivedStateArgs<
+  ITableControlLocalDerivedStateArgs<
     TItem,
     TColumnKey,
     TSortableColumnKey,
-    TFilterCategoryKey,
-    TPersistenceKeyPrefix
-  >;
+    TFilterCategoryKey
+  > &
+  Pick<ISelectionStateArgs<TItem>, "initialSelected" | "isItemSelectable">; // TODO this won't be included here when selection is part of useTableControlState
 
 // Rendering args
 // - Used by only useTableControlProps
 // - Requires state and query values in scope
 // - Combines all args above with the return values of useTableControlState and args derived from either:
-//   - Server-side filtering/sorting/pagination
-//   - `getLocal[Feature]DerivedState` logic
+//   - Server-side filtering/sorting/pagination provided by the consumer
+//   - getLocalTableControlDerivedState (client-side filtering/sorting/pagination)
 export interface IUseTableControlPropsArgs<
   TItem,
   TColumnKey extends string,
@@ -164,5 +150,5 @@ export interface IUseTableControlPropsArgs<
     IExpansionDerivedStateArgs<TItem, TColumnKey>,
     IActiveRowDerivedStateArgs<TItem> {
   currentPageItems: TItem[];
-  selectionState: ReturnType<typeof useSelectionState<TItem>>; // TODO make this optional? fold it in?
+  selectionState: ReturnType<typeof useSelectionState<TItem>>; // TODO this won't be included here when selection is part of useTableControlState
 }
