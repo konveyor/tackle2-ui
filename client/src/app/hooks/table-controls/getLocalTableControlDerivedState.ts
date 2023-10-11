@@ -3,7 +3,7 @@ import { getLocalSortDerivedState } from "./sorting";
 import { getLocalPaginationDerivedState } from "./pagination";
 import {
   ITableControlLocalDerivedStateArgs,
-  IUseTableControlPropsArgs,
+  ITableControlDerivedState,
 } from "./types";
 import { useTableControlState } from "./useTableControlState";
 
@@ -30,10 +30,7 @@ export const getLocalTableControlDerivedState = <
         TPersistenceKeyPrefix
       >
     >
-): Omit<
-  IUseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey>,
-  "selectionState" // TODO we won't need to omit this once selection state is part of useTableControlState
-> => {
+): ITableControlDerivedState<TItem> => {
   const { items, hasPagination = true } = args;
   const { filteredItems } = getLocalFilterDerivedState({
     ...args,
@@ -48,7 +45,6 @@ export const getLocalTableControlDerivedState = <
     items: sortedItems,
   });
   return {
-    ...args,
     totalItemCount: items.length,
     currentPageItems: hasPagination ? currentPageItems : sortedItems,
   };

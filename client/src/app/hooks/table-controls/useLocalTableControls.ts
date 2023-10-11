@@ -18,15 +18,17 @@ export const useLocalTableControls = <
     TFilterCategoryKey,
     TPersistenceKeyPrefix
   >
-) =>
-  useTableControlProps({
-    ...getLocalTableControlDerivedState({
-      ...args,
-      ...useTableControlState(args),
-    }),
+) => {
+  const state = useTableControlState(args);
+  const derivedState = getLocalTableControlDerivedState({ ...args, ...state });
+  return useTableControlProps({
+    ...args,
+    ...state,
+    ...derivedState,
     // TODO we won't need this here once selection state is part of useTableControlState
     selectionState: useSelectionState({
       ...args,
       isEqual: (a, b) => a[args.idProperty] === b[args.idProperty],
     }),
   });
+};

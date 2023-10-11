@@ -79,15 +79,13 @@ export type IUseTableControlStateArgs<
     variant?: TableProps["variant"];
   };
 
-// Data-dependent args
+// Data-dependent args (TODO is there a better name?)
 // - Used by both getLocalTableControlDerivedState and useTableControlProps
 // - Also used indirectly by the useLocalTableControls shorthand
 // - Requires query data and defined TItem type in scope but not state values
-export interface ITableControlDataDependentArgs<TItem> {
-  isLoading?: boolean;
+export type ITableControlDataDependentArgs<TItem> = {
   idProperty: KeyWithValueType<TItem, string | number>;
-  forceNumRenderedColumns?: number;
-}
+};
 
 // Local derived state args
 // - Used by getLocalTableControlDerivedState (client-side filtering/sorting/pagination)
@@ -103,8 +101,22 @@ export type ITableControlLocalDerivedStateArgs<
   ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> &
   ILocalPaginationDerivedStateArgs<TItem>;
 
+export type ITableControlDerivedState<TItem> = {
+  currentPageItems: TItem[];
+  totalItemCount: number;
+};
+
+// Rendering args
+// - Used by useTableControlProps
+// - Also used indirectly by the useLocalTableControls shorthand
+// - Requires state and query values in scope
+export type ITableControlRenderingArgs = {
+  isLoading?: boolean;
+  forceNumRenderedColumns?: number;
+};
+
 // Args for useLocalTableControls shorthand hook
-// - Combines args for useTableControlState and getLocalTableControlDerivedState
+// - Combines args for useTableControlState, getLocalTableControlDerivedState and useTableControlProps
 export type IUseLocalTableControlsArgs<
   TItem,
   TColumnKey extends string,
@@ -124,31 +136,33 @@ export type IUseLocalTableControlsArgs<
     TSortableColumnKey,
     TFilterCategoryKey
   > &
+  ITableControlRenderingArgs &
   Pick<ISelectionStateArgs<TItem>, "initialSelected" | "isItemSelectable">; // TODO this won't be included here when selection is part of useTableControlState
 
-// Rendering args
+// Rendering args (TODO rename)
 // - Used by only useTableControlProps
 // - Requires state and query values in scope
 // - Combines all args above with the return values of useTableControlState and args derived from either:
 //   - Server-side filtering/sorting/pagination provided by the consumer
 //   - getLocalTableControlDerivedState (client-side filtering/sorting/pagination)
-export interface IUseTableControlPropsArgs<
+export type IUseTableControlPropsArgs<
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
-> extends IUseTableControlStateArgs<
-      TItem,
-      TColumnKey,
-      TSortableColumnKey,
-      TFilterCategoryKey
-    >,
-    ITableControlDataDependentArgs<TItem>,
-    IFilterPropsArgs<TItem, TFilterCategoryKey>,
-    ISortPropsArgs<TColumnKey, TSortableColumnKey>,
-    IPaginationPropsArgs,
-    IExpansionDerivedStateArgs<TItem, TColumnKey>,
-    IActiveRowDerivedStateArgs<TItem> {
-  currentPageItems: TItem[];
-  selectionState: ReturnType<typeof useSelectionState<TItem>>; // TODO this won't be included here when selection is part of useTableControlState
-}
+> = IUseTableControlStateArgs<
+  TItem,
+  TColumnKey,
+  TSortableColumnKey,
+  TFilterCategoryKey
+> &
+  ITableControlDataDependentArgs<TItem> &
+  IFilterPropsArgs<TItem, TFilterCategoryKey> &
+  ISortPropsArgs<TColumnKey, TSortableColumnKey> &
+  IPaginationPropsArgs &
+  IExpansionDerivedStateArgs<TItem, TColumnKey> &
+  IActiveRowDerivedStateArgs<TItem> &
+  ITableControlDerivedState<TItem> &
+  ITableControlRenderingArgs & {
+    selectionState: ReturnType<typeof useSelectionState<TItem>>; // TODO this won't be included here when selection is part of useTableControlState
+  };
