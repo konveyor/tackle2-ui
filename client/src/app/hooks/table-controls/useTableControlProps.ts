@@ -120,6 +120,8 @@ export const useTableControlProps = <
     children: columnNames[columnKey],
   });
 
+  // TODO move this into a getActiveRowProps helper?
+  // TODO have the consumer always call getTrProps and only include clickable stuff if the feature is enabled
   const getClickableTrProps = ({
     onRowClick,
     item,
@@ -149,6 +151,7 @@ export const useTableControlProps = <
     dataLabel: columnNames[columnKey],
   });
 
+  // TODO move this into a getSelectionProps helper somehow?
   const getSelectCheckboxTdProps = ({
     item,
     rowIndex,
@@ -165,6 +168,7 @@ export const useTableControlProps = <
     },
   });
 
+  // TODO move this into a getExpansionProps helper somehow?
   const getSingleExpandTdProps = ({
     item,
     rowIndex,
@@ -184,6 +188,7 @@ export const useTableControlProps = <
     },
   });
 
+  // TODO move this into a getExpansionProps helper somehow?
   const getCompoundExpandTdProps = ({
     item,
     rowIndex,
@@ -208,6 +213,7 @@ export const useTableControlProps = <
     },
   });
 
+  // TODO move this into a getExpansionProps helper somehow?
   const getExpandedContentTdProps = ({
     item,
   }: {
