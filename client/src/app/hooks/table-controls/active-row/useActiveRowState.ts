@@ -7,12 +7,17 @@ export interface IActiveRowState {
   setActiveRowId: (id: string | number | null) => void;
 }
 
+export interface IActiveRowStateArgs {
+  isActiveRowEnabled?: boolean;
+}
+
 export const useActiveRowState = <
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: IFeaturePersistenceArgs<TPersistenceKeyPrefix> = {}
+  args: IActiveRowStateArgs &
+    IFeaturePersistenceArgs<TPersistenceKeyPrefix> = {}
 ): IActiveRowState => {
-  const { persistTo, persistenceKeyPrefix } = args;
+  const { isActiveRowEnabled, persistTo, persistenceKeyPrefix } = args;
 
   // We won't need to pass the latter two type params here if TS adds support for partial inference.
   // See https://github.com/konveyor/tackle2-ui/issues/1456
@@ -21,6 +26,7 @@ export const useActiveRowState = <
     TPersistenceKeyPrefix,
     "activeRow"
   >({
+    isEnabled: isActiveRowEnabled,
     defaultValue: null,
     persistenceKeyPrefix,
     // Note: For the discriminated union here to work without TypeScript getting confused

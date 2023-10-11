@@ -5,10 +5,11 @@ import { useTableControlProps } from "@app/hooks/table-controls";
 export interface ITableRowContentWithControlsProps<
   TItem,
   TColumnKey extends string,
-  TSortableColumnKey extends TColumnKey
+  TSortableColumnKey extends TColumnKey,
 > {
-  expandableVariant?: "single" | "compound" | null;
-  isSelectable?: boolean;
+  isExpansionEnabled?: boolean;
+  expandableVariant?: "single" | "compound";
+  isSelectionEnabled?: boolean;
   propHelpers: ReturnType<
     typeof useTableControlProps<TItem, TColumnKey, TSortableColumnKey>
   >["propHelpers"];
@@ -20,10 +21,11 @@ export interface ITableRowContentWithControlsProps<
 export const TableRowContentWithControls = <
   TItem,
   TColumnKey extends string,
-  TSortableColumnKey extends TColumnKey
+  TSortableColumnKey extends TColumnKey,
 >({
-  expandableVariant = null,
-  isSelectable = false,
+  isExpansionEnabled = false,
+  expandableVariant,
+  isSelectionEnabled = false,
   propHelpers: { getSingleExpandTdProps, getSelectCheckboxTdProps },
   item,
   rowIndex,
@@ -32,10 +34,10 @@ export const TableRowContentWithControls = <
   ITableRowContentWithControlsProps<TItem, TColumnKey, TSortableColumnKey>
 >) => (
   <>
-    {expandableVariant === "single" ? (
+    {isExpansionEnabled && expandableVariant === "single" ? (
       <Td {...getSingleExpandTdProps({ item, rowIndex })} />
     ) : null}
-    {isSelectable ? (
+    {isSelectionEnabled ? (
       <Td {...getSelectCheckboxTdProps({ item, rowIndex })} />
     ) : null}
     {children}

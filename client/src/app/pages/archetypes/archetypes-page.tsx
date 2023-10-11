@@ -136,7 +136,7 @@ const Archetypes: React.FC = () => {
     }),
     initialSort: { columnKey: "name", direction: "asc" },
 
-    hasPagination: true,
+    isPaginationEnabled: true,
   });
   const {
     currentPageItems,

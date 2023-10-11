@@ -17,13 +17,26 @@ export interface IExpansionState<TColumnKey extends string> {
   ) => void;
 }
 
+export type IRequiredExpansionStateArgs = {
+  expandableVariant: "single" | "compound";
+};
+
+export type IExpansionStateArgs =
+  | ({ isExpansionEnabled: true } & IRequiredExpansionStateArgs)
+  | ({ isExpansionEnabled?: false } & Partial<IRequiredExpansionStateArgs>);
+
 export const useExpansionState = <
   TColumnKey extends string,
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: IFeaturePersistenceArgs<TPersistenceKeyPrefix> = {}
+  args: IExpansionStateArgs &
+    IFeaturePersistenceArgs<TPersistenceKeyPrefix> = {}
 ): IExpansionState<TColumnKey> => {
-  const { persistTo = "state", persistenceKeyPrefix } = args;
+  const {
+    isExpansionEnabled,
+    persistTo = "state",
+    persistenceKeyPrefix,
+  } = args;
 
   // We won't need to pass the latter two type params here if TS adds support for partial inference.
   // See https://github.com/konveyor/tackle2-ui/issues/1456
@@ -39,6 +52,7 @@ export const useExpansionState = <
     //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
     ...(persistTo === "urlParams"
       ? {
+          isEnabled: isExpansionEnabled,
           persistTo,
           keys: ["expandedCells"],
           serialize: (expandedCellsObj) => {

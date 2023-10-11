@@ -19,8 +19,16 @@ import {
   IPaginationPropsArgs,
   IPaginationState,
 } from "./pagination";
-import { IExpansionDerivedStateArgs, IExpansionState } from "./expansion";
-import { IActiveRowDerivedStateArgs, IActiveRowState } from "./active-row";
+import {
+  IExpansionDerivedStateArgs,
+  IExpansionState,
+  IExpansionStateArgs,
+} from "./expansion";
+import {
+  IActiveRowDerivedStateArgs,
+  IActiveRowState,
+  IActiveRowStateArgs,
+} from "./active-row";
 import { useTableControlState } from "./useTableControlState";
 
 // Generic type params used here:
@@ -84,18 +92,15 @@ export type IUseTableControlStateArgs<
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
   TPersistenceKeyPrefix extends string = string,
-> = IFilterStateArgs<TItem, TFilterCategoryKey> &
+> = {
+  columnNames: Record<TColumnKey, string>; // An ordered mapping of unique keys to human-readable column name strings
+} & IFilterStateArgs<TItem, TFilterCategoryKey> &
   ISortStateArgs<TSortableColumnKey> &
-  IPaginationStateArgs &
-  // There is no IExpansionStateArgs because the only args there are the IPersistenceOptions
-  // There is no IActiveRowStateArgs because the only args there are the IPersistenceOptions
-  ITablePersistenceArgs<TPersistenceKeyPrefix> & {
-    columnNames: Record<TColumnKey, string>; // An ordered mapping of unique keys to human-readable column name strings
-    isSelectable?: boolean;
-    hasPagination?: boolean; // TODO disable pagination state stuff if this is falsy
-    expandableVariant?: "single" | "compound" | null; // TODO disable expandable state stuff if this is falsy
-    // TODO do we want to have a featuresEnabled object instead?
-  };
+  IPaginationStateArgs & {
+    isSelectionEnabled?: boolean; // TODO move this into useSelectionState when we move it from lib-ui
+  } & IExpansionStateArgs &
+  IActiveRowStateArgs &
+  ITablePersistenceArgs<TPersistenceKeyPrefix>;
 
 // State object
 // - Returned by useTableControlState

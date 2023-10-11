@@ -1,5 +1,5 @@
 import React from "react";
-import { WaveWithStatus, Role } from "@app/api/models";
+import { WaveWithStatus } from "@app/api/models";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useLocalTableControls } from "@app/hooks/table-controls";
@@ -35,7 +35,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
       email: stakeholder.email,
     }),
     sortableColumns: ["name", "jobFunction", "role", "email"],
-    hasPagination: true,
+    isPaginationEnabled: true,
     variant: "compact",
   });
   const {

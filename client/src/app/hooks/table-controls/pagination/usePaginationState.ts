@@ -12,6 +12,7 @@ export interface IPaginationState extends IActivePagination {
 }
 
 export interface IPaginationStateArgs {
+  isPaginationEnabled?: boolean;
   initialItemsPerPage?: number;
 }
 
@@ -21,6 +22,7 @@ export const usePaginationState = <
   args: IPaginationStateArgs & IFeaturePersistenceArgs<TPersistenceKeyPrefix>
 ): IPaginationState => {
   const {
+    isPaginationEnabled,
     persistTo = "state",
     persistenceKeyPrefix,
     initialItemsPerPage = 10,
@@ -38,6 +40,7 @@ export const usePaginationState = <
     TPersistenceKeyPrefix,
     "pageNumber" | "itemsPerPage"
   >({
+    isEnabled: isPaginationEnabled,
     defaultValue,
     persistenceKeyPrefix,
     // Note: For the discriminated union here to work without TypeScript getting confused

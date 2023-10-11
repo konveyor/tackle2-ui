@@ -28,7 +28,7 @@ export const getLocalTableControlDerivedState = <
       TPersistenceKeyPrefix
     >
 ): ITableControlDerivedState<TItem> => {
-  const { items, hasPagination = true } = args;
+  const { items, isPaginationEnabled = true } = args;
   const { filteredItems } = getLocalFilterDerivedState({
     ...args,
     items,
@@ -43,6 +43,6 @@ export const getLocalTableControlDerivedState = <
   });
   return {
     totalItemCount: items.length,
-    currentPageItems: hasPagination ? currentPageItems : sortedItems,
+    currentPageItems: isPaginationEnabled ? currentPageItems : sortedItems,
   };
 };

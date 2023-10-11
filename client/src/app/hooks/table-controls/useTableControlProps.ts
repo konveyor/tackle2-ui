@@ -46,8 +46,9 @@ export const useTableControlProps = <
     },
     columnNames,
     sortableColumns = [],
-    isSelectable = false,
-    expandableVariant = null,
+    isSelectionEnabled = false,
+    isExpansionEnabled = false,
+    expandableVariant,
     hasActionsColumn = false,
     variant,
     idProperty,
@@ -59,8 +60,9 @@ export const useTableControlProps = <
   // We need to account for those when dealing with props based on column index and colSpan.
   let numColumnsBeforeData = 0;
   let numColumnsAfterData = 0;
-  if (isSelectable) numColumnsBeforeData++;
-  if (expandableVariant === "single") numColumnsBeforeData++;
+  if (isSelectionEnabled) numColumnsBeforeData++;
+  if (isExpansionEnabled && expandableVariant === "single")
+    numColumnsBeforeData++;
   if (hasActionsColumn) numColumnsAfterData++;
   const numRenderedColumns =
     forceNumRenderedColumns ||

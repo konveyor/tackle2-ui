@@ -324,7 +324,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     ],
     initialItemsPerPage: 10,
     hasActionsColumn: true,
-    isSelectable: true,
+    isSelectionEnabled: true,
   });
 
   const {

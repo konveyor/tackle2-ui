@@ -42,7 +42,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
       owner: app.owner?.name || "",
     }),
     sortableColumns: ["appName", "businessService", "owner"],
-    hasPagination: true,
+    isPaginationEnabled: true,
     variant: "compact",
   });
   const {

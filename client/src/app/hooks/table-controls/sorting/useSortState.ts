@@ -11,10 +11,18 @@ export interface ISortState<TSortableColumnKey extends string> {
   setActiveSort: (sort: IActiveSort<TSortableColumnKey>) => void;
 }
 
-export type ISortStateArgs<TSortableColumnKey extends string> = {
-  sortableColumns?: TSortableColumnKey[];
+export type IRequiredSortStateArgs<TSortableColumnKey extends string> = {
+  sortableColumns: TSortableColumnKey[];
   initialSort?: IActiveSort<TSortableColumnKey> | null;
 };
+
+export type ISortStateArgs<TSortableColumnKey extends string> =
+  | ({
+      isSortEnabled: true;
+    } & IRequiredSortStateArgs<TSortableColumnKey>)
+  | ({ isSortEnabled?: false } & Partial<
+      IRequiredSortStateArgs<TSortableColumnKey>
+    >);
 
 export const useSortState = <
   TSortableColumnKey extends string,
@@ -24,6 +32,7 @@ export const useSortState = <
     IFeaturePersistenceArgs<TPersistenceKeyPrefix>
 ): ISortState<TSortableColumnKey> => {
   const {
+    isSortEnabled,
     persistTo = "state",
     persistenceKeyPrefix,
     sortableColumns = [],
@@ -39,6 +48,7 @@ export const useSortState = <
     TPersistenceKeyPrefix,
     "sortColumn" | "sortDirection"
   >({
+    isEnabled: isSortEnabled,
     defaultValue: initialSort,
     persistenceKeyPrefix,
     // Note: For the discriminated union here to work without TypeScript getting confused

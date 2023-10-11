@@ -165,7 +165,7 @@ export const Stakeholders: React.FC = () => {
       jobFunction: item.jobFunction?.name || "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
-    hasPagination: true,
+    isPaginationEnabled: true,
     isLoading: isFetching,
   });
 

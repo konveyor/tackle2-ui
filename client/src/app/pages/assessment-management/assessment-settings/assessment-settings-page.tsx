@@ -113,8 +113,7 @@ const AssessmentSettings: React.FC = () => {
       rating: "Rating",
       createTime: "Date imported",
     },
-    isSelectable: false,
-    expandableVariant: null,
+    isSelectionEnabled: false,
     hasActionsColumn: true,
     filterCategories: [
       {
@@ -136,7 +135,7 @@ const AssessmentSettings: React.FC = () => {
       createTime: questionnaire.createTime || "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
-    hasPagination: true,
+    isPaginationEnabled: true,
     isLoading: isFetching,
   });
   const {

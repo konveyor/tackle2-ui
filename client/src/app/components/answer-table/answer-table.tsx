@@ -37,8 +37,6 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
       choice: "Answer choice",
       weight: "Weight",
     },
-    hasActionsColumn: false,
-    hasPagination: false,
     variant: "compact",
   });
   const {

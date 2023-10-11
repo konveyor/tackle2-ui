@@ -131,7 +131,7 @@ export const JiraTrackers: React.FC = () => {
       url: tracker.url || "",
     }),
     sortableColumns: ["name", "url"],
-    hasPagination: true,
+    isPaginationEnabled: true,
     isLoading: isFetching,
   });
   const {

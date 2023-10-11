@@ -107,6 +107,10 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
       affected:
         mode === "singleApp" ? "Affected files" : "Affected applications",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isExpansionEnabled: true,
     sortableColumns: ["description", "category", "effort", "affected"],
     initialSort: { columnKey: "description", direction: "asc" },
     filterCategories: [
@@ -165,6 +169,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
       // },
     ],
     initialItemsPerPage: 10,
+    expandableVariant: "single",
   });
 
   const hubRequestParams = getHubRequestParams({
@@ -215,7 +220,6 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     currentPageItems: currentPageReports,
     totalItemCount: totalReportCount,
     isLoading,
-    expandableVariant: "single",
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
       items: currentPageReports,

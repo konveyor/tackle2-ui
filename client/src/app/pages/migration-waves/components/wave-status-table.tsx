@@ -54,13 +54,14 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
       issue: "Issue",
     },
     hasActionsColumn: true,
+    isSortEnabled: true,
     getSortValues: (app) => ({
       appName: app.name || "",
       status: app.comments || "",
       issue: "",
     }),
     sortableColumns: ["appName", "status", "issue"],
-    hasPagination: true,
+    isPaginationEnabled: true,
     variant: "compact",
   });
   const {

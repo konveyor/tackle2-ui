@@ -9,9 +9,20 @@ export interface IFilterState<TFilterCategoryKey extends string> {
   setFilterValues: (values: IFilterValues<TFilterCategoryKey>) => void;
 }
 
-export type IFilterStateArgs<TItem, TFilterCategoryKey extends string> = {
-  filterCategories?: FilterCategory<TItem, TFilterCategoryKey>[];
+export type IRequiredFilterStateArgs<
+  TItem,
+  TFilterCategoryKey extends string,
+> = {
+  filterCategories: FilterCategory<TItem, TFilterCategoryKey>[];
 };
+
+export type IFilterStateArgs<TItem, TFilterCategoryKey extends string> =
+  | ({
+      isFilterEnabled: true;
+    } & IRequiredFilterStateArgs<TItem, TFilterCategoryKey>)
+  | ({ isFilterEnabled?: false } & Partial<
+      IRequiredFilterStateArgs<TItem, TFilterCategoryKey>
+    >);
 
 export const useFilterState = <
   TItem,
@@ -21,7 +32,7 @@ export const useFilterState = <
   args: IFilterStateArgs<TItem, TFilterCategoryKey> &
     IFeaturePersistenceArgs<TPersistenceKeyPrefix>
 ): IFilterState<TFilterCategoryKey> => {
-  const { persistTo = "state", persistenceKeyPrefix } = args;
+  const { isFilterEnabled, persistTo = "state", persistenceKeyPrefix } = args;
 
   // We won't need to pass the latter two type params here if TS adds support for partial inference.
   // See https://github.com/konveyor/tackle2-ui/issues/1456
@@ -30,6 +41,7 @@ export const useFilterState = <
     TPersistenceKeyPrefix,
     "filters"
   >({
+    isEnabled: isFilterEnabled,
     defaultValue: {},
     persistenceKeyPrefix,
     // Note: For the discriminated union here to work without TypeScript getting confused
