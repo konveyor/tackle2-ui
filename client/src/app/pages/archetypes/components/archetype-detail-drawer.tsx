@@ -16,12 +16,13 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { Archetype, Tag } from "@app/api/models";
+import { Archetype, Tag, TagRef } from "@app/api/models";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
 import { useFetchTagCategories } from "@app/queries/tags";
 
 import "./archetype-detail-drawer.css";
+import { dedupeArrayOfObjects } from "@app/utils/utils";
 
 export interface IArchetypeDetailDrawerProps {
   onCloseClick: () => void;
@@ -40,17 +41,17 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
     [tagCategories]
   );
 
-  const archetypeTags =
-    archetype?.tags
-      ?.filter((t) => t?.source ?? "" === "")
-      .map((ref) => tags.find((tag) => ref.id === tag.id))
-      .filter(Boolean) ?? [];
+  const manualTags: TagRef[] = useMemo(() => {
+    const rawManualTags: TagRef[] =
+      archetype?.tags?.filter((t) => !t?.source) ?? [];
+    return dedupeArrayOfObjects<TagRef>(rawManualTags, "name");
+  }, [archetype?.tags]);
 
-  const assessmentTags =
-    archetype?.tags
-      ?.filter((t) => t?.source ?? "" !== "")
-      .map((ref) => tags.find((tag) => ref.id === tag.id))
-      .filter(Boolean) ?? [];
+  const assessmentTags: TagRef[] = useMemo(() => {
+    const rawAssessmentTags: TagRef[] =
+      archetype?.tags?.filter((t) => t?.source === "assessment") ?? [];
+    return dedupeArrayOfObjects<TagRef>(rawAssessmentTags, "name");
+  }, [archetype?.tags]);
 
   return (
     <PageDrawerContent
@@ -93,8 +94,8 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.tagsArchetype")}</DescriptionListTerm>
           <DescriptionListDescription>
-            {archetypeTags.length > 0 ? (
-              <TagLabels tags={archetypeTags} />
+            {manualTags.length > 0 ? (
+              <TagLabels tags={manualTags} />
             ) : (
               <EmptyTextMessage message={t("terms.none")} />
             )}

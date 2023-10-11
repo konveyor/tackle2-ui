@@ -566,12 +566,15 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   );
 
   useEffect(() => {
-    return () => {
-      if (assessment) {
+    const unlisten = history.listen((newLocation, action) => {
+      if (action === "PUSH" && assessment) {
         handleCancelAssessment();
       }
+    });
+    return () => {
+      unlisten();
     };
-  }, [assessment]);
+  }, [history, assessment]);
 
   const handleCancelAssessment = () => {
     if (assessment) {
