@@ -16,9 +16,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 import { SimpleSelect, OptionWithValue } from "@app/components/SimpleSelect";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { Application, Tag } from "@app/api/models";
+import { Application, Tag, TagRef } from "@app/api/models";
 import {
   customURLValidation,
+  dedupeArrayOfObjects,
   duplicateNameCheck,
   getAxiosErrorMessage,
 } from "@app/utils/utils";
@@ -103,8 +104,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     };
   });
 
-  const manualTags =
-    application?.tags?.filter((t) => t?.source ?? "" === "") ?? [];
+  const manualTags: TagRef[] = useMemo(() => {
+    const rawManualTags: TagRef[] =
+      application?.tags?.filter((t) => t?.source ?? "" === "") ?? [];
+    return dedupeArrayOfObjects<TagRef>(rawManualTags, "name");
+  }, [application?.tags]);
 
   const nonManualTags =
     application?.tags?.filter((t) => t?.source ?? "" !== "") ?? [];
