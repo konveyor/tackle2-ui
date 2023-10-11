@@ -1,10 +1,13 @@
 import { usePersistentState } from "@app/hooks/usePersistentState";
 import { IPersistenceOptions } from "../types";
 
-export interface IPaginationState {
+export interface IActivePagination {
   pageNumber: number;
-  setPageNumber: (pageNumber: number) => void;
   itemsPerPage: number;
+}
+
+export interface IPaginationState extends IActivePagination {
+  setPageNumber: (pageNumber: number) => void;
   setItemsPerPage: (numItems: number) => void;
 }
 
@@ -23,12 +26,15 @@ export const usePaginationState = <
     initialItemsPerPage = 10,
   } = args;
 
-  const defaultValue = { pageNumber: 1, itemsPerPage: initialItemsPerPage };
+  const defaultValue: IActivePagination = {
+    pageNumber: 1,
+    itemsPerPage: initialItemsPerPage,
+  };
 
   // We won't need to pass the latter two type params here if TS adds support for partial inference.
   // See https://github.com/konveyor/tackle2-ui/issues/1456
   const [paginationState, setPaginationState] = usePersistentState<
-    typeof defaultValue,
+    IActivePagination,
     TPersistenceKeyPrefix,
     "pageNumber" | "itemsPerPage"
   >({
