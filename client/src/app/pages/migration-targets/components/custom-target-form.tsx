@@ -28,7 +28,7 @@ import {
 } from "@app/components/HookFormPFFields";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useCreateFileMutation } from "@app/queries/targets";
-import { IReadFile, Rule, Target, TargetLabel } from "@app/api/models";
+import { IReadFile, New, Rule, Target, TargetLabel } from "@app/api/models";
 import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { toOptionLike } from "@app/utils/model-utils";
@@ -71,10 +71,11 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   const { pushNotification } = useContext(NotificationsContext);
   const { t } = useTranslation();
   const [target, setTarget] = useState(initialTarget);
+  const [imageRejectedError, setImageRejectedError] = useState<string | null>(
+    null
+  );
 
   const [filename, setFilename] = React.useState("default.png");
-
-  const [isImageFileRejected, setIsImageFileRejected] = useState(false);
 
   const repositoryTypeOptions: OptionWithValue<string>[] = [
     {
@@ -268,8 +269,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       (identity) => identity.name === formValues.associatedCredentials
     );
 
-    const payload: Target = {
-      id: formValues.id ? formValues.id : undefined,
+    const payload: New<Target> = {
       name: formValues.name.trim(),
       description: formValues?.description?.trim() || "",
       ...(formValues.imageID && { image: { id: formValues.imageID } }),
@@ -300,7 +300,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
     if (target) {
       formValues.imageID
-        ? updateTarget({ ...payload })
+        ? updateTarget({ id: target.id, ...payload })
         : fetch(defaultImage)
             .then((res) => res.blob())
             .then((res) => {
@@ -309,6 +309,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             })
             .then((res) => {
               updateTarget({
+                id: target.id,
                 ...payload,
                 image: { id: res.id },
               });
@@ -408,52 +409,72 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         fieldId="custom-migration-target-upload-image"
         helperText="Upload a png or jpeg file (Max size: 1 MB)"
         renderInput={({ field: { onChange, name }, fieldState: { error } }) => (
-          <FileUpload
-            id="custom-migration-target-upload-image"
-            name={name}
-            value={filename}
-            filename={filename}
-            filenamePlaceholder="Drag and drop a file or upload one"
-            dropzoneProps={{
-              accept: {
-                "image/png": [".png"],
-                "image/jpeg": [".jpeg", ".jpg"],
-              },
-              maxSize: 1000000,
-              onDropRejected: (event) => {
-                const currentFile = event[0];
-                if (currentFile.file.size > 1000000) {
-                  methods.setError("imageID", {
-                    type: "custom",
-                    message: "Max image file size of 1 MB exceeded.",
-                  });
+          <>
+            {imageRejectedError && (
+              <Alert
+                variant="danger"
+                isInline
+                className={spacing.mbMd}
+                title={imageRejectedError}
+                actionClose={
+                  <AlertActionCloseButton
+                    onClose={() => {
+                      onChange(null);
+                      setFilename("default.png");
+                      setValue("imageID", null);
+                      setImageRejectedError(null);
+                    }}
+                  />
                 }
-                setIsImageFileRejected(true);
-              },
-            }}
-            validated={isImageFileRejected || error ? "error" : "default"}
-            onFileInputChange={async (_, file) => {
-              handleFileUpload(file)
-                .then((res) => {
-                  setValue("imageID", res.id);
-                  setFocus("imageID");
-                  clearErrors("imageID");
-                  trigger("imageID");
-                })
-                .catch((err) => {
-                  setValue("imageID", null);
-                });
-            }}
-            onClearClick={() => {
-              onChange(0);
-              setFilename("default.png");
-              setValue("imageID", null);
-              setIsImageFileRejected(false);
-            }}
-            browseButtonText="Upload"
-          />
+              />
+            )}
+            <FileUpload
+              id="custom-migration-target-upload-image"
+              name={name}
+              value={filename}
+              filename={filename}
+              filenamePlaceholder="Drag and drop a file or upload one"
+              dropzoneProps={{
+                accept: {
+                  "image/png": [".png"],
+                  "image/jpeg": [".jpeg", ".jpg"],
+                },
+                maxSize: 1000000,
+                onDropRejected: (event) => {
+                  const currentFile = event[0];
+                  if (currentFile.file.size > 1000000) {
+                    setImageRejectedError(
+                      "Max image file size of 1 MB exceeded."
+                    );
+                  }
+                  setFilename(currentFile.file.name);
+                },
+              }}
+              validated={"default"}
+              onFileInputChange={async (_, file) => {
+                handleFileUpload(file)
+                  .then((res) => {
+                    setValue("imageID", res.id);
+                    setFocus("imageID");
+                    clearErrors("imageID");
+                    trigger("imageID");
+                  })
+                  .catch((err) => {
+                    setValue("imageID", null);
+                  });
+              }}
+              onClearClick={() => {
+                setImageRejectedError(null);
+                onChange(null);
+                setFilename("default.png");
+                setValue("imageID", null);
+              }}
+              browseButtonText="Upload"
+            />
+          </>
         )}
       />
+
       <HookFormPFGroupController
         control={control}
         name="rulesKind"
@@ -617,7 +638,13 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           aria-label="submit"
           id="submit"
           variant={ButtonVariant.primary}
-          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+          isDisabled={
+            !isValid ||
+            isSubmitting ||
+            isValidating ||
+            !isDirty ||
+            !!imageRejectedError
+          }
         >
           {!target ? t("actions.create") : t("actions.save")}
         </Button>
