@@ -1,5 +1,5 @@
 import { parseMaybeNumericString } from "@app/utils/utils";
-import { IPersistenceOptions } from "../types";
+import { IFeaturePersistenceArgs } from "../types";
 import { usePersistentState } from "@app/hooks/usePersistentState";
 
 export interface IActiveRowState {
@@ -10,7 +10,7 @@ export interface IActiveRowState {
 export const useActiveRowState = <
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: IPersistenceOptions<TPersistenceKeyPrefix> = {}
+  args: IFeaturePersistenceArgs<TPersistenceKeyPrefix> = {}
 ): IActiveRowState => {
   const { persistTo, persistenceKeyPrefix } = args;
 

@@ -1,5 +1,5 @@
 import { usePersistentState } from "@app/hooks/usePersistentState";
-import { IPersistenceOptions } from "../types";
+import { IFeaturePersistenceArgs } from "../types";
 
 export interface IActivePagination {
   pageNumber: number;
@@ -18,7 +18,7 @@ export interface IPaginationStateArgs {
 export const usePaginationState = <
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: IPaginationStateArgs & IPersistenceOptions<TPersistenceKeyPrefix>
+  args: IPaginationStateArgs & IFeaturePersistenceArgs<TPersistenceKeyPrefix>
 ): IPaginationState => {
   const {
     persistTo = "state",

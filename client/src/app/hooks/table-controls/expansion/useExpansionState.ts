@@ -1,6 +1,6 @@
 import { usePersistentState } from "@app/hooks/usePersistentState";
 import { objectKeys } from "@app/utils/utils";
-import { IPersistenceOptions } from "../types";
+import { IFeaturePersistenceArgs } from "../types";
 
 // TExpandedCells maps item[idProperty] values to either:
 //  - The key of an expanded column in that row, if the table is compound-expandable
@@ -21,7 +21,7 @@ export const useExpansionState = <
   TColumnKey extends string,
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: IPersistenceOptions<TPersistenceKeyPrefix> = {}
+  args: IFeaturePersistenceArgs<TPersistenceKeyPrefix> = {}
 ): IExpansionState<TColumnKey> => {
   const { persistTo = "state", persistenceKeyPrefix } = args;
 

@@ -1,4 +1,4 @@
-import { IPersistenceOptions } from "..";
+import { IFeaturePersistenceArgs } from "..";
 import { usePersistentState } from "@app/hooks/usePersistentState";
 
 export interface IActiveSort<TSortableColumnKey extends string> {
@@ -21,7 +21,7 @@ export const useSortState = <
   TPersistenceKeyPrefix extends string = string,
 >(
   args: ISortStateArgs<TSortableColumnKey> &
-    IPersistenceOptions<TPersistenceKeyPrefix>
+    IFeaturePersistenceArgs<TPersistenceKeyPrefix>
 ): ISortState<TSortableColumnKey> => {
   const {
     persistTo = "state",

@@ -1,5 +1,5 @@
 import { FilterCategory, IFilterValues } from "@app/components/FilterToolbar";
-import { IPersistenceOptions } from "../types";
+import { IFeaturePersistenceArgs } from "../types";
 import { usePersistentState } from "@app/hooks/usePersistentState";
 import { serializeFilterUrlParams } from "./helpers";
 import { deserializeFilterUrlParams } from "./helpers";
@@ -19,7 +19,7 @@ export const useFilterState = <
   TPersistenceKeyPrefix extends string = string,
 >(
   args: IFilterStateArgs<TItem, TFilterCategoryKey> &
-    IPersistenceOptions<TPersistenceKeyPrefix>
+    IFeaturePersistenceArgs<TPersistenceKeyPrefix>
 ): IFilterState<TFilterCategoryKey> => {
   const { persistTo = "state", persistenceKeyPrefix } = args;
 

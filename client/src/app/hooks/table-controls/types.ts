@@ -37,6 +37,14 @@ import { useTableControlState } from "./useTableControlState";
 //      This may be resolved in a newer TypeScript version after https://github.com/microsoft/TypeScript/pull/54047 is merged!
 //      See https://github.com/konveyor/tackle2-ui/issues/1456
 
+export type TableFeature =
+  | "filter"
+  | "sort"
+  | "pagination"
+  | "selection"
+  | "expansion"
+  | "activeRow";
+
 export type PersistTarget =
   | "state"
   | "urlParams"
@@ -46,11 +54,26 @@ export type PersistTarget =
 // Persistence-specific args
 // - Extra args needed for useTableControlState and each feature-specific use*State hook for persisting state
 // - Does not require any state or query data in scope
-export type IPersistenceOptions<TPersistenceKeyPrefix extends string = string> =
-  {
-    persistTo?: PersistTarget;
-    persistenceKeyPrefix?: DisallowCharacters<TPersistenceKeyPrefix, ":">;
-  };
+// Common
+export type ICommonPersistenceArgs<
+  TPersistenceKeyPrefix extends string = string,
+> = {
+  persistenceKeyPrefix?: DisallowCharacters<TPersistenceKeyPrefix, ":">;
+};
+// Feature-level
+export type IFeaturePersistenceArgs<
+  TPersistenceKeyPrefix extends string = string,
+> = ICommonPersistenceArgs<TPersistenceKeyPrefix> & {
+  persistTo?: PersistTarget;
+};
+// Table-level
+export type ITablePersistenceArgs<
+  TPersistenceKeyPrefix extends string = string,
+> = ICommonPersistenceArgs<TPersistenceKeyPrefix> & {
+  persistTo?:
+    | PersistTarget
+    | Partial<Record<TableFeature | "default", PersistTarget>>;
+};
 
 // State args
 // - Used by useTableControlState
@@ -66,17 +89,7 @@ export type IUseTableControlStateArgs<
   IPaginationStateArgs &
   // There is no IExpansionStateArgs because the only args there are the IPersistenceOptions
   // There is no IActiveRowStateArgs because the only args there are the IPersistenceOptions
-  Omit<IPersistenceOptions<TPersistenceKeyPrefix>, "persistTo"> & {
-    persistTo?:
-      | PersistTarget
-      | {
-          default?: PersistTarget;
-          filters?: PersistTarget;
-          sort?: PersistTarget;
-          pagination?: PersistTarget;
-          expansion?: PersistTarget;
-          activeRow?: PersistTarget;
-        };
+  ITablePersistenceArgs<TPersistenceKeyPrefix> & {
     columnNames: Record<TColumnKey, string>; // An ordered mapping of unique keys to human-readable column name strings
     isSelectable?: boolean;
     hasPagination?: boolean; // TODO disable pagination state stuff if this is falsy

@@ -2,6 +2,7 @@ import {
   ITableControlState,
   IUseTableControlStateArgs,
   PersistTarget,
+  TableFeature,
 } from "./types";
 import { useFilterState } from "./filtering";
 import { useSortState } from "./sorting";
@@ -30,9 +31,7 @@ export const useTableControlState = <
   TFilterCategoryKey,
   TPersistenceKeyPrefix
 > => {
-  const getPersistTo = (
-    feature: "filters" | "sort" | "pagination" | "expansion" | "activeRow"
-  ): PersistTarget | undefined =>
+  const getPersistTo = (feature: TableFeature): PersistTarget | undefined =>
     !args.persistTo || typeof args.persistTo === "string"
       ? args.persistTo
       : args.persistTo[feature] || args.persistTo.default;
@@ -41,7 +40,7 @@ export const useTableControlState = <
     TItem,
     TFilterCategoryKey,
     TPersistenceKeyPrefix
-  >({ ...args, persistTo: getPersistTo("filters") });
+  >({ ...args, persistTo: getPersistTo("filter") });
   const sortState = useSortState<TSortableColumnKey, TPersistenceKeyPrefix>({
     ...args,
     persistTo: getPersistTo("sort"),
