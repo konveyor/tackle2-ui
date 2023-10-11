@@ -409,7 +409,7 @@ export interface TargetLabel {
   label: string;
 }
 export interface Target {
-  id?: number;
+  id: number;
   name: string;
   description?: string;
   choice?: boolean;
