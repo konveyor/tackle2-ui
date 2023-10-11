@@ -1,5 +1,5 @@
 import { FilterCategory, IFilterValues } from "@app/components/FilterToolbar";
-import { IPersistenceOptions } from "../types";
+import { IFeaturePersistenceArgs } from "../types";
 import { usePersistentState } from "@app/hooks/usePersistentState";
 import { serializeFilterUrlParams } from "./helpers";
 import { deserializeFilterUrlParams } from "./helpers";
@@ -11,6 +11,7 @@ export interface IFilterState<TFilterCategoryKey extends string> {
 
 export type IFilterStateArgs<TItem, TFilterCategoryKey extends string> = {
   filterCategories?: FilterCategory<TItem, TFilterCategoryKey>[];
+  isEnabled?: boolean;
 };
 
 export const useFilterState = <
@@ -19,9 +20,9 @@ export const useFilterState = <
   TPersistenceKeyPrefix extends string = string,
 >(
   args: IFilterStateArgs<TItem, TFilterCategoryKey> &
-    IPersistenceOptions<TPersistenceKeyPrefix>
+    IFeaturePersistenceArgs<TPersistenceKeyPrefix>
 ): IFilterState<TFilterCategoryKey> => {
-  const { persistTo = "state", persistenceKeyPrefix } = args;
+  const { persistTo = "state", persistenceKeyPrefix, isEnabled } = args;
 
   // We won't need to pass the latter two type params here if TS adds support for partial inference.
   // See https://github.com/konveyor/tackle2-ui/issues/1456
@@ -32,6 +33,7 @@ export const useFilterState = <
   >({
     defaultValue: {},
     persistenceKeyPrefix,
+    isEnabled,
     // Note: For the discriminated union here to work without TypeScript getting confused
     //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
     //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.

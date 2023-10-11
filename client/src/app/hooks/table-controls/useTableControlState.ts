@@ -1,13 +1,14 @@
 import {
   ITableControlState,
   IUseTableControlStateArgs,
-  PersistTarget,
+  TableFeature,
 } from "./types";
 import { useFilterState } from "./filtering";
 import { useSortState } from "./sorting";
 import { usePaginationState } from "./pagination";
 import { useActiveRowState } from "./active-row";
 import { useExpansionState } from "./expansion";
+import { getFeaturesEnabledWithFallbacks } from "./utils";
 
 export const useTableControlState = <
   TItem,
@@ -30,34 +31,41 @@ export const useTableControlState = <
   TFilterCategoryKey,
   TPersistenceKeyPrefix
 > => {
-  const getPersistTo = (
-    feature: "filters" | "sort" | "pagination" | "expansion" | "activeRow"
-  ): PersistTarget | undefined =>
-    !args.persistTo || typeof args.persistTo === "string"
-      ? args.persistTo
-      : args.persistTo[feature] || args.persistTo.default;
+  const featuresEnabled = getFeaturesEnabledWithFallbacks(args.featuresEnabled);
+
+  const getFeatureArgs = (feature: TableFeature) => ({
+    isEnabled: featuresEnabled[feature],
+    persistTo:
+      !args.persistTo || typeof args.persistTo === "string"
+        ? args.persistTo
+        : args.persistTo[feature] || args.persistTo.default,
+  });
 
   const filterState = useFilterState<
     TItem,
     TFilterCategoryKey,
     TPersistenceKeyPrefix
-  >({ ...args, persistTo: getPersistTo("filters") });
+  >({
+    ...args,
+    ...getFeatureArgs("filter"),
+  });
   const sortState = useSortState<TSortableColumnKey, TPersistenceKeyPrefix>({
     ...args,
-    persistTo: getPersistTo("sort"),
+    ...getFeatureArgs("sort"),
   });
   const paginationState = usePaginationState<TPersistenceKeyPrefix>({
     ...args,
-    persistTo: getPersistTo("pagination"),
+    ...getFeatureArgs("pagination"),
   });
   const expansionState = useExpansionState<TColumnKey, TPersistenceKeyPrefix>({
     ...args,
-    persistTo: getPersistTo("expansion"),
+    ...getFeatureArgs("expansion"),
   });
   const activeRowState = useActiveRowState<TPersistenceKeyPrefix>({
     ...args,
-    persistTo: getPersistTo("activeRow"),
+    ...getFeatureArgs("activeRow"),
   });
+  // TODO include selectionState here when we move it from lib-ui
   return {
     ...args,
     filterState,

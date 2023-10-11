@@ -1,7 +1,8 @@
 import React from "react";
+import { TableFeature } from "./types";
 
 export const handlePropagatedRowClick = <
-  E extends React.KeyboardEvent | React.MouseEvent
+  E extends React.KeyboardEvent | React.MouseEvent,
 >(
   event: E | undefined,
   onRowClick: (event: E) => void
@@ -28,4 +29,32 @@ export const handlePropagatedRowClick = <
   ) {
     onRowClick(event);
   }
+};
+
+export const getFeaturesEnabledWithFallbacks = (
+  featuresEnabled?: Partial<Record<TableFeature, boolean>>
+) => {
+  // Most tables have only filtering, sorting and pagination.
+  const defaultFeaturesEnabled: Record<TableFeature, boolean> = {
+    filter: true,
+    sort: true,
+    pagination: true,
+    selection: false,
+    expansion: false,
+    activeRow: false,
+  };
+  if (!featuresEnabled) return defaultFeaturesEnabled;
+  // Omitting a feature from featuresEnabled shouldn't explicitly disable it, so we need to check for undefined.
+  const getFeatureEnabled = (feature: TableFeature) =>
+    featuresEnabled[feature] !== undefined
+      ? (featuresEnabled[feature] as boolean)
+      : defaultFeaturesEnabled[feature];
+  return {
+    filter: getFeatureEnabled("filter"),
+    sort: getFeatureEnabled("sort"),
+    pagination: getFeatureEnabled("pagination"),
+    selection: getFeatureEnabled("selection"),
+    expansion: getFeatureEnabled("expansion"),
+    activeRow: getFeatureEnabled("activeRow"),
+  } satisfies Record<TableFeature, boolean>;
 };

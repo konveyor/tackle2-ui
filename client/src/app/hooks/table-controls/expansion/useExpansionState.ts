@@ -1,6 +1,6 @@
 import { usePersistentState } from "@app/hooks/usePersistentState";
 import { objectKeys } from "@app/utils/utils";
-import { IPersistenceOptions } from "../types";
+import { IFeaturePersistenceArgs } from "../types";
 
 // TExpandedCells maps item[idProperty] values to either:
 //  - The key of an expanded column in that row, if the table is compound-expandable
@@ -17,13 +17,18 @@ export interface IExpansionState<TColumnKey extends string> {
   ) => void;
 }
 
+export interface IExpansionStateArgs {
+  isEnabled?: boolean;
+}
+
 export const useExpansionState = <
   TColumnKey extends string,
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: IPersistenceOptions<TPersistenceKeyPrefix> = {}
+  args: IExpansionStateArgs &
+    IFeaturePersistenceArgs<TPersistenceKeyPrefix> = {}
 ): IExpansionState<TColumnKey> => {
-  const { persistTo = "state", persistenceKeyPrefix } = args;
+  const { persistTo = "state", persistenceKeyPrefix, isEnabled } = args;
 
   // We won't need to pass the latter two type params here if TS adds support for partial inference.
   // See https://github.com/konveyor/tackle2-ui/issues/1456
@@ -34,6 +39,7 @@ export const useExpansionState = <
   >({
     defaultValue: {},
     persistenceKeyPrefix,
+    isEnabled,
     // Note: For the discriminated union here to work without TypeScript getting confused
     //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
     //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
