@@ -1,17 +1,12 @@
 import { useSelectionState } from "@migtools/lib-ui";
-import { getLocalFilterDerivedState, useFilterState } from "./filtering";
-import { useSortState, getLocalSortDerivedState } from "./sorting";
-import {
-  getLocalPaginationDerivedState,
-  usePaginationState,
-} from "./pagination";
-import { useExpansionState } from "./expansion";
-import { useActiveRowState } from "./active-row";
+import { getLocalFilterDerivedState } from "./filtering";
+import { getLocalSortDerivedState } from "./sorting";
+import { getLocalPaginationDerivedState } from "./pagination";
 import {
   IUseLocalTableControlStateArgs,
   IUseTableControlPropsArgs,
-  PersistTarget,
 } from "./types";
+import { useTableControlState } from "./useTableControlState";
 
 export const useLocalTableControlState = <
   TItem,
@@ -28,49 +23,22 @@ export const useLocalTableControlState = <
     TPersistenceKeyPrefix
   >
 ): IUseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey> => {
-  const {
-    items,
-    hasPagination = true,
-    idProperty,
-    initialSelected,
-    isItemSelectable,
-  } = args;
+  const { items, hasPagination = true, idProperty } = args;
 
-  const getPersistTo = (
-    feature: "filters" | "sort" | "pagination" | "expansion" | "activeRow"
-  ): PersistTarget | undefined =>
-    !args.persistTo || typeof args.persistTo === "string"
-      ? args.persistTo
-      : args.persistTo[feature];
+  const tableControlState = useTableControlState(args);
 
-  const filterState = useFilterState<
-    TItem,
-    TFilterCategoryKey,
-    TPersistenceKeyPrefix
-  >({ ...args, persistTo: getPersistTo("filters") });
   const { filteredItems } = getLocalFilterDerivedState({
-    ...args,
+    ...tableControlState,
     items,
-    filterState,
   });
 
-  const sortState = useSortState<TSortableColumnKey, TPersistenceKeyPrefix>({
-    ...args,
-    persistTo: getPersistTo("sort"),
-  });
   const { sortedItems } = getLocalSortDerivedState({
-    ...args,
-    sortState,
+    ...tableControlState,
     items: filteredItems,
   });
 
-  const paginationState = usePaginationState<TPersistenceKeyPrefix>({
-    ...args,
-    persistTo: getPersistTo("pagination"),
-  });
   const { currentPageItems } = getLocalPaginationDerivedState({
-    ...args,
-    paginationState,
+    ...tableControlState,
     items: sortedItems,
   });
 
@@ -79,28 +47,12 @@ export const useLocalTableControlState = <
     ...args,
     items: filteredItems,
     isEqual: (a, b) => a[idProperty] === b[idProperty],
-    initialSelected,
-    isItemSelectable,
-  });
-
-  const expansionState = useExpansionState<TColumnKey, TPersistenceKeyPrefix>({
-    ...args,
-    persistTo: getPersistTo("expansion"),
-  });
-
-  const activeRowState = useActiveRowState<TPersistenceKeyPrefix>({
-    ...args,
-    persistTo: getPersistTo("activeRow"),
   });
 
   return {
     ...args,
-    filterState,
-    expansionState,
+    ...tableControlState,
     selectionState,
-    sortState,
-    paginationState,
-    activeRowState,
     totalItemCount: items.length,
     currentPageItems: hasPagination ? currentPageItems : sortedItems,
   };

@@ -113,9 +113,9 @@ export type IUseLocalTableControlStateArgs<
 // Rendering args
 // - Used by only useTableControlProps
 // - Requires state and query values in scope
-// - Combines all args above with either:
-//   - The return values of useLocalTableControlState
-//   - The return values of useTableControlState and args derived from server-side filtering/sorting/pagination
+// - Combines all args above with the return values of useTableControlState and args derived from either:
+//   - Server-side filtering/sorting/pagination
+//   - `getLocal[Feature]DerivedState` logic
 export interface IUseTableControlPropsArgs<
   TItem,
   TColumnKey extends string,
