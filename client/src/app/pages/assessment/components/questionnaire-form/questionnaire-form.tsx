@@ -13,7 +13,6 @@ import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 import { MultiInputSelection } from "./multi-input-selection";
 import { Question, QuestionHeader, QuestionBody } from "./question";
 import { getCommentFieldName } from "../../form-utils";
-import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
 import { useFormContext } from "react-hook-form";
 import { Section } from "@app/api/models";
 import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
@@ -87,7 +86,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
           </StackItem>
         );
       })}
-      <StackItem>
+      {/* <StackItem>
         <Question>
           <QuestionHeader>
             {t("terms.additionalNotesOrComments")}
@@ -104,7 +103,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
             ></HookFormPFTextInput>
           </QuestionBody>
         </Question>
-      </StackItem>
+      </StackItem> */}
     </Stack>
   );
 };
