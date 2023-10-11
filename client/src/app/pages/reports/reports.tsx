@@ -1,22 +1,12 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Bullseye,
-  Button,
-  ButtonVariant,
   Card,
   CardBody,
-  CardExpandableContent,
   CardHeader,
   CardTitle,
-  MenuToggle,
   PageSection,
   PageSectionVariants,
-  Popover,
-  Select,
-  SelectOption,
-  Split,
-  SplitItem,
   Stack,
   StackItem,
   Text,
@@ -24,7 +14,6 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@patternfly/react-core";
-import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
 import { Questionnaire } from "@app/api/models";
 import { useFetchApplications } from "@app/queries/applications";
@@ -37,8 +26,8 @@ import { StateError } from "@app/components/StateError";
 
 import { ApplicationSelectionContextProvider } from "./application-selection-context";
 import { Landscape } from "./components/landscape";
-import { AdoptionPlan } from "./components/adoption-plan";
-import { IdentifiedRisksTable } from "./components/identified-risks-table";
+import { AdoptionCandidateTable } from "./components/adoption-candidate-table/adoption-candidate-table";
+import { AdoptionCandidateGraph } from "./components/adoption-candidate-graph";
 
 const ALL_QUESTIONNAIRES = -1;
 
@@ -144,55 +133,55 @@ export const Reports: React.FC = () => {
               <StackItem>
                 <Card isClickable isSelectable>
                   <CardHeader
-                    actions={{
-                      hasNoOffset: false,
-                      actions: (
-                        <Select
-                          id="select-questionnaires"
-                          isOpen={isQuestionnaireSelectOpen}
-                          selected={selectedQuestionnaireId}
-                          onSelect={onSelectQuestionnaire}
-                          onOpenChange={(_isOpen) =>
-                            setIsQuestionnaireSelectOpen(false)
-                          }
-                          toggle={(toggleRef) => (
-                            <MenuToggle
-                              ref={toggleRef}
-                              aria-label="select questionnaires dropdown toggle"
-                              onClick={() => {
-                                setIsQuestionnaireSelectOpen(
-                                  !isQuestionnaireSelectOpen
-                                );
-                              }}
-                              isExpanded={isQuestionnaireSelectOpen}
-                            >
-                              {selectedQuestionnaireId === ALL_QUESTIONNAIRES
-                                ? "All questionnaires"
-                                : questionnairesById[selectedQuestionnaireId]
-                                    ?.name}
-                            </MenuToggle>
-                          )}
-                          shouldFocusToggleOnSelect
-                        >
-                          <SelectOption
-                            key={ALL_QUESTIONNAIRES}
-                            value={ALL_QUESTIONNAIRES}
-                          >
-                            All questionnaires
-                          </SelectOption>
-                          {...answeredQuestionnaires.map(
-                            (answeredQuestionnaire) => (
-                              <SelectOption
-                                key={answeredQuestionnaire.id}
-                                value={answeredQuestionnaire.id}
-                              >
-                                {answeredQuestionnaire.name}
-                              </SelectOption>
-                            )
-                          )}
-                        </Select>
-                      ),
-                    }}
+                  // actions={{
+                  //   hasNoOffset: false,
+                  // actions: (
+                  //   <Select
+                  //     id="select-questionnaires"
+                  //     isOpen={isQuestionnaireSelectOpen}
+                  //     selected={selectedQuestionnaireId}
+                  //     onSelect={onSelectQuestionnaire}
+                  //     onOpenChange={(_isOpen) =>
+                  //       setIsQuestionnaireSelectOpen(false)
+                  //     }
+                  //     toggle={(toggleRef) => (
+                  //       <MenuToggle
+                  //         ref={toggleRef}
+                  //         aria-label="select questionnaires dropdown toggle"
+                  //         onClick={() => {
+                  //           setIsQuestionnaireSelectOpen(
+                  //             !isQuestionnaireSelectOpen
+                  //           );
+                  //         }}
+                  //         isExpanded={isQuestionnaireSelectOpen}
+                  //       >
+                  //         {selectedQuestionnaireId === ALL_QUESTIONNAIRES
+                  //           ? "All questionnaires"
+                  //           : questionnairesById[selectedQuestionnaireId]
+                  //               ?.name}
+                  //       </MenuToggle>
+                  //     )}
+                  //     shouldFocusToggleOnSelect
+                  //   >
+                  //     <SelectOption
+                  //       key={ALL_QUESTIONNAIRES}
+                  //       value={ALL_QUESTIONNAIRES}
+                  //     >
+                  //       All questionnaires
+                  //     </SelectOption>
+                  //     {...answeredQuestionnaires.map(
+                  //       (answeredQuestionnaire) => (
+                  //         <SelectOption
+                  //           key={answeredQuestionnaire.id}
+                  //           value={answeredQuestionnaire.id}
+                  //         >
+                  //           {answeredQuestionnaire.name}
+                  //         </SelectOption>
+                  //       )
+                  //     )}
+                  //   </Select>
+                  //   ),
+                  // }}
                   >
                     <TextContent>
                       <Text component="h3">{t("terms.currentLandscape")}</Text>
@@ -252,15 +241,15 @@ export const Reports: React.FC = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardBody>
-                    {/* {isAdoptionCandidateTable ? (
+                    {isAdoptionCandidateTable ? (
                       <AdoptionCandidateTable allApplications={applications} />
                     ) : (
                       <AdoptionCandidateGraph />
-                    )} */}
+                    )}
                   </CardBody>
                 </Card>
               </StackItem>
-              <StackItem>
+              {/* <StackItem>
                 <Card isExpanded={isAdoptionPlanOpen}>
                   <CardHeader
                     onExpand={() => setAdoptionPlanOpen((current) => !current)}
@@ -297,8 +286,8 @@ export const Reports: React.FC = () => {
                     </CardBody>
                   </CardExpandableContent>
                 </Card>
-              </StackItem>
-              <StackItem>
+              </StackItem> */}
+              {/* <StackItem>
                 <Card isExpanded={isRiskCardOpen}>
                   <CardHeader
                     onExpand={() => setIsRiskCardOpen((current) => !current)}
@@ -323,7 +312,7 @@ export const Reports: React.FC = () => {
                     </CardBody>
                   </CardExpandableContent>
                 </Card>
-              </StackItem>
+              </StackItem> */}
             </Stack>
           </ApplicationSelectionContextProvider>
         </ConditionalRender>

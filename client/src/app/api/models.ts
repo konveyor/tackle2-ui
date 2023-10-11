@@ -712,6 +712,7 @@ export interface Assessment
   description: string;
   status: AssessmentStatus;
   risk: Risk;
+  confidence?: number;
   stakeholders?: Ref[];
   stakeholderGroups?: Ref[];
 }
