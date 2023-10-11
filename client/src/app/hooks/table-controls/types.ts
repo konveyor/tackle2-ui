@@ -19,16 +19,8 @@ import {
   IPaginationPropsArgs,
   IPaginationState,
 } from "./pagination";
-import {
-  IExpansionDerivedStateArgs,
-  IExpansionState,
-  IExpansionStateArgs,
-} from "./expansion";
-import {
-  IActiveRowDerivedStateArgs,
-  IActiveRowState,
-  IActiveRowStateArgs,
-} from "./active-row";
+import { IExpansionDerivedStateArgs, IExpansionState } from "./expansion";
+import { IActiveRowDerivedStateArgs, IActiveRowState } from "./active-row";
 import { useTableControlState } from "./useTableControlState";
 
 // Generic type params used here:
@@ -45,14 +37,6 @@ import { useTableControlState } from "./useTableControlState";
 //      This may be resolved in a newer TypeScript version after https://github.com/microsoft/TypeScript/pull/54047 is merged!
 //      See https://github.com/konveyor/tackle2-ui/issues/1456
 
-export type TableFeature =
-  | "filter"
-  | "sort"
-  | "pagination"
-  | "selection"
-  | "expansion"
-  | "activeRow";
-
 export type PersistTarget =
   | "state"
   | "urlParams"
@@ -62,28 +46,13 @@ export type PersistTarget =
 // Persistence-specific args
 // - Extra args needed for useTableControlState and each feature-specific use*State hook for persisting state
 // - Does not require any state or query data in scope
-// Common:
-export type ICommonPersistenceArgs<
-  TPersistenceKeyPrefix extends string = string,
-> = {
-  persistenceKeyPrefix?: DisallowCharacters<TPersistenceKeyPrefix, ":">;
-};
-// Feature-level:
-export type IFeaturePersistenceArgs<
-  TPersistenceKeyPrefix extends string = string,
-> = ICommonPersistenceArgs<TPersistenceKeyPrefix> & {
-  persistTo?: PersistTarget;
-};
-// Table-level:
-export type ITablePersistenceArgs<
-  TPersistenceKeyPrefix extends string = string,
-> = ICommonPersistenceArgs<TPersistenceKeyPrefix> & {
-  persistTo?:
-    | PersistTarget
-    | Partial<Record<TableFeature | "default", PersistTarget>>;
-};
+export type IPersistenceOptions<TPersistenceKeyPrefix extends string = string> =
+  {
+    persistTo?: PersistTarget;
+    persistenceKeyPrefix?: DisallowCharacters<TPersistenceKeyPrefix, ":">;
+  };
 
-// Table-level state args
+// State args
 // - Used by useTableControlState
 // - Does not require any state or query data in scope
 export type IUseTableControlStateArgs<
@@ -92,20 +61,30 @@ export type IUseTableControlStateArgs<
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
   TPersistenceKeyPrefix extends string = string,
-> = Omit<IFilterStateArgs<TItem, TFilterCategoryKey>, "isEnabled"> &
-  Omit<ISortStateArgs<TSortableColumnKey>, "isEnabled"> &
-  Omit<IPaginationStateArgs, "isEnabled"> &
-  Omit<IExpansionStateArgs, "isEnabled"> &
-  Omit<IActiveRowStateArgs, "isEnabled"> &
-  ITablePersistenceArgs<TPersistenceKeyPrefix> & {
-    featuresEnabled?: Partial<Record<TableFeature, boolean>>;
+> = IFilterStateArgs<TItem, TFilterCategoryKey> &
+  ISortStateArgs<TSortableColumnKey> &
+  IPaginationStateArgs &
+  // There is no IExpansionStateArgs because the only args there are the IPersistenceOptions
+  // There is no IActiveRowStateArgs because the only args there are the IPersistenceOptions
+  Omit<IPersistenceOptions<TPersistenceKeyPrefix>, "persistTo"> & {
+    persistTo?:
+      | PersistTarget
+      | {
+          default?: PersistTarget;
+          filters?: PersistTarget;
+          sort?: PersistTarget;
+          pagination?: PersistTarget;
+          expansion?: PersistTarget;
+          activeRow?: PersistTarget;
+        };
     columnNames: Record<TColumnKey, string>; // An ordered mapping of unique keys to human-readable column name strings
+    isSelectable?: boolean;
     hasPagination?: boolean; // TODO disable pagination state stuff if this is falsy
     expandableVariant?: "single" | "compound" | null; // TODO disable expandable state stuff if this is falsy
     // TODO do we want to have a featuresEnabled object instead?
   };
 
-// Table-level state object
+// State object
 // - Returned by useTableControlState
 // - Contains persisted state for all features
 // - Also includes all of useTableControlState's args for convenience, since useTableControlProps requires them along with the state itself
@@ -129,7 +108,7 @@ export type ITableControlState<
   activeRowState: IActiveRowState;
 };
 
-// Table-level local derived state args
+// Local derived state args
 // - Used by getLocalTableControlDerivedState (client-side filtering/sorting/pagination)
 //   - getLocalTableControlDerivedState also requires the return values from useTableControlState
 // - Also used indirectly by the useLocalTableControls shorthand
@@ -142,8 +121,8 @@ export type ITableControlLocalDerivedStateArgs<
 > = ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey> &
   ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> &
   ILocalPaginationDerivedStateArgs<TItem>;
-// There is no ILocalExpansionDerivedStateArgs type because expansion derived state is always local and internal to useTableControlProps
-// There is no ILocalActiveRowDerivedStateArgs type because activeRow derived state is always local and internal to useTableControlProps
+// There is no ILocalExpansionDerivedStateArgs because expansion derived state is always local an internal to useTableControlProps
+// There is no ILocalActiveRowDerivedStateArgs because expansion derived state is always local an internal to useTableControlProps
 
 // Table-level derived state object
 // - Used by useTableControlProps

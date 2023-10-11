@@ -1,4 +1,4 @@
-import { IFeaturePersistenceArgs } from "..";
+import { IPersistenceOptions } from "..";
 import { usePersistentState } from "@app/hooks/usePersistentState";
 
 export interface IActiveSort<TSortableColumnKey extends string> {
@@ -14,7 +14,6 @@ export interface ISortState<TSortableColumnKey extends string> {
 export type ISortStateArgs<TSortableColumnKey extends string> = {
   sortableColumns?: TSortableColumnKey[];
   initialSort?: IActiveSort<TSortableColumnKey> | null;
-  isEnabled?: boolean;
 };
 
 export const useSortState = <
@@ -22,7 +21,7 @@ export const useSortState = <
   TPersistenceKeyPrefix extends string = string,
 >(
   args: ISortStateArgs<TSortableColumnKey> &
-    IFeaturePersistenceArgs<TPersistenceKeyPrefix>
+    IPersistenceOptions<TPersistenceKeyPrefix>
 ): ISortState<TSortableColumnKey> => {
   const {
     persistTo = "state",
@@ -31,7 +30,6 @@ export const useSortState = <
     initialSort = sortableColumns[0]
       ? { columnKey: sortableColumns[0], direction: "asc" }
       : null,
-    isEnabled,
   } = args;
 
   // We won't need to pass the latter two type params here if TS adds support for partial inference.
@@ -43,7 +41,6 @@ export const useSortState = <
   >({
     defaultValue: initialSort,
     persistenceKeyPrefix,
-    isEnabled,
     // Note: For the discriminated union here to work without TypeScript getting confused
     //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
     //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.

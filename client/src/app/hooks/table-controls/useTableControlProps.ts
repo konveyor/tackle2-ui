@@ -10,10 +10,7 @@ import { getFilterProps } from "./filtering";
 import { getSortProps } from "./sorting";
 import { getPaginationProps, usePaginationEffects } from "./pagination";
 import { getActiveRowDerivedState, useActiveRowEffects } from "./active-row";
-import {
-  getFeaturesEnabledWithFallbacks,
-  handlePropagatedRowClick,
-} from "./utils";
+import { handlePropagatedRowClick } from "./utils";
 import { getExpansionDerivedState } from "./expansion";
 
 export const useTableControlProps = <
@@ -49,14 +46,12 @@ export const useTableControlProps = <
     },
     columnNames,
     sortableColumns = [],
+    isSelectable = false,
     expandableVariant = null,
     hasActionsColumn = false,
     variant,
     idProperty,
   } = args;
-
-  const featuresEnabled = getFeaturesEnabledWithFallbacks(args.featuresEnabled);
-  // TODO make sure we are not passing stuff for any disabled features
 
   const columnKeys = objectKeys(columnNames);
 
@@ -64,9 +59,8 @@ export const useTableControlProps = <
   // We need to account for those when dealing with props based on column index and colSpan.
   let numColumnsBeforeData = 0;
   let numColumnsAfterData = 0;
-  if (featuresEnabled.selection) numColumnsBeforeData++;
-  if (featuresEnabled.expansion && expandableVariant === "single")
-    numColumnsBeforeData++;
+  if (isSelectable) numColumnsBeforeData++;
+  if (expandableVariant === "single") numColumnsBeforeData++;
   if (hasActionsColumn) numColumnsAfterData++;
   const numRenderedColumns =
     forceNumRenderedColumns ||
@@ -126,8 +120,6 @@ export const useTableControlProps = <
     children: columnNames[columnKey],
   });
 
-  // TODO move this into a getActiveRowProps helper?
-  // TODO have the consumer always call getTrProps and only include clickable stuff if the feature is enabled
   const getClickableTrProps = ({
     onRowClick,
     item,
@@ -157,7 +149,6 @@ export const useTableControlProps = <
     dataLabel: columnNames[columnKey],
   });
 
-  // TODO move this into a getSelectionProps helper somehow?
   const getSelectCheckboxTdProps = ({
     item,
     rowIndex,
@@ -174,7 +165,6 @@ export const useTableControlProps = <
     },
   });
 
-  // TODO move this into a getExpansionProps helper somehow?
   const getSingleExpandTdProps = ({
     item,
     rowIndex,
@@ -194,7 +184,6 @@ export const useTableControlProps = <
     },
   });
 
-  // TODO move this into a getExpansionProps helper somehow?
   const getCompoundExpandTdProps = ({
     item,
     rowIndex,
@@ -219,7 +208,6 @@ export const useTableControlProps = <
     },
   });
 
-  // TODO move this into a getExpansionProps helper somehow?
   const getExpandedContentTdProps = ({
     item,
   }: {

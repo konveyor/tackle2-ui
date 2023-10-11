@@ -1,5 +1,5 @@
 import { usePersistentState } from "@app/hooks/usePersistentState";
-import { IFeaturePersistenceArgs } from "../types";
+import { IPersistenceOptions } from "../types";
 
 export interface IActivePagination {
   pageNumber: number;
@@ -13,19 +13,17 @@ export interface IPaginationState extends IActivePagination {
 
 export interface IPaginationStateArgs {
   initialItemsPerPage?: number;
-  isEnabled?: boolean;
 }
 
 export const usePaginationState = <
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: IPaginationStateArgs & IFeaturePersistenceArgs<TPersistenceKeyPrefix>
+  args: IPaginationStateArgs & IPersistenceOptions<TPersistenceKeyPrefix>
 ): IPaginationState => {
   const {
     persistTo = "state",
     persistenceKeyPrefix,
     initialItemsPerPage = 10,
-    isEnabled,
   } = args;
 
   const defaultValue: IActivePagination = {
@@ -42,7 +40,6 @@ export const usePaginationState = <
   >({
     defaultValue,
     persistenceKeyPrefix,
-    isEnabled,
     // Note: For the discriminated union here to work without TypeScript getting confused
     //       (e.g. require the urlParams-specific options when persistTo === "urlParams"),
     //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
