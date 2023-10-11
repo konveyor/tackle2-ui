@@ -32,12 +32,18 @@ import { IActiveRowDerivedStateArgs } from "./active-row";
 //      This may be resolved in a newer TypeScript version after https://github.com/microsoft/TypeScript/pull/54047 is merged!
 //      See https://github.com/konveyor/tackle2-ui/issues/1456
 
+export type PersistTarget =
+  | "state"
+  | "urlParams"
+  | "localStorage"
+  | "sessionStorage";
+
 // Persistence-specific args
 // - Extra args needed for useTableControlState and each concern-specific use*State hook in URL params mode
 // - Does not require any state or query values in scope
 export type IPersistenceOptions<TPersistenceKeyPrefix extends string = string> =
   {
-    persistTo?: "state" | "urlParams" | "localStorage" | "sessionStorage";
+    persistTo?: PersistTarget;
     persistenceKeyPrefix?: DisallowCharacters<TPersistenceKeyPrefix, ":">;
   };
 
@@ -53,7 +59,16 @@ export type IUseTableControlStateArgs<
 > = IFilterStateArgs<TItem, TFilterCategoryKey> &
   ISortStateArgs<TSortableColumnKey> &
   IPaginationStateArgs &
-  IPersistenceOptions<TPersistenceKeyPrefix> & {
+  Omit<IPersistenceOptions<TPersistenceKeyPrefix>, "persistTo"> & {
+    persistTo?:
+      | PersistTarget
+      | {
+          filters?: PersistTarget;
+          sort?: PersistTarget;
+          pagination?: PersistTarget;
+          expansion?: PersistTarget;
+          activeRow?: PersistTarget;
+        };
     columnNames: Record<TColumnKey, string>; // An ordered mapping of unique keys to human-readable column name strings
     isSelectable?: boolean;
     hasPagination?: boolean;
