@@ -30,12 +30,7 @@ export const useLocalTableControlState = <
 ): IUseTableControlPropsArgs<TItem, TColumnKey, TSortableColumnKey> => {
   const {
     items,
-    filterCategories = [],
-    sortableColumns = [],
-    getSortValues,
-    initialSort = null,
     hasPagination = true,
-    initialItemsPerPage = 10,
     idProperty,
     initialSelected,
     isItemSelectable,
@@ -56,27 +51,22 @@ export const useLocalTableControlState = <
   const { filteredItems } = getLocalFilterDerivedState({
     ...args,
     items,
-    filterCategories,
     filterState,
   });
 
   const sortState = useSortState<TSortableColumnKey, TPersistenceKeyPrefix>({
     ...args,
     persistTo: getPersistTo("sort"),
-    sortableColumns,
-    initialSort,
   });
   const { sortedItems } = getLocalSortDerivedState({
     ...args,
     sortState,
     items: filteredItems,
-    getSortValues,
   });
 
   const paginationState = usePaginationState<TPersistenceKeyPrefix>({
     ...args,
     persistTo: getPersistTo("pagination"),
-    initialItemsPerPage,
   });
   const { currentPageItems } = getLocalPaginationDerivedState({
     ...args,
