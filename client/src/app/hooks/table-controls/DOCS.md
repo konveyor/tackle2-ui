@@ -202,7 +202,7 @@ const tableControls = useTableControlProps({
 
 ### Kitchen sink example with all features
 
-TODO
+TODO - use all features, plus use an object with different persistTo options here
 
 ### Should I Use Client or Server Logic?
 
@@ -218,7 +218,9 @@ In most cases, you'll only need to use these higher-level hooks and helpers to b
   - Internally they use `useTableControlState`, `useTableControlProps` and the `getLocal[Feature]DerivedState` helpers. The config arguments object is a combination of the arguments required by `useTableControlState` and `useTableControlProps`.
   - The return value (an object we generally name `tableControls`) has everything you need to render your table. Give it a `console.log` to see what is available.
 - For server-paginated tables: `useTableControlState`, `getHubRequestParams`, and `useTableControlProps`.
-  - Choose whether you want to use React state, URL params or localStorage/sessionStorage as the source of truth, and call `useTableControlState` with the appropriate `storageType` option and the required options for each type.
+  - Choose whether you want to use React state, URL params or localStorage/sessionStorage as the source of truth, and call `useTableControlState` with the appropriate `persistTo` option and optional `persistenceKeyPrefix` (to namespace persisted state for multiple tables on the same page).
+    - `persistTo` can be `"state" | "urlParams" | "localStorage" | "sessionStorage"`, and defaults to `"state"` if omitted (falls back to regular React state).
+    - You can also use a different type of storage for the state of each feature by passing an object for `persistTo`. See the [Kitchen sink example with all features](#kitchen-sink-example-with-all-features).
   - Take the object returned by that hook (generally named `tableControlState`) and pass it to `getHubRequestParams` function (you may need to spread it and add additional properties like `hubSortFieldKeys`).
   - Call your API query hooks, using the `hubRequestParams` as needed.
   - Call `useTableControlProps` and pass it an object including all properties from `tableControlState` along with additional config arguments. Some of these arguments will be derived from your API data, such as `currentPageItems`, `totalItemCount` and `isLoading`. Others are simply passed here rather than above because they are used only for rendering and not required for state management.
