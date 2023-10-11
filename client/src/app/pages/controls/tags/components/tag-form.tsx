@@ -48,12 +48,16 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
 
   const { tagCategories } = useFetchTagCategories();
 
-  const tagCategoryOptions = tagCategories.map((tagCategory: TagCategory) => {
-    return {
-      value: tagCategory.name,
-      toString: () => tagCategory.name,
-    };
-  });
+  const tagCategoryOptions = useMemo(() => {
+    const options = tagCategories.map((tagCategory: TagCategory) => {
+      return {
+        value: tagCategory.name,
+        toString: () => tagCategory.name,
+      };
+    });
+
+    return options.sort((a, b) => a.value.localeCompare(b.value));
+  }, [tagCategories]);
 
   const tagCategoryInitialValue: ITagCategoryDropdown | null = useMemo(() => {
     const matchingTagCategory = tagCategories
