@@ -27,6 +27,7 @@ export const SetTargets: React.FC = () => {
     useFormContext<AnalysisWizardFormValues>();
   const values = getValues();
   const formLabels = watch("formLabels");
+  const selectedTargets = watch("selectedTargets");
 
   const handleOnSelectedCardTargetChange = (selectedLabelName: string) => {
     const otherSelectedLabels = formLabels?.filter((formLabel) => {
@@ -66,30 +67,56 @@ export const SetTargets: React.FC = () => {
     selectedLabelName: string,
     target: Target
   ) => {
+    const updatedSelectedTargets = getUpdatedSelectedTargets(
+      isSelecting,
+      target
+    );
+
+    const updatedFormLabels = getUpdatedFormLabels(
+      isSelecting,
+      selectedLabelName,
+      target
+    );
+
+    setValue("formLabels", updatedFormLabels);
+    setValue("selectedTargets", updatedSelectedTargets);
+  };
+
+  const getUpdatedSelectedTargets = (isSelecting: boolean, target: Target) => {
+    const { selectedTargets } = values;
+    if (isSelecting) {
+      return [...selectedTargets, target.id];
+    }
+    return selectedTargets.filter((id) => id !== target.id);
+  };
+
+  const getUpdatedFormLabels = (
+    isSelecting: boolean,
+    selectedLabelName: string,
+    target: Target
+  ) => {
+    const { formLabels } = values;
     if (target.custom) {
       const customTargetLabelNames = target.labels?.map((label) => label.name);
-      const otherSelectedLabels = formLabels?.filter((formLabel) => {
-        return !customTargetLabelNames?.includes(formLabel.name);
-      });
-      if (isSelecting && target?.labels) {
-        setValue("formLabels", [...otherSelectedLabels, ...target.labels]);
-      } else {
-        setValue("formLabels", otherSelectedLabels);
-      }
+      const otherSelectedLabels = formLabels?.filter(
+        (formLabel) => !customTargetLabelNames?.includes(formLabel.name)
+      );
+      return isSelecting && target.labels
+        ? [...otherSelectedLabels, ...target.labels]
+        : otherSelectedLabels;
     } else {
-      const otherSelectedLabels = formLabels?.filter((formLabel) => {
-        return formLabel.name !== selectedLabelName;
-      });
+      const otherSelectedLabels = formLabels?.filter(
+        (formLabel) => formLabel.name !== selectedLabelName
+      );
       if (isSelecting) {
-        const matchingLabel =
-          target.labels?.find((label) => label.name === selectedLabelName) ||
-          "";
-
-        matchingLabel &&
-          setValue("formLabels", [...otherSelectedLabels, matchingLabel]);
-      } else {
-        setValue("formLabels", otherSelectedLabels);
+        const matchingLabel = target.labels?.find(
+          (label) => label.name === selectedLabelName
+        );
+        return matchingLabel
+          ? [...otherSelectedLabels, matchingLabel]
+          : otherSelectedLabels;
       }
+      return otherSelectedLabels;
     }
   };
 
@@ -109,12 +136,9 @@ export const SetTargets: React.FC = () => {
         {targetOrderSetting.isSuccess
           ? targetOrderSetting.data.map((id, index) => {
               const matchingTarget = targets.find((target) => target.id === id);
-              const matchingLabelNames =
-                matchingTarget?.labels?.map((label) => label.name) || [];
 
-              const isSelected = formLabels?.some((label) =>
-                matchingLabelNames.includes(label.name)
-              );
+              const isSelected = selectedTargets?.includes(id);
+
               if (matchingTarget) {
                 return (
                   <GalleryItem key={index}>
