@@ -1,4 +1,8 @@
-import { IUseTableControlStateArgs, PersistTarget } from "./types";
+import {
+  ITableControlState,
+  IUseTableControlStateArgs,
+  PersistTarget,
+} from "./types";
 import { useFilterState } from "./filtering";
 import { useSortState } from "./sorting";
 import { usePaginationState } from "./pagination";
@@ -19,7 +23,13 @@ export const useTableControlState = <
     TFilterCategoryKey,
     TPersistenceKeyPrefix
   >
-) => {
+): ITableControlState<
+  TItem,
+  TColumnKey,
+  TSortableColumnKey,
+  TFilterCategoryKey,
+  TPersistenceKeyPrefix
+> => {
   const getPersistTo = (
     feature: "filters" | "sort" | "pagination" | "expansion" | "activeRow"
   ): PersistTarget | undefined =>

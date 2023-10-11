@@ -4,8 +4,8 @@ import { getLocalPaginationDerivedState } from "./pagination";
 import {
   ITableControlLocalDerivedStateArgs,
   ITableControlDerivedState,
+  ITableControlState,
 } from "./types";
-import { useTableControlState } from "./useTableControlState";
 
 export const getLocalTableControlDerivedState = <
   TItem,
@@ -20,15 +20,12 @@ export const getLocalTableControlDerivedState = <
     TSortableColumnKey,
     TFilterCategoryKey
   > &
-    // TODO make this an explicit type
-    ReturnType<
-      typeof useTableControlState<
-        TItem,
-        TColumnKey,
-        TSortableColumnKey,
-        TFilterCategoryKey,
-        TPersistenceKeyPrefix
-      >
+    ITableControlState<
+      TItem,
+      TColumnKey,
+      TSortableColumnKey,
+      TFilterCategoryKey,
+      TPersistenceKeyPrefix
     >
 ): ITableControlDerivedState<TItem> => {
   const { items, hasPagination = true } = args;

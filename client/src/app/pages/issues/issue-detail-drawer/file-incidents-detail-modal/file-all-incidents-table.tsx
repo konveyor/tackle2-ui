@@ -35,7 +35,6 @@ export const FileAllIncidentsTable: React.FC<
     sortableColumns: ["line", "message"],
     initialSort: { columnKey: "line", direction: "asc" },
     initialItemsPerPage: 10,
-    variant: "compact",
   });
 
   const {
@@ -60,6 +59,7 @@ export const FileAllIncidentsTable: React.FC<
     forceNumRenderedColumns: 3,
     totalItemCount,
     isLoading: isFetching,
+    variant: "compact",
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
       items: currentPageIncidents,

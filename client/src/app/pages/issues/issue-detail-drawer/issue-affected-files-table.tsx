@@ -58,7 +58,6 @@ export const IssueAffectedFilesTable: React.FC<
       },
     ],
     initialItemsPerPage: 10,
-    variant: "compact",
   });
 
   const {
@@ -83,6 +82,7 @@ export const IssueAffectedFilesTable: React.FC<
     currentPageItems: currentPageFileReports,
     totalItemCount,
     isLoading: isFetching,
+    variant: "compact",
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
       items: currentPageFileReports,
