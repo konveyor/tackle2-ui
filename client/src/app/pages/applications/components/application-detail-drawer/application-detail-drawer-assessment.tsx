@@ -21,6 +21,7 @@ import {
   IApplicationDetailDrawerProps,
 } from "./application-detail-drawer";
 import { useFetchReviewById } from "@app/queries/reviews";
+import { ReviewedArchetypeItem } from "./reviewed-archetype-item";
 
 export interface IApplicationDetailDrawerAssessmentProps
   extends Pick<IApplicationDetailDrawerProps, "application" | "onCloseClick"> {
@@ -44,6 +45,9 @@ export const ApplicationDetailDrawerAssessment: React.FC<
       onCloseClick={onCloseClick}
       detailsTabMainContent={
         <>
+          <Title headingLevel="h3" size="md">
+            {t("terms.archetypes")}
+          </Title>
           <DescriptionList
             isHorizontal
             isCompact
@@ -53,7 +57,9 @@ export const ApplicationDetailDrawerAssessment: React.FC<
             }}
           >
             <DescriptionListGroup>
-              <DescriptionListTerm>{t("terms.archetypes")}</DescriptionListTerm>
+              <DescriptionListTerm>
+                {t("terms.associatedArchetypes")}
+              </DescriptionListTerm>
               <DescriptionListDescription>
                 {application?.archetypes?.length ?? 0 > 0 ? (
                   <ArchetypeLabels
@@ -64,6 +70,28 @@ export const ApplicationDetailDrawerAssessment: React.FC<
                 )}
               </DescriptionListDescription>
             </DescriptionListGroup>
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("terms.archetypesReviewed")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {application?.archetypes?.length ?? 0 > 0 ? (
+                  application?.archetypes?.map((archetypeRef) => (
+                    <ReviewedArchetypeItem
+                      key={archetypeRef.id}
+                      id={archetypeRef.id}
+                    />
+                  ))
+                ) : (
+                  <EmptyTextMessage message={t("terms.none")} />
+                )}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+            <TextContent className={spacing.mtLg}>
+              <Title headingLevel="h3" size="md">
+                {t("terms.applicationReview")}
+              </Title>
+            </TextContent>
             <DescriptionListGroup>
               <DescriptionListTerm>
                 {t("terms.proposedAction")}
@@ -114,16 +142,6 @@ export const ApplicationDetailDrawerAssessment: React.FC<
                 {application && <ApplicationRisk application={application} />}
               </DescriptionListDescription>
             </DescriptionListGroup> */}
-            <DescriptionListGroup>
-              <DescriptionListTerm>
-                {t("terms.migrationWave")}
-              </DescriptionListTerm>
-              <DescriptionListDescription cy-data="migration-wave">
-                {application?.migrationWave
-                  ? application.migrationWave.name
-                  : t("terms.unassigned")}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
           </DescriptionList>
           <TextContent className={spacing.mtLg}>
             <Title headingLevel="h3" size="md">

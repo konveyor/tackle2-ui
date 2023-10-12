@@ -117,9 +117,20 @@ export const ApplicationDetailDrawer: React.FC<
                 <ApplicationBusinessService
                   id={application.businessService.id}
                 />
-              ) : null}
+              ) : (
+                t("terms.unassigned")
+              )}
+            </Text>
+            <Title headingLevel="h3" size="md">
+              {t("terms.migrationWave")}
+            </Title>
+            <Text component="small">
+              {application?.migrationWave
+                ? application.migrationWave.name
+                : t("terms.unassigned")}
             </Text>
           </TextContent>
+
           {detailsTabMainContent}
         </Tab>
 
