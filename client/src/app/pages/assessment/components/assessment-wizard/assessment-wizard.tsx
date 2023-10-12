@@ -3,8 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
-import { ButtonVariant } from "@patternfly/react-core";
-import { Wizard, WizardStep } from "@patternfly/react-core/deprecated";
+import { ButtonVariant, Wizard, WizardStep } from "@patternfly/react-core";
 
 import {
   Assessment,
@@ -16,7 +15,6 @@ import {
 import { CustomWizardFooter } from "../custom-wizard-footer";
 import { getApplicationById, getArchetypeById } from "@app/api/rest";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { WizardStepNavDescription } from "../wizard-step-nav-description";
 import { QuestionnaireForm } from "../questionnaire-form";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import {
@@ -38,6 +36,7 @@ import { AssessmentStakeholdersForm } from "../assessment-stakeholders-form/asse
 import useIsArchetype from "@app/hooks/useIsArchetype";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
+import { WizardStepNavDescription } from "../wizard-step-nav-description";
 
 export const SAVE_ACTION_KEY = "saveAction";
 
@@ -506,61 +505,70 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     }
   };
 
-  const wizardSteps: WizardStep[] = [
-    {
-      id: 0,
-      name: t("composed.selectMany", {
+  const getWizardFooter = (step: number) => {
+    return (
+      <CustomWizardFooter
+        isFirstStepValid={isFirstStepValid()}
+        isFirstStep={step === 0}
+        isLastStep={step === sortedSections.length}
+        onNext={() => setCurrentStep(step + 1)}
+        onBack={() => setCurrentStep(step - 1)}
+        isDisabled={
+          isSubmitting ||
+          isValidating ||
+          (step === sortedSections.length &&
+            !shouldNextBtnBeEnabled(sortedSections[step - 1]))
+        }
+        hasAnswers={hasPartialAnswers(sortedSections[step - 1])}
+        isFormInvalid={!isValid}
+        onSave={(review) => {
+          const saveActionValue = review
+            ? SAVE_ACTION_VALUE.SAVE_AND_REVIEW
+            : SAVE_ACTION_VALUE.SAVE;
+
+          methods.setValue(SAVE_ACTION_KEY, saveActionValue);
+
+          methods.handleSubmit(onSubmit, onInvalid)();
+        }}
+        onSaveAsDraft={() => {
+          methods.setValue(SAVE_ACTION_KEY, SAVE_ACTION_VALUE.SAVE_AS_DRAFT);
+          methods.handleSubmit(onSubmit)();
+        }}
+      />
+    );
+  };
+
+  const wizardSteps = [
+    <WizardStep
+      id={0}
+      footer={getWizardFooter(0)}
+      name={t("composed.selectMany", {
         what: t("terms.stakeholders").toLowerCase(),
-      }),
-      component: <AssessmentStakeholdersForm />,
-      canJumpTo: 0 === currentStep || !disableNavigation,
-      enableNext: isFirstStepValid(),
-    },
+      })}
+      isDisabled={currentStep !== 0 && disableNavigation}
+    >
+      <AssessmentStakeholdersForm />
+    </WizardStep>,
     ...sortedSections.map((section, index) => {
       const stepIndex = index + 1;
-
-      return {
-        id: stepIndex,
-        name: section.name,
-        stepNavItemProps: {
-          children: <WizardStepNavDescription section={section} />,
-        },
-        component: <QuestionnaireForm key={section.name} section={section} />,
-        canJumpTo:
-          stepIndex === currentStep ||
-          (stepIndex <= canJumpTo && !disableNavigation),
-        enableNext: shouldNextBtnBeEnabled(section),
-      } as WizardStep;
+      return (
+        <WizardStep
+          id={stepIndex}
+          name={section.name}
+          isDisabled={
+            !(
+              stepIndex === currentStep ||
+              (stepIndex <= canJumpTo && !disableNavigation)
+            )
+          }
+          navItem={{ children: <WizardStepNavDescription section={section} /> }}
+          footer={getWizardFooter(stepIndex)}
+        >
+          <QuestionnaireForm key={section.name} section={section} />
+        </WizardStep>
+      );
     }),
   ];
-
-  const wizardFooter = (
-    <CustomWizardFooter
-      isFirstStep={currentStep === 0}
-      isLastStep={currentStep === sortedSections.length}
-      isDisabled={
-        isSubmitting ||
-        isValidating ||
-        (currentStep === sortedSections.length &&
-          !shouldNextBtnBeEnabled(sortedSections[currentStep - 1]))
-      }
-      hasAnswers={hasPartialAnswers(sortedSections[currentStep - 1])}
-      isFormInvalid={!isValid}
-      onSave={(review) => {
-        const saveActionValue = review
-          ? SAVE_ACTION_VALUE.SAVE_AND_REVIEW
-          : SAVE_ACTION_VALUE.SAVE;
-
-        methods.setValue(SAVE_ACTION_KEY, saveActionValue);
-
-        methods.handleSubmit(onSubmit, onInvalid)();
-      }}
-      onSaveAsDraft={() => {
-        methods.setValue(SAVE_ACTION_KEY, SAVE_ACTION_VALUE.SAVE_AS_DRAFT);
-        methods.handleSubmit(onSubmit)();
-      }}
-    />
-  );
 
   useEffect(() => {
     const unlisten = history.listen((newLocation, action) => {
@@ -615,17 +623,15 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       {isOpen && (
         <FormProvider {...methods}>
           <Wizard
-            navAriaLabel="assessment-wizard"
-            mainAriaLabel="assesment-wizard"
-            steps={wizardSteps}
-            footer={wizardFooter}
-            onNext={() => setCurrentStep((current) => current + 1)}
-            onBack={() => setCurrentStep((current) => current - 1)}
+            onStepChange={(_e, curr) => {
+              setCurrentStep(curr.index);
+            }}
             onClose={() => {
               assessment && setAssessmentToCancel(assessment);
             }}
-            onGoToStep={(step) => setCurrentStep(step.id as number)}
-          />
+          >
+            {wizardSteps}
+          </Wizard>
           {assessmentToCancel && (
             <ConfirmDialog
               title={t("dialog.title.leavePage")}
