@@ -9,7 +9,7 @@ export interface IFilterState<TFilterCategoryKey extends string> {
   setFilterValues: (values: IFilterValues<TFilterCategoryKey>) => void;
 }
 
-export type IRequiredFilterStateArgs<
+export type IFilterStateEnabledArgs<
   TItem,
   TFilterCategoryKey extends string,
 > = {
@@ -19,10 +19,8 @@ export type IRequiredFilterStateArgs<
 export type IFilterStateArgs<TItem, TFilterCategoryKey extends string> =
   | ({
       isFilterEnabled: true;
-    } & IRequiredFilterStateArgs<TItem, TFilterCategoryKey>)
-  | ({ isFilterEnabled?: false } & Partial<
-      IRequiredFilterStateArgs<TItem, TFilterCategoryKey>
-    >);
+    } & IFilterStateEnabledArgs<TItem, TFilterCategoryKey>)
+  | { isFilterEnabled?: false };
 
 export const useFilterState = <
   TItem,

@@ -17,13 +17,13 @@ export interface IExpansionState<TColumnKey extends string> {
   ) => void;
 }
 
-export type IRequiredExpansionStateArgs = {
+export type IExpansionStateEnabledArgs = {
   expandableVariant: "single" | "compound";
 };
 
 export type IExpansionStateArgs =
-  | ({ isExpansionEnabled: true } & IRequiredExpansionStateArgs)
-  | ({ isExpansionEnabled?: false } & Partial<IRequiredExpansionStateArgs>);
+  | ({ isExpansionEnabled: true } & IExpansionStateEnabledArgs)
+  | { isExpansionEnabled?: false };
 
 export const useExpansionState = <
   TColumnKey extends string,

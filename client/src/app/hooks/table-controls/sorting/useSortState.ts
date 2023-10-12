@@ -11,18 +11,14 @@ export interface ISortState<TSortableColumnKey extends string> {
   setActiveSort: (sort: IActiveSort<TSortableColumnKey>) => void;
 }
 
-export type IRequiredSortStateArgs<TSortableColumnKey extends string> = {
+export type ISortStateEnabledArgs<TSortableColumnKey extends string> = {
   sortableColumns: TSortableColumnKey[];
   initialSort?: IActiveSort<TSortableColumnKey> | null;
 };
 
 export type ISortStateArgs<TSortableColumnKey extends string> =
-  | ({
-      isSortEnabled: true;
-    } & IRequiredSortStateArgs<TSortableColumnKey>)
-  | ({ isSortEnabled?: false } & Partial<
-      IRequiredSortStateArgs<TSortableColumnKey>
-    >);
+  | ({ isSortEnabled: true } & ISortStateEnabledArgs<TSortableColumnKey>)
+  | { isSortEnabled?: false };
 
 export const useSortState = <
   TSortableColumnKey extends string,
@@ -31,15 +27,11 @@ export const useSortState = <
   args: ISortStateArgs<TSortableColumnKey> &
     IFeaturePersistenceArgs<TPersistenceKeyPrefix>
 ): ISortState<TSortableColumnKey> => {
-  const {
-    isSortEnabled,
-    persistTo = "state",
-    persistenceKeyPrefix,
-    sortableColumns = [],
-    initialSort = sortableColumns[0]
-      ? { columnKey: sortableColumns[0], direction: "asc" }
-      : null,
-  } = args;
+  const { isSortEnabled, persistTo = "state", persistenceKeyPrefix } = args;
+  const sortableColumns = (isSortEnabled && args.sortableColumns) || [];
+  const initialSort: IActiveSort<TSortableColumnKey> | null = sortableColumns[0]
+    ? { columnKey: sortableColumns[0], direction: "asc" }
+    : null;
 
   // We won't need to pass the latter two type params here if TS adds support for partial inference.
   // See https://github.com/konveyor/tackle2-ui/issues/1456

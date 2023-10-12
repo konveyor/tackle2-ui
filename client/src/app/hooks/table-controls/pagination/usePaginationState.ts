@@ -11,10 +11,13 @@ export interface IPaginationState extends IActivePagination {
   setItemsPerPage: (numItems: number) => void;
 }
 
-export interface IPaginationStateArgs {
-  isPaginationEnabled?: boolean;
+export type IPaginationStateEnabledArgs = {
   initialItemsPerPage?: number;
-}
+};
+
+export type IPaginationStateArgs =
+  | ({ isPaginationEnabled: true } & IPaginationStateEnabledArgs)
+  | { isPaginationEnabled?: false };
 
 export const usePaginationState = <
   TPersistenceKeyPrefix extends string = string,
@@ -25,8 +28,9 @@ export const usePaginationState = <
     isPaginationEnabled,
     persistTo = "state",
     persistenceKeyPrefix,
-    initialItemsPerPage = 10,
   } = args;
+  const initialItemsPerPage =
+    (isPaginationEnabled && args.initialItemsPerPage) || 10;
 
   const defaultValue: IActivePagination = {
     pageNumber: 1,

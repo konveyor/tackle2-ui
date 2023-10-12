@@ -45,14 +45,17 @@ export const useTableControlProps = <
       isItemSelected,
     },
     columnNames,
-    sortableColumns = [],
-    isSelectionEnabled = false,
-    isExpansionEnabled = false,
-    expandableVariant,
     hasActionsColumn = false,
     variant,
     idProperty,
+    isSortEnabled,
+    isSelectionEnabled,
+    isExpansionEnabled,
   } = args;
+
+  const sortableColumns = (isSortEnabled && args.sortableColumns) || [];
+  const expandableVariant =
+    (isExpansionEnabled && args.expandableVariant) || undefined;
 
   const columnKeys = objectKeys(columnNames);
 

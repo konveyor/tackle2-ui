@@ -85,6 +85,7 @@ export type ITablePersistenceArgs<
 // Table-level state args
 // - Used by useTableControlState
 // - Does not require any state or query data in scope
+// - Requires/disallows args based on which features are enabled (see individual [Feature]StateArgs types)
 export type IUseTableControlStateArgs<
   TItem,
   TColumnKey extends string,

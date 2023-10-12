@@ -7,9 +7,7 @@ export interface IActiveRowState {
   setActiveRowId: (id: string | number | null) => void;
 }
 
-export interface IActiveRowStateArgs {
-  isActiveRowEnabled?: boolean;
-}
+export type IActiveRowStateArgs = { isActiveRowEnabled?: boolean };
 
 export const useActiveRowState = <
   TPersistenceKeyPrefix extends string = string,

@@ -14,18 +14,18 @@ export const getLocalTableControlDerivedState = <
   TFilterCategoryKey extends string = string,
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: ITableControlLocalDerivedStateArgs<
+  args: ITableControlState<
     TItem,
     TColumnKey,
     TSortableColumnKey,
-    TFilterCategoryKey
+    TFilterCategoryKey,
+    TPersistenceKeyPrefix
   > &
-    ITableControlState<
+    ITableControlLocalDerivedStateArgs<
       TItem,
       TColumnKey,
       TSortableColumnKey,
-      TFilterCategoryKey,
-      TPersistenceKeyPrefix
+      TFilterCategoryKey
     >
 ): ITableControlDerivedState<TItem> => {
   const { items, isPaginationEnabled = true } = args;

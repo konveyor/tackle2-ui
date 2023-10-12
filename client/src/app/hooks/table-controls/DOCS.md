@@ -26,6 +26,8 @@ For client-paginated tables, the only hook we need is `useLocalTableControls`. A
 
 This simple example includes only the filtering, sorting and pagination features and excludes arguments and properties related to the other features (see [Features](#features)).
 
+Features are enabled by passing the `is[Feature]Enabled` boolean argument. Required arguments for the enabled features will be enforced by TypeScript based on which features are enabled.
+
 ```tsx
 // In a real table, this API data would come from a useQuery call.
 const isLoading = false;
@@ -43,6 +45,9 @@ const tableControls = useLocalTableControls({
     name: "Name",
     description: "Description",
   },
+  isFilterEnabled: true,
+  isSortEnabled: true,
+  isPaginationEnabled: true,
   filterCategories: [
     {
       key: "name",
@@ -161,6 +166,9 @@ const tableControlState = useTableControlState({
     name: "Name",
     description: "Description",
   },
+  isFilterEnabled: true,
+  isSortEnabled: true,
+  isPaginationEnabled: true,
   filterCategories: [
     {
       key: "name",
