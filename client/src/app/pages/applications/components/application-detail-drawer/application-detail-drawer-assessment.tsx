@@ -16,7 +16,6 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
 import { Ref, Task } from "@app/api/models";
-import { ApplicationRisk } from "./application-risk";
 import {
   ApplicationDetailDrawer,
   IApplicationDetailDrawerProps,
@@ -109,12 +108,12 @@ export const ApplicationDetailDrawerAssessment: React.FC<
                 {appReview?.workPriority || notYetReviewed}
               </DescriptionListDescription>
             </DescriptionListGroup>
-            <DescriptionListGroup>
+            {/* <DescriptionListGroup>
               <DescriptionListTerm>{t("terms.risk")}</DescriptionListTerm>
               <DescriptionListDescription cy-data="risk">
                 {application && <ApplicationRisk application={application} />}
               </DescriptionListDescription>
-            </DescriptionListGroup>
+            </DescriptionListGroup> */}
             <DescriptionListGroup>
               <DescriptionListTerm>
                 {t("terms.migrationWave")}
