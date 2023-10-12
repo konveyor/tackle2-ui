@@ -19,6 +19,7 @@ export const useLegacyFilterState = <TItem, TFilterCategoryKey extends string>(
   filterCategories: FilterCategory<TItem, TFilterCategoryKey>[]
 ): IFilterStateHook<TItem, TFilterCategoryKey> => {
   const { filterValues, setFilterValues } = useFilterState({
+    isFilterEnabled: true,
     filterCategories,
   });
   const { filteredItems } = getLocalFilterDerivedState({

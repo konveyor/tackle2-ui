@@ -25,7 +25,10 @@ export const useLegacyPaginationState = <T>(
   items: T[],
   initialItemsPerPage: number
 ): ILegacyPaginationStateHook<T> => {
-  const paginationState = usePaginationState({ initialItemsPerPage });
+  const paginationState = usePaginationState({
+    isPaginationEnabled: true,
+    initialItemsPerPage,
+  });
   usePaginationEffects({ paginationState, totalItemCount: items.length });
   const { currentPageItems } = getLocalPaginationDerivedState({
     items,
