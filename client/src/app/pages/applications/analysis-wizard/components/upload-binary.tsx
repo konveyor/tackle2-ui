@@ -46,8 +46,6 @@ export const UploadBinary: React.FC = () => {
       title: "Uploaded binary file.",
       variant: "success",
     });
-    setFileUploadStatus("success");
-    setFileUploadProgress(100);
   };
 
   const failedUpload = (error: AxiosError) => {
@@ -66,9 +64,6 @@ export const UploadBinary: React.FC = () => {
       title: "Removed binary file.",
       variant: "success",
     });
-    setFileUploadStatus(undefined);
-    setFileUploadProgress(undefined);
-    setValue("artifact", null);
   };
 
   const failedRemove = (error: AxiosError) => {
@@ -135,7 +130,19 @@ export const UploadBinary: React.FC = () => {
             file: droppedFiles[0],
           });
       }
-      setValue("artifact", droppedFiles[0]);
+      readFile(droppedFiles[0])
+        .then((data) => {
+          if (data) {
+            setFileUploadProgress(100);
+            setFileUploadStatus("success");
+            setValue("artifact", droppedFiles[0]);
+          }
+        })
+        .catch((error) => {
+          setValue("artifact", undefined);
+          setFileUploadProgress(0);
+          setFileUploadStatus("danger");
+        });
     }
   };
 
@@ -206,12 +213,14 @@ export const UploadBinary: React.FC = () => {
             key={artifact.name}
             customFileHandler={handleFile}
             onClearClick={() => {
+              setFileUploadStatus(undefined);
+              setFileUploadProgress(undefined);
+              setValue("artifact", null);
               taskGroup?.id &&
                 removeFile({
                   id: taskGroup?.id,
                   path: `binary/${artifact}`,
                 });
-              setValue("artifact", null);
             }}
             progressAriaLabel={"text"}
             progressValue={fileUploadProgress}
