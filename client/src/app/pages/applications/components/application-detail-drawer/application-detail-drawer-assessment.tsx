@@ -9,12 +9,13 @@ import {
   Text,
   Title,
   Label,
+  LabelGroup,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
-import { Task } from "@app/api/models";
+import { Ref, Task } from "@app/api/models";
 import { ApplicationRisk } from "./application-risk";
 import {
   ApplicationDetailDrawer,
@@ -52,6 +53,18 @@ export const ApplicationDetailDrawerAssessment: React.FC<
               default: "14ch",
             }}
           >
+            <DescriptionListGroup>
+              <DescriptionListTerm>{t("terms.archetypes")}</DescriptionListTerm>
+              <DescriptionListDescription>
+                {application?.archetypes?.length ?? 0 > 0 ? (
+                  <ArchetypeLabels
+                    archetypeRefs={application?.archetypes as Ref[]}
+                  />
+                ) : (
+                  <EmptyTextMessage message={t("terms.none")} />
+                )}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
             <DescriptionListGroup>
               <DescriptionListTerm>
                 {t("terms.proposedAction")}
@@ -134,3 +147,17 @@ export const ApplicationDetailDrawerAssessment: React.FC<
     />
   );
 };
+const ArchetypeLabels: React.FC<{ archetypeRefs?: Ref[] }> = ({
+  archetypeRefs,
+}) =>
+  (archetypeRefs?.length ?? 0) === 0 ? null : (
+    <LabelGroup>
+      {(archetypeRefs as Ref[])
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((ref) => (
+          <Label color="grey" key={ref.id}>
+            {ref.name}
+          </Label>
+        ))}
+    </LabelGroup>
+  );

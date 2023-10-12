@@ -214,6 +214,8 @@
   "terms": {
     "accepted": "Accepted",
     "acceptedAppsAndDeps": "Accepted applications and dependencies",
+    "associatedApplications": "Associated applications",
+    "associatedArchetypes": "Associated archetypes",
     "add": "Add",
     "additionalNotesOrComments": "Additional notes or comments",
     "adoptionCandidateDistribution": "Assessment confidence and risk",
