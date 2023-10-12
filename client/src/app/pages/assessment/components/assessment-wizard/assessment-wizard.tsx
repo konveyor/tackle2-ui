@@ -14,7 +14,7 @@ import {
   Section,
 } from "@app/api/models";
 import { CustomWizardFooter } from "../custom-wizard-footer";
-import { getApplicationById } from "@app/api/rest";
+import { getApplicationById, getArchetypeById } from "@app/api/rest";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
 import { QuestionnaireForm } from "../questionnaire-form";
@@ -442,23 +442,21 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         variant: "success",
       });
       if (isArchetype) {
-        //TODO: Review Archetype?
-        // assessment?.archetype?.id &&
-        //   getArchetypeById(assessment.archetype.id)
-        //     .then((data) => {
-        //       history.push(
-        //         formatPath(Paths.a, {
-        //           applicationId: data.id,
-        //         })
-        //       );
-        //     })
-        //     .catch((error) => {
-        //       pushNotification({
-        //         title: getAxiosErrorMessage(error),
-        //         variant: "danger",
-        //       });
-        //     });
-        // }
+        assessment?.archetype?.id &&
+          getArchetypeById(assessment.archetype.id)
+            .then((data) => {
+              history.push(
+                formatPath(Paths.archetypeReview, {
+                  archetypeId: data.id,
+                })
+              );
+            })
+            .catch((error) => {
+              pushNotification({
+                title: getAxiosErrorMessage(error),
+                variant: "danger",
+              });
+            });
       } else {
         assessment?.application?.id &&
           getApplicationById(assessment.application.id)
@@ -538,7 +536,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const wizardFooter = (
     <CustomWizardFooter
-      isArchetype={isArchetype}
       isFirstStep={currentStep === 0}
       isLastStep={currentStep === sortedSections.length}
       isDisabled={
