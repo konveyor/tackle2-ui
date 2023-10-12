@@ -35,6 +35,8 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
       businessService: "Business service",
       owner: "Owner",
     },
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     hasActionsColumn: true,
     getSortValues: (app) => ({
       appName: app.name || "",
@@ -42,7 +44,6 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
       owner: app.owner?.name || "",
     }),
     sortableColumns: ["appName", "businessService", "owner"],
-    isPaginationEnabled: true,
     variant: "compact",
   });
   const {

@@ -100,6 +100,9 @@ export const JiraTrackers: React.FC = () => {
       kind: `${t("terms.instance")} type`,
       connection: "Connection",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     filterCategories: [
       {
         key: "name",
@@ -131,7 +134,6 @@ export const JiraTrackers: React.FC = () => {
       url: tracker.url || "",
     }),
     sortableColumns: ["name", "url"],
-    isPaginationEnabled: true,
     isLoading: isFetching,
   });
   const {

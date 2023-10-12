@@ -196,6 +196,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       analysis: "Analysis",
       tags: "Tags",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isSelectionEnabled: true,
+    isActiveRowEnabled: true,
     sortableColumns: ["name", "description", "businessService", "tags"],
     initialSort: { columnKey: "name", direction: "asc" },
     getSortValues: (app) => ({
@@ -324,7 +329,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     ],
     initialItemsPerPage: 10,
     hasActionsColumn: true,
-    isSelectionEnabled: true,
   });
 
   const {

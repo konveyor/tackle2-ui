@@ -32,6 +32,8 @@ export const FileAllIncidentsTable: React.FC<
       line: "Line #",
       message: "Message",
     },
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     sortableColumns: ["line", "message"],
     initialSort: { columnKey: "line", direction: "asc" },
     initialItemsPerPage: 10,

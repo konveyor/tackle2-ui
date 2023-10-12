@@ -42,6 +42,9 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
       //   management (3rd party or not boolean... parsed from labels)
       relationship: "Relationship",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     sortableColumns: ["name", "version"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [

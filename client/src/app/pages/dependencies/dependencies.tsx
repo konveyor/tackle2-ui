@@ -49,6 +49,10 @@ export const Dependencies: React.FC = () => {
       sha: "SHA",
       version: "Version",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isActiveRowEnabled: true,
     sortableColumns: ["name", "foundIn", "labels"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [

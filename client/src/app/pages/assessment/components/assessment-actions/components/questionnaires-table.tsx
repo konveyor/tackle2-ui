@@ -40,8 +40,6 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
     columnNames: {
       questionnaires: tableName,
     },
-    hasActionsColumn: false,
-    isPaginationEnabled: false,
     variant: "compact",
   });
 

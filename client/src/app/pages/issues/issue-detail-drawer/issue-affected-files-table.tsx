@@ -43,6 +43,9 @@ export const IssueAffectedFilesTable: React.FC<
       incidents: "Incidents",
       effort: "Effort",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     sortableColumns: ["file", "incidents", "effort"],
     initialSort: { columnKey: "file", direction: "asc" },
     filterCategories: [

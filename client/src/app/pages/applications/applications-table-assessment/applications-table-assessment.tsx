@@ -243,6 +243,10 @@ export const ApplicationsTable: React.FC = () => {
       review: "Review",
       tags: "Tags",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isActiveRowEnabled: true,
     sortableColumns: ["name", "description", "businessService", "tags"],
     initialSort: { columnKey: "name", direction: "asc" },
     getSortValues: (app) => ({

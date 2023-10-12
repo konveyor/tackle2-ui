@@ -114,6 +114,11 @@ const Archetypes: React.FC = () => {
       applications: t("terms.applications"),
     },
 
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isActiveRowEnabled: true,
+
     filterCategories: [
       {
         key: "name",
@@ -135,8 +140,6 @@ const Archetypes: React.FC = () => {
       name: archetype.name ?? "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
-
-    isPaginationEnabled: true,
   });
   const {
     currentPageItems,

@@ -188,6 +188,10 @@ export const MigrationWaves: React.FC = () => {
       stakeholders: "Stakeholders",
       status: "Status",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isExpansionEnabled: true,
     isSelectionEnabled: true,
     expandableVariant: "compound",
     hasActionsColumn: true,
@@ -212,7 +216,6 @@ export const MigrationWaves: React.FC = () => {
       endDate: migrationWave.endDate || "",
     }),
     initialSort: { columnKey: "startDate", direction: "asc" },
-    isPaginationEnabled: true,
     isLoading: isFetching,
   });
   const {

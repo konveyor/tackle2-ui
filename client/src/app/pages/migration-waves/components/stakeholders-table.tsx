@@ -27,6 +27,8 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
       email: "Email",
       groups: "Stakeholder groups",
     },
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     hasActionsColumn: true,
     getSortValues: (stakeholder) => ({
       name: stakeholder.name || "",
@@ -35,7 +37,6 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
       email: stakeholder.email,
     }),
     sortableColumns: ["name", "jobFunction", "role", "email"],
-    isPaginationEnabled: true,
     variant: "compact",
   });
   const {

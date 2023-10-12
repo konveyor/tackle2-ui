@@ -108,9 +108,12 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
       businessService: "Business service",
       owner: "Owner",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isExpansionEnabled: true,
     isSelectionEnabled: true,
     initialSelected: assignedApplications,
-    isExpansionEnabled: true,
     expandableVariant: "compound",
     hasActionsColumn: true,
     filterCategories: [
@@ -170,7 +173,6 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
       owner: application.owner?.name || "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
-    isPaginationEnabled: true,
   });
   const {
     currentPageItems,

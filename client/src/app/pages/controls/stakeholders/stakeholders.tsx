@@ -103,6 +103,10 @@ export const Stakeholders: React.FC = () => {
       jobFunction: "Job function",
       groupCount: "Group count",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isExpansionEnabled: true,
     expandableVariant: "single",
     hasActionsColumn: true,
     filterCategories: [
@@ -165,7 +169,6 @@ export const Stakeholders: React.FC = () => {
       jobFunction: item.jobFunction?.name || "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
-    isPaginationEnabled: true,
     isLoading: isFetching,
   });
 
