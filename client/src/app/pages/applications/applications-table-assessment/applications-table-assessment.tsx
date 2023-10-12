@@ -655,7 +655,7 @@ export const ApplicationsTable: React.FC = () => {
                         {...getTdProps({ columnKey: "assessment" })}
                       >
                         <ApplicationAssessmentStatus
-                          assessments={application.assessments}
+                          application={application}
                         />
                       </Td>
                       <Td
