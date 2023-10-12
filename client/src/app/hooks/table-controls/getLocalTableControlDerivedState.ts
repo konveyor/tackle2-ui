@@ -28,10 +28,10 @@ export const getLocalTableControlDerivedState = <
       TFilterCategoryKey
     >
 ): ITableControlDerivedState<TItem> => {
-  const { items, isPaginationEnabled = true } = args;
+  const { items, isPaginationEnabled, isFilterEnabled } = args;
   const { filteredItems } = getLocalFilterDerivedState({
     ...args,
-    items,
+    ...(isFilterEnabled ? { items } : {}),
   });
   const { sortedItems } = getLocalSortDerivedState({
     ...args,
