@@ -196,8 +196,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       analysis: "Analysis",
       tags: "Tags",
     },
-    isSortEnabled: true,
-    isSelectionEnabled: true,
     sortableColumns: ["name", "description", "businessService", "tags"],
     initialSort: { columnKey: "name", direction: "asc" },
     getSortValues: (app) => ({
@@ -206,7 +204,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       businessService: app.businessService?.name || "",
       tags: app.tags?.length || 0,
     }),
-    // TODO why is there no error for including filterCategories when isFilterEnabled isn't true?
     filterCategories: [
       {
         key: "name",
@@ -327,6 +324,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     ],
     initialItemsPerPage: 10,
     hasActionsColumn: true,
+    isSelectionEnabled: true,
   });
 
   const {
