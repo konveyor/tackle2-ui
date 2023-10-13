@@ -40,7 +40,7 @@ export const useSortState = <
     TPersistenceKeyPrefix,
     "sortColumn" | "sortDirection"
   >({
-    isEnabled: isSortEnabled,
+    isEnabled: !!isSortEnabled,
     defaultValue: initialSort,
     persistenceKeyPrefix,
     // Note: For the discriminated union here to work without TypeScript getting confused

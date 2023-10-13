@@ -24,7 +24,7 @@ export const useActiveRowState = <
     TPersistenceKeyPrefix,
     "activeRow"
   >({
-    isEnabled: isActiveRowEnabled,
+    isEnabled: !!isActiveRowEnabled,
     defaultValue: null,
     persistenceKeyPrefix,
     // Note: For the discriminated union here to work without TypeScript getting confused

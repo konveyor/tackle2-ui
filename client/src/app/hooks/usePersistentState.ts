@@ -46,7 +46,12 @@ export const usePersistentState = <
     TURLParamKey
   >
 ): [TValue, (value: TValue) => void] => {
-  const { defaultValue, persistTo, persistenceKeyPrefix } = options;
+  const {
+    defaultValue,
+    persistTo,
+    persistenceKeyPrefix,
+    isEnabled = true,
+  } = options;
 
   const isUrlParamsOptions = (
     o: typeof options
@@ -88,5 +93,6 @@ export const usePersistentState = <
         : { ...options, isEnabled: false, key: "" }
     ),
   };
-  return persistence[persistTo || "state"];
+  const [value, setValue] = persistence[persistTo || "state"];
+  return isEnabled ? [value, setValue] : [defaultValue, () => {}];
 };

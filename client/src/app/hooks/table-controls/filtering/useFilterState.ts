@@ -39,7 +39,7 @@ export const useFilterState = <
     TPersistenceKeyPrefix,
     "filters"
   >({
-    isEnabled: isFilterEnabled,
+    isEnabled: !!isFilterEnabled,
     defaultValue: {},
     persistenceKeyPrefix,
     // Note: For the discriminated union here to work without TypeScript getting confused

@@ -45,6 +45,7 @@ export const useExpansionState = <
     TPersistenceKeyPrefix,
     "expandedCells"
   >({
+    isEnabled: !!isExpansionEnabled,
     defaultValue: {},
     persistenceKeyPrefix,
     // Note: For the discriminated union here to work without TypeScript getting confused
@@ -52,7 +53,6 @@ export const useExpansionState = <
     //       we need to pass persistTo inside each type-narrowed options object instead of outside the ternary.
     ...(persistTo === "urlParams"
       ? {
-          isEnabled: isExpansionEnabled,
           persistTo,
           keys: ["expandedCells"],
           serialize: (expandedCellsObj) => {

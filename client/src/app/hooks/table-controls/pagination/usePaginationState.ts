@@ -44,7 +44,7 @@ export const usePaginationState = <
     TPersistenceKeyPrefix,
     "pageNumber" | "itemsPerPage"
   >({
-    isEnabled: isPaginationEnabled,
+    isEnabled: !!isPaginationEnabled,
     defaultValue,
     persistenceKeyPrefix,
     // Note: For the discriminated union here to work without TypeScript getting confused
