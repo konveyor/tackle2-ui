@@ -4,19 +4,19 @@ import { DisallowCharacters } from "@app/utils/type-utils";
 import {
   IFilterStateArgs,
   ILocalFilterDerivedStateArgs,
-  IFilterPropsArgs,
+  IFilterPropHelpersArgs,
   IFilterState,
 } from "./filtering";
 import {
   ILocalSortDerivedStateArgs,
-  ISortPropsArgs,
+  ISortPropHelpersArgs,
   ISortState,
   ISortStateArgs,
 } from "./sorting";
 import {
   IPaginationStateArgs,
   ILocalPaginationDerivedStateArgs,
-  IPaginationPropsArgs,
+  IPaginationPropHelpersArgs,
   IPaginationState,
 } from "./pagination";
 import {
@@ -180,9 +180,9 @@ export type IUseTableControlPropsArgs<
   TFilterCategoryKey,
   TPersistenceKeyPrefix
 > &
-  IFilterPropsArgs<TItem, TFilterCategoryKey> &
-  ISortPropsArgs<TColumnKey, TSortableColumnKey> &
-  IPaginationPropsArgs &
+  IFilterPropHelpersArgs<TItem, TFilterCategoryKey> &
+  ISortPropHelpersArgs<TColumnKey, TSortableColumnKey> &
+  IPaginationPropHelpersArgs &
   IExpansionDerivedStateArgs<TItem, TColumnKey> & // Derived in useTableControlProps for convenience because it's always derived on the client
   IActiveRowDerivedStateArgs<TItem> & // Derived in useTableControlProps for convenience because it's always derived on the client
   ITableControlDerivedState<TItem> & {

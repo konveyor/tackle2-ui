@@ -3,12 +3,12 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { objectKeys } from "@app/utils/utils";
 import { ITableControls, IUseTableControlPropsArgs } from "./types";
-import { getFilterProps } from "./filtering";
-import { getSortProps } from "./sorting";
+import { getFilterToolbarProps } from "./filtering";
+import { getSortThProps } from "./sorting";
 import { getPaginationProps, usePaginationEffects } from "./pagination";
 import {
   getActiveRowDerivedState,
-  getActiveRowProps,
+  getActiveRowTrProps,
   useActiveRowEffects,
 } from "./active-row";
 import { handlePropagatedRowClick } from "./utils";
@@ -104,7 +104,7 @@ export const useTableControlProps = <
     }),
   };
 
-  const filterToolbarProps = getFilterProps(args);
+  const filterToolbarProps = getFilterToolbarProps(args);
 
   const paginationProps = getPaginationProps(args);
   usePaginationEffects(args);
@@ -131,21 +131,24 @@ export const useTableControlProps = <
 
   const getThProps: PropHelpers["getThProps"] = ({ columnKey }) => ({
     ...(isSortEnabled &&
-      getSortProps({
+      getSortThProps({
         ...args,
         columnKeys,
         columnKey: columnKey as TSortableColumnKey,
-      }).th),
+      })),
     children: columnNames[columnKey],
   });
 
   const getTrProps: PropHelpers["getTrProps"] = ({ item, onRowClick }) => {
-    const activeRowProps = getActiveRowProps({ item, activeRowDerivedState });
+    const activeRowTrProps = getActiveRowTrProps({
+      item,
+      activeRowDerivedState,
+    });
     return {
-      ...(isActiveRowEnabled && activeRowProps.tr),
+      ...(isActiveRowEnabled && activeRowTrProps),
       onRowClick: (event) =>
         handlePropagatedRowClick(event, () => {
-          activeRowProps.tr.onRowClick?.(event);
+          activeRowTrProps.onRowClick?.(event);
           onRowClick?.(event);
         }),
     };

@@ -4,15 +4,21 @@ import {
 } from "@app/components/FilterToolbar";
 import { IFilterState } from "./useFilterState";
 
-export interface IFilterPropsArgs<TItem, TFilterCategoryKey extends string> {
+export interface IFilterPropHelpersArgs<
+  TItem,
+  TFilterCategoryKey extends string,
+> {
   filterState: IFilterState<TFilterCategoryKey>;
   filterCategories?: FilterCategory<TItem, TFilterCategoryKey>[];
 }
 
-export const getFilterProps = <TItem, TFilterCategoryKey extends string>({
+export const getFilterToolbarProps = <
+  TItem,
+  TFilterCategoryKey extends string,
+>({
   filterState: { filterValues, setFilterValues },
   filterCategories = [],
-}: IFilterPropsArgs<TItem, TFilterCategoryKey>): IFilterToolbarProps<
+}: IFilterPropHelpersArgs<TItem, TFilterCategoryKey>): IFilterToolbarProps<
   TItem,
   TFilterCategoryKey
 > => ({

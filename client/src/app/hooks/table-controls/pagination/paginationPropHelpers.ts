@@ -1,7 +1,7 @@
 import { PaginationProps } from "@patternfly/react-core";
 import { IPaginationState } from "./usePaginationState";
 
-export interface IPaginationPropsArgs {
+export interface IPaginationPropHelpersArgs {
   paginationState: IPaginationState;
   totalItemCount: number;
 }
@@ -9,7 +9,7 @@ export interface IPaginationPropsArgs {
 export const getPaginationProps = ({
   paginationState: { pageNumber, setPageNumber, itemsPerPage, setItemsPerPage },
   totalItemCount,
-}: IPaginationPropsArgs): PaginationProps => ({
+}: IPaginationPropHelpersArgs): PaginationProps => ({
   itemCount: totalItemCount,
   perPage: itemsPerPage,
   page: pageNumber,

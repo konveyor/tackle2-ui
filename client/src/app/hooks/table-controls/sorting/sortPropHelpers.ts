@@ -2,7 +2,7 @@ import { ThProps } from "@patternfly/react-table";
 import { ISortState } from "./useSortState";
 
 // Args that are part of IUseTableControlPropsArgs (the args for useTableControlProps)
-export interface ISortPropsArgs<
+export interface ISortPropHelpersArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
 > {
@@ -11,15 +11,15 @@ export interface ISortPropsArgs<
 }
 
 // Additional args that need to be passed in on a per-column basis
-export interface IGetSortPropsArgs<
+export interface IGetSortThPropsArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
-> extends ISortPropsArgs<TColumnKey, TSortableColumnKey> {
+> extends ISortPropHelpersArgs<TColumnKey, TSortableColumnKey> {
   columnKeys: TColumnKey[];
   columnKey: TSortableColumnKey;
 }
 
-export const getSortProps = <
+export const getSortThProps = <
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
 >({
@@ -27,10 +27,11 @@ export const getSortProps = <
   sortableColumns = [],
   columnKeys,
   columnKey,
-}: IGetSortPropsArgs<TColumnKey, TSortableColumnKey>): {
-  th: Pick<ThProps, "sort">;
-} => ({
-  th: sortableColumns.includes(columnKey as TSortableColumnKey)
+}: IGetSortThPropsArgs<TColumnKey, TSortableColumnKey>): Pick<
+  ThProps,
+  "sort"
+> =>
+  sortableColumns.includes(columnKey as TSortableColumnKey)
     ? {
         sort: {
           columnIndex: columnKeys.indexOf(columnKey),
@@ -48,5 +49,4 @@ export const getSortProps = <
           },
         },
       }
-    : {},
-});
+    : {};
