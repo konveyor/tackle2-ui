@@ -172,8 +172,8 @@ export type IUseTableControlPropsArgs<
   IFilterPropsArgs<TItem, TFilterCategoryKey> &
   ISortPropsArgs<TColumnKey, TSortableColumnKey> &
   IPaginationPropsArgs &
-  IExpansionDerivedStateArgs<TItem, TColumnKey> & // TODO should this be IExpansionPropsArgs? should we lift that stuff out of useTableControlProps?
-  IActiveRowDerivedStateArgs<TItem> & // TODO should this be IActiveRowPropsArgs? should we lift that stuff out of useTableControlProps?
+  IExpansionDerivedStateArgs<TItem, TColumnKey> & // Derived in useTableControlProps for convenience because it's always derived on the client
+  IActiveRowDerivedStateArgs<TItem> & // Derived in useTableControlProps for convenience because it's always derived on the client
   ITableControlDerivedState<TItem> & {
     isLoading?: boolean;
     forceNumRenderedColumns?: number;
