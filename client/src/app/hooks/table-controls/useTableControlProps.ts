@@ -91,8 +91,6 @@ export const useTableControlProps = <
 
   const activeRowDerivedState = getActiveRowDerivedState(args);
   useActiveRowEffects({ ...args, activeRowDerivedState });
-  const { activeRowItem, setActiveRowItem, clearActiveRow } =
-    activeRowDerivedState;
 
   const toolbarProps: PropHelpers["toolbarProps"] = {
     className: variant === "compact" ? spacing.pt_0 : "",
