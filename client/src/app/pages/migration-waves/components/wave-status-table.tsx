@@ -73,6 +73,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
   } = tableControls;
@@ -130,7 +131,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
         >
           <Tbody>
             {currentPageItems?.map((app, rowIndex) => (
-              <Tr key={app.name}>
+              <Tr key={app.name} {...getTrProps({ item: app })}>
                 <TableRowContentWithControls
                   {...tableControls}
                   item={app}

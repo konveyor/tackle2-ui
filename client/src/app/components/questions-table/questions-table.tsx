@@ -55,6 +55,7 @@ const QuestionsTable: React.FC<{
     propHelpers: {
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
       getExpandedContentTdProps,
     },
@@ -99,7 +100,7 @@ const QuestionsTable: React.FC<{
               )?.name || "";
             return (
               <>
-                <Tr key={question.text}>
+                <Tr key={question.text} {...getTrProps({ item: question })}>
                   <TableRowContentWithControls
                     {...tableControls}
                     item={question}

@@ -230,6 +230,7 @@ export const MigrationWaves: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
       getExpandedContentTdProps,
       getCompoundExpandTdProps,
@@ -377,7 +378,7 @@ export const MigrationWaves: React.FC = () => {
                     key={migrationWave.id}
                     isExpanded={isCellExpanded(migrationWave)}
                   >
-                    <Tr>
+                    <Tr {...getTrProps({ item: migrationWave })}>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={migrationWave}

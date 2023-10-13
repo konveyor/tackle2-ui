@@ -146,6 +146,7 @@ export const JiraTrackers: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
   } = tableControls;
@@ -242,7 +243,7 @@ export const JiraTrackers: React.FC = () => {
               >
                 {currentPageItems?.map((tracker, rowIndex) => (
                   <Tbody key={tracker.name}>
-                    <Tr>
+                    <Tr {...getTrProps({ item: tracker })}>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={tracker}

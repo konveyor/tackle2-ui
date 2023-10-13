@@ -46,7 +46,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
   const {
     currentPageItems,
     numRenderedColumns,
-    propHelpers: { tableProps, getThProps, getTdProps },
+    propHelpers: { tableProps, getThProps, getTrProps, getTdProps },
   } = tableControls;
   return (
     <>
@@ -86,7 +86,10 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
               );
 
               return (
-                <Tr key={questionnaire.name}>
+                <Tr
+                  key={questionnaire.name}
+                  {...getTrProps({ item: questionnaire })}
+                >
                   <TableRowContentWithControls
                     {...tableControls}
                     item={questionnaire}

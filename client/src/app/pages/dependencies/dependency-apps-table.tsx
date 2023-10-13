@@ -127,6 +127,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
   } = tableControls;
@@ -171,7 +172,10 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
         >
           <Tbody>
             {currentPageAppDependencies?.map((appDependency, rowIndex) => (
-              <Tr key={appDependency.name}>
+              <Tr
+                key={appDependency.name}
+                {...getTrProps({ item: appDependency })}
+              >
                 <TableRowContentWithControls
                   {...tableControls}
                   item={appDependency}

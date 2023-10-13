@@ -48,6 +48,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
   } = tableControls;
@@ -86,7 +87,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
         >
           <Tbody>
             {currentPageItems?.map((stakeholder, rowIndex) => (
-              <Tr key={stakeholder.name}>
+              <Tr key={stakeholder.name} {...getTrProps({ item: stakeholder })}>
                 <TableRowContentWithControls
                   {...tableControls}
                   item={stakeholder}

@@ -186,6 +186,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
     expansionDerivedState: { isCellExpanded },
@@ -272,7 +273,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
                 key={application.id}
                 isExpanded={isCellExpanded(application)}
               >
-                <Tr>
+                <Tr {...getTrProps({ item: application })}>
                   <TableRowContentWithControls
                     {...tableControls}
                     item={application}

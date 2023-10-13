@@ -182,6 +182,7 @@ export const Stakeholders: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
       getExpandedContentTdProps,
     },
@@ -266,7 +267,7 @@ export const Stakeholders: React.FC = () => {
                     key={stakeholder.id}
                     isExpanded={isCellExpanded(stakeholder)}
                   >
-                    <Tr>
+                    <Tr {...getTrProps({ item: stakeholder })}>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={stakeholder}

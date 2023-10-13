@@ -241,6 +241,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
       getExpandedContentTdProps,
     },
@@ -349,7 +350,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                 key={report._ui_unique_id}
                 isExpanded={isCellExpanded(report)}
               >
-                <Tr>
+                <Tr {...getTrProps({ item: report })}>
                   <TableRowContentWithControls
                     {...tableControls}
                     item={report}

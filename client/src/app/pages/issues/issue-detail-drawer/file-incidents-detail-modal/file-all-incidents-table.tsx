@@ -71,7 +71,13 @@ export const FileAllIncidentsTable: React.FC<
 
   const {
     numRenderedColumns,
-    propHelpers: { paginationProps, tableProps, getThProps, getTdProps },
+    propHelpers: {
+      paginationProps,
+      tableProps,
+      getThProps,
+      getTrProps,
+      getTdProps,
+    },
   } = tableControls;
 
   return (
@@ -101,7 +107,7 @@ export const FileAllIncidentsTable: React.FC<
         >
           <Tbody>
             {currentPageIncidents?.map((incident, rowIndex) => (
-              <Tr key={incident.id}>
+              <Tr key={incident.id} {...getTrProps({ item: incident })}>
                 <TableRowContentWithControls
                   {...tableControls}
                   item={incident}

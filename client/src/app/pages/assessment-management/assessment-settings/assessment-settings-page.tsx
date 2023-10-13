@@ -149,6 +149,7 @@ const AssessmentSettings: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
   } = tableControls;
@@ -264,7 +265,7 @@ const AssessmentSettings: React.FC = () => {
 
                   return (
                     <Tbody key={questionnaire.id}>
-                      <Tr>
+                      <Tr {...getTrProps({ item: questionnaire })}>
                         <TableRowContentWithControls
                           {...tableControls}
                           item={questionnaire}

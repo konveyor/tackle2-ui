@@ -102,6 +102,7 @@ export const IssueAffectedFilesTable: React.FC<
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
   } = tableControls;
@@ -145,7 +146,7 @@ export const IssueAffectedFilesTable: React.FC<
         >
           <Tbody>
             {currentPageFileReports?.map((fileReport, rowIndex) => (
-              <Tr key={fileReport.file}>
+              <Tr key={fileReport.file} {...getTrProps({ item: fileReport })}>
                 <TableRowContentWithControls
                   {...tableControls}
                   item={fileReport}

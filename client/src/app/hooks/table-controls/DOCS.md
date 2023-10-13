@@ -83,6 +83,7 @@ const {
     paginationProps,
     tableProps,
     getThProps,
+    getTrProps,
     getTdProps,
   },
 } = tableControls;
@@ -127,7 +128,7 @@ return (
       >
         <Tbody>
           {currentPageItems?.map((thing, rowIndex) => (
-            <Tr key={thing.id}>
+            <Tr key={thing.id} {...getTrProps({ item: thing })}>
               <TableRowContentWithControls
                 {...tableControls}
                 item={thing}
