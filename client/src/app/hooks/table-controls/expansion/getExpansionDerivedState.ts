@@ -6,12 +6,24 @@ export interface IExpansionDerivedStateArgs<TItem, TColumnKey extends string> {
   expansionState: IExpansionState<TColumnKey>;
 }
 
+export interface IExpansionDerivedState<TItem, TColumnKey extends string> {
+  isCellExpanded: (item: TItem, columnKey?: TColumnKey) => boolean;
+  setCellExpanded: (args: {
+    item: TItem;
+    isExpanding?: boolean;
+    columnKey?: TColumnKey;
+  }) => void;
+}
+
 // Note: This is not named `getLocalExpansionDerivedState` because it is always local,
 //       and it is still used when working with server-managed tables.
 export const getExpansionDerivedState = <TItem, TColumnKey extends string>({
   idProperty,
   expansionState: { expandedCells, setExpandedCells },
-}: IExpansionDerivedStateArgs<TItem, TColumnKey>) => {
+}: IExpansionDerivedStateArgs<TItem, TColumnKey>): IExpansionDerivedState<
+  TItem,
+  TColumnKey
+> => {
   // isCellExpanded:
   //  - If called with a columnKey, returns whether that specific cell is expanded
   //  - If called without a columnKey, returns whether the row is expanded at all

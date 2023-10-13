@@ -1,4 +1,4 @@
-import { TableProps } from "@patternfly/react-table";
+import { TableProps, TdProps, ThProps, TrProps } from "@patternfly/react-table";
 import { ISelectionStateArgs, useSelectionState } from "@migtools/lib-ui";
 import { DisallowCharacters } from "@app/utils/type-utils";
 import {
@@ -20,15 +20,24 @@ import {
   IPaginationState,
 } from "./pagination";
 import {
+  IExpansionDerivedState,
   IExpansionDerivedStateArgs,
   IExpansionState,
   IExpansionStateArgs,
 } from "./expansion";
 import {
+  IActiveRowDerivedState,
   IActiveRowDerivedStateArgs,
   IActiveRowState,
   IActiveRowStateArgs,
 } from "./active-row";
+import {
+  PaginationProps,
+  ToolbarItemProps,
+  ToolbarProps,
+} from "@patternfly/react-core";
+import { IFilterToolbarProps } from "@app/components/FilterToolbar";
+import { IToolbarBulkSelectorProps } from "@app/components/ToolbarBulkSelector";
 
 // Generic type params used here:
 //   TItem - The actual API objects represented by rows in the table. Can be any object.
@@ -163,11 +172,13 @@ export type IUseTableControlPropsArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
+  TPersistenceKeyPrefix extends string = string,
 > = IUseTableControlStateArgs<
   TItem,
   TColumnKey,
   TSortableColumnKey,
-  TFilterCategoryKey
+  TFilterCategoryKey,
+  TPersistenceKeyPrefix
 > &
   IFilterPropsArgs<TItem, TFilterCategoryKey> &
   ISortPropsArgs<TColumnKey, TSortableColumnKey> &
@@ -181,6 +192,58 @@ export type IUseTableControlPropsArgs<
     hasActionsColumn?: boolean;
     selectionState: ReturnType<typeof useSelectionState<TItem>>; // TODO this won't be included here when selection is part of useTableControlState
   };
+
+// Table controls object
+// - The object used for rendering
+// - Returned by useTableControlProps
+// - Includes all args and return values from earlier hooks in the chain along with propHelpers
+export type ITableControls<
+  TItem,
+  TColumnKey extends string,
+  TSortableColumnKey extends TColumnKey,
+  TFilterCategoryKey extends string = string,
+  TPersistenceKeyPrefix extends string = string,
+> = IUseTableControlPropsArgs<
+  TItem,
+  TColumnKey,
+  TSortableColumnKey,
+  TFilterCategoryKey,
+  TPersistenceKeyPrefix
+> & {
+  numColumnsBeforeData: number;
+  numColumnsAfterData: number;
+  numRenderedColumns: number;
+  expansionDerivedState: IExpansionDerivedState<TItem, TColumnKey>;
+  activeRowDerivedState: IActiveRowDerivedState<TItem>;
+  propHelpers: {
+    toolbarProps: Omit<ToolbarProps, "ref">;
+    tableProps: Omit<TableProps, "ref">;
+    getThProps: (args: { columnKey: TColumnKey }) => Omit<ThProps, "ref">;
+    getTdProps: (args: { columnKey: TColumnKey }) => Omit<TdProps, "ref">;
+    filterToolbarProps: IFilterToolbarProps<TItem, TFilterCategoryKey>;
+    paginationProps: PaginationProps;
+    paginationToolbarItemProps: ToolbarItemProps;
+    toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem>;
+    getSelectCheckboxTdProps: (args: {
+      item: TItem;
+      rowIndex: number;
+    }) => Omit<TdProps, "ref">;
+    getCompoundExpandTdProps: (args: {
+      item: TItem;
+      rowIndex: number;
+      columnKey: TColumnKey;
+    }) => Omit<TdProps, "ref">;
+    getSingleExpandTdProps: (args: {
+      item: TItem;
+      rowIndex: number;
+    }) => Omit<TdProps, "ref">;
+    getExpandedContentTdProps: (args: { item: TItem }) => Omit<TdProps, "ref">;
+    getClickableTrProps: (args: {
+      onRowClick?: TrProps["onRowClick"];
+      item?: TItem | undefined;
+    }) => Omit<TrProps, "ref">;
+  };
+};
 
 // Combined args for locally-paginated tables
 // - Used by useLocalTableControls shorthand hook

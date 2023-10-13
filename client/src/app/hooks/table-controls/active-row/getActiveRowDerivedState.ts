@@ -7,13 +7,19 @@ export interface IActiveRowDerivedStateArgs<TItem> {
   activeRowState: IActiveRowState;
 }
 
+export interface IActiveRowDerivedState<TItem> {
+  activeRowItem: TItem | null;
+  setActiveRowItem: (item: TItem | null) => void;
+  clearActiveRow: () => void;
+}
+
 // Note: This is not named `getLocalActiveRowDerivedState` because it is always local,
 //       and it is still used when working with server-managed tables.
 export const getActiveRowDerivedState = <TItem>({
   currentPageItems,
   idProperty,
   activeRowState: { activeRowId, setActiveRowId },
-}: IActiveRowDerivedStateArgs<TItem>) => ({
+}: IActiveRowDerivedStateArgs<TItem>): IActiveRowDerivedState<TItem> => ({
   activeRowItem:
     currentPageItems.find((item) => item[idProperty] === activeRowId) || null,
   setActiveRowItem: (item: TItem | null) => {

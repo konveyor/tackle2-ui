@@ -5,7 +5,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { IToolbarBulkSelectorProps } from "@app/components/ToolbarBulkSelector";
 import { objectKeys } from "@app/utils/utils";
-import { IUseTableControlPropsArgs } from "./types";
+import { ITableControls, IUseTableControlPropsArgs } from "./types";
 import { getFilterProps } from "./filtering";
 import { getSortProps } from "./sorting";
 import { getPaginationProps, usePaginationEffects } from "./pagination";
@@ -18,14 +18,22 @@ export const useTableControlProps = <
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
+  TPersistenceKeyPrefix extends string = string,
 >(
   args: IUseTableControlPropsArgs<
     TItem,
     TColumnKey,
     TSortableColumnKey,
-    TFilterCategoryKey
+    TFilterCategoryKey,
+    TPersistenceKeyPrefix
   >
-) => {
+): ITableControls<
+  TItem,
+  TColumnKey,
+  TSortableColumnKey,
+  TFilterCategoryKey,
+  TPersistenceKeyPrefix
+> => {
   const { t } = useTranslation();
 
   // Note: To avoid repetition, not all args are destructured here since the entire
@@ -48,9 +56,12 @@ export const useTableControlProps = <
     hasActionsColumn = false,
     variant,
     idProperty,
+    isFilterEnabled,
     isSortEnabled,
+    isPaginationEnabled,
     isSelectionEnabled,
     isExpansionEnabled,
+    isActiveRowEnabled,
   } = args;
 
   const sortableColumns = (isSortEnabled && args.sortableColumns) || [];
@@ -81,9 +92,11 @@ export const useTableControlProps = <
 
   const toolbarProps: Omit<ToolbarProps, "ref"> = {
     className: variant === "compact" ? spacing.pt_0 : "",
-    collapseListedFiltersBreakpoint: "xl",
-    clearAllFilters: () => setFilterValues({}),
-    clearFiltersButtonText: t("actions.clearAllFilters"),
+    ...(isFilterEnabled && {
+      collapseListedFiltersBreakpoint: "xl",
+      clearAllFilters: () => setFilterValues({}),
+      clearFiltersButtonText: t("actions.clearAllFilters"),
+    }),
   };
 
   const filterToolbarProps = getFilterProps(args);
@@ -107,7 +120,7 @@ export const useTableControlProps = <
 
   const tableProps: Omit<TableProps, "ref"> = {
     variant,
-    isExpandable: !!expandableVariant,
+    isExpandable: isExpansionEnabled && !!expandableVariant,
   };
 
   const getThProps = ({
@@ -115,13 +128,13 @@ export const useTableControlProps = <
   }: {
     columnKey: TColumnKey;
   }): Omit<ThProps, "ref"> => ({
-    ...(sortableColumns.includes(columnKey as TSortableColumnKey)
-      ? getSortProps({
-          ...args,
-          columnKeys,
-          columnKey: columnKey as TSortableColumnKey,
-        })
-      : {}),
+    ...(isSortEnabled &&
+      sortableColumns.includes(columnKey as TSortableColumnKey) &&
+      getSortProps({
+        ...args,
+        columnKeys,
+        columnKey: columnKey as TSortableColumnKey,
+      })),
     children: columnNames[columnKey],
   });
 
@@ -241,22 +254,22 @@ export const useTableControlProps = <
     numColumnsBeforeData,
     numColumnsAfterData,
     numRenderedColumns,
+    expansionDerivedState,
+    activeRowDerivedState,
     propHelpers: {
       toolbarProps,
-      toolbarBulkSelectorProps,
+      tableProps,
+      getThProps,
+      getTdProps,
       filterToolbarProps,
       paginationProps,
       paginationToolbarItemProps,
-      tableProps,
-      getThProps,
-      getClickableTrProps,
-      getTdProps,
+      toolbarBulkSelectorProps,
       getSelectCheckboxTdProps,
       getCompoundExpandTdProps,
       getSingleExpandTdProps,
       getExpandedContentTdProps,
+      getClickableTrProps,
     },
-    expansionDerivedState,
-    activeRowDerivedState,
   };
 };
