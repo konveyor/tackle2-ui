@@ -13,6 +13,7 @@ import {
 } from "./active-row";
 import { handlePropagatedRowClick } from "./utils";
 import { getExpansionDerivedState } from "./expansion";
+import { getExpansionPropHelpers } from "./expansion/getExpansionPropHelpers";
 
 export const useTableControlProps = <
   TItem,
@@ -52,7 +53,6 @@ export const useTableControlProps = <
     currentPageItems,
     forceNumRenderedColumns,
     filterState: { setFilterValues },
-    expansionState: { expandedCells },
     selectionState: {
       selectAll,
       areAllSelected,
@@ -64,7 +64,6 @@ export const useTableControlProps = <
     columnNames,
     hasActionsColumn = false,
     variant,
-    idProperty,
     isFilterEnabled,
     isSortEnabled,
     isSelectionEnabled,
@@ -90,7 +89,16 @@ export const useTableControlProps = <
     columnKeys.length + numColumnsBeforeData + numColumnsAfterData;
 
   const expansionDerivedState = getExpansionDerivedState(args);
-  const { isCellExpanded, setCellExpanded } = expansionDerivedState;
+  const {
+    getSingleExpandButtonTdProps,
+    getCompoundExpandTdProps,
+    getExpandedContentTdProps,
+  } = getExpansionPropHelpers({
+    ...args,
+    columnKeys,
+    numRenderedColumns,
+    expansionDerivedState,
+  });
 
   const activeRowDerivedState = getActiveRowDerivedState(args);
   useActiveRowEffects({ ...args, activeRowDerivedState });
@@ -154,9 +162,20 @@ export const useTableControlProps = <
     };
   };
 
-  const getTdProps: PropHelpers["getTdProps"] = ({ columnKey }) => ({
-    dataLabel: columnNames[columnKey],
-  });
+  const getTdProps: PropHelpers["getTdProps"] = (args) => {
+    const { columnKey } = args;
+    return {
+      dataLabel: columnNames[columnKey],
+      ...(isExpansionEnabled &&
+        expandableVariant === "compound" &&
+        args.isCompoundExpandToggle &&
+        getCompoundExpandTdProps({
+          columnKey,
+          item: args.item,
+          rowIndex: args.rowIndex,
+        })),
+    };
+  };
 
   // TODO move this into a getSelectionProps helper and make it part of getTdProps once we move selection from lib-ui
   const getSelectCheckboxTdProps: PropHelpers["getSelectCheckboxTdProps"] = ({
@@ -171,58 +190,6 @@ export const useTableControlProps = <
       isSelected: isItemSelected(item),
     },
   });
-
-  // TODO move this into a getExpansionProps helper somehow?
-  const getSingleExpandButtonTdProps: PropHelpers["getSingleExpandButtonTdProps"] =
-    ({ item, rowIndex }) => ({
-      expand: {
-        rowIndex,
-        isExpanded: isCellExpanded(item),
-        onToggle: () =>
-          setCellExpanded({
-            item,
-            isExpanding: !isCellExpanded(item),
-          }),
-        expandId: `expandable-row-${item[idProperty]}`,
-      },
-    });
-
-  // TODO move this into a getExpansionProps helper somehow?
-  const getCompoundExpandTdProps: PropHelpers["getCompoundExpandTdProps"] = ({
-    item,
-    rowIndex,
-    columnKey,
-  }) => ({
-    ...getTdProps({ columnKey }),
-    compoundExpand: {
-      isExpanded: isCellExpanded(item, columnKey),
-      onToggle: () =>
-        setCellExpanded({
-          item,
-          isExpanding: !isCellExpanded(item, columnKey),
-          columnKey,
-        }),
-      expandId: `compound-expand-${item[idProperty]}-${columnKey}`,
-      rowIndex,
-      columnIndex: columnKeys.indexOf(columnKey),
-    },
-  });
-
-  // TODO move this into a getExpansionProps helper somehow?
-  const getExpandedContentTdProps: PropHelpers["getExpandedContentTdProps"] = ({
-    item,
-  }) => {
-    const expandedColumnKey = expandedCells[String(item[idProperty])];
-    return {
-      dataLabel:
-        typeof expandedColumnKey === "string"
-          ? columnNames[expandedColumnKey]
-          : undefined,
-      noPadding: true,
-      colSpan: numRenderedColumns,
-      width: 100,
-    };
-  };
 
   return {
     ...args,
@@ -242,7 +209,6 @@ export const useTableControlProps = <
       paginationToolbarItemProps,
       toolbarBulkSelectorProps,
       getSelectCheckboxTdProps,
-      getCompoundExpandTdProps,
       getSingleExpandButtonTdProps,
       getExpandedContentTdProps,
     },

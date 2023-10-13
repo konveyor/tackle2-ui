@@ -38,6 +38,7 @@ import {
 } from "@patternfly/react-core";
 import { IFilterToolbarProps } from "@app/components/FilterToolbar";
 import { IToolbarBulkSelectorProps } from "@app/components/ToolbarBulkSelector";
+import { IExpansionPropHelpersExternalArgs } from "./expansion/getExpansionPropHelpers";
 
 // Generic type params used here:
 //   TItem - The actual API objects represented by rows in the table. Can be any object.
@@ -183,6 +184,7 @@ export type IUseTableControlPropsArgs<
   IFilterPropHelpersArgs<TItem, TFilterCategoryKey> &
   ISortPropHelpersArgs<TColumnKey, TSortableColumnKey> &
   IPaginationPropHelpersArgs &
+  IExpansionPropHelpersExternalArgs<TItem, TColumnKey> & // TODO should this internal/external args pattern be used for all features?
   IExpansionDerivedStateArgs<TItem, TColumnKey> & // Derived in useTableControlProps for convenience because it's always derived on the client
   IActiveRowDerivedStateArgs<TItem> & // Derived in useTableControlProps for convenience because it's always derived on the client
   ITableControlDerivedState<TItem> & {
@@ -223,7 +225,16 @@ export type ITableControls<
       item: TItem;
       onRowClick?: TrProps["onRowClick"];
     }) => Omit<TrProps, "ref">;
-    getTdProps: (args: { columnKey: TColumnKey }) => Omit<TdProps, "ref">;
+    getTdProps: (
+      args: { columnKey: TColumnKey } & (
+        | {
+            isCompoundExpandToggle: true;
+            item: TItem;
+            rowIndex: number;
+          }
+        | { isCompoundExpandToggle?: false }
+      )
+    ) => Omit<TdProps, "ref">;
     filterToolbarProps: IFilterToolbarProps<TItem, TFilterCategoryKey>;
     paginationProps: PaginationProps;
     paginationToolbarItemProps: ToolbarItemProps;
@@ -231,11 +242,6 @@ export type ITableControls<
     getSelectCheckboxTdProps: (args: {
       item: TItem;
       rowIndex: number;
-    }) => Omit<TdProps, "ref">;
-    getCompoundExpandTdProps: (args: {
-      item: TItem;
-      rowIndex: number;
-      columnKey: TColumnKey;
     }) => Omit<TdProps, "ref">;
     getSingleExpandButtonTdProps: (args: {
       item: TItem;

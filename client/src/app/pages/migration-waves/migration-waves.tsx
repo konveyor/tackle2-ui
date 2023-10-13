@@ -233,7 +233,6 @@ export const MigrationWaves: React.FC = () => {
       getTrProps,
       getTdProps,
       getExpandedContentTdProps,
-      getCompoundExpandTdProps,
     },
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
@@ -405,33 +404,36 @@ export const MigrationWaves: React.FC = () => {
                         </Td>
                         <Td
                           width={10}
-                          {...getCompoundExpandTdProps({
+                          {...getTdProps({
+                            columnKey: "applications",
+                            isCompoundExpandToggle: true,
                             item: migrationWave,
                             rowIndex,
-                            columnKey: "applications",
                           })}
                         >
                           {migrationWave?.applications?.length.toString()}
                         </Td>
                         <Td
                           width={10}
-                          {...getCompoundExpandTdProps({
+                          {...getTdProps({
+                            columnKey: "stakeholders",
+                            isCompoundExpandToggle: true,
                             item: migrationWave,
                             rowIndex,
-                            columnKey: "stakeholders",
                           })}
                         >
                           {migrationWave.allStakeholders.length}
                         </Td>
                         <Td
                           width={20}
-                          {...((!!migrationWave.applications.length ||
-                            migrationWave.status === "No Issues") &&
-                            getCompoundExpandTdProps({
-                              item: migrationWave,
-                              rowIndex,
-                              columnKey: "status",
-                            }))}
+                          {...getTdProps({
+                            columnKey: "status",
+                            isCompoundExpandToggle:
+                              !!migrationWave.applications.length ||
+                              migrationWave.status === "No Issues",
+                            item: migrationWave,
+                            rowIndex,
+                          })}
                         >
                           {migrationWave.applications.length
                             ? migrationWave.status
