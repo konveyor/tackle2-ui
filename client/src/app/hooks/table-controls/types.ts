@@ -219,6 +219,10 @@ export type ITableControls<
     toolbarProps: Omit<ToolbarProps, "ref">;
     tableProps: Omit<TableProps, "ref">;
     getThProps: (args: { columnKey: TColumnKey }) => Omit<ThProps, "ref">;
+    getTrProps: (args: {
+      item: TItem;
+      onRowClick?: TrProps["onRowClick"];
+    }) => Omit<TrProps, "ref">;
     getTdProps: (args: { columnKey: TColumnKey }) => Omit<TdProps, "ref">;
     filterToolbarProps: IFilterToolbarProps<TItem, TFilterCategoryKey>;
     paginationProps: PaginationProps;
@@ -238,10 +242,6 @@ export type ITableControls<
       rowIndex: number;
     }) => Omit<TdProps, "ref">;
     getExpandedContentTdProps: (args: { item: TItem }) => Omit<TdProps, "ref">;
-    getClickableTrProps: (args: {
-      onRowClick?: TrProps["onRowClick"];
-      item?: TItem | undefined;
-    }) => Omit<TrProps, "ref">;
   };
 };
 

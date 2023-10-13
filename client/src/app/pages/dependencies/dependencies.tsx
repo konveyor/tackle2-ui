@@ -141,8 +141,8 @@ export const Dependencies: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
-      getClickableTrProps,
     },
     activeRowDerivedState: { activeRowItem, clearActiveRow, setActiveRowItem },
   } = tableControls;
@@ -194,7 +194,7 @@ export const Dependencies: React.FC = () => {
               {currentPageItems?.map((dependency, rowIndex) => {
                 return (
                   <Tbody key={dependency.name}>
-                    <Tr {...getClickableTrProps({ item: dependency })}>
+                    <Tr {...getTrProps({ item: dependency })}>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={dependency}

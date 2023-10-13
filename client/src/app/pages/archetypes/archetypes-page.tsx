@@ -150,8 +150,8 @@ const Archetypes: React.FC = () => {
       paginationToolbarItemProps,
       paginationProps,
       tableProps,
-      getClickableTrProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
     activeRowDerivedState: { activeRowItem, clearActiveRow },
@@ -276,10 +276,7 @@ const Archetypes: React.FC = () => {
               >
                 <Tbody>
                   {currentPageItems?.map((archetype, rowIndex) => (
-                    <Tr
-                      key={archetype.id}
-                      {...getClickableTrProps({ item: archetype })}
-                    >
+                    <Tr key={archetype.id} {...getTrProps({ item: archetype })}>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={archetype}

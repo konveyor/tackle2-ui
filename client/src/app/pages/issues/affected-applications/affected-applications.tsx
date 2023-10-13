@@ -123,8 +123,8 @@ export const AffectedApplications: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
-      getClickableTrProps,
     },
     activeRowDerivedState: { activeRowItem, clearActiveRow },
   } = tableControls;
@@ -193,10 +193,7 @@ export const AffectedApplications: React.FC = () => {
               >
                 <Tbody>
                   {currentPageAppReports?.map((appReport, rowIndex) => (
-                    <Tr
-                      key={appReport.id}
-                      {...getClickableTrProps({ item: appReport })}
-                    >
+                    <Tr key={appReport.id} {...getTrProps({ item: appReport })}>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={appReport}

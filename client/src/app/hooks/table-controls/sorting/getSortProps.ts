@@ -7,10 +7,11 @@ export interface ISortPropsArgs<
   TSortableColumnKey extends TColumnKey,
 > {
   sortState: ISortState<TSortableColumnKey>;
+  sortableColumns: TSortableColumnKey[];
 }
 
 // Additional args that need to be passed in on a per-column basis
-export interface IUseSortPropsArgs<
+export interface IGetSortPropsArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
 > extends ISortPropsArgs<TColumnKey, TSortableColumnKey> {
@@ -23,25 +24,29 @@ export const getSortProps = <
   TSortableColumnKey extends TColumnKey,
 >({
   sortState: { activeSort, setActiveSort },
+  sortableColumns,
   columnKeys,
   columnKey,
-}: IUseSortPropsArgs<TColumnKey, TSortableColumnKey>): Pick<
-  ThProps,
-  "sort"
-> => ({
-  sort: {
-    columnIndex: columnKeys.indexOf(columnKey),
-    sortBy: {
-      index: activeSort
-        ? columnKeys.indexOf(activeSort.columnKey as TSortableColumnKey)
-        : undefined,
-      direction: activeSort?.direction,
-    },
-    onSort: (event, index, direction) => {
-      setActiveSort({
-        columnKey: columnKeys[index] as TSortableColumnKey,
-        direction,
-      });
-    },
-  },
+}: IGetSortPropsArgs<TColumnKey, TSortableColumnKey>): {
+  th: Pick<ThProps, "sort">;
+} => ({
+  th: sortableColumns.includes(columnKey as TSortableColumnKey)
+    ? {
+        sort: {
+          columnIndex: columnKeys.indexOf(columnKey),
+          sortBy: {
+            index: activeSort
+              ? columnKeys.indexOf(activeSort.columnKey as TSortableColumnKey)
+              : undefined,
+            direction: activeSort?.direction,
+          },
+          onSort: (event, index, direction) => {
+            setActiveSort({
+              columnKey: columnKeys[index] as TSortableColumnKey,
+              direction,
+            });
+          },
+        },
+      }
+    : {},
 });

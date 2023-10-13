@@ -11,6 +11,7 @@ export interface IActiveRowDerivedState<TItem> {
   activeRowItem: TItem | null;
   setActiveRowItem: (item: TItem | null) => void;
   clearActiveRow: () => void;
+  isActiveRowItem: (item: TItem) => boolean;
 }
 
 // Note: This is not named `getLocalActiveRowDerivedState` because it is always local,
@@ -27,4 +28,5 @@ export const getActiveRowDerivedState = <TItem>({
     setActiveRowId(itemId);
   },
   clearActiveRow: () => setActiveRowId(null),
+  isActiveRowItem: (item) => item[idProperty] === activeRowId,
 });

@@ -341,9 +341,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
       toolbarBulkSelectorProps,
-      getClickableTrProps,
     },
     activeRowDerivedState: { activeRowItem, clearActiveRow },
 
@@ -591,10 +591,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           >
             <Tbody>
               {currentPageItems.map((application, rowIndex) => (
-                <Tr
-                  key={application.id}
-                  {...getClickableTrProps({ item: application })}
-                >
+                <Tr key={application.id} {...getTrProps({ item: application })}>
                   <TableRowContentWithControls
                     {...tableControls}
                     item={application}

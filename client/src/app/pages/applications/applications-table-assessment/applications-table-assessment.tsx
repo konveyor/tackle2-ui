@@ -390,9 +390,9 @@ export const ApplicationsTable: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
       toolbarBulkSelectorProps,
-      getClickableTrProps,
     },
     activeRowDerivedState: { activeRowItem, clearActiveRow },
 
@@ -621,7 +621,7 @@ export const ApplicationsTable: React.FC = () => {
                 return (
                   <Tr
                     key={application.name}
-                    {...getClickableTrProps({ item: application })}
+                    {...getTrProps({ item: application })}
                   >
                     <TableRowContentWithControls
                       {...tableControls}

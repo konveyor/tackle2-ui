@@ -9,6 +9,7 @@ import { getPaginationProps, usePaginationEffects } from "./pagination";
 import { getActiveRowDerivedState, useActiveRowEffects } from "./active-row";
 import { handlePropagatedRowClick } from "./utils";
 import { getExpansionDerivedState } from "./expansion";
+import { getActiveRowProps } from "./active-row/getActiveRowProps";
 
 export const useTableControlProps = <
   TItem,
@@ -65,9 +66,9 @@ export const useTableControlProps = <
     isSortEnabled,
     isSelectionEnabled,
     isExpansionEnabled,
+    isActiveRowEnabled,
   } = args;
 
-  const sortableColumns = (isSortEnabled && args.sortableColumns) || [];
   const expandableVariant =
     (isExpansionEnabled && args.expandableVariant) || undefined;
 
@@ -129,34 +130,25 @@ export const useTableControlProps = <
 
   const getThProps: PropHelpers["getThProps"] = ({ columnKey }) => ({
     ...(isSortEnabled &&
-      sortableColumns.includes(columnKey as TSortableColumnKey) &&
       getSortProps({
         ...args,
         columnKeys,
         columnKey: columnKey as TSortableColumnKey,
-      })),
+      }).th),
     children: columnNames[columnKey],
   });
 
-  // TODO move this into a getActiveRowProps helper?
-  // TODO have the consumer always call getTrProps and only include clickable stuff if the feature is enabled
-  const getClickableTrProps: PropHelpers["getClickableTrProps"] = ({
-    onRowClick,
-    item,
-  }) => ({
-    isSelectable: true,
-    isClickable: true,
-    isRowSelected: item && item[idProperty] === activeRowItem?.[idProperty],
-    onRowClick: (event) =>
-      handlePropagatedRowClick(event, () => {
-        if (item && activeRowItem?.[idProperty] !== item[idProperty]) {
-          setActiveRowItem(item);
-        } else {
-          clearActiveRow();
-        }
-        onRowClick?.(event);
-      }),
-  });
+  const getTrProps: PropHelpers["getTrProps"] = ({ item, onRowClick }) => {
+    const activeRowProps = getActiveRowProps({ item, activeRowDerivedState });
+    return {
+      ...(isActiveRowEnabled && activeRowProps.tr),
+      onRowClick: (event) =>
+        handlePropagatedRowClick(event, () => {
+          activeRowProps.tr.onRowClick?.(event);
+          onRowClick?.(event);
+        }),
+    };
+  };
 
   const getTdProps: PropHelpers["getTdProps"] = ({ columnKey }) => ({
     dataLabel: columnNames[columnKey],
@@ -241,6 +233,7 @@ export const useTableControlProps = <
       toolbarProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
       filterToolbarProps,
       paginationProps,
@@ -250,7 +243,6 @@ export const useTableControlProps = <
       getCompoundExpandTdProps,
       getSingleExpandTdProps,
       getExpandedContentTdProps,
-      getClickableTrProps,
     },
   };
 };
