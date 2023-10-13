@@ -295,10 +295,10 @@ Item details can be expanded, either with a "single expansion" variant where an 
 - Expansion state is provided by `useExpansionState`.
 - Expansion shorthand functions are provided by `getExpansionDerivedState`.
 - Expansion is never managed server-side.
-- Expansion-related component props are provided inside `useTableControlProps` in the `getSingleExpandTdProps` and `getCompoundExpandTdProps` functions.
+- Expansion-related component props are provided inside `useTableControlProps` in the `getSingleExpandButtonTdProps` and `getCompoundExpandTdProps` functions.
 - Expansion inputs are rendered by the table's `Td` component and expanded content is managed at the consumer level by conditionally rendering a second row with full colSpan in a `Tbody` component. The `numRenderedColumns` value returned by `useTableControlProps` can be used for the correct colSpan here.
 
-> ⚠️ TECH DEBT NOTE: `getSingleExpandTdProps` and `getCompoundExpandTdProps` should probably be factored out of `useTableControlProps` into a decoupled `getExpansionProps` helper.
+> ⚠️ TECH DEBT NOTE: `getSingleExpandButtonTdProps` and `getCompoundExpandTdProps` should probably be factored out of `useTableControlProps` into a decoupled `getExpansionProps` helper.
 
 ### Active Row
 

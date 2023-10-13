@@ -237,7 +237,7 @@ export type ITableControls<
       rowIndex: number;
       columnKey: TColumnKey;
     }) => Omit<TdProps, "ref">;
-    getSingleExpandTdProps: (args: {
+    getSingleExpandButtonTdProps: (args: {
       item: TItem;
       rowIndex: number;
     }) => Omit<TdProps, "ref">;

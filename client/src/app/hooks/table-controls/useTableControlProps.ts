@@ -6,10 +6,13 @@ import { ITableControls, IUseTableControlPropsArgs } from "./types";
 import { getFilterProps } from "./filtering";
 import { getSortProps } from "./sorting";
 import { getPaginationProps, usePaginationEffects } from "./pagination";
-import { getActiveRowDerivedState, useActiveRowEffects } from "./active-row";
+import {
+  getActiveRowDerivedState,
+  getActiveRowProps,
+  useActiveRowEffects,
+} from "./active-row";
 import { handlePropagatedRowClick } from "./utils";
 import { getExpansionDerivedState } from "./expansion";
-import { getActiveRowProps } from "./active-row/getActiveRowProps";
 
 export const useTableControlProps = <
   TItem,
@@ -152,7 +155,7 @@ export const useTableControlProps = <
     dataLabel: columnNames[columnKey],
   });
 
-  // TODO move this into a getSelectionProps helper somehow?
+  // TODO move this into a getSelectionProps helper and make it part of getTdProps once we move selection from lib-ui
   const getSelectCheckboxTdProps: PropHelpers["getSelectCheckboxTdProps"] = ({
     item,
     rowIndex,
@@ -167,21 +170,19 @@ export const useTableControlProps = <
   });
 
   // TODO move this into a getExpansionProps helper somehow?
-  const getSingleExpandTdProps: PropHelpers["getSingleExpandTdProps"] = ({
-    item,
-    rowIndex,
-  }) => ({
-    expand: {
-      rowIndex,
-      isExpanded: isCellExpanded(item),
-      onToggle: () =>
-        setCellExpanded({
-          item,
-          isExpanding: !isCellExpanded(item),
-        }),
-      expandId: `expandable-row-${item[idProperty]}`,
-    },
-  });
+  const getSingleExpandButtonTdProps: PropHelpers["getSingleExpandButtonTdProps"] =
+    ({ item, rowIndex }) => ({
+      expand: {
+        rowIndex,
+        isExpanded: isCellExpanded(item),
+        onToggle: () =>
+          setCellExpanded({
+            item,
+            isExpanding: !isCellExpanded(item),
+          }),
+        expandId: `expandable-row-${item[idProperty]}`,
+      },
+    });
 
   // TODO move this into a getExpansionProps helper somehow?
   const getCompoundExpandTdProps: PropHelpers["getCompoundExpandTdProps"] = ({
@@ -239,7 +240,7 @@ export const useTableControlProps = <
       toolbarBulkSelectorProps,
       getSelectCheckboxTdProps,
       getCompoundExpandTdProps,
-      getSingleExpandTdProps,
+      getSingleExpandButtonTdProps,
       getExpandedContentTdProps,
     },
   };
