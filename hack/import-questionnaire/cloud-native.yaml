@@ -4,16 +4,19 @@ description: |
 
 sections:
   - order: 1
-    name: Application technologies 1
+    name: Application technologies Part 1
     questions:
-      - text: What is the main technology in your application?
+      - order: 1
+        text: What is the main technology in your application?
         explanation: What would you describe as the main framework used to build your application.
         answers:
-          - text: Unknown
+          - order: 1
+            text: Unknown
             rationale: This is a problem because of the uncertainty.
             mitigation: Gathering more information about this is required.
             risk: unknown
-          - text: Quarkus
+          - order: 2
+            text: Quarkus
             risk: green
             autoAnswerFor:
               - category: Technology
@@ -21,7 +24,8 @@ sections:
             applyTags:
               - category: Technology
                 tag: Quarkus
-          - text: Spring Boot
+          - order: 3
+            text: Spring Boot
             risk: green
             autoAnswerFor:
               - category: Technology
@@ -29,7 +33,8 @@ sections:
             applyTags:
               - category: Technology
                 tag: Spring Boot
-          - text: Java EE
+          - order: 4
+            text: Java EE
             rationale: This might not be the most cloud friendly technology.
             mitigation: Maybe start thinking about migrating to Quarkus or Jakarta EE.
             risk: yellow
@@ -39,7 +44,8 @@ sections:
             applyTags:
               - category: Technology
                 tag: Java EE
-          - text: J2EE
+          - order: 5
+            text: J2EE
             rationale: This is obsolete.
             mitigation: Maybe start thinking about migrating to Quarkus or Jakarta EE.
             risk: red
@@ -49,25 +55,33 @@ sections:
             applyTags:
               - category: Technology
                 tag: J2EE
-      - text: "What version of Java EE does the application use?"
+
+      - order: 2
+        text: "What version of Java EE does the application use?"
         explanation: "What version of the Java EE specification is your application using?"
         answers:
-          - text: Below 5.
+          - order: 1
+            text: Below 5.
             rationale: This technology stack is obsolete.
             mitigation: Consider migrating to at least Java EE 7.
             risk: red
-          - text: 5 or 6
+          - order: 2
+            text: 5 or 6
             rationale: This is a mostly outdated stack.
             mitigation: Consider migrating to at least Java EE 7.
             risk: yellow
-          - text: "7"
+          - order: 3
+            text: "7"
             risk: green
         includeFor:
           - category: Technology
             tag: Java EE
-      - text: Does your application use any caching mechanism?
+
+      - order: 3
+        text: Does your application use any caching mechanism?
         answers:
-          - text: Yes
+          - order: 1
+            text: Yes
             rationale: This could be problematic in containers and Kubernetes.
             mitigation: Review the clustering mechanism to check compatibility and support for container environments.
             risk: yellow
@@ -80,21 +94,28 @@ sections:
                 tag: eXtreme Scale
               - category: Caching
                 tag: Coherence
-          - text: No
+          - order: 2
+            text: No
             risk: green
-          - text: Unknown
+          - order: 3
+            text: Unknown
             rationale: This is a problem because of the uncertainty.
             mitigation: Gathering more information about this is required.
             risk: unknown
-      - text: What implementation of JAX-WS does your application use?
+
+      - order: 4
+        text: What implementation of JAX-WS does your application use?
         answers:
-          - text: Apache Axis
+          - order: 1
+            text: Apache Axis
             rationale: This version is obsolete
             mitigation: Consider migrating to Apache CXF
             risk: red
-          - text: Apache CXF
+          - order: 2
+            text: Apache CXF
             risk: green
-          - text: Unknown
+          - order: 3
+            text: Unknown
             rationale: This is a problem because of the uncertainty.
             mitigation: Gathering more information about this is required.
             risk: unknown
@@ -105,16 +126,19 @@ sections:
             tag: Quarkus
 
   - order: 2
-    name: Application technologies
+    name: Application technologies Part 2
     questions:
-      - text: What is the main technology in your application?
+      - order: 1
+        text: What is the main technology in your application?
         explanation: What would you describe as the main framework used to build your application.
         answers:
-          - text: Unknown
+          - order: 1
+            text: Unknown
             rationale: This is a problem because of the uncertainty.
             mitigation: Gathering more information about this is required.
             risk: unknown
-          - text: Quarkus
+          - order: 2
+            text: Quarkus
             risk: green
             autoAnswerFor:
               - category: Technology
@@ -122,7 +146,8 @@ sections:
             applyTags:
               - category: Technology
                 tag: Quarkus
-          - text: Spring Boot
+          - order: 3
+            text: Spring Boot
             risk: green
             autoAnswerFor:
               - category: Technology
@@ -130,7 +155,8 @@ sections:
             applyTags:
               - category: Technology
                 tag: Spring Boot
-          - text: Java EE
+          - order: 4
+            text: Java EE
             rationale: This might not be the most cloud friendly technology.
             mitigation: Maybe start thinking about migrating to Quarkus or Jakarta EE.
             risk: yellow
@@ -140,7 +166,8 @@ sections:
             applyTags:
               - category: Technology
                 tag: Java EE
-          - text: J2EE
+          - order: 5
+            text: J2EE
             rationale: This is obsolete.
             mitigation: Maybe start thinking about migrating to Quarkus or Jakarta EE.
             risk: red
@@ -150,25 +177,33 @@ sections:
             applyTags:
               - category: Technology
                 tag: J2EE
-      - text: "What version of Java EE does the application use?"
+
+      - order: 2
+        text: "What version of Java EE does the application use?"
         explanation: "What version of the Java EE specification is your application using?"
         answers:
-          - text: Below 5.
+          - order: 1
+            text: Below 5.
             rationale: This technology stack is obsolete.
             mitigation: Consider migrating to at least Java EE 7.
             risk: red
-          - text: 5 or 6
+          - order: 2
+            text: 5 or 6
             rationale: This is a mostly outdated stack.
             mitigation: Consider migrating to at least Java EE 7.
             risk: yellow
-          - text: "7"
+          - order: 3
+            text: "7"
             risk: green
         includeFor:
           - category: Technology
             tag: Java EE
-      - text: Does your application use any caching mechanism?
+
+      - order: 3
+        text: Does your application use any caching mechanism?
         answers:
-          - text: Yes
+          - order: 1
+            text: Yes
             rationale: This could be problematic in containers and Kubernetes.
             mitigation: Review the clustering mechanism to check compatibility and support for container environments.
             risk: yellow
@@ -181,21 +216,28 @@ sections:
                 tag: eXtreme Scale
               - category: Caching
                 tag: Coherence
-          - text: No
+          - order: 2
+            text: No
             risk: green
-          - text: Unknown
+          - order: 3
+            text: Unknown
             rationale: This is a problem because of the uncertainty.
             mitigation: Gathering more information about this is required.
             risk: unknown
-      - text: What implementation of JAX-WS does your application use?
+
+      - order: 4
+        text: What implementation of JAX-WS does your application use?
         answers:
-          - text: Apache Axis
+          - order: 1
+            text: Apache Axis
             rationale: This version is obsolete
             mitigation: Consider migrating to Apache CXF
             risk: red
-          - text: Apache CXF
+          - order: 2
+            text: Apache CXF
             risk: green
-          - text: Unknown
+          - order: 3
+            text: Unknown
             rationale: This is a problem because of the uncertainty.
             mitigation: Gathering more information about this is required.
             risk: unknown
