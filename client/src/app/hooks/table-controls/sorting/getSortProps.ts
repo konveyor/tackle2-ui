@@ -7,7 +7,7 @@ export interface ISortPropsArgs<
   TSortableColumnKey extends TColumnKey,
 > {
   sortState: ISortState<TSortableColumnKey>;
-  sortableColumns: TSortableColumnKey[];
+  sortableColumns?: TSortableColumnKey[];
 }
 
 // Additional args that need to be passed in on a per-column basis
@@ -24,7 +24,7 @@ export const getSortProps = <
   TSortableColumnKey extends TColumnKey,
 >({
   sortState: { activeSort, setActiveSort },
-  sortableColumns,
+  sortableColumns = [],
   columnKeys,
   columnKey,
 }: IGetSortPropsArgs<TColumnKey, TSortableColumnKey>): {
