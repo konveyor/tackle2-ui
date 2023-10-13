@@ -97,14 +97,15 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  console.log(assessment?.questionnaire?.name || "No questionaire", {
-    assessment,
-  });
   const sortedSections = useMemo(() => {
     return (assessment ? assessment.sections : []).sort(
       (a, b) => a.order - b.order
     );
   }, [assessment]);
+  console.log(assessment?.questionnaire?.name || "No questionaire", {
+    assessment,
+  });
+  console.log({ sortedSections });
 
   //TODO: Add comments to the sections when/if available from api
   // const initialComments = useMemo(() => {
@@ -589,37 +590,15 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     );
   };
 
-  const wizardSteps = [
-    <WizardStep
-      id={0}
-      footer={getWizardFooter(0)}
-      name={t("composed.selectMany", {
-        what: t("terms.stakeholders").toLowerCase(),
-      })}
-      isDisabled={currentStep !== 0 && disableNavigation}
-    >
-      <AssessmentStakeholdersForm />
-    </WizardStep>,
-    ...sortedSections.map((section, index) => {
-      const stepIndex = index + 1;
-      return (
-        <WizardStep
-          id={stepIndex}
-          name={section.name}
-          isDisabled={stepIndex !== currentStep && disableNavigation}
-          navItem={{ children: <WizardStepNavDescription section={section} /> }}
-          footer={getWizardFooter(stepIndex, section)}
-        >
-          <QuestionnaireForm key={section.name} section={section} />
-        </WizardStep>
-      );
-    }),
-  ];
-
   return (
     <>
       {isOpen && (
         <FormProvider {...methods}>
+          <h1>
+            Questionnaire:{" "}
+            {assessment?.questionnaire?.name || "No questionaire"}
+          </h1>
+          <h1>Number of sections: {sortedSections.length}</h1>
           <Wizard
             isVisitRequired
             onStepChange={(_e, curr) => {
@@ -629,7 +608,32 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
               assessment && setAssessmentToCancel(assessment);
             }}
           >
-            {wizardSteps}
+            <WizardStep
+              id={0}
+              footer={getWizardFooter(0)}
+              name={t("composed.selectMany", {
+                what: t("terms.stakeholders").toLowerCase(),
+              })}
+              isDisabled={currentStep !== 0 && disableNavigation}
+            >
+              <AssessmentStakeholdersForm />
+            </WizardStep>
+            {...sortedSections.map((section, index) => {
+              const stepIndex = index + 1;
+              return (
+                <WizardStep
+                  id={stepIndex}
+                  name={section.name}
+                  isDisabled={stepIndex !== currentStep && disableNavigation}
+                  navItem={{
+                    children: <WizardStepNavDescription section={section} />,
+                  }}
+                  footer={getWizardFooter(stepIndex, section)}
+                >
+                  <QuestionnaireForm key={section.name} section={section} />
+                </WizardStep>
+              );
+            })}
           </Wizard>
           {assessmentToCancel && (
             <ConfirmDialog
