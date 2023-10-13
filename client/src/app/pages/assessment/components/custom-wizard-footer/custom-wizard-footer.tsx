@@ -13,7 +13,7 @@ export interface CustomWizardFooterProps {
   isDisabled: boolean;
   isFormInvalid: boolean;
   hasAnswers?: boolean;
-  isFirstStepValid?: boolean;
+  enableNext?: boolean;
   onNext?: () => void;
   onBack?: () => void;
   onSave: (review: boolean) => void;
@@ -27,7 +27,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
   isDisabled,
   isFormInvalid,
   hasAnswers,
-  isFirstStepValid,
+  enableNext,
   onNext,
   onBack,
   onSave,
@@ -35,9 +35,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
   onSaveAsDraft,
 }) => {
   const { t } = useTranslation();
-  console.log(useWizardContext());
-  const { goToNextStep, goToPrevStep, close } = useWizardContext();
-  const enableNext = isFirstStepValid;
+  const { goToNextStep, goToPrevStep, close, activeStep } = useWizardContext();
   return (
     <>
       <WizardFooterWrapper>

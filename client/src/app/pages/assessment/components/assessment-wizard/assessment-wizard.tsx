@@ -97,6 +97,9 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
+  console.log(assessment?.questionnaire?.name || "No questionaire", {
+    assessment,
+  });
   const sortedSections = useMemo(() => {
     return (assessment ? assessment.sections : []).sort(
       (a, b) => a.order - b.order
@@ -216,9 +219,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     const allQuestionsValid = section?.questions.every((question) =>
       isQuestionValid(question)
     );
-
     const allQuestionsAnswered = areAllQuestionsAnswered(section);
-
     return allQuestionsAnswered && allQuestionsValid;
   };
 
@@ -505,71 +506,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     }
   };
 
-  const getWizardFooter = (step: number) => {
-    return (
-      <CustomWizardFooter
-        isFirstStepValid={isFirstStepValid()}
-        isFirstStep={step === 0}
-        isLastStep={step === sortedSections.length}
-        onNext={() => setCurrentStep(step + 1)}
-        onBack={() => setCurrentStep(step - 1)}
-        isDisabled={
-          isSubmitting ||
-          isValidating ||
-          (step === sortedSections.length &&
-            !shouldNextBtnBeEnabled(sortedSections[step - 1]))
-        }
-        hasAnswers={hasPartialAnswers(sortedSections[step - 1])}
-        isFormInvalid={!isValid}
-        onSave={(review) => {
-          const saveActionValue = review
-            ? SAVE_ACTION_VALUE.SAVE_AND_REVIEW
-            : SAVE_ACTION_VALUE.SAVE;
-
-          methods.setValue(SAVE_ACTION_KEY, saveActionValue);
-
-          methods.handleSubmit(onSubmit, onInvalid)();
-        }}
-        onSaveAsDraft={() => {
-          methods.setValue(SAVE_ACTION_KEY, SAVE_ACTION_VALUE.SAVE_AS_DRAFT);
-          methods.handleSubmit(onSubmit)();
-        }}
-      />
-    );
-  };
-
-  const wizardSteps = [
-    <WizardStep
-      id={0}
-      footer={getWizardFooter(0)}
-      name={t("composed.selectMany", {
-        what: t("terms.stakeholders").toLowerCase(),
-      })}
-      isDisabled={currentStep !== 0 && disableNavigation}
-    >
-      <AssessmentStakeholdersForm />
-    </WizardStep>,
-    ...sortedSections.map((section, index) => {
-      const stepIndex = index + 1;
-      return (
-        <WizardStep
-          id={stepIndex}
-          name={section.name}
-          isDisabled={
-            !(
-              stepIndex === currentStep ||
-              (stepIndex <= canJumpTo && !disableNavigation)
-            )
-          }
-          navItem={{ children: <WizardStepNavDescription section={section} /> }}
-          footer={getWizardFooter(stepIndex)}
-        >
-          <QuestionnaireForm key={section.name} section={section} />
-        </WizardStep>
-      );
-    }),
-  ];
-
   useEffect(() => {
     const unlisten = history.listen((newLocation, action) => {
       if (action === "PUSH" && assessment) {
@@ -618,11 +554,74 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     }
   };
 
+  const getWizardFooter = (step: number, section?: Section) => {
+    return (
+      <CustomWizardFooter
+        enableNext={
+          section ? shouldNextBtnBeEnabled(section) : isFirstStepValid()
+        }
+        isFirstStep={step === 0}
+        isLastStep={step === sortedSections.length}
+        onNext={() => setCurrentStep(step + 1)}
+        onBack={() => setCurrentStep(step - 1)}
+        isDisabled={
+          isSubmitting ||
+          isValidating ||
+          (step === sortedSections.length &&
+            !shouldNextBtnBeEnabled(sortedSections[step - 1]))
+        }
+        hasAnswers={hasPartialAnswers(sortedSections[step - 1])}
+        isFormInvalid={!isValid}
+        onSave={(review) => {
+          const saveActionValue = review
+            ? SAVE_ACTION_VALUE.SAVE_AND_REVIEW
+            : SAVE_ACTION_VALUE.SAVE;
+
+          methods.setValue(SAVE_ACTION_KEY, saveActionValue);
+
+          methods.handleSubmit(onSubmit, onInvalid)();
+        }}
+        onSaveAsDraft={() => {
+          methods.setValue(SAVE_ACTION_KEY, SAVE_ACTION_VALUE.SAVE_AS_DRAFT);
+          methods.handleSubmit(onSubmit)();
+        }}
+      />
+    );
+  };
+
+  const wizardSteps = [
+    <WizardStep
+      id={0}
+      footer={getWizardFooter(0)}
+      name={t("composed.selectMany", {
+        what: t("terms.stakeholders").toLowerCase(),
+      })}
+      isDisabled={currentStep !== 0 && disableNavigation}
+    >
+      <AssessmentStakeholdersForm />
+    </WizardStep>,
+    ...sortedSections.map((section, index) => {
+      const stepIndex = index + 1;
+      return (
+        <WizardStep
+          id={stepIndex}
+          name={section.name}
+          isDisabled={stepIndex !== currentStep && disableNavigation}
+          navItem={{ children: <WizardStepNavDescription section={section} /> }}
+          footer={getWizardFooter(stepIndex, section)}
+        >
+          <QuestionnaireForm key={section.name} section={section} />
+        </WizardStep>
+      );
+    }),
+  ];
+
   return (
     <>
       {isOpen && (
         <FormProvider {...methods}>
           <Wizard
+            isVisitRequired
             onStepChange={(_e, curr) => {
               setCurrentStep(curr.index);
             }}
