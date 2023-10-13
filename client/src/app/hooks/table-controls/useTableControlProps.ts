@@ -1,9 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { ToolbarItemProps, ToolbarProps } from "@patternfly/react-core";
-import { TableProps, TdProps, ThProps, TrProps } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { IToolbarBulkSelectorProps } from "@app/components/ToolbarBulkSelector";
 import { objectKeys } from "@app/utils/utils";
 import { ITableControls, IUseTableControlPropsArgs } from "./types";
 import { getFilterProps } from "./filtering";
@@ -34,6 +31,14 @@ export const useTableControlProps = <
   TFilterCategoryKey,
   TPersistenceKeyPrefix
 > => {
+  type PropHelpers = ITableControls<
+    TItem,
+    TColumnKey,
+    TSortableColumnKey,
+    TFilterCategoryKey,
+    TPersistenceKeyPrefix
+  >["propHelpers"];
+
   const { t } = useTranslation();
 
   // Note: To avoid repetition, not all args are destructured here since the entire
@@ -58,10 +63,8 @@ export const useTableControlProps = <
     idProperty,
     isFilterEnabled,
     isSortEnabled,
-    isPaginationEnabled,
     isSelectionEnabled,
     isExpansionEnabled,
-    isActiveRowEnabled,
   } = args;
 
   const sortableColumns = (isSortEnabled && args.sortableColumns) || [];
@@ -90,7 +93,7 @@ export const useTableControlProps = <
   const { activeRowItem, setActiveRowItem, clearActiveRow } =
     activeRowDerivedState;
 
-  const toolbarProps: Omit<ToolbarProps, "ref"> = {
+  const toolbarProps: PropHelpers["toolbarProps"] = {
     className: variant === "compact" ? spacing.pt_0 : "",
     ...(isFilterEnabled && {
       collapseListedFiltersBreakpoint: "xl",
@@ -104,12 +107,13 @@ export const useTableControlProps = <
   const paginationProps = getPaginationProps(args);
   usePaginationEffects(args);
 
-  const paginationToolbarItemProps: ToolbarItemProps = {
-    variant: "pagination",
-    align: { default: "alignRight" },
-  };
+  const paginationToolbarItemProps: PropHelpers["paginationToolbarItemProps"] =
+    {
+      variant: "pagination",
+      align: { default: "alignRight" },
+    };
 
-  const toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem> = {
+  const toolbarBulkSelectorProps: PropHelpers["toolbarBulkSelectorProps"] = {
     onSelectAll: selectAll,
     areAllSelected,
     selectedRows: selectedItems,
@@ -118,16 +122,12 @@ export const useTableControlProps = <
     onSelectMultiple: selectMultiple,
   };
 
-  const tableProps: Omit<TableProps, "ref"> = {
+  const tableProps: PropHelpers["tableProps"] = {
     variant,
     isExpandable: isExpansionEnabled && !!expandableVariant,
   };
 
-  const getThProps = ({
-    columnKey,
-  }: {
-    columnKey: TColumnKey;
-  }): Omit<ThProps, "ref"> => ({
+  const getThProps: PropHelpers["getThProps"] = ({ columnKey }) => ({
     ...(isSortEnabled &&
       sortableColumns.includes(columnKey as TSortableColumnKey) &&
       getSortProps({
@@ -140,13 +140,10 @@ export const useTableControlProps = <
 
   // TODO move this into a getActiveRowProps helper?
   // TODO have the consumer always call getTrProps and only include clickable stuff if the feature is enabled
-  const getClickableTrProps = ({
+  const getClickableTrProps: PropHelpers["getClickableTrProps"] = ({
     onRowClick,
     item,
-  }: {
-    onRowClick?: TrProps["onRowClick"]; // Extra callback if necessary - setting the active row is built in
-    item?: TItem; // Can be omitted if using this just for the click handler and not for active rows
-  }): Omit<TrProps, "ref"> => ({
+  }) => ({
     isSelectable: true,
     isClickable: true,
     isRowSelected: item && item[idProperty] === activeRowItem?.[idProperty],
@@ -161,22 +158,15 @@ export const useTableControlProps = <
       }),
   });
 
-  const getTdProps = ({
-    columnKey,
-  }: {
-    columnKey: TColumnKey;
-  }): Omit<TdProps, "ref"> => ({
+  const getTdProps: PropHelpers["getTdProps"] = ({ columnKey }) => ({
     dataLabel: columnNames[columnKey],
   });
 
   // TODO move this into a getSelectionProps helper somehow?
-  const getSelectCheckboxTdProps = ({
+  const getSelectCheckboxTdProps: PropHelpers["getSelectCheckboxTdProps"] = ({
     item,
     rowIndex,
-  }: {
-    item: TItem;
-    rowIndex: number;
-  }): Omit<TdProps, "ref"> => ({
+  }) => ({
     select: {
       rowIndex,
       onSelect: (_event, isSelecting) => {
@@ -187,13 +177,10 @@ export const useTableControlProps = <
   });
 
   // TODO move this into a getExpansionProps helper somehow?
-  const getSingleExpandTdProps = ({
+  const getSingleExpandTdProps: PropHelpers["getSingleExpandTdProps"] = ({
     item,
     rowIndex,
-  }: {
-    item: TItem;
-    rowIndex: number;
-  }): Omit<TdProps, "ref"> => ({
+  }) => ({
     expand: {
       rowIndex,
       isExpanded: isCellExpanded(item),
@@ -207,15 +194,11 @@ export const useTableControlProps = <
   });
 
   // TODO move this into a getExpansionProps helper somehow?
-  const getCompoundExpandTdProps = ({
+  const getCompoundExpandTdProps: PropHelpers["getCompoundExpandTdProps"] = ({
     item,
     rowIndex,
     columnKey,
-  }: {
-    item: TItem;
-    rowIndex: number;
-    columnKey: TColumnKey;
-  }): Omit<TdProps, "ref"> => ({
+  }) => ({
     ...getTdProps({ columnKey }),
     compoundExpand: {
       isExpanded: isCellExpanded(item, columnKey),
@@ -232,11 +215,9 @@ export const useTableControlProps = <
   });
 
   // TODO move this into a getExpansionProps helper somehow?
-  const getExpandedContentTdProps = ({
+  const getExpandedContentTdProps: PropHelpers["getExpandedContentTdProps"] = ({
     item,
-  }: {
-    item: TItem;
-  }): Omit<TdProps, "ref"> => {
+  }) => {
     const expandedColumnKey = expandedCells[String(item[idProperty])];
     return {
       dataLabel:
