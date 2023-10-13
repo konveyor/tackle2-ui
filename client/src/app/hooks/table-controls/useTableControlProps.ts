@@ -254,36 +254,22 @@ export const useTableControlProps = <
     numColumnsBeforeData,
     numColumnsAfterData,
     numRenderedColumns,
-    ...(isExpansionEnabled && {
-      expansionDerivedState,
-    }),
-    ...(isActiveRowEnabled && {
-      activeRowDerivedState,
-    }),
+    expansionDerivedState,
+    activeRowDerivedState,
     propHelpers: {
       toolbarProps,
       tableProps,
       getThProps,
       getTdProps,
-      ...(isFilterEnabled && {
-        filterToolbarProps,
-      }),
-      ...(isPaginationEnabled && {
-        paginationProps,
-        paginationToolbarItemProps,
-      }),
-      ...(isSelectionEnabled && {
-        toolbarBulkSelectorProps,
-        getSelectCheckboxTdProps,
-      }),
-      ...(isExpansionEnabled && {
-        getCompoundExpandTdProps,
-        getSingleExpandTdProps,
-        getExpandedContentTdProps,
-      }),
-      ...(isActiveRowEnabled && {
-        getClickableTrProps,
-      }),
+      filterToolbarProps,
+      paginationProps,
+      paginationToolbarItemProps,
+      toolbarBulkSelectorProps,
+      getSelectCheckboxTdProps,
+      getCompoundExpandTdProps,
+      getSingleExpandTdProps,
+      getExpandedContentTdProps,
+      getClickableTrProps,
     },
   };
 };

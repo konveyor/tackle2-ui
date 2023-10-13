@@ -203,97 +203,47 @@ export type ITableControls<
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
   TPersistenceKeyPrefix extends string = string,
-> = Omit<
-  IUseTableControlPropsArgs<
-    TItem,
-    TColumnKey,
-    TSortableColumnKey,
-    TFilterCategoryKey,
-    TPersistenceKeyPrefix
-  >,
-  | "isFilterEnabled"
-  | "isPaginationEnabled"
-  | "isSelectionEnabled"
-  | "isExpansionEnabled"
-  | "isActiveRowEnabled"
+> = IUseTableControlPropsArgs<
+  TItem,
+  TColumnKey,
+  TSortableColumnKey,
+  TFilterCategoryKey,
+  TPersistenceKeyPrefix
 > & {
   numColumnsBeforeData: number;
   numColumnsAfterData: number;
   numRenderedColumns: number;
-} & (
-    | {
-        isExpansionEnabled: true;
-        expansionDerivedState: IExpansionDerivedState<TItem, TColumnKey>;
-      }
-    | { isExpansionEnabled?: false }
-  ) &
-  (
-    | {
-        isActiveRowEnabled: true;
-        activeRowDerivedState: IActiveRowDerivedState<TItem>;
-      }
-    | { isExpansionEnabled?: false }
-  ) & {
-    propHelpers: {
-      toolbarProps: Omit<ToolbarProps, "ref">;
-      tableProps: Omit<TableProps, "ref">;
-      getThProps: (args: { columnKey: TColumnKey }) => Omit<ThProps, "ref">;
-      getTdProps: (args: { columnKey: TColumnKey }) => Omit<TdProps, "ref">;
-    } & (
-      | {
-          isFilterEnabled: true;
-          filterToolbarProps: IFilterToolbarProps<TItem, TFilterCategoryKey>;
-        }
-      | { isFilterEnabled?: false }
-    ) &
-      (
-        | {
-            isPaginationEnabled: true;
-            paginationProps: PaginationProps;
-            paginationToolbarItemProps: ToolbarItemProps;
-          }
-        | { isPaginationEnabled?: false }
-      ) &
-      (
-        | {
-            isSelectionEnabled: true;
-            toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem>;
-            getSelectCheckboxTdProps: (args: {
-              item: TItem;
-              rowIndex: number;
-            }) => Omit<TdProps, "ref">;
-          }
-        | { isSelectionEnabled?: false }
-      ) &
-      (
-        | {
-            isExpansionEnabled: true;
-            getCompoundExpandTdProps: (args: {
-              item: TItem;
-              rowIndex: number;
-              columnKey: TColumnKey;
-            }) => Omit<TdProps, "ref">;
-            getSingleExpandTdProps: (args: {
-              item: TItem;
-              rowIndex: number;
-            }) => Omit<TdProps, "ref">;
-            getExpandedContentTdProps: (args: {
-              item: TItem;
-            }) => Omit<TdProps, "ref">;
-          }
-        | { isExpansionEnabled?: false }
-      ) &
-      (
-        | {
-            isActiveRowEnabled: true;
-            getClickableTrProps: (args: {
-              onRowClick?: TrProps["onRowClick"];
-              item?: TItem | undefined;
-            }) => Omit<TrProps, "ref">;
-          }
-        | { isActiveRowEnabled?: false }
-      );
+  expansionDerivedState: IExpansionDerivedState<TItem, TColumnKey>;
+  activeRowDerivedState: IActiveRowDerivedState<TItem>;
+  propHelpers: {
+    toolbarProps: Omit<ToolbarProps, "ref">;
+    tableProps: Omit<TableProps, "ref">;
+    getThProps: (args: { columnKey: TColumnKey }) => Omit<ThProps, "ref">;
+    getTdProps: (args: { columnKey: TColumnKey }) => Omit<TdProps, "ref">;
+    filterToolbarProps: IFilterToolbarProps<TItem, TFilterCategoryKey>;
+    paginationProps: PaginationProps;
+    paginationToolbarItemProps: ToolbarItemProps;
+    toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem>;
+    getSelectCheckboxTdProps: (args: {
+      item: TItem;
+      rowIndex: number;
+    }) => Omit<TdProps, "ref">;
+    getCompoundExpandTdProps: (args: {
+      item: TItem;
+      rowIndex: number;
+      columnKey: TColumnKey;
+    }) => Omit<TdProps, "ref">;
+    getSingleExpandTdProps: (args: {
+      item: TItem;
+      rowIndex: number;
+    }) => Omit<TdProps, "ref">;
+    getExpandedContentTdProps: (args: { item: TItem }) => Omit<TdProps, "ref">;
+    getClickableTrProps: (args: {
+      onRowClick?: TrProps["onRowClick"];
+      item?: TItem | undefined;
+    }) => Omit<TrProps, "ref">;
   };
+};
 
 // Combined args for locally-paginated tables
 // - Used by useLocalTableControls shorthand hook
