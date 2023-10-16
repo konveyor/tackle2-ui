@@ -548,7 +548,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         }
       }
       setAssessmentToCancel(null);
-      assessment = undefined;
     }
   };
 
