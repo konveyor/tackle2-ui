@@ -48,7 +48,7 @@ const pushOrMergeFilter = (
 
 export interface IGetFilterHubRequestParamsArgs<
   TItem,
-  TFilterCategoryKey extends string = string
+  TFilterCategoryKey extends string = string,
 > {
   filterState?: IFilterState<TFilterCategoryKey>;
   filterCategories?: FilterCategory<TItem, TFilterCategoryKey>[];
@@ -57,7 +57,7 @@ export interface IGetFilterHubRequestParamsArgs<
 
 export const getFilterHubRequestParams = <
   TItem,
-  TFilterCategoryKey extends string = string
+  TFilterCategoryKey extends string = string,
 >({
   filterState,
   filterCategories,

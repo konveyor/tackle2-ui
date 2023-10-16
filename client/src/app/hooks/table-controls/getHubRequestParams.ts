@@ -21,7 +21,7 @@ import {
 export const getHubRequestParams = <
   TItem,
   TSortableColumnKey extends string,
-  TFilterCategoryKey extends string = string
+  TFilterCategoryKey extends string = string,
 >(
   args: IGetFilterHubRequestParamsArgs<TItem, TFilterCategoryKey> &
     IGetSortHubRequestParamsArgs<TSortableColumnKey> &
