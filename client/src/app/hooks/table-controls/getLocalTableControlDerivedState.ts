@@ -31,7 +31,7 @@ export const getLocalTableControlDerivedState = <
   const { items, isPaginationEnabled = true } = args;
   const { filteredItems } = getLocalFilterDerivedState({
     ...args,
-    items,
+    ...(args.isFilterEnabled && { items }),
   });
   const { sortedItems } = getLocalSortDerivedState({
     ...args,

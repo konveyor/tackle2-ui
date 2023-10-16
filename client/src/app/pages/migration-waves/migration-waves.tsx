@@ -188,7 +188,7 @@ export const MigrationWaves: React.FC = () => {
       stakeholders: "Stakeholders",
       status: "Status",
     },
-    isFilterEnabled: true,
+    // isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
     isExpansionEnabled: true,
