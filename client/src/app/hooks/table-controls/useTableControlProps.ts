@@ -12,8 +12,7 @@ import {
   useActiveRowEffects,
 } from "./active-row";
 import { handlePropagatedRowClick } from "./utils";
-import { getExpansionDerivedState } from "./expansion";
-import { getExpansionPropHelpers } from "./expansion/getExpansionPropHelpers";
+import { getExpansionDerivedState, getExpansionPropHelpers } from "./expansion";
 
 export const useTableControlProps = <
   TItem,
