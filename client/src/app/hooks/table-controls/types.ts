@@ -21,13 +21,12 @@ import {
 } from "./pagination";
 import {
   IExpansionDerivedState,
-  IExpansionDerivedStateArgs,
   IExpansionState,
   IExpansionStateArgs,
 } from "./expansion";
 import {
   IActiveRowDerivedState,
-  IActiveRowDerivedStateArgs,
+  IActiveRowPropHelpersExternalArgs,
   IActiveRowState,
   IActiveRowStateArgs,
 } from "./active-row";
@@ -38,7 +37,7 @@ import {
 } from "@patternfly/react-core";
 import { IFilterToolbarProps } from "@app/components/FilterToolbar";
 import { IToolbarBulkSelectorProps } from "@app/components/ToolbarBulkSelector";
-import { IExpansionPropHelpersExternalArgs } from "./expansion/getExpansionPropHelpers";
+import { IExpansionPropHelpersExternalArgs } from "./expansion/useExpansionPropHelpers";
 
 // Generic type params used here:
 //   TItem - The actual API objects represented by rows in the table. Can be any object.
@@ -184,9 +183,9 @@ export type IUseTableControlPropsArgs<
   IFilterPropHelpersExternalArgs<TItem, TFilterCategoryKey> &
   ISortPropHelpersExternalArgs<TColumnKey, TSortableColumnKey> &
   IPaginationPropHelpersExternalArgs &
+  // ISelectionPropHelpersExternalArgs // TODO when we move selection from lib-ui
   IExpansionPropHelpersExternalArgs<TItem, TColumnKey> &
-  IExpansionDerivedStateArgs<TItem, TColumnKey> & // Derived in useTableControlProps for convenience because it's always derived on the client
-  IActiveRowDerivedStateArgs<TItem> & // Derived in useTableControlProps for convenience because it's always derived on the client
+  IActiveRowPropHelpersExternalArgs<TItem> &
   ITableControlDerivedState<TItem> & {
     isLoading?: boolean;
     forceNumRenderedColumns?: number;

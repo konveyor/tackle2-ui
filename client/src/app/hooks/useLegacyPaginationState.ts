@@ -1,9 +1,9 @@
 import { PaginationProps } from "@patternfly/react-core";
 import {
   getLocalPaginationDerivedState,
-  getPaginationProps,
   usePaginationState,
   usePaginationEffects,
+  usePaginationPropHelpers,
 } from "./table-controls";
 
 // NOTE: This was refactored to return generic state data and decouple the client-side-pagination piece to another helper function.
@@ -34,7 +34,7 @@ export const useLegacyPaginationState = <T>(
     items,
     paginationState,
   });
-  const paginationProps = getPaginationProps({
+  const { paginationProps } = usePaginationPropHelpers({
     totalItemCount: items.length,
     paginationState,
   });

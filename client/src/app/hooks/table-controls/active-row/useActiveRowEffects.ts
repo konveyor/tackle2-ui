@@ -2,7 +2,7 @@ import * as React from "react";
 import { getActiveRowDerivedState } from "./getActiveRowDerivedState";
 import { IActiveRowState } from "./useActiveRowState";
 
-interface IUseActiveRowEffectsArgs<TItem> {
+export interface IUseActiveRowEffectsArgs<TItem> {
   isLoading?: boolean;
   activeRowState: IActiveRowState;
   activeRowDerivedState: ReturnType<typeof getActiveRowDerivedState<TItem>>;

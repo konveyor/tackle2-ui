@@ -3,16 +3,12 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { objectKeys } from "@app/utils/utils";
 import { ITableControls, IUseTableControlPropsArgs } from "./types";
-import { getFilterToolbarProps } from "./filtering";
-import { getSortThProps } from "./sorting";
-import { getPaginationProps, usePaginationEffects } from "./pagination";
-import {
-  getActiveRowDerivedState,
-  getActiveRowTrProps,
-  useActiveRowEffects,
-} from "./active-row";
+import { useFilterPropHelpers } from "./filtering";
+import { useSortPropHelpers } from "./sorting";
+import { usePaginationPropHelpers } from "./pagination";
+import { useActiveRowPropHelpers } from "./active-row";
+import { useExpansionPropHelpers } from "./expansion";
 import { handlePropagatedRowClick } from "./utils";
-import { getExpansionDerivedState, getExpansionPropHelpers } from "./expansion";
 
 export const useTableControlProps = <
   TItem,
@@ -51,7 +47,6 @@ export const useTableControlProps = <
   const {
     currentPageItems,
     forceNumRenderedColumns,
-    filterState: { setFilterValues },
     selectionState: {
       selectAll,
       areAllSelected,
@@ -84,41 +79,26 @@ export const useTableControlProps = <
     forceNumRenderedColumns ||
     columnKeys.length + numColumnsBeforeData + numColumnsAfterData;
 
-  const expansionDerivedState = getExpansionDerivedState(args);
+  const { filterPropsForToolbar, propsForFilterToolbar } =
+    useFilterPropHelpers(args);
+  const { getSortThProps } = useSortPropHelpers({ ...args, columnKeys });
+  const { paginationProps, paginationToolbarItemProps } =
+    usePaginationPropHelpers(args);
   const {
+    expansionDerivedState,
     getSingleExpandButtonTdProps,
     getCompoundExpandTdProps,
     getExpandedContentTdProps,
-  } = getExpansionPropHelpers({
-    ...args,
-    columnKeys,
-    numRenderedColumns,
-    expansionDerivedState,
-  });
-
-  const activeRowDerivedState = getActiveRowDerivedState(args);
-  useActiveRowEffects({ ...args, activeRowDerivedState });
+  } = useExpansionPropHelpers({ ...args, columnKeys, numRenderedColumns });
+  const { activeRowDerivedState, getActiveRowTrProps } =
+    useActiveRowPropHelpers(args);
 
   const toolbarProps: PropHelpers["toolbarProps"] = {
     className: variant === "compact" ? spacing.pt_0 : "",
-    ...(isFilterEnabled && {
-      collapseListedFiltersBreakpoint: "xl",
-      clearAllFilters: () => setFilterValues({}),
-      clearFiltersButtonText: t("actions.clearAllFilters"),
-    }),
+    ...(isFilterEnabled && filterPropsForToolbar),
   };
 
-  const filterToolbarProps = getFilterToolbarProps(args);
-
-  const paginationProps = getPaginationProps(args);
-  usePaginationEffects(args);
-
-  const paginationToolbarItemProps: PropHelpers["paginationToolbarItemProps"] =
-    {
-      variant: "pagination",
-      align: { default: "alignRight" },
-    };
-
+  // TODO move this to a useSelectionPropHelpers when we move selection from lib-ui
   const toolbarBulkSelectorProps: PropHelpers["toolbarBulkSelectorProps"] = {
     onSelectAll: selectAll,
     areAllSelected,
@@ -135,19 +115,12 @@ export const useTableControlProps = <
 
   const getThProps: PropHelpers["getThProps"] = ({ columnKey }) => ({
     ...(isSortEnabled &&
-      getSortThProps({
-        ...args,
-        columnKeys,
-        columnKey: columnKey as TSortableColumnKey,
-      })),
+      getSortThProps({ columnKey: columnKey as TSortableColumnKey })),
     children: columnNames[columnKey],
   });
 
   const getTrProps: PropHelpers["getTrProps"] = ({ item, onRowClick }) => {
-    const activeRowTrProps = getActiveRowTrProps({
-      item,
-      activeRowDerivedState,
-    });
+    const activeRowTrProps = getActiveRowTrProps({ item });
     return {
       ...(isActiveRowEnabled && activeRowTrProps),
       onRowClick: (event) =>
@@ -173,7 +146,7 @@ export const useTableControlProps = <
     };
   };
 
-  // TODO move this into a getSelectionProps helper and make it part of getTdProps once we move selection from lib-ui
+  // TODO move this into a useSelectionPropHelpers and make it part of getTdProps once we move selection from lib-ui
   const getSelectCheckboxTdProps: PropHelpers["getSelectCheckboxTdProps"] = ({
     item,
     rowIndex,
@@ -200,7 +173,7 @@ export const useTableControlProps = <
       getThProps,
       getTrProps,
       getTdProps,
-      filterToolbarProps,
+      filterToolbarProps: propsForFilterToolbar,
       paginationProps,
       paginationToolbarItemProps,
       toolbarBulkSelectorProps,

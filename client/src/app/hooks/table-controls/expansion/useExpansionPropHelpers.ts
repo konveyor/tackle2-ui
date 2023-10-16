@@ -1,5 +1,6 @@
 import { KeyWithValueType } from "@app/utils/type-utils";
-import { IExpansionDerivedState, IExpansionState } from ".";
+import { IExpansionState } from "./useExpansionState";
+import { getExpansionDerivedState } from "./getExpansionDerivedState";
 import { TdProps } from "@patternfly/react-table";
 
 // Args that should be passed into useTableControlProps
@@ -13,18 +14,14 @@ export interface IExpansionPropHelpersExternalArgs<
 }
 
 // Additional args that come from logic inside useTableControlProps
-export interface IExpansionPropHelpersInternalArgs<
-  TItem,
-  TColumnKey extends string,
-> {
+export interface IExpansionPropHelpersInternalArgs<TColumnKey extends string> {
   columnKeys: TColumnKey[];
   numRenderedColumns: number;
-  expansionDerivedState: IExpansionDerivedState<TItem, TColumnKey>;
 }
 
-export const getExpansionPropHelpers = <TItem, TColumnKey extends string>(
+export const useExpansionPropHelpers = <TItem, TColumnKey extends string>(
   args: IExpansionPropHelpersExternalArgs<TItem, TColumnKey> &
-    IExpansionPropHelpersInternalArgs<TItem, TColumnKey>
+    IExpansionPropHelpersInternalArgs<TColumnKey>
 ) => {
   const {
     columnNames,
@@ -32,8 +29,10 @@ export const getExpansionPropHelpers = <TItem, TColumnKey extends string>(
     columnKeys,
     numRenderedColumns,
     expansionState: { expandedCells },
-    expansionDerivedState: { isCellExpanded, setCellExpanded },
   } = args;
+
+  const expansionDerivedState = getExpansionDerivedState(args);
+  const { isCellExpanded, setCellExpanded } = expansionDerivedState;
 
   const getSingleExpandButtonTdProps = ({
     item,
@@ -95,6 +94,7 @@ export const getExpansionPropHelpers = <TItem, TColumnKey extends string>(
   };
 
   return {
+    expansionDerivedState,
     getSingleExpandButtonTdProps,
     getCompoundExpandTdProps,
     getExpandedContentTdProps,
