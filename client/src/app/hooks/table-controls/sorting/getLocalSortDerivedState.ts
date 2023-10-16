@@ -9,6 +9,7 @@ export interface ILocalSortDerivedStateArgs<
   getSortValues?: (
     item: TItem
   ) => Record<TSortableColumnKey, string | number | boolean>;
+  sortState: ISortState<TSortableColumnKey>;
 }
 
 export const getLocalSortDerivedState = <
@@ -18,9 +19,7 @@ export const getLocalSortDerivedState = <
   items,
   getSortValues,
   sortState: { activeSort },
-}: ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> & {
-  sortState: ISortState<TSortableColumnKey>;
-}) => {
+}: ILocalSortDerivedStateArgs<TItem, TSortableColumnKey>) => {
   if (!getSortValues || !activeSort) {
     return { sortedItems: items };
   }

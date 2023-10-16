@@ -11,6 +11,7 @@ export interface ILocalFilterDerivedStateArgs<
 > {
   items: TItem[];
   filterCategories?: FilterCategory<TItem, TFilterCategoryKey>[];
+  filterState: IFilterState<TFilterCategoryKey>;
 }
 
 export const getLocalFilterDerivedState = <
@@ -20,9 +21,7 @@ export const getLocalFilterDerivedState = <
   items,
   filterCategories = [],
   filterState: { filterValues },
-}: ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey> & {
-  filterState: IFilterState<TFilterCategoryKey>;
-}) => {
+}: ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey>) => {
   const filteredItems = items.filter((item) =>
     objectKeys(filterValues).every((categoryKey) => {
       const values = filterValues[categoryKey];

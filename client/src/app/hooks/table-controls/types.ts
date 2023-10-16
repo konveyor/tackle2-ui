@@ -249,7 +249,7 @@ export type ITableControls<
 // Combined args for locally-paginated tables
 // - Used by useLocalTableControls shorthand hook
 // - Combines args for useTableControlState, getLocalTableControlDerivedState and useTableControlProps,
-//   omitting args for useTableControlProps that come from return values of useTableControlState and getLocalTableControlDerivedState.
+//   omitting args for getLocalTableControlDerivedState and useTableControlProps that come from return values of useTableControlState and getLocalTableControlDerivedState.
 export type IUseLocalTableControlsArgs<
   TItem,
   TColumnKey extends string,
@@ -263,19 +263,19 @@ export type IUseLocalTableControlsArgs<
   TFilterCategoryKey,
   TPersistenceKeyPrefix
 > &
-  ITableControlLocalDerivedStateArgs<
-    TItem,
-    TColumnKey,
-    TSortableColumnKey,
-    TFilterCategoryKey
-  > &
   Omit<
-    IUseTableControlPropsArgs<
+    ITableControlLocalDerivedStateArgs<
       TItem,
       TColumnKey,
       TSortableColumnKey,
       TFilterCategoryKey
-    >,
+    > &
+      IUseTableControlPropsArgs<
+        TItem,
+        TColumnKey,
+        TSortableColumnKey,
+        TFilterCategoryKey
+      >,
     | keyof ITableControlDerivedState<TItem>
     | keyof ITableControlState<
         TItem,
