@@ -124,7 +124,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       assessment.sections
         .flatMap((f) => f.questions)
         .forEach((question) => {
-          const existingAnswer = assessment.sections
+          const existingAnswer = assessment?.sections
             ?.flatMap((section) => section.questions)
             .find((q) => q.text === question.text)
             ?.answers.find((a) => a.selected === true);
@@ -552,6 +552,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         }
       }
       setAssessmentToCancel(null);
+      assessment = undefined;
     }
   };
 
@@ -592,7 +593,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   return (
     <>
-      {isOpen && (
+      {isOpen && assessment && (
         <FormProvider {...methods}>
           <h1>
             Questionnaire:{" "}
