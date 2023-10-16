@@ -235,8 +235,6 @@ In most cases, you'll only need to use these higher-level hooks and helpers to b
   - Call `useTableControlProps` and pass it an object including all properties from `tableControlState` along with additional config arguments. Some of these arguments will be derived from your API data, such as `currentPageItems`, `totalItemCount` and `isLoading`. Others are simply passed here rather than above because they are used only for rendering and not required for state management.
   - The return value (the same `tableControls` object returned by `useLocalTableControls`) has everything you need to render your table. Give it a `console.log` to see what is available.
 
-> ⚠️ TECH DEBT NOTE: The `tableControls` object returned by the higher-level hooks here currently has no explicit type. Its type is inferred from the return values of `useTableControlState` and `useTableControlProps`, which was a choice made to ease the original development. However, this makes it difficult to see what properties are available for table rendering without using `console.log` or reading the source. We probably should add an explicit type interface for this object.
-
 If desired, you can use the lower-level feature-specific hooks (see [Features](#features)) on their own (for example, if you really only need pagination and you're not rendering a full table). However, if you are using more than one or two of them you may want to consider using these higher-level hooks even if you don't need all the features. You can omit the config arguments for any features you don't need and then just don't use the relevant `propHelpers`.
 
 ## Features
