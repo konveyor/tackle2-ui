@@ -46,13 +46,6 @@ import { IExpansionPropHelpersExternalArgs } from "./expansion/useExpansionPropH
 //   TFilterCategoryKey - Union type of unique identifier strings for filters (not necessarily the same as column keys)
 //   TPersistenceKeyPrefix - String (must not include a `:` character) used to distinguish persisted state for multiple tables
 
-// TODO when calling useTableControlState, the TItem type is not inferred and some of the params have it inferred as `unknown`.
-//      this currently doesn't seem to matter since TItem becomes inferred later when currentPageItems is in scope,
-//      but we should see if we can fix that (maybe not depend on TItem in the extended types here, or find a way
-//      to pass TItem while still letting the rest of the generics be inferred.
-//      This may be resolved in a newer TypeScript version after https://github.com/microsoft/TypeScript/pull/54047 is merged!
-//      See https://github.com/konveyor/tackle2-ui/issues/1456
-
 export type TableFeature =
   | "filter"
   | "sort"
