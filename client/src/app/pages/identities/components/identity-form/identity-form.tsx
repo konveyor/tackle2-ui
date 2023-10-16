@@ -644,6 +644,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               onDataChange={(_, value: string) => {
                 onChange(value);
               }}
+              onTextChange={(_, value: string) => {
+                onChange(value);
+              }}
               dropzoneProps={{
                 accept: { "text/xml": [".xml"] },
                 onDropRejected: () => setIsSettingsFileRejected(true),
