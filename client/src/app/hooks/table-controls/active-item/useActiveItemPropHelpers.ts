@@ -1,47 +1,47 @@
 import { TrProps } from "@patternfly/react-table";
 import {
-  IActiveRowDerivedStateArgs,
-  getActiveRowDerivedState,
+  IActiveItemDerivedStateArgs,
+  getActiveItemDerivedState,
 } from "./getActiveItemDerivedState";
-import { IActiveRowState } from "./useActiveItemState";
+import { IActiveItemState } from "./useActiveItemState";
 import {
-  IUseActiveRowEffectsArgs,
-  useActiveRowEffects,
+  IUseActiveItemEffectsArgs,
+  useActiveItemEffects,
 } from "./useActiveItemEffects";
 
 // Args that should be passed into useTableControlProps
-export type IActiveRowPropHelpersExternalArgs<TItem> =
-  IActiveRowDerivedStateArgs<TItem> &
-    Omit<IUseActiveRowEffectsArgs<TItem>, "activeRowDerivedState"> & {
+export type IActiveItemPropHelpersExternalArgs<TItem> =
+  IActiveItemDerivedStateArgs<TItem> &
+    Omit<IUseActiveItemEffectsArgs<TItem>, "activeItemDerivedState"> & {
       isLoading?: boolean;
-      activeRowState: IActiveRowState;
+      activeItemState: IActiveItemState;
     };
 
-export const useActiveRowPropHelpers = <TItem>(
-  args: IActiveRowPropHelpersExternalArgs<TItem>
+export const useActiveItemPropHelpers = <TItem>(
+  args: IActiveItemPropHelpersExternalArgs<TItem>
 ) => {
-  const activeRowDerivedState = getActiveRowDerivedState(args);
-  const { isActiveRowItem, setActiveRowItem, clearActiveRow } =
-    activeRowDerivedState;
+  const activeItemDerivedState = getActiveItemDerivedState(args);
+  const { isActiveItem, setActiveItem, clearActiveItem } =
+    activeItemDerivedState;
 
-  useActiveRowEffects({ ...args, activeRowDerivedState });
+  useActiveItemEffects({ ...args, activeItemDerivedState });
 
-  const getActiveRowTrProps = ({
+  const getActiveItemTrProps = ({
     item,
   }: {
     item: TItem;
   }): Omit<TrProps, "ref"> => ({
     isSelectable: true,
     isClickable: true,
-    isRowSelected: item && isActiveRowItem(item),
+    isRowSelected: item && isActiveItem(item),
     onRowClick: () => {
-      if (!isActiveRowItem(item)) {
-        setActiveRowItem(item);
+      if (!isActiveItem(item)) {
+        setActiveItem(item);
       } else {
-        clearActiveRow();
+        clearActiveItem();
       }
     },
   });
 
-  return { activeRowDerivedState, getActiveRowTrProps };
+  return { activeItemDerivedState, getActiveItemTrProps };
 };

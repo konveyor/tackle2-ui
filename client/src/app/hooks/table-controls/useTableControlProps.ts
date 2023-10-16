@@ -6,7 +6,7 @@ import { ITableControls, IUseTableControlPropsArgs } from "./types";
 import { useFilterPropHelpers } from "./filtering";
 import { useSortPropHelpers } from "./sorting";
 import { usePaginationPropHelpers } from "./pagination";
-import { useActiveRowPropHelpers } from "./active-item";
+import { useActiveItemPropHelpers } from "./active-item";
 import { useExpansionPropHelpers } from "./expansion";
 import { handlePropagatedRowClick } from "./utils";
 
@@ -62,7 +62,7 @@ export const useTableControlProps = <
     isSortEnabled,
     isSelectionEnabled,
     isExpansionEnabled,
-    isActiveRowEnabled,
+    isActiveItemEnabled,
   } = args;
 
   const columnKeys = objectKeys(columnNames);
@@ -90,8 +90,8 @@ export const useTableControlProps = <
     getCompoundExpandTdProps,
     getExpandedContentTdProps,
   } = useExpansionPropHelpers({ ...args, columnKeys, numRenderedColumns });
-  const { activeRowDerivedState, getActiveRowTrProps } =
-    useActiveRowPropHelpers(args);
+  const { activeItemDerivedState, getActiveItemTrProps } =
+    useActiveItemPropHelpers(args);
 
   const toolbarProps: PropHelpers["toolbarProps"] = {
     className: variant === "compact" ? spacing.pt_0 : "",
@@ -120,12 +120,12 @@ export const useTableControlProps = <
   });
 
   const getTrProps: PropHelpers["getTrProps"] = ({ item, onRowClick }) => {
-    const activeRowTrProps = getActiveRowTrProps({ item });
+    const activeItemTrProps = getActiveItemTrProps({ item });
     return {
-      ...(isActiveRowEnabled && activeRowTrProps),
+      ...(isActiveItemEnabled && activeItemTrProps),
       onRowClick: (event) =>
         handlePropagatedRowClick(event, () => {
-          activeRowTrProps.onRowClick?.(event);
+          activeItemTrProps.onRowClick?.(event);
           onRowClick?.(event);
         }),
     };
@@ -166,7 +166,7 @@ export const useTableControlProps = <
     numColumnsAfterData,
     numRenderedColumns,
     expansionDerivedState,
-    activeRowDerivedState,
+    activeItemDerivedState,
     propHelpers: {
       toolbarProps,
       tableProps,

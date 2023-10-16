@@ -117,7 +117,7 @@ const Archetypes: React.FC = () => {
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
-    isActiveRowEnabled: true,
+    isActiveItemEnabled: true,
 
     filterCategories: [
       {
@@ -154,7 +154,7 @@ const Archetypes: React.FC = () => {
       getTrProps,
       getTdProps,
     },
-    activeRowDerivedState: { activeRowItem, clearActiveRow },
+    activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
   // TODO: RBAC access checks need to be added.  Only Architect (and Administrator) personas
@@ -344,8 +344,8 @@ const Archetypes: React.FC = () => {
       </PageSection>
 
       <ArchetypeDetailDrawer
-        archetype={activeRowItem}
-        onCloseClick={clearActiveRow}
+        archetype={activeItem}
+        onCloseClick={clearActiveItem}
       />
 
       {/* Create modal */}

@@ -1,23 +1,23 @@
 import * as React from "react";
-import { getActiveRowDerivedState } from "./getActiveItemDerivedState";
-import { IActiveRowState } from "./useActiveItemState";
+import { getActiveItemDerivedState } from "./getActiveItemDerivedState";
+import { IActiveItemState } from "./useActiveItemState";
 
-export interface IUseActiveRowEffectsArgs<TItem> {
+export interface IUseActiveItemEffectsArgs<TItem> {
   isLoading?: boolean;
-  activeRowState: IActiveRowState;
-  activeRowDerivedState: ReturnType<typeof getActiveRowDerivedState<TItem>>;
+  activeItemState: IActiveItemState;
+  activeItemDerivedState: ReturnType<typeof getActiveItemDerivedState<TItem>>;
 }
 
-export const useActiveRowEffects = <TItem>({
+export const useActiveItemEffects = <TItem>({
   isLoading,
-  activeRowState: { activeRowId },
-  activeRowDerivedState: { activeRowItem, clearActiveRow },
-}: IUseActiveRowEffectsArgs<TItem>) => {
+  activeItemState: { activeItemId },
+  activeItemDerivedState: { activeItem, clearActiveItem },
+}: IUseActiveItemEffectsArgs<TItem>) => {
   React.useEffect(() => {
-    // If some state change (e.g. refetch, pagination) causes the active row to disappear,
-    // remove its id from state so the drawer won't automatically reopen if the row comes back.
-    if (!isLoading && activeRowId && !activeRowItem) {
-      clearActiveRow();
+    // If some state change (e.g. refetch, pagination) causes the active item to disappear,
+    // remove its id from state so the drawer won't automatically reopen if the item comes back.
+    if (!isLoading && activeItemId && !activeItem) {
+      clearActiveItem();
     }
-  }, [isLoading, activeRowId, activeRowItem]);
+  }, [isLoading, activeItemId, activeItem]);
 };

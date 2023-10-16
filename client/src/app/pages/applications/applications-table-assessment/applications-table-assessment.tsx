@@ -154,7 +154,7 @@ export const ApplicationsTable: React.FC = () => {
       }),
       variant: "success",
     });
-    clearActiveRow();
+    clearActiveItem();
     setApplicationsToDelete([]);
   };
 
@@ -246,7 +246,7 @@ export const ApplicationsTable: React.FC = () => {
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
-    isActiveRowEnabled: true,
+    isActiveItemEnabled: true,
     sortableColumns: ["name", "description", "businessService", "tags"],
     initialSort: { columnKey: "name", direction: "asc" },
     getSortValues: (app) => ({
@@ -394,7 +394,7 @@ export const ApplicationsTable: React.FC = () => {
       getTdProps,
       toolbarBulkSelectorProps,
     },
-    activeRowDerivedState: { activeRowItem, clearActiveRow },
+    activeItemDerivedState: { activeItem, clearActiveItem },
 
     selectionState: { selectedItems: selectedRows },
   } = tableControls;
@@ -738,9 +738,9 @@ export const ApplicationsTable: React.FC = () => {
           paginationProps={paginationProps}
         />
         <ApplicationDetailDrawerAssessment
-          application={activeRowItem}
-          onCloseClick={clearActiveRow}
-          task={activeRowItem ? getTask(activeRowItem) : null}
+          application={activeItem}
+          onCloseClick={clearActiveItem}
+          task={activeItem ? getTask(activeItem) : null}
         />
         <Modal
           title={
@@ -918,7 +918,7 @@ export const ApplicationsTable: React.FC = () => {
           onConfirm={() => {
             history.push(
               formatPath(Paths.applicationAssessmentActions, {
-                applicationId: activeRowItem?.id,
+                applicationId: activeItem?.id,
               })
             );
             setArchetypeRefsToOverride(null);

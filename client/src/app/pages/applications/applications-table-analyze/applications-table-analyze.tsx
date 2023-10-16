@@ -136,7 +136,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       }),
       variant: "success",
     });
-    clearActiveRow();
+    clearActiveItem();
     setApplicationsToDelete([]);
   };
 
@@ -200,7 +200,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     isSortEnabled: true,
     isPaginationEnabled: true,
     isSelectionEnabled: true,
-    isActiveRowEnabled: true,
+    isActiveItemEnabled: true,
     sortableColumns: ["name", "description", "businessService", "tags"],
     initialSort: { columnKey: "name", direction: "asc" },
     getSortValues: (app) => ({
@@ -345,7 +345,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       getTdProps,
       toolbarBulkSelectorProps,
     },
-    activeRowDerivedState: { activeRowItem, clearActiveRow },
+    activeItemDerivedState: { activeItem, clearActiveItem },
 
     selectionState: { selectedItems: selectedRows },
   } = tableControls;
@@ -754,10 +754,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           paginationProps={paginationProps}
         />
         <ApplicationDetailDrawerAnalysis
-          application={activeRowItem}
+          application={activeItem}
           applications={applications}
-          onCloseClick={clearActiveRow}
-          task={activeRowItem ? getTask(activeRowItem) : null}
+          onCloseClick={clearActiveItem}
+          task={activeItem ? getTask(activeItem) : null}
         />
 
         <ConfirmDialog

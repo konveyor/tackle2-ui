@@ -7,7 +7,7 @@ import {
 import { useFilterState } from "./filtering";
 import { useSortState } from "./sorting";
 import { usePaginationState } from "./pagination";
-import { useActiveRowState } from "./active-item";
+import { useActiveItemState } from "./active-item";
 import { useExpansionState } from "./expansion";
 
 export const useTableControlState = <
@@ -53,9 +53,9 @@ export const useTableControlState = <
     ...args,
     persistTo: getPersistTo("expansion"),
   });
-  const activeRowState = useActiveRowState<TPersistenceKeyPrefix>({
+  const activeItemState = useActiveItemState<TPersistenceKeyPrefix>({
     ...args,
-    persistTo: getPersistTo("activeRow"),
+    persistTo: getPersistTo("activeItem"),
   });
   return {
     ...args,
@@ -63,6 +63,6 @@ export const useTableControlState = <
     sortState,
     paginationState,
     expansionState,
-    activeRowState,
+    activeItemState,
   };
 };

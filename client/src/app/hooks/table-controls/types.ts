@@ -25,10 +25,10 @@ import {
   IExpansionStateArgs,
 } from "./expansion";
 import {
-  IActiveRowDerivedState,
-  IActiveRowPropHelpersExternalArgs,
-  IActiveRowState,
-  IActiveRowStateArgs,
+  IActiveItemDerivedState,
+  IActiveItemPropHelpersExternalArgs,
+  IActiveItemState,
+  IActiveItemStateArgs,
 } from "./active-item";
 import {
   PaginationProps,
@@ -52,7 +52,7 @@ export type TableFeature =
   | "pagination"
   | "selection"
   | "expansion"
-  | "activeRow";
+  | "activeItem";
 
 export type PersistTarget =
   | "state"
@@ -101,7 +101,7 @@ export type IUseTableControlStateArgs<
   IPaginationStateArgs & {
     isSelectionEnabled?: boolean; // TODO move this into useSelectionState when we move it from lib-ui
   } & IExpansionStateArgs &
-  IActiveRowStateArgs &
+  IActiveItemStateArgs &
   ITablePersistenceArgs<TPersistenceKeyPrefix>;
 
 // Table-level state object
@@ -125,7 +125,7 @@ export type ITableControlState<
   sortState: ISortState<TSortableColumnKey>;
   paginationState: IPaginationState;
   expansionState: IExpansionState<TColumnKey>;
-  activeRowState: IActiveRowState;
+  activeItemState: IActiveItemState;
 };
 
 // Table-level local derived state args
@@ -142,7 +142,7 @@ export type ITableControlLocalDerivedStateArgs<
   ILocalSortDerivedStateArgs<TItem, TSortableColumnKey> &
   ILocalPaginationDerivedStateArgs<TItem>;
 // There is no ILocalExpansionDerivedStateArgs type because expansion derived state is always local and internal to useTableControlProps
-// There is no ILocalActiveRowDerivedStateArgs type because expansion derived state is always local and internal to useTableControlProps
+// There is no ILocalActiveItemDerivedStateArgs type because expansion derived state is always local and internal to useTableControlProps
 
 // Table-level derived state object
 // - Used by useTableControlProps
@@ -178,7 +178,7 @@ export type IUseTableControlPropsArgs<
   IPaginationPropHelpersExternalArgs &
   // ISelectionPropHelpersExternalArgs // TODO when we move selection from lib-ui
   IExpansionPropHelpersExternalArgs<TItem, TColumnKey> &
-  IActiveRowPropHelpersExternalArgs<TItem> &
+  IActiveItemPropHelpersExternalArgs<TItem> &
   ITableControlDerivedState<TItem> & {
     isLoading?: boolean;
     forceNumRenderedColumns?: number;
@@ -208,7 +208,7 @@ export type ITableControls<
   numColumnsAfterData: number;
   numRenderedColumns: number;
   expansionDerivedState: IExpansionDerivedState<TItem, TColumnKey>;
-  activeRowDerivedState: IActiveRowDerivedState<TItem>;
+  activeItemDerivedState: IActiveItemDerivedState<TItem>;
   propHelpers: {
     toolbarProps: Omit<ToolbarProps, "ref">;
     tableProps: Omit<TableProps, "ref">;

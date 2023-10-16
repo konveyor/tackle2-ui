@@ -65,7 +65,7 @@ export const AffectedApplications: React.FC = () => {
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
-    isActiveRowEnabled: true,
+    isActiveItemEnabled: true,
     sortableColumns: ["name", "businessService", "effort", "incidents"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: useSharedAffectedApplicationFilterCategories(),
@@ -126,7 +126,7 @@ export const AffectedApplications: React.FC = () => {
       getTrProps,
       getTdProps,
     },
-    activeRowDerivedState: { activeRowItem, clearActiveRow },
+    activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
   return (
@@ -238,9 +238,9 @@ export const AffectedApplications: React.FC = () => {
         </ConditionalRender>
       </PageSection>
       <IssueDetailDrawer
-        issueId={activeRowItem?.issue.id || null}
-        applicationName={activeRowItem?.name || null}
-        onCloseClick={clearActiveRow}
+        issueId={activeItem?.issue.id || null}
+        applicationName={activeItem?.name || null}
+        onCloseClick={clearActiveItem}
       />
     </>
   );

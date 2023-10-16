@@ -2,29 +2,29 @@ import { parseMaybeNumericString } from "@app/utils/utils";
 import { IFeaturePersistenceArgs } from "../types";
 import { usePersistentState } from "@app/hooks/usePersistentState";
 
-export interface IActiveRowState {
-  activeRowId: string | number | null;
-  setActiveRowId: (id: string | number | null) => void;
+export interface IActiveItemState {
+  activeItemId: string | number | null;
+  setActiveItemId: (id: string | number | null) => void;
 }
 
-export type IActiveRowStateArgs = { isActiveRowEnabled?: boolean };
+export type IActiveItemStateArgs = { isActiveItemEnabled?: boolean };
 
-export const useActiveRowState = <
+export const useActiveItemState = <
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: IActiveRowStateArgs &
+  args: IActiveItemStateArgs &
     IFeaturePersistenceArgs<TPersistenceKeyPrefix> = {}
-): IActiveRowState => {
-  const { isActiveRowEnabled, persistTo, persistenceKeyPrefix } = args;
+): IActiveItemState => {
+  const { isActiveItemEnabled, persistTo, persistenceKeyPrefix } = args;
 
   // We won't need to pass the latter two type params here if TS adds support for partial inference.
   // See https://github.com/konveyor/tackle2-ui/issues/1456
-  const [activeRowId, setActiveRowId] = usePersistentState<
+  const [activeItemId, setActiveItemId] = usePersistentState<
     string | number | null,
     TPersistenceKeyPrefix,
-    "activeRow"
+    "activeItem"
   >({
-    isEnabled: !!isActiveRowEnabled,
+    isEnabled: !!isActiveItemEnabled,
     defaultValue: null,
     persistenceKeyPrefix,
     // Note: For the discriminated union here to work without TypeScript getting confused
@@ -33,18 +33,18 @@ export const useActiveRowState = <
     ...(persistTo === "urlParams"
       ? {
           persistTo,
-          keys: ["activeRow"],
-          serialize: (activeRowId) => ({
-            activeRow: activeRowId !== null ? String(activeRowId) : null,
+          keys: ["activeItem"],
+          serialize: (activeItemId) => ({
+            activeItem: activeItemId !== null ? String(activeItemId) : null,
           }),
-          deserialize: ({ activeRow }) => parseMaybeNumericString(activeRow),
+          deserialize: ({ activeItem }) => parseMaybeNumericString(activeItem),
         }
       : persistTo === "localStorage" || persistTo === "sessionStorage"
       ? {
           persistTo,
-          key: "activeRow",
+          key: "activeItem",
         }
       : { persistTo }),
   });
-  return { activeRowId, setActiveRowId };
+  return { activeItemId, setActiveItemId };
 };

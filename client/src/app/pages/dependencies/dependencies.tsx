@@ -52,7 +52,7 @@ export const Dependencies: React.FC = () => {
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
-    isActiveRowEnabled: true,
+    isActiveItemEnabled: true,
     sortableColumns: ["name", "foundIn", "labels"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
@@ -144,7 +144,7 @@ export const Dependencies: React.FC = () => {
       getTrProps,
       getTdProps,
     },
-    activeRowDerivedState: { activeRowItem, clearActiveRow, setActiveRowItem },
+    activeItemDerivedState: { activeItem, clearActiveItem, setActiveItem },
   } = tableControls;
 
   return (
@@ -211,13 +211,10 @@ export const Dependencies: React.FC = () => {
                             className={spacing.pl_0}
                             variant="link"
                             onClick={(_) => {
-                              if (
-                                activeRowItem &&
-                                activeRowItem === dependency
-                              ) {
-                                clearActiveRow();
+                              if (activeItem && activeItem === dependency) {
+                                clearActiveItem();
                               } else {
-                                setActiveRowItem(dependency);
+                                setActiveItem(dependency);
                               }
                             }}
                           >
@@ -261,8 +258,8 @@ export const Dependencies: React.FC = () => {
         </div>
       </PageSection>
       <DependencyAppsDetailDrawer
-        dependency={activeRowItem || null}
-        onCloseClick={() => setActiveRowItem(null)}
+        dependency={activeItem || null}
+        onCloseClick={() => setActiveItem(null)}
       ></DependencyAppsDetailDrawer>
     </>
   );

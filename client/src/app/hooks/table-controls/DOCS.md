@@ -300,16 +300,14 @@ Item details can be expanded, either with a "single expansion" variant where an 
 
 > ⚠️ TECH DEBT NOTE: `getSingleExpandButtonTdProps` and `getCompoundExpandTdProps` should probably be factored out of `useTableControlProps` into a decoupled `getExpansionProps` helper.
 
-### Active Row
+### Active Item
 
-An item can be clicked to mark it as "active", which usually opens a drawer on the page to show more detail. Note that this is distinct from expansion and selection and these features can all be used together. Active row state is simply a single id value (number or string) for the active item, derived from the `idProperty` config argument (see [Unique Identifiers](#unique-identifiers)).
+A row can be clicked to mark its item as "active", which usually opens a drawer on the page to show more detail. Note that this is distinct from expansion and selection and these features can all be used together. Active item state is simply a single id value (number or string) for the active item, derived from the `idProperty` config argument (see [Unique Identifiers](#unique-identifiers)).
 
-- The active row feature requires no config arguments.
-- Active row state is provided by `useActiveRowState`.
-- Active row shorthand functions are provided by `getActiveRowDerivedState`.
-- A `useEffect` call which prevents invalid state after an item is deleted is provided by `useActiveRowEffects`.
-
-> ⚠️ TECH DEBT NOTE: We may want to rename the "active row" feature and code to "active item" to be consistent about using "item" naming rather than "row" naming outside the rendering code (see [Item Objects, Not Row Objects](#item-objects-not-row-objects)).
+- The active item feature requires no config arguments.
+- Active item state is provided by `useActiveItemState`.
+- Active item shorthand functions are provided by `getActiveItemDerivedState`.
+- A `useEffect` call which prevents invalid state after an item is deleted is provided by `useActiveItemEffects`.
 
 ### Selection
 
