@@ -3,24 +3,20 @@ import { IFeaturePersistenceArgs } from "../types";
 import { usePersistentState } from "@app/hooks/usePersistentState";
 import { serializeFilterUrlParams } from "./helpers";
 import { deserializeFilterUrlParams } from "./helpers";
+import { DiscriminatedArgs } from "@app/utils/type-utils";
 
 export interface IFilterState<TFilterCategoryKey extends string> {
   filterValues: IFilterValues<TFilterCategoryKey>;
   setFilterValues: (values: IFilterValues<TFilterCategoryKey>) => void;
 }
 
-export type IFilterStateEnabledArgs<
+export type IFilterStateArgs<
   TItem,
   TFilterCategoryKey extends string,
-> = {
-  filterCategories: FilterCategory<TItem, TFilterCategoryKey>[];
-};
-
-export type IFilterStateArgs<TItem, TFilterCategoryKey extends string> =
-  | ({
-      isFilterEnabled: true;
-    } & IFilterStateEnabledArgs<TItem, TFilterCategoryKey>)
-  | { isFilterEnabled?: false };
+> = DiscriminatedArgs<
+  "isFilterEnabled",
+  { filterCategories: FilterCategory<TItem, TFilterCategoryKey>[] }
+>;
 
 export const useFilterState = <
   TItem,

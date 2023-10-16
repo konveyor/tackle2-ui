@@ -1,5 +1,6 @@
 import { usePersistentState } from "@app/hooks/usePersistentState";
 import { IFeaturePersistenceArgs } from "../types";
+import { DiscriminatedArgs } from "@app/utils/type-utils";
 
 export interface IActivePagination {
   pageNumber: number;
@@ -11,13 +12,10 @@ export interface IPaginationState extends IActivePagination {
   setItemsPerPage: (numItems: number) => void;
 }
 
-export type IPaginationStateEnabledArgs = {
-  initialItemsPerPage?: number;
-};
-
-export type IPaginationStateArgs =
-  | ({ isPaginationEnabled: true } & IPaginationStateEnabledArgs)
-  | { isPaginationEnabled?: false };
+export type IPaginationStateArgs = DiscriminatedArgs<
+  "isPaginationEnabled",
+  { initialItemsPerPage?: number }
+>;
 
 export const usePaginationState = <
   TPersistenceKeyPrefix extends string = string,

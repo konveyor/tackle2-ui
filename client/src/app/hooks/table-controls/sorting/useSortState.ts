@@ -1,3 +1,4 @@
+import { DiscriminatedArgs } from "@app/utils/type-utils";
 import { IFeaturePersistenceArgs } from "..";
 import { usePersistentState } from "@app/hooks/usePersistentState";
 
@@ -11,14 +12,14 @@ export interface ISortState<TSortableColumnKey extends string> {
   setActiveSort: (sort: IActiveSort<TSortableColumnKey>) => void;
 }
 
-export type ISortStateEnabledArgs<TSortableColumnKey extends string> = {
-  sortableColumns: TSortableColumnKey[];
-  initialSort?: IActiveSort<TSortableColumnKey> | null;
-};
-
 export type ISortStateArgs<TSortableColumnKey extends string> =
-  | ({ isSortEnabled: true } & ISortStateEnabledArgs<TSortableColumnKey>)
-  | { isSortEnabled?: false };
+  DiscriminatedArgs<
+    "isSortEnabled",
+    {
+      sortableColumns: TSortableColumnKey[];
+      initialSort?: IActiveSort<TSortableColumnKey> | null;
+    }
+  >;
 
 export const useSortState = <
   TSortableColumnKey extends string,

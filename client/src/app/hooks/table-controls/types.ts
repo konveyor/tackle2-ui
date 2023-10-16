@@ -1,6 +1,6 @@
 import { TableProps, TdProps, ThProps, TrProps } from "@patternfly/react-table";
 import { ISelectionStateArgs, useSelectionState } from "@migtools/lib-ui";
-import { DisallowCharacters } from "@app/utils/type-utils";
+import { DisallowCharacters, DiscriminatedArgs } from "@app/utils/type-utils";
 import {
   IFilterStateArgs,
   ILocalFilterDerivedStateArgs,
@@ -225,14 +225,10 @@ export type ITableControls<
       onRowClick?: TrProps["onRowClick"];
     }) => Omit<TrProps, "ref">;
     getTdProps: (
-      args: { columnKey: TColumnKey } & (
-        | {
-            isCompoundExpandToggle: true;
-            item: TItem;
-            rowIndex: number;
-          }
-        | { isCompoundExpandToggle?: false }
-      )
+      args: { columnKey: TColumnKey } & DiscriminatedArgs<
+        "isCompoundExpandToggle",
+        { item: TItem; rowIndex: number }
+      >
     ) => Omit<TdProps, "ref">;
     filterToolbarProps: IFilterToolbarProps<TItem, TFilterCategoryKey>;
     paginationProps: PaginationProps;

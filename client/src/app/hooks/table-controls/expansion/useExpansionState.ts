@@ -1,6 +1,7 @@
 import { usePersistentState } from "@app/hooks/usePersistentState";
 import { objectKeys } from "@app/utils/utils";
 import { IFeaturePersistenceArgs } from "../types";
+import { DiscriminatedArgs } from "@app/utils/type-utils";
 
 // TExpandedCells maps item[idProperty] values to either:
 //  - The key of an expanded column in that row, if the table is compound-expandable
@@ -17,13 +18,10 @@ export interface IExpansionState<TColumnKey extends string> {
   ) => void;
 }
 
-export type IExpansionStateEnabledArgs = {
-  expandableVariant: "single" | "compound";
-};
-
-export type IExpansionStateArgs =
-  | ({ isExpansionEnabled: true } & IExpansionStateEnabledArgs)
-  | { isExpansionEnabled?: false };
+export type IExpansionStateArgs = DiscriminatedArgs<
+  "isExpansionEnabled",
+  { expandableVariant: "single" | "compound" }
+>;
 
 export const useExpansionState = <
   TColumnKey extends string,
