@@ -98,14 +98,10 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const sortedSections = useMemo(() => {
-    return (assessment ? assessment.sections : []).sort(
+    return (!isLoadingAssessment && assessment ? assessment.sections : []).sort(
       (a, b) => a.order - b.order
     );
-  }, [assessment]);
-  console.log(assessment?.questionnaire?.name || "No questionaire", {
-    assessment,
-  });
-  console.log({ sortedSections });
+  }, [assessment, isLoadingAssessment]);
 
   //TODO: Add comments to the sections when/if available from api
   // const initialComments = useMemo(() => {
@@ -593,13 +589,8 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   return (
     <>
-      {isOpen && assessment && (
+      {isOpen && !!sortedSections.length && (
         <FormProvider {...methods}>
-          <h1>
-            Questionnaire:{" "}
-            {assessment?.questionnaire?.name || "No questionaire"}
-          </h1>
-          <h1>Number of sections: {sortedSections.length}</h1>
           <Wizard
             isVisitRequired
             onStepChange={(_e, curr) => {
