@@ -7,7 +7,7 @@ import {
 import { useFilterState } from "./filtering";
 import { useSortState } from "./sorting";
 import { usePaginationState } from "./pagination";
-import { useActiveRowState } from "./active-row";
+import { useActiveRowState } from "./active-item";
 import { useExpansionState } from "./expansion";
 
 export const useTableControlState = <

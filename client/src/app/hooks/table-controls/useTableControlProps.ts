@@ -6,7 +6,7 @@ import { ITableControls, IUseTableControlPropsArgs } from "./types";
 import { useFilterPropHelpers } from "./filtering";
 import { useSortPropHelpers } from "./sorting";
 import { usePaginationPropHelpers } from "./pagination";
-import { useActiveRowPropHelpers } from "./active-row";
+import { useActiveRowPropHelpers } from "./active-item";
 import { useExpansionPropHelpers } from "./expansion";
 import { handlePropagatedRowClick } from "./utils";
 

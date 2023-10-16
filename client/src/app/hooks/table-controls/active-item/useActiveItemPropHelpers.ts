@@ -2,12 +2,12 @@ import { TrProps } from "@patternfly/react-table";
 import {
   IActiveRowDerivedStateArgs,
   getActiveRowDerivedState,
-} from "./getActiveRowDerivedState";
-import { IActiveRowState } from "./useActiveRowState";
+} from "./getActiveItemDerivedState";
+import { IActiveRowState } from "./useActiveItemState";
 import {
   IUseActiveRowEffectsArgs,
   useActiveRowEffects,
-} from "./useActiveRowEffects";
+} from "./useActiveItemEffects";
 
 // Args that should be passed into useTableControlProps
 export type IActiveRowPropHelpersExternalArgs<TItem> =

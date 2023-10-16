@@ -29,7 +29,7 @@ import {
   IActiveRowPropHelpersExternalArgs,
   IActiveRowState,
   IActiveRowStateArgs,
-} from "./active-row";
+} from "./active-item";
 import {
   PaginationProps,
   ToolbarItemProps,

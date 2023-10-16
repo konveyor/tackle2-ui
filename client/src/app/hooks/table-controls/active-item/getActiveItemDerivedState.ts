@@ -1,5 +1,5 @@
 import { KeyWithValueType } from "@app/utils/type-utils";
-import { IActiveRowState } from "./useActiveRowState";
+import { IActiveRowState } from "./useActiveItemState";
 
 export interface IActiveRowDerivedStateArgs<TItem> {
   currentPageItems: TItem[];

@@ -1,6 +1,6 @@
 import * as React from "react";
-import { getActiveRowDerivedState } from "./getActiveRowDerivedState";
-import { IActiveRowState } from "./useActiveRowState";
+import { getActiveRowDerivedState } from "./getActiveItemDerivedState";
+import { IActiveRowState } from "./useActiveItemState";
 
 export interface IUseActiveRowEffectsArgs<TItem> {
   isLoading?: boolean;
