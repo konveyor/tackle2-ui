@@ -9,18 +9,19 @@ import {
   Text,
   Title,
   Label,
+  LabelGroup,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
-import { Task } from "@app/api/models";
-import { ApplicationRisk } from "./application-risk";
+import { Ref, Task } from "@app/api/models";
 import {
   ApplicationDetailDrawer,
   IApplicationDetailDrawerProps,
 } from "./application-detail-drawer";
 import { useFetchReviewById } from "@app/queries/reviews";
+import { ReviewedArchetypeItem } from "./reviewed-archetype-item";
 
 export interface IApplicationDetailDrawerAssessmentProps
   extends Pick<IApplicationDetailDrawerProps, "application" | "onCloseClick"> {
@@ -44,6 +45,9 @@ export const ApplicationDetailDrawerAssessment: React.FC<
       onCloseClick={onCloseClick}
       detailsTabMainContent={
         <>
+          <Title headingLevel="h3" size="md">
+            {t("terms.archetypes")}
+          </Title>
           <DescriptionList
             isHorizontal
             isCompact
@@ -52,6 +56,42 @@ export const ApplicationDetailDrawerAssessment: React.FC<
               default: "14ch",
             }}
           >
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("terms.associatedArchetypes")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {application?.archetypes?.length ?? 0 > 0 ? (
+                  <ArchetypeLabels
+                    archetypeRefs={application?.archetypes as Ref[]}
+                  />
+                ) : (
+                  <EmptyTextMessage message={t("terms.none")} />
+                )}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("terms.archetypesReviewed")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {application?.archetypes?.length ?? 0 > 0 ? (
+                  application?.archetypes?.map((archetypeRef) => (
+                    <ReviewedArchetypeItem
+                      key={archetypeRef.id}
+                      id={archetypeRef.id}
+                    />
+                  ))
+                ) : (
+                  <EmptyTextMessage message={t("terms.none")} />
+                )}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+            <TextContent className={spacing.mtLg}>
+              <Title headingLevel="h3" size="md">
+                {t("terms.applicationReview")}
+              </Title>
+            </TextContent>
             <DescriptionListGroup>
               <DescriptionListTerm>
                 {t("terms.proposedAction")}
@@ -96,22 +136,12 @@ export const ApplicationDetailDrawerAssessment: React.FC<
                 {appReview?.workPriority || notYetReviewed}
               </DescriptionListDescription>
             </DescriptionListGroup>
-            <DescriptionListGroup>
+            {/* <DescriptionListGroup>
               <DescriptionListTerm>{t("terms.risk")}</DescriptionListTerm>
               <DescriptionListDescription cy-data="risk">
                 {application && <ApplicationRisk application={application} />}
               </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-              <DescriptionListTerm>
-                {t("terms.migrationWave")}
-              </DescriptionListTerm>
-              <DescriptionListDescription cy-data="migration-wave">
-                {application?.migrationWave
-                  ? application.migrationWave.name
-                  : t("terms.unassigned")}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
+            </DescriptionListGroup> */}
           </DescriptionList>
           <TextContent className={spacing.mtLg}>
             <Title headingLevel="h3" size="md">
@@ -134,3 +164,17 @@ export const ApplicationDetailDrawerAssessment: React.FC<
     />
   );
 };
+const ArchetypeLabels: React.FC<{ archetypeRefs?: Ref[] }> = ({
+  archetypeRefs,
+}) =>
+  (archetypeRefs?.length ?? 0) === 0 ? null : (
+    <LabelGroup>
+      {(archetypeRefs as Ref[])
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((ref) => (
+          <Label color="grey" key={ref.id}>
+            {ref.name}
+          </Label>
+        ))}
+    </LabelGroup>
+  );
