@@ -386,6 +386,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       name={t("wizard.terms.review")}
       id={StepId.Review}
       isDisabled={!isStepEnabled(StepId.Review)}
+      footer={{ nextButtonText: "Run" }}
     >
       <Review applications={applications} mode={mode} />
     </WizardStep>,
