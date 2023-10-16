@@ -9,6 +9,7 @@ import {
   useActiveRowEffects,
 } from "./useActiveRowEffects";
 
+// Args that should be passed into useTableControlProps
 export type IActiveRowPropHelpersExternalArgs<TItem> =
   IActiveRowDerivedStateArgs<TItem> &
     Omit<IUseActiveRowEffectsArgs<TItem>, "activeRowDerivedState"> & {
