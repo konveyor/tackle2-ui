@@ -1,7 +1,8 @@
 import { PaginationProps } from "@patternfly/react-core";
 import { IPaginationState } from "./usePaginationState";
 
-export interface IPaginationPropHelpersArgs {
+// Args that should be passed into useTableControlProps
+export interface IPaginationPropHelpersExternalArgs {
   paginationState: IPaginationState;
   totalItemCount: number;
 }
@@ -9,7 +10,7 @@ export interface IPaginationPropHelpersArgs {
 export const getPaginationProps = ({
   paginationState: { pageNumber, setPageNumber, itemsPerPage, setItemsPerPage },
   totalItemCount,
-}: IPaginationPropHelpersArgs): PaginationProps => ({
+}: IPaginationPropHelpersExternalArgs): PaginationProps => ({
   itemCount: totalItemCount,
   perPage: itemsPerPage,
   page: pageNumber,

@@ -4,19 +4,19 @@ import { DisallowCharacters } from "@app/utils/type-utils";
 import {
   IFilterStateArgs,
   ILocalFilterDerivedStateArgs,
-  IFilterPropHelpersArgs,
+  IFilterPropHelpersExternalArgs,
   IFilterState,
 } from "./filtering";
 import {
   ILocalSortDerivedStateArgs,
-  ISortPropHelpersArgs,
+  ISortPropHelpersExternalArgs,
   ISortState,
   ISortStateArgs,
 } from "./sorting";
 import {
   IPaginationStateArgs,
   ILocalPaginationDerivedStateArgs,
-  IPaginationPropHelpersArgs,
+  IPaginationPropHelpersExternalArgs,
   IPaginationState,
 } from "./pagination";
 import {
@@ -181,10 +181,10 @@ export type IUseTableControlPropsArgs<
   TFilterCategoryKey,
   TPersistenceKeyPrefix
 > &
-  IFilterPropHelpersArgs<TItem, TFilterCategoryKey> &
-  ISortPropHelpersArgs<TColumnKey, TSortableColumnKey> &
-  IPaginationPropHelpersArgs &
-  IExpansionPropHelpersExternalArgs<TItem, TColumnKey> & // TODO should this internal/external args pattern be used for all features?
+  IFilterPropHelpersExternalArgs<TItem, TFilterCategoryKey> &
+  ISortPropHelpersExternalArgs<TColumnKey, TSortableColumnKey> &
+  IPaginationPropHelpersExternalArgs &
+  IExpansionPropHelpersExternalArgs<TItem, TColumnKey> &
   IExpansionDerivedStateArgs<TItem, TColumnKey> & // Derived in useTableControlProps for convenience because it's always derived on the client
   IActiveRowDerivedStateArgs<TItem> & // Derived in useTableControlProps for convenience because it's always derived on the client
   ITableControlDerivedState<TItem> & {

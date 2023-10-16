@@ -4,7 +4,8 @@ import {
 } from "@app/components/FilterToolbar";
 import { IFilterState } from "./useFilterState";
 
-export interface IFilterPropHelpersArgs<
+// Args that should be passed into useTableControlProps
+export interface IFilterPropHelpersExternalArgs<
   TItem,
   TFilterCategoryKey extends string,
 > {
@@ -18,10 +19,10 @@ export const getFilterToolbarProps = <
 >({
   filterState: { filterValues, setFilterValues },
   filterCategories = [],
-}: IFilterPropHelpersArgs<TItem, TFilterCategoryKey>): IFilterToolbarProps<
+}: IFilterPropHelpersExternalArgs<
   TItem,
   TFilterCategoryKey
-> => ({
+>): IFilterToolbarProps<TItem, TFilterCategoryKey> => ({
   filterCategories,
   filterValues,
   setFilterValues,

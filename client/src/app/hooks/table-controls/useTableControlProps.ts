@@ -70,9 +70,6 @@ export const useTableControlProps = <
     isActiveRowEnabled,
   } = args;
 
-  const expandableVariant =
-    (isExpansionEnabled && args.expandableVariant) || undefined;
-
   const columnKeys = objectKeys(columnNames);
 
   // Some table controls rely on extra columns inserted before or after the ones included in columnNames.
@@ -80,7 +77,7 @@ export const useTableControlProps = <
   let numColumnsBeforeData = 0;
   let numColumnsAfterData = 0;
   if (isSelectionEnabled) numColumnsBeforeData++;
-  if (isExpansionEnabled && expandableVariant === "single")
+  if (isExpansionEnabled && args.expandableVariant === "single")
     numColumnsBeforeData++;
   if (hasActionsColumn) numColumnsAfterData++;
   const numRenderedColumns =
@@ -133,7 +130,7 @@ export const useTableControlProps = <
 
   const tableProps: PropHelpers["tableProps"] = {
     variant,
-    isExpandable: isExpansionEnabled && !!expandableVariant,
+    isExpandable: isExpansionEnabled && !!args.expandableVariant,
   };
 
   const getThProps: PropHelpers["getThProps"] = ({ columnKey }) => ({
@@ -161,17 +158,17 @@ export const useTableControlProps = <
     };
   };
 
-  const getTdProps: PropHelpers["getTdProps"] = (args) => {
-    const { columnKey } = args;
+  const getTdProps: PropHelpers["getTdProps"] = (getTdPropsArgs) => {
+    const { columnKey } = getTdPropsArgs;
     return {
       dataLabel: columnNames[columnKey],
       ...(isExpansionEnabled &&
-        expandableVariant === "compound" &&
-        args.isCompoundExpandToggle &&
+        args.expandableVariant === "compound" &&
+        getTdPropsArgs.isCompoundExpandToggle &&
         getCompoundExpandTdProps({
           columnKey,
-          item: args.item,
-          rowIndex: args.rowIndex,
+          item: getTdPropsArgs.item,
+          rowIndex: getTdPropsArgs.rowIndex,
         })),
     };
   };

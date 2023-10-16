@@ -1,8 +1,8 @@
 import { ThProps } from "@patternfly/react-table";
 import { ISortState } from "./useSortState";
 
-// Args that are part of IUseTableControlPropsArgs (the args for useTableControlProps)
-export interface ISortPropHelpersArgs<
+// Args that should be passed into useTableControlProps
+export interface ISortPropHelpersExternalArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
 > {
@@ -14,7 +14,7 @@ export interface ISortPropHelpersArgs<
 export interface IGetSortThPropsArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
-> extends ISortPropHelpersArgs<TColumnKey, TSortableColumnKey> {
+> extends ISortPropHelpersExternalArgs<TColumnKey, TSortableColumnKey> {
   columnKeys: TColumnKey[];
   columnKey: TSortableColumnKey;
 }
