@@ -8,17 +8,13 @@ import {
   uploadFileTaskgroup,
 } from "@app/api/rest";
 import { IReadFile, Taskgroup } from "@app/api/models";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { TasksQueryKey } from "./tasks";
 
 export const useCreateTaskgroupMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (data: Taskgroup) => void,
   onError: (err: Error | unknown) => void
-) =>
-  useMutation(createTaskgroup, {
-    onSuccess,
-    onError,
-  });
+) => useMutation({ mutationFn: createTaskgroup, onSuccess, onError });
 
 export const useSubmitTaskgroupMutation = (
   onSuccess: (data: Taskgroup) => void,
@@ -26,7 +22,8 @@ export const useSubmitTaskgroupMutation = (
 ) => {
   const queryClient = useQueryClient();
 
-  return useMutation(submitTaskgroup, {
+  return useMutation({
+    mutationFn: submitTaskgroup,
     onSuccess: (data) => {
       onSuccess(data);
       queryClient.invalidateQueries([TasksQueryKey]);
@@ -39,12 +36,13 @@ export const useSubmitTaskgroupMutation = (
 };
 
 export const useRemoveUploadedFileMutation = (
-  successCallback?: (res: any) => void,
+  successCallback?: (data: AxiosResponse<Taskgroup>) => void,
   errorCallback?: (err: AxiosError) => void
 ) => {
-  return useMutation(removeFileTaskgroup, {
-    onSuccess: (res) => {
-      successCallback && successCallback(res);
+  return useMutation({
+    mutationFn: removeFileTaskgroup,
+    onSuccess: (data) => {
+      successCallback && successCallback(data);
     },
     onError: (err: AxiosError) => {
       errorCallback && errorCallback(err);
@@ -52,13 +50,14 @@ export const useRemoveUploadedFileMutation = (
   });
 };
 export const useUploadFileTaskgroupMutation = (
-  successCallback?: (res: any) => void,
+  successCallback?: (data: AxiosResponse<Taskgroup>) => void,
   errorCallback?: (err: AxiosError) => void
 ) => {
-  return useMutation(uploadFileTaskgroup, {
+  return useMutation({
+    mutationFn: uploadFileTaskgroup,
     mutationKey: ["upload"],
-    onSuccess: (res) => {
-      successCallback && successCallback(res);
+    onSuccess: (data) => {
+      successCallback && successCallback(data);
     },
     onError: (err: AxiosError) => {
       errorCallback && errorCallback(err);
@@ -72,7 +71,8 @@ export const useDeleteTaskgroupMutation = (
 ) => {
   const queryClient = useQueryClient();
 
-  return useMutation(deleteTaskgroup, {
+  return useMutation({
+    mutationFn: deleteTaskgroup,
     onSuccess,
     onError: (err) => {
       onError(err);
@@ -83,7 +83,7 @@ export const useDeleteTaskgroupMutation = (
 
 export const useUploadFileMutation = (
   onSuccess: (
-    res: any,
+    data: AxiosResponse<Taskgroup>,
     id: number,
     path: string,
     formData: any,
@@ -91,9 +91,10 @@ export const useUploadFileMutation = (
   ) => void,
   errorCallback: (err: AxiosError) => void
 ) => {
-  return useMutation(uploadFileTaskgroup, {
-    onSuccess: (res, { id, path, formData, file }) => {
-      onSuccess(res, id, path, formData, file);
+  return useMutation({
+    mutationFn: uploadFileTaskgroup,
+    onSuccess: (data, { id, path, formData, file }) => {
+      onSuccess(data, id, path, formData, file);
     },
     onError: (err: AxiosError) => {
       errorCallback && errorCallback(err);

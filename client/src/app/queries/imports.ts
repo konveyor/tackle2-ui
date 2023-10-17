@@ -15,11 +15,11 @@ export const useFetchImports = (
   importSummaryID: number,
   isValid: boolean | string
 ) => {
-  const { data, isLoading, error, refetch } = useQuery(
-    [ImportsQueryKey, importSummaryID, isValid],
-    () => getApplicationImports(importSummaryID, isValid),
-    { onError: (error) => console.log(error) }
-  );
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [ImportsQueryKey, importSummaryID, isValid],
+    queryFn: () => getApplicationImports(importSummaryID, isValid),
+    onError: (error) => console.log(error),
+  });
   return {
     imports: data || [],
     isFetching: isLoading,
@@ -29,14 +29,12 @@ export const useFetchImports = (
 };
 
 export const useFetchImportSummaries = () => {
-  const { data, isLoading, error, refetch } = useQuery(
-    [ImportSummariesQueryKey],
-    getApplicationsImportSummary,
-    {
-      refetchInterval: 5000,
-      onError: (error) => console.log(error),
-    }
-  );
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [ImportSummariesQueryKey],
+    queryFn: getApplicationsImportSummary,
+    refetchInterval: 5000,
+    onError: (error) => console.log(error),
+  });
   return {
     importSummaries: data || [],
     isFetching: isLoading,
@@ -46,11 +44,11 @@ export const useFetchImportSummaries = () => {
 };
 
 export const useFetchImportSummaryByID = (id: number | string) => {
-  const { data, isLoading, error, refetch } = useQuery(
-    [ImportQueryKey, id],
-    () => getApplicationImportSummaryById(id),
-    { onError: (error) => console.log(error) }
-  );
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [ImportQueryKey, id],
+    queryFn: () => getApplicationImportSummaryById(id),
+    onError: (error) => console.log(error),
+  });
 
   return {
     importSummary: data,
@@ -64,7 +62,8 @@ export const useDeleteImportSummaryMutation = (
   onSuccess: () => void,
   onError: (err: Error | null) => void
 ) => {
-  return useMutation(deleteApplicationImportSummary, {
+  return useMutation({
+    mutationFn: deleteApplicationImportSummary,
     onSuccess: () => {
       onSuccess && onSuccess();
     },

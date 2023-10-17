@@ -133,19 +133,17 @@ export const AdoptionCandidateGraph: React.FC = () => {
     refetch: refreshChart,
     isFetching,
     error: fetchError,
-  } = useQuery<AssessmentConfidence[]>(
-    ["assessmentconfidence"],
-    async () =>
+  } = useQuery<AssessmentConfidence[]>({
+    queryKey: ["assessmentConfidence"],
+    queryFn: async () =>
       // (
       //   await getAssessmentConfidence(
       //     applications.length > 0 ? applications.map((f) => f.id!) : []
       //   )
       // ).data,
       [],
-    {
-      onError: (error) => console.log("error, ", error),
-    }
-  );
+    onError: (error) => console.log("error, ", error),
+  });
 
   useEffect(() => {
     refreshChart();
@@ -164,6 +162,8 @@ export const AdoptionCandidateGraph: React.FC = () => {
       const appConfidence = confidences.find(
         (elem) => elem.applicationId === current.id
       );
+
+      // TODO: This hook should be pulled outside of the useMemo
       const { review: appReview } = useFetchReviewById(current?.review?.id);
 
       if (appConfidence && appReview) {
