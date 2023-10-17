@@ -46,6 +46,13 @@ const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
     onClose();
   };
 
+  const handleOnConfirmDelete = () => {
+    if (!isDisabled) {
+      setNameToDeleteInput("");
+      onConfirmDelete();
+    }
+  };
+
   const confirmBtn = (
     <Button
       id="confirm-delete-dialog-button"
@@ -53,7 +60,7 @@ const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
       aria-label="confirm"
       variant={ButtonVariant.danger}
       isDisabled={isDisabled}
-      onClick={isDisabled ? undefined : onConfirmDelete}
+      onClick={handleOnConfirmDelete}
     >
       {deleteBtnLabel ?? t("actions.delete")}
     </Button>
@@ -70,6 +77,7 @@ const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
       {cancelBtnLabel ?? t("actions.cancel")}
     </Button>
   );
+
   return (
     <Modal
       id="confirm-delete-dialog"
@@ -91,7 +99,7 @@ const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
         </Trans>
       </Text>
       <TextInput
-        className="confirm-deletion-input"
+        id="confirm-deletion-input"
         value={nameToDeleteInput}
         onChange={(_, value) => setNameToDeleteInput(value)}
       />

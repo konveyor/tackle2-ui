@@ -1,8 +1,3 @@
 .confirm-deletion {
   margin-top: var(--pf-v5-global--spacer--xl);
 }
-
-.confirm-deletion-input {
-  margin-top: var(--pf-v5-global--spacer--sm);
-  margin-bottom: var(--pf-v5-global--spacer--sm);
-}
