@@ -27,7 +27,7 @@ export const useFetchBusinessServices = () => {
   };
 };
 
-export const useFetchBusinessServiceByID = (id: number | string) => {
+export const useFetchBusinessServiceById = (id: number | string) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [BusinessServicesQueryKey, id],
     queryFn: () => getBusinessServiceById(id),
