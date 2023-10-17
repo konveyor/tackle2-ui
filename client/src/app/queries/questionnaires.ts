@@ -96,18 +96,16 @@ export const useCreateQuestionnaireMutation = (
   onError?: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, mutateAsync, error } = useMutation(
-    createQuestionnaire,
-    {
-      onSuccess: (res) => {
-        onSuccess && onSuccess(res);
-        queryClient.invalidateQueries([]);
-      },
-      onError: (err: AxiosError) => {
-        onError && onError(err);
-      },
-    }
-  );
+  const { isLoading, mutate, mutateAsync, error } = useMutation({
+    mutationFn: createQuestionnaire,
+    onSuccess: (res) => {
+      onSuccess && onSuccess(res);
+      queryClient.invalidateQueries([]);
+    },
+    onError: (err: AxiosError) => {
+      onError && onError(err);
+    },
+  });
   return {
     mutate,
     mutateAsync,
@@ -141,5 +139,5 @@ export const downloadQuestionnaire = async (
   }
 };
 export const useDownloadQuestionnaire = () => {
-  return useMutation(downloadQuestionnaire);
+  return useMutation({ mutationFn: downloadQuestionnaire });
 };
