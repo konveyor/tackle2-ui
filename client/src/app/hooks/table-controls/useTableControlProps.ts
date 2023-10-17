@@ -10,6 +10,17 @@ import { useActiveItemPropHelpers } from "./active-item";
 import { useExpansionPropHelpers } from "./expansion";
 import { handlePropagatedRowClick } from "./utils";
 
+/**
+ * Returns derived state and prop helpers for all features. Used to make rendering the table components easier.
+ * - Takes "source of truth" state and table-level derived state (derived either on the server or in getLocalTableControlDerivedState)
+ *   along with API data and additional args.
+ * - Also triggers side-effects for some features to prevent invalid state.
+ * - If you aren't using server-side filtering/sorting/pagination, call this via the shorthand hook useLocalTableControls.
+ * - If you are using server-side filtering/sorting/pagination, call this last after calling useTableControlState and fetching your API data.
+ * @see useLocalTableControls
+ * @see useTableControlState
+ * @see getLocalTableControlDerivedState
+ */
 export const useTableControlProps = <
   TItem,
   TColumnKey extends string,

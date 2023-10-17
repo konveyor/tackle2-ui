@@ -7,6 +7,12 @@ import {
   ITableControlState,
 } from "./types";
 
+/**
+ * Returns table-level "derived state" (the results of local/client-computed filtering/sorting/pagination)
+ * - Used internally by the shorthand hook useLocalTableControls.
+ * - Takes "source of truth" state for all features and additional args.
+ * @see useLocalTableControls
+ */
 export const getLocalTableControlDerivedState = <
   TItem,
   TColumnKey extends string,

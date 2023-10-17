@@ -1,9 +1,15 @@
 import { useTableControlProps } from "./useTableControlProps";
-import { IUseLocalTableControlsArgs } from "./types";
+import { ITableControls, IUseLocalTableControlsArgs } from "./types";
 import { getLocalTableControlDerivedState } from "./getLocalTableControlDerivedState";
 import { useTableControlState } from "./useTableControlState";
 import { useSelectionState } from "@migtools/lib-ui";
 
+/**
+ * Provides all state, derived state, side-effects and prop helpers needed to manage a local/client-computed table.
+ * - Call this and only this if you aren't using server-side filtering/sorting/pagination.
+ * - "Derived state" here refers to values and convenience functions derived at render time based on the "source of truth" state.
+ * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
+ */
 export const useLocalTableControls = <
   TItem,
   TColumnKey extends string,
@@ -18,7 +24,13 @@ export const useLocalTableControls = <
     TFilterCategoryKey,
     TPersistenceKeyPrefix
   >
-) => {
+): ITableControls<
+  TItem,
+  TColumnKey,
+  TSortableColumnKey,
+  TFilterCategoryKey,
+  TPersistenceKeyPrefix
+> => {
   const state = useTableControlState(args);
   const derivedState = getLocalTableControlDerivedState({ ...args, ...state });
   return useTableControlProps({

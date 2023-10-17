@@ -10,6 +10,15 @@ import { usePaginationState } from "./pagination";
 import { useActiveItemState } from "./active-item";
 import { useExpansionState } from "./expansion";
 
+/**
+ * Provides the "source of truth" state for all table features.
+ * - State can be persisted in one or more configurable storage targets, either the same for the entire table or different targets per feature.
+ * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
+ * - If you aren't using server-side filtering/sorting/pagination, call this via the shorthand hook useLocalTableControls.
+ * - If you are using server-side filtering/sorting/pagination, call this first before fetching your API data and then calling useTableControlProps.
+ * @param args
+ * @returns
+ */
 export const useTableControlState = <
   TItem,
   TColumnKey extends string,
