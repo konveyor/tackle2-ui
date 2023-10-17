@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { IReadFile, Target } from "@app/api/models";
+import { HubFile, IReadFile, Target } from "@app/api/models";
 import {
   createFile,
   createTarget,
@@ -12,13 +12,11 @@ import { AxiosError } from "axios";
 export const TargetsQueryKey = "targets";
 
 export const useFetchTargets = () => {
-  const { data, isLoading, error, refetch } = useQuery<Target[]>(
-    [TargetsQueryKey],
-    async () => await getTargets(),
-    {
-      onError: (err) => console.log(err),
-    }
-  );
+  const { data, isLoading, error, refetch } = useQuery<Target[]>({
+    queryKey: [TargetsQueryKey],
+    queryFn: async () => await getTargets(),
+    onError: (err) => console.log(err),
+  });
 
   return {
     targets: data || [],
@@ -33,7 +31,8 @@ export const useUpdateTargetMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(updateTarget, {
+  const { isLoading, mutate, error } = useMutation({
+    mutationFn: updateTarget,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([TargetsQueryKey]);
@@ -55,7 +54,8 @@ export const useDeleteTargetMutation = (
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation(deleteTarget, {
+  const { isLoading, mutate, error } = useMutation({
+    mutationFn: deleteTarget,
     onSuccess: (res, id) => {
       onSuccess(res, id);
       queryClient.invalidateQueries([TargetsQueryKey]);
@@ -77,7 +77,8 @@ export const useCreateTargetMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(createTarget, {
+  const { isLoading, mutate, error } = useMutation({
+    mutationFn: createTarget,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([TargetsQueryKey]);
@@ -94,13 +95,14 @@ export const useCreateTargetMutation = (
 };
 
 export const useCreateFileMutation = (
-  onSuccess?: (res: any, formData: FormData, file: IReadFile) => void,
+  onSuccess?: (data: HubFile, formData: FormData, file: IReadFile) => void,
   onError?: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, mutateAsync, error } = useMutation(createFile, {
-    onSuccess: (res, { formData, file }) => {
-      onSuccess && onSuccess(res, formData, file);
+  const { isLoading, mutate, mutateAsync, error } = useMutation({
+    mutationFn: createFile,
+    onSuccess: (data, { formData, file }) => {
+      onSuccess && onSuccess(data, formData, file);
       queryClient.invalidateQueries([]);
     },
     onError: (err: AxiosError) => {

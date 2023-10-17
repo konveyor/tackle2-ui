@@ -16,7 +16,8 @@ export const useUpdateIdentityMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(updateIdentity, {
+  const { isLoading, mutate, error } = useMutation({
+    mutationFn: updateIdentity,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([IdentitiesQueryKey]);
@@ -37,7 +38,8 @@ export const useCreateIdentityMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation(createIdentity, {
+  const { isLoading, mutate, error } = useMutation({
+    mutationFn: createIdentity,
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries([IdentitiesQueryKey]);
@@ -54,13 +56,11 @@ export const useCreateIdentityMutation = (
 };
 
 export const useFetchIdentities = () => {
-  const { data, isLoading, error, refetch } = useQuery(
-    [IdentitiesQueryKey],
-    async () => (await getIdentities()).data,
-    {
-      onError: (error) => console.log("error, ", error),
-    }
-  );
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [IdentitiesQueryKey],
+    queryFn: async () => (await getIdentities()).data,
+    onError: (error) => console.log("error, ", error),
+  });
   return {
     identities: data || [],
     isFetching: isLoading,

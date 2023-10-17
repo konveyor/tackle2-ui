@@ -6,7 +6,6 @@ import {
   HubRequestParams,
 } from "@app/api/models";
 import { getAppDependencies, getDependencies } from "@app/api/rest";
-import { serializeRequestParamsForHub } from "@app/hooks/table-controls/getHubRequestParams";
 
 export interface IDependenciesFetchState {
   result: HubPaginatedResult<AnalysisDependency>;
@@ -22,16 +21,13 @@ export interface IAppDependenciesFetchState {
 }
 
 export const DependenciesQueryKey = "dependencies";
-export const AppDependenciesQueryKey = "appdependencies";
+export const AppDependenciesQueryKey = "appDependencies";
 
 export const useFetchDependencies = (
   params: HubRequestParams = {}
 ): IDependenciesFetchState => {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: [
-      DependenciesQueryKey,
-      serializeRequestParamsForHub(params).toString(),
-    ],
+    queryKey: [DependenciesQueryKey, params],
     queryFn: async () => await getDependencies(params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
@@ -48,10 +44,7 @@ export const useFetchAppDependencies = (
   params: HubRequestParams = {}
 ): IAppDependenciesFetchState => {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: [
-      AppDependenciesQueryKey,
-      serializeRequestParamsForHub(params).toString(),
-    ],
+    queryKey: [AppDependenciesQueryKey, params],
     queryFn: async () => await getAppDependencies(params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,

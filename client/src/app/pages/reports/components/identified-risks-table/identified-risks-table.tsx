@@ -45,19 +45,17 @@ export const IdentifiedRisksTable: React.FC<
     refetch: refreshTable,
     error: fetchError,
     isFetching,
-  } = useQuery<AssessmentQuestionRisk[]>(
-    ["assessmentquestionrisks"],
-    async () =>
+  } = useQuery<AssessmentQuestionRisk[]>({
+    queryKey: ["assessmentQuestionRisks"],
+    queryFn: async () =>
       // (
       //   await getAssessmentIdentifiedRisks(
       //     allApplications.length > 0 ? allApplications.map((f) => f.id!) : []
       //   )
       // ).data,
       [],
-    {
-      onError: (error) => console.log("error, ", error),
-    }
-  );
+    onError: (error) => console.log("error, ", error),
+  });
 
   const tableData: ITableRowData[] = useMemo(() => {
     return (assessmentQuestionRisks || []).map((risk) => ({
@@ -160,8 +158,10 @@ export const IdentifiedRisksTable: React.FC<
     filterCategories
   );
 
-  const { currentPageItems, setPageNumber, paginationProps } =
-    useLegacyPaginationState(filteredItems, 10);
+  const { currentPageItems, paginationProps } = useLegacyPaginationState(
+    filteredItems,
+    10
+  );
 
   const rows: IRow[] = [];
   currentPageItems.forEach((item) => {

@@ -44,6 +44,7 @@
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-run": "^3.0.1",
     "@rollup/plugin-typescript": "^11.1.2",
+    "@tanstack/eslint-plugin-query": "^4.34.1",
     "@types/jest": "^29.5.4",
     "@types/node": "^18.14.2",
     "@typescript-eslint/eslint-plugin": "^6.4.0",

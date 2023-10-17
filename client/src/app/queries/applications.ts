@@ -117,8 +117,9 @@ export const useDeleteApplicationMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  return useMutation(({ id }: { id: number }) => deleteApplication(id), {
-    onSuccess: (res) => {
+  return useMutation({
+    mutationFn: ({ id }: { id: number }) => deleteApplication(id),
+    onSuccess: (_res) => {
       onSuccess(1);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
@@ -131,16 +132,14 @@ export const useBulkDeleteApplicationMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  return useMutation(
-    ({ ids }: { ids: number[] }) => deleteBulkApplications(ids),
-    {
-      onSuccess: (res, vars) => {
-        onSuccess(vars.ids.length);
-        queryClient.invalidateQueries([ApplicationsQueryKey]);
-      },
-      onError: onError,
-    }
-  );
+  return useMutation({
+    mutationFn: ({ ids }: { ids: number[] }) => deleteBulkApplications(ids),
+    onSuccess: (res, vars) => {
+      onSuccess(vars.ids.length);
+      queryClient.invalidateQueries([ApplicationsQueryKey]);
+    },
+    onError: onError,
+  });
 };
 
 export const downloadStaticReport = async ({
@@ -182,7 +181,7 @@ export const downloadStaticReport = async ({
 };
 
 export const useDownloadStaticReport = () => {
-  return useMutation(downloadStaticReport);
+  return useMutation({ mutationFn: downloadStaticReport });
 };
 
 export const useFetchApplicationDependencies = (
@@ -193,23 +192,21 @@ export const useFetchApplicationDependencies = (
     error: northError,
     isLoading: isLoadingNorth,
     refetch: refetchNorth,
-  } = useQuery<ApplicationDependency[], AxiosError>(
-    [ApplicationDependencyQueryKey, "north"],
-    () => getApplicationDependencies({ to: [`${applicationId}`] }),
-    {
-      enabled: !!applicationId,
-    }
-  );
+  } = useQuery<ApplicationDependency[], AxiosError>({
+    queryKey: [ApplicationDependencyQueryKey, applicationId, "north"],
+    queryFn: () => getApplicationDependencies({ to: [`${applicationId}`] }),
+    enabled: !!applicationId,
+  });
 
   const {
     data: southData,
     error: southError,
     isLoading: isLoadingSouth,
     refetch: refetchSouth,
-  } = useQuery<ApplicationDependency[], AxiosError>(
-    [ApplicationDependencyQueryKey, "south"],
-    () => getApplicationDependencies({ from: [`${applicationId}`] })
-  );
+  } = useQuery<ApplicationDependency[], AxiosError>({
+    queryKey: [ApplicationDependencyQueryKey, applicationId, "south"],
+    queryFn: () => getApplicationDependencies({ from: [`${applicationId}`] }),
+  });
 
   const isFetching = isLoadingNorth || isLoadingSouth;
   const fetchError = northError || southError;
@@ -241,7 +238,8 @@ export const useCreateApplicationDependency = ({
 }: UseCreateApplicationDependencyOptions = {}) => {
   const queryClient = useQueryClient();
 
-  return useMutation(createApplicationDependency, {
+  return useMutation({
+    mutationFn: createApplicationDependency,
     onSuccess: () => {
       queryClient.invalidateQueries([ApplicationDependencyQueryKey]);
       if (onSuccess) {
@@ -259,7 +257,8 @@ export const useCreateApplicationDependency = ({
 export const useDeleteApplicationDependency = () => {
   const queryClient = useQueryClient();
 
-  return useMutation(deleteApplicationDependency, {
+  return useMutation({
+    mutationFn: deleteApplicationDependency,
     onSuccess: () => {
       queryClient.invalidateQueries([ApplicationDependencyQueryKey]);
     },

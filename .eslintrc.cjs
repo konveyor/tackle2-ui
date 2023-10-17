@@ -33,6 +33,7 @@ module.exports = {
     "@typescript-eslint",
     "react",
     "react-hooks",
+    "@tanstack/query",
   ],
 
   // NOTE: Tweak the rules as needed when bulk fixes get merged
@@ -55,6 +56,9 @@ module.exports = {
 
     // Allow the "cy-data" property for tackle-ui-test (but should really be "data-cy" w/o this rule)
     "react/no-unknown-property": ["error", { ignore: ["cy-data"] }],
+
+    "@tanstack/query/exhaustive-deps": "error",
+    "@tanstack/query/prefer-query-object-syntax": "error",
   },
 
   settings: {

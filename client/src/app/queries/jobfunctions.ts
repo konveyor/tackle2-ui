@@ -31,15 +31,15 @@ export const useFetchJobFunctions = (): IJobFunctionFetchState => {
 };
 
 export const useCreateJobFunctionMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (data: JobFunction) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: createJobFunction,
-    onSuccess: (res) => {
-      onSuccess(res);
+    onSuccess: (data) => {
+      onSuccess(data);
       queryClient.invalidateQueries([JobFunctionsQueryKey]);
     },
     onError,
@@ -62,14 +62,15 @@ export const useUpdateJobFunctionMutation = (
 };
 
 export const useDeleteJobFunctionMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (res: JobFunction) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation(deleteJobFunction, {
-    onSuccess: (res) => {
-      onSuccess(res);
+  const { isLoading, mutate, error } = useMutation({
+    mutationFn: deleteJobFunction,
+    onSuccess: (data) => {
+      onSuccess(data);
       queryClient.invalidateQueries([JobFunctionsQueryKey]);
     },
     onError: (err: AxiosError) => {

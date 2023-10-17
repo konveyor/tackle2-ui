@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import Measure from "react-measure";
 import { useTranslation } from "react-i18next";
 
@@ -41,18 +41,16 @@ export const AdoptionPlan: React.FC = () => {
     refetch: refreshChart,
     error: fetchError,
     isFetching,
-  } = useQuery<ApplicationAdoptionPlan[]>(
-    ["adoptionplan"],
-    async () =>
+  } = useQuery<ApplicationAdoptionPlan[]>({
+    queryKey: ["adoptionPlan", applications.length],
+    queryFn: async () =>
       (
         await getApplicationAdoptionPlan(
           applications.length > 0 ? applications.map((f) => f.id!) : []
         )
       ).data,
-    {
-      onError: (error) => console.log("error, ", error),
-    }
-  );
+    onError: (error) => console.log("error, ", error),
+  });
 
   useEffect(() => {
     refreshChart();
