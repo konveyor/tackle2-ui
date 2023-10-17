@@ -9,7 +9,11 @@ import {
   useActiveItemEffects,
 } from "./useActiveItemEffects";
 
-// Args that should be passed into useTableControlProps
+/**
+ * Args for useActiveItemPropHelpers that come from outside useTableControlProps
+ * - Partially satisfied by the object returned by useTableControlState (ITableControlState)
+ * - Makes up part of the arguments object taken by useTableControlProps (IUseTableControlPropsArgs)
+ */
 export type IActiveItemPropHelpersExternalArgs<TItem> =
   IActiveItemDerivedStateArgs<TItem> &
     Omit<IUseActiveItemEffectsArgs<TItem>, "activeItemDerivedState"> & {
@@ -17,6 +21,12 @@ export type IActiveItemPropHelpersExternalArgs<TItem> =
       activeItemState: IActiveItemState;
     };
 
+/**
+ * Given "source of truth" state for the active item feature, returns derived state and `propHelpers`.
+ * - Used internally by useTableControlProps
+ * - "Derived state" here refers to values and convenience functions derived at render time.
+ * - Also triggers side effects to prevent invalid state
+ */
 export const useActiveItemPropHelpers = <TItem>(
   args: IActiveItemPropHelpersExternalArgs<TItem>
 ) => {

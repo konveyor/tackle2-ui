@@ -45,9 +45,10 @@ import { IExpansionPropHelpersExternalArgs } from "./expansion/useExpansionPropH
 //   TSortableColumnKey - A subset of column keys that have sorting enabled
 //   TFilterCategoryKey - Union type of unique identifier strings for filters (not necessarily the same as column keys)
 //   TPersistenceKeyPrefix - String (must not include a `:` character) used to distinguish persisted state for multiple tables
+// TODO move this to DOCS.md and reference the paragraph here
 
 /**
- * A feature of the table. State related to each feature can be persisted in separate places.
+ * Identifier for a feature of the table. State concerns are separated by feature.
  */
 export type TableFeature =
   | "filter"
@@ -58,7 +59,11 @@ export type TableFeature =
   | "activeItem";
 
 /**
- * Where to persist state related to a table feature or all table features.
+ * Identifier for where to persist state for a single table feature or for all table features.
+ * - "state" (default) - Plain React state. Resets on component unmount or page reload
+ * - "urlParams" (recommended) - URL query parameters. Persists on page reload, browser history buttons (back/forward) or loading a bookmark. Resets on page navigation.
+ * - "localStorage" - Browser localStorage API. Persists semi-permanently. Resets only on clearing browser data.
+ * - "sessionStorage" - Browser sessionStorage API. Persists on page/history navigation/reload. Resets when the tab/window is closed.
  */
 export type PersistTarget =
   | "state"
@@ -68,7 +73,9 @@ export type PersistTarget =
 
 /**
  * Common persistence-specific args
- * - Extra args needed for useTableControlState and each feature-specific use*State hook for persisting state
+ * - Makes up part of the arguments object taken by useTableControlState (IUseTableControlStateArgs)
+ * - Extra args needed for persisting state both at the table level and in each use[Feature]State hook.
+ * - Not required if using the default "state" PersistTarget
  */
 export type ICommonPersistenceArgs<
   TPersistenceKeyPrefix extends string = string,
@@ -78,25 +85,29 @@ export type ICommonPersistenceArgs<
    * - Optional: Only omit if this table will not be rendered at the same time as any other tables.
    * - Allows multiple tables to be used on the same page with the same PersistTarget.
    * - Cannot contain a `:` character since this is used as the delimiter in the prefixed key.
+   * - Should be short, especially when using the "urlParams" PersistTarget.
    */
   persistenceKeyPrefix?: DisallowCharacters<TPersistenceKeyPrefix, ":">;
 };
 /**
  * Feature-level persistence-specific args
- * - Extra args needed for each use[Feature]State hook for persisting state
+ * - Extra args needed for persisting state in each use[Feature]State hook.
+ * - Not required if using the default "state" PersistTarget.
  */
 export type IFeaturePersistenceArgs<
   TPersistenceKeyPrefix extends string = string,
 > = ICommonPersistenceArgs<TPersistenceKeyPrefix> & {
   /**
-   * Where to persist state related to this feature.
+   * Where to persist state for this feature.
    */
   persistTo?: PersistTarget;
 };
 /**
  * Table-level persistence-specific args
- * - Extra args needed for useTableControlState for persisting state
- * - Supports specifying a different PersistTarget for each TableFeature
+ * - Extra args needed for persisting state at the table level.
+ * - Supports specifying a single PersistTarget for the whole table or a different PersistTarget for each feature.
+ * - When using multiple PersistTargets, a `default` target can be passed that will be used for any features not configured explicitly.
+ * - Not required if using the default "state" PersistTarget.
  */
 export type ITablePersistenceArgs<
   TPersistenceKeyPrefix extends string = string,
@@ -111,11 +122,11 @@ export type ITablePersistenceArgs<
 
 /**
  * Table-level state configuration arguments
- * - Used by useTableControlState
+ * - Taken by useTableControlState
  * - Made up of the combined feature-level state configuration argument objects.
- * - Does not require any state or query data in scope
- * - Requires/disallows args based on which features are enabled (see individual [Feature]StateArgs types)
- * - Properties here are included in the `tableControls` object.
+ * - Does not require any state or API data in scope (can be called at the top of your component).
+ * - Requires/disallows feature-specific args based on `is[Feature]Enabled` booleans via discriminated unions (see individual [Feature]StateArgs types)
+ * - Properties here are included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
  * @see ITableControls
  */
 export type IUseTableControlStateArgs<
@@ -142,10 +153,11 @@ export type IUseTableControlStateArgs<
 /**
  * Table-level state object
  * - Returned by useTableControlState
- * - Contains persisted state for all table features.
- * - Also includes all of useTableControlState's arguments for convenience, since useTableControlProps requires them along with the state itself
- * - Note that this only contains the "source of truth" state, generally driven by item ids and containing no references to item objects. This is separate from "derived state" which is computed at render time.
- * - Properties here are included in the `tableControls` object.
+ * - Provides persisted "source of truth" state for all table features.
+ * - Also includes all of useTableControlState's arguments for convenience, since useTableControlProps requires them along with the state itself.
+ * - Note that this only contains the "source of truth" state and does not include "derived state" which is computed at render time.
+ *   - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
+ * - Properties here are included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
  * @see ITableControls
  */
 export type ITableControlState<
@@ -190,7 +202,7 @@ export type ITableControlState<
  * - Used by getLocalTableControlDerivedState.
  *   - getLocalTableControlDerivedState also requires the return values from useTableControlState.
  * - Also used indirectly by the useLocalTableControls shorthand hook.
- * - Requires state and query data in scope.
+ * - Requires state and API data in scope (or just API data if using useLocalTableControls).
  */
 export type ITableControlLocalDerivedStateArgs<
   TItem,
@@ -206,11 +218,11 @@ export type ITableControlLocalDerivedStateArgs<
 /**
  * Table-level derived state object
  * - "Derived state" here refers to the results of filtering/sorting/pagination performed either on the client or the server.
- * - Used by useTableControlProps
+ * - Makes up part of the arguments object taken by useTableControlProps (IUseTableControlPropsArgs)
  * - Provided by either:
  *   - Return values of getLocalTableControlDerivedState (client-side filtering/sorting/pagination)
  *   - The consumer directly (server-side filtering/sorting/pagination)
- * - Properties here are included in the `tableControls` object.
+ * - Properties here are included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
  * @see ITableControls
  */
 export type ITableControlDerivedState<TItem> = {
@@ -227,11 +239,11 @@ export type ITableControlDerivedState<TItem> = {
 /**
  * Rendering configuration arguments
  * - Used by only useTableControlProps
- * - Requires state and query values in scope
+ * - Requires state and API data in scope
  * - Combines all args for useTableControlState with the return values of useTableControlState, args used only for rendering, and args derived from either:
  *   - Server-side filtering/sorting/pagination provided by the consumer
  *   - getLocalTableControlDerivedState (client-side filtering/sorting/pagination)
- * - Properties here are included in the `tableControls` object.
+ * - Properties here are included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
  * @see ITableControls
  */
 export type IUseTableControlPropsArgs<
@@ -282,7 +294,7 @@ export type IUseTableControlPropsArgs<
  * Table controls object
  * - The object used for rendering. Includes everything you need to return JSX for your table.
  * - Returned by useTableControlProps and useLocalTableControls
- * - Includes all args and return values from useTableControlState along with derived state and propHelpers.
+ * - Includes all args and return values from useTableControlState and useTableControlProps (configuration, state, derived state and propHelpers).
  */
 export type ITableControls<
   TItem,
