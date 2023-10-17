@@ -22,6 +22,7 @@ import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import {
   COMMENTS_KEY,
   QUESTIONS_KEY,
+  getCommentFieldName,
   getQuestionFieldName,
 } from "../../form-utils";
 import { AxiosError } from "axios";
@@ -104,16 +105,15 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     );
   }, [assessment]);
 
-  //TODO: Add comments to the sections when/if available from api
-  // const initialComments = useMemo(() => {
-  //   let comments: { [key: string]: string } = {};
-  //   if (assessment) {
-  //     assessment.questionnaire.categories.forEach((category) => {
-  //       comments[getCommentFieldName(category, false)] = category.comment || "";
-  //     });
-  //   }
-  //   return comments;
-  // }, [assessment]);
+  const initialComments = useMemo(() => {
+    const comments: { [key: string]: string } = {};
+    if (assessment) {
+      assessment.sections.forEach((section) => {
+        comments[getCommentFieldName(section, false)] = section.comment || "";
+      });
+    }
+    return comments;
+  }, [assessment]);
 
   const initialQuestions = useMemo(() => {
     const questions: { [key: string]: string | undefined } = {};
@@ -150,6 +150,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       stakeholderGroups:
         assessment?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
       questions: initialQuestions,
+      comments: initialComments,
       [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
     });
     return () => {
@@ -166,7 +167,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const disableNavigation = !isValid || isSubmitting;
 
   const isFirstStepValid = () => {
-    // TODO: Wire up stakeholder support for assessment when available
     const numberOfStakeholdlers = values?.stakeholders?.length || 0;
     const numberOfGroups = values?.stakeholderGroups?.length || 0;
     return numberOfStakeholdlers + numberOfGroups > 0;
@@ -177,23 +177,11 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     return !questionErrors[getQuestionFieldName(question, false)];
   };
 
-  //TODO: Add comments to the sections
-  // const isCommentValid = (category: QuestionnaireCategory): boolean => {
-  //   const commentErrors = errors.comments || {};
-  //   return !commentErrors[getCommentFieldName(category, false)];
-  // };
-
   const questionHasValue = (question: Question): boolean => {
     const questionValues = values.questions || {};
     const value = questionValues[getQuestionFieldName(question, false)];
     return value !== null && value !== undefined && value !== "";
   };
-  //TODO: Add comments to the sections
-  // const commentMinLenghtIs1 = (category: QuestionnaireCategory): boolean => {
-  //   const categoryComments = values.comments || {};
-  //   const value = categoryComments[getCommentFieldName(category, false)];
-  //   return value !== null && value !== undefined && value.length > 0;
-  // };
 
   const areAllQuestionsAnswered = (section: Section): boolean => {
     return (
@@ -225,7 +213,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const maxCategoryWithData = [...sortedSections].reverse().find((section) => {
     return section.questions.some((question) => questionHasValue(question));
-    //  ||commentMinLenghtIs1(category)
   });
   const canJumpTo = maxCategoryWithData
     ? sortedSections.findIndex((f) => f.name === maxCategoryWithData.name) + 1
@@ -242,16 +229,14 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     }
     const updatedQuestionsData = formValues[QUESTIONS_KEY];
 
-    // Create an array of sections based on the questionsData
     const sections: Section[] =
       assessment?.sections?.map((section) => {
-        //TODO: Add comments to the sections
-        // const commentValues = values["comments"];
-        // const fieldName = getCommentFieldName(category, false);
-        // const commentValue = commentValues[fieldName];
+        const commentValues = values["comments"];
+        const fieldName = getCommentFieldName(section, false);
+        const commentValue = commentValues[fieldName];
         return {
           ...section,
-          // comment: commentValue,
+          comment: commentValue,
           questions: section.questions.map((question) => {
             return {
               ...question,

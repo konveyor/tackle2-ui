@@ -16,6 +16,7 @@ import { getCommentFieldName } from "../../form-utils";
 import { useFormContext } from "react-hook-form";
 import { Section } from "@app/api/models";
 import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
+import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
 
 export interface QuestionnaireFormProps {
   section: Section;
@@ -86,7 +87,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
           </StackItem>
         );
       })}
-      {/* <StackItem>
+      <StackItem>
         <Question>
           <QuestionHeader>
             {t("terms.additionalNotesOrComments")}
@@ -103,7 +104,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
             ></HookFormPFTextInput>
           </QuestionBody>
         </Question>
-      </StackItem> */}
+      </StackItem>
     </Stack>
   );
 };
