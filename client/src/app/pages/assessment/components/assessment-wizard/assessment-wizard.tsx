@@ -224,9 +224,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     return section.questions.some((question) => questionHasValue(question));
     //  ||commentMinLenghtIs1(category)
   });
-  const canJumpTo = maxCategoryWithData
-    ? sortedSections.findIndex((f) => f.name === maxCategoryWithData.name) + 1
-    : 0;
 
   const onInvalid = (errors: FieldErrors<AssessmentWizardValues>) =>
     console.error("form errors", errors);
