@@ -30,8 +30,9 @@ export interface IActiveItemDerivedState<TItem> {
  * Given the "source of truth" state for the active item feature and additional arguments, returns "derived state" values and convenience functions.
  * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
  *
- * NOTE: Unlike for the filter, sort and pagination features, this is not named `getLocalActiveItemDerivedState` because it
- * is always local/client-computed, and it is still used when working with server-computed tables (it's not local-specific).
+ * NOTE: Unlike `getLocal[Filter|Sort|Pagination]DerivedState`, this is not named `getLocalActiveItemDerivedState` because it
+ * is always local/client-computed, and it is still used when working with server-computed tables
+ * (it's not specific to client-only-computed tables like the other `getLocal*DerivedState` functions are).
  */
 export const getActiveItemDerivedState = <TItem>({
   currentPageItems,
