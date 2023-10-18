@@ -97,11 +97,9 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const sortedSections = useMemo(() => {
-    return (!isLoadingAssessment && assessment ? assessment.sections : []).sort(
+  const sortedSections = (!isLoadingAssessment && assessment ? assessment.sections : []).sort(
       (a, b) => a.order - b.order
-    );
-  }, [assessment, isLoadingAssessment]);
+  );
 
   //TODO: Add comments to the sections when/if available from api
   // const initialComments = useMemo(() => {
