@@ -51,7 +51,7 @@ export interface IExpansionPropHelpersInternalArgs<TColumnKey extends string> {
  * Returns derived state and prop helpers for the expansion feature based on given "source of truth" state.
  * - Used internally by useTableControlProps
  * - "Derived state" here refers to values and convenience functions derived at render time.
- * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
+ * - "source of truth" (persisted) state and "derived state" are kept separate to prevent out-of-sync duplicated state.
  */
 export const useExpansionPropHelpers = <TItem, TColumnKey extends string>(
   args: IExpansionPropHelpersExternalArgs<TItem, TColumnKey> &

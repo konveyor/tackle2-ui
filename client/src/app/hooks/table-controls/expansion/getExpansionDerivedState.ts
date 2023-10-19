@@ -22,7 +22,7 @@ export interface IExpansionDerivedStateArgs<TItem, TColumnKey extends string> {
 /**
  * Derived state for the expansion feature
  * - "Derived state" here refers to values and convenience functions derived at render time based on the "source of truth" state.
- * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
+ * - "source of truth" (persisted) state and "derived state" are kept separate to prevent out-of-sync duplicated state.
  */
 export interface IExpansionDerivedState<TItem, TColumnKey extends string> {
   /**
@@ -45,7 +45,7 @@ export interface IExpansionDerivedState<TItem, TColumnKey extends string> {
 
 /**
  * Given the "source of truth" state for the expansion feature and additional arguments, returns "derived state" values and convenience functions.
- * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
+ * - "source of truth" (persisted) state and "derived state" are kept separate to prevent out-of-sync duplicated state.
  *
  * NOTE: Unlike `getLocal[Filter|Sort|Pagination]DerivedState`, this is not named `getLocalExpansionDerivedState` because it
  * is always local/client-computed, and it is still used when working with server-computed tables

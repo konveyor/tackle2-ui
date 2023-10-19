@@ -3,20 +3,59 @@ import { IFeaturePersistenceArgs } from "../types";
 import { DiscriminatedArgs } from "@app/utils/type-utils";
 
 export interface IActivePagination {
+  /**
+   * The current page number on the user's pagination controls (counting from 1)
+   */
   pageNumber: number;
+  /**
+   * The current "items per page" setting on the user's pagination controls (defaults to 10)
+   */
   itemsPerPage: number;
 }
 
+/**
+ * The "source of truth" state for the pagination feature.
+ * - Included in the object returned by useTableControlState (ITableControlState) under the `paginationState` property.
+ * - Also included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
+ * @see ITableControlState
+ * @see ITableControls
+ */
 export interface IPaginationState extends IActivePagination {
+  /**
+   * Updates the current page number on the user's pagination controls (counting from 1)
+   */
   setPageNumber: (pageNumber: number) => void;
+  /**
+   * Updates the "items per page" setting on the user's pagination controls (defaults to 10)
+   */
   setItemsPerPage: (numItems: number) => void;
 }
 
+/**
+ * Args for usePaginationState
+ * - Makes up part of the arguments object taken by useTableControlState (IUseTableControlStateArgs)
+ * - The properties defined here are only required by useTableControlState if isPaginationEnabled is true (see DiscriminatedArgs)
+ * - Properties here are included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
+ * @see IUseTableControlStateArgs
+ * @see DiscriminatedArgs
+ * @see ITableControls
+ */
 export type IPaginationStateArgs = DiscriminatedArgs<
   "isPaginationEnabled",
-  { initialItemsPerPage?: number }
+  {
+    /**
+     * The initial value of the "items per page" setting on the user's pagination controls (defaults to 10)
+     */
+    initialItemsPerPage?: number;
+  }
 >;
 
+/**
+ * Provides the "source of truth" state for the pagination feature.
+ * - Used internally by useTableControlState
+ * - Takes args defined above as well as optional args for persisting state to a configurable storage target.
+ * @see PersistTarget
+ */
 export const usePaginationState = <
   TPersistenceKeyPrefix extends string = string,
 >(

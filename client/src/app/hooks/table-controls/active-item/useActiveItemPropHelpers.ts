@@ -34,7 +34,7 @@ export type IActiveItemPropHelpersExternalArgs<TItem> =
  * - Used internally by useTableControlProps
  * - Also triggers side effects to prevent invalid state
  * - "Derived state" here refers to values and convenience functions derived at render time.
- * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
+ * - "source of truth" (persisted) state and "derived state" are kept separate to prevent out-of-sync duplicated state.
  */
 export const useActiveItemPropHelpers = <TItem>(
   args: IActiveItemPropHelpersExternalArgs<TItem>

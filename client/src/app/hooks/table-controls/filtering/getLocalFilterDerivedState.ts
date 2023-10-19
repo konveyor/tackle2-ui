@@ -33,7 +33,7 @@ export interface ILocalFilterDerivedStateArgs<
 /**
  * Given the "source of truth" state for the filter feature and additional arguments, returns "derived state" values and convenience functions.
  * - For local/client-computed tables only. Performs the actual filtering logic, which is done on the server for server-computed tables.
- * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
+ * - "source of truth" (persisted) state and "derived state" are kept separate to prevent out-of-sync duplicated state.
  */
 export const getLocalFilterDerivedState = <
   TItem,

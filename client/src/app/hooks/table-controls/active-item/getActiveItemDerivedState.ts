@@ -26,7 +26,7 @@ export interface IActiveItemDerivedStateArgs<TItem> {
 /**
  * Derived state for the active item feature
  * - "Derived state" here refers to values and convenience functions derived at render time based on the "source of truth" state.
- * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
+ * - "source of truth" (persisted) state and "derived state" are kept separate to prevent out-of-sync duplicated state.
  */
 export interface IActiveItemDerivedState<TItem> {
   /**
@@ -50,7 +50,7 @@ export interface IActiveItemDerivedState<TItem> {
 
 /**
  * Given the "source of truth" state for the active item feature and additional arguments, returns "derived state" values and convenience functions.
- * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
+ * - "source of truth" (persisted) state and "derived state" are kept separate to prevent out-of-sync duplicated state.
  *
  * NOTE: Unlike `getLocal[Filter|Sort|Pagination]DerivedState`, this is not named `getLocalActiveItemDerivedState` because it
  * is always local/client-computed, and it is still used when working with server-computed tables

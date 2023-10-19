@@ -8,7 +8,7 @@ import { useSelectionState } from "@migtools/lib-ui";
  * Provides all state, derived state, side-effects and prop helpers needed to manage a local/client-computed table.
  * - Call this and only this if you aren't using server-side filtering/sorting/pagination.
  * - "Derived state" here refers to values and convenience functions derived at render time based on the "source of truth" state.
- * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
+ * - "source of truth" (persisted) state and "derived state" are kept separate to prevent out-of-sync duplicated state.
  */
 export const useLocalTableControls = <
   TItem,

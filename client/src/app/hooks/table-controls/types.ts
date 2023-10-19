@@ -156,7 +156,7 @@ export type IUseTableControlStateArgs<
  * - Provides persisted "source of truth" state for all table features.
  * - Also includes all of useTableControlState's arguments for convenience, since useTableControlProps requires them along with the state itself.
  * - Note that this only contains the "source of truth" state and does not include "derived state" which is computed at render time.
- *   - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
+ *   - "source of truth" (persisted) state and "derived state" are kept separate to prevent out-of-sync duplicated state.
  * - Properties here are included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
  * @see ITableControls
  */
@@ -231,7 +231,7 @@ export type ITableControlDerivedState<TItem> = {
    */
   currentPageItems: TItem[];
   /**
-   * The total number of items in the entire un-filtered, un-paginated table.
+   * The total number of items in the entire un-filtered, un-paginated table (the size of the entire API collection being tabulated).
    */
   totalItemCount: number;
 };

@@ -24,7 +24,7 @@ export interface IUseActiveItemEffectsArgs<TItem> {
 
 /**
  * Registers side effects necessary to prevent invalid state related to the active item feature.
- * - Used internally by by useActiveItemPropHelpers as part of useTableControlProps
+ * - Used internally by useActiveItemPropHelpers as part of useTableControlProps
  * - The effect: If some state change (e.g. refetch, pagination interaction) causes the active item to disappear,
  *   remove its id from state so the drawer won't automatically reopen if the item comes back.
  */

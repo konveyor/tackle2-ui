@@ -3,6 +3,13 @@ import { objectKeys } from "@app/utils/utils";
 import { IFeaturePersistenceArgs } from "../types";
 import { DiscriminatedArgs } from "@app/utils/type-utils";
 
+/**
+ * A map of item ids (strings resolved from `item[idProperty]`) to either:
+ * - a `columnKey` if that item's row has a compound-expanded cell
+ * - or a boolean:
+ *   - true if the row is expanded (for single-expand)
+ *   - false if the row and all its cells are collapsed (for both single-expand and compound-expand).
+ */
 export type TExpandedCells<TColumnKey extends string> = Record<
   string,
   TColumnKey | boolean
@@ -17,11 +24,8 @@ export type TExpandedCells<TColumnKey extends string> = Record<
  */
 export interface IExpansionState<TColumnKey extends string> {
   /**
-   * A map of item ids (strings resolved from `item[idProperty]`) to either:
-   * - a `columnKey` if that item's row has a compound-expanded cell
-   * - or a boolean:
-   *   - true if the row is expanded (for single-expand)
-   *   - false if the row and all its cells are collapsed (for both single-expand and compound-expand).
+   * A map of item ids to a `columnKey` or boolean for the current expansion state of that cell/row
+   * @see TExpandedCells
    */
   expandedCells: TExpandedCells<TColumnKey>;
   /**
