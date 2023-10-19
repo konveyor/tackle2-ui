@@ -23,7 +23,6 @@ export const useLegacyFilterState = <TItem, TFilterCategoryKey extends string>(
     filterCategories,
   });
   const { filteredItems } = getLocalFilterDerivedState({
-    isFilterEnabled: true,
     items,
     filterCategories,
     filterState: { filterValues, setFilterValues },

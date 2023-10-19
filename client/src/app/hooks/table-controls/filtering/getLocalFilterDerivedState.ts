@@ -4,40 +4,24 @@ import {
 } from "@app/components/FilterToolbar";
 import { objectKeys } from "@app/utils/utils";
 import { IFilterState } from "./useFilterState";
-import { DiscriminatedArgs } from "@app/utils/type-utils";
 
-export type ILocalFilterDerivedStateArgs<
+export interface ILocalFilterDerivedStateArgs<
   TItem,
   TFilterCategoryKey extends string,
-> = DiscriminatedArgs<
-  "isFilterEnabled",
-  {
-    items: TItem[];
-    filterCategories: FilterCategory<TItem, TFilterCategoryKey>[];
-    filterState: IFilterState<TFilterCategoryKey>;
-  }
->;
-
-export type ILocalFilterDerivedState<TItem> = {
-  filteredItems: TItem[];
-};
+> {
+  items: TItem[];
+  filterCategories?: FilterCategory<TItem, TFilterCategoryKey>[];
+  filterState: IFilterState<TFilterCategoryKey>;
+}
 
 export const getLocalFilterDerivedState = <
   TItem,
   TFilterCategoryKey extends string,
->(
-  args: ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey>
-) => {
-  if (!args.isFilterEnabled) {
-    return { filteredItems: [] };
-  }
-
-  const {
-    items,
-    filterCategories,
-    filterState: { filterValues },
-  } = args;
-
+>({
+  items,
+  filterCategories = [],
+  filterState: { filterValues },
+}: ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey>) => {
   const filteredItems = items.filter((item) =>
     objectKeys(filterValues).every((categoryKey) => {
       const values = filterValues[categoryKey];
