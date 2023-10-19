@@ -16,30 +16,23 @@ import { useExpansionState } from "./expansion";
  * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
  * - If you aren't using server-side filtering/sorting/pagination, call this via the shorthand hook useLocalTableControls.
  * - If you are using server-side filtering/sorting/pagination, call this first before fetching your API data and then calling useTableControlProps.
- * @param args
- * @returns
  */
 export const useTableControlState = <
+  TNarrowedArgs extends IUseTableControlStateArgs<
+    TItem,
+    TColumnKey,
+    TSortableColumnKey,
+    TFilterCategoryKey,
+    TPersistenceKeyPrefix
+  >,
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: IUseTableControlStateArgs<
-    TItem,
-    TColumnKey,
-    TSortableColumnKey,
-    TFilterCategoryKey,
-    TPersistenceKeyPrefix
-  >
-): ITableControlState<
-  TItem,
-  TColumnKey,
-  TSortableColumnKey,
-  TFilterCategoryKey,
-  TPersistenceKeyPrefix
-> => {
+  args: TNarrowedArgs
+) => {
   const getPersistTo = (feature: TableFeature): PersistTarget | undefined =>
     !args.persistTo || typeof args.persistTo === "string"
       ? args.persistTo
@@ -73,5 +66,11 @@ export const useTableControlState = <
     paginationState,
     expansionState,
     activeItemState,
-  };
+  } satisfies ITableControlState<
+    TItem,
+    TColumnKey,
+    TSortableColumnKey,
+    TFilterCategoryKey,
+    TPersistenceKeyPrefix
+  >;
 };
