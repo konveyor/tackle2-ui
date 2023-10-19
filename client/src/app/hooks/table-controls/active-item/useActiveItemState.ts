@@ -10,22 +10,35 @@ import { usePersistentState } from "@app/hooks/usePersistentState";
  * @see ITableControls
  */
 export interface IActiveItemState {
+  /**
+   * The item id (string or number resolved from `item[idProperty]`) of the active item. Null if no item is active.
+   */
   activeItemId: string | number | null;
+  /**
+   * Updates the active item by id. Pass null to dismiss the active item.
+   */
   setActiveItemId: (id: string | number | null) => void;
 }
 
 /**
- * Base args for useActiveItemState
+ * Args for useActiveItemState
  * - Makes up part of the arguments object taken by useTableControlState (IUseTableControlStateArgs)
  * - Properties here are included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
+ * @see IUseTableControlStateArgs
  * @see ITableControls
  */
-export type IActiveItemStateArgs = { isActiveItemEnabled?: boolean };
+export type IActiveItemStateArgs = {
+  /**
+   * The only arg for this feature is the enabled flag.
+   * - This does not use DiscriminatedArgs because there are no additional args when the active item feature is enabled.
+   */
+  isActiveItemEnabled?: boolean;
+};
 
 /**
  * Provides the "source of truth" state for the active item feature.
  * - Used internally by useTableControlState
- * - Takes base args defined above as well as optional args for persisting state to a configurable storage target.
+ * - Takes args defined above as well as optional args for persisting state to a configurable storage target.
  * @see PersistTarget
  */
 export const useActiveItemState = <

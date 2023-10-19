@@ -5,19 +5,54 @@ import { serializeFilterUrlParams } from "./helpers";
 import { deserializeFilterUrlParams } from "./helpers";
 import { DiscriminatedArgs } from "@app/utils/type-utils";
 
+/**
+ * The "source of truth" state for the filter feature.
+ * - Included in the object returned by useTableControlState (ITableControlState) under the `filterState` property.
+ * - Also included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
+ * @see ITableControlState
+ * @see ITableControls
+ */
 export interface IFilterState<TFilterCategoryKey extends string> {
+  /**
+   * A mapping:
+   * - from string keys uniquely identifying a filterCategory (inferred from the `key` properties of elements in the `filterCategories` array)
+   * - to arrays of strings representing the current value(s) of that filter. Single-value filters are stored as an array with one element.
+   */
   filterValues: IFilterValues<TFilterCategoryKey>;
+  /**
+   * Updates the `filterValues` mapping.
+   */
   setFilterValues: (values: IFilterValues<TFilterCategoryKey>) => void;
 }
 
+/**
+ * Args for useFilterState
+ * - Makes up part of the arguments object taken by useTableControlState (IUseTableControlStateArgs)
+ * - The properties defined here are only required by useTableControlState if isFilterEnabled is true (see DiscriminatedArgs)
+ * - Properties here are included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
+ * @see IUseTableControlStateArgs
+ * @see DiscriminatedArgs
+ * @see ITableControls
+ */
 export type IFilterStateArgs<
   TItem,
   TFilterCategoryKey extends string,
 > = DiscriminatedArgs<
   "isFilterEnabled",
-  { filterCategories: FilterCategory<TItem, TFilterCategoryKey>[] }
+  {
+    /**
+     * Definitions of the filters to be used (must include `getItemValue` functions for each category when performing filtering locally)
+     */
+    filterCategories: FilterCategory<TItem, TFilterCategoryKey>[];
+  }
 >;
 
+/**
+ * Provides the "source of truth" state for the filter feature.
+ * - Used internally by useTableControlState
+ * - Takes args defined above as well as optional args for persisting state to a configurable storage target.
+ * @see PersistTarget
+ */
 export const useFilterState = <
   TItem,
   TFilterCategoryKey extends string,

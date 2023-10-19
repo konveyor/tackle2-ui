@@ -9,8 +9,17 @@ import { IActiveItemState } from "./useActiveItemState";
  * @see IUseTableControlPropsArgs
  */
 export interface IActiveItemDerivedStateArgs<TItem> {
+  /**
+   * The current page of API data items after filtering/sorting/pagination
+   */
   currentPageItems: TItem[];
+  /**
+   * The string key/name of a property on the API data item objects that can be used as a unique identifier (string or number)
+   */
   idProperty: KeyWithValueType<TItem, string | number>;
+  /**
+   * The "source of truth" state for the active item feature (returned by useActiveItemState)
+   */
   activeItemState: IActiveItemState;
 }
 
@@ -20,9 +29,22 @@ export interface IActiveItemDerivedStateArgs<TItem> {
  * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
  */
 export interface IActiveItemDerivedState<TItem> {
+  /**
+   * The API data object matching the `activeItemId` in `activeItemState`
+   */
   activeItem: TItem | null;
+  /**
+   * Updates the active item (sets `activeItemId` in `activeItemState` to the id of the given item).
+   * - Pass null to dismiss the active item.
+   */
   setActiveItem: (item: TItem | null) => void;
+  /**
+   * Dismisses the active item. Shorthand for setActiveItem(null).
+   */
   clearActiveItem: () => void;
+  /**
+   * Returns whether the given item matches the `activeItemId` in `activeItemState`.
+   */
   isActiveItem: (item: TItem) => boolean;
 }
 

@@ -3,26 +3,62 @@ import { objectKeys } from "@app/utils/utils";
 import { IFeaturePersistenceArgs } from "../types";
 import { DiscriminatedArgs } from "@app/utils/type-utils";
 
-// TExpandedCells maps item[idProperty] values to either:
-//  - The key of an expanded column in that row, if the table is compound-expandable
-//  - The `true` literal value (the entire row is expanded), if non-compound-expandable
 export type TExpandedCells<TColumnKey extends string> = Record<
   string,
   TColumnKey | boolean
 >;
 
+/**
+ * The "source of truth" state for the expansion feature.
+ * - Included in the object returned by useTableControlState (ITableControlState) under the `expansionState` property.
+ * - Also included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
+ * @see ITableControlState
+ * @see ITableControls
+ */
 export interface IExpansionState<TColumnKey extends string> {
-  expandedCells: Record<string, boolean | TColumnKey>;
-  setExpandedCells: (
-    newExpandedCells: Record<string, boolean | TColumnKey>
-  ) => void;
+  /**
+   * A map of item ids (strings resolved from `item[idProperty]`) to either:
+   * - a `columnKey` if that item's row has a compound-expanded cell
+   * - or a boolean:
+   *   - true if the row is expanded (for single-expand)
+   *   - false if the row and all its cells are collapsed (for both single-expand and compound-expand).
+   */
+  expandedCells: TExpandedCells<TColumnKey>;
+  /**
+   * Updates the `expandedCells` map (replacing the entire map).
+   * - See `expansionDerivedState` for helper functions to expand/collapse individual cells/rows.
+   * @see IExpansionDerivedState
+   */
+  setExpandedCells: (newExpandedCells: TExpandedCells<TColumnKey>) => void;
 }
 
+/**
+ * Args for useExpansionState
+ * - Makes up part of the arguments object taken by useTableControlState (IUseTableControlStateArgs)
+ * - The properties defined here are only required by useTableControlState if isExpansionEnabled is true (see DiscriminatedArgs)
+ * - Properties here are included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
+ * @see IUseTableControlStateArgs
+ * @see DiscriminatedArgs
+ * @see ITableControls
+ */
 export type IExpansionStateArgs = DiscriminatedArgs<
   "isExpansionEnabled",
-  { expandableVariant: "single" | "compound" }
+  {
+    /**
+     * Whether to use single-expand or compound-expand behavior
+     * - "single" for the entire row to be expandable with one toggle.
+     * - "compound" for multiple cells in a row to be expandable with individual toggles.
+     */
+    expandableVariant: "single" | "compound";
+  }
 >;
 
+/**
+ * Provides the "source of truth" state for the expansion feature.
+ * - Used internally by useTableControlState
+ * - Takes args defined above as well as optional args for persisting state to a configurable storage target.
+ * @see PersistTarget
+ */
 export const useExpansionState = <
   TColumnKey extends string,
   TPersistenceKeyPrefix extends string = string,

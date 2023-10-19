@@ -1,5 +1,5 @@
 import * as React from "react";
-import { getActiveItemDerivedState } from "./getActiveItemDerivedState";
+import { IActiveItemDerivedState } from "./getActiveItemDerivedState";
 import { IActiveItemState } from "./useActiveItemState";
 
 /**
@@ -8,9 +8,18 @@ import { IActiveItemState } from "./useActiveItemState";
  * - Makes up part of the arguments object taken by useTableControlProps (IUseTableControlPropsArgs)
  */
 export interface IUseActiveItemEffectsArgs<TItem> {
+  /**
+   * Whether the table data is loading
+   */
   isLoading?: boolean;
+  /**
+   * The "source of truth" state for the active item feature (returned by useActiveItemState)
+   */
   activeItemState: IActiveItemState;
-  activeItemDerivedState: ReturnType<typeof getActiveItemDerivedState<TItem>>;
+  /**
+   * The "derived state" for the active item feature (returned by getActiveItemDerivedState)
+   */
+  activeItemDerivedState: IActiveItemDerivedState<TItem>;
 }
 
 /**
