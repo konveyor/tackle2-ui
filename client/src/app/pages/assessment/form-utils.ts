@@ -10,9 +10,13 @@ export enum SAVE_ACTION_VALUE {
   SAVE_AS_DRAFT,
 }
 export const getCommentFieldName = (section: Section, fullName: boolean) => {
-  const fieldName = `category-${section.name}`;
-  return fullName ? `${COMMENTS_KEY}.${fieldName}` : fieldName;
+  const fieldName = `section-${section.name}`;
+  const sanitizedFieldName = sanitizeKey(fieldName);
+  return fullName
+    ? `${COMMENTS_KEY}.${sanitizedFieldName}`
+    : sanitizedFieldName;
 };
+
 export const sanitizeKey = (text: string) => {
   return text.replace(/[^a-zA-Z0-9-_:.]/g, "_");
 };

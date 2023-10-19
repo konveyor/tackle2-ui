@@ -666,6 +666,7 @@ export interface Section {
   name: string;
   questions: Question[];
   order: number;
+  comment?: string;
 }
 
 export interface Question {

@@ -25,6 +25,7 @@ import QuestionnaireSectionTabTitle from "./components/questionnaire-section-tab
 import { AxiosError } from "axios";
 import { formatPath } from "@app/utils/utils";
 import useIsArchetype from "@app/hooks/useIsArchetype";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 export enum SummaryType {
   Assessment = "Assessment",
@@ -215,6 +216,14 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
                           data={summaryData}
                           hideAnswerKey={summaryType === SummaryType.Assessment}
                         />
+                        {section?.comment && (
+                          <TextContent className={spacing.myMd}>
+                            <Text component="h4">Section comments</Text>
+                            <Text key={index} component="p">
+                              {section.comment}
+                            </Text>
+                          </TextContent>
+                        )}
                       </Tab>
                     );
                   }) || []),

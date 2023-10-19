@@ -3,7 +3,7 @@ import { getCommentFieldName, getQuestionFieldName } from "./form-utils";
 
 describe("Application assessment - form utils", () => {
   const section: Section = {
-    name: "category-123",
+    name: "section-123",
     order: 1,
     questions: [],
   };
@@ -16,12 +16,12 @@ describe("Application assessment - form utils", () => {
 
   it("getCommentFieldName: fullName", () => {
     const fieldName = getCommentFieldName(section, true);
-    expect(fieldName).toBe("comments.category-category-123");
+    expect(fieldName).toBe("comments.section-section-123");
   });
 
   it("getCommentFieldName: singleName", () => {
     const fieldName = getCommentFieldName(section, false);
-    expect(fieldName).toBe("category-category-123");
+    expect(fieldName).toBe("section-section-123");
   });
 
   it("getQuestionFieldName: fullName", () => {
