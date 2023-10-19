@@ -181,7 +181,7 @@ export function toISimpleOptionDropdownWithValue<T>(
   };
 }
 
-export const getKindIDByRef = (
+export const getKindIdByRef = (
   identities: Identity[],
   application: Application,
   kind: IdentityKind

@@ -19,7 +19,7 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
 import {
   useFetchImports,
-  useFetchImportSummaryByID,
+  useFetchImportSummaryById,
 } from "@app/queries/imports";
 import {
   FilterCategory,
@@ -63,7 +63,7 @@ export const ManageImportsDetails: React.FC = () => {
     false
   );
 
-  const { importSummary } = useFetchImportSummaryByID(importId);
+  const { importSummary } = useFetchImportSummaryById(importId);
 
   const rows: IRow[] = [];
   imports?.forEach((item) => {

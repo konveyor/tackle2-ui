@@ -18,7 +18,7 @@ import {
 } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Identity, MimeType, Task } from "@app/api/models";
-import { getKindIDByRef } from "@app/utils/model-utils";
+import { getKindIdByRef } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
 import {
   ApplicationDetailDrawer,
@@ -53,8 +53,8 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
   let matchingSourceCredsRef: Identity | undefined;
   let matchingMavenCredsRef: Identity | undefined;
   if (application && identities) {
-    matchingSourceCredsRef = getKindIDByRef(identities, application, "source");
-    matchingMavenCredsRef = getKindIDByRef(identities, application, "maven");
+    matchingSourceCredsRef = getKindIdByRef(identities, application, "source");
+    matchingMavenCredsRef = getKindIdByRef(identities, application, "maven");
   }
 
   const notAvailable = <EmptyTextMessage message={t("terms.notAvailable")} />;

@@ -13,7 +13,7 @@ import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-
 import { Application, Ref } from "@app/api/models";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { getKindIDByRef, toOptionLike } from "@app/utils/model-utils";
+import { getKindIdByRef, toOptionLike } from "@app/utils/model-utils";
 import {
   APPLICATION_NAME,
   MAVEN_SETTINGS,
@@ -148,12 +148,12 @@ export const ApplicationIdentityForm: React.FC<
   } = useForm<FormValues>({
     defaultValues: {
       [APPLICATION_NAME]: getApplicationNames(applications) || "",
-      [SOURCE_CREDENTIALS]: getKindIDByRef(
+      [SOURCE_CREDENTIALS]: getKindIdByRef(
         identities,
         applications[0],
         "source"
       )?.name,
-      [MAVEN_SETTINGS]: getKindIDByRef(identities, applications[0], "maven")
+      [MAVEN_SETTINGS]: getKindIdByRef(identities, applications[0], "maven")
         ?.name,
     },
     resolver: yupResolver(
@@ -165,10 +165,10 @@ export const ApplicationIdentityForm: React.FC<
   useEffect(() => {
     if (identities && applications) {
       const isExistingSourceCreds = applications.some((app) => {
-        return getKindIDByRef(identities, app, "source");
+        return getKindIdByRef(identities, app, "source");
       });
       const isExistingMavenCreds = applications.some((app) => {
-        return getKindIDByRef(identities, app, "maven");
+        return getKindIdByRef(identities, app, "maven");
       });
       setExistingIdentitiesError(isExistingMavenCreds || isExistingSourceCreds);
     }
