@@ -43,13 +43,13 @@ export const useFetchImportSummaries = () => {
   };
 };
 
-export const useFetchImportSummaryByID = (id: number | string) => {
+export const useFetchImportSummaryById = (id: number | string) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [ImportQueryKey, id],
     queryFn: () => getApplicationImportSummaryById(id),
     onError: (error) => console.log(error),
   });
-
+  
   return {
     importSummary: data,
     isFetching: isLoading,

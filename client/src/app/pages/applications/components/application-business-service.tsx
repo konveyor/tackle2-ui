@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useFetchBusinessServiceByID } from "@app/queries/businessservices";
+import { useFetchBusinessServiceById } from "@app/queries/businessservices";
 
 export interface ApplicationBusinessServiceProps {
   id: number | string | undefined;
@@ -9,7 +9,7 @@ export interface ApplicationBusinessServiceProps {
 export const ApplicationBusinessService: React.FC<
   ApplicationBusinessServiceProps
 > = ({ id }) => {
-  const { businessService, fetchError } = useFetchBusinessServiceByID(id || "");
+  const { businessService, fetchError } = useFetchBusinessServiceById(id || "");
 
   if (fetchError) {
     return <></>;
