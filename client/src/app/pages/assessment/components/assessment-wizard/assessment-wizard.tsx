@@ -3,7 +3,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
-import { ButtonVariant, Wizard, WizardStep } from "@patternfly/react-core";
+import {
+  Alert,
+  ButtonVariant,
+  Spinner,
+  Wizard,
+  WizardStep,
+} from "@patternfly/react-core";
 
 import {
   Assessment,
@@ -37,6 +43,7 @@ import useIsArchetype from "@app/hooks/useIsArchetype";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 export const SAVE_ACTION_KEY = "saveAction";
 
@@ -60,14 +67,14 @@ export interface AssessmentWizardValues {
 
 export interface AssessmentWizardProps {
   assessment?: Assessment;
-  isOpen: boolean;
   isLoadingAssessment: boolean;
+  fetchError?: AxiosError | null;
 }
 
 export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   assessment,
-  isOpen,
   isLoadingAssessment,
+  fetchError,
 }) => {
   const isArchetype = useIsArchetype();
   const queryClient = useQueryClient();
@@ -97,8 +104,8 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const sortedSections = (!isLoadingAssessment && assessment ? assessment.sections : []).sort(
-      (a, b) => a.order - b.order
+  const sortedSections = (assessment ? assessment.sections : []).sort(
+    (a, b) => a.order - b.order
   );
 
   //TODO: Add comments to the sections when/if available from api
@@ -583,7 +590,17 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   return (
     <>
-      {isOpen && !!sortedSections.length && (
+      {fetchError && (
+        <Alert
+          className={`${spacing.mtMd} ${spacing.mbMd}`}
+          variant="danger"
+          isInline
+          title={getAxiosErrorMessage(fetchError)}
+        />
+      )}
+      {isLoadingAssessment ? (
+        <Spinner />
+      ) : (
         <FormProvider {...methods}>
           <Wizard
             isVisitRequired

@@ -63,8 +63,8 @@ const AssessmentPage: React.FC = () => {
         )}
         <AssessmentWizard
           assessment={assessment}
-          isOpen
           isLoadingAssessment={isFetching}
+          fetchError={fetchError}
         />
       </PageSection>
     </>
