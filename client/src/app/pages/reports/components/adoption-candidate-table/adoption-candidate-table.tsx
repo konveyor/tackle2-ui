@@ -14,7 +14,6 @@ import {
 import { RISK_LIST } from "@app/Constants";
 import { Application, Assessment, Ref, Risk } from "@app/api/models";
 
-import { useFetchReviews } from "@app/queries/reviews";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
 import {
   FilterCategory,
@@ -54,7 +53,6 @@ export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
   // Table data
   // const { reviews } = useFetchReviews();
   const { assessments } = useFetchAssessments();
-  const { reviews } = useFetchReviews();
 
   const allRows = useMemo(() => {
     return assessments.map((assessment: Assessment) => {

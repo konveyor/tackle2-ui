@@ -3,6 +3,7 @@ export enum MimeType {
   YAML = "yaml",
 }
 
+/** Mark an object as "New" therefore does not have an `id` field. */
 export type New<T extends { id: number }> = Omit<T, "id">;
 
 export interface HubFilter {

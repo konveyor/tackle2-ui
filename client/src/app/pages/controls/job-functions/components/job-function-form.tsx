@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { object, string } from "yup";
 
 import {
@@ -70,11 +70,11 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
     mode: "all",
   });
 
-  const onCreateJobFunctionSuccess = (response: AxiosResponse<JobFunction>) => {
+  const onCreateJobFunctionSuccess = (data: JobFunction) => {
     pushNotification({
       title: t("toastr.success.createWhat", {
         type: t("terms.jobFunction"),
-        what: response.data.name,
+        what: data.name,
       }),
       variant: "success",
     });
@@ -91,7 +91,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
     onClose();
   };
 
-  const onCreateJobFunctionError = (error: AxiosError) => {
+  const onCreateJobFunctionError = (_error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.create", {
         type: t("terms.jobFunction").toLowerCase(),
@@ -105,7 +105,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
     onCreateJobFunctionError
   );
 
-  const onUpdateJobFunctionError = (error: AxiosError) => {
+  const onUpdateJobFunctionError = (_error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.save", {
         type: t("terms.jobFunction").toLowerCase(),
