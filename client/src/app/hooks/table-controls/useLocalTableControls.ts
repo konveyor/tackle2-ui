@@ -11,36 +11,28 @@ import { useSelectionState } from "@migtools/lib-ui";
  * - "source of truth" (persisted) state and "derived state" are kept separate to prevent state duplication.
  */
 export const useLocalTableControls = <
-  TNarrowedArgs extends IUseLocalTableControlsArgs<
-    TItem,
-    TColumnKey,
-    TSortableColumnKey,
-    TFilterCategoryKey,
-    TPersistenceKeyPrefix
-  >,
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: TNarrowedArgs
-) => {
-  const state = useTableControlState<
-    TNarrowedArgs,
+  args: IUseLocalTableControlsArgs<
     TItem,
     TColumnKey,
     TSortableColumnKey,
     TFilterCategoryKey,
     TPersistenceKeyPrefix
-  >(args);
-  const derivedState = getLocalTableControlDerivedState<
-    TItem,
-    TColumnKey,
-    TSortableColumnKey,
-    TFilterCategoryKey,
-    TPersistenceKeyPrefix
-  >({ ...args, ...state });
+  >
+): ITableControls<
+  TItem,
+  TColumnKey,
+  TSortableColumnKey,
+  TFilterCategoryKey,
+  TPersistenceKeyPrefix
+> => {
+  const state = useTableControlState(args);
+  const derivedState = getLocalTableControlDerivedState({ ...args, ...state });
   return useTableControlProps({
     ...args,
     ...state,
@@ -50,11 +42,5 @@ export const useLocalTableControls = <
       ...args,
       isEqual: (a, b) => a[args.idProperty] === b[args.idProperty],
     }),
-  }) satisfies ITableControls<
-    TItem,
-    TColumnKey,
-    TSortableColumnKey,
-    TFilterCategoryKey,
-    TPersistenceKeyPrefix
-  >;
+  });
 };

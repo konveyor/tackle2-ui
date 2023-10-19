@@ -22,21 +22,26 @@ import { handlePropagatedRowClick } from "./utils";
  * @see getLocalTableControlDerivedState
  */
 export const useTableControlProps = <
-  TNarrowedArgs extends IUseTableControlPropsArgs<
-    TItem,
-    TColumnKey,
-    TSortableColumnKey,
-    TFilterCategoryKey,
-    TPersistenceKeyPrefix
-  >,
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
   TFilterCategoryKey extends string = string,
   TPersistenceKeyPrefix extends string = string,
 >(
-  args: TNarrowedArgs
-) => {
+  args: IUseTableControlPropsArgs<
+    TItem,
+    TColumnKey,
+    TSortableColumnKey,
+    TFilterCategoryKey,
+    TPersistenceKeyPrefix
+  >
+): ITableControls<
+  TItem,
+  TColumnKey,
+  TSortableColumnKey,
+  TFilterCategoryKey,
+  TPersistenceKeyPrefix
+> => {
   type PropHelpers = ITableControls<
     TItem,
     TColumnKey,
@@ -187,11 +192,5 @@ export const useTableControlProps = <
       getSingleExpandButtonTdProps,
       getExpandedContentTdProps,
     },
-  } satisfies ITableControls<
-    TItem,
-    TColumnKey,
-    TSortableColumnKey,
-    TFilterCategoryKey,
-    TPersistenceKeyPrefix
-  >;
+  };
 };
