@@ -187,16 +187,6 @@ const DynamicAssessmentActionsRow: FunctionComponent<
           }).then(() => {
             createAssessment();
           });
-          history.push(
-            formatPath(
-              isArchetype
-                ? Paths.archetypesAssessment
-                : Paths.applicationsAssessment,
-              {
-                assessmentId: assessment?.id,
-              }
-            )
-          );
         } catch (error) {
           pushNotification({
             title: t("terms.error"),
