@@ -8,6 +8,7 @@ describe("WizardStepNavDescription", () => {
     name: "Section 1",
     order: 1,
     questions: [],
+    comment: "",
   };
 
   it("Renders without crashing", () => {
