@@ -2,25 +2,68 @@ import { DiscriminatedArgs } from "@app/utils/type-utils";
 import { IFeaturePersistenceArgs } from "..";
 import { usePersistentState } from "@app/hooks/usePersistentState";
 
+/**
+ * The currently applied sort parameters
+ */
 export interface IActiveSort<TSortableColumnKey extends string> {
+  /**
+   * The identifier for the currently sorted column (`columnKey` values come from the keys of the `columnNames` object passed to useTableControlState)
+   */
   columnKey: TSortableColumnKey;
+  /**
+   * The direction of the currently applied sort (ascending or descending)
+   */
   direction: "asc" | "desc";
 }
 
+/**
+ * The "source of truth" state for the sort feature.
+ * - Included in the object returned by useTableControlState (ITableControlState) under the `sortState` property.
+ * - Also included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
+ * @see ITableControlState
+ * @see ITableControls
+ */
 export interface ISortState<TSortableColumnKey extends string> {
+  /**
+   * The currently applied sort column and direction
+   */
   activeSort: IActiveSort<TSortableColumnKey> | null;
+  /**
+   * Updates the currently applied sort column and direction
+   */
   setActiveSort: (sort: IActiveSort<TSortableColumnKey>) => void;
 }
 
+/**
+ * Args for useSortState
+ * - Makes up part of the arguments object taken by useTableControlState (IUseTableControlStateArgs)
+ * - The properties defined here are only required by useTableControlState if isSortEnabled is true (see DiscriminatedArgs)
+ * - Properties here are included in the `ITableControls` object returned by useTableControlProps and useLocalTableControls.
+ * @see IUseTableControlStateArgs
+ * @see DiscriminatedArgs
+ * @see ITableControls
+ */
 export type ISortStateArgs<TSortableColumnKey extends string> =
   DiscriminatedArgs<
     "isSortEnabled",
     {
+      /**
+       * The `columnKey` values (keys of the `columnNames` object passed to useTableControlState) corresponding to columns with sorting enabled
+       */
       sortableColumns: TSortableColumnKey[];
+      /**
+       * The sort column and direction that should be applied by default when the table first loads
+       */
       initialSort?: IActiveSort<TSortableColumnKey> | null;
     }
   >;
 
+/**
+ * Provides the "source of truth" state for the sort feature.
+ * - Used internally by useTableControlState
+ * - Takes args defined above as well as optional args for persisting state to a configurable storage target.
+ * @see PersistTarget
+ */
 export const useSortState = <
   TSortableColumnKey extends string,
   TPersistenceKeyPrefix extends string = string,

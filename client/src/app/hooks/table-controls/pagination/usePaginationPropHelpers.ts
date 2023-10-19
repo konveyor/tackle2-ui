@@ -44,6 +44,9 @@ export const usePaginationPropHelpers = (
 
   usePaginationEffects(args);
 
+  /**
+   * Props for the PF Pagination component
+   */
   const paginationProps: PaginationProps = {
     itemCount: totalItemCount,
     perPage: itemsPerPage,
@@ -55,6 +58,9 @@ export const usePaginationPropHelpers = (
     },
   };
 
+  /**
+   * Props for the PF ToolbarItem component which contains the Pagination component
+   */
   const paginationToolbarItemProps: ToolbarItemProps = {
     variant: "pagination",
     align: { default: "alignRight" },

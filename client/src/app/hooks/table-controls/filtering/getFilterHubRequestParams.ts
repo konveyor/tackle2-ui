@@ -172,7 +172,8 @@ export const serializeFilterForHub = (filter: HubFilter): string => {
 };
 
 /**
- * Converts all HubFilter values to URL query strings and appends them to the given `serializedParams` object for use in the hub API request
+ * Converts the values returned by getFilterHubRequestParams into the URL query strings expected by the hub API
+ * - Appends converted URL params to the given `serializedParams` object for use in the hub API request
  * - Constructs part of the object returned by serializeRequestParamsForHub
  * @see serializeRequestParamsForHub
  */

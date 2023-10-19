@@ -1,20 +1,44 @@
 import { ThProps } from "@patternfly/react-table";
 import { ISortState } from "./useSortState";
 
-// Args that should be passed into useTableControlProps
+/**
+ * Args for useSortPropHelpers that come from outside useTableControlProps
+ * - Partially satisfied by the object returned by useTableControlState (ITableControlState)
+ * - Makes up part of the arguments object taken by useTableControlProps (IUseTableControlPropsArgs)
+ * @see ITableControlState
+ * @see IUseTableControlPropsArgs
+ */
 export interface ISortPropHelpersExternalArgs<
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
 > {
+  /**
+   * The "source of truth" state for the sort feature (returned by useSortState)
+   */
   sortState: ISortState<TSortableColumnKey>;
+  /**
+   * The `columnKey` values (keys of the `columnNames` object passed to useTableControlState) corresponding to columns with sorting enabled
+   */
   sortableColumns?: TSortableColumnKey[];
 }
 
-// Additional args that come from logic inside useTableControlProps
+/**
+ * Additional args for useSortPropHelpers that come from logic inside useTableControlProps
+ * @see useTableControlProps
+ */
 export interface ISortPropHelpersInternalArgs<TColumnKey extends string> {
+  /**
+   * The keys of the `columnNames` object passed to useTableControlState (for all columns, not just the sortable ones)
+   */
   columnKeys: TColumnKey[];
 }
 
+/**
+ * Returns derived state and prop helpers for the sort feature based on given "source of truth" state.
+ * - Used internally by useTableControlProps
+ * - "Derived state" here refers to values and convenience functions derived at render time.
+ * - "source of truth" (persisted) state and "derived state" are kept separate to prevent out-of-sync duplicated state.
+ */
 export const useSortPropHelpers = <
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
@@ -28,6 +52,9 @@ export const useSortPropHelpers = <
     columnKeys,
   } = args;
 
+  /**
+   * Returns props for the Th component for a column with sorting enabled.
+   */
   const getSortThProps = ({
     columnKey,
   }: {

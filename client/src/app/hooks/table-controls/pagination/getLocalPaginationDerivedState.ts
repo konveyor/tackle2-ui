@@ -9,7 +9,7 @@ import { IPaginationState } from "./usePaginationState";
  */
 export interface ILocalPaginationDerivedStateArgs<TItem> {
   /**
-   * The API data items before pagination
+   * The API data items before pagination (but after filtering)
    */
   items: TItem[];
   /**

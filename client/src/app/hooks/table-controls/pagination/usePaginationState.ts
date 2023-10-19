@@ -2,6 +2,9 @@ import { usePersistentState } from "@app/hooks/usePersistentState";
 import { IFeaturePersistenceArgs } from "../types";
 import { DiscriminatedArgs } from "@app/utils/type-utils";
 
+/**
+ * The currently applied pagination parameters
+ */
 export interface IActivePagination {
   /**
    * The current page number on the user's pagination controls (counting from 1)

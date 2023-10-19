@@ -25,6 +25,12 @@ export const getPaginationHubRequestParams = ({
   return { page: { pageNumber, itemsPerPage } };
 };
 
+/**
+ * Converts the values returned by getPaginationHubRequestParams into the URL query strings expected by the hub API
+ * - Appends converted URL params to the given `serializedParams` object for use in the hub API request
+ * - Constructs part of the object returned by serializeRequestParamsForHub
+ * @see serializeRequestParamsForHub
+ */
 export const serializePaginationRequestParamsForHub = (
   deserializedParams: HubRequestParams,
   serializedParams: URLSearchParams
