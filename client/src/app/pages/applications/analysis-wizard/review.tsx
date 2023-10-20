@@ -43,6 +43,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
   const { watch } = useFormContext<AnalysisWizardFormValues>();
   const {
     formLabels,
+    selectedSourceLabels,
     withKnownLibs,
     includedPackages,
     hasExcludedPackages,
@@ -101,13 +102,13 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {formLabels.length > 1
+            {selectedSourceLabels.length > 1
               ? t("wizard.terms.sources")
               : t("wizard.terms.source")}
           </DescriptionListTerm>
           <DescriptionListDescription id="sources">
             <List isPlain>
-              {formLabels.map((label, index) => {
+              {selectedSourceLabels.map((label, index) => {
                 const parsedLabel = getParsedLabel(label?.label);
                 if (parsedLabel.labelType === "source") {
                   return (
