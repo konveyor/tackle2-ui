@@ -158,6 +158,7 @@ export interface OptionsStepValues {
   diva: boolean;
   excludedRulesTags: string[];
   autoTaggingEnabled: boolean;
+  selectedSourceLabels: TargetLabel[];
 }
 
 const useOptionsStepSchema = (): yup.SchemaOf<OptionsStepValues> => {
@@ -166,6 +167,12 @@ const useOptionsStepSchema = (): yup.SchemaOf<OptionsStepValues> => {
     diva: yup.bool().defined(),
     excludedRulesTags: yup.array().of(yup.string().defined()),
     autoTaggingEnabled: yup.bool().defined(),
+    selectedSourceLabels: yup.array().of(
+      yup.object().shape({
+        name: yup.string().defined(),
+        label: yup.string().defined(),
+      })
+    ),
   });
 };
 
