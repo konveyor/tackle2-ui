@@ -158,14 +158,14 @@ export const SetOptions: React.FC = () => {
       />
       <HookFormPFGroupController
         control={control}
-        name="formLabels"
+        name="selectedSourceLabels"
         label={t("wizard.terms.sources")}
         fieldId="sources"
         renderInput={({
           field: { onChange, onBlur, value },
           fieldState: { isDirty, error, isTouched },
         }) => {
-          const sourceSelections = formLabels
+          const sourceSelections = value
             .map((formLabel) => {
               const parsedLabel = getParsedLabel(formLabel?.label);
               if (parsedLabel.labelType === "source") {
@@ -190,17 +190,17 @@ export const SetOptions: React.FC = () => {
                     (label) => label.label === selectionWithLabelSelector
                   ) || "";
 
-                const formLabelLabels = formLabels.map(
+                const formLabelLabels = value.map(
                   (formLabel) => formLabel.label
                 );
                 if (
                   matchingLabel &&
                   !formLabelLabels.includes(matchingLabel.label)
                 ) {
-                  onChange([...formLabels, matchingLabel]);
+                  onChange([...value, matchingLabel]);
                 } else {
                   onChange(
-                    formLabels.filter(
+                    value.filter(
                       (formLabel) =>
                         formLabel.label !== selectionWithLabelSelector
                     )

@@ -41,6 +41,7 @@ import { useAsyncYupValidation } from "@app/hooks/useAsyncYupValidation";
 import { CustomRules } from "./custom-rules";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useTaskGroup } from "./components/TaskGroupContext";
+import { getParsedLabel } from "@app/utils/rules-utils";
 
 interface IAnalysisWizard {
   applications: Application[];
@@ -164,6 +165,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       mode: "binary",
       formLabels: [],
       selectedTargets: [],
+      selectedSourceLabels: [],
       withKnownLibs: "app",
       includedPackages: [],
       excludedPackages: [],
@@ -251,7 +253,16 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           labels: {
             included: Array.from(
               new Set<string>([
-                ...fieldValues.formLabels.map((label) => label.label),
+                ...fieldValues.formLabels
+                  .filter(
+                    (label) =>
+                      getParsedLabel(label.label).labelType !== "source"
+                  )
+                  .map((label) => label.label)
+                  .filter(Boolean),
+                ...fieldValues.selectedSourceLabels
+                  .map((label) => label.label)
+                  .filter(Boolean),
               ])
             ),
             excluded: [],
