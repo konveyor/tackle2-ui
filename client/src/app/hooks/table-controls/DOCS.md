@@ -163,21 +163,16 @@ The usage is similar here, but some client-specific arguments are no longer requ
 
 Note also: the destructuring of `tableControls` and returned JSX is not included in this example code because **_it is identical to the example above_**. The only differences between client-paginated and server-paginated tables are in the hook calls; the `tableControls` object and its usage are the same for all tables.
 
-This example also shows a powerful optional capability of these hooks: the `persistTo` argument. This can be passed to either `useTableControlState` or `useLocalTableControls` and it allows us to store the current pagination/sort/filter state in a custom location and use that as the source of truth. The supported `persistTo` values are:
+This example also shows a powerful optional capability of these hooks: the `persistTo` argument. This can be passed to either `useTableControlState` or `useLocalTableControls` and it allows us to store the current pagination/sort/filter state in a custom location and use that as the source of truth. The supported `persistTo` values are `"state"` (default), `"urlParams"` (recommended), `"localStorage"` or `"sessionStorage"`. For more on each persistence target see [Features](#features).
 
-- `"state"` (default) - Plain React state. Resets on component unmount or page reload.
-- `"urlParams"` (recommended) - URL query parameters. Persists on page reload, browser history buttons (back/forward) or loading a bookmark. Resets on page navigation.
-- `"localStorage"` - Browser localStorage API. Persists semi-permanently and is shared across all tabs/windows. Resets only when the user clears their browsing data.
-- `"sessionStorage"` - Browser sessionStorage API. Persists on page/history navigation/reload. Resets when the tab/window is closed.
-
-Here we use `persistTo: "urlParams"` which will use URL query params as the source of truth for the state of all this table's features. We also pass an optional `persistenceKeyPrefix` which distinguishes this persisted state from any other state that may be persisted in the URL by other tables on the same page (it can be omitted if there is only one table on the page). It should be a short string because it is included in every URL param name. We'll use `"ex"` which is short for "example".
+Here we use `persistTo: "urlParams"` which will use URL query parameters as the source of truth for the state of all this table's features. We also pass an optional `persistenceKeyPrefix` which distinguishes this persisted state from any other state that may be persisted in the URL by other tables on the same page (it can be omitted if there is only one table on the page). It should be a short string because it is included as a prefix on every URL param name. We'll use `"t"` for the table containing our Thing objects.
 
 Because our state is persisted in the page URL, we can reload the browser or press the Back and Forward buttons without losing our current filter, sort, and pagination selections. We can even bookmark the page and all that state will be restored when loading the bookmark!
 
 ```tsx
 const tableControlState = useTableControlState({
   persistTo: "urlParams",
-  persistenceKeyPrefix: "ex",
+  persistenceKeyPrefix: "t",
   columnNames: {
     name: "Name",
     description: "Description",
@@ -248,7 +243,7 @@ const tableControlState = useTableControlState({
     default: "state",
     filter: "localStorage",
   },
-  persistenceKeyPrefix: "ex",
+  persistenceKeyPrefix: "t",
   columnNames: {
     name: "Name",
     description: "Description",
@@ -417,26 +412,31 @@ If desired, you can use the lower-level feature-specific hooks (see [Features](#
 
 ## Features
 
-The functionality of the table-controls hooks is broken down into the following features. Most features are defined by operations to be performed on API data before it is displayed in a table.
+The functionality and state of the table-controls hooks is broken down into the following features. Each of these features represents a slice of the logical concerns for a table UI.
 
-Note that filtering, sorting and pagination are special because they must be performed in a specific order to work correctly: filter and sort data, then paginate it. Using the higher-level hooks like `useLocalTableControls` or `useTableControlState` + `useTableControlProps` will take care of this for you (see [Usage](#usage)), but if you are handling pagination yourself with the lower-level hooks you'll need to be mindful of this order (see [Hooks and Helper Functions](#hooks-and-helper-functions)).
+Note that the filtering, sorting and pagination features are special because they must be performed in a specific order to work correctly: filter and sort data, then paginate it. Using the higher-level hooks like `useLocalTableControls` or `useTableControlState` + `useTableControlProps` will take care of this for you (see [Usage](#usage)), but if you are handling filtering/sorting/pagination yourself with the lower-level hooks you'll need to be mindful of this order.
 
-The state used by these features (provided by `use[Feature]State` hooks) can be stored either in React state, in the browser's URL query parameters, or in the browser's `localStorage` or `sessionStorage`. If URL params are used, the user's current filters, sort, pagination state, expanded/active rows and more are preserved when reloading the browser, using the browser Back and Forward buttons, or loading a bookmark.
+The state used by each feature (provided by `use[Feature]State` hooks) can be stored either in React state (default), in the browser's URL query parameters (recommended), or in the browser's `localStorage` or `sessionStorage`. If URL params are used, the user's current filters, sort, pagination state, expanded/active rows and more are preserved when reloading the browser, using the browser Back and Forward buttons, or loading a bookmark. The storage target for each feature is specified with the `persistTo` property. The supported `persistTo` values are:
 
-All of the hooks and helpers described in this section are used internally by the higher-level hooks and helpers, and do not need to be used directly (see [Hooks and Helper Functions](#hooks-and-helper-functions) and [Usage](#usage)).
+- `"state"` (default) - Plain React state. Resets on component unmount or page reload.
+- `"urlParams"` (recommended) - URL query parameters. Persists on page reload, browser history buttons (back/forward) or loading a bookmark. Resets on page navigation.
+- `"localStorage"` - Browser localStorage API. Persists semi-permanently and is shared across all tabs/windows. Resets only when the user clears their browsing data.
+- `"sessionStorage"` - Browser sessionStorage API. Persists on page/history navigation/reload. Resets when the tab/window is closed.
+
+All of the hooks and helpers described in this section are used internally by the higher-level hooks and helpers, and do not need to be used directly (see [Usage](#usage)).
 
 ### Filtering
 
 Items are filtered according to user-selected filter key/value pairs.
 
-- Keys and filter types (search, select, etc) are defined by the `filterCategories` array config argument. The `key` properties of each of these `FilterCategory` objects are the source of truth for the inferred generic type `TFilterCategoryKeys` (see [Types](#types)).
+- Keys and filter types (search, select, etc) are defined by the `filterCategories` array config argument. The `key` properties of each of these `FilterCategory` objects are the source of truth for the inferred generic type `TFilterCategoryKeys` (For more, see the JSDoc comments in the `types.ts` file).
 - Filter state is provided by `useFilterState`.
 - For client-side filtering, the filter logic is provided by `getLocalFilterDerivedState` (based on the `getItemValue` callback defined on each `FilterCategory` object, which is not required when using server-side filtering).
 - For server-side filtering, filter state is serialized for the API by `getFilterHubRequestParams`.
-- Filter-related component props are provided by `getFilterProps`.
+- Filter-related component props are provided by `useFilterPropHelpers`.
 - Filter inputs and chips are rendered by the `FilterToolbar` component.
 
-> ⚠️ TECH DEBT NOTE: The `FilterToolbar` component and `FilterCategory` type predate the table-controls pattern and are not located in this directory. The abstraction there may be a little too opaque and it does not take full advantage of TypeScript generics. We may want to adjust that code to better fit these patterns and move it here.
+> ⚠️ TECH DEBT NOTE: The `FilterToolbar` component and `FilterCategory` type predate the table-controls pattern (they are tackle2-ui legacy code) and are not located in this directory. The abstraction there may be a little too opaque and it does not take full advantage of TypeScript generics. We may want to adjust that code to better fit these patterns and move it here.
 
 ### Sorting
 
@@ -446,8 +446,8 @@ Items are sorted according to the user-selected sort column and direction.
 - Sort state is provided by `useSortState`.
 - For client-side sorting, the sort logic is provided by `getLocalSortDerivedState` (based on the `getSortValues` config argument, which is not required when using server-side sorting).
 - For server-side sorting, sort state is serialized for the API by `getSortHubRequestParams`.
-- Sort-related component props are provided by `getSortProps`.
-- Sort inputs are rendered by the table's `Th` component.
+- Sort-related component props are provided by `useSortPropHelpers`.
+- Sort inputs are rendered by the table's `Th` PatternFly component.
 
 ### Pagination
 
@@ -457,11 +457,13 @@ Items are paginated according to the user-selected page number and items-per-pag
 - Pagination state is provided by `usePaginationState`.
 - For client-side pagination, the pagination logic is provided by `getLocalPaginationDerivedState`.
 - For server-side pagination, pagination state is serialized for the API by `getPaginationHubRequestParams`.
-- Pagination-related component props are provided by `getPaginationProps`.
-- A `useEffect` call which prevents invalid state after an item is deleted is provided by `usePaginationEffects`.
+- Pagination-related component props are provided by `usePaginationPropHelpers`.
+- A `useEffect` call which prevents invalid state after an item is deleted is provided by `usePaginationEffects`. This is called internally by `usePaginationPropHelpers`.
 - Pagination inputs are rendered by our `SimplePagination` component which is a thin wrapper around the PatternFly `Pagination` component.
 
-> ⚠️ TECH DEBT NOTE: Do we really need `SimplePagination`?
+> ⚠️ TECH DEBT NOTE: The `SimplePagination` component also predates the table-controls pattern (legacy tackle2-ui code). We probably don't even need it and should remove it.
+
+> ⚠️ TECH DEBT NOTE: Is usePaginationPropHelpers the best place to call usePaginationEffects? Should we make the consumer call it explicitly?
 
 ### Expansion
 
@@ -471,23 +473,24 @@ Item details can be expanded, either with a "single expansion" variant where an 
 - Expansion state is provided by `useExpansionState`.
 - Expansion shorthand functions are provided by `getExpansionDerivedState`.
 - Expansion is never managed server-side.
-- Expansion-related component props are provided inside `useTableControlProps` in the `getSingleExpandButtonTdProps` and `getCompoundExpandTdProps` functions.
-- Expansion inputs are rendered by the table's `Td` component and expanded content is managed at the consumer level by conditionally rendering a second row with full colSpan in a `Tbody` component. The `numRenderedColumns` value returned by `useTableControlProps` can be used for the correct colSpan here.
-
-> ⚠️ TECH DEBT NOTE: `getSingleExpandButtonTdProps` and `getCompoundExpandTdProps` should probably be factored out of `useTableControlProps` into a decoupled `getExpansionProps` helper.
+- Expansion-related component props are provided by `useExpansionPropHelpers`.
+- Expansion inputs are rendered by the table's `Td` PatternFly component and expanded content is managed at the consumer level by conditionally rendering a second row with full colSpan inside a PatternFly `Tbody` component. The `numRenderedColumns` value returned by `useTableControlProps` can be used for the correct colSpan here.
 
 ### Active Item
 
-A row can be clicked to mark its item as "active", which usually opens a drawer on the page to show more detail. Note that this is distinct from expansion and selection and these features can all be used together. Active item state is simply a single id value (number or string) for the active item, derived from the `idProperty` config argument (see [Unique Identifiers](#unique-identifiers)).
+A row can be clicked to mark its item as "active", which usually opens a drawer on the page to show more detail. Note that this is distinct from expansion (toggle arrows) and selection (checkboxes) and these features can all be used together. Active item state is simply a single id value (number or string) for the active item, derived from the `idProperty` config argument (see [Unique Identifiers](#unique-identifiers)).
 
 - The active item feature requires no config arguments.
 - Active item state is provided by `useActiveItemState`.
 - Active item shorthand functions are provided by `getActiveItemDerivedState`.
-- A `useEffect` call which prevents invalid state after an item is deleted is provided by `useActiveItemEffects`.
+- Active-item-related component props are provided by `useActiveItemPropHelpers`.
+- A `useEffect` call which prevents invalid state after an item is deleted is provided by `useActiveItemEffects`. This is called internally in `useActiveItemPropHelpers`.
+
+> ⚠️ TECH DEBT NOTE: Is useActiveItemPropHelpers the best place to call useActiveItemEffects? Should we make the consumer call it explicitly?
 
 ### Selection
 
-Items can be selected with checkboxes on each row or with a bulk select control that provides actions like "select all", "select none" and "select page". The list of selected item ids in state can be used to perform bulk actions.
+Items can be selected with checkboxes on each row or with a bulk select control that provides actions like "select all", "select none" and "select page". The list of selected item ids in state can be used to perform bulk actions like Delete.
 
 > ⚠️ TECH DEBT NOTE: Currently, selection state has not yet been refactored to be a part of the table-controls pattern and we are still relying on [the old `useSelectionState` from lib-ui](https://migtools.github.io/lib-ui/?path=/docs/hooks-useselectionstate--checkboxes) which dates back to older migtools projects. The return value of this legacy `useSelectionState` is required by `useTableControlProps`. Mike is working on a refactor to bring selection state hooks into this directory.
 
@@ -495,54 +498,30 @@ Items can be selected with checkboxes on each row or with a bulk select control 
 
 ### Item Objects, Not Row Objects
 
-None of the code here treats "rows" as their own data structure. The content and style of a row is a presentational detail that should be limited to the JSX where rows are rendered. When an array of row objects is used, those objects tend to duplicate API data with a different structure and the code must reason about two different representations of the data. Instead, this code works directly with arrays of "items" (the API data objects themselves) and makes all of an item's properties available where they might be needed without extra lookups. The consumer maps over item objects and derives row components from them only at render time.
+None of the code here treats "rows" as their own data structure. The content and style of a row is a presentational detail that should be limited to the JSX where rows are rendered. In implementations which use arrays of row objects (like the deprecated PatternFly table) those objects tend to duplicate API data with a different structure and the code must reason about two different representations of the data. Instead, this code works directly with arrays of "items" (the API data objects themselves) and makes all of an item's API object properties available where they might be needed without extra lookups. The consumer maps over item objects and derives row components from them only at render time.
 
-An item object has the generic type `TItem`, which is inferred either from the type of the `items` array passed into `useLocalTableControls` (for client-paginated tables) or from the `currentPageItems` array passed into `useTableControlProps` (for server-paginated tables). See [Types](#types).
+An item object has the generic type `TItem`, which is inferred by TypeScript either from the type of the `items` array passed into `useLocalTableControls` (for client-paginated tables) or from the `currentPageItems` array passed into `useTableControlProps` (for server-paginated tables). For more, see the JSDoc comments in the `types.ts` file.
 
 > ℹ️ CAVEAT: For server-paginated tables the item data is not in scope until after the API query hook is called, but the `useTableControlState` hook must be called _before_ API queries because its return values are needed to serialize filter/sort/pagination params for the API. This means the inferred `TItem` type is not available when passing arguments to `useTableControlState`. `TItem` resolves to `unknown` in this scope, which is usually fine since the arguments there don't need to know what type of items they are working with. If the item type is needed for any of these arguments it can be explicitly passed as a type param. However...
 >
-> ⚠️ TECH DEBT NOTE: Since TypeScript generic type param lists are all-or-nothing (you must either omit the list and infer all generics for a function or pass them all explicitly), this means all other type params which are normally inferred must be explicitly passed (including all of the `TColumnKey`s and `TFilterCategoryKey`s). This makes for some redundant code, although TypeScript will still enforce that it is all consistent. There is a possible upcoming TypeScript language feature which would allow partial inference in type param lists and may alleviate this in the future. See TypeScript pull requests [#26349](https://github.com/microsoft/TypeScript/pull/26349) and [#54047](https://github.com/microsoft/TypeScript/pull/54047), and our issue [#1456](https://github.com/konveyor/tackle2-ui/issues/1456).
+> ⚠️ TECH DEBT NOTE: TypeScript generic type param lists (example: `fn<This, List, Here>(args);`) are all-or-nothing (you must either omit the list and infer all generics for a function or pass them all explicitly). This means if you need to pass an explicit type for `TItem`, all other type params which are normally inferred must also be explicitly passed (including all of the `TColumnKey`s and `TFilterCategoryKey`s). This makes for some redundant code, although TypeScript will still enforce that it is all consistent. There is a possible upcoming TypeScript language feature which would allow partial inference in type param lists and may alleviate this in the future. See TypeScript pull requests [#26349](https://github.com/microsoft/TypeScript/pull/26349) and [#54047](https://github.com/microsoft/TypeScript/pull/54047), and our issue [#1456](https://github.com/konveyor/tackle2-ui/issues/1456).
 
 ### Unique Identifiers
 
-Table columns are identified by unique keys which are statically inferred from the keys of the `columnNames` object (used in many places via the inferred generic type `TColumnKey`. See [Types](#types)). Any state which keeps track of something by column (such as which columns are sorted, and which columns are expanded in a compound-expandable row) uses these column keys as identifiers, and the user-facing column names can be looked up from the `columnNames` object anywhere a `columnKey` is present. Valid column keys are enforced via TypeScript generics; if a `columnKey` value is used that is not present in `columnNames`, you should get a type error.
+#### Column keys
+
+Table columns are identified by unique keys which are statically inferred from the keys of the `columnNames` object (used in many places via the inferred generic type `TColumnKey`. See the JSDoc comments in the `types.ts` file). Any state which keeps track of something by column (such as which columns are sorted and which columns are expanded in a compound-expandable row) uses these column keys as identifiers, and the user-facing column names can be looked up from the `columnNames` object anywhere a `columnKey` is present. Valid column keys are enforced via TypeScript generics; if a `columnKey` value is used that is not present in `columnNames`, you should get a type error.
+
+#### Item IDs
 
 Item objects must contain some unique identifier which is either a string or number. The property key of this identifier is a required config argument called `idProperty`, which will usually be `"id"`. If no unique identifier is present in the API data, an artificial one can be injected before passing the data into these hooks, which can be done in the useQuery `select` callback (see instances where we have used `"_ui_unique_id"`). Any state which keeps track of something by item (i.e. by row) makes use of `item[idProperty]` as an identifier. Examples of this include selected rows, expanded rows and active rows. Valid `idProperty` values are also enforced by TypeScript generics; if an `idProperty` is provided that is not a property on the `TItem` type, you should get a type error.
 
----
-
-<br /><br /><br />
-
-# NOTE: Sections below this line are WIP. Ask Mike for clarification if you need it before he finishes writing this.
-
-<br /><br /><br />
+> ⚠️ TECH DEBT NOTE: Things specific to `useQuery` and `_ui_unique_id` here are Konveyor-specific notes that should be removed after moving this to table-batteries.
 
 ---
-
-## Types
-
-TODO cover the stuff in types.ts export by export referencing the usage in specific hooks and components
-
-## Hooks and Helper Functions
-
-TODO maybe this section isn't necessary anymore if we go into enough detail in features and usage
-TODO if we remove this remember to remove/change anchor links above
-
-### Higher-level hooks (handle all state with combined options and return values)
-
-TODO list all the hooks used above and their signatures and implementation overview
-
-### Lower-level hooks (used internally by composite hooks but also usable standalone)
-
-TODO list all the hooks for each concern and how they flow into each other in the composite hooks
-
-## Components
-
-TODO maybe this section isn't necessary anymore if we go into enough detail in features and usage
-TODO summarize why it is still useful to have some component abstractions even though the goal is to preserve all composability / leave all control of JSX to the consumer
-TODO list all the components exported from this directory, their signatures and why they are useful
 
 ## Future Features and Improvements
 
 - Tech debt notes above should be addressed.
+- We should add full API docs for all the hooks, helpers and components generated from the JSDoc comments.
 - It would be nice to support inline editable rows with a clean abstraction that fits into this pattern.
