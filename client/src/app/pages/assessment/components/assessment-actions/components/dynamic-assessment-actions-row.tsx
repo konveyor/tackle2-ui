@@ -11,8 +11,8 @@ import {
   useCreateAssessmentMutation,
   useDeleteAssessmentMutation,
 } from "@app/queries/assessments";
-import { Button } from "@patternfly/react-core";
-import React, { FunctionComponent } from "react";
+import { Button, Spinner } from "@patternfly/react-core";
+import React, { FunctionComponent, useState } from "react";
 import { useHistory } from "react-router-dom";
 import "./dynamic-assessment-actions-row.css";
 import { AxiosError } from "axios";
@@ -20,9 +20,14 @@ import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { Td } from "@patternfly/react-table";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
+import {
+  useIsFetching,
+  useIsMutating,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { TrashIcon } from "@patternfly/react-icons";
 import useIsArchetype from "@app/hooks/useIsArchetype";
+import AssessmentModal from "../../assessment-wizard/assessment-wizard-modal";
 
 enum AssessmentAction {
   Take = "Take",
@@ -46,6 +51,11 @@ const DynamicAssessmentActionsRow: FunctionComponent<
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [createdAssessmentId, setCreatedAssessmentId] = useState<number | null>(
+    null
+  );
+
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const onSuccessHandler = () => {};
@@ -64,7 +74,11 @@ const DynamicAssessmentActionsRow: FunctionComponent<
       }),
       variant: "success",
     });
-    queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
+    queryClient.invalidateQueries([
+      assessmentsByItemIdQueryKey,
+      application?.id,
+      isArchetype,
+    ]);
   };
 
   const onDeleteError = (error: AxiosError) => {
@@ -74,10 +88,11 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     });
   };
 
-  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
-    onDeleteAssessmentSuccess,
-    onDeleteError
-  );
+  const { mutate: deleteAssessment, isLoading: isDeleting } =
+    useDeleteAssessmentMutation(onDeleteAssessmentSuccess, onDeleteError);
+
+  const isFetching = useIsFetching();
+  const isMutating = useIsMutating();
 
   const { mutateAsync: deleteAssessmentAsync } = useDeleteAssessmentMutation(
     onDeleteAssessmentSuccess,
@@ -117,19 +132,8 @@ const DynamicAssessmentActionsRow: FunctionComponent<
 
     try {
       const result = await createAssessmentAsync(newAssessment);
-      if (isArchetype) {
-        history.push(
-          formatPath(Paths.archetypesAssessment, {
-            assessmentId: result.id,
-          })
-        );
-      } else {
-        history.push(
-          formatPath(Paths.applicationsAssessment, {
-            assessmentId: result.id,
-          })
-        );
-      }
+      setCreatedAssessmentId(result.id);
+      setIsWizardOpen(true);
     } catch (error) {
       console.error("Error while creating assessment:", error);
       pushNotification({
@@ -165,17 +169,9 @@ const DynamicAssessmentActionsRow: FunctionComponent<
 
     if (action === AssessmentAction.Take) {
       takeAssessment();
-    } else if (action === AssessmentAction.Continue) {
-      history.push(
-        formatPath(
-          isArchetype
-            ? Paths.archetypesAssessment
-            : Paths.applicationsAssessment,
-          {
-            assessmentId: assessment?.id,
-          }
-        )
-      );
+    } else if (action === AssessmentAction.Continue && assessment?.id) {
+      setCreatedAssessmentId(assessment.id);
+      setIsWizardOpen(true);
     } else if (action === AssessmentAction.Retake) {
       if (assessment) {
         try {
@@ -204,7 +200,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     <>
       <Td>
         <div>
-          {!isReadonly ? (
+          {!isReadonly && !isDeleting && !isFetching && !isMutating ? (
             <Button
               type="button"
               variant="primary"
@@ -215,7 +211,11 @@ const DynamicAssessmentActionsRow: FunctionComponent<
             >
               {determineAction()}
             </Button>
-          ) : null}
+          ) : (
+            <Spinner role="status" size="md">
+              <span className="sr-only">Loading...</span>
+            </Spinner>
+          )}
           {assessment?.status === "complete" ? (
             <Button
               type="button"
@@ -260,6 +260,14 @@ const DynamicAssessmentActionsRow: FunctionComponent<
           </Button>
         </Td>
       ) : null}
+      <AssessmentModal
+        isOpen={isWizardOpen}
+        onRequestClose={() => {
+          setCreatedAssessmentId(null);
+          setIsWizardOpen(false);
+        }}
+        assessmentId={createdAssessmentId!}
+      />
     </>
   );
 };

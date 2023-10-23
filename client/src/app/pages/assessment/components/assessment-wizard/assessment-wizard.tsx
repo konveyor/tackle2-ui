@@ -1,12 +1,12 @@
 import * as yup from "yup";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 import {
   Alert,
+  Button,
   ButtonVariant,
-  Spinner,
   Wizard,
   WizardStep,
 } from "@patternfly/react-core";
@@ -68,14 +68,14 @@ export interface AssessmentWizardValues {
 
 export interface AssessmentWizardProps {
   assessment?: Assessment;
-  isLoadingAssessment: boolean;
   fetchError?: AxiosError | null;
+  onClose: () => void;
 }
 
 export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   assessment,
-  isLoadingAssessment,
   fetchError,
+  onClose,
 }) => {
   const isArchetype = useIsArchetype();
   const queryClient = useQueryClient();
@@ -135,7 +135,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         });
     }
     return questions;
-  }, [assessment, isLoadingAssessment]);
+  }, [assessment]);
 
   const validationSchema = yup.object().shape({
     stakeholders: yup.array().of(yup.string()),
@@ -145,22 +145,16 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const methods = useForm<AssessmentWizardValues>({
     resolver: yupResolver(validationSchema),
     mode: "all",
-  });
-  const values = methods.getValues();
-
-  useEffect(() => {
-    methods.reset({
+    defaultValues: {
       stakeholders: assessment?.stakeholders?.map((sh) => sh.name).sort() ?? [],
       stakeholderGroups:
         assessment?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
-      questions: initialQuestions,
-      comments: initialComments,
+      [COMMENTS_KEY]: initialComments,
+      [QUESTIONS_KEY]: initialQuestions,
       [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
-    });
-    return () => {
-      methods.reset();
-    };
-  }, [assessment]);
+    },
+  });
+  const values = methods.getValues();
 
   const errors = methods.formState.errors;
   const isValid = methods.formState.isValid;
@@ -212,10 +206,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     const allQuestionsAnswered = areAllQuestionsAnswered(section);
     return allQuestionsAnswered && allQuestionsValid;
   };
-
-  const maxCategoryWithData = [...sortedSections].reverse().find((section) => {
-    return section.questions.some((question) => questionHasValue(question));
-  });
 
   const onInvalid = (errors: FieldErrors<AssessmentWizardValues>) =>
     console.error("form errors", errors);
@@ -295,19 +285,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         title: "Assessment has been saved as a draft.",
         variant: "info",
       });
-      if (isArchetype) {
-        history.push(
-          formatPath(Paths.archetypeAssessmentActions, {
-            archetypeId: assessment?.archetype?.id,
-          })
-        );
-      } else {
-        history.push(
-          formatPath(Paths.applicationAssessmentActions, {
-            applicationId: assessment?.application?.id,
-          })
-        );
-      }
     } catch (error) {
       pushNotification({
         title: "Failed to save as a draft.",
@@ -358,20 +335,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         title: "Assessment has been saved.",
         variant: "success",
       });
-
-      if (isArchetype) {
-        history.push(
-          formatPath(Paths.archetypeAssessmentActions, {
-            archetypeId: assessment?.archetype?.id,
-          })
-        );
-      } else {
-        history.push(
-          formatPath(Paths.applicationAssessmentActions, {
-            applicationId: assessment?.application?.id,
-          })
-        );
-      }
     } catch (error) {
       pushNotification({
         title: "Failed to save.",
@@ -478,28 +441,22 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     switch (saveAction) {
       case SAVE_ACTION_VALUE.SAVE:
         handleSave(formValues);
+        onClose();
+
         break;
       case SAVE_ACTION_VALUE.SAVE_AS_DRAFT:
         await handleSaveAsDraft(formValues);
+        onClose();
         break;
       case SAVE_ACTION_VALUE.SAVE_AND_REVIEW:
         handleSaveAndReview(formValues);
+        onClose();
         break;
       default:
+        onClose();
         break;
     }
   };
-
-  useEffect(() => {
-    const unlisten = history.listen((newLocation, action) => {
-      if (action === "PUSH" && assessment) {
-        handleCancelAssessment();
-      }
-    });
-    return () => {
-      unlisten();
-    };
-  }, [history, assessment]);
 
   const handleCancelAssessment = () => {
     if (assessment) {
@@ -511,13 +468,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             applicationId: assessment.application?.id,
             archetypeId: assessment.archetype?.id,
           });
-        if (assessmentToCancel) {
-          history.push(
-            formatPath(Paths.archetypeAssessmentActions, {
-              archetypeId: assessment?.archetype?.id,
-            })
-          );
-        }
       } else {
         assessment.status === "empty" &&
           deleteAssessmentMutation({
@@ -526,16 +476,11 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             applicationId: assessment.application?.id,
             archetypeId: assessment.archetype?.id,
           });
-        if (assessmentToCancel) {
-          history.push(
-            formatPath(Paths.applicationAssessmentActions, {
-              applicationId: assessment?.application?.id,
-            })
-          );
-        }
       }
-      setAssessmentToCancel(null);
     }
+    setAssessmentToCancel(null);
+    onClose();
+    methods.reset();
   };
 
   const getWizardFooter = (step: number, section?: Section) => {
@@ -575,6 +520,9 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   return (
     <>
+      <Button style={{ display: "none" }} tabIndex={-1}>
+        Hidden Button Remove
+      </Button>
       {fetchError && (
         <Alert
           className={`${spacing.mtMd} ${spacing.mbMd}`}
@@ -583,61 +531,57 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
           title={getAxiosErrorMessage(fetchError)}
         />
       )}
-      {isLoadingAssessment ? (
-        <Spinner />
-      ) : (
-        <FormProvider {...methods}>
-          <Wizard
-            isVisitRequired
-            onStepChange={(_e, curr) => {
-              setCurrentStep(curr.index);
-            }}
-            onClose={() => {
-              assessment && setAssessmentToCancel(assessment);
-            }}
-          >
-            <WizardStep
-              id={0}
-              footer={getWizardFooter(0)}
-              name={t("composed.selectMany", {
-                what: t("terms.stakeholders").toLowerCase(),
-              })}
-              isDisabled={currentStep !== 0 && disableNavigation}
-            >
-              <AssessmentStakeholdersForm />
-            </WizardStep>
-            {...sortedSections.map((section, index) => {
-              const stepIndex = index + 1;
-              return (
-                <WizardStep
-                  id={stepIndex}
-                  name={section.name}
-                  isDisabled={stepIndex !== currentStep && disableNavigation}
-                  navItem={{
-                    children: <WizardStepNavDescription section={section} />,
-                  }}
-                  footer={getWizardFooter(stepIndex, section)}
-                >
-                  <QuestionnaireForm key={section.name} section={section} />
-                </WizardStep>
-              );
+      <FormProvider {...methods}>
+        <Wizard
+          isVisitRequired
+          onStepChange={(_e, curr) => {
+            setCurrentStep(curr.index);
+          }}
+          onClose={() => {
+            assessment && setAssessmentToCancel(assessment);
+          }}
+        >
+          <WizardStep
+            id={0}
+            footer={getWizardFooter(0)}
+            name={t("composed.selectMany", {
+              what: t("terms.stakeholders").toLowerCase(),
             })}
-          </Wizard>
-          {assessmentToCancel && (
-            <ConfirmDialog
-              title={t("dialog.title.leavePage")}
-              isOpen
-              message={t("dialog.message.leavePage")}
-              confirmBtnVariant={ButtonVariant.primary}
-              confirmBtnLabel={t("actions.continue")}
-              cancelBtnLabel={t("actions.cancel")}
-              onCancel={() => setAssessmentToCancel(null)}
-              onClose={() => setAssessmentToCancel(null)}
-              onConfirm={() => handleCancelAssessment()}
-            />
-          )}
-        </FormProvider>
-      )}
+            isDisabled={currentStep !== 0 && disableNavigation}
+          >
+            <AssessmentStakeholdersForm />
+          </WizardStep>
+          {...sortedSections.map((section, index) => {
+            const stepIndex = index + 1;
+            return (
+              <WizardStep
+                id={stepIndex}
+                name={section.name}
+                isDisabled={stepIndex !== currentStep && disableNavigation}
+                navItem={{
+                  children: <WizardStepNavDescription section={section} />,
+                }}
+                footer={getWizardFooter(stepIndex, section)}
+              >
+                <QuestionnaireForm key={section.name} section={section} />
+              </WizardStep>
+            );
+          })}
+        </Wizard>
+        {assessmentToCancel && (
+          <ConfirmDialog
+            title={t("dialog.title.leavePage")}
+            isOpen
+            message={t("dialog.message.leavePage")}
+            confirmBtnVariant={ButtonVariant.primary}
+            confirmBtnLabel={t("actions.continue")}
+            cancelBtnLabel={t("actions.cancel")}
+            onCancel={() => setAssessmentToCancel(null)}
+            onClose={() => setAssessmentToCancel(null)}
+            onConfirm={() => handleCancelAssessment()}
+          />
+        )}
+      </FormProvider>
     </>
   );
 };

@@ -116,6 +116,7 @@ export const useFetchAssessmentById = (id?: number | string) => {
     queryFn: () => (id ? getAssessmentById(id) : undefined),
     onError: (error: AxiosError) => console.log("error, ", error),
     enabled: !!id,
+    refetchOnWindowFocus: false,
   });
   return {
     assessment: data,
