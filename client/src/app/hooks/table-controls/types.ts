@@ -60,9 +60,9 @@ export type TableFeature =
 
 /**
  * Identifier for where to persist state for a single table feature or for all table features.
- * - "state" (default) - Plain React state. Resets on component unmount or page reload
+ * - "state" (default) - Plain React state. Resets on component unmount or page reload.
  * - "urlParams" (recommended) - URL query parameters. Persists on page reload, browser history buttons (back/forward) or loading a bookmark. Resets on page navigation.
- * - "localStorage" - Browser localStorage API. Persists semi-permanently. Resets only on clearing browser data.
+ * - "localStorage" - Browser localStorage API. Persists semi-permanently and is shared across all tabs/windows. Resets only when the user clears their browsing data.
  * - "sessionStorage" - Browser sessionStorage API. Persists on page/history navigation/reload. Resets when the tab/window is closed.
  */
 export type PersistTarget =

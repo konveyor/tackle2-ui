@@ -65,7 +65,7 @@ const QuestionsTable: React.FC<{
   const { t } = useTranslation();
 
   return (
-    <Table {...tableProps} aria-label="Questions table" isExpandable>
+    <Table {...tableProps} aria-label="Questions table">
       <Thead>
         <Tr>
           <TableHeaderContentWithControls {...tableControls}>

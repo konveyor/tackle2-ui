@@ -229,7 +229,7 @@ export const Stakeholders: React.FC = () => {
               </ToolbarItem>
             </ToolbarContent>
           </Toolbar>
-          <Table {...tableProps} isExpandable aria-label="Stakeholders table">
+          <Table {...tableProps} aria-label="Stakeholders table">
             <Thead>
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>

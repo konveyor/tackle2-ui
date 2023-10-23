@@ -309,7 +309,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-      <Table {...tableProps} isExpandable aria-label="Issues table">
+      <Table {...tableProps} aria-label="Issues table">
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>

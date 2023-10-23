@@ -4,9 +4,9 @@ Our reusable hooks and components for managing state related to composable Patte
 
 ## Why?
 
-These hooks and components are intended as the missing "batteries" for the composable PatternFly Table. When PatternFly moved away from the "batteries included" legacy monolith Table towards the newer composable Table components, the price of the improved flexibility was that the table itself can no longer manage its own state and its usage became more verbose with more required boilerplate code.
+These hooks and components are intended as the missing "batteries" for the composable PatternFly Table. When PatternFly deprecated the "batteries included" legacy monolith Table in favor of the newer composable Table components, the price of the improved flexibility was that the table itself can no longer manage its own state and its usage became more verbose with more required boilerplate code. This trade-off was worth it for PatternFly because the composability offered by the new components is so crucial. However, we can have the best of both worlds by encapsulating the boilerplate logic into hooks that feed props into the composable components without abstracting them away.
 
-The table-controls hooks and components provide a pattern where state logic can be encapsulated with simple configuration and JSX for rendering table elements can be shortened via the use of "prop helpers", but the consumer can retain full control over the JSX composition and have access to all the state at any level. With this pattern, tables are simpler to build and maintain but we don't have to sacrifice any of the benefits gained by migrating from the legacy to the composable table.
+The table-controls hooks and components provide a pattern where state logic is encapsulated in hooks with simple configuration, JSX for rendering table elements can be shortened via the use of "prop helpers" returned by the hooks, and the consumer retains full control over the JSX and has access to all the state at any level. With this pattern, tables are simpler to build and maintain but we don't have to sacrifice any of the benefits gained by migrating from the deprecated to the composable table. We also gain new easily-enabled features that the deprecated Table never had.
 
 ## Goals
 
@@ -14,8 +14,8 @@ The table-controls hooks and components provide a pattern where state logic can 
 - The consumer should be able to override any and all props manually on any element of the table. If there is a future need for table state to be used for rendering in a way we don't currently anticipate, that should not be blocked by this abstraction.
 - Client-paginated and server-paginated tables should be similar to implement and share reusable code. If a table needs to be converted between client logic and server logic, that should be relatively easy.
 - There should not be a concept of a "row object" because rows are presentational details and defining them as a separate model from the API data causes unnecessary complexity. See [Item Objects, Not Row Objects](#item-objects-not-row-objects).
-- Strict TypeScript types with generics inferred from parameters should be used to provide a safe and convenient development experience without having to repeat type annotations all over the page-level code.
-- All features should be optional and fall back to reasonable defaults if their options are omitted.
+- Strict TypeScript types with generics inferred from parameters should be used to provide a safe and convenient development experience without having to repeat type annotations all over the page-level code. TypeScript should enforce that we are passing the options required for the features that are enabled.
+- All features should be optional in order to support incremental/partial adoption.
 - Code for each feature should be isolated enough that it could be reasonably used on its own.
 
 ## Usage
@@ -26,7 +26,7 @@ For client-paginated tables, the only hook we need is `useLocalTableControls`. A
 
 This simple example includes only the filtering, sorting and pagination features and excludes arguments and properties related to the other features (see [Features](#features)).
 
-Features are enabled by passing the `is[Feature]Enabled` boolean argument. Required arguments for the enabled features will be enforced by TypeScript based on which features are enabled.
+Features are enabled by passing `is[Feature]Enabled` boolean arguments. Required arguments for the enabled features will be enforced by TypeScript based on which features are enabled. All features are disabled by default; for this basic example with filtering, sorting and pagination, we must pass true values for `isFilterEnabled`, `isSortEnabled` and `isPaginationEnabled`.
 
 ```tsx
 // In a real table, this API data would come from a useQuery call.
@@ -48,6 +48,7 @@ const tableControls = useLocalTableControls({
   isFilterEnabled: true,
   isSortEnabled: true,
   isPaginationEnabled: true,
+  // Because isFilterEnabled is true, TypeScript will require these filterCategories:
   filterCategories: [
     {
       key: "name",
@@ -57,6 +58,7 @@ const tableControls = useLocalTableControls({
       getItemValue: (thing) => thing.name || "",
     },
   ],
+  // Because isSortEnabled, TypeScript will require these sort-related properties:
   sortableColumns: ["name", "description"],
   getSortValues: (thing) => ({
     name: thing.name || "",
@@ -155,14 +157,27 @@ return (
 );
 ```
 
-### Example table with server-side filtering/sorting/pagination
+### Example table with server-side filtering/sorting/pagination (and state persistence)
 
-The usage is similar here, but some arguments are no longer required (like `getSortValues` and the `getItemValue` property of the filter category) and we break up the arguments object passed to `useLocalTableControls` into two separate objects passed to `useTableControlState` and `useTableControlProps` based on when they are needed. You'll note that the object passed to the latter contains all the properties of the object passed to the former in addition to things derived from the fetched API data. Those arguments are all also included in the `tableControls` object returned by `useTableControlProps` (and `useLocalTableControls` above). This way, we have one big object we can pass around to any components or functions that need any of the configuration, state, derived state, or props present on it.
+The usage is similar here, but some client-specific arguments are no longer required (like `getSortValues` and the `getItemValue` property of the filter category) and we break up the arguments object passed to `useLocalTableControls` into two separate objects passed to `useTableControlState` and `useTableControlProps` based on when they are needed. Note that the object passed to the latter contains all the properties of the object returned by the former in addition to things derived from the fetched API data. All of the arguments passed to both `useTableControlState` and `useTableControlProps` as well as the return values from both are included in the `tableControls` object returned by `useTableControlProps` (and by `useLocalTableControls` above). This way, we have one big object we can pass around to any components or functions that need any of the configuration, state, derived state, or props present on it, and we can destructure/reference them from a central place no matter where they came from.
 
-Note also: the destructuring and rendering part of the example code is not included here because **_it is identical to the example above_**. The only difference between client-paginated and server-paginated tables is the hook usage; the `tableControls` object and its usage are the same for both.
+Note also: the destructuring of `tableControls` and returned JSX is not included in this example code because **_it is identical to the example above_**. The only differences between client-paginated and server-paginated tables are in the hook calls; the `tableControls` object and its usage are the same for all tables.
+
+This example also shows a powerful optional capability of these hooks: the `persistTo` argument. This can be passed to either `useTableControlState` or `useLocalTableControls` and it allows us to store the current pagination/sort/filter state in a custom location and use that as the source of truth. The supported `persistTo` values are:
+
+- `"state"` (default) - Plain React state. Resets on component unmount or page reload.
+- `"urlParams"` (recommended) - URL query parameters. Persists on page reload, browser history buttons (back/forward) or loading a bookmark. Resets on page navigation.
+- `"localStorage"` - Browser localStorage API. Persists semi-permanently and is shared across all tabs/windows. Resets only when the user clears their browsing data.
+- `"sessionStorage"` - Browser sessionStorage API. Persists on page/history navigation/reload. Resets when the tab/window is closed.
+
+Here we use `persistTo: "urlParams"` which will use URL query params as the source of truth for the state of all this table's features. We also pass an optional `persistenceKeyPrefix` which distinguishes this persisted state from any other state that may be persisted in the URL by other tables on the same page (it can be omitted if there is only one table on the page). It should be a short string because it is included in every URL param name. We'll use `"ex"` which is short for "example".
+
+Because our state is persisted in the page URL, we can reload the browser or press the Back and Forward buttons without losing our current filter, sort, and pagination selections. We can even bookmark the page and all that state will be restored when loading the bookmark!
 
 ```tsx
 const tableControlState = useTableControlState({
+  persistTo: "urlParams",
+  persistenceKeyPrefix: "ex",
   columnNames: {
     name: "Name",
     description: "Description",
@@ -209,9 +224,172 @@ const tableControls = useTableControlProps({
 // Everything else (destructuring `tableControls` and returning JSX) is the same as the client-side example!
 ```
 
-### Kitchen sink example with all features
+### Kitchen sink example with per-feature state persistence and all features enabled
 
-TODO - use all features, plus use an object with different persistTo options here
+Here's an example of another server-computed table with all of the table-controls features enabled (see [Features](#features)). Note that if you wanted to make this example client-computed, you would pass all the new feature-specific properties seen here to `useLocalTableControls` instead of `useTableControlState`.
+
+New features added here in addition to filtering, sorting and pagination are:
+
+- Expansion - Each row has an expand toggle button to the left of its data (automatically injected by the `TableRowContentWithControls` component), which opens additional detail below the row. (this is the "single" expand variant, compound expansion is also supported). The `expandableVariant` option is required because `isExpansionEnabled` is true.
+  - This makes the `getExpandedContentTdProps` propHelper and the `expansionDerivedState` object available on the `tableControls` object.
+  - Each row is now contained in a `<Tbody>` component which pairs the existing `<Tr>` with another `<Tr>` containing that row's `<ExpandableRowContent>`.
+- Active item - Rows have hover styles and are clickable (handled automatically by `getTrProps`). Clicking a row marks that row's item as "active", which can be used to open a drawer or whatever else is needed on the page. This is enabled by `isActiveItemEnabled`, which does not require any additional options.
+  - This makes the `activeItemDerivedState` object available on the `tableControls` object.
+
+> ⚠️ TECH DEBT NOTE: The selection feature is currently not enabled in this example because it is about to significantly change with a refactor. Currently to use selection you have to use the outdated `useSelectionState` from lib-ui and pass its return values to `useTableControlProps`. Once selection is moved into table-controls, it will be configurable alongside the other features in `useTableControlState` and added to this example.
+
+> ⚠️ TECH DEBT NOTE: We should also add a compound-expand example, but that can maybe wait for the proper extension-seed docs in table-batteries after the code is moved there.
+
+Here we'll also show an alternate way of using `persistTo`: separate persistence targets per feature. Let's say that for this table, we want the user's filters to persist in `localStorage` where they will be restored no matter what the user does, but we want the sort, pagination and other state to reset when we leave the page. We can do this by passing an object to `persistTo` instead of a string. We specify the default persistence target as React state with `default: "state"`, and override it for the filters with `filter: "localStorage"`.
+
+```tsx
+const tableControlState = useTableControlState({
+  persistTo: {
+    default: "state",
+    filter: "localStorage",
+  },
+  persistenceKeyPrefix: "ex",
+  columnNames: {
+    name: "Name",
+    description: "Description",
+  },
+  isFilterEnabled: true,
+  isSortEnabled: true,
+  isPaginationEnabled: true,
+  isExpansionEnabled: true,
+  isActiveItemEnabled: true,
+  filterCategories: [
+    {
+      key: "name",
+      title: "Name",
+      type: FilterType.search,
+      placeholderText: "Filter by name...",
+    },
+  ],
+  sortableColumns: ["name", "description"],
+  initialSort: { columnKey: "name", direction: "asc" },
+  expandableVariant: "single",
+});
+
+const hubRequestParams = getHubRequestParams({
+  ...tableControlState,
+  hubSortFieldKeys: {
+    name: "name",
+    description: "description",
+  },
+});
+
+const { data, totalItemCount, isLoading, isError } =
+  useFetchThings(hubRequestParams);
+
+const tableControls = useTableControlProps({
+  ...tableControlState,
+  idProperty: "id",
+  currentPageItems: data,
+  totalItemCount,
+  isLoading,
+});
+
+const {
+  currentPageItems,
+  numRenderedColumns,
+  propHelpers: {
+    toolbarProps,
+    filterToolbarProps,
+    paginationToolbarItemProps,
+    paginationProps,
+    tableProps,
+    getThProps,
+    getTrProps,
+    getTdProps,
+    getExpandedContentTdProps,
+  },
+  activeItemDerivedState: { activeItem, clearActiveItem },
+  expansionDerivedState: { isCellExpanded },
+} = tableControls;
+
+return (
+  <>
+    <Toolbar {...toolbarProps}>
+      <ToolbarContent>
+        <FilterToolbar {...filterToolbarProps} />
+        <ToolbarItem {...paginationToolbarItemProps}>
+          <SimplePagination
+            idPrefix="example-things-table"
+            isTop
+            paginationProps={paginationProps}
+          />
+        </ToolbarItem>
+      </ToolbarContent>
+    </Toolbar>
+    <Table {...tableProps} aria-label="Example things table">
+      <Thead>
+        <Tr>
+          <TableHeaderContentWithControls {...tableControls}>
+            <Th {...getThProps({ columnKey: "name" })} />
+            <Th {...getThProps({ columnKey: "description" })} />
+          </TableHeaderContentWithControls>
+        </Tr>
+      </Thead>
+      <ConditionalTableBody
+        isLoading={isLoading}
+        isError={isError}
+        isNoData={currentPageItems.length === 0}
+        noDataEmptyState={
+          <EmptyState variant="sm">
+            <EmptyStateIcon icon={CubesIcon} />
+            <Title headingLevel="h2" size="lg">
+              No things available
+            </Title>
+          </EmptyState>
+        }
+        numRenderedColumns={numRenderedColumns}
+      >
+        <Tbody>
+          {currentPageItems?.map((thing, rowIndex) => (
+            <Tbody key={thing.id} isExpanded={isCellExpanded(thing)}>
+              <Tr {...getTrProps({ item: thing })}>
+                <TableRowContentWithControls
+                  {...tableControls}
+                  item={thing}
+                  rowIndex={rowIndex}
+                >
+                  <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                    {thing.name}
+                  </Td>
+                  <Td width={75} {...getTdProps({ columnKey: "description" })}>
+                    {thing.description}
+                  </Td>
+                </TableRowContentWithControls>
+              </Tr>
+              {isCellExpanded(thing) && (
+                <Tr isExpanded>
+                  <Td />
+                  <Td {...getExpandedContentTdProps({ item: thing })}>
+                    <ExpandableRowContent>
+                      Some extra detail about thing {thing.name} goes here!
+                    </ExpandableRowContent>
+                  </Td>
+                </Tr>
+              )}
+            </Tbody>
+          ))}
+        </Tbody>
+      </ConditionalTableBody>
+    </Table>
+    <SimplePagination
+      idPrefix="example-things-table"
+      isTop={false}
+      paginationProps={paginationProps}
+    />
+    {/* Stub example of something custom you might render based on the `activeItem`. Source not included. */}
+    <ThingDetailDrawer
+      thingId={activeItem?.id || null}
+      onCloseClick={clearActiveItem}
+    />
+  <>
+);
+```
 
 ### Should I Use Client or Server Logic?
 
@@ -223,16 +401,16 @@ If the endpoints do not support these parameters or you need to have the entire 
 
 In most cases, you'll only need to use these higher-level hooks and helpers to build a table:
 
-- For client-paginated tables: `useLocalTableControls` is all you need. These have the same signature and are interchangeable.
-  - Internally they use `useTableControlState`, `useTableControlProps` and the `getLocal[Feature]DerivedState` helpers. The config arguments object is a combination of the arguments required by `useTableControlState` and `useTableControlProps`.
+- For client-paginated tables: `useLocalTableControls` is all you need.
+  - Internally it uses `useTableControlState`, `useTableControlProps` and the `getLocalTableControlDerivedState` helper. The config arguments object is a combination of the arguments required by `useTableControlState` and `useTableControlProps`.
   - The return value (an object we generally name `tableControls`) has everything you need to render your table. Give it a `console.log` to see what is available.
 - For server-paginated tables: `useTableControlState`, `getHubRequestParams`, and `useTableControlProps`.
   - Choose whether you want to use React state, URL params or localStorage/sessionStorage as the source of truth, and call `useTableControlState` with the appropriate `persistTo` option and optional `persistenceKeyPrefix` (to namespace persisted state for multiple tables on the same page).
     - `persistTo` can be `"state" | "urlParams" | "localStorage" | "sessionStorage"`, and defaults to `"state"` if omitted (falls back to regular React state).
-    - You can also use a different type of storage for the state of each feature by passing an object for `persistTo`. See the [Kitchen sink example with all features](#kitchen-sink-example-with-all-features).
-  - Take the object returned by that hook (generally named `tableControlState`) and pass it to `getHubRequestParams` function (you may need to spread it and add additional properties like `hubSortFieldKeys`).
+    - You can also use a different type of storage for the state of each feature by passing an object for `persistTo`. See the [Kitchen sink example](#kitchen-sink-example-with-per-feature-state-persistence-and-all-features-enabled).
+  - Take the object returned by that hook (generally named `tableControlState`) and pass it to the `getHubRequestParams` function (you may need to spread it and add additional properties like `hubSortFieldKeys`). (⚠️ TECH DEBT NOTE: This is Konveyor-specific)
   - Call your API query hooks, using the `hubRequestParams` as needed.
-  - Call `useTableControlProps` and pass it an object including all properties from `tableControlState` along with additional config arguments. Some of these arguments will be derived from your API data, such as `currentPageItems`, `totalItemCount` and `isLoading`. Others are simply passed here rather than above because they are used only for rendering and not required for state management.
+  - Call `useTableControlProps` and pass it an object spreading all properties from `tableControlState` along with additional config arguments. Some of these arguments will be derived from your API data, such as `currentPageItems`, `totalItemCount` and `isLoading`. Others are simply passed here rather than above because they are used only for rendering and not required for state management.
   - The return value (the same `tableControls` object returned by `useLocalTableControls`) has everything you need to render your table. Give it a `console.log` to see what is available.
 
 If desired, you can use the lower-level feature-specific hooks (see [Features](#features)) on their own (for example, if you really only need pagination and you're not rendering a full table). However, if you are using more than one or two of them you may want to consider using these higher-level hooks even if you don't need all the features. You can omit the config arguments for any features you don't need and then just don't use the relevant `propHelpers`.
