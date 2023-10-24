@@ -36,5 +36,5 @@ export const ApplicationRisk: React.FC<IApplicationRiskProps> = ({
     );
   }
 
-  return <RiskLabel risk={assessments[0].risk || "unknown"} />;
+  return <RiskLabel risk={application.risk || "unknown"} />;
 };
