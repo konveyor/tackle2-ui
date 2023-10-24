@@ -9,18 +9,14 @@ import {
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useSelectionState } from "@migtools/lib-ui";
+import { AnalysisFileReport, AnalysisIssue } from "@app/api/models";
 import {
-  AnalysisFileReport,
-  AnalysisAppReport,
-  AnalysisIssue,
-} from "@app/api/models";
-import {
-  getHubRequestParams,
+  useTableControlState,
   useTableControlProps,
-  useTableControlUrlParams,
+  getHubRequestParams,
 } from "@app/hooks/table-controls";
 import { useFetchFileReports } from "@app/queries/issues";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -39,13 +35,17 @@ export const IssueAffectedFilesTable: React.FC<
 > = ({ issue }) => {
   const { t } = useTranslation();
 
-  const tableControlState = useTableControlUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.issuesAffectedFiles,
+  const tableControlState = useTableControlState({
+    persistTo: "urlParams",
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.issuesAffectedFiles,
     columnNames: {
       file: "File",
       incidents: "Incidents",
       effort: "Effort",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     sortableColumns: ["file", "incidents", "effort"],
     initialSort: { columnKey: "file", direction: "asc" },
     filterCategories: [
@@ -61,7 +61,6 @@ export const IssueAffectedFilesTable: React.FC<
       },
     ],
     initialItemsPerPage: 10,
-    variant: "compact",
   });
 
   const {
@@ -86,6 +85,7 @@ export const IssueAffectedFilesTable: React.FC<
     currentPageItems: currentPageFileReports,
     totalItemCount,
     isLoading: isFetching,
+    variant: "compact",
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
       items: currentPageFileReports,
@@ -102,6 +102,7 @@ export const IssueAffectedFilesTable: React.FC<
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
   } = tableControls;
@@ -145,7 +146,7 @@ export const IssueAffectedFilesTable: React.FC<
         >
           <Tbody>
             {currentPageFileReports?.map((fileReport, rowIndex) => (
-              <Tr key={fileReport.file}>
+              <Tr key={fileReport.file} {...getTrProps({ item: fileReport })}>
                 <TableRowContentWithControls
                   {...tableControls}
                   item={fileReport}

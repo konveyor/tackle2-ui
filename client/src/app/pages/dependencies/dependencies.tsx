@@ -15,9 +15,11 @@ import { useTranslation } from "react-i18next";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import {
-  useTableControlUrlParams,
+  useTableControlState,
   useTableControlProps,
+  getHubRequestParams,
 } from "@app/hooks/table-controls";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
@@ -26,7 +28,6 @@ import {
 } from "@app/components/TableControls";
 import { useFetchDependencies } from "@app/queries/dependencies";
 import { useSelectionState } from "@migtools/lib-ui";
-import { getHubRequestParams } from "@app/hooks/table-controls";
 import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
 import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -37,7 +38,9 @@ export const Dependencies: React.FC = () => {
   const allAffectedApplicationsFilterCategories =
     useSharedAffectedApplicationFilterCategories();
 
-  const tableControlState = useTableControlUrlParams({
+  const tableControlState = useTableControlState({
+    persistTo: "urlParams",
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.dependencies,
     columnNames: {
       name: "Dependency name",
       foundIn: "Found in",
@@ -46,6 +49,10 @@ export const Dependencies: React.FC = () => {
       sha: "SHA",
       version: "Version",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isActiveItemEnabled: true,
     sortableColumns: ["name", "foundIn", "labels"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
@@ -134,10 +141,10 @@ export const Dependencies: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
-      getClickableTrProps,
     },
-    activeRowDerivedState: { activeRowItem, clearActiveRow, setActiveRowItem },
+    activeItemDerivedState: { activeItem, clearActiveItem, setActiveItem },
   } = tableControls;
 
   return (
@@ -187,7 +194,7 @@ export const Dependencies: React.FC = () => {
               {currentPageItems?.map((dependency, rowIndex) => {
                 return (
                   <Tbody key={dependency.name}>
-                    <Tr {...getClickableTrProps({ item: dependency })}>
+                    <Tr {...getTrProps({ item: dependency })}>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={dependency}
@@ -204,13 +211,10 @@ export const Dependencies: React.FC = () => {
                             className={spacing.pl_0}
                             variant="link"
                             onClick={(_) => {
-                              if (
-                                activeRowItem &&
-                                activeRowItem === dependency
-                              ) {
-                                clearActiveRow();
+                              if (activeItem && activeItem === dependency) {
+                                clearActiveItem();
                               } else {
-                                setActiveRowItem(dependency);
+                                setActiveItem(dependency);
                               }
                             }}
                           >
@@ -254,8 +258,8 @@ export const Dependencies: React.FC = () => {
         </div>
       </PageSection>
       <DependencyAppsDetailDrawer
-        dependency={activeRowItem || null}
-        onCloseClick={() => setActiveRowItem(null)}
+        dependency={activeItem || null}
+        onCloseClick={() => setActiveItem(null)}
       ></DependencyAppsDetailDrawer>
     </>
   );

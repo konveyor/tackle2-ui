@@ -6,7 +6,11 @@ import {
 } from "@app/components/FilterToolbar";
 import { IFilterState } from "./useFilterState";
 
-// If we have multiple UI filters using the same hub field, we need to AND them and pass them to the hub as one filter.
+/**
+ * Helper function for getFilterHubRequestParams
+ * Given a new filter, determines whether there is an existing filter for that hub field and either creates one or merges this filter with the existing one.
+ * - If we have multiple UI filters using the same hub field, we need to AND them and pass them to the hub as one filter.
+ */
 const pushOrMergeFilter = (
   existingFilters: HubFilter[],
   newFilter: HubFilter
@@ -46,18 +50,33 @@ const pushOrMergeFilter = (
   }
 };
 
+/**
+ * Args for getFilterHubRequestParams
+ * - Partially satisfied by the object returned by useTableControlState (ITableControlState)
+ */
 export interface IGetFilterHubRequestParamsArgs<
   TItem,
-  TFilterCategoryKey extends string = string
+  TFilterCategoryKey extends string = string,
 > {
+  /**
+   * The "source of truth" state for the filter feature (returned by useFilterState)
+   */
   filterState?: IFilterState<TFilterCategoryKey>;
+  /**
+   * Definitions of the filters to be used (must include `getItemValue` functions for each category when performing filtering locally)
+   */
   filterCategories?: FilterCategory<TItem, TFilterCategoryKey>[];
   implicitFilters?: HubFilter[];
 }
 
+/**
+ * Given the state for the filter feature and additional arguments, returns params the hub API needs to apply the current filters.
+ * - Makes up part of the object returned by getHubRequestParams
+ * @see getHubRequestParams
+ */
 export const getFilterHubRequestParams = <
   TItem,
-  TFilterCategoryKey extends string = string
+  TFilterCategoryKey extends string = string,
 >({
   filterState,
   filterCategories,
@@ -128,9 +147,17 @@ export const getFilterHubRequestParams = <
   return { filters };
 };
 
+/**
+ * Helper function for serializeFilterForHub
+ * - Given a string or number, returns it as a string with quotes (`"`) around it.
+ * - Adds an escape character before any existing quote (`"`) characters in the string.
+ */
 export const wrapInQuotesAndEscape = (value: string | number): string =>
   `"${String(value).replace('"', '\\"')}"`;
 
+/**
+ * Converts a single filter object (HubFilter, the higher-level inspectable type) to the query string filter format used by the hub API
+ */
 export const serializeFilterForHub = (filter: HubFilter): string => {
   const { field, operator, value } = filter;
   const joinedValue =
@@ -144,6 +171,12 @@ export const serializeFilterForHub = (filter: HubFilter): string => {
   return `${field}${operator}${joinedValue}`;
 };
 
+/**
+ * Converts the values returned by getFilterHubRequestParams into the URL query strings expected by the hub API
+ * - Appends converted URL params to the given `serializedParams` object for use in the hub API request
+ * - Constructs part of the object returned by serializeRequestParamsForHub
+ * @see serializeRequestParamsForHub
+ */
 export const serializeFilterRequestParamsForHub = (
   deserializedParams: HubRequestParams,
   serializedParams: URLSearchParams

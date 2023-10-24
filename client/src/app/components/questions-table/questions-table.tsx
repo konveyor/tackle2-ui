@@ -44,6 +44,7 @@ const QuestionsTable: React.FC<{
       formulation: "Name",
       section: "Section",
     },
+    isExpansionEnabled: true,
     expandableVariant: "single",
     forceNumRenderedColumns: isAllQuestionsTab ? 3 : 2, // columns+1 for expand control
   });
@@ -54,6 +55,7 @@ const QuestionsTable: React.FC<{
     propHelpers: {
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
       getExpandedContentTdProps,
     },
@@ -63,7 +65,7 @@ const QuestionsTable: React.FC<{
   const { t } = useTranslation();
 
   return (
-    <Table {...tableProps} aria-label="Questions table" isExpandable>
+    <Table {...tableProps} aria-label="Questions table">
       <Thead>
         <Tr>
           <TableHeaderContentWithControls {...tableControls}>
@@ -98,7 +100,7 @@ const QuestionsTable: React.FC<{
               )?.name || "";
             return (
               <>
-                <Tr key={question.text}>
+                <Tr key={question.text} {...getTrProps({ item: question })}>
                   <TableRowContentWithControls
                     {...tableControls}
                     item={question}

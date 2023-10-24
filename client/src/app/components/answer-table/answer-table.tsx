@@ -37,14 +37,12 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
       choice: "Answer choice",
       weight: "Weight",
     },
-    hasActionsColumn: false,
-    hasPagination: false,
     variant: "compact",
   });
   const {
     currentPageItems,
     numRenderedColumns,
-    propHelpers: { tableProps, getThProps, getTdProps },
+    propHelpers: { tableProps, getThProps, getTrProps, getTdProps },
   } = tableControls;
 
   const getIconByRisk = (risk: string): React.ReactElement => {
@@ -118,7 +116,7 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
             {currentPageItems?.map((answer, rowIndex) => {
               return (
                 <>
-                  <Tr key={answer.text}>
+                  <Tr key={answer.text} {...getTrProps({ item: answer })}>
                     <TableRowContentWithControls
                       {...tableControls}
                       item={answer}

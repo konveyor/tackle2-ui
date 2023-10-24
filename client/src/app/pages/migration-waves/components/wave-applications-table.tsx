@@ -35,6 +35,8 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
       businessService: "Business service",
       owner: "Owner",
     },
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     hasActionsColumn: true,
     getSortValues: (app) => ({
       appName: app.name || "",
@@ -42,7 +44,6 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
       owner: app.owner?.name || "",
     }),
     sortableColumns: ["appName", "businessService", "owner"],
-    hasPagination: true,
     variant: "compact",
   });
   const {
@@ -54,6 +55,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
   } = tableControls;
@@ -91,7 +93,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
         >
           <Tbody>
             {currentPageItems?.map((app, rowIndex) => (
-              <Tr key={app.name}>
+              <Tr key={app.name} {...getTrProps({ item: app })}>
                 <TableRowContentWithControls
                   {...tableControls}
                   item={app}

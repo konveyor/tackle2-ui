@@ -103,6 +103,10 @@ export const Stakeholders: React.FC = () => {
       jobFunction: "Job function",
       groupCount: "Group count",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isExpansionEnabled: true,
     expandableVariant: "single",
     hasActionsColumn: true,
     filterCategories: [
@@ -165,7 +169,6 @@ export const Stakeholders: React.FC = () => {
       jobFunction: item.jobFunction?.name || "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
-    hasPagination: true,
     isLoading: isFetching,
   });
 
@@ -179,6 +182,7 @@ export const Stakeholders: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
       getExpandedContentTdProps,
     },
@@ -225,7 +229,7 @@ export const Stakeholders: React.FC = () => {
               </ToolbarItem>
             </ToolbarContent>
           </Toolbar>
-          <Table {...tableProps} isExpandable aria-label="Stakeholders table">
+          <Table {...tableProps} aria-label="Stakeholders table">
             <Thead>
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
@@ -263,7 +267,7 @@ export const Stakeholders: React.FC = () => {
                     key={stakeholder.id}
                     isExpanded={isCellExpanded(stakeholder)}
                   >
-                    <Tr>
+                    <Tr {...getTrProps({ item: stakeholder })}>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={stakeholder}

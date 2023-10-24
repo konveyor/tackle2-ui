@@ -53,6 +53,8 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
       status: "Status",
       issue: "Issue",
     },
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     hasActionsColumn: true,
     getSortValues: (app) => ({
       appName: app.name || "",
@@ -60,7 +62,6 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
       issue: "",
     }),
     sortableColumns: ["appName", "status", "issue"],
-    hasPagination: true,
     variant: "compact",
   });
   const {
@@ -72,6 +73,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
   } = tableControls;
@@ -129,7 +131,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
         >
           <Tbody>
             {currentPageItems?.map((app, rowIndex) => (
-              <Tr key={app.name}>
+              <Tr key={app.name} {...getTrProps({ item: app })}>
                 <TableRowContentWithControls
                   {...tableControls}
                   item={app}

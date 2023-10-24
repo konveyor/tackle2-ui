@@ -100,6 +100,9 @@ export const JiraTrackers: React.FC = () => {
       kind: `${t("terms.instance")} type`,
       connection: "Connection",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     filterCategories: [
       {
         key: "name",
@@ -131,7 +134,6 @@ export const JiraTrackers: React.FC = () => {
       url: tracker.url || "",
     }),
     sortableColumns: ["name", "url"],
-    hasPagination: true,
     isLoading: isFetching,
   });
   const {
@@ -144,6 +146,7 @@ export const JiraTrackers: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
   } = tableControls;
@@ -240,7 +243,7 @@ export const JiraTrackers: React.FC = () => {
               >
                 {currentPageItems?.map((tracker, rowIndex) => (
                   <Tbody key={tracker.name}>
-                    <Tr>
+                    <Tr {...getTrProps({ item: tracker })}>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={tracker}

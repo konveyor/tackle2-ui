@@ -102,14 +102,18 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
   const tableControls = useLocalTableControls({
     idProperty: "name",
     items: availableApplications,
-    initialSelected: assignedApplications,
     columnNames: {
       name: "Application Name",
       description: "Description",
       businessService: "Business service",
       owner: "Owner",
     },
-    isSelectable: true,
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isExpansionEnabled: true,
+    isSelectionEnabled: true,
+    initialSelected: assignedApplications,
     expandableVariant: "compound",
     hasActionsColumn: true,
     filterCategories: [
@@ -169,7 +173,6 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
       owner: application.owner?.name || "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
-    hasPagination: true,
   });
   const {
     currentPageItems,
@@ -183,6 +186,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
     expansionDerivedState: { isCellExpanded },
@@ -269,7 +273,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
                 key={application.id}
                 isExpanded={isCellExpanded(application)}
               >
-                <Tr>
+                <Tr {...getTrProps({ item: application })}>
                   <TableRowContentWithControls
                     {...tableControls}
                     item={application}

@@ -6,11 +6,11 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useSelectionState } from "@migtools/lib-ui";
 import { AnalysisDependency } from "@app/api/models";
 import {
-  getHubRequestParams,
+  useTableControlState,
   useTableControlProps,
-  useTableControlUrlParams,
+  getHubRequestParams,
 } from "@app/hooks/table-controls";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -33,14 +33,18 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
   const { businessServices } = useFetchBusinessServices();
   const { tags } = useFetchTags();
 
-  const tableControlState = useTableControlUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.dependencyApplications,
+  const tableControlState = useTableControlState({
+    persistTo: "urlParams",
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.dependencyApplications,
     columnNames: {
       name: "Application",
       version: "Version",
       //   management (3rd party or not boolean... parsed from labels)
       relationship: "Relationship",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     sortableColumns: ["name", "version"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
@@ -123,6 +127,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
   } = tableControls;
@@ -167,7 +172,10 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
         >
           <Tbody>
             {currentPageAppDependencies?.map((appDependency, rowIndex) => (
-              <Tr key={appDependency.name}>
+              <Tr
+                key={appDependency.name}
+                {...getTrProps({ item: appDependency })}
+              >
                 <TableRowContentWithControls
                   {...tableControls}
                   item={appDependency}

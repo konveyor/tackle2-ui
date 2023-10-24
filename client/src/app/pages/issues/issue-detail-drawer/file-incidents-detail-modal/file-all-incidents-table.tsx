@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
 import { useSelectionState } from "@migtools/lib-ui";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { AnalysisFileReport } from "@app/api/models";
 import { useFetchIncidents } from "@app/queries/issues";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -11,9 +11,9 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import {
-  getHubRequestParams,
+  useTableControlState,
   useTableControlProps,
-  useTableControlUrlParams,
+  getHubRequestParams,
 } from "@app/hooks/table-controls";
 import ReactMarkdown from "react-markdown";
 import { markdownPFComponents } from "@app/components/markdownPFComponents";
@@ -25,16 +25,18 @@ export interface IFileRemainingIncidentsTableProps {
 export const FileAllIncidentsTable: React.FC<
   IFileRemainingIncidentsTableProps
 > = ({ fileReport }) => {
-  const tableControlState = useTableControlUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.issuesRemainingIncidents,
+  const tableControlState = useTableControlState({
+    persistTo: "urlParams",
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.issuesRemainingIncidents,
     columnNames: {
       line: "Line #",
       message: "Message",
     },
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     sortableColumns: ["line", "message"],
     initialSort: { columnKey: "line", direction: "asc" },
     initialItemsPerPage: 10,
-    variant: "compact",
   });
 
   const {
@@ -59,6 +61,7 @@ export const FileAllIncidentsTable: React.FC<
     forceNumRenderedColumns: 3,
     totalItemCount,
     isLoading: isFetching,
+    variant: "compact",
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
       items: currentPageIncidents,
@@ -68,7 +71,13 @@ export const FileAllIncidentsTable: React.FC<
 
   const {
     numRenderedColumns,
-    propHelpers: { paginationProps, tableProps, getThProps, getTdProps },
+    propHelpers: {
+      paginationProps,
+      tableProps,
+      getThProps,
+      getTrProps,
+      getTdProps,
+    },
   } = tableControls;
 
   return (
@@ -98,7 +107,7 @@ export const FileAllIncidentsTable: React.FC<
         >
           <Tbody>
             {currentPageIncidents?.map((incident, rowIndex) => (
-              <Tr key={incident.id}>
+              <Tr key={incident.id} {...getTrProps({ item: incident })}>
                 <TableRowContentWithControls
                   {...tableControls}
                   item={incident}

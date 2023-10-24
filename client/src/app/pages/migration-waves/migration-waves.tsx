@@ -188,7 +188,11 @@ export const MigrationWaves: React.FC = () => {
       stakeholders: "Stakeholders",
       status: "Status",
     },
-    isSelectable: true,
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isExpansionEnabled: true,
+    isSelectionEnabled: true,
     expandableVariant: "compound",
     hasActionsColumn: true,
     filterCategories: [
@@ -212,7 +216,6 @@ export const MigrationWaves: React.FC = () => {
       endDate: migrationWave.endDate || "",
     }),
     initialSort: { columnKey: "startDate", direction: "asc" },
-    hasPagination: true,
     isLoading: isFetching,
   });
   const {
@@ -227,9 +230,9 @@ export const MigrationWaves: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
       getExpandedContentTdProps,
-      getCompoundExpandTdProps,
     },
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
@@ -374,7 +377,7 @@ export const MigrationWaves: React.FC = () => {
                     key={migrationWave.id}
                     isExpanded={isCellExpanded(migrationWave)}
                   >
-                    <Tr>
+                    <Tr {...getTrProps({ item: migrationWave })}>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={migrationWave}
@@ -401,33 +404,36 @@ export const MigrationWaves: React.FC = () => {
                         </Td>
                         <Td
                           width={10}
-                          {...getCompoundExpandTdProps({
+                          {...getTdProps({
+                            columnKey: "applications",
+                            isCompoundExpandToggle: true,
                             item: migrationWave,
                             rowIndex,
-                            columnKey: "applications",
                           })}
                         >
                           {migrationWave?.applications?.length.toString()}
                         </Td>
                         <Td
                           width={10}
-                          {...getCompoundExpandTdProps({
+                          {...getTdProps({
+                            columnKey: "stakeholders",
+                            isCompoundExpandToggle: true,
                             item: migrationWave,
                             rowIndex,
-                            columnKey: "stakeholders",
                           })}
                         >
                           {migrationWave.allStakeholders.length}
                         </Td>
                         <Td
                           width={20}
-                          {...((!!migrationWave.applications.length ||
-                            migrationWave.status === "No Issues") &&
-                            getCompoundExpandTdProps({
-                              item: migrationWave,
-                              rowIndex,
-                              columnKey: "status",
-                            }))}
+                          {...getTdProps({
+                            columnKey: "status",
+                            isCompoundExpandToggle:
+                              !!migrationWave.applications.length ||
+                              migrationWave.status === "No Issues",
+                            item: migrationWave,
+                            rowIndex,
+                          })}
                         >
                           {migrationWave.applications.length
                             ? migrationWave.status
