@@ -1,5 +1,5 @@
 import React from "react";
-import { WaveWithStatus, Role } from "@app/api/models";
+import { WaveWithStatus } from "@app/api/models";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useLocalTableControls } from "@app/hooks/table-controls";
@@ -27,6 +27,8 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
       email: "Email",
       groups: "Stakeholder groups",
     },
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     hasActionsColumn: true,
     getSortValues: (stakeholder) => ({
       name: stakeholder.name || "",
@@ -35,7 +37,6 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
       email: stakeholder.email,
     }),
     sortableColumns: ["name", "jobFunction", "role", "email"],
-    hasPagination: true,
     variant: "compact",
   });
   const {
@@ -47,6 +48,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
   } = tableControls;
@@ -85,7 +87,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
         >
           <Tbody>
             {currentPageItems?.map((stakeholder, rowIndex) => (
-              <Tr key={stakeholder.name}>
+              <Tr key={stakeholder.name} {...getTrProps({ item: stakeholder })}>
                 <TableRowContentWithControls
                   {...tableControls}
                   item={stakeholder}

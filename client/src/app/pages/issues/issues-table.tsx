@@ -33,7 +33,7 @@ import { useSelectionState } from "@migtools/lib-ui";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { useFetchIssueReports, useFetchRuleReports } from "@app/queries/issues";
 import {
   FilterType,
@@ -47,9 +47,9 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import {
-  useTableControlUrlParams,
-  getHubRequestParams,
+  useTableControlState,
   useTableControlProps,
+  getHubRequestParams,
 } from "@app/hooks/table-controls";
 
 import {
@@ -95,8 +95,9 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
   const allIssuesSpecificFilterCategories =
     useSharedAffectedApplicationFilterCategories();
 
-  const tableControlState = useTableControlUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.issues,
+  const tableControlState = useTableControlState({
+    persistTo: "urlParams",
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.issues,
     columnNames: {
       description: "Issue",
       category: "Category",
@@ -106,6 +107,10 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
       affected:
         mode === "singleApp" ? "Affected files" : "Affected applications",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isExpansionEnabled: true,
     sortableColumns: ["description", "category", "effort", "affected"],
     initialSort: { columnKey: "description", direction: "asc" },
     filterCategories: [
@@ -164,6 +169,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
       // },
     ],
     initialItemsPerPage: 10,
+    expandableVariant: "single",
   });
 
   const hubRequestParams = getHubRequestParams({
@@ -214,7 +220,6 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     currentPageItems: currentPageReports,
     totalItemCount: totalReportCount,
     isLoading,
-    expandableVariant: "single",
     // TODO FIXME - we don't need selectionState but it's required by this hook?
     selectionState: useSelectionState({
       items: currentPageReports,
@@ -236,6 +241,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
       getExpandedContentTdProps,
     },
@@ -303,7 +309,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-      <Table {...tableProps} isExpandable aria-label="Issues table">
+      <Table {...tableProps} aria-label="Issues table">
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
@@ -344,7 +350,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                 key={report._ui_unique_id}
                 isExpanded={isCellExpanded(report)}
               >
-                <Tr>
+                <Tr {...getTrProps({ item: report })}>
                   <TableRowContentWithControls
                     {...tableControls}
                     item={report}

@@ -17,9 +17,9 @@ import { useSelectionState } from "@migtools/lib-ui";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import {
-  useTableControlUrlParams,
-  getHubRequestParams,
+  useTableControlState,
   useTableControlProps,
+  getHubRequestParams,
 } from "@app/hooks/table-controls";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
@@ -35,7 +35,7 @@ import {
   useSharedAffectedApplicationFilterCategories,
 } from "../helpers";
 import { IssueDetailDrawer } from "../issue-detail-drawer";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 
 interface IAffectedApplicationsRouteParams {
   ruleset: string;
@@ -52,8 +52,9 @@ export const AffectedApplications: React.FC = () => {
     new URLSearchParams(useLocation().search).get("issueTitle") ||
     "Active rule";
 
-  const tableControlState = useTableControlUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.issuesAffectedApps,
+  const tableControlState = useTableControlState({
+    persistTo: "urlParams",
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.issuesAffectedApps,
     columnNames: {
       name: "Name",
       description: "Description",
@@ -61,6 +62,10 @@ export const AffectedApplications: React.FC = () => {
       effort: "Effort",
       incidents: "Incidents",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isActiveItemEnabled: true,
     sortableColumns: ["name", "businessService", "effort", "incidents"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: useSharedAffectedApplicationFilterCategories(),
@@ -118,10 +123,10 @@ export const AffectedApplications: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
-      getClickableTrProps,
     },
-    activeRowDerivedState: { activeRowItem, clearActiveRow },
+    activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
   return (
@@ -188,10 +193,7 @@ export const AffectedApplications: React.FC = () => {
               >
                 <Tbody>
                   {currentPageAppReports?.map((appReport, rowIndex) => (
-                    <Tr
-                      key={appReport.id}
-                      {...getClickableTrProps({ item: appReport })}
-                    >
+                    <Tr key={appReport.id} {...getTrProps({ item: appReport })}>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={appReport}
@@ -236,9 +238,9 @@ export const AffectedApplications: React.FC = () => {
         </ConditionalRender>
       </PageSection>
       <IssueDetailDrawer
-        issueId={activeRowItem?.issue.id || null}
-        applicationName={activeRowItem?.name || null}
-        onCloseClick={clearActiveRow}
+        issueId={activeItem?.issue.id || null}
+        applicationName={activeItem?.name || null}
+        onCloseClick={clearActiveItem}
       />
     </>
   );

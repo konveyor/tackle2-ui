@@ -17,7 +17,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Paths } from "@app/Paths";
 import { IssuesTable } from "./issues-table";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 
 export enum IssueFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -59,7 +59,7 @@ export const Issues: React.FC = () => {
           activeKey={activeTabPath}
           onSelect={(_event, tabPath) => {
             const pageHasFilters = new URLSearchParams(location.search).has(
-              `${TableURLParamKeyPrefix.issues}:filters`
+              `${TablePersistenceKeyPrefix.issues}:filters`
             );
             if (pageHasFilters) {
               setNavConfirmPath(tabPath as IssuesTabPath);

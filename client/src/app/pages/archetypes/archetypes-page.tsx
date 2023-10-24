@@ -38,7 +38,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { useLocalTableControlsWithUrlParams } from "@app/hooks/table-controls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import {
   useDeleteArchetypeMutation,
   useFetchArchetypes,
@@ -56,7 +56,7 @@ import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
 import { Paths } from "@app/Paths";
 import { SimplePagination } from "@app/components/SimplePagination";
-import { TableURLParamKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
@@ -98,8 +98,9 @@ const Archetypes: React.FC = () => {
     onError
   );
 
-  const tableControls = useLocalTableControlsWithUrlParams({
-    urlParamKeyPrefix: TableURLParamKeyPrefix.archetypes,
+  const tableControls = useLocalTableControls({
+    persistTo: "urlParams",
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.archetypes,
     idProperty: "id",
     items: archetypes,
     isLoading: isFetching,
@@ -112,6 +113,11 @@ const Archetypes: React.FC = () => {
       maintainers: t("terms.maintainers"),
       applications: t("terms.applications"),
     },
+
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isActiveItemEnabled: true,
 
     filterCategories: [
       {
@@ -134,8 +140,6 @@ const Archetypes: React.FC = () => {
       name: archetype.name ?? "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
-
-    hasPagination: true,
   });
   const {
     currentPageItems,
@@ -146,11 +150,11 @@ const Archetypes: React.FC = () => {
       paginationToolbarItemProps,
       paginationProps,
       tableProps,
-      getClickableTrProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
-    activeRowDerivedState: { activeRowItem, clearActiveRow },
+    activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
   // TODO: RBAC access checks need to be added.  Only Architect (and Administrator) personas
@@ -272,10 +276,7 @@ const Archetypes: React.FC = () => {
               >
                 <Tbody>
                   {currentPageItems?.map((archetype, rowIndex) => (
-                    <Tr
-                      key={archetype.id}
-                      {...getClickableTrProps({ item: archetype })}
-                    >
+                    <Tr key={archetype.id} {...getTrProps({ item: archetype })}>
                       <TableRowContentWithControls
                         {...tableControls}
                         item={archetype}
@@ -343,8 +344,8 @@ const Archetypes: React.FC = () => {
       </PageSection>
 
       <ArchetypeDetailDrawer
-        archetype={activeRowItem}
-        onCloseClick={clearActiveRow}
+        archetype={activeItem}
+        onCloseClick={clearActiveItem}
       />
 
       {/* Create modal */}

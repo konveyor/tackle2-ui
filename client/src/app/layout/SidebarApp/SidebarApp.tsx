@@ -70,7 +70,10 @@ export const SidebarApp: React.FC = () => {
   ];
 
   const [selectedPersona, setSelectedPersona] =
-    useLocalStorage<PersonaKey | null>(LocalStorageKey.selectedPersona, null);
+    useLocalStorage<PersonaKey | null>({
+      key: LocalStorageKey.selectedPersona,
+      defaultValue: null,
+    });
 
   useEffect(() => {
     if (!selectedPersona) {

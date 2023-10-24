@@ -113,8 +113,9 @@ const AssessmentSettings: React.FC = () => {
       rating: "Rating",
       createTime: "Date imported",
     },
-    isSelectable: false,
-    expandableVariant: null,
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
     hasActionsColumn: true,
     filterCategories: [
       {
@@ -136,7 +137,6 @@ const AssessmentSettings: React.FC = () => {
       createTime: questionnaire.createTime || "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
-    hasPagination: true,
     isLoading: isFetching,
   });
   const {
@@ -149,6 +149,7 @@ const AssessmentSettings: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
     },
   } = tableControls;
@@ -264,7 +265,7 @@ const AssessmentSettings: React.FC = () => {
 
                   return (
                     <Tbody key={questionnaire.id}>
-                      <Tr>
+                      <Tr {...getTrProps({ item: questionnaire })}>
                         <TableRowContentWithControls
                           {...tableControls}
                           item={questionnaire}

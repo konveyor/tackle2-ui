@@ -154,7 +154,7 @@ export const ApplicationsTable: React.FC = () => {
       }),
       variant: "success",
     });
-    clearActiveRow();
+    clearActiveItem();
     setApplicationsToDelete([]);
   };
 
@@ -243,6 +243,10 @@ export const ApplicationsTable: React.FC = () => {
       review: "Review",
       tags: "Tags",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isActiveItemEnabled: true,
     sortableColumns: ["name", "description", "businessService", "tags"],
     initialSort: { columnKey: "name", direction: "asc" },
     getSortValues: (app) => ({
@@ -371,7 +375,7 @@ export const ApplicationsTable: React.FC = () => {
     ],
     initialItemsPerPage: 10,
     hasActionsColumn: true,
-    isSelectable: true,
+    isSelectionEnabled: true,
   });
 
   const queryClient = useQueryClient();
@@ -386,11 +390,11 @@ export const ApplicationsTable: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
       toolbarBulkSelectorProps,
-      getClickableTrProps,
     },
-    activeRowDerivedState: { activeRowItem, clearActiveRow },
+    activeItemDerivedState: { activeItem, clearActiveItem },
 
     selectionState: { selectedItems: selectedRows },
   } = tableControls;
@@ -617,7 +621,7 @@ export const ApplicationsTable: React.FC = () => {
                 return (
                   <Tr
                     key={application.name}
-                    {...getClickableTrProps({ item: application })}
+                    {...getTrProps({ item: application })}
                   >
                     <TableRowContentWithControls
                       {...tableControls}
@@ -734,9 +738,9 @@ export const ApplicationsTable: React.FC = () => {
           paginationProps={paginationProps}
         />
         <ApplicationDetailDrawerAssessment
-          application={activeRowItem}
-          onCloseClick={clearActiveRow}
-          task={activeRowItem ? getTask(activeRowItem) : null}
+          application={activeItem}
+          onCloseClick={clearActiveItem}
+          task={activeItem ? getTask(activeItem) : null}
         />
         <Modal
           title={
@@ -914,7 +918,7 @@ export const ApplicationsTable: React.FC = () => {
           onConfirm={() => {
             history.push(
               formatPath(Paths.applicationAssessmentActions, {
-                applicationId: activeRowItem?.id,
+                applicationId: activeItem?.id,
               })
             );
             setArchetypeRefsToOverride(null);

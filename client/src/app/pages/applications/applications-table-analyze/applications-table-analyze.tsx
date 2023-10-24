@@ -136,7 +136,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       }),
       variant: "success",
     });
-    clearActiveRow();
+    clearActiveItem();
     setApplicationsToDelete([]);
   };
 
@@ -196,6 +196,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       analysis: "Analysis",
       tags: "Tags",
     },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isSelectionEnabled: true,
+    isActiveItemEnabled: true,
     sortableColumns: ["name", "description", "businessService", "tags"],
     initialSort: { columnKey: "name", direction: "asc" },
     getSortValues: (app) => ({
@@ -324,7 +329,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     ],
     initialItemsPerPage: 10,
     hasActionsColumn: true,
-    isSelectable: true,
   });
 
   const {
@@ -337,11 +341,11 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       paginationProps,
       tableProps,
       getThProps,
+      getTrProps,
       getTdProps,
       toolbarBulkSelectorProps,
-      getClickableTrProps,
     },
-    activeRowDerivedState: { activeRowItem, clearActiveRow },
+    activeItemDerivedState: { activeItem, clearActiveItem },
 
     selectionState: { selectedItems: selectedRows },
   } = tableControls;
@@ -587,10 +591,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           >
             <Tbody>
               {currentPageItems.map((application, rowIndex) => (
-                <Tr
-                  key={application.id}
-                  {...getClickableTrProps({ item: application })}
-                >
+                <Tr key={application.id} {...getTrProps({ item: application })}>
                   <TableRowContentWithControls
                     {...tableControls}
                     item={application}
@@ -753,10 +754,10 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           paginationProps={paginationProps}
         />
         <ApplicationDetailDrawerAnalysis
-          application={activeRowItem}
+          application={activeItem}
           applications={applications}
-          onCloseClick={clearActiveRow}
-          task={activeRowItem ? getTask(activeRowItem) : null}
+          onCloseClick={clearActiveItem}
+          task={activeItem ? getTask(activeItem) : null}
         />
 
         <ConfirmDialog
