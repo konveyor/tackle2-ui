@@ -46,6 +46,8 @@ export const UploadBinary: React.FC = () => {
       title: "Uploaded binary file.",
       variant: "success",
     });
+    setFileUploadStatus("success");
+    setFileUploadProgress(100);
   };
 
   const failedUpload = (error: AxiosError) => {
@@ -82,10 +84,8 @@ export const UploadBinary: React.FC = () => {
     failedUpload
   );
 
-  const { mutate: removeFile } = useRemoveUploadedFileMutation(
-    completedRemove,
-    failedRemove
-  );
+  const { mutate: removeFile, isLoading: isRemovingFile } =
+    useRemoveUploadedFileMutation(completedRemove, failedRemove);
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
     updateTaskGroup(data);
   };
@@ -133,9 +133,8 @@ export const UploadBinary: React.FC = () => {
       readFile(droppedFiles[0])
         .then((data) => {
           if (data) {
-            setFileUploadProgress(100);
-            setFileUploadStatus("success");
             setValue("artifact", droppedFiles[0]);
+            setFileUploadProgress(0);
           }
         })
         .catch((error) => {
