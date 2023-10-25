@@ -19,7 +19,11 @@ import keycloak from "@app/keycloak";
 import { useLocalStorage } from "@migtools/lib-ui";
 import { LocalStorageKey } from "@app/Constants";
 import { FEATURES_ENABLED } from "@app/FeatureFlags";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import {
+  OptionWithValue,
+  SimpleSelect as XSimpleSelect,
+} from "@app/components/SimpleSelect";
+import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import { toOptionLike } from "@app/utils/model-utils";
 import "./SidebarApp.css";
 
@@ -87,7 +91,21 @@ export const SidebarApp: React.FC = () => {
       <PageSidebarBody>
         <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
           <div className="perspective">
-            <SimpleSelect
+            <SimpleSelectBasic
+              value={selectedPersona ? (selectedPersona as string) : undefined}
+              options={personaOptions.map((o) => o.value)}
+              onChange={(selection) => {
+                const selectionValue = selection;
+                setSelectedPersona(selectionValue as PersonaKey);
+                if (selectionValue === PersonaKey.ADMINISTRATION) {
+                  history.push(Paths.general);
+                } else {
+                  history.push(Paths.applications);
+                }
+              }}
+            />
+            <br /> <br />
+            <XSimpleSelect
               toggleId="sidebar-perspective-toggle"
               variant={SelectVariant.single}
               aria-label="Select user perspective"

@@ -1,31 +1,23 @@
 import React, { useState } from "react";
 
 import {
-  Select as SelectD,
-  SelectOption as SelectDOption,
-  SelectOptionObject as SelectDOptionObject,
-  SelectOptionProps as SelectDOptionProps,
-  SelectProps as SelectDProps,
+  Select,
+  SelectOption,
+  SelectOptionObject,
+  SelectOptionProps,
+  SelectProps,
 } from "@patternfly/react-core/deprecated";
 
-import {
-  Select,
-  SelectList,
-  SelectOption,
-  MenuToggle,
-  MenuToggleElement,
-} from "@patternfly/react-core";
-
-export interface OptionWithValue<T = string> extends SelectDOptionObject {
+export interface OptionWithValue<T = string> extends SelectOptionObject {
   value: T;
-  props?: Partial<SelectDOptionProps>; // Extra props for <SelectDOption>, e.g. children, className
+  props?: Partial<SelectOptionProps>; // Extra props for <SelectOption>, e.g. children, className
 }
 
-type OptionLike = string | SelectDOptionObject | OptionWithValue;
+type OptionLike = string | SelectOptionObject | OptionWithValue;
 
 export interface ISimpleSelectProps
   extends Omit<
-    SelectDProps,
+    SelectProps,
     "onChange" | "isOpen" | "onToggle" | "onSelect" | "selections" | "value"
   > {
   "aria-label": string;
@@ -45,53 +37,16 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDOpen, setDIsOpen] = useState(false);
-
-  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
-    <MenuToggle
-      isFullWidth
-      ref={toggleRef}
-      onClick={() => {
-        setIsOpen(!isOpen);
-      }}
-      isExpanded={isOpen}
-    >
-      {(Array.isArray(value) ? value[0] : value)?.toString()}
-    </MenuToggle>
-  );
-  console.log(options);
   return (
     <>
+      <h1>SimpleSelect</h1>
       <Select
-        isOpen={isOpen}
-        toggle={toggle}
-        onOpenChange={(isOpen) => setIsOpen(isOpen)}
-        onSelect={(_, selection) => {
-          onChange(selection as string);
-          if (props.variant !== "checkbox") {
-            setIsOpen(false);
-          }
-        }}
-      >
-        <SelectList>
-          {options.map((option, index) => (
-            <SelectOption
-              key={`${index}-${option.toString()}`}
-              value={option}
-              // {...(typeof option === "object" && (option as OptionWithValue).props)}
-            >
-              {option.toString()}
-            </SelectOption>
-          ))}
-        </SelectList>
-      </Select>
-      <SelectD
         menuAppendTo="parent" // prevent menu from being clipped by modal edges
         maxHeight={200}
         placeholderText={placeholderText}
         toggleAriaLabel={toggleAriaLabel}
-        isOpen={isDOpen}
-        onToggle={(_, isDOpen) => setDIsOpen(isDOpen)}
+        isOpen={isOpen}
+        onToggle={(_, isOpen) => setIsOpen(isOpen)}
         onSelect={(_, selection) => {
           onChange(selection);
           if (props.variant !== "checkbox") {
@@ -102,14 +57,14 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
         {...props}
       >
         {options.map((option, index) => (
-          <SelectDOption
+          <SelectOption
             key={`${index}-${option.toString()}`}
             value={option}
             {...(typeof option === "object" &&
               (option as OptionWithValue).props)}
           />
         ))}
-      </SelectD>
+      </Select>
     </>
   );
 };
