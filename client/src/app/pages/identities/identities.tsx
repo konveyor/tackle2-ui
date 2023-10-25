@@ -48,6 +48,7 @@ import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { useFetchTargets } from "@app/queries/targets";
 
 const ENTITY_FIELD = "entity";
 
@@ -77,6 +78,8 @@ export const Identities: React.FC = () => {
       variant: "success",
     });
   };
+
+  const { targets } = useFetchTargets();
 
   const onDeleteIdentityError = (error: AxiosError) => {
     pushNotification({
@@ -223,11 +226,17 @@ export const Identities: React.FC = () => {
         {
           title: (
             <AppTableActionButtons
-              isDeleteEnabled={trackers.some(
-                (tracker) => tracker?.identity?.id === item.id
-              )}
+              isDeleteEnabled={
+                trackers.some((tracker) => tracker?.identity?.id === item.id) ||
+                applications?.some(
+                  (app) => app?.identities?.some((id) => id.id === item.id)
+                ) ||
+                targets?.some(
+                  (target) => target?.ruleset?.identity?.id === item.id
+                )
+              }
               tooltipMessage={
-                "Cannot delete credential assigned to a JIRA tracker."
+                "Cannot delete credential as it is currently in use."
               }
               onEdit={() => setCreateUpdateModalState(item)}
               onDelete={() => {
