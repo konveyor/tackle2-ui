@@ -340,10 +340,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
         <WizardStep
           id={StepId.AnalysisMode}
           name={t("wizard.terms.analysisMode")}
-          isDisabled={!isStepEnabled(StepId.AnalysisMode)}
           footer={{
             isNextDisabled:
-              !isMutating && !isStepEnabled(StepId.AnalysisMode + 1),
+              !!isMutating || !isStepEnabled(StepId.AnalysisMode + 1),
           }}
         >
           <>

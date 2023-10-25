@@ -8,11 +8,14 @@ interface FetchTasksFilters {
 
 export const TasksQueryKey = "tasks";
 
-export const useFetchTasks = (filters: FetchTasksFilters = {}) => {
+export const useFetchTasks = (
+  filters: FetchTasksFilters = {},
+  refetchDisabled: boolean = false
+) => {
   const { isLoading, error, refetch, data } = useQuery({
     queryKey: [TasksQueryKey],
     queryFn: getTasks,
-    refetchInterval: 5000,
+    refetchInterval: !refetchDisabled ? 5000 : false,
     select: (allTasks) => {
       const uniqSorted = allTasks
         .filter((task) =>
