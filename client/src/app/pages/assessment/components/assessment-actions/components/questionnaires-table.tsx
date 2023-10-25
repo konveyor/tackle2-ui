@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { useLocalTableControls } from "@app/hooks/table-controls";
@@ -15,6 +15,7 @@ import {
   Questionnaire,
 } from "@app/api/models";
 import DynamicAssessmentActionsRow from "./dynamic-assessment-actions-row";
+import AssessmentModal from "../../assessment-wizard/assessment-wizard-modal";
 
 interface QuestionnairesTableProps {
   tableName: string;
@@ -48,6 +49,21 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
     numRenderedColumns,
     propHelpers: { tableProps, getThProps, getTrProps, getTdProps },
   } = tableControls;
+
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [createdAssessmentId, setCreatedAssessmentId] = useState<number | null>(
+    null
+  );
+  const handleModalOpen = (assessmentId: number) => {
+    setCreatedAssessmentId(assessmentId);
+    setIsWizardOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setCreatedAssessmentId(null);
+    setIsWizardOpen(false);
+  };
+
   return (
     <>
       <Table
@@ -112,6 +128,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
                         application={application}
                         archetype={archetype}
                         isReadonly={isReadonly}
+                        onOpenModal={handleModalOpen}
                       />
                     ) : null}
                   </TableRowContentWithControls>
@@ -121,6 +138,11 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
           </Tbody>
         </ConditionalTableBody>
       </Table>
+      <AssessmentModal
+        isOpen={isWizardOpen}
+        onRequestClose={handleModalClose}
+        assessmentId={createdAssessmentId!}
+      />
     </>
   );
 };

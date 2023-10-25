@@ -12,7 +12,7 @@ import {
   useDeleteAssessmentMutation,
 } from "@app/queries/assessments";
 import { Button, Spinner } from "@patternfly/react-core";
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent } from "react";
 import { useHistory } from "react-router-dom";
 import "./dynamic-assessment-actions-row.css";
 import { AxiosError } from "axios";
@@ -27,7 +27,6 @@ import {
 } from "@tanstack/react-query";
 import { TrashIcon } from "@patternfly/react-icons";
 import useIsArchetype from "@app/hooks/useIsArchetype";
-import AssessmentModal from "../../assessment-wizard/assessment-wizard-modal";
 
 enum AssessmentAction {
   Take = "Take",
@@ -41,20 +40,23 @@ interface DynamicAssessmentActionsRowProps {
   archetype?: Archetype;
   assessment?: Assessment;
   isReadonly?: boolean;
+  onOpenModal: (assessmentId: number) => void;
 }
 
 const DynamicAssessmentActionsRow: FunctionComponent<
   DynamicAssessmentActionsRowProps
-> = ({ questionnaire, application, archetype, assessment, isReadonly }) => {
+> = ({
+  questionnaire,
+  application,
+  archetype,
+  assessment,
+  isReadonly,
+  onOpenModal,
+}) => {
   const isArchetype = useIsArchetype();
   const history = useHistory();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
-  const [createdAssessmentId, setCreatedAssessmentId] = useState<number | null>(
-    null
-  );
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -132,8 +134,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
 
     try {
       const result = await createAssessmentAsync(newAssessment);
-      setCreatedAssessmentId(result.id);
-      setIsWizardOpen(true);
+      onOpenModal(result.id);
     } catch (error) {
       console.error("Error while creating assessment:", error);
       pushNotification({
@@ -170,8 +171,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     if (action === AssessmentAction.Take) {
       takeAssessment();
     } else if (action === AssessmentAction.Continue && assessment?.id) {
-      setCreatedAssessmentId(assessment.id);
-      setIsWizardOpen(true);
+      onOpenModal(assessment.id);
     } else if (action === AssessmentAction.Retake) {
       if (assessment) {
         try {
@@ -260,14 +260,6 @@ const DynamicAssessmentActionsRow: FunctionComponent<
           </Button>
         </Td>
       ) : null}
-      <AssessmentModal
-        isOpen={isWizardOpen}
-        onRequestClose={() => {
-          setCreatedAssessmentId(null);
-          setIsWizardOpen(false);
-        }}
-        assessmentId={createdAssessmentId!}
-      />
     </>
   );
 };
