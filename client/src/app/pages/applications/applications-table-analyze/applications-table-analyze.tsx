@@ -68,7 +68,6 @@ import {
   useFetchApplications,
 } from "@app/queries/applications";
 import { useCancelTaskMutation, useFetchTasks } from "@app/queries/tasks";
-import { useFetchReviews } from "@app/queries/reviews";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchTagCategories } from "@app/queries/tags";
 
@@ -116,7 +115,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   const getTask = (application: Application) =>
     tasks.find((task: Task) => task.application?.id === application.id);
 
-  const { tasks } = useFetchTasks({ addon: "analyzer" });
+  const { tasks } = useFetchTasks({ addon: "analyzer" }, isAnalyzeModalOpen);
 
   const { tagCategories: tagCategories } = useFetchTagCategories();
 
@@ -127,7 +126,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     isFetching: isFetchingApplications,
     error: applicationsFetchError,
     refetch: fetchApplications,
-  } = useFetchApplications();
+  } = useFetchApplications(isAnalyzeModalOpen);
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -349,8 +348,6 @@ export const ApplicationsTableAnalyze: React.FC = () => {
 
     selectionState: { selectedItems: selectedRows },
   } = tableControls;
-
-  const { reviews } = useFetchReviews();
 
   const [
     saveApplicationsCredentialsModalState,
