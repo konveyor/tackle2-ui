@@ -200,7 +200,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     <>
       <Td>
         <div>
-          {!isReadonly && !isDeleting && !isFetching && !isMutating ? (
+          {isReadonly ? null : !isDeleting && !isFetching && !isMutating ? (
             <Button
               type="button"
               variant="primary"
