@@ -5,9 +5,9 @@ import { useHistory } from "react-router-dom";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 import {
   Alert,
-  Button,
   ButtonVariant,
   Wizard,
+  WizardHeader,
   WizardStep,
 } from "@patternfly/react-core";
 
@@ -45,6 +45,7 @@ import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 export const SAVE_ACTION_KEY = "saveAction";
 
@@ -69,11 +70,13 @@ export interface AssessmentWizardValues {
 export interface AssessmentWizardProps {
   assessment?: Assessment;
   fetchError?: AxiosError | null;
+  isFetching: boolean;
   onClose: () => void;
 }
 
 export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   assessment,
+  isFetching,
   fetchError,
   onClose,
 }) => {
@@ -520,9 +523,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   return (
     <>
-      <Button style={{ display: "none" }} tabIndex={-1}>
-        Hidden Button Remove
-      </Button>
       {fetchError && (
         <Alert
           className={`${spacing.mtMd} ${spacing.mbMd}`}
@@ -531,57 +531,69 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
           title={getAxiosErrorMessage(fetchError)}
         />
       )}
-      <FormProvider {...methods}>
-        <Wizard
-          isVisitRequired
-          onStepChange={(_e, curr) => {
-            setCurrentStep(curr.index);
-          }}
-          onClose={() => {
-            assessment && setAssessmentToCancel(assessment);
-          }}
-        >
-          <WizardStep
-            id={0}
-            footer={getWizardFooter(0)}
-            name={t("composed.selectMany", {
-              what: t("terms.stakeholders").toLowerCase(),
-            })}
-            isDisabled={currentStep !== 0 && disableNavigation}
-          >
-            <AssessmentStakeholdersForm />
-          </WizardStep>
-          {...sortedSections.map((section, index) => {
-            const stepIndex = index + 1;
-            return (
-              <WizardStep
-                id={stepIndex}
-                name={section.name}
-                isDisabled={stepIndex !== currentStep && disableNavigation}
-                navItem={{
-                  children: <WizardStepNavDescription section={section} />,
+      {isFetching || !!fetchError ? (
+        <AppPlaceholder />
+      ) : (
+        <FormProvider {...methods}>
+          <Wizard
+            isVisitRequired
+            onStepChange={(_e, curr) => {
+              setCurrentStep(curr.index);
+            }}
+            onClose={() => {
+              assessment && setAssessmentToCancel(assessment);
+            }}
+            header={
+              <WizardHeader
+                title={t("terms.assessment")}
+                onClose={() => {
+                  assessment && setAssessmentToCancel(assessment);
                 }}
-                footer={getWizardFooter(stepIndex, section)}
-              >
-                <QuestionnaireForm key={section.name} section={section} />
-              </WizardStep>
-            );
-          })}
-        </Wizard>
-        {assessmentToCancel && (
-          <ConfirmDialog
-            title={t("dialog.title.leavePage")}
-            isOpen
-            message={t("dialog.message.leavePage")}
-            confirmBtnVariant={ButtonVariant.primary}
-            confirmBtnLabel={t("actions.continue")}
-            cancelBtnLabel={t("actions.cancel")}
-            onCancel={() => setAssessmentToCancel(null)}
-            onClose={() => setAssessmentToCancel(null)}
-            onConfirm={() => handleCancelAssessment()}
-          />
-        )}
-      </FormProvider>
+              />
+            }
+          >
+            <WizardStep
+              id={0}
+              footer={getWizardFooter(0)}
+              name={t("composed.selectMany", {
+                what: t("terms.stakeholders").toLowerCase(),
+              })}
+              isDisabled={currentStep !== 0 && disableNavigation}
+            >
+              <AssessmentStakeholdersForm />
+            </WizardStep>
+            {...sortedSections.map((section, index) => {
+              const stepIndex = index + 1;
+              return (
+                <WizardStep
+                  id={stepIndex}
+                  name={section.name}
+                  isDisabled={stepIndex !== currentStep && disableNavigation}
+                  navItem={{
+                    children: <WizardStepNavDescription section={section} />,
+                  }}
+                  footer={getWizardFooter(stepIndex, section)}
+                >
+                  <QuestionnaireForm key={section.name} section={section} />
+                </WizardStep>
+              );
+            })}
+          </Wizard>
+          {assessmentToCancel && (
+            <ConfirmDialog
+              title={t("dialog.title.leavePage")}
+              isOpen
+              message={t("dialog.message.leavePage")}
+              confirmBtnVariant={ButtonVariant.primary}
+              confirmBtnLabel={t("actions.continue")}
+              cancelBtnLabel={t("actions.cancel")}
+              onCancel={() => setAssessmentToCancel(null)}
+              onClose={() => setAssessmentToCancel(null)}
+              onConfirm={() => handleCancelAssessment()}
+            />
+          )}
+        </FormProvider>
+      )}
     </>
   );
 };
