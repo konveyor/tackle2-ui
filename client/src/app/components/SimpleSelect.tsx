@@ -38,29 +38,32 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <Select
-      menuAppendTo="parent" // prevent menu from being clipped by modal edges
-      maxHeight={200}
-      placeholderText={placeholderText}
-      toggleAriaLabel={toggleAriaLabel}
-      isOpen={isOpen}
-      onToggle={(_, isOpen) => setIsOpen(isOpen)}
-      onSelect={(_, selection) => {
-        onChange(selection);
-        if (props.variant !== "checkbox") {
-          setIsOpen(false);
-        }
-      }}
-      selections={value}
-      {...props}
-    >
-      {options.map((option, index) => (
-        <SelectOption
-          key={`${index}-${option.toString()}`}
-          value={option}
-          {...(typeof option === "object" && (option as OptionWithValue).props)}
-        />
-      ))}
-    </Select>
+    <>
+      <Select
+        menuAppendTo="parent" // prevent menu from being clipped by modal edges
+        maxHeight={200}
+        placeholderText={placeholderText}
+        toggleAriaLabel={toggleAriaLabel}
+        isOpen={isOpen}
+        onToggle={(_, isOpen) => setIsOpen(isOpen)}
+        onSelect={(_, selection) => {
+          onChange(selection);
+          if (props.variant !== "checkbox") {
+            setIsOpen(false);
+          }
+        }}
+        selections={value}
+        {...props}
+      >
+        {options.map((option, index) => (
+          <SelectOption
+            key={`${index}-${option.toString()}`}
+            value={option}
+            {...(typeof option === "object" &&
+              (option as OptionWithValue).props)}
+          />
+        ))}
+      </Select>
+    </>
   );
 };
