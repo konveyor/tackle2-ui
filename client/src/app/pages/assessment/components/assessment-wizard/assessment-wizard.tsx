@@ -583,13 +583,13 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             <ConfirmDialog
               title={t("dialog.title.leavePage")}
               isOpen
-              message={t("dialog.message.leavePage")}
               confirmBtnVariant={ButtonVariant.primary}
               confirmBtnLabel={t("actions.continue")}
               cancelBtnLabel={t("actions.cancel")}
               onCancel={() => setAssessmentToCancel(null)}
               onClose={() => setAssessmentToCancel(null)}
               onConfirm={() => handleCancelAssessment()}
+              message="Are you sure you want to close the assessment? Any unsaved changes will be lost."
             />
           )}
         </FormProvider>

@@ -23,7 +23,7 @@ const AssessmentModal: FunctionComponent<AssessmentModalProps> = ({
         <Modal
           isOpen={isOpen}
           onClose={onRequestClose}
-          showClose={false}
+          showClose={isFetching || !!fetchError}
           aria-label="Application assessment wizard modal"
           hasNoBodyWrapper
           onEscapePress={onRequestClose}

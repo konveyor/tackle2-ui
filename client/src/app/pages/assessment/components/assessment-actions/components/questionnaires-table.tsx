@@ -102,10 +102,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
               );
 
               return (
-                <Tr
-                  key={questionnaire.name}
-                  {...getTrProps({ item: questionnaire })}
-                >
+                <Tr key={questionnaire.name}>
                   <TableRowContentWithControls
                     {...tableControls}
                     item={questionnaire}
