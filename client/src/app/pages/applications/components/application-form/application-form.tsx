@@ -14,11 +14,8 @@ import {
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import {
-  SimpleSelect as XSimpleSelect,
-  OptionWithValue,
-} from "@app/components/SimpleSelect";
-import { SimpleSelectTypeahead } from "@app/components/SimpleSelectTypeahead";
+import { SimpleSelect, OptionWithValue } from "@app/components/SimpleSelect";
+// import { SimpleSelectTypeahead } from "@app/components/SimpleSelectTypeahead";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { Application, Tag, TagRef } from "@app/api/models";
 import {
@@ -346,7 +343,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             fieldId="businessService"
             renderInput={({ field: { value, name, onChange } }) => (
               <>
-                <SimpleSelectTypeahead
+                {/* <SimpleSelectTypeahead
                   toggleId="business-service-toggle"
                   toggleAriaLabel="Business service select dropdown toggle"
                   id="business-service-select"
@@ -359,8 +356,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                     const selectionValue = selection;
                     onChange(selectionValue);
                   }}
-                />
-                <XSimpleSelect
+                /> */}
+                <SimpleSelect
                   maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
                   placeholderText={t("composed.selectOne", {
                     what: t("terms.businessService").toLowerCase(),
@@ -406,14 +403,14 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             fieldId="owner"
             renderInput={({ field: { value, name, onChange } }) => (
               <>
-                <SimpleSelectTypeahead
+                {/* <SimpleSelectTypeahead
                   options={stakeholdersOptions}
                   placeholderText={t("composed.selectAn", {
                     what: t("terms.owner").toLowerCase(),
                   })}
                   onChange={onChange}
-                />
-                <XSimpleSelect
+                /> */}
+                <SimpleSelect
                   maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
                   placeholderText={t("composed.selectAn", {
                     what: t("terms.owner").toLowerCase(),
@@ -445,7 +442,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             fieldId="contributors"
             renderInput={({ field: { value, name, onChange } }) => (
               <>
-                <div>value: {value}</div>
+                {/* <div>value: {value}</div>
                 <SimpleSelectTypeahead
                   placeholderText={t("composed.selectMany", {
                     what: t("terms.contributors").toLowerCase(),
@@ -468,53 +465,55 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                     onChange(selectionValue);
                   }}
                   noResultsFoundText={t("message.noResultsFoundTitle")}
-                />
-                {/* <XSimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-                placeholderText={t("composed.selectMany", {
-                  what: t("terms.contributors").toLowerCase(),
-                })}
-                id="contributors-select"
-                variant="typeaheadmulti"
-                toggleId="contributors-select-toggle"
-                toggleAriaLabel="contributors dropdown toggle"
-                aria-label={name}
-                value={value
-                  .map(
-                    (formContributor) =>
-                      stakeholders?.find(
-                        (stakeholder) => stakeholder.name === formContributor
-                      )
-                  )
-                  .map((matchingStakeholder) =>
-                    matchingStakeholder
-                      ? {
-                          value: matchingStakeholder.name,
-                          toString: () => matchingStakeholder.name,
-                        }
-                      : undefined
-                  )
-                  .filter((e) => e !== undefined)}
-                options={stakeholdersOptions}
-                onChange={(selection) => {
-                  const selectionWithValue =
-                    selection as OptionWithValue<string>;
+                /> */}
+                <SimpleSelect
+                  maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                  placeholderText={t("composed.selectMany", {
+                    what: t("terms.contributors").toLowerCase(),
+                  })}
+                  id="contributors-select"
+                  variant="typeaheadmulti"
+                  toggleId="contributors-select-toggle"
+                  toggleAriaLabel="contributors dropdown toggle"
+                  aria-label={name}
+                  value={value
+                    .map(
+                      (formContributor) =>
+                        stakeholders?.find(
+                          (stakeholder) => stakeholder.name === formContributor
+                        )
+                    )
+                    .map((matchingStakeholder) =>
+                      matchingStakeholder
+                        ? {
+                            value: matchingStakeholder.name,
+                            toString: () => matchingStakeholder.name,
+                          }
+                        : undefined
+                    )
+                    .filter((e) => e !== undefined)}
+                  options={stakeholdersOptions}
+                  onChange={(selection) => {
+                    const selectionWithValue =
+                      selection as OptionWithValue<string>;
 
-                  const currentValue = value || [];
-                  const e = currentValue.find(
-                    (f) => f === selectionWithValue.value
-                  );
-                  if (e) {
-                    onChange(
-                      currentValue.filter((f) => f !== selectionWithValue.value)
+                    const currentValue = value || [];
+                    const e = currentValue.find(
+                      (f) => f === selectionWithValue.value
                     );
-                  } else {
-                    onChange([...currentValue, selectionWithValue.value]);
-                  }
-                }}
-                onClear={() => onChange([])}
-                noResultsFoundText={t("message.noResultsFoundTitle")}
-              /> */}
+                    if (e) {
+                      onChange(
+                        currentValue.filter(
+                          (f) => f !== selectionWithValue.value
+                        )
+                      );
+                    } else {
+                      onChange([...currentValue, selectionWithValue.value]);
+                    }
+                  }}
+                  onClear={() => onChange([])}
+                  noResultsFoundText={t("message.noResultsFoundTitle")}
+                />
               </>
             )}
           />
@@ -541,7 +540,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             fieldId="repository-type-select"
             isRequired
             renderInput={({ field: { value, name, onChange } }) => (
-              <XSimpleSelect
+              <SimpleSelect
                 toggleId="repo-type-toggle"
                 toggleAriaLabel="Type select dropdown toggle"
                 aria-label={name}

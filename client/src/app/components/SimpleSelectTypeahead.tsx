@@ -92,7 +92,6 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
     value: string | number | undefined
   ) => {
-    // eslint-disable-next-line no-console
     value = value as string;
     if (value && value !== "no results") {
       if (selectMultiple) {
@@ -100,15 +99,12 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
         const newSelections = selections.includes(value)
           ? selections.filter((sel) => sel !== value)
           : [...selections, value];
-        // debugger;
-        console.log("Setting selected to:", newSelections);
         setSelected(newSelections);
         onChange(newSelections);
       } else {
         onChange(value);
         setInputValue(value);
         setFilterValue("");
-        console.log("Setting selected to2:", value);
         setSelected(value);
       }
     }
