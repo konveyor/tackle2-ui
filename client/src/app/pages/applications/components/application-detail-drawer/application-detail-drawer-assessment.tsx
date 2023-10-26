@@ -22,6 +22,7 @@ import {
 } from "./application-detail-drawer";
 import { useFetchReviewById } from "@app/queries/reviews";
 import { ReviewedArchetypeItem } from "./reviewed-archetype-item";
+import { RiskLabel } from "@app/components/RiskLabel";
 
 export interface IApplicationDetailDrawerAssessmentProps
   extends Pick<IApplicationDetailDrawerProps, "application" | "onCloseClick"> {
@@ -136,12 +137,12 @@ export const ApplicationDetailDrawerAssessment: React.FC<
                 {appReview?.workPriority || notYetReviewed}
               </DescriptionListDescription>
             </DescriptionListGroup>
-            {/* <DescriptionListGroup>
+            <DescriptionListGroup>
               <DescriptionListTerm>{t("terms.risk")}</DescriptionListTerm>
               <DescriptionListDescription cy-data="risk">
-                {application && <ApplicationRisk application={application} />}
+                <RiskLabel risk={application?.risk || "unknown"} />
               </DescriptionListDescription>
-            </DescriptionListGroup> */}
+            </DescriptionListGroup>
           </DescriptionList>
           <TextContent className={spacing.mtLg}>
             <Title headingLevel="h3" size="md">
