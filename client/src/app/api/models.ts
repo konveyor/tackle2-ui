@@ -130,6 +130,8 @@ export interface Application {
   assessments?: Ref[];
   assessed?: boolean;
   archetypes?: Ref[];
+  risk?: Risk;
+  confidence?: number;
 }
 
 export interface Review {
