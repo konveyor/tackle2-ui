@@ -189,6 +189,32 @@ export const Identities: React.FC = () => {
     setFilterValues({});
   };
 
+  const getBlockDeleteMessage = (item: Identity) => {
+    if (trackers.some((tracker) => tracker?.identity?.id === item.id)) {
+      return t("message.blockedDeleteTracker", {
+        what: item.name,
+      });
+    } else if (
+      applications?.some(
+        (app) => app?.identities?.some((id) => id.id === item.id)
+      )
+    ) {
+      return t("message.blockedDeleteApplication", {
+        what: item.name,
+      });
+    } else if (
+      targets?.some((target) => target?.ruleset?.identity?.id === item.id)
+    ) {
+      return t("message.blockedDeleteTarget", {
+        what: item.name,
+      });
+    } else {
+      return t("message.defaultBlockedDelete", {
+        what: item.name,
+      });
+    }
+  };
+
   const rows: IRow[] = [];
   currentPageItems?.forEach((item: Identity) => {
     const typeFormattedString = typeOptions.find(
@@ -235,9 +261,7 @@ export const Identities: React.FC = () => {
                   (target) => target?.ruleset?.identity?.id === item.id
                 )
               }
-              tooltipMessage={
-                "Cannot delete credential as it is currently in use."
-              }
+              tooltipMessage={getBlockDeleteMessage(item)}
               onEdit={() => setCreateUpdateModalState(item)}
               onDelete={() => {
                 setIdentityToDelete(item);
