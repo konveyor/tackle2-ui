@@ -112,7 +112,7 @@ describe("AppPlaceholder", () => {
         isLastStep={false}
         isDisabled={false}
         isFormInvalid={false}
-        hasAnswers={true}
+        isSaveAsDraftDisabled={false}
         onSave={jest.fn()}
         onSaveAsDraft={onSaveAsDraftSpy}
       />
