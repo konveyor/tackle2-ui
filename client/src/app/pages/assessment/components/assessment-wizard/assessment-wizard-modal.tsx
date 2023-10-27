@@ -1,40 +1,32 @@
 import { Modal, ModalVariant } from "@patternfly/react-core";
 import React, { FunctionComponent } from "react";
 import { AssessmentWizard } from "./assessment-wizard";
-import { useFetchAssessmentById } from "@app/queries/assessments";
+import { Assessment } from "@app/api/models";
 
 interface AssessmentModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
-  assessmentId: number;
+  assessment: Assessment | null;
 }
 
 const AssessmentModal: FunctionComponent<AssessmentModalProps> = ({
   isOpen,
   onRequestClose,
-  assessmentId,
+  assessment,
 }) => {
-  const { assessment, isFetching, fetchError } =
-    useFetchAssessmentById(assessmentId);
-
   return (
     <>
-      {isOpen && (
+      {isOpen && assessment && (
         <Modal
           isOpen={isOpen}
           onClose={onRequestClose}
-          showClose={isFetching || !!fetchError}
+          showClose={false}
           aria-label="Application assessment wizard modal"
           hasNoBodyWrapper
           onEscapePress={onRequestClose}
           variant={ModalVariant.large}
         >
-          <AssessmentWizard
-            assessment={assessment}
-            fetchError={fetchError}
-            isFetching={isFetching}
-            onClose={onRequestClose}
-          />
+          <AssessmentWizard assessment={assessment} onClose={onRequestClose} />
         </Modal>
       )}
     </>

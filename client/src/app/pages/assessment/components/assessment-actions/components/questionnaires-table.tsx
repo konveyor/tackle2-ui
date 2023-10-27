@@ -50,18 +50,15 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
     propHelpers: { tableProps, getThProps, getTrProps, getTdProps },
   } = tableControls;
 
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
-  const [createdAssessmentId, setCreatedAssessmentId] = useState<number | null>(
+  const [createdAssessment, setCreatedAssessment] = useState<Assessment | null>(
     null
   );
-  const handleModalOpen = (assessmentId: number) => {
-    setCreatedAssessmentId(assessmentId);
-    setIsWizardOpen(true);
+  const handleModalOpen = (assessment: Assessment) => {
+    setCreatedAssessment(assessment);
   };
 
   const handleModalClose = () => {
-    setCreatedAssessmentId(null);
-    setIsWizardOpen(false);
+    setCreatedAssessment(null);
   };
 
   return (
@@ -136,9 +133,9 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
         </ConditionalTableBody>
       </Table>
       <AssessmentModal
-        isOpen={isWizardOpen}
+        isOpen={!!createdAssessment}
         onRequestClose={handleModalClose}
-        assessmentId={createdAssessmentId!}
+        assessment={createdAssessment}
       />
     </>
   );

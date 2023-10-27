@@ -40,7 +40,7 @@ interface DynamicAssessmentActionsRowProps {
   archetype?: Archetype;
   assessment?: Assessment;
   isReadonly?: boolean;
-  onOpenModal: (assessmentId: number) => void;
+  onOpenModal: (assessment: Assessment) => void;
 }
 
 const DynamicAssessmentActionsRow: FunctionComponent<
@@ -134,7 +134,8 @@ const DynamicAssessmentActionsRow: FunctionComponent<
 
     try {
       const result = await createAssessmentAsync(newAssessment);
-      onOpenModal(result.id);
+
+      onOpenModal(result);
     } catch (error) {
       console.error("Error while creating assessment:", error);
       pushNotification({
@@ -171,7 +172,8 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     if (action === AssessmentAction.Take) {
       takeAssessment();
     } else if (action === AssessmentAction.Continue && assessment?.id) {
-      onOpenModal(assessment.id);
+      console.log(assessment, "assessment in open on continue ");
+      onOpenModal(assessment);
     } else if (action === AssessmentAction.Retake) {
       if (assessment) {
         try {

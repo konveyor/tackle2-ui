@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 import {
-  Alert,
   ButtonVariant,
   Wizard,
   WizardHeader,
@@ -44,7 +43,6 @@ import useIsArchetype from "@app/hooks/useIsArchetype";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 export const SAVE_ACTION_KEY = "saveAction";
@@ -69,15 +67,11 @@ export interface AssessmentWizardValues {
 
 export interface AssessmentWizardProps {
   assessment?: Assessment;
-  fetchError?: AxiosError | null;
-  isFetching: boolean;
   onClose: () => void;
 }
 
 export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   assessment,
-  isFetching,
-  fetchError,
   onClose,
 }) => {
   const isArchetype = useIsArchetype();
@@ -444,18 +438,26 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     switch (saveAction) {
       case SAVE_ACTION_VALUE.SAVE:
         handleSave(formValues);
+        methods.reset();
+        console.log("reset");
         onClose();
 
         break;
       case SAVE_ACTION_VALUE.SAVE_AS_DRAFT:
         await handleSaveAsDraft(formValues);
+        methods.reset();
+        console.log("reset");
         onClose();
         break;
       case SAVE_ACTION_VALUE.SAVE_AND_REVIEW:
         handleSaveAndReview(formValues);
+        methods.reset();
+        console.log("reset");
         onClose();
         break;
       default:
+        methods.reset();
+        console.log("reset");
         onClose();
         break;
     }
@@ -482,8 +484,8 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       }
     }
     setAssessmentToCancel(null);
-    onClose();
     methods.reset();
+    onClose();
   };
 
   const getWizardFooter = (step: number, section?: Section) => {
@@ -523,19 +525,12 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   return (
     <>
-      {fetchError && (
-        <Alert
-          className={`${spacing.mtMd} ${spacing.mbMd}`}
-          variant="danger"
-          isInline
-          title={getAxiosErrorMessage(fetchError)}
-        />
-      )}
-      {isFetching || !!fetchError ? (
+      {!assessment?.id ? (
         <AppPlaceholder />
       ) : (
         <FormProvider {...methods}>
           <Wizard
+            key={sortedSections.length}
             isVisitRequired
             onStepChange={(_e, curr) => {
               setCurrentStep(curr.index);

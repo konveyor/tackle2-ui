@@ -41,10 +41,16 @@ export const useCreateAssessmentMutation = (
     mutationFn: (assessment: InitialAssessment) =>
       createAssessment(assessment, isArchetype),
     onSuccess: (res) => {
+      const isArchetype = !!res?.archetype?.id;
       queryClient.invalidateQueries([
         assessmentsByItemIdQueryKey,
         res?.application?.id,
+        isArchetype,
+      ]);
+      queryClient.invalidateQueries([
+        assessmentsByItemIdQueryKey,
         res?.archetype?.id,
+        isArchetype,
       ]);
     },
     onError: onError,
@@ -61,14 +67,20 @@ export const useUpdateAssessmentMutation = (
     mutationFn: (assessment: Assessment) => updateAssessment(assessment),
     onSuccess: (_, args) => {
       onSuccess && onSuccess(args.name);
+      const isArchetype = !!args.archetype?.id;
+
       queryClient.invalidateQueries([QuestionnairesQueryKey]);
+      // useFetchAssessmentsByItemId(isArchetype, args.application?.id).invalidateAssessmentsQuery();
+
       queryClient.invalidateQueries([
         assessmentsByItemIdQueryKey,
         args.application?.id,
+        isArchetype,
       ]);
       queryClient.invalidateQueries([
         assessmentsByItemIdQueryKey,
         args.archetype?.id,
+        isArchetype,
       ]);
     },
     onError: onError,
@@ -89,16 +101,19 @@ export const useDeleteAssessmentMutation = (
       archetypeId?: number;
     }) => {
       const deletedAssessment = deleteAssessment(args.assessmentId);
+      const isArchetype = !!args.archetypeId;
 
       queryClient.invalidateQueries([assessmentQueryKey, args?.assessmentId]);
       queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, args?.archetypeId]);
       queryClient.invalidateQueries([
         assessmentsByItemIdQueryKey,
         args?.archetypeId,
+        isArchetype,
       ]);
       queryClient.invalidateQueries([
         assessmentsByItemIdQueryKey,
         args?.applicationId,
+        isArchetype,
       ]);
 
       return deletedAssessment;
@@ -136,10 +151,22 @@ export const useFetchAssessmentsByItemId = (
     onSuccess: (_data) => {},
     enabled: !!itemId,
   });
+  //Need to manually refetch this query when using the enabled flag
+
+  const queryClient = useQueryClient();
+
+  const invalidateAssessmentsQuery = () => {
+    queryClient.invalidateQueries([
+      assessmentsByItemIdQueryKey,
+      itemId,
+      isArchetype,
+    ]);
+  };
 
   return {
     assessments: data,
     isFetching: isLoading,
     fetchError: error,
+    invalidateAssessmentsQuery,
   };
 };
