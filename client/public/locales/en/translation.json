@@ -122,6 +122,7 @@
       "importApplicationFile": "Import application file",
       "import": "Import {{what}}",
       "leavePage": "Leave page",
+      "leaveAssessmentPage": "Leave assessment",
       "new": "New {{what}}",
       "newArchetype": "Create new archetype",
       "newAssessment": "New assessment",

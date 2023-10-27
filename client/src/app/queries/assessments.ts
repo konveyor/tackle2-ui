@@ -70,7 +70,6 @@ export const useUpdateAssessmentMutation = (
       const isArchetype = !!args.archetype?.id;
 
       queryClient.invalidateQueries([QuestionnairesQueryKey]);
-      // useFetchAssessmentsByItemId(isArchetype, args.application?.id).invalidateAssessmentsQuery();
 
       queryClient.invalidateQueries([
         assessmentsByItemIdQueryKey,
@@ -151,7 +150,6 @@ export const useFetchAssessmentsByItemId = (
     onSuccess: (_data) => {},
     enabled: !!itemId,
   });
-  //Need to manually refetch this query when using the enabled flag
 
   const queryClient = useQueryClient();
 

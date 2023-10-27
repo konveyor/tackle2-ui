@@ -172,7 +172,6 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     if (action === AssessmentAction.Take) {
       takeAssessment();
     } else if (action === AssessmentAction.Continue && assessment?.id) {
-      console.log(assessment, "assessment in open on continue ");
       onOpenModal(assessment);
     } else if (action === AssessmentAction.Retake) {
       if (assessment) {

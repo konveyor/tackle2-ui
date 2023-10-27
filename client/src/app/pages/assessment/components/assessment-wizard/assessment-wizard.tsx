@@ -439,25 +439,21 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       case SAVE_ACTION_VALUE.SAVE:
         handleSave(formValues);
         methods.reset();
-        console.log("reset");
         onClose();
 
         break;
       case SAVE_ACTION_VALUE.SAVE_AS_DRAFT:
         await handleSaveAsDraft(formValues);
         methods.reset();
-        console.log("reset");
         onClose();
         break;
       case SAVE_ACTION_VALUE.SAVE_AND_REVIEW:
         handleSaveAndReview(formValues);
         methods.reset();
-        console.log("reset");
         onClose();
         break;
       default:
         methods.reset();
-        console.log("reset");
         onClose();
         break;
     }
@@ -576,7 +572,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
           </Wizard>
           {assessmentToCancel && (
             <ConfirmDialog
-              title={t("dialog.title.leavePage")}
+              title={t("dialog.title.leaveAssessment")}
               isOpen
               confirmBtnVariant={ButtonVariant.primary}
               confirmBtnLabel={t("actions.continue")}
