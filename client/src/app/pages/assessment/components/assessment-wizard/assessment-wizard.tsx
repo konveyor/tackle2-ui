@@ -1,13 +1,12 @@
 import * as yup from "yup";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 import {
-  Alert,
   ButtonVariant,
-  Spinner,
   Wizard,
+  WizardHeader,
   WizardStep,
 } from "@patternfly/react-core";
 
@@ -44,7 +43,7 @@ import useIsArchetype from "@app/hooks/useIsArchetype";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 export const SAVE_ACTION_KEY = "saveAction";
 
@@ -68,14 +67,12 @@ export interface AssessmentWizardValues {
 
 export interface AssessmentWizardProps {
   assessment?: Assessment;
-  isLoadingAssessment: boolean;
-  fetchError?: AxiosError | null;
+  onClose: () => void;
 }
 
 export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   assessment,
-  isLoadingAssessment,
-  fetchError,
+  onClose,
 }) => {
   const isArchetype = useIsArchetype();
   const queryClient = useQueryClient();
@@ -135,7 +132,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         });
     }
     return questions;
-  }, [assessment, isLoadingAssessment]);
+  }, [assessment]);
 
   const validationSchema = yup.object().shape({
     stakeholders: yup.array().of(yup.string()),
@@ -145,22 +142,16 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const methods = useForm<AssessmentWizardValues>({
     resolver: yupResolver(validationSchema),
     mode: "all",
-  });
-  const values = methods.getValues();
-
-  useEffect(() => {
-    methods.reset({
+    defaultValues: {
       stakeholders: assessment?.stakeholders?.map((sh) => sh.name).sort() ?? [],
       stakeholderGroups:
         assessment?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
-      questions: initialQuestions,
-      comments: initialComments,
+      [COMMENTS_KEY]: initialComments,
+      [QUESTIONS_KEY]: initialQuestions,
       [SAVE_ACTION_KEY]: SAVE_ACTION_VALUE.SAVE_AS_DRAFT,
-    });
-    return () => {
-      methods.reset();
-    };
-  }, [assessment]);
+    },
+  });
+  const values = methods.getValues();
 
   const errors = methods.formState.errors;
   const isValid = methods.formState.isValid;
@@ -212,10 +203,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     const allQuestionsAnswered = areAllQuestionsAnswered(section);
     return allQuestionsAnswered && allQuestionsValid;
   };
-
-  const maxCategoryWithData = [...sortedSections].reverse().find((section) => {
-    return section.questions.some((question) => questionHasValue(question));
-  });
 
   const onInvalid = (errors: FieldErrors<AssessmentWizardValues>) =>
     console.error("form errors", errors);
@@ -295,19 +282,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         title: "Assessment has been saved as a draft.",
         variant: "info",
       });
-      if (isArchetype) {
-        history.push(
-          formatPath(Paths.archetypeAssessmentActions, {
-            archetypeId: assessment?.archetype?.id,
-          })
-        );
-      } else {
-        history.push(
-          formatPath(Paths.applicationAssessmentActions, {
-            applicationId: assessment?.application?.id,
-          })
-        );
-      }
     } catch (error) {
       pushNotification({
         title: "Failed to save as a draft.",
@@ -358,20 +332,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         title: "Assessment has been saved.",
         variant: "success",
       });
-
-      if (isArchetype) {
-        history.push(
-          formatPath(Paths.archetypeAssessmentActions, {
-            archetypeId: assessment?.archetype?.id,
-          })
-        );
-      } else {
-        history.push(
-          formatPath(Paths.applicationAssessmentActions, {
-            applicationId: assessment?.application?.id,
-          })
-        );
-      }
     } catch (error) {
       pushNotification({
         title: "Failed to save.",
@@ -478,28 +438,26 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     switch (saveAction) {
       case SAVE_ACTION_VALUE.SAVE:
         handleSave(formValues);
+        methods.reset();
+        onClose();
+
         break;
       case SAVE_ACTION_VALUE.SAVE_AS_DRAFT:
         await handleSaveAsDraft(formValues);
+        methods.reset();
+        onClose();
         break;
       case SAVE_ACTION_VALUE.SAVE_AND_REVIEW:
         handleSaveAndReview(formValues);
+        methods.reset();
+        onClose();
         break;
       default:
+        methods.reset();
+        onClose();
         break;
     }
   };
-
-  useEffect(() => {
-    const unlisten = history.listen((newLocation, action) => {
-      if (action === "PUSH" && assessment) {
-        handleCancelAssessment();
-      }
-    });
-    return () => {
-      unlisten();
-    };
-  }, [history, assessment]);
 
   const handleCancelAssessment = () => {
     if (assessment) {
@@ -511,13 +469,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             applicationId: assessment.application?.id,
             archetypeId: assessment.archetype?.id,
           });
-        if (assessmentToCancel) {
-          history.push(
-            formatPath(Paths.archetypeAssessmentActions, {
-              archetypeId: assessment?.archetype?.id,
-            })
-          );
-        }
       } else {
         assessment.status === "empty" &&
           deleteAssessmentMutation({
@@ -526,16 +477,11 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             applicationId: assessment.application?.id,
             archetypeId: assessment.archetype?.id,
           });
-        if (assessmentToCancel) {
-          history.push(
-            formatPath(Paths.applicationAssessmentActions, {
-              applicationId: assessment?.application?.id,
-            })
-          );
-        }
       }
-      setAssessmentToCancel(null);
     }
+    setAssessmentToCancel(null);
+    methods.reset();
+    onClose();
   };
 
   const getWizardFooter = (step: number, section?: Section) => {
@@ -575,19 +521,12 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   return (
     <>
-      {fetchError && (
-        <Alert
-          className={`${spacing.mtMd} ${spacing.mbMd}`}
-          variant="danger"
-          isInline
-          title={getAxiosErrorMessage(fetchError)}
-        />
-      )}
-      {isLoadingAssessment ? (
-        <Spinner />
+      {!assessment?.id ? (
+        <AppPlaceholder />
       ) : (
         <FormProvider {...methods}>
           <Wizard
+            key={sortedSections.length}
             isVisitRequired
             onStepChange={(_e, curr) => {
               setCurrentStep(curr.index);
@@ -595,6 +534,14 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             onClose={() => {
               assessment && setAssessmentToCancel(assessment);
             }}
+            header={
+              <WizardHeader
+                title={t("terms.assessment")}
+                onClose={() => {
+                  assessment && setAssessmentToCancel(assessment);
+                }}
+              />
+            }
           >
             <WizardStep
               id={0}
@@ -625,15 +572,15 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
           </Wizard>
           {assessmentToCancel && (
             <ConfirmDialog
-              title={t("dialog.title.leavePage")}
+              title={t("dialog.title.leaveAssessment")}
               isOpen
-              message={t("dialog.message.leavePage")}
               confirmBtnVariant={ButtonVariant.primary}
               confirmBtnLabel={t("actions.continue")}
               cancelBtnLabel={t("actions.cancel")}
               onCancel={() => setAssessmentToCancel(null)}
               onClose={() => setAssessmentToCancel(null)}
               onConfirm={() => handleCancelAssessment()}
+              message="Are you sure you want to close the assessment? Any unsaved changes will be lost."
             />
           )}
         </FormProvider>

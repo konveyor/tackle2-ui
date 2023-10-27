@@ -12,7 +12,6 @@ import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "@app/components/ErrorFallback";
 import { FEATURES_ENABLED } from "./FeatureFlags";
 
-const Assessment = lazy(() => import("./pages/assessment/assessment-page"));
 const Review = lazy(() => import("./pages/review/review-page"));
 const AssessmentSettings = lazy(
   () =>
@@ -78,16 +77,6 @@ export const devRoutes: IRoute[] = [
   {
     path: Paths.applicationsImports,
     comp: ManageImports,
-    exact: false,
-  },
-  {
-    path: Paths.archetypesAssessment,
-    comp: Assessment,
-    exact: false,
-  },
-  {
-    path: Paths.applicationsAssessment,
-    comp: Assessment,
     exact: false,
   },
   {

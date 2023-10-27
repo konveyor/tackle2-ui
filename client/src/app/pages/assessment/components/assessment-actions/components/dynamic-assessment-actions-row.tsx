@@ -11,7 +11,7 @@ import {
   useCreateAssessmentMutation,
   useDeleteAssessmentMutation,
 } from "@app/queries/assessments";
-import { Button } from "@patternfly/react-core";
+import { Button, Spinner } from "@patternfly/react-core";
 import React, { FunctionComponent } from "react";
 import { useHistory } from "react-router-dom";
 import "./dynamic-assessment-actions-row.css";
@@ -20,7 +20,11 @@ import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { Td } from "@patternfly/react-table";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
+import {
+  useIsFetching,
+  useIsMutating,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { TrashIcon } from "@patternfly/react-icons";
 import useIsArchetype from "@app/hooks/useIsArchetype";
 
@@ -36,11 +40,19 @@ interface DynamicAssessmentActionsRowProps {
   archetype?: Archetype;
   assessment?: Assessment;
   isReadonly?: boolean;
+  onOpenModal: (assessment: Assessment) => void;
 }
 
 const DynamicAssessmentActionsRow: FunctionComponent<
   DynamicAssessmentActionsRowProps
-> = ({ questionnaire, application, archetype, assessment, isReadonly }) => {
+> = ({
+  questionnaire,
+  application,
+  archetype,
+  assessment,
+  isReadonly,
+  onOpenModal,
+}) => {
   const isArchetype = useIsArchetype();
   const history = useHistory();
   const { t } = useTranslation();
@@ -64,7 +76,11 @@ const DynamicAssessmentActionsRow: FunctionComponent<
       }),
       variant: "success",
     });
-    queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
+    queryClient.invalidateQueries([
+      assessmentsByItemIdQueryKey,
+      application?.id,
+      isArchetype,
+    ]);
   };
 
   const onDeleteError = (error: AxiosError) => {
@@ -74,10 +90,11 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     });
   };
 
-  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
-    onDeleteAssessmentSuccess,
-    onDeleteError
-  );
+  const { mutate: deleteAssessment, isLoading: isDeleting } =
+    useDeleteAssessmentMutation(onDeleteAssessmentSuccess, onDeleteError);
+
+  const isFetching = useIsFetching();
+  const isMutating = useIsMutating();
 
   const { mutateAsync: deleteAssessmentAsync } = useDeleteAssessmentMutation(
     onDeleteAssessmentSuccess,
@@ -117,19 +134,8 @@ const DynamicAssessmentActionsRow: FunctionComponent<
 
     try {
       const result = await createAssessmentAsync(newAssessment);
-      if (isArchetype) {
-        history.push(
-          formatPath(Paths.archetypesAssessment, {
-            assessmentId: result.id,
-          })
-        );
-      } else {
-        history.push(
-          formatPath(Paths.applicationsAssessment, {
-            assessmentId: result.id,
-          })
-        );
-      }
+
+      onOpenModal(result);
     } catch (error) {
       console.error("Error while creating assessment:", error);
       pushNotification({
@@ -165,17 +171,8 @@ const DynamicAssessmentActionsRow: FunctionComponent<
 
     if (action === AssessmentAction.Take) {
       takeAssessment();
-    } else if (action === AssessmentAction.Continue) {
-      history.push(
-        formatPath(
-          isArchetype
-            ? Paths.archetypesAssessment
-            : Paths.applicationsAssessment,
-          {
-            assessmentId: assessment?.id,
-          }
-        )
-      );
+    } else if (action === AssessmentAction.Continue && assessment?.id) {
+      onOpenModal(assessment);
     } else if (action === AssessmentAction.Retake) {
       if (assessment) {
         try {
@@ -204,7 +201,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     <>
       <Td>
         <div>
-          {!isReadonly ? (
+          {isReadonly ? null : !isDeleting && !isFetching && !isMutating ? (
             <Button
               type="button"
               variant="primary"
@@ -215,7 +212,11 @@ const DynamicAssessmentActionsRow: FunctionComponent<
             >
               {determineAction()}
             </Button>
-          ) : null}
+          ) : (
+            <Spinner role="status" size="md">
+              <span className="sr-only">Loading...</span>
+            </Spinner>
+          )}
           {assessment?.status === "complete" ? (
             <Button
               type="button"

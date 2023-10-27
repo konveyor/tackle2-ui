@@ -106,7 +106,7 @@
       "maxfileSize": "Max file size of 1MB exceeded. Upload a smaller file.",
       "dragAndDropFile": "Drag and drop your file here or upload one.",
       "uploadYamlFile": "Upload your YAML file",
-      "deleteQuestionnaire": "Deleting a questionnaire will cascade into the deletion of all answered questionnaires associated to applications and/or archetypes.",
+      "deleteQuestionnire": "Deleting a questionnaire will cascade into the deletion of all answered questionnaires associated to applications and/or archetypes.",
       "confirmDeletion": "Confirm deletion by typing <1>{{nameToDelete}}</1> below:"
     },
     "title": {
@@ -122,6 +122,7 @@
       "importApplicationFile": "Import application file",
       "import": "Import {{what}}",
       "leavePage": "Leave page",
+      "leaveAssessment": "Leave assessment",
       "new": "New {{what}}",
       "newArchetype": "Create new archetype",
       "newAssessment": "New assessment",

@@ -41,10 +41,16 @@ export const useCreateAssessmentMutation = (
     mutationFn: (assessment: InitialAssessment) =>
       createAssessment(assessment, isArchetype),
     onSuccess: (res) => {
+      const isArchetype = !!res?.archetype?.id;
       queryClient.invalidateQueries([
         assessmentsByItemIdQueryKey,
         res?.application?.id,
+        isArchetype,
+      ]);
+      queryClient.invalidateQueries([
+        assessmentsByItemIdQueryKey,
         res?.archetype?.id,
+        isArchetype,
       ]);
     },
     onError: onError,
@@ -61,14 +67,19 @@ export const useUpdateAssessmentMutation = (
     mutationFn: (assessment: Assessment) => updateAssessment(assessment),
     onSuccess: (_, args) => {
       onSuccess && onSuccess(args.name);
+      const isArchetype = !!args.archetype?.id;
+
       queryClient.invalidateQueries([QuestionnairesQueryKey]);
+
       queryClient.invalidateQueries([
         assessmentsByItemIdQueryKey,
         args.application?.id,
+        isArchetype,
       ]);
       queryClient.invalidateQueries([
         assessmentsByItemIdQueryKey,
         args.archetype?.id,
+        isArchetype,
       ]);
     },
     onError: onError,
@@ -89,16 +100,19 @@ export const useDeleteAssessmentMutation = (
       archetypeId?: number;
     }) => {
       const deletedAssessment = deleteAssessment(args.assessmentId);
+      const isArchetype = !!args.archetypeId;
 
       queryClient.invalidateQueries([assessmentQueryKey, args?.assessmentId]);
       queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, args?.archetypeId]);
       queryClient.invalidateQueries([
         assessmentsByItemIdQueryKey,
         args?.archetypeId,
+        isArchetype,
       ]);
       queryClient.invalidateQueries([
         assessmentsByItemIdQueryKey,
         args?.applicationId,
+        isArchetype,
       ]);
 
       return deletedAssessment;
@@ -116,6 +130,7 @@ export const useFetchAssessmentById = (id?: number | string) => {
     queryFn: () => (id ? getAssessmentById(id) : undefined),
     onError: (error: AxiosError) => console.log("error, ", error),
     enabled: !!id,
+    refetchOnWindowFocus: false,
   });
   return {
     assessment: data,
@@ -136,9 +151,20 @@ export const useFetchAssessmentsByItemId = (
     enabled: !!itemId,
   });
 
+  const queryClient = useQueryClient();
+
+  const invalidateAssessmentsQuery = () => {
+    queryClient.invalidateQueries([
+      assessmentsByItemIdQueryKey,
+      itemId,
+      isArchetype,
+    ]);
+  };
+
   return {
     assessments: data,
     isFetching: isLoading,
     fetchError: error,
+    invalidateAssessmentsQuery,
   };
 };
