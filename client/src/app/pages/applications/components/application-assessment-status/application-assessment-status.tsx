@@ -6,6 +6,7 @@ import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { Application } from "@app/api/models";
 import { IconedStatus } from "@app/components/IconedStatus";
 import { useFetchAssessmentsByItemId } from "@app/queries/assessments";
+import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 
 export interface ApplicationAssessmentStatusProps {
   application: Application;
@@ -22,8 +23,12 @@ export const ApplicationAssessmentStatus: React.FC<
     isFetching: isFetchingAssessmentsById,
     fetchError,
   } = useFetchAssessmentsByItemId(false, application.id);
-
-  if (application?.assessed) {
+  const { questionnaires } = useFetchQuestionnaires();
+  const requiredQuestionnaireExists = questionnaires?.some(
+    (q) => q.required === true
+  );
+  //NOTE: Application.assessed is true if an app is assigned to an archetype and no required questionnaires exist
+  if (application?.assessed && requiredQuestionnaireExists) {
     return <IconedStatus preset="Completed" />;
   }
 
