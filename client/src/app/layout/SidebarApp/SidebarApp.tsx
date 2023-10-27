@@ -19,7 +19,6 @@ import keycloak from "@app/keycloak";
 import { useLocalStorage } from "@migtools/lib-ui";
 import { LocalStorageKey } from "@app/Constants";
 import { FEATURES_ENABLED } from "@app/FeatureFlags";
-import { OptionWithValue } from "@app/components/SimpleSelect";
 import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import "./SidebarApp.css";
 
@@ -58,15 +57,9 @@ export const SidebarApp: React.FC = () => {
       : []),
   ];
 
-  const personaOptions: OptionWithValue<string>[] = [
-    {
-      value: PersonaKey.MIGRATION,
-      toString: () => PersonaKey.MIGRATION,
-    },
-    {
-      value: PersonaKey.ADMINISTRATION,
-      toString: () => PersonaKey.ADMINISTRATION,
-    },
+  const personaOptions: string[] = [
+    PersonaKey.MIGRATION,
+    PersonaKey.ADMINISTRATION,
   ];
 
   const [selectedPersona, setSelectedPersona] =
@@ -86,8 +79,8 @@ export const SidebarApp: React.FC = () => {
     <PageSidebar theme={LayoutTheme}>
       <div className="perspective">
         <SimpleSelectBasic
-          value={selectedPersona ? (selectedPersona as string) : undefined}
-          options={personaOptions.map((o) => o.value)}
+          value={selectedPersona ? selectedPersona : undefined}
+          options={personaOptions}
           onChange={(selection) => {
             const selectionValue = selection;
             setSelectedPersona(selectionValue as PersonaKey);
