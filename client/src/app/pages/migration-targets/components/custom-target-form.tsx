@@ -178,7 +178,9 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         : target?.ruleset?.rules?.length
         ? "manual"
         : "repository",
-      associatedCredentials: target?.ruleset?.identity?.name,
+      associatedCredentials: identities.find(
+        (identity) => identity.id === target?.ruleset?.identity?.id
+      )?.name,
       repositoryType: target?.ruleset?.repository?.kind,
       sourceRepository: target?.ruleset?.repository?.url,
       branch: target?.ruleset?.repository?.branch,

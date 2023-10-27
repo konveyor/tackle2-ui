@@ -48,6 +48,7 @@ import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { AppTableWithControls } from "@app/components/AppTableWithControls";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { useFetchTargets } from "@app/queries/targets";
 
 const ENTITY_FIELD = "entity";
 
@@ -77,6 +78,8 @@ export const Identities: React.FC = () => {
       variant: "success",
     });
   };
+
+  const { targets } = useFetchTargets();
 
   const onDeleteIdentityError = (error: AxiosError) => {
     pushNotification({
@@ -186,6 +189,32 @@ export const Identities: React.FC = () => {
     setFilterValues({});
   };
 
+  const getBlockDeleteMessage = (item: Identity) => {
+    if (trackers.some((tracker) => tracker?.identity?.id === item.id)) {
+      return t("message.blockedDeleteTracker", {
+        what: item.name,
+      });
+    } else if (
+      applications?.some(
+        (app) => app?.identities?.some((id) => id.id === item.id)
+      )
+    ) {
+      return t("message.blockedDeleteApplication", {
+        what: item.name,
+      });
+    } else if (
+      targets?.some((target) => target?.ruleset?.identity?.id === item.id)
+    ) {
+      return t("message.blockedDeleteTarget", {
+        what: item.name,
+      });
+    } else {
+      return t("message.defaultBlockedDelete", {
+        what: item.name,
+      });
+    }
+  };
+
   const rows: IRow[] = [];
   currentPageItems?.forEach((item: Identity) => {
     const typeFormattedString = typeOptions.find(
@@ -223,12 +252,16 @@ export const Identities: React.FC = () => {
         {
           title: (
             <AppTableActionButtons
-              isDeleteEnabled={trackers.some(
-                (tracker) => tracker?.identity?.id === item.id
-              )}
-              tooltipMessage={
-                "Cannot delete credential assigned to a JIRA tracker."
+              isDeleteEnabled={
+                trackers.some((tracker) => tracker?.identity?.id === item.id) ||
+                applications?.some(
+                  (app) => app?.identities?.some((id) => id.id === item.id)
+                ) ||
+                targets?.some(
+                  (target) => target?.ruleset?.identity?.id === item.id
+                )
               }
+              tooltipMessage={getBlockDeleteMessage(item)}
               onEdit={() => setCreateUpdateModalState(item)}
               onDelete={() => {
                 setIdentityToDelete(item);
