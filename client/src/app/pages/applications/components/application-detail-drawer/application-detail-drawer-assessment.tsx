@@ -82,7 +82,6 @@ export const ApplicationDetailDrawerAssessment: React.FC<
                 )}
               </DescriptionListDescription>
             </DescriptionListGroup>
-            <ReviewFields application={application} />
           </DescriptionList>
           <TextContent className={spacing.mtLg}>
             <Title headingLevel="h3" size="md">
@@ -102,6 +101,7 @@ export const ApplicationDetailDrawerAssessment: React.FC<
           </TextContent>
         </>
       }
+      reviewsTabContent={<ReviewFields application={application} />}
     />
   );
 };
