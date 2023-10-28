@@ -186,14 +186,16 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     );
   };
 
-  const hasPartialAnswers = (section: Section): boolean => {
-    const someQuestionsAnswered = section?.questions.some((question) => {
-      return questionHasValue(question);
+  const shouldDisableSaveAsDraft = (sections: Section[]): boolean => {
+    const noAnswers = sections.every((section) => {
+      return section.questions.every((question) => !questionHasValue(question));
     });
 
-    const allQuestionsAnswered = areAllQuestionsAnswered(section);
+    const allQuestionsAnswered = sections.every((section) =>
+      areAllQuestionsAnswered(section)
+    );
 
-    return someQuestionsAnswered && !allQuestionsAnswered;
+    return noAnswers || allQuestionsAnswered;
   };
 
   const shouldNextBtnBeEnabled = (section: Section): boolean => {
@@ -500,7 +502,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
           (step === sortedSections.length &&
             !shouldNextBtnBeEnabled(sortedSections[step - 1]))
         }
-        hasAnswers={hasPartialAnswers(sortedSections[step - 1])}
+        isSaveAsDraftDisabled={shouldDisableSaveAsDraft(sortedSections)}
         isFormInvalid={!isValid}
         onSave={(review) => {
           const saveActionValue = review
