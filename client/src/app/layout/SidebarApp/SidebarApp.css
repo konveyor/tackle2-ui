@@ -2,6 +2,10 @@
   padding: var(--pf-v5-global--spacer--lg);
 }
 
+.pf-v5-c-page__sidebar-body .pf-v5-c-nav__list {
+  padding-top: 0;
+}
+
 .pf-v5-c-nav__item:first-child {
   border-top: 1px solid var(--pf-v5-c-nav__link--before--BorderColor);
 }
