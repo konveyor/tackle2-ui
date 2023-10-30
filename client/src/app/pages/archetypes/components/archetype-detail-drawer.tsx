@@ -172,7 +172,7 @@ const ApplicationLabels: React.FC<{ applicationRefs?: Ref[] }> = ({
 }) => <LabelsFromItems items={applicationRefs as Ref[]} />;
 
 const TagLabels: React.FC<{ tags?: Tag[] }> = ({ tags }) => (
-  <LabelsFromItems items={tags as Tag[]} />
+  <LabelsFromItems items={tags} />
 );
 
 const StakeholderLabels: React.FC<{ archetype: Archetype }> = ({

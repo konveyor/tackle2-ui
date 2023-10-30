@@ -37,7 +37,7 @@ export function LabelsFromItems<T extends { name: string }>({
 }): JSX.Element {
   const { t } = useTranslation();
 
-  if (items?.length === 0) {
+  if (items?.length ?? 0 === 0) {
     return <div>{noneMessage || t("terms.none")}</div>;
   }
 
