@@ -9,8 +9,6 @@ interface ReviewLabelProps {
 }
 
 export const ReviewLabel = ({ item, labelText }: ReviewLabelProps) => {
-  console.log("generateReviewLabel", item, labelText);
-
   return (
     <Label className={spacing.mbSm}>
       <span>
