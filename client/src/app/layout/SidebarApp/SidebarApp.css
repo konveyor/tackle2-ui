@@ -1,33 +1,11 @@
 .perspective {
-  padding: var(--pf-v5-global--spacer--lg)
-    var(--pf-v5-c-nav__link--PaddingRight) var(--pf-v5-global--spacer--lg)
-    var(--pf-v5-c-nav__link--PaddingLeft);
-  border-bottom: 1px solid var(--pf-v5-c-nav__link--before--BorderColor);
+  padding: var(--pf-v5-global--spacer--lg);
 }
 
-.perspective .pf-v5-c-select .pf-v5-c-select__toggle {
-  color: var(--pf-v5-global--BackgroundColor--100);
-  background-color: var(--pf-v5-global--Color--100);
-}
-
-.perspective .pf-v5-c-select .pf-v5-c-select__toggle::before {
-  border-color: var(--pf-v5-global--BackgroundColor--dark-400)
-    var(--pf-v5-global--BackgroundColor--dark-400)
-    var(--pf-v5-c-select__toggle--before--BorderBottomColor)
-    var(--pf-v5-global--BackgroundColor--dark-400);
-}
-
-.perspective .pf-v5-c-select .pf-v5-c-select__toggle:focus::before,
-.perspective .pf-v5-c-select .pf-v5-c-select__toggle:hover::before {
-  border-bottom-color: var(--pf-v5-c-select__toggle--before--BorderBottomColor);
-}
-
-.perspective .pf-v5-c-select .pf-v5-c-select__toggle:focus::before {
-  border-bottom-width: var(
-    --pf-v5-c-select__toggle--m-expanded--before--BorderBottomWidth
-  );
-}
-
-.perspective + .pf-v5-c-nav__list {
+.pf-v5-c-page__sidebar-body .pf-v5-c-nav__list {
   padding-top: 0;
+}
+
+.pf-v5-c-nav__item:first-child {
+  border-top: 1px solid var(--pf-v5-c-nav__link--before--BorderColor);
 }
