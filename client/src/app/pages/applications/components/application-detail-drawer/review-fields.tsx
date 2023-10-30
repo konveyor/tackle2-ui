@@ -4,7 +4,6 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   DescriptionListDescription,
-  Label,
   Title,
   TextContent,
 } from "@patternfly/react-core";
@@ -14,8 +13,9 @@ import { useFetchReviewById, useFetchReviews } from "@app/queries/reviews";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PROPOSED_ACTION_LIST, EFFORT_ESTIMATE_LIST } from "@app/Constants";
+import { ReviewLabel } from "./review-label";
 
-type ReviewDrawerLabelItem = {
+export type ReviewDrawerLabelItem = {
   review?: Review | null;
   name?: string | null;
   isArchetype?: boolean;
@@ -77,7 +77,9 @@ export const ReviewFields: React.FC<{ application: Application | null }> = ({
                   PROPOSED_ACTION_LIST[item.review?.proposedAction]
                     ? t(PROPOSED_ACTION_LIST[item.review.proposedAction].i18Key)
                     : "Unknown";
-                return generateReviewLabel(item, labelText);
+                return (
+                  <ReviewLabel key={index} item={item} labelText={labelText} />
+                );
               })}
         </DescriptionListDescription>
       </DescriptionListGroup>
@@ -92,7 +94,9 @@ export const ReviewFields: React.FC<{ application: Application | null }> = ({
                   EFFORT_ESTIMATE_LIST[item.review?.effortEstimate]
                     ? t(EFFORT_ESTIMATE_LIST[item.review.effortEstimate].i18Key)
                     : "Unknown";
-                return generateReviewLabel(item, labelText);
+                return (
+                  <ReviewLabel key={index} item={item} labelText={labelText} />
+                );
               })}
         </DescriptionListDescription>
       </DescriptionListGroup>
@@ -105,7 +109,9 @@ export const ReviewFields: React.FC<{ application: Application | null }> = ({
             ? notYetReviewed
             : groupedReviewList.map((item, index) => {
                 const labelText = item?.review?.businessCriticality;
-                return generateReviewLabel(item, labelText);
+                return (
+                  <ReviewLabel key={index} item={item} labelText={labelText} />
+                );
               })}
         </DescriptionListDescription>
       </DescriptionListGroup>
@@ -116,7 +122,9 @@ export const ReviewFields: React.FC<{ application: Application | null }> = ({
             ? notYetReviewed
             : groupedReviewList.map((item, index) => {
                 const labelText = item?.review?.workPriority;
-                return generateReviewLabel(item, labelText);
+                return (
+                  <ReviewLabel key={index} item={item} labelText={labelText} />
+                );
               })}
         </DescriptionListDescription>
       </DescriptionListGroup>
@@ -127,28 +135,16 @@ export const ReviewFields: React.FC<{ application: Application | null }> = ({
             ? notYetReviewed
             : groupedReviewList.map((item, index) => {
                 const labelText = item?.review?.comments;
-                return labelText && generateReviewLabel(item, labelText);
+                return (
+                  <ReviewLabel
+                    key={index}
+                    item={item}
+                    labelText={item.review?.comments}
+                  />
+                );
               })}
         </DescriptionListDescription>
       </DescriptionListGroup>
     </>
-  );
-};
-
-const generateReviewLabel = (
-  item: ReviewDrawerLabelItem,
-  labelText?: string | number
-) => {
-  console.log("generateReviewLabel", item, labelText);
-  return (
-    <Label className={spacing.mbSm}>
-      <span>
-        {item.isArchetype
-          ? `Archetype - ${item.name}`
-          : `Application - ${item.name}` || "Unknown"}
-      </span>
-      <span className={spacing.mSm}>-</span>
-      {labelText && <span>{labelText}</span>}
-    </Label>
   );
 };
