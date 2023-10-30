@@ -88,6 +88,7 @@ import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { getAssessmentsByItemId } from "@app/api/rest";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -146,6 +147,13 @@ export const ApplicationsTable: React.FC = () => {
     error: applicationsFetchError,
     refetch: fetchApplications,
   } = useFetchApplications();
+
+  const {
+    archetypes,
+    isFetching: isFetchingArchetypes,
+    error: archetypesFetchError,
+    refetch: fetchArchetypes,
+  } = useFetchArchetypes();
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -515,7 +523,6 @@ export const ApplicationsTable: React.FC = () => {
       );
     }
   };
-
   return (
     <ConditionalRender
       when={isFetchingApplications && !(applications || applicationsFetchError)}
@@ -618,6 +625,19 @@ export const ApplicationsTable: React.FC = () => {
           >
             <Tbody>
               {currentPageItems?.map((application, rowIndex) => {
+                const isAppReviewed = !!application.review;
+                const applicationArchetypes = application.archetypes?.map(
+                  (archetypeRef) => {
+                    return archetypes.find(
+                      (archetype) => archetype.id === archetypeRef.id
+                    );
+                  }
+                );
+
+                const hasReviewedArchetype = applicationArchetypes?.some(
+                  (archetype) => !!archetype?.review
+                );
+
                 return (
                   <Tr
                     key={application.name}
@@ -669,7 +689,9 @@ export const ApplicationsTable: React.FC = () => {
                       >
                         <IconedStatus
                           preset={
-                            application.review ? "Completed" : "NotStarted"
+                            isAppReviewed || hasReviewedArchetype
+                              ? "Completed"
+                              : "NotStarted"
                           }
                         />
                       </Td>
