@@ -14,14 +14,13 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
-import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
 import { Ref, Task } from "@app/api/models";
 import {
   ApplicationDetailDrawer,
   IApplicationDetailDrawerProps,
 } from "./application-detail-drawer";
-import { useFetchReviewById } from "@app/queries/reviews";
 import { ReviewedArchetypeItem } from "./reviewed-archetype-item";
+import { ReviewFields } from "./review-fields";
 import { RiskLabel } from "@app/components/RiskLabel";
 
 export interface IApplicationDetailDrawerAssessmentProps
@@ -33,11 +32,6 @@ export const ApplicationDetailDrawerAssessment: React.FC<
   IApplicationDetailDrawerAssessmentProps
 > = ({ application, onCloseClick, task }) => {
   const { t } = useTranslation();
-
-  const { review: appReview } = useFetchReviewById(application?.review?.id);
-  const notYetReviewed = (
-    <EmptyTextMessage message={t("terms.notYetReviewed")} />
-  );
 
   return (
     <ApplicationDetailDrawer
@@ -88,71 +82,16 @@ export const ApplicationDetailDrawerAssessment: React.FC<
                 )}
               </DescriptionListDescription>
             </DescriptionListGroup>
-            <TextContent className={spacing.mtLg}>
-              <Title headingLevel="h3" size="md">
-                {t("terms.applicationReview")}
-              </Title>
-            </TextContent>
-            <DescriptionListGroup>
-              <DescriptionListTerm>
-                {t("terms.proposedAction")}
-              </DescriptionListTerm>
-              <DescriptionListDescription cy-data="proposed-action">
-                {appReview ? (
-                  <Label>
-                    {PROPOSED_ACTION_LIST[appReview.proposedAction]
-                      ? t(PROPOSED_ACTION_LIST[appReview.proposedAction].i18Key)
-                      : appReview.proposedAction}
-                  </Label>
-                ) : (
-                  notYetReviewed
-                )}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-              <DescriptionListTerm>
-                {t("terms.effortEstimate")}
-              </DescriptionListTerm>
-              <DescriptionListDescription cy-data="effort-estimate">
-                {appReview
-                  ? EFFORT_ESTIMATE_LIST[appReview.effortEstimate]
-                    ? t(EFFORT_ESTIMATE_LIST[appReview.effortEstimate].i18Key)
-                    : appReview.effortEstimate
-                  : notYetReviewed}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-              <DescriptionListTerm>
-                {t("terms.businessCriticality")}
-              </DescriptionListTerm>
-              <DescriptionListDescription cy-data="business-criticality">
-                {appReview?.businessCriticality || notYetReviewed}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-              <DescriptionListTerm>
-                {t("terms.workPriority")}
-              </DescriptionListTerm>
-              <DescriptionListDescription cy-data="work-priority">
-                {appReview?.workPriority || notYetReviewed}
-              </DescriptionListDescription>
-            </DescriptionListGroup>
-            <DescriptionListGroup>
-              <DescriptionListTerm>{t("terms.risk")}</DescriptionListTerm>
-              <DescriptionListDescription cy-data="risk">
-                <RiskLabel risk={application?.risk || "unknown"} />
-              </DescriptionListDescription>
-            </DescriptionListGroup>
           </DescriptionList>
           <TextContent className={spacing.mtLg}>
             <Title headingLevel="h3" size="md">
-              {t("terms.reviewComments")}
+              {t("terms.riskFromApplication")}
             </Title>
-            <Text component="small" cy-data="review-comments">
-              {appReview?.comments || notYetReviewed}
+            <Text component="small" cy-data="comments">
+              <RiskLabel risk={application?.risk || "unknown"} />
             </Text>
             <Title headingLevel="h3" size="md">
-              {t("terms.comments")}
+              {t("terms.commentsFromApplication")}
             </Title>
             <Text component="small" cy-data="comments">
               {application?.comments || (
@@ -162,6 +101,7 @@ export const ApplicationDetailDrawerAssessment: React.FC<
           </TextContent>
         </>
       }
+      reviewsTabContent={<ReviewFields application={application} />}
     />
   );
 };

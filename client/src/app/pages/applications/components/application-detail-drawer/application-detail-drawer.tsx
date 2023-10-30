@@ -35,6 +35,7 @@ export interface IApplicationDetailDrawerProps
   detailsTabMainContent: React.ReactNode;
   reportsTabContent?: React.ReactNode;
   factsTabContent?: React.ReactNode;
+  reviewsTabContent?: React.ReactNode;
 }
 
 enum TabKey {
@@ -42,6 +43,7 @@ enum TabKey {
   Tags,
   Reports,
   Facts,
+  Reviews,
 }
 
 export const ApplicationDetailDrawer: React.FC<
@@ -53,6 +55,7 @@ export const ApplicationDetailDrawer: React.FC<
   detailsTabMainContent,
   reportsTabContent = null,
   factsTabContent = null,
+  reviewsTabContent = null,
 }) => {
   const { t } = useTranslation();
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
@@ -167,6 +170,14 @@ export const ApplicationDetailDrawer: React.FC<
             title={<TabTitleText>{t("terms.facts")}</TabTitleText>}
           >
             {factsTabContent}
+          </Tab>
+        ) : null}
+        {reviewsTabContent ? (
+          <Tab
+            eventKey={TabKey.Reviews}
+            title={<TabTitleText>{t("terms.reviews")}</TabTitleText>}
+          >
+            {reviewsTabContent}
           </Tab>
         ) : null}
       </Tabs>

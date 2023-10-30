@@ -160,7 +160,7 @@ export const deleteApplicationDependency = (
 // Reviews
 
 export const getReviews = (): Promise<Review[]> => {
-  return axios.get(`${REVIEWS}`);
+  return axios.get(`${REVIEWS}`).then((response) => response.data);
 };
 
 export const getReviewById = (id: number | string): Promise<Review> => {
