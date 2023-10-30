@@ -9,7 +9,7 @@ import {
   NavExpandable,
   PageSidebarBody,
 } from "@patternfly/react-core";
-import { SelectOption, SelectVariant } from "@patternfly/react-core/deprecated";
+import { SelectOption } from "@patternfly/react-core/deprecated";
 
 import { Paths } from "@app/Paths";
 import { LayoutTheme } from "../LayoutUtils";
@@ -19,9 +19,7 @@ import keycloak from "@app/keycloak";
 import { useLocalStorage } from "@migtools/lib-ui";
 import { LocalStorageKey } from "@app/Constants";
 import { FEATURES_ENABLED } from "@app/FeatureFlags";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-// import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
-import { toOptionLike } from "@app/utils/model-utils";
+import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import "./SidebarApp.css";
 
 export const SidebarApp: React.FC = () => {
@@ -59,15 +57,9 @@ export const SidebarApp: React.FC = () => {
       : []),
   ];
 
-  const personaOptions: OptionWithValue<string>[] = [
-    {
-      value: PersonaKey.MIGRATION,
-      toString: () => PersonaKey.MIGRATION,
-    },
-    {
-      value: PersonaKey.ADMINISTRATION,
-      toString: () => PersonaKey.ADMINISTRATION,
-    },
+  const personaOptions: string[] = [
+    PersonaKey.MIGRATION,
+    PersonaKey.ADMINISTRATION,
   ];
 
   const [selectedPersona, setSelectedPersona] =
@@ -85,45 +77,23 @@ export const SidebarApp: React.FC = () => {
 
   return (
     <PageSidebar theme={LayoutTheme}>
+      <div className="perspective">
+        <SimpleSelectBasic
+          value={selectedPersona ? selectedPersona : undefined}
+          options={personaOptions}
+          onChange={(selection) => {
+            const selectionValue = selection;
+            setSelectedPersona(selectionValue as PersonaKey);
+            if (selectionValue === PersonaKey.ADMINISTRATION) {
+              history.push(Paths.general);
+            } else {
+              history.push(Paths.applications);
+            }
+          }}
+        />
+      </div>
       <PageSidebarBody>
         <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
-          <div className="perspective">
-            {/* <SimpleSelectBasic
-              value={selectedPersona ? (selectedPersona as string) : undefined}
-              options={personaOptions.map((o) => o.value)}
-              onChange={(selection) => {
-                const selectionValue = selection;
-                setSelectedPersona(selectionValue as PersonaKey);
-                if (selectionValue === PersonaKey.ADMINISTRATION) {
-                  history.push(Paths.general);
-                } else {
-                  history.push(Paths.applications);
-                }
-              }}
-            />
-            <br /> <br /> */}
-            <SimpleSelect
-              toggleId="sidebar-perspective-toggle"
-              variant={SelectVariant.single}
-              aria-label="Select user perspective"
-              id="sidebar-perspective"
-              value={
-                selectedPersona
-                  ? toOptionLike(selectedPersona, personaOptions)
-                  : undefined
-              }
-              options={personaOptions}
-              onChange={(selection) => {
-                const selectionValue = selection as OptionWithValue<PersonaKey>;
-                setSelectedPersona(selectionValue.value);
-                if (selectionValue.value === PersonaKey.ADMINISTRATION) {
-                  history.push(Paths.general);
-                } else {
-                  history.push(Paths.applications);
-                }
-              }}
-            />
-          </div>
           {selectedPersona === PersonaKey.MIGRATION ? (
             <NavList title="Global">
               <NavItem>
