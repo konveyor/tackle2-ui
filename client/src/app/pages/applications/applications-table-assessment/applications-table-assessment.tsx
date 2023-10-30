@@ -626,7 +626,7 @@ export const ApplicationsTable: React.FC = () => {
             <Tbody>
               {currentPageItems?.map((application, rowIndex) => {
                 const isAppReviewed = !!application.review;
-                const reviewedArchetypes = application.archetypes?.map(
+                const applicationArchetypes = application.archetypes?.map(
                   (archetypeRef) => {
                     return archetypes.find(
                       (archetype) => archetype.id === archetypeRef.id
@@ -634,7 +634,7 @@ export const ApplicationsTable: React.FC = () => {
                   }
                 );
 
-                const hasReviewedArchetype = reviewedArchetypes?.some(
+                const hasReviewedArchetype = applicationArchetypes?.some(
                   (archetype) => !!archetype?.review
                 );
 

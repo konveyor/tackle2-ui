@@ -15,6 +15,12 @@ import { useFetchArchetypes } from "@app/queries/archetypes";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PROPOSED_ACTION_LIST, EFFORT_ESTIMATE_LIST } from "@app/Constants";
 
+type ReviewDrawerLabelItem = {
+  review?: Review | null;
+  name?: string | null;
+  isArchetype?: boolean;
+};
+
 export const ReviewFields: React.FC<{ application: Application | null }> = ({
   application,
 }) => {
@@ -28,34 +34,28 @@ export const ReviewFields: React.FC<{ application: Application | null }> = ({
     <EmptyTextMessage message={t("terms.notYetReviewed")} />
   );
 
-  const reviewedArchetypes = application?.archetypes
+  const applicationArchetypes = application?.archetypes
     ?.map((archetypeRef) => {
       return archetypes.find((archetype) => archetype.id === archetypeRef.id);
     })
     .filter(Boolean);
 
-  const hasReviewedArchetype = reviewedArchetypes?.some(
-    (archetype) => !!archetype?.review
-  );
-
-  const matchedArchetypeReviews: Review[] = (reviewedArchetypes || [])
-    .map((reviewedArchetype) => {
-      return reviews.find(
-        (review) => review.id === reviewedArchetype?.review?.id
-      );
+  const matchedArchetypeReviews: Review[] = (applicationArchetypes || [])
+    .map((archetype) => {
+      return reviews.find((review) => review.id === archetype?.review?.id);
     })
     .filter(Boolean);
 
-  const groupedReviewList = [
+  const groupedReviewList: ReviewDrawerLabelItem[] = [
     {
       review: appReview,
       name: appReview?.application?.name,
-      type: "App",
+      isArchetype: false,
     },
     ...matchedArchetypeReviews.map((archetypeReview) => ({
       review: archetypeReview,
       name: archetypeReview?.archetype?.name,
-      type: "Archetype",
+      isArchetype: true,
     })),
   ].filter((item) => item.review?.proposedAction);
 
@@ -69,43 +69,31 @@ export const ReviewFields: React.FC<{ application: Application | null }> = ({
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.proposedAction")}</DescriptionListTerm>
         <DescriptionListDescription cy-data="proposed-action">
-          {groupedReviewList.length > 0
-            ? groupedReviewList.map((item, index) => (
-                <Label key={index} className={spacing.mbSm}>
-                  {item.type === "App"
-                    ? `App - ${item.name}`
-                    : item.type === "Archetype"
-                    ? `Archetype - ${item.name}`
-                    : "Unknown"}
-                  -{" "}
-                  {item.review?.proposedAction &&
+          {groupedReviewList.length === 0
+            ? notYetReviewed
+            : groupedReviewList.map((item, index) => {
+                const labelText =
+                  item.review?.proposedAction &&
                   PROPOSED_ACTION_LIST[item.review?.proposedAction]
                     ? t(PROPOSED_ACTION_LIST[item.review.proposedAction].i18Key)
-                    : "Unknown"}
-                </Label>
-              ))
-            : notYetReviewed}
+                    : "Unknown";
+                return generateReviewLabel(item, labelText);
+              })}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.effortEstimate")}</DescriptionListTerm>
         <DescriptionListDescription cy-data="effort-estimate">
-          {groupedReviewList.length > 0
-            ? groupedReviewList.map((item, index) => (
-                <Label key={index} className={spacing.mbSm}>
-                  {item.type === "App"
-                    ? `App - ${item.name}`
-                    : item.type === "Archetype"
-                    ? `Archetype - ${item.name}`
-                    : "Unknown"}
-                  -{"  "}{" "}
-                  {item.review?.effortEstimate &&
+          {groupedReviewList.length === 0
+            ? notYetReviewed
+            : groupedReviewList.map((item, index) => {
+                const labelText =
+                  item.review?.effortEstimate &&
                   EFFORT_ESTIMATE_LIST[item.review?.effortEstimate]
                     ? t(EFFORT_ESTIMATE_LIST[item.review.effortEstimate].i18Key)
-                    : "Unknown"}
-                </Label>
-              ))
-            : notYetReviewed}
+                    : "Unknown";
+                return generateReviewLabel(item, labelText);
+              })}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
@@ -113,62 +101,54 @@ export const ReviewFields: React.FC<{ application: Application | null }> = ({
           {t("terms.businessCriticality")}
         </DescriptionListTerm>
         <DescriptionListDescription cy-data="business-criticality">
-          {groupedReviewList.length > 0
-            ? groupedReviewList.map((item, index) => (
-                <Label key={index} className={spacing.mbSm}>
-                  {item.type === "App"
-                    ? `App - ${item.name}`
-                    : item.type === "Archetype"
-                    ? `Archetype - ${item.name}`
-                    : "Unknown"}
-                  -{"  "} {item?.review?.businessCriticality || notYetReviewed}
-                </Label>
-              ))
-            : notYetReviewed}
+          {groupedReviewList.length === 0
+            ? notYetReviewed
+            : groupedReviewList.map((item, index) => {
+                const labelText = item?.review?.businessCriticality;
+                return generateReviewLabel(item, labelText);
+              })}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.workPriority")}</DescriptionListTerm>
         <DescriptionListDescription cy-data="work-priority">
-          {groupedReviewList.length > 0
-            ? groupedReviewList.map((item, index) => (
-                <Label key={index} className={spacing.mbSm}>
-                  {item.type === "App"
-                    ? `App - ${item.name}`
-                    : item.type === "Archetype"
-                    ? `Archetype - ${item.name}`
-                    : "Unknown"}
-                  -{"  "}
-                  {item?.review?.workPriority || notYetReviewed}
-                </Label>
-              ))
-            : notYetReviewed}
+          {groupedReviewList.length === 0
+            ? notYetReviewed
+            : groupedReviewList.map((item, index) => {
+                const labelText = item?.review?.workPriority;
+                return generateReviewLabel(item, labelText);
+              })}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.comments")}</DescriptionListTerm>
         <DescriptionListDescription cy-data="comments">
-          {groupedReviewList.length > 0
-            ? groupedReviewList.map((item, index) => (
-                <>
-                  {item?.review?.comments ? (
-                    <Label key={index} className={spacing.mbSm}>
-                      {item.type === "App"
-                        ? `App - ${item.name}`
-                        : item.type === "Archetype"
-                        ? `Archetype - ${item.name}`
-                        : "Unknown"}
-                      -{"  "}
-                      {item?.review?.comments || " - "}
-                    </Label>
-                  ) : (
-                    "-"
-                  )}
-                </>
-              ))
-            : notYetReviewed}
+          {groupedReviewList.length === 0
+            ? notYetReviewed
+            : groupedReviewList.map((item, index) => {
+                const labelText = item?.review?.comments;
+                return labelText && generateReviewLabel(item, labelText);
+              })}
         </DescriptionListDescription>
       </DescriptionListGroup>
     </>
+  );
+};
+
+const generateReviewLabel = (
+  item: ReviewDrawerLabelItem,
+  labelText?: string | number
+) => {
+  console.log("generateReviewLabel", item, labelText);
+  return (
+    <Label className={spacing.mbSm}>
+      <span>
+        {item.isArchetype
+          ? `Archetype - ${item.name}`
+          : `Application - ${item.name}` || "Unknown"}
+      </span>
+      <span className={spacing.mSm}>-</span>
+      {labelText && <span>{labelText}</span>}
+    </Label>
   );
 };
