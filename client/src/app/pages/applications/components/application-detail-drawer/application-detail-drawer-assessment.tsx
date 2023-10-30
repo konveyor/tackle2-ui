@@ -57,9 +57,7 @@ export const ApplicationDetailDrawerAssessment: React.FC<
               </DescriptionListTerm>
               <DescriptionListDescription>
                 {application?.archetypes?.length ?? 0 > 0 ? (
-                  <ArchetypeLabels
-                    archetypeRefs={application?.archetypes as Ref[]}
-                  />
+                  <ArchetypeLabels archetypeRefs={application?.archetypes} />
                 ) : (
                   <EmptyTextMessage message={t("terms.none")} />
                 )}
@@ -106,6 +104,6 @@ export const ApplicationDetailDrawerAssessment: React.FC<
   );
 };
 
-const ArchetypeLabels: React.FC<{ archetypeRefs: Ref[] }> = ({
+const ArchetypeLabels: React.FC<{ archetypeRefs?: Ref[] }> = ({
   archetypeRefs,
-}) => <LabelsFromItems items={archetypeRefs as Ref[]} />;
+}) => <LabelsFromItems items={archetypeRefs} />;
