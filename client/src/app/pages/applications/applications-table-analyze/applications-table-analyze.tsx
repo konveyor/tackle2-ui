@@ -194,19 +194,27 @@ export const ApplicationsTableAnalyze: React.FC = () => {
       businessService: "Business Service",
       analysis: "Analysis",
       tags: "Tags",
+      effort: "Effort",
     },
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
     isSelectionEnabled: true,
     isActiveItemEnabled: true,
-    sortableColumns: ["name", "description", "businessService", "tags"],
+    sortableColumns: [
+      "name",
+      "description",
+      "businessService",
+      "tags",
+      "effort",
+    ],
     initialSort: { columnKey: "name", direction: "asc" },
     getSortValues: (app) => ({
       name: app.name,
       description: app.description || "",
       businessService: app.businessService?.name || "",
       tags: app.tags?.length || 0,
+      effort: app.effort || 0,
     }),
     filterCategories: [
       {
@@ -567,6 +575,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                 <Th {...getThProps({ columnKey: "businessService" })} />
                 <Th {...getThProps({ columnKey: "analysis" })} />
                 <Th {...getThProps({ columnKey: "tags" })} />
+                <Th {...getThProps({ columnKey: "effort" })} />
                 <Th />
               </TableHeaderContentWithControls>
             </Tr>
@@ -635,6 +644,13 @@ export const ApplicationsTableAnalyze: React.FC = () => {
                     >
                       <TagIcon />
                       {application.tags ? application.tags.length : 0}
+                    </Td>
+                    <Td
+                      width={10}
+                      modifier="truncate"
+                      {...getTdProps({ columnKey: "effort" })}
+                    >
+                      {application?.effort ?? "-"}
                     </Td>
                     <Td isActionCell id="pencil-action">
                       <Button
