@@ -41,7 +41,7 @@ export const SimpleSelectBasic: React.FC<ISimpleSelectBasicProps> = ({
       }}
       isExpanded={isOpen}
     >
-      {(value && options.find((o) => o.value === value)?.children || value) ||
+      {(value && (options.find((o) => o.value === value)?.children || value)) ||
         placeholderText ||
         ""}
     </MenuToggle>
