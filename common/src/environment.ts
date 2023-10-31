@@ -13,6 +13,9 @@ export type KonveyorEnvType = {
   NODE_ENV: "development" | "production" | "test";
   VERSION: string;
 
+  /** Controls how mock data is injected on the client */
+  MOCK: string;
+
   /** Enable RBAC authentication/authorization */
   AUTH_REQUIRED: "true" | "false";
 
@@ -57,6 +60,7 @@ export const SERVER_ENV_KEYS = [
 export const buildKonveyorEnv = ({
   NODE_ENV = "development",
   VERSION = "99.0.0",
+  MOCK = "off",
 
   AUTH_REQUIRED = "false",
   KEYCLOAK_REALM = "tackle",
@@ -68,6 +72,7 @@ export const buildKonveyorEnv = ({
 }: Partial<KonveyorEnvType> = {}): KonveyorEnvType => ({
   NODE_ENV,
   VERSION,
+  MOCK,
 
   AUTH_REQUIRED,
   KEYCLOAK_REALM,
