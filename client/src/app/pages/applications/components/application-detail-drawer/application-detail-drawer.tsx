@@ -132,6 +132,12 @@ export const ApplicationDetailDrawer: React.FC<
                 ? application.migrationWave.name
                 : t("terms.unassigned")}
             </Text>
+            <Title headingLevel="h3" size="md">
+              {t("terms.effort")}
+            </Title>
+            <Text component="small">
+              {application?.effort ?? t("terms.unassigned")}
+            </Text>
           </TextContent>
 
           {detailsTabMainContent}
