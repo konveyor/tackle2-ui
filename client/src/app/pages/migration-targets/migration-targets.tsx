@@ -180,6 +180,8 @@ export const MigrationTargets: React.FC = () => {
             </Button>
           </GridItem>
         </Grid>
+      </PageSection>
+      <PageSection>
         <Modal
           id="create-edit-custom-tarrget-modal"
           title={t(
@@ -198,52 +200,54 @@ export const MigrationTargets: React.FC = () => {
             onCancel={() => setCreateUpdateModalState(null)}
           />
         </Modal>
-      </PageSection>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-      >
-        <SortableContext
-          items={targetOrderSetting.isSuccess ? targetOrderSetting.data : []}
-          strategy={rectSortingStrategy}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
         >
-          <DndGrid>
-            {targetOrderSetting.isSuccess &&
-              targetOrderSetting.data.map((id) => {
-                const matchingTarget = targets.find(
-                  (target) => target.id === id
-                );
-                if (matchingTarget) {
-                  return (
-                    <SortableItem
-                      key={id}
-                      id={id}
-                      onEdit={() => {
-                        if (matchingTarget) {
-                          setCreateUpdateModalState(matchingTarget);
-                        }
-                      }}
-                      onDelete={() => {
-                        const matchingTarget = targets.find(
-                          (target) => target.id === id
-                        );
-                        if (matchingTarget?.id) {
-                          deleteTarget(matchingTarget.id);
-                        }
-                      }}
-                    />
+          <SortableContext
+            items={targetOrderSetting.isSuccess ? targetOrderSetting.data : []}
+            strategy={rectSortingStrategy}
+          >
+            <DndGrid>
+              {targetOrderSetting.isSuccess &&
+                targetOrderSetting.data.map((id) => {
+                  const matchingTarget = targets.find(
+                    (target) => target.id === id
                   );
-                } else {
-                  return null;
-                }
-              })}
-            <div ref={targetsEndRef} />
-          </DndGrid>
-          <DragOverlay>{activeId ? <Item id={activeId} /> : null}</DragOverlay>
-        </SortableContext>
-      </DndContext>
+                  if (matchingTarget) {
+                    return (
+                      <SortableItem
+                        key={id}
+                        id={id}
+                        onEdit={() => {
+                          if (matchingTarget) {
+                            setCreateUpdateModalState(matchingTarget);
+                          }
+                        }}
+                        onDelete={() => {
+                          const matchingTarget = targets.find(
+                            (target) => target.id === id
+                          );
+                          if (matchingTarget?.id) {
+                            deleteTarget(matchingTarget.id);
+                          }
+                        }}
+                      />
+                    );
+                  } else {
+                    return null;
+                  }
+                })}
+              <div ref={targetsEndRef} />
+            </DndGrid>
+            <DragOverlay>
+              {activeId ? <Item id={activeId} /> : null}
+            </DragOverlay>
+          </SortableContext>
+        </DndContext>
+      </PageSection>
     </>
   );
 };
