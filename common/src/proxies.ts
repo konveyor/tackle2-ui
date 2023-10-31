@@ -1,8 +1,9 @@
 import type { Options } from "http-proxy-middleware";
+import { KONVEYOR_ENV } from "./environment.js";
 
 export const proxyMap: Record<string, Options> = {
   "/auth": {
-    target: process.env.KEYCLOAK_SERVER_URL || "http://localhost:9001",
+    target: KONVEYOR_ENV.KEYCLOAK_SERVER_URL || "http://localhost:9001",
     logLevel: process.env.DEBUG ? "debug" : "info",
 
     changeOrigin: true,
@@ -30,7 +31,7 @@ export const proxyMap: Record<string, Options> = {
   },
 
   "/hub": {
-    target: process.env.TACKLE_HUB_URL || "http://localhost:9002",
+    target: KONVEYOR_ENV.TACKLE_HUB_URL || "http://localhost:9002",
     logLevel: process.env.DEBUG ? "debug" : "info",
 
     changeOrigin: true,
@@ -39,6 +40,8 @@ export const proxyMap: Record<string, Options> = {
     },
 
     onProxyReq: (proxyReq, req, _res) => {
+      // Add the Bearer token to the request if it is not already present, AND if
+      // the token is part of the request as a cookie
       if (req.cookies?.keycloak_cookie && !req.headers["authorization"]) {
         proxyReq.setHeader(
           "Authorization",

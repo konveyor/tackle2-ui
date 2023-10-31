@@ -145,8 +145,7 @@ export const UploadBinary: React.FC = () => {
     }
   };
 
-  const uploadLimitInBytes =
-    parseInt(uploadLimit.slice(0, -1)) * Math.pow(1024, 2);
+  const uploadLimitInBytes = parseInt(uploadLimit.slice(0, -1)) * 1_000_000;
 
   const readFile = (file: File) => {
     return new Promise<string | null>((resolve, reject) => {
@@ -199,8 +198,8 @@ export const UploadBinary: React.FC = () => {
               <>
                 <div>Accepted file types: war, ear, jar or zip</div>
                 <div>
-                  Upload size limit: {Math.round(uploadLimitInBytes / 1000000)}{" "}
-                  MB
+                  Upload size limit:
+                  {Math.round(uploadLimitInBytes / 1_000_000)} MB
                 </div>
               </>
             }

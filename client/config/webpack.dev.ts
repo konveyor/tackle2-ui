@@ -9,11 +9,16 @@ import ReactRefreshTypeScript from "react-refresh-typescript";
 import ReactRefreshWebpackPlugin from "@pmmmwh/react-refresh-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 
-import { encodeEnv, KONVEYOR_ENV, proxyMap } from "@konveyor-ui/common";
+import {
+  encodeEnv,
+  KONVEYOR_ENV,
+  SERVER_ENV_KEYS,
+  proxyMap,
+} from "@konveyor-ui/common";
 import { stylePaths } from "./stylePaths";
 import commonWebpackConfiguration from "./webpack.common";
 
-const brandType = process.env["PROFILE"] || "konveyor";
+const brandType = KONVEYOR_ENV.PROFILE;
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
 
 interface Configuration extends WebpackConfiguration {
@@ -96,7 +101,7 @@ const config: Configuration = mergeWithRules({
       filename: "index.html",
       template: pathTo("../public/index.html.ejs"),
       templateParameters: {
-        _env: encodeEnv(KONVEYOR_ENV),
+        _env: encodeEnv(KONVEYOR_ENV, SERVER_ENV_KEYS),
         brandType,
       },
       favicon: pathTo(`../public/${brandType}-favicon.ico`),

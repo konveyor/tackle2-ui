@@ -13,21 +13,43 @@ export type KonveyorEnvType = {
   NODE_ENV: "development" | "production" | "test";
   VERSION: string;
 
-  /** Require keycloak authentication? */
+  /** Enable RBAC authentication/authorization */
   AUTH_REQUIRED: "true" | "false";
+
+  /** SSO / Keycloak realm */
   KEYCLOAK_REALM: string;
+
+  /** SSO / Keycloak client id */
   KEYCLOAK_CLIENT_ID: string;
-  KEYCLOAK_SERVER_URL: string;
 
   /** Branding to apply to the UI */
   PROFILE: "konveyor" | "mta";
 
-  /** Upload file size limit */
+  /** UI upload file size limit in megabytes (MB), suffixed with "m" */
   UI_INGRESS_PROXY_BODY_SIZE: string;
 
   /** Allow clearing local maven artifact repository? Requires availability of RWX volumes for hub. */
   RWX_SUPPORTED: "true" | "false";
+
+  /** The listen port for the UI's server */
+  PORT?: string;
+
+  /** Target URL for the UI server's `/auth` proxy */
+  KEYCLOAK_SERVER_URL?: string;
+
+  /** Target URL for the UI server's `/hub` proxy */
+  TACKLE_HUB_URL?: string;
 };
+
+/**
+ * Keys in `KonveyorEnvType` that are only used on the server and therefore do not
+ * need to be sent to the client.
+ */
+export const SERVER_ENV_KEYS = [
+  "PORT",
+  "KEYCLOAK_SERVER_URL",
+  "TACKLE_HUB_URL",
+];
 
 /**
  * Create a `KonveyorEnv` from a partial `KonveyorEnv` with a set of default values.
@@ -39,7 +61,6 @@ export const buildKonveyorEnv = ({
   AUTH_REQUIRED = "false",
   KEYCLOAK_REALM = "tackle",
   KEYCLOAK_CLIENT_ID = "tackle-ui",
-  KEYCLOAK_SERVER_URL = "",
 
   PROFILE = "konveyor",
   UI_INGRESS_PROXY_BODY_SIZE = "500m",
@@ -51,7 +72,6 @@ export const buildKonveyorEnv = ({
   AUTH_REQUIRED,
   KEYCLOAK_REALM,
   KEYCLOAK_CLIENT_ID,
-  KEYCLOAK_SERVER_URL,
 
   PROFILE,
   UI_INGRESS_PROXY_BODY_SIZE,

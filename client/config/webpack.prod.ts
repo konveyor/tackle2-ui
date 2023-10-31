@@ -5,10 +5,11 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 
+import { KONVEYOR_ENV } from "@konveyor-ui/common";
 import { stylePaths } from "./stylePaths";
 import commonWebpackConfiguration from "./webpack.common";
 
-const brandType = process.env["PROFILE"] || "konveyor";
+const brandType = KONVEYOR_ENV.PROFILE;
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
 
 const config = merge<Configuration>(commonWebpackConfiguration, {
