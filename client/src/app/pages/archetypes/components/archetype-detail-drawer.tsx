@@ -53,7 +53,6 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
       archetype?.tags?.filter((t) => t?.source === "assessment") ?? [];
     return dedupeArrayOfObjects<TagRef>(rawAssessmentTags, "name");
   }, [archetype?.tags]);
-  console.log("archetype", archetype);
 
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
@@ -79,7 +78,6 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
       <Tabs
         activeKey={activeTabKey}
         onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
-        // className={spacing.mtLg}
       >
         <Tab
           eventKey={TabKey.Details}
