@@ -10,8 +10,6 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   DescriptionListDescription,
-  LabelGroup,
-  Label,
   Stack,
   StackItem,
 } from "@patternfly/react-core";
@@ -22,6 +20,7 @@ import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
 
 import { dedupeArrayOfObjects } from "@app/utils/utils";
+import { LabelsFromItems } from "@app/components/labels-from-items/labels-from-items";
 
 export interface IArchetypeDetailDrawerProps {
   onCloseClick: () => void;
@@ -170,56 +169,18 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
 
 const ApplicationLabels: React.FC<{ applicationRefs?: Ref[] }> = ({
   applicationRefs,
-}) =>
-  (applicationRefs?.length ?? 0) === 0 ? null : (
-    <LabelGroup>
-      {(applicationRefs as Ref[])
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((ref) => (
-          <Label color="grey" key={ref.id}>
-            {ref.name}
-          </Label>
-        ))}
-    </LabelGroup>
-  );
+}) => <LabelsFromItems items={applicationRefs as Ref[]} />;
 
-const TagLabels: React.FC<{ tags?: Tag[] }> = ({ tags }) =>
-  (tags?.length ?? 0) === 0 ? null : (
-    <LabelGroup>
-      {(tags as Tag[])
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((sh) => (
-          <Label color="grey" key={sh.id}>
-            {sh.name}
-          </Label>
-        ))}
-    </LabelGroup>
-  );
+const TagLabels: React.FC<{ tags?: Tag[] }> = ({ tags }) => (
+  <LabelsFromItems items={tags} />
+);
 
 const StakeholderLabels: React.FC<{ archetype: Archetype }> = ({
   archetype,
-}) =>
-  (archetype.stakeholders?.length ?? 0) === 0 ? null : (
-    <LabelGroup>
-      {archetype.stakeholders?.map((sh) => (
-        <Label color="orange" key={sh.id}>
-          {sh.name}
-        </Label>
-      ))}
-    </LabelGroup>
-  );
+}) => <LabelsFromItems items={archetype.stakeholders as Ref[]} />;
 
 const StakeholderGroupsLabels: React.FC<{ archetype: Archetype }> = ({
   archetype,
-}) =>
-  (archetype.stakeholderGroups?.length ?? 0) === 0 ? null : (
-    <LabelGroup>
-      {archetype.stakeholderGroups?.map((sh) => (
-        <Label color="green" key={sh.id}>
-          {sh.name}
-        </Label>
-      ))}
-    </LabelGroup>
-  );
+}) => <LabelsFromItems items={archetype.stakeholderGroups as Ref[]} />;
 
 export default ArchetypeDetailDrawer;

@@ -9,7 +9,6 @@ import {
   Text,
   Title,
   Label,
-  LabelGroup,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -22,6 +21,7 @@ import {
 import { ReviewedArchetypeItem } from "./reviewed-archetype-item";
 import { ReviewFields } from "./review-fields";
 import { RiskLabel } from "@app/components/RiskLabel";
+import { LabelsFromItems } from "@app/components/labels-from-items/labels-from-items";
 
 export interface IApplicationDetailDrawerAssessmentProps
   extends Pick<IApplicationDetailDrawerProps, "application" | "onCloseClick"> {
@@ -57,9 +57,7 @@ export const ApplicationDetailDrawerAssessment: React.FC<
               </DescriptionListTerm>
               <DescriptionListDescription>
                 {application?.archetypes?.length ?? 0 > 0 ? (
-                  <ArchetypeLabels
-                    archetypeRefs={application?.archetypes as Ref[]}
-                  />
+                  <ArchetypeLabels archetypeRefs={application?.archetypes} />
                 ) : (
                   <EmptyTextMessage message={t("terms.none")} />
                 )}
@@ -105,17 +103,7 @@ export const ApplicationDetailDrawerAssessment: React.FC<
     />
   );
 };
+
 const ArchetypeLabels: React.FC<{ archetypeRefs?: Ref[] }> = ({
   archetypeRefs,
-}) =>
-  (archetypeRefs?.length ?? 0) === 0 ? null : (
-    <LabelGroup>
-      {(archetypeRefs as Ref[])
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((ref) => (
-          <Label color="grey" key={ref.id}>
-            {ref.name}
-          </Label>
-        ))}
-    </LabelGroup>
-  );
+}) => <LabelsFromItems items={archetypeRefs} />;
