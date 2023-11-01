@@ -19,8 +19,8 @@
     "clean": "rimraf ./dist",
     "lint": "eslint .",
     "prebuild": "npm run clean",
-    "build": "rollup -c",
-    "start:dev": "rollup -c --watch"
+    "build": "NODE_ENV=production rollup -c",
+    "start:dev": "NODE_ENV=development rollup -c --watch"
   },
   "lint-staged": {
     "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": "eslint --fix",
