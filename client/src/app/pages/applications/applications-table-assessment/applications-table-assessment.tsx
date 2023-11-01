@@ -598,12 +598,15 @@ export const ApplicationsTable: React.FC = () => {
           <Thead>
             <Tr>
               <TableHeaderContentWithControls {...tableControls}>
-                <Th {...getThProps({ columnKey: "name" })} />
-                <Th {...getThProps({ columnKey: "description" })} />
-                <Th {...getThProps({ columnKey: "businessService" })} />
-                <Th {...getThProps({ columnKey: "assessment" })} />
-                <Th {...getThProps({ columnKey: "review" })} />
-                <Th {...getThProps({ columnKey: "tags" })} />
+                <Th {...getThProps({ columnKey: "name" })} width={20} />
+                <Th {...getThProps({ columnKey: "description" })} width={25} />
+                <Th
+                  {...getThProps({ columnKey: "businessService" })}
+                  width={10}
+                />
+                <Th {...getThProps({ columnKey: "assessment" })} width={10} />
+                <Th {...getThProps({ columnKey: "review" })} width={10} />
+                <Th {...getThProps({ columnKey: "tags" })} width={10} />
                 <Th />
               </TableHeaderContentWithControls>
             </Tr>

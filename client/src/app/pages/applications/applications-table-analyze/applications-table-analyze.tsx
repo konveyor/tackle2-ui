@@ -570,12 +570,15 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           <Thead>
             <Tr>
               <TableHeaderContentWithControls {...tableControls}>
-                <Th {...getThProps({ columnKey: "name" })} />
-                <Th {...getThProps({ columnKey: "description" })} />
-                <Th {...getThProps({ columnKey: "businessService" })} />
-                <Th {...getThProps({ columnKey: "analysis" })} />
-                <Th {...getThProps({ columnKey: "tags" })} />
-                <Th {...getThProps({ columnKey: "effort" })} />
+                <Th {...getThProps({ columnKey: "name" })} width={20} />
+                <Th {...getThProps({ columnKey: "description" })} width={25} />
+                <Th
+                  {...getThProps({ columnKey: "businessService" })}
+                  width={10}
+                />
+                <Th {...getThProps({ columnKey: "analysis" })} width={10} />
+                <Th {...getThProps({ columnKey: "tags" })} width={10} />
+                <Th {...getThProps({ columnKey: "effort" })} width={10} />
                 <Th />
               </TableHeaderContentWithControls>
             </Tr>
