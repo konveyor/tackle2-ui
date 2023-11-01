@@ -58,10 +58,12 @@ export const SERVER_ENV_KEYS = [
  * Create a `KonveyorEnv` from a partial `KonveyorEnv` with a set of default values.
  */
 export const buildKonveyorEnv = ({
-  NODE_ENV = "development",
+  NODE_ENV = "production",
+  PORT,
   VERSION = "99.0.0",
   MOCK = "off",
 
+  KEYCLOAK_SERVER_URL,
   AUTH_REQUIRED = "false",
   KEYCLOAK_REALM = "tackle",
   KEYCLOAK_CLIENT_ID = "tackle-ui",
@@ -69,11 +71,14 @@ export const buildKonveyorEnv = ({
   PROFILE = "konveyor",
   UI_INGRESS_PROXY_BODY_SIZE = "500m",
   RWX_SUPPORTED = "true",
+  TACKLE_HUB_URL,
 }: Partial<KonveyorEnvType> = {}): KonveyorEnvType => ({
   NODE_ENV,
+  PORT,
   VERSION,
   MOCK,
 
+  KEYCLOAK_SERVER_URL,
   AUTH_REQUIRED,
   KEYCLOAK_REALM,
   KEYCLOAK_CLIENT_ID,
@@ -81,6 +86,7 @@ export const buildKonveyorEnv = ({
   PROFILE,
   UI_INGRESS_PROXY_BODY_SIZE,
   RWX_SUPPORTED,
+  TACKLE_HUB_URL,
 });
 
 /**
