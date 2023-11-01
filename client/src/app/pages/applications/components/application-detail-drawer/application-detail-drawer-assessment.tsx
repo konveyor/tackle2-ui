@@ -8,7 +8,6 @@ import {
   TextContent,
   Text,
   Title,
-  Label,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -38,7 +37,7 @@ export const ApplicationDetailDrawerAssessment: React.FC<
       application={application}
       task={task}
       onCloseClick={onCloseClick}
-      detailsTabMainContent={
+      detailTabContent={
         <>
           <Title headingLevel="h3" size="md">
             {t("terms.archetypes")}
@@ -87,14 +86,6 @@ export const ApplicationDetailDrawerAssessment: React.FC<
             </Title>
             <Text component="small" cy-data="comments">
               <RiskLabel risk={application?.risk || "unknown"} />
-            </Text>
-            <Title headingLevel="h3" size="md">
-              {t("terms.commentsFromApplication")}
-            </Title>
-            <Text component="small" cy-data="comments">
-              {application?.comments || (
-                <EmptyTextMessage message={t("terms.notAvailable")} />
-              )}
             </Text>
           </TextContent>
         </>

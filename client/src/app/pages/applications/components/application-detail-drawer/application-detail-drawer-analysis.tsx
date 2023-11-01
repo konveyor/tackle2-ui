@@ -69,16 +69,6 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
       task={task}
       application={updatedApplication || null}
       onCloseClick={onCloseClick}
-      detailsTabMainContent={
-        <TextContent className={spacing.mtLg}>
-          <Title headingLevel="h3" size="md">
-            {t("terms.comments")}
-          </Title>
-          <Text component="small" cy-data="comments">
-            {application?.comments || notAvailable}
-          </Text>
-        </TextContent>
-      }
       reportsTabContent={
         <TextContent className={spacing.mtMd}>
           <Title headingLevel="h3" size="md">
