@@ -36,6 +36,7 @@ export interface IApplicationDetailDrawerProps
   reportsTabContent?: React.ReactNode;
   factsTabContent?: React.ReactNode;
   reviewsTabContent?: React.ReactNode;
+  onEditClick: () => void;
 }
 
 enum TabKey {
@@ -50,6 +51,7 @@ export const ApplicationDetailDrawer: React.FC<
   IApplicationDetailDrawerProps
 > = ({
   onCloseClick,
+  onEditClick,
   application,
   task,
   detailTabContent = null,
@@ -125,7 +127,11 @@ export const ApplicationDetailDrawer: React.FC<
           </TextContent>
 
           {detailTabContent}
-          <ApplicationDetailFields application={application} />
+          <ApplicationDetailFields
+            application={application}
+            onEditClick={onEditClick}
+            onCloseClick={onCloseClick}
+          />
         </Tab>
 
         <Tab eventKey={TabKey.Tags} title={<TabTitleText>Tags</TabTitleText>}>

@@ -1,22 +1,49 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Title, TextContent, Text, TextVariants } from "@patternfly/react-core";
+import {
+  Title,
+  TextContent,
+  Text,
+  TextVariants,
+  Button,
+  Grid,
+  GridItem,
+} from "@patternfly/react-core";
 import { Application } from "@app/api/models";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { ApplicationBusinessService } from "../application-business-service";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
+import { EditIcon } from "@patternfly/react-icons";
 
 export const ApplicationDetailFields: React.FC<{
   application: Application | null;
-}> = ({ application }) => {
+  onEditClick: () => void;
+  onCloseClick: () => void;
+}> = ({ application, onEditClick, onCloseClick }) => {
   const { t } = useTranslation();
 
   return (
     <>
       <TextContent className={spacing.mtLg}>
-        <Title headingLevel="h3" size="md">
-          {t("terms.applicationInformation")}
-        </Title>
+        <Grid>
+          <GridItem span={6}>
+            <Title headingLevel="h3" size="md">
+              {t("terms.applicationInformation")}
+            </Title>
+          </GridItem>
+          <GridItem span={1}>
+            <Button
+              style={{ paddingTop: "0px", paddingBottom: "0px" }}
+              variant="link"
+              aria-label="Edit"
+              onClick={() => {
+                onEditClick();
+                onCloseClick();
+              }}
+              icon={<EditIcon />}
+            />
+          </GridItem>
+        </Grid>
       </TextContent>
       <Title headingLevel="h3" size="md">
         {t("terms.owner")}

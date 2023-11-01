@@ -762,6 +762,7 @@ export const ApplicationsTable: React.FC = () => {
         <ApplicationDetailDrawerAssessment
           application={activeItem}
           onCloseClick={clearActiveItem}
+          onEditClick={() => setSaveApplicationModalState(activeItem)}
           task={activeItem ? getTask(activeItem) : null}
         />
         <Modal

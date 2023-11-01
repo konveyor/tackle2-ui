@@ -23,13 +23,16 @@ import { RiskLabel } from "@app/components/RiskLabel";
 import { LabelsFromItems } from "@app/components/labels-from-items/labels-from-items";
 
 export interface IApplicationDetailDrawerAssessmentProps
-  extends Pick<IApplicationDetailDrawerProps, "application" | "onCloseClick"> {
+  extends Pick<
+    IApplicationDetailDrawerProps,
+    "application" | "onCloseClick" | "onEditClick"
+  > {
   task: Task | undefined | null;
 }
 
 export const ApplicationDetailDrawerAssessment: React.FC<
   IApplicationDetailDrawerAssessmentProps
-> = ({ application, onCloseClick, task }) => {
+> = ({ application, onCloseClick, task, onEditClick }) => {
   const { t } = useTranslation();
 
   return (
@@ -37,6 +40,7 @@ export const ApplicationDetailDrawerAssessment: React.FC<
       application={application}
       task={task}
       onCloseClick={onCloseClick}
+      onEditClick={onEditClick}
       detailTabContent={
         <>
           <Title headingLevel="h3" size="md">
