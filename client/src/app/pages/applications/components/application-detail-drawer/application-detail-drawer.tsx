@@ -65,7 +65,7 @@ export const ApplicationDetailDrawer: React.FC<
   );
 
   const isTaskRunning = task?.state === "Running";
-  console.log("application", application);
+
   return (
     <PageDrawerContent
       isExpanded={!!application}
@@ -119,7 +119,7 @@ export const ApplicationDetailDrawer: React.FC<
             </Title>
             <Text component="small">
               <Text component="small">
-                {application?.effort !== 0
+                {application?.effort !== 0 && application?.effort !== undefined
                   ? application?.effort
                   : t("terms.unassigned")}
               </Text>
