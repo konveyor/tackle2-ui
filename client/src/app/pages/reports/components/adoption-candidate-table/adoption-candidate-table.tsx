@@ -36,9 +36,8 @@ const AdoptionCandidateTable: React.FC<AdoptionCandidateTableProps> = () => {
     selectMultiple: selectMultipleApplications,
   } = useContext(ApplicationSelectionContext);
 
-  const combinedData: TableRowData[] = useMemo(() => {
+  const applicationsWithReviews: TableRowData[] = useMemo(() => {
     const combined = allApplications.map((app) => {
-      console.log("reviews", reviews);
       const matchingReview = reviews?.find(
         (review) => review.application?.id === app.id
       );
@@ -53,7 +52,7 @@ const AdoptionCandidateTable: React.FC<AdoptionCandidateTableProps> = () => {
 
   const tableControls = useLocalTableControls({
     idProperty: "id",
-    items: combinedData || [],
+    items: applicationsWithReviews || [],
     columnNames: {
       applicationName: "Application Name",
       criticality: "Criticality",
@@ -114,16 +113,16 @@ const AdoptionCandidateTable: React.FC<AdoptionCandidateTableProps> = () => {
                     {item.application.name}
                   </Td>
                   <Td {...getTdProps({ columnKey: "criticality" })}>
-                    {item?.review?.businessCriticality || "N/A"}
+                    {item?.review?.businessCriticality ?? "N/A"}
                   </Td>
                   <Td {...getTdProps({ columnKey: "priority" })}>
-                    {item?.review?.workPriority || "N/A"}
+                    {item?.review?.workPriority ?? "N/A"}
                   </Td>
                   <Td {...getTdProps({ columnKey: "confidence" })}>
-                    {item.application.confidence || "N/A"}
+                    {item.application.confidence ?? "N/A"}
                   </Td>
                   <Td {...getTdProps({ columnKey: "effort" })}>
-                    {item?.review?.effortEstimate || "N/A"}
+                    {item?.review?.effortEstimate ?? "N/A"}
                   </Td>
                   <Td {...getTdProps({ columnKey: "risk" })}>
                     <RiskLabel risk={item.application.risk || "unknown"} />
