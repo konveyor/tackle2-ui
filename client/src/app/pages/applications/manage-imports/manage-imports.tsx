@@ -349,7 +349,13 @@ export const ManageImports: React.FC = () => {
                       dropdownItems={[
                         <DropdownItem
                           key="download-csv-template"
-                          to="/template_application_import.csv"
+                          component={(props) => (
+                            <a
+                              {...props}
+                              download
+                              href="/template_application_import.csv"
+                            />
+                          )}
                         >
                           {t("actions.downloadCsvTemplate")}
                         </DropdownItem>,
