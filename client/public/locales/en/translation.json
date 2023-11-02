@@ -27,6 +27,7 @@
     "createTag": "Create tag",
     "createTagCategory": "Create tag category",
     "createTags": "Create tags",
+    "cancelAnalysis": "Cancel analysis",
     "delete": "Delete",
     "discardAssessment": "Discard assessment/review",
     "downloadCsvTemplate": "Download CSV template",
