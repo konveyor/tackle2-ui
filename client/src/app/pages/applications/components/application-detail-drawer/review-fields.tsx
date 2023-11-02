@@ -7,7 +7,7 @@ import {
   Title,
   TextContent,
 } from "@patternfly/react-core";
-import { Application, Review } from "@app/api/models";
+import { Application, Archetype, Review } from "@app/api/models";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useFetchReviewById, useFetchReviews } from "@app/queries/reviews";
 import { useFetchArchetypes } from "@app/queries/archetypes";
@@ -21,14 +21,16 @@ export type ReviewDrawerLabelItem = {
   isArchetype?: boolean;
 };
 
-export const ReviewFields: React.FC<{ application: Application | null }> = ({
-  application,
-}) => {
+export const ReviewFields: React.FC<{
+  application?: Application | null;
+  archetype?: Archetype | null;
+}> = ({ application, archetype }) => {
   const { archetypes } = useFetchArchetypes();
   const { reviews } = useFetchReviews();
   const { t } = useTranslation();
 
   const { review: appReview } = useFetchReviewById(application?.review?.id);
+  const { review: archetypeReview } = useFetchReviewById(archetype?.review?.id);
 
   const notYetReviewed = (
     <EmptyTextMessage message={t("terms.notYetReviewed")} />
@@ -47,11 +49,24 @@ export const ReviewFields: React.FC<{ application: Application | null }> = ({
     .filter(Boolean);
 
   const groupedReviewList: ReviewDrawerLabelItem[] = [
-    {
-      review: appReview,
-      name: appReview?.application?.name,
-      isArchetype: false,
-    },
+    ...(archetypeReview
+      ? [
+          {
+            review: archetypeReview,
+            name: archetypeReview?.archetype?.name,
+            isArchetype: true,
+          },
+        ]
+      : []),
+    ...(appReview
+      ? [
+          {
+            review: appReview,
+            name: appReview?.application?.name,
+            isArchetype: false,
+          },
+        ]
+      : []),
     ...matchedArchetypeReviews.map((archetypeReview) => ({
       review: archetypeReview,
       name: archetypeReview?.archetype?.name,
@@ -134,7 +149,6 @@ export const ReviewFields: React.FC<{ application: Application | null }> = ({
           {groupedReviewList.length === 0
             ? notYetReviewed
             : groupedReviewList.map((item, index) => {
-                const labelText = item?.review?.comments;
                 return (
                   <ReviewLabel
                     key={index}
