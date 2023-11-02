@@ -1,19 +1,25 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Button,
+  ButtonVariant,
   Card,
   CardBody,
+  CardExpandableContent,
   CardHeader,
   CardTitle,
+  MenuToggle,
   PageSection,
   PageSectionVariants,
+  Popover,
+  Select,
+  SelectOption,
   Stack,
   StackItem,
   Text,
   TextContent,
-  ToggleGroup,
-  ToggleGroupItem,
 } from "@patternfly/react-core";
+import { HelpIcon } from "@patternfly/react-icons";
 
 import { Questionnaire } from "@app/api/models";
 import { useFetchApplications } from "@app/queries/applications";
@@ -26,8 +32,8 @@ import { StateError } from "@app/components/StateError";
 
 import { ApplicationSelectionContextProvider } from "./application-selection-context";
 import { Landscape } from "./components/landscape";
-import { AdoptionCandidateTable } from "./components/adoption-candidate-table/adoption-candidate-table";
-import { AdoptionCandidateGraph } from "./components/adoption-candidate-graph";
+import AdoptionCandidateTable from "./components/adoption-candidate-table/adoption-candidate-table";
+import { AdoptionPlan } from "./components/adoption-plan";
 
 const ALL_QUESTIONNAIRES = -1;
 
@@ -66,9 +72,6 @@ export const Reports: React.FC = () => {
 
   const [selectedQuestionnaireId, setSelectedQuestionnaireId] =
     React.useState<number>(ALL_QUESTIONNAIRES);
-
-  const [isAdoptionCandidateTable, setIsAdoptionCandidateTable] =
-    useState(true);
 
   const [isAdoptionPlanOpen, setAdoptionPlanOpen] = useState(false);
 
@@ -109,10 +112,11 @@ export const Reports: React.FC = () => {
     isAssessmentsFetching || isQuestionnairesFetching
       ? []
       : assessments
-          .map<number>((assessment) => assessment?.questionnaire?.id ?? -1)
-          .filter((id, index, ids) => id > 0 && ids.indexOf(id) !== -1)
-          .map<Questionnaire>((id) => questionnairesById[id])
-          .sort((a, b) => a.name.localeCompare(b.name));
+          .map((assessment) => assessment?.questionnaire?.id)
+          .filter((id) => id > 0)
+          .map((id) => questionnairesById[id])
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .filter((questionnaire) => questionnaire !== undefined);
 
   return (
     <>
@@ -133,55 +137,55 @@ export const Reports: React.FC = () => {
               <StackItem>
                 <Card isClickable isSelectable>
                   <CardHeader
-                  // actions={{
-                  //   hasNoOffset: false,
-                  // actions: (
-                  //   <Select
-                  //     id="select-questionnaires"
-                  //     isOpen={isQuestionnaireSelectOpen}
-                  //     selected={selectedQuestionnaireId}
-                  //     onSelect={onSelectQuestionnaire}
-                  //     onOpenChange={(_isOpen) =>
-                  //       setIsQuestionnaireSelectOpen(false)
-                  //     }
-                  //     toggle={(toggleRef) => (
-                  //       <MenuToggle
-                  //         ref={toggleRef}
-                  //         aria-label="select questionnaires dropdown toggle"
-                  //         onClick={() => {
-                  //           setIsQuestionnaireSelectOpen(
-                  //             !isQuestionnaireSelectOpen
-                  //           );
-                  //         }}
-                  //         isExpanded={isQuestionnaireSelectOpen}
-                  //       >
-                  //         {selectedQuestionnaireId === ALL_QUESTIONNAIRES
-                  //           ? "All questionnaires"
-                  //           : questionnairesById[selectedQuestionnaireId]
-                  //               ?.name}
-                  //       </MenuToggle>
-                  //     )}
-                  //     shouldFocusToggleOnSelect
-                  //   >
-                  //     <SelectOption
-                  //       key={ALL_QUESTIONNAIRES}
-                  //       value={ALL_QUESTIONNAIRES}
-                  //     >
-                  //       All questionnaires
-                  //     </SelectOption>
-                  //     {...answeredQuestionnaires.map(
-                  //       (answeredQuestionnaire) => (
-                  //         <SelectOption
-                  //           key={answeredQuestionnaire.id}
-                  //           value={answeredQuestionnaire.id}
-                  //         >
-                  //           {answeredQuestionnaire.name}
-                  //         </SelectOption>
-                  //       )
-                  //     )}
-                  //   </Select>
-                  //   ),
-                  // }}
+                    actions={{
+                      hasNoOffset: false,
+                      actions: (
+                        <Select
+                          id="select-questionnaires"
+                          isOpen={isQuestionnaireSelectOpen}
+                          selected={selectedQuestionnaireId}
+                          onSelect={onSelectQuestionnaire}
+                          onOpenChange={(_isOpen) =>
+                            setIsQuestionnaireSelectOpen(false)
+                          }
+                          toggle={(toggleRef) => (
+                            <MenuToggle
+                              ref={toggleRef}
+                              aria-label="select questionnaires dropdown toggle"
+                              onClick={() => {
+                                setIsQuestionnaireSelectOpen(
+                                  !isQuestionnaireSelectOpen
+                                );
+                              }}
+                              isExpanded={isQuestionnaireSelectOpen}
+                            >
+                              {selectedQuestionnaireId === ALL_QUESTIONNAIRES
+                                ? "All questionnaires"
+                                : questionnairesById[selectedQuestionnaireId]
+                                    ?.name}
+                            </MenuToggle>
+                          )}
+                          shouldFocusToggleOnSelect
+                        >
+                          <SelectOption
+                            key={ALL_QUESTIONNAIRES}
+                            value={ALL_QUESTIONNAIRES}
+                          >
+                            All questionnaires
+                          </SelectOption>
+                          {...answeredQuestionnaires.map(
+                            (answeredQuestionnaire) => (
+                              <SelectOption
+                                key={answeredQuestionnaire.id}
+                                value={answeredQuestionnaire.id}
+                              >
+                                {answeredQuestionnaire.name}
+                              </SelectOption>
+                            )
+                          )}
+                        </Select>
+                      ),
+                    }}
                   >
                     <TextContent>
                       <Text component="h3">{t("terms.currentLandscape")}</Text>
@@ -208,30 +212,7 @@ export const Reports: React.FC = () => {
               </StackItem>
               <StackItem>
                 <Card isClickable isSelectable>
-                  <CardHeader
-                    actions={{
-                      actions: (
-                        <ToggleGroup>
-                          <ToggleGroupItem
-                            key={0}
-                            text={t("terms.tableView")}
-                            isSelected={isAdoptionCandidateTable}
-                            onChange={() => {
-                              setIsAdoptionCandidateTable(true);
-                            }}
-                          />
-                          <ToggleGroupItem
-                            key={1}
-                            text={t("terms.graphView")}
-                            isSelected={!isAdoptionCandidateTable}
-                            onChange={() => {
-                              setIsAdoptionCandidateTable(false);
-                            }}
-                          />
-                        </ToggleGroup>
-                      ),
-                    }}
-                  >
+                  <CardHeader>
                     <CardTitle>
                       <TextContent>
                         <Text component="h3">
@@ -241,15 +222,11 @@ export const Reports: React.FC = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardBody>
-                    {isAdoptionCandidateTable ? (
-                      <AdoptionCandidateTable allApplications={applications} />
-                    ) : (
-                      <AdoptionCandidateGraph />
-                    )}
+                    <AdoptionCandidateTable />
                   </CardBody>
                 </Card>
               </StackItem>
-              {/* <StackItem>
+              <StackItem>
                 <Card isExpanded={isAdoptionPlanOpen}>
                   <CardHeader
                     onExpand={() => setAdoptionPlanOpen((current) => !current)}
@@ -286,7 +263,7 @@ export const Reports: React.FC = () => {
                     </CardBody>
                   </CardExpandableContent>
                 </Card>
-              </StackItem> */}
+              </StackItem>
               {/* <StackItem>
                 <Card isExpanded={isRiskCardOpen}>
                   <CardHeader

@@ -1,6 +1,4 @@
-import React, { useContext } from "react";
-import { Table } from "@patternfly/react-table";
-
+import React, { useContext, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   breakWord,
@@ -10,12 +8,20 @@ import {
   TableVariant,
 } from "@patternfly/react-table";
 
-import { Application } from "@app/api/models";
+import { AppTableWithControls } from "@app/components/AppTableWithControls";
+
+import { Application, AssessmentQuestionRisk } from "@app/api/models";
+// import { getAssessmentIdentifiedRisks } from "@app/api/rest";
+
 import { ApplicationSelectionContext } from "../../application-selection-context";
 import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
-import { FilterCategory, FilterType } from "@app/components/FilterToolbar";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/components/FilterToolbar";
 import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
-import { useFetchAssessments } from "@app/queries/assessments";
+import { useQuery } from "@tanstack/react-query";
 
 export interface ITableRowData {
   category: string;
@@ -26,16 +32,45 @@ export interface ITableRowData {
 
 export interface IIdentifiedRisksTableProps {}
 
-export const IdentifiedRisksTable: React.FC<
+export const IdentifiedRisksTableOld: React.FC<
   IIdentifiedRisksTableProps
 > = () => {
   // i18
   const { t } = useTranslation();
 
   const { allItems: allApplications } = useContext(ApplicationSelectionContext);
-  const { assessments } = useFetchAssessments();
 
-  const tableData: any = [];
+  const {
+    data: assessmentQuestionRisks,
+    refetch: refreshTable,
+    error: fetchError,
+    isFetching,
+  } = useQuery<AssessmentQuestionRisk[]>({
+    queryKey: ["assessmentQuestionRisks"],
+    queryFn: async () =>
+      // (
+      //   await getAssessmentIdentifiedRisks(
+      //     allApplications.length > 0 ? allApplications.map((f) => f.id!) : []
+      //   )
+      // ).data,
+      [],
+    onError: (error) => console.log("error, ", error),
+  });
+
+  const tableData: ITableRowData[] = useMemo(() => {
+    return (assessmentQuestionRisks || []).map((risk) => ({
+      ...risk,
+      applications: risk.applications.reduce((prev, current) => {
+        const exists = allApplications.find((f) => f.id === current);
+        return exists ? [...prev, exists] : [...prev];
+      }, [] as Application[]),
+    }));
+  }, [assessmentQuestionRisks, allApplications]);
+
+  useEffect(() => {
+    refreshTable();
+  }, [allApplications, refreshTable]);
+
   // Table
   const columns: ICell[] = [
     {
@@ -153,9 +188,23 @@ export const IdentifiedRisksTable: React.FC<
   };
 
   return (
-    <Table
-      aria-label={`Identified Risks Table`}
+    <AppTableWithControls
+      paginationProps={paginationProps}
+      paginationIdPrefix="identified-risks"
       variant={TableVariant.compact}
-    ></Table>
+      count={filteredItems.length}
+      cells={columns}
+      rows={rows}
+      isLoading={isFetching}
+      fetchError={fetchError}
+      toolbarClearAllFilters={handleOnClearAllFilters}
+      toolbarToggle={
+        <FilterToolbar
+          filterCategories={filterCategories}
+          filterValues={filterValues}
+          setFilterValues={setFilterValues}
+        />
+      }
+    />
   );
 };
