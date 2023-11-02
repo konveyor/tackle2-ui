@@ -9,13 +9,18 @@ import cookieParser from "cookie-parser";
 import { createHttpTerminator } from "http-terminator";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
-import { encodeEnv, KONVEYOR_ENV, proxyMap } from "@konveyor-ui/common";
+import {
+  encodeEnv,
+  KONVEYOR_ENV,
+  SERVER_ENV_KEYS,
+  proxyMap,
+} from "@konveyor-ui/common";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const pathToClientDist = path.join(__dirname, "../../client/dist");
 
-const brandType = process.env["PROFILE"] || "konveyor";
-const port = 8080;
+const brandType = KONVEYOR_ENV.PROFILE;
+const port = parseInt(KONVEYOR_ENV.PORT, 10) || 8080;
 
 const app = express();
 app.use(cookieParser());
@@ -32,7 +37,7 @@ app.use(express.static(pathToClientDist));
 
 // Handle any request that hasn't already been handled by express.static or proxy
 app.get("*", (_, res) => {
-  if (process.env.NODE_ENV === "development") {
+  if (KONVEYOR_ENV.NODE_ENV === "development") {
     res.send(`
       <style>pre { margin-left: 20px; }</style>
       You're running in development mode! The UI is served by webpack-dev-server on port 9000: <a href="http://localhost:9000">http://localhost:9000</a><br /><br />
@@ -41,7 +46,7 @@ app.get("*", (_, res) => {
     `);
   } else {
     res.render("index.html.ejs", {
-      _env: encodeEnv(KONVEYOR_ENV),
+      _env: encodeEnv(KONVEYOR_ENV, SERVER_ENV_KEYS),
       brandType,
     });
   }

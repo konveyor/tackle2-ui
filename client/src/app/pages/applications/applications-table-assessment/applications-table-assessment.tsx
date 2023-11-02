@@ -88,6 +88,7 @@ import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { getAssessmentsByItemId } from "@app/api/rest";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -146,6 +147,13 @@ export const ApplicationsTable: React.FC = () => {
     error: applicationsFetchError,
     refetch: fetchApplications,
   } = useFetchApplications();
+
+  const {
+    archetypes,
+    isFetching: isFetchingArchetypes,
+    error: archetypesFetchError,
+    refetch: fetchArchetypes,
+  } = useFetchArchetypes();
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -265,6 +273,35 @@ export const ApplicationsTable: React.FC = () => {
             what: t("terms.name").toLowerCase(),
           }) + "...",
         getItemValue: (item) => item?.name || "",
+      },
+      {
+        key: "archetype",
+        title: t("terms.archetype"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.archetype").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          const archetypeNames = item?.archetypes
+            ?.map((archetype) => archetype.name)
+            .join("");
+          return archetypeNames || "";
+        },
+        selectOptions: [
+          ...new Set(
+            applications
+              .flatMap(
+                (application) =>
+                  application?.archetypes?.map((archetype) => archetype.name)
+              )
+              .filter(Boolean)
+          ),
+        ].map((archetypeName) => ({
+          key: archetypeName,
+          value: archetypeName,
+        })),
+        logicOperator: "OR",
       },
       {
         key: "description",
@@ -515,7 +552,6 @@ export const ApplicationsTable: React.FC = () => {
       );
     }
   };
-
   return (
     <ConditionalRender
       when={isFetchingApplications && !(applications || applicationsFetchError)}
@@ -618,6 +654,19 @@ export const ApplicationsTable: React.FC = () => {
           >
             <Tbody>
               {currentPageItems?.map((application, rowIndex) => {
+                const isAppReviewed = !!application.review;
+                const applicationArchetypes = application.archetypes?.map(
+                  (archetypeRef) => {
+                    return archetypes.find(
+                      (archetype) => archetype.id === archetypeRef.id
+                    );
+                  }
+                );
+
+                const hasReviewedArchetype = applicationArchetypes?.some(
+                  (archetype) => !!archetype?.review
+                );
+
                 return (
                   <Tr
                     key={application.name}
@@ -669,7 +718,9 @@ export const ApplicationsTable: React.FC = () => {
                       >
                         <IconedStatus
                           preset={
-                            application.review ? "Completed" : "NotStarted"
+                            isAppReviewed || hasReviewedArchetype
+                              ? "Completed"
+                              : "NotStarted"
                           }
                         />
                       </Td>
@@ -740,6 +791,7 @@ export const ApplicationsTable: React.FC = () => {
         <ApplicationDetailDrawerAssessment
           application={activeItem}
           onCloseClick={clearActiveItem}
+          onEditClick={() => setSaveApplicationModalState(activeItem)}
           task={activeItem ? getTask(activeItem) : null}
         />
         <Modal

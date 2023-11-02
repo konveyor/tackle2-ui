@@ -9,9 +9,9 @@
     "extract": "i18next --config i18next-parser.config.js",
     "prebuild": "npm run clean && npm run tsc -- --noEmit",
     "build": "NODE_ENV=production webpack --config ./config/webpack.prod.ts",
-    "build:dev": "webpack --config ./config/webpack.dev.ts",
-    "start:dev": "webpack serve --config ./config/webpack.dev.ts",
-    "test": "jest --rootDir=. --config=./config/jest.config.ts",
+    "build:dev": "NODE_ENV=development webpack --config ./config/webpack.dev.ts",
+    "start:dev": "NODE_ENV=development webpack serve --config ./config/webpack.dev.ts",
+    "test": "NODE_ENV=test jest --rootDir=. --config=./config/jest.config.ts",
     "lint": "eslint .",
     "tsc": "tsc -p ./tsconfig.json"
   },

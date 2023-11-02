@@ -132,6 +132,7 @@ export interface Application {
   archetypes?: Ref[];
   risk?: Risk;
   confidence?: number;
+  effort?: number;
 }
 
 export interface Review {
@@ -420,6 +421,7 @@ export interface Target {
   labels?: TargetLabel[];
   image?: RulesetImage;
   ruleset: Ruleset;
+  provider?: string;
 }
 
 export interface Metadata {

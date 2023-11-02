@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { useLocalTableControls } from "@app/hooks/table-controls";
@@ -15,6 +15,7 @@ import {
   Questionnaire,
 } from "@app/api/models";
 import DynamicAssessmentActionsRow from "./dynamic-assessment-actions-row";
+import AssessmentModal from "../../assessment-wizard/assessment-wizard-modal";
 
 interface QuestionnairesTableProps {
   tableName: string;
@@ -48,6 +49,18 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
     numRenderedColumns,
     propHelpers: { tableProps, getThProps, getTrProps, getTdProps },
   } = tableControls;
+
+  const [createdAssessment, setCreatedAssessment] = useState<Assessment | null>(
+    null
+  );
+  const handleModalOpen = (assessment: Assessment) => {
+    setCreatedAssessment(assessment);
+  };
+
+  const handleModalClose = () => {
+    setCreatedAssessment(null);
+  };
+
   return (
     <>
       <Table
@@ -86,10 +99,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
               );
 
               return (
-                <Tr
-                  key={questionnaire.name}
-                  {...getTrProps({ item: questionnaire })}
-                >
+                <Tr key={questionnaire.name}>
                   <TableRowContentWithControls
                     {...tableControls}
                     item={questionnaire}
@@ -112,6 +122,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
                         application={application}
                         archetype={archetype}
                         isReadonly={isReadonly}
+                        onOpenModal={handleModalOpen}
                       />
                     ) : null}
                   </TableRowContentWithControls>
@@ -121,6 +132,11 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
           </Tbody>
         </ConditionalTableBody>
       </Table>
+      <AssessmentModal
+        isOpen={!!createdAssessment}
+        onRequestClose={handleModalClose}
+        assessment={createdAssessment}
+      />
     </>
   );
 };

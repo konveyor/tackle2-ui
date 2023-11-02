@@ -10,10 +10,11 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   DescriptionListDescription,
-  LabelGroup,
-  Label,
   Stack,
   StackItem,
+  Tabs,
+  Tab,
+  TabTitleText,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -22,10 +23,17 @@ import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
 
 import { dedupeArrayOfObjects } from "@app/utils/utils";
+import { LabelsFromItems } from "@app/components/labels-from-items/labels-from-items";
+import { ReviewFields } from "@app/pages/applications/components/application-detail-drawer/review-fields";
 
 export interface IArchetypeDetailDrawerProps {
   onCloseClick: () => void;
   archetype: Archetype | null;
+}
+
+enum TabKey {
+  Details = 0,
+  Reviews,
 }
 
 const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
@@ -45,7 +53,11 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
       archetype?.tags?.filter((t) => t?.source === "assessment") ?? [];
     return dedupeArrayOfObjects<TagRef>(rawAssessmentTags, "name");
   }, [archetype?.tags]);
-  console.log("archetype", archetype);
+
+  const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
+    TabKey.Details
+  );
+
   return (
     <PageDrawerContent
       isExpanded={!!archetype}
@@ -63,105 +75,137 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
         </TextContent>
       }
     >
-      <DescriptionList className="archetype-detail-drawer-list">
-        <DescriptionListGroup>
-          <DescriptionListTerm>{t("terms.description")}</DescriptionListTerm>
-          <DescriptionListDescription>
-            {archetype?.description || (
-              <EmptyTextMessage message={t("terms.notAvailable")} />
-            )}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
+      <Tabs
+        activeKey={activeTabKey}
+        onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
+      >
+        <Tab
+          eventKey={TabKey.Details}
+          title={<TabTitleText>{t("terms.details")}</TabTitleText>}
+        >
+          <DescriptionList className="archetype-detail-drawer-list">
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("terms.description")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {archetype?.description || (
+                  <EmptyTextMessage message={t("terms.notAvailable")} />
+                )}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
 
-        <DescriptionListGroup>
-          <DescriptionListTerm>{t("terms.applications")}</DescriptionListTerm>
-          <DescriptionListDescription>
-            {archetype?.applications?.length ?? 0 > 0 ? (
-              <ApplicationLabels applicationRefs={archetype?.applications} />
-            ) : (
-              <EmptyTextMessage message={t("terms.none")} />
-            )}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-
-        <DescriptionListGroup>
-          <DescriptionListTerm>{t("terms.tagsCriteria")}</DescriptionListTerm>
-          <DescriptionListDescription>
-            {archetype?.criteria?.length ?? 0 > 0 ? (
-              <TagLabels tags={archetype?.criteria} />
-            ) : (
-              <EmptyTextMessage message={t("terms.none")} />
-            )}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-
-        <DescriptionListGroup>
-          <DescriptionListTerm>{t("terms.tagsArchetype")}</DescriptionListTerm>
-          <DescriptionListDescription>
-            {manualTags.length > 0 ? (
-              <TagLabels tags={manualTags} />
-            ) : (
-              <EmptyTextMessage message={t("terms.none")} />
-            )}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-
-        <DescriptionListGroup>
-          <DescriptionListTerm>{t("terms.tagsAssessment")}</DescriptionListTerm>
-          <DescriptionListDescription>
-            {assessmentTags.length > 0 ? (
-              <TagLabels tags={assessmentTags} />
-            ) : (
-              <EmptyTextMessage message={t("terms.none")} />
-            )}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-
-        <DescriptionListGroup>
-          <DescriptionListTerm>{t("terms.maintainers")}</DescriptionListTerm>
-          <DescriptionListDescription>
-            <Stack>
-              <StackItem>
-                <TextContent>
-                  <Text>{t("terms.stakeholder(s)")}</Text>
-                </TextContent>
-              </StackItem>
-              <StackItem>
-                {archetype?.stakeholders?.length ?? 0 > 0 ? (
-                  <StakeholderLabels archetype={archetype as Archetype} />
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("terms.applications")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {archetype?.applications?.length ?? 0 > 0 ? (
+                  <ApplicationLabels
+                    applicationRefs={archetype?.applications}
+                  />
                 ) : (
                   <EmptyTextMessage message={t("terms.none")} />
                 )}
-              </StackItem>
-            </Stack>
-          </DescriptionListDescription>
-          <DescriptionListDescription>
-            <Stack>
-              <StackItem>
-                <TextContent>
-                  <Text>{t("terms.stakeholderGroup(s)")}</Text>
-                </TextContent>
-              </StackItem>
-              <StackItem>
-                {archetype?.stakeholderGroups?.length ?? 0 > 0 ? (
-                  <StakeholderGroupsLabels archetype={archetype as Archetype} />
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("terms.tagsCriteria")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {archetype?.criteria?.length ?? 0 > 0 ? (
+                  <TagLabels tags={archetype?.criteria} />
                 ) : (
                   <EmptyTextMessage message={t("terms.none")} />
                 )}
-              </StackItem>
-            </Stack>
-          </DescriptionListDescription>
-        </DescriptionListGroup>
+              </DescriptionListDescription>
+            </DescriptionListGroup>
 
-        <DescriptionListGroup>
-          <DescriptionListTerm>{t("terms.comments")}</DescriptionListTerm>
-          <DescriptionListDescription>
-            {archetype?.comments || (
-              <EmptyTextMessage message={t("terms.notAvailable")} />
-            )}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-      </DescriptionList>
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("terms.tagsArchetype")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {manualTags.length > 0 ? (
+                  <TagLabels tags={manualTags} />
+                ) : (
+                  <EmptyTextMessage message={t("terms.none")} />
+                )}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("terms.tagsAssessment")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {assessmentTags.length > 0 ? (
+                  <TagLabels tags={assessmentTags} />
+                ) : (
+                  <EmptyTextMessage message={t("terms.none")} />
+                )}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("terms.maintainers")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                <Stack>
+                  <StackItem>
+                    <TextContent>
+                      <Text>{t("terms.stakeholder(s)")}</Text>
+                    </TextContent>
+                  </StackItem>
+                  <StackItem>
+                    {archetype?.stakeholders?.length ?? 0 > 0 ? (
+                      <StakeholderLabels archetype={archetype as Archetype} />
+                    ) : (
+                      <EmptyTextMessage message={t("terms.none")} />
+                    )}
+                  </StackItem>
+                </Stack>
+              </DescriptionListDescription>
+              <DescriptionListDescription>
+                <Stack>
+                  <StackItem>
+                    <TextContent>
+                      <Text>{t("terms.stakeholderGroup(s)")}</Text>
+                    </TextContent>
+                  </StackItem>
+                  <StackItem>
+                    {archetype?.stakeholderGroups?.length ?? 0 > 0 ? (
+                      <StakeholderGroupsLabels
+                        archetype={archetype as Archetype}
+                      />
+                    ) : (
+                      <EmptyTextMessage message={t("terms.none")} />
+                    )}
+                  </StackItem>
+                </Stack>
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+
+            <DescriptionListGroup>
+              <DescriptionListTerm>{t("terms.comments")}</DescriptionListTerm>
+              <DescriptionListDescription>
+                {archetype?.comments || (
+                  <EmptyTextMessage message={t("terms.notAvailable")} />
+                )}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+          </DescriptionList>
+        </Tab>
+        <Tab
+          eventKey={TabKey.Reviews}
+          title={<TabTitleText>{t("terms.review")}</TabTitleText>}
+        >
+          <ReviewFields archetype={archetype} />
+        </Tab>
+      </Tabs>
 
       {/* TODO: action buttons -- primary: "Close", link: "Edit archetype" */}
     </PageDrawerContent>
@@ -170,56 +214,18 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
 
 const ApplicationLabels: React.FC<{ applicationRefs?: Ref[] }> = ({
   applicationRefs,
-}) =>
-  (applicationRefs?.length ?? 0) === 0 ? null : (
-    <LabelGroup>
-      {(applicationRefs as Ref[])
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((ref) => (
-          <Label color="grey" key={ref.id}>
-            {ref.name}
-          </Label>
-        ))}
-    </LabelGroup>
-  );
+}) => <LabelsFromItems items={applicationRefs as Ref[]} />;
 
-const TagLabels: React.FC<{ tags?: Tag[] }> = ({ tags }) =>
-  (tags?.length ?? 0) === 0 ? null : (
-    <LabelGroup>
-      {(tags as Tag[])
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((sh) => (
-          <Label color="grey" key={sh.id}>
-            {sh.name}
-          </Label>
-        ))}
-    </LabelGroup>
-  );
+const TagLabels: React.FC<{ tags?: Tag[] }> = ({ tags }) => (
+  <LabelsFromItems items={tags} />
+);
 
 const StakeholderLabels: React.FC<{ archetype: Archetype }> = ({
   archetype,
-}) =>
-  (archetype.stakeholders?.length ?? 0) === 0 ? null : (
-    <LabelGroup>
-      {archetype.stakeholders?.map((sh) => (
-        <Label color="orange" key={sh.id}>
-          {sh.name}
-        </Label>
-      ))}
-    </LabelGroup>
-  );
+}) => <LabelsFromItems items={archetype.stakeholders as Ref[]} />;
 
 const StakeholderGroupsLabels: React.FC<{ archetype: Archetype }> = ({
   archetype,
-}) =>
-  (archetype.stakeholderGroups?.length ?? 0) === 0 ? null : (
-    <LabelGroup>
-      {archetype.stakeholderGroups?.map((sh) => (
-        <Label color="green" key={sh.id}>
-          {sh.name}
-        </Label>
-      ))}
-    </LabelGroup>
-  );
+}) => <LabelsFromItems items={archetype.stakeholderGroups as Ref[]} />;
 
 export default ArchetypeDetailDrawer;

@@ -24,17 +24,19 @@ import {
   getDependenciesUrlFilteredByAppName,
   getIssuesSingleAppSelectedLocation,
 } from "@app/pages/issues/helpers";
-import { ApplicationBusinessService } from "../application-business-service";
 import { ApplicationTags } from "../application-tags";
+import { ApplicationDetailFields } from "./application-detail-fields";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
   application: Application | null;
   task: Task | undefined | null;
   applications?: Application[];
-  detailsTabMainContent: React.ReactNode;
+  detailTabContent?: React.ReactNode;
   reportsTabContent?: React.ReactNode;
   factsTabContent?: React.ReactNode;
+  reviewsTabContent?: React.ReactNode;
+  onEditClick: () => void;
 }
 
 enum TabKey {
@@ -42,17 +44,20 @@ enum TabKey {
   Tags,
   Reports,
   Facts,
+  Reviews,
 }
 
 export const ApplicationDetailDrawer: React.FC<
   IApplicationDetailDrawerProps
 > = ({
   onCloseClick,
+  onEditClick,
   application,
   task,
-  detailsTabMainContent,
+  detailTabContent = null,
   reportsTabContent = null,
   factsTabContent = null,
+  reviewsTabContent = null,
 }) => {
   const { t } = useTranslation();
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
@@ -110,28 +115,23 @@ export const ApplicationDetailDrawer: React.FC<
               ) : null}
             </List>
             <Title headingLevel="h3" size="md">
-              {t("terms.businessService")}
+              {t("terms.effort")}
             </Title>
             <Text component="small">
-              {application?.businessService ? (
-                <ApplicationBusinessService
-                  id={application.businessService.id}
-                />
-              ) : (
-                t("terms.unassigned")
-              )}
-            </Text>
-            <Title headingLevel="h3" size="md">
-              {t("terms.migrationWave")}
-            </Title>
-            <Text component="small">
-              {application?.migrationWave
-                ? application.migrationWave.name
-                : t("terms.unassigned")}
+              <Text component="small">
+                {application?.effort !== 0 && application?.effort !== undefined
+                  ? application?.effort
+                  : t("terms.unassigned")}
+              </Text>
             </Text>
           </TextContent>
 
-          {detailsTabMainContent}
+          {detailTabContent}
+          <ApplicationDetailFields
+            application={application}
+            onEditClick={onEditClick}
+            onCloseClick={onCloseClick}
+          />
         </Tab>
 
         <Tab eventKey={TabKey.Tags} title={<TabTitleText>Tags</TabTitleText>}>
@@ -167,6 +167,14 @@ export const ApplicationDetailDrawer: React.FC<
             title={<TabTitleText>{t("terms.facts")}</TabTitleText>}
           >
             {factsTabContent}
+          </Tab>
+        ) : null}
+        {reviewsTabContent ? (
+          <Tab
+            eventKey={TabKey.Reviews}
+            title={<TabTitleText>{t("terms.reviews")}</TabTitleText>}
+          >
+            {reviewsTabContent}
           </Tab>
         ) : null}
       </Tabs>
