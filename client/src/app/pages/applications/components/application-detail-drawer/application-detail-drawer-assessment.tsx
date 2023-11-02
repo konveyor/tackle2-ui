@@ -8,7 +8,6 @@ import {
   TextContent,
   Text,
   Title,
-  Label,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -24,13 +23,16 @@ import { RiskLabel } from "@app/components/RiskLabel";
 import { LabelsFromItems } from "@app/components/labels-from-items/labels-from-items";
 
 export interface IApplicationDetailDrawerAssessmentProps
-  extends Pick<IApplicationDetailDrawerProps, "application" | "onCloseClick"> {
+  extends Pick<
+    IApplicationDetailDrawerProps,
+    "application" | "onCloseClick" | "onEditClick"
+  > {
   task: Task | undefined | null;
 }
 
 export const ApplicationDetailDrawerAssessment: React.FC<
   IApplicationDetailDrawerAssessmentProps
-> = ({ application, onCloseClick, task }) => {
+> = ({ application, onCloseClick, task, onEditClick }) => {
   const { t } = useTranslation();
 
   return (
@@ -38,7 +40,8 @@ export const ApplicationDetailDrawerAssessment: React.FC<
       application={application}
       task={task}
       onCloseClick={onCloseClick}
-      detailsTabMainContent={
+      onEditClick={onEditClick}
+      detailTabContent={
         <>
           <Title headingLevel="h3" size="md">
             {t("terms.archetypes")}
@@ -87,14 +90,6 @@ export const ApplicationDetailDrawerAssessment: React.FC<
             </Title>
             <Text component="small" cy-data="comments">
               <RiskLabel risk={application?.risk || "unknown"} />
-            </Text>
-            <Title headingLevel="h3" size="md">
-              {t("terms.commentsFromApplication")}
-            </Title>
-            <Text component="small" cy-data="comments">
-              {application?.comments || (
-                <EmptyTextMessage message={t("terms.notAvailable")} />
-              )}
             </Text>
           </TextContent>
         </>

@@ -36,14 +36,14 @@ import { useSetting } from "@app/queries/settings";
 export interface IApplicationDetailDrawerAnalysisProps
   extends Pick<
     IApplicationDetailDrawerProps,
-    "application" | "applications" | "onCloseClick"
+    "application" | "applications" | "onCloseClick" | "onEditClick"
   > {
   task: Task | undefined | null;
 }
 
 export const ApplicationDetailDrawerAnalysis: React.FC<
   IApplicationDetailDrawerAnalysisProps
-> = ({ application, applications, onCloseClick, task }) => {
+> = ({ application, applications, onCloseClick, task, onEditClick }) => {
   const { t } = useTranslation();
 
   const { identities } = useFetchIdentities();
@@ -69,16 +69,7 @@ export const ApplicationDetailDrawerAnalysis: React.FC<
       task={task}
       application={updatedApplication || null}
       onCloseClick={onCloseClick}
-      detailsTabMainContent={
-        <TextContent className={spacing.mtLg}>
-          <Title headingLevel="h3" size="md">
-            {t("terms.comments")}
-          </Title>
-          <Text component="small" cy-data="comments">
-            {application?.comments || notAvailable}
-          </Text>
-        </TextContent>
-      }
+      onEditClick={onEditClick}
       reportsTabContent={
         <TextContent className={spacing.mtMd}>
           <Title headingLevel="h3" size="md">

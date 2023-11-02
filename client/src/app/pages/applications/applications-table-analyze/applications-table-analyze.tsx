@@ -770,6 +770,9 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           application={activeItem}
           applications={applications}
           onCloseClick={clearActiveItem}
+          onEditClick={() => {
+            setSaveApplicationModalState(activeItem);
+          }}
           task={activeItem ? getTask(activeItem) : null}
         />
 
