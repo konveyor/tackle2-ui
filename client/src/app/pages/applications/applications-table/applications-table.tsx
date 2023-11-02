@@ -57,8 +57,11 @@ import {
   RBAC_TYPE,
   applicationsWriteScopes,
   importsWriteScopes,
+  tasksReadScopes,
+  tasksWriteScopes,
 } from "@app/rbac";
 import { checkAccess } from "@app/utils/rbac-utils";
+import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 
 // Hooks
 import { useQueryClient } from "@tanstack/react-query";
@@ -71,7 +74,7 @@ import {
   useBulkDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
-import { useFetchTasks } from "@app/queries/tasks";
+import { useCancelTaskMutation, useFetchTasks } from "@app/queries/tasks";
 import { useDeleteAssessmentMutation } from "@app/queries/assessments";
 import { useDeleteReviewMutation } from "@app/queries/reviews";
 import { useFetchIdentities } from "@app/queries/identities";
@@ -80,15 +83,21 @@ import { useFetchTagCategories } from "@app/queries/tags";
 // Relative components
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
-import { ApplicationDetailDrawerAssessment } from "../components/application-detail-drawer";
 import { ApplicationForm } from "../components/application-form";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { getAssessmentsByItemId } from "@app/api/rest";
+import { getAssessmentsByItemId, getTaskById } from "@app/api/rest";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
 import { useFetchArchetypes } from "@app/queries/archetypes";
+import { useState } from "react";
+import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
+import { ApplicationDetailDrawer } from "../components/application-detail-drawer/application-detail-drawer";
+import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
+import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
+import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
+import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -97,6 +106,7 @@ export const ApplicationsTable: React.FC = () => {
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
+  const { identities } = useFetchIdentities();
   const [isToolbarKebabOpen, setIsToolbarKebabOpen] =
     React.useState<boolean>(false);
 
@@ -116,6 +126,51 @@ export const ApplicationsTable: React.FC = () => {
   const [applicationToAssess, setApplicationToAssess] =
     React.useState<Application | null>(null);
 
+  /*** Analysis */
+
+  const [isAnalyzeModalOpen, setAnalyzeModalOpen] = useState(false);
+
+  const getTask = (application: Application) =>
+    tasks.find((task: Task) => task.application?.id === application.id);
+
+  const { tasks } = useFetchTasks({ addon: "analyzer" }, isAnalyzeModalOpen);
+
+  const isTaskCancellable = (application: Application) => {
+    const task = getTask(application);
+    if (task?.state && task.state.match(/(Created|Running|Ready|Pending)/))
+      return true;
+    return false;
+  };
+
+  const cancelAnalysis = (row: Application) => {
+    const task = tasks.find((task) => task.application?.id === row.id);
+    if (task?.id) cancelTask(task.id);
+  };
+
+  const completedCancelTask = () => {
+    pushNotification({
+      title: "Task",
+      message: "Canceled",
+      variant: "info",
+    });
+  };
+
+  const failedCancelTask = () => {
+    pushNotification({
+      title: "Task",
+      message: "Cancelation failed.",
+      variant: "danger",
+    });
+  };
+
+  const { mutate: cancelTask } = useCancelTaskMutation(
+    completedCancelTask,
+    failedCancelTask
+  );
+  /*** Analysis */
+
+  const { tagCategories: tagCategories } = useFetchTagCategories();
+
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
     React.useState<Application | null>(null);
   const isDependenciesModalOpen = applicationDependenciesToManage !== null;
@@ -132,15 +187,6 @@ export const ApplicationsTable: React.FC = () => {
   const [assessmentOrReviewToDiscard, setAssessmentOrReviewToDiscard] =
     React.useState<Application | null>(null);
 
-  const getTask = (application: Application) =>
-    tasks.find((task: Task) => task.application?.id === application.id);
-
-  const { tasks } = useFetchTasks({ addon: "analyzer" });
-
-  const { tagCategories: tagCategories } = useFetchTagCategories();
-
-  const { identities } = useFetchIdentities();
-
   const {
     data: applications,
     isFetching: isFetchingApplications,
@@ -148,12 +194,7 @@ export const ApplicationsTable: React.FC = () => {
     refetch: fetchApplications,
   } = useFetchApplications();
 
-  const {
-    archetypes,
-    isFetching: isFetchingArchetypes,
-    error: archetypesFetchError,
-    refetch: fetchArchetypes,
-  } = useFetchArchetypes();
+  const { archetypes } = useFetchArchetypes();
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -245,23 +286,24 @@ export const ApplicationsTable: React.FC = () => {
     items: applications || [],
     columnNames: {
       name: "Name",
-      description: "Description",
       businessService: "Business Service",
       assessment: "Assessment",
       review: "Review",
+      analysis: "Analysis",
       tags: "Tags",
+      effort: "Effort",
     },
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
     isActiveItemEnabled: true,
-    sortableColumns: ["name", "description", "businessService", "tags"],
+    sortableColumns: ["name", "businessService", "tags", "effort"],
     initialSort: { columnKey: "name", direction: "asc" },
     getSortValues: (app) => ({
       name: app.name,
-      description: app.description || "",
       businessService: app.businessService?.name || "",
       tags: app.tags?.length || 0,
+      effort: app.effort || 0,
     }),
     filterCategories: [
       {
@@ -302,16 +344,6 @@ export const ApplicationsTable: React.FC = () => {
           value: archetypeName,
         })),
         logicOperator: "OR",
-      },
-      {
-        key: "description",
-        title: t("terms.description"),
-        type: FilterType.search,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.description").toLowerCase(),
-          }) + "...",
-        getItemValue: (item) => item.description || "",
       },
       {
         key: "businessService",
@@ -436,12 +468,30 @@ export const ApplicationsTable: React.FC = () => {
     selectionState: { selectedItems: selectedRows },
   } = tableControls;
 
+  const [
+    saveApplicationsCredentialsModalState,
+    setSaveApplicationsCredentialsModalState,
+  ] = useState<"create" | Application[] | null>(null);
+  const isCreateUpdateCredentialsModalOpen =
+    saveApplicationsCredentialsModalState !== null;
+  const applicationsCredentialsToUpdate =
+    saveApplicationsCredentialsModalState !== "create"
+      ? saveApplicationsCredentialsModalState
+      : null;
+
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    React.useState(false);
+    useState(false);
+
+  const [taskToView, setTaskToView] = useState<{
+    name: string;
+    task: number | undefined;
+  }>();
 
   const userScopes: string[] = token?.scope.split(" ") || [],
     importWriteAccess = checkAccess(userScopes, importsWriteScopes),
-    applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes);
+    applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes),
+    tasksReadAccess = checkAccess(userScopes, tasksReadScopes),
+    tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes);
 
   const areAppsInWaves = selectedRows.some(
     (application) => application.migrationWave !== null
@@ -466,7 +516,7 @@ export const ApplicationsTable: React.FC = () => {
         </DropdownItem>,
       ]
     : [];
-  const applicationDeleteDropdown = applicationWriteAccess
+  const applicationDropdownItems = applicationWriteAccess
     ? [
         <ConditionalTooltip
           key="delete-app-tooltip"
@@ -485,9 +535,35 @@ export const ApplicationsTable: React.FC = () => {
             {t("actions.delete")}
           </DropdownItem>
         </ConditionalTooltip>,
+        <DropdownItem
+          key="manage-applications-credentials"
+          isDisabled={selectedRows.length < 1}
+          onClick={() => {
+            setSaveApplicationsCredentialsModalState(selectedRows);
+          }}
+        >
+          {t("actions.manageCredentials")}
+        </DropdownItem>,
       ]
     : [];
-  const dropdownItems = [...importDropdownItems, ...applicationDeleteDropdown];
+  const dropdownItems = [...importDropdownItems, ...applicationDropdownItems];
+
+  const isAnalyzingAllowed = () => {
+    const candidateTasks = selectedRows.filter(
+      (app) =>
+        !tasks.some(
+          (task) =>
+            task.application?.id === app.id &&
+            task.state?.match(/(Created|Running|Ready|Pending)/)
+        )
+    );
+
+    if (candidateTasks.length === selectedRows.length) return true;
+    return false;
+  };
+  const hasExistingAnalysis = selectedRows.some((app) =>
+    tasks.some((task) => task.application?.id === app.id)
+  );
 
   const handleNavToAssessment = (application: Application) => {
     application?.id &&
@@ -585,6 +661,39 @@ export const ApplicationsTable: React.FC = () => {
                   </Button>
                 </RBAC>
               </ToolbarItem>
+              <ToolbarItem>
+                <RBAC
+                  allowedPermissions={tasksWriteScopes}
+                  rbacType={RBAC_TYPE.Scope}
+                >
+                  <ToolbarItem>
+                    <ConditionalTooltip
+                      isTooltipEnabled={hasExistingAnalysis}
+                      content={
+                        "An analysis for one or more of the selected applications exists. This operation will overwrite pre-existing analysis data."
+                      }
+                    >
+                      <Button
+                        icon={
+                          hasExistingAnalysis ? <WarningTriangleIcon /> : null
+                        }
+                        type="button"
+                        id="analyze-application"
+                        aria-label="Analyze Application"
+                        variant={ButtonVariant.primary}
+                        onClick={() => {
+                          setAnalyzeModalOpen(true);
+                        }}
+                        isDisabled={
+                          selectedRows.length < 1 || !isAnalyzingAllowed()
+                        }
+                      >
+                        {t("actions.analyze")}
+                      </Button>
+                    </ConditionalTooltip>
+                  </ToolbarItem>
+                </RBAC>
+              </ToolbarItem>
               {dropdownItems.length ? (
                 <ToolbarItem id="toolbar-kebab">
                   <Dropdown
@@ -627,12 +736,16 @@ export const ApplicationsTable: React.FC = () => {
           <Thead>
             <Tr>
               <TableHeaderContentWithControls {...tableControls}>
-                <Th {...getThProps({ columnKey: "name" })} />
-                <Th {...getThProps({ columnKey: "description" })} />
-                <Th {...getThProps({ columnKey: "businessService" })} />
-                <Th {...getThProps({ columnKey: "assessment" })} />
-                <Th {...getThProps({ columnKey: "review" })} />
-                <Th {...getThProps({ columnKey: "tags" })} />
+                <Th {...getThProps({ columnKey: "name" })} width={15} />
+                <Th
+                  {...getThProps({ columnKey: "businessService" })}
+                  width={15}
+                />
+                <Th {...getThProps({ columnKey: "assessment" })} width={10} />
+                <Th {...getThProps({ columnKey: "review" })} width={10} />
+                <Th {...getThProps({ columnKey: "analysis" })} width={10} />
+                <Th {...getThProps({ columnKey: "tags" })} width={10} />
+                <Th {...getThProps({ columnKey: "effort" })} width={10} />
                 <Th />
               </TableHeaderContentWithControls>
             </Tr>
@@ -678,21 +791,14 @@ export const ApplicationsTable: React.FC = () => {
                       rowIndex={rowIndex}
                     >
                       <Td
-                        width={20}
+                        width={15}
                         {...getTdProps({ columnKey: "name" })}
                         modifier="truncate"
                       >
                         {application.name}
                       </Td>
                       <Td
-                        width={25}
-                        {...getTdProps({ columnKey: "description" })}
-                        modifier="truncate"
-                      >
-                        {application.description}
-                      </Td>
-                      <Td
-                        width={10}
+                        width={15}
                         modifier="truncate"
                         {...getTdProps({ columnKey: "businessService" })}
                       >
@@ -727,10 +833,26 @@ export const ApplicationsTable: React.FC = () => {
                       <Td
                         width={10}
                         modifier="truncate"
+                        {...getTdProps({ columnKey: "analysis" })}
+                      >
+                        <ApplicationAnalysisStatus
+                          state={getTask(application)?.state || "No task"}
+                        />
+                      </Td>
+                      <Td
+                        width={10}
+                        modifier="truncate"
                         {...getTdProps({ columnKey: "tags" })}
                       >
                         <TagIcon />
                         {application.tags ? application.tags.length : 0}
+                      </Td>
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "effort" })}
+                      >
+                        {application?.effort ?? "-"}
                       </Td>
                       <Td isActionCell id="pencil-action">
                         <Button
@@ -773,6 +895,31 @@ export const ApplicationsTable: React.FC = () => {
                               onClick: () =>
                                 setApplicationDependenciesToManage(application),
                             },
+                            {
+                              title: t("actions.manageCredentials"),
+                              onClick: () =>
+                                setSaveApplicationsCredentialsModalState([
+                                  application,
+                                ]),
+                            },
+                            {
+                              title: t("actions.analysisDetails"),
+                              onClick: () =>
+                                setTaskToView({
+                                  name: application.name,
+                                  task: getTask(application)?.id,
+                                }),
+                            },
+                            ...(isTaskCancellable(application) &&
+                            tasksReadAccess &&
+                            tasksWriteAccess
+                              ? [
+                                  {
+                                    title: t("actions.cancelAnalysis"),
+                                    onClick: () => cancelAnalysis(application),
+                                  },
+                                ]
+                              : []),
                           ]}
                         />
                       </Td>
@@ -788,12 +935,35 @@ export const ApplicationsTable: React.FC = () => {
           isTop={false}
           paginationProps={paginationProps}
         />
-        <ApplicationDetailDrawerAssessment
+        <ApplicationDetailDrawer
           application={activeItem}
+          applications={applications}
           onCloseClick={clearActiveItem}
           onEditClick={() => setSaveApplicationModalState(activeItem)}
           task={activeItem ? getTask(activeItem) : null}
         />
+        <TaskGroupProvider>
+          <AnalysisWizard
+            applications={selectedRows}
+            isOpen={isAnalyzeModalOpen}
+            onClose={() => {
+              setAnalyzeModalOpen(false);
+            }}
+          />
+        </TaskGroupProvider>
+        <Modal
+          isOpen={isCreateUpdateCredentialsModalOpen}
+          variant="medium"
+          title="Manage credentials"
+          onClose={() => setSaveApplicationsCredentialsModalState(null)}
+        >
+          {applicationsCredentialsToUpdate && (
+            <ApplicationIdentityForm
+              applications={applicationsCredentialsToUpdate}
+              onClose={() => setSaveApplicationsCredentialsModalState(null)}
+            />
+          )}
+        </Modal>
         <Modal
           title={
             createUpdateApplications
@@ -807,6 +977,25 @@ export const ApplicationsTable: React.FC = () => {
           <ApplicationForm
             application={createUpdateApplications}
             onClose={() => setSaveApplicationModalState(null)}
+          />
+        </Modal>
+        <SimpleDocumentViewerModal<Task | string>
+          title={`Analysis details for ${taskToView?.name}`}
+          fetch={getTaskById}
+          documentId={taskToView?.task}
+          onClose={() => setTaskToView(undefined)}
+        />
+        <Modal
+          isOpen={isApplicationImportModalOpen}
+          variant="medium"
+          title={t("dialog.title.importApplicationFile")}
+          onClose={() => setIsApplicationImportModalOpen((current) => !current)}
+        >
+          <ImportApplicationsForm
+            onSaved={() => {
+              setIsApplicationImportModalOpen(false);
+              fetchApplications();
+            }}
           />
         </Modal>
         <Modal
