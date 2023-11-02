@@ -36,10 +36,12 @@ import { CustomTargetForm } from "./components/custom-target-form";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
 import { useDeleteTargetMutation, useFetchTargets } from "@app/queries/targets";
 import { Target } from "@app/api/models";
+import { SimpleSelect } from "@app/components/SimpleSelect";
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
+  const [provider, setProvider] = useState("Java");
 
   const { targets, refetch: refetchTargets } = useFetchTargets();
 
@@ -164,12 +166,26 @@ export const MigrationTargets: React.FC = () => {
             </TextContent>
           </GridItem>
           <GridItem span={2}></GridItem>
-          <GridItem span={10}>
+          <GridItem span={12}>
             <TextContent>
               <Text>{t("terms.customTargetsDetails")}</Text>
             </TextContent>
           </GridItem>
-          <GridItem span={2} className="button-align">
+          <GridItem span={2} className={spacing.mtSm}>
+            <SimpleSelect
+              variant="typeahead"
+              id="action-select"
+              toggleId="action-select-toggle"
+              toggleAriaLabel="Action select dropdown toggle"
+              aria-label={"Select provider"}
+              value={provider}
+              options={["Java", "Go"]}
+              onChange={(selection) => {
+                setProvider(selection as string);
+              }}
+            />
+          </GridItem>
+          <GridItem span={2} className={spacing.mtSm}>
             <Button
               id="clear-repository"
               isInline
@@ -180,6 +196,8 @@ export const MigrationTargets: React.FC = () => {
             </Button>
           </GridItem>
         </Grid>
+      </PageSection>
+      <PageSection>
         <Modal
           id="create-edit-custom-tarrget-modal"
           title={t(
@@ -198,52 +216,54 @@ export const MigrationTargets: React.FC = () => {
             onCancel={() => setCreateUpdateModalState(null)}
           />
         </Modal>
-      </PageSection>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-      >
-        <SortableContext
-          items={targetOrderSetting.isSuccess ? targetOrderSetting.data : []}
-          strategy={rectSortingStrategy}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
         >
-          <DndGrid>
-            {targetOrderSetting.isSuccess &&
-              targetOrderSetting.data.map((id) => {
-                const matchingTarget = targets.find(
-                  (target) => target.id === id
-                );
-                if (matchingTarget) {
-                  return (
-                    <SortableItem
-                      key={id}
-                      id={id}
-                      onEdit={() => {
-                        if (matchingTarget) {
-                          setCreateUpdateModalState(matchingTarget);
-                        }
-                      }}
-                      onDelete={() => {
-                        const matchingTarget = targets.find(
-                          (target) => target.id === id
-                        );
-                        if (matchingTarget?.id) {
-                          deleteTarget(matchingTarget.id);
-                        }
-                      }}
-                    />
+          <SortableContext
+            items={targetOrderSetting.isSuccess ? targetOrderSetting.data : []}
+            strategy={rectSortingStrategy}
+          >
+            <DndGrid>
+              {targetOrderSetting.isSuccess &&
+                targetOrderSetting.data.map((id) => {
+                  const matchingTarget = targets.find(
+                    (target) => target.id === id
                   );
-                } else {
-                  return null;
-                }
-              })}
-            <div ref={targetsEndRef} />
-          </DndGrid>
-          <DragOverlay>{activeId ? <Item id={activeId} /> : null}</DragOverlay>
-        </SortableContext>
-      </DndContext>
+                  if (matchingTarget && matchingTarget.provider === provider) {
+                    return (
+                      <SortableItem
+                        key={id}
+                        id={id}
+                        onEdit={() => {
+                          if (matchingTarget) {
+                            setCreateUpdateModalState(matchingTarget);
+                          }
+                        }}
+                        onDelete={() => {
+                          const matchingTarget = targets.find(
+                            (target) => target.id === id
+                          );
+                          if (matchingTarget?.id) {
+                            deleteTarget(matchingTarget.id);
+                          }
+                        }}
+                      />
+                    );
+                  } else {
+                    return null;
+                  }
+                })}
+              <div ref={targetsEndRef} />
+            </DndGrid>
+            <DragOverlay>
+              {activeId ? <Item id={activeId} /> : null}
+            </DragOverlay>
+          </SortableContext>
+        </DndContext>
+      </PageSection>
     </>
   );
 };

@@ -421,6 +421,7 @@ export interface Target {
   labels?: TargetLabel[];
   image?: RulesetImage;
   ruleset: Ruleset;
+  provider?: string;
 }
 
 export interface Metadata {
