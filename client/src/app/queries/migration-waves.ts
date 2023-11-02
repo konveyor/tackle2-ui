@@ -6,6 +6,7 @@ import {
   deleteMigrationWave,
   updateMigrationWave,
   deleteAllMigrationWaves,
+  deleteTicket,
 } from "@app/api/rest";
 import { getWavesWithStatus } from "@app/utils/waves-selector";
 import { useFetchTickets } from "./tickets";
@@ -95,6 +96,20 @@ export const useDeleteAllMigrationWavesMutation = (
     mutationFn: deleteAllMigrationWaves,
     onSuccess: (res) => {
       onSuccess(res);
+      queryClient.invalidateQueries([MigrationWavesQueryKey]);
+    },
+    onError: onError,
+  });
+};
+export const useDeleteTicketMutation = (
+  onSuccess?: (res: any) => void,
+  onError?: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteTicket,
+    onSuccess: (res) => {
+      onSuccess && onSuccess(res);
       queryClient.invalidateQueries([MigrationWavesQueryKey]);
     },
     onError: onError,
