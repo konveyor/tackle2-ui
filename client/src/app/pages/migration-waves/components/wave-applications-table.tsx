@@ -1,13 +1,14 @@
 import React from "react";
-import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
+import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import {
-  Button,
-  Toolbar,
-  ToolbarContent,
-  ToolbarItem,
-} from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
+  ActionsColumn,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from "@patternfly/react-table";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import {
   ConditionalTableBody,
@@ -16,6 +17,9 @@ import {
 } from "@app/components/TableControls";
 import { SimplePagination } from "@app/components/SimplePagination";
 import { MigrationWave, WaveWithStatus } from "@app/api/models";
+import { useTranslation } from "react-i18next";
+import { useDeleteTicketMutation } from "@app/queries/migration-waves";
+import { useFetchTickets } from "@app/queries/tickets";
 
 export interface IWaveApplicationsTableProps {
   migrationWave: WaveWithStatus;
@@ -26,6 +30,10 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
   migrationWave,
   removeApplication,
 }) => {
+  const { t } = useTranslation();
+  const { mutate: deleteTicket } = useDeleteTicketMutation();
+  const { tickets } = useFetchTickets();
+
   const tableControls = useLocalTableControls({
     idProperty: "name",
     items: migrationWave.fullApplications,
@@ -92,40 +100,58 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
           numRenderedColumns={numRenderedColumns}
         >
           <Tbody>
-            {currentPageItems?.map((app, rowIndex) => (
-              <Tr key={app.name} {...getTrProps({ item: app })}>
-                <TableRowContentWithControls
-                  {...tableControls}
-                  item={app}
-                  rowIndex={rowIndex}
-                >
-                  <Td width={15} {...getTdProps({ columnKey: "appName" })}>
-                    {app.name}
-                  </Td>
-                  <Td width={15} {...getTdProps({ columnKey: "description" })}>
-                    {app.description}
-                  </Td>
-                  <Td
-                    width={15}
-                    {...getTdProps({ columnKey: "businessService" })}
+            {currentPageItems?.map((app, rowIndex) => {
+              const matchingTicket = tickets.find((ticket) => {
+                return ticket.application && ticket.application.id === app.id;
+              });
+
+              return (
+                <Tr key={app.name} {...getTrProps({ item: app })}>
+                  <TableRowContentWithControls
+                    {...tableControls}
+                    item={app}
+                    rowIndex={rowIndex}
                   >
-                    {app?.businessService?.name}
-                  </Td>
-                  <Td width={15} {...getTdProps({ columnKey: "owner" })}>
-                    {app?.owner?.name}
-                  </Td>
-                  <Td className={alignment.textAlignRight}>
-                    <Button
-                      type="button"
-                      variant="plain"
-                      onClick={() => removeApplication(migrationWave, app.id)}
+                    <Td width={15} {...getTdProps({ columnKey: "appName" })}>
+                      {app.name}
+                    </Td>
+                    <Td
+                      width={15}
+                      {...getTdProps({ columnKey: "description" })}
                     >
-                      <TrashIcon />
-                    </Button>
-                  </Td>
-                </TableRowContentWithControls>
-              </Tr>
-            ))}
+                      {app.description}
+                    </Td>
+                    <Td
+                      width={15}
+                      {...getTdProps({ columnKey: "businessService" })}
+                    >
+                      {app?.businessService?.name}
+                    </Td>
+                    <Td width={15} {...getTdProps({ columnKey: "owner" })}>
+                      {app?.owner?.name}
+                    </Td>
+                    <Td isActionCell>
+                      <ActionsColumn
+                        items={[
+                          {
+                            title: t("actions.delete"),
+                            onClick: () =>
+                              removeApplication(migrationWave, app.id),
+                          },
+                          matchingTicket && {
+                            title: t("actions.unlink"),
+                            onClick: () => {
+                              matchingTicket?.id &&
+                                deleteTicket(matchingTicket?.id);
+                            },
+                          },
+                        ].filter(Boolean)}
+                      />
+                    </Td>
+                  </TableRowContentWithControls>
+                </Tr>
+              );
+            })}
           </Tbody>
         </ConditionalTableBody>
       </Table>
