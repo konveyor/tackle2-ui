@@ -88,12 +88,16 @@ import { ImportApplicationsForm } from "../components/import-applications-form";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { getAssessmentsByItemId } from "@app/api/rest";
+import { getAssessmentsByItemId, getTaskById } from "@app/api/rest";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useState } from "react";
 import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
 import { ApplicationDetailDrawer } from "../components/application-detail-drawer/application-detail-drawer";
+import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
+import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
+import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
+import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -284,11 +288,11 @@ export const ApplicationsTable: React.FC = () => {
       name: "Name",
       description: "Description",
       businessService: "Business Service",
-      tags: "Tags",
-      effort: "Effort",
       assessment: "Assessment",
       review: "Review",
       analysis: "Analysis",
+      tags: "Tags",
+      effort: "Effort",
     },
     isFilterEnabled: true,
     isSortEnabled: true,
@@ -750,14 +754,17 @@ export const ApplicationsTable: React.FC = () => {
           <Thead>
             <Tr>
               <TableHeaderContentWithControls {...tableControls}>
-                <Th {...getThProps({ columnKey: "name" })} />
-                <Th {...getThProps({ columnKey: "description" })} />
-                <Th {...getThProps({ columnKey: "businessService" })} />
-                <Th {...getThProps({ columnKey: "tags" })} />
-                <Th {...getThProps({ columnKey: "effort" })} />
-                <Th {...getThProps({ columnKey: "assessment" })} />
-                <Th {...getThProps({ columnKey: "review" })} />
-                <Th {...getThProps({ columnKey: "analysis" })} />
+                <Th {...getThProps({ columnKey: "name" })} width={15} />
+                <Th {...getThProps({ columnKey: "description" })} width={15} />
+                <Th
+                  {...getThProps({ columnKey: "businessService" })}
+                  width={15}
+                />
+                <Th {...getThProps({ columnKey: "assessment" })} width={10} />
+                <Th {...getThProps({ columnKey: "review" })} width={10} />
+                <Th {...getThProps({ columnKey: "analysis" })} width={10} />
+                <Th {...getThProps({ columnKey: "tags" })} width={10} />
+                <Th {...getThProps({ columnKey: "effort" })} width={10} />
                 <Th />
               </TableHeaderContentWithControls>
             </Tr>
@@ -803,21 +810,21 @@ export const ApplicationsTable: React.FC = () => {
                       rowIndex={rowIndex}
                     >
                       <Td
-                        width={20}
+                        width={15}
                         {...getTdProps({ columnKey: "name" })}
                         modifier="truncate"
                       >
                         {application.name}
                       </Td>
                       <Td
-                        width={25}
+                        width={15}
                         {...getTdProps({ columnKey: "description" })}
                         modifier="truncate"
                       >
                         {application.description}
                       </Td>
                       <Td
-                        width={10}
+                        width={15}
                         modifier="truncate"
                         {...getTdProps({ columnKey: "businessService" })}
                       >
@@ -826,21 +833,6 @@ export const ApplicationsTable: React.FC = () => {
                             id={application.businessService.id}
                           />
                         )}
-                      </Td>
-                      <Td
-                        width={10}
-                        modifier="truncate"
-                        {...getTdProps({ columnKey: "tags" })}
-                      >
-                        <TagIcon />
-                        {application.tags ? application.tags.length : 0}
-                      </Td>
-                      <Td
-                        width={10}
-                        modifier="truncate"
-                        {...getTdProps({ columnKey: "effort" })}
-                      >
-                        {application?.effort ?? "-"}
                       </Td>
                       <Td
                         width={10}
@@ -872,6 +864,21 @@ export const ApplicationsTable: React.FC = () => {
                         <ApplicationAnalysisStatus
                           state={getTask(application)?.state || "No task"}
                         />
+                      </Td>
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "tags" })}
+                      >
+                        <TagIcon />
+                        {application.tags ? application.tags.length : 0}
+                      </Td>
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "effort" })}
+                      >
+                        {application?.effort ?? "-"}
                       </Td>
                       <Td isActionCell id="pencil-action">
                         <Button
@@ -936,6 +943,28 @@ export const ApplicationsTable: React.FC = () => {
           onEditClick={() => setSaveApplicationModalState(activeItem)}
           task={activeItem ? getTask(activeItem) : null}
         />
+        <TaskGroupProvider>
+          <AnalysisWizard
+            applications={selectedRows}
+            isOpen={isAnalyzeModalOpen}
+            onClose={() => {
+              setAnalyzeModalOpen(false);
+            }}
+          />
+        </TaskGroupProvider>
+        <Modal
+          isOpen={isCreateUpdateCredentialsModalOpen}
+          variant="medium"
+          title="Manage credentials"
+          onClose={() => setSaveApplicationsCredentialsModalState(null)}
+        >
+          {applicationsCredentialsToUpdate && (
+            <ApplicationIdentityForm
+              applications={applicationsCredentialsToUpdate}
+              onClose={() => setSaveApplicationsCredentialsModalState(null)}
+            />
+          )}
+        </Modal>
         <Modal
           title={
             createUpdateApplications
@@ -949,6 +978,25 @@ export const ApplicationsTable: React.FC = () => {
           <ApplicationForm
             application={createUpdateApplications}
             onClose={() => setSaveApplicationModalState(null)}
+          />
+        </Modal>
+        <SimpleDocumentViewerModal<Task | string>
+          title={`Analysis details for ${taskToView?.name}`}
+          fetch={getTaskById}
+          documentId={taskToView?.task}
+          onClose={() => setTaskToView(undefined)}
+        />
+        <Modal
+          isOpen={isApplicationImportModalOpen}
+          variant="medium"
+          title={t("dialog.title.importApplicationFile")}
+          onClose={() => setIsApplicationImportModalOpen((current) => !current)}
+        >
+          <ImportApplicationsForm
+            onSaved={() => {
+              setIsApplicationImportModalOpen(false);
+              fetchApplications();
+            }}
           />
         </Modal>
         <Modal
