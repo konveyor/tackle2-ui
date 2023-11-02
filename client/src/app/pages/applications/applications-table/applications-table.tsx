@@ -286,7 +286,6 @@ export const ApplicationsTable: React.FC = () => {
     items: applications || [],
     columnNames: {
       name: "Name",
-      description: "Description",
       businessService: "Business Service",
       assessment: "Assessment",
       review: "Review",
@@ -298,17 +297,10 @@ export const ApplicationsTable: React.FC = () => {
     isSortEnabled: true,
     isPaginationEnabled: true,
     isActiveItemEnabled: true,
-    sortableColumns: [
-      "name",
-      "description",
-      "businessService",
-      "tags",
-      "effort",
-    ],
+    sortableColumns: ["name", "businessService", "tags", "effort"],
     initialSort: { columnKey: "name", direction: "asc" },
     getSortValues: (app) => ({
       name: app.name,
-      description: app.description || "",
       businessService: app.businessService?.name || "",
       tags: app.tags?.length || 0,
       effort: app.effort || 0,
@@ -352,16 +344,6 @@ export const ApplicationsTable: React.FC = () => {
           value: archetypeName,
         })),
         logicOperator: "OR",
-      },
-      {
-        key: "description",
-        title: t("terms.description"),
-        type: FilterType.search,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.description").toLowerCase(),
-          }) + "...",
-        getItemValue: (item) => item.description || "",
       },
       {
         key: "businessService",
@@ -755,7 +737,6 @@ export const ApplicationsTable: React.FC = () => {
             <Tr>
               <TableHeaderContentWithControls {...tableControls}>
                 <Th {...getThProps({ columnKey: "name" })} width={15} />
-                <Th {...getThProps({ columnKey: "description" })} width={15} />
                 <Th
                   {...getThProps({ columnKey: "businessService" })}
                   width={15}
@@ -815,13 +796,6 @@ export const ApplicationsTable: React.FC = () => {
                         modifier="truncate"
                       >
                         {application.name}
-                      </Td>
-                      <Td
-                        width={15}
-                        {...getTdProps({ columnKey: "description" })}
-                        modifier="truncate"
-                      >
-                        {application.description}
                       </Td>
                       <Td
                         width={15}
@@ -921,6 +895,31 @@ export const ApplicationsTable: React.FC = () => {
                               onClick: () =>
                                 setApplicationDependenciesToManage(application),
                             },
+                            {
+                              title: t("actions.manageCredentials"),
+                              onClick: () =>
+                                setSaveApplicationsCredentialsModalState([
+                                  application,
+                                ]),
+                            },
+                            {
+                              title: t("actions.analysisDetails"),
+                              onClick: () =>
+                                setTaskToView({
+                                  name: application.name,
+                                  task: getTask(application)?.id,
+                                }),
+                            },
+                            ...(isTaskCancellable(application) &&
+                            tasksReadAccess &&
+                            tasksWriteAccess
+                              ? [
+                                  {
+                                    title: t("actions.cancelAnalysis"),
+                                    onClick: () => cancelAnalysis(application),
+                                  },
+                                ]
+                              : []),
                           ]}
                         />
                       </Td>
