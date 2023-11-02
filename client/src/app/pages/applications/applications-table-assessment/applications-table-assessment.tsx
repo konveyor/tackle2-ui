@@ -275,6 +275,35 @@ export const ApplicationsTable: React.FC = () => {
         getItemValue: (item) => item?.name || "",
       },
       {
+        key: "archetype",
+        title: t("terms.archetype"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.archetype").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          const archetypeNames = item?.archetypes
+            ?.map((archetype) => archetype.name)
+            .join("");
+          return archetypeNames || "";
+        },
+        selectOptions: [
+          ...new Set(
+            applications
+              .flatMap(
+                (application) =>
+                  application?.archetypes?.map((archetype) => archetype.name)
+              )
+              .filter(Boolean)
+          ),
+        ].map((archetypeName) => ({
+          key: archetypeName,
+          value: archetypeName,
+        })),
+        logicOperator: "OR",
+      },
+      {
         key: "description",
         title: t("terms.description"),
         type: FilterType.search,
