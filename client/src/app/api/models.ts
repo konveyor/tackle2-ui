@@ -760,4 +760,5 @@ export interface Archetype {
   assessments?: Ref[];
   assessed?: boolean;
   review?: Ref;
+  risk?: Risk;
 }
