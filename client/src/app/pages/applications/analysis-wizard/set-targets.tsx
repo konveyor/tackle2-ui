@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Title,
   TextContent,
@@ -15,11 +15,14 @@ import { AnalysisWizardFormValues } from "./schema";
 import { useSetting } from "@app/queries/settings";
 import { useFetchTargets } from "@app/queries/targets";
 import { Target } from "@app/api/models";
+import { SimpleSelect } from "@app/components/SimpleSelect";
 
 export const SetTargets: React.FC = () => {
   const { t } = useTranslation();
 
   const { targets } = useFetchTargets();
+
+  const [provider, setProvider] = useState("Java");
 
   const targetOrderSetting = useSetting("ui.target.order");
 
@@ -131,6 +134,19 @@ export const SetTargets: React.FC = () => {
           {t("wizard.terms.setTargets")}
         </Title>
         <Text>{t("wizard.label.setTargets")}</Text>
+        <SimpleSelect
+          width={200}
+          variant="typeahead"
+          id="action-select"
+          toggleId="action-select-toggle"
+          toggleAriaLabel="Action select dropdown toggle"
+          aria-label={"Select provider"}
+          value={provider}
+          options={["Java", "Go"]}
+          onChange={(selection) => {
+            setProvider(selection as string);
+          }}
+        />
       </TextContent>
       <Gallery hasGutter>
         {targetOrderSetting.isSuccess
@@ -139,7 +155,7 @@ export const SetTargets: React.FC = () => {
 
               const isSelected = selectedTargets?.includes(id);
 
-              if (matchingTarget) {
+              if (matchingTarget && matchingTarget.provider === provider) {
                 return (
                   <GalleryItem key={index}>
                     <TargetCard

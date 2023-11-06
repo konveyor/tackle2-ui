@@ -1,252 +1,140 @@
-import React, { useMemo } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useContext, useMemo } from "react";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import {
-  cellWidth,
-  ICell,
-  IRow,
-  IRowData,
-  sortable,
-  TableVariant,
-  truncate,
-} from "@patternfly/react-table";
-
-import { RISK_LIST } from "@app/Constants";
-import { Application, Assessment, Ref, Risk } from "@app/api/models";
-
-import { AppTableWithControls } from "@app/components/AppTableWithControls";
-import {
-  FilterCategory,
-  FilterType,
-  FilterToolbar,
-} from "@app/components/FilterToolbar";
+  ConditionalTableBody,
+  TableHeaderContentWithControls,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { Application, Review } from "@app/api/models"; // Add the necessary model imports
+import { ApplicationSelectionContext } from "../../application-selection-context";
+import { useFetchReviews } from "@app/queries/reviews";
 import { RiskLabel } from "@app/components/RiskLabel";
-import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
-import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
-import { useLegacySortState } from "@app/hooks/useLegacySortState";
-import { useFetchAssessments } from "@app/queries/assessments";
 
-export interface TableRowData {
-  application?: Ref | null;
-  archetype?: Ref | null;
-  confidence?: number;
-  risk: Risk;
-  // review: Review | undefined;
-}
-
-const ENTITY_FIELD = "entity";
-const getRow = (rowData: IRowData): TableRowData => {
-  return rowData[ENTITY_FIELD];
-};
-
-interface IAdoptionCandidateTable {
-  selectAll?: () => void;
-  areAllSelected?: boolean;
-  selectedRows?: Application[];
+interface AdoptionCandidateTableProps {
   allApplications?: Application[];
 }
+export interface TableRowData {
+  id: string | number;
+  application: Application;
+  review: Review | null;
+}
 
-export const AdoptionCandidateTable: React.FC<IAdoptionCandidateTable> = () => {
-  // i18
-  const { t } = useTranslation();
+const AdoptionCandidateTable: React.FC<AdoptionCandidateTableProps> = () => {
+  const { reviews } = useFetchReviews();
 
-  // Table data
-  // const { reviews } = useFetchReviews();
-  const { assessments } = useFetchAssessments();
+  const {
+    allItems: allApplications,
+    selectedItems: selectedApplications,
+    areAllSelected: areAllApplicationsSelected,
+    isItemSelected: isApplicationSelected,
+    toggleItemSelected: toggleApplicationSelected,
+    selectAll: selectAllApplication,
+    setSelectedItems: setSelectedRows,
+    selectMultiple: selectMultipleApplications,
+  } = useContext(ApplicationSelectionContext);
 
-  const allRows = useMemo(() => {
-    return assessments.map((assessment: Assessment) => {
-      const result: TableRowData = {
-        application: assessment?.application || null,
-        archetype: assessment?.archetype || null,
-        confidence: assessment.confidence,
-        risk: assessment.risk,
-        // review: reviewData ? reviewData : undefined,
+  const applicationsWithReviews: TableRowData[] = useMemo(() => {
+    const combined = allApplications.map((app) => {
+      const matchingReview = reviews?.find(
+        (review) => review.application?.id === app.id
+      );
+      return {
+        id: app.id,
+        application: app,
+        review: matchingReview || null,
       };
-      return result;
     });
-  }, [assessments]);
+    return combined;
+  }, [allApplications, reviews]);
 
-  // Table
-  const columns: ICell[] = [
-    {
-      title: t("terms.applicationName"),
-      transforms: [sortable, cellWidth(25)],
-      cellTransforms: [truncate],
+  const tableControls = useLocalTableControls({
+    idProperty: "id",
+    items: applicationsWithReviews || [],
+    columnNames: {
+      applicationName: "Application Name",
+      criticality: "Criticality",
+      priority: "Priority",
+      confidence: "Confidence",
+      effort: "Effort",
+      risk: "Risk",
     },
-    {
-      title: t("terms.archetypeName"),
-      transforms: [sortable, cellWidth(25)],
-      cellTransforms: [truncate],
-    },
-    // {
-    //   title: t("terms.criticality"),
-    //   transforms: [sortable, cellWidth(15)],
-    //   cellTransforms: [],
-    // },
-    // {
-    //   title: t("terms.priority"),
-    //   transforms: [sortable, cellWidth(15)],
-    //   cellTransforms: [],
-    // },
-    {
-      title: t("terms.confidence"),
-      transforms: [sortable, cellWidth(15)],
-      cellTransforms: [],
-    },
-    // {
-    //   title: t("terms.effort"),
-    //   transforms: [sortable, cellWidth(10)],
-    //   cellTransforms: [],
-    // },
-    {
-      title: t("terms.risk"),
-      transforms: [sortable, cellWidth(10)],
-      cellTransforms: [],
-    },
-    // {
-    //   title: t("terms.decision"),
-    //   transforms: [cellWidth(10)],
-    //   cellTransforms: [],
-    // },
-  ];
-
-  const filterCategories: FilterCategory<TableRowData, "name">[] = [
-    {
-      key: "name",
-      title: t("terms.name"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.name").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item?.application?.name || "";
-      },
-    },
-  ];
-
-  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
-    allRows || [],
-    filterCategories
-  );
-
-  const getSortValues = (item: TableRowData) => [
-    "",
-    // item?.application?.name || "",
-    // item?.archety?.name || "",
-    // item?.review?.businessCriticality || "",
-    // item?.review?.workPriority || "",
-    item?.confidence || "",
-    // item?.review?.effortEstimate || "",
-    RISK_LIST[item?.risk].sortFactor || "",
-    "",
-  ];
-  const { sortBy, onSort, sortedItems } = useLegacySortState(
-    filteredItems,
-    getSortValues
-  );
-
-  const { currentPageItems, setPageNumber, paginationProps } =
-    useLegacyPaginationState(sortedItems, 10);
-
-  const rows: IRow[] = [];
-  currentPageItems.forEach((item) => {
-    // const isSelected = isApplicationSelected(item.application);
-
-    rows.push({
-      [ENTITY_FIELD]: item,
-      // selected: isSelected,
-      cells: [
-        {
-          title: item.application?.name || "N/A",
-        },
-        {
-          title: item.archetype?.name || "N/A",
-        },
-        // {
-        //   title: item.review?.businessCriticality,
-        // },
-        // {
-        //   title: item.review?.workPriority,
-        // },
-        {
-          title: item.confidence,
-        },
-        // {
-        //   title: (
-        //     <>
-        //       {item.review &&
-        //         (EFFORT_ESTIMATE_LIST[item.review.effortEstimate]
-        //           ? t(EFFORT_ESTIMATE_LIST[item.review.effortEstimate].i18Key)
-        //           : item.review.effortEstimate)}
-        //     </>
-        //   ),
-        // },
-        {
-          title: <RiskLabel risk={item.risk} />,
-        },
-        // {
-        //   title: (
-        //     <>
-        //       {item.review ? (
-        //         <ProposedActionLabel action={item?.review?.proposedAction} />
-        //       ) : (
-        //         <Label>{t("terms.notReviewed")}</Label>
-        //       )}
-        //     </>
-        //   ),
-        // },
-      ],
-    });
+    variant: "compact",
   });
 
-  // const selectRow = (
-  //   event: React.FormEvent<HTMLInputElement>,
-  //   isSelected: boolean,
-  //   rowIndex: number,
-  //   rowData: IRowData,
-  //   extraData: IExtraData
-  // ) => {
-  //   const row = getRow(rowData);
-  //   toggleApplicationSelected(row.application);
-  // };
-  const handleOnClearAllFilters = () => {
-    setFilterValues({});
-  };
+  const {
+    currentPageItems,
+    numRenderedColumns,
+    selectionState,
+    propHelpers: { tableProps, getThProps, getTrProps, getTdProps },
+  } = tableControls;
 
   return (
-    <AppTableWithControls
-      paginationProps={paginationProps}
-      paginationIdPrefix="adoption-candidate"
-      variant={TableVariant.compact}
-      count={assessments.length}
-      sortBy={sortBy}
-      onSort={onSort}
-      cells={columns}
-      rows={rows}
-      // onSelect={selectRow}
-      // canSelectAll={false}
-      isLoading={false}
-      filtersApplied={false}
-      toolbarClearAllFilters={handleOnClearAllFilters}
-      toolbarToggle={
-        <FilterToolbar
-          filterCategories={filterCategories}
-          filterValues={filterValues}
-          setFilterValues={setFilterValues}
-        />
-      }
-      // toolbarBulkSelector={
-      //   <ToolbarBulkSelector
-      //     onSelectAll={selectAllApplication}
-      //     areAllSelected={areAllApplicationsSelected}
-      //     selectedRows={selectedApplications}
-      //     paginationProps={paginationProps}
-      //     currentPageItems={currentPageItems.map((item) => item.application)}
-      //     onSelectMultiple={selectMultipleApplications}
-      //   />
-      // }
-    />
+    <Table
+      {...tableProps}
+      aria-label={`Adoption Candidate Table`}
+      style={{ background: "none" }}
+    >
+      <Thead>
+        <Tr>
+          <TableHeaderContentWithControls {...tableControls}>
+            <Th {...getThProps({ columnKey: "applicationName" })}>
+              Application Name
+            </Th>
+            <Th {...getThProps({ columnKey: "criticality" })}>Criticality</Th>
+            <Th {...getThProps({ columnKey: "priority" })}>Priority</Th>
+            <Th {...getThProps({ columnKey: "confidence" })}>Confidence</Th>
+            <Th {...getThProps({ columnKey: "effort" })}>Effort</Th>
+            <Th {...getThProps({ columnKey: "risk" })}>Risk</Th>
+          </TableHeaderContentWithControls>
+        </Tr>
+      </Thead>
+      <ConditionalTableBody
+        isNoData={allApplications?.length === 0}
+        numRenderedColumns={numRenderedColumns}
+        noDataEmptyState={
+          <div>
+            <NoDataEmptyState title="No data available." />
+          </div>
+        }
+      >
+        <Tbody>
+          {currentPageItems?.map((item, rowIndex) => {
+            return (
+              <Tr key={item.id} {...getTrProps({ item: item })}>
+                <TableRowContentWithControls
+                  {...tableControls}
+                  item={item}
+                  rowIndex={rowIndex}
+                >
+                  <Td {...getTdProps({ columnKey: "applicationName" })}>
+                    {item.application.name}
+                  </Td>
+                  <Td {...getTdProps({ columnKey: "criticality" })}>
+                    {item?.review?.businessCriticality ?? "N/A"}
+                  </Td>
+                  <Td {...getTdProps({ columnKey: "priority" })}>
+                    {item?.review?.workPriority ?? "N/A"}
+                  </Td>
+                  <Td {...getTdProps({ columnKey: "confidence" })}>
+                    {item.application.confidence ?? "N/A"}
+                  </Td>
+                  <Td {...getTdProps({ columnKey: "effort" })}>
+                    {item?.review?.effortEstimate ?? "N/A"}
+                  </Td>
+                  <Td {...getTdProps({ columnKey: "risk" })}>
+                    <RiskLabel risk={item.application.risk || "unknown"} />
+                  </Td>
+                </TableRowContentWithControls>
+              </Tr>
+            );
+          })}
+        </Tbody>
+      </ConditionalTableBody>
+    </Table>
   );
 };
+
+export default AdoptionCandidateTable;
