@@ -37,12 +37,11 @@ export const SidebarApp: React.FC = () => {
 
   const personaOptions: SelectOptionProps[] = [
     { value: PersonaKey.MIGRATION, children: PersonaKey.MIGRATION },
-  ];
-  adminAccess &&
-    personaOptions.push({
+    adminAccess && {
       value: PersonaKey.ADMINISTRATION,
       children: PersonaKey.ADMINISTRATION,
-    });
+    },
+  ].filter(Boolean);
 
   const [selectedPersona, setSelectedPersona] = useLocalStorage<string | null>({
     key: LocalStorageKey.selectedPersona,
