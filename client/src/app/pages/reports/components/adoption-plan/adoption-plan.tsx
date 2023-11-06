@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import Measure from "react-measure";
 import { useTranslation } from "react-i18next";
 
@@ -8,6 +8,7 @@ import {
   ChartAxis,
   ChartBar,
   ChartGroup,
+  ChartThemeColor,
   ChartVoronoiContainer,
 } from "@patternfly/react-charts";
 
@@ -16,9 +17,9 @@ import { StateError } from "@app/components/StateError";
 import { PROPOSED_ACTION_LIST } from "@app/Constants";
 import { ApplicationAdoptionPlan } from "@app/api/models";
 import { getApplicationAdoptionPlan } from "@app/api/rest";
-import { ApplicationSelectionContext } from "../../application-selection-context";
 import { NoApplicationSelectedEmptyState } from "../no-application-selected-empty-state";
 import { useQuery } from "@tanstack/react-query";
+import { useFetchApplications } from "@app/queries/applications";
 
 interface IChartData {
   applicationId: number;
@@ -30,11 +31,7 @@ interface IChartData {
 
 export const AdoptionPlan: React.FC = () => {
   const { t } = useTranslation();
-
-  // Context
-  const { selectedItems: applications } = useContext(
-    ApplicationSelectionContext
-  );
+  const { data: applications } = useFetchApplications();
 
   const {
     data: adoptionPlan,
@@ -107,7 +104,7 @@ export const AdoptionPlan: React.FC = () => {
                 }}
               >
                 <Chart
-                  // themeColor={ChartThemeColor.multiOrdered}
+                  themeColor={ChartThemeColor.multiOrdered}
                   containerComponent={
                     <ChartVoronoiContainer
                       labels={({ datum }) =>
