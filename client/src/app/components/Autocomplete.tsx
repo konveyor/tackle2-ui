@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import {
   Label,
   LabelProps,
@@ -11,27 +11,49 @@ import {
   Popper,
   SearchInput,
   Divider,
+  Tooltip,
 } from "@patternfly/react-core";
 
+const toString = (input: string | (() => string)) =>
+  typeof input === "function" ? input() : input;
+
+export interface AutocompleteOptionProps {
+  /** id for the option */
+  id: number;
+
+  /** the text to display for the option */
+  name: string | (() => string);
+
+  /** the text to display on a label when the option is selected, defaults to `name` if not supplied */
+  labelName?: string | (() => string);
+
+  /** the tooltip to display on the Label when the option has been selected */
+  tooltip?: string | (() => string);
+}
+
 export interface IAutocompleteProps {
-  onChange: (selections: string[]) => void;
+  onChange: (selections: AutocompleteOptionProps[]) => void;
   id?: string;
-  allowUserOptions?: boolean;
-  options?: string[];
+
+  /** The set of options to use for selection */
+  options?: AutocompleteOptionProps[];
+  selections?: AutocompleteOptionProps[];
+
   placeholderText?: string;
   searchString?: string;
   searchInputAriaLabel?: string;
   labelColor?: LabelProps["color"];
-  selections?: string[];
   menuHeader?: string;
   noResultsMessage?: string;
 }
 
+/**
+ * Multiple type-ahead with table complete and selection labels
+ */
 export const Autocomplete: React.FC<IAutocompleteProps> = ({
   id = "",
   onChange,
   options = [],
-  allowUserOptions = false,
   placeholderText = "Search",
   searchString = "",
   searchInputAriaLabel = "Search input",
@@ -41,117 +63,72 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   noResultsMessage = "No results found",
 }) => {
   const [inputValue, setInputValue] = useState(searchString);
+  const [tabSelectedItemId, setTabSelectedItemId] = useState<number>();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
-  const [hint, setHint] = useState("");
-  const [menuItems, setMenuItems] = useState<React.ReactElement[]>([]);
 
   /** refs used to detect when clicks occur inside vs outside of the textInputGroup and menu popper */
   const menuRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  React.useEffect(() => {
-    buildMenu();
-  }, [options]);
-
-  const buildMenu = () => {
-    /** in the menu only show items that include the text in the input */
-    const filteredMenuItems = options
-      .filter(
-        (item: string, index: number, arr: string[]) =>
-          arr.indexOf(item) === index &&
-          !selections.includes(item) &&
-          (!inputValue || item.toLowerCase().includes(inputValue.toLowerCase()))
-      )
-      .map((currentValue, index) => (
-        <MenuItem key={currentValue} itemId={index}>
-          {currentValue}
-        </MenuItem>
-      ));
-
-    /** in the menu show a disabled "no result" when all menu items are filtered out */
-    if (filteredMenuItems.length === 0) {
-      const noResultItem = (
-        <MenuItem isDisabled key="no result">
-          {noResultsMessage}
-        </MenuItem>
-      );
-      setMenuItems([noResultItem]);
-      setHint("");
-      return;
+  const selectedOptions = useMemo(() => {
+    if (!selections || selections.length === 0) {
+      return [];
     }
-
-    /** The hint is set whenever there is only one autocomplete option left. */
-    if (filteredMenuItems.length === 1 && inputValue.length) {
-      const hint = filteredMenuItems[0].props.children;
-      if (hint.toLowerCase().indexOf(inputValue.toLowerCase())) {
-        // the match was found in a place other than the start, so typeahead wouldn't work right
-        setHint("");
-      } else {
-        // use the input for the first part, otherwise case difference could make things look wrong
-        setHint(inputValue + hint.substr(inputValue.length));
-      }
-    } else {
-      setHint("");
-    }
-
-    /** add a heading to the menu */
-    const headingItem = (
-      <MenuItem isDisabled key="heading">
-        {menuHeader}
-      </MenuItem>
+    return options.filter(
+      ({ id }) => selections.findIndex((s) => s.id === id) > -1
     );
+  }, [options, selections]);
 
-    const divider = <Divider key="divider" />;
-
-    if (menuHeader) {
-      setMenuItems([headingItem, divider, ...filteredMenuItems]);
-    } else {
-      setMenuItems(filteredMenuItems);
+  const filteredOptions = useMemo(() => {
+    // No input so do not filter!
+    if (!inputValue) {
+      return options;
     }
-  };
 
-  /** callback for updating the inputValue state in this component so that the input can be controlled */
-  const handleInputChange = (
-    _event: React.FormEvent<HTMLInputElement>,
-    value: string
-  ) => {
-    setInputValue(value);
-    buildMenu();
-  };
+    // filter to choose options that are 1. NOT selected, and 2. include the inputValue
+    return options.filter(
+      ({ id, name }) =>
+        selections.findIndex((s) => s.id === id) === -1 &&
+        toString(name).toLowerCase().includes(inputValue.toLocaleLowerCase())
+    );
+  }, [options, selections, inputValue]);
 
   /** callback for removing a selection */
-  const deleteSelection = (selectionToDelete: string) => {
-    onChange(selections.filter((s) => s !== selectionToDelete));
+  const deleteSelectionByItemId = (idToDelete: number) => {
+    onChange(selections.filter(({ id }) => id !== idToDelete));
   };
 
-  /** add the given string as a selection */
-  const addSelection = (newSelectionText: string) => {
-    if (!allowUserOptions) {
-      const matchingOption = options.find(
-        (o) => o.toLowerCase() === (hint || newSelectionText).toLowerCase()
-      );
-      if (!matchingOption || selections.includes(matchingOption)) {
-        return;
-      }
-      newSelectionText = matchingOption;
-    }
-    onChange([...selections, newSelectionText]);
+  /** lookup the option matching the itemId and add as a selection */
+  const addSelectionByItemId = (itemId: string | number) => {
+    const asNumber = typeof itemId === "string" ? parseInt(itemId, 10) : itemId;
+    const matchingOption = options.find(({ id }) => id === asNumber);
+
+    onChange([...selections, matchingOption].filter(Boolean));
     setInputValue("");
     setMenuIsOpen(false);
   };
 
+  /** callback for updating the inputValue state in this component so that the input can be controlled */
+  const handleSearchInputOnChange = (
+    _event: React.FormEvent<HTMLInputElement>,
+    value: string
+  ) => {
+    setInputValue(value);
+  };
+
   /** add the current input value as a selection */
   const handleEnter = () => {
-    if (inputValue.length) {
-      addSelection(inputValue);
+    if (tabSelectedItemId) {
+      addSelectionByItemId(tabSelectedItemId);
+      setTabSelectedItemId(undefined);
     }
   };
 
+  /** close the menu, and if only 1 filtered option exists, select it */
   const handleTab = (event: React.KeyboardEvent) => {
-    const firstItemIndex = menuHeader ? 2 : 0;
-    // if only 1 item (possibly including menu heading and divider)
-    if (menuItems.length === 1 + firstItemIndex) {
-      setInputValue(menuItems[firstItemIndex].props.children);
+    if (filteredOptions.length === 1) {
+      setInputValue(toString(filteredOptions[0].name));
+      setTabSelectedItemId(filteredOptions[0].id);
       event.preventDefault();
     }
     setMenuIsOpen(false);
@@ -180,7 +157,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   };
 
   /** enable keyboard only usage while focused on the text input */
-  const handleTextInputKeyDown = (event: React.KeyboardEvent) => {
+  const handleSearchInputOnKeyDown = (event: React.KeyboardEvent) => {
     switch (event.key) {
       case "Enter":
         handleEnter();
@@ -207,18 +184,21 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   };
 
   /** add the text of the selected menu item to the selected items */
-  const onSelect = (event?: React.MouseEvent<Element, MouseEvent>) => {
-    if (!event) {
+  const handleMenuItemOnSelect = (
+    event: React.MouseEvent<Element, MouseEvent> | undefined,
+    itemId: number
+  ) => {
+    if (!event || !itemId) {
       return;
     }
-    const selectedText = (event.target as HTMLElement).innerText;
-    addSelection(selectedText);
+
     event.stopPropagation();
     focusTextInput(true);
+    addSelectionByItemId(itemId);
   };
 
   /** close the menu when a click occurs outside of the menu or text input group */
-  const handleClick = (event?: MouseEvent) => {
+  const handleOnDocumentClick = (event?: MouseEvent) => {
     if (!event) {
       return;
     }
@@ -236,7 +216,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   };
 
   /** enable keyboard only usage while focused on the menu */
-  const handleMenuKeyDown = (event: React.KeyboardEvent) => {
+  const handleMenuOnKeyDown = (event: React.KeyboardEvent) => {
     switch (event.key) {
       case "Tab":
       case "Escape":
@@ -247,16 +227,36 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     }
   };
 
+  const hint = useMemo(() => {
+    if (filteredOptions.length === 0) {
+      return "";
+    }
+
+    if (filteredOptions.length === 1 && inputValue) {
+      const fullHint = toString(filteredOptions[0].name);
+
+      if (fullHint.toLowerCase().indexOf(inputValue.toLowerCase())) {
+        // the match was found in a place other than the start, so typeahead wouldn't work right
+        return "";
+      } else {
+        // use the input for the first part, otherwise case difference could make things look wrong
+        return inputValue + fullHint.substring(inputValue.length);
+      }
+    }
+
+    return "";
+  }, [filteredOptions, inputValue]);
+
   const inputGroup = (
     <div ref={searchInputRef}>
       <SearchInput
         id={id}
         value={inputValue}
         hint={hint}
-        onChange={handleInputChange}
+        onChange={handleSearchInputOnChange}
         onClear={() => setInputValue("")}
         onFocus={() => setMenuIsOpen(true)}
-        onKeyDown={handleTextInputKeyDown}
+        onKeyDown={handleSearchInputOnKeyDown}
         placeholder={placeholderText}
         aria-label={searchInputAriaLabel}
       />
@@ -264,14 +264,37 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   );
 
   const menu = (
-    <Menu
-      ref={menuRef}
-      onSelect={onSelect}
-      onKeyDown={handleMenuKeyDown}
-      isScrollable
-    >
+    <Menu ref={menuRef} onKeyDown={handleMenuOnKeyDown} isScrollable>
       <MenuContent>
-        <MenuList>{menuItems}</MenuList>
+        <MenuList>
+          {/* if supplied, add the menu heading */}
+          {menuHeader ? (
+            <>
+              <MenuItem isDisabled key="heading" itemId="-2">
+                {menuHeader}
+              </MenuItem>
+              <Divider key="divider" />
+            </>
+          ) : undefined}
+
+          {/* show a disabled "no result" when all menu items are filtered out */}
+          {filteredOptions.length === 0 ? (
+            <MenuItem isDisabled key="no result" itemId="-1">
+              {noResultsMessage}
+            </MenuItem>
+          ) : undefined}
+
+          {/* only show items that include the text in the input */}
+          {filteredOptions.map(({ id, name }, _index) => (
+            <MenuItem
+              key={id}
+              itemId={id}
+              onClick={(e) => handleMenuItemOnSelect(e, id)}
+            >
+              {toString(name)}
+            </MenuItem>
+          ))}
+        </MenuList>
       </MenuContent>
     </Menu>
   );
@@ -286,19 +309,21 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
           popperRef={menuRef}
           appendTo={() => searchInputRef.current || document.body}
           isVisible={menuIsOpen}
-          onDocumentClick={handleClick}
+          onDocumentClick={handleOnDocumentClick}
         />
       </FlexItem>
       <FlexItem key="chips">
         <Flex spaceItems={{ default: "spaceItemsXs" }}>
-          {selections.map((currentSelection) => (
-            <FlexItem key={currentSelection}>
-              <Label
-                color={labelColor}
-                onClose={() => deleteSelection(currentSelection)}
-              >
-                {currentSelection}
-              </Label>
+          {selectedOptions.map(({ id, name, labelName, tooltip }) => (
+            <FlexItem key={id}>
+              <LabelToolip content={tooltip}>
+                <Label
+                  color={labelColor}
+                  onClose={() => deleteSelectionByItemId(id)}
+                >
+                  {toString(labelName || name)}
+                </Label>
+              </LabelToolip>
             </FlexItem>
           ))}
         </Flex>
@@ -306,3 +331,13 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     </Flex>
   );
 };
+
+const LabelToolip: React.FC<{
+  content?: AutocompleteOptionProps["tooltip"];
+  children: React.ReactElement;
+}> = ({ content, children }) =>
+  content ? (
+    <Tooltip content={<div>{toString(content)}</div>}>{children}</Tooltip>
+  ) : (
+    children
+  );

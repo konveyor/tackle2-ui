@@ -14,7 +14,7 @@ export const ARCHETYPES_QUERY_KEY = "archetypes";
 export const ARCHETYPE_QUERY_KEY = "archetype";
 
 export const useFetchArchetypes = () => {
-  const { isLoading, error, refetch, data } = useQuery({
+  const { isLoading, isSuccess, error, refetch, data } = useQuery({
     initialData: [],
     queryKey: [ARCHETYPES_QUERY_KEY],
     queryFn: getArchetypes,
@@ -25,6 +25,7 @@ export const useFetchArchetypes = () => {
   return {
     archetypes: data || [],
     isFetching: isLoading,
+    isSuccess,
     error,
     refetch,
   };

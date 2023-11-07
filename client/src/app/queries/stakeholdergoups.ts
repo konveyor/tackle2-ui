@@ -10,7 +10,7 @@ import { AxiosError } from "axios";
 export const StakeholderGroupsQueryKey = "stakeholderGroups";
 
 export const useFetchStakeholderGroups = () => {
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: [StakeholderGroupsQueryKey],
     queryFn: getStakeholderGroups,
     onError: (error: AxiosError) => console.log("error, ", error),
@@ -18,6 +18,7 @@ export const useFetchStakeholderGroups = () => {
   return {
     stakeholderGroups: data || [],
     isFetching: isLoading,
+    isSuccess,
     fetchError: error,
     refetch,
   };

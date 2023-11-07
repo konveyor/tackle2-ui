@@ -263,8 +263,11 @@ export const deleteIdentity = (identity: Identity): AxiosPromise => {
 
 // Axios direct
 
-export const createApplication = (data: Application) =>
-  axios.post<Application>(`${APPLICATIONS}`, data);
+// success with code 201 and created entity as response data
+export const createApplication = (application: New<Application>) =>
+  axios
+    .post<Application>(`${APPLICATIONS}`, application)
+    .then((response) => response.data);
 
 export const deleteApplication = (id: number): Promise<Application> =>
   axios.delete(`${APPLICATIONS}/${id}`);
@@ -742,9 +745,8 @@ export const getArchetypeById = (id: number | string): Promise<Archetype> =>
   axios.get(`${ARCHETYPES}/${id}`).then(({ data }) => data);
 
 // success with code 201 and created entity as response data
-export const createArchetype = (
-  archetype: New<Archetype>
-): Promise<Archetype> => axios.post(ARCHETYPES, archetype);
+export const createArchetype = (archetype: New<Archetype>) =>
+  axios.post<Archetype>(ARCHETYPES, archetype).then((res) => res.data);
 
 // success with code 204 and therefore no response content
 export const updateArchetype = (archetype: Archetype): Promise<void> =>

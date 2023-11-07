@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 
-import { Application, ApplicationDependency, MimeType } from "@app/api/models";
+import {
+  Application,
+  ApplicationDependency,
+  MimeType,
+  New,
+} from "@app/api/models";
 import {
   APPLICATIONS,
   createApplication,
@@ -98,14 +103,14 @@ export const useUpdateAllApplicationsMutation = (
 };
 
 export const useCreateApplicationMutation = (
-  onSuccess: (data: Application) => void,
-  onError: (err: AxiosError) => void
+  onSuccess: (application: Application, payload: New<Application>) => void,
+  onError: (err: AxiosError, payload: New<Application>) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createApplication,
-    onSuccess: ({ data }) => {
-      onSuccess(data);
+    onSuccess: (application: Application, payload: New<Application>) => {
+      onSuccess(application, payload);
       queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: onError,

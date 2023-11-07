@@ -17,10 +17,9 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { SimpleSelect, OptionWithValue } from "@app/components/SimpleSelect";
 // import { SimpleSelectTypeahead } from "@app/components/SimpleSelectTypeahead";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { Application, Tag, TagRef } from "@app/api/models";
+import { Application, New, TagRef } from "@app/api/models";
 import {
   customURLValidation,
-  dedupeArrayOfObjects,
   duplicateNameCheck,
   getAxiosErrorMessage,
 } from "@app/utils/utils";
@@ -36,16 +35,16 @@ import {
 } from "@app/queries/applications";
 import "./application-form.css";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
-import { useFetchTagCategories } from "@app/queries/tags";
+import { type TagItemType, useFetchTagsWithTagItems } from "@app/queries/tags";
 import {
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
+  HookFormAutocomplete,
 } from "@app/components/HookFormPFFields";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import ItemsSelect from "@app/components/items-select/items-select";
 
 export interface FormValues {
   id: number;
@@ -53,7 +52,7 @@ export interface FormValues {
   description: string;
   comments: string;
   businessServiceName: string;
-  tags: string[];
+  tags: TagItemType[];
   owner: string | null;
   contributors: string[];
   kind: string;
@@ -83,8 +82,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     stakeholders,
     stakeholderToRef,
     stakeholdersToRefs,
-    tags,
-    tagsToRefs,
+    tagItems,
+    idsToTagRefs,
     createApplication,
     updateApplication,
   } = useApplicationFormData({
@@ -105,17 +104,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     };
   });
 
-  const manualTags: TagRef[] = useMemo(() => {
-    const rawManualTags: TagRef[] =
-      application?.tags?.filter((t) => !t?.source) ?? [];
-    return dedupeArrayOfObjects<TagRef>(rawManualTags, "name");
+  const manualTagRefs: TagRef[] = useMemo(() => {
+    return application?.tags?.filter((t) => !t?.source) ?? [];
   }, [application?.tags]);
 
-  const nonManualTags =
-    application?.tags?.filter((t) => t?.source ?? "" !== "") ?? [];
-
-  // Allow all tags to be selected manually, even if they are included from another source
-  const allowedManualTags = tags;
+  const nonManualTagRefs = useMemo(() => {
+    return application?.tags?.filter((t) => t?.source ?? "" !== "") ?? [];
+  }, [application?.tags]);
 
   const getBinaryInitialValue = (
     application: Application | null,
@@ -243,10 +238,15 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       id: application?.id || 0,
       comments: application?.comments || "",
       businessServiceName: application?.businessService?.name || "",
-      tags: manualTags.map((tag) => tag.name) || [],
+
+      tags: manualTagRefs
+        .map(({ id }) => tagItems.find((tag) => tag.id === id))
+        .filter(Boolean),
+
       owner: application?.owner?.name || undefined,
       contributors:
         application?.contributors?.map((contributor) => contributor.name) || [],
+
       kind: application?.repository?.kind || "git",
       sourceRepository: application?.repository?.url || "",
       branch: application?.repository?.branch || "",
@@ -260,18 +260,20 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     mode: "all",
   });
 
-  const onSubmit = (formValues: FormValues) => {
-    // Note: We need to manually retain the tags with source != "" in the payload
-    const tags = [...(tagsToRefs(formValues.tags) ?? []), ...nonManualTags];
-
-    const payload: Application = {
-      id: formValues.id,
+  const onValidSubmit = (formValues: FormValues) => {
+    const payload: New<Application> = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
       comments: formValues.comments.trim(),
 
       businessService: businessServiceToRef(formValues.businessServiceName),
-      tags,
+
+      // Note: We need to manually retain the non-manual tags in the payload
+      tags: [
+        ...(idsToTagRefs(formValues.tags.map((t) => t.id)) ?? []),
+        ...nonManualTagRefs,
+      ],
+
       owner: stakeholderToRef(formValues.owner),
       contributors: stakeholdersToRefs(formValues.contributors),
 
@@ -283,6 +285,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             path: formValues.rootPath.trim(),
           }
         : undefined,
+
       binary: formValues.packaging
         ? `${formValues.group}:${formValues.artifact}:${formValues.version}:${formValues.packaging}`
         : `${formValues.group}:${formValues.artifact}:${formValues.version}`,
@@ -293,7 +296,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     };
 
     if (application) {
-      updateApplication({ ...payload });
+      updateApplication({ id: application.id, ...payload });
     } else {
       createApplication(payload);
     }
@@ -315,7 +318,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   ];
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
+    <Form onSubmit={handleSubmit(onValidSubmit)}>
       <ExpandableSection
         toggleText={"Basic information"}
         className="toggle"
@@ -383,8 +386,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             )}
           />
 
-          <ItemsSelect<Tag, FormValues>
-            items={allowedManualTags}
+          <HookFormAutocomplete<FormValues>
+            items={tagItems}
             control={control}
             name="tags"
             label={t("terms.manualTags")}
@@ -656,19 +659,14 @@ const useApplicationFormData = ({
   const { pushNotification } = React.useContext(NotificationsContext);
 
   // Fetch data
-  const { tagCategories } = useFetchTagCategories();
-  const tags = useMemo(
-    () => tagCategories.flatMap((tc) => tc.tags).filter(Boolean),
-    [tagCategories]
-  );
-
+  const { tags, tagItems } = useFetchTagsWithTagItems();
   const { businessServices } = useFetchBusinessServices();
   const { stakeholders } = useFetchStakeholders();
   const { data: existingApplications } = useFetchApplications();
 
   // Helpers
-  const tagsToRefs = (names: string[] | undefined | null) =>
-    matchItemsToRefs(tags, (i) => i.name, names);
+  const idsToTagRefs = (ids: number[] | undefined | null) =>
+    matchItemsToRefs(tags, (i) => i.id, ids);
 
   const businessServiceToRef = (name: string | undefined | null) =>
     matchItemsToRef(businessServices, (i) => i.name, name);
@@ -680,11 +678,11 @@ const useApplicationFormData = ({
     matchItemsToRefs(stakeholders, (i) => i.name, names);
 
   // Mutation notification handlers
-  const onCreateApplicationSuccess = (data: Application) => {
+  const onCreateApplicationSuccess = (application: Application) => {
     pushNotification({
       title: t("toastr.success.createWhat", {
         type: t("terms.application"),
-        what: data.name,
+        what: application.name,
       }),
       variant: "success",
     });
@@ -729,9 +727,9 @@ const useApplicationFormData = ({
     stakeholderToRef,
     stakeholdersToRefs,
     existingApplications,
-    tagCategories,
     tags,
-    tagsToRefs,
+    tagItems,
+    idsToTagRefs,
     createApplication,
     updateApplication,
   };
