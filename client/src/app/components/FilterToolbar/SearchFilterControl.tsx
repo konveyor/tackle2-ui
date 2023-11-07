@@ -9,11 +9,10 @@ import {
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { IFilterControlProps } from "./FilterControl";
 import { ISearchFilterCategory } from "./FilterToolbar";
-import { inflateSync } from "zlib";
 
 export interface ISearchFilterControlProps<
   TItem,
-  TFilterCategoryKey extends string
+  TFilterCategoryKey extends string,
 > extends IFilterControlProps<TItem, TFilterCategoryKey> {
   category: ISearchFilterCategory<TItem, TFilterCategoryKey>;
   isNumeric: boolean;
@@ -36,9 +35,10 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
     setInputValue(filterValue?.[0] || "");
   }, [filterValue]);
 
-  const onFilterSubmit = () =>
-    // Ignore value with multiple spaces
-    setFilterValue(inputValue ? [inputValue.replace(/\s+/g, " ")] : []);
+  const onFilterSubmit = () => {
+    const trimmedValue = inputValue.trim();
+    setFilterValue(trimmedValue ? [trimmedValue.replace(/\s+/g, " ")] : []);
+  };
 
   const id = `${category.key}-input`;
   return (
