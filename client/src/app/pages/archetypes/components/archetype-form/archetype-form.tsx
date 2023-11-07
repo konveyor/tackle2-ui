@@ -12,14 +12,7 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import type {
-  Archetype,
-  New,
-  Stakeholder,
-  StakeholderGroup,
-  Tag,
-  TagRef,
-} from "@app/api/models";
+import type { Archetype, New, Ref, TagRef } from "@app/api/models";
 import {
   HookFormPFTextArea,
   HookFormPFTextInput,
@@ -27,32 +20,28 @@ import {
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import {
   useFetchArchetypes,
-  useFetchArchetypeById,
   useCreateArchetypeMutation,
   useUpdateArchetypeMutation,
 } from "@app/queries/archetypes";
-import {
-  dedupeArrayOfObjects,
-  duplicateNameCheck,
-  getAxiosErrorMessage,
-} from "@app/utils/utils";
-import { useFetchTagCategories } from "@app/queries/tags";
+import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import { type TagItemType, useFetchTagsWithTagItems } from "@app/queries/tags";
 
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
-import ItemsSelect from "@app/components/items-select/items-select";
+import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
 import { matchItemsToRefs } from "@app/utils/model-utils";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 export interface ArchetypeFormValues {
   name: string;
   description?: string;
   comments?: string;
 
-  // TODO: a string[] only works here with `Autocomplete` if the entities have globally unique names
-  criteria: string[];
-  tags: string[];
-  stakeholders?: string[];
-  stakeholderGroups?: string[];
+  criteria: TagItemType[];
+  tags: TagItemType[];
+  stakeholders?: Ref[];
+  stakeholderGroups?: Ref[];
 }
 
 export interface ArchetypeFormProps {
@@ -61,7 +50,32 @@ export interface ArchetypeFormProps {
   onClose: () => void;
 }
 
-export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
+/**
+ * This component simply wraps `ArchetypeForm` and will render it when the form's data
+ * is ready to render.  Since the form's `defaultValues` are built on the first render,
+ * if the fetch data is not ready at that moment, the initial values will be wrong.  Very
+ * specifically, if the app is loaded on the archetype page, on the first load of the
+ * form, that tag data may not yet be loaded.  Without the tag data, the criteria and
+ * manual tags can nothing to match to and would incorrectly render no data even if there
+ * is data available.
+ *
+ * TL;DR: Wait for all data to be ready before rendering so existing data is rendered!
+ *
+ * TODO: The first `!isDataReady` to `isDataReady` transition could be detected and
+ *       if the the form is unchanged, new default values could be pushed.
+ */
+export const ArchetypeFormDataWaiter: React.FC<ArchetypeFormProps> = ({
+  ...rest
+}) => {
+  const { isDataReady } = useArchetypeFormData();
+  return (
+    <ConditionalRender when={!isDataReady} then={<AppPlaceholder />}>
+      <ArchetypeForm {...rest} />
+    </ConditionalRender>
+  );
+};
+
+const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
   archetype,
   isDuplicating = false,
   onClose,
@@ -70,29 +84,24 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
 
   const {
     existingArchetypes,
-    tags,
-    tagsToRefs,
+    tagItems,
+    idsToTagRefs,
     stakeholders,
-    stakeholdersToRefs,
+    idsToStakeholderRefs,
     stakeholderGroups,
-    stakeholderGroupsToRefs,
+    idsToStakeholderGroupRefs,
     createArchetype,
     updateArchetype,
   } = useArchetypeFormData({
-    id: archetype?.id,
     onActionSuccess: onClose,
   });
 
-  const manualTags: TagRef[] = useMemo(() => {
-    const rawManualTags: TagRef[] =
-      archetype?.tags?.filter((t) => !t?.source) ?? [];
-    return dedupeArrayOfObjects<TagRef>(rawManualTags, "name");
+  const manualTagRefs: TagRef[] = useMemo(() => {
+    return archetype?.tags?.filter((t) => !t?.source) ?? [];
   }, [archetype?.tags]);
 
-  const assessmentTags: TagRef[] = useMemo(() => {
-    const rawAssessmentTags: TagRef[] =
-      archetype?.tags?.filter((t) => t?.source === "assessment") ?? [];
-    return dedupeArrayOfObjects<TagRef>(rawAssessmentTags, "name");
+  const assessmentTagRefs: TagRef[] = useMemo(() => {
+    return archetype?.tags?.filter((t) => t?.source === "assessment") ?? [];
   }, [archetype?.tags]);
 
   const validationSchema = yup.object().shape({
@@ -123,22 +132,26 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       .trim()
       .max(250, t("validation.maxLength", { length: 250 })),
 
-    // for complex data fields
+    // for complex data fields (model a `Ref`)
     criteria: yup
       .array()
-      .of(yup.string())
+      .of(yup.object({ id: yup.number(), name: yup.string() }))
       .min(1)
       .required(t("validation.required")),
 
     tags: yup
       .array()
-      .of(yup.string())
+      .of(yup.object({ id: yup.number(), name: yup.string() }))
       .min(1)
       .required(t("validation.required")),
 
-    stakeholders: yup.array().of(yup.string()),
+    stakeholders: yup
+      .array()
+      .of(yup.object({ id: yup.number(), name: yup.string() })),
 
-    stakeholderGroups: yup.array().of(yup.string()),
+    stakeholderGroups: yup
+      .array()
+      .of(yup.object({ id: yup.number(), name: yup.string() })),
   });
 
   const getDefaultName = () => {
@@ -154,46 +167,50 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
     control,
-    //for debugging
-    getValues,
-    getFieldState,
-    formState,
+
+    // for debugging
+    // getValues,
+    // getFieldState,
+    // formState,
   } = useForm<ArchetypeFormValues>({
     defaultValues: {
       name: getDefaultName(),
       description: archetype?.description || "",
       comments: archetype?.comments || "",
 
-      criteria: archetype?.criteria?.map((tag) => tag.name).sort() ?? [],
-      tags: manualTags.map((tag) => tag.name).sort() ?? [],
+      criteria: (archetype?.criteria ?? [])
+        .map(({ id }) => tagItems.find((tag) => tag.id === id))
+        .filter(Boolean),
 
-      stakeholders: archetype?.stakeholders?.map((sh) => sh.name).sort() ?? [],
-      stakeholderGroups:
-        archetype?.stakeholderGroups?.map((sg) => sg.name).sort() ?? [],
+      tags: manualTagRefs
+        .map(({ id }) => tagItems.find((tag) => tag.id === id))
+        .filter(Boolean),
+
+      stakeholders: archetype?.stakeholders?.sort() ?? [],
+      stakeholderGroups: archetype?.stakeholderGroups?.sort() ?? [],
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
 
   const onValidSubmit = (values: ArchetypeFormValues) => {
-    // Note: We need to manually retain the tags with source != "" in the payload
-    const tags = [...(tagsToRefs(values.tags) ?? []), ...assessmentTags];
-    const criteriaTags = tagsToRefs(values.criteria) ?? [];
-
     const payload: New<Archetype> = {
       name: values.name.trim(),
       description: values.description?.trim() ?? "",
       comments: values.comments?.trim() ?? "",
-      criteria: values.criteria
-        .map((tagName) => criteriaTags.find((tag) => tag.name === tagName))
-        .filter(Boolean),
 
-      tags: values.tags
-        .map((tagName) => tags.find((tag) => tag.name === tagName))
-        .filter(Boolean),
+      criteria: idsToTagRefs(values.criteria.map((t) => t.id)) ?? [],
 
-      stakeholders: stakeholdersToRefs(values.stakeholders),
-      stakeholderGroups: stakeholderGroupsToRefs(values.stakeholderGroups),
+      // Note: We need to manually retain the assessment tags
+      tags: [
+        ...(idsToTagRefs(values.tags.map((t) => t.id)) ?? []),
+        ...assessmentTagRefs,
+      ],
+
+      stakeholders: idsToStakeholderRefs(values.stakeholders?.map((s) => s.id)),
+      stakeholderGroups: idsToStakeholderGroupRefs(
+        values.stakeholderGroups?.map((s) => s.id)
+      ),
     };
 
     if (archetype && !isDuplicating) {
@@ -220,8 +237,8 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         fieldId="description"
       />
 
-      <ItemsSelect<Tag, ArchetypeFormValues>
-        items={tags}
+      <HookFormAutocomplete<ArchetypeFormValues>
+        items={tagItems}
         control={control}
         name="criteria"
         label="Criteria Tags"
@@ -234,8 +251,8 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         searchInputAriaLabel="criteria-tags-select-toggle"
       />
 
-      <ItemsSelect<Tag, ArchetypeFormValues>
-        items={tags}
+      <HookFormAutocomplete<ArchetypeFormValues>
+        items={tagItems}
         control={control}
         name="tags"
         label="Archetype Tags"
@@ -248,7 +265,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         searchInputAriaLabel="archetype-tags-select-toggle"
       />
 
-      <ItemsSelect<Stakeholder, ArchetypeFormValues>
+      <HookFormAutocomplete<ArchetypeFormValues>
         items={stakeholders}
         control={control}
         name="stakeholders"
@@ -261,7 +278,7 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         searchInputAriaLabel="stakeholder-select-toggle"
       />
 
-      <ItemsSelect<StakeholderGroup, ArchetypeFormValues>
+      <HookFormAutocomplete<ArchetypeFormValues>
         items={stakeholderGroups}
         control={control}
         name="stakeholderGroups"
@@ -314,42 +331,41 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
   );
 };
 
-export default ArchetypeForm;
-
 const useArchetypeFormData = ({
-  id,
   onActionSuccess = () => {},
   onActionFail = () => {},
 }: {
-  id?: number;
   onActionSuccess?: () => void;
   onActionFail?: () => void;
-}) => {
+} = {}) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
   // Fetch data
-  const { archetypes: existingArchetypes } = useFetchArchetypes();
-  const { archetype } = useFetchArchetypeById(id);
+  const { archetypes: existingArchetypes, isSuccess: isArchetypesSuccess } =
+    useFetchArchetypes();
 
-  const { tagCategories } = useFetchTagCategories();
-  const tags = useMemo(
-    () => tagCategories.flatMap((tc) => tc.tags).filter(Boolean) as Tag[],
-    [tagCategories]
-  );
+  const {
+    tags,
+    tagItems,
+    isSuccess: isTagCategoriesSuccess,
+  } = useFetchTagsWithTagItems();
 
-  const { stakeholderGroups } = useFetchStakeholderGroups();
-  const { stakeholders } = useFetchStakeholders();
+  const { stakeholderGroups, isSuccess: isStakeholderGroupsSuccess } =
+    useFetchStakeholderGroups();
+
+  const { stakeholders, isSuccess: isStakeholdersSuccess } =
+    useFetchStakeholders();
 
   // Helpers
-  const tagsToRefs = (names: string[] | undefined | null) =>
-    matchItemsToRefs(tags, (i) => i.name, names);
+  const idsToTagRefs = (ids: number[] | undefined | null) =>
+    matchItemsToRefs(tags, (i) => i.id, ids);
 
-  const stakeholdersToRefs = (names: string[] | undefined | null) =>
-    matchItemsToRefs(stakeholders, (i) => i.name, names);
+  const idsToStakeholderRefs = (ids: number[] | undefined | null) =>
+    matchItemsToRefs(stakeholders, (i) => i.id, ids);
 
-  const stakeholderGroupsToRefs = (names: string[] | undefined | null) =>
-    matchItemsToRefs(stakeholderGroups, (i) => i.name, names);
+  const idsToStakeholderGroupRefs = (ids: number[] | undefined | null) =>
+    matchItemsToRefs(stakeholderGroups, (i) => i.id, ids);
 
   // Mutation notification handlers
   const onCreateSuccess = (archetype: Archetype) => {
@@ -392,16 +408,20 @@ const useArchetypeFormData = ({
   );
 
   return {
-    archetype,
+    isDataReady:
+      isArchetypesSuccess &&
+      isTagCategoriesSuccess &&
+      isStakeholdersSuccess &&
+      isStakeholderGroupsSuccess,
     existingArchetypes,
     createArchetype,
     updateArchetype,
-    tagCategories,
     tags,
-    tagsToRefs,
+    tagItems,
+    idsToTagRefs,
     stakeholders,
-    stakeholdersToRefs,
+    idsToStakeholderRefs,
     stakeholderGroups,
-    stakeholderGroupsToRefs,
+    idsToStakeholderGroupRefs,
   };
 };

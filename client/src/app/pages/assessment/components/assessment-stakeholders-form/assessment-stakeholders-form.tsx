@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -12,7 +12,7 @@ import { useFormContext } from "react-hook-form";
 
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
-import ItemsSelect from "@app/components/items-select/items-select";
+import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
 import { AssessmentWizardValues } from "../assessment-wizard/assessment-wizard";
 
 export const AssessmentStakeholdersForm: React.FC = () => {
@@ -20,7 +20,22 @@ export const AssessmentStakeholdersForm: React.FC = () => {
   const { control } = useFormContext<AssessmentWizardValues>();
 
   const { stakeholders } = useFetchStakeholders();
+  const stakeholderItems = useMemo(
+    () =>
+      stakeholders
+        .map(({ id, name }) => ({ id, name }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [stakeholders]
+  );
+
   const { stakeholderGroups } = useFetchStakeholderGroups();
+  const stakeholderGroupItems = useMemo(
+    () =>
+      stakeholderGroups
+        .map(({ id, name }) => ({ id, name }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [stakeholderGroups]
+  );
 
   return (
     <div className="pf-v5-c-form">
@@ -38,8 +53,8 @@ export const AssessmentStakeholdersForm: React.FC = () => {
       <Grid className="pf-v5-c-form__section">
         <GridItem md={6} className="pf-v5-c-form">
           <FormSection>
-            <ItemsSelect
-              items={stakeholders}
+            <HookFormAutocomplete<AssessmentWizardValues>
+              items={stakeholderItems}
               control={control}
               name="stakeholders"
               label="Stakeholder(s)"
@@ -51,8 +66,8 @@ export const AssessmentStakeholdersForm: React.FC = () => {
               searchInputAriaLabel="stakeholder-select-toggle"
             />
 
-            <ItemsSelect
-              items={stakeholderGroups}
+            <HookFormAutocomplete<AssessmentWizardValues>
+              items={stakeholderGroupItems}
               control={control}
               name="stakeholderGroups"
               label="Stakeholder Group(s)"

@@ -11,7 +11,7 @@ import { Role, Stakeholder, StakeholderWithRole } from "@app/api/models";
 export const StakeholdersQueryKey = "stakeholders";
 
 export const useFetchStakeholders = () => {
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: [StakeholdersQueryKey],
     queryFn: getStakeholders,
     onError: (error: AxiosError) => console.log("error, ", error),
@@ -31,6 +31,7 @@ export const useFetchStakeholders = () => {
   return {
     stakeholders: data || [],
     isFetching: isLoading,
+    isSuccess,
     fetchError: error,
     refetch,
   };
