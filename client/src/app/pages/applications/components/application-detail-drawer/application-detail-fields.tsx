@@ -52,7 +52,7 @@ export const ApplicationDetailFields: React.FC<{
         component={TextVariants.small}
         className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
       >
-        {application?.owner ?? t("terms.notAvailable")}
+        {application?.owner?.name ?? t("terms.notAvailable")}
       </Text>
       <Title headingLevel="h3" size="md">
         {t("terms.contributors")}
