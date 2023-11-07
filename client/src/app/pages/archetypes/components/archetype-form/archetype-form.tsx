@@ -12,7 +12,7 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import type { Archetype, New, TagRef } from "@app/api/models";
+import type { Archetype, New, Ref, TagRef } from "@app/api/models";
 import {
   HookFormPFTextArea,
   HookFormPFTextInput,
@@ -40,8 +40,8 @@ export interface ArchetypeFormValues {
 
   criteria: TagItemType[];
   tags: TagItemType[];
-  stakeholders?: { id: number; name: string }[];
-  stakeholderGroups?: { id: number; name: string }[];
+  stakeholders?: Ref[];
+  stakeholderGroups?: Ref[];
 }
 
 export interface ArchetypeFormProps {
