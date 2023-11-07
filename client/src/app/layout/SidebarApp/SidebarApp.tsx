@@ -8,8 +8,8 @@ import {
   NavList,
   NavExpandable,
   PageSidebarBody,
+  SelectOptionProps,
 } from "@patternfly/react-core";
-import { SelectOption } from "@patternfly/react-core/deprecated";
 
 import { Paths } from "@app/Paths";
 import { LayoutTheme } from "../LayoutUtils";
@@ -30,43 +30,23 @@ export const SidebarApp: React.FC = () => {
   const { t } = useTranslation();
   const { search } = useLocation();
   const history = useHistory();
-  enum PersonaKey {
-    ADMINISTRATION = "Administration",
-    MIGRATION = "Migration",
-  }
+  const PersonaKey = {
+    ADMINISTRATION: "Administration",
+    MIGRATION: "Migration",
+  };
 
-  const options = [
-    <SelectOption
-      key="dev"
-      component="button"
-      value={PersonaKey.MIGRATION}
-      isPlaceholder
-    >
-      {PersonaKey.MIGRATION}
-    </SelectOption>,
-    ...(adminAccess
-      ? [
-          <SelectOption
-            key="admin"
-            component="button"
-            value={PersonaKey.ADMINISTRATION}
-          >
-            {PersonaKey.ADMINISTRATION}
-          </SelectOption>,
-        ]
-      : []),
-  ];
+  const personaOptions: SelectOptionProps[] = [
+    { value: PersonaKey.MIGRATION, children: PersonaKey.MIGRATION },
+    adminAccess && {
+      value: PersonaKey.ADMINISTRATION,
+      children: PersonaKey.ADMINISTRATION,
+    },
+  ].filter(Boolean);
 
-  const personaOptions: string[] = [
-    PersonaKey.MIGRATION,
-    PersonaKey.ADMINISTRATION,
-  ];
-
-  const [selectedPersona, setSelectedPersona] =
-    useLocalStorage<PersonaKey | null>({
-      key: LocalStorageKey.selectedPersona,
-      defaultValue: null,
-    });
+  const [selectedPersona, setSelectedPersona] = useLocalStorage<string | null>({
+    key: LocalStorageKey.selectedPersona,
+    defaultValue: null,
+  });
 
   useEffect(() => {
     if (!selectedPersona) {
@@ -79,11 +59,11 @@ export const SidebarApp: React.FC = () => {
     <PageSidebar theme={LayoutTheme}>
       <div className="perspective">
         <SimpleSelectBasic
-          value={selectedPersona ? selectedPersona : undefined}
+          value={selectedPersona || undefined}
           options={personaOptions}
           onChange={(selection) => {
             const selectionValue = selection;
-            setSelectedPersona(selectionValue as PersonaKey);
+            setSelectedPersona(selectionValue);
             if (selectionValue === PersonaKey.ADMINISTRATION) {
               history.push(Paths.general);
             } else {
