@@ -94,7 +94,7 @@ export const Landscape: React.FC<ILandscapeProps> = ({
               value={landscapeData.red}
               total={landscapeData.assessmentCount}
               color={RISK_LIST.red.hexColor}
-              riskLabel={t("colors.red")}
+              riskLabel={t("terms.highRisk")}
               riskDescription={questionnaire?.riskMessages?.red ?? ""}
             />
           </FlexItem>
@@ -104,7 +104,7 @@ export const Landscape: React.FC<ILandscapeProps> = ({
               value={landscapeData.yellow}
               total={landscapeData.assessmentCount}
               color={RISK_LIST.yellow.hexColor}
-              riskLabel={t("colors.yellow")}
+              riskLabel={t("terms.mediumRisk")}
               riskDescription={questionnaire?.riskMessages?.yellow ?? ""}
             />
           </FlexItem>
@@ -114,7 +114,7 @@ export const Landscape: React.FC<ILandscapeProps> = ({
               value={landscapeData.green}
               total={landscapeData.assessmentCount}
               color={RISK_LIST.green.hexColor}
-              riskLabel={t("colors.green")}
+              riskLabel={t("terms.lowRisk")}
               riskDescription={questionnaire?.riskMessages?.green ?? ""}
             />
           </FlexItem>
