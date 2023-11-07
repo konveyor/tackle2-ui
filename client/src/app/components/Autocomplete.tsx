@@ -24,7 +24,7 @@ export interface AutocompleteOptionProps {
   /** the text to display for the option */
   name: string | (() => string);
 
-  /** the text to display on a label when the option is selected, defaults to `name` if no supplied */
+  /** the text to display on a label when the option is selected, defaults to `name` if not supplied */
   labelName?: string | (() => string);
 
   /** the tooltip to display on the Label when the option has been selected */
@@ -264,12 +264,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   );
 
   const menu = (
-    <Menu
-      ref={menuRef}
-      // onSelect={handleMenuOnSelect}
-      onKeyDown={handleMenuOnKeyDown}
-      isScrollable
-    >
+    <Menu ref={menuRef} onKeyDown={handleMenuOnKeyDown} isScrollable>
       <MenuContent>
         <MenuList>
           {/* if supplied, add the menu heading */}
@@ -326,7 +321,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
                   color={labelColor}
                   onClose={() => deleteSelectionByItemId(id)}
                 >
-                  {labelName ? toString(labelName) : toString(name)}
+                  {toString(labelName || name)}
                 </Label>
               </LabelToolip>
             </FlexItem>
