@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
 
 import {
   createAssessment,
@@ -27,8 +28,10 @@ export const useFetchAssessments = () => {
     queryFn: getAssessments,
     onError: (error: AxiosError) => console.log("error, ", error),
   });
-  const assessmentsWithOrder: AssessmentWithSectionOrder[] =
-    data?.map(addSectionOrderToQuestions) || [];
+  const assessmentsWithOrder: AssessmentWithSectionOrder[] = useMemo(
+    () => data?.map(addSectionOrderToQuestions) || [],
+    [data]
+  );
 
   return {
     assessments: assessmentsWithOrder || [],
