@@ -10,7 +10,6 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { sanitizeKey } from "@app/pages/assessment/form-utils";
 import { SimplePagination } from "@app/components/SimplePagination";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 
@@ -35,45 +34,43 @@ export const IdentifiedRisksTable: React.FC<
   const tableData: ITableRowData[] = [];
 
   // ...
-
   assessments.forEach((assessment) => {
     assessment.sections.forEach((section) => {
       section.questions.forEach((question) => {
         question.answers.forEach((answer) => {
           if (answer.selected) {
+            const itemId = [
+              assessment.id,
+              section.order,
+              question.order,
+              answer.order,
+            ].join(".");
+
             const existingItemIndex = tableData.findIndex(
-              (item) =>
-                item.question === question.text &&
-                item.answer === answer.text &&
-                item.assessmentName === assessment.questionnaire.name
+              (item) => item.questionId === itemId
             );
 
             if (existingItemIndex !== -1) {
-              if (tableData[existingItemIndex].answer == answer.text) {
-                if (
-                  assessment?.application?.name &&
-                  !tableData[existingItemIndex].applications
-                    .map((app) => app.name)
-                    .includes(assessment?.application?.name)
-                ) {
-                  tableData[existingItemIndex].applications.push(
-                    assessment.application
-                  );
-                }
+              const existingItem = tableData[existingItemIndex];
+              if (
+                assessment.application &&
+                !existingItem.applications
+                  .map((app) => app.name)
+                  .includes(assessment.application.name)
+              ) {
+                existingItem.applications.push(assessment.application);
               }
             } else {
-              if (assessment.application) {
-                tableData.push({
-                  section: section.name,
-                  question: question.text,
-                  answer: answer.text,
-                  applications: [assessment.application],
-                  assessmentName: assessment.questionnaire.name,
-                  questionId: sanitizeKey(
-                    assessment.id + question.text + answer.text
-                  ),
-                });
-              }
+              tableData.push({
+                section: section.name,
+                question: question.text,
+                answer: answer.text,
+                applications: assessment.application
+                  ? [assessment.application]
+                  : [],
+                assessmentName: assessment.questionnaire.name,
+                questionId: itemId,
+              });
             }
           }
         });
