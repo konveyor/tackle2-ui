@@ -1,13 +1,18 @@
 import React from "react";
-import { TextContent, Title, Alert, Form } from "@patternfly/react-core";
+import {
+  SelectOptionProps,
+  TextContent,
+  Title,
+  Alert,
+  Form,
+} from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { UploadBinary } from "./components/upload-binary";
-import { toOptionLike } from "@app/utils/model-utils";
-import { AnalysisMode, AnalysisWizardFormValues } from "./schema";
+import { AnalysisWizardFormValues } from "./schema";
 import { useFormContext } from "react-hook-form";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
+import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 
 interface ISetMode {
   isSingleApp: boolean;
@@ -21,25 +26,25 @@ export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
     useFormContext<AnalysisWizardFormValues>();
   const mode = watch("mode");
 
-  const options: OptionWithValue<AnalysisMode>[] = [
+  const options: SelectOptionProps[] = [
     {
       value: "binary",
-      toString: () => "Binary",
+      children: "Binary",
     },
     {
       value: "source-code",
-      toString: () => "Source code",
+      children: "Source code",
     },
     {
       value: "source-code-deps",
-      toString: () => "Source code + dependencies",
+      children: "Source code + dependencies",
     },
   ];
 
   if (isSingleApp)
     options.push({
       value: "binary-upload",
-      toString: () => "Upload a local binary",
+      children: "Upload a local binary",
     });
 
   return (
@@ -60,17 +65,13 @@ export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
         fieldId="analysis-mode"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
-            id="analysis-mode"
+          <SimpleSelectBasic
+            selectId="analysis-mode"
             toggleId="analysis-mode-toggle"
             toggleAriaLabel="Analysis mode dropdown toggle"
             aria-label={name}
-            variant="single"
-            value={toOptionLike(value, options)}
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<AnalysisMode>;
-              onChange(selectionValue.value);
-            }}
+            value={value}
+            onChange={onChange}
             options={options}
           />
         )}
