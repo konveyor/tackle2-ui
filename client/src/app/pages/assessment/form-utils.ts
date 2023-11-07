@@ -1,4 +1,4 @@
-import { Question, Section } from "@app/api/models";
+import { QuestionWithSectionOrder, Section } from "@app/api/models";
 
 export const COMMENTS_KEY = "comments";
 export const QUESTIONS_KEY = "questions";
@@ -21,9 +21,15 @@ export const sanitizeKey = (text: string) => {
   return text.replace(/[^a-zA-Z0-9-_:.]/g, "_");
 };
 
-export const getQuestionFieldName = (question: Question, fullName: boolean) => {
-  const fieldName = `question-${question.order}-${question.text}`;
+export const getQuestionFieldName = (
+  question: QuestionWithSectionOrder,
+  fullName: boolean
+): string => {
+  const fieldName = `section-${question.sectionOrder}-question-${question.order}-${question.text}`;
+
+  const sanitizedFieldName = sanitizeKey(fieldName);
+
   return fullName
-    ? `${QUESTIONS_KEY}.${sanitizeKey(fieldName)}`
-    : sanitizeKey(fieldName);
+    ? `${QUESTIONS_KEY}.${sanitizedFieldName}`
+    : sanitizedFieldName;
 };

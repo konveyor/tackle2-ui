@@ -2,11 +2,12 @@ import { Paths } from "@app/Paths";
 import {
   Application,
   Archetype,
-  Assessment,
+  AssessmentWithSectionOrder,
   InitialAssessment,
   Questionnaire,
 } from "@app/api/models";
 import {
+  addSectionOrderToQuestions,
   assessmentsByItemIdQueryKey,
   useCreateAssessmentMutation,
   useDeleteAssessmentMutation,
@@ -38,9 +39,9 @@ interface DynamicAssessmentActionsRowProps {
   questionnaire: Questionnaire;
   application?: Application;
   archetype?: Archetype;
-  assessment?: Assessment;
+  assessment?: AssessmentWithSectionOrder;
   isReadonly?: boolean;
-  onOpenModal: (assessment: Assessment) => void;
+  onOpenModal: (assessment: AssessmentWithSectionOrder) => void;
 }
 
 const DynamicAssessmentActionsRow: FunctionComponent<
@@ -134,8 +135,10 @@ const DynamicAssessmentActionsRow: FunctionComponent<
 
     try {
       const result = await createAssessmentAsync(newAssessment);
+      const assessmentWithOrder: AssessmentWithSectionOrder =
+        addSectionOrderToQuestions(result);
 
-      onOpenModal(result);
+      onOpenModal(assessmentWithOrder);
     } catch (error) {
       console.error("Error while creating assessment:", error);
       pushNotification({

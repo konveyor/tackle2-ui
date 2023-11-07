@@ -1,17 +1,21 @@
-import { Question, Section } from "@app/api/models";
+import {
+  QuestionWithSectionOrder,
+  SectionWithQuestionOrder,
+} from "@app/api/models";
 import { getCommentFieldName, getQuestionFieldName } from "./form-utils";
 
 describe("Application assessment - form utils", () => {
-  const section: Section = {
+  const section: SectionWithQuestionOrder = {
     name: "section-123",
     order: 1,
     questions: [],
   };
-  const question: Question = {
+  const question: QuestionWithSectionOrder = {
     text: "Question 321",
     order: 1,
     answers: [],
     explanation: "Explanation 321",
+    sectionOrder: 1,
   };
 
   it("getCommentFieldName: fullName", () => {
