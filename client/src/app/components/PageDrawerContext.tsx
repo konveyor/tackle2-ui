@@ -160,9 +160,11 @@ export const PageDrawerContent: React.FC<IPageDrawerContentProps> = ({
   }, [drawerPanelContentProps, setDrawerPanelContentProps]);
 
   // If the drawer is already expanded describing app A, then the user clicks app B, we want to send focus back to the drawer.
-  React.useEffect(() => {
-    drawerFocusRef?.current?.focus();
-  }, [drawerFocusRef, focusKey]);
+
+  // TODO: This introduces a layout issue bug when clicking in between the columns of a table.
+  // React.useEffect(() => {
+  //   drawerFocusRef?.current?.focus();
+  // }, [drawerFocusRef, focusKey]);
 
   React.useEffect(() => {
     const drawerHead = header === null ? children : header;
