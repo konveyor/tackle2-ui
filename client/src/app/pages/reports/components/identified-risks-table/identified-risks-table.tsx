@@ -1,161 +1,194 @@
-import React, { useContext } from "react";
-import { Table } from "@patternfly/react-table";
-
-import { useTranslation } from "react-i18next";
-import {
-  breakWord,
-  cellWidth,
-  ICell,
-  IRow,
-  TableVariant,
-} from "@patternfly/react-table";
-
-import { Application } from "@app/api/models";
-import { ApplicationSelectionContext } from "../../application-selection-context";
-import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
-import { FilterCategory, FilterType } from "@app/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
+import React from "react";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useFetchAssessments } from "@app/queries/assessments";
-
-export interface ITableRowData {
-  category: string;
-  question: string;
-  answer: string;
-  applications: Application[];
-}
+import { useTranslation } from "react-i18next";
+import { Ref } from "@app/api/models";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import {
+  TableHeaderContentWithControls,
+  ConditionalTableBody,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import { SimplePagination } from "@app/components/SimplePagination";
+import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 
 export interface IIdentifiedRisksTableProps {}
 
 export const IdentifiedRisksTable: React.FC<
   IIdentifiedRisksTableProps
 > = () => {
-  // i18
   const { t } = useTranslation();
 
-  const { allItems: allApplications } = useContext(ApplicationSelectionContext);
   const { assessments } = useFetchAssessments();
 
-  const tableData: any = [];
-  // Table
-  const columns: ICell[] = [
-    {
-      title: t("terms.category"),
-      transforms: [cellWidth(15)],
-      cellTransforms: [breakWord],
-      cellFormatters: [],
-    },
-    {
-      title: t("terms.question"),
-      transforms: [cellWidth(35)],
-      cellTransforms: [breakWord],
-      cellFormatters: [],
-    },
-    {
-      title: t("terms.answer"),
-      transforms: [cellWidth(35)],
-      cellTransforms: [breakWord],
-      cellFormatters: [],
-    },
-    {
-      title: t("terms.application(s)"),
-      transforms: [cellWidth(15)],
-      cellTransforms: [breakWord],
-      cellFormatters: [],
-    },
-  ];
-  const filterCategories: FilterCategory<
-    ITableRowData,
-    "category" | "question" | "answer" | "applications"
-  >[] = [
-    {
-      key: "category",
-      title: t("terms.category"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.category").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item?.category || "";
-      },
-    },
-    {
-      key: "question",
-      title: t("terms.question"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.question").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item?.question || "";
-      },
-    },
-    {
-      key: "answer",
-      title: t("terms.answer"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.answer").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item?.answer || "";
-      },
-    },
-    {
-      key: "applications",
-      title: t("terms.name"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.name").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        const applicationNames = item?.applications.map((app) => app.name);
-        return applicationNames?.join("") || "";
-      },
-    },
-  ];
+  interface ITableRowData {
+    assessmentName: string;
+    questionId: string;
+    section: string;
+    question: string;
+    answer: string;
+    applications: Ref[];
+  }
 
-  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
-    tableData || [],
-    filterCategories
-  );
+  const tableData: ITableRowData[] = [];
 
-  const { currentPageItems, paginationProps } = useLegacyPaginationState(
-    filteredItems,
-    10
-  );
+  // ...
+  assessments.forEach((assessment) => {
+    assessment.sections.forEach((section) => {
+      section.questions.forEach((question) => {
+        question.answers.forEach((answer) => {
+          if (answer.selected) {
+            const itemId = [
+              assessment.id,
+              section.order,
+              question.order,
+              answer.order,
+            ].join(".");
 
-  const rows: IRow[] = [];
-  currentPageItems.forEach((item) => {
-    rows.push({
-      cells: [
-        {
-          title: item.category,
-        },
-        {
-          title: item.question,
-        },
-        {
-          title: item.answer,
-        },
-        {
-          title: item.applications.map((f) => f.name).join(", "),
-        },
-      ],
+            const existingItemIndex = tableData.findIndex(
+              (item) => item.questionId === itemId
+            );
+
+            if (existingItemIndex !== -1) {
+              const existingItem = tableData[existingItemIndex];
+              if (
+                assessment.application &&
+                !existingItem.applications
+                  .map((app) => app.name)
+                  .includes(assessment.application.name)
+              ) {
+                existingItem.applications.push(assessment.application);
+              }
+            } else {
+              tableData.push({
+                section: section.name,
+                question: question.text,
+                answer: answer.text,
+                applications: assessment.application
+                  ? [assessment.application]
+                  : [],
+                assessmentName: assessment.questionnaire.name,
+                questionId: itemId,
+              });
+            }
+          }
+        });
+      });
     });
   });
 
-  const handleOnClearAllFilters = () => {
-    setFilterValues({});
-  };
+  const tableControls = useLocalTableControls({
+    idProperty: "questionId",
+    items: tableData || [],
+    columnNames: {
+      assessmentName: "Assessment Name",
+      section: "Section",
+      question: "Question",
+      answer: "Answer",
+      applications: "Applications",
+    },
+    variant: "compact",
+    isPaginationEnabled: true,
+    isSortEnabled: true,
+    hasActionsColumn: false,
+    getSortValues: (item) => ({
+      assessmentName: item.assessmentName,
+      section: item.section,
+      question: item.question,
+      answer: item.answer,
+      applications: item.applications.length,
+    }),
+    sortableColumns: ["assessmentName", "section", "question", "answer"],
+  });
+
+  const {
+    currentPageItems,
+    numRenderedColumns,
+    propHelpers: {
+      toolbarProps,
+      paginationToolbarItemProps,
+      paginationProps,
+      tableProps,
+      getThProps,
+      getTrProps,
+      getTdProps,
+    },
+  } = tableControls;
 
   return (
-    <Table
-      aria-label={`Identified Risks Table`}
-      variant={TableVariant.compact}
-    ></Table>
+    <>
+      <Toolbar {...toolbarProps}>
+        <ToolbarContent>
+          <ToolbarItem {...paginationToolbarItemProps}>
+            <SimplePagination
+              idPrefix={`${"identified-risks-table"}}`}
+              isTop
+              paginationProps={paginationProps}
+            />
+          </ToolbarItem>
+        </ToolbarContent>
+      </Toolbar>
+      <Table
+        {...tableProps}
+        aria-label={`Adoption Candidate Table`}
+        style={{ background: "none" }}
+      >
+        <Thead>
+          <Tr>
+            <TableHeaderContentWithControls {...tableControls}>
+              <Th {...getThProps({ columnKey: "assessmentName" })}>
+                Assessment name
+              </Th>
+              <Th {...getThProps({ columnKey: "section" })}>Section</Th>
+              <Th {...getThProps({ columnKey: "question" })}>Question</Th>
+              <Th {...getThProps({ columnKey: "answer" })}>Answer</Th>
+              <Th {...getThProps({ columnKey: "applications" })}>
+                Application
+              </Th>
+            </TableHeaderContentWithControls>
+          </Tr>
+        </Thead>
+        <ConditionalTableBody
+          isNoData={assessments?.length === 0}
+          numRenderedColumns={numRenderedColumns}
+          noDataEmptyState={
+            <div>
+              <NoDataEmptyState title="No data available." />
+            </div>
+          }
+        >
+          <Tbody>
+            {currentPageItems?.map((item, rowIndex) => {
+              return (
+                <Tr key={item.questionId} {...getTrProps({ item: item })}>
+                  <TableRowContentWithControls
+                    {...tableControls}
+                    item={item}
+                    rowIndex={rowIndex}
+                  >
+                    <Td {...getTdProps({ columnKey: "assessmentName" })}>
+                      {item.assessmentName}
+                    </Td>
+                    <Td {...getTdProps({ columnKey: "section" })}>
+                      {item?.section ?? "N/A"}
+                    </Td>
+                    <Td {...getTdProps({ columnKey: "question" })}>
+                      {item?.question ?? "N/A"}
+                    </Td>
+                    <Td {...getTdProps({ columnKey: "answer" })}>
+                      {item.answer ?? "N/A"}
+                    </Td>
+                    <Td {...getTdProps({ columnKey: "applications" })}>
+                      {item?.applications.length ?? "N/A"}
+                    </Td>
+                  </TableRowContentWithControls>
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </ConditionalTableBody>
+      </Table>
+    </>
   );
 };
