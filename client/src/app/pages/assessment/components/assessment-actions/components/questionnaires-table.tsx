@@ -11,7 +11,7 @@ import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import {
   Application,
   Archetype,
-  Assessment,
+  AssessmentWithSectionOrder,
   Questionnaire,
 } from "@app/api/models";
 import DynamicAssessmentActionsRow from "./dynamic-assessment-actions-row";
@@ -23,7 +23,7 @@ interface QuestionnairesTableProps {
   isReadonly?: boolean;
   application?: Application;
   archetype?: Archetype;
-  assessments?: Assessment[];
+  assessments?: AssessmentWithSectionOrder[];
   questionnaires?: Questionnaire[];
 }
 
@@ -50,10 +50,9 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
     propHelpers: { tableProps, getThProps, getTrProps, getTdProps },
   } = tableControls;
 
-  const [createdAssessment, setCreatedAssessment] = useState<Assessment | null>(
-    null
-  );
-  const handleModalOpen = (assessment: Assessment) => {
+  const [createdAssessment, setCreatedAssessment] =
+    useState<AssessmentWithSectionOrder | null>(null);
+  const handleModalOpen = (assessment: AssessmentWithSectionOrder) => {
     setCreatedAssessment(assessment);
   };
 

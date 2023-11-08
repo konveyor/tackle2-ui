@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
 
 import {
   createAssessment,
@@ -9,7 +10,11 @@ import {
   updateAssessment,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
-import { Assessment, InitialAssessment } from "@app/api/models";
+import {
+  Assessment,
+  AssessmentWithSectionOrder,
+  InitialAssessment,
+} from "@app/api/models";
 import { QuestionnairesQueryKey } from "./questionnaires";
 import { ARCHETYPE_QUERY_KEY } from "./archetypes";
 
@@ -23,8 +28,13 @@ export const useFetchAssessments = () => {
     queryFn: getAssessments,
     onError: (error: AxiosError) => console.log("error, ", error),
   });
+  const assessmentsWithOrder: AssessmentWithSectionOrder[] = useMemo(
+    () => data?.map(addSectionOrderToQuestions) || [],
+    [data]
+  );
+
   return {
-    assessments: data || [],
+    assessments: assessmentsWithOrder || [],
     isFetching: isLoading,
     fetchError: error,
   };
@@ -64,7 +74,10 @@ export const useUpdateAssessmentMutation = (
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (assessment: Assessment) => updateAssessment(assessment),
+    mutationFn: (assessmentWithOrder: AssessmentWithSectionOrder) => {
+      const assessment = removeSectionOrderFromQuestions(assessmentWithOrder);
+      return updateAssessment(assessment);
+    },
     onSuccess: (_, args) => {
       onSuccess && onSuccess(args.name);
       const isArchetype = !!args.archetype?.id;
@@ -160,11 +173,40 @@ export const useFetchAssessmentsByItemId = (
       isArchetype,
     ]);
   };
+  const assessmentsWithOrder: AssessmentWithSectionOrder[] =
+    data?.map(addSectionOrderToQuestions) || [];
 
   return {
-    assessments: data,
+    assessments: assessmentsWithOrder,
     isFetching: isLoading,
     fetchError: error,
     invalidateAssessmentsQuery,
+  };
+};
+
+export const addSectionOrderToQuestions = (
+  assessment: Assessment
+): AssessmentWithSectionOrder => {
+  return {
+    ...assessment,
+    sections: assessment.sections.map((section) => ({
+      ...section,
+      questions: section.questions.map((question) => ({
+        ...question,
+        sectionOrder: section.order,
+      })),
+    })),
+  };
+};
+
+const removeSectionOrderFromQuestions = (
+  assessmentWithOrder: AssessmentWithSectionOrder
+): Assessment => {
+  return {
+    ...assessmentWithOrder,
+    sections: assessmentWithOrder.sections.map((section) => ({
+      ...section,
+      questions: section.questions.map(({ sectionOrder, ...rest }) => rest), // Destructure out sectionOrder
+    })),
   };
 };
