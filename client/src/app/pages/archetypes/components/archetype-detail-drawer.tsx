@@ -25,6 +25,7 @@ import { PageDrawerContent } from "@app/components/PageDrawerContext";
 import { dedupeArrayOfObjects } from "@app/utils/utils";
 import { LabelsFromItems } from "@app/components/labels-from-items/labels-from-items";
 import { ReviewFields } from "@app/pages/applications/components/application-detail-drawer/review-fields";
+import { RiskLabel } from "@app/components/RiskLabel";
 
 export interface IArchetypeDetailDrawerProps {
   onCloseClick: () => void;
@@ -198,6 +199,14 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
               </DescriptionListDescription>
             </DescriptionListGroup>
           </DescriptionList>
+          <TextContent className={spacing.mtLg}>
+            <Title headingLevel="h3" size="md">
+              {t("terms.riskFromArchetype")}
+            </Title>
+            <Text component="small" cy-data="comments">
+              <RiskLabel risk={archetype?.risk || "unknown"} />
+            </Text>
+          </TextContent>
         </Tab>
         <Tab
           eventKey={TabKey.Reviews}
