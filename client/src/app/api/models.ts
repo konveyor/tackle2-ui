@@ -762,3 +762,15 @@ export interface Archetype {
   review?: Ref;
 }
 export type ProviderType = "Java" | "Go";
+
+export interface QuestionWithSectionOrder extends Question {
+  sectionOrder: number;
+}
+
+export interface SectionWithQuestionOrder extends Section {
+  questions: QuestionWithSectionOrder[];
+}
+
+export interface AssessmentWithSectionOrder extends Assessment {
+  sections: SectionWithQuestionOrder[];
+}

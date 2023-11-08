@@ -1,12 +1,12 @@
 import { Modal, ModalVariant } from "@patternfly/react-core";
 import React, { FunctionComponent } from "react";
 import { AssessmentWizard } from "./assessment-wizard";
-import { Assessment } from "@app/api/models";
+import { AssessmentWithSectionOrder } from "@app/api/models";
 
 interface AssessmentModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
-  assessment: Assessment | null;
+  assessment: AssessmentWithSectionOrder | null;
 }
 
 const AssessmentModal: FunctionComponent<AssessmentModalProps> = ({
