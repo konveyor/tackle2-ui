@@ -14,12 +14,12 @@ import { MultiInputSelection } from "./multi-input-selection";
 import { Question, QuestionHeader, QuestionBody } from "./question";
 import { getCommentFieldName } from "../../form-utils";
 import { useFormContext } from "react-hook-form";
-import { Section } from "@app/api/models";
+import { SectionWithQuestionOrder } from "@app/api/models";
 import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
 
 export interface QuestionnaireFormProps {
-  section: Section;
+  section: SectionWithQuestionOrder;
 }
 
 export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({

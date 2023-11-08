@@ -13,9 +13,10 @@ import {
 import {
   Assessment,
   AssessmentStatus,
-  Question,
+  AssessmentWithSectionOrder,
+  QuestionWithSectionOrder,
   Ref,
-  Section,
+  SectionWithQuestionOrder,
 } from "@app/api/models";
 import { CustomWizardFooter } from "../custom-wizard-footer";
 import { getApplicationById, getArchetypeById } from "@app/api/rest";
@@ -65,7 +66,7 @@ export interface AssessmentWizardValues {
 }
 
 export interface AssessmentWizardProps {
-  assessment?: Assessment;
+  assessment?: AssessmentWithSectionOrder;
   onClose: () => void;
 }
 
@@ -169,18 +170,20 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     return numberOfStakeholdlers + numberOfGroups > 0;
   };
 
-  const isQuestionValid = (question: Question): boolean => {
+  const isQuestionValid = (question: QuestionWithSectionOrder): boolean => {
     const questionErrors = errors.questions || {};
     return !questionErrors[getQuestionFieldName(question, false)];
   };
 
-  const questionHasValue = (question: Question): boolean => {
+  const questionHasValue = (question: QuestionWithSectionOrder): boolean => {
     const questionValues = values.questions || {};
     const value = questionValues[getQuestionFieldName(question, false)];
     return value !== null && value !== undefined && value !== "";
   };
 
-  const areAllQuestionsAnswered = (section: Section): boolean => {
+  const areAllQuestionsAnswered = (
+    section: SectionWithQuestionOrder
+  ): boolean => {
     return (
       section?.questions.every((question) => {
         return questionHasValue(question);
@@ -188,7 +191,9 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     );
   };
 
-  const shouldDisableSaveAsDraft = (sections: Section[]): boolean => {
+  const shouldDisableSaveAsDraft = (
+    sections: SectionWithQuestionOrder[]
+  ): boolean => {
     const noAnswers = sections.every((section) => {
       return section.questions.every((question) => !questionHasValue(question));
     });
@@ -200,7 +205,9 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     return noAnswers || allQuestionsAnswered;
   };
 
-  const shouldNextBtnBeEnabled = (section: Section): boolean => {
+  const shouldNextBtnBeEnabled = (
+    section: SectionWithQuestionOrder
+  ): boolean => {
     const allQuestionsValid = section?.questions.every((question) =>
       isQuestionValid(question)
     );
@@ -213,13 +220,13 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const buildSectionsFromFormValues = (
     formValues: AssessmentWizardValues
-  ): Section[] => {
+  ): SectionWithQuestionOrder[] => {
     if (!formValues || !formValues[QUESTIONS_KEY]) {
       return [];
     }
     const updatedQuestionsData = formValues[QUESTIONS_KEY];
 
-    const sections: Section[] =
+    const sections: SectionWithQuestionOrder[] =
       assessment?.sections?.map((section) => {
         const commentValues = values["comments"];
         const fieldName = getCommentFieldName(section, false);
@@ -270,7 +277,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         : [];
 
       const assessmentStatus: AssessmentStatus = "started";
-      const payload: Assessment = {
+      const payload: AssessmentWithSectionOrder = {
         ...assessment,
 
         stakeholders: stakeholdersToPayload(values.stakeholders),
@@ -305,7 +312,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         ? buildSectionsFromFormValues(formValues)
         : [];
 
-      const payload: Assessment = {
+      const payload: AssessmentWithSectionOrder = {
         ...assessment,
 
         stakeholders: stakeholdersToPayload(values.stakeholders),
@@ -342,7 +349,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         ? buildSectionsFromFormValues(formValues)
         : [];
 
-      const payload: Assessment = {
+      const payload: AssessmentWithSectionOrder = {
         ...assessment,
 
         stakeholders: stakeholdersToPayload(values.stakeholders),
@@ -457,7 +464,10 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     onClose();
   };
 
-  const getWizardFooter = (step: number, section?: Section) => {
+  const getWizardFooter = (
+    step: number,
+    section?: SectionWithQuestionOrder
+  ) => {
     return (
       <CustomWizardFooter
         enableNext={
