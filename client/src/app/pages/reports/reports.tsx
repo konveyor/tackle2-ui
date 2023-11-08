@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Bullseye,
   Button,
   ButtonVariant,
   Card,
@@ -14,6 +15,8 @@ import {
   Popover,
   Select,
   SelectOption,
+  Split,
+  SplitItem,
   Stack,
   StackItem,
   Text,
@@ -34,6 +37,7 @@ import { ApplicationSelectionContextProvider } from "./application-selection-con
 import { Landscape } from "./components/landscape";
 import AdoptionCandidateTable from "./components/adoption-candidate-table/adoption-candidate-table";
 import { AdoptionPlan } from "./components/adoption-plan";
+import { IdentifiedRisksTable } from "./components/identified-risks-table";
 
 const ALL_QUESTIONNAIRES = -1;
 
@@ -264,7 +268,7 @@ export const Reports: React.FC = () => {
                   </CardExpandableContent>
                 </Card>
               </StackItem>
-              {/* <StackItem>
+              <StackItem>
                 <Card isExpanded={isRiskCardOpen}>
                   <CardHeader
                     onExpand={() => setIsRiskCardOpen((current) => !current)}
@@ -289,7 +293,7 @@ export const Reports: React.FC = () => {
                     </CardBody>
                   </CardExpandableContent>
                 </Card>
-              </StackItem> */}
+              </StackItem>
             </Stack>
           </ApplicationSelectionContextProvider>
         </ConditionalRender>

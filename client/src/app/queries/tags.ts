@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -30,15 +31,68 @@ export const useFetchTags = () => {
 };
 
 export const useFetchTagCategories = () => {
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: [TagCategoriesQueryKey, TagsQueryKey],
     queryFn: getTagCategories,
     onError: (error: AxiosError) => console.log("error, ", error),
   });
+
   return {
     tagCategories: data || [],
     isFetching: isLoading,
+    isSuccess,
     fetchError: error,
+    refetch,
+  };
+};
+
+/**
+ * Tag repackaged as an ItemType to make it easier to use and display.
+ */
+export interface TagItemType {
+  id: number;
+  name: string;
+  tooltip?: string;
+}
+
+export const useFetchTagsWithTagItems = () => {
+  // fetching tag categories with their tags is to most compact way to get all of
+  // that information in a single call
+  const { tagCategories, isFetching, isSuccess, fetchError, refetch } =
+    useFetchTagCategories();
+
+  // transform the tag categories in a list of tags with category refs
+  const tags = useMemo(
+    () =>
+      tagCategories
+        .flatMap(({ id, name, tags }) => {
+          const ref = { id, name };
+          return tags?.map((t) => {
+            t.category = ref;
+            return t;
+          });
+        })
+        .filter(Boolean),
+    [tagCategories]
+  );
+
+  // for each tag, build a `TagItemType` for easy use in the UI
+  const tagItems: TagItemType[] = useMemo(() => {
+    return tags
+      .map<TagItemType>((tag) => ({
+        id: tag.id,
+        name: `${tag.category?.name} / ${tag.name}`,
+        tooltip: tag.category?.name,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [tags]);
+
+  return {
+    tags,
+    tagItems,
+    isFetching,
+    isSuccess,
+    fetchError,
     refetch,
   };
 };

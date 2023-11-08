@@ -762,3 +762,4 @@ export interface Archetype {
   review?: Ref;
   risk?: Risk;
 }
+export type ProviderType = "Java" | "Go";
