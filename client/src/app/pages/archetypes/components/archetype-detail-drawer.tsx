@@ -201,7 +201,7 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
           </DescriptionList>
           <TextContent className={spacing.mtLg}>
             <Title headingLevel="h3" size="md">
-              {t("terms.riskFromApplication")}
+              {t("terms.riskFromArchetype")}
             </Title>
             <Text component="small" cy-data="comments">
               <RiskLabel risk={archetype?.risk || "unknown"} />
