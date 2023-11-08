@@ -28,7 +28,14 @@ import {
 } from "@app/components/HookFormPFFields";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useCreateFileMutation } from "@app/queries/targets";
-import { IReadFile, New, Rule, Target, TargetLabel } from "@app/api/models";
+import {
+  IReadFile,
+  New,
+  ProviderType,
+  Rule,
+  Target,
+  TargetLabel,
+} from "@app/api/models";
 import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { toOptionLike } from "@app/utils/model-utils";
@@ -47,6 +54,7 @@ export interface CustomTargetFormProps {
   target?: Target | null;
   onSaved: (response: AxiosResponse<Target>) => void;
   onCancel: () => void;
+  providerType: ProviderType;
 }
 
 export interface CustomTargetFormValues {
@@ -67,6 +75,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   target: initialTarget,
   onSaved,
   onCancel,
+  providerType,
 }) => {
   const { pushNotification } = useContext(NotificationsContext);
   const { t } = useTranslation();
@@ -298,6 +307,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             },
           }),
       },
+      provider: providerType || "Java",
     };
 
     if (target) {

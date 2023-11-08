@@ -35,13 +35,13 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { CustomTargetForm } from "./components/custom-target-form";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
 import { useDeleteTargetMutation, useFetchTargets } from "@app/queries/targets";
-import { Target } from "@app/api/models";
+import { ProviderType, Target } from "@app/api/models";
 import { SimpleSelect } from "@app/components/SimpleSelect";
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
-  const [provider, setProvider] = useState("Java");
+  const [provider, setProvider] = useState<ProviderType>("Java");
 
   const { targets, refetch: refetchTargets } = useFetchTargets();
 
@@ -181,7 +181,7 @@ export const MigrationTargets: React.FC = () => {
               value={provider}
               options={["Java", "Go"]}
               onChange={(selection) => {
-                setProvider(selection as string);
+                setProvider(selection as ProviderType);
               }}
             />
           </GridItem>
@@ -203,7 +203,9 @@ export const MigrationTargets: React.FC = () => {
           title={t(
             targetToUpdate ? "dialog.title.update" : "dialog.title.new",
             {
-              what: t("terms.customTarget").toLowerCase(),
+              what: `${t("terms.customTargetOfType", {
+                type: provider,
+              })}`,
             }
           )}
           variant="medium"
@@ -211,6 +213,7 @@ export const MigrationTargets: React.FC = () => {
           onClose={() => setCreateUpdateModalState(null)}
         >
           <CustomTargetForm
+            providerType={provider}
             target={targetToUpdate}
             onSaved={onCustomTargetModalSaved}
             onCancel={() => setCreateUpdateModalState(null)}

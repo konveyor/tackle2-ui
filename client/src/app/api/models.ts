@@ -761,3 +761,4 @@ export interface Archetype {
   assessed?: boolean;
   review?: Ref;
 }
+export type ProviderType = "Java" | "Go";
