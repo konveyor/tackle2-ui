@@ -88,6 +88,7 @@ export const useFetchTagsWithTagItems = () => {
   }, [tags]);
 
   return {
+    tagCategories,
     tags,
     tagItems,
     isFetching,

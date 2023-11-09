@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useTranslation } from "react-i18next";
 import { ToolbarFilter } from "@patternfly/react-core";
 import {
   Select,
@@ -7,28 +6,24 @@ import {
   SelectOptionObject,
   SelectVariant,
   SelectProps,
+  SelectGroup,
 } from "@patternfly/react-core/deprecated";
 import { IFilterControlProps } from "./FilterControl";
 import {
   IMultiselectFilterCategory,
-  OptionPropsWithKey,
+  FilterSelectOptionProps,
 } from "./FilterToolbar";
 import { css } from "@patternfly/react-styles";
 
 import "./select-overrides.css";
 
-export interface IMultiselectFilterControlProps<
-  TItem,
-  TFilterCategoryKey extends string
-> extends IFilterControlProps<TItem, TFilterCategoryKey> {
-  category: IMultiselectFilterCategory<TItem, TFilterCategoryKey>;
+export interface IMultiselectFilterControlProps<TItem>
+  extends IFilterControlProps<TItem, string> {
+  category: IMultiselectFilterCategory<TItem, string>;
   isScrollable?: boolean;
 }
 
-export const MultiselectFilterControl = <
-  TItem,
-  TFilterCategoryKey extends string
->({
+export const MultiselectFilterControl = <TItem,>({
   category,
   filterValue,
   setFilterValue,
@@ -36,42 +31,36 @@ export const MultiselectFilterControl = <
   isDisabled = false,
   isScrollable = false,
 }: React.PropsWithChildren<
-  IMultiselectFilterControlProps<TItem, TFilterCategoryKey>
+  IMultiselectFilterControlProps<TItem>
 >): JSX.Element | null => {
-  const { t } = useTranslation();
-
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
+
+  const { selectOptions } = category;
+  const hasGroupings = !Array.isArray(selectOptions);
+  const flatOptions = !hasGroupings
+    ? selectOptions
+    : Object.values(selectOptions).flatMap((i) => i);
 
   const getOptionKeyFromOptionValue = (
     optionValue: string | SelectOptionObject
-  ) =>
-    category.selectOptions.find(
-      (optionProps) => optionProps.value === optionValue
-    )?.key;
-
-  const getChipFromOptionValue = (
-    optionValue: string | SelectOptionObject | undefined
-  ) => (optionValue ? optionValue.toString() : "");
+  ) => flatOptions.find(({ value }) => value === optionValue)?.key;
 
   const getOptionKeyFromChip = (chip: string) =>
-    category.selectOptions.find(
-      (optionProps) => optionProps.value.toString() === chip
-    )?.key;
+    flatOptions.find(({ value }) => value.toString() === chip)?.key;
 
   const getOptionValueFromOptionKey = (optionKey: string) =>
-    category.selectOptions.find((optionProps) => optionProps.key === optionKey)
-      ?.value;
+    flatOptions.find(({ key }) => key === optionKey)?.value;
 
   const onFilterSelect = (value: string | SelectOptionObject) => {
     const optionKey = getOptionKeyFromOptionValue(value);
     if (optionKey && filterValue?.includes(optionKey)) {
-      let updatedValues = filterValue.filter(
+      const updatedValues = filterValue.filter(
         (item: string) => item !== optionKey
       );
       setFilterValue(updatedValues);
     } else {
       if (filterValue) {
-        let updatedValues = [...filterValue, optionKey];
+        const updatedValues = [...filterValue, optionKey];
         setFilterValue(updatedValues as string[]);
       } else {
         setFilterValue([optionKey || ""]);
@@ -88,35 +77,56 @@ export const MultiselectFilterControl = <
   };
 
   // Select expects "selections" to be an array of the "value" props from the relevant optionProps
-  const selections = filterValue
-    ? filterValue.map(getOptionValueFromOptionKey)
-    : null;
+  const selections = filterValue?.map(getOptionValueFromOptionKey) ?? [];
 
-  const chips = selections ? selections.map(getChipFromOptionValue) : [];
+  // TODO: Chips could be a `ToolbarChip` instead of a `string` and embed a tooltip.
+  // TODO: However, the selections value would need to be more specific to be able to
+  // TODO: map a group name to a specific select option (assuming that an item with the
+  // TODO: same name can exist in multiple groups)
+  const chips = selections.map((s) => s?.toString() ?? "");
 
-  const renderSelectOptions = (options: OptionPropsWithKey[]) =>
-    options.map((optionProps) => (
-      <SelectOption {...optionProps} key={optionProps.key} />
-    ));
+  const renderSelectOptions = (
+    filter: (option: FilterSelectOptionProps, groupName?: string) => boolean
+  ) =>
+    hasGroupings
+      ? Object.entries(selectOptions)
+          .sort(([groupA], [groupB]) => groupA.localeCompare(groupB))
+          .map(([group, options], index) => {
+            const groupFiltered =
+              options?.filter((o) => filter(o, group)) ?? [];
+            return groupFiltered.length == 0 ? undefined : (
+              <SelectGroup key={`group-${index}`} label={group}>
+                {groupFiltered.map((optionProps) => (
+                  <SelectOption {...optionProps} key={optionProps.key} />
+                ))}
+              </SelectGroup>
+            );
+          })
+          .filter(Boolean)
+      : flatOptions
+          .filter((o) => filter(o))
+          .map((optionProps) => (
+            <SelectOption {...optionProps} key={optionProps.key} />
+          ));
 
-  const onOptionsFilter: SelectProps["onFilter"] = (_event, textInput) =>
-    renderSelectOptions(
-      category.selectOptions.filter((optionProps) => {
-        // Note: The in-dropdown filter can match the option's key or value. This may not be desirable?
-        if (!textInput) return false;
-        const optionValue = optionProps?.value?.toString();
-        return (
-          optionProps?.key?.toLowerCase().includes(textInput.toLowerCase()) ||
-          optionValue.toLowerCase().includes(textInput.toLowerCase())
-        );
-      })
-    );
+  /**
+   * Render options (with categories if available) where the option value OR key includes
+   * the filterInput.
+   */
+  const onOptionsFilter: SelectProps["onFilter"] = (_event, textInput) => {
+    const input = textInput?.toLowerCase();
 
-  const placeholderText =
-    category.placeholderText ||
-    `${t("actions.filterBy", {
-      what: category.title,
-    })}...`;
+    return renderSelectOptions((optionProps, groupName) => {
+      if (!input) return false;
+
+      // TODO: Checking for a filter match against the key or the value may not be desirable.
+      return (
+        groupName?.toLowerCase().includes(input) ||
+        optionProps?.key?.toLowerCase().includes(input) ||
+        optionProps?.value?.toString().toLowerCase().includes(input)
+      );
+    });
+  };
 
   return (
     <ToolbarFilter
@@ -140,7 +150,7 @@ export const MultiselectFilterControl = <
         hasInlineFilter
         onFilter={onOptionsFilter}
       >
-        {renderSelectOptions(category.selectOptions)}
+        {renderSelectOptions(() => true)}
       </Select>
     </ToolbarFilter>
   );

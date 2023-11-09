@@ -429,17 +429,19 @@ export const ApplicationsTable: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.tagName").toLowerCase(),
           }) + "...",
+        selectOptions: Object.fromEntries(
+          tagCategories
+            .map(({ name, tags }) =>
+              !tags
+                ? undefined
+                : [name, tags.map(({ name }) => ({ key: name, value: name }))]
+            )
+            .filter(Boolean)
+        ),
         getItemValue: (item) => {
           const tagNames = item?.tags?.map((tag) => tag.name).join("");
           return tagNames || "";
         },
-        selectOptions: dedupeFunction(
-          tagCategories
-            ?.map((tagCategory) => tagCategory?.tags)
-            .flat()
-            .filter((tag) => tag && tag.name)
-            .map((tag) => ({ key: tag?.name, value: tag?.name }))
-        ),
       },
     ],
     initialItemsPerPage: 10,
@@ -641,7 +643,7 @@ export const ApplicationsTable: React.FC = () => {
         <Toolbar {...toolbarProps}>
           <ToolbarContent>
             <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
-            <FilterToolbar {...filterToolbarProps} />
+            <FilterToolbar<Application, string> {...filterToolbarProps} />
             <ToolbarGroup variant="button-group">
               <ToolbarItem>
                 <RBAC
