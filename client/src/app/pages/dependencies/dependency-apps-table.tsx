@@ -20,7 +20,7 @@ import { SimplePagination } from "@app/components/SimplePagination";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { useFetchAppDependencies } from "@app/queries/dependencies";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
-import { useFetchTags } from "@app/queries/tags";
+import { useFetchTagsWithTagItems } from "@app/queries/tags";
 
 export interface IDependencyAppsTableProps {
   dependency: AnalysisDependency;
@@ -31,7 +31,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
 }) => {
   const { t } = useTranslation();
   const { businessServices } = useFetchBusinessServices();
-  const { tags } = useFetchTags();
+  const { tagCategories, tags } = useFetchTagsWithTagItems();
 
   const tableControlState = useTableControlState({
     persistTo: "urlParams",
@@ -54,7 +54,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
         type: FilterType.search,
         placeholderText:
           t("actions.filterBy", {
-            what: "name", // TODO i18n
+            what: t("terms.name").toLowerCase(),
           }) + "...",
         getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
@@ -78,9 +78,25 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
           t("actions.filterBy", {
             what: t("terms.tagName").toLowerCase(),
           }) + "...",
-        selectOptions: [...new Set(tags.map((tag) => tag.name))].map(
-          (tagName) => ({ key: tagName, value: tagName })
+        selectOptions: Object.fromEntries(
+          tagCategories
+            .map(({ name, tags }) =>
+              !tags
+                ? undefined
+                : [name, tags.map(({ name }) => ({ key: name, value: name }))]
+            )
+            .filter(Boolean)
         ),
+        // NOTE: The same tag name can appear in multiple tag categories.
+        //       To replicate the behavior of the app inventory page, selecting a tag name
+        //       will perform an OR filter matching all tags with that name across tag categories.
+        //       In the future we may instead want to present the tag select options to the user in category sections.
+        getServerFilterValue: (tagNames) =>
+          tagNames?.flatMap((tagName) =>
+            tags
+              .filter((tag) => tag.name === tagName)
+              .map((tag) => String(tag.id))
+          ),
       },
     ],
     initialItemsPerPage: 10,
