@@ -52,6 +52,8 @@ export const useFetchTagCategories = () => {
 export interface TagItemType {
   id: number;
   name: string;
+  categoryName: string;
+  tagName: string;
   tooltip?: string;
 }
 
@@ -81,6 +83,8 @@ export const useFetchTagsWithTagItems = () => {
     return tags
       .map<TagItemType>((tag) => ({
         id: tag.id,
+        categoryName: tag.category?.name ?? "",
+        tagName: tag.name,
         name: `${tag.category?.name} / ${tag.name}`,
         tooltip: tag.category?.name,
       }))
@@ -88,6 +92,7 @@ export const useFetchTagsWithTagItems = () => {
   }, [tags]);
 
   return {
+    tagCategories,
     tags,
     tagItems,
     isFetching,
