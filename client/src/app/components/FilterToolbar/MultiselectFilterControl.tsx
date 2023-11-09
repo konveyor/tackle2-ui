@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ToolbarFilter, Tooltip } from "@patternfly/react-core";
+import { ToolbarChip, ToolbarFilter, Tooltip } from "@patternfly/react-core";
 import {
   Select,
   SelectOption,
@@ -70,8 +70,9 @@ export const MultiselectFilterControl = <TItem,>({
     }
   };
 
-  const onFilterClear = (chip: string) => {
-    const optionKey = getOptionKeyFromChip(chip);
+  const onFilterClear = (chip: string | ToolbarChip) => {
+    const chipKey = typeof chip === "string" ? chip : chip.key;
+    const optionKey = getOptionKeyFromChip(chipKey);
     const newValue = filterValue
       ? filterValue.filter((val) => val !== optionKey)
       : [];
@@ -100,7 +101,7 @@ export const MultiselectFilterControl = <TItem,>({
             <div>{text}</div>
           </Tooltip>
         ),
-      };
+      } as ToolbarChip;
     }
     return chip;
   });
@@ -152,7 +153,7 @@ export const MultiselectFilterControl = <TItem,>({
     <ToolbarFilter
       id={`filter-control-${category.key}`}
       chips={chips}
-      deleteChip={(_, chip) => onFilterClear(chip as string)}
+      deleteChip={(_, chip) => onFilterClear(chip)}
       categoryName={category.title}
       showToolbarItem={showToolbarItem}
     >
