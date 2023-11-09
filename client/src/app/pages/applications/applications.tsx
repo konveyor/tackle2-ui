@@ -7,7 +7,6 @@ import {
   Title,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 const ApplicationsTable = lazy(() => import("./applications-table"));
 
@@ -16,7 +15,7 @@ export const Applications: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light} className={spacing.pb_0}>
+      <PageSection variant={PageSectionVariants.light}>
         <Level>
           <LevelItem>
             <Title headingLevel="h1">
