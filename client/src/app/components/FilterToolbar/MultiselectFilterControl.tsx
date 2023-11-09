@@ -1,34 +1,31 @@
 import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { ToolbarFilter } from "@patternfly/react-core";
+import { ToolbarChip, ToolbarFilter, Tooltip } from "@patternfly/react-core";
 import {
   Select,
   SelectOption,
   SelectOptionObject,
   SelectVariant,
   SelectProps,
+  SelectGroup,
 } from "@patternfly/react-core/deprecated";
 import { IFilterControlProps } from "./FilterControl";
 import {
   IMultiselectFilterCategory,
-  OptionPropsWithKey,
+  FilterSelectOptionProps,
 } from "./FilterToolbar";
 import { css } from "@patternfly/react-styles";
 
 import "./select-overrides.css";
 
-export interface IMultiselectFilterControlProps<
-  TItem,
-  TFilterCategoryKey extends string
-> extends IFilterControlProps<TItem, TFilterCategoryKey> {
-  category: IMultiselectFilterCategory<TItem, TFilterCategoryKey>;
+const CHIP_BREAK_DELINEATOR = " / ";
+
+export interface IMultiselectFilterControlProps<TItem>
+  extends IFilterControlProps<TItem, string> {
+  category: IMultiselectFilterCategory<TItem, string>;
   isScrollable?: boolean;
 }
 
-export const MultiselectFilterControl = <
-  TItem,
-  TFilterCategoryKey extends string
->({
+export const MultiselectFilterControl = <TItem,>({
   category,
   filterValue,
   setFilterValue,
@@ -36,42 +33,36 @@ export const MultiselectFilterControl = <
   isDisabled = false,
   isScrollable = false,
 }: React.PropsWithChildren<
-  IMultiselectFilterControlProps<TItem, TFilterCategoryKey>
+  IMultiselectFilterControlProps<TItem>
 >): JSX.Element | null => {
-  const { t } = useTranslation();
-
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
+
+  const { selectOptions } = category;
+  const hasGroupings = !Array.isArray(selectOptions);
+  const flatOptions = !hasGroupings
+    ? selectOptions
+    : Object.values(selectOptions).flatMap((i) => i);
 
   const getOptionKeyFromOptionValue = (
     optionValue: string | SelectOptionObject
-  ) =>
-    category.selectOptions.find(
-      (optionProps) => optionProps.value === optionValue
-    )?.key;
-
-  const getChipFromOptionValue = (
-    optionValue: string | SelectOptionObject | undefined
-  ) => (optionValue ? optionValue.toString() : "");
+  ) => flatOptions.find(({ value }) => value === optionValue)?.key;
 
   const getOptionKeyFromChip = (chip: string) =>
-    category.selectOptions.find(
-      (optionProps) => optionProps.value.toString() === chip
-    )?.key;
+    flatOptions.find(({ value }) => value.toString() === chip)?.key;
 
   const getOptionValueFromOptionKey = (optionKey: string) =>
-    category.selectOptions.find((optionProps) => optionProps.key === optionKey)
-      ?.value;
+    flatOptions.find(({ key }) => key === optionKey)?.value;
 
   const onFilterSelect = (value: string | SelectOptionObject) => {
     const optionKey = getOptionKeyFromOptionValue(value);
     if (optionKey && filterValue?.includes(optionKey)) {
-      let updatedValues = filterValue.filter(
+      const updatedValues = filterValue.filter(
         (item: string) => item !== optionKey
       );
       setFilterValue(updatedValues);
     } else {
       if (filterValue) {
-        let updatedValues = [...filterValue, optionKey];
+        const updatedValues = [...filterValue, optionKey];
         setFilterValue(updatedValues as string[]);
       } else {
         setFilterValue([optionKey || ""]);
@@ -79,8 +70,9 @@ export const MultiselectFilterControl = <
     }
   };
 
-  const onFilterClear = (chip: string) => {
-    const optionKey = getOptionKeyFromChip(chip);
+  const onFilterClear = (chip: string | ToolbarChip) => {
+    const chipKey = typeof chip === "string" ? chip : chip.key;
+    const optionKey = getOptionKeyFromChip(chipKey);
     const newValue = filterValue
       ? filterValue.filter((val) => val !== optionKey)
       : [];
@@ -88,41 +80,80 @@ export const MultiselectFilterControl = <
   };
 
   // Select expects "selections" to be an array of the "value" props from the relevant optionProps
-  const selections = filterValue
-    ? filterValue.map(getOptionValueFromOptionKey)
-    : null;
+  const selections = filterValue?.map(getOptionValueFromOptionKey) ?? [];
 
-  const chips = selections ? selections.map(getChipFromOptionValue) : [];
+  /*
+   * Note: Chips can be a `ToolbarChip` or a plain `string`.  Use a hack to split a
+   *       selected option in 2 parts.  Assuming the option is in the format "Group / Item"
+   *       break the text and show a chip with the Item and the Group as a tooltip.
+   */
+  const chips = selections.map((s, index) => {
+    const chip: string = s?.toString() ?? "";
+    const idx = chip.indexOf(CHIP_BREAK_DELINEATOR);
 
-  const renderSelectOptions = (options: OptionPropsWithKey[]) =>
-    options.map((optionProps) => (
-      <SelectOption {...optionProps} key={optionProps.key} />
-    ));
+    if (idx > 0) {
+      const tooltip = chip.substring(0, idx);
+      const text = chip.substring(idx + CHIP_BREAK_DELINEATOR.length);
+      return {
+        key: chip,
+        node: (
+          <Tooltip id={`tooltip-chip-${index}`} content={<div>{tooltip}</div>}>
+            <div>{text}</div>
+          </Tooltip>
+        ),
+      } as ToolbarChip;
+    }
+    return chip;
+  });
 
-  const onOptionsFilter: SelectProps["onFilter"] = (_event, textInput) =>
-    renderSelectOptions(
-      category.selectOptions.filter((optionProps) => {
-        // Note: The in-dropdown filter can match the option's key or value. This may not be desirable?
-        if (!textInput) return false;
-        const optionValue = optionProps?.value?.toString();
-        return (
-          optionProps?.key?.toLowerCase().includes(textInput.toLowerCase()) ||
-          optionValue.toLowerCase().includes(textInput.toLowerCase())
-        );
-      })
-    );
+  const renderSelectOptions = (
+    filter: (option: FilterSelectOptionProps, groupName?: string) => boolean
+  ) =>
+    hasGroupings
+      ? Object.entries(selectOptions)
+          .sort(([groupA], [groupB]) => groupA.localeCompare(groupB))
+          .map(([group, options], index) => {
+            const groupFiltered =
+              options?.filter((o) => filter(o, group)) ?? [];
+            return groupFiltered.length == 0 ? undefined : (
+              <SelectGroup key={`group-${index}`} label={group}>
+                {groupFiltered.map((optionProps) => (
+                  <SelectOption {...optionProps} key={optionProps.key} />
+                ))}
+              </SelectGroup>
+            );
+          })
+          .filter(Boolean)
+      : flatOptions
+          .filter((o) => filter(o))
+          .map((optionProps) => (
+            <SelectOption {...optionProps} key={optionProps.key} />
+          ));
 
-  const placeholderText =
-    category.placeholderText ||
-    `${t("actions.filterBy", {
-      what: category.title,
-    })}...`;
+  /**
+   * Render options (with categories if available) where the option value OR key includes
+   * the filterInput.
+   */
+  const onOptionsFilter: SelectProps["onFilter"] = (_event, textInput) => {
+    const input = textInput?.toLowerCase();
+
+    return renderSelectOptions((optionProps, groupName) => {
+      if (!input) return false;
+
+      // TODO: Checking for a filter match against the key or the value may not be desirable.
+      return (
+        groupName?.toLowerCase().includes(input) ||
+        optionProps?.key?.toLowerCase().includes(input) ||
+        optionProps?.value?.toString().toLowerCase().includes(input)
+      );
+    });
+  };
 
   return (
     <ToolbarFilter
       id={`filter-control-${category.key}`}
       chips={chips}
-      deleteChip={(_, chip) => onFilterClear(chip as string)}
+      deleteChip={(_, chip) => onFilterClear(chip)}
       categoryName={category.title}
       showToolbarItem={showToolbarItem}
     >
@@ -140,7 +171,7 @@ export const MultiselectFilterControl = <
         hasInlineFilter
         onFilter={onOptionsFilter}
       >
-        {renderSelectOptions(category.selectOptions)}
+        {renderSelectOptions(() => true)}
       </Select>
     </ToolbarFilter>
   );

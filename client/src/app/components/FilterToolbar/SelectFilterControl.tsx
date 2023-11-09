@@ -6,14 +6,17 @@ import {
   SelectOptionObject,
 } from "@patternfly/react-core/deprecated";
 import { IFilterControlProps } from "./FilterControl";
-import { ISelectFilterCategory, OptionPropsWithKey } from "./FilterToolbar";
+import {
+  ISelectFilterCategory,
+  FilterSelectOptionProps,
+} from "./FilterToolbar";
 import { css } from "@patternfly/react-styles";
 
 import "./select-overrides.css";
 
 export interface ISelectFilterControlProps<
   TItem,
-  TFilterCategoryKey extends string
+  TFilterCategoryKey extends string,
 > extends IFilterControlProps<TItem, TFilterCategoryKey> {
   category: ISelectFilterCategory<TItem, TFilterCategoryKey>;
   isScrollable?: boolean;
@@ -72,7 +75,7 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
 
   const chips = selections ? selections.map(getChipFromOptionValue) : [];
 
-  const renderSelectOptions = (options: OptionPropsWithKey[]) =>
+  const renderSelectOptions = (options: FilterSelectOptionProps[]) =>
     options.map((optionProps) => (
       <SelectOption {...optionProps} key={optionProps.key} />
     ));

@@ -18,7 +18,7 @@ import { Paths } from "@app/Paths";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { IssueFilterGroups } from "./issues";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
-import { useFetchTags } from "@app/queries/tags";
+import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { useTranslation } from "react-i18next";
 
 // Certain filters are shared between the Issues page and the Affected Applications Page.
@@ -30,18 +30,14 @@ const filterKeysToCarry = [
   "businessService.name",
   "tag.id",
 ] as const;
-type IssuesFilterKeyToCarry = (typeof filterKeysToCarry)[number];
-export type IssuesFilterValuesToCarry = Partial<
-  Record<IssuesFilterKeyToCarry, FilterValue>
->;
+export type IssuesFilterValuesToCarry = Partial<Record<string, FilterValue>>;
 
-export const useSharedAffectedApplicationFilterCategories = (): FilterCategory<
-  unknown,
-  IssuesFilterKeyToCarry
->[] => {
+export const useSharedAffectedApplicationFilterCategories = <
+  TItem,
+>(): FilterCategory<TItem, string>[] => {
   const { t } = useTranslation();
-  const { tags } = useFetchTags();
   const { businessServices } = useFetchBusinessServices();
+  const { tagCategories, tags, tagItems } = useFetchTagsWithTagItems();
 
   return [
     {
@@ -77,19 +73,16 @@ export const useSharedAffectedApplicationFilterCategories = (): FilterCategory<
         t("actions.filterBy", {
           what: t("terms.tagName").toLowerCase(),
         }) + "...",
-      selectOptions: [...new Set(tags.map((tag) => tag.name))].map(
-        (tagName) => ({ key: tagName, value: tagName })
-      ),
-      // NOTE: The same tag name can appear in multiple tag categories.
-      //       To replicate the behavior of the app inventory page, selecting a tag name
-      //       will perform an OR filter matching all tags with that name across tag categories.
-      //       In the future we may instead want to present the tag select options to the user in category sections.
-      getServerFilterValue: (tagNames) =>
-        tagNames?.flatMap((tagName) =>
-          tags
-            .filter((tag) => tag.name === tagName)
-            .map((tag) => String(tag.id))
-        ),
+      selectOptions: tagItems.map(({ name }) => ({ key: name, value: name })),
+      /**
+       * Convert the selected `selectOptions` to an array of tag ids the server side
+       * filtering will understand.
+       */
+      getServerFilterValue: (selectedOptions) =>
+        selectedOptions
+          ?.map((option) => tagItems.find((item) => option === item.name))
+          .filter(Boolean)
+          .map(({ id }) => String(id)) ?? [],
     },
   ];
 };
