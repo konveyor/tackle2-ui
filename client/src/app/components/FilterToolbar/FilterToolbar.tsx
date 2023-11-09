@@ -47,7 +47,7 @@ export interface IBasicFilterCategory<
    * For server-side filtering, return the search value for currently selected filter items.
    * Defaults to using the UI state's value if omitted.
    */
-  getServerFilterValue?: (filterValue: FilterValue) => FilterValue;
+  getServerFilterValue?: (filterValue: FilterValue) => string[] | undefined;
 }
 
 export interface IMultiselectFilterCategory<

@@ -37,7 +37,7 @@ export const useSharedAffectedApplicationFilterCategories = <
 >(): FilterCategory<TItem, string>[] => {
   const { t } = useTranslation();
   const { businessServices } = useFetchBusinessServices();
-  const { tagCategories, tags } = useFetchTagsWithTagItems();
+  const { tagCategories, tags, tagItems } = useFetchTagsWithTagItems();
 
   return [
     {
@@ -73,25 +73,16 @@ export const useSharedAffectedApplicationFilterCategories = <
         t("actions.filterBy", {
           what: t("terms.tagName").toLowerCase(),
         }) + "...",
-      selectOptions: Object.fromEntries(
-        tagCategories
-          .map(({ name, tags }) =>
-            !tags
-              ? undefined
-              : [name, tags.map(({ name }) => ({ key: name, value: name }))]
-          )
+      selectOptions: tagItems.map(({ name }) => ({ key: name, value: name })),
+      /**
+       * Convert the selected `selectOptions` to an array of tag ids the server side
+       * filtering will understand.
+       */
+      getServerFilterValue: (selectedOptions) =>
+        selectedOptions
+          ?.map((option) => tagItems.find((item) => option === item.name))
           .filter(Boolean)
-      ),
-      // NOTE: The same tag name can appear in multiple tag categories.
-      //       To replicate the behavior of the app inventory page, selecting a tag name
-      //       will perform an OR filter matching all tags with that name across tag categories.
-      //       In the future we may instead want to present the tag select options to the user in category sections.
-      getServerFilterValue: (tagNames) =>
-        tagNames?.flatMap((tagName) =>
-          tags
-            .filter((tag) => tag.name === tagName)
-            .map((tag) => String(tag.id))
-        ),
+          .map(({ id }) => String(id)) ?? [],
     },
   ];
 };

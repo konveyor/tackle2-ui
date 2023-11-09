@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ToolbarFilter } from "@patternfly/react-core";
+import { ToolbarFilter, Tooltip } from "@patternfly/react-core";
 import {
   Select,
   SelectOption,
@@ -16,6 +16,8 @@ import {
 import { css } from "@patternfly/react-styles";
 
 import "./select-overrides.css";
+
+const CHIP_BREAK_DELINEATOR = " / ";
 
 export interface IMultiselectFilterControlProps<TItem>
   extends IFilterControlProps<TItem, string> {
@@ -79,11 +81,29 @@ export const MultiselectFilterControl = <TItem,>({
   // Select expects "selections" to be an array of the "value" props from the relevant optionProps
   const selections = filterValue?.map(getOptionValueFromOptionKey) ?? [];
 
-  // TODO: Chips could be a `ToolbarChip` instead of a `string` and embed a tooltip.
-  // TODO: However, the selections value would need to be more specific to be able to
-  // TODO: map a group name to a specific select option (assuming that an item with the
-  // TODO: same name can exist in multiple groups)
-  const chips = selections.map((s) => s?.toString() ?? "");
+  /*
+   * Note: Chips can be a `ToolbarChip` or a plain `string`.  Use a hack to split a
+   *       selected option in 2 parts.  Assuming the option is in the format "Group / Item"
+   *       break the text and show a chip with the Item and the Group as a tooltip.
+   */
+  const chips = selections.map((s, index) => {
+    const chip: string = s?.toString() ?? "";
+    const idx = chip.indexOf(CHIP_BREAK_DELINEATOR);
+
+    if (idx > 0) {
+      const tooltip = chip.substring(0, idx);
+      const text = chip.substring(idx + CHIP_BREAK_DELINEATOR.length);
+      return {
+        key: chip,
+        node: (
+          <Tooltip id={`tooltip-chip-${index}`} content={<div>{tooltip}</div>}>
+            <div>{text}</div>
+          </Tooltip>
+        ),
+      };
+    }
+    return chip;
+  });
 
   const renderSelectOptions = (
     filter: (option: FilterSelectOptionProps, groupName?: string) => boolean
