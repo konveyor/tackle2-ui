@@ -22,35 +22,51 @@ export enum FilterType {
 
 export type FilterValue = string[] | undefined | null;
 
-export interface OptionPropsWithKey extends SelectOptionProps {
+export interface FilterSelectOptionProps extends SelectOptionProps {
   key: string;
 }
 
 export interface IBasicFilterCategory<
-  TItem, // The actual API objects we're filtering
+  /** The actual API objects we're filtering */
+  TItem,
   TFilterCategoryKey extends string, // Unique identifiers for each filter category (inferred from key properties if possible)
 > {
-  key: TFilterCategoryKey; // For use in the filterValues state object. Must be unique per category.
+  /** For use in the filterValues state object. Must be unique per category. */
+  key: TFilterCategoryKey;
+  /** Title of the filter as displayed in the filter selection dropdown and filter chip groups. */
   title: string;
-  type: FilterType; // If we want to support arbitrary filter types, this could be a React node that consumes context instead of an enum
+  /** Type of filter component to use to select the filter's content. */
+  type: FilterType;
+  /** Optional grouping to display this filter in the filter selection dropdown. */
   filterGroup?: string;
+  /** For client side filtering, return the value of `TItem` the filter will be applied against. */
   getItemValue?: (item: TItem) => string | boolean; // For client-side filtering
-  serverFilterField?: string; // For server-side filtering, defaults to `key` if omitted. Does not need to be unique if the server supports joining repeated filters.
-  getServerFilterValue?: (filterValue: FilterValue) => FilterValue; // For server-side filtering. Defaults to using the UI state's value if omitted.
+  /** For server-side filtering, defaults to `key` if omitted. Does not need to be unique if the server supports joining repeated filters. */
+  serverFilterField?: string;
+  /**
+   * For server-side filtering, return the search value for currently selected filter items.
+   * Defaults to using the UI state's value if omitted.
+   */
+  getServerFilterValue?: (filterValue: FilterValue) => string[] | undefined;
 }
 
 export interface IMultiselectFilterCategory<
   TItem,
   TFilterCategoryKey extends string,
 > extends IBasicFilterCategory<TItem, TFilterCategoryKey> {
-  selectOptions: OptionPropsWithKey[];
+  /** The full set of options to select from for this filter. */
+  selectOptions:
+    | FilterSelectOptionProps[]
+    | Record<string, FilterSelectOptionProps[]>;
+  /** Option search input field placeholder text. */
   placeholderText?: string;
+  /** How to connect multiple selected options together. Defaults to "AND". */
   logicOperator?: "AND" | "OR";
 }
 
 export interface ISelectFilterCategory<TItem, TFilterCategoryKey extends string>
   extends IBasicFilterCategory<TItem, TFilterCategoryKey> {
-  selectOptions: OptionPropsWithKey[];
+  selectOptions: FilterSelectOptionProps[];
 }
 
 export interface ISearchFilterCategory<TItem, TFilterCategoryKey extends string>

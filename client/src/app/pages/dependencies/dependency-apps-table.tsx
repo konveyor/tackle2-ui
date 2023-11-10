@@ -20,7 +20,7 @@ import { SimplePagination } from "@app/components/SimplePagination";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { useFetchAppDependencies } from "@app/queries/dependencies";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
-import { useFetchTags } from "@app/queries/tags";
+import { useFetchTagsWithTagItems } from "@app/queries/tags";
 
 export interface IDependencyAppsTableProps {
   dependency: AnalysisDependency;
@@ -31,7 +31,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
 }) => {
   const { t } = useTranslation();
   const { businessServices } = useFetchBusinessServices();
-  const { tags } = useFetchTags();
+  const { tagItems } = useFetchTagsWithTagItems();
 
   const tableControlState = useTableControlState({
     persistTo: "urlParams",
@@ -54,7 +54,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
         type: FilterType.search,
         placeholderText:
           t("actions.filterBy", {
-            what: "name", // TODO i18n
+            what: t("terms.name").toLowerCase(),
           }) + "...",
         getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
@@ -78,9 +78,16 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
           t("actions.filterBy", {
             what: t("terms.tagName").toLowerCase(),
           }) + "...",
-        selectOptions: [...new Set(tags.map((tag) => tag.name))].map(
-          (tagName) => ({ key: tagName, value: tagName })
-        ),
+        selectOptions: tagItems.map(({ name }) => ({ key: name, value: name })),
+        /**
+         * Convert the selected `selectOptions` to an array of tag ids the server side
+         * filtering will understand.
+         */
+        getServerFilterValue: (selectedOptions) =>
+          selectedOptions
+            ?.map((option) => tagItems.find((item) => option === item.name))
+            .filter(Boolean)
+            .map(({ id }) => String(id)) ?? [],
       },
     ],
     initialItemsPerPage: 10,
