@@ -9,16 +9,28 @@ import {
   getArchetypes,
   updateArchetype,
 } from "@app/api/rest";
+import {
+  assessmentsQueryKey,
+  assessmentsByItemIdQueryKey,
+} from "./assessments";
+import { reviewsQueryKey } from "./reviews";
 
 export const ARCHETYPES_QUERY_KEY = "archetypes";
 export const ARCHETYPE_QUERY_KEY = "archetype";
 
 export const useFetchArchetypes = () => {
+  const queryClient = useQueryClient();
   const { isLoading, isSuccess, error, refetch, data } = useQuery({
     initialData: [],
     queryKey: [ARCHETYPES_QUERY_KEY],
     queryFn: getArchetypes,
     refetchInterval: 5000,
+    onSuccess: () => {
+      queryClient.invalidateQueries([reviewsQueryKey]);
+      queryClient.invalidateQueries([assessmentsQueryKey]);
+      queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
+    },
+
     onError: (error: AxiosError) => console.log(error),
   });
 

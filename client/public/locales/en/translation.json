@@ -29,7 +29,9 @@
     "createTags": "Create tags",
     "cancelAnalysis": "Cancel analysis",
     "delete": "Delete",
-    "discardAssessment": "Discard assessment/review",
+    "discardAssessment": "Discard assessment(s)",
+    "discardReview": "Discard review",
+
     "downloadCsvTemplate": "Download CSV template",
     "download": "Download {{what}}",
     "duplicate": "Duplicate",
@@ -360,6 +362,7 @@
     "reports": "Reports",
     "repositoryType": "Repository type",
     "review": "Review",
+    "reviewedArchetype": "Archetype reviewed",
     "reviews": "Reviews",
     "reviewComments": "Review comments",
     "risk": "Risk",
