@@ -49,7 +49,7 @@ export const ReviewFields: React.FC<{
     .filter(Boolean);
 
   const groupedReviewList: ReviewDrawerLabelItem[] = [
-    ...(archetypeReview
+    ...(archetypeReview && !appReview
       ? [
           {
             review: archetypeReview,
@@ -66,12 +66,11 @@ export const ReviewFields: React.FC<{
             isArchetype: false,
           },
         ]
-      : []),
-    ...matchedArchetypeReviews.map((archetypeReview) => ({
-      review: archetypeReview,
-      name: archetypeReview?.archetype?.name,
-      isArchetype: true,
-    })),
+      : matchedArchetypeReviews.map((archetypeReview) => ({
+          review: archetypeReview,
+          name: archetypeReview?.archetype?.name,
+          isArchetype: true,
+        }))),
   ].filter((item) => item.review?.proposedAction);
 
   return (

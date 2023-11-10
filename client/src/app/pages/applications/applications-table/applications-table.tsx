@@ -92,7 +92,11 @@ import { ImportApplicationsForm } from "../components/import-applications-form";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { getAssessmentsByItemId, getTaskById } from "@app/api/rest";
+import {
+  getArchetypeById,
+  getAssessmentsByItemId,
+  getTaskById,
+} from "@app/api/rest";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useState } from "react";
@@ -127,7 +131,13 @@ export const ApplicationsTable: React.FC = () => {
     Ref[] | null
   >(null);
 
+  const [archetypeRefsToOverrideReview, setArchetypeRefsToOverrideReview] =
+    React.useState<Ref[] | null>(null);
+
   const [applicationToAssess, setApplicationToAssess] =
+    React.useState<Application | null>(null);
+
+  const [applicationToReview, setApplicationToReview] =
     React.useState<Application | null>(null);
 
   /*** Analysis */
@@ -635,8 +645,38 @@ export const ApplicationsTable: React.FC = () => {
       handleNavToAssessment(application);
     }
   };
-  const reviewSelectedApp = (application: Application) => {
-    if (application.review) {
+
+  const reviewSelectedApp = async (application: Application) => {
+    setApplicationToReview(application);
+    if (application?.archetypes?.length) {
+      for (const archetypeRef of application.archetypes) {
+        try {
+          const archetype = await getArchetypeById(archetypeRef.id);
+
+          if (archetype?.review) {
+            setArchetypeRefsToOverrideReview(application.archetypes);
+            break;
+          } else if (application.review) {
+            setReviewToEdit(application.id);
+          } else {
+            history.push(
+              formatPath(Paths.applicationsReview, {
+                applicationId: application.id,
+              })
+            );
+          }
+        } catch (error) {
+          console.error(
+            `Error fetching archetype with ID ${archetypeRef.id}:`,
+            error
+          );
+          pushNotification({
+            title: t("terms.error"),
+            variant: "danger",
+          });
+        }
+      }
+    } else if (application.review) {
       setReviewToEdit(application.id);
     } else {
       history.push(
@@ -1204,6 +1244,34 @@ export const ApplicationsTable: React.FC = () => {
         />
         <ConfirmDialog
           title={t("composed.new", {
+            what: t("terms.review").toLowerCase(),
+          })}
+          alertMessage={t("message.overrideArchetypeReviewDescription", {
+            what:
+              archetypeRefsToOverrideReview
+                ?.map((archetypeRef) => archetypeRef.name)
+                .join(", ") || "Archetype name",
+          })}
+          message={t("message.overrideArchetypeReviewConfirmation")}
+          titleIconVariant={"warning"}
+          isOpen={archetypeRefsToOverrideReview !== null}
+          confirmBtnVariant={ButtonVariant.primary}
+          confirmBtnLabel={t("actions.override")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setArchetypeRefsToOverrideReview(null)}
+          onClose={() => setArchetypeRefsToOverrideReview(null)}
+          onConfirm={() => {
+            applicationToReview &&
+              history.push(
+                formatPath(Paths.applicationsReview, {
+                  applicationId: applicationToReview?.id,
+                })
+              );
+            setArchetypeRefsToOverride(null);
+          }}
+        />
+        <ConfirmDialog
+          title={t("composed.new", {
             what: t("terms.assessment").toLowerCase(),
           })}
           alertMessage={t("message.overrideAssessmentDescription", {
@@ -1226,11 +1294,6 @@ export const ApplicationsTable: React.FC = () => {
               handleNavToViewArchetypes(applicationToAssess);
           }}
           onConfirm={() => {
-            history.push(
-              formatPath(Paths.applicationAssessmentActions, {
-                applicationId: activeItem?.id,
-              })
-            );
             setArchetypeRefsToOverride(null);
             applicationToAssess && handleNavToAssessment(applicationToAssess);
           }}
