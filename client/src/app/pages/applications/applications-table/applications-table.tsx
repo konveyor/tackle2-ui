@@ -82,7 +82,7 @@ import { useCancelTaskMutation, useFetchTasks } from "@app/queries/tasks";
 import { useDeleteAssessmentMutation } from "@app/queries/assessments";
 import { useDeleteReviewMutation } from "@app/queries/reviews";
 import { useFetchIdentities } from "@app/queries/identities";
-import { useFetchTagCategories } from "@app/queries/tags";
+import { useFetchTagsWithTagItems } from "@app/queries/tags";
 
 // Relative components
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
@@ -173,7 +173,7 @@ export const ApplicationsTable: React.FC = () => {
   );
   /*** Analysis */
 
-  const { tagCategories: tagCategories } = useFetchTagCategories();
+  const { tagItems } = useFetchTagsWithTagItems();
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
     React.useState<Application | null>(null);
@@ -442,17 +442,22 @@ export const ApplicationsTable: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.tagName").toLowerCase(),
           }) + "...",
+        selectOptions: tagItems.map(({ name }) => ({ key: name, value: name })),
+        /**
+         * Create a single string from an Application's Tags that can be used to
+         * match against the `selectOptions`'s values (here on the client side)
+         */
         getItemValue: (item) => {
-          const tagNames = item?.tags?.map((tag) => tag.name).join("");
-          return tagNames || "";
+          const appTagItems = item?.tags
+            ?.map(({ id }) => tagItems.find((item) => id === item.id))
+            .filter(Boolean);
+
+          const matchString = !appTagItems
+            ? ""
+            : appTagItems.map(({ name }) => name).join("^");
+
+          return matchString;
         },
-        selectOptions: dedupeFunction(
-          tagCategories
-            ?.map((tagCategory) => tagCategory?.tags)
-            .flat()
-            .filter((tag) => tag && tag.name)
-            .map((tag) => ({ key: tag?.name, value: tag?.name }))
-        ),
       },
     ],
     initialItemsPerPage: 10,
@@ -654,7 +659,7 @@ export const ApplicationsTable: React.FC = () => {
         <Toolbar {...toolbarProps}>
           <ToolbarContent>
             <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
-            <FilterToolbar {...filterToolbarProps} />
+            <FilterToolbar<Application, string> {...filterToolbarProps} />
             <ToolbarGroup variant="button-group">
               <ToolbarItem>
                 <RBAC
