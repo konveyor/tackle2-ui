@@ -79,28 +79,6 @@ export const Dependencies: React.FC = () => {
           }) + "...",
         getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
-      {
-        key: "version",
-        title: t("terms.version"),
-        type: FilterType.search,
-        filterGroup: "Dependency",
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.label").toLowerCase(),
-          }) + "...",
-        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
-      },
-      {
-        key: "sha",
-        title: "SHA",
-        type: FilterType.search,
-        filterGroup: "Dependency",
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.name").toLowerCase(),
-          }) + "...",
-        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
-      },
     ],
     initialItemsPerPage: 10,
   });
@@ -179,8 +157,6 @@ export const Dependencies: React.FC = () => {
                   <Th {...getThProps({ columnKey: "foundIn" })} />
                   <Th {...getThProps({ columnKey: "provider" })} />
                   <Th {...getThProps({ columnKey: "labels" })} />
-                  <Th {...getThProps({ columnKey: "version" })} />
-                  <Th {...getThProps({ columnKey: "sha" })} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -228,19 +204,10 @@ export const Dependencies: React.FC = () => {
                         </Td>
                         <Td width={10} {...getTdProps({ columnKey: "labels" })}>
                           <LabelGroup>
-                            {dependency?.labels?.map((label) => {
-                              return <Label>{label}</Label>;
-                            })}
+                            {dependency?.labels?.map((label, index) => (
+                              <Label key={index}>{label}</Label>
+                            ))}
                           </LabelGroup>
-                        </Td>
-                        <Td
-                          width={10}
-                          {...getTdProps({ columnKey: "version" })}
-                        >
-                          {dependency.version}
-                        </Td>
-                        <Td width={10} {...getTdProps({ columnKey: "sha" })}>
-                          {dependency.sha}
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>
@@ -259,7 +226,7 @@ export const Dependencies: React.FC = () => {
       <DependencyAppsDetailDrawer
         dependency={activeItem || null}
         onCloseClick={() => setActiveItem(null)}
-      ></DependencyAppsDetailDrawer>
+      />
     </>
   );
 };
