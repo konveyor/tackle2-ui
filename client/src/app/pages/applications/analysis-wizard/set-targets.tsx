@@ -141,6 +141,7 @@ export const SetTargets: React.FC = () => {
         value={provider}
         toggleAriaLabel="Action select dropdown toggle"
         toggleId="action-select-toggle"
+        hideClearButton
         id="action-select"
         options={[
           {

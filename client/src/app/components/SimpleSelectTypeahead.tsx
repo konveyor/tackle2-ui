@@ -27,6 +27,7 @@ export interface ISimpleSelectBasicProps {
   selectMultiple?: boolean;
   width?: number;
   noResultsFoundText?: string;
+  hideClearButton?: boolean;
 }
 
 export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
@@ -40,6 +41,7 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
   selectMultiple = false,
   width,
   noResultsFoundText,
+  hideClearButton = false,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<string | string[]>(
@@ -248,7 +250,7 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
               <TimesIcon aria-hidden />
             </Button>
           )}
-          {!selectMultiple && !!inputValue && (
+          {!hideClearButton && !selectMultiple && !!inputValue && (
             <Button
               variant="plain"
               onClick={() => {
