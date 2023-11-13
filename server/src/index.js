@@ -23,6 +23,7 @@ const brandType = KONVEYOR_ENV.PROFILE;
 const port = parseInt(KONVEYOR_ENV.PORT, 10) || 8080;
 
 const app = express();
+app.set("x-powered-by", false);
 app.use(cookieParser());
 
 // Setup proxy handling
