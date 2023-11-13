@@ -93,16 +93,16 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
           >
             {t("actions.cancel")}
           </Button>
-          {!isFirstStep && (
+          {
             <Button
               variant="link"
               onClick={onSaveAsDraft}
-              isDisabled={isFormInvalid || isFirstStep || isSaveAsDraftDisabled}
+              isDisabled={isFormInvalid || isSaveAsDraftDisabled}
               cy-data="save-as-draft"
             >
               {t("actions.saveAsDraft")}
             </Button>
-          )}
+          }
         </>
       </WizardFooterWrapper>
     </>
