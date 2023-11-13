@@ -17,6 +17,9 @@ import {
   MenuToggle,
   MenuToggleElement,
   Modal,
+  Tooltip,
+  Grid,
+  GridItem,
 } from "@patternfly/react-core";
 import { PencilAltIcon, TagIcon, EllipsisVIcon } from "@patternfly/react-icons";
 import {
@@ -28,6 +31,7 @@ import {
   ActionsColumn,
   Tbody,
 } from "@patternfly/react-table";
+import { QuestionCircleIcon } from "@patternfly/react-icons/dist/esm/icons/question-circle-icon";
 
 // @app components and utilities
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -88,7 +92,11 @@ import { ImportApplicationsForm } from "../components/import-applications-form";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { getAssessmentsByItemId, getTaskById } from "@app/api/rest";
+import {
+  getArchetypeById,
+  getAssessmentsByItemId,
+  getTaskById,
+} from "@app/api/rest";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useState } from "react";
@@ -123,7 +131,13 @@ export const ApplicationsTable: React.FC = () => {
     Ref[] | null
   >(null);
 
+  const [archetypeRefsToOverrideReview, setArchetypeRefsToOverrideReview] =
+    React.useState<Ref[] | null>(null);
+
   const [applicationToAssess, setApplicationToAssess] =
+    React.useState<Application | null>(null);
+
+  const [applicationToReview, setApplicationToReview] =
     React.useState<Application | null>(null);
 
   /*** Analysis */
@@ -184,7 +198,10 @@ export const ApplicationsTable: React.FC = () => {
     Application[]
   >([]);
 
-  const [assessmentOrReviewToDiscard, setAssessmentOrReviewToDiscard] =
+  const [assessmentToDiscard, setAssessmentToDiscard] =
+    React.useState<Application | null>(null);
+
+  const [reviewToDiscard, setReviewToDiscard] =
     React.useState<Application | null>(null);
 
   const {
@@ -257,15 +274,8 @@ export const ApplicationsTable: React.FC = () => {
     onDeleteError
   );
 
-  const discardAssessmentAndReview = async (application: Application) => {
+  const discardAssessment = async (application: Application) => {
     try {
-      if (application.review?.id) {
-        await deleteReview({
-          id: application.review.id,
-          name: application.name,
-        });
-      }
-
       if (application.assessments) {
         await Promise.all(
           application.assessments.map(async (assessment) => {
@@ -277,7 +287,20 @@ export const ApplicationsTable: React.FC = () => {
         );
       }
     } catch (error) {
-      console.error("Error while deleting assessments and/or reviews:", error);
+      console.error("Error while deleting assessments:", error);
+    }
+  };
+
+  const discardReview = async (application: Application) => {
+    try {
+      if (application.review?.id) {
+        await deleteReview({
+          id: application.review.id,
+          name: application.name,
+        });
+      }
+    } catch (error) {
+      console.error("Error while deleting review:", error);
     }
   };
 
@@ -622,8 +645,38 @@ export const ApplicationsTable: React.FC = () => {
       handleNavToAssessment(application);
     }
   };
-  const reviewSelectedApp = (application: Application) => {
-    if (application.review) {
+
+  const reviewSelectedApp = async (application: Application) => {
+    setApplicationToReview(application);
+    if (application?.archetypes?.length) {
+      for (const archetypeRef of application.archetypes) {
+        try {
+          const archetype = await getArchetypeById(archetypeRef.id);
+
+          if (archetype?.review) {
+            setArchetypeRefsToOverrideReview(application.archetypes);
+            break;
+          } else if (application.review) {
+            setReviewToEdit(application.id);
+          } else {
+            history.push(
+              formatPath(Paths.applicationsReview, {
+                applicationId: application.id,
+              })
+            );
+          }
+        } catch (error) {
+          console.error(
+            `Error fetching archetype with ID ${archetypeRef.id}:`,
+            error
+          );
+          pushNotification({
+            title: t("terms.error"),
+            variant: "danger",
+          });
+        }
+      }
+    } else if (application.review) {
       setReviewToEdit(application.id);
     } else {
       history.push(
@@ -827,13 +880,27 @@ export const ApplicationsTable: React.FC = () => {
                         modifier="truncate"
                         {...getTdProps({ columnKey: "review" })}
                       >
-                        <IconedStatus
-                          preset={
-                            isAppReviewed || hasReviewedArchetype
-                              ? "Completed"
-                              : "NotStarted"
-                          }
-                        />
+                        <Grid>
+                          <GridItem span={10}>
+                            <IconedStatus
+                              preset={
+                                isAppReviewed || hasReviewedArchetype
+                                  ? "Completed"
+                                  : "NotStarted"
+                              }
+                            />
+                          </GridItem>
+                          <GridItem span={2}>
+                            {hasReviewedArchetype ? (
+                              <Tooltip
+                                content={t("terms.reviewedArchetype")}
+                                aria-label="review"
+                              >
+                                <QuestionCircleIcon />
+                              </Tooltip>
+                            ) : null}
+                          </GridItem>
+                        </Grid>
                       </Td>
                       <Td
                         width={10}
@@ -879,14 +946,21 @@ export const ApplicationsTable: React.FC = () => {
                               title: t("actions.review"),
                               onClick: () => reviewSelectedApp(application),
                             },
-                            ...(application?.review
+                            ...(application?.assessments?.length
                               ? [
                                   {
                                     title: t("actions.discardAssessment"),
                                     onClick: () =>
-                                      setAssessmentOrReviewToDiscard(
-                                        application
-                                      ),
+                                      setAssessmentToDiscard(application),
+                                  },
+                                ]
+                              : []),
+                            ...(application?.review
+                              ? [
+                                  {
+                                    title: t("actions.discardReview"),
+                                    onClick: () =>
+                                      setReviewToDiscard(application),
                                   },
                                 ]
                               : []),
@@ -1071,16 +1145,46 @@ export const ApplicationsTable: React.FC = () => {
             what: t("terms.assessment").toLowerCase(),
           })}
           titleIconVariant={"warning"}
-          isOpen={assessmentOrReviewToDiscard !== null}
+          isOpen={assessmentToDiscard !== null}
           message={
             <span>
               <Trans
                 i18nKey="dialog.message.discardAssessment"
                 values={{
-                  applicationName: assessmentOrReviewToDiscard?.name,
+                  applicationName: assessmentToDiscard?.name,
                 }}
               >
-                The assessment for <strong>applicationName</strong> will be
+                The assessment(s) for{" "}
+                <strong>{assessmentToDiscard?.name}</strong> will be discarded.
+                Do you wish to continue?
+              </Trans>
+            </span>
+          }
+          confirmBtnVariant={ButtonVariant.primary}
+          confirmBtnLabel={t("actions.continue")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setAssessmentToDiscard(null)}
+          onClose={() => setAssessmentToDiscard(null)}
+          onConfirm={() => {
+            discardAssessment(assessmentToDiscard!);
+            setAssessmentToDiscard(null);
+          }}
+        />
+        <ConfirmDialog
+          title={t("dialog.title.discard", {
+            what: t("terms.review").toLowerCase(),
+          })}
+          titleIconVariant={"warning"}
+          isOpen={reviewToDiscard !== null}
+          message={
+            <span>
+              <Trans
+                i18nKey="dialog.message.discardReview"
+                values={{
+                  applicationName: reviewToDiscard?.name,
+                }}
+              >
+                The review for <strong>{reviewToDiscard?.name}</strong> will be
                 discarded, as well as the review result. Do you wish to
                 continue?
               </Trans>
@@ -1089,11 +1193,11 @@ export const ApplicationsTable: React.FC = () => {
           confirmBtnVariant={ButtonVariant.primary}
           confirmBtnLabel={t("actions.continue")}
           cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setAssessmentOrReviewToDiscard(null)}
-          onClose={() => setAssessmentOrReviewToDiscard(null)}
+          onCancel={() => setReviewToDiscard(null)}
+          onClose={() => setReviewToDiscard(null)}
           onConfirm={() => {
-            discardAssessmentAndReview(assessmentOrReviewToDiscard!);
-            setAssessmentOrReviewToDiscard(null);
+            discardReview(reviewToDiscard!);
+            setReviewToDiscard(null);
           }}
         />
         <ConfirmDialog
@@ -1140,6 +1244,34 @@ export const ApplicationsTable: React.FC = () => {
         />
         <ConfirmDialog
           title={t("composed.new", {
+            what: t("terms.review").toLowerCase(),
+          })}
+          alertMessage={t("message.overrideArchetypeReviewDescription", {
+            what:
+              archetypeRefsToOverrideReview
+                ?.map((archetypeRef) => archetypeRef.name)
+                .join(", ") || "Archetype name",
+          })}
+          message={t("message.overrideArchetypeReviewConfirmation")}
+          titleIconVariant={"warning"}
+          isOpen={archetypeRefsToOverrideReview !== null}
+          confirmBtnVariant={ButtonVariant.primary}
+          confirmBtnLabel={t("actions.override")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setArchetypeRefsToOverrideReview(null)}
+          onClose={() => setArchetypeRefsToOverrideReview(null)}
+          onConfirm={() => {
+            applicationToReview &&
+              history.push(
+                formatPath(Paths.applicationsReview, {
+                  applicationId: applicationToReview?.id,
+                })
+              );
+            setArchetypeRefsToOverride(null);
+          }}
+        />
+        <ConfirmDialog
+          title={t("composed.new", {
             what: t("terms.assessment").toLowerCase(),
           })}
           alertMessage={t("message.overrideAssessmentDescription", {
@@ -1162,11 +1294,6 @@ export const ApplicationsTable: React.FC = () => {
               handleNavToViewArchetypes(applicationToAssess);
           }}
           onConfirm={() => {
-            history.push(
-              formatPath(Paths.applicationAssessmentActions, {
-                applicationId: activeItem?.id,
-              })
-            );
             setArchetypeRefsToOverride(null);
             applicationToAssess && handleNavToAssessment(applicationToAssess);
           }}

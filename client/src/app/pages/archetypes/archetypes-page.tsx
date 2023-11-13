@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
   Button,
@@ -57,6 +57,8 @@ import { AxiosError } from "axios";
 import { Paths } from "@app/Paths";
 import { SimplePagination } from "@app/components/SimplePagination";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { useDeleteAssessmentMutation } from "@app/queries/assessments";
+import { useDeleteReviewMutation } from "@app/queries/reviews";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
@@ -71,6 +73,11 @@ const Archetypes: React.FC = () => {
   const [archetypeToEdit, setArchetypeToEdit] = useState<Archetype | null>(
     null
   );
+  const [assessmentToDiscard, setAssessmentToDiscard] =
+    React.useState<Archetype | null>(null);
+
+  const [reviewToDiscard, setReviewToDiscard] =
+    React.useState<Archetype | null>(null);
 
   const [archetypeToDuplicate, setArchetypeToDuplicate] =
     useState<Archetype | null>(null);
@@ -97,6 +104,70 @@ const Archetypes: React.FC = () => {
       }),
     onError
   );
+  const onDeleteAssessmentSuccess = (name: string) => {
+    pushNotification({
+      title: t("toastr.success.assessmentDiscarded", {
+        application: name,
+      }),
+      variant: "success",
+    });
+  };
+
+  const onDeleteError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
+    onDeleteAssessmentSuccess,
+    onDeleteError
+  );
+
+  const discardAssessment = async (archetype: Archetype) => {
+    try {
+      if (archetype.assessments) {
+        await Promise.all(
+          archetype.assessments.map(async (assessment) => {
+            await deleteAssessment({
+              assessmentId: assessment.id,
+              archetypeId: archetype.id,
+            });
+          })
+        );
+      }
+    } catch (error) {
+      console.error("Error while deleting assessments:", error);
+    }
+  };
+
+  const onDeleteReviewSuccess = (name: string) => {
+    pushNotification({
+      title: t("toastr.success.reviewDiscarded", {
+        application: name,
+      }),
+      variant: "success",
+    });
+  };
+
+  const { mutate: deleteReview } = useDeleteReviewMutation(
+    onDeleteReviewSuccess,
+    onDeleteError
+  );
+
+  const discardReview = async (archetype: Archetype) => {
+    try {
+      if (archetype.review?.id) {
+        await deleteReview({
+          id: archetype.review.id,
+          name: archetype.name,
+        });
+      }
+    } catch (error) {
+      console.error("Error while deleting review:", error);
+    }
+  };
 
   const tableControls = useLocalTableControls({
     persistTo: "urlParams",
@@ -319,6 +390,24 @@ const Archetypes: React.FC = () => {
                                 title: t("actions.edit"),
                                 onClick: () => setArchetypeToEdit(archetype),
                               },
+                              ...(archetype?.assessments?.length
+                                ? [
+                                    {
+                                      title: t("actions.discardAssessment"),
+                                      onClick: () =>
+                                        setAssessmentToDiscard(archetype),
+                                    },
+                                  ]
+                                : []),
+                              ...(archetype?.review
+                                ? [
+                                    {
+                                      title: t("actions.discardReview"),
+                                      onClick: () =>
+                                        setReviewToDiscard(archetype),
+                                    },
+                                  ]
+                                : []),
                               { isSeparator: true },
                               {
                                 title: t("actions.delete"),
@@ -386,6 +475,64 @@ const Archetypes: React.FC = () => {
           onClose={() => setArchetypeToDuplicate(null)}
         />
       </Modal>
+      <ConfirmDialog
+        title={t("dialog.title.discard", {
+          what: t("terms.assessment").toLowerCase(),
+        })}
+        titleIconVariant={"warning"}
+        isOpen={assessmentToDiscard !== null}
+        message={
+          <span>
+            <Trans
+              i18nKey="dialog.message.discardAssessment"
+              values={{
+                applicationName: assessmentToDiscard?.name,
+              }}
+            >
+              The assessment(s) for <strong>{assessmentToDiscard?.name}</strong>{" "}
+              will be discarded. Do you wish to continue?
+            </Trans>
+          </span>
+        }
+        confirmBtnVariant={ButtonVariant.primary}
+        confirmBtnLabel={t("actions.continue")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setAssessmentToDiscard(null)}
+        onClose={() => setAssessmentToDiscard(null)}
+        onConfirm={() => {
+          discardAssessment(assessmentToDiscard!);
+          setAssessmentToDiscard(null);
+        }}
+      />
+      <ConfirmDialog
+        title={t("dialog.title.discard", {
+          what: t("terms.review").toLowerCase(),
+        })}
+        titleIconVariant={"warning"}
+        isOpen={reviewToDiscard !== null}
+        message={
+          <span>
+            <Trans
+              i18nKey="dialog.message.discardReview"
+              values={{
+                applicationName: reviewToDiscard?.name,
+              }}
+            >
+              The review for <strong>{reviewToDiscard?.name}</strong> will be
+              discarded, as well as the review result. Do you wish to continue?
+            </Trans>
+          </span>
+        }
+        confirmBtnVariant={ButtonVariant.primary}
+        confirmBtnLabel={t("actions.continue")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setReviewToDiscard(null)}
+        onClose={() => setReviewToDiscard(null)}
+        onConfirm={() => {
+          discardReview(reviewToDiscard!);
+          setReviewToDiscard(null);
+        }}
+      />
 
       {/* Delete confirm modal */}
       <ConfirmDialog
