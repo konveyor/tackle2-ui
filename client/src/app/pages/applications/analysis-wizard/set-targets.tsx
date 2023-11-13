@@ -6,6 +6,7 @@ import {
   Gallery,
   GalleryItem,
   Form,
+  Alert,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
@@ -155,6 +156,15 @@ export const SetTargets: React.FC = () => {
           setProvider(selection as string);
         }}
       />
+      {values.selectedTargets.length === 0 &&
+        values.customRulesFiles.length === 0 &&
+        !values.sourceRepository && (
+          <Alert
+            variant="warning"
+            isInline
+            title={t("wizard.label.skipTargets")}
+          />
+        )}
       <Gallery hasGutter>
         {targetOrderSetting.isSuccess
           ? targetOrderSetting.data.map((id, index) => {
