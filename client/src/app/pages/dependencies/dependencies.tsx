@@ -104,7 +104,6 @@ export const Dependencies: React.FC = () => {
     ],
     initialItemsPerPage: 10,
   });
-
   const {
     result: { data: currentPageItems, total: totalItemCount },
     isFetching,
@@ -193,7 +192,7 @@ export const Dependencies: React.FC = () => {
             >
               {currentPageItems?.map((dependency, rowIndex) => {
                 return (
-                  <Tbody key={dependency.name}>
+                  <Tbody key={dependency.name + rowIndex}>
                     <Tr {...getTrProps({ item: dependency })}>
                       <TableRowContentWithControls
                         {...tableControls}
