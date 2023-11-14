@@ -166,6 +166,5 @@ const SHA_REGEX =
  */
 export const extractFirstSha = (str: string): string | undefined => {
   const match = str.match(SHA_REGEX);
-  console.log("match:", match);
   return match && match[0] ? match[0] : undefined;
 };
