@@ -151,3 +151,20 @@ export const formatPath = (path: Paths, data: any) => {
 
   return url;
 };
+
+/**
+ * Regular expression to match a SHA hash in a string.  Different versions of the SHA
+ * hash have different lengths.  Check in descending length order so the longest SHA
+ * string can be captured.
+ */
+const SHA_REGEX =
+  /([a-f0-9]{128}|[a-f0-9]{96}|[a-f0-9]{64}|[a-f0-9]{56}|[a-f0-9]{40})/g;
+
+/**
+ * In any given string, find the first thing that looks like a sha hash and return it.
+ * If nothing looks like a sha hash, return undefined.
+ */
+export const extractFirstSha = (str: string): string | undefined => {
+  const match = str.match(SHA_REGEX);
+  return match && match[0] ? match[0] : undefined;
+};
