@@ -106,8 +106,6 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
       },
       implicitFilters: [
         { field: "dep.name", operator: "=", value: dependency.name },
-        { field: "dep.version", operator: "=", value: dependency.version },
-        { field: "dep.sha", operator: "=", value: dependency.sha },
       ],
     })
   );

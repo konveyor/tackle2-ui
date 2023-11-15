@@ -82,6 +82,7 @@ export const Dependencies: React.FC = () => {
     ],
     initialItemsPerPage: 10,
   });
+
   const {
     result: { data: currentPageItems, total: totalItemCount },
     isFetching,
@@ -166,54 +167,49 @@ export const Dependencies: React.FC = () => {
               isNoData={totalItemCount === 0}
               numRenderedColumns={numRenderedColumns}
             >
-              {currentPageItems?.map((dependency, rowIndex) => {
-                return (
-                  <Tbody key={dependency.name + rowIndex}>
-                    <Tr {...getTrProps({ item: dependency })}>
-                      <TableRowContentWithControls
-                        {...tableControls}
-                        item={dependency}
-                        rowIndex={rowIndex}
-                      >
-                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                          {dependency.name}
-                        </Td>
-                        <Td
-                          width={10}
-                          {...getTdProps({ columnKey: "foundIn" })}
+              <Tbody>
+                {currentPageItems?.map((dependency, rowIndex) => (
+                  <Tr
+                    key={dependency.name + rowIndex}
+                    {...getTrProps({ item: dependency })}
+                  >
+                    <TableRowContentWithControls
+                      {...tableControls}
+                      item={dependency}
+                      rowIndex={rowIndex}
+                    >
+                      <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                        {dependency.name}
+                      </Td>
+                      <Td width={10} {...getTdProps({ columnKey: "foundIn" })}>
+                        <Button
+                          className={spacing.pl_0}
+                          variant="link"
+                          onClick={(_) => {
+                            if (activeItem && activeItem === dependency) {
+                              clearActiveItem();
+                            } else {
+                              setActiveItem(dependency);
+                            }
+                          }}
                         >
-                          <Button
-                            className={spacing.pl_0}
-                            variant="link"
-                            onClick={(_) => {
-                              if (activeItem && activeItem === dependency) {
-                                clearActiveItem();
-                              } else {
-                                setActiveItem(dependency);
-                              }
-                            }}
-                          >
-                            {`${dependency.applications} application(s)`}
-                          </Button>
-                        </Td>
-                        <Td
-                          width={10}
-                          {...getTdProps({ columnKey: "provider" })}
-                        >
-                          {dependency.provider}
-                        </Td>
-                        <Td width={10} {...getTdProps({ columnKey: "labels" })}>
-                          <LabelGroup>
-                            {dependency?.labels?.map((label, index) => (
-                              <Label key={index}>{label}</Label>
-                            ))}
-                          </LabelGroup>
-                        </Td>
-                      </TableRowContentWithControls>
-                    </Tr>
-                  </Tbody>
-                );
-              })}
+                          {`${dependency.applications} application(s)`}
+                        </Button>
+                      </Td>
+                      <Td width={10} {...getTdProps({ columnKey: "provider" })}>
+                        {dependency.provider}
+                      </Td>
+                      <Td width={10} {...getTdProps({ columnKey: "labels" })}>
+                        <LabelGroup>
+                          {dependency?.labels?.map((label, index) => (
+                            <Label key={index}>{label}</Label>
+                          ))}
+                        </LabelGroup>
+                      </Td>
+                    </TableRowContentWithControls>
+                  </Tr>
+                ))}
+              </Tbody>
             </ConditionalTableBody>
           </Table>
           <SimplePagination
