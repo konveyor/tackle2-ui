@@ -11,7 +11,7 @@ import {
 import { useFormContext } from "react-hook-form";
 
 import { useFetchStakeholders } from "@app/queries/stakeholders";
-import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
 import { AssessmentWizardValues } from "../assessment-wizard/assessment-wizard";
 

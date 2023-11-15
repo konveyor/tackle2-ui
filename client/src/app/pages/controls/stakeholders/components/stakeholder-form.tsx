@@ -18,7 +18,7 @@ import {
   useFetchStakeholders,
   useUpdateStakeholderMutation,
 } from "@app/queries/stakeholders";
-import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import { useFetchJobFunctions } from "@app/queries/jobfunctions";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";

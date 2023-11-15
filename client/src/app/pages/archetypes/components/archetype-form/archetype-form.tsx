@@ -26,7 +26,7 @@ import {
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import { type TagItemType, useFetchTagsWithTagItems } from "@app/queries/tags";
 
-import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
 import { matchItemsToRefs } from "@app/utils/model-utils";

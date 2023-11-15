@@ -21,7 +21,7 @@ import {
   useCreateStakeholderGroupMutation,
   useFetchStakeholderGroups,
   useUpdateStakeholderGroupMutation,
-} from "@app/queries/stakeholdergoups";
+} from "@app/queries/stakeholdergroups";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
