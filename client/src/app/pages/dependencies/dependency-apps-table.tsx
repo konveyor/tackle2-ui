@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Text,
   TextContent,
   Toolbar,
   ToolbarContent,
@@ -21,12 +22,14 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import { ExternalLink } from "@app/components/ExternalLink";
 import { SimplePagination } from "@app/components/SimplePagination";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { useFetchAppDependencies } from "@app/queries/dependencies";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { getParsedLabel } from "@app/utils/rules-utils";
+import { extractFirstSha } from "@app/utils/utils";
 
 export interface IDependencyAppsTableProps {
   dependency: AnalysisDependency;
@@ -184,7 +187,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
           <Tbody>
             {currentPageAppDependencies?.map((appDependency, rowIndex) => (
               <Tr
-                key={appDependency.name}
+                key={appDependency.id}
                 {...getTrProps({ item: appDependency })}
               >
                 <TableRowContentWithControls
@@ -200,7 +203,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
                     modifier="nowrap"
                     {...getTdProps({ columnKey: "version" })}
                   >
-                    {appDependency.dependency.version}
+                    <DependencyVersionColumn appDependency={appDependency} />
                   </Td>
                   <Td
                     width={20}
@@ -247,4 +250,28 @@ const DependencyManagementColumn = ({
   const isJavaDependency = hasJavaLabel && isJavaFile;
 
   return <TextContent>{isJavaDependency ? "Managed" : "Embedded"}</TextContent>;
+};
+
+const DependencyVersionColumn = ({
+  appDependency: {
+    dependency: { provider, name, version, sha },
+  },
+}: {
+  appDependency: AnalysisAppDependency;
+}) => {
+  const isJavaDependency = name && version && sha && provider === "java";
+
+  const mavenCentralLink = isJavaDependency
+    ? `https://search.maven.org/search?q=1:${extractFirstSha(sha)}`
+    : undefined;
+
+  return (
+    <TextContent>
+      {mavenCentralLink ? (
+        <ExternalLink href={mavenCentralLink}>{version}</ExternalLink>
+      ) : (
+        <Text>{version}</Text>
+      )}
+    </TextContent>
+  );
 };
