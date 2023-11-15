@@ -619,6 +619,7 @@ export interface Ticket {
   reference?: string | null;
   readonly status?: TicketStatus | null;
   error?: boolean;
+  link?: string;
 }
 
 export type Role = "Owner" | "Contributor" | null;

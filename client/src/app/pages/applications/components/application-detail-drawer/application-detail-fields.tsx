@@ -8,12 +8,16 @@ import {
   Button,
   Grid,
   GridItem,
+  Spinner,
 } from "@patternfly/react-core";
 import { Application } from "@app/api/models";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { ApplicationBusinessService } from "../application-business-service";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { EditIcon } from "@patternfly/react-icons";
+import { useFetchTickets } from "@app/queries/tickets";
+import { useDeleteTicketMutation } from "@app/queries/migration-waves";
+import { UnlinkIcon } from "@patternfly/react-icons";
 
 export const ApplicationDetailFields: React.FC<{
   application: Application | null;
@@ -21,7 +25,11 @@ export const ApplicationDetailFields: React.FC<{
   onCloseClick: () => void;
 }> = ({ application, onEditClick, onCloseClick }) => {
   const { t } = useTranslation();
-
+  const { tickets } = useFetchTickets();
+  const { mutate: deleteTicket, isLoading } = useDeleteTicketMutation();
+  const matchingTicket = tickets?.find(
+    (ticket) => ticket.application?.id === application?.id
+  );
   return (
     <>
       <TextContent className={spacing.mtLg}>
@@ -143,11 +151,51 @@ export const ApplicationDetailFields: React.FC<{
       <Title headingLevel="h3" size="md">
         {t("terms.migrationWave")}
       </Title>
-      <Text component="small">
+      <Text
+        component={TextVariants.small}
+        className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+      >
+        Wave name{": "}
+      </Text>
+      <Text
+        component={TextVariants.small}
+        className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+      >
         {application?.migrationWave
           ? application.migrationWave.name
           : t("terms.unassigned")}
       </Text>
+      <br />
+      <Text
+        component={TextVariants.small}
+        className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+      >
+        Ticket{": "}
+      </Text>
+      <Text
+        component={TextVariants.small}
+        className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+      >
+        {matchingTicket ? (
+          <a href={matchingTicket.link} target="_">
+            {matchingTicket?.link}
+          </a>
+        ) : (
+          t("terms.unassigned")
+        )}
+        {matchingTicket?.id ? (
+          isLoading ? (
+            <Spinner role="status" size="sm" />
+          ) : (
+            <Button
+              variant="link"
+              icon={<UnlinkIcon />}
+              onClick={() => deleteTicket(matchingTicket.id)}
+            />
+          )
+        ) : null}
+      </Text>
+
       <Title headingLevel="h3" size="md">
         {t("terms.commentsFromApplication")}
       </Title>
