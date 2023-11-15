@@ -4,30 +4,22 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateIcon,
   Modal,
+  Title,
+  Toolbar,
+  ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import {
-  cellWidth,
-  ICell,
-  IRow,
-  sortable,
-  TableText,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { BusinessService } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { BusinessServiceForm } from "./components/business-service-form";
-import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
-import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
-import { useLegacySortState } from "@app/hooks/useLegacySortState";
-import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { useFetchApplications } from "@app/queries/applications";
 import {
   useDeleteBusinessServiceMutation,
@@ -37,11 +29,15 @@ import { NotificationsContext } from "@app/components/NotificationsContext";
 import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { AppTableWithControls } from "@app/components/AppTableWithControls";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-
-const ENTITY_FIELD = "entity";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  TableHeaderContentWithControls,
+  ConditionalTableBody,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { CubesIcon } from "@patternfly/react-icons";
 
 export const BusinessServices: React.FC = () => {
   const { t } = useTranslation();
@@ -60,7 +56,7 @@ export const BusinessServices: React.FC = () => {
   const businessServiceToUpdate =
     createUpdateModalState !== "create" ? createUpdateModalState : null;
 
-  const onDeleteBusinessServiceSuccess = (response: any) => {
+  const onDeleteBusinessServiceSuccess = () => {
     pushNotification({
       title: t("terms.businessServiceDeleted"),
       variant: "success",
@@ -84,126 +80,87 @@ export const BusinessServices: React.FC = () => {
 
   const { data: applications } = useFetchApplications();
 
-  const filterCategories: FilterCategory<
-    BusinessService,
-    "name" | "description" | "owner"
-  >[] = [
-    {
-      key: "name",
-      title: t("terms.name"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.name").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item?.name || "";
-      },
+  const tableControls = useLocalTableControls({
+    idProperty: "name",
+    items: businessServices,
+    columnNames: {
+      name: t("terms.name"),
+      description: t("terms.description"),
+      owner: t("terms.owner"),
     },
-    {
-      key: "description",
-      title: t("terms.description"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.description").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item.description || "";
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    hasActionsColumn: true,
+    filterCategories: [
+      {
+        key: "name",
+        title: t("terms.name"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.name").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          return item?.name || "";
+        },
       },
-    },
-    {
-      key: "owner",
-      title: t("terms.createdBy"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.owner").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item.owner?.name || "";
+      {
+        key: "description",
+        title: t("terms.description"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.description").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          return item.description || "";
+        },
       },
-    },
-  ];
-
-  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
-    businessServices || [],
-    filterCategories
-  );
-  const getSortValues = (businessService: BusinessService) => [
-    businessService?.name || "",
-    businessService?.description || "",
-    businessService.owner?.name || "",
-    "", // Action column
-  ];
-
-  const { sortBy, onSort, sortedItems } = useLegacySortState(
-    filteredItems,
-    getSortValues
-  );
-
-  const { currentPageItems, setPageNumber, paginationProps } =
-    useLegacyPaginationState(sortedItems, 10);
-
-  const columns: ICell[] = [
-    { title: t("terms.name"), transforms: [sortable, cellWidth(25)] },
-    { title: t("terms.description"), transforms: [cellWidth(40)] },
-    { title: t("terms.owner"), transforms: [sortable] },
-    {
-      title: "",
-      props: {
-        className: "pf-v5-u-text-align-right",
+      {
+        key: "owner",
+        title: t("terms.createdBy"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.owner").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          return item.owner?.name || "";
+        },
       },
-    },
-  ];
-
-  const rows: IRow[] = [];
-  currentPageItems?.forEach((item) => {
-    const isAssignedToApplication = applications?.some(
-      (app) => app.businessService?.id === item.id
-    );
-    rows.push({
-      [ENTITY_FIELD]: item,
-      cells: [
-        {
-          title: <TableText wrapModifier="truncate">{item.name}</TableText>,
-        },
-        {
-          title: (
-            <TableText wrapModifier="truncate">{item.description}</TableText>
-          ),
-        },
-        {
-          title: (
-            <TableText wrapModifier="truncate">{item.owner?.name}</TableText>
-          ),
-        },
-        {
-          title: (
-            <AppTableActionButtons
-              isDeleteEnabled={isAssignedToApplication}
-              tooltipMessage="Cannot remove a business service associated with application(s)"
-              onEdit={() => setCreateUpdateModalState(item)}
-              onDelete={() => deleteRow(item)}
-            />
-          ),
-        },
-      ],
-    });
+    ],
+    initialItemsPerPage: 10,
+    sortableColumns: ["name", "description", "owner"],
+    initialSort: { columnKey: "name", direction: "asc" },
+    getSortValues: (item) => ({
+      name: item?.name || "",
+      description: item?.description || "",
+      owner: item?.owner?.name || "",
+    }),
+    isLoading: isFetching,
   });
+
+  const {
+    currentPageItems,
+    numRenderedColumns,
+    propHelpers: {
+      toolbarProps,
+      filterToolbarProps,
+      paginationToolbarItemProps,
+      paginationProps,
+      tableProps,
+      getThProps,
+      getTrProps,
+      getTdProps,
+    },
+    expansionDerivedState: { isCellExpanded },
+  } = tableControls;
 
   const deleteRow = (row: BusinessService) => {
     setBusinessServiceToDelete(row);
     setIsConfirmDialogOpen(true);
   };
-
-  // Advanced filters
-
-  const handleOnClearAllFilters = () => {
-    setFilterValues({});
-  };
-
-  // Update Modal
 
   const closeCreateUpdateModal = () => {
     setCreateUpdateModalState(null);
@@ -216,62 +173,121 @@ export const BusinessServices: React.FC = () => {
         when={isFetching && !(businessServices || fetchError)}
         then={<AppPlaceholder />}
       >
-        <AppTableWithControls
-          count={businessServices ? businessServices.length : 0}
-          paginationProps={paginationProps}
-          paginationIdPrefix="business-services"
-          sortBy={sortBy}
-          onSort={onSort}
-          cells={columns}
-          rows={rows}
-          isLoading={isFetching}
-          loadingVariant="skeleton"
-          fetchError={fetchError}
-          toolbarClearAllFilters={handleOnClearAllFilters}
-          toolbarToggle={
-            <FilterToolbar
-              filterCategories={filterCategories}
-              filterValues={filterValues}
-              setFilterValues={setFilterValues}
-            />
-          }
-          toolbarActions={
-            <ToolbarGroup variant="button-group">
-              <ToolbarItem>
-                <RBAC
-                  allowedPermissions={controlsWriteScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
+        <div
+          style={{
+            backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+          }}
+        >
+          <Toolbar {...toolbarProps}>
+            <ToolbarContent>
+              <FilterToolbar {...filterToolbarProps} />
+              <ToolbarGroup variant="button-group">
+                <ToolbarItem>
                   <Button
                     type="button"
                     id="create-business-service"
-                    aria-label="Create business service"
+                    aria-label="Create new business service"
                     variant={ButtonVariant.primary}
                     onClick={() => setCreateUpdateModalState("create")}
                   >
                     {t("actions.createNew")}
                   </Button>
-                </RBAC>
+                </ToolbarItem>
+              </ToolbarGroup>
+              <ToolbarItem {...paginationToolbarItemProps}>
+                <SimplePagination
+                  idPrefix="business-service-table"
+                  isTop
+                  paginationProps={paginationProps}
+                />
               </ToolbarItem>
-            </ToolbarGroup>
-          }
-          noDataState={
-            <NoDataEmptyState
-              // t('terms.businessServices')
-              title={t("composed.noDataStateTitle", {
-                what: t("terms.businessServices").toLowerCase(),
+            </ToolbarContent>
+          </Toolbar>
+          <Table {...tableProps} aria-label="Business service table">
+            <Thead>
+              <Tr>
+                <TableHeaderContentWithControls {...tableControls}>
+                  <Th {...getThProps({ columnKey: "name" })} />
+                  <Th {...getThProps({ columnKey: "description" })} />
+                  <Th {...getThProps({ columnKey: "owner" })} />
+                </TableHeaderContentWithControls>
+              </Tr>
+            </Thead>
+            <ConditionalTableBody
+              isLoading={isFetching}
+              isError={!!fetchError}
+              isNoData={currentPageItems.length === 0}
+              noDataEmptyState={
+                <EmptyState variant="sm">
+                  <EmptyStateIcon icon={CubesIcon} />
+                  <Title headingLevel="h2" size="lg">
+                    {t("composed.noDataStateTitle", {
+                      what: t("terms.businessService").toLowerCase(),
+                    })}
+                  </Title>
+                  <EmptyStateBody>
+                    {t("composed.noDataStateBody", {
+                      what: t("terms.businessService").toLowerCase(),
+                    })}
+                  </EmptyStateBody>
+                </EmptyState>
+              }
+              numRenderedColumns={numRenderedColumns}
+            >
+              {currentPageItems?.map((businessService, rowIndex) => {
+                const isAssignedToApplication = applications?.some(
+                  (app) => app.businessService?.id === businessService.id
+                );
+                return (
+                  <Tbody
+                    key={businessService.id}
+                    isExpanded={isCellExpanded(businessService)}
+                  >
+                    <Tr {...getTrProps({ item: businessService })}>
+                      <TableRowContentWithControls
+                        {...tableControls}
+                        item={businessService}
+                        rowIndex={rowIndex}
+                      >
+                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                          {businessService.name}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "description" })}
+                        >
+                          {businessService.description}
+                        </Td>
+                        <Td width={10} {...getTdProps({ columnKey: "owner" })}>
+                          {businessService.owner?.name}
+                        </Td>
+                        <Td width={20}>
+                          <AppTableActionButtons
+                            isDeleteEnabled={isAssignedToApplication}
+                            tooltipMessage="Cannot remove a business service associated with application(s)"
+                            onEdit={() =>
+                              setCreateUpdateModalState(businessService)
+                            }
+                            onDelete={() => deleteRow(businessService)}
+                          />
+                        </Td>
+                      </TableRowContentWithControls>
+                    </Tr>
+                  </Tbody>
+                );
               })}
-              // t('terms.businessService')
-              description={t("composed.noDataStateBody", {
-                what: t("terms.businessService").toLowerCase(),
-              })}
-            />
-          }
-        />
+            </ConditionalTableBody>
+          </Table>
+          <SimplePagination
+            idPrefix="business-service-table"
+            isTop={false}
+            paginationProps={paginationProps}
+          />
+        </div>
       </ConditionalRender>
 
       <Modal
-        id="create-edit-stakeholder-modal"
+        id="create-edit-business-service-modal"
         title={t(
           businessServiceToUpdate ? "dialog.title.update" : "dialog.title.new",
           {
