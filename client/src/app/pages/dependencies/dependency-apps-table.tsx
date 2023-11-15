@@ -254,12 +254,7 @@ const DependencyManagementColumn = ({
 
 const DependencyVersionColumn = ({
   appDependency: {
-    dependency: {
-      provider,
-      name,
-      version,
-      rule: sha, // TODO: rename to 'sha' with https://github.com/konveyor/tackle2-hub/issues/557
-    },
+    dependency: { provider, name, version, sha },
   },
 }: {
   appDependency: AnalysisAppDependency;
