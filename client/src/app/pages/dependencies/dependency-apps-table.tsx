@@ -1,10 +1,16 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
+import {
+  Text,
+  TextContent,
+  Toolbar,
+  ToolbarContent,
+  ToolbarItem,
+} from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useSelectionState } from "@migtools/lib-ui";
-import { AnalysisDependency } from "@app/api/models";
+import { AnalysisAppDependency, AnalysisDependency } from "@app/api/models";
 import {
   useTableControlState,
   useTableControlProps,
@@ -16,11 +22,14 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import { ExternalLink } from "@app/components/ExternalLink";
 import { SimplePagination } from "@app/components/SimplePagination";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { useFetchAppDependencies } from "@app/queries/dependencies";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
+import { getParsedLabel } from "@app/utils/rules-utils";
+import { extractFirstSha } from "@app/utils/utils";
 
 export interface IDependencyAppsTableProps {
   dependency: AnalysisDependency;
@@ -39,7 +48,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
     columnNames: {
       name: "Application",
       version: "Version",
-      //   management (3rd party or not boolean... parsed from labels)
+      management: "Management",
       relationship: "Relationship",
     },
     isFilterEnabled: true,
@@ -106,8 +115,6 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
       },
       implicitFilters: [
         { field: "dep.name", operator: "=", value: dependency.name },
-        { field: "dep.version", operator: "=", value: dependency.version },
-        { field: "dep.sha", operator: "=", value: dependency.sha },
       ],
     })
   );
@@ -160,10 +167,10 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
             <TableHeaderContentWithControls {...tableControls}>
               <Th {...getThProps({ columnKey: "name" })} />
               <Th {...getThProps({ columnKey: "version" })} modifier="nowrap" />
-              {/* <Th
+              <Th
                 {...getThProps({ columnKey: "management" })}
                 modifier="nowrap"
-              /> */}
+              />
               <Th
                 {...getThProps({ columnKey: "relationship" })}
                 modifier="nowrap"
@@ -180,7 +187,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
           <Tbody>
             {currentPageAppDependencies?.map((appDependency, rowIndex) => (
               <Tr
-                key={appDependency.name}
+                key={appDependency.id}
                 {...getTrProps({ item: appDependency })}
               >
                 <TableRowContentWithControls
@@ -196,15 +203,15 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
                     modifier="nowrap"
                     {...getTdProps({ columnKey: "version" })}
                   >
-                    {appDependency.dependency.version}
+                    <DependencyVersionColumn appDependency={appDependency} />
                   </Td>
-                  {/* <Td
+                  <Td
                     width={20}
                     modifier="nowrap"
                     {...getTdProps({ columnKey: "management" })}
                   >
-                    {appDependency.management}
-                  </Td> */}
+                    <DependencyManagementColumn appDependency={appDependency} />
+                  </Td>
                   <Td
                     width={20}
                     modifier="nowrap"
@@ -227,5 +234,44 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
         paginationProps={paginationProps}
       />
     </>
+  );
+};
+
+const DependencyManagementColumn = ({
+  appDependency,
+}: {
+  appDependency: AnalysisAppDependency;
+}) => {
+  const hasJavaLabel = appDependency.dependency?.labels?.some((label) => {
+    const labelValue = getParsedLabel(label).labelValue;
+    return labelValue === "java";
+  });
+  const isJavaFile = appDependency.dependency.name.endsWith(".jar");
+  const isJavaDependency = hasJavaLabel && isJavaFile;
+
+  return <TextContent>{isJavaDependency ? "Managed" : "Embedded"}</TextContent>;
+};
+
+const DependencyVersionColumn = ({
+  appDependency: {
+    dependency: { provider, name, version, sha },
+  },
+}: {
+  appDependency: AnalysisAppDependency;
+}) => {
+  const isJavaDependency = name && version && sha && provider === "java";
+
+  const mavenCentralLink = isJavaDependency
+    ? `https://search.maven.org/search?q=1:${extractFirstSha(sha)}`
+    : undefined;
+
+  return (
+    <TextContent>
+      {mavenCentralLink ? (
+        <ExternalLink href={mavenCentralLink}>{version}</ExternalLink>
+      ) : (
+        <Text>{version}</Text>
+      )}
+    </TextContent>
   );
 };
