@@ -9,7 +9,7 @@ import {
   deleteTicket,
 } from "@app/api/rest";
 import { getWavesWithStatus } from "@app/utils/waves-selector";
-import { useFetchTickets } from "./tickets";
+import { TicketsQueryKey, useFetchTickets } from "./tickets";
 import { TrackersQueryKey } from "./trackers";
 import { useFetchApplications } from "./applications";
 import { useFetchStakeholders } from "./stakeholders";
@@ -111,6 +111,7 @@ export const useDeleteTicketMutation = (
     onSuccess: (res) => {
       onSuccess && onSuccess(res);
       queryClient.invalidateQueries([MigrationWavesQueryKey]);
+      queryClient.invalidateQueries([TicketsQueryKey]);
     },
     onError: onError,
   });

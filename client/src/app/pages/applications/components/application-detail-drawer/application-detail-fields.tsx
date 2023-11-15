@@ -8,6 +8,7 @@ import {
   Button,
   Grid,
   GridItem,
+  Spinner,
 } from "@patternfly/react-core";
 import { Application } from "@app/api/models";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -17,6 +18,7 @@ import { EditIcon } from "@patternfly/react-icons";
 import { useFetchTickets } from "@app/queries/tickets";
 import { useDeleteTicketMutation } from "@app/queries/migration-waves";
 import { UnlinkIcon } from "@patternfly/react-icons";
+import { useIsMutating } from "@tanstack/react-query";
 
 export const ApplicationDetailFields: React.FC<{
   application: Application | null;
@@ -25,11 +27,13 @@ export const ApplicationDetailFields: React.FC<{
 }> = ({ application, onEditClick, onCloseClick }) => {
   const { t } = useTranslation();
   const { tickets } = useFetchTickets();
-  const { mutate: deleteTicket } = useDeleteTicketMutation();
+  const { mutate: deleteTicket, isLoading } = useDeleteTicketMutation();
+  const isMutating = useIsMutating();
   const matchingTicket = tickets?.find(
     (ticket) => ticket.application?.id === application?.id
   );
-
+  console.log("isMutating", isMutating);
+  console.log("matchingTicket", matchingTicket?.id);
   return (
     <>
       <TextContent className={spacing.mtLg}>
@@ -183,15 +187,17 @@ export const ApplicationDetailFields: React.FC<{
         ) : (
           t("terms.unassigned")
         )}
-        {matchingTicket?.id && (
-          <Button
-            variant="link"
-            icon={<UnlinkIcon />}
-            onClick={() =>
-              matchingTicket?.id && deleteTicket(matchingTicket?.id)
-            }
-          />
-        )}
+        {matchingTicket?.id ? (
+          isLoading ? (
+            <Spinner role="status" size="sm" />
+          ) : (
+            <Button
+              variant="link"
+              icon={<UnlinkIcon />}
+              onClick={() => deleteTicket(matchingTicket.id)}
+            />
+          )
+        ) : null}
       </Text>
 
       <Title headingLevel="h3" size="md">
