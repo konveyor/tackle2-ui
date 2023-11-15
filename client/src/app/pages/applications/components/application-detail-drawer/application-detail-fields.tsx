@@ -15,6 +15,8 @@ import { ApplicationBusinessService } from "../application-business-service";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { EditIcon } from "@patternfly/react-icons";
 import { useFetchTickets } from "@app/queries/tickets";
+import { useDeleteTicketMutation } from "@app/queries/migration-waves";
+import { UnlinkIcon } from "@patternfly/react-icons";
 
 export const ApplicationDetailFields: React.FC<{
   application: Application | null;
@@ -23,6 +25,7 @@ export const ApplicationDetailFields: React.FC<{
 }> = ({ application, onEditClick, onCloseClick }) => {
   const { t } = useTranslation();
   const { tickets } = useFetchTickets();
+  const { mutate: deleteTicket } = useDeleteTicketMutation();
   const matchingTicket = tickets?.find(
     (ticket) => ticket.application?.id === application?.id
   );
@@ -179,6 +182,15 @@ export const ApplicationDetailFields: React.FC<{
           </a>
         ) : (
           t("terms.unassigned")
+        )}
+        {matchingTicket?.id && (
+          <Button
+            variant="link"
+            icon={<UnlinkIcon />}
+            onClick={() =>
+              matchingTicket?.id && deleteTicket(matchingTicket?.id)
+            }
+          />
         )}
       </Text>
 
