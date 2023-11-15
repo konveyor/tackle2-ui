@@ -18,7 +18,6 @@ import { EditIcon } from "@patternfly/react-icons";
 import { useFetchTickets } from "@app/queries/tickets";
 import { useDeleteTicketMutation } from "@app/queries/migration-waves";
 import { UnlinkIcon } from "@patternfly/react-icons";
-import { useIsMutating } from "@tanstack/react-query";
 
 export const ApplicationDetailFields: React.FC<{
   application: Application | null;
@@ -28,12 +27,9 @@ export const ApplicationDetailFields: React.FC<{
   const { t } = useTranslation();
   const { tickets } = useFetchTickets();
   const { mutate: deleteTicket, isLoading } = useDeleteTicketMutation();
-  const isMutating = useIsMutating();
   const matchingTicket = tickets?.find(
     (ticket) => ticket.application?.id === application?.id
   );
-  console.log("isMutating", isMutating);
-  console.log("matchingTicket", matchingTicket?.id);
   return (
     <>
       <TextContent className={spacing.mtLg}>
