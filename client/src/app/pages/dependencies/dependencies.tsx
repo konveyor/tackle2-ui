@@ -31,6 +31,7 @@ import { useSelectionState } from "@migtools/lib-ui";
 import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
 import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { getParsedLabel } from "@app/utils/rules-utils";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
@@ -201,9 +202,14 @@ export const Dependencies: React.FC = () => {
                       </Td>
                       <Td width={10} {...getTdProps({ columnKey: "labels" })}>
                         <LabelGroup>
-                          {dependency?.labels?.map((label, index) => (
-                            <Label key={index}>{label}</Label>
-                          ))}
+                          {dependency?.labels?.map((label) => {
+                            if (getParsedLabel(label).labelType !== "language")
+                              return (
+                                <Label>
+                                  {getParsedLabel(label).labelValue}
+                                </Label>
+                              );
+                          })}
                         </LabelGroup>
                       </Td>
                     </TableRowContentWithControls>
