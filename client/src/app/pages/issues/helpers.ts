@@ -20,6 +20,7 @@ import { IssueFilterGroups } from "./issues";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { useTranslation } from "react-i18next";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 
 // Certain filters are shared between the Issues page and the Affected Applications Page.
 // We carry these filter values between the two pages when determining the URLs to navigate between them.
@@ -38,6 +39,7 @@ export const useSharedAffectedApplicationFilterCategories = <
   const { t } = useTranslation();
   const { businessServices } = useFetchBusinessServices();
   const { tagCategories, tags, tagItems } = useFetchTagsWithTagItems();
+  const { archetypes } = useFetchArchetypes();
 
   return [
     {
@@ -50,6 +52,26 @@ export const useSharedAffectedApplicationFilterCategories = <
           what: t("terms.applicationName").toLowerCase(),
         }) + "...",
       getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
+    },
+    {
+      key: "application.id",
+      title: t("terms.archetypes"),
+      filterGroup: IssueFilterGroups.ApplicationInventory,
+      type: FilterType.multiselect,
+      placeholderText:
+        t("actions.filterBy", {
+          what: t("terms.archetype").toLowerCase(),
+        }) + "...",
+      selectOptions: archetypes.map(({ name }) => ({ key: name, value: name })),
+      getServerFilterValue: (selectedOptions) =>
+        selectedOptions
+          ?.map((option) => archetypes.find((item) => item.name === option))
+          .filter(Boolean)
+          .flatMap(
+            ({ applications }) =>
+              applications?.map(({ id }) => String(id)) ?? []
+          )
+          .filter(Boolean),
     },
     {
       key: "businessService.name",
