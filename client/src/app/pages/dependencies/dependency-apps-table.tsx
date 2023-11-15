@@ -259,7 +259,7 @@ const DependencyVersionColumn = ({
 }: {
   appDependency: AnalysisAppDependency;
 }) => {
-  const isJavaDependency = name && version && sha && provider === "";
+  const isJavaDependency = name && version && sha && provider === "java";
 
   const mavenCentralLink = isJavaDependency
     ? `https://search.maven.org/search?q=1:${extractFirstSha(sha)}`
