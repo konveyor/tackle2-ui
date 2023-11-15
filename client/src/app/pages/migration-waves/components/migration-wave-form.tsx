@@ -16,7 +16,7 @@ import {
 } from "@patternfly/react-core";
 
 import { useFetchStakeholders } from "@app/queries/stakeholders";
-import { useFetchStakeholderGroups } from "@app/queries/stakeholdergoups";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import {
   useCreateMigrationWaveMutation,
   useUpdateMigrationWaveMutation,
