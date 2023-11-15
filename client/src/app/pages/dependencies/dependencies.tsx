@@ -31,6 +31,7 @@ import { useSelectionState } from "@migtools/lib-ui";
 import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
 import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { getParsedLabel } from "@app/utils/rules-utils";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
@@ -79,31 +80,10 @@ export const Dependencies: React.FC = () => {
           }) + "...",
         getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
-      {
-        key: "version",
-        title: t("terms.version"),
-        type: FilterType.search,
-        filterGroup: "Dependency",
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.label").toLowerCase(),
-          }) + "...",
-        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
-      },
-      {
-        key: "sha",
-        title: "SHA",
-        type: FilterType.search,
-        filterGroup: "Dependency",
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.name").toLowerCase(),
-          }) + "...",
-        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
-      },
     ],
     initialItemsPerPage: 10,
   });
+
   const {
     result: { data: currentPageItems, total: totalItemCount },
     isFetching,
@@ -179,8 +159,6 @@ export const Dependencies: React.FC = () => {
                   <Th {...getThProps({ columnKey: "foundIn" })} />
                   <Th {...getThProps({ columnKey: "provider" })} />
                   <Th {...getThProps({ columnKey: "labels" })} />
-                  <Th {...getThProps({ columnKey: "version" })} />
-                  <Th {...getThProps({ columnKey: "sha" })} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -190,63 +168,54 @@ export const Dependencies: React.FC = () => {
               isNoData={totalItemCount === 0}
               numRenderedColumns={numRenderedColumns}
             >
-              {currentPageItems?.map((dependency, rowIndex) => {
-                return (
-                  <Tbody key={dependency.name + rowIndex}>
-                    <Tr {...getTrProps({ item: dependency })}>
-                      <TableRowContentWithControls
-                        {...tableControls}
-                        item={dependency}
-                        rowIndex={rowIndex}
-                      >
-                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                          {dependency.name}
-                        </Td>
-                        <Td
-                          width={10}
-                          {...getTdProps({ columnKey: "foundIn" })}
+              <Tbody>
+                {currentPageItems?.map((dependency, rowIndex) => (
+                  <Tr
+                    key={dependency.name + rowIndex}
+                    {...getTrProps({ item: dependency })}
+                  >
+                    <TableRowContentWithControls
+                      {...tableControls}
+                      item={dependency}
+                      rowIndex={rowIndex}
+                    >
+                      <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                        {dependency.name}
+                      </Td>
+                      <Td width={10} {...getTdProps({ columnKey: "foundIn" })}>
+                        <Button
+                          className={spacing.pl_0}
+                          variant="link"
+                          onClick={(_) => {
+                            if (activeItem && activeItem === dependency) {
+                              clearActiveItem();
+                            } else {
+                              setActiveItem(dependency);
+                            }
+                          }}
                         >
-                          <Button
-                            className={spacing.pl_0}
-                            variant="link"
-                            onClick={(_) => {
-                              if (activeItem && activeItem === dependency) {
-                                clearActiveItem();
-                              } else {
-                                setActiveItem(dependency);
-                              }
-                            }}
-                          >
-                            {`${dependency.applications} application(s)`}
-                          </Button>
-                        </Td>
-                        <Td
-                          width={10}
-                          {...getTdProps({ columnKey: "provider" })}
-                        >
-                          {dependency.provider}
-                        </Td>
-                        <Td width={10} {...getTdProps({ columnKey: "labels" })}>
-                          <LabelGroup>
-                            {dependency?.labels?.map((label) => {
-                              return <Label>{label}</Label>;
-                            })}
-                          </LabelGroup>
-                        </Td>
-                        <Td
-                          width={10}
-                          {...getTdProps({ columnKey: "version" })}
-                        >
-                          {dependency.version}
-                        </Td>
-                        <Td width={10} {...getTdProps({ columnKey: "sha" })}>
-                          {dependency.sha}
-                        </Td>
-                      </TableRowContentWithControls>
-                    </Tr>
-                  </Tbody>
-                );
-              })}
+                          {`${dependency.applications} application(s)`}
+                        </Button>
+                      </Td>
+                      <Td width={10} {...getTdProps({ columnKey: "provider" })}>
+                        {dependency.provider}
+                      </Td>
+                      <Td width={10} {...getTdProps({ columnKey: "labels" })}>
+                        <LabelGroup>
+                          {dependency?.labels?.map((label) => {
+                            if (getParsedLabel(label).labelType !== "language")
+                              return (
+                                <Label>
+                                  {getParsedLabel(label).labelValue}
+                                </Label>
+                              );
+                          })}
+                        </LabelGroup>
+                      </Td>
+                    </TableRowContentWithControls>
+                  </Tr>
+                ))}
+              </Tbody>
             </ConditionalTableBody>
           </Table>
           <SimplePagination
@@ -259,7 +228,7 @@ export const Dependencies: React.FC = () => {
       <DependencyAppsDetailDrawer
         dependency={activeItem || null}
         onCloseClick={() => setActiveItem(null)}
-      ></DependencyAppsDetailDrawer>
+      />
     </>
   );
 };
