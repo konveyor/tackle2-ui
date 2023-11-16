@@ -41,7 +41,6 @@ import { useFetchIdentities } from "@app/queries/identities";
 import { useSetting } from "@app/queries/settings";
 import { getKindIdByRef } from "@app/utils/model-utils";
 import DownloadButton from "./components/download-button";
-import { useFetchApplications } from "@app/queries/applications";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 import { ApplicationFacts } from "./application-facts";
@@ -78,7 +77,6 @@ export const ApplicationDetailDrawer: React.FC<
   const isTaskRunning = task?.state === "Running";
 
   const { identities } = useFetchIdentities();
-  const { data: applications } = useFetchApplications();
   const { facts, isFetching } = useFetchFacts(application?.id);
   const [taskIdToView, setTaskIdToView] = React.useState<number>();
 
@@ -91,9 +89,6 @@ export const ApplicationDetailDrawer: React.FC<
 
   const notAvailable = <EmptyTextMessage message={t("terms.notAvailable")} />;
 
-  const updatedApplication = applications?.find(
-    (app) => app.id === application?.id
-  );
   const enableDownloadSetting = useSetting("download.html.enabled");
 
   return (
@@ -102,302 +97,311 @@ export const ApplicationDetailDrawer: React.FC<
       onCloseClick={onCloseClick}
       focusKey={application?.id}
       pageKey="app-inventory"
+      header={
+        <TextContent>
+          <Text component="small" className={spacing.mb_0}>
+            {t("terms.name")}
+          </Text>
+          <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
+            {application?.name}
+          </Title>
+        </TextContent>
+      }
     >
-      <TextContent>
-        <Text component="small" className={spacing.mb_0}>
-          {t("terms.name")}
-        </Text>
-        <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
-          {application?.name}
-        </Title>
-      </TextContent>
-      <Tabs
-        activeKey={activeTabKey}
-        onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
-        className={spacing.mtLg}
-      >
-        <Tab
-          eventKey={TabKey.Details}
-          title={<TabTitleText>{t("terms.details")}</TabTitleText>}
+      <div>
+        <Tabs
+          activeKey={activeTabKey}
+          onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
+          className={spacing.mtLg}
         >
-          <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
-            <Text component="small">{application?.description}</Text>
-            <List isPlain>
-              {application ? (
-                <>
-                  <ListItem>
-                    <Link
-                      to={getIssuesSingleAppSelectedLocation(application.id)}
-                    >
-                      Issues
-                    </Link>
-                  </ListItem>
-                  <ListItem>
-                    <Link
-                      to={getDependenciesUrlFilteredByAppName(
-                        application?.name
-                      )}
-                    >
-                      Dependencies
-                    </Link>
-                  </ListItem>
-                </>
-              ) : null}
-            </List>
-            <Title headingLevel="h3" size="md">
-              {t("terms.effort")}
-            </Title>
-            <Text component="small">
-              <Text component="small">
-                {application?.effort !== 0 && application?.effort !== undefined
-                  ? application?.effort
-                  : t("terms.unassigned")}
-              </Text>
-            </Text>
-          </TextContent>
-          <>
-            <Title headingLevel="h3" size="md">
-              {t("terms.archetypes")}
-            </Title>
-            <DescriptionList
-              isHorizontal
-              isCompact
-              columnModifier={{ default: "1Col" }}
-              horizontalTermWidthModifier={{
-                default: "14ch",
-              }}
-            >
-              <DescriptionListGroup>
-                <DescriptionListTerm>
-                  {t("terms.associatedArchetypes")}
-                </DescriptionListTerm>
-                <DescriptionListDescription>
-                  {application?.archetypes?.length ?? 0 > 0 ? (
-                    <ArchetypeLabels archetypeRefs={application?.archetypes} />
-                  ) : (
-                    <EmptyTextMessage message={t("terms.none")} />
-                  )}
-                </DescriptionListDescription>
-              </DescriptionListGroup>
-              <DescriptionListGroup>
-                <DescriptionListTerm>
-                  {t("terms.archetypesReviewed")}
-                </DescriptionListTerm>
-                <DescriptionListDescription>
-                  {application?.archetypes?.length ?? 0 > 0 ? (
-                    application?.archetypes?.map((archetypeRef) => (
-                      <ReviewedArchetypeItem
-                        key={archetypeRef.id}
-                        id={archetypeRef.id}
-                      />
-                    ))
-                  ) : (
-                    <EmptyTextMessage message={t("terms.none")} />
-                  )}
-                </DescriptionListDescription>
-              </DescriptionListGroup>
-            </DescriptionList>
-            <TextContent className={spacing.mtLg}>
+          <Tab
+            eventKey={TabKey.Details}
+            title={<TabTitleText>{t("terms.details")}</TabTitleText>}
+          >
+            <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
+              <Text component="small">{application?.description}</Text>
+              <List isPlain>
+                {application ? (
+                  <>
+                    <ListItem>
+                      <Link
+                        to={getIssuesSingleAppSelectedLocation(application.id)}
+                      >
+                        Issues
+                      </Link>
+                    </ListItem>
+                    <ListItem>
+                      <Link
+                        to={getDependenciesUrlFilteredByAppName(
+                          application?.name
+                        )}
+                      >
+                        Dependencies
+                      </Link>
+                    </ListItem>
+                  </>
+                ) : null}
+              </List>
               <Title headingLevel="h3" size="md">
-                {t("terms.riskFromApplication")}
+                {t("terms.effort")}
               </Title>
-              <Text component="small" cy-data="comments">
-                <RiskLabel risk={application?.risk || "unknown"} />
+              <Text component="small">
+                <Text component="small">
+                  {application?.effort !== 0 &&
+                  application?.effort !== undefined
+                    ? application?.effort
+                    : t("terms.unassigned")}
+                </Text>
               </Text>
             </TextContent>
-            <ApplicationDetailFields
-              application={application}
-              onEditClick={onEditClick}
-              onCloseClick={onCloseClick}
-            />
-          </>
-        </Tab>
-
-        <Tab eventKey={TabKey.Tags} title={<TabTitleText>Tags</TabTitleText>}>
-          {application && isTaskRunning ? (
-            <Bullseye className={spacing.mtLg}>
-              <TextContent>
-                <Text component={TextVariants.h3}>
-                  {t("message.taskInProgressForTags")}
-                  <Spinner
-                    isInline
-                    aria-label="spinner when a new analysis is running"
-                  />
+            <>
+              <Title headingLevel="h3" size="md">
+                {t("terms.archetypes")}
+              </Title>
+              <DescriptionList
+                isHorizontal
+                isCompact
+                columnModifier={{ default: "1Col" }}
+                horizontalTermWidthModifier={{
+                  default: "14ch",
+                }}
+              >
+                <DescriptionListGroup>
+                  <DescriptionListTerm>
+                    {t("terms.associatedArchetypes")}
+                  </DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {application?.archetypes?.length ?? 0 > 0 ? (
+                      <ArchetypeLabels
+                        archetypeRefs={application?.archetypes}
+                      />
+                    ) : (
+                      <EmptyTextMessage message={t("terms.none")} />
+                    )}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>
+                    {t("terms.archetypesReviewed")}
+                  </DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {application?.archetypes?.length ?? 0 > 0 ? (
+                      application?.archetypes?.map((archetypeRef) => (
+                        <ReviewedArchetypeItem
+                          key={archetypeRef.id}
+                          id={archetypeRef.id}
+                        />
+                      ))
+                    ) : (
+                      <EmptyTextMessage message={t("terms.none")} />
+                    )}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+              </DescriptionList>
+              <TextContent className={spacing.mtLg}>
+                <Title headingLevel="h3" size="md">
+                  {t("terms.riskFromApplication")}
+                </Title>
+                <Text component="small" cy-data="comments">
+                  <RiskLabel risk={application?.risk || "unknown"} />
                 </Text>
               </TextContent>
-            </Bullseye>
-          ) : null}
+              <ApplicationDetailFields
+                application={application}
+                onEditClick={onEditClick}
+                onCloseClick={onCloseClick}
+              />
+            </>
+          </Tab>
 
-          {application ? <ApplicationTags application={application} /> : null}
-        </Tab>
+          <Tab eventKey={TabKey.Tags} title={<TabTitleText>Tags</TabTitleText>}>
+            {application && isTaskRunning ? (
+              <Bullseye className={spacing.mtLg}>
+                <TextContent>
+                  <Text component={TextVariants.h3}>
+                    {t("message.taskInProgressForTags")}
+                    <Spinner
+                      isInline
+                      aria-label="spinner when a new analysis is running"
+                    />
+                  </Text>
+                </TextContent>
+              </Bullseye>
+            ) : null}
 
-        <Tab
-          eventKey={TabKey.Reports}
-          title={<TabTitleText>{t("terms.reports")}</TabTitleText>}
-        >
-          <TextContent className={spacing.mtMd}>
-            <Title headingLevel="h3" size="md">
-              Credentials
-            </Title>
-            {matchingSourceCredsRef && matchingMavenCredsRef ? (
-              <Text component="small">
-                <CheckCircleIcon color="green" />
-                <span className={spacing.mlSm}>Source and Maven</span>
-              </Text>
-            ) : matchingMavenCredsRef ? (
-              <Text component="small">
-                <CheckCircleIcon color="green" />
-                <span className={spacing.mlSm}>Maven</span>
-              </Text>
-            ) : matchingSourceCredsRef ? (
-              <Text component="small">
-                <CheckCircleIcon color="green" />
-                <span className={spacing.mlSm}>Source</span>
-              </Text>
-            ) : (
-              notAvailable
-            )}
-            <Title headingLevel="h3" size="md">
-              Analysis
-            </Title>
-            {task?.state === "Succeeded" && application ? (
-              <>
-                <DescriptionList
-                  isHorizontal
-                  columnModifier={{ default: "2Col" }}
-                >
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>Details</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <Tooltip content="View the analysis task details">
-                        <Button
-                          icon={
-                            <span className={spacing.mrXs}>
-                              <ExclamationCircleIcon
-                                color={COLOR_HEX_VALUES_BY_NAME.blue}
-                              ></ExclamationCircleIcon>
-                            </span>
-                          }
-                          type="button"
-                          variant="link"
-                          onClick={() => setTaskIdToView(task.id)}
-                          className={spacing.ml_0}
-                          style={{ margin: "0", padding: "0" }}
-                        >
-                          View analysis details
-                        </Button>
-                      </Tooltip>
-                    </DescriptionListDescription>
-                    <DescriptionListTerm>Download</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <Tooltip
-                        content={
-                          enableDownloadSetting.data
-                            ? "Click to download TAR file with HTML static analysis report"
-                            : "Download TAR file with HTML static analysis report is disabled by administrator"
-                        }
-                        position="top"
-                      >
-                        <DownloadButton
-                          application={application}
-                          mimeType={MimeType.TAR}
-                          isDownloadEnabled={enableDownloadSetting.data}
-                        >
-                          HTML
-                        </DownloadButton>
-                      </Tooltip>
-                      {" | "}
-                      <Tooltip
-                        content={
-                          enableDownloadSetting.data
-                            ? "Click to download YAML file with static analysis report"
-                            : "Download YAML file with static analysis report is disabled by administrator"
-                        }
-                        position="top"
-                      >
-                        <DownloadButton
-                          application={application}
-                          mimeType={MimeType.YAML}
-                          isDownloadEnabled={enableDownloadSetting.data}
-                        >
-                          YAML
-                        </DownloadButton>
-                      </Tooltip>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-                </DescriptionList>
-                <Divider className={spacing.mtMd}></Divider>
-              </>
-            ) : task?.state === "Failed" ? (
-              task ? (
-                <>
-                  <Button
-                    icon={
-                      <span className={spacing.mrXs}>
-                        <ExclamationCircleIcon
-                          color={COLOR_HEX_VALUES_BY_NAME.red}
-                        ></ExclamationCircleIcon>
-                      </span>
-                    }
-                    type="button"
-                    variant="link"
-                    onClick={() => setTaskIdToView(task.id)}
-                    className={spacing.ml_0}
-                    style={{ margin: "0", padding: "0" }}
-                  >
-                    Analysis details
-                  </Button>
-                </>
+            {application ? <ApplicationTags application={application} /> : null}
+          </Tab>
+
+          <Tab
+            eventKey={TabKey.Reports}
+            title={<TabTitleText>{t("terms.reports")}</TabTitleText>}
+          >
+            <TextContent className={spacing.mtMd}>
+              <Title headingLevel="h3" size="md">
+                Credentials
+              </Title>
+              {matchingSourceCredsRef && matchingMavenCredsRef ? (
+                <Text component="small">
+                  <CheckCircleIcon color="green" />
+                  <span className={spacing.mlSm}>Source and Maven</span>
+                </Text>
+              ) : matchingMavenCredsRef ? (
+                <Text component="small">
+                  <CheckCircleIcon color="green" />
+                  <span className={spacing.mlSm}>Maven</span>
+                </Text>
+              ) : matchingSourceCredsRef ? (
+                <Text component="small">
+                  <CheckCircleIcon color="green" />
+                  <span className={spacing.mlSm}>Source</span>
+                </Text>
               ) : (
-                <span className={spacing.mlSm}>
-                  <ExclamationCircleIcon
-                    color={COLOR_HEX_VALUES_BY_NAME.red}
-                  ></ExclamationCircleIcon>
-                  Failed
-                </span>
-              )
-            ) : (
-              <>
-                {task ? (
-                  <Button
-                    icon={
-                      <span className={spacing.mrXs}>
-                        <ExclamationCircleIcon
-                          color={COLOR_HEX_VALUES_BY_NAME.blue}
-                        ></ExclamationCircleIcon>
-                      </span>
-                    }
-                    type="button"
-                    variant="link"
-                    onClick={() => setTaskIdToView(task?.id)}
-                    className={spacing.ml_0}
-                    style={{ margin: "0", padding: "0" }}
+                notAvailable
+              )}
+              <Title headingLevel="h3" size="md">
+                Analysis
+              </Title>
+              {task?.state === "Succeeded" && application ? (
+                <>
+                  <DescriptionList
+                    isHorizontal
+                    columnModifier={{ default: "2Col" }}
                   >
-                    Analysis details
-                  </Button>
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>Details</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        <Tooltip content="View the analysis task details">
+                          <Button
+                            icon={
+                              <span className={spacing.mrXs}>
+                                <ExclamationCircleIcon
+                                  color={COLOR_HEX_VALUES_BY_NAME.blue}
+                                ></ExclamationCircleIcon>
+                              </span>
+                            }
+                            type="button"
+                            variant="link"
+                            onClick={() => setTaskIdToView(task.id)}
+                            className={spacing.ml_0}
+                            style={{ margin: "0", padding: "0" }}
+                          >
+                            View analysis details
+                          </Button>
+                        </Tooltip>
+                      </DescriptionListDescription>
+                      <DescriptionListTerm>Download</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        <Tooltip
+                          content={
+                            enableDownloadSetting.data
+                              ? "Click to download TAR file with HTML static analysis report"
+                              : "Download TAR file with HTML static analysis report is disabled by administrator"
+                          }
+                          position="top"
+                        >
+                          <DownloadButton
+                            application={application}
+                            mimeType={MimeType.TAR}
+                            isDownloadEnabled={enableDownloadSetting.data}
+                          >
+                            HTML
+                          </DownloadButton>
+                        </Tooltip>
+                        {" | "}
+                        <Tooltip
+                          content={
+                            enableDownloadSetting.data
+                              ? "Click to download YAML file with static analysis report"
+                              : "Download YAML file with static analysis report is disabled by administrator"
+                          }
+                          position="top"
+                        >
+                          <DownloadButton
+                            application={application}
+                            mimeType={MimeType.YAML}
+                            isDownloadEnabled={enableDownloadSetting.data}
+                          >
+                            YAML
+                          </DownloadButton>
+                        </Tooltip>
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
+                  </DescriptionList>
+                  <Divider className={spacing.mtMd}></Divider>
+                </>
+              ) : task?.state === "Failed" ? (
+                task ? (
+                  <>
+                    <Button
+                      icon={
+                        <span className={spacing.mrXs}>
+                          <ExclamationCircleIcon
+                            color={COLOR_HEX_VALUES_BY_NAME.red}
+                          ></ExclamationCircleIcon>
+                        </span>
+                      }
+                      type="button"
+                      variant="link"
+                      onClick={() => setTaskIdToView(task.id)}
+                      className={spacing.ml_0}
+                      style={{ margin: "0", padding: "0" }}
+                    >
+                      Analysis details
+                    </Button>
+                  </>
                 ) : (
-                  notAvailable
-                )}
-              </>
+                  <span className={spacing.mlSm}>
+                    <ExclamationCircleIcon
+                      color={COLOR_HEX_VALUES_BY_NAME.red}
+                    ></ExclamationCircleIcon>
+                    Failed
+                  </span>
+                )
+              ) : (
+                <>
+                  {task ? (
+                    <Button
+                      icon={
+                        <span className={spacing.mrXs}>
+                          <ExclamationCircleIcon
+                            color={COLOR_HEX_VALUES_BY_NAME.blue}
+                          ></ExclamationCircleIcon>
+                        </span>
+                      }
+                      type="button"
+                      variant="link"
+                      onClick={() => setTaskIdToView(task?.id)}
+                      className={spacing.ml_0}
+                      style={{ margin: "0", padding: "0" }}
+                    >
+                      Analysis details
+                    </Button>
+                  ) : (
+                    notAvailable
+                  )}
+                </>
+              )}
+              <SimpleDocumentViewerModal<Task | string>
+                title={`Analysis details for ${application?.name}`}
+                fetch={getTaskById}
+                documentId={taskIdToView}
+                onClose={() => {
+                  setTaskIdToView(undefined);
+                }}
+              />
+            </TextContent>
+            {!isFetching && !!facts.length && (
+              <ApplicationFacts facts={facts} />
             )}
-            <SimpleDocumentViewerModal<Task | string>
-              title={`Analysis details for ${application?.name}`}
-              fetch={getTaskById}
-              documentId={taskIdToView}
-              onClose={() => {
-                setTaskIdToView(undefined);
-              }}
-            />
-          </TextContent>
-          {!isFetching && !!facts.length && <ApplicationFacts facts={facts} />}
-        </Tab>
-        <Tab
-          eventKey={TabKey.Reviews}
-          title={<TabTitleText>{t("terms.reviews")}</TabTitleText>}
-        >
-          <ReviewFields application={application} />
-        </Tab>
-      </Tabs>
+          </Tab>
+          <Tab
+            eventKey={TabKey.Reviews}
+            title={<TabTitleText>{t("terms.reviews")}</TabTitleText>}
+          >
+            <ReviewFields application={application} />
+          </Tab>
+        </Tabs>
+      </div>
     </PageDrawerContent>
   );
 };
