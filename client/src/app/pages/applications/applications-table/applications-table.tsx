@@ -375,7 +375,7 @@ export const ApplicationsTable: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.businessService").toLowerCase(),
           }) + "...",
-        type: FilterType.select,
+        type: FilterType.multiselect,
         selectOptions: dedupeFunction(
           applications
             .filter((app) => !!app.businessService?.name)
@@ -686,6 +686,9 @@ export const ApplicationsTable: React.FC = () => {
       );
     }
   };
+
+  const applicationName = assessmentToDiscard?.name || "Application name";
+
   return (
     <ConditionalRender
       when={isFetchingApplications && !(applications || applicationsFetchError)}
@@ -1150,13 +1153,10 @@ export const ApplicationsTable: React.FC = () => {
             <span>
               <Trans
                 i18nKey="dialog.message.discardAssessment"
-                values={{
-                  applicationName: assessmentToDiscard?.name,
-                }}
+                values={{ applicationName }}
               >
-                The assessment(s) for{" "}
-                <strong>{assessmentToDiscard?.name}</strong> will be discarded.
-                Do you wish to continue?
+                The assessment(s) for <strong>{applicationName}</strong> will be
+                discarded. Do you wish to continue?
               </Trans>
             </span>
           }

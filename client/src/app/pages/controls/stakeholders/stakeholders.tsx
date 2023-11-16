@@ -211,8 +211,8 @@ export const Stakeholders: React.FC = () => {
                 <ToolbarItem>
                   <Button
                     type="button"
-                    id="create-migration-wave"
-                    aria-label="Create new migration wave"
+                    id="create-stakeholder"
+                    aria-label="Create new stakeholder"
                     variant={ButtonVariant.primary}
                     onClick={() => setCreateUpdateModalState("create")}
                   >
@@ -336,7 +336,7 @@ export const Stakeholders: React.FC = () => {
             </ConditionalTableBody>
           </Table>
           <SimplePagination
-            idPrefix="migration-waves-table"
+            idPrefix="stakeholders-table"
             isTop={false}
             paginationProps={paginationProps}
           />

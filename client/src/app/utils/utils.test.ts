@@ -7,6 +7,7 @@ import {
   gitUrlRegex,
   standardURLRegex,
   formatPath,
+  extractFirstSha,
 } from "./utils";
 import { Paths } from "@app/Paths";
 
@@ -157,6 +158,7 @@ describe("utils", () => {
     expect(standardURLRegex.test(url)).toBe(true);
   });
 });
+
 describe("formatPath function", () => {
   it("should replace path parameters with values", () => {
     const path = Paths.applicationsImportsDetails;
@@ -172,5 +174,48 @@ describe("formatPath function", () => {
     const result = formatPath(path, data);
 
     expect(result).toBe("/applications/assessment/:assessmentId");
+  });
+});
+
+describe("SHA extraction", () => {
+  it("empty string is undefined", () => {
+    const first = extractFirstSha("");
+    expect(first).toBeUndefined();
+  });
+
+  it("no SHA is undefined", () => {
+    const first = extractFirstSha(
+      "The quick brown fox jumps over the lazy dog."
+    );
+    expect(first).toBeUndefined();
+  });
+
+  it("a SHA is found", () => {
+    const tests = [
+      "83cd2cd674a217ade95a4bb83a8a14f351f48bd0",
+      "           83cd2cd674a217ade95a4bb83a8a14f351f48bd0            ",
+      "83cd2cd674a217ade95a4bb83a8a14f351f48bd0  The quick brown fox jumps over the lazy dog.",
+      "The quick brown fox jumps over the lazy dog.  83cd2cd674a217ade95a4bb83a8a14f351f48bd0",
+      "The quick brown fox 83cd2cd674a217ade95a4bb83a8a14f351f48bd0 jumps over the lazy dog.",
+    ];
+
+    for (const test of tests) {
+      const first = extractFirstSha(test);
+      expect(first).toBe("83cd2cd674a217ade95a4bb83a8a14f351f48bd0");
+    }
+  });
+
+  it("multiple SHAs are in the string, only the first is returned", () => {
+    const first = extractFirstSha(
+      "83cd2cd674a217ade95a4bb83a8a14f351f48bd0 9c04cd6372077e9b11f70ca111c9807dc7137e4b"
+    );
+    expect(first).toBe("83cd2cd674a217ade95a4bb83a8a14f351f48bd0");
+  });
+
+  it("multiple SHAs are in the string, only the first is returned even if it is shorter", () => {
+    const first = extractFirstSha(
+      "9c04cd6372077e9b11f70ca111c9807dc7137e4b 83cd2cd674a217ade95a4bb83a8a14f351f48bd0 b47cc0f104b62d4c7c30bcd68fd8e67613e287dc4ad8c310ef10cbadea9c4380"
+    );
+    expect(first).toBe("9c04cd6372077e9b11f70ca111c9807dc7137e4b");
   });
 });

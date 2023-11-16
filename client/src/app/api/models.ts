@@ -503,13 +503,10 @@ export interface TrackerProjectIssuetype {
 }
 
 export interface AnalysisDependency {
-  createTime: string;
-  name: string;
   provider: string;
-  version: string;
-  sha: string;
-  applications: number;
+  name: string;
   labels: string[];
+  applications: number;
 }
 
 export interface AnalysisAppDependency {
@@ -519,12 +516,12 @@ export interface AnalysisAppDependency {
   businessService: string;
   dependency: {
     id: number;
+    provider: string;
     name: string;
     version: string;
-    provider: string;
+    sha: string;
     indirect: boolean;
-    //TODO: Glean from labels somehow
-    // management?: string;
+    labels: string[];
   };
 }
 
@@ -622,6 +619,7 @@ export interface Ticket {
   reference?: string | null;
   readonly status?: TicketStatus | null;
   error?: boolean;
+  link?: string;
 }
 
 export type Role = "Owner" | "Contributor" | null;
