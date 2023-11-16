@@ -206,6 +206,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
         <div>
           {isReadonly ? null : !isDeleting && !isFetching && !isMutating ? (
             <Button
+              id="assessment-action-button"
               type="button"
               variant="primary"
               className={determineButtonClassName()}
