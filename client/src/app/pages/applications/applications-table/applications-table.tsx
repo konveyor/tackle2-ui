@@ -375,7 +375,7 @@ export const ApplicationsTable: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.businessService").toLowerCase(),
           }) + "...",
-        type: FilterType.select,
+        type: FilterType.multiselect,
         selectOptions: dedupeFunction(
           applications
             .filter((app) => !!app.businessService?.name)
