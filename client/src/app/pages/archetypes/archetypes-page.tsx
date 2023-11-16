@@ -583,7 +583,7 @@ const Archetypes: React.FC = () => {
         })}
         titleIconVariant={"warning"}
         isOpen={reviewToEdit !== null}
-        message={t("message.overrideArchetypeReviewConfirmation")}
+        message={t("message.editArchetypeReviewConfirmation")}
         confirmBtnVariant={ButtonVariant.primary}
         confirmBtnLabel={t("actions.continue")}
         cancelBtnLabel={t("actions.cancel")}
