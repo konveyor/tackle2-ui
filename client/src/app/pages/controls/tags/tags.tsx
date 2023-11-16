@@ -40,7 +40,7 @@ import { NotificationsContext } from "@app/components/NotificationsContext";
 import { COLOR_NAMES_BY_HEX_VALUE } from "@app/Constants";
 import { TagForm } from "./components/tag-form";
 import { TagCategoryForm } from "./components/tag-category-form";
-import { getTagCategoryFallbackColor } from "@app/pages/applications/components/application-tags/application-tag-label";
+import { getTagCategoryFallbackColor } from "@app/components/labels/item-tag-label/item-tag-label";
 import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { Color } from "@app/components/Color";
 import { ConditionalRender } from "@app/components/ConditionalRender";
