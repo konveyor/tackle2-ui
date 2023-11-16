@@ -81,7 +81,7 @@ export const useSharedAffectedApplicationFilterCategories = <
         t("actions.filterBy", {
           what: t("terms.businessService").toLowerCase(),
         }) + "...",
-      type: FilterType.select,
+      type: FilterType.multiselect,
       selectOptions: businessServices
         .map((businessService) => businessService.name)
         .map((name) => ({ key: name, value: name })),
