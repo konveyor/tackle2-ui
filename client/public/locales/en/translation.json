@@ -96,6 +96,8 @@
     "selectMany": "Select {{what}}",
     "selectOne": "Select a {{what}}",
     "selectAn": "Select an {{what}}",
+    "totalApplications": "{{count}} application",
+    "totalApplications_plural": "{{count}} applications",
     "workPriority": "Work priority (1=low, 10=high)"
   },
   "dialog": {
