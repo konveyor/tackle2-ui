@@ -1,14 +1,16 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   AnalysisAppDependency,
   AnalysisDependency,
   HubPaginatedResult,
   HubRequestParams,
+  WithUiId,
 } from "@app/api/models";
 import { getAppDependencies, getDependencies } from "@app/api/rest";
 
 export interface IDependenciesFetchState {
-  result: HubPaginatedResult<AnalysisDependency>;
+  result: HubPaginatedResult<WithUiId<AnalysisDependency>>;
   isFetching: boolean;
   fetchError: unknown;
   refetch: () => void;
@@ -32,8 +34,28 @@ export const useFetchDependencies = (
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
   });
+
+  const result = useMemo(() => {
+    if (!data) {
+      return { data: [], total: 0, params };
+    }
+
+    const syntheticData: WithUiId<AnalysisDependency>[] = data.data.map(
+      (dep) => ({
+        ...dep,
+        _ui_unique_id: `${dep.name}/${dep.provider}`,
+      })
+    );
+
+    return {
+      data: syntheticData,
+      total: data.total,
+      params: data.params,
+    };
+  }, [data, params]);
+
   return {
-    result: data || { data: [], total: 0, params },
+    result,
     isFetching: isLoading,
     fetchError: error,
     refetch,
