@@ -1,8 +1,6 @@
 import * as React from "react";
-import {
-  IPageDrawerContentProps,
-  PageDrawerContent,
-} from "@app/components/PageDrawerContext";
+import { useTranslation } from "react-i18next";
+
 import {
   TextContent,
   Text,
@@ -12,7 +10,12 @@ import {
   Tab,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
 import { AnalysisDependency } from "@app/api/models";
+import {
+  IPageDrawerContentProps,
+  PageDrawerContent,
+} from "@app/components/PageDrawerContext";
 import { StateNoData } from "@app/components/StateNoData";
 import { DependencyAppsTable } from "./dependency-apps-table";
 
@@ -28,6 +31,8 @@ enum TabKey {
 export const DependencyAppsDetailDrawer: React.FC<
   IDependencyAppsDetailDrawerProps
 > = ({ dependency, onCloseClick }) => {
+  const { t } = useTranslation();
+
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Applications
   );
@@ -39,23 +44,25 @@ export const DependencyAppsDetailDrawer: React.FC<
       focusKey={dependency?.name}
       pageKey="analysis-app-dependencies"
       drawerPanelContentProps={{ defaultSize: "600px" }}
+      header={
+        <TextContent>
+          <Text component="small" className={spacing.mb_0}>
+            Dependency / Language
+          </Text>
+          <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
+            {dependency?.name || ""} /{" "}
+            {dependency?.provider || t("terms.none").toLocaleLowerCase()}
+          </Title>
+        </TextContent>
+      }
     >
       {!dependency ? (
         <StateNoData />
       ) : (
-        <>
-          <TextContent>
-            <Text component="small" className={spacing.mb_0}>
-              Dependencies
-            </Text>
-            <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
-              {dependency?.name || ""}
-            </Title>
-          </TextContent>
+        <div>
           <Tabs
             activeKey={activeTabKey}
             onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
-            className={spacing.mtLg}
           >
             <Tab
               eventKey={TabKey.Applications}
@@ -66,7 +73,7 @@ export const DependencyAppsDetailDrawer: React.FC<
               ) : null}
             </Tab>
           </Tabs>
-        </>
+        </div>
       )}
     </PageDrawerContent>
   );
