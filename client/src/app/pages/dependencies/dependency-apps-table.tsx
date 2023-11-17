@@ -115,6 +115,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
       },
       implicitFilters: [
         { field: "dep.name", operator: "=", value: dependency.name },
+        { field: "dep.provider", operator: "=", value: dependency.provider },
       ],
     })
   );
