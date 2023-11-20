@@ -23,9 +23,10 @@ import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
 
 import { dedupeArrayOfObjects } from "@app/utils/utils";
-import { LabelsFromItems } from "@app/components/labels-from-items/labels-from-items";
+import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 import { ReviewFields } from "@app/pages/applications/components/application-detail-drawer/review-fields";
 import { RiskLabel } from "@app/components/RiskLabel";
+import { LabelsFromTags } from "@app/components/labels/labels-from-tags/labels-from-tags";
 
 export interface IArchetypeDetailDrawerProps {
   onCloseClick: () => void;
@@ -227,7 +228,7 @@ const ApplicationLabels: React.FC<{ applicationRefs?: Ref[] }> = ({
 }) => <LabelsFromItems items={applicationRefs as Ref[]} />;
 
 const TagLabels: React.FC<{ tags?: Tag[] }> = ({ tags }) => (
-  <LabelsFromItems items={tags} />
+  <LabelsFromTags tags={tags} />
 );
 
 const StakeholderLabels: React.FC<{ archetype: Archetype }> = ({

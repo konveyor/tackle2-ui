@@ -28,7 +28,7 @@ import {
 } from "@app/components/FilterToolbar";
 import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { useHistory } from "react-router-dom";
-import { ApplicationTagLabel } from "./application-tag-label";
+import { ItemTagLabel } from "../../../../components/labels/item-tag-label/item-tag-label";
 
 interface TagWithSource extends Tag {
   source?: string;
@@ -237,7 +237,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
                     </TextContent>
                     <Flex>
                       {tagsInThisCategoryInThisSource.map((tag) => (
-                        <ApplicationTagLabel
+                        <ItemTagLabel
                           key={tag.id}
                           tag={tag}
                           category={tagCategoriesById.get(

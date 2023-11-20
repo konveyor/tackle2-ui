@@ -45,7 +45,7 @@ import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 import { ApplicationFacts } from "./application-facts";
 import { ReviewFields } from "./review-fields";
-import { LabelsFromItems } from "@app/components/labels-from-items/labels-from-items";
+import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 import { ReviewedArchetypeItem } from "./reviewed-archetype-item";
 import { RiskLabel } from "@app/components/RiskLabel";
 import { ApplicationDetailFields } from "./application-detail-fields";

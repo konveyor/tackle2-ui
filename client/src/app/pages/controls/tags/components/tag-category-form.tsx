@@ -32,7 +32,7 @@ import {
 import { Color } from "@app/components/Color";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { getTagCategoryFallbackColor } from "@app/pages/applications/components/application-tags/application-tag-label";
+import { getTagCategoryFallbackColor } from "@app/components/labels/item-tag-label/item-tag-label";
 export interface FormValues {
   name: string;
   rank?: number;
