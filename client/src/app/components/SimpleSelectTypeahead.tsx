@@ -204,6 +204,7 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
           onChange={onTextInputChange}
           onKeyDown={onInputKeyDown}
           onBlur={() => {
+            setFilterValue("");
             selectMultiple
               ? setInputValue("")
               : setInputValue(selected.toString());
