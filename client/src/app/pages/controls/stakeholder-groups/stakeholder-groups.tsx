@@ -102,7 +102,7 @@ export const StakeholderGroups: React.FC = () => {
     idProperty: "name",
     items: stakeholderGroups,
     columnNames: {
-      displayName: "Display name",
+      name: "Name",
       description: "Description",
       count: "Member count",
     },
@@ -153,13 +153,13 @@ export const StakeholderGroups: React.FC = () => {
         },
       },
     ],
-    sortableColumns: ["displayName", "description", "count"],
+    sortableColumns: ["name", "description", "count"],
     getSortValues: (item) => ({
-      displayName: item?.name || "",
+      name: item?.name || "",
       description: item?.description || "",
       count: numStr(item?.stakeholders?.length),
     }),
-    initialSort: { columnKey: "displayName", direction: "asc" },
+    initialSort: { columnKey: "name", direction: "asc" },
     isLoading: isFetching,
   });
 
@@ -225,7 +225,7 @@ export const StakeholderGroups: React.FC = () => {
             <Thead>
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
-                  <Th {...getThProps({ columnKey: "displayName" })} />
+                  <Th {...getThProps({ columnKey: "name" })} />
                   <Th {...getThProps({ columnKey: "description" })} />
                   <Th {...getThProps({ columnKey: "count" })} />
                 </TableHeaderContentWithControls>
@@ -264,10 +264,7 @@ export const StakeholderGroups: React.FC = () => {
                         item={stakeholderGroup}
                         rowIndex={rowIndex}
                       >
-                        <Td
-                          width={25}
-                          {...getTdProps({ columnKey: "displayName" })}
-                        >
+                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
                           {stakeholderGroup.name}
                         </Td>
                         <Td
