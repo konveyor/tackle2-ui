@@ -9,13 +9,13 @@ export const getTagCategoryFallbackColor = (category?: TagCategory) => {
   return colorValues[category?.id % colorValues.length];
 };
 
-export interface ApplicationTagLabelProps {
+export interface ItemTagLabelProps {
   tag: Tag;
   category?: TagCategory;
   className?: string;
 }
 
-export const ApplicationTagLabel: React.FC<ApplicationTagLabelProps> = ({
+export const ItemTagLabel: React.FC<ItemTagLabelProps> = ({
   tag,
   category,
   className,
