@@ -1,6 +1,5 @@
 import * as React from "react";
 import {
-  Button,
   Label,
   LabelGroup,
   PageSection,
@@ -30,7 +29,6 @@ import { useFetchDependencies } from "@app/queries/dependencies";
 import { useSelectionState } from "@migtools/lib-ui";
 import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
 import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { getParsedLabel } from "@app/utils/rules-utils";
 
 export const Dependencies: React.FC = () => {
@@ -47,8 +45,6 @@ export const Dependencies: React.FC = () => {
       foundIn: "Found in",
       provider: "Language",
       labels: "Labels",
-      sha: "SHA",
-      version: "Version",
     },
     isFilterEnabled: true,
     isSortEnabled: true,
@@ -101,7 +97,7 @@ export const Dependencies: React.FC = () => {
 
   const tableControls = useTableControlProps({
     ...tableControlState, // Includes filterState, sortState and paginationState
-    idProperty: "name",
+    idProperty: "_ui_unique_id",
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
@@ -123,7 +119,7 @@ export const Dependencies: React.FC = () => {
       getTrProps,
       getTdProps,
     },
-    activeItemDerivedState: { activeItem, clearActiveItem, setActiveItem },
+    activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
   return (
@@ -151,14 +147,18 @@ export const Dependencies: React.FC = () => {
               </ToolbarItem>
             </ToolbarContent>
           </Toolbar>
-          <Table {...tableProps} aria-label="Migration waves table">
+          <Table
+            {...tableProps}
+            id="dependencies-table"
+            aria-label="Dependencies table"
+          >
             <Thead>
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
                   <Th {...getThProps({ columnKey: "name" })} />
-                  <Th {...getThProps({ columnKey: "foundIn" })} />
                   <Th {...getThProps({ columnKey: "provider" })} />
                   <Th {...getThProps({ columnKey: "labels" })} />
+                  <Th {...getThProps({ columnKey: "foundIn" })} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -182,35 +182,27 @@ export const Dependencies: React.FC = () => {
                       <Td width={25} {...getTdProps({ columnKey: "name" })}>
                         {dependency.name}
                       </Td>
-                      <Td width={10} {...getTdProps({ columnKey: "foundIn" })}>
-                        <Button
-                          className={spacing.pl_0}
-                          variant="link"
-                          onClick={(_) => {
-                            if (activeItem && activeItem === dependency) {
-                              clearActiveItem();
-                            } else {
-                              setActiveItem(dependency);
-                            }
-                          }}
-                        >
-                          {`${dependency.applications} application(s)`}
-                        </Button>
-                      </Td>
                       <Td width={10} {...getTdProps({ columnKey: "provider" })}>
                         {dependency.provider}
                       </Td>
                       <Td width={10} {...getTdProps({ columnKey: "labels" })}>
                         <LabelGroup>
-                          {dependency?.labels?.map((label) => {
-                            if (getParsedLabel(label).labelType !== "language")
-                              return (
-                                <Label>
-                                  {getParsedLabel(label).labelValue}
-                                </Label>
-                              );
+                          {dependency?.labels?.map((label, index) => {
+                            const { labelType, labelValue } =
+                              getParsedLabel(label);
+
+                            return labelType !== "language" ? (
+                              <Label key={`${index}-${labelValue}`}>
+                                {labelValue}
+                              </Label>
+                            ) : undefined;
                           })}
                         </LabelGroup>
+                      </Td>
+                      <Td width={10} {...getTdProps({ columnKey: "foundIn" })}>
+                        {t("composed.totalApplications", {
+                          count: dependency.applications,
+                        })}
                       </Td>
                     </TableRowContentWithControls>
                   </Tr>
@@ -227,7 +219,7 @@ export const Dependencies: React.FC = () => {
       </PageSection>
       <DependencyAppsDetailDrawer
         dependency={activeItem || null}
-        onCloseClick={() => setActiveItem(null)}
+        onCloseClick={() => clearActiveItem()}
       />
     </>
   );

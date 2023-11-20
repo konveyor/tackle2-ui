@@ -95,11 +95,11 @@ export const Stakeholders: React.FC = () => {
   };
 
   const tableControls = useLocalTableControls({
-    idProperty: "name",
+    idProperty: "email",
     items: stakeholders,
     columnNames: {
-      name: "Email",
-      displayName: "Display name",
+      email: "Email",
+      name: "Name",
       jobFunction: "Job function",
       groupCount: "Group count",
     },
@@ -162,10 +162,10 @@ export const Stakeholders: React.FC = () => {
         },
       },
     ],
-    sortableColumns: ["name", "displayName", "jobFunction"],
+    sortableColumns: ["email", "name", "jobFunction"],
     getSortValues: (item) => ({
-      name: item?.email || "",
-      displayName: item?.name || "",
+      email: item?.email || "",
+      name: item?.name || "",
       jobFunction: item.jobFunction?.name || "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
@@ -233,8 +233,8 @@ export const Stakeholders: React.FC = () => {
             <Thead>
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
+                  <Th {...getThProps({ columnKey: "email" })} />
                   <Th {...getThProps({ columnKey: "name" })} />
-                  <Th {...getThProps({ columnKey: "displayName" })} />
                   <Th {...getThProps({ columnKey: "jobFunction" })} />
                   <Th {...getThProps({ columnKey: "groupCount" })} />
                 </TableHeaderContentWithControls>
@@ -273,13 +273,10 @@ export const Stakeholders: React.FC = () => {
                         item={stakeholder}
                         rowIndex={rowIndex}
                       >
-                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                        <Td width={25} {...getTdProps({ columnKey: "email" })}>
                           {stakeholder.email}
                         </Td>
-                        <Td
-                          width={10}
-                          {...getTdProps({ columnKey: "displayName" })}
-                        >
+                        <Td width={10} {...getTdProps({ columnKey: "name" })}>
                           {stakeholder.name}
                         </Td>
                         <Td

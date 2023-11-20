@@ -96,6 +96,8 @@
     "selectMany": "Select {{what}}",
     "selectOne": "Select a {{what}}",
     "selectAn": "Select an {{what}}",
+    "totalApplications": "{{count}} application",
+    "totalApplications_plural": "{{count}} applications",
     "workPriority": "Work priority (1=low, 10=high)"
   },
   "dialog": {
@@ -156,7 +158,8 @@
     "small": "Small"
   },
   "message": {
-    "archetypeApplicationCount": "{{count}} applications",
+    "archetypeApplicationCount": "{{count}} application",
+    "archetypeApplicationCount_plural": "{{count}} applications",
     "archetypeNoApplications": "No applications currently match the criteria tags.",
     "appNotAssesedTitle": "Assessment has not been completed",
     "appNotAssessedBody": "In order to review an application it must be assessed first. Assess the application and try again.",
