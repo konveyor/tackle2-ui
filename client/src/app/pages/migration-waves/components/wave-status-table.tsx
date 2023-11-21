@@ -159,7 +159,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                       getTicketByApplication(tickets, app?.id)?.status || ""
                     )}
                   </Td>
-                  <Td width={20} {...getTdProps({ columnKey: "issue" })}>
+                  <Td width={30} {...getTdProps({ columnKey: "issue" })}>
                     <TicketIssue
                       ticket={getTicketByApplication(tickets, app.id)}
                     />

@@ -1,25 +1,40 @@
 import React from "react";
-import { Text } from "@patternfly/react-core";
+import { Button, Text, TextVariants } from "@patternfly/react-core";
 
 import { Ticket } from "@app/api/models";
-import { useTrackerTypesByProjectId } from "@app/queries/trackers";
+import { useTranslation } from "react-i18next";
+import { UnlinkIcon } from "@patternfly/react-icons";
+import { useDeleteTicketMutation } from "@app/queries/migration-waves";
 
 export interface ITicketIssueProps {
   ticket?: Ticket;
 }
 
 export const TicketIssue: React.FC<ITicketIssueProps> = ({ ticket }) => {
-  const useTicketIssue = () => {
-    const types = useTrackerTypesByProjectId(
-      ticket?.tracker?.name,
-      ticket?.parent
-    );
-    const type = types.find((kind) => kind.id === ticket?.kind);
-    if (type) return type.name;
-    return "";
-  };
+  const { t } = useTranslation();
+  const { mutate: deleteTicket } = useDeleteTicketMutation();
 
-  const ticketIssue = useTicketIssue();
-
-  return <Text>{ticketIssue}</Text>;
+  return (
+    <>
+      <Text
+        component={TextVariants.p}
+        className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+      >
+        {ticket ? (
+          <a href={ticket.link} target="_">
+            {ticket?.link}
+          </a>
+        ) : (
+          t("terms.unassigned")
+        )}
+        {ticket?.id && (
+          <Button
+            variant="link"
+            icon={<UnlinkIcon />}
+            onClick={() => deleteTicket(ticket.id)}
+          />
+        )}
+      </Text>
+    </>
+  );
 };
