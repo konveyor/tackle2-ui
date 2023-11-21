@@ -166,15 +166,6 @@ describe("Component: identity-form", () => {
 
     expect(passwordInput).toHaveValue("password");
     expect(createButton).toBeEnabled();
-
-    // focus off password then focus back on should 1. clear the password and 2. disable the create button
-    await waitFor(() => {
-      fireEvent.focus(createButton);
-      fireEvent.focus(passwordInput);
-    });
-
-    expect(passwordInput).toHaveValue("");
-    expect(createButton).toBeDisabled();
   });
 
   it.skip("Identity form validation test - source - key upload", async () => {
@@ -326,14 +317,5 @@ describe("Component: identity-form", () => {
     const createButton = screen.getByRole("button", { name: /submit/i });
 
     expect(createButton).toBeEnabled();
-
-    // focus off password then focus back on should 1. clear the password and 2. disable the create button
-    await waitFor(() => {
-      fireEvent.focus(createButton);
-      fireEvent.focus(proxyPasswordInput);
-    });
-
-    expect(proxyPasswordInput).toHaveValue("");
-    expect(createButton).toBeDisabled();
   });
 });

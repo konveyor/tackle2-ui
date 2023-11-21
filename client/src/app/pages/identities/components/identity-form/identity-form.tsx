@@ -540,7 +540,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                   ) : undefined,
                 }}
                 type={isPasswordHidden ? "password" : "text"}
-                onFocus={() => resetField("password")}
               />
             </>
           )}
@@ -611,7 +610,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                     />
                   ) : undefined,
                 }}
-                onFocus={() => resetField("password")}
               />
             </>
           )}
@@ -701,7 +699,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 />
               ) : undefined,
             }}
-            onFocus={() => resetField("password")}
           />
         </>
       )}
@@ -725,7 +722,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 />
               ) : undefined,
             }}
-            onFocus={() => resetField("key")}
           />
         </>
       )}
