@@ -251,6 +251,7 @@
     "artifact": "Artifact",
     "artifactAssociated": "Associated artifact",
     "artifactNotAssociated": "No associated artifact",
+    "assessedArchetype": "Archetype assessed",
     "assessment": "Assessment",
     "assessmentQuestionnaires": "Assessment questionnaires",
     "assessmentNotes": "Assessment notes",
@@ -368,6 +369,7 @@
     "repositoryType": "Repository type",
     "review": "Review",
     "reviewedArchetype": "Archetype reviewed",
+
     "reviews": "Reviews",
     "reviewComments": "Review comments",
     "risk": "Risk",

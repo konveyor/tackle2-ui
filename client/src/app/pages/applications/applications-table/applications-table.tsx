@@ -841,6 +841,10 @@ export const ApplicationsTable: React.FC = () => {
                   (archetype) => !!archetype?.review
                 );
 
+                const hasAssessedArchetype = applicationArchetypes?.some(
+                  (archetype) => !!archetype?.assessments?.length
+                );
+
                 return (
                   <Tr
                     key={application.name}
@@ -869,7 +873,7 @@ export const ApplicationsTable: React.FC = () => {
                           />
                         )}
                       </Td>
-                      <Td
+                      {/* <Td
                         width={10}
                         modifier="truncate"
                         {...getTdProps({ columnKey: "assessment" })}
@@ -877,6 +881,29 @@ export const ApplicationsTable: React.FC = () => {
                         <ApplicationAssessmentStatus
                           application={application}
                         />
+                      </Td> */}
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "assessment" })}
+                      >
+                        <Grid>
+                          <GridItem span={8}>
+                            <ApplicationAssessmentStatus
+                              application={application}
+                            />
+                          </GridItem>
+                          <GridItem span={1}>
+                            {hasAssessedArchetype && (
+                              <Tooltip
+                                content={t("terms.assessedArchetype")}
+                                aria-label="assessment"
+                              >
+                                <QuestionCircleIcon />
+                              </Tooltip>
+                            )}
+                          </GridItem>
+                        </Grid>
                       </Td>
                       <Td
                         width={10}
@@ -884,7 +911,7 @@ export const ApplicationsTable: React.FC = () => {
                         {...getTdProps({ columnKey: "review" })}
                       >
                         <Grid>
-                          <GridItem span={10}>
+                          <GridItem span={8}>
                             <IconedStatus
                               preset={
                                 isAppReviewed || hasReviewedArchetype
@@ -893,7 +920,7 @@ export const ApplicationsTable: React.FC = () => {
                               }
                             />
                           </GridItem>
-                          <GridItem span={2}>
+                          <GridItem span={1}>
                             {hasReviewedArchetype ? (
                               <Tooltip
                                 content={t("terms.reviewedArchetype")}
