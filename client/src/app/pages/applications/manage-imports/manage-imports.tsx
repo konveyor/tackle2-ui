@@ -4,76 +4,58 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
-  DropdownItem,
   Modal,
   PageSection,
-  Popover,
+  Toolbar,
+  ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  EmptyState,
+  EmptyStateIcon,
+  EmptyStateBody,
+  Title,
+  DropdownItem,
+  Popover,
 } from "@patternfly/react-core";
-import {
-  cellWidth,
-  IAction,
-  ICell,
-  IRow,
-  IRowData,
-  ISeparator,
-  sortable,
-  truncate,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import CubesIcon from "@patternfly/react-icons/dist/js/icons/cubes-icon";
 
-import { IconedStatus } from "@app/components/IconedStatus";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import { Paths } from "@app/Paths";
 import { ApplicationImportSummary } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { FilterType, FilterToolbar } from "@app/components/FilterToolbar";
+import { IconedStatus } from "@app/components/IconedStatus";
+import { KebabDropdown } from "@app/components/KebabDropdown";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  TableHeaderContentWithControls,
+  ConditionalTableBody,
+} from "@app/components/TableControls";
+import {
+  useFetchImportSummaries,
+  useDeleteImportSummaryMutation,
+} from "@app/queries/imports";
 import { formatDate, formatPath } from "@app/utils/utils";
 import { ImportApplicationsForm } from "../components/import-applications-form";
-import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
-import {
-  useDeleteImportSummaryMutation,
-  useFetchImportSummaries,
-} from "@app/queries/imports";
-import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
-import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/components/FilterToolbar/FilterToolbar";
-import { useLegacySortState } from "@app/hooks/useLegacySortState";
-import TooltipTitle from "@app/components/TooltipTitle";
-import { NotificationsContext } from "@app/components/NotificationsContext";
 import { PageHeader } from "@app/components/PageHeader";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { AppTableWithControls } from "@app/components/AppTableWithControls";
-import { KebabDropdown } from "@app/components/KebabDropdown";
-
-const ENTITY_FIELD = "entity";
-
-const getRow = (rowData: IRowData): ApplicationImportSummary => {
-  return rowData[ENTITY_FIELD];
-};
 
 export const ManageImports: React.FC = () => {
-  // i18
   const { t } = useTranslation();
-
-  const [importSummaryToDelete, setImportSummaryToDelete] =
-    React.useState<ApplicationImportSummary>();
-
-  const { pushNotification } = React.useContext(NotificationsContext);
-
-  // Router
   const history = useHistory();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const { importSummaries, isFetching, fetchError, refetch } =
     useFetchImportSummaries();
 
-  // Application import modal
+  const [importSummaryToDelete, setImportSummaryToDelete] =
+    useState<ApplicationImportSummary>();
+
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     useState(false);
-
-  // Delete
 
   const onDeleteImportSummarySuccess = () => {
     pushNotification({
@@ -95,183 +77,62 @@ export const ManageImports: React.FC = () => {
     onDeleteImportSummaryError
   );
 
-  const filterCategories: FilterCategory<
-    ApplicationImportSummary,
-    "filename"
-  >[] = [
-    {
-      key: "filename",
-      title: "File Name",
-      type: FilterType.search,
-      placeholderText: "Filter by filename...",
-      getItemValue: (item) => {
-        return item?.filename || "";
+  const tableControls = useLocalTableControls({
+    idProperty: "id",
+    items: importSummaries,
+    columnNames: {
+      importTime: "Import Time",
+      createUser: "User",
+      filename: "Filename",
+      importStatus: "Status",
+      validCount: "Accepted",
+      invalidCount: "Rejected",
+    },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isExpansionEnabled: false,
+    hasActionsColumn: true,
+    filterCategories: [
+      {
+        key: "filename",
+        title: t("terms.filename"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.filename").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          return item?.filename || "";
+        },
       },
-    },
-  ];
-
-  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
-    importSummaries || [],
-    filterCategories
-  );
-
-  const getSortValues = (item: ApplicationImportSummary) => [
-    item?.importTime,
-    item?.createUser.toLowerCase(),
-    item?.filename?.toLowerCase() || "",
-    item?.importStatus,
-    "", // Action column
-  ];
-
-  const { sortBy, onSort, sortedItems } = useLegacySortState(
-    filteredItems,
-    getSortValues
-  );
-
-  const { currentPageItems, setPageNumber, paginationProps } =
-    useLegacyPaginationState(sortedItems, 10);
-
-  // Table
-  const columns: ICell[] = [
-    {
-      title: t("terms.date"),
-      transforms: [sortable, cellWidth(25)],
-    },
-    {
-      title: t("terms.user"),
-      transforms: [sortable, cellWidth(15)],
-      cellTransforms: [truncate],
-    },
-    {
-      title: t("terms.filename"),
-      transforms: [sortable, cellWidth(30)],
-      cellTransforms: [truncate],
-    },
-    {
-      title: t("terms.status"),
-      transforms: [sortable, cellWidth(10)],
-      cellTransforms: [truncate],
-    },
-    {
-      title: (
-        <TooltipTitle
-          titleText={t("terms.accepted")}
-          tooltipText={t("terms.acceptedAppsAndDeps")}
-        ></TooltipTitle>
-      ),
-      transforms: [cellWidth(10)],
-    },
-    {
-      title: (
-        <TooltipTitle
-          titleText={t("terms.rejected")}
-          tooltipText={t("terms.rejectedAppsAndDeps")}
-        ></TooltipTitle>
-      ),
-      transforms: [cellWidth(10)],
-    },
-  ];
-
-  const rows: IRow[] = [];
-  currentPageItems.forEach((item) => {
-    let status;
-    if (item.importStatus === "Completed") {
-      status = <IconedStatus preset="Completed" />;
-    } else if (item.importStatus === "In Progress") {
-      status = <IconedStatus preset="InProgress" />;
-    } else {
-      status = (
-        <IconedStatus
-          preset="Error"
-          label={
-            <Popover
-              position="right"
-              bodyContent={
-                <div>{t("message.importErrorCheckDocumentation")}</div>
-              }
-              footerContent={
-                <div>
-                  <a
-                    href="https://tackle-docs.konveyor.io/documentation/doc-installing-and-using-tackle/master/index.html#importing-applications_tackle"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {t("actions.checkDocumentation")}
-                  </a>
-                </div>
-              }
-            >
-              <Button variant={ButtonVariant.link} isInline>
-                {t("terms.error")}
-              </Button>
-            </Popover>
-          }
-        />
-      );
-    }
-
-    rows.push({
-      [ENTITY_FIELD]: item,
-      cells: [
-        {
-          title: item.importTime ? formatDate(new Date(item.importTime)) : "",
-        },
-        {
-          title: item.createUser,
-        },
-        {
-          title: item.filename,
-        },
-        {
-          title: status,
-        },
-        {
-          title: item.validCount,
-        },
-        {
-          title: item.invalidCount,
-        },
-      ],
-    });
+    ],
+    sortableColumns: ["importTime", "createUser", "filename", "importStatus"],
+    getSortValues: (item) => ({
+      importTime: item.importTime ? new Date(item.importTime).getTime() : 0, // Assuming importTime is a date, convert it to a timestamp
+      createUser: item.createUser.toLowerCase(),
+      filename: item.filename?.toLowerCase() || "",
+      importStatus: item.importStatus.toLowerCase(),
+    }),
+    initialSort: { columnKey: "importTime", direction: "desc" },
+    isLoading: isFetching,
   });
+  const {
+    currentPageItems,
+    numRenderedColumns,
+    propHelpers: {
+      toolbarProps,
+      filterToolbarProps,
+      paginationToolbarItemProps,
+      paginationProps,
+      tableProps,
+      getThProps,
+      getTrProps,
+      getTdProps,
+    },
+    expansionDerivedState: { isCellExpanded },
+  } = tableControls;
 
-  const actionResolver = (rowData: IRowData): (IAction | ISeparator)[] => {
-    const row: ApplicationImportSummary = getRow(rowData);
-    if (!row) {
-      return [];
-    }
-
-    const actions: (IAction | ISeparator)[] = [];
-    actions.push({
-      title: t("actions.delete"),
-      onClick: (
-        event: React.MouseEvent,
-        rowIndex: number,
-        rowData: IRowData
-      ) => {
-        const row: ApplicationImportSummary = getRow(rowData);
-        deleteRow(row);
-      },
-    });
-
-    if (row.importStatus === "Completed" && row.invalidCount > 0) {
-      actions.push({
-        title: t("actions.viewErrorReport"),
-        onClick: (
-          event: React.MouseEvent,
-          rowIndex: number,
-          rowData: IRowData
-        ) => {
-          const row: ApplicationImportSummary = getRow(rowData);
-          viewRowDetails(row);
-        },
-      });
-    }
-
-    return actions;
-  };
-
-  // Row actions
   const deleteRow = (row: ApplicationImportSummary) => {
     setImportSummaryToDelete(row);
   };
@@ -282,10 +143,6 @@ export const ManageImports: React.FC = () => {
         importId: row.id,
       })
     );
-  };
-
-  const handleOnClearAllFilters = () => {
-    setFilterValues({});
   };
 
   return (
@@ -310,28 +167,14 @@ export const ManageImports: React.FC = () => {
           when={isFetching && !(importSummaries || fetchError)}
           then={<AppPlaceholder />}
         >
-          <AppTableWithControls
-            count={importSummaries ? importSummaries.length : 0}
-            paginationProps={paginationProps}
-            paginationIdPrefix="manage-imports"
-            sortBy={sortBy}
-            onSort={onSort}
-            cells={columns}
-            rows={rows}
-            actionResolver={actionResolver}
-            isLoading={isFetching}
-            loadingVariant="skeleton"
-            fetchError={fetchError}
-            toolbarClearAllFilters={handleOnClearAllFilters}
-            toolbarToggle={
-              <FilterToolbar
-                filterCategories={filterCategories}
-                filterValues={filterValues}
-                setFilterValues={setFilterValues}
-              />
-            }
-            toolbarActions={
-              <>
+          <div
+            style={{
+              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+            }}
+          >
+            <Toolbar {...toolbarProps}>
+              <ToolbarContent>
+                <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
                   <ToolbarItem>
                     <Button
@@ -363,12 +206,163 @@ export const ManageImports: React.FC = () => {
                     />
                   </ToolbarItem>
                 </ToolbarGroup>
-              </>
-            }
-          />
+                <ToolbarItem {...paginationToolbarItemProps}>
+                  <SimplePagination
+                    idPrefix="manage-imports"
+                    isTop
+                    paginationProps={paginationProps}
+                  />
+                </ToolbarItem>
+              </ToolbarContent>
+            </Toolbar>
+            <Table {...tableProps} aria-label="Manage imports table">
+              <Thead>
+                <Tr>
+                  <TableHeaderContentWithControls {...tableControls}>
+                    <Th {...getThProps({ columnKey: "importTime" })} />
+                    <Th {...getThProps({ columnKey: "createUser" })} />
+                    <Th {...getThProps({ columnKey: "filename" })} />
+                    <Th {...getThProps({ columnKey: "importStatus" })} />
+                    <Th {...getThProps({ columnKey: "validCount" })} />
+                    <Th {...getThProps({ columnKey: "invalidCount" })} />
+                  </TableHeaderContentWithControls>
+                </Tr>
+              </Thead>
+              <ConditionalTableBody
+                isLoading={isFetching}
+                isError={!!fetchError}
+                isNoData={currentPageItems.length === 0}
+                noDataEmptyState={
+                  <EmptyState variant="sm">
+                    <EmptyStateIcon icon={CubesIcon} />
+                    <Title headingLevel="h2" size="lg">
+                      {t("composed.noDataStateTitle", {
+                        what: t("terms.importSummary").toLowerCase(),
+                      })}
+                    </Title>
+                    <EmptyStateBody>
+                      {t("composed.noDataStateBody", {
+                        what: t("terms.importSummary").toLowerCase(),
+                      })}
+                    </EmptyStateBody>
+                  </EmptyState>
+                }
+                numRenderedColumns={numRenderedColumns}
+              >
+                {currentPageItems?.map((importSummary, rowIndex) => {
+                  return (
+                    <Tbody
+                      key={importSummary.id}
+                      isExpanded={isCellExpanded(importSummary)}
+                    >
+                      <Tr {...getTrProps({ item: importSummary })}>
+                        <Td
+                          width={25}
+                          {...getTdProps({ columnKey: "importTime" })}
+                        >
+                          {importSummary.importTime
+                            ? formatDate(new Date(importSummary.importTime))
+                            : ""}
+                        </Td>
+                        <Td
+                          width={15}
+                          {...getTdProps({ columnKey: "createUser" })}
+                        >
+                          {importSummary.createUser}
+                        </Td>
+                        <Td
+                          width={30}
+                          {...getTdProps({ columnKey: "filename" })}
+                        >
+                          {importSummary.filename}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "importStatus" })}
+                        >
+                          {importSummary.importStatus === "Completed" ? (
+                            <IconedStatus preset="Completed" />
+                          ) : importSummary.importStatus === "In Progress" ? (
+                            <IconedStatus preset="InProgress" />
+                          ) : (
+                            <IconedStatus
+                              preset="Error"
+                              label={
+                                <Popover
+                                  position="right"
+                                  bodyContent={
+                                    <div>
+                                      {t(
+                                        "message.importErrorCheckDocumentation"
+                                      )}
+                                    </div>
+                                  }
+                                  footerContent={
+                                    <div>
+                                      <a
+                                        href="https://tackle-docs.konveyor.io/documentation/doc-installing-and-using-tackle/master/index.html#importing-applications_tackle"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                      >
+                                        {t("actions.checkDocumentation")}
+                                      </a>
+                                    </div>
+                                  }
+                                >
+                                  <Button variant={ButtonVariant.link} isInline>
+                                    {t("terms.error")}
+                                  </Button>
+                                </Popover>
+                              }
+                            />
+                          )}
+                        </Td>
+                        <Td width={10}>{importSummary.validCount}</Td>
+                        <Td width={10}>
+                          {importSummary.invalidCount > 0 ? (
+                            <span>{importSummary.invalidCount}</span>
+                          ) : (
+                            <span>-</span>
+                          )}
+                        </Td>
+                        <Td width={10}>
+                          <KebabDropdown
+                            dropdownItems={[
+                              <DropdownItem
+                                key="delete-import-summary"
+                                component="button"
+                                onClick={() => deleteRow(importSummary)}
+                              >
+                                {t("actions.delete")}
+                              </DropdownItem>,
+                              importSummary.importStatus === "Completed" &&
+                                importSummary.invalidCount > 0 && (
+                                  <DropdownItem
+                                    key="view-error-report"
+                                    onClick={() =>
+                                      viewRowDetails(importSummary)
+                                    }
+                                  >
+                                    {t("actions.viewErrorReport")}
+                                  </DropdownItem>
+                                ),
+                            ]}
+                          />
+                        </Td>
+                      </Tr>
+                    </Tbody>
+                  );
+                })}
+              </ConditionalTableBody>
+            </Table>
+            <SimplePagination
+              idPrefix="manage-imports"
+              isTop={false}
+              paginationProps={paginationProps}
+            />
+          </div>
         </ConditionalRender>
       </PageSection>
-
       <Modal
         isOpen={isApplicationImportModalOpen}
         variant="medium"

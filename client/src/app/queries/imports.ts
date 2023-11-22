@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   deleteApplicationImportSummary,
@@ -49,7 +49,7 @@ export const useFetchImportSummaryById = (id: number | string) => {
     queryFn: () => getApplicationImportSummaryById(id),
     onError: (error) => console.log(error),
   });
-  
+
   return {
     importSummary: data,
     isFetching: isLoading,
@@ -62,10 +62,12 @@ export const useDeleteImportSummaryMutation = (
   onSuccess: () => void,
   onError: (err: Error | null) => void
 ) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteApplicationImportSummary,
     onSuccess: () => {
       onSuccess && onSuccess();
+      queryClient.invalidateQueries([ImportSummariesQueryKey]);
     },
     onError: (err: Error) => {
       onError && onError(err);
