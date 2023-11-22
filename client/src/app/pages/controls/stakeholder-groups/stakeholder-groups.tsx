@@ -240,12 +240,12 @@ export const StakeholderGroups: React.FC = () => {
                   <EmptyStateIcon icon={CubesIcon} />
                   <Title headingLevel="h2" size="lg">
                     {t("composed.noDataStateTitle", {
-                      what: t("terms.stakeholder").toLowerCase(),
+                      what: t("terms.stakeholderGroup").toLowerCase(),
                     })}
                   </Title>
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
-                      what: t("terms.stakeholder").toLowerCase(),
+                      what: t("terms.stakeholderGroup").toLowerCase(),
                     })}
                   </EmptyStateBody>
                 </EmptyState>
