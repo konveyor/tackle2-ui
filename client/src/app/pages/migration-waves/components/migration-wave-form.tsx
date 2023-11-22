@@ -287,7 +287,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
             fieldId="name"
           />
         </GridItem>
-        <GridItem span={6}>
+        <GridItem span={3}>
           <HookFormPFGroupController
             control={control}
             name="startDateStr"
@@ -311,7 +311,18 @@ export const WaveForm: React.FC<WaveFormProps> = ({
             )}
           />
         </GridItem>
-        <GridItem span={6}>
+        <GridItem
+          span={1}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          to
+        </GridItem>
+
+        <GridItem span={8}>
           <HookFormPFGroupController
             control={control}
             name="endDateStr"
